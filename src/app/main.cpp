@@ -29,7 +29,7 @@
 #define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
 
 static void
-mainRenderingDefaults() {
+mainRenderingDefaults(RenderOptions *renderOptions) {
     renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
     renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
     renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
@@ -47,8 +47,8 @@ mainRenderingDefaults() {
     renderUseFrustumCulling(true);
     renderSetNoShading(false);
 
-    GLOBAL_render_renderOptions.lineWidth = 1.0;
-    GLOBAL_render_renderOptions.renderRayTracedImage = false;
+    renderOptions->lineWidth = 1.0;
+    renderOptions->renderRayTracedImage = false;
 }
 
 /**
@@ -57,7 +57,7 @@ Global initializations
 static void
 mainInitApplication(Scene *scene) {
     fixCubatureRules();
-    mainRenderingDefaults();
+    mainRenderingDefaults(&GLOBAL_render_renderOptions);
     toneMapDefaults();
     radianceDefaults(nullptr, scene);
 

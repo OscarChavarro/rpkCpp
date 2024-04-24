@@ -1023,13 +1023,8 @@ pointed to by 'fp'
 */
 static void
 biDirPathTrace(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    Background *sceneBackground,
     ImageOutputHandle *ip,
-    java::ArrayList<Patch *> * /*scenePatches*/,
-    java::ArrayList<Patch *> * /*lightPatches*/,
-    Geometry * /*clusteredWorldGeometry*/,
+    Scene *scene,
     RadianceMethod *context) {
     // Install the samplers to be used in the state
 
@@ -1038,7 +1033,8 @@ biDirPathTrace(
     // Copy base config (so that rendering is independent of GUI)
     config.baseConfig = new BP_BASECONFIG;
     *(config.baseConfig) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
-    config.baseConfig->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * camera->xSize * camera->ySize;
+    config.baseConfig->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel
+        * scene->camera->xSize * scene->camera->ySize;
 
     config.dBuffer = nullptr;
 
@@ -1075,7 +1071,7 @@ biDirPathTrace(
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
     // config.maxCombinedLength = biDir.baseCfg.maximumPathDepth;
-    config.screen = new ScreenBuffer(nullptr, camera);
+    config.screen = new ScreenBuffer(nullptr, scene->camera);
     config.screen->setFactor(1.0); // We're storing plain radiance
 
     config.eyePath = nullptr;
@@ -1107,21 +1103,21 @@ biDirPathTrace(
     }
 
     if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
-        doBptAndSubsequentImages(camera, sceneWorldVoxelGrid, sceneBackground, &config);
+        doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->background, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
-        doBptDensityEstimation(camera, sceneWorldVoxelGrid, sceneBackground, &config);
+        doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
         screenIterateSequential(
-            camera,
-            sceneWorldVoxelGrid,
-            sceneBackground,
+            scene->camera,
+            scene->voxelGrid,
+            scene->background,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             &config);
     } else {
         screenIterateProgressive(
-            camera,
-            sceneWorldVoxelGrid,
-            sceneBackground,
+            scene->camera,
+            scene->voxelGrid,
+            scene->background,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
             &config);
     }

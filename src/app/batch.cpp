@@ -51,20 +51,19 @@ openGlSaveScreen(
     char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
     ImageOutputHandle *img;
     long j;
-    long x = camera->xSize;
-    long y = camera->ySize;
+    long x = scene->camera->xSize;
+    long y = scene->camera->ySize;
     GLubyte *screen;
     unsigned char *buf;
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( GLOBAL_render_renderOptions.trace ) {
-        rayCast(fileName, fp, isPipe, camera, clusteredWorldGeometry, context);
+        rayCast(fileName, fp, isPipe, scene, context);
         return;
     }
 
@@ -103,7 +102,7 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Camera *, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context),
     Scene *scene,
     RadianceMethod *context)
 {
@@ -111,7 +110,7 @@ batchProcessFile(
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene->camera, scene->patchList, scene->clusteredRootGeometry, context);
+    processFileCallback(fileName, fp, isPipe, scene, context);
 
     closeFile(fp, isPipe);
 }
@@ -121,9 +120,7 @@ batchSaveRadianceImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    java::ArrayList<Patch *> * /*scenePatches*/,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
     clock_t t;
@@ -145,7 +142,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen((char *)fileName, fp, isPipe, camera, clusteredWorldGeometry, context);
+    openGlSaveScreen((char *)fileName, fp, isPipe, scene, context);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
@@ -154,10 +151,9 @@ batchSaveRadianceImage(
 static void
 batchSaveRadianceModel(
     const char *fileName,
-    FILE *fp, int /*isPipe*/,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry,
+    FILE *fp,
+    int /*isPipe*/,
+    Scene *scene,
     RadianceMethod *context)
 {
     clock_t t;
@@ -172,9 +168,9 @@ batchSaveRadianceModel(
     t = clock();
 
     if ( context != nullptr ) {
-        context->writeVRML(camera, fp);
+        context->writeVRML(scene->camera, fp);
     } else {
-        writeVRML(camera, fp, scenePatches);
+        writeVRML(scene->camera, fp, scene->patchList);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -297,12 +293,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod) {
                 nullptr,
                 nullptr,
                 false,
-                scene->camera,
-                scene->background,
-                scene->voxelGrid,
-                scene->patchList,
-                scene->lightSourcePatchList,
-                scene->clusteredRootGeometry,
+                scene,
                 radianceMethod);
 
             if ( globalTimings ) {

@@ -16,13 +16,8 @@ rayTrace(
     char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
     Raytracer *activeRayTracer,
-    Background *sceneBackground,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
     ImageOutputHandle *img = nullptr;
@@ -32,8 +27,8 @@ rayTrace(
             fileName,
             fp,
             isPipe,
-            camera->xSize,
-            camera->ySize,
+            scene->camera->xSize,
+            scene->camera->ySize,
             (float) (GLOBAL_statistics.referenceLuminance / 179.0));
         if ( img == nullptr ) {
             return;
@@ -41,7 +36,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(camera, sceneWorldVoxelGrid, sceneBackground, img, scenePatches, lightPatches, clusteredWorldGeometry, context);
+        activeRayTracer->Raytrace(img, scene, context);
     }
 
     if ( img ) {

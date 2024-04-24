@@ -169,27 +169,9 @@ extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
-
-extern void
-monteCarloRadiosityUpdateViewImportance(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry);
-
-extern void
-monteCarloRadiosityReInit(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry);
-
-extern void
-monteCarloRadiosityPreStep(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry);
-
+extern void monteCarloRadiosityUpdateViewImportance(Scene *scene);
+extern void monteCarloRadiosityReInit(Scene *scene);
+extern void monteCarloRadiosityPreStep(Scene *scene);
 extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches);
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);

@@ -1,6 +1,7 @@
 #ifndef __GALERKIN_RADIOSITY_METHOD__
 #define __GALERKIN_RADIOSITY_METHOD__
 
+#include "common/RenderOptions.h"
 #include "common/numericalAnalysis/CubatureRule.h"
 #include "scene/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
@@ -34,7 +35,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     }
 
     static void renderElementHierarchy(GalerkinElement *element, Camera *camera);
-    static void galerkinRenderPatch(Patch *patch, Camera *camera);
+    static void galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions);
 
   public:
     static GalerkinState galerkinState;

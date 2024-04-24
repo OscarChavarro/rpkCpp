@@ -11,24 +11,7 @@ gatheringPushPullPotential(
     GalerkinElement *element,
     float down);
 
-extern int
-galerkinRadiosityDoGatheringIteration(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState);
-
-extern int
-doClusteredGatheringIteration(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState);
+extern int galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState);
+extern int doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState);
 
 #endif

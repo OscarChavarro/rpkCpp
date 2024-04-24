@@ -118,19 +118,14 @@ RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
 iRayMatte(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
-    java::ArrayList<Patch *> * /*scenePatches*/,
-    java::ArrayList<Patch *> * /*lightPatches*/,
-    Geometry * /*clusteredWorldGeometry*/,
+    Scene *scene,
     RadianceMethod *context) {
     if ( rm != nullptr ) {
         delete rm;
     }
-    rm = new RayMatter(nullptr, camera);
-    rm->Matting(camera, sceneWorldVoxelGrid);
+    rm = new RayMatter(nullptr, scene->camera);
+    rm->Matting(scene->camera, scene->voxelGrid);
     if ( ip && rm != nullptr ) {
         rm->save(ip);
     }

@@ -567,16 +567,11 @@ pointed to by 'fp'
 */
 void
 rtStochasticTrace(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    Background *sceneBackground,
     ImageOutputHandle *ip,
-    java::ArrayList<Patch *> * /*scenePatches*/,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry * /*clusteredWorldGeometry*/,
+    Scene *scene,
     RadianceMethod *context)
 {
-    StochasticRaytracingConfiguration config(camera, GLOBAL_raytracing_state, lightPatches, context); // config filled in by constructor
+    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, context); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {
@@ -585,16 +580,16 @@ rtStochasticTrace(
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
         screenIterateSequential(
-            camera,
-            sceneWorldVoxelGrid,
-            sceneBackground,
+            scene->camera,
+            scene->voxelGrid,
+            scene->background,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *)) calcPixel,
             &config);
     } else {
         screenIterateProgressive(
-            camera,
-            sceneWorldVoxelGrid,
-            sceneBackground,
+            scene->camera,
+            scene->voxelGrid,
+            scene->background,
             (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
             &config);
     }

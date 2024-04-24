@@ -267,7 +267,7 @@ GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, Camera 
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera *camera) {
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
     renderElementHierarchy(galerkinGetElement(patch), camera);
 }
 
@@ -395,34 +395,13 @@ GalerkinRadianceMethod::doStep(Scene *scene) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(
-                    scene->camera,
-                    scene->voxelGrid,
-                    scene->patchList,
-                    scene->geometryList,
-                    scene->clusteredGeometryList,
-                    scene->clusteredRootGeometry,
-                    &galerkinState);
+                done = doClusteredGatheringIteration(scene, &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(
-                    scene->camera,
-                    scene->voxelGrid,
-                    scene->patchList,
-                    scene->geometryList,
-                    scene->clusteredGeometryList,
-                    scene->clusteredRootGeometry,
-                    &galerkinState);
+                done = galerkinRadiosityDoGatheringIteration(scene, &galerkinState);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(
-                scene->camera,
-                scene->voxelGrid,
-                scene->patchList,
-                scene->geometryList,
-                scene->clusteredGeometryList,
-                scene->clusteredRootGeometry,
-                &galerkinState);
+            done = doShootingStep(scene, &galerkinState);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
@@ -533,11 +512,11 @@ GalerkinRadianceMethod::getStats() {
 void
 GalerkinRadianceMethod::renderScene(Scene *scene) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(scene->camera, galerkinRenderPatch, scene->clusteredRootGeometry);
+        openGlRenderWorldOctree(scene, galerkinRenderPatch, &GLOBAL_render_renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
-                galerkinRenderPatch(scene->patchList->get(i), scene->camera);
+                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
             }
         }
     }

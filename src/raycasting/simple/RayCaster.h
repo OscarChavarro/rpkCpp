@@ -28,12 +28,7 @@ class RayCaster {
   public:
     explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);
     virtual ~RayCaster();
-    void
-    render(
-        Camera *camera,
-        java::ArrayList<Patch *> *scenePatches,
-        Geometry *clusteredWorldGeometry,
-        RadianceMethod *context);
+    void render(Scene *scene, RadianceMethod *context);
     void display();
     void save(ImageOutputHandle *ip);
 };
@@ -47,8 +42,7 @@ rayCast(
     char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context);
 
 #endif

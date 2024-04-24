@@ -42,26 +42,18 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
 what if you turn clustering on or off during the calculations?
 */
 int
-doClusteredGatheringIteration(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch*> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState)
-{
+doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
-            updateDirectPotential(camera, scenePatches, clusteredWorldGeometry);
-            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                Patch *patch = scenePatches->get(i);
+        if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
+            updateDirectPotential(scene);
+            for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+                Patch *patch = scene->patchList->get(i);
                 GalerkinElement *top = (GalerkinElement *)patch->radianceData;
                 float potentialIncrement = patch->directPotential - top->directPotential;
                 gatheringUpdateDirectPotential(top, potentialIncrement);
             }
             gatheringClusterUpdatePotential(galerkinState->topCluster);
-            camera->changed = false;
+            scene->camera->changed = false;
         }
     }
 
@@ -77,13 +69,13 @@ doClusteredGatheringIteration(
 
     // Refines and computes light transport over the refined links
     refineInteractions(
-        camera,
-        sceneWorldVoxelGrid,
+        scene->camera,
+        scene->voxelGrid,
         galerkinState->topCluster,
         galerkinState,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        clusteredWorldGeometry);
+        scene->geometryList,
+        scene->clusteredGeometryList,
+        scene->clusteredRootGeometry);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 
@@ -101,8 +93,8 @@ doClusteredGatheringIteration(
     galerkinState->ambientRadiance.clear();
 
     // Update the display colors of the patches
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        GalerkinRadianceMethod::recomputePatchColor(scenePatches->get(i));
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        GalerkinRadianceMethod::recomputePatchColor(scene->patchList->get(i));
     }
 
     return false; // Never done

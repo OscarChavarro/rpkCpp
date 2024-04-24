@@ -6,14 +6,6 @@
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
-extern int
-doShootingStep(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState);
+extern int doShootingStep(Scene *scene, GalerkinState *galerkinState);
 
 #endif

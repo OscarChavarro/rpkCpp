@@ -101,17 +101,12 @@ RayCaster::getRadianceAtPixel(
 }
 
 void
-RayCaster::render(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry,
-    RadianceMethod *context)
-{
+RayCaster::render(Scene *scene, RadianceMethod *context) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
 
-    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(camera, scenePatches, clusteredWorldGeometry);
+    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scene);
 
     long width;
     long height;
@@ -125,7 +120,7 @@ RayCaster::render(
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb rad = getRadianceAtPixel(camera, x, y, patch, context);
+                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, context);
                 screenBuffer->add(x, y, rad);
             }
         }
@@ -200,19 +195,14 @@ rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 
 static void
 rayCasterExecute(
-    Camera * camera,
-    VoxelGrid * /*sceneWorldVoxelGrid*/,
-    Background * /*sceneBackground*/,
     ImageOutputHandle *ip,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> * /*lightPatches*/,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context) {
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
-    globalRayCaster = new RayCaster(nullptr, camera);
-    globalRayCaster->render(camera, scenePatches, clusteredWorldGeometry, context);
+    globalRayCaster = new RayCaster(nullptr, scene->camera);
+    globalRayCaster->render(scene, context);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -229,8 +219,7 @@ rayCast(
     char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context) {
     ImageOutputHandle *img = nullptr;
 
@@ -239,8 +228,8 @@ rayCast(
             fileName,
             fp,
             isPipe,
-            camera->xSize,
-            camera->ySize,
+            scene->camera->xSize,
+            scene->camera->ySize,
             (float)GLOBAL_statistics.referenceLuminance / 179.0f);
 
         if ( img == nullptr ) {
@@ -248,8 +237,8 @@ rayCast(
         }
     }
 
-    RayCaster *rc = new RayCaster(nullptr, camera);
-    rc->render(camera, nullptr, clusteredWorldGeometry, context);
+    RayCaster *rc = new RayCaster(nullptr, scene->camera);
+    rc->render(scene, context);
     if ( img != nullptr ) {
         rc->save(img);
     }

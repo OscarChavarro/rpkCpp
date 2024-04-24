@@ -317,17 +317,10 @@ monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+monteCarloRadiosityUpdateViewImportance(Scene *scene) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(
-        camera,
-        scenePatches,
-        clusteredWorldGeometry);
+    updateDirectVisibility(scene);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
@@ -348,7 +341,7 @@ monteCarloRadiosityUpdateViewImportance(
         monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     }
 
-    camera->changed = false; // Indicate that direct importance has been computed for this view already
+    scene->camera->changed = false; // Indicate that direct importance has been computed for this view already
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0; // Start over
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = true;
 }
@@ -416,12 +409,7 @@ monteCarloRadiosityDetermineInitialNrRays(
 Really initialises: before the first iteration step
 */
 void
-monteCarloRadiosityReInit(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry)
-{
+monteCarloRadiosityReInit(Scene *scene) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
@@ -445,8 +433,8 @@ monteCarloRadiosityReInit(
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
@@ -467,28 +455,23 @@ monteCarloRadiosityReInit(
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
-    monteCarloRadiosityDetermineInitialNrRays(scenePatches, sceneGeometries);
+    monteCarloRadiosityDetermineInitialNrRays(scene->patchList, scene->geometryList);
 
-    elementHierarchyInit(clusteredWorldGeometry);
+    elementHierarchyInit(scene->clusteredRootGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance(camera, scenePatches, clusteredWorldGeometry);
+        monteCarloRadiosityUpdateViewImportance(scene);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
 void
-monteCarloRadiosityPreStep(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    Geometry *clusteredWorldGeometry)
-{
+monteCarloRadiosityPreStep(Scene *scene) {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(camera, scenePatches, sceneGeometries, clusteredWorldGeometry);
+        monteCarloRadiosityReInit(scene);
     }
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && camera->changed ) {
-        monteCarloRadiosityUpdateViewImportance(camera, scenePatches, clusteredWorldGeometry);
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && scene->camera->changed ) {
+        monteCarloRadiosityUpdateViewImportance(scene);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();

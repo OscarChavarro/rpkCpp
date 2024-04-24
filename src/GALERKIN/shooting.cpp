@@ -350,45 +350,37 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
 One step of the progressive refinement radiosity algorithm
 */
 static int
-reallyDoShootingStep(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState)
-{
+reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
-            updateDirectPotential(camera, scenePatches, clusteredWorldGeometry);
-            for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                Patch *patch = scenePatches->get(i);
+        if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
+            updateDirectPotential(scene);
+            for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+                Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);
                 float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
-            camera->changed = false;
+            scene->camera->changed = false;
             if ( galerkinState->clustered ) {
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
         propagatePotential(
-            camera,
-            sceneWorldVoxelGrid,
-            scenePatches,
-            sceneGeometries,
-            sceneClusteredGeometries,
-            clusteredWorldGeometry,
+            scene->camera,
+            scene->voxelGrid,
+            scene->patchList,
+            scene->geometryList,
+            scene->clusteredGeometryList,
+            scene->clusteredRootGeometry,
             galerkinState);
     }
     return propagateRadiance(
-        camera,
-        sceneWorldVoxelGrid,
-        scenePatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        clusteredWorldGeometry,
+        scene->camera,
+        scene->voxelGrid,
+        scene->patchList,
+        scene->geometryList,
+        scene->clusteredGeometryList,
+        scene->clusteredRootGeometry,
         galerkinState);
 }
 
@@ -396,21 +388,6 @@ reallyDoShootingStep(
 Returns true when converged and false if not
 */
 int
-doShootingStep(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState)
-{
-    return reallyDoShootingStep(
-        camera,
-        sceneWorldVoxelGrid,
-        scenePatches,
-        sceneGeometries,
-        sceneClusteredGeometries,
-        clusteredWorldGeometry,
-        galerkinState);
+doShootingStep(Scene *scene, GalerkinState *galerkinState) {
+    return reallyDoShootingStep(scene, galerkinState);
 }

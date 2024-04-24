@@ -116,9 +116,7 @@ batchSaveRaytracingImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    java::ArrayList<Patch *> * /*scenePatches*/,
-    Geometry * /*clusteredWorldGeometry*/,
+    Scene *scene,
     RadianceMethod * /*context*/) {
     clock_t t;
 
@@ -132,8 +130,8 @@ batchSaveRaytracingImage(
         (char *) fileName,
         fp,
         isPipe,
-        camera->xSize,
-        camera->ySize,
+        scene->camera->xSize,
+        scene->camera->ySize,
         (float)GLOBAL_statistics.referenceLuminance / 179.0f);
     if ( !img ) {
         return;
@@ -155,29 +153,19 @@ batchRayTrace(
     char *filename,
     FILE *fp,
     int isPipe,
-    Camera *camera,
-    Background *sceneBackground,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Patch *> *lightPatches,
-    Geometry *clusteredWorldGeometry,
+    Scene *scene,
     RadianceMethod *context)
 {
     GLOBAL_render_renderOptions.renderRayTracedImage = true;
-    camera->changed = false;
+    scene->camera->changed = false;
 
     canvasPushMode();
     rayTrace(
         filename,
         fp,
         isPipe,
-        camera,
         GLOBAL_raytracer_activeRaytracer,
-        sceneBackground,
-        sceneWorldVoxelGrid,
-        scenePatches,
-        lightPatches,
-        clusteredWorldGeometry,
+        scene,
         context);
     canvasPullMode();
 }

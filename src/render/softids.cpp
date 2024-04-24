@@ -34,7 +34,7 @@ setupSoftFrameBuffer(Camera *camera) {
 }
 
 static void
-softRenderPatch(Patch *patch, Camera *camera) {
+softRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     if ( GLOBAL_render_renderOptions.backfaceCulling &&
@@ -58,19 +58,15 @@ Renders all scenePatches in the current sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        char use_display_lists = GLOBAL_render_renderOptions.useDisplayLists;
-        GLOBAL_render_renderOptions.useDisplayLists = false;  // Temporarily switch it off
-        openGlRenderWorldOctree(camera, softRenderPatch, clusteredWorldGeometry);
-        GLOBAL_render_renderOptions.useDisplayLists = use_display_lists;
+softRenderPatches(Scene *scene, RenderOptions *renderOptions) {
+    if ( renderOptions->frustumCulling ) {
+        char use_display_lists = renderOptions->useDisplayLists;
+        renderOptions->useDisplayLists = false;  // Temporarily switch it off
+        openGlRenderWorldOctree(scene, softRenderPatch, renderOptions);
+        renderOptions->useDisplayLists = use_display_lists;
     } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            softRenderPatch(scenePatches->get(i), camera);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
 }
@@ -79,13 +75,7 @@ softRenderPatches(
 Software ID rendering
 */
 unsigned long *
-softRenderIds(
-    long *x,
-    long *y,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+softRenderIds(long *x, long *y, Scene *scene) {
     SGL_CONTEXT *currentSglContext;
     SGL_CONTEXT *oldSglContext;
     unsigned long *ids;
@@ -95,8 +85,8 @@ softRenderIds(
     }
 
     oldSglContext = GLOBAL_sgl_currentContext;
-    currentSglContext = setupSoftFrameBuffer(camera);
-    softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
+    currentSglContext = setupSoftFrameBuffer(scene->camera);
+    softRenderPatches(scene, &GLOBAL_render_renderOptions);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;

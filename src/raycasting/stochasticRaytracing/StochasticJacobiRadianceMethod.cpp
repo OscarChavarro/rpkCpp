@@ -461,29 +461,32 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static void
-stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera) {
+stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
     } else {
         // Not yet initialized
-        openGlRenderPatch(patch, camera);
+        openGlRenderPatch(patch, camera, &GLOBAL_render_renderOptions);
     }
 }
 
 void
 StochasticJacobiRadianceMethod::renderScene(Scene *scene) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(scene->camera, stochasticRelaxationRadiosityRenderPatch, scene->clusteredRootGeometry);
+        openGlRenderWorldOctree(
+            scene,
+            stochasticRelaxationRadiosityRenderPatch,
+            &GLOBAL_render_renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera);
+            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
         }
     }
 }
 
 int
 StochasticJacobiRadianceMethod::doStep(Scene *scene) {
-    monteCarloRadiosityPreStep(scene->camera, scene->patchList, scene->geometryList, scene->clusteredRootGeometry);
+    monteCarloRadiosityPreStep(scene);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

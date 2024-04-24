@@ -21,11 +21,7 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+updateDirectPotential(Scene *scene) {
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;
@@ -45,7 +41,7 @@ updateDirectPotential(
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, camera, scenePatches, clusteredWorldGeometry);
+    ids = sglRenderIds(&x, &y, scene);
 
     canvasPullMode();
 
@@ -60,8 +56,8 @@ updateDirectPotential(
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = nullptr;
     }
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        Patch *patch = scene->patchList->get(i);
         id2patch[patch->id] = patch;
     }
 
@@ -73,8 +69,8 @@ updateDirectPotential(
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    h = 2.0f * (float)std::tan(camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    v = 2.0f * (float)std::tan(camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
+    h = 2.0f * (float)std::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
+    v = 2.0f * (float)std::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
@@ -86,13 +82,13 @@ updateDirectPotential(
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                vectorComb3(camera->Z, (float)xSample, camera->X, ySample,
-                            camera->Y, pixDir);
+                vectorComb3(scene->camera->Z, (float)xSample, scene->camera->X, ySample,
+                            scene->camera->Y, pixDir);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                deltaImportance = vectorDotProduct(camera->Z, pixDir) /
+                deltaImportance = vectorDotProduct(scene->camera->Z, pixDir) /
                                   vectorDotProduct(pixDir, pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
 
@@ -149,34 +145,26 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-softUpdateDirectVisibility(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+softUpdateDirectVisibility(Scene *scene) {
     clock_t t = clock();
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
-    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(camera);
+    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
 
-    softRenderPatches(camera, scenePatches, clusteredWorldGeometry);
-    softGetPatchPointers(currentSglContext, scenePatches);
+    softRenderPatches(scene, &GLOBAL_render_renderOptions);
+    softGetPatchPointers(currentSglContext, scene->patchList);
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);
 
     fprintf(stderr, "Determining visible patches in software took %g sec\n",
-            (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+        (float) (clock() - t) / (float) CLOCKS_PER_SEC);
 }
 
 /**
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility(
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+updateDirectVisibility(Scene *scene) {
     canvasPushMode();
-    softUpdateDirectVisibility(camera, scenePatches, clusteredWorldGeometry);
+    softUpdateDirectVisibility(scene);
     canvasPullMode();
 }

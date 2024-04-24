@@ -235,19 +235,19 @@ openGlRenderPatchOutline(Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatch(Patch *patch, Camera *camera) {
-    if ( !GLOBAL_render_renderOptions.noShading ) {
-        if ( GLOBAL_render_renderOptions.smoothShading ) {
+openGlRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
+    if ( !renderOptions->noShading ) {
+        if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
         } else {
             openGlRenderPatchFlat(patch);
         }
     }
 
-    if ( GLOBAL_render_renderOptions.drawOutlines &&
+    if ( renderOptions->drawOutlines &&
          (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON
-          || GLOBAL_render_renderOptions.useDisplayLists) ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+          || renderOptions->useDisplayLists) ) {
+        openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderPatchOutline(patch);
     }
 }
@@ -256,11 +256,12 @@ static void
 openGlReallyRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatch)(Patch *, Camera *))
+    void (*renderPatch)(Patch *, Camera *, RenderOptions *),
+    RenderOptions *renderOptions)
 {
     java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        renderPatch(patchList->get(i), camera);
+        renderPatch(patchList->get(i), camera, renderOptions);
     }
 }
 
@@ -268,19 +269,20 @@ static void
 openGlRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, Camera *))
+    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *),
+    RenderOptions *renderOptions)
 {
-    if ( GLOBAL_render_renderOptions.useDisplayLists ) {
+    if ( renderOptions->useDisplayLists ) {
         if ( geometry->displayListId <= 0 ) {
             geometry->displayListId = geometry->id;
             glNewList(geometry->displayListId, GL_COMPILE_AND_EXECUTE);
-            openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback);
+            openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
             glEndList();
         } else {
             glCallList(geometry->displayListId);
         }
     } else {
-        openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback);
+        openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
     }
 }
 
@@ -319,7 +321,8 @@ static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*render_patch)(Patch *, Camera *))
+    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *renderOptions),
+    RenderOptions *renderOptions)
 {
     int i;
     int n;
@@ -339,7 +342,7 @@ openGlRenderOctreeNonLeaf(
             octree_children[i++].geometry = child;
         } else {
             // Render the patches associated with the octree node right away
-            openGlRenderOctreeLeaf(camera, child, render_patch);
+            openGlRenderOctreeLeaf(camera, child, renderPatchCallback, renderOptions);
         }
     }
     n = i; // Number of compound children
@@ -372,7 +375,7 @@ openGlRenderOctreeNonLeaf(
         }
 
         // render it
-        openGlRenderOctreeNonLeaf(camera, octree_children[closest].geometry, render_patch);
+        openGlRenderOctreeNonLeaf(camera, octree_children[closest].geometry, renderPatchCallback, renderOptions);
 
         // remove it from the list
         octree_children[closest].geometry = nullptr;
@@ -390,20 +393,20 @@ renderPatchCallback is called
 */
 void
 openGlRenderWorldOctree(
-    Camera *camera,
-    void (*renderPatchCallback)(Patch *, Camera *),
-    Geometry *clusteredWorldGeometry)
+    Scene *scene,
+    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *),
+    RenderOptions *renderOptions)
 {
-    if ( clusteredWorldGeometry == nullptr ) {
+    if ( scene->clusteredRootGeometry == nullptr ) {
         return;
     }
     if ( renderPatchCallback == nullptr ) {
         renderPatchCallback = openGlRenderPatch;
     }
-    if ( clusteredWorldGeometry->isCompound() ) {
-        openGlRenderOctreeNonLeaf(camera, clusteredWorldGeometry, renderPatchCallback);
+    if ( scene->clusteredRootGeometry->isCompound() ) {
+        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     } else {
-        openGlRenderOctreeLeaf(camera, clusteredWorldGeometry, renderPatchCallback);
+        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     }
 }
 
@@ -454,10 +457,10 @@ openGlReallyRender(Scene *scene, RadianceMethod *context) {
     if ( context != nullptr ) {
         context->renderScene(scene);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(scene->camera, openGlRenderPatch, scene->clusteredRootGeometry);
+        openGlRenderWorldOctree(scene, openGlRenderPatch, &GLOBAL_render_renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatch(scene->patchList->get(i), scene->camera);
+            openGlRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
         }
     }
     glPopMatrix();
@@ -595,10 +598,6 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-sglRenderIds(
-    long *x,
-    long *y,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
-    return softRenderIds(x, y, camera, scenePatches, clusteredWorldGeometry);
+sglRenderIds(long *x, long *y, Scene *scene) {
+    return softRenderIds(x, y, scene);
 }

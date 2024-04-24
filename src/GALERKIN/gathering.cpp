@@ -145,27 +145,24 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-galerkinRadiosityDoGatheringIteration(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry,
-    GalerkinState *galerkinState)
-{
+galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || camera->changed ) {
-            updateDirectPotential(camera, scenePatches, clusteredWorldGeometry);
-            camera->changed = false;
+        if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
+            updateDirectPotential(scene);
+            scene->camera->changed = false;
         }
     }
 
     // Not importance-driven Jacobi iterations with lazy linking
     if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
          !galerkinState->importanceDriven ) {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchLazyCreateInteractions(sceneWorldVoxelGrid, scenePatches->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            patchLazyCreateInteractions(
+                scene->voxelGrid,
+                scene->patchList->get(i),
+                galerkinState,
+                scene->geometryList,
+                scene->clusteredGeometryList);
         }
     }
 
@@ -173,29 +170,29 @@ galerkinRadiosityDoGatheringIteration(
     galerkinState->ambientRadiance.clear();
 
     // One iteration = gather to all patches
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         patchGather(
-            camera,
-            sceneWorldVoxelGrid,
-            scenePatches->get(i),
+            scene->camera,
+            scene->voxelGrid,
+            scene->patchList->get(i),
             galerkinState,
-            sceneGeometries,
-            sceneClusteredGeometries,
-            clusteredWorldGeometry);
+            scene->geometryList,
+            scene->clusteredGeometryList,
+            scene->clusteredRootGeometry);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately
     // update with Gauss-Seidel so the new radiosity are already used for the
     // still-to-be-processed patches in the same iteration
     if ( galerkinState->galerkinIterationMethod == JACOBI ) {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchUpdateRadiance(scenePatches->get(i), galerkinState);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            patchUpdateRadiance(scene->patchList->get(i), galerkinState);
         }
     }
 
     if ( galerkinState->importanceDriven ) {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            patchUpdatePotential(scenePatches->get(i));
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            patchUpdatePotential(scene->patchList->get(i));
         }
     }
 

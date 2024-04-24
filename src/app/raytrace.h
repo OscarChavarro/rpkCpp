@@ -5,25 +5,21 @@
 
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
+#include "scene/Scene.h"
 #include "raycasting/common/Raytracer.h"
 
 #ifdef RAYTRACING_ENABLED
     extern void mainRayTracingDefaults();
     extern void rayTracingParseOptions(int *argc, char **argv);
     extern void mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
-    extern void batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, Camera *, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry, RadianceMethod *context);
+    extern void batchSaveRaytracingImage(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context);
 
     extern void
     batchRayTrace(
         char *filename,
         FILE *fp,
         int isPipe,
-        Camera *camera,
-        Background *sceneBackground,
-        VoxelGrid *sceneWorldVoxelGrid,
-        java::ArrayList<Patch *> *scenePatches,
-        java::ArrayList<Patch *> *lightPatches,
-        Geometry *clusteredWorldGeometry,
+        Scene *scene,
         RadianceMethod *context);
 
 #endif

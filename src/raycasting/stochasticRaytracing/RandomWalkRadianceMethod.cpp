@@ -446,7 +446,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 int
 RandomWalkRadianceMethod::doStep(Scene *scene) {
-    monteCarloRadiosityPreStep(scene->camera, scene->patchList, scene->geometryList, scene->clusteredRootGeometry);
+    monteCarloRadiosityPreStep(scene);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
