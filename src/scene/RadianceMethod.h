@@ -63,7 +63,7 @@ class RadianceMethod {
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will
     // be used
-    virtual void writeVRML(Camera *camera, FILE *fp) = 0;
+    virtual void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) = 0;
 };
 
 #endif

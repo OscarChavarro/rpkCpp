@@ -120,7 +120,7 @@ writeVRMLViewPoints(Camera *camera, FILE *fp, Matrix4x4 model_xf) {
 Can also be used by radiance-method specific VRML savers.
 */
 void
-writeVrmlHeader(Camera *camera, FILE *fp) {
+writeVrmlHeader(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
     Matrix4x4 modelTransform{};
     Vector3D modelRotationAxis;
     float modelRotationAngle;
@@ -276,8 +276,8 @@ Default method for saving VRML models (if the current radiance method
 doesn't have its own one
 */
 void
-writeVRML(Camera *camera, FILE *fp, java::ArrayList<Patch *> *scenePatches) {
-    writeVrmlHeader(camera, fp);
+writeVRML(Camera *camera, FILE *fp, java::ArrayList<Patch *> *scenePatches, RenderOptions *renderOptions) {
+    writeVrmlHeader(camera, fp, renderOptions);
 
     writeVRMLCoords(fp, scenePatches);
     writeVRMLColors(fp, scenePatches);

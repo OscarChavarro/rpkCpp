@@ -46,7 +46,7 @@ RandomWalkRadianceMethod::renderScene(Scene * /*scene*/) {
 }
 
 void
-RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp) {
+RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
 }
 
 void

@@ -172,7 +172,7 @@ batchSaveRadianceModel(
     t = clock();
 
     if ( context != nullptr ) {
-        context->writeVRML(scene->camera, fp);
+        context->writeVRML(scene->camera, fp, renderOptions);
     } else {
         writeVRML(scene->camera, fp, scene->patchList);
     }

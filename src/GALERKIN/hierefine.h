@@ -10,6 +10,7 @@ extern void
 refineInteractions(
     Scene *scene,
     GalerkinElement *parentElement,
-    GalerkinState *state);
+    GalerkinState *state,
+    RenderOptions *renderOptions);
 
 #endif

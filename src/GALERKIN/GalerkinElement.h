@@ -6,6 +6,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #define __GALERKIN_ELEMENT__
 
 #include "java/util/ArrayList.h"
+#include "common/RenderOptions.h"
 #include "scene/Polygon.h"
 #include "scene/Camera.h"
 #include "GALERKIN/Interaction.h"
@@ -51,7 +52,7 @@ class GalerkinElement : public Element {
 
     virtual ~GalerkinElement();
 
-    void regularSubDivide(Camera *camera);
+    void regularSubDivide(Camera *camera, RenderOptions *renderOptions);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     void drawOutline(Camera *camera);
     void render(Camera *camera);

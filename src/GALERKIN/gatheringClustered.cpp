@@ -42,7 +42,7 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
 what if you turn clustering on or off during the calculations?
 */
 int
-doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
+doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene);
@@ -68,7 +68,7 @@ doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(scene, galerkinState->topCluster, galerkinState);
+    refineInteractions(scene, galerkinState->topCluster, galerkinState, renderOptions);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 

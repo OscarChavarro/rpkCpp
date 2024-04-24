@@ -6,11 +6,12 @@ Saves the result of a radiosity computation as a VRML file
 #define __WRITE_VRML__
 
 #include "java/util/ArrayList.h"
+#include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 
 extern void writeVRML(Camera *camera, FILE *fp, java::ArrayList<Patch *> *scenePatches);
-extern void writeVrmlHeader(Camera *camera, FILE *fp);
+extern void writeVrmlHeader(Camera *camera, FILE *fp, RenderOptions *renderOptions);
 extern void writeVRMLTrailer(FILE *fp);
 extern Matrix4x4 transformModelVRML(Camera *camera, Vector3D *modelRotationAxis, float *modelRotationAngle);
 extern void writeVRMLViewPoints(Camera *camera, FILE *fp, Matrix4x4 model_xf);

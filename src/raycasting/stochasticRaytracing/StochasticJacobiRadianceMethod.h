@@ -17,7 +17,7 @@ public:
     void destroyPatchData(Patch *patch);
     char *getStats();
     void renderScene(Scene *scene);
-    void writeVRML(Camera *camera, FILE *fp);
+    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions);
 };
 
 #endif

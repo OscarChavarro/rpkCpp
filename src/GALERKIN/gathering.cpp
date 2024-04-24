@@ -96,7 +96,8 @@ static void
 patchGather(
     Patch *patch,
     Scene *scene,
-    GalerkinState *galerkinState)
+    GalerkinState *galerkinState,
+    RenderOptions *renderOptions)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
@@ -125,7 +126,7 @@ patchGather(
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(scene, topLevelElement, galerkinState);
+    refineInteractions(scene, topLevelElement, galerkinState, renderOptions);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -147,7 +148,7 @@ Does one step of the radiance computations, returns true if the computations
 have converged and false if not
 */
 int
-galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
+galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene);
@@ -173,7 +174,7 @@ galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        patchGather(scene->patchList->get(i), scene, galerkinState);
+        patchGather(scene->patchList->get(i), scene, galerkinState, renderOptions);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

@@ -301,7 +301,7 @@ Regularly subdivides the given element. A pointer to an array of
 Only applicable to surface elements.
 */
 void
-GalerkinElement::regularSubDivide(Camera *camera) {
+GalerkinElement::regularSubDivide(Camera *camera, RenderOptions *renderOptions) {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return;
@@ -341,7 +341,7 @@ GalerkinElement::regularSubDivide(Camera *camera) {
         subElement[i]->Rd = Rd;
         subElement[i]->Ed = Ed;
 
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+        openGlRenderSetColor(&renderOptions->outlineColor);
         subElement[i]->drawOutline(camera);
     }
 
