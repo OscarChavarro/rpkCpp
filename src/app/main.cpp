@@ -126,12 +126,19 @@ mainCreateOffscreenCanvasWindow(
         openGlRenderScene(
             scene,
             f,
-            context);
+            context,
+            &GLOBAL_render_renderOptions);
     #endif
 }
 
 static void
-mainExecuteRendering(int outputImageWidth, int outputImageHeight, Scene *scene, RadianceMethod *radianceMethod) {
+mainExecuteRendering(
+    int outputImageWidth,
+    int outputImageHeight,
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    RenderOptions *renderOptions)
+{
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod);
 
@@ -140,10 +147,10 @@ mainExecuteRendering(int outputImageWidth, int outputImageHeight, Scene *scene, 
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, f, radianceMethod);
+        openGlRenderScene(scene, f, radianceMethod, &GLOBAL_render_renderOptions);
     #endif
 
-    batchExecuteRadianceSimulation(scene, radianceMethod);
+    batchExecuteRadianceSimulation(scene, radianceMethod, renderOptions);
 }
 
 static void
@@ -184,9 +191,9 @@ main(int argc, char *argv[]) {
     mgfContext.currentMaterial = &defaultMaterial;
 
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
-    mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod);
+    mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod, &GLOBAL_render_renderOptions);
 
-    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod);
+    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &GLOBAL_render_renderOptions);
 
     mainFreeMemory(&mgfContext);
 

@@ -183,7 +183,7 @@ batchParseOptions(int *argc, char **argv) {
 }
 
 void
-batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod) {
+batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
     clock_t start_time, wasted_start;
     float wasted_secs;
 
@@ -216,7 +216,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod) {
                 fflush(stderr);
                 exit(1);
             }
-            done = radianceMethod->doStep(scene);
+            done = radianceMethod->doStep(scene, renderOptions);
             canvasPullMode();
 
             fflush(stdout);
@@ -232,7 +232,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod) {
                     f = GLOBAL_raytracer_activeRaytracer->Redisplay;
                 }
             #endif
-            openGlRenderScene(scene, f, radianceMethod);
+            openGlRenderScene(scene, f, radianceMethod, renderOptions);
 
             fflush(stdout);
             fflush(stderr);

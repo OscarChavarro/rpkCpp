@@ -6,6 +6,6 @@
 #include "scene/Scene.h"
 
 extern void batchParseOptions(int *argc, char **argv);
-extern void batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod);
+extern void batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
 
 #endif

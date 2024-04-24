@@ -176,6 +176,6 @@ extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches)
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
-extern void doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context);
+extern void doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions);
 
 #endif

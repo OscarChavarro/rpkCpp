@@ -4,6 +4,7 @@
 #include <cstdio>
 
 #include "java/util/ArrayList.h"
+#include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
@@ -35,7 +36,7 @@ class RadianceMethod {
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
     virtual int
-    doStep(Scene *scene) = 0;
+    doStep(Scene *scene, RenderOptions *renderOptions) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;

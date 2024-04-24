@@ -576,7 +576,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 int
-PhotonMapRadianceMethod::doStep(Scene *scene) {
+PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     GLOBAL_photonMap_state.lastClock = clock();
 
     photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);

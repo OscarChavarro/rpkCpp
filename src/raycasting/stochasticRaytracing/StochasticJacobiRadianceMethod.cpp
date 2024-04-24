@@ -176,7 +176,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 }
 
 static void
-stochasticRelaxationRadiosityDoIncrementalRadianceIterations(Scene* scene, RadianceMethod *context) {
+stochasticRelaxationRadiosityDoIncrementalRadianceIterations(Scene* scene, RadianceMethod *context, RenderOptions *renderOptions) {
     double refUnShot;
     long stepNumber = 0;
 
@@ -227,7 +227,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(Scene* scene, Radia
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
             stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
-            openGlRenderNewDisplayList(scene->clusteredRootGeometry);
+            openGlRenderNewDisplayList(scene->clusteredRootGeometry, renderOptions);
 
             int (*f)() = nullptr;
             if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
@@ -237,7 +237,8 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(Scene* scene, Radia
             openGlRenderScene(
                 scene,
                 f,
-                context);
+                context,
+                renderOptions);
         }
     }
 
@@ -485,13 +486,13 @@ StochasticJacobiRadianceMethod::renderScene(Scene *scene) {
 }
 
 int
-StochasticJacobiRadianceMethod::doStep(Scene *scene) {
+StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     monteCarloRadiosityPreStep(scene);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
-            doNonDiffuseFirstShot(scene, this);
+            doNonDiffuseFirstShot(scene, this, renderOptions);
         }
         int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
 
@@ -508,7 +509,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene) {
                     }
                 }
         }
-        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scene, this);
+        stochasticRelaxationRadiosityDoIncrementalRadianceIterations(scene, this, renderOptions);
 
         // Subsequent regular iterations will take as many rays as in the whole
         // sequence of incremental iteration steps

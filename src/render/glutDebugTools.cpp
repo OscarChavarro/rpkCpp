@@ -14,6 +14,7 @@ static int globalWidth = 1920;
 static int globalHeight = 1200;
 static Scene *globalScene;
 static RadianceMethod *globalRadianceMethod;
+static RenderOptions *globalRenderOptions;
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -100,7 +101,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             }
             break;
         case ' ':
-            globalRadianceMethod->doStep(globalScene);
+            globalRadianceMethod->doStep(globalScene, globalRenderOptions);
             break;
         case 'p':
             printDataStructures();
@@ -144,14 +145,21 @@ drawCallback() {
 
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-    openGlRenderScene(globalScene, nullptr, globalRadianceMethod);
+    openGlRenderScene(globalScene, nullptr, globalRadianceMethod, globalRenderOptions);
     glutSwapBuffers();
 }
 
 void
-executeGlutGui(int argc, char *argv[], Scene *scene, RadianceMethod *radianceMethod) {
+executeGlutGui(
+    int argc,
+    char *argv[],
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    RenderOptions *renderOptions)
+{
     globalScene = scene;
     globalRadianceMethod = radianceMethod;
+    globalRenderOptions = renderOptions;
 
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);

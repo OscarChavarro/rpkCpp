@@ -379,7 +379,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 }
 
 int
-GalerkinRadianceMethod::doStep(Scene *scene) {
+GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     if ( galerkinState.iterationNumber < 0 ) {
         logError("doGalerkinOneStep", "method not initialized");
         return true; // Done, don't continue!

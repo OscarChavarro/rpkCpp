@@ -439,36 +439,36 @@ Indicates that the scene has modified, so a new display list should be
 compiled and rendered from now on. Only relevant when using display lists
 */
 void
-openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry) {
+openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *renderOptions) {
     if ( globalDisplayListId >= 0 ) {
         glDeleteLists(globalDisplayListId, 1);
     }
     globalDisplayListId = -1;
 
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
+    if ( renderOptions->frustumCulling ) {
         openGlRenderNewOctreeDisplayLists(clusteredWorldGeometry);
     }
 }
 
 static void
-openGlReallyRender(Scene *scene, RadianceMethod *context) {
+openGlReallyRender(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
         context->renderScene(scene);
-    } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(scene, openGlRenderPatch, &GLOBAL_render_renderOptions);
+    } else if ( renderOptions->frustumCulling ) {
+        openGlRenderWorldOctree(scene, openGlRenderPatch, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
+            openGlRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
     glPopMatrix();
 }
 
 static void
-openGlRenderRadiance(Scene *scene, RadianceMethod *context) {
-    if ( GLOBAL_render_renderOptions.smoothShading ) {
+openGlRenderRadiance(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
+    if ( renderOptions->smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
@@ -476,32 +476,32 @@ openGlRenderRadiance(Scene *scene, RadianceMethod *context) {
 
     openGlRenderSetCamera(scene->camera, scene->geometryList);
 
-    if ( GLOBAL_render_renderOptions.backfaceCulling ) {
+    if ( renderOptions->backfaceCulling ) {
         glEnable(GL_CULL_FACE);
     } else {
         glDisable(GL_CULL_FACE);
     }
 
-    if ( GLOBAL_render_renderOptions.useDisplayLists && !GLOBAL_render_renderOptions.frustumCulling ) {
+    if ( renderOptions->useDisplayLists && !renderOptions->frustumCulling ) {
         if ( globalDisplayListId <= 0 ) {
             globalDisplayListId = 1;
             glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
             // Render the scene
-            openGlReallyRender(scene, context);
+            openGlReallyRender(scene, context, renderOptions);
             glEndList();
         } else {
             glCallList(1);
         }
     } else {
         // Just render the scene
-        openGlReallyRender(scene, context);
+        openGlReallyRender(scene, context, renderOptions);
     }
 
-    if ( GLOBAL_render_renderOptions.drawBoundingBoxes ) {
+    if ( renderOptions->drawBoundingBoxes ) {
         renderBoundingBoxHierarchy(scene->camera, scene->geometryList);
     }
 
-    if ( GLOBAL_render_renderOptions.drawClusters ) {
+    if ( renderOptions->drawClusters ) {
         renderClusterHierarchy(scene->camera, scene->clusteredGeometryList);
     }
 }
@@ -513,18 +513,19 @@ void
 openGlRenderScene(
     Scene *scene,
     int (*reDisplayCallback)(),
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
-    openGlRenderSetLineWidth(GLOBAL_render_renderOptions.lineWidth);
+    openGlRenderSetLineWidth(renderOptions->lineWidth);
 
     canvasPushMode();
 
     if ( scene->camera->changed ) {
-        GLOBAL_render_renderOptions.renderRayTracedImage = false;
+        renderOptions->renderRayTracedImage = false;
     }
 
-    if ( !GLOBAL_render_renderOptions.renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
-        openGlRenderRadiance(scene, context);
+    if ( !renderOptions->renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
+        openGlRenderRadiance(scene, context, renderOptions);
     }
 
     // Call installed render hooks, that want to render something in the scene
