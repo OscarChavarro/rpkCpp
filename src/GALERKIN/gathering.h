@@ -11,7 +11,7 @@ gatheringPushPullPotential(
     GalerkinElement *element,
     float down);
 
-extern int galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
-extern int doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+extern int galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState);
+extern int doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState);
 
 #endif

@@ -303,10 +303,10 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potential_increment) 
 One step of the progressive refinement radiosity algorithm
 */
 static int
-reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, renderOptions);
+            updateDirectPotential(scene, &GLOBAL_render_renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);
@@ -327,6 +327,6 @@ reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *
 Returns true when converged and false if not
 */
 int
-doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    return reallyDoShootingStep(scene, galerkinState, renderOptions);
+doShootingStep(Scene *scene, GalerkinState *galerkinState) {
+    return reallyDoShootingStep(scene, galerkinState);
 }

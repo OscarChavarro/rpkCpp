@@ -120,9 +120,7 @@ static void
 iRayMatte(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
-{
+    RadianceMethod *context) {
     if ( rm != nullptr ) {
         delete rm;
     }

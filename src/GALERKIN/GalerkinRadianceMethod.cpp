@@ -395,13 +395,13 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scene, &galerkinState, renderOptions);
+                done = doClusteredGatheringIteration(scene, &galerkinState);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scene, &galerkinState, renderOptions);
+                done = galerkinRadiosityDoGatheringIteration(scene, &galerkinState);
             }
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scene, &galerkinState, renderOptions);
+            done = doShootingStep(scene, &galerkinState);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);

@@ -6,6 +6,6 @@
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
-extern int doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+extern int doShootingStep(Scene *scene, GalerkinState *galerkinState);
 
 #endif

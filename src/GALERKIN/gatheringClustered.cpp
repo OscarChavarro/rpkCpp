@@ -42,10 +42,10 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
 what if you turn clustering on or off during the calculations?
 */
 int
-doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, renderOptions);
+            updateDirectPotential(scene, &GLOBAL_render_renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 Patch *patch = scene->patchList->get(i);
                 GalerkinElement *top = (GalerkinElement *)patch->radianceData;

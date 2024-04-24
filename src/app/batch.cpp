@@ -64,7 +64,7 @@ openGlSaveScreen(
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderOptions->trace ) {
-        rayCast(fileName, fp, isPipe, scene, context, renderOptions);
+        rayCast(fileName, fp, isPipe, scene, context);
         return;
     }
 
