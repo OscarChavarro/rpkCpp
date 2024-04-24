@@ -347,11 +347,7 @@ GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 void
-GalerkinRadianceMethod::initialize(
-    Camera *defaultCamera,
-    const java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+GalerkinRadianceMethod::initialize(Scene *scene) {
     galerkinState.iterationNumber = 0;
     galerkinState.cpuSeconds = 0.0;
 
@@ -364,11 +360,11 @@ GalerkinRadianceMethod::initialize(
         galerkinState.ambientRadiance = GLOBAL_statistics.estimatedAverageRadiance;
     }
 
-    for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        patchInit(scenePatches->get(i));
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        patchInit(scene->patchList->get(i));
     }
 
-    galerkinState.topCluster = galerkinCreateClusterHierarchy(clusteredWorldGeometry, &galerkinState);
+    galerkinState.topCluster = galerkinCreateClusterHierarchy(scene->clusteredRootGeometry, &galerkinState);
 
     // Create a scratch software renderer for various operations on clusters
     scratchInit(&galerkinState);
@@ -535,13 +531,13 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+GalerkinRadianceMethod::renderScene(Scene *scene) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(camera, galerkinRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(scene->camera, galerkinRenderPatch, scene->clusteredRootGeometry);
     } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
-                galerkinRenderPatch(scenePatches->get(i), camera);
+                galerkinRenderPatch(scene->patchList->get(i), scene->camera);
             }
         }
     }

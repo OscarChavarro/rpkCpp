@@ -42,19 +42,15 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-RandomWalkRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+RandomWalkRadianceMethod::renderScene(Scene * /*scene*/) {
 }
 
 void
-RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp){
+RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp) {
 }
 
 void
-RandomWalkRadianceMethod::initialize(
-    Camera *defaultCamera,
-    const java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+RandomWalkRadianceMethod::initialize(Scene * /*scene*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }

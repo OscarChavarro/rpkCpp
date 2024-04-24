@@ -449,44 +449,44 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
     } else if ( std::fabs(vector2DDeterminant(BC, AD)) < EPSILON ) {
-            // Case AD // BC
-            vector2DAdd(AD, BC, Vector);
-            u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
+        // Case AD // BC
+        vector2DAdd(AD, BC, Vector);
+        u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
+        if ( (u >= 0.0) && (u <= 1.0) ) {
+            b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
+            c = vector2DDeterminant(AM, AB);
+            v = realAbs(b) < EPSILON ? -1 : c / b;
+            isInside = ((v >= 0.0) && (v <= 1.0));
+        }
+    } else {
+        // General case
+        a = vector2DDeterminant(AB, AE);
+        c = -vector2DDeterminant(AM, AD);
+        b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
+        a = -0.5 / a;
+        b *= a;
+        c *= (a + a);
+        SqrtDelta = b * b + c;
+        if ( SqrtDelta >= 0.0 ) {
+            SqrtDelta = std::sqrt(SqrtDelta);
+            u = b - SqrtDelta;
+            if ( (u < 0.0) || (u > 1.0) ) {
+                // To choose u between 0 and 1
+                u = b + SqrtDelta;
+            }
             if ( (u >= 0.0) && (u <= 1.0) ) {
-                b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
-                c = vector2DDeterminant(AM, AB);
-                v = realAbs(b) < EPSILON ? -1 : c / b;
+                v = AD.u + u * AE.u;
+                if ( realAbs(v) < EPSILON ) {
+                    v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
+                } else {
+                    v = (AM.u - u * AB.u) / v;
+                }
                 isInside = ((v >= 0.0) && (v <= 1.0));
             }
         } else {
-            // General case
-            a = vector2DDeterminant(AB, AE);
-            c = -vector2DDeterminant(AM, AD);
-            b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
-            a = -0.5 / a;
-            b *= a;
-            c *= (a + a);
-            SqrtDelta = b * b + c;
-            if ( SqrtDelta >= 0.0 ) {
-                SqrtDelta = std::sqrt(SqrtDelta);
-                u = b - SqrtDelta;
-                if ( (u < 0.0) || (u > 1.0) ) {
-                    // To choose u between 0 and 1
-                    u = b + SqrtDelta;
-                }
-                if ( (u >= 0.0) && (u <= 1.0) ) {
-                    v = AD.u + u * AE.u;
-                    if ( realAbs(v) < EPSILON ) {
-                        v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
-                    } else {
-                        v = (AM.u - u * AB.u) / v;
-                    }
-                    isInside = ((v >= 0.0) && (v <= 1.0));
-                }
-            } else {
-                u = v = -1.0;
-            }
+            u = v = -1.0;
         }
+    }
 
     uv->u = u;
     uv->v = v;

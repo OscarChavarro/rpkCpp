@@ -204,7 +204,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     }
 
     // Init compute method
-    setRadianceMethod(nullptr, scene->camera, nullptr, scene->clusteredRootGeometry);
+    setRadianceMethod(nullptr, scene);
 
 #ifdef RAYTRACING_ENABLED
     Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
@@ -338,7 +338,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, scene->camera, scene->patchList, scene->clusteredRootGeometry);
+    setRadianceMethod(context->radianceMethod, scene);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

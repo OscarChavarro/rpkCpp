@@ -59,7 +59,7 @@ mainInitApplication(Scene *scene) {
     fixCubatureRules();
     mainRenderingDefaults();
     toneMapDefaults();
-    radianceDefaults(nullptr, scene->camera, scene->clusteredRootGeometry);
+    radianceDefaults(nullptr, scene);
 
 #ifdef RAYTRACING_ENABLED
     mainRayTracingDefaults();

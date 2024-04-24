@@ -452,7 +452,7 @@ openGlReallyRender(Scene *scene, RadianceMethod *context) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
-        context->renderScene(scene->camera, scene->patchList, scene->clusteredRootGeometry);
+        context->renderScene(scene);
     } else if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(scene->camera, openGlRenderPatch, scene->clusteredRootGeometry);
     } else {

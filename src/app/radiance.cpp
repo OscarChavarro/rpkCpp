@@ -35,29 +35,24 @@ static CommandLineOptionDescription globalRadianceOptions[] = {
 This routine sets the current radiance method to be used + initializes
 */
 void
-setRadianceMethod(
-    RadianceMethod *newMethod,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+setRadianceMethod(RadianceMethod *newMethod, Scene *scene) {
     if ( newMethod != nullptr ) {
-        newMethod->terminate(scenePatches);
+        newMethod->terminate(scene->patchList);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            newMethod->destroyPatchData(scenePatches->get(i));
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            newMethod->destroyPatchData(scene->patchList->get(i));
         }
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            newMethod->createPatchData(scenePatches->get(i));
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            newMethod->createPatchData(scene->patchList->get(i));
         }
-        newMethod->initialize(camera, scenePatches, clusteredWorldGeometry);
+        newMethod->initialize(scene);
     }
 }
 
 void
-radianceDefaults(RadianceMethod *context, Camera * camera, Geometry *clusteredWorldGeometry) {
-    setRadianceMethod(context, camera, nullptr, clusteredWorldGeometry);
+radianceDefaults(RadianceMethod *context, Scene *scene) {
+    setRadianceMethod(context, scene);
 }
 
 static void

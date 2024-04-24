@@ -93,11 +93,7 @@ photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
 Initializes the computations for the current scene (if any)
 */
 void
-PhotonMapRadianceMethod::initialize(
-    Camera *defaultCamera,
-    const java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+PhotonMapRadianceMethod::initialize(Scene *scene) {
     fprintf(stderr, "Photon map activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
@@ -114,7 +110,7 @@ PhotonMapRadianceMethod::initialize(
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
     }
-    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, defaultCamera);
+    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, scene->camera);
 
     // mainInitApplication samplers
 
@@ -725,12 +721,12 @@ PhotonMapRadianceMethod::getRadiance(
 }
 
 void
-PhotonMapRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+PhotonMapRadianceMethod::renderScene(Scene *scene) {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            openGlRenderPatch(scenePatches->get(i), camera);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            openGlRenderPatch(scene->patchList->get(i), scene->camera);
         }
     }
 }

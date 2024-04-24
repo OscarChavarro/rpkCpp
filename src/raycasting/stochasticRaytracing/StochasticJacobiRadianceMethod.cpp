@@ -14,6 +14,8 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 
+#define STRING_SIZE 2000
+
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
     monteCarloRadiosityDefaults();
     className = STOCHASTIC_JACOBI;
@@ -57,16 +59,10 @@ StochasticJacobiRadianceMethod::writeVRML(Camera *camera, FILE *fp){
 }
 
 void
-StochasticJacobiRadianceMethod::initialize(
-    Camera *defaultCamera,
-    const java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry)
-{
+StochasticJacobiRadianceMethod::initialize(Scene *scene) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
-
-#define STRING_SIZE 2000
 
 char *
 StochasticJacobiRadianceMethod::getStats() {
@@ -475,12 +471,12 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera) {
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) {
+StochasticJacobiRadianceMethod::renderScene(Scene *scene) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(camera, stochasticRelaxationRadiosityRenderPatch, clusteredWorldGeometry);
+        openGlRenderWorldOctree(scene->camera, stochasticRelaxationRadiosityRenderPatch, scene->clusteredRootGeometry);
     } else {
-        for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scenePatches->get(i), camera);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera);
         }
     }
 }

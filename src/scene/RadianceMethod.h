@@ -29,7 +29,7 @@ class RadianceMethod {
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
-    virtual void initialize(Camera *defaultCamera, const java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) = 0;
+    virtual void initialize(Scene *scene) = 0;
 
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
@@ -57,7 +57,7 @@ class RadianceMethod {
     // a nullptr pointer. In that case, the default hardware assisted rendering
     // method (in render.c) is used: render all the patches with the RGB color
     // triplet they were assigned
-    virtual void renderScene(Camera *camera, java::ArrayList<Patch *> *scenePatches, Geometry *clusteredWorldGeometry) = 0;
+    virtual void renderScene(Scene *scene) = 0;
 
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will
@@ -65,11 +65,6 @@ class RadianceMethod {
     virtual void writeVRML(Camera *camera, FILE *fp) = 0;
 };
 
-extern void
-setRadianceMethod(
-    RadianceMethod *newMethod,
-    Camera *camera,
-    java::ArrayList<Patch *> *scenePatches,
-    Geometry *clusteredWorldGeometry);
+extern void setRadianceMethod(RadianceMethod *newMethod, Scene *scene);
 
 #endif
