@@ -9,7 +9,11 @@ Ks = specular emittance, reflectance or transmittance (same dimensions as Kd)
 Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
-PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(ColorRgb *KdParameter, ColorRgb *KsParameter, double NsParameter) {
+PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
+    ColorRgb *KdParameter,
+    ColorRgb *KsParameter,
+    double NsParameter)
+{
     Kd = *KdParameter;
     kd.scaledCopy((1.00f / (float) M_PI), Kd); // Because we use it often
     Ks = *KsParameter;
@@ -67,7 +71,13 @@ edfIsTextured(PhongEmittanceDistributionFunction * /*edf*/) {
 Edf evaluations
 */
 static ColorRgb
-phongEdfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
+phongEdfEval(
+    PhongEmittanceDistributionFunction *edf,
+    RayHit *hit,
+    Vector3D *out,
+    char flags,
+    double *probabilityDensityFunction)
+{
     Vector3D normal;
     ColorRgb result;
     double cosL;
@@ -111,7 +121,13 @@ out. If probabilityDensityFunction is not null, the stochasticJacobiProbability 
 computed and returned in probabilityDensityFunction
 */
 ColorRgb
-edfEval(PhongEmittanceDistributionFunction *edf, RayHit *hit, Vector3D *out, char flags, double *probabilityDensityFunction) {
+edfEval(
+    PhongEmittanceDistributionFunction *edf,
+    RayHit *hit,
+    Vector3D *out,
+    char flags,
+    double *probabilityDensityFunction)
+{
     if ( edf != nullptr ) {
         return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
     } else {

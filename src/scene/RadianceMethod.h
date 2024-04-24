@@ -8,9 +8,6 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
-class Background;
-class VoxelGrid;
-
 enum RadianceMethodAlgorithm {
     GALERKIN,
     STOCHASTIC_JACOBI,
@@ -74,8 +71,5 @@ setRadianceMethod(
     Camera *camera,
     java::ArrayList<Patch *> *scenePatches,
     Geometry *clusteredWorldGeometry);
-
-#include "scene/Background.h"
-#include "scene/VoxelGrid.h"
 
 #endif

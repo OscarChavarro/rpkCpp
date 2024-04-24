@@ -13,7 +13,7 @@ proper compress/uncompress commands. Also if the first character of the file nam
 equal to '|', the file name is opened as a pipe.
 */
 FILE *
-openFileCompressWrapper(const char *filename, const char *open_mode, int *isPipe) {
+openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe) {
     FILE *fp = nullptr;
 
     if ( *open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a' ) {
@@ -21,48 +21,48 @@ openFileCompressWrapper(const char *filename, const char *open_mode, int *isPipe
         return fp;
     }
 
-    if ( filename[0] != '\0' && filename[strlen(filename) - 1] != '/' ) {
-        int n = (int)strlen(filename) + 20;
+    if ( fileName[0] != '\0' && fileName[strlen(fileName) - 1] != '/' ) {
+        int n = (int)strlen(fileName) + 20;
         char *cmd = (char *)malloc(n);
-        char *ext = (char *)strrchr(filename, '.');
-        if ( filename[0] == '|' ) {
-            snprintf(cmd, n, "%s", filename + 1);
+        char *ext = (char *)strrchr(fileName, '.');
+        if ( fileName[0] == '|' ) {
+            snprintf(cmd, n, "%s", fileName + 1);
             fp = popen(cmd, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".gz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "gunzip < %s", filename);
+                snprintf(cmd, n, "gunzip < %s", fileName);
             } else {
-                snprintf(cmd, n, "gzip > %s", filename);
+                snprintf(cmd, n, "gzip > %s", fileName);
             }
             fp = popen(cmd, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".Z") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "uncompress < %s", filename);
+                snprintf(cmd, n, "uncompress < %s", fileName);
             } else {
-                snprintf(cmd, n, "compress > %s", filename);
+                snprintf(cmd, n, "compress > %s", fileName);
             }
             fp = popen(cmd, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".bz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "bunzip < %s", filename);
+                snprintf(cmd, n, "bunzip < %s", fileName);
             } else {
-                snprintf(cmd, n, "bzip > %s", filename);
+                snprintf(cmd, n, "bzip > %s", fileName);
             }
             fp = popen(cmd, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".bz2") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "bunzip2 < %s", filename);
+                snprintf(cmd, n, "bunzip2 < %s", fileName);
             } else {
-                snprintf(cmd, n, "bzip2 > %s", filename);
+                snprintf(cmd, n, "bzip2 > %s", fileName);
             }
             fp = popen(cmd, open_mode);
             *isPipe = true;
         } else {
-            fp = fopen(filename, open_mode);
+            fp = fopen(fileName, open_mode);
             *isPipe = false;
         }
 
@@ -70,7 +70,7 @@ openFileCompressWrapper(const char *filename, const char *open_mode, int *isPipe
 
         if ( !fp ) {
             logError(nullptr, "Can't open file '%s' for %s",
-                     filename, *open_mode == 'r' ? "reading" : "writing");
+                     fileName, *open_mode == 'r' ? "reading" : "writing");
         }
         return fp;
     }

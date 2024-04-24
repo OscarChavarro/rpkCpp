@@ -177,25 +177,25 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
+sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     // Check whether the file can be opened if not reading from stdin
-    if ( filename[0] != '#' ) {
-        FILE *input = fopen(filename, "r");
+    if ( fileName[0] != '#' ) {
+        FILE *input = fopen(fileName, "r");
         if ( input == nullptr || fgetc(input) == EOF ) {
             if ( input != nullptr ) {
                 fclose(input);
             }
-            logError(nullptr, "Can't open file '%s' for reading", filename);
+            logError(nullptr, "Can't open file '%s' for reading", fileName);
             return false;
         }
         fclose(input);
     }
 
     // Get current directory from the filename
-    unsigned long n = strlen(filename) + 1;
+    unsigned long n = strlen(fileName) + 1;
 
     char *currentDirectory = new char[n];
-    snprintf(currentDirectory, n, "%s", filename);
+    snprintf(currentDirectory, n, "%s", fileName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';
@@ -220,10 +220,10 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
     char *extension;
-    fprintf(stderr, "Reading the scene from file '%s' ... \n", filename);
+    fprintf(stderr, "Reading the scene from file '%s' ... \n", fileName);
     clock_t last = clock();
 
-    char *dot = strrchr(filename, '.');
+    char *dot = strrchr(fileName, '.');
     if ( dot != nullptr ) {
         extension = dot + 1;
     } else {
@@ -231,7 +231,7 @@ sceneBuilderReadFile(char *filename, MgfContext *context, Scene *scene) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(filename, context);
+        readMgf(fileName, context);
         scene->geometryList = context->geometries;
     }
 

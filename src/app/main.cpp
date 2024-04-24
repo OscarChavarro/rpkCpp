@@ -28,11 +28,6 @@
 #define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
 #define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
 
-static int globalImageOutputWidth = 1920;
-static int globalImageOutputHeight = 1080;
-static bool globalOneSidedSurfaces;
-static int globalConicSubDivisions;
-
 static void
 mainRenderingDefaults() {
     renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
@@ -80,10 +75,19 @@ mainInitApplication(Scene *scene) {
 Processes command line arguments
 */
 static void
-mainParseOptions(int *argc, char **argv, RadianceMethod **context, Camera *camera) {
+mainParseOptions(
+    int *argc,
+    char **argv,
+    RadianceMethod **context,
+    Camera *camera,
+    bool *oneSidedSurfaces,
+    int *conicSubdivisions,
+    int imageOutputWidth,
+    int imageOutputHeight)
+{
     renderParseOptions(argc, argv);
     toneMapParseOptions(argc, argv);
-    cameraParseOptions(argc, argv, camera, globalImageOutputWidth, globalImageOutputHeight);
+    cameraParseOptions(argc, argv, camera, imageOutputWidth, imageOutputHeight);
     radianceParseOptions(argc, argv, context);
 
 #ifdef RAYTRACING_ENABLED
@@ -91,7 +95,7 @@ mainParseOptions(int *argc, char **argv, RadianceMethod **context, Camera *camer
 #endif
 
     batchParseOptions(argc, argv);
-    commandLineGeneralProgramParseOptions(argc, argv, &globalOneSidedSurfaces, &globalConicSubDivisions);
+    commandLineGeneralProgramParseOptions(argc, argv, oneSidedSurfaces, conicSubdivisions);
 }
 
 static void
@@ -150,6 +154,9 @@ mainFreeMemory(MgfContext *context) {
     Cluster::deleteCachedGeometries();
     freeClusterGalerkinElements();
     VoxelGrid::freeVoxelGridElements();
+    if ( context->radianceMethod != nullptr ) {
+        delete context->radianceMethod;
+    }
 }
 
 int
@@ -157,28 +164,31 @@ main(int argc, char *argv[]) {
     Scene scene;
     mainInitApplication(&scene);
 
+    int imageOutputWidth = 1920;
+    int imageOutputHeight = 1080;
+    MgfContext mgfContext;
     RadianceMethod *selectedRadianceMethod = nullptr;
-    mainParseOptions(&argc, argv, &selectedRadianceMethod, scene.camera);
+    mainParseOptions(
+        &argc,
+        argv,
+        &selectedRadianceMethod,
+        scene.camera,
+        &mgfContext.singleSided,
+        &mgfContext.numberOfQuarterCircleDivisions,
+        imageOutputWidth,
+        imageOutputHeight);
 
     Material defaultMaterial;
-    MgfContext mgfContext;
     mgfContext.radianceMethod = selectedRadianceMethod;
-    mgfContext.singleSided = globalOneSidedSurfaces;
-    mgfContext.numberOfQuarterCircleDivisions = globalConicSubDivisions;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &defaultMaterial;
 
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
-
-    mainExecuteRendering(globalImageOutputWidth, globalImageOutputHeight, &scene, selectedRadianceMethod);
+    mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod);
 
     //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod);
 
     mainFreeMemory(&mgfContext);
-
-    if ( selectedRadianceMethod != nullptr ) {
-        delete selectedRadianceMethod;
-    }
 
     return 0;
 }
