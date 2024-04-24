@@ -320,7 +320,7 @@ void
 monteCarloRadiosityUpdateViewImportance(Scene *scene) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(scene);
+    updateDirectVisibility(scene, &GLOBAL_render_renderOptions);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
