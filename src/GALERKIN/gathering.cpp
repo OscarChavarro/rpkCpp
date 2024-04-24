@@ -94,13 +94,9 @@ Gauss-Seidel iterations
 */
 static void
 patchGather(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
-    GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry)
+    Scene *scene,
+    GalerkinState *galerkinState)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
@@ -117,13 +113,19 @@ patchGather(
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(sceneWorldVoxelGrid, topLevelElement, RECEIVER, galerkinState, sceneGeometries, sceneClusteredGeometries);
+            createInitialLinks(
+                scene->voxelGrid,
+                topLevelElement,
+                RECEIVER,
+                galerkinState,
+                scene->geometryList,
+                scene->clusteredGeometryList);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(camera, sceneWorldVoxelGrid, topLevelElement, galerkinState, sceneGeometries, sceneClusteredGeometries, clusteredWorldGeometry);
+    refineInteractions(scene, topLevelElement, galerkinState);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -171,14 +173,7 @@ galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        patchGather(
-            scene->camera,
-            scene->voxelGrid,
-            scene->patchList->get(i),
-            galerkinState,
-            scene->geometryList,
-            scene->clusteredGeometryList,
-            scene->clusteredRootGeometry);
+        patchGather(scene->patchList->get(i), scene, galerkinState);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately

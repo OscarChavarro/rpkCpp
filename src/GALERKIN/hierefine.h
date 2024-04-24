@@ -2,17 +2,14 @@
 #define __HIERARCHICAL_REFINE__
 
 #include "scene/VoxelGrid.h"
+#include "scene/Scene.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
 
 extern void
 refineInteractions(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
+    Scene *scene,
     GalerkinElement *parentElement,
-    GalerkinState *state,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries,
-    Geometry *clusteredWorldGeometry);
+    GalerkinState *state);
 
 #endif

@@ -68,14 +68,7 @@ doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState) {
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(
-        scene->camera,
-        scene->voxelGrid,
-        galerkinState->topCluster,
-        galerkinState,
-        scene->geometryList,
-        scene->clusteredGeometryList,
-        scene->clusteredRootGeometry);
+    refineInteractions(scene, galerkinState->topCluster, galerkinState);
 
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 
