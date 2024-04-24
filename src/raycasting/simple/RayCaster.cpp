@@ -101,12 +101,12 @@ RayCaster::getRadianceAtPixel(
 }
 
 void
-RayCaster::render(Scene *scene, RadianceMethod *context) {
+RayCaster::render(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
 
-    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scene);
+    Soft_ID_Renderer *idRenderer = new Soft_ID_Renderer(scene, renderOptions);
 
     long width;
     long height;
@@ -197,12 +197,13 @@ static void
 rayCasterExecute(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context) {
+    RadianceMethod *context,
+    RenderOptions *renderOptions) {
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr, scene->camera);
-    globalRayCaster->render(scene, context);
+    globalRayCaster->render(scene, context, renderOptions);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -220,7 +221,9 @@ rayCast(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context) {
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
+{
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {
@@ -238,7 +241,7 @@ rayCast(
     }
 
     RayCaster *rc = new RayCaster(nullptr, scene->camera);
-    rc->render(scene, context);
+    rc->render(scene, context, renderOptions);
     if ( img != nullptr ) {
         rc->save(img);
     }

@@ -6,9 +6,9 @@ Soft_ID_Renderer::~Soft_ID_Renderer() {
 }
 
 void
-Soft_ID_Renderer::init(Scene *scene) {
+Soft_ID_Renderer::init(Scene *scene, RenderOptions *renderOptions) {
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     sgl = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, &GLOBAL_render_renderOptions);
+    softRenderPatches(scene, renderOptions);
     sglMakeCurrent(oldSglContext); // Make the old one current again
 }

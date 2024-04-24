@@ -8,12 +8,12 @@ class Soft_ID_Renderer {
   protected:
     SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
-    void init(Scene *scene); // Also performs the actual ID rendering
+    void init(Scene *scene, RenderOptions *renderOptions); // Also performs the actual ID rendering
 
   public:
-    explicit Soft_ID_Renderer(Scene *scene) {
+    explicit Soft_ID_Renderer(Scene *scene, RenderOptions *renderOptions) {
         sgl = nullptr;
-        init(scene);
+        init(scene, renderOptions);
     }
 
     ~Soft_ID_Renderer();

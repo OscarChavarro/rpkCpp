@@ -1025,7 +1025,9 @@ static void
 biDirPathTrace(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context) {
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
+{
     // Install the samplers to be used in the state
 
     BidirectionalPathTracingConfiguration config;

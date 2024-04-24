@@ -169,7 +169,8 @@ batchRayTrace(
         isPipe,
         GLOBAL_raytracer_activeRaytracer,
         scene,
-        context);
+        context,
+        renderOptions);
     canvasPullMode();
 }
 
