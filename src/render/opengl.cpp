@@ -498,11 +498,11 @@ openGlRenderRadiance(Scene *scene, RadianceMethod *context, RenderOptions *rende
     }
 
     if ( renderOptions->drawBoundingBoxes ) {
-        renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
+        renderBoundingBoxHierarchy(scene->camera, scene->geometryList);
     }
 
     if ( renderOptions->drawClusters ) {
-        renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
+        renderClusterHierarchy(scene->camera, scene->clusteredGeometryList);
     }
 }
 

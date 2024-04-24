@@ -9,86 +9,84 @@ Rendering stuff independent of the graphics library being used
 #include "render/opengl.h"
 #include "render/render.h"
 
-static RenderOptions globalRenderOptions;
-
 void
 renderSetSmoothShading(char yesno) {
-    globalRenderOptions.smoothShading = yesno;
+    GLOBAL_render_renderOptions.smoothShading = yesno;
 }
 
 void
 renderSetNoShading(char yesno) {
-    globalRenderOptions.noShading = yesno;
+    GLOBAL_render_renderOptions.noShading = yesno;
 }
 
 void
 renderSetBackfaceCulling(char backface_culling) {
-    globalRenderOptions.backfaceCulling = backface_culling;
+    GLOBAL_render_renderOptions.backfaceCulling = backface_culling;
 }
 
 void
 renderSetOutlineDrawing(char draw_outlines) {
-    globalRenderOptions.drawOutlines = draw_outlines;
+    GLOBAL_render_renderOptions.drawOutlines = draw_outlines;
 }
 
 void
 renderSetBoundingBoxDrawing(char yesno) {
-    globalRenderOptions.drawBoundingBoxes = yesno;
+    GLOBAL_render_renderOptions.drawBoundingBoxes = yesno;
 }
 
 void
 renderSetClusterDrawing(char yesno) {
-    globalRenderOptions.drawClusters = yesno;
+    GLOBAL_render_renderOptions.drawClusters = yesno;
 }
 
 void
 renderUseDisplayLists(char truefalse) {
-    globalRenderOptions.useDisplayLists = truefalse;
+    GLOBAL_render_renderOptions.useDisplayLists = truefalse;
 }
 
 void
 renderUseFrustumCulling(char truefalse) {
-    globalRenderOptions.frustumCulling = truefalse;
+    GLOBAL_render_renderOptions.frustumCulling = truefalse;
 }
 
 void
 renderSetOutlineColor(ColorRgb *outline_color) {
-    globalRenderOptions.outlineColor = *outline_color;
+    GLOBAL_render_renderOptions.outlineColor = *outline_color;
 }
 
 void
 renderSetBoundingBoxColor(ColorRgb *outline_color) {
-    globalRenderOptions.boundingBoxColor = *outline_color;
+    GLOBAL_render_renderOptions.boundingBoxColor = *outline_color;
 }
 
 void
 renderSetClusterColor(ColorRgb *cluster_color) {
-    globalRenderOptions.clusterColor = *cluster_color;
+    GLOBAL_render_renderOptions.clusterColor = *cluster_color;
 }
 
 static void
 displayListsOption(void * /*value*/) {
-    globalRenderOptions.useDisplayLists = true;
+    GLOBAL_render_renderOptions.useDisplayLists = true;
 }
 
 static void
 flatOption(void * /*value*/) {
-    globalRenderOptions.smoothShading = false;
+    GLOBAL_render_renderOptions.smoothShading = false;
 }
 
 static void
 noCullingOption(void * /*value*/) {
-    globalRenderOptions.backfaceCulling = false;
+    GLOBAL_render_renderOptions.backfaceCulling = false;
 }
 
 static void
 outlinesOption(void * /*value*/) {
-    globalRenderOptions.drawOutlines = true;
+    GLOBAL_render_renderOptions.drawOutlines = true;
 }
 
 static void
 traceOption(void * /*value*/) {
-    globalRenderOptions.trace = true;
+    GLOBAL_render_renderOptions.trace = true;
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
@@ -103,16 +101,14 @@ static CommandLineOptionDescription renderingOptions[] = {
      "-no-culling\t\t: don't use backface culling"},
     {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
      "-outlines\t\t: draw polygon outlines"},
-    {"-outline-color", 10, TRGB, &globalRenderOptions.outlineColor, DEFAULT_ACTION,
+    {"-outline-color", 10, TRGB, &GLOBAL_render_renderOptions.outlineColor, DEFAULT_ACTION,
      "-outline-color <rgb> \t: color for polygon outlines"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
 void
-renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
-    globalRenderOptions = *renderOptions;
+renderParseOptions(int *argc, char **argv) {
     parseGeneralOptions(renderingOptions, argc, argv);
-    *renderOptions = globalRenderOptions;
 }
 
 /**
@@ -224,8 +220,8 @@ renderGeomBounds(Camera *camera, Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, RenderOptions *renderOptions) {
-    openGlRenderSetColor(&renderOptions->boundingBoxColor);
+renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         renderGeomBounds(camera, sceneGeometries->get(i));
     }
@@ -235,8 +231,8 @@ renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeo
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, RenderOptions *renderOptions) {
-    openGlRenderSetColor(&renderOptions->clusterColor);
+renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList) {
+    openGlRenderSetColor(&GLOBAL_render_renderOptions.clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         renderGeomBounds(camera, clusteredGeometryList->get(i));
     }

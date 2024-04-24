@@ -86,7 +86,7 @@ mainParseOptions(
     int *outputImageHeight)
 {
     commandLineGeneralProgramParseOptions(argc, argv, oneSidedSurfaces, conicSubdivisions, outputImageWidth, outputImageHeight);
-    renderParseOptions(argc, argv, &GLOBAL_render_renderOptions);
+    renderParseOptions(argc, argv);
     toneMapParseOptions(argc, argv);
     cameraParseOptions(argc, argv, camera, *outputImageWidth, *outputImageHeight);
     radianceParseOptions(argc, argv, context);

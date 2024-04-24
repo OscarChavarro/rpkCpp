@@ -306,7 +306,7 @@ static int
 reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, &GLOBAL_render_renderOptions);
+            updateDirectPotential(scene);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);

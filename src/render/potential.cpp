@@ -21,7 +21,7 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(Scene *scene, RenderOptions *renderOptions) {
+updateDirectPotential(Scene *scene) {
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;
@@ -41,7 +41,7 @@ updateDirectPotential(Scene *scene, RenderOptions *renderOptions) {
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, scene, renderOptions);
+    ids = sglRenderIds(&x, &y, scene, &GLOBAL_render_renderOptions);
 
     canvasPullMode();
 
@@ -145,12 +145,12 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-softUpdateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
+softUpdateDirectVisibility(Scene *scene) {
     clock_t t = clock();
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
 
-    softRenderPatches(scene, renderOptions);
+    softRenderPatches(scene, &GLOBAL_render_renderOptions);
     softGetPatchPointers(currentSglContext, scene->patchList);
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);
@@ -163,8 +163,8 @@ softUpdateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
+updateDirectVisibility(Scene *scene) {
     canvasPushMode();
-    softUpdateDirectVisibility(scene, renderOptions);
+    softUpdateDirectVisibility(scene);
     canvasPullMode();
 }
