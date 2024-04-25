@@ -2,6 +2,8 @@
 Rendering stuff independent of the graphics library being used
 */
 
+#include <cstring>
+
 #include "common/mymath.h"
 #include "common/options.h"
 #include "skin/Geometry.h"
@@ -9,84 +11,32 @@ Rendering stuff independent of the graphics library being used
 #include "render/opengl.h"
 #include "render/render.h"
 
-void
-renderSetSmoothShading(char yesno) {
-    GLOBAL_render_renderOptions.smoothShading = yesno;
-}
-
-void
-renderSetNoShading(char yesno) {
-    GLOBAL_render_renderOptions.noShading = yesno;
-}
-
-void
-renderSetBackfaceCulling(char backface_culling) {
-    GLOBAL_render_renderOptions.backfaceCulling = backface_culling;
-}
-
-void
-renderSetOutlineDrawing(char draw_outlines) {
-    GLOBAL_render_renderOptions.drawOutlines = draw_outlines;
-}
-
-void
-renderSetBoundingBoxDrawing(char yesno) {
-    GLOBAL_render_renderOptions.drawBoundingBoxes = yesno;
-}
-
-void
-renderSetClusterDrawing(char yesno) {
-    GLOBAL_render_renderOptions.drawClusters = yesno;
-}
-
-void
-renderUseDisplayLists(char truefalse) {
-    GLOBAL_render_renderOptions.useDisplayLists = truefalse;
-}
-
-void
-renderUseFrustumCulling(char truefalse) {
-    GLOBAL_render_renderOptions.frustumCulling = truefalse;
-}
-
-void
-renderSetOutlineColor(ColorRgb *outline_color) {
-    GLOBAL_render_renderOptions.outlineColor = *outline_color;
-}
-
-void
-renderSetBoundingBoxColor(ColorRgb *outline_color) {
-    GLOBAL_render_renderOptions.boundingBoxColor = *outline_color;
-}
-
-void
-renderSetClusterColor(ColorRgb *cluster_color) {
-    GLOBAL_render_renderOptions.clusterColor = *cluster_color;
-}
+static RenderOptions globalRenderOptions;
+static ColorRgb globalOutlineColor;
 
 static void
 displayListsOption(void * /*value*/) {
-    GLOBAL_render_renderOptions.useDisplayLists = true;
+    globalRenderOptions.useDisplayLists = true;
 }
 
 static void
 flatOption(void * /*value*/) {
-    GLOBAL_render_renderOptions.smoothShading = false;
+    globalRenderOptions.smoothShading = false;
 }
 
 static void
 noCullingOption(void * /*value*/) {
-    GLOBAL_render_renderOptions.backfaceCulling = false;
+    globalRenderOptions.backfaceCulling = false;
 }
 
 static void
 outlinesOption(void * /*value*/) {
-    GLOBAL_render_renderOptions.drawOutlines = true;
+    globalRenderOptions.drawOutlines = true;
 }
 
 static void
 traceOption(void * /*value*/) {
-    GLOBAL_render_renderOptions.trace = true;
+    globalRenderOptions.trace = true;
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
@@ -101,14 +51,22 @@ static CommandLineOptionDescription renderingOptions[] = {
      "-no-culling\t\t: don't use backface culling"},
     {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
      "-outlines\t\t: draw polygon outlines"},
-    {"-outline-color", 10, TRGB, &GLOBAL_render_renderOptions.outlineColor, DEFAULT_ACTION,
+    {"-outline-color", 10, TRGB, &globalOutlineColor, DEFAULT_ACTION,
      "-outline-color <rgb> \t: color for polygon outlines"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
 void
-renderParseOptions(int *argc, char **argv, RenderOptions * /*renderOptions*/) {
+renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
+    memcpy(&globalRenderOptions, renderOptions, sizeof(RenderOptions));
+
     parseGeneralOptions(renderingOptions, argc, argv);
+
+    memcpy(renderOptions, &globalRenderOptions, sizeof(RenderOptions));
+
+    renderOptions->outlineColor.r = globalOutlineColor.r;
+    renderOptions->outlineColor.g = globalOutlineColor.g;
+    renderOptions->outlineColor.b = globalOutlineColor.b;
 }
 
 /**

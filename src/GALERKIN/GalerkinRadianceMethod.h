@@ -59,5 +59,4 @@ class GalerkinRadianceMethod : public RadianceMethod {
 
 extern void galerkinFreeMemory();
 
-
 #endif

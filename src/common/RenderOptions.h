@@ -28,8 +28,7 @@ class RenderOptions {
     char trace; // High-dynamic range ray-traced tiff
 
     RenderOptions();
+    virtual ~RenderOptions();
 };
-
-extern RenderOptions GLOBAL_render_renderOptions;
 
 #endif

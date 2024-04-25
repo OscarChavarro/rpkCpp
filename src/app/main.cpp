@@ -18,38 +18,6 @@
 #endif
 
 #define DEFAULT_MONOCHROME false
-#define DEFAULT_DISPLAY_LISTS false
-#define DEFAULT_SMOOTH_SHADING true
-#define DEFAULT_BACKFACE_CULLING true
-#define DEFAULT_OUTLINE_DRAWING false
-#define DEFAULT_BOUNDING_BOX_DRAWING false
-#define DEFAULT_CLUSTER_DRAWING false
-#define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
-#define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
-#define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
-
-static void
-mainRenderingDefaults(RenderOptions *renderOptions) {
-    renderUseDisplayLists(DEFAULT_DISPLAY_LISTS);
-    renderSetSmoothShading(DEFAULT_SMOOTH_SHADING);
-    renderSetBackfaceCulling(DEFAULT_BACKFACE_CULLING);
-    renderSetOutlineDrawing(DEFAULT_OUTLINE_DRAWING);
-    renderSetBoundingBoxDrawing(DEFAULT_BOUNDING_BOX_DRAWING);
-    renderSetClusterDrawing(DEFAULT_CLUSTER_DRAWING);
-
-    ColorRgb outlineColor = DEFAULT_OUTLINE_COLOR;
-    ColorRgb boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
-    ColorRgb clusterColor = DEFAULT_CLUSTER_COLOR;
-
-    renderSetOutlineColor(&outlineColor);
-    renderSetBoundingBoxColor(&boundingBoxColor);
-    renderSetClusterColor(&clusterColor);
-    renderUseFrustumCulling(true);
-    renderSetNoShading(false);
-
-    renderOptions->lineWidth = 1.0;
-    renderOptions->renderRayTracedImage = false;
-}
 
 /**
 Global initializations
@@ -57,7 +25,6 @@ Global initializations
 static void
 mainInitApplication(Scene *scene) {
     fixCubatureRules();
-    mainRenderingDefaults(&GLOBAL_render_renderOptions);
     toneMapDefaults();
     radianceDefaults(nullptr, scene);
 
@@ -80,13 +47,19 @@ mainParseOptions(
     char **argv,
     RadianceMethod **context,
     Camera *camera,
-    bool *oneSidedSurfaces,
-    int *conicSubdivisions,
+    MgfContext *mgfContext,
     int *outputImageWidth,
-    int *outputImageHeight)
+    int *outputImageHeight,
+    RenderOptions *renderOptions)
 {
-    commandLineGeneralProgramParseOptions(argc, argv, oneSidedSurfaces, conicSubdivisions, outputImageWidth, outputImageHeight);
-    renderParseOptions(argc, argv, &GLOBAL_render_renderOptions);
+    commandLineGeneralProgramParseOptions(
+        argc,
+        argv,
+        &mgfContext->singleSided,
+        &mgfContext->numberOfQuarterCircleDivisions,
+        outputImageWidth,
+        outputImageHeight);
+    renderParseOptions(argc, argv, renderOptions);
     toneMapParseOptions(argc, argv);
     cameraParseOptions(argc, argv, camera, *outputImageWidth, *outputImageHeight);
     radianceParseOptions(argc, argv, context);
@@ -103,31 +76,22 @@ mainCreateOffscreenCanvasWindow(
     int outputImageWidth,
     int outputImageHeight,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     openGlMesaRenderCreateOffscreenWindow(scene->camera, outputImageWidth, outputImageHeight);
 
     // Set correct outputImageWidth and outputImageHeight for the camera
-    scene->camera->set(
-        &scene->camera->eyePosition,
-        &scene->camera->lookPosition,
-        &scene->camera->upDirection,
-        scene->camera->fieldOfVision,
-        outputImageWidth,
-        outputImageHeight,
-        &scene->camera->background);
+    scene->camera->xSize = outputImageWidth;
+    scene->camera->ySize = outputImageHeight;
 
     #ifdef RAYTRACING_ENABLED
-        // Render the scene (no expose events on the external canvas window!)
+        // Render the scene
         int (*f)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(
-            scene,
-            f,
-            context,
-            &GLOBAL_render_renderOptions);
+        openGlRenderScene(scene, f, context, renderOptions);
     #endif
 }
 
@@ -140,14 +104,14 @@ mainExecuteRendering(
     RenderOptions *renderOptions)
 {
     // Create the window in which to render (canvas window)
-    mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod);
+    mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod, renderOptions);
 
     #ifdef RAYTRACING_ENABLED
         int (*f)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             f = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, f, radianceMethod, &GLOBAL_render_renderOptions);
+        openGlRenderScene(scene, f, radianceMethod, renderOptions);
     #endif
 
     batchExecuteRadianceSimulation(scene, radianceMethod, renderOptions);
@@ -175,15 +139,17 @@ main(int argc, char *argv[]) {
     int imageOutputHeight;
     MgfContext mgfContext;
     RadianceMethod *selectedRadianceMethod = nullptr;
+    RenderOptions renderOptions;
+
     mainParseOptions(
         &argc,
         argv,
         &selectedRadianceMethod,
         scene.camera,
-        &mgfContext.singleSided,
-        &mgfContext.numberOfQuarterCircleDivisions,
+        &mgfContext,
         &imageOutputWidth,
-        &imageOutputHeight);
+        &imageOutputHeight,
+        &renderOptions);
 
     Material defaultMaterial;
     mgfContext.radianceMethod = selectedRadianceMethod;
@@ -191,9 +157,9 @@ main(int argc, char *argv[]) {
     mgfContext.currentMaterial = &defaultMaterial;
 
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
-    mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod, &GLOBAL_render_renderOptions);
+    mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod, &renderOptions);
 
-    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &GLOBAL_render_renderOptions);
+    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &renderOptions);
 
     mainFreeMemory(&mgfContext);
 
