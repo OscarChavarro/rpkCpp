@@ -429,13 +429,14 @@ randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, do
 static void
 randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches)
+    java::ArrayList<Patch *> *scenePatches,
+    RenderOptions *renderOptions)
 {
     long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     fprintf(stderr, "First shot (%ld rays):\n", numberOfRays);
     doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
-                                randomWalkRadiosityUpdateSourceIllumination, scenePatches);
+                                randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }
 
@@ -450,7 +451,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList);
+            randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
         }
     }
 

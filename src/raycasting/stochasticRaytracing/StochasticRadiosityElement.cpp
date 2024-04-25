@@ -747,7 +747,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
 Create sub-elements: regular subdivision, see drawings above
 */
 static StochasticRadiosityElement **
-monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element) {
+monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element, RenderOptions *renderOptions) {
     Vertex *v0 = element->vertices[0];
     Vertex *v1 = element->vertices[1];
     Vertex *v2 = element->vertices[2];
@@ -760,7 +760,7 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element)
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m2, m1, v2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+    openGlRenderSetColor(&renderOptions->outlineColor);
     openGlRenderLine(v0->point, v1->point);
     openGlRenderLine(v1->point, v2->point);
     openGlRenderLine(v2->point, v0->point);
@@ -804,7 +804,7 @@ Subdivides given triangle or quadrangle into four sub-elements if not yet
 done so before. Returns the list of created sub-elements
 */
 StochasticRadiosityElement **
-stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *element) {
+stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *element, RenderOptions *renderOptions) {
     if ( element->regularSubElements ) {
         return (StochasticRadiosityElement **)element->regularSubElements;
     }
@@ -827,7 +827,7 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
     element->regularSubElements = (Element **)new StochasticRadiosityElement *[4];
     switch ( element->numberOfVertices ) {
         case 3:
-            monteCarloRadiosityRegularSubdivideTriangle(element);
+            monteCarloRadiosityRegularSubdivideTriangle(element, renderOptions);
             break;
         case 4:
             monteCarloRadiosityRegularSubdivideQuad(element);

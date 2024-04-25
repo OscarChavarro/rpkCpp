@@ -22,7 +22,8 @@ dontRefine(
     double * /*vr*/,
     StochasticRadiosityElement * /*srctop*/,
     double * /*us*/,
-    double * /*vs*/)
+    double * /*vs*/,
+    RenderOptions * /*renderOptions*/)
 {
     // Doesn't do anything
     return link;
@@ -33,20 +34,21 @@ Refinement action 2: subdivide the receiver using regular quadtree subdivision
 */
 static LINK *
 subdivideReceiver(
-        LINK *link,
-        StochasticRadiosityElement *rcvtop,
-        double *ur,
-        double *vr,
-        StochasticRadiosityElement * /*srctop*/,
-        double * /*us*/,
-        double * /*vs*/)
+    LINK *link,
+    StochasticRadiosityElement *rcvtop,
+    double *ur,
+    double *vr,
+    StochasticRadiosityElement * /*srctop*/,
+    double * /*us*/,
+    double * /*vs*/,
+    RenderOptions *renderOptions)
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isCluster() ) {
         rcv = (StochasticRadiosityElement *)rcv->childContainingElement(rcvtop);
     } else {
         if ( !rcv->regularSubElements ) {
-            stochasticRadiosityElementRegularSubdivideElement(rcv);
+            stochasticRadiosityElementRegularSubdivideElement(rcv, renderOptions);
         }
         rcv = stochasticRadiosityElementRegularSubElementAtPoint(rcv, ur, vr);
     }
@@ -59,20 +61,21 @@ Refinement action 3: subdivide the source using regular quadtree subdivision
 */
 static LINK *
 subdivideSource(
-        LINK *link,
-        StochasticRadiosityElement * /*rcvtop*/,
-        double * /*ur*/,
-        double * /*vr*/,
-        StochasticRadiosityElement *srcTop,
-        double *us,
-        double *vs)
+    LINK *link,
+    StochasticRadiosityElement * /*rcvtop*/,
+    double * /*ur*/,
+    double * /*vr*/,
+    StochasticRadiosityElement *srcTop,
+    double *us,
+    double *vs,
+    RenderOptions *renderOptions)
 {
     StochasticRadiosityElement *src = link->src;
     if ( src->isCluster() ) {
         src = (StochasticRadiosityElement *)src->childContainingElement(srcTop);
     } else {
         if ( !src->regularSubElements ) {
-            stochasticRadiosityElementRegularSubdivideElement(src);
+            stochasticRadiosityElementRegularSubdivideElement(src, renderOptions);
         }
         src = stochasticRadiosityElementRegularSubElementAtPoint(src, us, vs);
     }
@@ -227,15 +230,16 @@ hierarchyRefine(
     StochasticRadiosityElement *srcTop,
     double *us,
     double *vs,
-    ORACLE evaluate_link)
+    ORACLE evaluateLink,
+    RenderOptions *renderOptions)
 {
     if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
         link->rcv = rcvTop;
         link->src = srcTop;
     } else {
         REFINE_ACTION action;
-        while ( (action = evaluate_link(link)) != dontRefine ) {
-            link = action(link, rcvTop, ur, vr, srcTop, us, vs);
+        while ((action = evaluateLink(link)) != dontRefine ) {
+            link = action(link, rcvTop, ur, vr, srcTop, us, vs, renderOptions);
         }
     }
     return link;

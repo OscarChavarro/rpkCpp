@@ -21,13 +21,17 @@ class LINK {
     StochasticRadiosityElement *src;
 };
 
-/* a refinement action takes a LINK, performs some refinement action and
- * returns a pointer to the refined link. The parameters (us,vs) and
- * (ur,vr) are transformed to become the parameters of the same point on the 
- * subelement resulting after refinement. */
-typedef LINK *(*REFINE_ACTION)(LINK *link,
-                               StochasticRadiosityElement *rcvtop, double *ur, double *vr,
-                               StochasticRadiosityElement *srctop, double *us, double *vs);
+/**
+A refinement action takes a LINK, performs some refinement action and
+returns a pointer to the refined link. The parameters (us,vs) and
+(ur,vr) are transformed to become the parameters of the same point on the
+sub-element resulting after refinement
+*/
+typedef LINK *(*REFINE_ACTION)(
+    LINK *link,
+    StochasticRadiosityElement *rcvtop, double *ur, double *vr,
+    StochasticRadiosityElement *srctop, double *us, double *vs,
+    RenderOptions *renderOptions);
 
 /**
 A refinement oracle evaluates if the given candidate
@@ -47,7 +51,8 @@ extern LINK *hierarchyRefine(
     StochasticRadiosityElement *srcTop,
     double *us,
     double *vs,
-    ORACLE evaluate_link);
+    ORACLE evaluateLink,
+    RenderOptions *renderOptions);
 
 /**
 Global parameters controlling hierarchical refinement

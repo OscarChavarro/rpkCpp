@@ -32,6 +32,7 @@ doStochasticJacobiIteration(
     ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
     float (*GetImportance)(StochasticRadiosityElement *),
     void Update(StochasticRadiosityElement *elem, double w),
-    java::ArrayList<Patch *> *scenePatches);
+    java::ArrayList<Patch *> *scenePatches,
+    RenderOptions *renderOptions);
 
 #endif
