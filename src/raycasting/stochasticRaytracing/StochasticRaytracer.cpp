@@ -390,7 +390,7 @@ stochasticRaytracerGetRadiance(
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = context->getRadiance(
-                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF);
+                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, &GLOBAL_render_renderOptions);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a

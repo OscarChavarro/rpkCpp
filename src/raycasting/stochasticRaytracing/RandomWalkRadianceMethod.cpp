@@ -27,8 +27,15 @@ RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 ColorRgb
-RandomWalkRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir) {
-    return monteCarloRadiosityGetRadiance(patch, u, v, dir);
+RandomWalkRadianceMethod::getRadiance(
+    Camera *camera,
+    Patch *patch,
+    double u,
+    double v,
+    Vector3D dir,
+    RenderOptions *renderOptions)
+{
+    return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
 Element *

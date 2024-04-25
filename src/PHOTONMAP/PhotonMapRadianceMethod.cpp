@@ -656,7 +656,8 @@ PhotonMapRadianceMethod::getRadiance(
     Patch *patch,
     double u,
     double v,
-    Vector3D dir)
+    Vector3D dir,
+    RenderOptions *renderOptions)
 {
     RayHit hit;
     Vector3D point;
