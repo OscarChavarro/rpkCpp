@@ -4,19 +4,15 @@
 #include "java/util/ArrayList.h"
 #include "render/softids.h"
 
-class Soft_ID_Renderer {
+class SoftIdsWrapper {
   protected:
     SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
-    void init(Scene *scene); // Also performs the actual ID rendering
+    void init(Scene *scene, RenderOptions *renderOptions); // Also performs the actual ID rendering
 
   public:
-    explicit Soft_ID_Renderer(Scene *scene) {
-        sgl = nullptr;
-        init(scene);
-    }
-
-    ~Soft_ID_Renderer();
+    explicit SoftIdsWrapper(Scene *scene, RenderOptions *renderOptions);
+    ~SoftIdsWrapper();
 
     inline void
     getSize(long *width, long *height) {

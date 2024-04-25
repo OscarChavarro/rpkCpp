@@ -569,7 +569,8 @@ void
 rtStochasticTrace(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions * /*renderOptions*/)
 {
     StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, context); // config filled in by constructor
 

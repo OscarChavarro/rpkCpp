@@ -1,14 +1,19 @@
 #include "java/util/ArrayList.txx"
 #include "render/SoftIdsWrapper.h"
 
-Soft_ID_Renderer::~Soft_ID_Renderer() {
+SoftIdsWrapper::SoftIdsWrapper(Scene *scene, RenderOptions *renderOptions) {
+    sgl = nullptr;
+    init(scene, renderOptions);
+}
+
+SoftIdsWrapper::~SoftIdsWrapper() {
     delete sgl;
 }
 
 void
-Soft_ID_Renderer::init(Scene *scene) {
+SoftIdsWrapper::init(Scene *scene, RenderOptions *renderOptions) {
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     sgl = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, &GLOBAL_render_renderOptions);
+    softRenderPatches(scene, renderOptions);
     sglMakeCurrent(oldSglContext); // Make the old one current again
 }

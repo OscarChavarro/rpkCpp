@@ -28,7 +28,7 @@ class RayCaster {
   public:
     explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);
     virtual ~RayCaster();
-    void render(Scene *scene, RadianceMethod *context);
+    void render(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);
 };
@@ -43,6 +43,7 @@ rayCast(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context);
+    RadianceMethod *context,
+    RenderOptions *renderOptions);
 
 #endif
