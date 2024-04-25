@@ -7,9 +7,9 @@
 #include "skin/Geometry.h"
 #include "scene/Camera.h"
 
-extern void renderBounds(Camera *camera, BoundingBox bounds);
-extern void renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries);
-extern void renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList);
+extern void renderBounds(BoundingBox bounds);
+extern void renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, RenderOptions *renderOptions);
+extern void renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, RenderOptions *renderOptions);
 extern void renderSetBackfaceCulling(char truefalse);
 extern void renderSetSmoothShading(char truefalse);
 extern void renderSetOutlineDrawing(char truefalse);
@@ -22,6 +22,6 @@ extern void renderSetOutlineColor(ColorRgb *outline_color);
 extern void renderSetBoundingBoxColor(ColorRgb *outline_color);
 extern void renderSetClusterColor(ColorRgb *cluster_color);
 extern void renderGetNearFar(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries);
-extern void renderParseOptions(int *argc, char **argv);
+extern void renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions);
 
 #endif

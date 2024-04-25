@@ -107,7 +107,7 @@ static CommandLineOptionDescription renderingOptions[] = {
 };
 
 void
-renderParseOptions(int *argc, char **argv) {
+renderParseOptions(int *argc, char **argv, RenderOptions * /*renderOptions*/) {
     parseGeneralOptions(renderingOptions, argc, argv);
 }
 
@@ -173,7 +173,7 @@ renderGetNearFar(
 Renders a bounding box
 */
 void
-renderBounds(Camera *camera, BoundingBox bounds) {
+renderBounds(BoundingBox bounds) {
     Vector3D p[8];
 
     p[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
@@ -204,7 +204,7 @@ renderGeomBounds(Camera *camera, Geometry *geometry) {
     BoundingBox geometryBoundingBox = getBoundingBox(geometry);
 
     if ( geometry->bounded ) {
-        renderBounds(camera, geometryBoundingBox);
+        renderBounds(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
@@ -220,8 +220,8 @@ renderGeomBounds(Camera *camera, Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.boundingBoxColor);
+renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, RenderOptions *renderOptions) {
+    openGlRenderSetColor(&renderOptions->boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         renderGeomBounds(camera, sceneGeometries->get(i));
     }
@@ -231,8 +231,8 @@ renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeo
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList) {
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.clusterColor);
+renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, RenderOptions *renderOptions) {
+    openGlRenderSetColor(&renderOptions->clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         renderGeomBounds(camera, clusteredGeometryList->get(i));
     }

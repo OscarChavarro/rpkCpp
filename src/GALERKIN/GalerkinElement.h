@@ -27,7 +27,7 @@ class GalerkinElement : public Element {
     explicit GalerkinElement(GalerkinState *inGalerkinState);
 
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
-    void draw(int mode, Camera *camera, RenderOptions *renderOptions);
+    void draw(int mode, RenderOptions *renderOptions);
 
   public:
     float potential; // Total potential of the element
@@ -52,9 +52,9 @@ class GalerkinElement : public Element {
 
     virtual ~GalerkinElement();
 
-    void regularSubDivide(Camera *camera, RenderOptions *renderOptions);
+    void regularSubDivide(RenderOptions *renderOptions);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
-    void drawOutline(Camera *camera, RenderOptions *renderOptions);
+    void drawOutline(RenderOptions *renderOptions);
     void render(Camera *camera, RenderOptions *renderOptions);
     int vertices(Vector3D *p, int n);
     BoundingBox *bounds(BoundingBox *boundingBox);

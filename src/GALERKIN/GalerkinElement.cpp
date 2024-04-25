@@ -301,7 +301,7 @@ Regularly subdivides the given element. A pointer to an array of
 Only applicable to surface elements.
 */
 void
-GalerkinElement::regularSubDivide(Camera *camera, RenderOptions *renderOptions) {
+GalerkinElement::regularSubDivide(RenderOptions *renderOptions) {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return;
@@ -342,7 +342,7 @@ GalerkinElement::regularSubDivide(Camera *camera, RenderOptions *renderOptions) 
         subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&renderOptions->outlineColor);
-        subElement[i]->drawOutline(camera, renderOptions);
+        subElement[i]->drawOutline(renderOptions);
     }
 
     regularSubElements = (Element **)subElement;
@@ -562,13 +562,13 @@ GalerkinElement::initPolygon(Polygon *polygon) {
 }
 
 void
-GalerkinElement::draw(int mode, Camera *camera, RenderOptions *renderOptions) {
+GalerkinElement::draw(int mode, RenderOptions *renderOptions) {
     Vector3D p[4];
     int numberOfVertices;
 
     if ( isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(camera, getBoundingBox(geometry));
+            renderBounds(getBoundingBox(geometry));
         }
         return;
     }
@@ -676,8 +676,8 @@ GalerkinElement::draw(int mode, Camera *camera, RenderOptions *renderOptions) {
 Draws element outline in the current outline color
 */
 void
-GalerkinElement::drawOutline(Camera *camera, RenderOptions *renderOptions) {
-    draw(OUTLINE, camera, renderOptions);
+GalerkinElement::drawOutline(RenderOptions *renderOptions) {
+    draw(OUTLINE, renderOptions);
 }
 
 /**
@@ -697,5 +697,5 @@ GalerkinElement::render(Camera *camera, RenderOptions *renderOptions) {
         renderCode |= FLAT;
     }
 
-    draw(renderCode, camera, renderOptions);
+    draw(renderCode, renderOptions);
 }
