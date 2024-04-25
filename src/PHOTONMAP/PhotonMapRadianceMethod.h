@@ -19,7 +19,7 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();
-    void renderScene(Scene *scene);
+    void renderScene(Scene *scene, RenderOptions *renderOptions);
     void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions);
 };
 

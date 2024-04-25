@@ -455,7 +455,7 @@ openGlReallyRender(Scene *scene, RadianceMethod *context, RenderOptions *renderO
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
-        context->renderScene(scene);
+        context->renderScene(scene, renderOptions);
     } else if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(scene, openGlRenderPatch, renderOptions);
     } else {

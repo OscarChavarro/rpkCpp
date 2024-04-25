@@ -721,12 +721,12 @@ PhotonMapRadianceMethod::getRadiance(
 }
 
 void
-PhotonMapRadianceMethod::renderScene(Scene *scene) {
+PhotonMapRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
+            openGlRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
 }

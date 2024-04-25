@@ -42,7 +42,7 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-RandomWalkRadianceMethod::renderScene(Scene * /*scene*/) {
+RandomWalkRadianceMethod::renderScene(Scene * /*scene*/, RenderOptions * /*renderOptions*/) {
 }
 
 void

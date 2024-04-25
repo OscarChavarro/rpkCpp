@@ -203,8 +203,8 @@ galerkinWriteVertexColorsTopCluster() {
 }
 
 static void
-galerkinWriteColors() {
-    if ( !GLOBAL_render_renderOptions.smoothShading ) {
+galerkinWriteColors(RenderOptions *renderOptions) {
+    if ( !renderOptions->smoothShading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
     fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");
@@ -510,13 +510,13 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(Scene *scene) {
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
-        openGlRenderWorldOctree(scene, galerkinRenderPatch, &GLOBAL_render_renderOptions);
+GalerkinRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
+    if ( renderOptions->frustumCulling ) {
+        openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
-                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
+                galerkinRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
             }
         }
     }
@@ -528,7 +528,7 @@ GalerkinRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *rende
 
     globalVrmlFileDescriptor = fp;
     galerkinWriteCoords();
-    galerkinWriteColors();
+    galerkinWriteColors(renderOptions);
     galerkinWriteCoordIndicesTopCluster();
 
     writeVRMLTrailer(fp);

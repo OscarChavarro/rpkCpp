@@ -687,11 +687,11 @@ void
 GalerkinElement::render(Camera *camera, RenderOptions *renderOptions) {
     int renderCode = 0;
 
-    if ( GLOBAL_render_renderOptions.drawOutlines ) {
+    if ( renderOptions->drawOutlines ) {
         renderCode |= OUTLINE;
     }
 
-    if ( GLOBAL_render_renderOptions.smoothShading ) {
+    if ( renderOptions->smoothShading ) {
         renderCode |= GOURAUD;
     } else {
         renderCode |= FLAT;

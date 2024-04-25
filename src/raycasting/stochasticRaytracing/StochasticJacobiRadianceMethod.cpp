@@ -472,7 +472,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera, RenderOpt
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(Scene *scene) {
+StochasticJacobiRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
     if ( GLOBAL_render_renderOptions.frustumCulling ) {
         openGlRenderWorldOctree(
             scene,
