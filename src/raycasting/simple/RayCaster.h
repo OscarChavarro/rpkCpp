@@ -23,7 +23,8 @@ class RayCaster {
         int x,
         int y,
         Patch *patch,
-        RadianceMethod *context);
+        RadianceMethod *context,
+        RenderOptions *renderOptions);
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);

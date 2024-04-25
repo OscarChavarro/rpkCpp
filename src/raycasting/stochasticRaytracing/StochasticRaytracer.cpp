@@ -22,7 +22,8 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context);
+    RadianceMethod *context,
+    RenderOptions *renderOptions);
 
 static ColorRgb
 stochasticRaytracerGetScatteredRadiance(
@@ -32,7 +33,8 @@ stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     int siCurrent; // What scatter block are we handling
     CScatterInfo *si;
@@ -61,18 +63,18 @@ stochasticRaytracerGetScatteredRadiance(
     }
 
     while ( siCurrent < config->siOthersCount ) {
-        int nrSamples;
+        int numberOfSamples;
 
         if ( si->DoneSomePreviousBounce(thisNode) ) {
-            nrSamples = si->nrSamplesAfter;
+            numberOfSamples = si->nrSamplesAfter;
         } else {
-            nrSamples = si->nrSamplesBefore;
+            numberOfSamples = si->nrSamplesBefore;
         } // First bounce of this kind
 
         // A small optimisation to prevent sampling surface that
         // don't have this scattering component.
 
-        if ( nrSamples > 2 ) {
+        if ( numberOfSamples > 2 ) {
             // Some bigger value may be more efficient
             ColorRgb albedo = bsdfScatteredPower(
                 thisNode->m_useBsdf,
@@ -81,20 +83,20 @@ stochasticRaytracerGetScatteredRadiance(
                   si->flags);
             if ( albedo.average() < EPSILON ) {
                 // Skip, no contribution anyway
-                nrSamples = 0;
+                numberOfSamples = 0;
             }
         }
 
         // Do we need to compute scattered radiance at all...
-        if ( (nrSamples > 0) && (thisNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
+        if ((numberOfSamples > 0) && (thisNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
             double x1;
             double x2;
             double factor;
-            StratifiedSampling2D stratified(nrSamples);
+            StratifiedSampling2D stratified(numberOfSamples);
             ColorRgb radiance;
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
-            for ( int i = 0; i < nrSamples; i++ ) {
+            for ( int i = 0; i < numberOfSamples; i++ ) {
                 stratified.sample(&x1, &x2);
 
                 // Surface sampling
@@ -120,9 +122,27 @@ stochasticRaytracerGetScatteredRadiance(
                     // Get the incoming radiance
                     if ( siCurrent == -1 ) {
                         // Storage bounce
-                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, READ_NOW, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(
+                            camera,
+                            sceneVoxelGrid,
+                            sceneBackground,
+                            &newNode,
+                            config,
+                            READ_NOW,
+                            numberOfSamples,
+                            context,
+                            renderOptions);
                     } else {
-                        radiance = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &newNode, config, readout, nrSamples, context);
+                        radiance = stochasticRaytracerGetRadiance(
+                            camera,
+                            sceneVoxelGrid,
+                            sceneBackground,
+                            &newNode,
+                            config,
+                            readout,
+                            numberOfSamples,
+                            context,
+                            renderOptions);
                     }
 
                     // Frame coherent & correlated sampling
@@ -131,7 +151,7 @@ stochasticRaytracerGetScatteredRadiance(
                     }
 
                     // Collect outgoing radiance
-                    factor = newNode.m_G / (newNode.m_pdfFromPrev * nrSamples);
+                    factor = newNode.m_G / (newNode.m_pdfFromPrev * numberOfSamples);
 
                     radiance.scalarProductScaled(radiance, (float) factor, thisNode->m_bsdfEval);
                     result.add(radiance, result);
@@ -316,7 +336,8 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     ColorRgb result;
     ColorRgb radiance;
@@ -390,7 +411,7 @@ stochasticRaytracerGetRadiance(
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = context->getRadiance(
-                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, &GLOBAL_render_renderOptions);
+                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, renderOptions);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
@@ -417,7 +438,15 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Scattered light
-        radiance = stochasticRaytracerGetScatteredRadiance(camera, sceneVoxelGrid, sceneBackground, thisNode, config, readout, context);
+        radiance = stochasticRaytracerGetScatteredRadiance(
+            camera,
+            sceneVoxelGrid,
+            sceneBackground,
+            thisNode,
+            config,
+            readout,
+            context,
+            renderOptions);
         result.add(result, radiance);
 
         // Emitted Light
@@ -481,7 +510,8 @@ calcPixel(
     int nx,
     int ny,
     StochasticRaytracingConfiguration *config,
-    RadianceMethod *context)
+    RadianceMethod *context,
+    RenderOptions *renderOptions)
 {
     int i;
     SimpleRaytracingPathNode eyeNode;
@@ -525,8 +555,16 @@ calcPixel(
                 config->seedConfig.save(pixelNode.m_depth);
             }
 
-            col = stochasticRaytracerGetRadiance(camera, sceneVoxelGrid, sceneBackground, &pixelNode, config, config->initialReadout,
-                                                 config->samplesPerPixel, context);
+            col = stochasticRaytracerGetRadiance(
+                camera,
+                sceneVoxelGrid,
+                sceneBackground,
+                &pixelNode,
+                config,
+                config->initialReadout,
+                config->samplesPerPixel,
+                context,
+                renderOptions);
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {

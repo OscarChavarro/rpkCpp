@@ -112,15 +112,15 @@ Element::traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *
 }
 
 void
-Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, RenderOptions *))
+Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, RenderOptions *), RenderOptions *renderOptions)
 {
     if ( regularSubElements == nullptr ) {
         // Trivial case
-        traversalCallbackFunction(this, &GLOBAL_render_renderOptions);
+        traversalCallbackFunction(this, renderOptions);
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            regularSubElements[i]->traverseQuadTreeLeafs(traversalCallbackFunction);
+            regularSubElements[i]->traverseQuadTreeLeafs(traversalCallbackFunction, renderOptions);
         }
     }
 }
