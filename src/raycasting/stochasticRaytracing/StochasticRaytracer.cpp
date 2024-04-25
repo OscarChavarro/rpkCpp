@@ -453,7 +453,7 @@ stochasticRaytracerGetRadiance(
         if ( (config->radMode == STORED_PHOTON_MAP) && (context->className == PHOTON_MAP) ) {
             // Check if Le would contribute to a caustic
             if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
-                // Caustic contribution:  (E...(D|G)...?L) with ? some specular bounce
+                // Caustic contribution: (E...(D|G)...?L) with ? some specular bounce
                 edfFlags = 0;
             }
         }

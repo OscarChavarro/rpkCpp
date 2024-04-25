@@ -3,11 +3,11 @@ Rendering elements
 */
 
 #include "common/error.h"
-#include "render/render.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "render/opengl.h"
+#include "render/render.h"
 
 ColorRgb
 stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
@@ -151,7 +151,7 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
 }
 
 static void
-renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
+renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, RenderOptions *renderOptions) {
     ColorRgb col[3];
     Vector3D vert[3];
 
@@ -163,8 +163,8 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
     col[2] = v3->color;
     openGlRenderPolygonGouraud(3, vert, col);
 
-    if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+    if ( renderOptions->drawOutlines ) {
+        openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
         openGlRenderLine(&vert[2], &vert[0]);
@@ -172,7 +172,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3) {
 }
 
 static void
-renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
+renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RenderOptions *renderOptions) {
     ColorRgb col[4];
     Vector3D vert[4];
 
@@ -186,8 +186,8 @@ renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4) {
     col[3] = v4->color;
     openGlRenderPolygonGouraud(4, vert, col);
 
-    if ( GLOBAL_render_renderOptions.drawOutlines ) {
-        openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+    if ( renderOptions->drawOutlines ) {
+        openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderLine(&vert[0], &vert[1]);
         openGlRenderLine(&vert[1], &vert[2]);
         openGlRenderLine(&vert[2], &vert[3]);
@@ -204,7 +204,8 @@ triangleTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*do_triangle)(Vertex *, Vertex *, Vertex *))
+    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, RenderOptions *),
+    RenderOptions *renderOptions)
 {
     int a;
     int b;
@@ -212,7 +213,7 @@ triangleTVertexElimination(
 
     switch ( numberOfTVertices ) {
         case 0:
-            do_triangle(v[0], v[1], v[2]);
+            doTriangleCallback(v[0], v[1], v[2], renderOptions);
             break;
         case 1:
             for ( a = 0; a < 3; a++ ) {
@@ -222,8 +223,8 @@ triangleTVertexElimination(
             }
             b = (a + 1) % 3;
             c = (a + 2) % 3;
-            do_triangle(m[a], v[c], v[a]);
-            do_triangle(m[a], v[b], v[c]);
+            doTriangleCallback(m[a], v[c], v[a], renderOptions);
+            doTriangleCallback(m[a], v[b], v[c], renderOptions);
             break;
         case 2:
             for ( a = 0; a < 3; a++ ) {
@@ -233,15 +234,15 @@ triangleTVertexElimination(
             }
             b = (a + 1) % 3;
             c = (a + 2) % 3;
-            do_triangle(m[b], v[a], v[b]);
-            do_triangle(m[b], m[c], v[a]);
-            do_triangle(m[b], v[c], m[c]);
+            doTriangleCallback(m[b], v[a], v[b], renderOptions);
+            doTriangleCallback(m[b], m[c], v[a], renderOptions);
+            doTriangleCallback(m[b], v[c], m[c], renderOptions);
             break;
         case 3:
-            do_triangle(v[0], m[0], m[2]);
-            do_triangle(v[1], m[1], m[0]);
-            do_triangle(v[2], m[2], m[1]);
-            do_triangle(m[0], m[1], m[2]);
+            doTriangleCallback(v[0], m[0], m[2], renderOptions);
+            doTriangleCallback(v[1], m[1], m[0], renderOptions);
+            doTriangleCallback(v[2], m[2], m[1], renderOptions);
+            doTriangleCallback(m[0], m[1], m[2], renderOptions);
             break;
         default:
             break;
@@ -253,8 +254,9 @@ quadrilateralTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*do_triangle)(Vertex *, Vertex *, Vertex *),
-    void (*do_quadrilateral)(Vertex *, Vertex *, Vertex *, Vertex *))
+    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, RenderOptions *),
+    void (*doQuadrilateralCallback)(Vertex *, Vertex *, Vertex *, Vertex *, RenderOptions *),
+    RenderOptions *renderOptions)
 {
     int a;
     int b;
@@ -263,7 +265,7 @@ quadrilateralTVertexElimination(
 
     switch ( numberOfTVertices ) {
         case 0:
-            do_quadrilateral(v[0], v[1], v[2], v[3]);
+            doQuadrilateralCallback(v[0], v[1], v[2], v[3], renderOptions);
             break;
         case 1:
             for ( a = 0; a < 4; a++ ) {
@@ -274,9 +276,9 @@ quadrilateralTVertexElimination(
             b = (a + 1) % 4;
             c = (a + 2) % 4;
             d = (a + 3) % 4;
-            do_triangle(m[a], v[d], v[a]);
-            do_triangle(m[a], v[c], v[d]);
-            do_triangle(m[a], v[b], v[c]);
+            doTriangleCallback(m[a], v[d], v[a], renderOptions);
+            doTriangleCallback(m[a], v[c], v[d], renderOptions);
+            doTriangleCallback(m[a], v[b], v[c], renderOptions);
             break;
         case 2:
             for ( a = 0; a < 4; a++ ) {
@@ -294,13 +296,13 @@ quadrilateralTVertexElimination(
                 d = (a + 3) % 4;
             }
             if ( m[b] ) {
-                do_triangle(m[a], v[b], m[b]);
-                do_triangle(m[b], v[c], v[d]);
-                do_triangle(v[d], m[a], m[b]);
-                do_triangle(v[d], v[a], m[a]);
+                doTriangleCallback(m[a], v[b], m[b], renderOptions);
+                doTriangleCallback(m[b], v[c], v[d], renderOptions);
+                doTriangleCallback(v[d], m[a], m[b], renderOptions);
+                doTriangleCallback(v[d], v[a], m[a], renderOptions);
             } else {
-                do_quadrilateral(v[a], m[a], m[c], v[d]);
-                do_quadrilateral(m[a], v[b], v[c], m[c]);
+                doQuadrilateralCallback(v[a], m[a], m[c], v[d], renderOptions);
+                doQuadrilateralCallback(m[a], v[b], v[c], m[c], renderOptions);
             }
             break;
         case 3:
@@ -312,17 +314,17 @@ quadrilateralTVertexElimination(
             b = (a + 1) % 4;
             c = (a + 2) % 4;
             d = (a + 3) % 4;
-            do_quadrilateral(v[a], v[b], m[b], m[d]);
-            do_triangle(m[b], v[c], m[c]);
-            do_triangle(m[c], v[d], m[d]);
-            do_triangle(m[b], m[c], m[d]);
+            doQuadrilateralCallback(v[a], v[b], m[b], m[d], renderOptions);
+            doTriangleCallback(m[b], v[c], m[c], renderOptions);
+            doTriangleCallback(m[c], v[d], m[d], renderOptions);
+            doTriangleCallback(m[b], m[c], m[d], renderOptions);
             break;
         case 4:
-            do_triangle(v[0], m[0], m[3]);
-            do_triangle(v[1], m[1], m[0]);
-            do_triangle(v[2], m[2], m[1]);
-            do_triangle(v[3], m[3], m[2]);
-            do_quadrilateral(m[0], m[1], m[2], m[3]);
+            doTriangleCallback(v[0], m[0], m[3], renderOptions);
+            doTriangleCallback(v[1], m[1], m[0], renderOptions);
+            doTriangleCallback(v[2], m[2], m[1], renderOptions);
+            doTriangleCallback(v[3], m[3], m[2], renderOptions);
+            doQuadrilateralCallback(m[0], m[1], m[2], m[3], renderOptions);
             break;
         default:
             break;
@@ -330,20 +332,20 @@ quadrilateralTVertexElimination(
 }
 
 static void
-renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices) {
-    triangleTVertexElimination(v, m, numberOfTVertices, renderTriangle);
+renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices, RenderOptions *renderOptions) {
+    triangleTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderOptions);
 }
 
 static void
-renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices) {
-    quadrilateralTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderQuadrilateral);
+renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, RenderOptions *renderOptions) {
+    quadrilateralTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderQuadrilateral, renderOptions);
 }
 
 static void
-stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
+stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem, RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+    openGlRenderSetColor(&renderOptions->outlineColor);
     openGlRenderLine(&vertices[0], &vertices[1]);
     openGlRenderLine(&vertices[1], &vertices[2]);
     if ( elem->numberOfVertices == 3 ) {
@@ -359,7 +361,7 @@ stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions)
     StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vector3D vertices[4];
 
-    if ( GLOBAL_render_renderOptions.smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
+    if ( renderOptions->smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
         Vertex *m[4];
         int i;
         int n;
@@ -371,9 +373,9 @@ stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions)
         }
 
         if ( stochasticRadiosityElement->numberOfVertices == 3 ) {
-            renderTriangularElement(stochasticRadiosityElement->vertices, m, n);
+            renderTriangularElement(stochasticRadiosityElement->vertices, m, n, renderOptions);
         } else {
-            renderQuadrilateralElement(stochasticRadiosityElement->vertices, m, n);
+            renderQuadrilateralElement(stochasticRadiosityElement->vertices, m, n, renderOptions);
         }
         return;
     }
@@ -385,7 +387,7 @@ stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions)
         vertices[3] = *(stochasticRadiosityElement->vertices[3]->point);
     }
 
-    if ( GLOBAL_render_renderOptions.smoothShading ) {
+    if ( renderOptions->smoothShading ) {
         ColorRgb vertexColors[4];
         vertexColors[0] = stochasticRadiosityElement->vertices[0]->color;
         vertexColors[1] = stochasticRadiosityElement->vertices[1]->color;
@@ -402,8 +404,8 @@ stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions)
         openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
     }
 
-    if ( GLOBAL_render_renderOptions.drawOutlines )
-        stochasticRadiosityElementRenderOutline(stochasticRadiosityElement);
+    if ( renderOptions->drawOutlines )
+        stochasticRadiosityElementRenderOutline(stochasticRadiosityElement, renderOptions);
 }
 
 ColorRgb
@@ -424,10 +426,10 @@ stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v) {
+stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v, RenderOptions *renderOptions) {
     ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
-        if ( GLOBAL_render_renderOptions.smoothShading ) {
+        if ( renderOptions->smoothShading ) {
             // Do Gouraud interpolation if required
             int i;
             ColorRgb rad[4];
