@@ -4,8 +4,6 @@ Rendering stuff independent of the graphics library being used
 
 #include "common/mymath.h"
 #include "common/options.h"
-#include "skin/Geometry.h"
-#include "scene/Camera.h"
 #include "render/opengl.h"
 #include "render/render.h"
 
@@ -71,17 +69,10 @@ Computes front- and back-clipping plane distance for the current GLOBAL_scene_wo
 camera
 */
 void
-renderGetNearFar(
-    Camera *camera,
-    java::ArrayList<Geometry *> *sceneGeometries)
-{
+renderGetNearFar(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
     Vector3D b[2];
     Vector3D d;
-    int i;
-    int j;
-    int k;
-    float z;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         camera->far = 10.0;
@@ -96,12 +87,12 @@ renderGetNearFar(
 
     camera->far = -HUGE;
     camera->near = HUGE;
-    for ( i = 0; i <= 1; i++ ) {
-        for ( j = 0; j <= 1; j++ ) {
-            for ( k = 0; k <= 1; k++ ) {
+    for ( int i = 0; i <= 1; i++ ) {
+        for ( int j = 0; j <= 1; j++ ) {
+            for ( int k = 0; k <= 1; k++ ) {
                 d.set(b[i].x, b[j].y, b[k].z);
                 vectorSubtract(d, camera->eyePosition, d);
-                z = vectorDotProduct(d, camera->Z);
+                float z = vectorDotProduct(d, camera->Z);
 
                 if ( z > camera->far ) {
                     camera->far = z;

@@ -1,6 +1,5 @@
 #include "common/options.h"
 #include "IMAGE/tonemap/tonemapping.h"
-#include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
 #include "render/render.h"
 #include "render/opengl.h"
@@ -87,11 +86,11 @@ mainCreateOffscreenCanvasWindow(
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene
-        int (*f)() = nullptr;
+        int (*renderCallback)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-            f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+            renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, f, context, renderOptions);
+        openGlRenderScene(scene, renderCallback, context, renderOptions);
     #endif
 }
 
@@ -107,11 +106,11 @@ mainExecuteRendering(
     mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod, renderOptions);
 
     #ifdef RAYTRACING_ENABLED
-        int (*f)() = nullptr;
+        int (*renderCallback)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-            f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+            renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, f, radianceMethod, renderOptions);
+        openGlRenderScene(scene, renderCallback, radianceMethod, renderOptions);
     #endif
 
     batchExecuteRadianceSimulation(scene, radianceMethod, renderOptions);
@@ -132,9 +131,11 @@ mainFreeMemory(MgfContext *context) {
 
 int
 main(int argc, char *argv[]) {
+    // 1. Default empty scene
     Scene scene;
     mainInitApplication(&scene);
 
+    // 2. Set model elements from command line options
     int imageOutputWidth;
     int imageOutputHeight;
     MgfContext mgfContext;
@@ -151,16 +152,20 @@ main(int argc, char *argv[]) {
         &imageOutputHeight,
         &renderOptions);
 
+    // 3. Load scene elements from MGF file
     Material defaultMaterial;
     mgfContext.radianceMethod = selectedRadianceMethod;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &defaultMaterial;
-
     sceneBuilderCreateModel(&argc, argv, &mgfContext, &scene);
+
+    // 4. Run main radiosity simulation and export result
     mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod, &renderOptions);
 
+    // X.
     //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &renderOptions);
 
+    // 5. Free used memory
     mainFreeMemory(&mgfContext);
 
     return 0;

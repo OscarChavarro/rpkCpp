@@ -6,12 +6,8 @@
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
-extern float
-gatheringPushPullPotential(
-    GalerkinElement *element,
-    float down);
-
-extern int galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
-extern int doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+extern float gatheringPushPullPotential(GalerkinElement *element, float down);
+extern int galerkinDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+extern int galerkinDoClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
 
 #endif

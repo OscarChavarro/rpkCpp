@@ -13,7 +13,6 @@ Galerkin radiosity, with the following variants:
 #include "common/error.h"
 #include "common/mymath.h"
 #include "material/statistics.h"
-#include "render/render.h"
 #include "common/options.h"
 #include "io/writevrml.h"
 #include "render/opengl.h"
@@ -267,7 +266,7 @@ GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, RenderO
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera * /*camera*/, RenderOptions *renderOptions) {
     renderElementHierarchy(galerkinGetElement(patch), renderOptions);
 }
 
@@ -291,12 +290,14 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         // '95, Dublin, Ireland, June 1995, p 336-344
         galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
         galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
-        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL )
+        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
             patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
+        }
     } else {
         galerkinSetRadiance(patch, selfEmittanceRadiance);
-        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL )
+        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
             patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
+        }
     }
 
     if ( galerkinState.importanceDriven ) {
@@ -395,9 +396,9 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
         case JACOBI:
         case GAUSS_SEIDEL:
             if ( galerkinState.clustered ) {
-                done = doClusteredGatheringIteration(scene, &galerkinState, renderOptions);
+                done = galerkinDoClusteredGatheringIteration(scene, &galerkinState, renderOptions);
             } else {
-                done = galerkinRadiosityDoGatheringIteration(scene, &galerkinState, renderOptions);
+                done = galerkinDoGatheringIteration(scene, &galerkinState, renderOptions);
             }
             break;
         case SOUTH_WELL:
