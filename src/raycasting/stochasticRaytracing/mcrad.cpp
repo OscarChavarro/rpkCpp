@@ -317,10 +317,10 @@ monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-monteCarloRadiosityUpdateViewImportance(Scene *scene) {
+monteCarloRadiosityUpdateViewImportance(Scene *scene, RenderOptions *renderOptions) {
     fprintf(stderr, "Updating direct visibility ... \n");
 
-    updateDirectVisibility(scene);
+    updateDirectVisibility(scene, renderOptions);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
@@ -409,7 +409,7 @@ monteCarloRadiosityDetermineInitialNrRays(
 Really initialises: before the first iteration step
 */
 void
-monteCarloRadiosityReInit(Scene *scene) {
+monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         return;
     }
@@ -460,18 +460,18 @@ monteCarloRadiosityReInit(Scene *scene) {
     elementHierarchyInit(scene->clusteredRootGeometry);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        monteCarloRadiosityUpdateViewImportance(scene);
+        monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
     }
 }
 
 void
-monteCarloRadiosityPreStep(Scene *scene) {
+monteCarloRadiosityPreStep(Scene *scene, RenderOptions *renderOptions) {
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        monteCarloRadiosityReInit(scene);
+        monteCarloRadiosityReInit(scene, renderOptions);
     }
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && scene->camera->changed ) {
-        monteCarloRadiosityUpdateViewImportance(scene);
+        monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
     }
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();

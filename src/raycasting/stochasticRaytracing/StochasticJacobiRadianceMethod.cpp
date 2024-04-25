@@ -499,7 +499,7 @@ StochasticJacobiRadianceMethod::renderScene(Scene *scene, RenderOptions *renderO
 
 int
 StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
-    monteCarloRadiosityPreStep(scene);
+    monteCarloRadiosityPreStep(scene, renderOptions);
 
     // Do some real work now
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {

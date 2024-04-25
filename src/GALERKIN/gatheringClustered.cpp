@@ -45,7 +45,7 @@ int
 doClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene);
+            updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 Patch *patch = scene->patchList->get(i);
                 GalerkinElement *top = (GalerkinElement *)patch->radianceData;

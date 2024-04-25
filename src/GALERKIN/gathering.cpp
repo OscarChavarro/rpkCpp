@@ -151,7 +151,7 @@ int
 galerkinRadiosityDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene);
+            updateDirectPotential(scene, renderOptions);
             scene->camera->changed = false;
         }
     }
