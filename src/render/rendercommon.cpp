@@ -58,12 +58,11 @@ static CommandLineOptionDescription renderingOptions[] = {
 
 void
 renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
-    memcpy(&globalRenderOptions, renderOptions, sizeof(RenderOptions));
+    globalRenderOptions = *renderOptions;
 
     parseGeneralOptions(renderingOptions, argc, argv);
 
-    memcpy(renderOptions, &globalRenderOptions, sizeof(RenderOptions));
-
+    *renderOptions = globalRenderOptions;
     renderOptions->outlineColor.r = globalOutlineColor.r;
     renderOptions->outlineColor.g = globalOutlineColor.g;
     renderOptions->outlineColor.b = globalOutlineColor.b;
