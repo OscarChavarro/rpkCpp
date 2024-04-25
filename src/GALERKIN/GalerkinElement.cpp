@@ -684,7 +684,7 @@ GalerkinElement::drawOutline(RenderOptions *renderOptions) {
 Renders a surface element flat shaded based on its radiance
 */
 void
-GalerkinElement::render(Camera *camera, RenderOptions *renderOptions) {
+GalerkinElement::render(RenderOptions *renderOptions) {
     int renderCode = 0;
 
     if ( renderOptions->drawOutlines ) {

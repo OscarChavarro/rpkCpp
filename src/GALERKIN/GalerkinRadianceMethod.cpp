@@ -256,19 +256,19 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
 void
-GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, Camera *camera, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, RenderOptions *renderOptions) {
     if ( element->regularSubElements == nullptr ) {
-        element->render(camera, renderOptions);
+        element->render(renderOptions);
     } else {
         for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i], camera, renderOptions);
+            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i], renderOptions);
         }
     }
 }
 
 void
 GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
-    renderElementHierarchy(galerkinGetElement(patch), camera, renderOptions);
+    renderElementHierarchy(galerkinGetElement(patch), renderOptions);
 }
 
 /**

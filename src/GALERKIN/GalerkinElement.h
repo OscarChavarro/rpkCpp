@@ -55,7 +55,7 @@ class GalerkinElement : public Element {
     void regularSubDivide(RenderOptions *renderOptions);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     void drawOutline(RenderOptions *renderOptions);
-    void render(Camera *camera, RenderOptions *renderOptions);
+    void render(RenderOptions *renderOptions);
     int vertices(Vector3D *p, int n);
     BoundingBox *bounds(BoundingBox *boundingBox);
     Vector3D midPoint();
