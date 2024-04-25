@@ -2,9 +2,11 @@
 #define __ELEMENT__
 
 #include "common/linealAlgebra/Matrix2x2.h"
+#include "common/RenderOptions.h"
 #include "common/ColorRgb.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
+#include "common/RenderOptions.h"
 
 enum ElementTypes {
     ELEMENT_GALERKIN,
@@ -57,7 +59,7 @@ class Element {
     Element *childContainingElement(Element *descendant);
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
-    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *));
+    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, RenderOptions *renderOptions));
     bool traverseAllChildren(void (*traversalCallbackFunction)(Element *)) const;
 };
 

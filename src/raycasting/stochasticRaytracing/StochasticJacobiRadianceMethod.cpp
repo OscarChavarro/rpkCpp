@@ -476,7 +476,7 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 static void
 stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
-        topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
+        topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
     } else {
         // Not yet initialized
         openGlRenderPatch(patch, camera, renderOptions);

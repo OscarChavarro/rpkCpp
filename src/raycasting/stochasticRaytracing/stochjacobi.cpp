@@ -574,8 +574,8 @@ stochasticJacobiElementShootRay(
         double uHit = 0.0;
         double vHit = 0.0;
         stochasticJacobiUniformHitCoordinates(hit, &uHit, &vHit);
-        stochasticJacobiRefineAndPropagate(topLevelGalerkinElement(src->patch), zeta[0], zeta[1],
-                                           topLevelGalerkinElement(hit->patch), uHit, vHit, &ray, renderOptions);
+        stochasticJacobiRefineAndPropagate(topLevelStochasticRadiosityElement(src->patch), zeta[0], zeta[1],
+                                           topLevelStochasticRadiosityElement(hit->patch), uHit, vHit, &ray, renderOptions);
     } else {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
     }
@@ -672,7 +672,7 @@ stochasticJacobiShootRays(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         stochasticJacobiShootRaysRecursive(
             sceneWorldVoxelGrid,
-            topLevelGalerkinElement(scenePatches->get(i)),
+            topLevelStochasticRadiosityElement(scenePatches->get(i)),
             rnd,
             &rayCount,
             &cumulative,

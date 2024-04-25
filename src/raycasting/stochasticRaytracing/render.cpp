@@ -355,7 +355,7 @@ stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem) {
 }
 
 void
-stochasticRadiosityElementRender(Element *element) {
+stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions) {
     StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vector3D vertices[4];
 

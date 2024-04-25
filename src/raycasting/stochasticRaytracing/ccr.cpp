@@ -69,7 +69,7 @@ initialControlRadiosity(
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         initialControlRadiosityRecursive(
-                topLevelGalerkinElement(scenePatches->get(i)),
+                topLevelStochasticRadiosityElement(scenePatches->get(i)),
                 minRad,
                 maxRad,
                 fMin,
@@ -195,7 +195,7 @@ refineControlRadiosity(
     // a regular subdivision of the interval
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         refineControlRadiosityRecursive(
-            topLevelGalerkinElement(scenePatches->get(i)),
+            topLevelStochasticRadiosityElement(scenePatches->get(i)),
             &colorOne,
             rad,
             f);

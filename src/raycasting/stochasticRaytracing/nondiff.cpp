@@ -45,13 +45,13 @@ makeLightSourceTable(java::ArrayList<Patch *> *scenePatches, java::ArrayList<Pat
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
-        topLevelGalerkinElement(patch)->sourceRad.clear();
+        topLevelStochasticRadiosityElement(patch)->sourceRad.clear();
     }
 }
 
 static void
 nextLightSample(Patch *patch, double *zeta) {
-    double *xi = sample4D(topLevelGalerkinElement(patch)->rayIndex++);
+    double *xi = sample4D(topLevelStochasticRadiosityElement(patch)->rayIndex++);
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0], v = xi[1];
         foldSampleF(&u, &v);
@@ -101,13 +101,13 @@ sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double lig
         double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
         double outCos = vectorDotProduct(ray.dir, light->patch->normal);
         ColorRgb receivedRadiosity;
-        ColorRgb Rd = topLevelGalerkinElement(hit->patch)->Rd;
+        ColorRgb Rd = topLevelStochasticRadiosityElement(hit->patch)->Rd;
         receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
         getTopLevelPatchRad(hit->patch)[0].add(getTopLevelPatchRad(hit->patch)[0], receivedRadiosity);
         getTopLevelPatchUnShotRad(hit->patch)[0].add(getTopLevelPatchUnShotRad(hit->patch)[0], receivedRadiosity);
-        topLevelGalerkinElement(hit->patch)->sourceRad.add(
-            topLevelGalerkinElement(hit->patch)->sourceRad, receivedRadiosity);
+        topLevelStochasticRadiosityElement(hit->patch)->sourceRad.add(
+            topLevelStochasticRadiosityElement(hit->patch)->sourceRad, receivedRadiosity);
     }
 }
 
@@ -155,13 +155,13 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
             getTopLevelPatchRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
-              M_PI * patch->area * (topLevelGalerkinElement(patch)->importance -
-                                        topLevelGalerkinElement(patch)->sourceImportance),
+              M_PI * patch->area * (topLevelStochasticRadiosityElement(patch)->importance -
+                                        topLevelStochasticRadiosityElement(patch)->sourceImportance),
               getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
-                topLevelGalerkinElement(patch)->unShotImportance);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelGalerkinElement(patch)->importance;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelGalerkinElement(patch)->sourceImportance;
+                topLevelStochasticRadiosityElement(patch)->unShotImportance);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelStochasticRadiosityElement(patch)->importance;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelStochasticRadiosityElement(patch)->sourceImportance;
         monteCarloRadiosityPatchComputeNewColor(patch);
     }
 }

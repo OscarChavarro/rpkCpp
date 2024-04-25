@@ -112,11 +112,11 @@ Element::traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *
 }
 
 void
-Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *))
+Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, RenderOptions *))
 {
     if ( regularSubElements == nullptr ) {
         // Trivial case
-        traversalCallbackFunction(this);
+        traversalCallbackFunction(this, &GLOBAL_render_renderOptions);
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {

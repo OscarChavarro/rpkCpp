@@ -138,28 +138,28 @@ NR_VERTICES(StochasticRadiosityElement *elem) {
 }
 
 inline StochasticRadiosityElement*
-topLevelGalerkinElement(Patch *patch) {
+topLevelStochasticRadiosityElement(Patch *patch) {
     return (StochasticRadiosityElement *)patch->radianceData;
 }
 
 inline ColorRgb *
 getTopLevelPatchRad(Patch *patch) {
-    return topLevelGalerkinElement(patch)->radiance;
+    return topLevelStochasticRadiosityElement(patch)->radiance;
 }
 
 inline ColorRgb *
 getTopLevelPatchUnShotRad(Patch *patch) {
-    return topLevelGalerkinElement(patch)->unShotRadiance;
+    return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
 }
 
 inline ColorRgb*
 getTopLevelPatchReceivedRad(Patch *patch) {
-    return topLevelGalerkinElement(patch)->receivedRadiance;
+    return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
 }
 
 inline GalerkinBasis *
 getTopLevelPatchBasis(Patch *patch) {
-    return topLevelGalerkinElement(patch)->basis;
+    return topLevelStochasticRadiosityElement(patch)->basis;
 }
 
 extern float monteCarloRadiosityScalarReflectance(Patch *P);

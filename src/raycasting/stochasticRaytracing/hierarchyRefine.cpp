@@ -140,7 +140,7 @@ LowPowerLink(
     // Compute receiver reflectance times source radiosity
     rhosrcrad.scaledCopy(M_PI, src->radiance[0]);
     if ( !rcv->isCluster() ) {
-        ColorRgb Rd = topLevelGalerkinElement(rcv->patch)->Rd;
+        ColorRgb Rd = topLevelStochasticRadiosityElement(rcv->patch)->Rd;
         rhosrcrad.selfScalarProduct(Rd);
     }
 
