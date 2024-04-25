@@ -479,20 +479,20 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch, Camera *camera, RenderOpt
         topLevelGalerkinElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender);
     } else {
         // Not yet initialized
-        openGlRenderPatch(patch, camera, &GLOBAL_render_renderOptions);
+        openGlRenderPatch(patch, camera, renderOptions);
     }
 }
 
 void
 StochasticJacobiRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
-    if ( GLOBAL_render_renderOptions.frustumCulling ) {
+    if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(
             scene,
             stochasticRelaxationRadiosityRenderPatch,
-            &GLOBAL_render_renderOptions);
+            renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera, &GLOBAL_render_renderOptions);
+            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
 }

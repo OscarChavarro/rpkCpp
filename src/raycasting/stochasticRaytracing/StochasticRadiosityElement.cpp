@@ -772,7 +772,7 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element,
 }
 
 static StochasticRadiosityElement **
-monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
+monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, RenderOptions *renderOptions) {
     Vertex *v0 = element->vertices[0];
     Vertex *v1 = element->vertices[1];
     Vertex *v2 = element->vertices[2];
@@ -788,7 +788,7 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element) {
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m3, mm, m2, v3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
-    openGlRenderSetColor(&GLOBAL_render_renderOptions.outlineColor);
+    openGlRenderSetColor(&renderOptions->outlineColor);
     openGlRenderLine(v0->point, v1->point);
     openGlRenderLine(v1->point, v2->point);
     openGlRenderLine(v2->point, v3->point);
@@ -830,7 +830,7 @@ stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *el
             monteCarloRadiosityRegularSubdivideTriangle(element, renderOptions);
             break;
         case 4:
-            monteCarloRadiosityRegularSubdivideQuad(element);
+            monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
             break;
         default:
             logFatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
