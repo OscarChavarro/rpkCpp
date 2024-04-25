@@ -2,8 +2,6 @@
 Rendering stuff independent of the graphics library being used
 */
 
-#include <cstring>
-
 #include "common/mymath.h"
 #include "common/options.h"
 #include "skin/Geometry.h"
