@@ -15,6 +15,7 @@
 #define FLAT 2
 #define GOURAUD 4
 #define STRONG 8
+#define NOT_A_REGULAR_SUB_ELEMENT (-1)
 
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
@@ -94,18 +95,7 @@ Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
 GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
-    Element(),
-    potential(),
-    receivedPotential(),
-    unShotPotential(),
-    directPotential(),
-    minimumArea(),
-    blockerSize(),
-    numberOfPatches(),
-    tmp(),
-    childNumber(),
-    basisSize(),
-    basisUsed()
+    Element()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
 
@@ -119,6 +109,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     potential = 0.0f;
     receivedPotential = 0.0f;
     unShotPotential = 0.0f;
+    directPotential = 0.0f;
     patch = nullptr;
     geometry = nullptr;
     parent = nullptr;
@@ -126,7 +117,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     irregularSubElements = nullptr; // New list
     upTrans = nullptr;
     area = 0.0;
-    childNumber = -1; // Means: "not a regular sub-element"
+    childNumber = NOT_A_REGULAR_SUB_ELEMENT;
     basisSize = 0;
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
