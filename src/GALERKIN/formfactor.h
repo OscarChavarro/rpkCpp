@@ -11,11 +11,11 @@ All kind of form factor computations
 
 extern void
 computeAreaToAreaFormFactorVisibility(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
-    java::ArrayList<Geometry *> *geometryShadowList,
-    bool isSceneGeometry,
-    bool isClusteredGeometry,
+    const java::ArrayList<Geometry *> *geometryShadowList,
+    const bool isSceneGeometry,
+    const bool isClusteredGeometry,
     GalerkinState *galerkinState);
 
 #endif

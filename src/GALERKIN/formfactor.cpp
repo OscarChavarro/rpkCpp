@@ -84,12 +84,12 @@ To be used when integrating over the surface of the source element
 */
 static double
 pointKernelEval(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     Vector3D *x,
     Vector3D *y,
     GalerkinElement *receiverElement,
     GalerkinElement *sourceElement,
-    java::ArrayList<Geometry *> *shadowGeometryList,
+    const java::ArrayList<Geometry *> *shadowGeometryList,
     double *vis,
     bool isSceneGeometry,
     bool isClusteredGeometry,
@@ -143,14 +143,14 @@ pointKernelEval(
     if ( !shadowGeometryList ) {
         *vis = 1.0;
     } else if ( !galerkinState->multiResolutionVisibility ) {
-        if ( !shadowTestDiscretization(
+        if ( shadowTestDiscretization(
                 &ray,
                 shadowGeometryList,
                 sceneWorldVoxelGrid,
                 distance,
                 &hitStore,
                 isSceneGeometry,
-                isClusteredGeometry) ) {
+                isClusteredGeometry) == nullptr ) {
             *vis = 1.0;
         } else {
             *vis = 0.0;
@@ -174,8 +174,8 @@ Workshop, Porto, Portugal, June 1996, p 158.
 static void
 doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
-    CubatureRule *crrcv,
-    CubatureRule *crsrc,
+    CubatureRule *cubatureRuleRcv,
+    CubatureRule *cubatureRuleSrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES],
     GalerkinState *galerkinState)
 {
@@ -185,9 +185,10 @@ doHigherOrderAreaToAreaFormFactor(
     static double gBeta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
     static double deltaBeta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
 
-    GalerkinElement *rcv = link->receiverElement, *src = link->sourceElement;
-    GalerkinBasis *rcvBasis;
-    GalerkinBasis *srcBasis;
+    GalerkinElement *receiverElement = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    GalerkinBasis *receiverBasis;
+    GalerkinBasis *sourceBasis;
     double gAlphaBeta;
     double gMin;
     double gMax;
@@ -195,26 +196,26 @@ doHigherOrderAreaToAreaFormFactor(
     int alpha;
     int beta;
     ColorRgb *srcRad = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
-                       src->unShotRadiance : src->radiance;
+                       sourceElement->unShotRadiance : sourceElement->radiance;
 
     // Receiver and source basis description
-    if ( rcv->isCluster() ) {
+    if ( receiverElement->isCluster() ) {
         // No basis description for clusters: we always use a constant approximation on clusters
-        rcvBasis = nullptr;
+        receiverBasis = nullptr;
     } else {
-        rcvBasis = (rcv->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        receiverBasis = (receiverElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
-    if ( src->isCluster() ) {
-        srcBasis = nullptr;
+    if ( sourceElement->isCluster() ) {
+        sourceBasis = nullptr;
     } else {
-        srcBasis = (src->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        sourceBasis = (sourceElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     // receiver patch for all basis functions \alpha
-    for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
-        if ( rcv->isCluster() ) {
+    for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
+        if ( receiverElement->isCluster() ) {
             // Constant approximation on clusters
             if ( link->numberOfBasisFunctionsOnReceiver != 1 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
@@ -222,8 +223,8 @@ doHigherOrderAreaToAreaFormFactor(
             }
             rcvPhi[0][k] = 1.0;
         } else {
-            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && rcvBasis != nullptr; alpha++ ) {
-                rcvPhi[alpha][k] = rcvBasis->function[alpha](crrcv->u[k], crrcv->v[k]);
+            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && receiverBasis != nullptr; alpha++ ) {
+                rcvPhi[alpha][k] = receiverBasis->function[alpha](cubatureRuleRcv->u[k], cubatureRuleRcv->v[k]);
             }
         }
         deltaRadiance[k].clear();
@@ -233,28 +234,28 @@ doHigherOrderAreaToAreaFormFactor(
     gMax = -HUGE;
     for ( beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
-        if ( src->isCluster() ) {
+        if ( sourceElement->isCluster() ) {
             if ( beta > 0 ) {
                 logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
             }
-            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
+            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
                 srcPhi[l] = 1.0;
             }
         } else {
-            for ( int l = 0; l < crsrc->numberOfNodes && srcBasis != nullptr; l++ ) {
-                srcPhi[l] = srcBasis->function[beta](crsrc->u[l], crsrc->v[l]);
+            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes && sourceBasis != nullptr; l++ ) {
+                srcPhi[l] = sourceBasis->function[beta](cubatureRuleSrc->u[l], cubatureRuleSrc->v[l]);
             }
         }
 
-        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             // Compute point-to-patch form factors for positions x_k on receiver and
             // basis function \beta on the source
             gBeta[k] = 0.0;
-            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
-                gBeta[k] += crsrc->w[l] * Gxy[k][l] * srcPhi[l];
+            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
+                gBeta[k] += cubatureRuleSrc->w[l] * Gxy[k][l] * srcPhi[l];
             }
-            gBeta[k] *= src->area;
+            gBeta[k] *= sourceElement->area;
 
             // First part of error estimate at receiver node x_k
             deltaBeta[k] = -gBeta[k];
@@ -264,24 +265,24 @@ doHigherOrderAreaToAreaFormFactor(
             // Compute patch-to-patch form factor for basis function alpha on the
             // receiver and beta on the source
             gAlphaBeta = 0.0;
-            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
-                gAlphaBeta += crrcv->w[k] * rcvPhi[alpha][k] * gBeta[k];
+            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
+                gAlphaBeta += cubatureRuleRcv->w[k] * rcvPhi[alpha][k] * gBeta[k];
             }
-            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(rcv->area * gAlphaBeta);
+            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(receiverElement->area * gAlphaBeta);
 
             // Second part of error estimate at receiver node x_k
-            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
                 deltaBeta[k] += gAlphaBeta * rcvPhi[alpha][k];
             }
         }
 
-        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             deltaRadiance[k].addScaled(deltaRadiance[k], (float) deltaBeta[k], srcRad[beta]);
         }
 
         if ( beta == 0 ) {
             // Determine minimum and maximum point-to-patch form factor
-            for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
                 if ( gBeta[k] < gMin ) {
                     gMin = gBeta[k];
                 }
@@ -298,18 +299,18 @@ doHigherOrderAreaToAreaFormFactor(
     link->deltaK = new float[1];
     if ( srcRad[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
-        gav = link->K[0] / rcv->area;
+        gav = link->K[0] / receiverElement->area;
         link->deltaK[0] = (float)(gMax - gav);
         if ( gav - gMin > link->deltaK[0] ) {
             link->deltaK[0] = (float)(gav - gMin);
         }
     } else {
         link->deltaK[0] = 0.0;
-        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             double delta;
 
             deltaRadiance[k].divide(deltaRadiance[k], srcRad[0]);
-            if ((delta = std::fabs(deltaRadiance[k].maximumComponent())) > link->deltaK[0] ) {
+            if ( (delta = std::fabs(deltaRadiance[k].maximumComponent())) > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }
         }
@@ -328,8 +329,8 @@ doConstantAreaToAreaFormFactor(
     CubatureRule *crSrc,
     double Gxy[CUBAMAXNODES][CUBAMAXNODES])
 {
-    GalerkinElement *rcv = link->receiverElement;
-    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *receiverElement = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
     double Gx;
     double G = 0.0;
     double gMin = HUGE;
@@ -340,7 +341,7 @@ doConstantAreaToAreaFormFactor(
         for ( int l = 0; l < crSrc->numberOfNodes; l++ ) {
             Gx += crSrc->w[l] * Gxy[k][l];
         }
-        Gx *= src->area;
+        Gx *= sourceElement->area;
 
         G += crRcv->w[k] * Gx;
 
@@ -351,7 +352,7 @@ doConstantAreaToAreaFormFactor(
             gMin = Gx;
         }
     }
-    link->K[0] = (float)(rcv->area * G);
+    link->K[0] = (float)(receiverElement->area * G);
 
     link->deltaK = new float[1];
     link->deltaK[0] = (float)(G - gMin);
@@ -407,14 +408,14 @@ sept 1995.
 */
 void
 computeAreaToAreaFormFactorVisibility(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
-    java::ArrayList<Geometry *> *geometryShadowList,
-    bool isSceneGeometry,
-    bool isClusteredGeometry,
+    const java::ArrayList<Geometry *> *geometryShadowList,
+    const bool isSceneGeometry,
+    const bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
-    // TODO: Check how to keep the cash, in a re-entrant implementation
+    // TODO: Check how to keep the cache, in a re-entrant implementation
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
@@ -427,31 +428,30 @@ computeAreaToAreaFormFactorVisibility(
     double kVal;
     double vis;
     double maxPtFormFactor;
-    unsigned viscount = 0; // Number of rays that "pass" occluders
-    GalerkinElement *rcv = link->receiverElement;
-    GalerkinElement *src = link->sourceElement;
+    unsigned visibilityCount = 0; // Number of rays that "pass" occluders
+    GalerkinElement *receiverElement = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
 
-    if ( rcv->isCluster() || src->isCluster() ) {
-        BoundingBox rcvBounds;
-        BoundingBox srcBounds;
-        rcv->bounds(&rcvBounds);
-        src->bounds(&srcBounds);
+    if ( receiverElement->isCluster() || sourceElement->isCluster() ) {
+        BoundingBox sourceBoundingBox;
+        BoundingBox receiverBoundingBox;
+        receiverElement->bounds(&receiverBoundingBox);
+        sourceElement->bounds(&sourceBoundingBox);
 
         // Do not allow interactions between a pair of overlapping source and receiver
-        if ( !rcvBounds.disjointToOtherBoundingBox(&srcBounds) ) {
+        if ( !receiverBoundingBox.disjointToOtherBoundingBox(&sourceBoundingBox) ) {
             // Take 0 as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0;
+                link->K[0] = 0.0f;
             } else {
-                int i;
-                for ( i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
-                    link->K[i] = 0.0;
+                for ( int i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
+                    link->K[i] = 0.0f;
                 }
             }
 
             // And a large error on the form factor
             link->deltaK = new float[1];
-            link->deltaK[0] = 1.0;
+            link->deltaK[0] = 1.0f;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
@@ -461,19 +461,19 @@ computeAreaToAreaFormFactorVisibility(
     } else {
         // We assume that no light transport can take place between a surface element
         // and itself. It would cause trouble if we would go on b.t.w.
-        if ( rcv == src ) {
+        if ( receiverElement == sourceElement ) {
             // Take 0. as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0;
+                link->K[0] = 0.0f;
             } else {
                 for ( int i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
-                    link->K[i] = 0.0;
+                    link->K[i] = 0.0f;
                 }
             }
 
             // And a 0 error on the form factor
             link->deltaK = new float[1];
-            link->deltaK[0] = 0.0;
+            link->deltaK[0] = 0.0f;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion
@@ -484,35 +484,35 @@ computeAreaToAreaFormFactorVisibility(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( rcv != galerkinState->formFactorLastRcv ) {
-        determineNodes(rcv, &cubatureRuleRcv, x, RECEIVER, galerkinState);
+    if ( receiverElement != galerkinState->formFactorLastRcv ) {
+        determineNodes(receiverElement, &cubatureRuleRcv, x, RECEIVER, galerkinState);
     }
 
     // Same for the source element
-    if ( src != galerkinState->formFactorLastSrc ) {
-        determineNodes(src, &cubatureRuleSrc, y, SOURCE, galerkinState);
+    if ( sourceElement != galerkinState->formFactorLastSrc ) {
+        determineNodes(sourceElement, &cubatureRuleSrc, y, SOURCE, galerkinState);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
-    double maxKVal = 0;
+    double maxKVal = 0.0;
 
-    if ( rcv != galerkinState->formFactorLastRcv || src != galerkinState->formFactorLastSrc ) {
+    if ( receiverElement != galerkinState->formFactorLastRcv || sourceElement != galerkinState->formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
 
         // Mark the patches in order to avoid immediate self-intersections
-        Patch::dontIntersect(4, rcv->isCluster() ? nullptr : rcv->patch,
-                             rcv->isCluster() ? nullptr : rcv->patch->twin,
-                             src->isCluster() ? nullptr : src->patch,
-                             src->isCluster() ? nullptr : src->patch->twin);
-        geomDontIntersect(rcv->isCluster() ? rcv->geometry : nullptr,
-                          src->isCluster() ? src->geometry : nullptr);
+        Patch::dontIntersect(4, receiverElement->isCluster() ? nullptr : receiverElement->patch,
+                             receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
+                             sourceElement->isCluster() ? nullptr : sourceElement->patch,
+                             sourceElement->isCluster() ? nullptr : sourceElement->patch->twin);
+        geomDontIntersect(receiverElement->isCluster() ? receiverElement->geometry : nullptr,
+                          sourceElement->isCluster() ? sourceElement->geometry : nullptr);
 
         maxKVal = 0.0; // Compute maximum un-occluded kernel value
         maxPtFormFactor = 0.0; // Maximum un-occluded point-on-receiver to source form factor
-        viscount = 0; // Count nr of rays that "pass" occluders
+        visibilityCount = 0; // Count the number of rays that "pass" occluders
         for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             double f = 0.0;
             for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
@@ -520,8 +520,8 @@ computeAreaToAreaFormFactorVisibility(
                     sceneWorldVoxelGrid,
                     &x[k],
                     &y[l],
-                    rcv,
-                    src,
+                    receiverElement,
+                    sourceElement,
                     geometryShadowList,
                     &vis,
                     isSceneGeometry,
@@ -534,21 +534,20 @@ computeAreaToAreaFormFactorVisibility(
                     maxKVal = kVal;
                 }
                 if ( Gxy[k][l] != 0.0 ) {
-                    viscount++;
+                    visibilityCount++;
                 }
             }
             if ( f > maxPtFormFactor ) {
                 maxPtFormFactor = f;
             }
         }
-        maxPtFormFactor *= src->area;
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
         Patch::dontIntersect(0);
         geomDontIntersect(nullptr, nullptr);
     }
 
-    if ( viscount != 0 ) {
+    if ( visibilityCount != 0 ) {
         // Actually compute the form factors
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
             doConstantAreaToAreaFormFactor(link, cubatureRuleRcv, cubatureRuleSrc, Gxy);
@@ -558,19 +557,19 @@ computeAreaToAreaFormFactorVisibility(
     }
 
     // Remember receiver and source for next time
-    galerkinState->formFactorLastRcv = rcv;
-    galerkinState->formFactorLastSrc = src;
+    galerkinState->formFactorLastRcv = receiverElement;
+    galerkinState->formFactorLastSrc = sourceElement;
 
-    if ( galerkinState->clusteringStrategy == ISOTROPIC && (rcv->isCluster() || src->isCluster()) ) {
+    if ( galerkinState->clusteringStrategy == ISOTROPIC && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
         if ( link-> deltaK != nullptr ) {
             delete[] link->deltaK;
         }
         link->deltaK = new float[1];
-        link->deltaK[0] = (float)(maxKVal * src->area);
+        link->deltaK[0] = (float)(maxKVal * sourceElement->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->visibility = (unsigned)(255.0 * (double) viscount / (double)(cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
+    link->visibility = (unsigned)(255.0 * (double) visibilityCount / (double)(cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!

@@ -94,7 +94,7 @@ geomMultiResolutionVisibility(
 
 double
 geomListMultiResolutionVisibility(
-    java::ArrayList<Geometry *> *geometryOccluderList,
+    const java::ArrayList<Geometry *> *geometryOccluderList,
     Ray *ray,
     float rcvDist,
     float srcSize,

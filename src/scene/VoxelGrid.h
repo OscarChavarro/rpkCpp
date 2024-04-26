@@ -22,32 +22,32 @@ class VoxelGrid {
     static void addToCellsDeletionCache(VoxelData *cell);
 
     inline float
-    voxel2x(const float px) {
+    voxel2x(const float px) const {
         return px * voxelSize.x + boundingBox.coordinates[MIN_X];
     }
 
     inline float
-    voxel2y(const float py) {
+    voxel2y(const float py) const {
         return py * voxelSize.y + boundingBox.coordinates[MIN_Y];
     }
 
     inline float
-    voxel2z(const float pz) {
+    voxel2z(const float pz) const {
         return pz * voxelSize.z + boundingBox.coordinates[MIN_Z];
     }
 
     inline short
-    x2voxel(const float px) {
+    x2voxel(const float px) const {
         return (short)((voxelSize.x<EPSILON) ? 0 : (px - boundingBox.coordinates[MIN_X]) / voxelSize.x);
     }
 
     inline short
-    y2voxel(const float py) {
+    y2voxel(const float py) const {
         return (short)((voxelSize.y < EPSILON) ? 0 : (py - boundingBox.coordinates[MIN_Y]) / voxelSize.y);
     }
 
     inline short
-    z2voxel(const float pz) {
+    z2voxel(const float pz) const {
         return (short)((voxelSize.z < EPSILON) ? 0 : (pz - boundingBox.coordinates[MIN_Z]) / voxelSize.z);
     }
 
@@ -71,7 +71,7 @@ class VoxelGrid {
         Vector3D *tDelta,
         Vector3D *tNext,
         int *step,
-        int *out);
+        int *out) const;
 
     int
     gridBoundsIntersect(
@@ -79,7 +79,7 @@ class VoxelGrid {
         float minimumDistance,
         float maximumDistance,
         /*OUT*/ float *t0,
-        Vector3D *position);
+        Vector3D *position) const;
 
     void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds);
 
@@ -110,7 +110,7 @@ public:
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore);
+        RayHit *hitStore) const;
 
     static void freeVoxelGridElements();
 };

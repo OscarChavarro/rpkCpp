@@ -57,9 +57,9 @@ further away than distance are ignored.
 RayHit *
 shadowTestDiscretization(
     Ray *ray,
-    java::ArrayList<Geometry *> *geometrySceneList,
-    VoxelGrid *voxelGrid,
-    float dist,
+    const java::ArrayList<Geometry *> *geometrySceneList,
+    const VoxelGrid *voxelGrid,
+    float maximumDistance,
     RayHit *hitStore,
     bool isSceneGeometry,
     bool isClusteredGeometry)
@@ -67,15 +67,15 @@ shadowTestDiscretization(
     RayHit *hit;
 
     GLOBAL_statistics.numberOfShadowRays++;
-    hit = cacheHit(ray, &dist, hitStore);
+    hit = cacheHit(ray, &maximumDistance, hitStore);
     if ( hit != nullptr ) {
         GLOBAL_statistics.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * dist, &dist,
+            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * maximumDistance, &maximumDistance,
                                                       HIT_FRONT | HIT_ANY, hitStore);
         } else {
-            hit = voxelGrid->gridIntersect(ray, EPSILON * dist, &dist, HIT_FRONT | HIT_ANY, hitStore);
+            hit = voxelGrid->gridIntersect(ray, EPSILON * maximumDistance, &maximumDistance, HIT_FRONT | HIT_ANY, hitStore);
         }
         if ( hit ) {
             addToShadowCache(hit->patch);

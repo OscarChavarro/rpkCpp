@@ -282,7 +282,7 @@ VoxelGrid::gridBoundsIntersect(
     float minimumDistance,
     float maximumDistance,
     /*OUT*/ float *t0,
-    Vector3D *position)
+    Vector3D *position) const
 {
     *t0 = minimumDistance;
     vectorSumScaled(ray->pos, *t0, ray->dir, *position);
@@ -310,7 +310,7 @@ VoxelGrid::gridTraceSetup(
     Vector3D *tDelta,
     Vector3D *tNext,
     int *step,
-    int *out)
+    int *out) const
 {
     // Compute the grid cell g where this intersection occurs
     g[0] = x2voxel(P->x);
@@ -468,7 +468,7 @@ VoxelGrid::gridIntersect(
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
-    RayHit *hitStore)
+    RayHit *hitStore) const
 {
     Vector3D tNext;
     Vector3D tDelta;

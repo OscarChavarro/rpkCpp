@@ -10,9 +10,9 @@ extern void addToShadowCache(Patch *patch);
 extern RayHit *
 shadowTestDiscretization(
     Ray *ray,
-    java::ArrayList<Geometry *> *geometrySceneList,
-    VoxelGrid *voxelGrid,
-    float dist,
+    const java::ArrayList<Geometry *> *geometrySceneList,
+    const VoxelGrid *voxelGrid,
+    float maximumDistance,
     RayHit *hitStore,
     bool isSceneGeometry,
     bool isClusteredGeometry);

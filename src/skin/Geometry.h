@@ -106,7 +106,7 @@ extern void geometryListBounds(java::ArrayList<Geometry *> *geometryList, Boundi
 
 extern RayHit *
 geometryListDiscretizationIntersect(
-    java::ArrayList<Geometry *> *geometryList,
+    const java::ArrayList<Geometry *> *geometryList,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,

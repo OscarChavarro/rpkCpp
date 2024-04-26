@@ -269,7 +269,7 @@ Geometry::geomCountItems() {
 
 RayHit *
 geometryListDiscretizationIntersect(
-    java::ArrayList<Geometry *> *geometryList,
+    const java::ArrayList<Geometry *> *geometryList,
     Ray *ray,
     float minimumDistance,
     float *maximumDistance,
