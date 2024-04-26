@@ -26,12 +26,12 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         createInitialLinks(
-                sceneWorldVoxelGrid,
-                topLevelElement,
-                SOURCE,
-                galerkinState,
-                sceneGeometries,
-                sceneClusteredGeometries);
+            sceneWorldVoxelGrid,
+            topLevelElement,
+            SOURCE,
+            galerkinState,
+            sceneGeometries,
+            sceneClusteredGeometries);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -107,7 +107,7 @@ GatheringSimpleStrategy::patchGather(
 void
 GatheringSimpleStrategy::patchUpdatePotential(Patch *patch) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    GatheringStrategy::gatheringPushPullPotential(topLevelElement, 0.0f);
+    GatheringStrategy::pushPullPotential(topLevelElement, 0.0f);
 }
 
 /**

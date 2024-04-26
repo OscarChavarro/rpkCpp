@@ -11,7 +11,7 @@ Makes the representation of potential consistent after an iteration
 (potential is always propagated using Jacobi iterations)
 */
 float
-GatheringStrategy::gatheringPushPullPotential(GalerkinElement *element, float down) {
+GatheringStrategy::pushPullPotential(GalerkinElement *element, float down) {
     down += element->receivedPotential / element->area;
     element->receivedPotential = 0.0f;
 
@@ -23,7 +23,7 @@ GatheringStrategy::gatheringPushPullPotential(GalerkinElement *element, float do
 
     if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * GatheringStrategy::gatheringPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
+            up += 0.25f * GatheringStrategy::pushPullPotential((GalerkinElement *) element->regularSubElements[i], down);
         }
     }
 
@@ -34,7 +34,7 @@ GatheringStrategy::gatheringPushPullPotential(GalerkinElement *element, float do
                 // Don't push to irregular surface sub-elements
                 down = 0.0;
             }
-            up += subElement->area / element->area * GatheringStrategy::gatheringPushPullPotential(subElement, down);
+            up += subElement->area / element->area * GatheringStrategy::pushPullPotential(subElement, down);
         }
     }
 

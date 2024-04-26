@@ -4,7 +4,7 @@
 #include "GALERKIN/hierefine.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/gathering.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/GatheringClusteredStrategy.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
@@ -46,7 +46,7 @@ GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
 }
 
 /**
-What if you turn clustering on or off during the calculations?
+Note: clustering should not be turned off during the calculations
 */
 bool
 GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
@@ -64,7 +64,7 @@ GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *ga
         }
     }
 
-    printf("Gal iteration %i\n", galerkinState->iterationNumber);
+    printf("Galerkin (clustered) iteration %i\n", galerkinState->iterationNumber);
 
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
@@ -87,7 +87,7 @@ GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *ga
     basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
 
     if ( galerkinState->importanceDriven ) {
-        GatheringStrategy::gatheringPushPullPotential(galerkinState->topCluster, 0.0);
+        GatheringStrategy::pushPullPotential(galerkinState->topCluster, 0.0);
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms
