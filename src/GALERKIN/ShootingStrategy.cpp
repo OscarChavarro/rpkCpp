@@ -11,26 +11,16 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/hierefine.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/shooting.h"
+#include "GALERKIN/ShootingStrategy.h"
 #include "GALERKIN/basisgalerkin.h"
-
-static inline float
-galerkinGetPotential(Patch *patch) {
-    return ((GalerkinElement *)((patch)->radianceData))->potential;
-}
-
-static inline float
-galerkinGetUnShotPotential(Patch *patch) {
-    return ((GalerkinElement *)((patch)->radianceData))->unShotPotential;
-}
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
 importance if importance-driven (see Bekaert & Willems, "Importance-driven
 Progressive refinement radiosity", EGRW'95, Dublin
 */
-static Patch *
-chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+Patch *
+ShootingStrategy::chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
     Patch *shooting_patch;
     Patch *pot_shooting_patch;
     float power;
@@ -66,8 +56,8 @@ chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinStat
     return shooting_patch;
 }
 
-static void
-clearUnShotRadianceAndPotential(GalerkinElement *elem) {
+void
+ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++) {
             clearUnShotRadianceAndPotential((GalerkinElement *)elem->regularSubElements[i]);
@@ -87,8 +77,8 @@ Creates initial links if necessary. Propagates the un-shot radiance of
 the patch into the environment. Finally clears the un-shot radiance
 at all levels of the element hierarchy for the patch
 */
-static void
-patchPropagateUnShotRadianceAndPotential(
+void
+ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
     Scene *scene,
     Patch *patch,
     GalerkinState *galerkinState,
@@ -127,22 +117,19 @@ patchPropagateUnShotRadianceAndPotential(
 Makes the hierarchical representation of potential consistent over all
 all levels
 */
-static float
-shootingPushPullPotential(GalerkinElement *element, float down) {
-    float up;
-    int i;
-
+float
+ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down) {
     down += element->receivedPotential / element->area;
     element->receivedPotential = 0.0f;
 
-    up = 0.0f;
+    float up = 0.0f;
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         up = down;
     }
 
     if ( element->regularSubElements ) {
-        for ( i = 0; i < 4; i++ ) {
+        for ( int i = 0; i < 4; i++ ) {
             up += 0.25f * shootingPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
         }
     }
@@ -163,8 +150,8 @@ shootingPushPullPotential(GalerkinElement *element, float down) {
     return up;
 }
 
-static void
-patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
+void
+ShootingStrategy::patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     if ( galerkinState->importanceDriven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
@@ -177,8 +164,8 @@ patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
         patch->radianceData->unShotRadiance[0]);
 }
 
-static void
-doPropagate(Scene *scene, Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+void
+ShootingStrategy::doPropagate(Scene *scene, Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     // Propagate the un-shot power of the shooting patch into the environment
     patchPropagateUnShotRadianceAndPotential(scene, shootingPatch, galerkinState, renderOptions);
 
@@ -203,13 +190,11 @@ doPropagate(Scene *scene, Patch *shootingPatch, GalerkinState *galerkinState, Re
     }
 }
 
-static int
-propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    Patch *shootingPatch;
-
+bool
+ShootingStrategy::propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     // Choose a shooting patch. also accumulates the total un-shot power into
     // galerkinState->ambientRadiance
-    shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
+    Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
     if ( !shootingPatch ) {
         return true;
     }
@@ -231,8 +216,8 @@ propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *ren
 Recomputes the potential and un-shot potential of the cluster and its sub-clusters
 based on the potential of the contained patches
 */
-static void
-clusterUpdatePotential(GalerkinElement *clusterElement) {
+void
+ShootingStrategy::clusterUpdatePotential(GalerkinElement *clusterElement) {
     if ( clusterElement->isCluster() ) {
         clusterElement->potential = 0.0f;
         clusterElement->unShotPotential = 0.0f;
@@ -251,8 +236,8 @@ clusterUpdatePotential(GalerkinElement *clusterElement) {
 Chooses the patch with highest un-shot importance (potential times
 area), see Bekaert & Willems, EGRW'95 (Dublin)
 */
-static Patch *
-choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
+Patch *
+ShootingStrategy::choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     float maximumImportance = 0.0f;
     Patch *shootingPatch = nullptr;
 
@@ -269,8 +254,8 @@ choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
     return shootingPatch;
 }
 
-static void
-propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+void
+ShootingStrategy::propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     Patch *shootingPatch;
 
     shootingPatch = choosePotentialShootingPatch(scene->patchList);
@@ -289,8 +274,8 @@ propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *re
 Called for each patch after direct potential has changed (because the
 virtual camera has changed)
 */
-static void
-shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement) {
+void
+ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement) {
     if ( elem->regularSubElements ) {
         int i;
         for ( i = 0; i < 4; i++ ) {
@@ -304,9 +289,11 @@ shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement) {
 
 /**
 One step of the progressive refinement radiosity algorithm
+
+Returns true when converged and false if not
 */
-static int
-reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+bool
+ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene, renderOptions);
@@ -324,12 +311,4 @@ reallyDoShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *
         propagatePotential(scene, galerkinState, renderOptions);
     }
     return propagateRadiance(scene, galerkinState, renderOptions);
-}
-
-/**
-Returns true when converged and false if not
-*/
-int
-doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    return reallyDoShootingStep(scene, galerkinState, renderOptions);
 }

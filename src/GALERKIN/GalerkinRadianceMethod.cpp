@@ -21,7 +21,7 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
-#include "GALERKIN/shooting.h"
+#include "GALERKIN/ShootingStrategy.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/GatheringSimpleStrategy.h"
 #include "GALERKIN/GatheringClusteredStrategy.h"
@@ -410,7 +410,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
             done = gatheringStrategy->doGatheringIteration(scene, &galerkinState, renderOptions);
             break;
         case SOUTH_WELL:
-            done = doShootingStep(scene, &galerkinState, renderOptions);
+            done = ShootingStrategy::doShootingStep(scene, &galerkinState, renderOptions);
             break;
         default:
             logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
