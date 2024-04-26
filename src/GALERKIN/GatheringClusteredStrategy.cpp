@@ -5,6 +5,7 @@
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "GALERKIN/LinkingClusteredStrategy.h"
 #include "GALERKIN/GatheringClusteredStrategy.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
@@ -69,7 +70,7 @@ GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *ga
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
     if ( galerkinState->iterationNumber <= 1 ) {
-        createInitialLinkWithTopCluster(galerkinState->topCluster, RECEIVER, galerkinState);
+        LinkingClusteredStrategy::createInitialLinksForTopCluster(galerkinState->topCluster, RECEIVER, galerkinState);
     }
 
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;

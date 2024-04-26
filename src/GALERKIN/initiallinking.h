@@ -1,6 +1,7 @@
 #ifndef __INITIAL_LINKING__
 #define __INITIAL_LINKING__
 
+#include "scene/VoxelGrid.h"
 #include "GALERKIN/GalerkinElement.h"
 
 enum GalerkinRole {
@@ -16,11 +17,5 @@ createInitialLinks(
     GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Geometry *> *sceneClusteredGeometries);
-
-extern void
-createInitialLinkWithTopCluster(
-    GalerkinElement *element,
-    GalerkinRole role,
-    GalerkinState *galerkinState);
 
 #endif

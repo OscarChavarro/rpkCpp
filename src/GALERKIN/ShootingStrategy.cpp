@@ -11,8 +11,9 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/hierefine.h"
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/ShootingStrategy.h"
 #include "GALERKIN/basisgalerkin.h"
+#include "GALERKIN/LinkingClusteredStrategy.h"
+#include "GALERKIN/ShootingStrategy.h"
 
 /**
 Returns the patch with highest un-shot power, weighted with indirect
@@ -88,7 +89,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
-            createInitialLinkWithTopCluster(topLevelElement, SOURCE, galerkinState);
+            LinkingClusteredStrategy::createInitialLinksForTopCluster(topLevelElement, SOURCE, galerkinState);
         } else {
             createInitialLinks(
                 scene->voxelGrid,
