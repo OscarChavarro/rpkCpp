@@ -5,12 +5,15 @@
 #include "common/numericalAnalysis/CubatureRule.h"
 #include "scene/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/GatheringStrategy.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 #include "scene/Scene.h"
 
 class GalerkinRadianceMethod : public RadianceMethod {
   private:
+    GatheringStrategy *gatheringStrategy;
+
     static void patchInit(Patch *patch);
     static void updateCpuSecs();
 
@@ -47,7 +50,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
     const char *getRadianceMethodName() const;
     void parseOptions(int *argc, char **argv);
     void initialize(Scene *scene);
-    int doStep(Scene *scene, RenderOptions *renderOptions);
+    bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(java::ArrayList<Patch *> *scenePatches);
     ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions);
     Element *createPatchData(Patch *patch);

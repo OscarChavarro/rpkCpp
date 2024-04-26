@@ -497,7 +497,7 @@ StochasticJacobiRadianceMethod::renderScene(Scene *scene, RenderOptions *renderO
     }
 }
 
-int
+bool
 StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     monteCarloRadiosityPreStep(scene, renderOptions);
 

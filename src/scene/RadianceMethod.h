@@ -35,7 +35,7 @@ class RadianceMethod {
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
-    virtual int
+    virtual bool
     doStep(Scene *scene, RenderOptions *renderOptions) = 0;
 
     // Terminates radiance computations on the current scene

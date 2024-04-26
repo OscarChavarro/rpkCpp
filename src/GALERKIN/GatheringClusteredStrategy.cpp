@@ -5,33 +5,40 @@
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/gathering.h"
+#include "GALERKIN/GatheringClusteredStrategy.h"
+
+GatheringClusteredStrategy::GatheringClusteredStrategy() {
+}
+
+GatheringClusteredStrategy::~GatheringClusteredStrategy() {
+}
 
 /**
 Updates the potential of the element after a change of the camera, and as such
 a potential change in directly received potential
 */
-static void
-gatheringUpdateDirectPotential(GalerkinElement *elem, float potential_increment) {
-    if ( elem->regularSubElements != nullptr ) {
+void
+GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, float potential_increment) {
+    if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            gatheringUpdateDirectPotential((GalerkinElement *)elem->regularSubElements[i], potential_increment);
+            GatheringClusteredStrategy::updateClusterDirectPotential((GalerkinElement *)element->regularSubElements[i], potential_increment);
         }
     }
-    elem->directPotential += potential_increment;
-    elem->potential += potential_increment;
+    element->directPotential += potential_increment;
+    element->potential += potential_increment;
 }
 
 /**
 Recomputes the potential of the cluster and its sub-clusters based on the
 potential of the contained patches
 */
-static float
-gatheringClusterUpdatePotential(GalerkinElement *cluster) {
+float
+GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & IS_CLUSTER_MASK ) {
         cluster->potential = 0.0;
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
-            cluster->potential += subCluster->area * gatheringClusterUpdatePotential(subCluster);
+            cluster->potential += subCluster->area * GatheringClusteredStrategy::updatePotential(subCluster);
         }
         cluster->potential /= cluster->area;
     }
@@ -41,8 +48,8 @@ gatheringClusterUpdatePotential(GalerkinElement *cluster) {
 /**
 What if you turn clustering on or off during the calculations?
 */
-int
-galerkinDoClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+bool
+GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene, renderOptions);
@@ -50,9 +57,9 @@ galerkinDoClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState
                 Patch *patch = scene->patchList->get(i);
                 GalerkinElement *top = (GalerkinElement *)patch->radianceData;
                 float potentialIncrement = patch->directPotential - top->directPotential;
-                gatheringUpdateDirectPotential(top, potentialIncrement);
+                GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
             }
-            gatheringClusterUpdatePotential(galerkinState->topCluster);
+            GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
             scene->camera->changed = false;
         }
     }
@@ -70,6 +77,7 @@ galerkinDoClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState
     // Refines and computes light transport over the refined links
     refineInteractions(scene, galerkinState->topCluster, galerkinState, renderOptions);
 
+    // TODO: This makes galerkinState non const. Check if this can be changed
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
 
     // Push received radiance down the hierarchy to the leaf elements, where
@@ -79,7 +87,7 @@ galerkinDoClusteredGatheringIteration(Scene *scene, GalerkinState *galerkinState
     basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
 
     if ( galerkinState->importanceDriven ) {
-        gatheringPushPullPotential(galerkinState->topCluster, 0.0);
+        GatheringStrategy::gatheringPushPullPotential(galerkinState->topCluster, 0.0);
     }
 
     // No visualisation with ambient term for gathering radiosity algorithms

@@ -575,7 +575,7 @@ to fill in a RGB color for display of each patch and/or vertex. These
 colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
-int
+bool
 PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     GLOBAL_photonMap_state.lastClock = clock();
 

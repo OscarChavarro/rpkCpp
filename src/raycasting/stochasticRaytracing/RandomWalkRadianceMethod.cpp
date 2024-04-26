@@ -452,7 +452,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     monteCarloRadiosityTerminate(scenePatches);
 }
 
-int
+bool
 RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     monteCarloRadiosityPreStep(scene, renderOptions);
 

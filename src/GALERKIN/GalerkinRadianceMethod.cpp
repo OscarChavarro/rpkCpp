@@ -24,6 +24,8 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/gathering.h"
 #include "GALERKIN/shooting.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
+#include "GALERKIN/GatheringSimpleStrategy.h"
+#include "GALERKIN/GatheringClusteredStrategy.h"
 
 #define STRING_LENGTH 2000
 
@@ -246,11 +248,16 @@ galerkinFreeMemory() {
 
 GalerkinRadianceMethod::GalerkinRadianceMethod() {
     className = GALERKIN;
+    gatheringStrategy = nullptr;
 }
 
 GalerkinRadianceMethod::~GalerkinRadianceMethod() {
     if ( galerkinState.topCluster != nullptr ) {
         galerkinState.topCluster = nullptr;
+    }
+    if ( gatheringStrategy != nullptr ) {
+        delete gatheringStrategy;
+        gatheringStrategy = nullptr;
     }
 }
 
@@ -345,6 +352,12 @@ GalerkinRadianceMethod::getRadianceMethodName() const  {
 void
 GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
     parseGeneralOptions(galerkinOptions, argc, argv);
+
+    if ( galerkinState.clustered ) {
+        gatheringStrategy = new GatheringClusteredStrategy();
+    } else {
+        gatheringStrategy = new GatheringSimpleStrategy();
+    }
 }
 
 void
@@ -379,7 +392,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
     galerkinState.lastEye.set(HUGE, HUGE, HUGE);
 }
 
-int
+bool
 GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     if ( galerkinState.iterationNumber < 0 ) {
         logError("doGalerkinOneStep", "method not initialized");
@@ -395,11 +408,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     switch ( galerkinState.galerkinIterationMethod ) {
         case JACOBI:
         case GAUSS_SEIDEL:
-            if ( galerkinState.clustered ) {
-                done = galerkinDoClusteredGatheringIteration(scene, &galerkinState, renderOptions);
-            } else {
-                done = galerkinDoGatheringIteration(scene, &galerkinState, renderOptions);
-            }
+            done = gatheringStrategy->doGatheringIteration(scene, &galerkinState, renderOptions);
             break;
         case SOUTH_WELL:
             done = doShootingStep(scene, &galerkinState, renderOptions);

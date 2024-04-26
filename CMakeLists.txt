@@ -107,8 +107,6 @@ set(MAIN_SRC
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
-    src/GALERKIN/gathering.cpp
-    src/GALERKIN/gatheringClustered.cpp
     src/GALERKIN/formfactor.cpp
     src/GALERKIN/initiallinking.cpp
     src/GALERKIN/shooting.cpp
@@ -120,6 +118,9 @@ set(MAIN_SRC
     src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/GatheringStrategy.cpp
+    src/GALERKIN/GatheringSimpleStrategy.cpp
+    src/GALERKIN/GatheringClusteredStrategy.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp

@@ -1,7 +1,3 @@
-/**
-Jacobi or Gauss-Seidel Galerkin radiosity
-*/
-
 #include "java/util/ArrayList.txx"
 #include "scene/Camera.h"
 #include "render/potential.h"
@@ -10,42 +6,7 @@ Jacobi or Gauss-Seidel Galerkin radiosity
 #include "GALERKIN/initiallinking.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
-
-/**
-Makes the representation of potential consistent after an iteration
-(potential is always propagated using Jacobi iterations)
-*/
-float
-gatheringPushPullPotential(GalerkinElement *element, float down) {
-    down += element->receivedPotential / element->area;
-    element->receivedPotential = 0.0f;
-
-    float up = 0.0;
-
-    if ( element->regularSubElements == nullptr && element->irregularSubElements == nullptr ) {
-        up = down + element->patch->directPotential;
-    }
-
-    if ( element->regularSubElements != nullptr ) {
-        for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * gatheringPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
-        }
-    }
-
-    if ( element->irregularSubElements != nullptr ) {
-        for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(i);
-            if ( !element->isCluster() ) {
-                // Don't push to irregular surface sub-elements
-                down = 0.0;
-            }
-            up += subElement->area / element->area * gatheringPushPullPotential(subElement, down);
-        }
-    }
-
-    element->potential = up;
-    return element->potential;
-}
+#include "GALERKIN/GatheringSimpleStrategy.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has
@@ -54,33 +15,39 @@ user during the first Jacobi iterations. During the first iteration, only
 interactions with light sources are created. See Holschuch, EGRW '94
 (Darmstadt - EuroGraphics Rendering Workshop).
 */
-static void
-patchLazyCreateInteractions(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Patch *patch,
-    GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries) {
+void
+GatheringSimpleStrategy::patchLazyCreateInteractions(
+        VoxelGrid *sceneWorldVoxelGrid,
+        Patch *patch,
+        GalerkinState *galerkinState,
+        java::ArrayList<Geometry *> *sceneGeometries,
+        java::ArrayList<Geometry *> *sceneClusteredGeometries) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         createInitialLinks(
-            sceneWorldVoxelGrid,
-            topLevelElement,
-            SOURCE,
-            galerkinState,
-            sceneGeometries,
-            sceneClusteredGeometries);
+                sceneWorldVoxelGrid,
+                topLevelElement,
+                SOURCE,
+                galerkinState,
+                sceneGeometries,
+                sceneClusteredGeometries);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
+}
+
+GatheringSimpleStrategy::GatheringSimpleStrategy() {
+}
+
+GatheringSimpleStrategy::~GatheringSimpleStrategy() {
 }
 
 /**
 Converts the accumulated received radiance into exitant radiance, making the
 hierarchical representation consistent and computes a new color for the patch
 */
-static void
-patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState) {
+void
+GatheringSimpleStrategy::patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
     GalerkinRadianceMethod::recomputePatchColor(patch);
@@ -92,8 +59,8 @@ of the toplevel element, gathers radiance over the resulting lowest level
 interactions and updates the radiance for the patch if doing
 Gauss-Seidel iterations
 */
-static void
-patchGather(
+void
+GatheringSimpleStrategy::patchGather(
     Patch *patch,
     Scene *scene,
     GalerkinState *galerkinState,
@@ -102,7 +69,7 @@ patchGather(
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     // Don't gather to patches without importance. This optimisation can not
-    // be combined with lazy linking based on radiance. */
+    // be combined with lazy linking based on radiance
     if ( galerkinState->importanceDriven &&
          topLevelElement->potential < GLOBAL_statistics.maxDirectPotential * EPSILON ) {
         return;
@@ -115,12 +82,12 @@ patchGather(
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
             createInitialLinks(
-                scene->voxelGrid,
-                topLevelElement,
-                RECEIVER,
-                galerkinState,
-                scene->geometryList,
-                scene->clusteredGeometryList);
+                    scene->voxelGrid,
+                    topLevelElement,
+                    RECEIVER,
+                    galerkinState,
+                    scene->geometryList,
+                    scene->clusteredGeometryList);
             topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
         }
     }
@@ -133,22 +100,21 @@ patchGather(
     // The new radiance values are immediately used in subsequent steps of
     // the current iteration
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ) {
-        patchUpdateRadiance(patch, galerkinState);
+        GatheringSimpleStrategy::patchUpdateRadiance(patch, galerkinState);
     }
 }
 
-static void
-patchUpdatePotential(Patch *patch) {
+void
+GatheringSimpleStrategy::patchUpdatePotential(Patch *patch) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    gatheringPushPullPotential(topLevelElement, 0.0f);
+    GatheringStrategy::gatheringPushPullPotential(topLevelElement, 0.0f);
 }
 
 /**
-Does one step of the radiance computations, returns true if the computations
-have converged and false if not
+Does one step of the radiance computations, returns true if the computations have converged and false if not
 */
-int
-galerkinDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+bool
+GatheringSimpleStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene, renderOptions);
@@ -160,7 +126,7 @@ galerkinDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderO
     if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
          !galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            patchLazyCreateInteractions(
+            GatheringSimpleStrategy::patchLazyCreateInteractions(
                 scene->voxelGrid,
                 scene->patchList->get(i),
                 galerkinState,
@@ -174,7 +140,7 @@ galerkinDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderO
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        patchGather(scene->patchList->get(i), scene, galerkinState, renderOptions);
+        GatheringSimpleStrategy::patchGather(scene->patchList->get(i), scene, galerkinState, renderOptions);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately
@@ -182,13 +148,13 @@ galerkinDoGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderO
     // still-to-be-processed patches in the same iteration
     if ( galerkinState->galerkinIterationMethod == JACOBI ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            patchUpdateRadiance(scene->patchList->get(i), galerkinState);
+            GatheringSimpleStrategy::patchUpdateRadiance(scene->patchList->get(i), galerkinState);
         }
     }
 
     if ( galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            patchUpdatePotential(scene->patchList->get(i));
+            GatheringSimpleStrategy::patchUpdatePotential(scene->patchList->get(i));
         }
     }
 
