@@ -18,7 +18,4 @@ areaToAreaFormFactor(
     bool isClusteredGeometry,
     GalerkinState *galerkinState);
 
-extern bool
-facing(Patch *P, Patch *Q);
-
 #endif

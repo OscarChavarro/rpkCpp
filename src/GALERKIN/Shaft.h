@@ -50,7 +50,7 @@ class Shaft {
     int uniqueShaftPlane(ShaftPlane *parameterPlane);
     ShaftPlanePosition boundingBoxTest(BoundingBox *parameterBoundingBox);
 
-public:
+  public:
     BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
     BoundingBox *ref2;
     BoundingBox boundingBox;

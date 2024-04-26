@@ -1067,3 +1067,31 @@ Patch::computeVertexColors() {
         vertex[i]->computeColor();
     }
 }
+
+/**
+Returns true if P is at least partly in front the plane of Q. Returns false
+if P is coplanar with or behind Q. It suffices to test the vertices of P
+with respect to the plane of Q
+*/
+bool
+Patch::isAtLeastPartlyInFront(Patch *other) {
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        Vector3D *vp = vertex[i]->point;
+        double ep = vectorDotProduct(other->normal, *vp) + other->planeConstant;
+        double tolerance = other->tolerance + vectorTolerance(*vp);
+        if ( ep > tolerance ) {
+            // P is at least partly in front of Q
+            return true;
+        }
+    }
+    return false; // P is behind or coplanar with Q
+}
+
+/**
+Returns true if the two patches can "see" each other: P and Q see each
+other if at least a part of P is in front of Q and vice versa
+*/
+bool
+Patch::facing(Patch *other) {
+    return isAtLeastPartlyInFront(other) && other->isAtLeastPartlyInFront(this);
+}

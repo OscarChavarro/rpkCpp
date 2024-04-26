@@ -571,8 +571,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
 
         if ( !childElement->isCluster() ) {
             Patch *thePatch = childElement->patch;
-            if ((receiverElement->isCluster() && getBoundingBox(receiverElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
-                (!receiverElement->isCluster() && !facing(receiverElement->patch, thePatch)) ) {
+            if ( (receiverElement->isCluster() && getBoundingBox(receiverElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+                (!receiverElement->isCluster() && !receiverElement->patch->facing(thePatch)) ) {
                 continue;
             }
         }
@@ -623,9 +623,9 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
         subInteraction.K = new float [MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( !child->isCluster() ) {
-            Patch *the_patch = child->patch;
-            if ((sourceElement->isCluster() && getBoundingBox(sourceElement->geometry).behindPlane(&the_patch->normal, the_patch->planeConstant)) ||
-                (!sourceElement->isCluster() && !facing(sourceElement->patch, the_patch)) ) {
+            Patch *thePatch = child->patch;
+            if ( (sourceElement->isCluster() && getBoundingBox(sourceElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+                (!sourceElement->isCluster() && !sourceElement->patch->facing(thePatch)) ) {
                 continue;
             }
         }

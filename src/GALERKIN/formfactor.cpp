@@ -8,25 +8,6 @@
 #include "GALERKIN/formfactor.h"
 
 /**
-Returns true if P is at least partly in front the plane of Q. Returns false
-if P is coplanar with or behind Q. It suffices to test the vertices of P
-with respect to the plane of Q
-*/
-static bool
-isAtLeastPartlyInFront(Patch *P, Patch *Q) {
-    for ( int i = 0; i < P->numberOfVertices; i++ ) {
-        Vector3D *vp = P->vertex[i]->point;
-        double ep = vectorDotProduct(Q->normal, *vp) + Q->planeConstant;
-        double tolerance = Q->tolerance + vectorTolerance(*vp);
-        if ( ep > tolerance ) {
-            // P is at least partly in front of Q
-            return true;
-        }
-    }
-    return false; // P is behind or coplanar with Q
-}
-
-/**
 This routine determines the cubature rule to be used on the given element
 and computes the positions on the elements patch that correspond to the nodes
 of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
@@ -590,13 +571,4 @@ areaToAreaFormFactor(
     }
 
     return link->visibility;
-}
-
-/**
-Returns true if the two patches can "see" each other: P and Q see each
-other if at least a part of P is in front of Q and vice versa
-*/
-bool
-facing(Patch *P, Patch *Q) {
-    return isAtLeastPartlyInFront(P, Q) && isAtLeastPartlyInFront(Q, P);
 }

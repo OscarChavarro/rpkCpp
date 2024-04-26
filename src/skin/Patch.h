@@ -40,6 +40,7 @@ class Patch {
     Vector3D *computeMidpoint(Vector3D *p);
     float computeTolerance();
     bool triangleUv(Vector3D *point, Vector2Dd *uv);
+    bool isAtLeastPartlyInFront(Patch *other);
 
   public:
     unsigned id; // Identification number for debugging, ID rendering
@@ -102,6 +103,7 @@ class Patch {
     ColorRgb averageNormalAlbedo(BSDF_FLAGS components);
     ColorRgb averageEmittance(char components);
     void computeVertexColors();
+    bool facing(Patch *other);
 };
 
 #endif

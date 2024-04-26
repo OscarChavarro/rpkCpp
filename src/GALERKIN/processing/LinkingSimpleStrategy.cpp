@@ -19,7 +19,7 @@ createInitialLink(
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
-    if ( !facing(patch, globalPatch) ) {
+    if ( !patch->facing(globalPatch) ) {
         return;
     }
 
