@@ -6,8 +6,8 @@
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/LinkingSimpleStrategy.h"
-#include "GALERKIN/GatheringSimpleStrategy.h"
+#include "LinkingSimpleStrategy.h"
+#include "GatheringSimpleStrategy.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has

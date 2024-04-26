@@ -3,7 +3,7 @@
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/formfactor.h"
-#include "GALERKIN/LinkingSimpleStrategy.h"
+#include "LinkingSimpleStrategy.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER

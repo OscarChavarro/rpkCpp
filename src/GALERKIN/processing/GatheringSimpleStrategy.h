@@ -1,7 +1,7 @@
 #ifndef __GATHERING_SIMPLE_STRATEGY__
 #define __GATHERING_SIMPLE_STRATEGY__
 
-#include "GALERKIN/GatheringStrategy.h"
+#include "GatheringStrategy.h"
 
 class GatheringSimpleStrategy : public GatheringStrategy {
   private:

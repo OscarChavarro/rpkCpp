@@ -12,8 +12,8 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/LinkingClusteredStrategy.h"
-#include "GALERKIN/LinkingSimpleStrategy.h"
+#include "GALERKIN/processing/LinkingClusteredStrategy.h"
+#include "GALERKIN/processing/LinkingSimpleStrategy.h"
 #include "GALERKIN/ShootingStrategy.h"
 
 /**

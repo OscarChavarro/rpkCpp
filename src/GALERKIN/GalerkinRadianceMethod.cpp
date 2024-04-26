@@ -23,8 +23,8 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/ShootingStrategy.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/GatheringSimpleStrategy.h"
-#include "GALERKIN/GatheringClusteredStrategy.h"
+#include "GALERKIN/processing/GatheringSimpleStrategy.h"
+#include "GALERKIN/processing/GatheringClusteredStrategy.h"
 
 #define STRING_LENGTH 2000
 

@@ -117,9 +117,11 @@ set(MAIN_SRC
     src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
-    src/GALERKIN/GatheringStrategy.cpp
-    src/GALERKIN/GatheringSimpleStrategy.cpp
-    src/GALERKIN/GatheringClusteredStrategy.cpp
+    src/GALERKIN/processing/GatheringStrategy.cpp
+    src/GALERKIN/processing/GatheringSimpleStrategy.cpp
+    src/GALERKIN/processing/GatheringClusteredStrategy.cpp
+    src/GALERKIN/processing/LinkingClusteredStrategy.cpp
+    src/GALERKIN/processing/LinkingSimpleStrategy.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp
@@ -180,7 +182,7 @@ set(MAIN_SRC
     src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
-    src/app/main.cpp src/GALERKIN/LinkingClusteredStrategy.cpp src/GALERKIN/LinkingClusteredStrategy.h src/GALERKIN/LinkingSimpleStrategy.cpp src/GALERKIN/LinkingSimpleStrategy.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

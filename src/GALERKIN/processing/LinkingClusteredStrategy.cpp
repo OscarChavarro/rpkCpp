@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/LinkingClusteredStrategy.h"
+#include "LinkingClusteredStrategy.h"
 
 /**
 Creates an initial link between the given element and the top cluster

@@ -5,7 +5,7 @@
 #include "common/numericalAnalysis/CubatureRule.h"
 #include "scene/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
-#include "GALERKIN/GatheringStrategy.h"
+#include "GALERKIN/processing/GatheringStrategy.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
 #include "scene/Scene.h"

@@ -5,8 +5,8 @@
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/LinkingClusteredStrategy.h"
-#include "GALERKIN/GatheringClusteredStrategy.h"
+#include "LinkingClusteredStrategy.h"
+#include "GatheringClusteredStrategy.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
 }
