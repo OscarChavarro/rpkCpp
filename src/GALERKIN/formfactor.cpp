@@ -421,12 +421,13 @@ computeAreaToAreaFormFactorVisibility(
     static CubatureRule *cubatureRuleSrc = nullptr; // Receiving patch and source patch
     static Vector3D x[CUBAMAXNODES];
     static Vector3D y[CUBAMAXNODES];
-    static double Gxy[CUBAMAXNODES][CUBAMAXNODES];
-    static double kval;
-    static double vis;
-    static double maxkval;
-    static double maxptff;
-    static unsigned viscount; // Number of rays that "pass" occluders
+
+    double Gxy[CUBAMAXNODES][CUBAMAXNODES];
+    double kVal;
+    double vis;
+    double maxKVal;
+    double maxPtFormFactor;
+    unsigned viscount = 0; // Number of rays that "pass" occluders
     GalerkinElement *rcv = link->receiverElement;
     GalerkinElement *src = link->sourceElement;
 
@@ -507,13 +508,13 @@ computeAreaToAreaFormFactorVisibility(
         geomDontIntersect(rcv->isCluster() ? rcv->geometry : nullptr,
                           src->isCluster() ? src->geometry : nullptr);
 
-        maxkval = 0.0; // Compute maximum un-occluded kernel value
-        maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
+        maxKVal = 0.0; // Compute maximum un-occluded kernel value
+        maxPtFormFactor = 0.0; // Maximum un-occluded point-on-receiver to source form factor
         viscount = 0; // Count nr of rays that "pass" occluders
         for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             double f = 0.0;
             for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
-                kval = pointKernelEval(
+                kVal = pointKernelEval(
                     sceneWorldVoxelGrid,
                     &x[k],
                     &y[l],
@@ -524,21 +525,21 @@ computeAreaToAreaFormFactorVisibility(
                     isSceneGeometry,
                     isClusteredGeometry,
                     galerkinState);
-                Gxy[k][l] = kval * vis;
-                f += cubatureRuleSrc->w[l] * kval;
+                Gxy[k][l] = kVal * vis;
+                f += cubatureRuleSrc->w[l] * kVal;
 
-                if ( kval > maxkval ) {
-                    maxkval = kval;
+                if ( kVal > maxKVal ) {
+                    maxKVal = kVal;
                 }
                 if ( Gxy[k][l] != 0.0 ) {
                     viscount++;
                 }
             }
-            if ( f > maxptff ) {
-                maxptff = f;
+            if ( f > maxPtFormFactor ) {
+                maxPtFormFactor = f;
             }
         }
-        maxptff *= src->area;
+        maxPtFormFactor *= src->area;
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
         Patch::dontIntersect(0);
@@ -563,11 +564,11 @@ computeAreaToAreaFormFactorVisibility(
             delete[] link->deltaK;
         }
         link->deltaK = new float[1];
-        link->deltaK[0] = (float)(maxkval * src->area);
+        link->deltaK[0] = (float)(maxKVal * src->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->visibility = (unsigned) (255.0 * (double) viscount / (double) (cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
+    link->visibility = (unsigned)(255.0 * (double) viscount / (double)(cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
