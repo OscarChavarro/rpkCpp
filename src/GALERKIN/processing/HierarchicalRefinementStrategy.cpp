@@ -433,7 +433,13 @@ HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
 
     bool isSceneGeometry = (candidatesList == scene->geometryList);
     bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
-    areaToAreaFormFactor(scene->voxelGrid, link, candidatesList, isSceneGeometry, isClusteredGeometry, galerkinState);
+    computeAreaToAreaFormFactorVisibility(
+        scene->voxelGrid,
+        link,
+        candidatesList,
+        isSceneGeometry,
+        isClusteredGeometry,
+        galerkinState);
 
     return link->visibility != 0;
 }

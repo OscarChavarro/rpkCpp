@@ -365,32 +365,34 @@ doConstantAreaToAreaFormFactor(
 /**
 Area (or volume) to area (or volume) form factor:
 
-IN: 	link->rcv, link->src, link->numberOfBasisFunctionsOnReceiver, link->numberOfBasisFunctionsOnSource: receiver and source element
-and the number of basis functions to consider on them.
-shadowlist: a list of possible occluders.
-OUT: link->K, link->deltaK: generalized form factor(s) and error estimation
-coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
-in hierefine.c.
-link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
-link->vis: visibility factor: 255 for total visibility, 0 for total
-occludedness
+IN:
+  - link->rcv
+  - link->src
+  - link->numberOfBasisFunctionsOnReceiver
+  - link->numberOfBasisFunctionsOnSource: receiver and source element
+    and the number of basis functions to consider on them.
+  - shadowlist: a list of possible occluders
+
+OUT:
+ - link->K
+ - link->deltaK: generalized form factor(s) and error estimation coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
+ - link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
+ - link->vis: visibility factor: from 0 (totally occluded) to 255 for total visibility
 
 The caller provides enough storage for storing the coefficients.
 
 Assumptions:
-
-- The first basis function on the elements is constant and equal to 1.
-- The basis functions are orthonormal on their reference domain (unit square or
-  standard triangle).
-- The parameter mapping on the elements is uniform.
+- The first basis function on the elements is constant and equal to 1
+- The basis functions are orthonormal on their reference domain (unit square or standard triangle)
+- The parameter mapping on the elements is uniform
 
 With these assumptions, the jacobians are all constant and equal to the area
 of the elements and the basis overlap matrices are the area of the element times
-the unit matrix.
+the unit matrix
 
 Reference:
 
-- Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
+- [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
 	Rendering Workshop, Porto, Portugal, June 1996, pp 153--164.
 
 We always use a constant approximation on clusters. For the form factor
@@ -399,12 +401,12 @@ is used.
 
 Reference:
 
-- F. Sillion, "A Unified Hierarchical Algorithm for Global Illumination
+- [SILL1995b] F. Sillion, "A Unified Hierarchical Algorithm for Global Illumination
 with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
 sept 1995.
 */
-unsigned
-areaToAreaFormFactor(
+void
+computeAreaToAreaFormFactorVisibility(
     VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,
@@ -415,8 +417,8 @@ areaToAreaFormFactor(
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
-    static CubatureRule *crrcv = nullptr; // Cubature rules to be used over the
-    static CubatureRule *crsrc = nullptr; // Receiving patch and source patch
+    static CubatureRule *cubatureRuleRcv = nullptr; // Cubature rules to be used over the
+    static CubatureRule *cubatureRuleSrc = nullptr; // Receiving patch and source patch
     static Vector3D x[CUBAMAXNODES];
     static Vector3D y[CUBAMAXNODES];
     static double Gxy[CUBAMAXNODES][CUBAMAXNODES];
@@ -452,7 +454,8 @@ areaToAreaFormFactor(
             link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
-            return link->visibility = 128;
+            link->visibility = 128;
+            return;
         }
     } else {
         // We assume that no light transport can take place between a surface element
@@ -473,19 +476,20 @@ areaToAreaFormFactor(
             link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion
-            return link->visibility = 0;
+            link->visibility = 0;
+            return;
         }
     }
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
     if ( rcv != galerkinState->formFactorLastRcv ) {
-        determineNodes(rcv, &crrcv, x, RECEIVER, galerkinState);
+        determineNodes(rcv, &cubatureRuleRcv, x, RECEIVER, galerkinState);
     }
 
     // Same for the source element
     if ( src != galerkinState->formFactorLastSrc ) {
-        determineNodes(src, &crsrc, y, SOURCE, galerkinState);
+        determineNodes(src, &cubatureRuleSrc, y, SOURCE, galerkinState);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
@@ -506,9 +510,9 @@ areaToAreaFormFactor(
         maxkval = 0.0; // Compute maximum un-occluded kernel value
         maxptff = 0.0; // Maximum un-occluded point-on-receiver to source form factor
         viscount = 0; // Count nr of rays that "pass" occluders
-        for ( int k = 0; k < crrcv->numberOfNodes; k++ ) {
+        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             double f = 0.0;
-            for ( int l = 0; l < crsrc->numberOfNodes; l++ ) {
+            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
                 kval = pointKernelEval(
                     sceneWorldVoxelGrid,
                     &x[k],
@@ -521,7 +525,7 @@ areaToAreaFormFactor(
                     isClusteredGeometry,
                     galerkinState);
                 Gxy[k][l] = kval * vis;
-                f += crsrc->w[l] * kval;
+                f += cubatureRuleSrc->w[l] * kval;
 
                 if ( kval > maxkval ) {
                     maxkval = kval;
@@ -544,9 +548,9 @@ areaToAreaFormFactor(
     if ( viscount != 0 ) {
         // Actually compute the form factors
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-            doConstantAreaToAreaFormFactor(link, crrcv, crsrc, Gxy);
+            doConstantAreaToAreaFormFactor(link, cubatureRuleRcv, cubatureRuleSrc, Gxy);
         } else {
-            doHigherOrderAreaToAreaFormFactor(link, crrcv, crsrc, Gxy, galerkinState);
+            doHigherOrderAreaToAreaFormFactor(link, cubatureRuleRcv, cubatureRuleSrc, Gxy, galerkinState);
         }
     }
 
@@ -563,12 +567,10 @@ areaToAreaFormFactor(
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->visibility = (unsigned) (255.0 * (double) viscount / (double) (crrcv->numberOfNodes * crsrc->numberOfNodes));
+    link->visibility = (unsigned) (255.0 * (double) viscount / (double) (cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!
         link->visibility = 254;
     }
-
-    return link->visibility;
 }

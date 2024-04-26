@@ -9,8 +9,8 @@ All kind of form factor computations
 #include "scene/VoxelGrid.h"
 #include "GALERKIN/Interaction.h"
 
-extern unsigned
-areaToAreaFormFactor(
+extern void
+computeAreaToAreaFormFactorVisibility(
     VoxelGrid *sceneWorldVoxelGrid,
     Interaction *link,
     java::ArrayList<Geometry *> *geometryShadowList,

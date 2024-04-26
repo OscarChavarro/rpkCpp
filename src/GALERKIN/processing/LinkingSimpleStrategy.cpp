@@ -13,11 +13,11 @@ static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for s
 
 static void
 createInitialLink(
-        VoxelGrid *sceneWorldVoxelGrid,
-        Patch *patch,
-        GalerkinState *galerkinState,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    VoxelGrid *sceneWorldVoxelGrid,
+    Patch *patch,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
     if ( !patch->facing(globalPatch) ) {
         return;
@@ -41,7 +41,7 @@ createInitialLink(
 
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
 
-    if ((galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ( (galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         Shaft shaft;
 
         if ( galerkinState->exactVisibility ) {
@@ -88,7 +88,13 @@ createInitialLink(
     bool isSceneGeometry = (globalCandidateList == sceneGeometries);
     bool isClusteredGeometry = (globalCandidateList == sceneClusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
-    areaToAreaFormFactor(sceneWorldVoxelGrid, &link, geometryListReferences, isSceneGeometry, isClusteredGeometry, galerkinState);
+    computeAreaToAreaFormFactorVisibility(
+        sceneWorldVoxelGrid,
+        &link,
+        geometryListReferences,
+        isSceneGeometry,
+        isClusteredGeometry,
+        galerkinState);
 
     if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != globalCandidateList ) {
@@ -106,21 +112,21 @@ createInitialLink(
                 src->interactions->add(newLink);
             }
         } else if ( rcv != nullptr ) {
-                rcv->interactions->add(newLink);
-            }
+            rcv->interactions->add(newLink);
+        }
     }
 }
 
 /**
-Yes ... we exploit the hierarchical structure of the scene during initial linking
+Yes... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
 geometryLink(
-        VoxelGrid *sceneWorldVoxelGrid,
-        Geometry *geometry,
-        GalerkinState *galerkinState,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    VoxelGrid *sceneWorldVoxelGrid,
+    Geometry *geometry,
+    GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
