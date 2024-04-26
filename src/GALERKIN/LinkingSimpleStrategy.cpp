@@ -1,11 +1,9 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/mymath.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/formfactor.h"
-#include "GALERKIN/initiallinking.h"
-#include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/LinkingSimpleStrategy.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
 static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
@@ -15,12 +13,12 @@ static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for s
 
 static void
 createInitialLink(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Patch *patch,
-    GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
-    {
+        VoxelGrid *sceneWorldVoxelGrid,
+        Patch *patch,
+        GalerkinState *galerkinState,
+        java::ArrayList<Geometry *> *sceneGeometries,
+        java::ArrayList<Geometry *> *sceneClusteredGeometries)
+{
     if ( !facing(patch, globalPatch) ) {
         return;
     }
@@ -108,8 +106,8 @@ createInitialLink(
                 src->interactions->add(newLink);
             }
         } else if ( rcv != nullptr ) {
-            rcv->interactions->add(newLink);
-        }
+                rcv->interactions->add(newLink);
+            }
     }
 }
 
@@ -118,11 +116,11 @@ Yes ... we exploit the hierarchical structure of the scene during initial linkin
 */
 static void
 geometryLink(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Geometry *geometry,
-    GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+        VoxelGrid *sceneWorldVoxelGrid,
+        Geometry *geometry,
+        GalerkinState *galerkinState,
+        java::ArrayList<Geometry *> *sceneGeometries,
+        java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
@@ -171,7 +169,7 @@ are stored at the receiver element when doing gathering and at the
 source element when doing shooting
 */
 void
-createInitialLinks(
+LinkingSimpleStrategy::createInitialLinks(
     VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *top,
     GalerkinRole role,

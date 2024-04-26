@@ -9,10 +9,11 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "render/ScreenBuffer.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/hierefine.h"
-#include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/LinkingClusteredStrategy.h"
+#include "GALERKIN/LinkingSimpleStrategy.h"
 #include "GALERKIN/ShootingStrategy.h"
 
 /**
@@ -89,9 +90,9 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
-            LinkingClusteredStrategy::createInitialLinksForTopCluster(topLevelElement, SOURCE, galerkinState);
+            LinkingClusteredStrategy::createInitialLinks(topLevelElement, SOURCE, galerkinState);
         } else {
-            createInitialLinks(
+            LinkingSimpleStrategy::createInitialLinks(
                 scene->voxelGrid,
                 topLevelElement,
                 SOURCE,

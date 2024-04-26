@@ -4,7 +4,7 @@
 #include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
-#include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/formfactor.h"
 
 /**

@@ -3,9 +3,10 @@
 #include "render/potential.h"
 #include "material/statistics.h"
 #include "GALERKIN/hierefine.h"
-#include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
+#include "GALERKIN/LinkingSimpleStrategy.h"
 #include "GALERKIN/GatheringSimpleStrategy.h"
 
 /**
@@ -25,7 +26,7 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-        createInitialLinks(
+        LinkingSimpleStrategy::createInitialLinks(
             sceneWorldVoxelGrid,
             topLevelElement,
             SOURCE,
@@ -81,7 +82,7 @@ GatheringSimpleStrategy::patchGather(
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
          galerkinState->importanceDriven ) {
         if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            createInitialLinks(
+            LinkingSimpleStrategy::createInitialLinks(
                     scene->voxelGrid,
                     topLevelElement,
                     RECEIVER,

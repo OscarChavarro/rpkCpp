@@ -7,7 +7,11 @@
 Creates an initial link between the given element and the top cluster
 */
 void
-LinkingClusteredStrategy::createInitialLinksForTopCluster(GalerkinElement *element, GalerkinRole role, GalerkinState *galerkinState) {
+LinkingClusteredStrategy::createInitialLinks(
+    GalerkinElement *element,
+    GalerkinRole role,
+    GalerkinState *galerkinState)
+{
     GalerkinElement *receiverElement = nullptr;
     GalerkinElement *sourceElement = nullptr;
 

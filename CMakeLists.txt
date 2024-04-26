@@ -108,7 +108,6 @@ set(MAIN_SRC
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
     src/GALERKIN/formfactor.cpp
-    src/GALERKIN/initiallinking.cpp
     src/GALERKIN/ShootingStrategy.cpp
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
@@ -181,7 +180,7 @@ set(MAIN_SRC
     src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
-    src/app/main.cpp src/GALERKIN/LinkingClusteredStrategy.cpp src/GALERKIN/LinkingClusteredStrategy.h)
+    src/app/main.cpp src/GALERKIN/LinkingClusteredStrategy.cpp src/GALERKIN/LinkingClusteredStrategy.h src/GALERKIN/LinkingSimpleStrategy.cpp src/GALERKIN/LinkingSimpleStrategy.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

@@ -2,12 +2,12 @@
 #define __LINKING_CLUSTERED_STRATEGY__
 
 #include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/initiallinking.h"
+#include "GALERKIN/GalerkinRole.h"
 
 class LinkingClusteredStrategy {
   public:
     static void
-    createInitialLinksForTopCluster(
+    createInitialLinks(
         GalerkinElement *element,
         GalerkinRole role,
         GalerkinState *galerkinState);
