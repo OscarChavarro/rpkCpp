@@ -366,18 +366,18 @@ doConstantAreaToAreaFormFactor(
 Area (or volume) to area (or volume) form factor:
 
 IN:
-  - link->rcv
-  - link->src
+  - link->receiverElement
+  - link->sourceElement
   - link->numberOfBasisFunctionsOnReceiver
   - link->numberOfBasisFunctionsOnSource: receiver and source element
     and the number of basis functions to consider on them.
-  - shadowlist: a list of possible occluders
+  - geometryShadowList: a list of possible occluders
 
 OUT:
  - link->K
  - link->deltaK: generalized form factor(s) and error estimation coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
  - link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
- - link->vis: visibility factor: from 0 (totally occluded) to 255 for total visibility
+ - link->visibility: visibility factor from 0 (totally occluded) to 255 (total visibility)
 
 The caller provides enough storage for storing the coefficients.
 
@@ -414,6 +414,7 @@ computeAreaToAreaFormFactorVisibility(
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
+    // TODO: Check how to keep the cash, in a re-entrant implementation
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
@@ -425,7 +426,6 @@ computeAreaToAreaFormFactorVisibility(
     double Gxy[CUBAMAXNODES][CUBAMAXNODES];
     double kVal;
     double vis;
-    double maxKVal;
     double maxPtFormFactor;
     unsigned viscount = 0; // Number of rays that "pass" occluders
     GalerkinElement *rcv = link->receiverElement;
@@ -496,6 +496,8 @@ computeAreaToAreaFormFactorVisibility(
     // Evaluate the radiosity kernel between each pair of nodes on the source
     // and the receiver element if at least receiver or source changed since
     // last time
+    double maxKVal = 0;
+
     if ( rcv != galerkinState->formFactorLastRcv || src != galerkinState->formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
