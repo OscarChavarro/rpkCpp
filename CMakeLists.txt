@@ -108,7 +108,7 @@ set(MAIN_SRC
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
     src/GALERKIN/formfactor.cpp
-    src/GALERKIN/ShootingStrategy.cpp
+        src/GALERKIN/processing/ShootingStrategy.cpp
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/Interaction.cpp

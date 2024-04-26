@@ -21,7 +21,7 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
-#include "GALERKIN/ShootingStrategy.h"
+#include "GALERKIN/processing/ShootingStrategy.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/GatheringSimpleStrategy.h"
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"

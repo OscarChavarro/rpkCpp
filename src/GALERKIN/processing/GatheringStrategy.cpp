@@ -1,4 +1,4 @@
-#include "GatheringStrategy.h"
+#include "GALERKIN/processing/GatheringStrategy.h"
 
 GatheringStrategy::GatheringStrategy() {
 }
