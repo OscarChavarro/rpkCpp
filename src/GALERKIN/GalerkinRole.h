@@ -1,8 +1,5 @@
-#ifndef __INITIAL_LINKING__
-#define __INITIAL_LINKING__
-
-#include "scene/VoxelGrid.h"
-#include "GALERKIN/GalerkinElement.h"
+#ifndef __GALERKIN_ROLE__
+#define __GALERKIN_ROLE__
 
 enum GalerkinRole {
     SOURCE,
