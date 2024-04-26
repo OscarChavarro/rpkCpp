@@ -107,7 +107,6 @@ set(MAIN_SRC
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
-    src/GALERKIN/formfactor.cpp
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/Interaction.cpp
@@ -115,6 +114,7 @@ set(MAIN_SRC
     src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/processing/FormFactorStrategy.cpp
     src/GALERKIN/processing/LinkingClusteredStrategy.cpp
     src/GALERKIN/processing/LinkingSimpleStrategy.cpp
     src/GALERKIN/processing/HierarchicalRefinementStrategy.cpp

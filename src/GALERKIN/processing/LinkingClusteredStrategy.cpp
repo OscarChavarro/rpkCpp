@@ -48,14 +48,14 @@ LinkingClusteredStrategy::createInitialLinks(
     }
 
     Interaction *newLink = new Interaction(
-            receiverElement,
-            sourceElement,
-            K,
-            deltaK,
-            receiverElement->basisSize,
-            sourceElement->basisSize,
-            1,
-            128
+        receiverElement,
+        sourceElement,
+        K,
+        deltaK,
+        receiverElement->basisSize,
+        sourceElement->basisSize,
+        1,
+        128
     );
 
     if ( K != nullptr ) {

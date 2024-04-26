@@ -4,8 +4,7 @@
 #include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/mrvisibility.h"
-#include "GALERKIN/GalerkinRole.h"
-#include "GALERKIN/formfactor.h"
+#include "GALERKIN/processing/FormFactorStrategy.h"
 
 /**
 This routine determines the cubature rule to be used on the given element
@@ -13,13 +12,13 @@ and computes the positions on the elements patch that correspond to the nodes
 of the cubature rule on the element. The role (RECEIVER or SOURCE) is only
 relevant for surface elements
 */
-static void
-determineNodes(
+void
+FormFactorStrategy::determineNodes(
     GalerkinElement *element,
     CubatureRule **cr,
     Vector3D x[CUBAMAXNODES],
     GalerkinRole role,
-    GalerkinState *galerkinState)
+    const GalerkinState *galerkinState)
 {
     Matrix2x2 topTransform{};
 
@@ -82,8 +81,8 @@ evaluation of the kernel between each pair of patches. The un-occluded
 point-to-point form factor is returned. Visibility is filled in vis
 To be used when integrating over the surface of the source element
 */
-static double
-pointKernelEval(
+double
+FormFactorStrategy::pointKernelEval(
     const VoxelGrid *sceneWorldVoxelGrid,
     Vector3D *x,
     Vector3D *y,
@@ -171,8 +170,8 @@ Higher order area to area form factor computation. See
 - Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics Rendering
 Workshop, Porto, Portugal, June 1996, p 158.
 */
-static void
-doHigherOrderAreaToAreaFormFactor(
+void
+FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
     CubatureRule *cubatureRuleRcv,
     CubatureRule *cubatureRuleSrc,
@@ -322,8 +321,8 @@ doHigherOrderAreaToAreaFormFactor(
 Like above, but with a constant approximation on both the receiver and source
 element, which makes things slightly simpler
 */
-static void
-doConstantAreaToAreaFormFactor(
+void
+FormFactorStrategy::doConstantAreaToAreaFormFactor(
     Interaction *link,
     CubatureRule *crRcv,
     CubatureRule *crSrc,
@@ -404,18 +403,18 @@ Reference:
 
 - [SILL1995b] F. Sillion, "A Unified Hierarchical Algorithm for Global Illumination
 with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
-sept 1995.
+sept 1995
 */
 void
-computeAreaToAreaFormFactorVisibility(
+FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     const VoxelGrid *sceneWorldVoxelGrid,
-    Interaction *link,
     const java::ArrayList<Geometry *> *geometryShadowList,
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
+    Interaction *link,
     GalerkinState *galerkinState)
 {
-    // TODO: Check how to keep the cache, in a re-entrant implementation
+    // TODO: Check how to keep the cache, in a re-entrant implementation (use GalerkinState?)
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation

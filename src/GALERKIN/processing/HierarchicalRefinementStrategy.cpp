@@ -7,7 +7,7 @@ Hierarchical refinement
 #include "common/mymath.h"
 #include "material/statistics.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/formfactor.h"
+#include "FormFactorStrategy.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/Interaction.h"
@@ -433,12 +433,12 @@ HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
 
     const bool isSceneGeometry = (candidatesList == scene->geometryList);
     const bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
-    computeAreaToAreaFormFactorVisibility(
+    FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         (const VoxelGrid *)scene->voxelGrid,
-        link,
         candidatesList,
         isSceneGeometry,
         isClusteredGeometry,
+        link,
         galerkinState);
 
     return link->visibility != 0;

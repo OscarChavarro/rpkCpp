@@ -2,7 +2,7 @@
 #include "common/error.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/formfactor.h"
+#include "FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
@@ -88,12 +88,12 @@ createInitialLink(
     bool isSceneGeometry = (globalCandidateList == sceneGeometries);
     bool isClusteredGeometry = (globalCandidateList == sceneClusteredGeometries);
     java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
-    computeAreaToAreaFormFactorVisibility(
+    FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         sceneWorldVoxelGrid,
-        &link,
         geometryListReferences,
         isSceneGeometry,
         isClusteredGeometry,
+        &link,
         galerkinState);
 
     if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {

@@ -37,8 +37,8 @@ class GalerkinElement : public Element {
     java::ArrayList<Interaction *> *interactions; // Links with other patches: when using
 			 // a shooting algorithm, the links are kept with the source element. When doing gathering,
 			 // the links are kept with the receiver element
-    float minimumArea; /* equal to area for a surface element or the area
-			 of the smallest surface element in a cluster */
+    float minimumArea; // Equal to area for a surface element or the area
+                       // of the smallest surface element in a cluster
     float blockerSize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int tmp; // For occasional use
