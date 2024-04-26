@@ -1,4 +1,5 @@
 #include "java/util/ArrayList.txx"
+#include "common/mymath.h"
 #include "common/error.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"
