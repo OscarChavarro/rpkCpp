@@ -8,10 +8,10 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
 #include "GALERKIN/clustergalerkincpp.h"
-#include "GALERKIN/hierefine.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 #include "GALERKIN/processing/ShootingStrategy.h"
@@ -105,7 +105,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 
     // Recursively refines the interactions of the shooting patch
     // and computes radiance and potential transport
-    refineInteractions(
+    HierarchicalRefinementStrategy::refineInteractions(
         scene,
         topLevelElement,
         galerkinState,

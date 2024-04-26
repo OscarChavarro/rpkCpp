@@ -2,7 +2,7 @@
 #include "scene/Camera.h"
 #include "render/potential.h"
 #include "material/statistics.h"
-#include "GALERKIN/hierefine.h"
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
@@ -94,7 +94,7 @@ GatheringSimpleStrategy::patchGather(
     }
 
     // Refine the interactions and compute light transport at the leaves
-    refineInteractions(scene, topLevelElement, galerkinState, renderOptions);
+    HierarchicalRefinementStrategy::refineInteractions(scene, topLevelElement, galerkinState, renderOptions);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.

@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Camera.h"
 #include "render/potential.h"
-#include "GALERKIN/hierefine.h"
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
@@ -76,7 +76,7 @@ GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *ga
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    refineInteractions(scene, galerkinState->topCluster, galerkinState, renderOptions);
+    HierarchicalRefinementStrategy::refineInteractions(scene, galerkinState->topCluster, galerkinState, renderOptions);
 
     // TODO: This makes galerkinState non const. Check if this can be changed
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;

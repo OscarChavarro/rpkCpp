@@ -108,20 +108,20 @@ set(MAIN_SRC
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
     src/GALERKIN/formfactor.cpp
-        src/GALERKIN/processing/ShootingStrategy.cpp
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/Interaction.cpp
     src/GALERKIN/scratch.cpp
-    src/GALERKIN/hierefine.cpp
     src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/mrvisibility.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/processing/LinkingClusteredStrategy.cpp
+    src/GALERKIN/processing/LinkingSimpleStrategy.cpp
+    src/GALERKIN/processing/HierarchicalRefinementStrategy.cpp
     src/GALERKIN/processing/GatheringStrategy.cpp
     src/GALERKIN/processing/GatheringSimpleStrategy.cpp
     src/GALERKIN/processing/GatheringClusteredStrategy.cpp
-    src/GALERKIN/processing/LinkingClusteredStrategy.cpp
-    src/GALERKIN/processing/LinkingSimpleStrategy.cpp
+    src/GALERKIN/processing/ShootingStrategy.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp

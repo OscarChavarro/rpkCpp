@@ -11,43 +11,15 @@ Hierarchical refinement
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/Interaction.h"
-#include "GALERKIN/hierefine.h"
-
-/**
-Shaft culling stuff for hierarchical refinement
-*/
-
-static bool
-refineRecursive(
-    Scene *scene,
-    java::ArrayList<Geometry *> **candidatesList,
-    Interaction *link,
-    GalerkinState *state,
-    RenderOptions *renderOptions);
-
-/**
-Evaluates the interaction and returns a code telling whether it is accurate enough
-for computing light transport, or what to do in order to reduce the
-(estimated) error in the most efficient way. This is the famous oracle function
-which is so crucial for efficient hierarchical refinement.
-
-See DOC/galerkin.text
-*/
-enum INTERACTION_EVALUATION_CODE {
-    ACCURATE_ENOUGH,
-    REGULAR_SUBDIVIDE_SOURCE,
-    REGULAR_SUBDIVIDE_RECEIVER,
-    SUBDIVIDE_SOURCE_CLUSTER,
-    SUBDIVIDE_RECEIVER_CLUSTER
-};
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 
 /**
 Does shaft-culling between elements in a link (if the user asked for it).
 Updates the *candidatesList. Returns the old candidate list, so it can be restored
 later (using hierarchicRefinementUnCull())
 */
-static void
-hierarchicRefinementCull(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementCull(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -103,8 +75,8 @@ hierarchicRefinementCull(
 Destroys the current geometryCandidatesList and restores the previous one (passed as
 an argument)
 */
-static void
-hierarchicRefinementUnCull(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementUnCull(
     java::ArrayList<Geometry *> **candidatesList,
     GalerkinState *state)
 {
@@ -118,8 +90,8 @@ hierarchicRefinementUnCull(
 Link error estimation
 */
 
-static double
-hierarchicRefinementColorToError(ColorRgb rad) {
+double
+HierarchicalRefinementStrategy::hierarchicRefinementColorToError(ColorRgb rad) {
     return rad.maximumComponent();
 }
 
@@ -131,8 +103,8 @@ in radiance norm as if no importance is used. This enables us to skip
 estimation of some error terms if it turns out that they are not necessary
 anymore
 */
-static double
-hierarchicRefinementLinkErrorThreshold(
+double
+HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
     Interaction *link,
     double rcv_area,
     GalerkinState *state) {
@@ -169,8 +141,8 @@ Compute an estimate for the approximation error that would be made if the
 candidate link were used for light transport. Use the sources un-shot
 radiance when doing shooting and the total radiance when gathering
 */
-static double
-hierarchicRefinementApproximationError(
+double
+HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
     Interaction *link,
     ColorRgb srcRho,
     ColorRgb rcvRho,
@@ -244,8 +216,8 @@ when intra source cluster visibility is handled with a Z-buffer algorithm,
 this operation is quite expensive and should be avoided when not strictly
 necessary
 */
-static double
-sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area, GalerkinState *galerkinState) {
+double
+HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double rcv_area, GalerkinState *galerkinState) {
     double K = link->K[0];
     if ( K == 0.0 || rcvRho.isBlack() || link->sourceElement->radiance[0].isBlack() ) {
         // Receiver reflectivity or coupling coefficient or source radiance
@@ -275,8 +247,8 @@ sourceClusterRadianceVariationError(Interaction *link, ColorRgb rcvRho, double r
     return hierarchicRefinementColorToError(error);
 }
 
-static INTERACTION_EVALUATION_CODE
-hierarchicRefinementEvaluateInteraction(
+INTERACTION_EVALUATION_CODE
+HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     Interaction *link,
     GalerkinState *galerkinState)
 {
@@ -351,8 +323,8 @@ Computes light transport over the given interaction, which is supposed to be
 accurate enough for doing so. Renormalisation and reflection and such is done
 once for all accumulated received radiance during push-pull
 */
-static void
-hierarchicRefinementComputeLightTransport(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
     Interaction *link,
     GalerkinState *galerkinState)
 {
@@ -434,8 +406,8 @@ Computes the form factor and error estimation coefficients. If the form factor
 is not zero, the data is filled in the INTERACTION pointed to by 'link'
 and true is returned. If the elements don't interact, false is returned
 */
-static int
-hierarchicRefinementCreateSubdivisionLink(
+int
+HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     Scene *scene,
     java::ArrayList<Geometry *> *candidatesList,
     GalerkinElement *rcv,
@@ -470,8 +442,8 @@ hierarchicRefinementCreateSubdivisionLink(
 Duplicates the INTERACTION data and stores it with the receivers interactions
 if doing gathering and with the source for shooting
 */
-static void
-hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
+void
+HierarchicalRefinementStrategy::hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
     Interaction *newLink = interactionDuplicate(link);
 
     if ( state->galerkinIterationMethod == SOUTH_WELL ) {
@@ -488,8 +460,8 @@ either the sources, either the receivers interaction list, depending on the
 iteration method being used. This routine always replaces interaction with
 lower level sub-interactions
 */
-static void
-hierarchicRefinementRegularSubdivideSource(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -533,8 +505,8 @@ hierarchicRefinementRegularSubdivideSource(
 /**
 Same, but subdivides the receiver element
 */
-static void
-hierarchicRefinementRegularSubdivideReceiver(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -578,8 +550,8 @@ hierarchicRefinementRegularSubdivideReceiver(
 Replace the interaction by interactions with the sub-clusters of the source,
 which is a cluster
 */
-static void
-hierarchicRefinementSubdivideSourceCluster(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -631,8 +603,8 @@ hierarchicRefinementSubdivideSourceCluster(
 Replace the interaction by interactions with the sub-clusters of the receiver,
 which is a cluster
 */
-static void
-hierarchicRefinementSubdivideReceiverCluster(
+void
+HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -686,8 +658,8 @@ effectively refined, so the specified interaction can be deleted. Returns false
 if the interaction was not refined and is to be retained. If the interaction
 does not need to be refined, light transport over the interaction is computed
 */
-static bool
-refineRecursive(
+bool
+HierarchicalRefinementStrategy::refineRecursive(
     Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
@@ -752,8 +724,8 @@ refineRecursive(
 /**
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
-static bool
-refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, RenderOptions *renderOptions) {
+bool
+HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, RenderOptions *renderOptions) {
     java::ArrayList<Geometry *> *candidateOccluderList = scene->clusteredGeometryList;
 
     if ( state->exactVisibility && link->visibility == 255 ) {
@@ -764,8 +736,8 @@ refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, RenderO
     return refineRecursive(scene, &candidateOccluderList, link, state, renderOptions);
 }
 
-static void
-removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interaction *> *interactionsToRemove) {
+void
+HierarchicalRefinementStrategy::removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interaction *> *interactionsToRemove) {
     for ( int i = 0; i < interactionsToRemove->size(); i++ ) {
         Interaction *interaction = interactionsToRemove->get(i);
         if ( state->galerkinIterationMethod == SOUTH_WELL ) {
@@ -782,7 +754,7 @@ Refines and computes light transport over all interactions of the given
 toplevel element
 */
 void
-refineInteractions(
+HierarchicalRefinementStrategy::refineInteractions(
     Scene *scene,
     GalerkinElement *parentElement,
     GalerkinState *state,
