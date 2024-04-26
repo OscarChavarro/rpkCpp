@@ -16,8 +16,8 @@ void
 FormFactorStrategy::determineNodes(
     GalerkinElement *element,
     CubatureRule **cr,
-    Vector3D x[CUBAMAXNODES],
-    GalerkinRole role,
+    Vector3D x[CUBATURE_MAXIMUM_NODES],
+    const GalerkinRole role,
     const GalerkinState *galerkinState)
 {
     Matrix2x2 topTransform{};
@@ -36,9 +36,9 @@ FormFactorStrategy::determineNodes(
         dz = boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z];
         for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
             x[k].set(
-                      (float) (boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
-                      (float) (boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
-                      (float) (boundingBox.coordinates[MIN_Z] + (*cr)->t[k] * dz));
+            (float) (boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
+            (float) (boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
+            (float) (boundingBox.coordinates[MIN_Z] + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -84,15 +84,15 @@ To be used when integrating over the surface of the source element
 double
 FormFactorStrategy::pointKernelEval(
     const VoxelGrid *sceneWorldVoxelGrid,
-    Vector3D *x,
-    Vector3D *y,
-    GalerkinElement *receiverElement,
-    GalerkinElement *sourceElement,
+    const Vector3D *x,
+    const Vector3D *y,
+    const GalerkinElement *receiverElement,
+    const GalerkinElement *sourceElement,
     const java::ArrayList<Geometry *> *shadowGeometryList,
     double *vis,
-    bool isSceneGeometry,
-    bool isClusteredGeometry,
-    GalerkinState *galerkinState)
+    const bool isSceneGeometry,
+    const bool isClusteredGeometry,
+    const GalerkinState *galerkinState)
 {
     Ray ray;
     double dist;
@@ -173,16 +173,16 @@ Workshop, Porto, Portugal, June 1996, p 158.
 void
 FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     Interaction *link,
-    CubatureRule *cubatureRuleRcv,
-    CubatureRule *cubatureRuleSrc,
-    double Gxy[CUBAMAXNODES][CUBAMAXNODES],
-    GalerkinState *galerkinState)
+    const CubatureRule *cubatureRuleRcv,
+    const CubatureRule *cubatureRuleSrc,
+    const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+    const GalerkinState *galerkinState)
 {
-    static ColorRgb deltaRadiance[CUBAMAXNODES]; // See Bekaert & Willems, p159 bottom
-    static double rcvPhi[MAX_BASIS_SIZE][CUBAMAXNODES];
-    static double srcPhi[CUBAMAXNODES];
-    static double gBeta[CUBAMAXNODES]; // G_beta[k] = G_{j,\beta}(x_k)
-    static double deltaBeta[CUBAMAXNODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+    static ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
+    static double rcvPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES];
+    static double srcPhi[CUBATURE_MAXIMUM_NODES];
+    static double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
+    static double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
 
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
@@ -324,9 +324,9 @@ element, which makes things slightly simpler
 void
 FormFactorStrategy::doConstantAreaToAreaFormFactor(
     Interaction *link,
-    CubatureRule *crRcv,
-    CubatureRule *crSrc,
-    double Gxy[CUBAMAXNODES][CUBAMAXNODES])
+    const CubatureRule *cubatureRuleRcv,
+    const CubatureRule *cubatureRuleSrc,
+    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES])
 {
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
@@ -335,14 +335,14 @@ FormFactorStrategy::doConstantAreaToAreaFormFactor(
     double gMin = HUGE;
     double gMax = -HUGE;
 
-    for ( int k = 0; k < crRcv->numberOfNodes; k++ ) {
+    for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
         Gx = 0.0;
-        for ( int l = 0; l < crSrc->numberOfNodes; l++ ) {
-            Gx += crSrc->w[l] * Gxy[k][l];
+        for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
+            Gx += cubatureRuleSrc->w[l] * Gxy[k][l];
         }
         Gx *= sourceElement->area;
 
-        G += crRcv->w[k] * Gx;
+        G += cubatureRuleRcv->w[k] * Gx;
 
         if ( Gx > gMax ) {
             gMax = Gx;
@@ -420,10 +420,10 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // in order to prevent re-computation
     static CubatureRule *cubatureRuleRcv = nullptr; // Cubature rules to be used over the
     static CubatureRule *cubatureRuleSrc = nullptr; // Receiving patch and source patch
-    static Vector3D x[CUBAMAXNODES];
-    static Vector3D y[CUBAMAXNODES];
+    static Vector3D x[CUBATURE_MAXIMUM_NODES];
+    static Vector3D y[CUBATURE_MAXIMUM_NODES];
 
-    double Gxy[CUBAMAXNODES][CUBAMAXNODES];
+    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
     double kVal;
     double vis;
     double maxPtFormFactor;

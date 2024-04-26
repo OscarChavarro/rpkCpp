@@ -16,37 +16,37 @@ class FormFactorStrategy {
     determineNodes(
         GalerkinElement *element,
         CubatureRule **cr,
-        Vector3D x[CUBAMAXNODES],
+        Vector3D x[CUBATURE_MAXIMUM_NODES],
         GalerkinRole role,
         const GalerkinState *galerkinState);
 
     static double
     pointKernelEval(
         const VoxelGrid *sceneWorldVoxelGrid,
-        Vector3D *x,
-        Vector3D *y,
-        GalerkinElement *receiverElement,
-        GalerkinElement *sourceElement,
+        const Vector3D *x,
+        const Vector3D *y,
+        const GalerkinElement *receiverElement,
+        const GalerkinElement *sourceElement,
         const java::ArrayList<Geometry *> *shadowGeometryList,
         double *vis,
         bool isSceneGeometry,
         bool isClusteredGeometry,
-        GalerkinState *galerkinState);
+        const GalerkinState *galerkinState);
 
     static void
     doHigherOrderAreaToAreaFormFactor(
         Interaction *link,
-        CubatureRule *cubatureRuleRcv,
-        CubatureRule *cubatureRuleSrc,
-        double Gxy[CUBAMAXNODES][CUBAMAXNODES],
-        GalerkinState *galerkinState);
+        const CubatureRule *cubatureRuleRcv,
+        const CubatureRule *cubatureRuleSrc,
+        const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+        const GalerkinState *galerkinState);
 
     static void
     doConstantAreaToAreaFormFactor(
         Interaction *link,
-        CubatureRule *crRcv,
-        CubatureRule *crSrc,
-        double Gxy[CUBAMAXNODES][CUBAMAXNODES]);
+        const CubatureRule *cubatureRuleRcv,
+        const CubatureRule *cubatureRuleSrc,
+        double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
 
   public:
     static void

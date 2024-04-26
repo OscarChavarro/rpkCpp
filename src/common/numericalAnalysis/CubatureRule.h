@@ -5,17 +5,17 @@ Numerical cubature rules needed to compute form factors
 #ifndef __CUBATURE__
 #define __CUBATURE__
 
-#define CUBAMAXNODES 20 // no rule has more than 20 nodes
+#define CUBATURE_MAXIMUM_NODES 20 // no rule has more than 20 nodes
 
 class CubatureRule {
   public:
     const char *description; // description of the rule
     int degree;
     int numberOfNodes;
-    double u[CUBAMAXNODES];
-    double v[CUBAMAXNODES];
-    double t[CUBAMAXNODES];
-    double w[CUBAMAXNODES]; // abscissae (u,v,[t]) and weights w
+    double u[CUBATURE_MAXIMUM_NODES];
+    double v[CUBATURE_MAXIMUM_NODES];
+    double t[CUBATURE_MAXIMUM_NODES];
+    double w[CUBATURE_MAXIMUM_NODES]; // abscissae (u,v,[t]) and weights w
 };
 
 extern CubatureRule GLOBAL_crq8; // quads, degree 8, 16 nodes
