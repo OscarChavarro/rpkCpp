@@ -1,9 +1,86 @@
 #include "common/error.h"
 #include "common/mymath.h"
 #include "material/statistics.h"
-#include "GALERKIN/shadowcaching.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"
+
+Patch * FormFactorStrategy::patchCache[MAX_CACHE];
+int FormFactorStrategy::cachedPatches;
+int FormFactorStrategy::numberOfCachedPatches;
+
+/**
+Initialize/empty the shadow cache
+*/
+void
+FormFactorStrategy::initShadowCache() {
+    FormFactorStrategy::numberOfCachedPatches = 0;
+    FormFactorStrategy::cachedPatches = 0;
+    for ( int i = 0; i < MAX_CACHE; i++ ) {
+        FormFactorStrategy::patchCache[i] = nullptr;
+    }
+}
+
+/**
+Test ray against patches in the shadow cache. Returns nullptr if the ray hits
+no patches in the shadow cache, or a pointer to the first hit patch otherwise
+*/
+RayHit *
+FormFactorStrategy::cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
+    for ( int i = 0; i < FormFactorStrategy::numberOfCachedPatches; i++ ) {
+        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
+        if ( hit != nullptr ) {
+            return hit;
+        }
+    }
+    return nullptr;
+}
+
+/**
+Replace least recently added patch
+*/
+void
+FormFactorStrategy::addToShadowCache(Patch *patch) {
+    FormFactorStrategy::patchCache[cachedPatches % MAX_CACHE] = patch;
+    FormFactorStrategy::cachedPatches++;
+    if ( FormFactorStrategy::numberOfCachedPatches < MAX_CACHE ) {
+        FormFactorStrategy::numberOfCachedPatches++;
+    }
+}
+
+/**
+Tests whether the ray intersects the discretization of a geometry in the list
+'world'. Returns nullptr if the ray hits no geometries. Returns an arbitrary hit
+patch if the ray does intersect one or more geometries. Intersections
+further away than distance are ignored.
+*/
+RayHit *
+FormFactorStrategy::shadowTestDiscretization(
+    Ray *ray,
+    const java::ArrayList<Geometry *> *geometrySceneList,
+    const VoxelGrid *voxelGrid,
+    float maximumDistance,
+    RayHit *hitStore,
+    bool isSceneGeometry,
+    bool isClusteredGeometry)
+{
+    GLOBAL_statistics.numberOfShadowRays++;
+    RayHit *hit = cacheHit(ray, &maximumDistance, hitStore);
+    if ( hit != nullptr ) {
+        GLOBAL_statistics.numberOfShadowCacheHits++;
+    } else {
+        if ( !isClusteredGeometry && !isSceneGeometry ) {
+            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * maximumDistance, &maximumDistance,
+                                                      HIT_FRONT | HIT_ANY, hitStore);
+        } else {
+            hit = voxelGrid->gridIntersect(ray, EPSILON * maximumDistance, &maximumDistance, HIT_FRONT | HIT_ANY, hitStore);
+        }
+        if ( hit ) {
+            addToShadowCache(hit->patch);
+        }
+    }
+
+    return hit;
+}
 
 double
 FormFactorStrategy::geometryMultiResolutionVisibility(

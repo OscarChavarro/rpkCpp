@@ -11,8 +11,34 @@ All kind of form factor computations
 #include "GALERKIN/Interaction.h"
 #include "GALERKIN/GalerkinRole.h"
 
+// Cache at most 5 blocking patches
+#define MAX_CACHE 5
+
 class FormFactorStrategy {
   private:
+    static Patch *patchCache[MAX_CACHE];
+    static int cachedPatches;
+    static int numberOfCachedPatches;
+
+    static void
+    initShadowCache();
+
+    static RayHit *
+    cacheHit(Ray *ray, float *dist, RayHit *hitStore);
+
+    static void
+    addToShadowCache(Patch *patch);
+
+    static RayHit *
+    shadowTestDiscretization(
+        Ray *ray,
+        const java::ArrayList<Geometry *> *geometrySceneList,
+        const VoxelGrid *voxelGrid,
+        float maximumDistance,
+        RayHit *hitStore,
+        bool isSceneGeometry,
+        bool isClusteredGeometry);
+
     static void
     determineNodes(
         GalerkinElement *element,

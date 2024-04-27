@@ -103,7 +103,6 @@ set(MAIN_SRC
     src/render/ScreenBuffer.cpp
     src/render/glutDebugTools.cpp
     src/GALERKIN/GalerkinState.cpp
-    src/GALERKIN/shadowcaching.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadianceMethod.cpp
     src/GALERKIN/Shaft.cpp
