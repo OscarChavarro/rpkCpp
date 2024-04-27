@@ -48,7 +48,7 @@ Shaft::setShaftDontOpen(Geometry *geometry) {
 Constructs a shaft for two given bounding boxes
 */
 void
-Shaft::constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
+Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
     int i;
     int hasMinMax1[6];
     int hasMinMax2[6];

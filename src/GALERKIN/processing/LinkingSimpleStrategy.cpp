@@ -55,7 +55,7 @@ createInitialLink(
         } else {
             BoundingBox boundingBox;
             patch->getBoundingBox(&boundingBox);
-            shaft.constructShaft(&globalPatchBoundingBox, &boundingBox);
+            shaft.constructFromBoundingBoxes(&globalPatchBoundingBox, &boundingBox);
         }
 
         shaft.setShaftOmit(globalPatch);
@@ -140,7 +140,7 @@ geometryLink(
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geometry->bounded && oldCandidateList ) {
-        shaft.constructShaft(&globalPatchBoundingBox, &getBoundingBox(geometry));
+        shaft.constructFromBoundingBoxes(&globalPatchBoundingBox, &getBoundingBox(geometry));
         shaft.setShaftOmit(globalPatch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
         shaft.doCulling(oldCandidateList, arr);

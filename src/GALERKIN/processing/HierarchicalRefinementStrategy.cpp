@@ -31,7 +31,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
     }
 
     if ( state->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-            state->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+         state->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         Shaft shaft;
 
         if ( state->exactVisibility && !link->receiverElement->isCluster() && !link->sourceElement->isCluster() ) {
@@ -43,8 +43,9 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         } else {
             BoundingBox srcBounds;
             BoundingBox rcvBounds;
-            shaft.constructShaft(link->receiverElement->bounds(&rcvBounds),
-                                      link->sourceElement->bounds(&srcBounds));
+            shaft.constructFromBoundingBoxes(
+                link->receiverElement->bounds(&rcvBounds),
+                link->sourceElement->bounds(&srcBounds));
         }
 
         if ( link->receiverElement->isCluster() ) {

@@ -40,7 +40,6 @@ static void
 scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/) {
     Patch *patch = elem->patch;
     Vector3D v[4];
-    int i;
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point
@@ -48,7 +47,7 @@ scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/
         return;
     }
 
-    for ( i = 0; i < patch->numberOfVertices; i++ ) {
+    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         v[i] = *patch->vertex[i]->point;
     }
 

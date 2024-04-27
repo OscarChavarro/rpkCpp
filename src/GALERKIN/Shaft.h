@@ -71,7 +71,7 @@ class Shaft {
              //	occluder in question is the first patch in the returned candidate list.
              //	The candidate list does not contain all occluder!
     Shaft();
-    void constructShaft(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+    void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
     void constructFromPolygonToPolygon(Polygon *polygon1, Polygon *polygon2);
 
     java::ArrayList<Patch *> *cullPatches(java::ArrayList<Patch *> *patchList);
