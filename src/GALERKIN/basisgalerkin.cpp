@@ -51,7 +51,7 @@ basisGalerkinPull(
         for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
             parent_coefficients[alpha].clear();
             for ( beta = 0; beta < child->basisSize; beta++ ) {
-                double f = basis->regular_filter[sigma][alpha][beta];
+                double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     parent_coefficients[alpha].addScaled(
                         parent_coefficients[alpha],
@@ -214,7 +214,7 @@ basisGalerkinComputeRegularFilterCoefficients(
             basis->size,
             &upTransform[sigma],
             cubaRule,
-            basis->regular_filter[sigma]);
+            basis->regularFilter[sigma]);
     }
 }
 
@@ -301,7 +301,7 @@ basisGalerkinPush(
         for ( beta = 0; beta < child->basisSize; beta++ ) {
             childCoefficients[beta].clear();
             for ( alpha = 0; alpha < element->basisSize; alpha++ ) {
-                double f = basis->regular_filter[sigma][alpha][beta];
+                double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     childCoefficients[beta].addScaled(
                         childCoefficients[beta],

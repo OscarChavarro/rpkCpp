@@ -24,14 +24,14 @@ for occluders that cast features with diameter smaller than
 min feature size. If there is a "hard" occlusion, the first patch tested that
 lead to this conclusion is added to the shadow cache
 */
+
 extern double
-geomListMultiResolutionVisibility(const java::ArrayList<Geometry *> *geometryOccluderList, Ray *ray, float rcvDist, float srcSize, float minimumFeatureSize);
-
-
-/* Equivalent blocker size determination: first call BlockerInit(),
- * then call GeomBlcokerSize() of GeomBlockserSizeInDirection() for the
- * geoms for which you like to compute the equivalent blocker size, and
- * finally terminate with BlockerTerminate(). */
+geomListMultiResolutionVisibility(
+    const java::ArrayList<Geometry *> *geometryOccluderList,
+    Ray *ray,
+    float rcvDist,
+    float srcSize,
+    float minimumFeatureSize);
 
 extern void blockerInit();
 

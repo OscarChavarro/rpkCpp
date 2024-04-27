@@ -932,7 +932,7 @@ stochasticRadiosityElementPushRadiance(
     if ( parent->isCluster() || child->basis->size == 1 ) {
         childRadiance[0].add(childRadiance[0], parentRadiance[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        filterColorDown(parentRadiance, &(*child->basis->regular_filter)[child->childNumber], childRadiance,
+        filterColorDown(parentRadiance, &(*child->basis->regularFilter)[child->childNumber], childRadiance,
                         child->basis->size);
     } else {
         logFatal(-1, "stochasticRadiosityElementPushRadiance",
@@ -951,7 +951,7 @@ stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, Stoch
     if ( parent->isCluster() || child->basis->size == 1 ) {
         parent_rad[0].addScaled(parent_rad[0], areaFactor, child_rad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        filterColorUp(child_rad, &(*child->basis->regular_filter)[child->childNumber],
+        filterColorUp(child_rad, &(*child->basis->regularFilter)[child->childNumber],
                       parent_rad, child->basis->size, areaFactor);
     } else {
         logFatal(-1, "stochasticRadiosityElementPullRadiance",

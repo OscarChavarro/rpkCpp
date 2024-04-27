@@ -6,6 +6,15 @@
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
+/**
+Reference:
+[COHE1993] Cohen, M. Wallace, J. "Radiosity and Realistic Image Synthesis",
+     Academic Press Professional, 1993.
+*/
+
+/**
+See [COHE1993].5.3.3. section
+*/
 class ShootingStrategy {
   private:
     static inline float

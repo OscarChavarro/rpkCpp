@@ -27,7 +27,7 @@ class GalerkinBasis {
     // relating basis function alpha on the parent element with
     // basis function beta on the regular sub-element with index
     // sigma. See PushRadiance() and PullRadiance() in basis.c
-    double regular_filter[4][MAX_BASIS_SIZE][MAX_BASIS_SIZE];
+    double regularFilter[4][MAX_BASIS_SIZE][MAX_BASIS_SIZE];
 };
 
 extern GalerkinBasis GLOBAL_galerkin_quadBasis;

@@ -5,7 +5,14 @@
 #include "GALERKIN/GalerkinState.h"
 
 /**
+Reference:
+[COHE1993] Cohen, M. Wallace, J. "Radiosity and Realistic Image Synthesis",
+     Academic Press Professional, 1993.
+*/
+
+/**
 Numerical integration for Jacobi or Gauss-Seidel Galerkin radiosity.
+See [COHE1993] section 5.3.2.
 */
 class GatheringStrategy {
   protected:

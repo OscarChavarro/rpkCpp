@@ -33,7 +33,7 @@ class GalerkinBasis {
      * relating basis function alpha on the parent element with
      * basis function beta on the regular sub-element with index
      * sigma. See PushRadiance() and PullRadiance() in basis.c. */
-    FILTER_TABLE *regular_filter;
+    FILTER_TABLE *regularFilter;
 };
 
 // Bases for quadrilaterals and triangles, implemented in basis[quad|tri].cpp

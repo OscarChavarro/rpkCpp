@@ -45,15 +45,17 @@ Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list
 given parent cluster
 */
 static void
-geomAddClusterChild(Geometry *geom, GalerkinElement *parentCluster, GalerkinState *galerkinState) {
-    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geom, galerkinState);
+geomAddClusterChild(Geometry *geometry, GalerkinElement *parentCluster, GalerkinState *galerkinState) {
+    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geometry, galerkinState);
 
     if ( parentCluster->irregularSubElements == nullptr ) {
         parentCluster->irregularSubElements = new java::ArrayList<Element *>();
         addElementToIrregularChildrenDeletionCache(parentCluster);
     }
     parentCluster->irregularSubElements->add(cluster);
-    cluster->parent = parentCluster;
+    if ( cluster != nullptr ) {
+        cluster->parent = parentCluster;
+    }
 }
 
 /**

@@ -123,7 +123,7 @@ basisGalerkinComputeRegularFilterCoefficients(
             basis->size,
             &upxfm[s],
             cr,
-            &(*basis->regular_filter)[s]);
+            &(*basis->regularFilter)[s]);
     }
 }
 

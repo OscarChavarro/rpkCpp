@@ -116,10 +116,11 @@ geomListMultiResolutionVisibility(
 }
 
 /**
-Equivalent blocker size determination
-*/
+Equivalent blocker size determination: first call blockerInit(),
+then call GeomBlcokerSize() of GeomBlockserSizeInDirection() for the
+geoms for which you like to compute the equivalent blocker size, and
+finally terminate with BlockerTerminate()
 
-/**
 Creates an sgl context needed for determining the equivalent blocker size
 of some objects
 */
