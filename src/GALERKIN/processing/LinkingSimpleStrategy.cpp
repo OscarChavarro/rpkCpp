@@ -104,7 +104,7 @@ createInitialLink(
     }
 
     if ( link.visibility > 0 ) {
-        Interaction *newLink = interactionDuplicate(&link);
+        Interaction *newLink = Interaction::interactionDuplicate(&link);
         // Store interactions with the source patch for the progressive radiosity method
         // and with the receiving patch for gathering methods
         if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {

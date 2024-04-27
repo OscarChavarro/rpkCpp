@@ -450,7 +450,7 @@ if doing gathering and with the source for shooting
 */
 void
 HierarchicalRefinementStrategy::hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state) {
-    Interaction *newLink = interactionDuplicate(link);
+    Interaction *newLink = Interaction::interactionDuplicate(link);
 
     if ( state->galerkinIterationMethod == SOUTH_WELL ) {
         link->sourceElement->interactions->add(newLink);
@@ -751,7 +751,7 @@ HierarchicalRefinementStrategy::removeRefinedInteractions(const GalerkinState *s
         } else {
             interaction->receiverElement->interactions->remove(interaction);
         }
-        interactionDestroy(interaction);
+        Interaction::interactionDestroy(interaction);
     }
 }
 

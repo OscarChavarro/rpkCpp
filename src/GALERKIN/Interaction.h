@@ -11,8 +11,6 @@ class Interaction {
     static int scInteractions;
     static int ssInteractions;
 
-    friend void interactionDestroy(Interaction *interaction);
-
   public:
     GalerkinElement *receiverElement;
     GalerkinElement *sourceElement;
@@ -41,10 +39,9 @@ class Interaction {
     static int getNumberOfClusterToSurfaceInteractions();
     static int getNumberOfSurfaceToClusterInteractions();
     static int getNumberOfSurfaceToSurfaceInteractions();
+    static void interactionDestroy(Interaction *interaction);
+    static Interaction *interactionDuplicate(Interaction *interaction);
 };
-
-extern Interaction *interactionDuplicate(Interaction *interaction);
-extern void interactionDestroy(Interaction *interaction);
 
 #include "GALERKIN/GalerkinElement.h"
 

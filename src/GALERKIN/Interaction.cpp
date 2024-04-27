@@ -7,31 +7,6 @@ int Interaction::csInteractions = 0;
 int Interaction::scInteractions = 0;
 int Interaction::ssInteractions = 0;
 
-int
-Interaction::getNumberOfInteractions() {
-    return totalInteractions;
-}
-
-int
-Interaction::getNumberOfClusterToClusterInteractions() {
-    return ccInteractions;
-}
-
-int
-Interaction::getNumberOfClusterToSurfaceInteractions() {
-    return csInteractions;
-}
-
-int
-Interaction::getNumberOfSurfaceToClusterInteractions() {
-    return scInteractions;
-}
-
-int
-Interaction::getNumberOfSurfaceToSurfaceInteractions() {
-    return ssInteractions;
-}
-
 Interaction::Interaction():
     receiverElement(),
     sourceElement(),
@@ -104,8 +79,33 @@ Interaction::~Interaction() {
     }
 }
 
+int
+Interaction::getNumberOfInteractions() {
+    return totalInteractions;
+}
+
+int
+Interaction::getNumberOfClusterToClusterInteractions() {
+    return ccInteractions;
+}
+
+int
+Interaction::getNumberOfClusterToSurfaceInteractions() {
+    return csInteractions;
+}
+
+int
+Interaction::getNumberOfSurfaceToClusterInteractions() {
+    return scInteractions;
+}
+
+int
+Interaction::getNumberOfSurfaceToSurfaceInteractions() {
+    return ssInteractions;
+}
+
 Interaction *
-interactionDuplicate(Interaction *interaction) {
+Interaction::interactionDuplicate(Interaction *interaction) {
     Interaction *newInteraction = new Interaction(
         interaction->receiverElement,
         interaction->sourceElement,
@@ -120,7 +120,7 @@ interactionDuplicate(Interaction *interaction) {
 }
 
 void
-interactionDestroy(Interaction *interaction) {
+Interaction::interactionDestroy(Interaction *interaction) {
     Interaction::totalInteractions--;
     if ( interaction->receiverElement->isCluster() ) {
         if ( interaction->sourceElement->isCluster() ) {
