@@ -1,5 +1,10 @@
 /**
 Cluster-specific operations
+
+Reference:
+
+[SILL1995a] Sillion & Drettakis, "Featured-based Control of Visibility Error: A Multi-resolution
+Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
 #include "java/util/ArrayList.txx"
@@ -8,7 +13,6 @@ Cluster-specific operations
 #include "skin/Geometry.h"
 #include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
-#include "GALERKIN/mrvisibility.h"
 #include "GALERKIN/GalerkinState.h"
 
 static ColorRgb globalSourceRadiance;
@@ -23,6 +27,44 @@ static java::ArrayList<GalerkinElement *> *hierarchyElements = nullptr;
 static double globalPixelArea;
 
 static GalerkinElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState);
+
+static SGL_CONTEXT *globalSglContext; // Sgl context for determining equivalent blocker sizes
+static unsigned char *globalBuffer1; // Needed for eroding and expanding
+static unsigned char *globalBuffer2;
+
+/**
+Geoms will be rendered into a frame buffer of this size for determining
+the equivalent blocker size
+*/
+#define FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS 30
+
+/**
+Equivalent blocker size determination: first call blockerInit(),
+then call GeomBlcokerSize() of GeomBlockserSizeInDirection() for the
+geoms for which you like to compute the equivalent blocker size, and
+finally terminate with BlockerTerminate()
+
+Creates an sgl context needed for determining the equivalent blocker size
+of some objects
+*/
+static void
+blockerInit() {
+    globalSglContext = new SGL_CONTEXT(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
+    GLOBAL_sgl_currentContext->sglDepthTesting(true);
+
+    globalBuffer1 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
+    globalBuffer2 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
+}
+
+/**
+Destroys the sgl context created by blockerInit()
+*/
+static void
+blockerTerminate() {
+    delete[] globalBuffer2;
+    delete[] globalBuffer1;
+    delete globalSglContext;
+}
 
 static void
 addElementToIrregularChildrenDeletionCache(GalerkinElement *element) {

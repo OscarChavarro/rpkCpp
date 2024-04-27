@@ -7,6 +7,7 @@ All kind of form factor computations
 
 #include "java/util/ArrayList.h"
 #include "scene/VoxelGrid.h"
+#include "skin/Geometry.h"
 #include "GALERKIN/Interaction.h"
 #include "GALERKIN/GalerkinRole.h"
 
@@ -47,6 +48,22 @@ class FormFactorStrategy {
         const CubatureRule *cubatureRuleRcv,
         const CubatureRule *cubatureRuleSrc,
         double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
+
+    static double
+    geometryMultiResolutionVisibility(
+        Geometry *geometry,
+        Ray *ray,
+        float rcvDist,
+        float srcSize,
+        float minimumFeatureSize);
+
+    static double
+    geomListMultiResolutionVisibility(
+        const java::ArrayList<Geometry *> *geometryOccluderList,
+        Ray *ray,
+        float rcvDist,
+        float srcSize,
+        float minimumFeatureSize);
 
   public:
     static void
