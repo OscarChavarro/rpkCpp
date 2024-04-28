@@ -158,7 +158,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
         case GAUSS_SEIDEL:
         case JACOBI:
             if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-                srcRad = maxClusterRadiance(link->sourceElement, galerkinState);
+                srcRad = ClusterTraversalStrategy::maxRadiance(link->sourceElement, galerkinState);
             } else {
                 srcRad = link->sourceElement->radiance[0];
             }
@@ -170,7 +170,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
 
         case SOUTH_WELL:
             if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-                srcRad = sourceClusterRadiance(link, galerkinState); // Returns un-shot radiance for shooting
+                srcRad = ClusterTraversalStrategy::sourceClusterRadiance(link, galerkinState); // Returns un-shot radiance for shooting
             } else {
                 srcRad = link->sourceElement->unShotRadiance[0];
             }
@@ -237,7 +237,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(Interaction 
     maximumSrcRad.setMonochrome(-HUGE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
-        rad = clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], galerkinState);
+        rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], galerkinState);
         minimumSrcRad.minimum(minimumSrcRad, rad);
         maximumSrcRad.maximum(maximumSrcRad, rad);
     }
@@ -270,7 +270,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     // and reflectivity
     if ( link->receiverElement->isCluster() ) {
         rcvRho.setMonochrome(1.0);
-        receiveArea = receiverClusterArea(link, galerkinState);
+        receiveArea = ClusterTraversalStrategy::receiverArea(link, galerkinState);
     } else {
         rcvRho = link->receiverElement->patch->radianceData->Rd;
         receiveArea = link->receiverElement->area;
@@ -350,12 +350,12 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
 
     ColorRgb linkClusterRad;
     if ( link->sourceElement->isCluster() && link->sourceElement != link->receiverElement ) {
-        linkClusterRad = sourceClusterRadiance(link, galerkinState);
+        linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(link, galerkinState);
         srcRad = &linkClusterRad;
     }
 
     if ( link->receiverElement->isCluster() && link->sourceElement != link->receiverElement ) {
-        clusterGatherRadiance(link, srcRad, galerkinState);
+        ClusterTraversalStrategy::gatherRadiance(link, srcRad, galerkinState);
     } else {
         rcvRad = link->receiverElement->receivedRadiance;
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
