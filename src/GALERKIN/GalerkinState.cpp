@@ -18,6 +18,7 @@
 #define DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY false
 #define DEFAULT_GAL_CLUSTERING_STRATEGY ISOTROPIC
 #define DEFAULT_GAL_SCRATCH_FB_SIZE 200
+#define DEFAULT_GAL_ITERATION_NOT_INITIALIZED (-1)
 
 GalerkinState::GalerkinState():
     constantRadiance(),
@@ -57,5 +58,5 @@ GalerkinState::GalerkinState():
     clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
     scratch = nullptr;
     scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FB_SIZE;
-    iterationNumber = -1; // This means "not initialized"
+    iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
 }

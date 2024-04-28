@@ -37,7 +37,7 @@ scratchTerminate(GalerkinState *galerkinState) {
 }
 
 static void
-scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/) {
+scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/) {
     Patch *patch = elem->patch;
     Vector3D v[4];
 
@@ -118,7 +118,9 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *gal
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
-    iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr, galerkinState);
+    ColorRgb radiance;
+    radiance.clear();
+    iterateOverSurfaceElementsInCluster(cluster, scratchRenderElementPtr, galerkinState, &radiance);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx.coordinates;
