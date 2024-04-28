@@ -109,9 +109,9 @@ set(MAIN_SRC
     src/GALERKIN/GalerkinElement.cpp
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/Interaction.cpp
-    src/GALERKIN/scratch.cpp
-    src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/processing/ScratchVisibilityStrategy.cpp
+    src/GALERKIN/processing/ClusterTraversalStrategy.cpp
     src/GALERKIN/processing/ClusterCreationStrategy.cpp
     src/GALERKIN/processing/FormFactorStrategy.cpp
     src/GALERKIN/processing/LinkingClusteredStrategy.cpp

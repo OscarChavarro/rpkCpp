@@ -47,11 +47,32 @@ class ColorRgb {
 };
 
 inline void
-clearColorsArray(ColorRgb *color, char n) {
+colorsArrayClear(ColorRgb *color, char n) {
     int i;
     ColorRgb *c;
     for ( i = 0, c = color; i < n; i++, c++ ) {
         c->clear();
+    }
+}
+
+inline void
+colorsArrayCopy(ColorRgb *dst, ColorRgb *src, char n) {
+    int i;
+    ColorRgb *d;
+    ColorRgb *s;
+    for ( i = 0, d = dst, s = src; i < n; i++, d++, s++ ) {
+        *d = *s;
+    }
+}
+
+inline void
+colorsArrayAdd(ColorRgb *dst, ColorRgb *extra, char n) {
+    int i;
+    ColorRgb *d;
+    ColorRgb *s;
+
+    for ( i = 0, d = dst, s = extra; i < n; i++, d++, s++ ) {
+        d->add(*d, *s);
     }
 }
 

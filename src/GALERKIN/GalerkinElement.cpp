@@ -6,7 +6,6 @@
 #include "render/ScreenBuffer.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
 
@@ -243,29 +242,29 @@ GalerkinElement::reAllocCoefficients() {
     }
 
     ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
-    clearColorsArray(defaultRadiance, localBasisSize);
+    colorsArrayClear(defaultRadiance, localBasisSize);
     if ( radiance ) {
-        clusterGalerkinCopyCoefficients(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
+        colorsArrayCopy(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
 
     ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
-    clearColorsArray(defaultReceivedRadiance, localBasisSize);
+    colorsArrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance ) {
-        clusterGalerkinCopyCoefficients(defaultReceivedRadiance, receivedRadiance,
-                                        charMin(basisSize, localBasisSize));
+        colorsArrayCopy(defaultReceivedRadiance, receivedRadiance,
+                        charMin(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
-        clearColorsArray(defaultUnShotRadiance, localBasisSize);
+        colorsArrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                clusterGalerkinCopyCoefficients(defaultUnShotRadiance, unShotRadiance,
-                                                charMin(basisSize, localBasisSize));
+                colorsArrayCopy(defaultUnShotRadiance, unShotRadiance,
+                                charMin(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->material != nullptr ) {
                 defaultUnShotRadiance[0] = patch->radianceData->Ed;

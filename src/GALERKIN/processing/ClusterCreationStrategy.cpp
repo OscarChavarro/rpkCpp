@@ -105,7 +105,7 @@ clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
     cluster->area = 0.0;
     cluster->numberOfPatches = 0;
     cluster->minimumArea = HUGE;
-    clearColorsArray(cluster->radiance, cluster->basisSize);
+    colorsArrayClear(cluster->radiance, cluster->basisSize);
     for ( int i = 0; cluster->irregularSubElements != nullptr && i< cluster->irregularSubElements->size(); i++ ) {
         GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
         cluster->area += subCluster->area;
@@ -122,7 +122,7 @@ clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-        clearColorsArray(cluster->unShotRadiance, cluster->basisSize);
+        colorsArrayClear(cluster->unShotRadiance, cluster->basisSize);
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
             cluster->unShotRadiance[0].addScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);

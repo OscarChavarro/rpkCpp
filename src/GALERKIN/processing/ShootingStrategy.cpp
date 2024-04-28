@@ -7,7 +7,6 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "render/potential.h"
 #include "render/opengl.h"
 #include "render/ScreenBuffer.h"
-#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
@@ -70,7 +69,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         clearUnShotRadianceAndPotential((GalerkinElement *)elem->irregularSubElements->get(i));
     }
 
-    clearColorsArray(elem->unShotRadiance, elem->basisSize);
+    colorsArrayClear(elem->unShotRadiance, elem->basisSize);
     elem->unShotPotential = 0.0f;
 }
 

@@ -8,12 +8,11 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/mymath.h"
 #include "common/error.h"
 #include "skin/Geometry.h"
-#include "GALERKIN/clustergalerkincpp.h"
-#include "GALERKIN/scratch.h"
+#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/processing/ClusterTraversalStrategy.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;

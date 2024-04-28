@@ -9,8 +9,8 @@ Hierarchical refinement
 #include "GALERKIN/basisgalerkin.h"
 #include "FormFactorStrategy.h"
 #include "GALERKIN/Shaft.h"
-#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/Interaction.h"
+#include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 
 /**

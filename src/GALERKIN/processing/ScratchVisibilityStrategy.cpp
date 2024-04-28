@@ -5,9 +5,9 @@ with a Z-buffer visibility algorithm in software
 
 #include "SGL/sgl.h"
 #include "skin/Geometry.h"
-#include "GALERKIN/scratch.h"
-#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
+#include "GALERKIN/processing/ClusterTraversalStrategy.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch

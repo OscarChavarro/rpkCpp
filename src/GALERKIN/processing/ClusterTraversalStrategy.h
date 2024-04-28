@@ -4,27 +4,6 @@
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
 
-inline void
-clusterGalerkinCopyCoefficients(ColorRgb *dst, ColorRgb *src, char n) {
-    int i;
-    ColorRgb *d;
-    ColorRgb *s;
-    for ( i = 0, d = dst, s = src; i < n; i++, d++, s++ ) {
-        *d = *s;
-    }
-}
-
-inline void
-clusterGalerkinAddCoefficients(ColorRgb *dst, ColorRgb *extra, char n) {
-    int i;
-    ColorRgb *d;
-    ColorRgb *s;
-
-    for ( i = 0, d = dst, s = extra; i < n; i++, d++, s++ ) {
-        d->add(*d, *s);
-    }
-}
-
 extern ColorRgb clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState);
 extern ColorRgb sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);
 

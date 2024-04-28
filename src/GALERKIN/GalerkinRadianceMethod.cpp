@@ -19,7 +19,7 @@ Galerkin radiosity, with the following variants:
 #include "render/glutDebugTools.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/scratch.h"
+#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/ShootingStrategy.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/GatheringSimpleStrategy.h"
