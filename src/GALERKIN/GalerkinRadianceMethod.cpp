@@ -19,12 +19,12 @@ Galerkin radiosity, with the following variants:
 #include "render/glutDebugTools.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/clustergalerkincpp.h"
 #include "GALERKIN/scratch.h"
 #include "GALERKIN/processing/ShootingStrategy.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/GatheringSimpleStrategy.h"
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"
+#include "GALERKIN/processing/ClusterCreationStrategy.h"
 
 #define STRING_LENGTH 2000
 
@@ -377,7 +377,8 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
         patchInit(scene->patchList->get(i));
     }
 
-    galerkinState.topCluster = galerkinCreateClusterHierarchy(scene->clusteredRootGeometry, &galerkinState);
+    galerkinState.topCluster = ClusterCreationStrategy::createClusterHierarchy(scene->clusteredRootGeometry,
+                                                                               &galerkinState);
 
     // Create a scratch software renderer for various operations on clusters
     scratchInit(&galerkinState);
@@ -421,11 +422,26 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     return done;
 }
 
+/**
+Disposes of the cluster hierarchy
+*/
+void
+GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement) {
+    if ( !clusterElement || !clusterElement->isCluster() ) {
+        return;
+    }
+
+    for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
+        GalerkinRadianceMethod::galerkinDestroyClusterHierarchy((GalerkinElement *)clusterElement->irregularSubElements->get(i));
+    }
+    delete clusterElement;
+}
+
 void
 GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
     scratchTerminate(&galerkinState);
     if ( galerkinState.topCluster != nullptr ) {
-        galerkinDestroyClusterHierarchy(galerkinState.topCluster);
+        GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(galerkinState.topCluster);
         delete galerkinState.topCluster;
         galerkinState.topCluster = nullptr;
     }

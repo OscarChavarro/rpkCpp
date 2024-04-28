@@ -5,15 +5,6 @@
 #include "GALERKIN/GalerkinState.h"
 
 inline void
-clusterGalerkinClearCoefficients(ColorRgb *color, char n) {
-    int i;
-    ColorRgb *c;
-    for ( i = 0, c = color; i < n; i++, c++ ) {
-        c->clear();
-    }
-}
-
-inline void
 clusterGalerkinCopyCoefficients(ColorRgb *dst, ColorRgb *src, char n) {
     int i;
     ColorRgb *d;
@@ -34,8 +25,6 @@ clusterGalerkinAddCoefficients(ColorRgb *dst, ColorRgb *extra, char n) {
     }
 }
 
-extern GalerkinElement *galerkinCreateClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState);
-extern void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 extern ColorRgb clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState);
 extern ColorRgb sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);
 
@@ -48,6 +37,5 @@ iterateOverSurfaceElementsInCluster(
 extern double receiverClusterArea(Interaction *link, GalerkinState *galerkinState);
 extern void clusterGatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState);
 extern ColorRgb maxClusterRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
-extern void freeClusterGalerkinElements();
 
 #endif

@@ -5,7 +5,7 @@
 #include "render/opengl.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/clustergalerkincpp.h"
+#include "GALERKIN/processing/ClusterCreationStrategy.h"
 #include "scene/Cluster.h"
 #include "app/commandLine.h"
 #include "app/sceneBuilder.h"
@@ -122,7 +122,7 @@ mainFreeMemory(MgfContext *context) {
     mgfFreeMemory(context);
     galerkinFreeMemory();
     Cluster::deleteCachedGeometries();
-    freeClusterGalerkinElements();
+    ClusterCreationStrategy::freeClusterElements();
     VoxelGrid::freeVoxelGridElements();
     if ( context->radianceMethod != nullptr ) {
         delete context->radianceMethod;

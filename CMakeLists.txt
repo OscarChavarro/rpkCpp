@@ -112,6 +112,7 @@ set(MAIN_SRC
     src/GALERKIN/scratch.cpp
     src/GALERKIN/clustergalerkincpp.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/processing/ClusterCreationStrategy.cpp
     src/GALERKIN/processing/FormFactorStrategy.cpp
     src/GALERKIN/processing/LinkingClusteredStrategy.cpp
     src/GALERKIN/processing/LinkingSimpleStrategy.cpp

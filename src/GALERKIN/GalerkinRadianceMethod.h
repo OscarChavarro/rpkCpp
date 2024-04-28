@@ -39,6 +39,7 @@ class GalerkinRadianceMethod : public RadianceMethod {
 
     static void renderElementHierarchy(GalerkinElement *element, RenderOptions *renderOptions);
     static void galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions);
+    static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 
   public:
     static GalerkinState galerkinState;

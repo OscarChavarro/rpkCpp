@@ -243,7 +243,7 @@ GalerkinElement::reAllocCoefficients() {
     }
 
     ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
-    clusterGalerkinClearCoefficients(defaultRadiance, localBasisSize);
+    clearColorsArray(defaultRadiance, localBasisSize);
     if ( radiance ) {
         clusterGalerkinCopyCoefficients(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
         delete radiance;
@@ -251,7 +251,7 @@ GalerkinElement::reAllocCoefficients() {
     radiance = defaultRadiance;
 
     ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
-    clusterGalerkinClearCoefficients(defaultReceivedRadiance, localBasisSize);
+    clearColorsArray(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance ) {
         clusterGalerkinCopyCoefficients(defaultReceivedRadiance, receivedRadiance,
                                         charMin(basisSize, localBasisSize));
@@ -261,7 +261,7 @@ GalerkinElement::reAllocCoefficients() {
 
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
-        clusterGalerkinClearCoefficients(defaultUnShotRadiance, localBasisSize);
+        clearColorsArray(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
                 clusterGalerkinCopyCoefficients(defaultUnShotRadiance, unShotRadiance,

@@ -46,4 +46,13 @@ class ColorRgb {
     void print(FILE *fp) const;
 };
 
+inline void
+clearColorsArray(ColorRgb *color, char n) {
+    int i;
+    ColorRgb *c;
+    for ( i = 0, c = color; i < n; i++, c++ ) {
+        c->clear();
+    }
+}
+
 #endif

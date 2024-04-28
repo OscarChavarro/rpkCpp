@@ -70,7 +70,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         clearUnShotRadianceAndPotential((GalerkinElement *)elem->irregularSubElements->get(i));
     }
 
-    clusterGalerkinClearCoefficients(elem->unShotRadiance, elem->basisSize);
+    clearColorsArray(elem->unShotRadiance, elem->basisSize);
     elem->unShotPotential = 0.0f;
 }
 

@@ -36,12 +36,12 @@ basisGalerkinPull(
     if ( parent->isCluster() ) {
         // Clusters only have irregular sub-elements and a constant
         // radiance approximation is used on them
-        clusterGalerkinClearCoefficients(parent_coefficients, parent->basisSize);
+        clearColorsArray(parent_coefficients, parent->basisSize);
         parent_coefficients[0].scaledCopy(child->area / parent->area, child_coefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
-            clusterGalerkinClearCoefficients(parent_coefficients, parent->basisSize);
+            clearColorsArray(parent_coefficients, parent->basisSize);
             parent_coefficients[0] = child_coefficients[0];
             return;
         }
@@ -74,7 +74,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
         element->receivedRadiance[i].clear();
     }
 
-    clusterGalerkinClearCoefficients(Bup, element->basisSize);
+    clearColorsArray(Bup, element->basisSize);
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
@@ -125,7 +125,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             if ( element->isCluster() ) {
                 basisGalerkinPush(element, Bdown, subElement, Bdown2);
             } else {
-                clusterGalerkinClearCoefficients(Bdown2, element->basisSize);
+                clearColorsArray(Bdown2, element->basisSize);
             }
 
             // 2. Recursive call the push-pull for the sub-element
@@ -286,12 +286,12 @@ basisGalerkinPush(
     if ( element->isCluster() ) {
         // Clusters have only irregular sub-elements and a constant
         // approximation is used on them
-        clusterGalerkinClearCoefficients(childCoefficients, child->basisSize);
+        clearColorsArray(childCoefficients, child->basisSize);
         childCoefficients[0] = parentCoefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
-            clusterGalerkinClearCoefficients(childCoefficients, child->basisSize);
+            clearColorsArray(childCoefficients, child->basisSize);
             childCoefficients[0] = parentCoefficients[0];
             return;
         }
@@ -320,7 +320,7 @@ void
 basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState) {
     ColorRgb Bdown[MAX_BASIS_SIZE];
     ColorRgb Bup[MAX_BASIS_SIZE];
-    clusterGalerkinClearCoefficients(Bdown, top->basisSize);
+    clearColorsArray(Bdown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup, galerkinState);
 }
 
