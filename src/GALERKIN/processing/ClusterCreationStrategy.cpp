@@ -1,4 +1,5 @@
 #include "java/util/ArrayList.txx"
+#include "common/mymath.h"
 #include "ClusterCreationStrategy.h"
 
 static SGL_CONTEXT *globalSglContext; // Sgl context for determining equivalent blocker sizes
