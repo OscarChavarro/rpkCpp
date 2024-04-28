@@ -7,7 +7,7 @@ Hierarchical refinement
 #include "common/mymath.h"
 #include "material/statistics.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "FormFactorStrategy.h"
+#include "GALERKIN//processing/FormFactorStrategy.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/Interaction.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"

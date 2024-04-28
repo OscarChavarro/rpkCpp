@@ -2,7 +2,7 @@
 #include "common/error.h"
 #include "GALERKIN/Shaft.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "FormFactorStrategy.h"
+#include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
 static GalerkinElement *globalElement; // The element for which initial links are to be created
