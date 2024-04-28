@@ -4,7 +4,6 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "GALERKIN/GalerkinState.h"
-#include "GALERKIN/GalerkinRadianceMethod.h"
 
 /**
 Reference:
