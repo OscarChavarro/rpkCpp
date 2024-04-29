@@ -114,6 +114,7 @@ set(MAIN_SRC
     src/GALERKIN/processing/ClusterTraversalStrategy.cpp
     src/GALERKIN/processing/ClusterCreationStrategy.cpp
     src/GALERKIN/processing/FormFactorStrategy.cpp
+    src/GALERKIN/processing/FormFactorClusteredStrategy.cpp
     src/GALERKIN/processing/LinkingClusteredStrategy.cpp
     src/GALERKIN/processing/LinkingSimpleStrategy.cpp
     src/GALERKIN/processing/HierarchicalRefinementStrategy.cpp

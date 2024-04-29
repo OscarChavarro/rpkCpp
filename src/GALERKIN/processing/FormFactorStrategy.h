@@ -26,9 +26,6 @@ class FormFactorStrategy {
     static RayHit *
     cacheHit(Ray *ray, float *dist, RayHit *hitStore);
 
-    static void
-    addToShadowCache(Patch *patch);
-
     static RayHit *
     shadowTestDiscretization(
         Ray *ray,
@@ -75,23 +72,10 @@ class FormFactorStrategy {
         const CubatureRule *cubatureRuleSrc,
         double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
 
-    static double
-    geometryMultiResolutionVisibility(
-        Geometry *geometry,
-        Ray *ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize);
-
-    static double
-    geomListMultiResolutionVisibility(
-        const java::ArrayList<Geometry *> *geometryOccluderList,
-        Ray *ray,
-        float rcvDist,
-        float srcSize,
-        float minimumFeatureSize);
-
   public:
+    static void
+    addToShadowCache(Patch *patch);
+
     static void
     computeAreaToAreaFormFactorVisibility(
         const VoxelGrid *sceneWorldVoxelGrid,
