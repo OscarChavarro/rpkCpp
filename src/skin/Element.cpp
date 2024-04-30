@@ -33,13 +33,13 @@ element). In the other case, the composed transform is filled in in xf and
 xf (pointer to the transform) is returned
 */
 Matrix2x2 *
-Element::topTransform(Matrix2x2 *xf) {
+Element::topTransform(Matrix2x2 *xf) const {
     // Top level element: no transform necessary to transform to top
     if ( !upTrans ) {
         return nullptr;
     }
 
-    Element *window = this;
+    Element *window = (Element *)this;
     *xf = *window->upTrans;
     do {
         window = window->parent;

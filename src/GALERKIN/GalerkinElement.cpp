@@ -422,7 +422,7 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-GalerkinElement::vertices(Vector3D *p, int n) {
+GalerkinElement::vertices(Vector3D *p, int n) const {
     if ( isCluster() ) {
         BoundingBox boundingBox;
 
@@ -513,7 +513,7 @@ GalerkinElement::midPoint() {
 Computes a bounding box for the element
 */
 BoundingBox *
-GalerkinElement::bounds(BoundingBox *boundingBox) {
+GalerkinElement::bounds(BoundingBox *boundingBox) const {
     if ( isCluster() ) {
         boundingBox->copyFrom(&getBoundingBox(geometry));
     } else {

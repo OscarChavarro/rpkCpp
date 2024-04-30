@@ -93,8 +93,8 @@ class Patch {
     void computeBoundingBox();
     void getBoundingBox(BoundingBox *bounds);
     RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
-    Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point);
-    Vector3D *uniformPoint(double u, double v, Vector3D *point);
+    Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
+    Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
     int uv(Vector3D *point, double *u, double *v);
     int uniformUv(Vector3D *point, double *u, double *v);
     void biLinearToUniform(double *u, double *v) const;

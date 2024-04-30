@@ -975,7 +975,7 @@ u and v should be numbers in the range [0,1]. If u+v>1 for a triangle,
 (1-u) and (1-v) are used instead
 */
 Vector3D *
-Patch::pointBarycentricMapping(double u, double v, Vector3D *point) {
+Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
     if ( hasZeroVertices() ) {
         return nullptr;
     }
@@ -1010,7 +1010,7 @@ only once for which this routine will yield other positions than the above
 routine)
 */
 Vector3D *
-Patch::uniformPoint(double u, double v, Vector3D *point) {
+Patch::uniformPoint(double u, double v, Vector3D *point) const {
     if ( jacobian != nullptr ) {
         uniformToBiLinear(&u, &v);
     }

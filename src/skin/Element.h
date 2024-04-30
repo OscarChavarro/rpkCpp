@@ -54,7 +54,7 @@ class Element {
         return flags & IS_CLUSTER_MASK;
     }
 
-    Matrix2x2 *topTransform(Matrix2x2 *xf);
+    Matrix2x2 *topTransform(Matrix2x2 *xf) const;
     bool isLeaf() const;
     Element *childContainingElement(Element *descendant);
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));

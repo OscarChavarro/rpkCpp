@@ -375,7 +375,7 @@ static CubatureRule globalCrt3 = {
 
 /**
 Degree 4, 6 positions
-Lyness, Jespersen, "Moderate Degree Symmertic Quadrature Rules for the
+Lyness, Jespersen, "Moderate Degree Symmetric Quadrature Rules for the
 Triangle", J. Inst. Maths. Applics (1975) 15, 19-32
 */
 #define w1 (3.298552309659655e-1 / 3.0)

@@ -102,11 +102,11 @@ relevant for surface elements
 */
 void
 FormFactorStrategy::determineNodes(
-    GalerkinElement *element,
-    CubatureRule **cr,
-    Vector3D x[CUBATURE_MAXIMUM_NODES],
+    const GalerkinElement *element,
     const GalerkinRole role,
-    const GalerkinState *galerkinState)
+    const GalerkinState *galerkinState,
+    CubatureRule **cr,
+    Vector3D x[CUBATURE_MAXIMUM_NODES])
 {
     Matrix2x2 topTransform{};
 
@@ -168,7 +168,7 @@ point-to-point form factor is returned. Visibility is computed and returned
 as part of the kernel.
 */
 double
-FormFactorStrategy::evaluatePointKernel(
+FormFactorStrategy::evaluatePointsPairKernel(
     const VoxelGrid *sceneWorldVoxelGrid,
     const Vector3D *x,
     const Vector3D *y,
@@ -188,7 +188,7 @@ FormFactorStrategy::evaluatePointKernel(
 
     // Don't allow too nearby nodes to interact
     if ( distance < EPSILON ) {
-        logWarning("evaluatePointKernel", "Nodes too close too each other (receiver id %d, source id %d)",
+        logWarning("evaluatePointsPairKernel", "Nodes too close too each other (receiver id %d, source id %d)",
             receiverElement->id, sourceElement->id);
         return 0.0;
     }
@@ -461,8 +461,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // Very often, the source or receiver element is the same as the one in
     // the previous call of the function. We cache cubature rules and nodes
     // in order to prevent re-computation
-    static CubatureRule *cubatureRuleRcv = nullptr; // Cubature rules to be used over the
-    static CubatureRule *cubatureRuleSrc = nullptr; // Receiving patch and source patch
+    static CubatureRule *receiveCubatureRule = nullptr; // Cubature rules to be used over the
+    static CubatureRule *sourceCubatureRule = nullptr; // Receiving patch and source patch
     static Vector3D x[CUBATURE_MAXIMUM_NODES];
     static Vector3D y[CUBATURE_MAXIMUM_NODES];
 
@@ -525,13 +525,13 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( receiverElement != galerkinState->formFactorLastRcv ) {
-        determineNodes(receiverElement, &cubatureRuleRcv, x, RECEIVER, galerkinState);
+    if ( receiverElement != galerkinState->formFactorLastReceived ) {
+        determineNodes(receiverElement, RECEIVER, galerkinState, &receiveCubatureRule, x);
     }
 
     // Same for the source element
-    if ( sourceElement != galerkinState->formFactorLastSrc ) {
-        determineNodes(sourceElement, &cubatureRuleSrc, y, SOURCE, galerkinState);
+    if ( sourceElement != galerkinState->formFactorLastSource ) {
+        determineNodes(sourceElement, SOURCE, galerkinState, &sourceCubatureRule, y);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source
@@ -541,7 +541,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
     unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
-    if ( receiverElement != galerkinState->formFactorLastRcv || sourceElement != galerkinState->formFactorLastSrc ) {
+    if ( receiverElement != galerkinState->formFactorLastReceived
+      || sourceElement != galerkinState->formFactorLastSource ) {
         // Use shadow caching for accelerating occlusion detection
         initShadowCache();
 
@@ -555,24 +556,23 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
         maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
         visibilityCount = 0; // Count the number of rays that "pass" occluders
-        for ( int k = 0; cubatureRuleRcv != nullptr && k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            for ( int l = 0; cubatureRuleSrc != nullptr && l < cubatureRuleSrc->numberOfNodes; l++ ) {
-                double formFactorKernelValue = evaluatePointKernel(
+        for ( int r = 0; receiveCubatureRule != nullptr && r < receiveCubatureRule->numberOfNodes; r++ ) {
+            for ( int s = 0; sourceCubatureRule != nullptr && s < sourceCubatureRule->numberOfNodes; s++ ) {
+                Gxy[r][s] = evaluatePointsPairKernel(
                     sceneWorldVoxelGrid,
-                    &x[k],
-                    &y[l],
+                    &x[r],
+                    &y[s],
                     receiverElement,
                     sourceElement,
                     geometryShadowList,
                     isSceneGeometry,
                     isClusteredGeometry,
                     galerkinState);
-                Gxy[k][l] = formFactorKernelValue;
 
-                if ( formFactorKernelValue > maximumKernelValue ) {
-                    maximumKernelValue = formFactorKernelValue;
+                if ( Gxy[r][s] > maximumKernelValue ) {
+                    maximumKernelValue = Gxy[r][s];
                 }
-                if ( std::fabs(Gxy[k][l]) > EPSILON ) {
+                if ( std::fabs(Gxy[r][s]) > EPSILON ) {
                     visibilityCount++;
                 }
             }
@@ -587,16 +587,16 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         // Actually compute the form factors
         if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
             // Constant (1) basis functions is used on clusters
-            FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(link, cubatureRuleRcv, cubatureRuleSrc, Gxy);
+            FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(link, receiveCubatureRule, sourceCubatureRule, Gxy);
         } else {
             // So far only linear (3) basis functions being used. Quadratic and cubic not being selected
-            doHigherOrderAreaToAreaFormFactor(link, cubatureRuleRcv, cubatureRuleSrc, Gxy, galerkinState);
+            doHigherOrderAreaToAreaFormFactor(link, receiveCubatureRule, sourceCubatureRule, Gxy, galerkinState);
         }
     }
 
     // Remember receiver and source for next time
-    galerkinState->formFactorLastRcv = receiverElement;
-    galerkinState->formFactorLastSrc = sourceElement;
+    galerkinState->formFactorLastReceived = receiverElement;
+    galerkinState->formFactorLastSource = sourceElement;
 
     if ( galerkinState->clusteringStrategy == ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
@@ -608,9 +608,9 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    if ( cubatureRuleSrc != nullptr && cubatureRuleRcv != nullptr ) {
+    if ( sourceCubatureRule != nullptr && receiveCubatureRule != nullptr ) {
         link->visibility = (unsigned char) ((unsigned) (255.0 * (double) visibilityCount /
-            (double) (cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes)));
+            (double) (receiveCubatureRule->numberOfNodes * sourceCubatureRule->numberOfNodes)));
     }
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {

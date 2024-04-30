@@ -384,8 +384,8 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
     scratchInit(&galerkinState);
 
     // Global variables used for form factor computation optimisation
-    galerkinState.formFactorLastRcv = nullptr;
-    galerkinState.formFactorLastSrc = nullptr;
+    galerkinState.formFactorLastReceived = nullptr;
+    galerkinState.formFactorLastSource = nullptr;
 
     // Global variables for scratch rendering
     galerkinState.lastClusterId = -1;

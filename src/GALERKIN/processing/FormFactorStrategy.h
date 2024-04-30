@@ -38,23 +38,23 @@ class FormFactorStrategy {
 
     static void
     determineNodes(
-        GalerkinElement *element,
-        CubatureRule **cr,
-        Vector3D x[CUBATURE_MAXIMUM_NODES],
+        const GalerkinElement *element,
         GalerkinRole role,
-        const GalerkinState *galerkinState);
+        const GalerkinState *galerkinState,
+        CubatureRule **cr,
+        Vector3D x[CUBATURE_MAXIMUM_NODES]);
 
     static double
-    evaluatePointKernel(
-        const VoxelGrid *sceneWorldVoxelGrid,
-        const Vector3D *x,
-        const Vector3D *y,
-        const GalerkinElement *receiverElement,
-        const GalerkinElement *sourceElement,
-        const java::ArrayList<Geometry *> *shadowGeometryList,
-        bool isSceneGeometry,
-        bool isClusteredGeometry,
-        const GalerkinState *galerkinState);
+    evaluatePointsPairKernel(
+            const VoxelGrid *sceneWorldVoxelGrid,
+            const Vector3D *x,
+            const Vector3D *y,
+            const GalerkinElement *receiverElement,
+            const GalerkinElement *sourceElement,
+            const java::ArrayList<Geometry *> *shadowGeometryList,
+            const bool isSceneGeometry,
+            const bool isClusteredGeometry,
+            const GalerkinState *galerkinState);
 
     static void
     doHigherOrderAreaToAreaFormFactor(

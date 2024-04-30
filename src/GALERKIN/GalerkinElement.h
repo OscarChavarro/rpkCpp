@@ -56,8 +56,8 @@ class GalerkinElement : public Element {
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     void drawOutline(RenderOptions *renderOptions);
     void render(RenderOptions *renderOptions);
-    int vertices(Vector3D *p, int n);
-    BoundingBox *bounds(BoundingBox *boundingBox);
+    int vertices(Vector3D *p, int n) const;
+    BoundingBox *bounds(BoundingBox *boundingBox) const;
     Vector3D midPoint();
     void initPolygon(Polygon *polygon);
     void reAllocCoefficients();
