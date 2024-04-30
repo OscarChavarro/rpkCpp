@@ -5,6 +5,51 @@
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
 
 /**
+Like above, but with a constant approximation on both the receiver and source
+element, which makes things slightly simpler
+*/
+void
+FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
+    Interaction *link,
+    const CubatureRule *cubatureRuleRcv,
+    const CubatureRule *cubatureRuleSrc,
+    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES])
+{
+    GalerkinElement *receiverElement = link->receiverElement;
+    GalerkinElement *sourceElement = link->sourceElement;
+    double Gx;
+    double G = 0.0;
+    double gMin = HUGE;
+    double gMax = -HUGE;
+
+    for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
+        Gx = 0.0;
+        for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
+            Gx += cubatureRuleSrc->w[l] * Gxy[k][l];
+        }
+        Gx *= sourceElement->area;
+
+        G += cubatureRuleRcv->w[k] * Gx;
+
+        if ( Gx > gMax ) {
+            gMax = Gx;
+        }
+        if ( Gx < gMin ) {
+            gMin = Gx;
+        }
+    }
+    link->K[0] = (float)(receiverElement->area * G);
+
+    link->deltaK = new float[1];
+    link->deltaK[0] = (float)(G - gMin);
+    if ( gMax - G > link->deltaK[0] ) {
+        link->deltaK[0] = (float)(gMax - G);
+    }
+
+    link->numberOfReceiverCubaturePositions = 1;
+}
+
+/**
 Return a floating point number in the range [0..1].
 0 indicates that there is
 full occlusion, 1 that there is full visibility and a number in between
@@ -104,7 +149,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             RayHit *hit = Geometry::patchListIntersect(
                     geomPatchArrayListReference(geometry),
                     ray,
-                    rcvDist * ((float) EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
+                    rcvDist * ((float)EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {
                 FormFactorStrategy::addToShadowCache(hit->patch);
                 return 0.0;

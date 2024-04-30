@@ -4,8 +4,14 @@
 #include "skin/Geometry.h"
 
 class FormFactorClusteredStrategy {
-  private:
   public:
+    static void
+    doConstantAreaToAreaFormFactor(
+        Interaction *link,
+        const CubatureRule *cubatureRuleRcv,
+        const CubatureRule *cubatureRuleSrc,
+        double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
+
     static double
     geomListMultiResolutionVisibility(
         const java::ArrayList<Geometry *> *geometryOccluderList,

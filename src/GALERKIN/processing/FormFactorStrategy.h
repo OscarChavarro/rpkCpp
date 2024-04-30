@@ -31,7 +31,7 @@ class FormFactorStrategy {
         Ray *ray,
         const java::ArrayList<Geometry *> *geometrySceneList,
         const VoxelGrid *voxelGrid,
-        float maximumDistance,
+        float minimumDistance,
         RayHit *hitStore,
         bool isSceneGeometry,
         bool isClusteredGeometry);
@@ -45,14 +45,13 @@ class FormFactorStrategy {
         const GalerkinState *galerkinState);
 
     static double
-    pointKernelEval(
+    evaluatePointKernel(
         const VoxelGrid *sceneWorldVoxelGrid,
         const Vector3D *x,
         const Vector3D *y,
         const GalerkinElement *receiverElement,
         const GalerkinElement *sourceElement,
         const java::ArrayList<Geometry *> *shadowGeometryList,
-        double *vis,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState);
@@ -64,13 +63,6 @@ class FormFactorStrategy {
         const CubatureRule *cubatureRuleSrc,
         const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
         const GalerkinState *galerkinState);
-
-    static void
-    doConstantAreaToAreaFormFactor(
-        Interaction *link,
-        const CubatureRule *cubatureRuleRcv,
-        const CubatureRule *cubatureRuleSrc,
-        double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
 
   public:
     static void
