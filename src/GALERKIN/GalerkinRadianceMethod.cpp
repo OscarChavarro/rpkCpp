@@ -516,7 +516,11 @@ GalerkinRadianceMethod::getStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "surface to cluster: %d\n%n", Interaction::getNumberOfSurfaceToClusterInteractions(), &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "surface to surface: %d\n\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
+    snprintf(p, STRING_LENGTH, "surface to surface: %d\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "shadow hits: %d\n%n", GLOBAL_statistics.numberOfShadowRays, &n);
+    p += n;
+    snprintf(p, STRING_LENGTH, "shadow hits cached: %d\n%n", GLOBAL_statistics.numberOfShadowCacheHits, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", galerkinState.cpuSeconds, &n);
     p += n;

@@ -28,7 +28,7 @@ no patches in the shadow cache, or a pointer to the first hit patch otherwise
 RayHit *
 FormFactorStrategy::cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
     for ( int i = 0; i < FormFactorStrategy::numberOfCachedPatches; i++ ) {
-        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(ray, EPSILON * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
+        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(ray, EPSILON_FLOAT * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
         if ( hit != nullptr ) {
             return hit;
         }
@@ -70,10 +70,20 @@ FormFactorStrategy::shadowTestDiscretization(
         GLOBAL_statistics.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = geometryListDiscretizationIntersect(geometrySceneList, ray, EPSILON * minimumDistance, &minimumDistance,
-                                                      HIT_FRONT | HIT_ANY, hitStore);
+            hit = geometryListDiscretizationIntersect(
+                geometrySceneList,
+                ray,
+                EPSILON_FLOAT * minimumDistance,
+                &minimumDistance,
+                HIT_FRONT | HIT_ANY,
+                hitStore);
         } else {
-            hit = voxelGrid->gridIntersect(ray, EPSILON * minimumDistance, &minimumDistance, HIT_FRONT | HIT_ANY, hitStore);
+            hit = voxelGrid->gridIntersect(
+                ray,
+                EPSILON_FLOAT * minimumDistance,
+                &minimumDistance,
+                HIT_FRONT | HIT_ANY,
+                hitStore);
         }
         if ( hit ) {
             addToShadowCache(hit->patch);
@@ -134,7 +144,7 @@ FormFactorStrategy::determineNodes(
 
         // Compute the positions x[k] corresponding to the nodes of the cubature rule
         // in the unit square or triangle used to parametrise the element
-        for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
+        for ( int k = 0; cr != nullptr && *cr != nullptr && k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
@@ -255,26 +265,16 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
     const GalerkinState *galerkinState)
 {
-    static ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
-    static double rcvPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES];
-    static double srcPhi[CUBATURE_MAXIMUM_NODES];
-    static double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
-    static double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
-
-    GalerkinElement *receiverElement = link->receiverElement;
-    GalerkinElement *sourceElement = link->sourceElement;
-    GalerkinBasis *receiverBasis;
-    GalerkinBasis *sourceBasis;
-    double gAlphaBeta;
-    double gMin;
-    double gMax;
-    double gav;
-    int alpha;
-    int beta;
-    ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
+    double rcvPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES]{};
+    double srcPhi[CUBATURE_MAXIMUM_NODES];
+    const GalerkinElement *receiverElement = link->receiverElement;
+    const GalerkinElement *sourceElement = link->sourceElement;
+    const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
                                sourceElement->unShotRadiance : sourceElement->radiance;
 
     // Receiver and source basis description
+    const GalerkinBasis *receiverBasis;
+    const GalerkinBasis *sourceBasis;
     if ( receiverElement->isCluster() ) {
         // No basis description for clusters: we always use a constant approximation on clusters
         receiverBasis = nullptr;
@@ -290,6 +290,8 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
 
     // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     // receiver patch for all basis functions \alpha
+    ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
+
     for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
         if ( receiverElement->isCluster() ) {
             // Constant approximation on clusters
@@ -299,16 +301,16 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
             }
             rcvPhi[0][k] = 1.0;
         } else {
-            for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && receiverBasis != nullptr; alpha++ ) {
+            for ( int alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && receiverBasis != nullptr; alpha++ ) {
                 rcvPhi[alpha][k] = receiverBasis->function[alpha](cubatureRuleRcv->u[k], cubatureRuleRcv->v[k]);
             }
         }
         deltaRadiance[k].clear();
     }
 
-    gMin = HUGE;
-    gMax = -HUGE;
-    for ( beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
+    double gMin = HUGE;
+    double gMax = -HUGE;
+    for ( int beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
         if ( sourceElement->isCluster() ) {
             if ( beta > 0 ) {
@@ -324,6 +326,9 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
             }
         }
 
+        double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
+        double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+
         for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
             // Compute point-to-patch form factors for positions x_k on receiver and
             // basis function \beta on the source
@@ -337,10 +342,10 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
             deltaBeta[k] = -gBeta[k];
         }
 
-        for ( alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver; alpha++ ) {
+        for ( int alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver; alpha++ ) {
             // Compute patch-to-patch form factor for basis function alpha on the
             // receiver and beta on the source
-            gAlphaBeta = 0.0;
+            double gAlphaBeta = 0.0;
             for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
                 gAlphaBeta += cubatureRuleRcv->w[k] * rcvPhi[alpha][k] * gBeta[k];
             }
@@ -375,7 +380,7 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     link->deltaK = new float[1];
     if ( sourceRadiance[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
-        gav = link->K[0] / receiverElement->area;
+        double gav = link->K[0] / receiverElement->area;
         link->deltaK[0] = (float)(gMax - gav);
         if ( gav - gMin > link->deltaK[0] ) {
             link->deltaK[0] = (float)(gav - gMin);
@@ -383,10 +388,9 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     } else {
         link->deltaK[0] = 0.0;
         for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            double delta;
-
             deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
-            if ( (delta = std::fabs(deltaRadiance[k].maximumComponent())) > link->deltaK[0] ) {
+            double delta = std::fabs(deltaRadiance[k].maximumComponent());
+            if ( delta > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }
         }
@@ -407,7 +411,8 @@ IN:
 
 OUT:
  - link->K
- - link->deltaK: generalized form factor(s) and error estimation coefficients (to be used in the refinement oracle hierarchicRefinementEvaluateInteraction()
+ - link->deltaK: generalized form factor(s) and error estimation coefficients (to be used in the refinement oracle
+   hierarchicRefinementEvaluateInteraction()
  - link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
  - link->visibility: visibility factor from 0 (totally occluded) to 255 (total visibility)
 
@@ -455,8 +460,6 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     static Vector3D x[CUBATURE_MAXIMUM_NODES];
     static Vector3D y[CUBATURE_MAXIMUM_NODES];
 
-    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
-    unsigned visibilityCount = 0; // Number of rays that "pass" occluders
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
 
@@ -525,6 +528,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // and the receiver element if at least receiver or source changed since
     // last time
     double maximumKernelValue = 0.0;
+    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
+    unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
     if ( receiverElement != galerkinState->formFactorLastRcv || sourceElement != galerkinState->formFactorLastSrc ) {
         // Use shadow caching for accelerating occlusion detection
@@ -540,8 +545,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
         maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
         visibilityCount = 0; // Count the number of rays that "pass" occluders
-        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
+        for ( int k = 0; cubatureRuleRcv != nullptr && k < cubatureRuleRcv->numberOfNodes; k++ ) {
+            for ( int l = 0; cubatureRuleSrc != nullptr && l < cubatureRuleSrc->numberOfNodes; l++ ) {
                 double formFactorKernelValue = evaluatePointKernel(
                     sceneWorldVoxelGrid,
                     &x[k],
@@ -592,7 +597,10 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
-    link->visibility = (unsigned)(255.0 * (double)visibilityCount / (double)(cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes));
+    if ( cubatureRuleSrc != nullptr && cubatureRuleRcv != nullptr ) {
+        link->visibility = (unsigned char) ((unsigned) (255.0 * (double) visibilityCount /
+            (double) (cubatureRuleRcv->numberOfNodes * cubatureRuleSrc->numberOfNodes)));
+    }
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {
         // Not full visibility, we missed the shadow!

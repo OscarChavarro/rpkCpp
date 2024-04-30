@@ -8,7 +8,6 @@
 #include "IMAGE/tonemap/tonemapping.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
-#include "render/render.h"
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
 #include "scene/Cluster.h"

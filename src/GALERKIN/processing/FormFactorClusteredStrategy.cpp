@@ -15,8 +15,8 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
     const CubatureRule *cubatureRuleSrc,
     double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES])
 {
-    GalerkinElement *receiverElement = link->receiverElement;
-    GalerkinElement *sourceElement = link->sourceElement;
+    const GalerkinElement *receiverElement = link->receiverElement;
+    const GalerkinElement *sourceElement = link->sourceElement;
     double Gx;
     double G = 0.0;
     double gMin = HUGE;
@@ -76,8 +76,8 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
     double vis = 1.0;
 
     for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
-        double v = FormFactorClusteredStrategy::geometryMultiResolutionVisibility(geometryOccluderList->get(i), ray, rcvDist,
-                                                                                  srcSize, minimumFeatureSize);
+        double v = FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
+            geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {
@@ -104,14 +104,14 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         logFatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    float fSize = HUGE;
+    float fSize = HUGE_FLOAT;
     float tMinimum = rcvDist * ((float)EPSILON);
     float tMaximum = rcvDist;
-    BoundingBox *boundingBox = &geometry->boundingBox;
+    const BoundingBox *boundingBox = &geometry->boundingBox;
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
-    GalerkinElement *cluster = (GalerkinElement *)geometry->radianceData;
+    const GalerkinElement *cluster = (GalerkinElement *)geometry->radianceData;
 
     vectorSumScaled(ray->pos, tMinimum, ray->dir, vectorTmp);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
@@ -132,8 +132,9 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     if ( fSize < minimumFeatureSize ) {
         double kappa = 0.0;
         double vol;
-        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + EPSILON) * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON) *
-              (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
+        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + EPSILON)
+                * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON)
+                * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
@@ -141,7 +142,8 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     } else {
         if ( geometry->isCompound() ) {
             java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
-            double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(geometryList, ray, rcvDist, srcSize, minimumFeatureSize);
+            double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
+                geometryList, ray, rcvDist, srcSize, minimumFeatureSize);
             delete geometryList;
             return visibility;
         } else {
