@@ -28,12 +28,12 @@ transformPoint2D(const Matrix2x2 trans, const Vector2D src, Vector2D &dst) {
 inline void
 matrix2DPreConcatTransform(const Matrix2x2 xf2, const Matrix2x2 xf1, Matrix2x2 &xf) {
     Matrix2x2 tmpXf{};
-    tmpXf.m[0][0] = (xf2).m[0][0] * (xf1).m[0][0] + (xf2).m[0][1] * (xf1).m[1][0];
-    tmpXf.m[0][1] = (xf2).m[0][0] * (xf1).m[0][1] + (xf2).m[0][1] * (xf1).m[1][1];
-    tmpXf.m[1][0] = (xf2).m[1][0] * (xf1).m[0][0] + (xf2).m[1][1] * (xf1).m[1][0];
-    tmpXf.m[1][1] = (xf2).m[1][0] * (xf1).m[0][1] + (xf2).m[1][1] * (xf1).m[1][1];
-    tmpXf.t[0]  = (xf2).m[0][0] * (xf1).t[0] + (xf2).m[0][1] * (xf1).t[1] + (xf2).t[0];
-    tmpXf.t[1]  = (xf2).m[1][0] * (xf1).t[0] + (xf2).m[1][1] * (xf1).t[1] + (xf2).t[1];
+    tmpXf.m[0][0] = xf2.m[0][0] * xf1.m[0][0] + xf2.m[0][1] * xf1.m[1][0];
+    tmpXf.m[0][1] = xf2.m[0][0] * xf1.m[0][1] + xf2.m[0][1] * xf1.m[1][1];
+    tmpXf.m[1][0] = xf2.m[1][0] * xf1.m[0][0] + xf2.m[1][1] * xf1.m[1][0];
+    tmpXf.m[1][1] = xf2.m[1][0] * xf1.m[0][1] + xf2.m[1][1] * xf1.m[1][1];
+    tmpXf.t[0] = xf2.m[0][0] * xf1.t[0] + xf2.m[0][1] * xf1.t[1] + xf2.t[0];
+    tmpXf.t[1] = xf2.m[1][0] * xf1.t[0] + xf2.m[1][1] * xf1.t[1] + xf2.t[1];
     xf = tmpXf;
 }
 

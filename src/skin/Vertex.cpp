@@ -49,10 +49,10 @@ Vertex::computeColor() {
 
     if ( patches != nullptr ) {
         for ( int i = 0; i < patches->size(); i++) {
-            Patch *p = patches->get(i);
-            color.r += p->color.r;
-            color.g += p->color.g;
-            color.b += p->color.b;
+            const Patch *patch = patches->get(i);
+            color.r += patch->color.r;
+            color.g += patch->color.g;
+            color.b += patch->color.b;
         }
         numberOfPatches = patches->size();
     }

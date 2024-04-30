@@ -2,12 +2,12 @@
 #include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
-    coordinates[MIN_X] = HUGE;
-    coordinates[MIN_Y] = HUGE;
-    coordinates[MIN_Z] = HUGE;
-    coordinates[MAX_X] = -HUGE;
-    coordinates[MAX_Y] = -HUGE;
-    coordinates[MAX_Z] = -HUGE;
+    coordinates[MIN_X] = HUGE_FLOAT;
+    coordinates[MIN_Y] = HUGE_FLOAT;
+    coordinates[MIN_Z] = HUGE_FLOAT;
+    coordinates[MAX_X] = -HUGE_FLOAT;
+    coordinates[MAX_Y] = -HUGE_FLOAT;
+    coordinates[MAX_Z] = -HUGE_FLOAT;
 }
 
 static void inline
@@ -76,7 +76,7 @@ If there are no intersection in the given interval, false is returned. If there
 are intersections, true is returned.
 */
 bool
-BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
+BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
     float t;
 
     float minimumDistance = *tMin;
@@ -95,7 +95,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
         }
         t = (coordinates[MAX_X] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1. + EPSILON) ) {
+            if ( t > *tMax * (1.0 + EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -208,7 +208,7 @@ BoundingBox::intersectingSegment(Ray *ray, float *tMin, float *tMax) const {
 }
 
 bool
-BoundingBox::intersect(Ray *ray, float minimumDistance, float *maximumDistance) const {
+BoundingBox::intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const {
     float tMin = minimumDistance;
     float tMax = *maximumDistance;
     int hit = intersectingSegment(ray, &tMin, &tMax);
@@ -232,7 +232,7 @@ Returns true if the bounding box is behind the plane defined by norm and d
 see F. Tampieri, "Faster Vertex Radiosity Update", Graphics Gems II, p 303
 */
 bool
-BoundingBox::behindPlane(Vector3D *norm, float d) const {
+BoundingBox::behindPlane(const Vector3D *norm, float d) const {
     Vector3D P;
 
     if ( norm->x > 0.0f ) {
@@ -261,7 +261,7 @@ Computes bounding box after transforming this with coordinates after applying tr
 Result is filled in transBoundingBox->coordinates
 */
 void
-BoundingBox::transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox) {
+BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const {
     Vector3D v[8];
 
     v[0].set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
@@ -274,7 +274,7 @@ BoundingBox::transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingB
     v[7].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
 
     for ( int i = 0; i < 8; i++ ) {
-        transformPoint3D(*transform, v[i], v[i]);
+        transformPoint3D(transform, v[i], v[i]);
         transformedBoundingBox->enlargeToIncludePoint(&v[i]);
     }
 
@@ -295,14 +295,14 @@ BoundingBox::enlargeTinyBit() {
     float Dx = (float)((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
     float Dy = (float)((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
     float Dz = (float)((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
-    if ( Dx < EPSILON ) {
-        Dx = EPSILON;
+    if ( Dx < EPSILON_FLOAT ) {
+        Dx = EPSILON_FLOAT;
     }
-    if ( Dy < EPSILON ) {
-        Dy = EPSILON;
+    if ( Dy < EPSILON_FLOAT ) {
+        Dy = EPSILON_FLOAT;
     }
-    if ( Dz < EPSILON ) {
-        Dz = EPSILON;
+    if ( Dz < EPSILON_FLOAT ) {
+        Dz = EPSILON_FLOAT;
     }
     coordinates[MIN_X] -= Dx;
     coordinates[MAX_X] += Dx;

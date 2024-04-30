@@ -26,7 +26,7 @@ class BoundingBox {
     BoundingBox();
 
     inline bool
-    outOfBounds(Vector3D *p) const {
+    outOfBounds(const Vector3D *p) const {
         return p->x < coordinates[MIN_X] || p->x > coordinates[MAX_X] ||
                p->y < coordinates[MIN_Y] || p->y > coordinates[MAX_Y] ||
                p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
@@ -43,13 +43,13 @@ class BoundingBox {
             (coordinates[MIN_Z] > other->coordinates[MAX_Z]) || (other->coordinates[MIN_Z] > coordinates[MAX_Z]);
     }
 
-    bool intersect(Ray *ray, float minimumDistance, float *maximumDistance) const;
-    bool intersectingSegment(Ray *ray, float *tMin, float *tMax) const;
-    bool behindPlane(Vector3D *norm, float d) const;
+    bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
+    bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
+    bool behindPlane(const Vector3D *norm, float d) const;
     void copyFrom(const BoundingBox *other);
     void enlarge(const BoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);
-    void transformTo(Matrix4x4 *transform, BoundingBox *transformedBoundingBox);
+    void transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const;
     void enlargeTinyBit();
 };
 

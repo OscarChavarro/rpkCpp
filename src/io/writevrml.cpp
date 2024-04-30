@@ -66,7 +66,7 @@ transformModelVRML(Camera *camera, Vector3D *modelRotationAxis, float *modelRota
 Write VRML ViewPoint node for the given camera position
 */
 static void
-writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPointName) {
+writeVRMLViewPoint(FILE *fp, Matrix4x4 modelTransform, Camera *cam, const char *viewPointName) {
     Vector3D X;
     Vector3D Y;
     Vector3D Z;
@@ -80,9 +80,9 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
     vectorScale(-1.0, cam->Z, Z); // cam->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform
-    transformPoint3D(model_xf, X, X);
-    transformPoint3D(model_xf, Y, Y);
-    transformPoint3D(model_xf, Z, Z);
+    transformPoint3D(&modelTransform, X, X);
+    transformPoint3D(&modelTransform, Y, Y);
+    transformPoint3D(&modelTransform, Z, Z);
 
     // Construct view orientation transform and recover axis and angle
     viewTransform = globalIdentityMatrix;
@@ -90,10 +90,10 @@ writeVRMLViewPoint(FILE *fp, Matrix4x4 model_xf, Camera *cam, const char *viewPo
                  X.x, Y.x, Z.x,
                  X.y, Y.y, Z.y,
                  X.z, Y.z, Z.z);
-    recoverRotationMatrix(viewTransform, &viewRotationAngle, &viewRotationAxis);
+    recoverRotationMatrix(&viewTransform, &viewRotationAngle, &viewRotationAxis);
 
     // Apply model transform to eye point
-    transformPoint3D(model_xf, cam->eyePosition, eyePosition);
+    transformPoint3D(&modelTransform, cam->eyePosition, eyePosition);
 
     fprintf(fp,
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",

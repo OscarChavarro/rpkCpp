@@ -28,7 +28,8 @@ no patches in the shadow cache, or a pointer to the first hit patch otherwise
 RayHit *
 FormFactorStrategy::cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
     for ( int i = 0; i < FormFactorStrategy::numberOfCachedPatches; i++ ) {
-        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(ray, EPSILON_FLOAT * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
+        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(
+            ray, EPSILON_FLOAT * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
         if ( hit != nullptr ) {
             return hit;
         }
@@ -187,11 +188,12 @@ FormFactorStrategy::evaluatePointKernel(
 
     // Don't allow too nearby nodes to interact
     if ( distance < EPSILON ) {
-        logWarning("evaluatePointKernel", "Nodes too close too each other (receiver id %d, source id %d)", receiverElement->id, sourceElement->id);
+        logWarning("evaluatePointKernel", "Nodes too close too each other (receiver id %d, source id %d)",
+            receiverElement->id, sourceElement->id);
         return 0.0;
     }
 
-    // Emitter factor times scale, see [SILL1995b] Sillion, "A Unified Hierarchical ...", IEEE TVCG Vol 1 nr 3, sept 1995
+    // Emitter factor times scale, see [SILL1995b]
     double cosThetaY;
     if ( sourceElement->isCluster() ) {
         cosThetaY = 0.25;
@@ -244,8 +246,10 @@ FormFactorStrategy::evaluatePointKernel(
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
-        float minimumFeatureSize = 2.0f * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
-        visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(shadowGeometryList, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
+        float minimumFeatureSize = 2.0f
+            * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
+        visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
+            shadowGeometryList, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }
 
     return formFactorKernelTerm * visibilityFactor;
@@ -279,13 +283,15 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
         // No basis description for clusters: we always use a constant approximation on clusters
         receiverBasis = nullptr;
     } else {
-        receiverBasis = (receiverElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        receiverBasis =
+            (receiverElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     if ( sourceElement->isCluster() ) {
         sourceBasis = nullptr;
     } else {
-        sourceBasis = (sourceElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        sourceBasis =
+            (sourceElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
     // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
@@ -475,7 +481,9 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
                 link->K[0] = 0.0f;
             } else {
-                for ( int i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
+                for ( int i = 0;
+                      i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
+                      i++ ) {
                     link->K[i] = 0.0f;
                 }
             }
@@ -497,7 +505,9 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
                 link->K[0] = 0.0f;
             } else {
-                for ( int i = 0; i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource; i++ ) {
+                for ( int i = 0;
+                      i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
+                      i++ ) {
                     link->K[i] = 0.0f;
                 }
             }
@@ -588,7 +598,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     galerkinState->formFactorLastRcv = receiverElement;
     galerkinState->formFactorLastSrc = sourceElement;
 
-    if ( galerkinState->clusteringStrategy == ISOTROPIC && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
+    if ( galerkinState->clusteringStrategy == ISOTROPIC
+        && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
         if ( link-> deltaK != nullptr ) {
             delete[] link->deltaK;
         }

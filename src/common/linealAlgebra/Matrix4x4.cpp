@@ -56,32 +56,32 @@ Recovers the rotation axis and angle from the given rotation matrix.
 There is no check whether the transform really is a rotation.
 */
 void
-recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
-    float c = (xf.m[0][0] + xf.m[1][1] + xf.m[2][2] - 1.0f) * 0.5f;
+recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
+    float c = (xf->m[0][0] + xf->m[1][1] + xf->m[2][2] - 1.0f) * 0.5f;
     if ( c > 1.0f - EPSILON ) {
         *angle = 0.0f;
         axis->set(0.0f, 0.0f, 1.0f);
     } else if ( c < -1.0f + EPSILON ) {
-        *angle = M_PI;
-        axis->x = (float)std::sqrt((xf.m[0][0] + 1.0f) * 0.5f);
-        axis->y = (float)std::sqrt((xf.m[1][1] + 1.0f) * 0.5f);
-        axis->z = (float)std::sqrt((xf.m[2][2] + 1.0f) * 0.5f);
+        *angle = (float)M_PI;
+        axis->x = std::sqrt((xf->m[0][0] + 1.0f) * 0.5f);
+        axis->y = std::sqrt((xf->m[1][1] + 1.0f) * 0.5f);
+        axis->z = std::sqrt((xf->m[2][2] + 1.0f) * 0.5f);
 
         // Assume x positive, determine sign of y and z
-        if ( xf.m[1][0] < 0.0f ) {
+        if ( xf->m[1][0] < 0.0f ) {
             axis->y = -axis->y;
         }
-        if ( xf.m[2][0] < 0.0f ) {
+        if ( xf->m[2][0] < 0.0f ) {
             axis->z = -axis->z;
         }
     } else {
         float r;
-        *angle = (float)std::acos(c);
+        *angle = std::acos(c);
         float s = std::sqrt(1.0f - c * c);
         r = 1.0f / (2.0f * s);
-        axis->x = (float) (xf.m[2][1] - xf.m[1][2]) * r;
-        axis->y = (float) (xf.m[0][2] - xf.m[2][0]) * r;
-        axis->z = (float) (xf.m[1][0] - xf.m[0][1]) * r;
+        axis->x = (xf->m[2][1] - xf->m[1][2]) * r;
+        axis->y = (xf->m[0][2] - xf->m[2][0]) * r;
+        axis->z = (xf->m[1][0] - xf->m[0][1]) * r;
     }
 }
 
@@ -89,44 +89,44 @@ recoverRotationMatrix(Matrix4x4 xf, float *angle, Vector3D *axis) {
 xf(p) = xf2(xf1(p))
 */
 Matrix4x4
-transComposeMatrix(Matrix4x4 xf2, Matrix4x4 xf1) {
+transComposeMatrix(const Matrix4x4 *xf2, const Matrix4x4 *xf1) {
     Matrix4x4 xf{};
 
-    xf.m[0][0] = xf2.m[0][0] * xf1.m[0][0] + xf2.m[0][1] * xf1.m[1][0] + xf2.m[0][2] * xf1.m[2][0] +
-                 xf2.m[0][3] * xf1.m[3][0];
-    xf.m[0][1] = xf2.m[0][0] * xf1.m[0][1] + xf2.m[0][1] * xf1.m[1][1] + xf2.m[0][2] * xf1.m[2][1] +
-                 xf2.m[0][3] * xf1.m[3][1];
-    xf.m[0][2] = xf2.m[0][0] * xf1.m[0][2] + xf2.m[0][1] * xf1.m[1][2] + xf2.m[0][2] * xf1.m[2][2] +
-                 xf2.m[0][3] * xf1.m[3][2];
-    xf.m[0][3] = xf2.m[0][0] * xf1.m[0][3] + xf2.m[0][1] * xf1.m[1][3] + xf2.m[0][2] * xf1.m[2][3] +
-                 xf2.m[0][3] * xf1.m[3][3];
+    xf.m[0][0] = xf2->m[0][0] * xf1->m[0][0] + xf2->m[0][1] * xf1->m[1][0] + xf2->m[0][2] * xf1->m[2][0] +
+                 xf2->m[0][3] * xf1->m[3][0];
+    xf.m[0][1] = xf2->m[0][0] * xf1->m[0][1] + xf2->m[0][1] * xf1->m[1][1] + xf2->m[0][2] * xf1->m[2][1] +
+                 xf2->m[0][3] * xf1->m[3][1];
+    xf.m[0][2] = xf2->m[0][0] * xf1->m[0][2] + xf2->m[0][1] * xf1->m[1][2] + xf2->m[0][2] * xf1->m[2][2] +
+                 xf2->m[0][3] * xf1->m[3][2];
+    xf.m[0][3] = xf2->m[0][0] * xf1->m[0][3] + xf2->m[0][1] * xf1->m[1][3] + xf2->m[0][2] * xf1->m[2][3] +
+                 xf2->m[0][3] * xf1->m[3][3];
 
-    xf.m[1][0] = xf2.m[1][0] * xf1.m[0][0] + xf2.m[1][1] * xf1.m[1][0] + xf2.m[1][2] * xf1.m[2][0] +
-                 xf2.m[1][3] * xf1.m[3][0];
-    xf.m[1][1] = xf2.m[1][0] * xf1.m[0][1] + xf2.m[1][1] * xf1.m[1][1] + xf2.m[1][2] * xf1.m[2][1] +
-                 xf2.m[1][3] * xf1.m[3][1];
-    xf.m[1][2] = xf2.m[1][0] * xf1.m[0][2] + xf2.m[1][1] * xf1.m[1][2] + xf2.m[1][2] * xf1.m[2][2] +
-                 xf2.m[1][3] * xf1.m[3][2];
-    xf.m[1][3] = xf2.m[1][0] * xf1.m[0][3] + xf2.m[1][1] * xf1.m[1][3] + xf2.m[1][2] * xf1.m[2][3] +
-                 xf2.m[1][3] * xf1.m[3][3];
+    xf.m[1][0] = xf2->m[1][0] * xf1->m[0][0] + xf2->m[1][1] * xf1->m[1][0] + xf2->m[1][2] * xf1->m[2][0] +
+                 xf2->m[1][3] * xf1->m[3][0];
+    xf.m[1][1] = xf2->m[1][0] * xf1->m[0][1] + xf2->m[1][1] * xf1->m[1][1] + xf2->m[1][2] * xf1->m[2][1] +
+                 xf2->m[1][3] * xf1->m[3][1];
+    xf.m[1][2] = xf2->m[1][0] * xf1->m[0][2] + xf2->m[1][1] * xf1->m[1][2] + xf2->m[1][2] * xf1->m[2][2] +
+                 xf2->m[1][3] * xf1->m[3][2];
+    xf.m[1][3] = xf2->m[1][0] * xf1->m[0][3] + xf2->m[1][1] * xf1->m[1][3] + xf2->m[1][2] * xf1->m[2][3] +
+                 xf2->m[1][3] * xf1->m[3][3];
 
-    xf.m[2][0] = xf2.m[2][0] * xf1.m[0][0] + xf2.m[2][1] * xf1.m[1][0] + xf2.m[2][2] * xf1.m[2][0] +
-                 xf2.m[2][3] * xf1.m[3][0];
-    xf.m[2][1] = xf2.m[2][0] * xf1.m[0][1] + xf2.m[2][1] * xf1.m[1][1] + xf2.m[2][2] * xf1.m[2][1] +
-                 xf2.m[2][3] * xf1.m[3][1];
-    xf.m[2][2] = xf2.m[2][0] * xf1.m[0][2] + xf2.m[2][1] * xf1.m[1][2] + xf2.m[2][2] * xf1.m[2][2] +
-                 xf2.m[2][3] * xf1.m[3][2];
-    xf.m[2][3] = xf2.m[2][0] * xf1.m[0][3] + xf2.m[2][1] * xf1.m[1][3] + xf2.m[2][2] * xf1.m[2][3] +
-                 xf2.m[2][3] * xf1.m[3][3];
+    xf.m[2][0] = xf2->m[2][0] * xf1->m[0][0] + xf2->m[2][1] * xf1->m[1][0] + xf2->m[2][2] * xf1->m[2][0] +
+                 xf2->m[2][3] * xf1->m[3][0];
+    xf.m[2][1] = xf2->m[2][0] * xf1->m[0][1] + xf2->m[2][1] * xf1->m[1][1] + xf2->m[2][2] * xf1->m[2][1] +
+                 xf2->m[2][3] * xf1->m[3][1];
+    xf.m[2][2] = xf2->m[2][0] * xf1->m[0][2] + xf2->m[2][1] * xf1->m[1][2] + xf2->m[2][2] * xf1->m[2][2] +
+                 xf2->m[2][3] * xf1->m[3][2];
+    xf.m[2][3] = xf2->m[2][0] * xf1->m[0][3] + xf2->m[2][1] * xf1->m[1][3] + xf2->m[2][2] * xf1->m[2][3] +
+                 xf2->m[2][3] * xf1->m[3][3];
 
-    xf.m[3][0] = xf2.m[3][0] * xf1.m[0][0] + xf2.m[3][1] * xf1.m[1][0] + xf2.m[3][2] * xf1.m[2][0] +
-                 xf2.m[3][3] * xf1.m[3][0];
-    xf.m[3][1] = xf2.m[3][0] * xf1.m[0][1] + xf2.m[3][1] * xf1.m[1][1] + xf2.m[3][2] * xf1.m[2][1] +
-                 xf2.m[3][3] * xf1.m[3][1];
-    xf.m[3][2] = xf2.m[3][0] * xf1.m[0][2] + xf2.m[3][1] * xf1.m[1][2] + xf2.m[3][2] * xf1.m[2][2] +
-                 xf2.m[3][3] * xf1.m[3][2];
-    xf.m[3][3] = xf2.m[3][0] * xf1.m[0][3] + xf2.m[3][1] * xf1.m[1][3] + xf2.m[3][2] * xf1.m[2][3] +
-                 xf2.m[3][3] * xf1.m[3][3];
+    xf.m[3][0] = xf2->m[3][0] * xf1->m[0][0] + xf2->m[3][1] * xf1->m[1][0] + xf2->m[3][2] * xf1->m[2][0] +
+                 xf2->m[3][3] * xf1->m[3][0];
+    xf.m[3][1] = xf2->m[3][0] * xf1->m[0][1] + xf2->m[3][1] * xf1->m[1][1] + xf2->m[3][2] * xf1->m[2][1] +
+                 xf2->m[3][3] * xf1->m[3][1];
+    xf.m[3][2] = xf2->m[3][0] * xf1->m[0][2] + xf2->m[3][1] * xf1->m[1][2] + xf2->m[3][2] * xf1->m[2][2] +
+                 xf2->m[3][3] * xf1->m[3][2];
+    xf.m[3][3] = xf2->m[3][0] * xf1->m[0][3] + xf2->m[3][1] * xf1->m[1][3] + xf2->m[3][2] * xf1->m[2][3] +
+                 xf2->m[3][3] * xf1->m[3][3];
 
     return xf;
 }
@@ -158,7 +158,8 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
                  Z.x, Z.y, Z.z);
 
     vectorScale(-1.0, eye, s); // Translate eye to origin
-    return transComposeMatrix(xf, translationMatrix(s));
+    Matrix4x4 t = translationMatrix(s);
+    return transComposeMatrix(&xf, &t);
 }
 
 Matrix4x4

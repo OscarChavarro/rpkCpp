@@ -51,7 +51,11 @@ only taking into account the surface orientation w.r.t. the
 sample point, (ignores intra cluster visibility)
 */
 void
-ClusterTraversalStrategy::accumulatePowerToSamplePoint(GalerkinElement *src, GalerkinState *galerkinState, ColorRgb * /*accumulatedRadiance*/) {
+ClusterTraversalStrategy::accumulatePowerToSamplePoint(
+    GalerkinElement *src,
+    GalerkinState *galerkinState,
+    ColorRgb * /*accumulatedRadiance*/)
+{
     float srcOs;
     float dist;
     Vector3D dir;
@@ -307,7 +311,8 @@ receiver cluster
 */
 void
 ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
 
     if ( !rcv->isCluster() || src == rcv ) {
         logFatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");

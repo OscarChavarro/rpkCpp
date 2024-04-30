@@ -71,9 +71,9 @@ class RayHit {
     int
     init(
         Patch *inPatch,
-        Geometry *inGeometry,
-        Vector3D *inPoint,
-        Vector3D *inGeometryNormal,
+        const Geometry *inGeometry,
+        const Vector3D *inPoint,
+        const Vector3D *inGeometryNormal,
         Material *inMaterial,
         float inDistance);
 

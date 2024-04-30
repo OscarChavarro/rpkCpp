@@ -99,15 +99,15 @@ Initializes the cluster element. Called bottom-up: first the
 lowest level clusters and so up
 */
 static void
-clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
+clusterInit(GalerkinElement *cluster, const GalerkinState *galerkinState) {
     // Total area of surfaces inside the cluster is sum of the areas of
     // the sub-clusters + pull radiance
     cluster->area = 0.0;
     cluster->numberOfPatches = 0;
-    cluster->minimumArea = HUGE;
+    cluster->minimumArea = HUGE_FLOAT;
     colorsArrayClear(cluster->radiance, cluster->basisSize);
     for ( int i = 0; cluster->irregularSubElements != nullptr && i< cluster->irregularSubElements->size(); i++ ) {
-        GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
+        const GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
         cluster->area += subCluster->area;
         cluster->numberOfPatches += subCluster->numberOfPatches;
         cluster->radiance[0].addScaled(cluster->radiance[0], subCluster->area, subCluster->radiance[0]);
@@ -124,7 +124,7 @@ clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         colorsArrayClear(cluster->unShotRadiance, cluster->basisSize);
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
+            const GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
             cluster->unShotRadiance[0].addScaled(cluster->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }
         cluster->unShotRadiance[0].scale(1.0f / cluster->area);
@@ -132,7 +132,7 @@ clusterInit(GalerkinElement *cluster, GalerkinState *galerkinState) {
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
-    float *bbx = cluster->geometry->boundingBox.coordinates;
+    const float *bbx = cluster->geometry->boundingBox.coordinates;
     cluster->blockerSize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
     cluster->blockerSize = floatMax(cluster->blockerSize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
@@ -163,7 +163,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerk
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(parentGeometry);
+        const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(parentGeometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), cluster);
         }
