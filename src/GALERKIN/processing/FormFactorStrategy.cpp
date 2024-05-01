@@ -5,6 +5,15 @@
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"
 
+/**
+References:
+- [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
+  Rendering Workshop, Porto, Portugal, June 1996, pp 153 -164.
+
+- [SILL1995b] F. Sillion, "A Unified Hierarchical Algorithm for Global Illumination
+  with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3, September 1995
+*/
+
 Patch * FormFactorStrategy::patchCache[MAX_CACHE];
 int FormFactorStrategy::cachedPatches;
 int FormFactorStrategy::numberOfCachedPatches;
@@ -145,7 +154,7 @@ FormFactorStrategy::determineNodes(
 
         // Compute the positions x[k] corresponding to the nodes of the cubature rule
         // in the unit square or triangle used to parametrise the element
-        for ( int k = 0; cr != nullptr && *cr != nullptr && k < (*cr)->numberOfNodes; k++ ) {
+        for ( int k = 0; *cr != nullptr && k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
@@ -255,30 +264,164 @@ FormFactorStrategy::evaluatePointsPairKernel(
     return formFactorKernelTerm * visibilityFactor;
 }
 
-/**
-Higher order area to area form factor computation. See
+inline void
+FormFactorStrategy::computeInteractionFormFactor(
+    const CubatureRule *receiverCubatureRule,
+    const CubatureRule *sourceCubatureRule,
+    const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+    const GalerkinElement *sourceElement,
+    const GalerkinElement *receiverElement,
+    const GalerkinBasis *sourceBasis,
+    const GalerkinBasis *receiverBasis,
+    const ColorRgb *sourceRadiance,
+    double *gMin,
+    double *gMax,
+    ColorRgb *deltaRadiance,
+    Interaction *twoPatchesInteraction)
+{
+    // 1. Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
+    //    receiver patch for all basis functions \alpha
+    double receiverPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES]{};
 
-- [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics Rendering
-Workshop, Porto, Portugal, June 1996, p 158.
+    for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+        if ( receiverElement->isCluster() ) {
+            // Constant approximation on clusters
+            if ( twoPatchesInteraction->numberOfBasisFunctionsOnReceiver != 1 ) {
+                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
+                         "non-constant approximation on receiver cluster is not possible");
+            }
+            receiverPhi[0][k] = 1.0;
+        } else {
+            for ( int alpha = 0; alpha < twoPatchesInteraction->numberOfBasisFunctionsOnReceiver && receiverBasis != nullptr; alpha++ ) {
+                receiverPhi[alpha][k] = receiverBasis->function[alpha](receiverCubatureRule->u[k], receiverCubatureRule->v[k]);
+            }
+        }
+    }
+
+    // 2. Start with clean deltaRadiance
+    double sourcePhi[CUBATURE_MAXIMUM_NODES];
+    for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+        deltaRadiance[k].clear();
+    }
+
+    // 3. Compute form factor and write it to interaction K
+    for ( int beta = 0; beta < twoPatchesInteraction->numberOfBasisFunctionsOnSource; beta++ ) {
+        // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
+        if ( sourceElement->isCluster() ) {
+            if ( beta > 0 ) {
+                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
+                         "non-constant approximation on source cluster is not possible");
+            }
+            for ( int l = 0; l < sourceCubatureRule->numberOfNodes; l++ ) {
+                sourcePhi[l] = 1.0;
+            }
+        } else {
+            for ( int l = 0; l < sourceCubatureRule->numberOfNodes && sourceBasis != nullptr; l++ ) {
+                sourcePhi[l] = sourceBasis->function[beta](sourceCubatureRule->u[l], sourceCubatureRule->v[l]);
+            }
+        }
+
+        double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
+        double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+
+        for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+            // Compute point-to-patch form factors for positions x_k on receiver and
+            // basis function \beta on the source
+            gBeta[k] = 0.0;
+            for ( int l = 0; l < sourceCubatureRule->numberOfNodes; l++ ) {
+                gBeta[k] += sourceCubatureRule->w[l] * Gxy[k][l] * sourcePhi[l];
+            }
+            gBeta[k] *= sourceElement->area;
+
+            // First part of error estimate at receiver node x_k
+            deltaBeta[k] = -gBeta[k];
+        }
+
+        for ( int alpha = 0; alpha < twoPatchesInteraction->numberOfBasisFunctionsOnReceiver; alpha++ ) {
+            // Compute patch-to-patch form factor for basis function alpha on the
+            // receiver and beta on the source
+            double gAlphaBeta = 0.0;
+            for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+                gAlphaBeta += receiverCubatureRule->w[k] * receiverPhi[alpha][k] * gBeta[k];
+            }
+            twoPatchesInteraction->K[alpha * twoPatchesInteraction->numberOfBasisFunctionsOnSource + beta] = (float)(receiverElement->area * gAlphaBeta);
+
+            // Second part of error estimate at receiver node x_k
+            for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+                deltaBeta[k] += gAlphaBeta * receiverPhi[alpha][k];
+            }
+        }
+
+        for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+            deltaRadiance[k].addScaled(deltaRadiance[k], (float) deltaBeta[k], sourceRadiance[beta]);
+        }
+
+        if ( beta == 0 ) {
+            // Determine minimum and maximum point-to-patch form factor
+            for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+                if ( gBeta[k] < *gMin ) {
+                    *gMin = gBeta[k];
+                }
+                if ( gBeta[k] > *gMax ) {
+                    *gMax = gBeta[k];
+                }
+            }
+        }
+    }
+}
+
+inline void
+FormFactorStrategy::computeInteractionError(
+    const CubatureRule *receiverCubatureRule,
+    const GalerkinElement *receiverElement,
+    const double gMin,
+    const double gMax,
+    const ColorRgb *sourceRadiance,
+    ColorRgb *deltaRadiance,
+    Interaction *link)
+{
+    // Compute error and write it to interaction deltaK
+    if ( link->deltaK != nullptr ) {
+        delete[] link->deltaK;
+    }
+    link->deltaK = new float[1];
+    if ( sourceRadiance[0].isBlack() ) {
+        // No source radiance: use constant radiance error approximation
+        double gav = link->K[0] / receiverElement->area;
+        link->deltaK[0] = (float)(gMax - gav);
+        if ( gav - gMin > link->deltaK[0] ) {
+            link->deltaK[0] = (float)(gav - gMin);
+        }
+    } else {
+        link->deltaK[0] = 0.0;
+        for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
+            deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
+            double delta = std::fabs(deltaRadiance[k].maximumComponent());
+            if ( delta > link->deltaK[0] ) {
+                link->deltaK[0] = (float)delta;
+            }
+        }
+    }
+    link->numberOfReceiverCubaturePositions = 1; // One error estimation coefficient
+}
+
+/**
+Higher order area to area form factor computation. See [BEKA1996].
 */
 void
 FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
-    Interaction *link,
-    const CubatureRule *cubatureRuleRcv,
-    const CubatureRule *cubatureRuleSrc,
+    Interaction *twoPatchesInteraction,
+    const CubatureRule *receiverCubatureRule,
+    const CubatureRule *sourceCubatureRule,
     const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
     const GalerkinState *galerkinState)
 {
-    double rcvPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES]{};
-    double srcPhi[CUBATURE_MAXIMUM_NODES];
-    const GalerkinElement *receiverElement = link->receiverElement;
-    const GalerkinElement *sourceElement = link->sourceElement;
-    const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
-                               sourceElement->unShotRadiance : sourceElement->radiance;
-
-    // Receiver and source basis description
+    // 1. Receiver and source basis description
+    const GalerkinElement *receiverElement = twoPatchesInteraction->receiverElement;
+    const GalerkinElement *sourceElement = twoPatchesInteraction->sourceElement;
     const GalerkinBasis *receiverBasis;
     const GalerkinBasis *sourceBasis;
+
     if ( receiverElement->isCluster() ) {
         // No basis description for clusters: we always use a constant approximation on clusters
         receiverBasis = nullptr;
@@ -294,114 +437,36 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
             (sourceElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
     }
 
-    // Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
-    // receiver patch for all basis functions \alpha
+    // 2. Compute form factor (sets K)
+    const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
+         sourceElement->unShotRadiance : sourceElement->radiance;
     ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
-
-    for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-        if ( receiverElement->isCluster() ) {
-            // Constant approximation on clusters
-            if ( link->numberOfBasisFunctionsOnReceiver != 1 ) {
-                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
-                         "non-constant approximation on receiver cluster is not possible");
-            }
-            rcvPhi[0][k] = 1.0;
-        } else {
-            for ( int alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver && receiverBasis != nullptr; alpha++ ) {
-                rcvPhi[alpha][k] = receiverBasis->function[alpha](cubatureRuleRcv->u[k], cubatureRuleRcv->v[k]);
-            }
-        }
-        deltaRadiance[k].clear();
-    }
-
     double gMin = HUGE;
     double gMax = -HUGE;
-    for ( int beta = 0; beta < link->numberOfBasisFunctionsOnSource; beta++ ) {
-        // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
-        if ( sourceElement->isCluster() ) {
-            if ( beta > 0 ) {
-                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
-                         "non-constant approximation on source cluster is not possible");
-            }
-            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
-                srcPhi[l] = 1.0;
-            }
-        } else {
-            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes && sourceBasis != nullptr; l++ ) {
-                srcPhi[l] = sourceBasis->function[beta](cubatureRuleSrc->u[l], cubatureRuleSrc->v[l]);
-            }
-        }
 
-        double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
-        double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+    computeInteractionFormFactor(
+        receiverCubatureRule,
+        sourceCubatureRule,
+        Gxy,
+        sourceElement,
+        receiverElement,
+        sourceBasis,
+        receiverBasis,
+        sourceRadiance,
+        &gMin,
+        &gMax,
+        deltaRadiance,
+        twoPatchesInteraction);
 
-        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            // Compute point-to-patch form factors for positions x_k on receiver and
-            // basis function \beta on the source
-            gBeta[k] = 0.0;
-            for ( int l = 0; l < cubatureRuleSrc->numberOfNodes; l++ ) {
-                gBeta[k] += cubatureRuleSrc->w[l] * Gxy[k][l] * srcPhi[l];
-            }
-            gBeta[k] *= sourceElement->area;
-
-            // First part of error estimate at receiver node x_k
-            deltaBeta[k] = -gBeta[k];
-        }
-
-        for ( int alpha = 0; alpha < link->numberOfBasisFunctionsOnReceiver; alpha++ ) {
-            // Compute patch-to-patch form factor for basis function alpha on the
-            // receiver and beta on the source
-            double gAlphaBeta = 0.0;
-            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-                gAlphaBeta += cubatureRuleRcv->w[k] * rcvPhi[alpha][k] * gBeta[k];
-            }
-            link->K[alpha * link->numberOfBasisFunctionsOnSource + beta] = (float)(receiverElement->area * gAlphaBeta);
-
-            // Second part of error estimate at receiver node x_k
-            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-                deltaBeta[k] += gAlphaBeta * rcvPhi[alpha][k];
-            }
-        }
-
-        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            deltaRadiance[k].addScaled(deltaRadiance[k], (float) deltaBeta[k], sourceRadiance[beta]);
-        }
-
-        if ( beta == 0 ) {
-            // Determine minimum and maximum point-to-patch form factor
-            for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-                if ( gBeta[k] < gMin ) {
-                    gMin = gBeta[k];
-                }
-                if ( gBeta[k] > gMax ) {
-                    gMax = gBeta[k];
-                }
-            }
-        }
-    }
-
-    if ( link->deltaK != nullptr ) {
-        delete[] link->deltaK;
-    }
-    link->deltaK = new float[1];
-    if ( sourceRadiance[0].isBlack() ) {
-        // No source radiance: use constant radiance error approximation
-        double gav = link->K[0] / receiverElement->area;
-        link->deltaK[0] = (float)(gMax - gav);
-        if ( gav - gMin > link->deltaK[0] ) {
-            link->deltaK[0] = (float)(gav - gMin);
-        }
-    } else {
-        link->deltaK[0] = 0.0;
-        for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
-            deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
-            double delta = std::fabs(deltaRadiance[k].maximumComponent());
-            if ( delta > link->deltaK[0] ) {
-                link->deltaK[0] = (float)delta;
-            }
-        }
-    }
-    link->numberOfReceiverCubaturePositions = 1; // One error estimation coefficient
+    // 3. Compute error (sets deltaK)
+    computeInteractionError(
+        receiverCubatureRule, // Inputs
+        receiverElement,
+        gMin,
+        gMax,
+        sourceRadiance,
+        deltaRadiance,
+        twoPatchesInteraction);
 }
 
 /**
@@ -416,37 +481,26 @@ IN:
   - geometryShadowList: a list of possible occluders
 
 OUT:
- - link->K
- - link->deltaK: generalized form factor(s) and error estimation coefficients (to be used in the refinement oracle
-   hierarchicRefinementEvaluateInteraction()
+ - link->K: generalized form factor / form factors
+ - link->deltaK: error estimation coefficients (to be used in the refinement oracle
+   hierarchicRefinementEvaluateInteraction)
  - link->numberOfReceiverCubaturePositions: number of error estimation coefficients (only 1 for the moment)
  - link->visibility: visibility factor from 0 (totally occluded) to 255 (total visibility)
-
-The caller provides enough storage for storing the coefficients.
 
 Assumptions:
 - The first basis function on the elements is constant and equal to 1
 - The basis functions are orthonormal on their reference domain (unit square or standard triangle)
 - The parameter mapping on the elements is uniform
+- The cubature rules defined for triangles, quads and boxes provides sample points in 2D (z = 0) or 3D,
+  allowing area to area, area to volume and volume to volume computations
 
 With these assumptions, the jacobians are all constant and equal to the area
 of the elements and the basis overlap matrices are the area of the element times
-the unit matrix
-
-Reference:
-
-- [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics
-	Rendering Workshop, Porto, Portugal, June 1996, pp 153--164.
+the unit matrix, see [BEKA1996].
 
 We always use a constant approximation on clusters. For the form factor
 computations, a cluster area of one fourth of it's total surface area
-is used.
-
-Reference:
-
-- [SILL1995b] F. Sillion, "A Unified Hierarchical Algorithm for Global Illumination
-with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3,
-sept 1995
+is used, see [SILL1995b].
 */
 void
 FormFactorStrategy::computeAreaToAreaFormFactorVisibility(

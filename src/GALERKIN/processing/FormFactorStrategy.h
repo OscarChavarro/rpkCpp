@@ -8,6 +8,7 @@ All kind of form factor computations
 #include "java/util/ArrayList.h"
 #include "scene/VoxelGrid.h"
 #include "skin/Geometry.h"
+#include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/Interaction.h"
 #include "GALERKIN/GalerkinRole.h"
 
@@ -46,23 +47,48 @@ class FormFactorStrategy {
 
     static double
     evaluatePointsPairKernel(
-            const VoxelGrid *sceneWorldVoxelGrid,
-            const Vector3D *x,
-            const Vector3D *y,
-            const GalerkinElement *receiverElement,
-            const GalerkinElement *sourceElement,
-            const java::ArrayList<Geometry *> *shadowGeometryList,
-            const bool isSceneGeometry,
-            const bool isClusteredGeometry,
-            const GalerkinState *galerkinState);
+        const VoxelGrid *sceneWorldVoxelGrid,
+        const Vector3D *x,
+        const Vector3D *y,
+        const GalerkinElement *receiverElement,
+        const GalerkinElement *sourceElement,
+        const java::ArrayList<Geometry *> *shadowGeometryList,
+        bool isSceneGeometry,
+        bool isClusteredGeometry,
+        const GalerkinState *galerkinState);
 
     static void
     doHigherOrderAreaToAreaFormFactor(
-        Interaction *link,
-        const CubatureRule *cubatureRuleRcv,
-        const CubatureRule *cubatureRuleSrc,
+        Interaction *twoPatchesInteraction,
+        const CubatureRule *receiverCubatureRule,
+        const CubatureRule *sourceCubatureRule,
         const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
         const GalerkinState *galerkinState);
+
+    static inline void
+    computeInteractionError(
+        const CubatureRule *receiverCubatureRule,
+        const GalerkinElement *receiverElement,
+        double gMin,
+        double gMax,
+        const ColorRgb *sourceRadiance,
+        ColorRgb *deltaRadiance,
+        Interaction *link);
+
+    static inline void
+    computeInteractionFormFactor(
+        const CubatureRule *receiverCubatureRule,
+        const CubatureRule *sourceCubatureRule,
+        const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+        const GalerkinElement *sourceElement,
+        const GalerkinElement *receiverElement,
+        const GalerkinBasis *sourceBasis,
+        const GalerkinBasis *receiverBasis,
+        const ColorRgb *sourceRadiance,
+        double *gMin,
+        double *gMax,
+        ColorRgb *deltaRadiance,
+        Interaction *twoPatchesInteraction);
 
   public:
     static void
