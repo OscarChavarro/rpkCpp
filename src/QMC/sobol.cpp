@@ -19,7 +19,6 @@ double *
 nextSobol() {
     static double xx[MAX_DIM];
     int c;
-    int i;
     int save;
 
     c = 1;
@@ -28,7 +27,7 @@ nextSobol() {
         c += 1;
         save = save / 2;
     }
-    for ( i = 0; i < dim; i++ ) {
+    for ( int i = 0; i < dim; i++ ) {
         x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
         xx[i] = x[i] * RECIP;
     }
@@ -67,11 +66,6 @@ sobol(int seed) {
 
 void
 initSobol(int iDim) {
-    int i;
-    int j;
-    int k;
-    int m;
-    int save;
     int d[MAX_DIM];
     int POLY[MAX_DIM];
 
@@ -92,19 +86,19 @@ initSobol(int iDim) {
     d[4] = 5; // x^5 + x^2 + 1
 
     // Initial values v read in all initial values 1 --> start of sequence worthless!
-    for ( i = 0; i < dim; i++ ) {
-        for ( j = 0; j < d[i]; j++ ) {
+    for ( int i = 0; i < dim; i++ ) {
+        for ( int j = 0; j < d[i]; j++ ) {
             v[i][j] = 1;
         }
     }
 
     // Calculate remainder of v
-    for ( i = 0; i < dim; i++ ) {
-        for ( j = d[i]; j < V_MAX; j++ ) {
+    for ( int i = 0; i < dim; i++ ) {
+        for ( int j = d[i]; j < V_MAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
-            save = POLY[i];
-            m = (int)std::pow(2, d[i]);
-            for ( k = d[i]; k > 0; k-- ) {
+            int save = POLY[i];
+            int m = (int)std::pow(2, d[i]);
+            for ( int k = d[i]; k > 0; k-- ) {
                 v[i][j] = v[i][j] ^ m * (save % 2) * v[i][j - k];
                 save = save / 2;
                 m = m / 2;
@@ -112,11 +106,11 @@ initSobol(int iDim) {
         }
     }
 
-    for ( i = 0; i < dim; i++ ) {
+    for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
     }
     skip = (int)std::pow(2, 6); // Not deterministic!
-    for ( i = 1; i <= skip; i++ ) {
+    for ( int i = 1; i <= skip; i++ ) {
         // Discard the beginning of the sequence because the initial values are the same
         nextSobol();
     }

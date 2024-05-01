@@ -6,7 +6,8 @@ Halton quasi Monte Carlo sample generator
 
 double
 Halton2(int i) {
-    unsigned long h, f;
+    unsigned long h;
+    unsigned long f;
 
     h = i & 1;
     f = 2;
@@ -35,7 +36,8 @@ Halton2(int i) {
 
 double
 Halton3(int i) {
-    unsigned long h, f;
+    unsigned long h;
+    unsigned long f;
     unsigned long j = i;
     i /= 3;
     h = j - ((i << 1) + i);
@@ -54,7 +56,8 @@ Halton3(int i) {
 
 double
 Halton5(int i) {
-    unsigned long h, f;
+    unsigned long h;
+    unsigned long f;
     unsigned long j = i;
     i /= 5;
     h = j - ((i << 2) + i);
@@ -73,7 +76,8 @@ Halton5(int i) {
 
 double
 Halton7(int i) {
-    unsigned long h, f;
+    unsigned long h;
+    unsigned long f;
     unsigned long j = i;
     i /= 7;
     h = j - ((i << 2) + (i << 1) + i);
