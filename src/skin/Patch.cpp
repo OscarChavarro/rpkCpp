@@ -300,8 +300,8 @@ bool
 Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
     double u0;
     double v0;
-    REAL alpha;
-    REAL beta;
+    double alpha;
+    double beta;
     Vertex **v;
     Vector2Dd p0;
     Vector2Dd p1;
@@ -384,12 +384,12 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
     Vector2Dd AD;
     Vector2Dd AM;
     Vector2Dd AE;
-    REAL u = -1.0; // Parametric coordinates
-    REAL v = -1.0;
-    REAL a; // For the quadratic equation
-    REAL b;
-    REAL c;
-    REAL SqrtDelta;
+    double u = -1.0; // Parametric coordinates
+    double v = -1.0;
+    double a; // For the quadratic equation
+    double b;
+    double c;
+    double SqrtDelta;
     Vector2Dd Vector; // Temporary 2D-vector
     int isInside = false;
 

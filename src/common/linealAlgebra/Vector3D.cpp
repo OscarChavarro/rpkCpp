@@ -19,24 +19,27 @@ vector3DDominantCoord(const Vector3D *v) {
     double indexValue = floatMax(anorm.y, anorm.z);
     indexValue = floatMax(anorm.x, (float)indexValue);
 
-    return indexValue == anorm.x ? X_NORMAL : (indexValue == anorm.y ? Y_NORMAL : Z_NORMAL);
+    if ( indexValue == anorm.x ) {
+        return X_NORMAL;
+    } else {
+        return indexValue == anorm.y ? Y_NORMAL : Z_NORMAL;
+    }
 }
 
 int
-vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon) {
+vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon) {
     int code = 0;
 
     if ( v1->x > v2->x + epsilon ) {
-        code += X_GREATER;
+        code += X_GREATER_MASK;
     }
     if ( v1->y > v2->y + epsilon ) {
-        code += Y_GREATER;
+        code += Y_GREATER_MASK;
     }
     if ( v1->z > v2->z + epsilon ) {
-        code += Z_GREATER;
+        code += Z_GREATER_MASK;
     }
     if ( code != 0 ) {
-        // x1 > x2 || y1 > y2 || z1 > z2
         return code;
     }
 
@@ -48,10 +51,10 @@ vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon) {
     }
 
     // Same coordinates
-    return XYZ_EQUAL;
+    return XYZ_EQUAL_MASK;
 }
 
 void
-vector3DPrint(FILE *fp, Vector3D &v) {
+vector3DPrint(FILE *fp, const Vector3D &v) {
     fprintf(fp, "%g %g %g", v.x, v.y, v.z);
 }

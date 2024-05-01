@@ -85,7 +85,7 @@ optionsGetArgumentFloatValue(const char *format, float *res) {
 Integer option values
 */
 static int
-optionsGetInt(int *n, void * /*data*/) {
+optionsGetInt(int *n, const void * /*data*/) {
     if ( !optionsGetArgumentIntValue(n) ) {
         fprintf(stderr, "'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
@@ -94,7 +94,7 @@ optionsGetInt(int *n, void * /*data*/) {
 }
 
 static void
-optionsPrintInt(FILE *fp, const int *n, void * /*data*/) {
+optionsPrintInt(FILE *fp, const int *n, const void * /*data*/) {
     fprintf(fp, "%d", *n);
 }
 
@@ -109,7 +109,7 @@ CommandLineOptions GLOBAL_options_intType = {
 String option values
 */
 static int
-optionsGetString(char **s, void * /*data*/) {
+optionsGetString(char **s, const void * /*data*/) {
     unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
     *s = new char[n];
 
@@ -121,7 +121,7 @@ optionsGetString(char **s, void * /*data*/) {
 }
 
 static void
-optionsPrintString(FILE *fp, char **s, void * /*data*/) {
+optionsPrintString(FILE *fp, char **s, const void * /*data*/) {
     fprintf(fp, "'%s'", *s ? *s : "");
 }
 
@@ -154,7 +154,7 @@ optionsStringPrint(FILE *fp, const char *s, int /*n*/) {
 Enumerated type option values
 */
 static void
-optionsPrintEnumValues(ENUMDESC *tab) {
+optionsPrintEnumValues(const ENUMDESC *tab) {
     while ( tab && tab->name ) {
         fprintf(stderr, "\t%s\n", tab->name);
         tab++;
@@ -201,7 +201,7 @@ static ENUMDESC boolTable[] = {
 
 CommandLineOptions GLOBAL_options_boolType = {
     (int (*)(void *, void *)) optionsEnumGet,
-    (void (*)(FILE *, void *, void *)) optionsEnumPrint,
+    (void (*)(FILE *, void *, void *))optionsEnumPrint,
     (void *) &GLOBAL_options_dummyVal,
     (void *) boolTable
 };
@@ -209,7 +209,7 @@ CommandLineOptions GLOBAL_options_boolType = {
 /* ------------------- set true/false option values --------------------- */
 
 static int
-optionsSetTrue(int *x, void * /*data*/) {
+optionsSetTrue(int *x, const void * /*data*/) {
     // No option expected on command line, nothing consumed
 
     *x = true;
@@ -217,7 +217,7 @@ optionsSetTrue(int *x, void * /*data*/) {
 }
 
 static int
-optionsSetFalse(int *x, void * /*data*/) {
+optionsSetFalse(int *x, const void * /*data*/) {
     /* No option expected on command line, nothing consumed */
 
     *x = false;
@@ -225,7 +225,7 @@ optionsSetFalse(int *x, void * /*data*/) {
 }
 
 static void
-optionsPrintOther(FILE *fp, void * /*x*/, void * /*data*/) {
+optionsPrintOther(FILE *fp, const void * /*x*/, const void * /*data*/) {
     fprintf(fp, "other");
 }
 
@@ -246,7 +246,7 @@ CommandLineOptions GLOBAL_options_setFalseType = {
 
 /* ------------------- float option values --------------------- */
 static int
-optionsGetfloat(float *x, void * /*data*/) {
+optionsGetfloat(float *x, const void * /*data*/) {
     if ( !optionsGetArgumentFloatValue("%f", x) ) {
         fprintf(stderr, "'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
         return false;
@@ -255,7 +255,7 @@ optionsGetfloat(float *x, void * /*data*/) {
 }
 
 static void
-optionsPrintFloat(FILE *fp, const float *x, void * /*data*/) {
+optionsPrintFloat(FILE *fp, const float *x, const void * /*data*/) {
     fprintf(fp, "%g", *x);
 }
 
@@ -269,9 +269,8 @@ CommandLineOptions GLOBAL_options_floatType = {
 /**
 Vector3D option values
 */
-
 static int
-optionsGetVector(Vector3D *v, void * /*data*/) {
+optionsGetVector(Vector3D *v, const void * /*data*/) {
     int ok = optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
         optionsConsumeArgument();
@@ -289,7 +288,7 @@ optionsGetVector(Vector3D *v, void * /*data*/) {
 }
 
 static void
-optionsPrintVector(FILE *fp, Vector3D *v, void * /*data*/) {
+optionsPrintVector(FILE *fp, const Vector3D *v, const void * /*data*/) {
     vector3DPrint(fp, *v);
 }
 
@@ -304,7 +303,7 @@ CommandLineOptions GLOBAL_options_vectorType = {
 RGB option values
 */
 static int
-optionsGetRgb(ColorRgb *c, void * /*data*/) {
+optionsGetRgb(ColorRgb *c, const void * /*data*/) {
     int ok = optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
         optionsConsumeArgument();
@@ -322,7 +321,7 @@ optionsGetRgb(ColorRgb *c, void * /*data*/) {
 }
 
 static void
-optionsPrintRgb(FILE *fp, ColorRgb *v, void * /*data*/) {
+optionsPrintRgb(FILE *fp, const ColorRgb *v, const void * /*data*/) {
     v->print(fp);
 }
 
@@ -338,7 +337,7 @@ CIE xy option values
 */
 
 static int
-optionsGetCieXy(float *c, void * /*data*/) {
+optionsGetCieXy(float *c, const void * /*data*/) {
     int ok = optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
         optionsConsumeArgument();
@@ -352,7 +351,7 @@ optionsGetCieXy(float *c, void * /*data*/) {
 }
 
 static void
-optionsPrintCieXy(FILE *fp, float *c, void * /*data*/) {
+optionsPrintCieXy(FILE *fp, const float *c, void * /*data*/) {
     fprintf(fp, "%g %g", c[0], c[1]);
 }
 
@@ -368,7 +367,7 @@ Argument parsing
 */
 
 static CommandLineOptionDescription *
-optionsLookupOption(char *s, CommandLineOptionDescription *options) {
+optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
     CommandLineOptionDescription *opt = options;
     while ( opt->name ) {
         if ( strncmp(s, opt->name,
@@ -405,7 +404,11 @@ optionsProcessArguments(CommandLineOptionDescription *options) {
             }
         }
         if ( ok && opt->action ) {
-            opt->action(opt->value ? opt->value : (opt->type ? opt->type->dummy : nullptr));
+            if ( opt->value != nullptr ) {
+                opt->action(opt->value);
+            } else {
+                opt->action(opt->type ? opt->type->dummy : nullptr);
+            }
         }
         optionsConsumeArgument();
     } else optionsNextArgument();

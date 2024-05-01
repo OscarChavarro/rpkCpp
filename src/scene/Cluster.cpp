@@ -159,7 +159,7 @@ Cluster::clusterMovePatch(int parentIndex) {
         (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
         (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
         (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
-    // Note: comparator values assumed: X_GREATER, Y_GREATER and Z_GREATER, combined will give
+    // Note: comparator values assumed: X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK, combined will give
     // an integer number from 0 to 7, or 8 if all are equal
     int selectedChildClusterIndex = vectorCompareByDimensions(&boundingBoxCentroid, &midPatch, EPSILON);
 

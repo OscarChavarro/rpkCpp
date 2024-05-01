@@ -52,10 +52,10 @@ The comparison order is as follows:
 - If location and normal is equal, compare texture coordinates
 
 The vertex comparison routines return
-- XYZ_EQUAL: is the vertices are equal
+- XYZ_EQUAL_MASK: is the vertices are equal
 - A code from 0 to 7 if the vertices are not equal. This code can be used
   to sort vertices in an octree. The code is a combination of the flags
-  X_GREATER, Y_GREATER and Z_GREATER and is the same as for Vertex::setCompareFlags in
+  X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK and is the same as for Vertex::setCompareFlags in
   Vector3D
 */
 

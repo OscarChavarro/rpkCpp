@@ -14,7 +14,7 @@ typedef double MATRIX4Dd[4][4];
 extern double normalize(double *v);
 extern void floatCrossProduct(VECTOR3Dd result, const VECTOR3Dd a, const VECTOR3Dd b);
 extern void mgfMakeAxes(double *u, double *v, const double *w);
-extern void multiplyP3(double *p3a, double *p3b, double (*m4)[4]);
+extern void multiplyP3(double *p3a, const double *p3b, double (*m4)[4]);
 extern void multiplyV3(double *v3a, const double *v3b, double (*m4)[4]);
 extern void multiplyMatrix4(double (*m4a)[4], double (*m4b)[4], double (*m4c)[4]);
 extern void copyMat4(double (*m4a)[4], MATRIX4Dd m4b);
@@ -34,7 +34,7 @@ dotProduct(const double *a, const double *b) {
 }
 
 extern inline bool
-is0Vector(double *v) {
+is0Vector(const double *v) {
     return dotProduct(v, v) <= EPSILON * EPSILON;
 }
 

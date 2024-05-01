@@ -25,9 +25,9 @@ using the older CIE 1931 curves gives the value of 179 (see the Radiance
 rendering system).
 */
 // Uniform white light
-#define WHITE_EFFICACY 183.07
+#define WHITE_EFFICACY 183.07f
 
-extern void transformColorFromXYZ2RGB(float *xyz, float *rgb);
+extern void transformColorFromXYZ2RGB(const float *xyz, float *rgb);
 extern int clipGamut(float *rgb);
 
 extern void computeColorConversionTransforms(

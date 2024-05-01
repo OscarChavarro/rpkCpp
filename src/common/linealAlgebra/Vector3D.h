@@ -17,34 +17,20 @@ class Vector3D {
     }
 
     Vector3D(float a, float b, float c) : x(a), y(b), z(c) {}
-    inline bool operator==(const Vector3D &v) const;
-    inline bool operator!=(const Vector3D &v) const;
 
-    // Precondition: 0 <= i < 3
-    inline float operator[](int i);
-
-    inline const Vector3D &operator+=(const Vector3D &v);
-    inline const Vector3D &operator-=(const Vector3D &v);
-    inline const Vector3D &operator*=(const Vector3D &v);
-    inline const Vector3D &operator/=(const Vector3D &v);
-    inline const Vector3D &operator*=(float s);
-    inline const Vector3D &operator/=(float s);
-    inline Vector3D operator+(const Vector3D &v) const;
-    inline Vector3D operator-(const Vector3D &v) const;
-    inline Vector3D operator-() const;
-    inline Vector3D operator*(const Vector3D &v) const;
-    inline Vector3D operator*(float s) const;
-    inline Vector3D operator/(const Vector3D &v) const;
-    inline Vector3D operator/(float s) const;
+    Vector3D operator-(const Vector3D &v) const;
+    Vector3D operator-() const;
 
     /**
     Compute (T * vector) with
     T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
     X, Y, Z form a coordinate system
     */
-    inline Vector3D transform(const Vector3D &X,
-                              const Vector3D &Y,
-                              const Vector3D &Z) const;
+    Vector3D
+    transform(
+        const Vector3D &X,
+        const Vector3D &Y,
+        const Vector3D &Z) const;
 
     /**
     Fills in x, y, and z component of a vector
@@ -58,112 +44,17 @@ class Vector3D {
     }
 };
 
-inline bool
-Vector3D::operator==(const Vector3D &v) const {
-    return x == v.x && y == v.y && z == v.z;
-}
-
-inline bool
-Vector3D::operator!=(const Vector3D &v) const {
-    return x != v.x || y != v.y || z != v.z;
-}
-
-inline float
-Vector3D::operator[](int i) {
-    return ((float *) this)[i];
-}
-
-inline const Vector3D &
-Vector3D::operator+=(const Vector3D &v) {
-    x += v.x;
-    y += v.y;
-    z += v.z;
-    return *this;
-}
-
-inline const Vector3D &
-Vector3D::operator-=(const Vector3D &v) {
-    x -= v.x;
-    y -= v.y;
-    z -= v.z;
-    return *this;
-}
-
-inline const Vector3D &
-Vector3D::operator*=(const Vector3D &v) {
-    x *= v.x;
-    y *= v.y;
-    z *= v.z;
-    return *this;
-}
-
-inline const Vector3D &
-Vector3D::operator/=(const Vector3D &v) {
-    x /= v.x;
-    y /= v.y;
-    z /= v.z;
-    return *this;
-}
-
-inline const Vector3D &
-Vector3D::operator*=(float s) {
-    x *= s;
-    y *= s;
-    z *= s;
-    return *this;
-}
-
-inline const Vector3D &
-Vector3D::operator/=(float s) {
-    x /= s;
-    y /= s;
-    z /= s;
-    return *this;
-}
-
 inline Vector3D Vector3D::operator-() const {
     return {-x, -y, -z};
-}
-
-inline Vector3D Vector3D::operator+(const Vector3D &v) const {
-    return {x + v.x, y + v.y, z + v.z};
 }
 
 inline Vector3D Vector3D::operator-(const Vector3D &v) const {
     return {x - v.x, y - v.y, z - v.z};
 }
 
-inline Vector3D Vector3D::operator*(const Vector3D &v) const {
-    return {x * v.x, y * v.y, z * v.z};
-}
-
-inline Vector3D Vector3D::operator/(const Vector3D &v) const {
-    return {x / v.x, y / v.y, z / v.z};
-}
-
-inline Vector3D Vector3D::operator*(float s) const {
-    return {x * s, y * s, z * s};
-}
-
-inline Vector3D Vector3D::operator/(float s) const {
-    return {x / s, y / s, z / s};
-}
-
-// Scalar times vector
-inline Vector3D operator*(float s, const Vector3D &v) {
-    return {v.x * s, v.y * s, v.z * s};
-}
-
 // Dot product (Warning: '&' has lower precedence than + -)
 inline float operator&(const Vector3D &l, const Vector3D &r) {
     return l.x * r.x + l.y * r.y + l.z * r.z;
-}
-
-// Cross product (Warning: '^' has lower precedence than + -)
-inline Vector3D operator^(const Vector3D &l, const Vector3D &r) {
-    return {l.y * r.z - l.z * r.y,
-            l.z * r.x - l.x * r.z,
-            l.x * r.y - l.y * r.x};
 }
 
 /**
@@ -194,7 +85,7 @@ Tolerance value for e.g. a vertex position
 */
 inline float
 vectorTolerance(const Vector3D v) {
-    return EPSILON * (std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z));
+    return EPSILON_FLOAT * (std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z));
 }
 
 /**
@@ -203,9 +94,9 @@ Two vectors are equal if their components are equal within the given tolerance
 inline bool
 vectorEqual(const Vector3D &v, const Vector3D &w, const float eps) {
     return (
-            doubleEqual(v.x, w.x, eps) &&
-            doubleEqual(v.y, w.y, eps) &&
-            doubleEqual(v.z, w.z, eps)
+        doubleEqual(v.x, w.x, eps) &&
+        doubleEqual(v.y, w.y, eps) &&
+        doubleEqual(v.z, w.z, eps)
     );
 }
 
@@ -423,9 +314,9 @@ vectorPointInQuadrilateral(
     p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
 }
 
-extern int vectorCompareByDimensions(Vector3D *v1, Vector3D *v2, float epsilon);
+extern int vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon);
 extern void vector3DDestroy(Vector3D *vector);
 extern int vector3DDominantCoord(const Vector3D *v);
-extern void vector3DPrint(FILE *fp, Vector3D &v);
+extern void vector3DPrint(FILE *fp, const Vector3D &v);
 
 #endif

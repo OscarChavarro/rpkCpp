@@ -100,8 +100,8 @@ template<class T>
 class CTSList_Iter : private CircularListBaseIterator {
 public:
     explicit CTSList_Iter(CTSList<T> &list);
-    inline T *nextOnSequence();
-    inline void init(CTSList<T> &list);
+    T *nextOnSequence();
+    void init(CTSList<T> &list);
 };
 
 template<class T>

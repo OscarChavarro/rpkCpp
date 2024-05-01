@@ -73,7 +73,7 @@ class KDTreeNode {
         m_flags = (m_flags & 0xFFF0) | discriminator;
     }
     inline int flags() const {
-        return (m_flags & (0xFFF0));
+        return (m_flags & 0xFFF0);
     }
 };
 

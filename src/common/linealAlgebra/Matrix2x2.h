@@ -14,7 +14,7 @@ class Matrix2x2 {
     float m[2][2];
     float t[2];
 
-    void print(FILE *fp);
+    void print(FILE *fp) const;
 };
 
 inline void

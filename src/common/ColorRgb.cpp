@@ -123,7 +123,11 @@ ColorRgb::scaleInverse(float scale, ColorRgb s) {
 
 float
 ColorRgb::maximumComponent() const {
-    return (r > g ? (r > b ? r : b) : (g > b ? g : b));
+    if ( r > g ) {
+        return r > b ? r : b;
+    } else {
+        return g > b ? g : b;
+    }
 }
 
 float
@@ -187,9 +191,23 @@ ColorRgb::interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3
 
 void
 ColorRgb::clip() {
-    r = (r < 0.0f ? 0.0f : (r > 1.0f ? 1.0f : r));
-    g = (g < 0.0f ? 0.0f : (g > 1.0f ? 1.0f : g));
-    b = (b < 0.0f ? 0.0f : (b > 1.0f ? 1.0f : b));
+    if ( r < 0.0f ) {
+        r = 0.0f;
+    } else {
+        r = r > 1.0f ? 1.0f : r;
+    }
+
+    if ( g < 0.0f ) {
+        g = 0.0f;
+    } else {
+        g = g > 1.0f ? 1.0f : g;
+    }
+
+    if ( b < 0.0f ) {
+        b = 0.0f;
+    } else {
+        b = b > 1.0f ? 1.0f : b;
+    }
 }
 
 void

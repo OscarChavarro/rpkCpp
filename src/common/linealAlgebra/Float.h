@@ -5,10 +5,6 @@
 
 #define EPSILON 1e-6
 #define EPSILON_FLOAT 1e-6f
-#define FLOAT_HUGE 1e10
-
-// Yes, float or double makes a difference!
-#define REAL double
 
 /**
 Tests whether two floating point numbers are equal within the given tolerance
@@ -48,8 +44,8 @@ charMin(char a, char b) {
     return a < b ? a : b;
 }
 
-inline REAL
-realAbs(REAL A) {
+inline double
+realAbs(double A) {
     return A < 0.0 ? -A : A;
 }
 
@@ -57,9 +53,9 @@ realAbs(REAL A) {
 #define X_NORMAL 0
 #define Y_NORMAL 1
 #define Z_NORMAL 2
-#define X_GREATER 0x01
-#define Y_GREATER 0x02
-#define Z_GREATER 0x04
-#define XYZ_EQUAL 0x08
+#define X_GREATER_MASK 0x01
+#define Y_GREATER_MASK 0x02
+#define Z_GREATER_MASK 0x04
+#define XYZ_EQUAL_MASK 0x08
 
 #endif

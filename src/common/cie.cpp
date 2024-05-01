@@ -5,14 +5,14 @@ This code is a modified version of the CIE XYZ<->RGB code
 in the mgf documentation
 */
 
-static float CIE_x_r = 0.640; // Nominal CRT primaries
-static float CIE_y_r = 0.330;
-static float CIE_x_g = 0.290;
-static float CIE_y_g = 0.600;
-static float CIE_x_b = 0.150;
-static float CIE_y_b = 0.060;
-static float CIE_x_w = 0.3333333333;
-static float CIE_y_w = 0.3333333333;
+static float CIE_x_r = 0.640f; // Nominal CRT primaries
+static float CIE_y_r = 0.330f;
+static float CIE_x_g = 0.290f;
+static float CIE_y_g = 0.600f;
+static float CIE_x_b = 0.150f;
+static float CIE_y_b = 0.060f;
+static float CIE_x_w = 0.3333333333f;
+static float CIE_y_w = 0.3333333333f;
 
 #define CIE_D ( \
     CIE_x_r*(CIE_y_g - CIE_y_b) + \
@@ -149,7 +149,7 @@ computeColorConversionTransforms(
 
     setColorTransform(
         GLOBAL_xyz2RgbMat, // XYZ to RGB
-          (float)(((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD)),
+          (float)((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD),
           (float)((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD),
           (float)((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD),
           (float)((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD),
@@ -176,7 +176,7 @@ computeColorConversionTransforms(
 CIE XYZ <-> RGB
 */
 void
-transformColorFromXYZ2RGB(float *xyz, float *rgb) {
+transformColorFromXYZ2RGB(const float *xyz, float *rgb) {
     colorTransform(xyz, GLOBAL_xyz2RgbMat, rgb);
 }
 
@@ -187,8 +187,8 @@ monitor gamut
 int
 clipGamut(float *rgb) {
     // Really SHOULD desaturate instead of just clipping!
-    int i, desaturated = 0;
-    for ( i = 0; i < 3; i++ ) {
+    int desaturated = 0;
+    for ( int i = 0; i < 3; i++ ) {
         if ( rgb[i] < 0.0 ) {
             rgb[i] = 0.0;
             desaturated = 1;

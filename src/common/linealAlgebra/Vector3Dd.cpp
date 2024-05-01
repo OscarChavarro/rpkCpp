@@ -92,7 +92,7 @@ multiplyV3(double *v3a, const double *v3b, double (*m4)[4])
 Transform p3b by m4 and put into p3a
 */
 void
-multiplyP3(double *p3a, double *p3b, double (*m4)[4])
+multiplyP3(double *p3a, const double *p3b, double (*m4)[4])
 {
     multiplyV3(p3a, p3b, m4); // Transform as vector
     p3a[0] += m4[3][0]; // Translate

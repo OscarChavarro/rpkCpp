@@ -113,8 +113,10 @@ add a point in the kd tree, this is always to the unbalanced part
 void
 KDTree::addPoint(void *data, short flags = 0) {
     // Add the point to the unbalanced part
-    KDTreeNode **nodePtr, *newNode, *parent;
-    float *newPoint;
+    KDTreeNode **nodePtr;
+    KDTreeNode *newNode;
+    KDTreeNode *parent;
+    const float *newPoint;
     int discriminator;
 
     newNode = new KDTreeNode;
@@ -151,7 +153,7 @@ KDTree::addPoint(void *data, short flags = 0) {
         float dx;
         float dy;
         float dz;
-        float *customNodeData = (float *) (parent->m_data);
+        const float *customNodeData = (float *) (parent->m_data);
 
         dx = std::fabs(newPoint[0] - customNodeData[0]);
         dy = std::fabs(newPoint[1] - customNodeData[1]);
@@ -240,7 +242,7 @@ KDTree::query(
     }
 
     // Fill in static class data
-    GLOBAL_qDatS.point = (float *) point;
+    GLOBAL_qDatS.point = (float *)point;
     GLOBAL_qDatS.wantedN = N;
     GLOBAL_qDatS.foundN = 0;
     GLOBAL_qDatS.results = (float **) results;
@@ -263,14 +265,14 @@ KDTree::query(
 
     numberFound = GLOBAL_qDatS.foundN;
 
-    return (numberFound);
+    return numberFound;
 }
 
 /**
 Distance calculation
 */
 inline static float
-sqrDistance3D(float *a, float *b) {
+sqrDistance3D(const float *a, const float *b) {
     float result;
     float tmp;
 
@@ -391,8 +393,8 @@ void
 KDTree::queryRec(const KDTreeNode *node) {
     int discriminator = node->discriminator();
     float dist;
-    KDTreeNode *nearNode;
-    KDTreeNode *farNode;
+    const KDTreeNode *nearNode;
+    const KDTreeNode *farNode;
 
     dist = sqrDistance3D((float *) node->m_data, GLOBAL_qDatS.point);
 
@@ -425,7 +427,7 @@ KDTree::queryRec(const KDTreeNode *node) {
     }
 
     dist *= dist; // Square distance to the separator plane
-    if ( (farNode) && (((GLOBAL_qDatS.foundN < GLOBAL_qDatS.wantedN) &&
+    if ( farNode && (((GLOBAL_qDatS.foundN < GLOBAL_qDatS.wantedN) &&
                         (dist < GLOBAL_qDatS.sqrRadius)) ||
                        (dist < GLOBAL_qDatS.maximumDistance)) ) {
         // Discriminator line closer than maximumDistance : nearer positions can lie
@@ -452,11 +454,11 @@ KDTree::BQuery_rec(int index) {
         dist = ((float *) node.m_data)[discr] - GLOBAL_qDatS.point[discr];
 
         if ( dist >= 0.0 ) {
-            nearIndex = (index << 1) + 1; //node->loson;
-            farIndex = nearIndex + 1; //node->hison;
+            nearIndex = (index << 1) + 1; // node loson
+            farIndex = nearIndex + 1; // node hison
         } else {
-            farIndex = (index << 1) + 1; //node->loson;
-            nearIndex = farIndex + 1; //node->hison;
+            farIndex = (index << 1) + 1; // node loson
+            nearIndex = farIndex + 1; // node hison
         }
 
         // Always call near node recursively
@@ -639,8 +641,8 @@ copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
 
 static int
 bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
-    float bmin[3] = {HUGE, HUGE, HUGE};
-    float bmax[3] = {-HUGE, -HUGE, -HUGE};
+    float bmin[3] = {HUGE_FLOAT, HUGE_FLOAT, HUGE_FLOAT};
+    float bmax[3] = {-HUGE_FLOAT, -HUGE_FLOAT, -HUGE_FLOAT};
     float tmp;
 
     for ( int i = low; i <= high; i++ ) {
@@ -739,10 +741,10 @@ KDTree::balance() {
     broot[m_numNodes].m_data = nullptr;
     broot[m_numNodes].m_flags = 128;
 
-    int i, index = 0;
+    int index = 0;
 
     // Copy balanced
-    for ( i = 0; i < m_numBalanced; i++ ) {
+    for ( int i = 0; i < m_numBalanced; i++ ) {
         broot[index++] = m_broot[i];
     }
 
