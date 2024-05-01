@@ -1,39 +1,38 @@
-#include "common/mymath.h"
 #include "common/linealAlgebra/Float.h"
 #include "common/ColorRgb.h"
 
-ColorRgb::ColorRgb():
-    r(),
-    g(),
-    b()
-{
-}
-
-ColorRgb::ColorRgb(float inR, float inG, float inB) {
+ColorRgb::ColorRgb(const float inR, const float inG, const float inB) {
     r = inR;
     g = inG;
     b = inB;
 }
 
 void
-ColorRgb::clear() {
-    r = 0;
-    g = 0;
-    b = 0;
+ColorRgb::abs() {
+    r = std::fabs(r);
+    g = std::fabs(g);
+    b = std::fabs(b);
 }
 
 void
-ColorRgb::set(float v1, float v2, float v3) {
-    r = v1;
-    g = v2;
-    b = v3;
+colorsArrayCopy(ColorRgb *result, const ColorRgb *source, const char n) {
+    for ( int i = 0; i < n; i++ ) {
+        result[i] = source[i];
+    }
 }
 
 void
-ColorRgb::setMonochrome(float v) {
-    r = v;
-    g = v;
-    b = v;
+colorsArrayAdd(ColorRgb *result, const ColorRgb *source, const char n) {
+    for ( int i = 0; i < n; i++ ) {
+        result[i].add(result[i], source[i]);
+    }
+}
+
+void
+colorsArrayClear(ColorRgb *color, const char n) {
+    for ( int i = 0; i < n; i++ ) {
+        color[i].clear();
+    }
 }
 
 bool
@@ -41,20 +40,6 @@ ColorRgb::isBlack() const {
     return (r > -EPSILON && r < EPSILON &&
             g > -EPSILON && g < EPSILON &&
             b > -EPSILON && b < EPSILON);
-}
-
-void
-ColorRgb::scaledCopy(float a, const ColorRgb c) {
-    r = a * c.r;
-    g = a * c.g;
-    b = a * c.b;
-}
-
-void
-ColorRgb::scale(float a) {
-    r *= a;
-    g *= a;
-    b *= a;
 }
 
 void
@@ -72,62 +57,32 @@ ColorRgb::selfScalarProduct(const ColorRgb s) {
 }
 
 void
-ColorRgb::scalarProductScaled(ColorRgb s, float a, ColorRgb t) {
-    r = s.r * a * t.r;
-    g = s.g * a * t.g;
-    b = s.b * a * t.b;
-}
-
-void
-ColorRgb::add(ColorRgb s, ColorRgb t) {
+ColorRgb::add(const ColorRgb s, const ColorRgb t) {
     r = s.r + t.r;
     g = s.g + t.g;
     b = s.b + t.b;
 }
 
 void
-ColorRgb::addScaled(ColorRgb s, float a, ColorRgb t) {
-    r = s.r + a * t.r;
-    g = s.g + a * t.g;
-    b = s.b + a * t.b;
-}
-
-void
-ColorRgb::addConstant(ColorRgb s, float a) {
+ColorRgb::addConstant(const ColorRgb s, const float a) {
     r = s.r + a;
     g = s.g + a;
     b = s.b + a;
 }
 
 void
-ColorRgb::subtract(ColorRgb s, ColorRgb  t) {
+ColorRgb::subtract(const ColorRgb s, const ColorRgb  t) {
     r = s.r - t.r;
     g = s.g - t.g;
     b = s.b - t.b;
 }
 
 void
-ColorRgb::divide(ColorRgb s, ColorRgb t) {
-    r = (t.r != 0.0) ? s.r / t.r : s.r;
-    g = (t.g != 0.0) ? s.g / t.g : s.g;
-    b = (t.b != 0.0) ? s.b / t.b : s.b;
-}
-
-void
-ColorRgb::scaleInverse(float scale, ColorRgb s) {
+ColorRgb::scaleInverse(const float scale, const ColorRgb s) {
     float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
     r = a * s.r;
     g = a * s.g;
     b = a * s.b;
-}
-
-float
-ColorRgb::maximumComponent() const {
-    if ( r > g ) {
-        return r > b ? r : b;
-    } else {
-        return g > b ? g : b;
-    }
 }
 
 float
@@ -136,21 +91,14 @@ ColorRgb::sumAbsComponents() const {
 }
 
 void
-ColorRgb::abs() {
-    r = std::fabs(r);
-    g = std::fabs(g);
-    b = std::fabs(b);
-}
-
-void
-ColorRgb::maximum(ColorRgb s, ColorRgb t) {
+ColorRgb::maximum(const ColorRgb s, const ColorRgb t) {
     r = s.r > t.r ? s.r : t.r;
     g = s.g > t.g ? s.g : t.g;
     b = s.b > t.b ? s.b : t.b;
 }
 
 void
-ColorRgb::minimum(ColorRgb s, ColorRgb t) {
+ColorRgb::minimum(const ColorRgb s, const ColorRgb t) {
     r = s.r < t.r ? s.r : t.r;
     g = s.g < t.g ? s.g : t.g;
     b = s.b < t.b ? s.b : t.b;
@@ -172,14 +120,14 @@ ColorRgb::luminance() const {
 }
 
 void
-ColorRgb::interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v) {
+ColorRgb::interpolateBarycentric(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const float u, const float v) {
     r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
     g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);
     b = c0.b + u * (c1.b - c0.b) + v * (c2.b - c0.b);
 }
 
 void
-ColorRgb::interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v) {
+ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const ColorRgb c3, const float u, const float v) {
     float c = u * v;
     float bb = u - c;
     float d = v - c;

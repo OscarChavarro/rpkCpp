@@ -2,6 +2,7 @@
 #define __COLOR__
 
 #include <cstdio>
+#include <cmath>
 
 #include "common/cie.h"
 
@@ -46,25 +47,79 @@ class ColorRgb {
     void print(FILE *fp) const;
 };
 
+inline ColorRgb::ColorRgb() {
+    r = 0;
+    g = 0;
+    b = 0;
+}
+
 inline void
-colorsArrayClear(ColorRgb *color, const char n) {
-    for ( int i = 0; i < n; i++ ) {
-        color[i].clear();
+ColorRgb::addScaled(const ColorRgb s, const float a, const ColorRgb t) {
+    r = s.r + a * t.r;
+    g = s.g + a * t.g;
+    b = s.b + a * t.b;
+}
+
+inline void
+ColorRgb::clear() {
+    r = 0;
+    g = 0;
+    b = 0;
+}
+
+inline void
+ColorRgb::scale(const float a) {
+    r *= a;
+    g *= a;
+    b *= a;
+}
+
+inline float
+ColorRgb::maximumComponent() const {
+    if ( r > g ) {
+        return r > b ? r : b;
+    } else {
+        return g > b ? g : b;
     }
 }
 
 inline void
-colorsArrayCopy(ColorRgb *result, const ColorRgb *source, const char n) {
-    for ( int i = 0; i < n; i++ ) {
-        result[i] = source[i];
-    }
+ColorRgb::scaledCopy(const float a, const ColorRgb c) {
+    r = a * c.r;
+    g = a * c.g;
+    b = a * c.b;
 }
 
 inline void
-colorsArrayAdd(ColorRgb *result, const ColorRgb *source, const char n) {
-    for ( int i = 0; i < n; i++ ) {
-        result[i].add(result[i], source[i]);
-    }
+ColorRgb::set(const float v1, const float v2, const float v3) {
+    r = v1;
+    g = v2;
+    b = v3;
 }
+
+inline void
+ColorRgb::setMonochrome(const float v) {
+    r = v;
+    g = v;
+    b = v;
+}
+
+inline void
+ColorRgb::divide(const ColorRgb s, const ColorRgb t) {
+    r = (t.r != 0.0) ? s.r / t.r : s.r;
+    g = (t.g != 0.0) ? s.g / t.g : s.g;
+    b = (t.b != 0.0) ? s.b / t.b : s.b;
+}
+
+inline void
+ColorRgb::scalarProductScaled(const ColorRgb s, const float a, const ColorRgb t) {
+    r = s.r * a * t.r;
+    g = s.g * a * t.g;
+    b = s.b * a * t.b;
+}
+
+extern void colorsArrayCopy(ColorRgb *result, const ColorRgb *source, char n);
+extern void colorsArrayAdd(ColorRgb *result, const ColorRgb *source, char n);
+extern void colorsArrayClear(ColorRgb *color, char n);
 
 #endif
