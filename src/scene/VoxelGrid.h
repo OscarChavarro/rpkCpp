@@ -64,10 +64,10 @@ class VoxelGrid {
 
     void
     gridTraceSetup(
-        Ray *ray,
+        const Ray *ray,
         float t0,
-        Vector3D *P,
-        /*OUT*/ int *g,
+        const Vector3D *P,
+        int *g,
         Vector3D *tDelta,
         Vector3D *tNext,
         int *step,
@@ -75,7 +75,7 @@ class VoxelGrid {
 
     int
     gridBoundsIntersect(
-        Ray *ray,
+        const Ray *ray,
         float minimumDistance,
         float maximumDistance,
         /*OUT*/ float *t0,
@@ -87,16 +87,16 @@ class VoxelGrid {
 
     static RayHit *
     voxelIntersect(
-            java::ArrayList<VoxelData *> *items,
-            Ray *ray,
-            unsigned int counter,
-            float minimumDistance,
-            float *maximumDistance,
-            int hitFlags,
-            RayHit *hitStore);
+        const java::ArrayList<VoxelData *> *items,
+        Ray *ray,
+        unsigned int counter,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
 
     static int
-    nextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, const int *step, const int *out);
+    nextVoxel(float *t0, int *g, Vector3D *tNext, const Vector3D *tDelta, const int *step, const int *out);
 
     static int randomRayId();
 

@@ -88,7 +88,7 @@ cameraComplete(Camera *camera) {
 
     // Default near and far clipping plane distance, will be set to a more reasonable
     // value when setting the camera for rendering
-    camera->near = EPSILON;
+    camera->near = EPSILON_FLOAT;
     camera->far = 2.0f * camera->viewDistance;
 
     // Compute some extra frequently used quantities
@@ -111,13 +111,13 @@ viewing direction is equal to the up-direction
 */
 void
 Camera::set(
-    Vector3D *inEyePosition,
-    Vector3D *inLoopPosition,
-    Vector3D *inUpDirection,
-    float inFieldOfVision,
-    int inXSize,
-    int inYSize,
-    ColorRgb *inBackground)
+    const Vector3D *inEyePosition,
+    const Vector3D *inLoopPosition,
+    const Vector3D *inUpDirection,
+    const float inFieldOfVision,
+    const int inXSize,
+    const int inYSize,
+    const ColorRgb *inBackground)
 {
     eyePosition = *inEyePosition;
     lookPosition = *inLoopPosition;

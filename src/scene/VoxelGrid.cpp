@@ -214,12 +214,12 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
         }
     } else {
         if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *geometryList = geometry->compoundData->children;
+            const java::ArrayList<Geometry *> *geometryList = geometry->compoundData->children;
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));
             }
         } else {
-            java::ArrayList<Patch *> *patches = geomPatchArrayListReference(geometry);
+            const java::ArrayList<Patch *> *patches = geomPatchArrayListReference(geometry);
             for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
                 putPatchInsideVoxelGrid(patches->get(i));
             }
@@ -278,7 +278,7 @@ intersected and false if the ray passes along the voxel grid
 */
 int
 VoxelGrid::gridBoundsIntersect(
-    Ray *ray,
+    const Ray *ray,
     float minimumDistance,
     float maximumDistance,
     /*OUT*/ float *t0,
@@ -292,7 +292,6 @@ VoxelGrid::gridBoundsIntersect(
             return false;
         }
         vectorSumScaled(ray->pos, *t0, ray->dir, *position);
-    } else {
     }
 
     return true;
@@ -303,10 +302,10 @@ Initializes grid tracing
 */
 void
 VoxelGrid::gridTraceSetup(
-    Ray *ray,
-    float t0,
-    Vector3D *P,
-    /*OUT*/ int *g,
+    const Ray *ray,
+    const float t0,
+    const Vector3D *P,
+    int *g,
     Vector3D *tDelta,
     Vector3D *tNext,
     int *step,
@@ -349,7 +348,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->x = 0.0;
-        tNext->x = HUGE;
+        tNext->x = HUGE_FLOAT;
     }
 
     // Setup Y:
@@ -366,7 +365,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->y = 0.0;
-        tNext->y = HUGE;
+        tNext->y = HUGE_FLOAT;
     }
 
     // Setup Z:
@@ -383,7 +382,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->z = 0.0;
-        tNext->z = HUGE;
+        tNext->z = HUGE_FLOAT;
     }
 }
 
@@ -393,7 +392,7 @@ returns false if the current voxel was the last voxel in the grid intersected
 by the ray
 */
 int
-VoxelGrid::nextVoxel(float *t0, int *g, Vector3D *tNext, Vector3D *tDelta, const int *step, const int *out) {
+VoxelGrid::nextVoxel(float *t0, int *g, Vector3D *tNext, const Vector3D *tDelta, const int *step, const int *out) {
     int inGrid;
 
     if ( tNext->x <= tNext->y && tNext->x <= tNext->z ) {
@@ -426,7 +425,7 @@ as usual. If there is no intersection, maximumDistance remains unmodified
 */
 RayHit *
 VoxelGrid::voxelIntersect(
-    java::ArrayList<VoxelData *> *items,
+    const java::ArrayList<VoxelData *> *items,
     Ray *ray,
     const unsigned int counter,
     const float minimumDistance,
@@ -475,7 +474,7 @@ VoxelGrid::gridIntersect(
     Vector3D P;
     int step[3];
     int out[3];
-    int g[3];
+    int g[3]{0, 0, 0};
     RayHit *hit = nullptr;
     float t0;
     int counter;
@@ -490,7 +489,7 @@ VoxelGrid::gridIntersect(
     counter = randomRayId();
 
     do {
-        java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
+        const java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];
         if ( list != nullptr ) {
             RayHit *h = voxelIntersect(list, ray, counter, t0, maximumDistance, hitFlags, hitStore);
             if ( h != nullptr ) {

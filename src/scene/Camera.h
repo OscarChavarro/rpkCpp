@@ -35,13 +35,13 @@ class Camera {
 
     void
     set(
-        Vector3D *inEyePosition,
-        Vector3D *inLoopPosition,
-        Vector3D *inUpDirection,
+        const Vector3D *inEyePosition,
+        const Vector3D *inLoopPosition,
+        const Vector3D *inUpDirection,
         float inFieldOfVision,
         int inXSize,
         int inYSize,
-        ColorRgb *inBackground);
+        const ColorRgb *inBackground);
 
     void setEyePosition(float x, float y, float z);
     void setLookPosition(float x, float y, float z);
