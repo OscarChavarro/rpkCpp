@@ -119,16 +119,12 @@ sglClearFrameBuffer(SGL_CONTEXT *sglContext, SGL_PIXEL backgroundColor) {
 Returns current sgl renderer
 */
 void
-SGL_CONTEXT::sglClearZBuffer(SGL_Z_VALUE defZVal) const {
-    SGL_Z_VALUE *zVal;
-    SGL_Z_VALUE *lzVal;
-    int i;
-    int j;
+SGL_CONTEXT::sglClearZBuffer(const SGL_Z_VALUE defZVal) const {
+    SGL_Z_VALUE *lzVal = depthBuffer + vp_y * width + vp_x;
 
-    lzVal = depthBuffer + vp_y * width +
-            vp_x;
-    for ( j = 0; j < vp_height; j++, lzVal += width ) {
-        for ( zVal = lzVal, i = 0; i < vp_width; i++ ) {
+    for ( int j = 0; j < vp_height; j++, lzVal += width ) {
+        SGL_Z_VALUE *zVal = lzVal;
+        for ( int i = 0; i < vp_width; i++ ) {
             *zVal++ = defZVal;
         }
     }
@@ -164,13 +160,13 @@ SGL_CONTEXT::sglClipping(SGL_BOOLEAN on) {
 }
 
 void
-SGL_CONTEXT::sglLoadMatrix(Matrix4x4 xf) const {
-    *currentTransform = xf;
+SGL_CONTEXT::sglLoadMatrix(const Matrix4x4 *xf) {
+    *currentTransform = *xf;
 }
 
 void
-SGL_CONTEXT::sglMultiplyMatrix(Matrix4x4 xf) const {
-    *currentTransform = transComposeMatrix(currentTransform, &xf);
+SGL_CONTEXT::sglMultiplyMatrix(const Matrix4x4 *xf) {
+    *currentTransform = transComposeMatrix(currentTransform, xf);
 }
 
 void
@@ -193,7 +189,7 @@ SGL_CONTEXT::sglViewport(int x, int y, int viewPortWidth, int viewPortHeight) {
 }
 
 void
-SGL_CONTEXT::sglPolygon(int numberOfVertices, Vector3D *vertices) {
+SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     Polygon pol{};
     PolygonVertex *pv;
     Window win{};

@@ -2,8 +2,7 @@
 Generic Convex Polygon Scan Conversion and Clipping by Paul Heckbert
 from "Graphics Gems", Academic Press, 1990
 
-Homogeneous 3-D convex polygon clipper
-Paul Heckbert 1985, Dec 1989
+Homogeneous 3-D convex polygon clipper Paul Heckbert 1985, Dec 1989
 */
 
 #include <cstdio>
@@ -18,12 +17,11 @@ Paul Heckbert 1985, Dec 1989
     (b) = temp; \
 }
 
-#define COORD(vert, i) ((double *)(vert))[i]
-
 #define CLIP_AND_SWAP(elem, sign, k, p, q, r) { \
     polyClipToHalfSpace((p), (q), &v->elem-(double *)v, (sign), (sign) * (k)); \
     if ( (q)->n == 0) { \
-        p1->n = 0; return POLY_CLIP_OUT; \
+        p1->n = 0; \
+        return POLY_CLIP_OUT; \
     } \
     SWAP((p), (q), (r)); \
 }
@@ -42,7 +40,7 @@ Given an n-gon as input, clipping against 6 planes could generate an
 (n+6)gon, so POLY_N_MAX in poly.h must be big enough to allow that.
 */
 int
-polyClipToBox(Polygon *p1, PolygonBox *box) {
+polyClipToBox(Polygon *p1, const PolygonBox *box) {
     int x0out = 0;
     int x1out = 0;
     int y0out = 0;
@@ -111,22 +109,22 @@ polyClipToBox(Polygon *p1, PolygonBox *box) {
     p = p1;
     q = &p2;
     if ( x0out ) {
-        CLIP_AND_SWAP(sx, -1.0, box->x0, p, q, r);
+        CLIP_AND_SWAP(sx, -1.0, box->x0, p, q, r)
     }
     if ( x1out ) {
-        CLIP_AND_SWAP(sx, 1.0, box->x1, p, q, r);
+        CLIP_AND_SWAP(sx, 1.0, box->x1, p, q, r)
     }
     if ( y0out ) {
-        CLIP_AND_SWAP(sy, -1.0, box->y0, p, q, r);
+        CLIP_AND_SWAP(sy, -1.0, box->y0, p, q, r)
     }
     if ( y1out ) {
-        CLIP_AND_SWAP(sy, 1.0, box->y1, p, q, r);
+        CLIP_AND_SWAP(sy, 1.0, box->y1, p, q, r)
     }
     if ( z0out ) {
-        CLIP_AND_SWAP(sz, -1.0, box->z0, p, q, r);
+        CLIP_AND_SWAP(sz, -1.0, box->z0, p, q, r)
     }
     if ( z1out ) {
-        CLIP_AND_SWAP(sz, 1.0, box->z1, p, q, r);
+        CLIP_AND_SWAP(sz, 1.0, box->z1, p, q, r)
     }
 
     // If result ended up in p2 then copy it to p1
@@ -150,13 +148,9 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
 */
 void
 polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
-    unsigned long m;
-    double *up;
-    double *vp;
+    const double *up;
+    const double *vp;
     double *wp;
-    PolygonVertex *v;
-    int i;
-    PolygonVertex *u;
     double t;
     double tu;
     double tv;
@@ -165,19 +159,20 @@ polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     q->mask = p->mask;
 
     // Start with u=vert[n-1], v=vert[0]
-    u = &p->vertices[p->n - 1];
-    tu = sign * COORD(u, index) - u->sw * k;
-    for ( v = &p->vertices[0], i = p->n; i > 0; i--, u = v, tu = tv, v++ ) {
+    PolygonVertex *u = &p->vertices[p->n - 1];
+    tu = sign * u->getCoord(index) - u->sw * k;
+    PolygonVertex *v = &p->vertices[0];
+    for ( int i = p->n; i > 0; i-- ) {
         // On old polygon (p), u is previous vertex, v is current vertex
         // tv is negative if vertex v is in
-        tv = sign * COORD(v, index) - v->sw * k;
-        if ( ((tu <= 0.0) ^ (tv <= 0.0)) ) {
+        tv = sign * v->getCoord(index) - v->sw * k;
+        if ( (tu <= 0.0) ^ (tv <= 0.0) ) {
             // Edge crosses plane; add intersection point to q
             t = tu / (tu - tv);
             up = (double *) u;
             vp = (double *) v;
             wp = (double *) &q->vertices[q->n];
-            for ( m = p->mask; m != 0; m >>= 1, up++, vp++, wp++ ) {
+            for ( unsigned long m = p->mask; m != 0; m >>= 1, up++, vp++, wp++ ) {
                 if ( m & 1 ) {
                     *wp = *up + t * (*vp - *up);
                 }
@@ -188,5 +183,8 @@ polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
             // Vertex v is in, copy it to q
             q->vertices[q->n++] = *v;
         }
+        u = v;
+        tu = tv;
+        v++;
     }
 }

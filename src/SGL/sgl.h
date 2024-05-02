@@ -32,7 +32,7 @@ public:
     double near; // Depth range
     double far;
 
-public:
+//public:
     PixelContent pixelData;
     SGL_PIXEL *frameBuffer;
     Patch **patchBuffer;
@@ -56,12 +56,12 @@ public:
     void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
     void sglDepthTesting(SGL_BOOLEAN on);
     void sglClipping(SGL_BOOLEAN on);
-    void sglLoadMatrix(Matrix4x4 xf) const;
-    void sglMultiplyMatrix(Matrix4x4 xf) const;
+    void sglLoadMatrix(const Matrix4x4 *xf);
+    void sglMultiplyMatrix(const Matrix4x4 *xf);
     void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(Patch *col);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
-    void sglPolygon(int numberOfVertices, Vector3D *vertices);
+    void sglPolygon(int numberOfVertices, const Vector3D *vertices);
 };
 
 extern SGL_CONTEXT *GLOBAL_sgl_currentContext;

@@ -26,6 +26,38 @@ class PolygonVertex {
     double r; // (red,green,blue) color
     double g;
     double b;
+
+    inline double
+    getCoord(int i) const {
+        switch ( i ) {
+            case 0:
+                return sx;
+            case 1:
+                return sy;
+            case 2:
+                return sz;
+            case 3:
+                return sw;
+            case 4:
+                return x;
+            case 5:
+                return y;
+            case 6:
+                return z;
+            case 7:
+                return u;
+            case 8:
+                return v;
+            case 9:
+                return r;
+            case 10:
+                return g;
+            case 11:
+                return b;
+            default:
+                return 0.0;
+        }
+    }
 };
 
 // Note: don't put > 32 doubles in Poly_vert, or mask will overflow
@@ -78,9 +110,9 @@ class Window {
 // Used superficially by POLY_MASK macro
 extern PolygonVertex *GLOBAL_sgl_polyDummy;
 
-int polyClipToBox(Polygon *p1, PolygonBox *box);
+int polyClipToBox(Polygon *p1, const PolygonBox *box);
 void polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k);
-void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win);
-void polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win);
+void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win);
+void polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, const Window *window);
 
 #endif

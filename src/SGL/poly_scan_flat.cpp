@@ -22,11 +22,11 @@ incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y
     double dy;
     double frac;
 
-    dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
+    dy = ((const PolygonVertex *) p2)->sy - ((const PolygonVertex *) p1)->sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
     }
-    frac = y + 0.5 - ((PolygonVertex *) p1)->sy;
+    frac = y + 0.5 - ((const PolygonVertex *) p1)->sy;
 
     // Interpolate only sx
     *dp = (*p2 - *p1) / dy;
@@ -43,17 +43,15 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
-    int x;
-    int lx;
-    int rx;
+scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     SGL_PIXEL *pix;
 
-    lx = std::ceil(l->sx - 0.5);
+    int lx = (int)std::ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
-    rx = std::floor(r->sx - 0.5);
+
+    int rx = (int)std::floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -63,7 +61,7 @@ scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Win
 
     pix = sglContext->frameBuffer + y * sglContext->width + lx;
     Patch **patch = sglContext->patchBuffer + lx;
-    for ( x = lx; x <= rx; x++ ) {
+    for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
         if ( sglContext->pixelData == PixelContent::PATCH_POINTER ) {
             *patch++ = sglContext->currentPatch;
@@ -97,7 +95,7 @@ p: polygon
 win: 2-D screen space clipping window
 */
 void
-polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
+polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win)
 {
     int i;
     int li;
@@ -125,7 +123,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
 
     li = ri = top; // Left and right vertex indices
     rem = p->n; // Number of vertices remaining
-    y = ceil(yMin - 0.5); // Current scan line
+    y = (int)std::ceil(yMin - 0.5); // Current scan line
     ly = ry = y - 1; // Lower end of left & right edges
 
     while ( rem > 0 ) {
@@ -140,7 +138,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = floor(p->vertices[i].sy + .5);
+            ly = (int)std::floor(p->vertices[i].sy + .5);
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -151,7 +149,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = floor(p->vertices[i].sy + .5);
+            ry = (int)std::floor(p->vertices[i].sy + .5);
             ri = i;
         }
 

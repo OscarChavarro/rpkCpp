@@ -21,11 +21,11 @@ incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y
     double dy;
     double frac;
 
-    dy = ((PolygonVertex *) p2)->sy - ((PolygonVertex *) p1)->sy;
+    dy = ((const PolygonVertex *) p2)->sy - ((const PolygonVertex *) p1)->sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
     }
-    frac = y + 0.5 - ((PolygonVertex *) p1)->sy;
+    frac = y + 0.5 - ((const PolygonVertex *) p1)->sy;
 
     // Interpolate only sx and sz (first and third field)
     dp[0] = (p2[0] - p1[0]) / dy;
@@ -45,7 +45,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Window *win) {
+scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int dz;
     SGL_Z_VALUE *zValue;
     SGL_Z_VALUE z;
@@ -53,12 +53,12 @@ scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Win
     double frac;
     double dzf;
 
-    int lx = ceil(l->sx - 0.5);
+    int lx = (int)std::ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
 
-    int rx = floor(r->sx - 0.5);
+    int rx = (int)std::floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -100,7 +100,7 @@ scanline(SGL_CONTEXT *sglContext, int y, PolygonVertex *l, PolygonVertex *r, Win
 /**
 Scan convert a polygon, calling pixelProc at each pixel with an
 interpolated Poly_vert structure.  Polygon can be clockwise or ccw.
-Polygon is clipped in 2-D to win, the screen space window.
+Polygon is clipped in 2-D to window, the screen space window.
 
 Scan conversion is done on the basis of Poly_vert fields sx and sy.
 These two must always be interpolated, and only they have special meaning
@@ -118,7 +118,7 @@ except sx and sy.  If they were computed, they would have values
 sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
 */
 void
-polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
+polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
 {
     int i;
     int li;
@@ -146,7 +146,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
 
     li = ri = top; // Left and right vertex indices
     rem = p->n; // Number of vertices remaining
-    y = ceil(yMin - 0.5); // Current scan line
+    y = (int)std::ceil(yMin - 0.5); // Current scan line
     ly = ry = y - 1; // Lower end of left & right edges
 
     while ( rem > 0 ) {
@@ -160,7 +160,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = floor(p->vertices[i].sy + 0.5);
+            ly = (int)std::floor(p->vertices[i].sy + 0.5);
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -171,17 +171,17 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, Window *win)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = floor(p->vertices[i].sy + .5);
+            ry = (int)std::floor(p->vertices[i].sy + .5);
             ri = i;
         }
 
         while ( y < ly && y < ry ) {
             // Do scan lines till end of l or r edge
-            if ( y >= win->y0 && y <= win->y1 ) {
+            if ( y >= window->y0 && y <= window->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    scanline(sglContext, y, &l, &r, win);
+                    scanline(sglContext, y, &l, &r, window);
                 } else {
-                    scanline(sglContext, y, &r, &l, win);
+                    scanline(sglContext, y, &r, &l, window);
                 }
             }
             y++;

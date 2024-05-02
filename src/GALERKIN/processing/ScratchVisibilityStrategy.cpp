@@ -96,15 +96,15 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *gal
     getBoundingBox(cluster->geometry).transformTo(&lookAt, &bbx);
 
     prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
-    GLOBAL_sgl_currentContext->sglLoadMatrix(
-        orthogonalViewMatrix(
+    Matrix4x4 o = orthogonalViewMatrix(
             bbx.coordinates[MIN_X],
             bbx.coordinates[MAX_X],
             bbx.coordinates[MIN_Y],
             bbx.coordinates[MAX_Y],
             -bbx.coordinates[MAX_Z],
-            -bbx.coordinates[MIN_Z]));
-    GLOBAL_sgl_currentContext->sglMultiplyMatrix(lookAt);
+            -bbx.coordinates[MIN_Z]);
+    GLOBAL_sgl_currentContext->sglLoadMatrix(&o);
+    GLOBAL_sgl_currentContext->sglMultiplyMatrix(&lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
