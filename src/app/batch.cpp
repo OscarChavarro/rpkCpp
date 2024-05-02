@@ -48,7 +48,7 @@ Saves a RGB image in the front buffer
 */
 static void
 openGlSaveScreen(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     const int isPipe,
     const Scene *scene,
@@ -102,9 +102,9 @@ batchProcessFile(
     const char *fileName,
     const char *openMode,
     void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions),
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
@@ -133,7 +133,7 @@ batchSaveRadianceImage(
 
     canvasPushMode();
 
-    extension = imageFileExtension((char *) fileName);
+    extension = imageFileExtension(fileName);
     if ( IS_TIFF_LOGLUV_EXT(extension) ) {
         fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
@@ -143,7 +143,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen((char *)fileName, fp, isPipe, scene, context, renderOptions);
+    openGlSaveScreen(fileName, fp, isPipe, scene, context, renderOptions);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();

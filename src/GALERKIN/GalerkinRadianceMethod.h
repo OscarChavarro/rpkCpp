@@ -10,7 +10,7 @@
 #include "scene/VoxelGrid.h"
 #include "scene/Scene.h"
 
-class GalerkinRadianceMethod : public RadianceMethod {
+class GalerkinRadianceMethod final : public RadianceMethod {
   private:
     GatheringStrategy *gatheringStrategy;
 

@@ -48,7 +48,7 @@ public:
 
 extern ImageOutputHandle *
 createRadianceImageOutputHandle(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
     int width,
@@ -57,7 +57,7 @@ createRadianceImageOutputHandle(
 
 extern ImageOutputHandle *
 createImageOutputHandle(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
     int width,

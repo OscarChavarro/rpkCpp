@@ -103,9 +103,9 @@ ImageOutputHandle::writeRadianceRGB(float *rgbRadiance) {
 Returns file name extension. Understands extra suffixes ".Z", ".gz",
 ".bz", and ".bz2".
 */
-char *
-imageFileExtension(char *fileName) {
-    char *ext = fileName + strlen(fileName) - 1; // Find filename extension
+const char *
+imageFileExtension(const char *fileName) {
+    const char *ext = fileName + strlen(fileName) - 1; // Find filename extension
 
     while ( ext >= fileName && *ext != '.' ) {
         ext--;
@@ -131,7 +131,7 @@ use to write radiance image
 */
 ImageOutputHandle *
 createRadianceImageOutputHandle(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
     int width,
@@ -139,7 +139,7 @@ createRadianceImageOutputHandle(
     float /*referenceLuminance*/)
 {
     if ( fp ) {
-        char *ext = isPipe ? (char *) "ppm" : imageFileExtension(fileName);
+        const char *ext = isPipe ? "ppm" : imageFileExtension(fileName);
         // Assume PPM format if pipe
         if ( strncasecmp(ext, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(fp, width, height);
@@ -173,14 +173,14 @@ Same, but for writing "normal" display RGB images instead radiance image
 */
 ImageOutputHandle *
 createImageOutputHandle(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
-    int isPipe,
-    int width,
-    int height)
+    const int isPipe,
+    const int width,
+    const int height)
 {
     if ( fp ) {
-        char *ext = isPipe ? (char *) "ppm" : imageFileExtension(fileName);
+        const char *ext = isPipe ? "ppm" : imageFileExtension(fileName);
 
         if ( strncasecmp(ext, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(fp, width, height);

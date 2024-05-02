@@ -1,7 +1,7 @@
 #include "IMAGE/pic.h"
 #include "IMAGE/dkcolor.h"
 
-PicOutputHandle::PicOutputHandle(char *filename, int w, int h) {
+PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
     pic = fopen(filename, "wb");

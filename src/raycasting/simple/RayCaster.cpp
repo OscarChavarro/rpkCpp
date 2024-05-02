@@ -218,7 +218,7 @@ reflects whether this file pointer is a pipe or not.
 */
 void
 rayCast(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     const int isPipe,
     const Scene *scene,

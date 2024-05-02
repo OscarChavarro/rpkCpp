@@ -72,11 +72,11 @@ mainParseOptions(
 
 static void
 mainCreateOffscreenCanvasWindow(
-    int outputImageWidth,
-    int outputImageHeight,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const int outputImageWidth,
+    const int outputImageHeight,
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     openGlMesaRenderCreateOffscreenWindow(scene->camera, outputImageWidth, outputImageHeight);
 

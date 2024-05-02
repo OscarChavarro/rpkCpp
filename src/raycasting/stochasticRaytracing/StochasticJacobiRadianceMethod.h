@@ -3,11 +3,11 @@
 
 #include "scene/RadianceMethod.h"
 
-class StochasticJacobiRadianceMethod : public RadianceMethod {
+class StochasticJacobiRadianceMethod final : public RadianceMethod {
   public:
     StochasticJacobiRadianceMethod();
-    ~StochasticJacobiRadianceMethod();
-    const char *getRadianceMethodName() const;
+    ~StochasticJacobiRadianceMethod() final;
+    const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
     void initialize(Scene *scene) final;
     bool doStep(Scene *scene, RenderOptions *renderOptions) final;

@@ -15,7 +15,7 @@ class PicOutputHandle : public ImageOutputHandle {
     void writeHeader();
 
   public:
-    PicOutputHandle(char *filename, int w, int h);
+    PicOutputHandle(const char *filename, int w, int h);
     ~PicOutputHandle();
     int writeRadianceRGB(float *rgbRadiance);
 };

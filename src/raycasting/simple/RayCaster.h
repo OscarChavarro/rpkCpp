@@ -40,7 +40,7 @@ class RayCaster {
 
 extern void
 rayCast(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
     const Scene *scene,
