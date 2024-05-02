@@ -3,9 +3,7 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/linealAlgebra/Matrix4x4.h"
 #include "common/options.h"
-#include "common/RenderOptions.h"
 #include "io/writevrml.h"
 
 static Matrix4x4 globalIdentityMatrix = {
@@ -102,7 +100,7 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
             viewPointName);
 }
 
-void
+static void
 writeVRMLViewPoints(const Camera *camera, FILE *fp, const Matrix4x4 *modelTransform) {
     Camera *localCamera = nullptr;
     int count = 1;

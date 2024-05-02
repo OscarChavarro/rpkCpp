@@ -133,7 +133,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     ColorRgb Rs;
     ColorRgb Ts;
     ColorRgb A;
-    char *materialName = context->currentMaterialName;
+    const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
         materialName = (char *)"unnamed";

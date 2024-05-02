@@ -14,6 +14,5 @@ extern void writeVRML(const Camera *camera, FILE *fp, const java::ArrayList<Patc
 extern void writeVrmlHeader(const Camera *camera, FILE *fp, const RenderOptions *renderOptions);
 extern void writeVRMLTrailer(FILE *fp);
 extern Matrix4x4 transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *modelRotationAngle);
-extern void writeVRMLViewPoints(const Camera *camera, FILE *fp, const Matrix4x4 *modelTransform);
 
 #endif

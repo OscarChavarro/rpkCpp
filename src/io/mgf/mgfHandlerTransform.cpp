@@ -61,7 +61,7 @@ checkArgument(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-transformName(MgfTransformArray *ap, MgfContext *context) {
+transformName(const MgfTransformArray *ap, MgfContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static char *oav[3] = {
             context->entityNames[MGF_ENTITY_OBJECT], oName
@@ -74,7 +74,7 @@ transformName(MgfTransformArray *ap, MgfContext *context) {
     cp1 = oName;
     *cp1 = 'a';
     for ( int i = 0; i < ap->numberOfDimensions; i++ ) {
-        for ( char *cp2 = ap->transformArguments[i].arg; *cp2; ) {
+        for ( const char *cp2 = ap->transformArguments[i].arg; *cp2; ) {
             *++cp1 = *cp2++;
         }
         *++cp1 = '.';
