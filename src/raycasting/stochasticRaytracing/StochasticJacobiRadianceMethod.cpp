@@ -40,7 +40,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) {
+StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
@@ -55,7 +55,7 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
+StochasticJacobiRadianceMethod::writeVRML(const Camera * /*camera*/, FILE *fp, const RenderOptions * /*renderOptions*/) const {
 }
 
 void
@@ -474,7 +474,7 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static void
-stochasticRelaxationRadiosityRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions) {
+stochasticRelaxationRadiosityRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender, renderOptions);
     } else {
@@ -484,7 +484,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch, const Camera *camera, Ren
 }
 
 void
-StochasticJacobiRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
+StochasticJacobiRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(
             scene,

@@ -50,13 +50,12 @@ static void
 openGlSaveScreen(
     char *fileName,
     FILE *fp,
-    int isPipe,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     ImageOutputHandle *img;
-    long j;
     long x = scene->camera->xSize;
     long y = scene->camera->ySize;
     GLubyte *screen;
@@ -78,11 +77,10 @@ openGlSaveScreen(
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, (int)x, (int)y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
 
-    for ( j = y - 1; j >= 0; j-- ) {
-        long i;
+    for ( long j = y - 1; j >= 0; j-- ) {
         unsigned char *bufferPosition = buf;
-        GLubyte *pixel = &screen[j * x * 4];
-        for ( i = 0; i < x; i++, pixel += 4 ) {
+        const GLubyte *pixel = &screen[j * x * 4];
+        for ( long i = 0; i < x; i++, pixel += 4 ) {
             *bufferPosition++ = pixel[0];
             *bufferPosition++ = pixel[1];
             *bufferPosition++ = pixel[2];
@@ -103,7 +101,7 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, Scene *scene, RadianceMethod *context, RenderOptions *renderOptions),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions),
     Scene *scene,
     RadianceMethod *context,
     RenderOptions *renderOptions)
@@ -121,13 +119,13 @@ static void
 batchSaveRadianceImage(
     const char *fileName,
     FILE *fp,
-    int isPipe,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     clock_t t;
-    char *extension;
+    const char *extension;
 
     if ( !fp ) {
         return;
@@ -156,9 +154,9 @@ batchSaveRadianceModel(
     const char *fileName,
     FILE *fp,
     int /*isPipe*/,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     clock_t t;
 

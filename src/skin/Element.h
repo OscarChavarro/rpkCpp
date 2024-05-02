@@ -59,7 +59,7 @@ class Element {
     Element *childContainingElement(Element *descendant);
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
-    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, RenderOptions *renderOptions), RenderOptions *renderOptions);
+    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RenderOptions *renderOptions), const RenderOptions *renderOptions);
     bool traverseAllChildren(void (*traversalCallbackFunction)(Element *)) const;
 };
 

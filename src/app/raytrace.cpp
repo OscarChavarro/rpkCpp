@@ -66,7 +66,7 @@ mainMakeRaytracingMethodsString() {
     str += n;
 
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        Raytracer *method = *window;
+        const Raytracer *method = *window;
         snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
                  method->shortName, method->fullName,
                  GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
@@ -91,7 +91,7 @@ void
 rayTracingParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalRaytracingOptions, argc, argv);
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        Raytracer *method = *window;
+        const Raytracer *method = *window;
         method->ParseOptions(argc, argv);
     }
 }
@@ -116,9 +116,9 @@ batchSaveRaytracingImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    Scene *scene,
-    RadianceMethod * /*context*/,
-    RenderOptions * /*renderOptions*/)
+    const Scene *scene,
+    const RadianceMethod * /*context*/,
+    const RenderOptions * /*renderOptions*/)
 {
     clock_t t;
 

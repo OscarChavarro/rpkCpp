@@ -9,27 +9,27 @@
 
 extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
-extern void openGlRenderSetColor(ColorRgb *rgb);
+extern void openGlRenderSetColor(const ColorRgb *rgb);
 
 extern void
 openGlRenderWorldOctree(
-    Scene *scene,
-    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
-    RenderOptions *renderOptions);
+    const Scene *scene,
+    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
+    const RenderOptions *renderOptions);
 
 extern void
 openGlRenderScene(
-    Scene *scene,
+    const Scene *scene,
     int (*reDisplayCallback)(),
-    RadianceMethod *context,
-    RenderOptions *renderOptions);
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions);
 
 extern void openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height);
 extern void openGlRenderPatchOutline(Patch *patch);
 extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
 extern void openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb);
-extern void openGlRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions);
+extern void openGlRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
 extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *renderOptions);
 
 #endif

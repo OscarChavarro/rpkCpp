@@ -115,7 +115,7 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-openGlRenderSetColor(ColorRgb *rgb) {
+openGlRenderSetColor(const ColorRgb *rgb) {
     ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
@@ -235,7 +235,7 @@ openGlRenderPatchOutline(Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions) {
+openGlRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
@@ -245,8 +245,7 @@ openGlRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptio
     }
 
     if ( renderOptions->drawOutlines &&
-         (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON
-          || renderOptions->useDisplayLists) ) {
+         (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON) ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderPatchOutline(patch);
     }
@@ -256,8 +255,8 @@ static void
 openGlReallyRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatch)(Patch *, const Camera *, RenderOptions *),
-    RenderOptions *renderOptions)
+    void (*renderPatch)(Patch *, const Camera *, const RenderOptions *),
+    const RenderOptions *renderOptions)
 {
     java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
@@ -269,21 +268,10 @@ static void
 openGlRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
-    RenderOptions *renderOptions)
+    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
+    const RenderOptions *renderOptions)
 {
-    if ( renderOptions->useDisplayLists ) {
-        if ( geometry->displayListId <= 0 ) {
-            geometry->displayListId = geometry->id;
-            glNewList(geometry->displayListId, GL_COMPILE_AND_EXECUTE);
-            openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
-            glEndList();
-        } else {
-            glCallList(geometry->displayListId);
-        }
-    } else {
-        openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
-    }
+    openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
 }
 
 static int
@@ -321,8 +309,8 @@ static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *renderOptions),
-    RenderOptions *renderOptions)
+    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *renderOptions),
+    const RenderOptions *renderOptions)
 {
     int i;
     int n;
@@ -393,9 +381,9 @@ renderPatchCallback is called
 */
 void
 openGlRenderWorldOctree(
-    Scene *scene,
-    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
-    RenderOptions *renderOptions)
+    const Scene *scene,
+    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
+    const RenderOptions *renderOptions)
 {
     if ( scene->clusteredRootGeometry == nullptr ) {
         return;
@@ -451,7 +439,7 @@ openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *rend
 }
 
 static void
-openGlReallyRender(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
+openGlReallyRender(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( context != nullptr ) {
@@ -467,7 +455,7 @@ openGlReallyRender(Scene *scene, RadianceMethod *context, RenderOptions *renderO
 }
 
 static void
-openGlRenderRadiance(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
+openGlRenderRadiance(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
     if ( renderOptions->smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -482,20 +470,7 @@ openGlRenderRadiance(Scene *scene, RadianceMethod *context, RenderOptions *rende
         glDisable(GL_CULL_FACE);
     }
 
-    if ( renderOptions->useDisplayLists && !renderOptions->frustumCulling ) {
-        if ( globalDisplayListId <= 0 ) {
-            globalDisplayListId = 1;
-            glNewList(globalDisplayListId, GL_COMPILE_AND_EXECUTE);
-            // Render the scene
-            openGlReallyRender(scene, context, renderOptions);
-            glEndList();
-        } else {
-            glCallList(1);
-        }
-    } else {
-        // Just render the scene
-        openGlReallyRender(scene, context, renderOptions);
-    }
+    openGlReallyRender(scene, context, renderOptions);
 
     if ( renderOptions->drawBoundingBoxes ) {
         renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
@@ -511,17 +486,17 @@ Renders the whole scene
 */
 void
 openGlRenderScene(
-    Scene *scene,
+    const Scene *scene,
     int (*reDisplayCallback)(),
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     openGlRenderSetLineWidth(renderOptions->lineWidth);
 
     canvasPushMode();
 
     if ( scene->camera->changed ) {
-        renderOptions->renderRayTracedImage = false;
+        //renderOptions->renderRayTracedImage = false;
     }
 
     if ( !renderOptions->renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {

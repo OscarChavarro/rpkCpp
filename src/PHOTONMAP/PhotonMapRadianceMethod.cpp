@@ -51,7 +51,7 @@ PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 void
-PhotonMapRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
+PhotonMapRadianceMethod::writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const {
 }
 
 /**
@@ -657,7 +657,7 @@ PhotonMapRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D dir,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions) const
 {
     RayHit hit;
     Vector3D point;
@@ -722,7 +722,7 @@ PhotonMapRadianceMethod::getRadiance(
 }
 
 void
-PhotonMapRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
+PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     } else {

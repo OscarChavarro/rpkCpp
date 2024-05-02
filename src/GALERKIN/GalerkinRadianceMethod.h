@@ -37,8 +37,8 @@ class GalerkinRadianceMethod : public RadianceMethod {
         ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
     }
 
-    static void renderElementHierarchy(GalerkinElement *element, RenderOptions *renderOptions);
-    static void galerkinRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions);
+    static void renderElementHierarchy(GalerkinElement *element, const RenderOptions *renderOptions);
+    static void galerkinRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 
   public:
@@ -53,12 +53,12 @@ class GalerkinRadianceMethod : public RadianceMethod {
     void initialize(Scene *scene) final;
     bool doStep(Scene *scene, RenderOptions *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) final;
+    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() final;
-    void renderScene(Scene *scene, RenderOptions *renderOptions) final;
-    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) final;
+    void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
+    void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const final;
 };
 
 extern void galerkinFreeMemory();

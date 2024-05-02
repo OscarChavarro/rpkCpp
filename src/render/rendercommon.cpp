@@ -11,11 +11,6 @@ static RenderOptions globalRenderOptions;
 static ColorRgb globalOutlineColor;
 
 static void
-displayListsOption(void * /*value*/) {
-    globalRenderOptions.useDisplayLists = true;
-}
-
-static void
 flatOption(void * /*value*/) {
     globalRenderOptions.smoothShading = false;
 }
@@ -36,9 +31,6 @@ traceOption(void * /*value*/) {
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
-    {"-display-lists", 10, TYPELESS, nullptr, displayListsOption,
-     "-display-lists\t\t"
-     ": use display lists for faster hardware-assisted rendering"},
     {"-flat-shading", 5, TYPELESS, nullptr, flatOption,
      "-flat-shading\t\t: render without Gouraud (color) interpolation"},
     {"-raycast", 5, TYPELESS, nullptr, traceOption,
@@ -166,7 +158,7 @@ renderGeomBounds(Camera *camera, Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, RenderOptions *renderOptions) {
+renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
     openGlRenderSetColor(&renderOptions->boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         renderGeomBounds(camera, sceneGeometries->get(i));
@@ -177,7 +169,7 @@ renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeo
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, RenderOptions *renderOptions) {
+renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
     openGlRenderSetColor(&renderOptions->clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         renderGeomBounds(camera, clusteredGeometryList->get(i));

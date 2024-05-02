@@ -43,7 +43,7 @@ class RadianceMethod {
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) = 0;
+    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const = 0;
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     virtual Element *createPatchData(Patch *patch) = 0;
@@ -58,12 +58,12 @@ class RadianceMethod {
     // a nullptr pointer. In that case, the default hardware assisted rendering
     // method (in render.c) is used: render all the patches with the RGB color
     // triplet they were assigned
-    virtual void renderScene(Scene *scene, RenderOptions *renderOptions) = 0;
+    virtual void renderScene(const Scene *scene, const RenderOptions *renderOptions) const = 0;
 
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will
     // be used
-    virtual void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) = 0;
+    virtual void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const  = 0;
 };
 
 #endif

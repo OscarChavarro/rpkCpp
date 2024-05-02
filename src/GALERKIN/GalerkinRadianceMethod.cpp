@@ -262,7 +262,7 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
 void
-GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, const RenderOptions *renderOptions) {
     if ( element->regularSubElements == nullptr ) {
         element->render(renderOptions);
     } else {
@@ -273,7 +273,7 @@ GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, RenderO
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, const Camera * /*camera*/, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, const Camera * /*camera*/, const RenderOptions *renderOptions) {
     renderElementHierarchy(galerkinGetElement(patch), renderOptions);
 }
 
@@ -449,7 +449,14 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 }
 
 ColorRgb
-GalerkinRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::getRadiance(
+    Camera *camera,
+    Patch *patch,
+    double u,
+    double v,
+    Vector3D dir,
+    const RenderOptions *renderOptions) const
+{
     const GalerkinElement *leaf;
     ColorRgb rad;
 
@@ -540,7 +547,7 @@ GalerkinRadianceMethod::getStats() {
 }
 
 void
-GalerkinRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
     } else {
@@ -553,7 +560,7 @@ GalerkinRadianceMethod::renderScene(Scene *scene, RenderOptions *renderOptions) 
 }
 
 void
-GalerkinRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const {
     writeVrmlHeader(camera, fp, renderOptions);
 
     globalVrmlFileDescriptor = fp;

@@ -22,7 +22,7 @@ Stuff common to all radiance methods
 static char globalRadianceMethodsString[STRING_LENGTH];
 
 static void
-radianceMethodOption(void *value) {
+radianceMethodOption(void * /*value*/) {
 }
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
@@ -58,7 +58,7 @@ radianceDefaults(RadianceMethod *context, Scene *scene) {
 static void
 selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     bool getNext = false;
-    char *name = nullptr;
+    const char *name = nullptr;
     for ( int i = 0; i < *argc; i++ ) {
         if ( strcmp(argv[i], "-radiance-method") == 0 ) {
             getNext = true;

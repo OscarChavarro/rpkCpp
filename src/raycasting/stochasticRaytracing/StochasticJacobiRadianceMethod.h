@@ -8,16 +8,16 @@ class StochasticJacobiRadianceMethod : public RadianceMethod {
     StochasticJacobiRadianceMethod();
     ~StochasticJacobiRadianceMethod();
     const char *getRadianceMethodName() const;
-    void parseOptions(int *argc, char **argv);
-    void initialize(Scene *scene);
-    bool doStep(Scene *scene, RenderOptions *renderOptions);
-    void terminate(java::ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions);
-    Element *createPatchData(Patch *patch);
-    void destroyPatchData(Patch *patch);
-    char *getStats();
-    void renderScene(Scene *scene, RenderOptions *renderOptions);
-    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions);
+    void parseOptions(int *argc, char **argv) final;
+    void initialize(Scene *scene) final;
+    bool doStep(Scene *scene, RenderOptions *renderOptions) final;
+    void terminate(java::ArrayList<Patch *> *scenePatches) final;
+    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const final;
+    Element *createPatchData(Patch *patch) final;
+    void destroyPatchData(Patch *patch) final;
+    char *getStats() final;
+    void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
+    void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const final;
 };
 
 #endif

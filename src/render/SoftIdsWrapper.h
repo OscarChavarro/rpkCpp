@@ -8,10 +8,10 @@ class SoftIdsWrapper {
   protected:
     SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
-    void init(Scene *scene, RenderOptions *renderOptions); // Also performs the actual ID rendering
+    void init(const Scene *scene, const RenderOptions *renderOptions); // Also performs the actual ID rendering
 
   public:
-    explicit SoftIdsWrapper(Scene *scene, RenderOptions *renderOptions);
+    explicit SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions);
     ~SoftIdsWrapper();
 
     inline void

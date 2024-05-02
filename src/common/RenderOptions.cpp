@@ -1,6 +1,5 @@
 #include "common/RenderOptions.h"
 
-#define DEFAULT_DISPLAY_LISTS false
 #define DEFAULT_SMOOTH_SHADING true
 #define DEFAULT_BACKFACE_CULLING true
 #define DEFAULT_OUTLINE_DRAWING false
@@ -21,12 +20,10 @@ RenderOptions::RenderOptions():
     backfaceCulling(),
     drawBoundingBoxes(),
     drawClusters(),
-    useDisplayLists(),
     frustumCulling(),
     renderRayTracedImage(),
     trace()
 {
-    useDisplayLists = DEFAULT_DISPLAY_LISTS;
     smoothShading = DEFAULT_SMOOTH_SHADING;
     backfaceCulling = DEFAULT_BACKFACE_CULLING;
     drawOutlines = DEFAULT_OUTLINE_DRAWING;

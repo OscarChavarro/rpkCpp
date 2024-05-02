@@ -65,8 +65,8 @@ RayCaster::getRadianceAtPixel(
     int x,
     int y,
     Patch *patch,
-    RadianceMethod *context,
-    RenderOptions *renderOptions)
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions)
 {
     ColorRgb rad{};
     rad.clear();
@@ -102,7 +102,7 @@ RayCaster::getRadianceAtPixel(
 }
 
 void
-RayCaster::render(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
+RayCaster::render(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
@@ -220,10 +220,10 @@ void
 rayCast(
     char *fileName,
     FILE *fp,
-    int isPipe,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions) {
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions) {
     ImageOutputHandle *img = nullptr;
 
     if ( fp ) {

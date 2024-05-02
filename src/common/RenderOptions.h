@@ -22,7 +22,6 @@ class RenderOptions {
     char backfaceCulling; // True for backface culling
     char drawBoundingBoxes; // True for showing bounding boxes
     char drawClusters; // True for showing cluster hierarchy
-    char useDisplayLists; // True for using display lists for faster display
     char frustumCulling; // Frustum culling accelerates rendering of large scenes.
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff

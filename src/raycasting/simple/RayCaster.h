@@ -23,13 +23,13 @@ class RayCaster {
         int x,
         int y,
         Patch *patch,
-        RadianceMethod *context,
-        RenderOptions *renderOptions);
+        const RadianceMethod *context,
+        const RenderOptions *renderOptions);
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);
     virtual ~RayCaster();
-    void render(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions);
+    void render(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);
 };
@@ -43,8 +43,8 @@ rayCast(
     char *fileName,
     FILE *fp,
     int isPipe,
-    Scene *scene,
-    RadianceMethod *context,
-    RenderOptions *renderOptions);
+    const Scene *scene,
+    const RadianceMethod *context,
+    const RenderOptions *renderOptions);
 
 #endif

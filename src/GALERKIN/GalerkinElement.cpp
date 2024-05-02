@@ -552,7 +552,7 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 }
 
 void
-GalerkinElement::draw(int mode, RenderOptions *renderOptions) {
+GalerkinElement::draw(int mode, const RenderOptions *renderOptions) {
     Vector3D p[4];
     int numberOfVertices;
 
@@ -674,7 +674,7 @@ GalerkinElement::drawOutline(RenderOptions *renderOptions) {
 Renders a surface element flat shaded based on its radiance
 */
 void
-GalerkinElement::render(RenderOptions *renderOptions) {
+GalerkinElement::render(const RenderOptions *renderOptions) {
     int renderCode = 0;
 
     if ( renderOptions->drawOutlines ) {

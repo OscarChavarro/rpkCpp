@@ -66,7 +66,7 @@ sceneBuilderComputeStats(Scene *scene) {
 
     // Include background radiation
     BP = backgroundPower(scene->background, &zero);
-    BP.scale(1.0 / (4.0 * (double) M_PI));
+    BP.scale(1.0 / (4.0 * M_PI));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
     GLOBAL_statistics.estimatedAverageRadiance.divide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption);
@@ -149,16 +149,16 @@ Builds a linear list of patches making up all the geometries in the list, whethe
 they are primitive or not
 */
 static void
-sceneBuilderPatchList(java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
+sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
-            Compound *compound = (Compound *)geometry->compoundData;
+            const Compound *compound = geometry->compoundData;
             sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
-            java::ArrayList<Patch *> *patchesFromNonCompounds = geomPatchArrayListReference(geometry);
+            const java::ArrayList<Patch *> *patchesFromNonCompounds = geomPatchArrayListReference(geometry);
 
             for ( int j = 0; patchesFromNonCompounds != nullptr && j < patchesFromNonCompounds->size(); j++ ) {
                 Patch *patch = patchesFromNonCompounds->get(j);
@@ -218,15 +218,15 @@ sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     scene->background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
-    char *extension;
+    const char *extension;
     fprintf(stderr, "Reading the scene from file '%s' ... \n", fileName);
     clock_t last = clock();
 
-    char *dot = strrchr(fileName, '.');
+    const char *dot = strrchr(fileName, '.');
     if ( dot != nullptr ) {
         extension = dot + 1;
     } else {
-        extension = (char *)"mgf";
+        extension = "mgf";
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {

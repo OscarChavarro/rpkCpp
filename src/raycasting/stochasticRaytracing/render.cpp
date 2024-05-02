@@ -151,7 +151,7 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
 }
 
 static void
-renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, RenderOptions *renderOptions) {
+renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, const RenderOptions *renderOptions) {
     ColorRgb col[3];
     Vector3D vert[3];
 
@@ -172,7 +172,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, RenderOptions *renderOptions)
 }
 
 static void
-renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, RenderOptions *renderOptions) {
+renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const RenderOptions *renderOptions) {
     ColorRgb col[4];
     Vector3D vert[4];
 
@@ -204,8 +204,8 @@ triangleTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, RenderOptions *),
-    RenderOptions *renderOptions)
+    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, const RenderOptions *),
+    const RenderOptions *renderOptions)
 {
     int a;
     int b;
@@ -254,9 +254,9 @@ quadrilateralTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, RenderOptions *),
-    void (*doQuadrilateralCallback)(Vertex *, Vertex *, Vertex *, Vertex *, RenderOptions *),
-    RenderOptions *renderOptions)
+    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, const RenderOptions *),
+    void (*doQuadrilateralCallback)(Vertex *, Vertex *, Vertex *, Vertex *, const RenderOptions *),
+    const RenderOptions *renderOptions)
 {
     int a;
     int b;
@@ -332,17 +332,17 @@ quadrilateralTVertexElimination(
 }
 
 static void
-renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices, RenderOptions *renderOptions) {
+renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
     triangleTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderOptions);
 }
 
 static void
-renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, RenderOptions *renderOptions) {
+renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
     quadrilateralTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderQuadrilateral, renderOptions);
 }
 
 static void
-stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem, RenderOptions *renderOptions) {
+stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     openGlRenderSetColor(&renderOptions->outlineColor);
@@ -357,7 +357,7 @@ stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem, Render
 }
 
 void
-stochasticRadiosityElementRender(Element *element, RenderOptions *renderOptions) {
+stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions) {
     StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vector3D vertices[4];
 
@@ -426,7 +426,7 @@ stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v, RenderOptions *renderOptions) {
+stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
     ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {

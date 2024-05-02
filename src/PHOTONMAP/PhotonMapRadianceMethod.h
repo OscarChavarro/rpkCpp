@@ -15,12 +15,12 @@ class PhotonMapRadianceMethod : public RadianceMethod {
     void initialize(Scene *scene);
     bool doStep(Scene *scene, RenderOptions *renderOptions);
     void terminate(java::ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions);
+    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const;
     Element *createPatchData(Patch *patch);
     void destroyPatchData(Patch *patch);
     char *getStats();
-    void renderScene(Scene *scene, RenderOptions *renderOptions);
-    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions);
+    void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
+    void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const final;
 };
 
 ColorRgb photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);

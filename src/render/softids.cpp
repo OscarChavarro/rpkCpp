@@ -6,7 +6,6 @@ formats, etc.
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
 #include "render/opengl.h"
 #include "render/render.h"
 #include "render/softids.h"
@@ -16,7 +15,7 @@ Sets up a software rendering context and initialises transforms and
 viewport for the current view. The new renderer is made current
 */
 SGL_CONTEXT *
-setupSoftFrameBuffer(Camera *camera) {
+setupSoftFrameBuffer(const Camera *camera) {
     SGL_CONTEXT *sgl = new SGL_CONTEXT(camera->xSize, camera->ySize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
     GLOBAL_sgl_currentContext->sglClipping(true);
@@ -35,7 +34,7 @@ setupSoftFrameBuffer(Camera *camera) {
 }
 
 static void
-softRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions) {
+softRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
@@ -59,12 +58,9 @@ Renders all scenePatches in the current sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(Scene *scene, RenderOptions *renderOptions) {
+softRenderPatches(const Scene *scene, const RenderOptions *renderOptions) {
     if ( renderOptions->frustumCulling ) {
-        char use_display_lists = renderOptions->useDisplayLists;
-        renderOptions->useDisplayLists = false;  // Temporarily switch it off
         openGlRenderWorldOctree(scene, softRenderPatch, renderOptions);
-        renderOptions->useDisplayLists = use_display_lists;
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
@@ -76,14 +72,10 @@ softRenderPatches(Scene *scene, RenderOptions *renderOptions) {
 Software ID rendering
 */
 unsigned long *
-softRenderIds(long *x, long *y, Scene *scene, RenderOptions *renderOptions) {
+softRenderIds(long *x, long *y, Scene *scene, const RenderOptions *renderOptions) {
     SGL_CONTEXT *currentSglContext;
     SGL_CONTEXT *oldSglContext;
     unsigned long *ids;
-
-    if ( sizeof(SGL_PIXEL) != sizeof(long) ) {
-        logFatal(-1, "softRenderIds", "sizeof(SGL_PIXEL)!=sizeof(long).");
-    }
 
     oldSglContext = GLOBAL_sgl_currentContext;
     currentSglContext = setupSoftFrameBuffer(scene->camera);

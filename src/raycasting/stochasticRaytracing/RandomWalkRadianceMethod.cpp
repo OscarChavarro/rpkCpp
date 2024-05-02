@@ -33,7 +33,7 @@ RandomWalkRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D dir,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions) const
 {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
@@ -49,11 +49,11 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-RandomWalkRadianceMethod::renderScene(Scene * /*scene*/, RenderOptions * /*renderOptions*/) {
+RandomWalkRadianceMethod::renderScene(const Scene * /*scene*/, const RenderOptions * /*renderOptions*/) const {
 }
 
 void
-RandomWalkRadianceMethod::writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) {
+RandomWalkRadianceMethod::writeVRML(const Camera * /*camera*/, FILE * /*fp*/, const RenderOptions * /*renderOptions*/) const {
 }
 
 void
