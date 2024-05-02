@@ -29,8 +29,6 @@ GalerkinState::GalerkinState():
     src4rule(),
     topCluster(),
     errorNorm(),
-    formFactorLastReceived(),
-    formFactorLastSource(),
     lastClusterId(),
     lastEye(),
     lastClock(),

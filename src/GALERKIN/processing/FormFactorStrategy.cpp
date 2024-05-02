@@ -15,6 +15,9 @@ References:
   with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3, September 1995
 */
 
+GalerkinElement *FormFactorStrategy::formFactorLastReceived;
+GalerkinElement *FormFactorStrategy::formFactorLastSource;
+
 /**
 Tests whether the ray intersects the a geometry in the geometrySceneList. Returns
 nullptr if the ray hits no geometries. Returns an arbitrary hit
@@ -480,6 +483,11 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     static Vector3D x[CUBATURE_MAXIMUM_NODES];
     static Vector3D y[CUBATURE_MAXIMUM_NODES];
 
+    // TODO: To make this re-entrant, should use the class as instanced objects,
+    // one per thread, and move static global variables to usual class attributes
+    formFactorLastReceived = nullptr;
+    formFactorLastSource = nullptr;
+
     GalerkinElement *receiverElement = link->receiverElement;
     GalerkinElement *sourceElement = link->sourceElement;
 
@@ -539,12 +547,12 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
-    if ( receiverElement != galerkinState->formFactorLastReceived ) {
+    if ( receiverElement != formFactorLastReceived ) {
         determineNodes(receiverElement, RECEIVER, galerkinState, &receiveCubatureRule, x);
     }
 
     // Same for the source element
-    if ( sourceElement != galerkinState->formFactorLastSource ) {
+    if ( sourceElement != formFactorLastSource ) {
         determineNodes(sourceElement, SOURCE, galerkinState, &sourceCubatureRule, y);
     }
 
@@ -555,8 +563,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
     unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
-    if ( receiverElement != galerkinState->formFactorLastReceived
-      || sourceElement != galerkinState->formFactorLastSource ) {
+    if ( receiverElement != formFactorLastReceived
+      || sourceElement != formFactorLastSource ) {
         // Use shadow caching for accelerating occlusion detection
         ShadowCache shadowCache;
 
@@ -610,8 +618,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     }
 
     // Remember receiver and source for next time
-    galerkinState->formFactorLastReceived = receiverElement;
-    galerkinState->formFactorLastSource = sourceElement;
+    formFactorLastReceived = receiverElement;
+    formFactorLastSource = sourceElement;
 
     if ( galerkinState->clusteringStrategy == ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {

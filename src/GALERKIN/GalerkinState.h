@@ -86,10 +86,6 @@ class GalerkinState {
     // Clustering strategy
     GalerkinClusteringStrategy clusteringStrategy;
 
-    // Some global variables for form-factor computation
-    GalerkinElement *formFactorLastReceived;
-    GalerkinElement *formFactorLastSource;
-
     // Scratch offscreen renderer for various clustering operations
     SGL_CONTEXT *scratch;
     int scratchFrameBufferSize;

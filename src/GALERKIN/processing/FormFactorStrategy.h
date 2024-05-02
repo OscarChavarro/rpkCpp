@@ -15,6 +15,10 @@ All kind of form factor computations
 
 class FormFactorStrategy {
   private:
+    // Global variables used for form factor computation optimisation
+    static GalerkinElement *formFactorLastReceived;
+    static GalerkinElement *formFactorLastSource;
+
     static RayHit *
     shadowTestDiscretization(
         Ray *ray,
