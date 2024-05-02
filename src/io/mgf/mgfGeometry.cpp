@@ -23,7 +23,7 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
     char *v2Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_sv2", (char *)"="};
     char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2x, p2y, p2z};
     char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
-    MgfVertexContext *cv;
+    const MgfVertexContext *cv;
     int rVal;
     double rad;
     double theta;

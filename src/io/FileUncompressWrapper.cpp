@@ -24,7 +24,7 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
     if ( fileName[0] != '\0' && fileName[strlen(fileName) - 1] != '/' ) {
         int n = (int)strlen(fileName) + 20;
         char *cmd = (char *)malloc(n);
-        char *ext = (char *)strrchr(fileName, '.');
+        const char *ext = strrchr(fileName, '.');
         if ( fileName[0] == '|' ) {
             snprintf(cmd, n, "%s", fileName + 1);
             fp = popen(cmd, open_mode);

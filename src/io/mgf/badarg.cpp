@@ -7,7 +7,7 @@
 Check argument list against format string
 */
 int
-checkForBadArguments(int ac, char **av, char *fl) {
+checkForBadArguments(int ac, char **av, const char *fl) {
     // Check argument list
     if ( fl == nullptr ) {
 	    // No arguments?

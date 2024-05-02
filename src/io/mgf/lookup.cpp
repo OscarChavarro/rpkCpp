@@ -42,7 +42,7 @@ lookUpInit(LookUpTable *tbl, int nel) {
             32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
             4194301, 8388593, 0
     };
-    int *hsp;
+    const int *hsp;
 
     nel += nel >> 1; // 66% occupancy
     for ( hsp = hSizeTab; *hsp; hsp++ ) {
@@ -81,7 +81,7 @@ long
 lookUpShuffleHash(char *s) {
     int i = 0;
     long h = 0;
-    unsigned char *t = (unsigned char *)s;
+    const unsigned char *t = (unsigned char *)s;
 
     while ( *t ) {
         h ^= (long)globalShuffle[*t++] << ((i += 11) & 0xf);

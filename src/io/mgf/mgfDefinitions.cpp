@@ -20,12 +20,12 @@ mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, const MgfContext
 
 void
 doError(const char *errmsg, MgfContext *context) {
-    logError(nullptr, (char *) "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    logError(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
 doWarning(const char *errmsg, MgfContext *context) {
-    logWarning(nullptr, (char *) "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    logWarning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 /**

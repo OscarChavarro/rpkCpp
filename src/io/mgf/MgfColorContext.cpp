@@ -39,7 +39,7 @@ static MgfColorContext cie_xf = {
         {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
          320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
          10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
-         114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, .467, .368, 362.230
+         114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, 0.467f, 0.368f, 362.230f
 };
 
 static MgfColorContext cie_yf = {
@@ -47,7 +47,7 @@ static MgfColorContext cie_yf = {
         {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
          5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
          5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
-         5, 2, 1, 1, 0, 0}, 106856L, .398, .542, 493.525
+         5, 2, 1, 1, 0, 0}, 106856L, 0.398f, 0.542f, 493.525f
 };
 
 static MgfColorContext cie_zf = {
@@ -55,7 +55,7 @@ static MgfColorContext cie_zf = {
         {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
          12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
          11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        106770L, 0.147, 0.077, 54.363
+        106770L, 0.147f, 0.077f, 54.363f
 };
 
 /**
@@ -65,8 +65,10 @@ int
 MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **av) {
     double scale;
     float va[NUMBER_OF_SPECTRAL_SAMPLES];
-    int i, pos;
-    int n, imax;
+    int i;
+    int pos;
+    int n;
+    int imax;
     int wl;
     double wl0;
     double wlStep;
@@ -156,7 +158,6 @@ int
 MgfColorContext::setBlackBodyTemperature(double tk) {
     double sf;
     double wl;
-    int i;
 
     if ( tk < 1000 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -170,7 +171,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
         }
     sf = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
     spectralStraightSum = 0;
-    for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+    for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         wl = (COLOR_MINIMUM_WAVE_LENGTH + (float)i * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
         spectralStraightSum += straightSamples[i] = (short)std::lround(sf * bBsp(wl, tk) + 0.5);
     }
