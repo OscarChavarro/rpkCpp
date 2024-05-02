@@ -15,7 +15,6 @@ class ShadowCache {
     virtual ~ShadowCache();
 
     RayHit *cacheHit(const Ray *ray, float *distance, RayHit *hitStore) const;
-
     void addToShadowCache(Patch *patch);
 };
 

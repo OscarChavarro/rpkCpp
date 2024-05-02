@@ -3,7 +3,7 @@
 /**
 Initialize/empty the shadow cache
 */
-ShadowCache::ShadowCache() {
+ShadowCache::ShadowCache(): patchCache() {
     numberOfCachedPatches = 0;
     for ( int i = 0; i < MAX_CACHE; i++ ) {
         patchCache[i] = nullptr;
