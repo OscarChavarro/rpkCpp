@@ -3,6 +3,9 @@ Generic Convex Polygon Scan Conversion and Clipping by Paul Heckbert
 from "Graphics Gems", Academic Press, 1990
 
 Homogeneous 3-D convex polygon clipper Paul Heckbert 1985, Dec 1989
+
+Note that original algorithm is available at
+https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
 #include <cstdio>

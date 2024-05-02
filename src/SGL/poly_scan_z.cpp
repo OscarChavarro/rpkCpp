@@ -6,6 +6,9 @@ from "Graphics Gems", Academic Press, 1990
 Point-sampled scan conversion of convex polygons
 
 Paul Heckbert 1985, Dec 1989
+
+Note that original algorithm is available at
+https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
 #include "common/mymath.h"

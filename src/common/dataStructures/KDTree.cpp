@@ -2,10 +2,8 @@
 #include <cstring>
 
 #include "common/error.h"
+#include "common/mymath.h"
 #include "common/linealAlgebra/Float.h"
-#ifndef HUGE
-    #include "common/mymath.h"
-#endif
 #include "common/dataStructures/KDTree.h"
 
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))

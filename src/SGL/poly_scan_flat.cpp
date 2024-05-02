@@ -8,6 +8,9 @@ Does no interpolations, for flat shading without Z buffering etc... PhB
 Point-sampled scan conversion of convex polygons
 
 Paul Heckbert 1985, Dec 1989
+
+Note that original algorithm is available at
+https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
 #include "SGL/poly.h"
