@@ -49,7 +49,7 @@ Geometry::Geometry(
     this->displayListId = -1;
 
     if ( className == GeometryClassId::COMPOUND ) {
-        Compound *compound = (Compound *)compoundData;
+        const Compound *compound = compoundData;
         geometryListBounds(compound->children, &this->boundingBox);
         this->boundingBox.enlargeTinyBit();
         this->bounded = true;
@@ -78,7 +78,7 @@ Geometry::~Geometry() {
 }
 
 Geometry *
-geomCreatePatchSet(java::ArrayList<Patch *> *geometryList) {
+geomCreatePatchSet(const java::ArrayList<Patch *> *geometryList) {
     if ( geometryList != nullptr && geometryList->size() > 0 ) {
         PatchSet *patchSet = new PatchSet(geometryList);
         return new Geometry(patchSet, nullptr, GeometryClassId::PATCH_SET);
@@ -122,7 +122,7 @@ Geometry::isCompound() const {
 }
 
 static java::ArrayList<Geometry *> *
-cloneGeometryList(java::ArrayList<Geometry *> * input) {
+cloneGeometryList(const java::ArrayList<Geometry *> * input) {
     java::ArrayList<Geometry *> *output = new java::ArrayList<Geometry *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         output->add(input->get(i));
@@ -135,7 +135,7 @@ Returns a list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
-geomPrimListCopy(Geometry *geometry) {
+geomPrimListCopy(const Geometry *geometry) {
     if ( geometry->isCompound() && geometry->compoundData != nullptr ) {
         return cloneGeometryList(geometry->compoundData->children);
     } else {
@@ -188,7 +188,7 @@ geomDontIntersect(Geometry *geometry1, Geometry *geometry2) {
 
 bool
 Geometry::discretizationIntersectPreTest(
-    Ray *ray,
+    const Ray *ray,
     float minimumDistance,
     const float *maximumDistance) const
 {
@@ -236,7 +236,7 @@ Geometry::discretizationIntersect(
     }
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        return ((MeshSurface *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const MeshSurface *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::COMPOUND ) {
         return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
@@ -250,7 +250,7 @@ Geometry::geomCountItems() {
     int count = 0;
 
     if ( isCompound() ) {
-        Compound *compound = (Compound *)this->compoundData;
+        const Compound *compound = this->compoundData;
         if ( compound == nullptr ) {
             return 0;
         }
@@ -258,7 +258,7 @@ Geometry::geomCountItems() {
             count += compound->children->get(i)->geomCountItems();
         }
     } else {
-        java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
+        const java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
         if ( list != nullptr ) {
             count = (int)list->size();
         }
@@ -296,7 +296,7 @@ geometryListDiscretizationIntersect(
 This function computes a bounding box for a list of geometries
 */
 void
-geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
+geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
@@ -312,8 +312,8 @@ Tests whether the Ray intersect the patches in the list. See geometry.h
 */
 RayHit *
 Geometry::patchListIntersect(
-    java::ArrayList<Patch *> *patchList,
-    Ray *ray,
+    const java::ArrayList<Patch *> *patchList,
+    const Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
@@ -334,6 +334,6 @@ Geometry::patchListIntersect(
 }
 
 bool
-Geometry::isExcluded() {
+Geometry::isExcluded() const {
     return this == excludedGeometry1 || this == excludedGeometry2;
 }

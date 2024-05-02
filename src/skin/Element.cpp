@@ -39,7 +39,7 @@ Element::topTransform(Matrix2x2 *xf) const {
         return nullptr;
     }
 
-    Element *window = (Element *)this;
+    const Element *window = this;
     *xf = *window->upTrans;
     do {
         window = window->parent;

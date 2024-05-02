@@ -7,8 +7,8 @@
 class PatchSet : public Geometry {
   public:
     java::ArrayList<Patch *> *patchList;
-    explicit PatchSet(java::ArrayList<Patch *> *input);
-    virtual ~PatchSet();
+    explicit PatchSet(const java::ArrayList<Patch *> *input);
+    ~PatchSet();
 
     RayHit *
     discretizationIntersect(
@@ -20,6 +20,6 @@ class PatchSet : public Geometry {
 };
 
 extern BoundingBox *
-patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
+patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
 
 #endif

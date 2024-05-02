@@ -29,14 +29,20 @@ Patch::setNextId(int id) {
 }
 
 bool
-Patch::isExcluded() {
+Patch::isExcluded() const {
     Patch **excl = globalExcludedPatches;
     // MAX_EXCLUDED_PATCHES tests!
-    return (*excl == this || *++excl == this || *++excl == this || *++excl == this);
+    for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
+        if ( *excl == this ) {
+            return true;
+        }
+        excl++;
+    }
+    return false;
 }
 
 bool
-Patch::allVerticesHaveANormal() {
+Patch::allVerticesHaveANormal() const {
     int i;
 
     for ( i = 0; i < numberOfVertices; i++ ) {
@@ -48,12 +54,12 @@ Patch::allVerticesHaveANormal() {
 }
 
 Vector3D
-Patch::getInterpolatedNormalAtUv(double u, double v) {
+Patch::getInterpolatedNormalAtUv(double u, double v) const {
     Vector3D localNormal;
-    Vector3D *v1 = vertex[0]->normal;
-    Vector3D *v2 = vertex[1]->normal;
-    Vector3D *v3 = vertex[2]->normal;
-    Vector3D *v4;
+    const Vector3D *v1 = vertex[0]->normal;
+    const Vector3D *v2 = vertex[1]->normal;
+    const Vector3D *v3 = vertex[2]->normal;
+    const Vector3D *v4;
 
     switch ( numberOfVertices ) {
         case 3:
@@ -106,7 +112,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
         if ( x1 > -TOLERANCE && x1 < 1.0 + TOLERANCE ) {
             *x = x1;
             if ( x2 > -TOLERANCE && x2 < 1.0 + TOLERANCE ) {
-                // Error(nullptr, "Bi-linear->Uniform mapping ambiguous: x1=%g, x2=%g, taking %g as solution", x1, x2, x1);
+                // Error: Bi-linear->Uniform mapping ambiguous: x1, x2, taking x1 as solution
                 return false;
             } else {
                 return true;
@@ -180,10 +186,10 @@ The normal of the patch should have been computed before calling this routine
 */
 float
 Patch::randomWalkRadiosityPatchArea() {
-    Vector3D *p1;
-    Vector3D *p2;
-    Vector3D *p3;
-    Vector3D *p4;
+    const Vector3D *p1;
+    const Vector3D *p2;
+    const Vector3D *p3;
+    const Vector3D *p4;
     Vector3D d1;
     Vector3D d2;
     Vector3D d3;
@@ -277,12 +283,12 @@ Patch::computeMidpoint(Vector3D *p) {
 Computes a certain "width" for the plane, e.g. for co-planar testing
 */
 float
-Patch::computeTolerance() {
+Patch::computeTolerance() const {
     // Fill in the vertices in the plane equation + take into account the vertex position tolerance
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        Vector3D *p = vertex[i]->point;
-        float e = (float)std::fabs(vectorDotProduct(normal, *p) + planeConstant)
+        const Vector3D *p = vertex[i]->point;
+        float e = std::fabs(vectorDotProduct(normal, *p) + planeConstant)
                   + vectorTolerance(*p);
         if ( e > localTolerance ) {
             localTolerance = e;
@@ -297,7 +303,7 @@ Returns (u, v) coordinates of the point in the triangle
 Didier Badouel, Graphics Gems I, p390
 */
 bool
-Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
+Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) {
     double u0;
     double v0;
     double alpha;
@@ -339,6 +345,9 @@ Patch::triangleUv(Vector3D *point, Vector2Dd *uv) {
             v++;
             vector2DSet(p2, (*v)->point->x - u0, (*v)->point->y - v0);
             break;
+
+        default:
+            break;
     }
 
     if ( p1.u < -EPSILON || p1.u > EPSILON ) {
@@ -371,7 +380,7 @@ Christophe Schlick and Gilles Subrenat (15 May 1994)
 in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241
 */
 int
-Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
+Patch::quadUv(Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     Vertex **p;
     Vector2Dd A; // Projected vertices
     Vector2Dd B;
@@ -427,6 +436,9 @@ Patch::quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv) {
             p++;
             vector2DSet(D, (*p)->point->x, (*p)->point->y);
             vector2DSet(M, point->x, point->y);
+            break;
+
+        default:
             break;
     }
 
@@ -511,8 +523,8 @@ Patch::hitInPatch(RayHit *hit, Patch *patch) {
 /**
 Returns a pointer to the normal vector if everything is OK. nullptr pointer if degenerate polygon
 */
-Vector3D *
-patchNormal(Patch *patch, Vector3D *normal) {
+static Vector3D *
+patchNormal(const Patch *patch, Vector3D *normal) {
     float norm;
     Vector3D previous;
     Vector3D current;
@@ -523,9 +535,9 @@ patchNormal(Patch *patch, Vector3D *normal) {
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         previous = current;
         vectorSubtract(*patch->vertex[i]->point, *patch->vertex[0]->point, current);
-        normal->x += (float)((previous.y - current.y) * (previous.z + current.z));
-        normal->y += (float)((previous.z - current.z) * (previous.x + current.x));
-        normal->z += (float)((previous.x - current.x) * (previous.y + current.y));
+        normal->x += (previous.y - current.y) * (previous.z + current.z);
+        normal->y += (previous.z - current.z) * (previous.x + current.x);
+        normal->z += (previous.x - current.x) * (previous.y + current.y);
     }
 
     norm = vectorNorm(*normal);
@@ -674,7 +686,7 @@ Patch::computeBoundingBox() {
 }
 
 int
-Patch::getNumberOfSamples() {
+Patch::getNumberOfSamples() const {
     int numberOfSamples = 1;
     if ( bsdfIsTextured(material->bsdf) ) {
         if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
@@ -706,7 +718,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        unsigned *xi = Nied31(i);
+        const unsigned *xi = Nied31(i);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
@@ -730,7 +742,7 @@ Patch::averageEmittance(char components) {
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        unsigned *xi = Nied31(i);
+        const unsigned *xi = Nied31(i);
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
@@ -776,7 +788,7 @@ Computes interpolated (= shading) normal at the point with given parameters
 on the patch
 */
 Vector3D
-Patch::interpolatedNormalAtUv(double u, double v) {
+Patch::interpolatedNormalAtUv(double u, double v) const {
     if ( !allVerticesHaveANormal() ) {
         return normal;
     }
@@ -794,7 +806,7 @@ the dominant axis (patch->index)
 */
 void
 Patch::interpolatedFrameAtUv(
-    double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+    double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const {
     *Z = interpolatedNormalAtUv(u, v);
 
     if ( X && Y ) {
@@ -814,11 +826,11 @@ Returns texture coordinates determined from vertex texture coordinates and
 given u and v bi-linear of barycentric coordinates on the patch
 */
 Vector3D
-Patch::textureCoordAtUv(double u, double v) {
-    Vector3D *t0;
-    Vector3D *t1;
-    Vector3D *t2;
-    Vector3D *t3;
+Patch::textureCoordAtUv(const double u, const double v) const {
+    const Vector3D *t0;
+    const Vector3D *t1;
+    const Vector3D *t2;
+    const Vector3D *t3;
     Vector3D texCoord;
     texCoord.set(0.0, 0.0, 0.0);
 
@@ -859,7 +871,7 @@ considered and are described in ray.h.
 */
 RayHit *
 Patch::intersect(
-    Ray *ray,
+    const Ray *ray,
     float minimumDistance,
     float *maximumDistance,
     int hitFlags,
@@ -909,11 +921,9 @@ Patch::intersect(
         hit.material = material;
         hit.geometricNormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
-        if ( hitFlags & HIT_UV ) {
-            if ( !(hit.flags & HIT_UV) ) {
-                hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);
-                hit.flags &= HIT_UV;
-            }
+        if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
+            hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);
+            hit.flags &= HIT_UV;
         }
         *hitStore = hit;
         *maximumDistance = dist;
@@ -980,16 +990,15 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
         return nullptr;
     }
 
-    Vector3D *v1 = vertex[0]->point;
-    Vector3D *v2 = vertex[1]->point;
-    Vector3D *v3 = vertex[2]->point;
-    Vector3D *v4;
+    const Vector3D *v1 = vertex[0]->point;
+    const Vector3D *v2 = vertex[1]->point;
+    const Vector3D *v3 = vertex[2]->point;
+    const Vector3D *v4;
 
     if ( numberOfVertices == 3 ) {
         if ( u + v > 1.0 ) {
             u = 1.0 - u;
             v = 1.0 - v;
-            // Warning("patchPoint", "(u,v) outside unit triangle");
         }
         vectorPointInTriangle(*v1, *v2, *v3, (float) u, (float) v, *point);
     } else if ( numberOfVertices == 4 ) {
@@ -1025,7 +1034,7 @@ WARNING: The (u,v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
 int
-Patch::uv(Vector3D *point, double *u, double *v) {
+Patch::uv(const Vector3D *point, double *u, double *v) {
     Vector2Dd uv;
     bool inside = false;
 
@@ -1050,7 +1059,7 @@ Patch::uv(Vector3D *point, double *u, double *v) {
 Like above, but returns uniform coordinates (inverse of uniformPoint())
 */
 int
-Patch::uniformUv(Vector3D *point, double *u, double *v) {
+Patch::uniformUv(const Vector3D *point, double *u, double *v) {
     int inside = uv(point, u, v);
     if ( jacobian != nullptr ) {
         biLinearToUniform(u, v);
@@ -1062,7 +1071,7 @@ Patch::uniformUv(Vector3D *point, double *u, double *v) {
 Computes a vertex color for the vertices of the patch
 */
 void
-Patch::computeVertexColors() {
+Patch::computeVertexColors() /* Note: this is not const, internal data changes */ {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         vertex[i]->computeColor();
     }
@@ -1074,12 +1083,12 @@ if P is coplanar with or behind Q. It suffices to test the vertices of P
 with respect to the plane of Q
 */
 bool
-Patch::isAtLeastPartlyInFront(Patch *other) {
+Patch::isAtLeastPartlyInFront(const Patch *other) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        Vector3D *vp = vertex[i]->point;
+        const Vector3D *vp = vertex[i]->point;
         double ep = vectorDotProduct(other->normal, *vp) + other->planeConstant;
-        double tolerance = other->tolerance + vectorTolerance(*vp);
-        if ( ep > tolerance ) {
+        double localTolerance = other->tolerance + vectorTolerance(*vp);
+        if ( ep > localTolerance ) {
             // P is at least partly in front of Q
             return true;
         }
@@ -1092,6 +1101,6 @@ Returns true if the two patches can "see" each other: P and Q see each
 other if at least a part of P is in front of Q and vice versa
 */
 bool
-Patch::facing(Patch *other) {
+Patch::facing(const Patch *other) const {
     return isAtLeastPartlyInFront(other) && other->isAtLeastPartlyInFront(this);
 }

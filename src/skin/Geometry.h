@@ -46,12 +46,12 @@ class Geometry {
 
     bool
     discretizationIntersectPreTest(
-        Ray *ray,
+        const Ray *ray,
         float minimumDistance,
         const float *maximumDistance
     ) const;
 
-  public:
+  //public:
     int id; // Unique ID number
     BoundingBox boundingBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
@@ -84,25 +84,25 @@ class Geometry {
 
     static RayHit *
     patchListIntersect(
-        java::ArrayList<Patch *> *patchList,
-        Ray *ray,
+        const java::ArrayList<Patch *> *patchList,
+        const Ray *ray,
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore);
 
-    bool isExcluded();
+    bool isExcluded() const;
 };
 
-extern Geometry *geomCreatePatchSet(java::ArrayList<Patch *> *patchList);
+extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
 
 extern BoundingBox &getBoundingBox(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
-extern java::ArrayList<Geometry *> *geomPrimListCopy(Geometry *geometry);
+extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern Geometry *geomDuplicateIfPatchSet(Geometry *geometry);
-extern void geometryListBounds(java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
+extern void geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
 extern RayHit *
 geometryListDiscretizationIntersect(

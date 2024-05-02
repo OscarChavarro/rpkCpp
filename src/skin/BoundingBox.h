@@ -36,7 +36,7 @@ class BoundingBox {
     True if the two given bounding boxes are disjoint
     */
     inline bool
-    disjointToOtherBoundingBox(const BoundingBox *other) {
+    disjointToOtherBoundingBox(const BoundingBox *other) const {
         return
             (coordinates[MIN_X] > other->coordinates[MAX_X]) || (other->coordinates[MIN_X] > coordinates[MAX_X]) ||
             (coordinates[MIN_Y] > other->coordinates[MAX_Y]) || (other->coordinates[MIN_Y] > coordinates[MAX_Y]) ||

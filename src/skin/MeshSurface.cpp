@@ -100,8 +100,8 @@ MeshSurface::MeshSurface(
     Material *material,
     java::ArrayList<Vector3D *> *points,
     java::ArrayList<Vector3D *> *normals,
-    java::ArrayList<Vector3D *> * /*texCoords*/,
-    java::ArrayList<Vertex *> *vertices,
+    const java::ArrayList<Vector3D *> * /*texCoords*/,
+    java::ArrayList<Vertex *> *inVertices,
     java::ArrayList<Patch *> *faces,
     enum MaterialColorFlags flags)
 {
@@ -116,17 +116,17 @@ MeshSurface::MeshSurface(
     this->material = material;
     this->positions = points;
     this->normals = normals;
-    this->vertices = vertices;
+    this->vertices = inVertices;
     this->faces = faces;
     this->className = GeometryClassId::SURFACE_MESH;
 
     globalColorFlags = flags;
 
-    // If globalColorFlags == VERTEX_COLORS< the vertices are assumed to contain
+    // If globalColorFlags == VERTEX_COLORS< the inVertices are assumed to contain
     // the sum of the colors as used in each patch sharing the vertex
     if ( globalColorFlags == VERTEX_COLORS ) {
-        for ( int i = 0; this->vertices != nullptr && i < this->vertices->size(); i++ ) {
-            normalizeVertexColor(this->vertices->get(i));
+        for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
+            normalizeVertexColor(vertices->get(i));
         }
     }
 
@@ -137,7 +137,7 @@ MeshSurface::MeshSurface(
 
     // Compute vertex colors
     if ( globalColorFlags != VERTEX_COLORS ) {
-        for ( int i = 0; this->vertices != nullptr && i < this->vertices->size(); i++ ) {
+        for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
             vertices->get(i)->computeColor();
         }
     }

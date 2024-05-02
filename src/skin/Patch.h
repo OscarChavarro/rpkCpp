@@ -21,26 +21,30 @@ class Patch {
 
     static double
     clipToUnitInterval(double x) {
-        return x < EPSILON ? EPSILON : (x > (1.0 - EPSILON) ? 1.0 - EPSILON : x);
+        if ( x < EPSILON ) {
+            return EPSILON;
+        } else {
+            return x > (1.0 - EPSILON) ? 1.0 - EPSILON : x;
+        }
     }
 
     static int solveQuadraticUnitInterval(double A, double B, double C, double *x);
-    static int quadUv(Patch *patch, Vector3D *point, Vector2Dd *uv);
+    static int quadUv(Patch *patch, const Vector3D *point, Vector2Dd *uv);
 
     void uniformToBiLinear(double *u, double *v) const;
-    Vector3D interpolatedNormalAtUv(double u, double v);
-    int getNumberOfSamples();
-    bool isExcluded();
+    Vector3D interpolatedNormalAtUv(double u, double v) const;
+    int getNumberOfSamples() const;
+    bool isExcluded() const;
     bool hitInPatch(RayHit *hit, Patch *patch);
-    bool allVerticesHaveANormal();
-    Vector3D getInterpolatedNormalAtUv(double u, double v);
+    bool allVerticesHaveANormal() const;
+    Vector3D getInterpolatedNormalAtUv(double u, double v) const;
     void patchConnectVertex(Vertex *paramVertex);
     void patchConnectVertices();
     float randomWalkRadiosityPatchArea();
     Vector3D *computeMidpoint(Vector3D *p);
-    float computeTolerance();
-    bool triangleUv(Vector3D *point, Vector2Dd *uv);
-    bool isAtLeastPartlyInFront(Patch *other);
+    float computeTolerance() const;
+    bool triangleUv(const Vector3D *point, Vector2Dd *uv);
+    bool isAtLeastPartlyInFront(const Patch *other) const;
 
   public:
     unsigned id; // Identification number for debugging, ID rendering
@@ -92,18 +96,18 @@ class Patch {
     int hasZeroVertices() const;
     void computeBoundingBox();
     void getBoundingBox(BoundingBox *bounds);
-    RayHit *intersect(Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
+    RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
-    int uv(Vector3D *point, double *u, double *v);
-    int uniformUv(Vector3D *point, double *u, double *v);
+    int uv(const Vector3D *point, double *u, double *v);
+    int uniformUv(const Vector3D *point, double *u, double *v);
     void biLinearToUniform(double *u, double *v) const;
-    void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z);
-    Vector3D textureCoordAtUv(double u, double v);
+    void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const;
+    Vector3D textureCoordAtUv(double u, double v) const;
     ColorRgb averageNormalAlbedo(BSDF_FLAGS components);
     ColorRgb averageEmittance(char components);
     void computeVertexColors();
-    bool facing(Patch *other);
+    bool facing(const Patch *other) const;
 };
 
 #endif

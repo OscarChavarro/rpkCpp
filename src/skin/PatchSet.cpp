@@ -1,21 +1,14 @@
 #include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 
-PatchSet::PatchSet(java::ArrayList<Patch *> *input): Geometry(nullptr, nullptr, GeometryClassId::PATCH_SET) {
+PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(nullptr, nullptr, GeometryClassId::PATCH_SET) {
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
     }
-    //patchSetData = this;
-    //patchListBounds(patchList, &this->boundingBox);
-    //boundingBox.enlargeTinyBit();
-    //bounded = true;
 }
 
 PatchSet::~PatchSet() {
-    for ( int i = 0; i < patchList->size(); i++ ) {
-        //delete patchList->get(i);
-    }
     delete patchList;
     patchList = nullptr;
 }
@@ -25,7 +18,7 @@ Computes a bounding box for the given list of patches. The bounding box is
 filled in 'bounding box' and a pointer to it returned
 */
 BoundingBox *
-patchListBounds(java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
+patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
     BoundingBox currentPatchBoundingBox;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
