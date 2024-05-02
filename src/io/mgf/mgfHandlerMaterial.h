@@ -6,7 +6,7 @@
 
 extern int handleMaterialEntity(int ac, char **av, MgfContext * /*context*/);
 extern void initMaterialContextTables(MgfContext *context);
-extern int mgfMaterialChanged(Material *material, MgfContext *context);
+extern int mgfMaterialChanged(const Material *material, const MgfContext *context);
 extern int mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *context);
 
 #endif

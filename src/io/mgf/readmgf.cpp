@@ -262,7 +262,7 @@ static int
 handleIncludedFile(int ac, char **av, MgfContext *context) {
     char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext readerContext{};
-    MgfTransformContext *originTransform = context->transformContext;
+    const MgfTransformContext *originTransform = context->transformContext;
 
     if ( ac < 2 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -555,7 +555,7 @@ mgfFreeMemory(MgfContext *context) {
     long innerCompoundChildren = 0;
     long unknowns = 0;
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-        Geometry *geometry = context->currentGeometryList->get(i);
+        const Geometry *geometry = context->currentGeometryList->get(i);
         if ( geometry->className == SURFACE_MESH ) {
             surfaces++;
         } else if ( geometry->className == PATCH_SET ) {

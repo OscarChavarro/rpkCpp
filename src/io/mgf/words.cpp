@@ -68,9 +68,7 @@ Check integer format
 int
 isIntWords(char *s)
 {
-    char *cp;
-
-    cp = isSkipWords(s);
+    const char *cp = isSkipWords(s);
     return cp != nullptr && *cp == '\0';
 }
 
@@ -80,9 +78,7 @@ Check integer format with delimiter set
 int
 isIntDWords(char *s, char *ds)
 {
-    char *cp;
-
-    cp = isSkipWords(s);
+    const char *cp = isSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;
 }
 
@@ -92,9 +88,7 @@ Check float format
 int
 isFloatWords(char *s)
 {
-    char *cp;
-
-    cp = fileSkipWords(s);
+    const char *cp = fileSkipWords(s);
     return cp != nullptr && *cp == '\0';
 }
 
@@ -104,9 +98,7 @@ Check integer format with delimiter set
 int
 isFloatDWords(char *s, char *ds)
 {
-    char *cp;
-
-    cp = fileSkipWords(s);
+    const char *cp = fileSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;
 }
 

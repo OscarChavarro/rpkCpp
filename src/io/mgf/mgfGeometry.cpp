@@ -93,7 +93,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
     char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_tv2", (char *)"="};
     char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2[0], p2[1], p2[2]};
     char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
-    MgfVertexContext *cv;
+    const MgfVertexContext *cv;
     int i;
     int rVal;
     double minRad;
@@ -236,7 +236,7 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
     char *v4Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv4", (char *)"="};
     char *p4Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
     char *faceEntity[6] = {context->entityNames[MGF_ENTITY_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
-    MgfVertexContext *vertexContext;
+    const MgfVertexContext *vertexContext;
     double minRad;
     double maxRad;
     int rv;
@@ -795,8 +795,7 @@ mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context) {
             if ( !lastP ) {
                 lastP = i - 1;
             }
-            for ( j = i + 1; j < ac - 1 && av[j + 1][0] != '-'; j++ ) {
-            }
+            for ( j = i + 1; j < ac - 1 && av[j + 1][0] != '-'; j++ );
             if ( j - i < 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }

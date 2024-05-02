@@ -165,11 +165,10 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector3D prev;
     Vector3D cur;
     Vector3D n;
-    int i;
 
     n.set(0, 0, 0);
     vectorSubtract(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
-    for ( i = 0; i < numberOfVertices; i++ ) {
+    for ( int i = 0; i < numberOfVertices; i++ ) {
         prev = cur;
         vectorSubtract(*(v[i]->point), *(v[0]->point), cur);
         n.x += (prev.y - cur.y) * (prev.z + cur.z);
@@ -194,7 +193,7 @@ onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
 static int
-faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
+faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
     Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
     Vector2D p;
     Vector2D c;
@@ -230,7 +229,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, Vector3D *normal) {
 Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
 static int
-pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
+pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
     double u0;
     double v0;
     double u1;
@@ -278,7 +277,7 @@ pointInsideTriangle2D(Vector2D *p, Vector2D *p1, Vector2D *p2, Vector2D *p3) {
 Returns true if the 2D segments p1-p2 and p3-p4 intersect
 */
 static int
-segmentsIntersect2D(Vector2D *p1, Vector2D *p2, Vector2D *p3, Vector2D *p4) {
+segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4) {
     double a;
     double b;
     double c;
@@ -495,14 +494,12 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         return MGF_OK; // No reason to stop parsing the input
     }
 
-    if ( !context->inComplex ) {
-        if ( mgfMaterialChanged(context->currentMaterial, context) ) {
-            if ( context->inSurface ) {
-                mgfObjectSurfaceDone(context);
-            }
-            mgfObjectNewSurface(context);
-            mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
+    if ( !context->inComplex && mgfMaterialChanged(context->currentMaterial, context) ) {
+        if ( context->inSurface ) {
+            mgfObjectSurfaceDone(context);
         }
+        mgfObjectNewSurface(context);
+        mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
     }
 
     for ( int i = 0; i < argc - 1; i++ ) {
@@ -589,9 +586,9 @@ without hole entity handling routine handleFaceEntity() and calls it
 int
 handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
     VECTOR3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
-    char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1], // Arguments to be passed to the face
+    char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
                                             // without hole entity handler
-    copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
+    char copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
                                        // the vertex argv[i] has been copied to new contour
     int newContour[MAXIMUM_FACE_VERTICES]; // newContour[i] will contain the i-th
                                            // vertex of the face with eliminated holes
@@ -677,13 +674,11 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
         }
 
         // Find first vertex of this nearest contour
-        for ( first = nearestOther; *argv[first] != '-'; first-- ) {
-        }
+        for ( first = nearestOther; *argv[first] != '-'; first-- );
         first++;
 
         // Find last vertex in this nearest contour
-        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ ) {
-        }
+        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ );
         last--;
 
         // Number of vertices in the nearest contour
@@ -836,6 +831,8 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             normalize(globalMgfCurrentVertex->n);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
+        default:
+            break;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
 }

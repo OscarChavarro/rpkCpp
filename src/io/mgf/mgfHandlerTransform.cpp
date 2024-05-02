@@ -66,17 +66,15 @@ transformName(MgfTransformArray *ap, MgfContext *context) {
     static char *oav[3] = {
             context->entityNames[MGF_ENTITY_OBJECT], oName
     };
-    int i;
     char *cp1;
-    char *cp2;
 
     if ( ap == nullptr ) {
         return mgfHandle(MGF_ENTITY_OBJECT, 1, oav, context);
     }
     cp1 = oName;
     *cp1 = 'a';
-    for ( i = 0; i < ap->numberOfDimensions; i++ ) {
-        for ( cp2 = ap->transformArguments[i].arg; *cp2; ) {
+    for ( int i = 0; i < ap->numberOfDimensions; i++ ) {
+        for ( char *cp2 = ap->transformArguments[i].arg; *cp2; ) {
             *++cp1 = *cp2++;
         }
         *++cp1 = '.';
@@ -177,7 +175,7 @@ mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context) {
 Transform a vector using current matrix
 */
 void
-mgfTransformVector(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context) {
+mgfTransformVector(VECTOR3Dd v1, const VECTOR3Dd v2, MgfContext *context) {
     if ( context->transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;

@@ -41,7 +41,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 static Material *
-materialLookup(char *name, MgfContext *context) {
+materialLookup(const char *name, const MgfContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->name != nullptr && strcmp(m->name, name) == 0 ) {
@@ -92,7 +92,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
 }
 
 static void
-specSamples(ColorRgb &col, float *rgb) {
+specSamples(const ColorRgb &col, float *rgb) {
     rgb[0] = col.r;
     rgb[1] = col.g;
     rgb[2] = col.b;
@@ -103,13 +103,13 @@ colorMax(ColorRgb col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
-    float samples[NUMBER_OF_SAMPLES], mx;
-    int i;
+    float samples[NUMBER_OF_SAMPLES];
+    float mx;
 
     specSamples(col, samples);
 
-    mx = -HUGE;
-    for ( i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
+    mx = -HUGE_FLOAT;
+    for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
         }
@@ -258,8 +258,8 @@ initMaterialContextTables(MgfContext *context) {
 This routine returns true if the current material has changed
 */
 int
-mgfMaterialChanged(Material *material, MgfContext *context) {
-    char *materialName = context->currentMaterialName;
+mgfMaterialChanged(const Material *material, const MgfContext *context) {
+    const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = (char *)"unnamed";
     }

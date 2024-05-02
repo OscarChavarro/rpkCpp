@@ -157,6 +157,8 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             }
             context->currentColor->clock++;
             return MGF_OK;
+        default:
+            break;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
 }
