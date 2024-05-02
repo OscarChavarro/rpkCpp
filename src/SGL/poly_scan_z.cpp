@@ -13,7 +13,7 @@ Paul Heckbert 1985, Dec 1989
 #include "SGL/sgl.h"
 
 /**
-incrementalizeY: put intersection of line Y=y+.5 with edge between positions
+incrementalizeY: put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
 static void
@@ -114,8 +114,8 @@ int x, y;
 Poly_vert *point;
 
 All the fields of point indicated by p->mask will be valid inside pixel proc
-except sx and sy.  If they were computed, they would have values
-sx=x+.5 and sy=y+.5, since sampling is done at pixel centers.
+except sx and sy. If they were computed, they would have values
+sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
 */
 void
 polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
