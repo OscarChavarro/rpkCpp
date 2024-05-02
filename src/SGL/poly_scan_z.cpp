@@ -121,21 +121,9 @@ void
 polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
 {
     int i;
-    int li;
-    int ri;
-    int y;
-    int ly;
-    int ry;
-    int top;
-    int rem;
-    double yMin;
-    PolygonVertex l{};
-    PolygonVertex r{};
-    PolygonVertex dl{};
-    PolygonVertex dr{};
 
-    yMin = HUGE;
-    top = -1;
+    double yMin = HUGE;
+    int top = -1;
     for ( i = 0; i < p->n; i++ ) {
         // Find top vertex (y positions down)
         if ( p->vertices[i].sy < yMin ) {
@@ -144,10 +132,17 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
         }
     }
 
-    li = ri = top; // Left and right vertex indices
-    rem = p->n; // Number of vertices remaining
-    y = (int)std::ceil(yMin - 0.5); // Current scan line
-    ly = ry = y - 1; // Lower end of left & right edges
+    int li = top; // Left and right vertex indices
+    int ri = top;
+    int rem = p->n; // Number of vertices remaining
+    int y = (int)std::ceil(yMin - 0.5); // Current scan line
+    int ly = y - 1; // Lower end of left & right edges
+    int ry = y - 1;
+
+    PolygonVertex l{};
+    PolygonVertex r{};
+    PolygonVertex dl{};
+    PolygonVertex dr{};
 
     while ( rem > 0 ) {
         // Scan in y, activating new edges on left & right
@@ -171,7 +166,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = (int)std::floor(p->vertices[i].sy + .5);
+            ry = (int)std::floor(p->vertices[i].sy + 0.5);
             ri = i;
         }
 

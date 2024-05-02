@@ -56,8 +56,8 @@ public:
     void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
     void sglDepthTesting(SGL_BOOLEAN on);
     void sglClipping(SGL_BOOLEAN on);
-    void sglLoadMatrix(const Matrix4x4 *xf);
-    void sglMultiplyMatrix(const Matrix4x4 *xf);
+    void sglLoadMatrix(const Matrix4x4 *xf) const;
+    void sglMultiplyMatrix(const Matrix4x4 *xf) const;
     void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(Patch *col);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);

@@ -1071,7 +1071,7 @@ Patch::uniformUv(const Vector3D *point, double *u, double *v) {
 Computes a vertex color for the vertices of the patch
 */
 void
-Patch::computeVertexColors() /* Note: this is not const, internal data changes */ {
+Patch::computeVertexColors() const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         vertex[i]->computeColor();
     }

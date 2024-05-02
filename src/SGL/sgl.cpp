@@ -12,6 +12,7 @@ of patches needs to be ID rendered very often
 // Used superficially by POLY_MASK macro
 PolygonVertex *GLOBAL_sgl_polyDummy;
 
+// Note this can change between drawing the main frame buffer, drawing Z-based form factors, etc.
 SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
 static Matrix4x4 globalIdentityMatrix = {
@@ -160,12 +161,12 @@ SGL_CONTEXT::sglClipping(SGL_BOOLEAN on) {
 }
 
 void
-SGL_CONTEXT::sglLoadMatrix(const Matrix4x4 *xf) {
+SGL_CONTEXT::sglLoadMatrix(const Matrix4x4 *xf) const {
     *currentTransform = *xf;
 }
 
 void
-SGL_CONTEXT::sglMultiplyMatrix(const Matrix4x4 *xf) {
+SGL_CONTEXT::sglMultiplyMatrix(const Matrix4x4 *xf) const {
     *currentTransform = transComposeMatrix(currentTransform, xf);
 }
 
@@ -240,11 +241,10 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     win.x1 = vp_x + vp_width - 1;
     win.y1 = vp_y + vp_height - 1;
 
-    // Scan convert the polygon: use optimized version for flat shading
-    // with or without Z buffering
-    if ( !depthBuffer ) {
-        polyScanFlat(this, &pol, &win);
-    } else {
+    // Scan convert the polygon: use optimized version for flat shading with or without Z buffering
+    if ( depthBuffer != nullptr ) {
         polyScanZ(this, &pol, &win);
+    } else {
+        polyScanFlat(this, &pol, &win);
     }
 }

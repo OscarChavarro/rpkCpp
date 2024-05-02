@@ -22,7 +22,6 @@ class PolygonVertex {
     double z;
     double u; // Texture position (sometimes homogeneous)
     double v;
-    //double q;
     double r; // (red,green,blue) color
     double g;
     double b;
@@ -111,7 +110,6 @@ class Window {
 extern PolygonVertex *GLOBAL_sgl_polyDummy;
 
 int polyClipToBox(Polygon *p1, const PolygonBox *box);
-void polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k);
 void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win);
 void polyScanZ(SGL_CONTEXT *sglContext, Polygon *p, const Window *window);
 

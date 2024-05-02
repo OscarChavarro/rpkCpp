@@ -106,7 +106,7 @@ class Patch {
     Vector3D textureCoordAtUv(double u, double v) const;
     ColorRgb averageNormalAlbedo(BSDF_FLAGS components);
     ColorRgb averageEmittance(char components);
-    void computeVertexColors();
+    void computeVertexColors() const;
     bool facing(const Patch *other) const;
 };
 
