@@ -6,7 +6,6 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "material/statistics.h"
 #include "render/potential.h"
 #include "render/opengl.h"
-#include "render/ScreenBuffer.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
