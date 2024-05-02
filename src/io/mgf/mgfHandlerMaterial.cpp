@@ -146,11 +146,9 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     }
 
     Material *storedMaterial = materialLookup(materialName, context);
-    if ( storedMaterial != nullptr ) {
-        if ( globalMgfCurrentMaterial->clock == 0 ) {
-            (*material) = storedMaterial;
-            return true;
-        }
+    if ( storedMaterial != nullptr && globalMgfCurrentMaterial->clock == 0 ) {
+        *material = storedMaterial;
+        return true;
     }
 
     // New material, or a material that changed. Convert intensities and chromaticities
@@ -467,6 +465,9 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
                 }
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
+
+        default:
+            break;
     }
     return MGF_ERROR_UNKNOWN_ENTITY;
 }

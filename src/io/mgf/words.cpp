@@ -106,7 +106,7 @@ isFloatDWords(char *s, char *ds)
 Check for legal identifier name
 */
 int
-isNameWords(char *s)
+isNameWords(const char *s)
 {
     while ( *s == '_' ) {
         // skip leading underscores
