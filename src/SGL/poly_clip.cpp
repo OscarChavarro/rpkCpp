@@ -11,19 +11,11 @@ Homogeneous 3-D convex polygon clipper Paul Heckbert 1985, Dec 1989
 
 #include "SGL/poly.h"
 
-#define SWAP(a, b, temp) { \
-    (temp) = (a); \
-    (a) = (b); \
-    (b) = temp; \
-}
-
-#define CLIP_AND_SWAP(elem, sign, k, p, q, r) { \
-    polyClipToHalfSpace((p), (q), &v->elem-(double *)v, (sign), (sign) * (k)); \
-    if ( (q)->n == 0) { \
-        p1->n = 0; \
-        return POLY_CLIP_OUT; \
-    } \
-    SWAP((p), (q), (r)); \
+static inline void
+polygonSwap(Polygon *a, Polygon *b) {
+    Polygon temporary = *a;
+    *a = *b;
+    *b = temporary;
 }
 
 /**
@@ -80,6 +72,15 @@ polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     }
 }
 
+static inline void
+polygonClipAndSwap(int elementIndex, double sign, double k, Polygon *p, Polygon *q, Polygon *p1) {
+    polyClipToHalfSpace(p, q, elementIndex, sign, sign * k);
+    if ( q->n == 0 ) {
+        p1->n = 0;
+    }
+    polygonSwap(p, q);
+}
+
 /**
 Clip the convex polygon p1 to the screen space box
 using the homogeneous screen coordinates (sx, sy, sz, sw) of each vertex,
@@ -102,11 +103,10 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     int z0out = 0;
     int z1out = 0;
     int i;
-    PolygonVertex *v;
+    const PolygonVertex *v;
     Polygon p2{};
     Polygon *p;
     Polygon *q;
-    Polygon *r;
 
     if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
         fprintf(stderr, "polyClipToBox: too many vertices: %d (max=%d-6)\n",
@@ -159,22 +159,22 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     p = p1;
     q = &p2;
     if ( x0out ) {
-        CLIP_AND_SWAP(sx, -1.0, box->x0, p, q, r)
+        polygonClipAndSwap(0 /*sx*/, -1.0, box->x0, p, q, p1);
     }
     if ( x1out ) {
-        CLIP_AND_SWAP(sx, 1.0, box->x1, p, q, r)
+        polygonClipAndSwap(0 /*sx*/, 1.0, box->x1, p, q, p1);
     }
     if ( y0out ) {
-        CLIP_AND_SWAP(sy, -1.0, box->y0, p, q, r)
+        polygonClipAndSwap(1 /*sy*/, -1.0, box->y0, p, q, p1);
     }
     if ( y1out ) {
-        CLIP_AND_SWAP(sy, 1.0, box->y1, p, q, r)
+        polygonClipAndSwap(1 /*sy*/, 1.0, box->y1, p, q, p1);
     }
     if ( z0out ) {
-        CLIP_AND_SWAP(sz, -1.0, box->z0, p, q, r)
+        polygonClipAndSwap(2 /*sz*/, -1.0, box->z0, p, q, p1);
     }
     if ( z1out ) {
-        CLIP_AND_SWAP(sz, 1.0, box->z1, p, q, r)
+        polygonClipAndSwap(2 /*sz*/, 1.0, box->z1, p, q, p1);
     }
 
     // If result ended up in p2 then copy it to p1
