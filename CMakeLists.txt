@@ -110,6 +110,7 @@ set(MAIN_SRC
     src/GALERKIN/basistrigalerkin.cpp
     src/GALERKIN/Interaction.cpp
     src/GALERKIN/basisquadgalerkin.cpp
+    src/GALERKIN/ShadowCache.cpp
     src/GALERKIN/processing/ScratchVisibilityStrategy.cpp
     src/GALERKIN/processing/ClusterTraversalStrategy.cpp
     src/GALERKIN/processing/ClusterCreationStrategy.cpp

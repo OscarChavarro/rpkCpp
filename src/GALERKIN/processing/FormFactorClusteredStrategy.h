@@ -15,6 +15,7 @@ class FormFactorClusteredStrategy {
     static double
     geomListMultiResolutionVisibility(
         const java::ArrayList<Geometry *> *geometryOccluderList,
+        ShadowCache *shadowCache,
         Ray *ray,
         float rcvDist,
         float srcSize,
@@ -22,6 +23,7 @@ class FormFactorClusteredStrategy {
 
     static double
     geometryMultiResolutionVisibility(
+        ShadowCache *shadowCache,
         Geometry *geometry,
         Ray *ray,
         float rcvDist,

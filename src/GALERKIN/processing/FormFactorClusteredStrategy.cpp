@@ -1,7 +1,7 @@
 #include "common/error.h"
 #include "common/mymath.h"
 #include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/processing/FormFactorStrategy.h"
+#include "GALERKIN/ShadowCache.h"
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
 
 /**
@@ -68,6 +68,7 @@ lead to this conclusion is added to the shadow cache
 double
 FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
     const java::ArrayList<Geometry *> *geometryOccluderList,
+    ShadowCache *shadowCache,
     Ray *ray,
     float rcvDist,
     float srcSize,
@@ -77,7 +78,7 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
 
     for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
         double v = FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
-            geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
+            shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
         if ( v < EPSILON ) {
             return 0.0;
         } else {
@@ -90,6 +91,7 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
 
 double
 FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
+    ShadowCache *shadowCache,
     Geometry *geometry,
     Ray *ray,
     float rcvDist,
@@ -133,8 +135,8 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         double kappa = 0.0;
         double vol;
         vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + EPSILON)
-                * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON)
-                * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
+            * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON)
+            * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
@@ -143,7 +145,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         if ( geometry->isCompound() ) {
             java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
             double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-                geometryList, ray, rcvDist, srcSize, minimumFeatureSize);
+                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize);
             delete geometryList;
             return visibility;
         } else {
@@ -153,7 +155,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
                     ray,
                     rcvDist * ((float)EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {
-                FormFactorStrategy::addToShadowCache(hit->patch);
+                shadowCache->addToShadowCache(hit->patch);
                 return 0.0;
             } else {
                 return 1.0;

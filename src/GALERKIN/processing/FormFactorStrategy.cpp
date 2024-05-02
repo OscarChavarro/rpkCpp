@@ -2,6 +2,7 @@
 #include "common/mymath.h"
 #include "material/statistics.h"
 #include "GALERKIN/basisgalerkin.h"
+#include "GALERKIN/ShadowCache.h"
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"
 
@@ -14,50 +15,6 @@ References:
   with Scattering Volumes and Object Clusters", IEEE TVCG Vol 1 Nr 3, September 1995
 */
 
-Patch * FormFactorStrategy::patchCache[MAX_CACHE];
-int FormFactorStrategy::cachedPatches;
-int FormFactorStrategy::numberOfCachedPatches;
-
-/**
-Initialize/empty the shadow cache
-*/
-void
-FormFactorStrategy::initShadowCache() {
-    FormFactorStrategy::numberOfCachedPatches = 0;
-    FormFactorStrategy::cachedPatches = 0;
-    for ( int i = 0; i < MAX_CACHE; i++ ) {
-        FormFactorStrategy::patchCache[i] = nullptr;
-    }
-}
-
-/**
-Test ray against patches in the shadow cache. Returns nullptr if the ray hits
-no patches in the shadow cache, or a pointer to the first hit patch otherwise
-*/
-RayHit *
-FormFactorStrategy::cacheHit(const Ray *ray, float *dist, RayHit *hitStore) {
-    for ( int i = 0; i < FormFactorStrategy::numberOfCachedPatches; i++ ) {
-        RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(
-            ray, EPSILON_FLOAT * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);
-        if ( hit != nullptr ) {
-            return hit;
-        }
-    }
-    return nullptr;
-}
-
-/**
-Replace least recently added patch
-*/
-void
-FormFactorStrategy::addToShadowCache(Patch *patch) {
-    FormFactorStrategy::patchCache[cachedPatches % MAX_CACHE] = patch;
-    FormFactorStrategy::cachedPatches++;
-    if ( FormFactorStrategy::numberOfCachedPatches < MAX_CACHE ) {
-        FormFactorStrategy::numberOfCachedPatches++;
-    }
-}
-
 /**
 Tests whether the ray intersects the a geometry in the geometrySceneList. Returns
 nullptr if the ray hits no geometries. Returns an arbitrary hit
@@ -69,13 +26,14 @@ FormFactorStrategy::shadowTestDiscretization(
     Ray *ray,
     const java::ArrayList<Geometry *> *geometrySceneList,
     const VoxelGrid *voxelGrid,
+    ShadowCache *shadowCache,
     float minimumDistance,
     RayHit *hitStore,
     bool isSceneGeometry,
     bool isClusteredGeometry)
 {
     GLOBAL_statistics.numberOfShadowRays++;
-    RayHit *hit = cacheHit(ray, &minimumDistance, hitStore);
+    RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore);
     if ( hit != nullptr ) {
         GLOBAL_statistics.numberOfShadowCacheHits++;
     } else {
@@ -95,8 +53,8 @@ FormFactorStrategy::shadowTestDiscretization(
                 HIT_FRONT | HIT_ANY,
                 hitStore);
         }
-        if ( hit ) {
-            addToShadowCache(hit->patch);
+        if ( hit != nullptr ) {
+            shadowCache->addToShadowCache(hit->patch);
         }
     }
 
@@ -178,6 +136,7 @@ as part of the kernel.
 */
 double
 FormFactorStrategy::evaluatePointsPairKernel(
+    ShadowCache *shadowCache,
     const VoxelGrid *sceneWorldVoxelGrid,
     const Vector3D *x,
     const Vector3D *y,
@@ -241,6 +200,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
                 &ray,
                 shadowGeometryList,
                 sceneWorldVoxelGrid,
+                shadowCache,
                 shortenedDistance,
                 &hitStore,
                 isSceneGeometry,
@@ -251,14 +211,14 @@ FormFactorStrategy::evaluatePointsPairKernel(
             // If intersection with occluders found, there is shadow, so no visibility
             visibilityFactor = 0.0;
         }
-    } else if ( cacheHit(&ray, &shortenedDistance, &hitStore) ) {
+    } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore) ) {
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
             * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-            shadowGeometryList, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
+            shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }
 
     return formFactorKernelTerm * visibilityFactor;
@@ -598,7 +558,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     if ( receiverElement != galerkinState->formFactorLastReceived
       || sourceElement != galerkinState->formFactorLastSource ) {
         // Use shadow caching for accelerating occlusion detection
-        initShadowCache();
+        ShadowCache shadowCache;
 
         // Mark the patches in order to avoid immediate self-intersections
         Patch::dontIntersect(4, receiverElement->isCluster() ? nullptr : receiverElement->patch,
@@ -613,6 +573,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         for ( int r = 0; receiveCubatureRule != nullptr && r < receiveCubatureRule->numberOfNodes; r++ ) {
             for ( int s = 0; sourceCubatureRule != nullptr && s < sourceCubatureRule->numberOfNodes; s++ ) {
                 Gxy[r][s] = evaluatePointsPairKernel(
+                    &shadowCache,
                     sceneWorldVoxelGrid,
                     &x[r],
                     &y[s],
