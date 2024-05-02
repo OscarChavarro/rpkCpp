@@ -60,75 +60,75 @@ Choice is arbitrary for the moment
 #define PHONG_LOWEST_SPECULAR_EXP 250
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
-extern PhongBidirectionalReflectanceDistributionFunction *phongBrdfCreate(ColorRgb *Kd, ColorRgb *Ks, double Ns);
-extern PhongBidirectionalTransmittanceDistributionFunction *phongBtdfCreate(ColorRgb *Kd, ColorRgb *Ks, float Ns, float nr, float ni);
-extern ColorRgb phongReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
+extern PhongBidirectionalReflectanceDistributionFunction *phongBrdfCreate(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
+extern PhongBidirectionalTransmittanceDistributionFunction *phongBtdfCreate(const ColorRgb *Kd, const ColorRgb *Ks, float Ns, float nr, float ni);
+extern ColorRgb phongReflectance(const PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
 
 extern ColorRgb
 phongBrdfEval(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags);
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    char flags);
 
 extern Vector3D
 phongBrdfSample(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *normal,
-        int doRussianRoulette,
-        char flags,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction);
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *normal,
+    int doRussianRoulette,
+    char flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction);
 
 extern void
 phongBrdfEvalPdf(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR);
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    char flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR);
 
-extern ColorRgb phongTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
-extern void phongIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
+extern ColorRgb phongTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
+extern void phongIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
 
 extern ColorRgb
 phongBtdfEval(
-        PhongBidirectionalTransmittanceDistributionFunction *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags);
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    char flags);
 
 extern Vector3D
 phongBtdfSample(
-        PhongBidirectionalTransmittanceDistributionFunction *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *normal,
-        int doRussianRoulette,
-        char flags,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction);
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    const Vector3D *in,
+    const Vector3D *normal,
+    int doRussianRoulette,
+    char flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction);
 
 extern void
 phongBtdfEvalPdf(
-        PhongBidirectionalTransmittanceDistributionFunction *btdf,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR);
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    char flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR);
 
 #endif

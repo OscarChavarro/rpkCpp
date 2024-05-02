@@ -28,7 +28,7 @@ complexToGeometricRefractionIndex(RefractionIndex nc) {
 Calculate the ideal reflected ray direction (independent of the brdf)
 */
 Vector3D
-idealReflectedDirection(Vector3D *in, Vector3D *normal) {
+idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
     double tmp;
     Vector3D result;
 
@@ -47,11 +47,11 @@ Cfr. An Introduction to Global_Raytracer_activeRaytracer (Glassner)
 */
 Vector3D
 idealRefractedDirection(
-        Vector3D *in,
-        Vector3D *normal,
-        RefractionIndex inIndex,
-        RefractionIndex outIndex,
-        int *totalInternalReflection)
+    const Vector3D *in,
+    const Vector3D *normal,
+    RefractionIndex inIndex,
+    RefractionIndex outIndex,
+    int *totalInternalReflection)
 {
     double Ci;
     double Ct;

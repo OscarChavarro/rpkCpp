@@ -9,7 +9,7 @@ Bidirectional Transmittance Distribution Functions
 Returns the transmittance of the BTDF
 */
 ColorRgb
-btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
+btdfTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     if ( btdf != nullptr ) {
         return phongTransmittance(btdf, flags);
     } else {
@@ -23,7 +23,7 @@ btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, cha
 Returns the index of refraction of the BTDF
 */
 void
-btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
+btdfIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
     if ( btdf != nullptr ) {
         phongIndexOfRefraction(btdf, index);
     } else {
@@ -34,12 +34,12 @@ btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf,
 
 ColorRgb
 btdfEval(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
     char flags)
 {
     if ( btdf != nullptr ) {
@@ -53,11 +53,11 @@ btdfEval(
 
 Vector3D
 btdfSample(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *normal,
     int doRussianRoulette,
     char flags,
     double x1,
@@ -76,13 +76,13 @@ btdfSample(
 
 void
 btdfEvalPdf(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    const char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {

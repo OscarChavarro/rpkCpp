@@ -31,36 +31,36 @@ class BSDF {
     virtual ~BSDF();
 };
 
-extern ColorRgb bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *dir, char flags);
+extern ColorRgb bsdfScatteredPower(const BSDF *bsdf, RayHit *hit, const Vector3D *inDir, char flags);
 
 /**
 Returns the reflectance of hte BSDF according to the flags
 */
 inline ColorRgb
-bsdfReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
+bsdfReflectance(const BSDF *bsdf, RayHit *hit, const Vector3D *dir, int xxflags) {
     return bsdfScatteredPower(bsdf, hit, dir, SET_BRDF_FLAGS(xxflags));
 }
 
 inline ColorRgb
-bsdfSpecularReflectance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
-    return bsdfReflectance((bsdf), hit, dir, SPECULAR_COMPONENT);
+bsdfSpecularReflectance(const BSDF *bsdf, RayHit *hit, const Vector3D *dir) {
+    return bsdfReflectance(bsdf, hit, dir, SPECULAR_COMPONENT);
 }
 
 /**
 Returns the transmittance of the BSDF
 */
 inline ColorRgb
-bsdfTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir, int xxflags) {
+bsdfTransmittance(const BSDF *bsdf, RayHit *hit, const Vector3D *dir, int xxflags) {
     return bsdfScatteredPower(bsdf, hit, dir, SET_BTDF_FLAGS(xxflags));
 }
 
 inline ColorRgb
-bsdfSpecularTransmittance(BSDF *bsdf, RayHit *hit, Vector3D *dir) {
-    return bsdfTransmittance((bsdf), hit, dir, SPECULAR_COMPONENT);
+bsdfSpecularTransmittance(const BSDF *bsdf, RayHit *hit, const Vector3D *dir) {
+    return bsdfTransmittance(bsdf, hit, dir, SPECULAR_COMPONENT);
 }
 
-extern void bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index);
-extern bool bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z);
+extern void bsdfIndexOfRefraction(const BSDF *bsdf, RefractionIndex *index);
+extern bool bsdfShadingFrame(const BSDF *bsdf, const RayHit *hit, const Vector3D *X, const Vector3D *Y, const Vector3D *Z);
 
 /**
 BSDF Evaluation functions
@@ -68,32 +68,32 @@ BSDF Evaluation functions
 
 extern ColorRgb
 bsdfEval(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags);
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags);
 
 extern ColorRgb
 bsdfEvalComponents(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags,
     ColorRgb *colArray);
 
 extern Vector3D
 bsdfSample(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
     int doRussianRoulette,
     BSDF_FLAGS flags,
     double x_1,
@@ -102,17 +102,17 @@ bsdfSample(
 
 extern void
 bsdfEvalPdf(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
     BSDF_FLAGS flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
 
-extern int bsdfIsTextured(BSDF *bsdf);
+extern int bsdfIsTextured(const BSDF *bsdf);
 
 #include "material/splitbsdf.h"
 

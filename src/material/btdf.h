@@ -7,14 +7,11 @@ Bidirectional Transmittance Distribution Functions
 
 #include "material/phong.h"
 
-extern PhongBidirectionalTransmittanceDistributionFunction *
-btdfCreate(PhongBidirectionalTransmittanceDistributionFunction *data);
-
 extern ColorRgb
-btdfTransmittance(PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
+btdfTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
 
 extern void
-btdfIndexOfRefraction(PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
+btdfIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
 
 /************* BTDF Evaluation functions ****************/
 
@@ -31,21 +28,21 @@ normal : leaving from patch, on the incoming side.
 
 extern ColorRgb
 btdfEval(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
     char flags);
 
 extern Vector3D
 btdfSample(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *normal,
     int doRussianRoulette,
     char flags,
     double x1,
@@ -54,12 +51,12 @@ btdfSample(
 
 extern void
 btdfEvalPdf(
-    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
     char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);

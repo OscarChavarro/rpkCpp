@@ -7,14 +7,20 @@ rgbSetMonochrome(ColorRgb rgb, float val) {
 }
 
 ColorRgb
-evalTextureColor(TEXTURE *texture, float u, float v) {
+evalTextureColor(const TEXTURE *texture, float u, float v) {
     ColorRgb rgb00{};
     ColorRgb rgb10{};
     ColorRgb rgb01{};
     ColorRgb rgb11{};
     ColorRgb rgb{};
-    unsigned char *pix00, *pix01, *pix10, *pix11;
-    double u1 = u - std::floor(u), u0 = 1. - u1, v1 = v - std::floor(v), v0 = 1. - v1;
+    const unsigned char *pix00;
+    const unsigned char *pix01;
+    const unsigned char *pix10;
+    const unsigned char *pix11;
+    double u1 = u - std::floor(u);
+    double u0 = 1.0 - u1;
+    double v1 = v - std::floor(v);
+    double v0 = 1.0 - v1;
     int i = (int)(u1 * texture->width);
     int i1 = i + 1;
     int j = (int)(v1 * texture->height);

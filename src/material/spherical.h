@@ -16,9 +16,9 @@ class CoordSys {
     Vector3D Z;
 };
 
-extern void vectorCoordSys(Vector3D *Z, CoordSys *coord);
-extern void vectorToSphericalCoord(Vector3D *C, CoordSys *coordSys, double *phi, double *theta);
-extern Vector3D sampleHemisphereCosTheta(CoordSys *coord, double xi_1, double xi_2, double *probabilityDensityFunction);
-extern Vector3D sampleHemisphereCosNTheta(CoordSys *coord, double n, double xi_1, double xi_2, double *probabilityDensityFunction);
+extern void vectorCoordSys(const Vector3D *Z, CoordSys *coord);
+extern void vectorToSphericalCoord(const Vector3D *C, const CoordSys *coordSys, double *phi, double *theta);
+extern Vector3D sampleHemisphereCosTheta(const CoordSys *coord, double xi_1, double xi_2, double *probabilityDensityFunction);
+extern Vector3D sampleHemisphereCosNTheta(const CoordSys *coord, double n, double xi_1, double xi_2, double *probabilityDensityFunction);
 
 #endif

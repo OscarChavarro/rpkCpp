@@ -62,12 +62,12 @@ class RefractionIndex {
 };
 
 extern float complexToGeometricRefractionIndex(RefractionIndex nc);
-extern Vector3D idealReflectedDirection(Vector3D *in, Vector3D *normal);
+extern Vector3D idealReflectedDirection(const Vector3D *in, const Vector3D *normal);
 
 extern Vector3D
 idealRefractedDirection(
-    Vector3D *in,
-    Vector3D *normal,
+    const Vector3D *in,
+    const Vector3D *normal,
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     int *totalInternalReflection);

@@ -10,7 +10,7 @@ Bidirectional Reflectance Distribution Functions
 Returns the diffuse reflectance of the BRDF according to the flags
 */
 ColorRgb
-brdfReflectance(PhongBidirectionalReflectanceDistributionFunction *brdf, char flags) {
+brdfReflectance(const PhongBidirectionalReflectanceDistributionFunction *brdf, const char flags) {
     if ( brdf != nullptr ) {
         ColorRgb test = phongReflectance(brdf, flags);
         if ( !std::isfinite(test.average()) ) {
@@ -29,11 +29,11 @@ Brdf evaluations
 */
 ColorRgb
 brdfEval(
-    PhongBidirectionalReflectanceDistributionFunction *brdf,
-    Vector3D *in,
-    Vector3D *out,
-    Vector3D *normal,
-    char flags)
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    const char flags)
 {
     if ( brdf != nullptr ) {
         return phongBrdfEval(brdf, in, out, normal, flags);
@@ -49,18 +49,17 @@ Sampling and Probability Density Function evaluation
 */
 Vector3D
 brdfSample(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *normal,
-        int doRussianRoulette,
-        char flags,
-        double x_1,
-        double x_2,
-        double *probabilityDensityFunction)
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *normal,
+    const int doRussianRoulette,
+    const char flags,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction)
 {
     if ( brdf != nullptr ) {
-        return phongBrdfSample(brdf, in, normal,
-                                     doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
+        return phongBrdfSample(brdf, in, normal, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
         *probabilityDensityFunction = 0;
@@ -70,13 +69,13 @@ brdfSample(
 
 void
 brdfEvalPdf(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        Vector3D *in,
-        Vector3D *out,
-        Vector3D *normal,
-        char flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR)
+    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const Vector3D *normal,
+    const char flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
     if ( brdf != nullptr ) {
         phongBrdfEvalPdf(brdf, in, out,

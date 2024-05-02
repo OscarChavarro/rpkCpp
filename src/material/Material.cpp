@@ -16,7 +16,7 @@ Material::~Material() {
 
 Material *
 materialCreate(
-    char *inName,
+    const char *inName,
     PhongEmittanceDistributionFunction *edf,
     BSDF *bsdf,
     int sided)

@@ -21,7 +21,7 @@ enum SAMPLING_MODE {
 };
 
 static ColorRgb
-splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
+splitBsdfEvalTexture(const TEXTURE *texture, RayHit *hit) {
     Vector3D texCoord;
     ColorRgb col;
     col.clear();
@@ -39,7 +39,7 @@ splitBsdfEvalTexture(TEXTURE *texture, RayHit *hit) {
 }
 
 static double
-texturedScattererEval(Vector3D * /*in*/, Vector3D * /*out*/, Vector3D * /*normal*/) {
+texturedScattererEval(const Vector3D * /*in*/, const Vector3D * /*out*/, const Vector3D * /*normal*/) {
     return (1.0 / M_PI);
 }
 
@@ -47,14 +47,14 @@ texturedScattererEval(Vector3D * /*in*/, Vector3D * /*out*/, Vector3D * /*normal
 Albedo is assumed to be 1
 */
 static Vector3D
-texturedScattererSample(Vector3D * /*in*/, Vector3D *normal, double x1, double x2, double *probabilityDensityFunction) {
+texturedScattererSample(const Vector3D * /*in*/, const Vector3D *normal, double x1, double x2, double *probabilityDensityFunction) {
     CoordSys coord;
     vectorCoordSys(normal, &coord);
     return sampleHemisphereCosTheta(&coord, x1, x2, probabilityDensityFunction);
 }
 
 static void
-texturedScattererEvalPdf(Vector3D * /*in*/, Vector3D *out, Vector3D *normal, double *probabilityDensityFunction) {
+texturedScattererEvalPdf(const Vector3D * /*in*/, const Vector3D *out, const Vector3D *normal, double *probabilityDensityFunction) {
     *probabilityDensityFunction = vectorDotProduct(*normal, *out) / M_PI;
 }
 
@@ -63,7 +63,7 @@ Returns the scattered power (diffuse/glossy/specular
 reflectance and/or transmittance) according to flags
 */
 ColorRgb
-splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
+splitBsdfScatteredPower(const BSDF *bsdf, RayHit *hit, char flags) {
     ColorRgb albedo;
     albedo.clear();
 
@@ -87,19 +87,19 @@ splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags) {
 }
 
 void
-splitBsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
+splitBsdfIndexOfRefraction(const BSDF *bsdf, RefractionIndex *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
 ColorRgb
 splitBsdfEval(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags)
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags)
 {
     ColorRgb result;
     Vector3D normal;
@@ -147,7 +147,7 @@ account potential texturing
 */
 static void
 splitBsdfProbabilities(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
     BSDF_FLAGS flags,
     double *texture,
@@ -203,13 +203,13 @@ splitBsdfSamplingMode(double texture, double reflection, double transmission, do
 
 Vector3D
 splitBsdfSample(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
     int doRussianRoulette,
-    BSDF_FLAGS flags,
+    const char flags,
     double x1,
     double x2,
     double *probabilityDensityFunction)
@@ -316,13 +316,13 @@ the pdf will be 0 upon return
 */
 void
 splitBsdfEvalPdf(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
@@ -376,6 +376,6 @@ splitBsdfEvalPdf(
 }
 
 int
-splitBsdfIsTextured(BSDF *bsdf) {
+splitBsdfIsTextured(const BSDF *bsdf) {
     return bsdf->texture != nullptr;
 }

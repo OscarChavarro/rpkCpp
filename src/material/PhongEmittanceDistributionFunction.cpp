@@ -10,8 +10,8 @@ Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
 PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
-    ColorRgb *KdParameter,
-    ColorRgb *KsParameter,
+    const ColorRgb *KdParameter,
+    const ColorRgb *KsParameter,
     double NsParameter)
 {
     Kd = *KdParameter;
@@ -27,7 +27,7 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
 Returns emittance, reflectance, transmittance
 */
 static ColorRgb
-phongEmittance(PhongEmittanceDistributionFunction *edf, RayHit * /*hit*/, char flags) {
+phongEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit * /*hit*/, const char flags) {
     ColorRgb result;
 
     result.clear();
@@ -52,7 +52,7 @@ phongEmittance(PhongEmittanceDistributionFunction *edf, RayHit * /*hit*/, char f
 Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
 ColorRgb
-edfEmittance(PhongEmittanceDistributionFunction *edf, RayHit *hit, char flags) {
+edfEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit *hit, char flags) {
     if ( edf != nullptr ) {
         return phongEmittance(edf, hit, flags);
     } else {
@@ -63,7 +63,7 @@ edfEmittance(PhongEmittanceDistributionFunction *edf, RayHit *hit, char flags) {
 }
 
 bool
-edfIsTextured(PhongEmittanceDistributionFunction * /*edf*/) {
+edfIsTextured(const PhongEmittanceDistributionFunction * /*edf*/) {
     return false;
 }
 
@@ -72,9 +72,9 @@ Edf evaluations
 */
 static ColorRgb
 phongEdfEval(
-    PhongEmittanceDistributionFunction *edf,
+    const PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
-    Vector3D *out,
+    const Vector3D *out,
     char flags,
     double *probabilityDensityFunction)
 {
@@ -122,9 +122,9 @@ computed and returned in probabilityDensityFunction
 */
 ColorRgb
 edfEval(
-    PhongEmittanceDistributionFunction *edf,
+    const PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
-    Vector3D *out,
+    const Vector3D *out,
     char flags,
     double *probabilityDensityFunction)
 {
@@ -145,7 +145,7 @@ Edf sampling
 */
 static Vector3D
 phongEdfSample(
-    PhongEmittanceDistributionFunction *edf,
+    const PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     char flags,
     double xi1,
@@ -192,7 +192,7 @@ of the generated direction is computed and returned in probabilityDensityFunctio
 */
 Vector3D
 edfSample(
-    PhongEmittanceDistributionFunction *edf,
+    const PhongEmittanceDistributionFunction *edf,
     RayHit *hit,
     char flags,
     double xi1,
@@ -225,6 +225,11 @@ routine - pointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 bool
-edfShadingFrame(PhongEmittanceDistributionFunction * /*edf*/, RayHit * /*hit*/, Vector3D * /*X*/, Vector3D * /*Y*/, Vector3D * /*Z*/) {
+edfShadingFrame(
+    const PhongEmittanceDistributionFunction * /*edf*/,
+    const RayHit * /*hit*/,
+    const Vector3D * /*X*/,
+    const Vector3D * /*Y*/,
+    const Vector3D * /*Z*/) {
     return false;
 }

@@ -39,7 +39,7 @@ BSDF::~BSDF() {
 Returns the scattered power of the BSDF, depending on the flags
 */
 ColorRgb
-bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, char flags) {
+bsdfScatteredPower(const BSDF *bsdf, RayHit *hit, const Vector3D * /*inDir*/, const char flags) {
     ColorRgb reflectionColor;
     reflectionColor.clear();
     if ( bsdf != nullptr ) {
@@ -49,7 +49,7 @@ bsdfScatteredPower(BSDF *bsdf, RayHit *hit, Vector3D *in, char flags) {
 }
 
 int
-bsdfIsTextured(BSDF *bsdf) {
+bsdfIsTextured(const BSDF *bsdf) {
     if ( bsdf != nullptr ) {
         return splitBsdfIsTextured(bsdf);
     }
@@ -72,7 +72,7 @@ routine - pointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 bool
-bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z) {
+bsdfShadingFrame(const BSDF * /*bsdf*/, const RayHit * /*hit*/, const Vector3D * /*X*/, const Vector3D * /*Y*/, const Vector3D * /*Z*/) {
     //return bsdf->methods->shadingFrame(bsdf->data, hit, X, Y, Z);
     return false;
 }
@@ -81,7 +81,7 @@ bsdfShadingFrame(BSDF *bsdf, RayHit *hit, Vector3D *X, Vector3D *Y, Vector3D *Z)
 Returns the index of refraction of the BSDF
 */
 void
-bsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index) {
+bsdfIndexOfRefraction(const BSDF *bsdf, RefractionIndex *index) {
     if ( bsdf != nullptr ) {
         splitBsdfIndexOfRefraction(bsdf, index);
     } else {
@@ -102,7 +102,14 @@ hit->normal : leaving from patch, on the incoming side.
          So in . hit->normal > 0 !!!
 */
 ColorRgb
-bsdfEval(BSDF *bsdf, RayHit *hit, BSDF *inBsdf, BSDF *outBsdf, Vector3D *in, Vector3D *out, BSDF_FLAGS flags) {
+bsdfEval(
+    const BSDF *bsdf,
+    RayHit *hit,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const char flags) {
     if ( bsdf != nullptr ) {
         return splitBsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, flags);
     } else {
@@ -120,25 +127,25 @@ Total evaluation is returned.
 */
 ColorRgb
 bsdfEvalComponents(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        ColorRgb *colArray)
+    const BSDF *bsdf,
+    RayHit *hit,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    const char flags,
+    ColorRgb *colArray)
 {
     // Some caching optimisation could be used here
     ColorRgb result;
     ColorRgb empty;
-    BSDF_FLAGS thisFlag;
+    char thisFlag;
 
     empty.clear();
     result.clear();
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = BSDF_INDEX_TO_COMP(i);
+        thisFlag = (char)BSDF_INDEX_TO_COMP(i);
 
         if ( flags & thisFlag ) {
             colArray[i] = bsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, thisFlag);
@@ -159,16 +166,16 @@ random numbers x_1 and x_2 are needed (2D sampling process)
 */
 Vector3D
 bsdfSample(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        int doRussianRoulette,
-        BSDF_FLAGS flags,
-        double x_1,
-        double x_2,
-        double *probabilityDensityFunction)
+    const BSDF *bsdf,
+    RayHit *hit,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    int doRussianRoulette,
+    BSDF_FLAGS flags,
+    double x_1,
+    double x_2,
+    double *probabilityDensityFunction)
 {
     if ( bsdf != nullptr ) {
         return splitBsdfSample(bsdf, hit, inBsdf, outBsdf, in,
@@ -182,15 +189,15 @@ bsdfSample(
 
 void
 bsdfEvalPdf(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR)
+    const BSDF *bsdf,
+    RayHit *hit,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    BSDF_FLAGS flags,
+    double *probabilityDensityFunction,
+    double *probabilityDensityFunctionRR)
 {
     if ( bsdf != nullptr ) {
         splitBsdfEvalPdf(bsdf, hit, inBsdf, outBsdf, in, out,

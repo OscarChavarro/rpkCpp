@@ -8,46 +8,46 @@
 #include "material/bsdf.h"
 
 extern ColorRgb
-splitBsdfScatteredPower(BSDF *bsdf, RayHit *hit, char flags);
+splitBsdfScatteredPower(const BSDF *bsdf, RayHit *hit, char flags);
 
 extern int
-splitBsdfIsTextured(BSDF *bsdf);
+splitBsdfIsTextured(const BSDF *bsdf);
 
 extern ColorRgb
 splitBsdfEval(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags);
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags);
 
 extern void
-splitBsdfIndexOfRefraction(BSDF *bsdf, RefractionIndex *index);
+splitBsdfIndexOfRefraction(const BSDF *bsdf, RefractionIndex *index);
 
 extern Vector3D
 splitBsdfSample(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
     int doRussianRoulette,
-    BSDF_FLAGS flags,
+    char flags,
     double x1,
     double x2,
     double *probabilityDensityFunction);
 
 extern void
 splitBsdfEvalPdf(
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
-    BSDF *inBsdf,
-    BSDF *outBsdf,
-    Vector3D *in,
-    Vector3D *out,
-    BSDF_FLAGS flags,
+    const BSDF *inBsdf,
+    const BSDF *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR);
 

@@ -11,6 +11,6 @@ class TEXTURE {
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 };
 
-extern ColorRgb evalTextureColor(TEXTURE *texture, float u, float v);
+extern ColorRgb evalTextureColor(const TEXTURE *texture, float u, float v);
 
 #endif
