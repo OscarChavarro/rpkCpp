@@ -35,16 +35,16 @@ extern GalerkinBasis GLOBAL_galerkin_triBasis;
 
 extern ColorRgb
 basisGalerkinRadianceAtPoint(
-    GalerkinElement *element,
-    ColorRgb *coefficients,
+    const GalerkinElement *element,
+    const ColorRgb *coefficients,
     double u,
     double v);
 
 extern void
 basisGalerkinPush(
-    GalerkinElement *element,
-    ColorRgb *parentCoefficients,
-    GalerkinElement *child,
+    const GalerkinElement *element,
+    const ColorRgb *parentCoefficients,
+    const GalerkinElement *child,
     ColorRgb *childCoefficients);
 
 extern void basisGalerkinInitBasis();

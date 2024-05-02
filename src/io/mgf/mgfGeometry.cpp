@@ -629,8 +629,8 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
     double length;
     int hasNormal;
-    MgfVertexContext *cv;
-    MgfVertexContext *cv0;
+    const MgfVertexContext *cv;
+    const MgfVertexContext *cv0;
     int rv;
     int i;
 

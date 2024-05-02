@@ -25,7 +25,7 @@ class FormFactorStrategy {
     initShadowCache();
 
     static RayHit *
-    cacheHit(Ray *ray, float *dist, RayHit *hitStore);
+    cacheHit(const Ray *ray, float *dist, RayHit *hitStore);
 
     static RayHit *
     shadowTestDiscretization(

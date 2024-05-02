@@ -115,7 +115,7 @@ static CommandLineOptionDescription galerkinOptions[] = {
 };
 
 static void
-galerkinWriteVertexCoord(Vector3D *p) {
+galerkinWriteVertexCoord(const Vector3D *p) {
     if ( globalNumberOfWrites > 0 ) {
         fprintf(globalVrmlFileDescriptor, ", ");
     }
@@ -129,7 +129,7 @@ galerkinWriteVertexCoord(Vector3D *p) {
 
 static void
 galerkinWriteVertexCoords(Element *element) {
-    GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
     Vector3D v[8];
     int numberOfVertices = galerkinElement->vertices(v, 8);
     for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -147,7 +147,7 @@ galerkinWriteCoords() {
 }
 
 static void
-galerkinWriteVertexColor(ColorRgb *color) {
+galerkinWriteVertexColor(const ColorRgb *color) {
     if ( globalNumberOfWrites > 0 ) {
         fprintf(globalVrmlFileDescriptor, ", ");
     }
@@ -161,7 +161,7 @@ galerkinWriteVertexColor(ColorRgb *color) {
 
 static void
 galerkinWriteVertexColors(Element *element) {
-    GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
     ColorRgb vertexRadiosity[4];
     int i;
 
@@ -203,7 +203,7 @@ galerkinWriteVertexColorsTopCluster() {
 }
 
 static void
-galerkinWriteColors(RenderOptions *renderOptions) {
+galerkinWriteColors(const RenderOptions *renderOptions) {
     if ( !renderOptions->smoothShading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
@@ -222,7 +222,7 @@ galerkinWriteCoordIndex(int index) {
 
 static void
 galerkinWriteCoordIndices(Element *element) {
-    GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
     for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId++);
     }
@@ -389,7 +389,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 
     // Global variables for scratch rendering
     galerkinState.lastClusterId = -1;
-    galerkinState.lastEye.set(HUGE, HUGE, HUGE);
+    galerkinState.lastEye.set(HUGE_FLOAT, HUGE_FLOAT, HUGE_FLOAT);
 }
 
 bool
@@ -449,7 +449,7 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 ColorRgb
 GalerkinRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) {
-    GalerkinElement *leaf;
+    const GalerkinElement *leaf;
     ColorRgb rad;
 
     if ( patch->jacobian ) {

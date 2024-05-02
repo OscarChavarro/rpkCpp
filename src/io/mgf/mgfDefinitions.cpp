@@ -13,7 +13,7 @@ static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
 Default handler for unknown entities
 */
 int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, MgfContext * /*context*/) {
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, const MgfContext * /*context*/) {
     // Just ignore line
     return MGF_OK;
 }
@@ -42,7 +42,7 @@ mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
 Reposition input file pointer
 */
 int
-mgfGoToFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
+mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
     if ( pos->fid != context->readerContext->fileContextId ) {
         return MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -110,9 +110,9 @@ mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context) {
 shaftCullOpen new input file
 */
 int
-mgfOpen(MgfReaderContext *readerContext, char *functionCallback, MgfContext *context) {
+mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContext *context) {
     static int numberOfFileIds;
-    char *cp;
+    const char *cp;
     int isPipe;
 
     readerContext->fileContextId = ++numberOfFileIds;

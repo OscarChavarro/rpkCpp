@@ -37,7 +37,11 @@ scratchTerminate(GalerkinState *galerkinState) {
 }
 
 static void
-scratchRenderElementPtr(GalerkinElement *elem, GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/) {
+scratchRenderElementPtr(
+    GalerkinElement *elem,
+    GalerkinState * /*galerkinState*/,
+    ColorRgb * /*accumulatedRadiance*/)
+{
     Patch *patch = elem->patch;
     Vector3D v[4];
 

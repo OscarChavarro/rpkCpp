@@ -22,40 +22,38 @@ regular (quadtree) subdivision.
 */
 static void
 basisGalerkinPull(
-    GalerkinElement *parent,
+    const GalerkinElement *parent,
     ColorRgb *parent_coefficients,
-    GalerkinElement *child,
-    ColorRgb *child_coefficients)
+    const GalerkinElement *child,
+    const ColorRgb *childCoefficients)
 {
-    GalerkinBasis *basis;
-    int alpha;
-    int beta;
+    const GalerkinBasis *basis;
     int sigma = (unsigned char)child->childNumber;
 
     if ( parent->isCluster() ) {
         // Clusters only have irregular sub-elements and a constant
         // radiance approximation is used on them
         colorsArrayClear(parent_coefficients, parent->basisSize);
-        parent_coefficients[0].scaledCopy(child->area / parent->area, child_coefficients[0]);
+        parent_coefficients[0].scaledCopy(child->area / parent->area, childCoefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             logError("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
             colorsArrayClear(parent_coefficients, parent->basisSize);
-            parent_coefficients[0] = child_coefficients[0];
+            parent_coefficients[0] = childCoefficients[0];
             return;
         }
 
         // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
-        for ( alpha = 0; alpha < parent->basisSize; alpha++ ) {
+        for ( int alpha = 0; alpha < parent->basisSize; alpha++ ) {
             parent_coefficients[alpha].clear();
-            for ( beta = 0; beta < child->basisSize; beta++ ) {
+            for ( int beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     parent_coefficients[alpha].addScaled(
-                        parent_coefficients[alpha],
-                        (float) f,
-                        child_coefficients[beta]);
+                            parent_coefficients[alpha],
+                            (float) f,
+                            childCoefficients[beta]);
             }
             parent_coefficients[alpha].scale(0.25f);
         }
@@ -98,13 +96,13 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             ColorRgb Bup2[MAX_BASIS_SIZE];
 
             // 1. Push B-down to the i-th sub-element
-            basisGalerkinPush((GalerkinElement *)element, Bdown, (GalerkinElement *)element->regularSubElements[i], Bdown2);
+            basisGalerkinPush(element, Bdown, (GalerkinElement *)element->regularSubElements[i], Bdown2);
 
             // 2. Recursive call the push-pull for the sub-element
             basisGalerkinPushPullRadianceRecursive((GalerkinElement *)element->regularSubElements[i], Bdown2, Btmp, galerkinState);
 
             // 3. Pull the radiance of the sub-element up to this level again
-            basisGalerkinPull((GalerkinElement *)element, Bup2, (GalerkinElement *)element->regularSubElements[i], Btmp);
+            basisGalerkinPull(element, Bup2, (GalerkinElement *)element->regularSubElements[i], Btmp);
 
             // 4. Add to Bup
             colorsArrayAdd(Bup, Bup2, element->basisSize);
@@ -164,29 +162,26 @@ standard triangle), and (u', v') the result of "up-transforming" (u, v).
 */
 static void
 basisGalerkinComputeFilterCoefficients(
-    GalerkinBasis *parent_basis,
-    int parent_size,
-    GalerkinBasis *child_basis,
-    int child_size,
-    Matrix2x2 *upTransform,
-    CubatureRule *cr,
+    const GalerkinBasis *parentBasis,
+    const int parent_size,
+    const GalerkinBasis *childBasis,
+    const int child_size,
+    const Matrix2x2 *upTransform,
+    const CubatureRule *cr,
     double filter[MAX_BASIS_SIZE][MAX_BASIS_SIZE])
 {
-    int alpha;
-    int beta;
-    int k;
     double x;
 
-    for ( alpha = 0; alpha < parent_size; alpha++ ) {
-        for ( beta = 0; beta < child_size; beta++ ) {
+    for ( int alpha = 0; alpha < parent_size; alpha++ ) {
+        for ( int beta = 0; beta < child_size; beta++ ) {
             x = 0.0;
-            for ( k = 0; k < cr->numberOfNodes; k++ ) {
+            for ( int k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
                 up.u = (float)cr->u[k];
                 up.v = (float)cr->v[k];
-                transformPoint2D((*upTransform), up, up);
-                x += cr->w[k] * parent_basis->function[alpha](up.u, up.v) *
-                     child_basis->function[beta](cr->u[k], cr->v[k]);
+                transformPoint2D(*upTransform, up, up);
+                x += cr->w[k] * parentBasis->function[alpha](up.u, up.v) *
+                     childBasis->function[beta](cr->u[k], cr->v[k]);
             }
             filter[alpha][beta] = x;
         }
@@ -202,8 +197,8 @@ basis->regular_filter table
 static void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
-    Matrix2x2 upTransform[],
-    CubatureRule *cubaRule)
+    const Matrix2x2 upTransform[],
+    const CubatureRule *cubaRule)
 {
     for ( int sigma = 0; sigma < 4; sigma++ ) {
         basisGalerkinComputeFilterCoefficients(
@@ -223,13 +218,13 @@ at the given point on the element
 */
 ColorRgb
 basisGalerkinRadianceAtPoint(
-    GalerkinElement *element,
-    ColorRgb *coefficients,
-    double u,
-    double v)
+    const GalerkinElement *element,
+    const ColorRgb *coefficients,
+    const double u,
+    const double v)
 {
     ColorRgb rad;
-    GalerkinBasis *basis = element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
 
     rad.clear();
     if ( !coefficients ) {
@@ -272,14 +267,12 @@ and the up transforms to relate sub-elements with the parent element
 */
 void
 basisGalerkinPush(
-    GalerkinElement *element,
-    ColorRgb *parentCoefficients,
-    GalerkinElement *child,
+    const GalerkinElement *element,
+    const ColorRgb *parentCoefficients,
+    const GalerkinElement *child,
     ColorRgb *childCoefficients)
 {
-    GalerkinBasis *basis;
-    int alpha;
-    int beta;
+    const GalerkinBasis *basis;
     int sigma = (unsigned char)child->childNumber;
 
     if ( element->isCluster() ) {
@@ -297,9 +290,9 @@ basisGalerkinPush(
 
         // Parent and child basis should be the same
         basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
-        for ( beta = 0; beta < child->basisSize; beta++ ) {
+        for ( int beta = 0; beta < child->basisSize; beta++ ) {
             childCoefficients[beta].clear();
-            for ( alpha = 0; alpha < element->basisSize; alpha++ ) {
+            for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
                 if ( f < -EPSILON || f > EPSILON )
                     childCoefficients[beta].addScaled(
@@ -317,10 +310,10 @@ radiance, making a consistent hierarchical representation
 */
 void
 basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState) {
-    ColorRgb Bdown[MAX_BASIS_SIZE];
+    ColorRgb bDown[MAX_BASIS_SIZE];
     ColorRgb Bup[MAX_BASIS_SIZE];
-    colorsArrayClear(Bdown, top->basisSize);
-    basisGalerkinPushPullRadianceRecursive(top, Bdown, Bup, galerkinState);
+    colorsArrayClear(bDown, top->basisSize);
+    basisGalerkinPushPullRadianceRecursive(top, bDown, Bup, galerkinState);
 }
 
 void

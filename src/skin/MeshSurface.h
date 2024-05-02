@@ -58,7 +58,7 @@ class MeshSurface : public Geometry {
         java::ArrayList<Vertex *> *inVertices,
         java::ArrayList<Patch *> *faces,
         enum MaterialColorFlags flags);
-    ~MeshSurface();
+    ~MeshSurface() final;
 
     RayHit *
     discretizationIntersect(
@@ -66,7 +66,7 @@ class MeshSurface : public Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const;
+        RayHit *hitStore) const final;
 };
 
 #endif

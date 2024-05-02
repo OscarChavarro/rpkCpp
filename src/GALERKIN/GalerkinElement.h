@@ -50,7 +50,7 @@ class GalerkinElement : public Element {
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
     explicit GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState);
 
-    virtual ~GalerkinElement();
+    ~GalerkinElement() final;
 
     void regularSubDivide(RenderOptions *renderOptions);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
@@ -58,8 +58,8 @@ class GalerkinElement : public Element {
     void render(RenderOptions *renderOptions);
     int vertices(Vector3D *p, int n) const;
     BoundingBox *bounds(BoundingBox *boundingBox) const;
-    Vector3D midPoint();
-    void initPolygon(Polygon *polygon);
+    Vector3D midPoint() const;
+    void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();
 };
 

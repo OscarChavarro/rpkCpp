@@ -25,9 +25,9 @@ class GatheringSimpleStrategy : public GatheringStrategy {
 
   public:
     GatheringSimpleStrategy();
-    virtual ~GatheringSimpleStrategy();
+    ~GatheringSimpleStrategy() final;
 
-    bool doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    bool doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) final;
 };
 
 #endif

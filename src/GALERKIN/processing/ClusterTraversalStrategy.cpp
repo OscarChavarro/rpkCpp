@@ -36,10 +36,12 @@ ClusterTraversalStrategy::traverseAllLeafElements(
     if ( !parentElement->isCluster() ) {
         leafElementVisitCallBack(parentElement, galerkinState, accumulatedRadiance);
     } else {
-        for ( int i = 0; parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size(); i++ ) {
+        for ( int i = 0;
+            parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size();
+            i++ ) {
             GalerkinElement *childCluster = (GalerkinElement *)parentElement->irregularSubElements->get(i);
-            ClusterTraversalStrategy::traverseAllLeafElements(childCluster, leafElementVisitCallBack, galerkinState,
-                                                              accumulatedRadiance);
+            ClusterTraversalStrategy::traverseAllLeafElements(
+                childCluster, leafElementVisitCallBack, galerkinState, accumulatedRadiance);
         }
     }
 }
@@ -118,7 +120,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vec
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the sample point
-                float *bbx = scratchRenderElements(src, sample, galerkinState);
+                const float *bbx = scratchRenderElements(src, sample, galerkinState);
 
                 // Compute average radiance on the virtual screen
                 globalSourceRadiance = scratchRadiance(galerkinState);
@@ -146,7 +148,8 @@ receiver in the link. The source should be a cluster
 */
 ColorRgb
 ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState) {
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
 
     if ( !src->isCluster() || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
@@ -161,7 +164,7 @@ Computes projected area of receiver surface element towards the sample point
 (global variable). Ignores intra cluster visibility
 */
 double
-ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(GalerkinElement *rcv) {
+ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv) {
     double rcvCos;
     double dist;
     Vector3D dir;
@@ -182,7 +185,11 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(GalerkinElement *rcv
 }
 
 void
-ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/) {
+ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint(
+    GalerkinElement *rcv,
+    GalerkinState * /*galerkinState*/,
+    ColorRgb * /*accumulatedRadiance*/)
+{
     globalProjectedArea += ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv);
 }
 
@@ -192,7 +199,8 @@ ignoring intra-receiver visibility
 */
 double
 ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerkinState) {
-    GalerkinElement *src = link->sourceElement, *rcv = link->receiverElement;
+    const GalerkinElement *src = link->sourceElement;
+    GalerkinElement *rcv = link->receiverElement;
 
     if ( !rcv->isCluster() || src == rcv ) {
         return rcv->area;
@@ -205,9 +213,11 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
         case ORIENTED: {
             globalSamplePoint = src->midPoint();
             globalProjectedArea = 0.0;
-            ClusterTraversalStrategy::traverseAllLeafElements(rcv,
-                                                              ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint,
-                                                              galerkinState, &globalSourceRadiance);
+            ClusterTraversalStrategy::traverseAllLeafElements(
+                rcv,
+                ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint,
+                galerkinState,
+                &globalSourceRadiance);
             return globalProjectedArea;
         }
 
@@ -216,7 +226,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
                 return rcv->area;
             } else {
-                float *bbx = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
+                const float *bbx = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
                 // the total number of pixels * area of the virtual screen
@@ -236,29 +246,32 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
 
 /**
 Gathers radiance over the interaction, from the interaction source to
-the specified receiver element. area_factor is a correction factor
+the specified receiver element. areaFactor is a correction factor
 to account for the fact that the receiver cluster area/4 was used in
 form factor computations instead of the true receiver area. The source
 radiance is explicit given
 */
 void
-ClusterTraversalStrategy::isotropicGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, ColorRgb *srcRad) {
+ClusterTraversalStrategy::isotropicGatherRadiance(
+    GalerkinElement *rcv,
+    double areaFactor,
+    Interaction *link,
+    ColorRgb *srcRad)
+{
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0].addScaled(rcvRad[0], (float) (area_factor * link->K[0]), srcRad[0]);
+        rcvRad[0].addScaled(rcvRad[0], (float) (areaFactor * link->K[0]), srcRad[0]);
     } else {
-        int alpha;
-        int beta;
         int a;
         int b;
         a = intMin(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
         b = intMin(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
-        for ( alpha = 0; alpha < a; alpha++ ) {
-            for ( beta = 0; beta < b; beta++ ) {
+        for ( int alpha = 0; alpha < a; alpha++ ) {
+            for ( int beta = 0; beta < b; beta++ ) {
                 rcvRad[alpha].addScaled(
                     rcvRad[alpha],
-                    (float)(area_factor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
+                    (float)(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
                     srcRad[beta]);
             }
         }
@@ -275,7 +288,11 @@ towards the midpoint of the source, ignoring visibility in the receiver
 cluster
 */
 void
-ClusterTraversalStrategy::orientedSurfaceGatherRadiance(GalerkinElement *rcv, GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/) {
+ClusterTraversalStrategy::orientedSurfaceGatherRadiance(
+    GalerkinElement *rcv,
+    GalerkinState */*galerkinState*/,
+    ColorRgb * /*accumulatedRadiance*/)
+{
     double area_factor;
 
     // globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
@@ -291,15 +308,17 @@ times the area corresponding one such pixel is used as the visible area
 of the element. Uses global variables globalPixelArea, globalTheLink, globalPSourceRad
 */
 void
-ClusterTraversalStrategy::zVisSurfaceGatherRadiance(GalerkinElement *rcv, GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/) {
-    double areaFactor;
-
+ClusterTraversalStrategy::zVisSurfaceGatherRadiance(
+    GalerkinElement *rcv,
+    GalerkinState */*galerkinState*/,
+    ColorRgb * /*accumulatedRadiance*/)
+{
     if ( rcv->tmp <= 0 ) {
         // Element occupies no pixels in the scratch frame buffer
         return;
     }
 
-    areaFactor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->receiverElement->area);
+    double areaFactor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->receiverElement->area);
     ClusterTraversalStrategy::isotropicGatherRadiance(rcv, areaFactor, globalTheLink, globalPSourceRad);
 
     rcv->tmp = 0; // Set it to zero for future re-use
@@ -338,7 +357,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                                                                   ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
                                                                   galerkinState, &globalSourceRadiance);
             } else {
-                float *boundingBox = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
+                const float *boundingBox = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer
                 scratchPixelsPerElement(galerkinState);

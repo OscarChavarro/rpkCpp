@@ -120,7 +120,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     basisSize = 0;
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    minimumArea = HUGE;
+    minimumArea = HUGE_FLOAT;
     tmp = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
@@ -488,7 +488,7 @@ GalerkinElement::vertices(Vector3D *p, int n) const {
 Computes the midpoint of the element
 */
 Vector3D
-GalerkinElement::midPoint() {
+GalerkinElement::midPoint() const {
     Vector3D c;
 
     if ( isCluster() ) {
@@ -535,7 +535,7 @@ Computes a polygon description for shaft culling for the surface
 element. Cannot be used for clusters
 */
 void
-GalerkinElement::initPolygon(Polygon *polygon) {
+GalerkinElement::initPolygon(Polygon *polygon) const {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
         return;

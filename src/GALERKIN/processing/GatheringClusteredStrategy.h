@@ -9,9 +9,9 @@ class GatheringClusteredStrategy : public GatheringStrategy {
     static void updateClusterDirectPotential(GalerkinElement *element, float potential_increment);
   public:
     GatheringClusteredStrategy();
-    virtual ~GatheringClusteredStrategy();
+    ~GatheringClusteredStrategy() final;
 
-    bool doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    bool doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) final;
 };
 
 #endif

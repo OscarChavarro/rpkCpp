@@ -8,7 +8,7 @@ class PatchSet : public Geometry {
   public:
     java::ArrayList<Patch *> *patchList;
     explicit PatchSet(const java::ArrayList<Patch *> *input);
-    ~PatchSet();
+    ~PatchSet() final;
 
     RayHit *
     discretizationIntersect(
@@ -16,7 +16,7 @@ class PatchSet : public Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const;
+        RayHit *hitStore) const final;
 };
 
 extern BoundingBox *

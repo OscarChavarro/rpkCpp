@@ -35,7 +35,7 @@ Test ray against patches in the shadow cache. Returns nullptr if the ray hits
 no patches in the shadow cache, or a pointer to the first hit patch otherwise
 */
 RayHit *
-FormFactorStrategy::cacheHit(Ray *ray, float *dist, RayHit *hitStore) {
+FormFactorStrategy::cacheHit(const Ray *ray, float *dist, RayHit *hitStore) {
     for ( int i = 0; i < FormFactorStrategy::numberOfCachedPatches; i++ ) {
         RayHit *hit = FormFactorStrategy::patchCache[i]->intersect(
             ray, EPSILON_FLOAT * (*dist), dist, HIT_FRONT | HIT_ANY, hitStore);

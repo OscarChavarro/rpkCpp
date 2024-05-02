@@ -10,13 +10,13 @@ class ClusterTraversalStrategy {
     accumulatePowerToSamplePoint(GalerkinElement *src, GalerkinState *galerkinState, ColorRgb * /*accumulatedRadiance*/);
 
     static double
-    surfaceProjectedAreaToSamplePoint(GalerkinElement *rcv);
+    surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
 
     static void
     accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
     static void
-    isotropicGatherRadiance(GalerkinElement *rcv, double area_factor, Interaction *link, ColorRgb *srcRad);
+    isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, Interaction *link, ColorRgb *srcRad);
 
     static void
     orientedSurfaceGatherRadiance(GalerkinElement *rcv, GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
