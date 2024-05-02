@@ -21,7 +21,7 @@ importance if importance-driven (see Bekaert & Willems, "Importance-driven
 Progressive refinement radiosity", EGRW'95, Dublin
 */
 Patch *
-ShootingStrategy::chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState) {
+ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState) {
     Patch *shooting_patch;
     Patch *pot_shooting_patch;
     float power;
@@ -238,7 +238,7 @@ Chooses the patch with highest un-shot importance (potential times
 area), see Bekaert & Willems, EGRW'95 (Dublin)
 */
 Patch *
-ShootingStrategy::choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches) {
+ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches) {
     float maximumImportance = 0.0f;
     Patch *shootingPatch = nullptr;
 
@@ -278,8 +278,7 @@ virtual camera has changed)
 void
 ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement) {
     if ( elem->regularSubElements ) {
-        int i;
-        for ( i = 0; i < 4; i++ ) {
+        for ( int i = 0; i < 4; i++ ) {
             shootingUpdateDirectPotential((GalerkinElement *)elem->regularSubElements[i], potentialIncrement);
         }
     }

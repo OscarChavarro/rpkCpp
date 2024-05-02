@@ -224,7 +224,8 @@ static void
 galerkinWriteCoordIndices(Element *element) {
     const GalerkinElement *galerkinElement = (GalerkinElement *)element;
     for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
-        galerkinWriteCoordIndex(globalVertexId++);
+        galerkinWriteCoordIndex(globalVertexId);
+        globalVertexId++;
     }
     galerkinWriteCoordIndex(-1);
 }
@@ -272,7 +273,7 @@ GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, RenderO
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, Camera * /*camera*/, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, const Camera * /*camera*/, RenderOptions *renderOptions) {
     renderElementHierarchy(galerkinGetElement(patch), renderOptions);
 }
 
@@ -527,13 +528,13 @@ GalerkinRadianceMethod::getStats() {
     snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) galerkinState.relMinElemArea, &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
-             (double) (galerkinState.errorNorm == RADIANCE_ERROR ?
-                       M_PI * (galerkinState.relLinkErrorThreshold *
-                               GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
-                       galerkinState.relLinkErrorThreshold *
-                       GLOBAL_statistics.maxSelfEmittedPower.luminance()),
-             (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
-             &n);
+         (galerkinState.errorNorm == RADIANCE_ERROR ?
+                   M_PI * (galerkinState.relLinkErrorThreshold *
+                           GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
+                   galerkinState.relLinkErrorThreshold *
+                   GLOBAL_statistics.maxSelfEmittedPower.luminance()),
+         (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
+         &n);
 
     return stats;
 }

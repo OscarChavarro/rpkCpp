@@ -14,7 +14,7 @@ extern void openGlRenderSetColor(ColorRgb *rgb);
 extern void
 openGlRenderWorldOctree(
     Scene *scene,
-    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *),
+    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
     RenderOptions *renderOptions);
 
 extern void
@@ -29,7 +29,7 @@ extern void openGlRenderPatchOutline(Patch *patch);
 extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors);
 extern void openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb);
-extern void openGlRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions);
+extern void openGlRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions);
 extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *renderOptions);
 
 #endif

@@ -29,7 +29,7 @@ Executes func for every surface element in the cluster
 void
 ClusterTraversalStrategy::traverseAllLeafElements(
     GalerkinElement *parentElement,
-    void (*leafElementVisitCallBack)(GalerkinElement *elem, GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
+    void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
     GalerkinState *galerkinState,
     ColorRgb *accumulatedRadiance)
 {
@@ -55,7 +55,7 @@ sample point, (ignores intra cluster visibility)
 void
 ClusterTraversalStrategy::accumulatePowerToSamplePoint(
     GalerkinElement *src,
-    GalerkinState *galerkinState,
+    const GalerkinState *galerkinState,
     ColorRgb * /*accumulatedRadiance*/)
 {
     float srcOs;
@@ -187,7 +187,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
 void
 ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint(
     GalerkinElement *rcv,
-    GalerkinState * /*galerkinState*/,
+    const GalerkinState * /*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/)
 {
     globalProjectedArea += ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv);
@@ -255,13 +255,13 @@ void
 ClusterTraversalStrategy::isotropicGatherRadiance(
     GalerkinElement *rcv,
     double areaFactor,
-    Interaction *link,
-    ColorRgb *srcRad)
+    const Interaction *link,
+    const ColorRgb *sourceRadiance)
 {
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0].addScaled(rcvRad[0], (float) (areaFactor * link->K[0]), srcRad[0]);
+        rcvRad[0].addScaled(rcvRad[0], (float) (areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
         int a;
         int b;
@@ -272,7 +272,7 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
                 rcvRad[alpha].addScaled(
                     rcvRad[alpha],
                     (float)(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
-                    srcRad[beta]);
+                    sourceRadiance[beta]);
             }
         }
     }
@@ -290,16 +290,15 @@ cluster
 void
 ClusterTraversalStrategy::orientedSurfaceGatherRadiance(
     GalerkinElement *rcv,
-    GalerkinState */*galerkinState*/,
+    const GalerkinState */*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/)
 {
-    double area_factor;
-
     // globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
     // was used to compute link->K
-    area_factor = ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv) / (0.25 * globalTheLink->receiverElement->area);
+    double areaFactor = ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv) /
+        (0.25 * globalTheLink->receiverElement->area);
 
-    ClusterTraversalStrategy::isotropicGatherRadiance(rcv, area_factor, globalTheLink, globalPSourceRad);
+    ClusterTraversalStrategy::isotropicGatherRadiance(rcv, areaFactor, globalTheLink, globalPSourceRad);
 }
 
 /**
@@ -310,7 +309,7 @@ of the element. Uses global variables globalPixelArea, globalTheLink, globalPSou
 void
 ClusterTraversalStrategy::zVisSurfaceGatherRadiance(
     GalerkinElement *rcv,
-    GalerkinState */*galerkinState*/,
+    const GalerkinState */*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/)
 {
     if ( rcv->tmp <= 0 ) {
@@ -384,7 +383,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
 void
 ClusterTraversalStrategy::leafMaxRadiance(
     GalerkinElement *galerkinElement,
-    GalerkinState *galerkinState,
+    const GalerkinState *galerkinState,
     ColorRgb *accumulatedRadiance)
 {
     ColorRgb rad;

@@ -51,18 +51,17 @@ Note: clustering should not be turned off during the calculations
 */
 bool
 GatheringClusteredStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, renderOptions);
-            for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-                Patch *patch = scene->patchList->get(i);
-                GalerkinElement *top = (GalerkinElement *)patch->radianceData;
-                float potentialIncrement = patch->directPotential - top->directPotential;
-                GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
-            }
-            GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
-            scene->camera->changed = false;
+    if ( galerkinState->importanceDriven &&
+        ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
+        updateDirectPotential(scene, renderOptions);
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            Patch *patch = scene->patchList->get(i);
+            GalerkinElement *top = (GalerkinElement *)patch->radianceData;
+            float potentialIncrement = patch->directPotential - top->directPotential;
+            GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
+        GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);
+        scene->camera->changed = false;
     }
 
     printf("Galerkin (clustered) iteration %i\n", galerkinState->iterationNumber);

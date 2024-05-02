@@ -18,16 +18,16 @@ class ShootingStrategy {
   private:
     static inline float
     galerkinGetPotential(Patch *patch) {
-        return ((GalerkinElement *)((patch)->radianceData))->potential;
+        return ((GalerkinElement *)(patch->radianceData))->potential;
     }
 
     static inline float
     galerkinGetUnShotPotential(Patch *patch) {
-        return ((GalerkinElement *)((patch)->radianceData))->unShotPotential;
+        return ((GalerkinElement *)(patch->radianceData))->unShotPotential;
     }
 
     static Patch *
-    chooseRadianceShootingPatch(java::ArrayList<Patch *> *scenePatches, GalerkinState *galerkinState);
+    chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState);
 
     static void
     clearUnShotRadianceAndPotential(GalerkinElement *elem);
@@ -55,7 +55,7 @@ class ShootingStrategy {
     clusterUpdatePotential(GalerkinElement *clusterElement);
 
     static Patch *
-    choosePotentialShootingPatch(java::ArrayList<Patch *> *scenePatches);
+    choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches);
 
     static void
     propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);

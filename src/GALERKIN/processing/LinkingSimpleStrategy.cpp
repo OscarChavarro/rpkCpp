@@ -13,11 +13,11 @@ static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for s
 
 static void
 createInitialLink(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
     GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    const java::ArrayList<Geometry *> *sceneGeometries,
+    const java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
     if ( !patch->facing(globalPatch) ) {
         return;
@@ -87,7 +87,7 @@ createInitialLink(
 
     bool isSceneGeometry = (globalCandidateList == sceneGeometries);
     bool isClusteredGeometry = (globalCandidateList == sceneClusteredGeometries);
-    java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
+    const java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         sceneWorldVoxelGrid,
         geometryListReferences,
@@ -156,7 +156,7 @@ geometryLink(
         }
         delete geometryList;
     } else {
-        java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             createInitialLink(sceneWorldVoxelGrid, patchList->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
         }

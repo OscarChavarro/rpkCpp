@@ -4,9 +4,8 @@
 /**
 References:
 
-- Haines, E. A. and Wallace, J. R. "Shaft culling for
-  efficient ray-traced radiosity", 2nd Euro-graphics Workshop
-  on Rendering, Barcelona, Spain, May 1991
+- [HAIN1991] Haines, E. A. and Wallace, J. R. "Shaft culling for efficient ray-traced radiosity",
+  2nd Euro-graphics Workshop on Rendering, Barcelona, Spain, May 1991
 */
 
 #include "java/util/ArrayList.h"
@@ -37,18 +36,18 @@ enum ShaftPlanePosition {
 // and on the negative side of the planes
 class Shaft {
   private:
-    static ShaftPlanePosition testPolygonWithRespectToPlane(Polygon *poly, Vector3D *normal, double d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWithRespectToPlane(Polygon *polygon, Vector3D *normal, double d, int side);
-    static int testPointWrtPlane(Vector3D *p, Vector3D *normal, double d);
-    static int compareShaftPlanes(ShaftPlane *plane1, ShaftPlane *plane2);
+    static bool verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, double d, int side);
+    static int testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
+    static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
-    void constructPolygonToPolygonPlanes(Polygon *p1, Polygon *p2);
+    void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
     int shaftPatchTest(Patch *patch);
-    bool closedGeometry(Geometry *geometry);
-    int uniqueShaftPlane(ShaftPlane *parameterPlane);
-    ShaftPlanePosition boundingBoxTest(BoundingBox *parameterBoundingBox);
+    bool closedGeometry(const Geometry *geometry) const;
+    int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
+    ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
 
   public:
     BoundingBox *ref1; // Bounding boxes of the reference volumeListsOfItems and the whole shaft
@@ -72,14 +71,14 @@ class Shaft {
              //	The candidate list does not contain all occluder!
     Shaft();
     void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
-    void constructFromPolygonToPolygon(Polygon *polygon1, Polygon *polygon2);
+    void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
 
-    java::ArrayList<Patch *> *cullPatches(java::ArrayList<Patch *> *patchList);
-    int patchIsOnOmitSet(Patch *geometry);
+    java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
+    int patchIsOnOmitSet(const Patch *geometry) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);
-    void doCulling(java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);
+    void doCulling(const java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);
     void cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 };
 

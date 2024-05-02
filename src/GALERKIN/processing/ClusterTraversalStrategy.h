@@ -6,32 +6,32 @@
 
 class ClusterTraversalStrategy {
   private:
-    static void
-    accumulatePowerToSamplePoint(GalerkinElement *src, GalerkinState *galerkinState, ColorRgb * /*accumulatedRadiance*/);
-
     static double
     surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
 
     static void
-    accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
+    isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
 
     static void
-    isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, Interaction *link, ColorRgb *srcRad);
+    accumulatePowerToSamplePoint(GalerkinElement *src, const GalerkinState *galerkinState, ColorRgb * /*accumulatedRadiance*/);
 
     static void
-    orientedSurfaceGatherRadiance(GalerkinElement *rcv, GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
+    accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, const GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
     static void
-    zVisSurfaceGatherRadiance(GalerkinElement *rcv, GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
+    orientedSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
     static void
-    leafMaxRadiance(GalerkinElement *galerkinElement, GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);
+    zVisSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
+
+    static void
+    leafMaxRadiance(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);
 
 public:
     static void
     traverseAllLeafElements(
         GalerkinElement *parentElement,
-        void (*leafElementVisitCallBack)(GalerkinElement *elem, GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
+        void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
         GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);
 
     static ColorRgb sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);

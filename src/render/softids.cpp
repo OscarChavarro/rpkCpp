@@ -34,7 +34,7 @@ setupSoftFrameBuffer(Camera *camera) {
 }
 
 static void
-softRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
+softRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&

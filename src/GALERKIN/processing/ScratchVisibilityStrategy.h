@@ -12,8 +12,8 @@ with a Z-buffer visibility algorithm in software
 extern void scratchInit(GalerkinState *galerkinState);
 extern void scratchTerminate(GalerkinState *galerkinState);
 extern float *scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState);
-extern ColorRgb scratchRadiance(GalerkinState *galerkinState);
-extern int scratchNonBackgroundPixels(GalerkinState *galerkinState);
-extern void scratchPixelsPerElement(GalerkinState *galerkinState);
+extern ColorRgb scratchRadiance(const GalerkinState *galerkinState);
+extern int scratchNonBackgroundPixels(const GalerkinState *galerkinState);
+extern void scratchPixelsPerElement(const GalerkinState *galerkinState);
 
 #endif

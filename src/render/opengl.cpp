@@ -235,7 +235,7 @@ openGlRenderPatchOutline(Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions) {
+openGlRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions) {
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
@@ -256,7 +256,7 @@ static void
 openGlReallyRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatch)(Patch *, Camera *, RenderOptions *),
+    void (*renderPatch)(Patch *, const Camera *, RenderOptions *),
     RenderOptions *renderOptions)
 {
     java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
@@ -269,7 +269,7 @@ static void
 openGlRenderOctreeLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *),
+    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
     RenderOptions *renderOptions)
 {
     if ( renderOptions->useDisplayLists ) {
@@ -321,7 +321,7 @@ static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *renderOptions),
+    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *renderOptions),
     RenderOptions *renderOptions)
 {
     int i;
@@ -394,7 +394,7 @@ renderPatchCallback is called
 void
 openGlRenderWorldOctree(
     Scene *scene,
-    void (*renderPatchCallback)(Patch *, Camera *, RenderOptions *),
+    void (*renderPatchCallback)(Patch *, const Camera *, RenderOptions *),
     RenderOptions *renderOptions)
 {
     if ( scene->clusteredRootGeometry == nullptr ) {

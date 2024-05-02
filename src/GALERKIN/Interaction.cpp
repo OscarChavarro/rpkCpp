@@ -50,7 +50,7 @@ Interaction::Interaction(
         logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
     deltaK = new float[1];
-    *(deltaK) = *inDeltaK;
+    *deltaK = *inDeltaK;
 
     totalInteractions++;
     if ( inReceiverElement->isCluster() ) {

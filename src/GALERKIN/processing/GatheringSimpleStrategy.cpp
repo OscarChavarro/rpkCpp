@@ -79,18 +79,16 @@ GatheringSimpleStrategy::patchGather(
     // The form factors have been computed and stored with the source patch
     // already before when doing non-importance-driven Jacobi iterations with lazy
     // linking
-    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking ||
-         galerkinState->importanceDriven ) {
-        if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
-            LinkingSimpleStrategy::createInitialLinks(
-                    scene->voxelGrid,
-                    topLevelElement,
-                    RECEIVER,
-                    galerkinState,
-                    scene->geometryList,
-                    scene->clusteredGeometryList);
-            topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
-        }
+    if ( (galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking || galerkinState->importanceDriven)
+        && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
+        LinkingSimpleStrategy::createInitialLinks(
+                scene->voxelGrid,
+                topLevelElement,
+                RECEIVER,
+                galerkinState,
+                scene->geometryList,
+                scene->clusteredGeometryList);
+        topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 
     // Refine the interactions and compute light transport at the leaves
@@ -116,11 +114,10 @@ Does one step of the radiance computations, returns true if the computations hav
 */
 bool
 GatheringSimpleStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    if ( galerkinState->importanceDriven ) {
-        if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, renderOptions);
-            scene->camera->changed = false;
-        }
+    if ( galerkinState->importanceDriven &&
+         ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
+        updateDirectPotential(scene, renderOptions);
+        scene->camera->changed = false;
     }
 
     // Not importance-driven Jacobi iterations with lazy linking

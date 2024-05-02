@@ -33,21 +33,21 @@ class HierarchicalRefinementStrategy {
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
-        GalerkinState *state);
+        const GalerkinState *state);
 
     static void
     hierarchicRefinementUnCull(
         java::ArrayList<Geometry *> **candidatesList,
-        GalerkinState *state);
+        const GalerkinState *state);
 
     static double
     hierarchicRefinementColorToError(ColorRgb rad);
 
     static double
     hierarchicRefinementLinkErrorThreshold(
-        Interaction *link,
-        double rcv_area,
-        GalerkinState *state);
+        const Interaction *link,
+        double receiverArea,
+        const GalerkinState *state);
 
     static double
     hierarchicRefinementApproximationError(
@@ -75,15 +75,15 @@ class HierarchicalRefinementStrategy {
 
     static int
     hierarchicRefinementCreateSubdivisionLink(
-        Scene *scene,
-        java::ArrayList<Geometry *> *candidatesList,
+        const Scene *scene,
+        const java::ArrayList<Geometry *> *candidatesList,
         GalerkinElement *rcv,
         GalerkinElement *src,
         Interaction *link,
         GalerkinState *galerkinState);
 
     static void
-    hierarchicRefinementStoreInteraction(Interaction *link, GalerkinState *state);
+    hierarchicRefinementStoreInteraction(Interaction *link, const GalerkinState *state);
 
     static void
     hierarchicRefinementRegularSubdivideSource(
@@ -133,13 +133,13 @@ class HierarchicalRefinementStrategy {
     refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, RenderOptions *renderOptions);
 
     static void
-    removeRefinedInteractions(const GalerkinState *state, java::ArrayList<Interaction *> *interactionsToRemove);
+    removeRefinedInteractions(const GalerkinState *state, const java::ArrayList<Interaction *> *interactionsToRemove);
 
   public:
     static void
     refineInteractions(
         Scene *scene,
-        GalerkinElement *parentElement,
+        const GalerkinElement *parentElement,
         GalerkinState *state,
         RenderOptions *renderOptions);
 };

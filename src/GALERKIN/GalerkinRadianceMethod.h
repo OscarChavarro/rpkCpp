@@ -29,16 +29,16 @@ class GalerkinRadianceMethod : public RadianceMethod {
 
     static inline void
     galerkinSetPotential(Patch *patch, float value) {
-        ((GalerkinElement *)((patch)->radianceData))->potential = value;
+        ((GalerkinElement *)(patch->radianceData))->potential = value;
     }
 
     static inline void
     galerkinSetUnShotPotential(Patch *patch, float value) {
-        ((GalerkinElement *)((patch)->radianceData))->unShotPotential = value;
+        ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
     }
 
     static void renderElementHierarchy(GalerkinElement *element, RenderOptions *renderOptions);
-    static void galerkinRenderPatch(Patch *patch, Camera *camera, RenderOptions *renderOptions);
+    static void galerkinRenderPatch(Patch *patch, const Camera *camera, RenderOptions *renderOptions);
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 
   public:
@@ -47,18 +47,18 @@ class GalerkinRadianceMethod : public RadianceMethod {
     static void recomputePatchColor(Patch *patch);
 
     GalerkinRadianceMethod();
-    ~GalerkinRadianceMethod();
-    const char *getRadianceMethodName() const;
-    void parseOptions(int *argc, char **argv);
-    void initialize(Scene *scene);
-    bool doStep(Scene *scene, RenderOptions *renderOptions);
-    void terminate(java::ArrayList<Patch *> *scenePatches);
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions);
-    Element *createPatchData(Patch *patch);
-    void destroyPatchData(Patch *patch);
-    char *getStats();
-    void renderScene(Scene *scene, RenderOptions *renderOptions);
-    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions);
+    ~GalerkinRadianceMethod() final;
+    const char *getRadianceMethodName() const final;
+    void parseOptions(int *argc, char **argv) final;
+    void initialize(Scene *scene) final;
+    bool doStep(Scene *scene, RenderOptions *renderOptions) final;
+    void terminate(java::ArrayList<Patch *> *scenePatches) final;
+    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, RenderOptions *renderOptions) final;
+    Element *createPatchData(Patch *patch) final;
+    void destroyPatchData(Patch *patch) final;
+    char *getStats() final;
+    void renderScene(Scene *scene, RenderOptions *renderOptions) final;
+    void writeVRML(Camera *camera, FILE *fp, RenderOptions *renderOptions) final;
 };
 
 extern void galerkinFreeMemory();

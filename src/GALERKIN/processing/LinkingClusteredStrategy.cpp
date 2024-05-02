@@ -44,7 +44,7 @@ LinkingClusteredStrategy::createInitialLinks(
             }
         }
         deltaK = new float[1];
-        deltaK[0] = HUGE; // HUGE error on the form factor
+        deltaK[0] = HUGE_FLOAT; // HUGE error on the form factor
     }
 
     Interaction *newLink = new Interaction(

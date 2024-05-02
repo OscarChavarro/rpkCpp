@@ -39,10 +39,10 @@ scratchTerminate(GalerkinState *galerkinState) {
 static void
 scratchRenderElementPtr(
     GalerkinElement *elem,
-    GalerkinState * /*galerkinState*/,
+    const GalerkinState * /*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/)
 {
-    Patch *patch = elem->patch;
+    const Patch *patch = elem->patch;
     Vector3D v[4];
 
     // Backface culling test: only render the element if it is turned towards
@@ -77,7 +77,7 @@ scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *gal
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == galerkinState->lastClusterId && vectorEqual(eye, galerkinState->lastEye, EPSILON) ) {
+    if ( cluster->id == galerkinState->lastClusterId && vectorEqual(eye, galerkinState->lastEye, EPSILON_FLOAT) ) {
         return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to
@@ -135,9 +135,9 @@ After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
 ColorRgb
-scratchRadiance(GalerkinState *galerkinState) {
+scratchRadiance(const GalerkinState *galerkinState) {
     int nonBackGround;
-    SGL_PIXEL *pix;
+    const SGL_PIXEL *pix;
     ColorRgb rad;
 
     rad.clear();
@@ -145,13 +145,13 @@ scratchRadiance(GalerkinState *galerkinState) {
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            GalerkinElement *elem = (GalerkinElement *) (*pix);
-            if ( elem != nullptr ) {
+            const GalerkinElement *element = (GalerkinElement *) (*pix);
+            if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
                      galerkinState->galerkinIterationMethod == JACOBI ) {
-                    rad.add(rad, elem->radiance[0]);
+                    rad.add(rad, element->radiance[0]);
                 } else {
-                    rad.add(rad, elem->unShotRadiance[0]);
+                    rad.add(rad, element->unShotRadiance[0]);
                 }
                 nonBackGround++;
             }
@@ -167,17 +167,14 @@ scratchRadiance(GalerkinState *galerkinState) {
 Computes the number of non background pixels
 */
 int
-scratchNonBackgroundPixels(GalerkinState *galerkinState) {
-    int nonBackGround;
-    SGL_PIXEL *pix;
-    int i;
-    int j;
+scratchNonBackgroundPixels(const GalerkinState *galerkinState) {
+    const SGL_PIXEL *pix;
+    int nonBackGround = 0;
 
-    nonBackGround = 0;
-    for ( j = 0; j < galerkinState->scratch->vp_height; j++ ) {
+    for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
-        for ( i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            GalerkinElement *elem = (GalerkinElement *) (*pix);
+        for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
+            const GalerkinElement *elem = (GalerkinElement *) (*pix);
             if ( elem ) {
                 nonBackGround++;
             }
@@ -192,9 +189,9 @@ accumulated in the tmp field of the elements. This field should be
 initialized to zero before
 */
 void
-scratchPixelsPerElement(GalerkinState *galerkinState) {
+scratchPixelsPerElement(const GalerkinState *galerkinState) {
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
-        SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
+        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *)(*pix);
             if ( elem != nullptr ) {
