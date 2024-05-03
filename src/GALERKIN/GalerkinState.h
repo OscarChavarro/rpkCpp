@@ -6,6 +6,7 @@
 #include "common/numericalAnalysis/CubatureRule.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/ShaftCullStrategy.h"
 
 /**
 Reference:
@@ -94,6 +95,8 @@ class GalerkinState {
 
     unsigned long lastClock; // For CPU timing
     float cpuSeconds;
+
+    ShaftCullStrategy shaftCullStrategy;
 
     GalerkinState();
 };

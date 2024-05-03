@@ -6,11 +6,6 @@ efficient ray-traced radiosity", 2nd Euro-graphics Workshop on Rendering, Barcel
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 
-/**
-Default strategy is "overlap open", which was the most efficient strategy tested
-*/
-static ShaftCullStrategy strategy = OVERLAP_OPEN;
-
 Shaft::Shaft():
     ref1(),
     ref2(),
@@ -155,7 +150,7 @@ plane within tolerance distance d*EPSILON
 ShaftPlanePosition
 Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, const double d) {
     bool out; // out = there are positions on the positive side of the plane
-    int in; // in  = there are positions on the negative side of the plane
+    bool in; // in  = there are positions on the negative side of the plane
 
     out = false;
     in = false;
@@ -165,14 +160,14 @@ Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
-            return OVERLAP;
+            return ShaftPlanePosition::OVERLAP;
         }
     }
 
     if ( out ) {
-        return OUTSIDE;
+        return ShaftPlanePosition::OUTSIDE;
     } else {
-        return in ? INSIDE : COPLANAR;
+        return in ? ShaftPlanePosition::INSIDE : ShaftPlanePosition::COPLANAR;
     }
 }
 
@@ -189,30 +184,30 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
         double e = vectorDotProduct(*normal, polygon->vertex[i]) + d;
         double tolerance = std::fabs(d) * EPSILON + vectorTolerance(polygon->vertex[i]);
         out |= e > tolerance;
-        if ( out && (side == INSIDE || side == COPLANAR) ) {
+        if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
             return false;
         }
         in |= e < -tolerance;
-        if ( in && (side == OUTSIDE || side == COPLANAR || (out && side != OVERLAP)) ) {
+        if ( in && (side == ShaftPlanePosition::OUTSIDE || side == ShaftPlanePosition::COPLANAR || (out && side != ShaftPlanePosition::OVERLAP)) ) {
             return false;
         }
     }
 
     if ( in ) {
-        if ( out && side == OVERLAP ) {
+        if ( out && side == ShaftPlanePosition::OVERLAP ) {
             return true;
         } else {
-            if ( side == INSIDE ) {
+            if ( side == ShaftPlanePosition::INSIDE ) {
                 return true;
             }
         }
     } else {
         if ( out ) {
-            if ( side == OUTSIDE ) {
+            if ( side == ShaftPlanePosition::OUTSIDE ) {
                 return true;
             }
         } else {
-            if ( side == COPLANAR ) {
+            if ( side == ShaftPlanePosition::COPLANAR ) {
                 return true;
             }
         }
@@ -734,14 +729,14 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
 Breaks the geometry into it's components and does shaft culling on the components
 */
 void
-Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
     if ( geometry->omit ) {
         return;
     }
 
     if ( geometry->isCompound() ) {
         const Compound *compound = geometry->compoundData;
-        doCulling(compound->children, candidateList);
+        doCulling(compound->children, candidateList, strategy);
     } else {
         const java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);
         java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
@@ -762,7 +757,11 @@ the shaft, it is copied to the shaft or broken open depending on
 the current shaft culling strategy
 */
 void
-Shaft::cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+Shaft::cullGeometry(
+    Geometry *geometry,
+    java::ArrayList<Geometry *> *candidateList,
+    const ShaftCullStrategy strategy)
+{
     if ( geometry->className == GeometryClassId::PATCH_SET
         && (geometry->omit || patchIsOnOmitSet((Patch *)geometry)) ) {
         return;
@@ -772,7 +771,7 @@ Shaft::cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateLi
     switch ( geometry->bounded ? boundingBoxTest(&geometry->boundingBox) : OVERLAP ) {
         case INSIDE:
             if ( strategy == ALWAYS_OPEN && !closedGeometry(geometry) ) {
-                shaftCullOpen(geometry, candidateList);
+                shaftCullOpen(geometry, candidateList, strategy);
             } else {
                 keep(geometry, candidateList);
             }
@@ -781,7 +780,7 @@ Shaft::cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateLi
             if ( closedGeometry(geometry) ) {
                 keep(geometry, candidateList);
             } else {
-                shaftCullOpen(geometry, candidateList);
+                shaftCullOpen(geometry, candidateList, strategy);
             }
             break;
         default:
@@ -798,9 +797,12 @@ need to be destroyed when destroying a geometry candidate list created by
 doCulling - for other kinds of geoms, only a pointer is copied
 */
 void
-Shaft::doCulling(const java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList) {
+Shaft::doCulling(
+    const java::ArrayList<Geometry *> *world,
+    java::ArrayList<Geometry *> *candidateList,
+    ShaftCullStrategy strategy) {
     for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
-        cullGeometry(world->get(i), candidateList);
+        cullGeometry(world->get(i), candidateList, strategy);
     }
 }
 

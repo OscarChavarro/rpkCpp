@@ -56,7 +56,7 @@ LinkingSimpleStrategy::createInitialLink(
         shaft.setShaftOmit(topElement->patch);
         shaft.setShaftOmit(patch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        shaft.doCulling(oldCandidateList, *candidateList);
+        shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
         *candidateList = arr;
 
         if ( shaft.cut == true ) {
@@ -125,23 +125,24 @@ LinkingSimpleStrategy::geometryLink(
     BoundingBox *topLevelBoundingBox,
     Geometry *geometry)
 {
-    Shaft shaft;
-    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
-
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geometry->bounded && geometry->getBoundingBox().behindPlane(&topElement->patch->normal, topElement->patch->planeConstant) ) {
+    if ( geometry->bounded
+        && geometry->getBoundingBox().behindPlane(&topElement->patch->normal, topElement->patch->planeConstant) ) {
         return;
     }
 
     // If the geometry is bounded, do shaft culling, reducing the candidate list
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
+    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
+
     if ( geometry->bounded && oldCandidateList ) {
+        Shaft shaft;
         BoundingBox boundingBox = geometry->getBoundingBox();
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         shaft.setShaftOmit(topElement->patch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        shaft.doCulling(oldCandidateList, arr);
+        shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
         *candidateList = arr;
     }
 
@@ -200,14 +201,14 @@ LinkingSimpleStrategy::createInitialLinks(
     BoundingBox topLevelBoundingBox;
     topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
 
-    java::ArrayList<Geometry *> *globalCandidateList = scene->clusteredGeometryList;
+    java::ArrayList<Geometry *> *candidateList = scene->clusteredGeometryList;
 
     for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
         LinkingSimpleStrategy::geometryLink(
             scene,
             galerkinState,
             role,
-            &globalCandidateList,
+            &candidateList,
             topElement,
             &topLevelBoundingBox,
             scene->geometryList->get(i));

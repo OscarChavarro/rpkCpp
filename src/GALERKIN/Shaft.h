@@ -10,6 +10,7 @@ References:
 
 #include "java/util/ArrayList.h"
 #include "scene/Polygon.h"
+#include "GALERKIN/ShaftCullStrategy.h"
 
 class ShaftPlane {
   public:
@@ -75,16 +76,21 @@ class Shaft {
 
     java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
     int patchIsOnOmitSet(const Patch *geometry) const;
-    void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
+    void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);
-    void doCulling(const java::ArrayList<Geometry *> *world, java::ArrayList<Geometry *> *candidateList);
-    void cullGeometry(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
-};
 
-enum ShaftCullStrategy {
-    OVERLAP_OPEN,
-    ALWAYS_OPEN
+    void
+    doCulling(
+        const java::ArrayList<Geometry *> *world,
+        java::ArrayList<Geometry *> *candidateList,
+        ShaftCullStrategy strategy);
+
+    void
+    cullGeometry(
+        Geometry *geometry,
+        java::ArrayList<Geometry *> *candidateList,
+        ShaftCullStrategy strategy);
 };
 
 extern void freeCandidateList(java::ArrayList<Geometry *> *candidateList);

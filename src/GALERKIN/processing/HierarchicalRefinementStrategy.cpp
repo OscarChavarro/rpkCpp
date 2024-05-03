@@ -62,11 +62,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
 
         if ( isClusteredGeometry ) {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            shaft.cullGeometry(scene->clusteredRootGeometry, arr);
+            shaft.cullGeometry(scene->clusteredRootGeometry, arr, state->shaftCullStrategy);
             *candidatesList = arr;
         } else {
             java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-            shaft.doCulling(*candidatesList, arr);
+            shaft.doCulling(*candidatesList, arr, state->shaftCullStrategy);
             *candidatesList = arr;
         }
     }

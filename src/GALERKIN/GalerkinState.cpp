@@ -36,7 +36,10 @@
 #define DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY false
 #define DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS 200
 
-// Constant initial values
+// Default strategy is "overlap open", which was the most efficient strategy tested
+#define DEFAULT_GAL_SHAFT_CULL_STRATEGY OVERLAP_OPEN
+
+// Other Constant initial values
 #define DEFAULT_GAL_ITERATION_NOT_INITIALIZED (-1)
 
 GalerkinState::GalerkinState():
@@ -53,26 +56,29 @@ GalerkinState::GalerkinState():
     cpuSeconds()
 {
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
+    galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
+    relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
+    relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
     importanceDriven = DEFAULT_GAL_IMPORTANCE_DRIVEN;
     clustered = DEFAULT_GAL_CLUSTERED;
-    galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
     lazyLinking = DEFAULT_GAL_LAZY_LINKING;
-    useConstantRadiance = DEFAULT_GAL_CONSTANT_RADIANCE;
     useAmbientRadiance = DEFAULT_GAL_AMBIENT_RADIANCE;
-    shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
+
     receiverDegree = DEFAULT_GAL_RCV_CUBATURE_DEGREE;
     sourceDegree = DEFAULT_GAL_SRC_CUBATURE_DEGREE;
+    clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
+    shaftCullMode = DEFAULT_GAL_SHAFT_CULL_MODE;
+    errorNorm = DEFAULT_GAL_ERROR_NORM;
+    basisType = DEFAULT_GAL_BASIS_TYPE;
+    useConstantRadiance = DEFAULT_GAL_CONSTANT_RADIANCE;
+    exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY;
+    multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
+    scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS;
+    scratch = nullptr;
+    iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
+    shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
+
     setCubatureRules(&rcv3rule, &rcv4rule, receiverDegree);
     setCubatureRules(&src3rule, &src4rule, sourceDegree);
     clusterRule = &GLOBAL_crv1;
-    relMinElemArea = DEFAULT_GAL_REL_MIN_ELEM_AREA;
-    relLinkErrorThreshold = DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD;
-    errorNorm = DEFAULT_GAL_ERROR_NORM;
-    basisType = DEFAULT_GAL_BASIS_TYPE;
-    exactVisibility = DEFAULT_GAL_EXACT_VISIBILITY;
-    multiResolutionVisibility = DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY;
-    clusteringStrategy = DEFAULT_GAL_CLUSTERING_STRATEGY;
-    scratch = nullptr;
-    scratchFrameBufferSize = DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS;
-    iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
 }
