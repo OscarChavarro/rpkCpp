@@ -18,22 +18,18 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 void
 GatheringSimpleStrategy::patchLazyCreateInteractions(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Patch *patch,
-    const GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    const Scene *scene,
+    const Patch *patch,
+    const GalerkinState *galerkinState)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
-            sceneWorldVoxelGrid,
+            scene,
             topLevelElement,
             SOURCE,
-            galerkinState,
-            sceneGeometries,
-            sceneClusteredGeometries);
+            galerkinState);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 }
@@ -64,7 +60,7 @@ Gauss-Seidel iterations
 void
 GatheringSimpleStrategy::patchGather(
     Patch *patch,
-    Scene *scene,
+    const Scene *scene,
     GalerkinState *galerkinState,
     RenderOptions *renderOptions)
 {
@@ -83,12 +79,10 @@ GatheringSimpleStrategy::patchGather(
     if ( (galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking || galerkinState->importanceDriven)
         && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
-                scene->voxelGrid,
-                topLevelElement,
-                RECEIVER,
-                galerkinState,
-                scene->geometryList,
-                scene->clusteredGeometryList);
+            scene,
+            topLevelElement,
+            RECEIVER,
+            galerkinState);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
 
@@ -105,7 +99,7 @@ GatheringSimpleStrategy::patchGather(
 }
 
 void
-GatheringSimpleStrategy::patchUpdatePotential(Patch *patch) {
+GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     GatheringStrategy::pushPullPotential(topLevelElement, 0.0f);
 }
@@ -114,7 +108,7 @@ GatheringSimpleStrategy::patchUpdatePotential(Patch *patch) {
 Does one step of the radiance computations, returns true if the computations have converged and false if not
 */
 bool
-GatheringSimpleStrategy::doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+GatheringSimpleStrategy::doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven &&
          ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
         updateDirectPotential(scene, renderOptions);
@@ -126,11 +120,9 @@ GatheringSimpleStrategy::doGatheringIteration(Scene *scene, GalerkinState *galer
          !galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             GatheringSimpleStrategy::patchLazyCreateInteractions(
-                scene->voxelGrid,
+                scene,
                 scene->patchList->get(i),
-                galerkinState,
-                scene->geometryList,
-                scene->clusteredGeometryList);
+                galerkinState);
         }
     }
 

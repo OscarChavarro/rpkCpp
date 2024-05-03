@@ -5,19 +5,17 @@
 #include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
-static GalerkinElement *globalElement; // The element for which initial links are to be created
-static GalerkinRole globalRole; // The role of that element: SOURCE or RECEIVER
 static Patch *globalPatch; // The patch for the element is the toplevel element
 static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
 static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
 
 static void
 createInitialLink(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    Patch *patch,
+    const Scene *scene,
     const GalerkinState *galerkinState,
-    const java::ArrayList<Geometry *> *sceneGeometries,
-    const java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    const GalerkinRole role,
+    GalerkinElement *topElement,
+    Patch *patch)
 {
     if ( !patch->facing(globalPatch) ) {
         return;
@@ -26,13 +24,13 @@ createInitialLink(
     GalerkinElement *rcv = nullptr;
     GalerkinElement *src = nullptr;
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    switch ( globalRole ) {
+    switch ( role ) {
         case SOURCE:
             rcv = topLevelElement;
-            src = globalElement;
+            src = topElement;
             break;
         case RECEIVER:
-            rcv = globalElement;
+            rcv = topElement;
             src = topLevelElement;
             break;
         default:
@@ -85,11 +83,11 @@ createInitialLink(
         link.numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
-    bool isSceneGeometry = (globalCandidateList == sceneGeometries);
-    bool isClusteredGeometry = (globalCandidateList == sceneClusteredGeometries);
+    bool isSceneGeometry = (globalCandidateList == scene->geometryList);
+    bool isClusteredGeometry = (globalCandidateList == scene->clusteredGeometryList);
     const java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
-        sceneWorldVoxelGrid,
+        scene->voxelGrid,
         geometryListReferences,
         isSceneGeometry,
         isClusteredGeometry,
@@ -122,11 +120,11 @@ Yes... we exploit the hierarchical structure of the scene during initial linking
 */
 static void
 geometryLink(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Geometry *geometry,
+    const Scene *scene,
     const GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    const GalerkinRole role,
+    GalerkinElement *topElement,
+    Geometry *geometry)
 {
     Shaft shaft;
     java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
@@ -152,13 +150,23 @@ geometryLink(
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(sceneWorldVoxelGrid, geometryList->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
+            geometryLink(
+                scene,
+                galerkinState,
+                role,
+                topElement,
+                geometryList->get(i));
         }
         delete geometryList;
     } else {
         const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(sceneWorldVoxelGrid, patchList->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
+            createInitialLink(
+                scene,
+                galerkinState,
+                role,
+                topElement,
+                patchList->get(i));
         }
     }
 
@@ -176,24 +184,25 @@ source element when doing shooting
 */
 void
 LinkingSimpleStrategy::createInitialLinks(
-    VoxelGrid *sceneWorldVoxelGrid,
-    GalerkinElement *top,
+    const Scene *scene,
+    GalerkinElement *topElement,
     GalerkinRole role,
-    const GalerkinState *galerkinState,
-    java::ArrayList<Geometry *> *sceneGeometries,
-    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+    const GalerkinState *galerkinState)
 {
-    if ( top->flags & IS_CLUSTER_MASK ) {
+    if ( topElement->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    globalElement = top;
-    globalRole = role;
-    globalPatch = top->patch;
+    globalPatch = topElement->patch;
     globalPatch->getBoundingBox(&globalPatchBoundingBox);
-    globalCandidateList = sceneClusteredGeometries;
+    globalCandidateList = scene->clusteredGeometryList;
 
-    for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        geometryLink(sceneWorldVoxelGrid, sceneGeometries->get(i), galerkinState, sceneGeometries, sceneClusteredGeometries);
+    for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
+        geometryLink(
+            scene,
+            galerkinState,
+            role,
+            topElement,
+            scene->geometryList->get(i));
     }
 }

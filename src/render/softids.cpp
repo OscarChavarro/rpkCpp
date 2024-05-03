@@ -72,7 +72,7 @@ softRenderPatches(const Scene *scene, const RenderOptions *renderOptions) {
 Software ID rendering
 */
 unsigned long *
-softRenderIds(long *x, long *y, Scene *scene, const RenderOptions *renderOptions) {
+softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
     SGL_CONTEXT *currentSglContext;
     SGL_CONTEXT *oldSglContext;
     unsigned long *ids;

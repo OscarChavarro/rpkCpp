@@ -6,7 +6,7 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
-extern void updateDirectPotential(Scene *scene, RenderOptions *renderOptions);
+extern void updateDirectPotential(const Scene *scene, RenderOptions *renderOptions);
 extern void updateDirectVisibility(Scene *scene, RenderOptions *renderOptions);
 
 #endif

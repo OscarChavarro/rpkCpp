@@ -21,7 +21,7 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(Scene *scene, RenderOptions *renderOptions) {
+updateDirectPotential(const Scene *scene, RenderOptions *renderOptions) {
     Patch **id2patch;
     unsigned long *ids;
     unsigned long *id;

@@ -5,21 +5,19 @@
 
 class GatheringSimpleStrategy final: public GatheringStrategy {
   private:
-    static void patchUpdatePotential(Patch *patch);
+    static void patchUpdatePotential(const Patch *patch);
     static void patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState);
 
     static void
     patchLazyCreateInteractions(
-        VoxelGrid *sceneWorldVoxelGrid,
-        Patch *patch,
-        const GalerkinState *galerkinState,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries);
+        const Scene *scene,
+        const Patch *patch,
+        const GalerkinState *galerkinState);
 
     static void
     patchGather(
         Patch *patch,
-        Scene *scene,
+        const Scene *scene,
         GalerkinState *galerkinState,
         RenderOptions *renderOptions);
 
@@ -27,7 +25,7 @@ class GatheringSimpleStrategy final: public GatheringStrategy {
     GatheringSimpleStrategy();
     ~GatheringSimpleStrategy() final;
 
-    bool doGatheringIteration(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) final;
+    bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) final;
 };
 
 #endif

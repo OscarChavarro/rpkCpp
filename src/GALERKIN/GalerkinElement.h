@@ -77,7 +77,7 @@ extern int galerkinElementGetNumberOfClusters();
 extern int galerkinElementGetNumberOfSurfaceElements();
 
 inline GalerkinElement*
-galerkinGetElement(Patch *patch) {
+galerkinGetElement(const Patch *patch) {
     if ( patch == nullptr ) {
         fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a null Patch\n");
         exit(1);

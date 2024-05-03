@@ -7,17 +7,16 @@
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
+#include "scene/Scene.h"
 
 class LinkingSimpleStrategy {
   public:
     static void
     createInitialLinks(
-        VoxelGrid *sceneWorldVoxelGrid,
-        GalerkinElement *top,
+        const Scene *scene,
+        GalerkinElement *topElement,
         GalerkinRole role,
-        const GalerkinState *galerkinState,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries);
+        const GalerkinState *galerkinState);
 };
 
 #endif

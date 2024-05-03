@@ -35,7 +35,7 @@ class ShootingStrategy {
     static void
     patchPropagateUnShotRadianceAndPotential(
         Scene *scene,
-        Patch *patch,
+        const Patch *patch,
         GalerkinState *galerkinState,
         RenderOptions *renderOptions);
 
@@ -43,10 +43,10 @@ class ShootingStrategy {
     shootingPushPullPotential(GalerkinElement *element, float down);
 
     static void
-    patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState);
+    patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState);
 
     static void
-    doPropagate(Scene *scene, Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    doPropagate(Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions);
 
     static bool
     propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
@@ -61,7 +61,7 @@ class ShootingStrategy {
     propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
 
     static void
-    shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement);
+    shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);
 
   public:
     static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);

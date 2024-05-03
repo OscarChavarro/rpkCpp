@@ -29,7 +29,7 @@ class HierarchicalRefinementStrategy {
   private:
     static void
     hierarchicRefinementCull(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
@@ -87,7 +87,7 @@ class HierarchicalRefinementStrategy {
 
     static void
     hierarchicRefinementRegularSubdivideSource(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
@@ -96,7 +96,7 @@ class HierarchicalRefinementStrategy {
 
     static void
     hierarchicRefinementRegularSubdivideReceiver(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
@@ -105,7 +105,7 @@ class HierarchicalRefinementStrategy {
 
     static void
     hierarchicRefinementSubdivideSourceCluster(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
@@ -114,7 +114,7 @@ class HierarchicalRefinementStrategy {
 
     static void
     hierarchicRefinementSubdivideReceiverCluster(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
@@ -123,14 +123,14 @@ class HierarchicalRefinementStrategy {
 
     static bool
     refineRecursive(
-        Scene *scene,
+        const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         GalerkinState *state,
         const RenderOptions *renderOptions);
 
     static bool
-    refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, const RenderOptions *renderOptions);
+    refineInteraction(const Scene *scene, Interaction *link, GalerkinState *state, const RenderOptions *renderOptions);
 
     static void
     removeRefinedInteractions(const GalerkinState *state, const java::ArrayList<Interaction *> *interactionsToRemove);
@@ -138,7 +138,7 @@ class HierarchicalRefinementStrategy {
   public:
     static void
     refineInteractions(
-        Scene *scene,
+        const Scene *scene,
         const GalerkinElement *parentElement,
         GalerkinState *state,
         RenderOptions *renderOptions);

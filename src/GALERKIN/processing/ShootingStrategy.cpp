@@ -80,7 +80,7 @@ at all levels of the element hierarchy for the patch
 void
 ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
     Scene *scene,
-    Patch *patch,
+    const Patch *patch,
     GalerkinState *galerkinState,
     RenderOptions *renderOptions)
 {
@@ -91,12 +91,10 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
             LinkingClusteredStrategy::createInitialLinks(topLevelElement, SOURCE, galerkinState);
         } else {
             LinkingSimpleStrategy::createInitialLinks(
-                scene->voxelGrid,
+                scene,
                 topLevelElement,
                 SOURCE,
-                galerkinState,
-                scene->geometryList,
-                scene->clusteredGeometryList);
+                galerkinState);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -151,7 +149,7 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down
 }
 
 void
-ShootingStrategy::patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *galerkinState) {
+ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     if ( galerkinState->importanceDriven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
@@ -165,7 +163,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(Patch *patch, GalerkinState *g
 }
 
 void
-ShootingStrategy::doPropagate(Scene *scene, Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+ShootingStrategy::doPropagate(Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     // Propagate the un-shot power of the shooting patch into the environment
     patchPropagateUnShotRadianceAndPotential(scene, shootingPatch, galerkinState, renderOptions);
 
@@ -275,15 +273,15 @@ Called for each patch after direct potential has changed (because the
 virtual camera has changed)
 */
 void
-ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *elem, float potentialIncrement) {
-    if ( elem->regularSubElements ) {
+ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement) {
+    if ( galerkinElement->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
-            shootingUpdateDirectPotential((GalerkinElement *)elem->regularSubElements[i], potentialIncrement);
+            shootingUpdateDirectPotential((GalerkinElement *)galerkinElement->regularSubElements[i], potentialIncrement);
         }
     }
-    elem->directPotential += potentialIncrement;
-    elem->potential += potentialIncrement;
-    elem->unShotPotential += potentialIncrement;
+    galerkinElement->directPotential += potentialIncrement;
+    galerkinElement->potential += potentialIncrement;
+    galerkinElement->unShotPotential += potentialIncrement;
 }
 
 /**
@@ -297,7 +295,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, Ren
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-                Patch *patch = scene->patchList->get(i);
+                const Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);
                 float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
