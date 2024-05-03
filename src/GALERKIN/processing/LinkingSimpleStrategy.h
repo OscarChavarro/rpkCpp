@@ -15,7 +15,7 @@ class LinkingSimpleStrategy {
         VoxelGrid *sceneWorldVoxelGrid,
         GalerkinElement *top,
         GalerkinRole role,
-        GalerkinState *galerkinState,
+        const GalerkinState *galerkinState,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Geometry *> *sceneClusteredGeometries);
 };

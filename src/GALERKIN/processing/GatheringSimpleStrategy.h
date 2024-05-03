@@ -3,7 +3,7 @@
 
 #include "GALERKIN/processing/GatheringStrategy.h"
 
-class GatheringSimpleStrategy : public GatheringStrategy {
+class GatheringSimpleStrategy final: public GatheringStrategy {
   private:
     static void patchUpdatePotential(Patch *patch);
     static void patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState);

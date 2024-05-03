@@ -291,7 +291,7 @@ Regularly subdivides the given element. A pointer to an array of
 Only applicable to surface elements.
 */
 void
-GalerkinElement::regularSubDivide(RenderOptions *renderOptions) {
+GalerkinElement::regularSubDivide(const RenderOptions *renderOptions) {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return;
@@ -666,7 +666,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) {
 Draws element outline in the current outline color
 */
 void
-GalerkinElement::drawOutline(RenderOptions *renderOptions) {
+GalerkinElement::drawOutline(const RenderOptions *renderOptions) {
     draw(OUTLINE, renderOptions);
 }
 

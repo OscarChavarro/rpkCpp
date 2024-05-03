@@ -52,9 +52,9 @@ class GalerkinElement : public Element {
 
     ~GalerkinElement() final;
 
-    void regularSubDivide(RenderOptions *renderOptions);
+    void regularSubDivide(const RenderOptions *renderOptions);
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
-    void drawOutline(RenderOptions *renderOptions);
+    void drawOutline(const RenderOptions *renderOptions);
     void render(const RenderOptions *renderOptions);
     int vertices(Vector3D *p, int n) const;
     BoundingBox *bounds(BoundingBox *boundingBox) const;

@@ -92,7 +92,7 @@ class FormFactorStrategy {
         bool isSceneGeometry,
         bool isClusteredGeometry,
         Interaction *link,
-        GalerkinState *galerkinState);
+        const GalerkinState *galerkinState);
 };
 
 #endif

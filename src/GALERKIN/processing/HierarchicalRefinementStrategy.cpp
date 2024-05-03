@@ -474,7 +474,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -518,7 +518,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -562,7 +562,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -614,7 +614,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
     Interaction *link,
     bool isClusteredGeometry,
     GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -667,7 +667,7 @@ HierarchicalRefinementStrategy::refineRecursive(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     GalerkinState *state,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     bool refined = false;
 
@@ -728,7 +728,7 @@ HierarchicalRefinementStrategy::refineRecursive(
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
 bool
-HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, RenderOptions *renderOptions) {
+HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteraction(Scene *scene, Interaction *link, GalerkinState *state, const RenderOptions *renderOptions) {
     java::ArrayList<Geometry *> *candidateOccluderList = scene->clusteredGeometryList;
 
     if ( state->exactVisibility && link->visibility == 255 ) {

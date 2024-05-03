@@ -3,7 +3,7 @@
 
 #include "GALERKIN/processing/GatheringStrategy.h"
 
-class GatheringClusteredStrategy : public GatheringStrategy {
+class GatheringClusteredStrategy final : public GatheringStrategy {
   private:
     static float updatePotential(GalerkinElement *cluster);
     static void updateClusterDirectPotential(GalerkinElement *element, float potential_increment);

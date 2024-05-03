@@ -15,7 +15,7 @@ static void
 createInitialLink(
     const VoxelGrid *sceneWorldVoxelGrid,
     Patch *patch,
-    GalerkinState *galerkinState,
+    const GalerkinState *galerkinState,
     const java::ArrayList<Geometry *> *sceneGeometries,
     const java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
@@ -124,7 +124,7 @@ static void
 geometryLink(
     VoxelGrid *sceneWorldVoxelGrid,
     Geometry *geometry,
-    GalerkinState *galerkinState,
+    const GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {
@@ -179,7 +179,7 @@ LinkingSimpleStrategy::createInitialLinks(
     VoxelGrid *sceneWorldVoxelGrid,
     GalerkinElement *top,
     GalerkinRole role,
-    GalerkinState *galerkinState,
+    const GalerkinState *galerkinState,
     java::ArrayList<Geometry *> *sceneGeometries,
     java::ArrayList<Geometry *> *sceneClusteredGeometries)
 {

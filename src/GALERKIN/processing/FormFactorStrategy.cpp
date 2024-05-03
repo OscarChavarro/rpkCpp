@@ -472,7 +472,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
     Interaction *link,
-    GalerkinState *galerkinState)
+    const GalerkinState *galerkinState)
 {
     // TODO: Check how to keep the cache, in a re-entrant implementation (use GalerkinState?)
     // Very often, the source or receiver element is the same as the one in
