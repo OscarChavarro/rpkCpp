@@ -90,9 +90,9 @@ geomCreatePatchSet(const java::ArrayList<Patch *> *geometryList) {
 /**
 This function returns a bounding box for the geometry
 */
-BoundingBox &
-getBoundingBox(Geometry *geometry) {
-    return geometry->boundingBox;
+BoundingBox
+Geometry::getBoundingBox() const {
+    return boundingBox;
 }
 
 /**

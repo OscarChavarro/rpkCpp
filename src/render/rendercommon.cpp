@@ -139,7 +139,7 @@ renderBounds(BoundingBox bounds) {
 
 void
 renderGeomBounds(Camera *camera, Geometry *geometry) {
-    BoundingBox geometryBoundingBox = getBoundingBox(geometry);
+    BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
         renderBounds(geometryBoundingBox);

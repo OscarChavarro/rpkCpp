@@ -576,7 +576,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
 
         if ( !childElement->isCluster() ) {
             const Patch *thePatch = childElement->patch;
-            if ( (receiverElement->isCluster() && getBoundingBox(receiverElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+            if ( (receiverElement->isCluster() && receiverElement->geometry->getBoundingBox().behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
                 (!receiverElement->isCluster() && !receiverElement->patch->facing(thePatch)) ) {
                 continue;
             }
@@ -628,7 +628,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
 
         if ( !child->isCluster() ) {
             const Patch *thePatch = child->patch;
-            if ( (sourceElement->isCluster() && getBoundingBox(sourceElement->geometry).behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+            if ( (sourceElement->isCluster() && sourceElement->geometry->getBoundingBox().behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
                 (!sourceElement->isCluster() && !sourceElement->patch->facing(thePatch)) ) {
                 continue;
             }

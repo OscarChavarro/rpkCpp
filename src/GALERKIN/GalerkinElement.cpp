@@ -492,9 +492,9 @@ GalerkinElement::midPoint() const {
     Vector3D c;
 
     if ( isCluster() ) {
-        c.set((getBoundingBox(geometry).coordinates[MIN_X] + getBoundingBox(geometry).coordinates[MAX_X]) / 2.0f,
-              (getBoundingBox(geometry).coordinates[MIN_Y] + getBoundingBox(geometry).coordinates[MAX_Y]) / 2.0f,
-              (getBoundingBox(geometry).coordinates[MIN_Z] + getBoundingBox(geometry).coordinates[MAX_Z]) / 2.0f);
+        c.set((geometry->getBoundingBox().coordinates[MIN_X] + geometry->getBoundingBox().coordinates[MAX_X]) / 2.0f,
+              (geometry->getBoundingBox().coordinates[MIN_Y] + geometry->getBoundingBox().coordinates[MAX_Y]) / 2.0f,
+              (geometry->getBoundingBox().coordinates[MIN_Z] + geometry->getBoundingBox().coordinates[MAX_Z]) / 2.0f);
     } else {
         Vector3D p[8];
         int numberOfVertices = vertices(p, 4);
@@ -515,7 +515,8 @@ Computes a bounding box for the element
 BoundingBox *
 GalerkinElement::bounds(BoundingBox *boundingBox) const {
     if ( isCluster() ) {
-        boundingBox->copyFrom(&getBoundingBox(geometry));
+        BoundingBox copy = geometry->getBoundingBox();
+        boundingBox->copyFrom(&copy);
     } else {
         Vector3D p[4];
         int numberOfVertices;
@@ -558,7 +559,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) {
 
     if ( isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(getBoundingBox(geometry));
+            renderBounds(geometry->getBoundingBox());
         }
         return;
     }

@@ -5,19 +5,17 @@
 #include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
-static Patch *globalPatch; // The patch for the element is the toplevel element
-static BoundingBox globalPatchBoundingBox; // Bounding box for that patch
-static java::ArrayList<Geometry *> *globalCandidateList; // Candidate list for shaft culling
-
 static void
 createInitialLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
+    java::ArrayList<Geometry *> **candidateList,
     GalerkinElement *topElement,
+    BoundingBox *topLevelBoundingBox,
     Patch *patch)
 {
-    if ( !patch->facing(globalPatch) ) {
+    if ( !patch->facing(topElement->patch) ) {
         return;
     }
 
@@ -37,7 +35,7 @@ createInitialLink(
             logFatal(2, "createInitialLink", "Impossible element role");
     }
 
-    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
+    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
 
     if ( (galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
         Shaft shaft;
@@ -53,19 +51,19 @@ createInitialLink(
         } else {
             BoundingBox boundingBox;
             patch->getBoundingBox(&boundingBox);
-            shaft.constructFromBoundingBoxes(&globalPatchBoundingBox, &boundingBox);
+            shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         }
 
-        shaft.setShaftOmit(globalPatch);
+        shaft.setShaftOmit(topElement->patch);
         shaft.setShaftOmit(patch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        shaft.doCulling(oldCandidateList, globalCandidateList);
-        globalCandidateList = arr;
+        shaft.doCulling(oldCandidateList, *candidateList);
+        *candidateList = arr;
 
         if ( shaft.cut == true ) {
             // One patch causes full occlusion
-            freeCandidateList(globalCandidateList);
-            globalCandidateList = oldCandidateList;
+            freeCandidateList(*candidateList);
+            *candidateList = oldCandidateList;
             return;
         }
     }
@@ -83,9 +81,9 @@ createInitialLink(
         link.numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
-    bool isSceneGeometry = (globalCandidateList == scene->geometryList);
-    bool isClusteredGeometry = (globalCandidateList == scene->clusteredGeometryList);
-    const java::ArrayList<Geometry *> *geometryListReferences = globalCandidateList;
+    bool isSceneGeometry = (*candidateList == scene->geometryList);
+    bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
+    const java::ArrayList<Geometry *> *geometryListReferences = *candidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         scene->voxelGrid,
         geometryListReferences,
@@ -95,10 +93,10 @@ createInitialLink(
         galerkinState);
 
     if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
-        if ( oldCandidateList != globalCandidateList ) {
-            freeCandidateList(globalCandidateList);
+        if ( oldCandidateList != *candidateList ) {
+            freeCandidateList(*candidateList);
         }
-        globalCandidateList = oldCandidateList;
+        *candidateList = oldCandidateList;
     }
 
     if ( link.visibility > 0 ) {
@@ -123,14 +121,16 @@ geometryLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
+    java::ArrayList<Geometry *> **candidateList,
     GalerkinElement *topElement,
+    BoundingBox *topLevelBoundingBox,
     Geometry *geometry)
 {
     Shaft shaft;
-    java::ArrayList<Geometry *> *oldCandidateList = globalCandidateList;
+    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
 
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
-    if ( geometry->bounded && getBoundingBox(geometry).behindPlane(&globalPatch->normal, globalPatch->planeConstant) ) {
+    if ( geometry->bounded && geometry->getBoundingBox().behindPlane(&topElement->patch->normal, topElement->patch->planeConstant) ) {
         return;
     }
 
@@ -138,11 +138,12 @@ geometryLink(
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
     if ( geometry->bounded && oldCandidateList ) {
-        shaft.constructFromBoundingBoxes(&globalPatchBoundingBox, &getBoundingBox(geometry));
-        shaft.setShaftOmit(globalPatch);
+        BoundingBox boundingBox = geometry->getBoundingBox();
+        shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
+        shaft.setShaftOmit(topElement->patch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
         shaft.doCulling(oldCandidateList, arr);
-        globalCandidateList = arr;
+        *candidateList = arr;
     }
 
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
@@ -154,7 +155,9 @@ geometryLink(
                 scene,
                 galerkinState,
                 role,
+                candidateList,
                 topElement,
+                topLevelBoundingBox,
                 geometryList->get(i));
         }
         delete geometryList;
@@ -165,15 +168,17 @@ geometryLink(
                 scene,
                 galerkinState,
                 role,
+                candidateList,
                 topElement,
+                topLevelBoundingBox,
                 patchList->get(i));
         }
     }
 
     if ( geometry->bounded && oldCandidateList ) {
-        freeCandidateList(globalCandidateList);
+        freeCandidateList(*candidateList);
     }
-    globalCandidateList = oldCandidateList;
+    *candidateList = oldCandidateList;
 }
 
 /**
@@ -185,24 +190,27 @@ source element when doing shooting
 void
 LinkingSimpleStrategy::createInitialLinks(
     const Scene *scene,
-    GalerkinElement *topElement,
-    GalerkinRole role,
-    const GalerkinState *galerkinState)
+    const GalerkinRole role,
+    const GalerkinState *galerkinState,
+    GalerkinElement *topElement)
 {
     if ( topElement->flags & IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    globalPatch = topElement->patch;
-    globalPatch->getBoundingBox(&globalPatchBoundingBox);
-    globalCandidateList = scene->clusteredGeometryList;
+    BoundingBox topLevelBoundingBox;
+    topElement->patch->getBoundingBox(&topLevelBoundingBox);
+
+    java::ArrayList<Geometry *> *globalCandidateList = scene->clusteredGeometryList;
 
     for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
         geometryLink(
             scene,
             galerkinState,
             role,
+            &globalCandidateList,
             topElement,
+            &topLevelBoundingBox,
             scene->geometryList->get(i));
     }
 }

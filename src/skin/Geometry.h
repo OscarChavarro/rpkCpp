@@ -92,11 +92,11 @@ class Geometry {
         RayHit *hitStore);
 
     bool isExcluded() const;
+    BoundingBox getBoundingBox() const;
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
 
-extern BoundingBox &getBoundingBox(Geometry *geometry);
 extern void geomDestroy(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
 java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);

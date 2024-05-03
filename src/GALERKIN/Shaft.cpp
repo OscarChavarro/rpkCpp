@@ -49,7 +49,6 @@ Constructs a shaft for two given bounding boxes
 */
 void
 Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
-    int i;
     int hasMinMax1[6];
     int hasMinMax2[6];
     ShaftPlane *localPlane;
@@ -70,13 +69,13 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
     center2.y = 0.5f * (boundingBox2->coordinates[MIN_Y] + boundingBox2->coordinates[MAX_Y]);
     center2.z = 0.5f * (boundingBox2->coordinates[MIN_Z] + boundingBox2->coordinates[MAX_Z]);
 
-    for ( i = 0; i < 6; i++ ) {
+    for ( int i = 0; i < 6; i++ ) {
         hasMinMax1[i] = hasMinMax2[i] = 0;
     }
 
     // Create extent box of both volumeListsOfItems and keep track which coordinates of which
     // box become the minimum or maximum
-    for ( i = MIN_X; i <= MIN_Z; i++ ) {
+    for ( int i = MIN_X; i <= MIN_Z; i++ ) {
         if ( ref1->coordinates[i] < ref2->coordinates[i] ) {
             boundingBox.coordinates[i] = ref1->coordinates[i];
             hasMinMax1[i] = 1;
@@ -88,7 +87,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
         }
     }
 
-    for ( i = MAX_X; i <= MAX_Z; i++ ) {
+    for ( int i = MAX_X; i <= MAX_Z; i++ ) {
         if ( ref1->coordinates[i] > ref2->coordinates[i] ) {
             boundingBox.coordinates[i] = ref1->coordinates[i];
             hasMinMax1[i] = 1;
@@ -102,7 +101,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
 
     // Create plane set
     localPlane = &plane[0];
-    for ( i = 0; i < 6; i++ ) {
+    for ( int i = 0; i < 6; i++ ) {
         if ( !hasMinMax1[i] ) {
             continue;
         }

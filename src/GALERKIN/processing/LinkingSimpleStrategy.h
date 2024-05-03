@@ -14,9 +14,9 @@ class LinkingSimpleStrategy {
     static void
     createInitialLinks(
         const Scene *scene,
-        GalerkinElement *topElement,
         GalerkinRole role,
-        const GalerkinState *galerkinState);
+        const GalerkinState *galerkinState,
+        GalerkinElement *topElement);
 };
 
 #endif

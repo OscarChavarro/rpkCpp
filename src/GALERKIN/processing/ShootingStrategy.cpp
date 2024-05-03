@@ -92,9 +92,9 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
         } else {
             LinkingSimpleStrategy::createInitialLinks(
                 scene,
-                topLevelElement,
                 SOURCE,
-                galerkinState);
+                galerkinState,
+                topLevelElement);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
