@@ -1,24 +1,21 @@
-/**
-Shaft culling ala Haines, E. A. and Wallace, J. R. "Shaft culling for
-efficient ray-traced radiosity", 2nd Euro-graphics Workshop on Rendering, Barcelona, Spain, may 1991
-*/
-
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 
+#define MIN_MAX_DIMENSIONS 6
+
 Shaft::Shaft():
-    ref1(),
-    ref2(),
-    boundingBox(),
-    plane(),
-    planes(),
-    omit(),
-    numberOfGeometriesToOmit(),
-    dontOpen(),
-    numberOfGeometriesToNotOpen(),
-    center1(),
-    center2(),
-    cut()
+        referenceItem1(),
+        referenceItem2(),
+        extentBoundingBox(),
+        planeSet(),
+        numberOfPlanesInSet(),
+        omit(),
+        numberOfGeometriesToOmit(),
+        dontOpen(),
+        numberOfGeometriesToNotOpen(),
+        center1(),
+        center2(),
+        cut()
 {
 }
 
@@ -44,15 +41,13 @@ Constructs a shaft for two given bounding boxes
 */
 void
 Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
-    int hasMinMax1[6];
-    int hasMinMax2[6];
-    ShaftPlane *localPlane;
-
-    numberOfGeometriesToOmit = numberOfGeometriesToNotOpen = 0;
+    numberOfGeometriesToOmit = 0;
+    numberOfGeometriesToNotOpen = 0;
     cut = false;
 
-    ref1 = boundingBox1;
-    ref2 = boundingBox2;
+    // 1. Obtain the bounding boxes for the reference items [HAIN1991]
+    referenceItem1 = boundingBox1;
+    referenceItem2 = boundingBox2;
 
     // Midpoints of the reference boxes define a line that is guaranteed
     // to lay within the shaft
@@ -64,55 +59,62 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
     center2.y = 0.5f * (boundingBox2->coordinates[MIN_Y] + boundingBox2->coordinates[MAX_Y]);
     center2.z = 0.5f * (boundingBox2->coordinates[MIN_Z] + boundingBox2->coordinates[MAX_Z]);
 
-    for ( int i = 0; i < 6; i++ ) {
-        hasMinMax1[i] = hasMinMax2[i] = 0;
+    // 2. Compute the extent bounding box containing both reference items [HAIN1991]
+    bool hasMinMax1[MIN_MAX_DIMENSIONS]; // Representation of culled edges for the extent bounding box
+    bool hasMinMax2[MIN_MAX_DIMENSIONS];
+
+    for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
+        hasMinMax1[i] = false;
+        hasMinMax2[i] = false;
     }
 
-    // Create extent box of both volumeListsOfItems and keep track which coordinates of which
-    // box become the minimum or maximum
-    for ( int i = MIN_X; i <= MIN_Z; i++ ) {
-        if ( ref1->coordinates[i] < ref2->coordinates[i] ) {
-            boundingBox.coordinates[i] = ref1->coordinates[i];
-            hasMinMax1[i] = 1;
+    for ( int dimension = MIN_X; dimension <= MIN_Z; dimension++ ) {
+        if ( referenceItem1->coordinates[dimension] < referenceItem2->coordinates[dimension] ) {
+            extentBoundingBox.coordinates[dimension] = referenceItem1->coordinates[dimension];
+            hasMinMax1[dimension] = true;
         } else {
-            boundingBox.coordinates[i] = ref2->coordinates[i];
-            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON) ) {
-                hasMinMax2[i] = 1;
+            extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
+            if ( !doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], EPSILON) ) {
+                hasMinMax2[dimension] = true;
             }
         }
     }
 
-    for ( int i = MAX_X; i <= MAX_Z; i++ ) {
-        if ( ref1->coordinates[i] > ref2->coordinates[i] ) {
-            boundingBox.coordinates[i] = ref1->coordinates[i];
-            hasMinMax1[i] = 1;
+    for ( int dimension = MAX_X; dimension <= MAX_Z; dimension++ ) {
+        if ( referenceItem1->coordinates[dimension] > referenceItem2->coordinates[dimension] ) {
+            extentBoundingBox.coordinates[dimension] = referenceItem1->coordinates[dimension];
+            hasMinMax1[dimension] = true;
         } else {
-            boundingBox.coordinates[i] = ref2->coordinates[i];
-            if ( !doubleEqual(ref1->coordinates[i], ref2->coordinates[i], EPSILON) ) {
-                hasMinMax2[i] = 1;
+            extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
+            if ( !doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], EPSILON) ) {
+                hasMinMax2[dimension] = true;
             }
         }
     }
 
-    // Create plane set
-    localPlane = &plane[0];
-    for ( int i = 0; i < 6; i++ ) {
+    // 3. Create the plane set between the two reference items' boxes [HAIN1991]
+    numberOfPlanesInSet = 0;
+    ShaftPlane *localPlane;
+    for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
+        localPlane = &planeSet[0];
         if ( !hasMinMax1[i] ) {
             continue;
         }
-        for ( int j = 0; j < 6; j++ ) {
-            int a = (i % 3);
-            int b = (j % 3); // Directions
+
+        for ( int j = 0; j < MIN_MAX_DIMENSIONS; j++ ) {
+            // 3.1. Compute plane normal for marked borders
+            int a = (i % 3); // Directions
+            int b = (j % 3);
 
             if ( !hasMinMax2[j] || a == b ) {
                 // Same direction
                 continue;
             }
 
-            float u1 = ref1->coordinates[i]; // Coordinates defining the plane
-            float v1 = ref1->coordinates[j];
-            float u2 = ref2->coordinates[i];
-            float v2 = ref2->coordinates[j];
+            float u1 = referenceItem1->coordinates[i]; // Coordinates defining the plane
+            float v1 = referenceItem1->coordinates[j];
+            float u2 = referenceItem2->coordinates[i];
+            float v2 = referenceItem2->coordinates[j];
             float du;
             float dv;
 
@@ -125,19 +127,19 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
                 dv = u2 - u1;
             }
 
+            // 3.2. Build the new identified plane
             localPlane->n[a] = du;
             localPlane->n[b] = dv;
             localPlane->n[3 - a - b] = 0.0;
             localPlane->d = -(du * u1 + dv * v1);
-
             localPlane->coordinateOffset[0] = localPlane->n[0] > 0.0 ? MIN_X : MAX_X;
             localPlane->coordinateOffset[1] = localPlane->n[1] > 0.0 ? MIN_Y : MAX_Y;
             localPlane->coordinateOffset[2] = localPlane->n[2] > 0.0 ? MIN_Z : MAX_Z;
 
             localPlane++;
         }
+        numberOfPlanesInSet = (int)(localPlane - &planeSet[0]);
     }
-    planes = (int)(localPlane - &plane[0]);
 }
 
 /**
@@ -145,7 +147,7 @@ Tests a polygon with respect to the plane defined by the given normal and plane
 constant. Returns INSIDE if the polygon is totally on the negative side of
 the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
-plane within tolerance distance d*EPSILON
+plane within tolerance distance d * EPSILON
 */
 ShaftPlanePosition
 Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, const double d) {
@@ -235,8 +237,8 @@ Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, do
 }
 
 /**
-Compare to shaft planes. Returns 0 if they are the same and -1 or +1
-if not (can be used for sorting the planes. It is assumed that the plane normals
+Compare to shaft numberOfPlanesInSet. Returns 0 if they are the same and -1 or +1
+if not (can be used for sorting the numberOfPlanesInSet. It is assumed that the plane normals
 are normalized!
 */
 int
@@ -275,11 +277,11 @@ Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
 
 /**
 Plane is a pointer to the shaft plane defined in shaft. This routine will return
-true if the plane differs from all previous defined planes
+true if the plane differs from all previous defined numberOfPlanesInSet
 */
 int
 Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
-    for ( const ShaftPlane *ref = &plane[0]; ref != parameterPlane; ref++ ) {
+    for ( const ShaftPlane *ref = &planeSet[0]; ref != parameterPlane; ref++ ) {
         if ( compareShaftPlanes(ref, parameterPlane) == 0 ) {
             return false;
         }
@@ -303,12 +305,12 @@ Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
 }
 
 /**
-Construct the planes determining the shaft that use edges of p1 and vertices of p2
+Construct the numberOfPlanesInSet determining the shaft that use edges of p1 and vertices of p2
 */
 void
 Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *polygon2) {
     Vector3D normal;
-    ShaftPlane *localPlane = &plane[planes];
+    ShaftPlane *localPlane = &planeSet[numberOfPlanesInSet];
     int maxPlanesPerEdge;
 
     // Test p2 wrt plane of p1
@@ -334,13 +336,13 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             break;
         case OVERLAP:
             // The plane of p1 cuts p2. It is not a shaft plane and there may be up to two
-            // shaft planes for each edge of p1
+            // shaft numberOfPlanesInSet for each edge of p1
             maxPlanesPerEdge = 2;
             break;
         default:
             // COPLANAR
             // Degenerate case that should never happen. If it does, it will result
-            // in a shaft with no planes and just a thin bounding box containing the coplanar
+            // in a shaft with no numberOfPlanesInSet and just a thin bounding box containing the coplanar
             // faces
             return;
     }
@@ -408,7 +410,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
         }
     }
 
-    planes = (int)(localPlane - &plane[0]);
+    numberOfPlanesInSet = (int)(localPlane - &planeSet[0]);
 }
 
 /**
@@ -417,12 +419,12 @@ Constructs a shaft enclosing the two given polygons
 void
 Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2) {
     // No "reference" bounding boxes to test with
-    ref1 = nullptr;
-    ref2 = nullptr;
+    referenceItem1 = nullptr;
+    referenceItem2 = nullptr;
 
     // Shaft extent: bounding box containing the bounding boxes of the patches
-    boundingBox.copyFrom(&polygon1->bounds);
-    boundingBox.enlarge(&polygon2->bounds);
+    extentBoundingBox.copyFrom(&polygon1->bounds);
+    extentBoundingBox.enlarge(&polygon2->bounds);
 
     // Nothing (yet) to omit
     omit[0] = nullptr;
@@ -446,8 +448,8 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     }
     vectorScaleInverse((float) polygon2->numberOfVertices, center2, center2);
 
-    // Determine the shaft planes
-    planes = 0;
+    // Determine the shaft numberOfPlanesInSet
+    numberOfPlanesInSet = 0;
     constructPolygonToPolygonPlanes(polygon1, polygon2);
     constructPolygonToPolygonPlanes(polygon2, polygon1);
 }
@@ -459,14 +461,14 @@ is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 ShaftPlanePosition
 Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
     // Test against extent box
-    if ( parameterBoundingBox->disjointToOtherBoundingBox(&boundingBox) ) {
+    if ( parameterBoundingBox->disjointToOtherBoundingBox(&extentBoundingBox) ) {
         return OUTSIDE;
     }
 
     // Test against plane set: if nearest corner of the bounding box is on or
     // outside any shaft plane, the object is outside the shaft
-    for ( int i = 0; i < planes; i++ ) {
-        const ShaftPlane *localPlane = &plane[i];
+    for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
+        const ShaftPlane *localPlane = &planeSet[i];
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[0]] +
              localPlane->n[1] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[1]] +
              localPlane->n[2] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[2]] +
@@ -476,16 +478,16 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
     }
 
     // Test against reference volumeListsOfItems
-    if ( (ref1 && !parameterBoundingBox->disjointToOtherBoundingBox(ref1)) ||
-         (ref2 && !parameterBoundingBox->disjointToOtherBoundingBox(ref2)) ) {
+    if ((referenceItem1 && !parameterBoundingBox->disjointToOtherBoundingBox(referenceItem1)) ||
+        (referenceItem2 && !parameterBoundingBox->disjointToOtherBoundingBox(referenceItem2)) ) {
         return OVERLAP;
     }
 
     // If the bounding box survives all previous tests, it must overlap or be inside the
     // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
     // overlaps the shaft, otherwise it is inside the shaft
-    for ( int i = 0; i < planes; i++ ) {
-        const ShaftPlane *localPlane = &plane[i];
+    for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
+        const ShaftPlane *localPlane = &planeSet[i];
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[0] + 3) % 6] +
              localPlane->n[1] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[1] + 3) % 6] +
              localPlane->n[2] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[2] + 3) % 6] +
@@ -517,7 +519,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     float dist;
     RayHit hitStore;
 
-    // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
+    // Start by assuming that all vertices are on the negative side ("inside") all shaft numberOfPlanesInSet
     someOut = false;
     for ( j = 0; j < patch->numberOfVertices; j++ ) {
         inAll[j] = true;
@@ -526,7 +528,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         pTol[j] = vectorTolerance(*patch->vertex[j]->point); // Vertex tolerance
     }
 
-    for ( i = 0, localPlane = &plane[0]; i < planes; i++, localPlane++ ) {
+    for ( i = 0, localPlane = &planeSet[0]; i < numberOfPlanesInSet; i++, localPlane++ ) {
         // Test patch against i-th plane of the shaft
         Vector3D planeNormal;
         double e[MAXIMUM_VERTICES_PER_PATCH];
@@ -562,7 +564,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         if ( out ) {
             // Patch contains at least one vertex inside and one
             someOut = true; // Outside the plane. A point is inside the shaft
-			 // if it is inside *all* planes, but it is outside
+			 // if it is inside *all* numberOfPlanesInSet, but it is outside
 			 // as soon it is outside *one* plane
 
             for ( j = 0; j < patch->numberOfVertices; j++ ) {
@@ -606,8 +608,8 @@ Shaft::shaftPatchTest(Patch *patch) {
         }
     }
 
-    // The remaining tests only work if the shaft planes alone determine the shaft
-    if ( ref1 || ref2 ) {
+    // The remaining tests only work if the shaft numberOfPlanesInSet alone determine the shaft
+    if ( referenceItem1 || referenceItem2 ) {
         return OVERLAP;
     }
 
