@@ -80,7 +80,7 @@ class HierarchicalRefinementStrategy {
         GalerkinElement *rcv,
         GalerkinElement *src,
         Interaction *link,
-        GalerkinState *galerkinState);
+        const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementStoreInteraction(Interaction *link, const GalerkinState *state);

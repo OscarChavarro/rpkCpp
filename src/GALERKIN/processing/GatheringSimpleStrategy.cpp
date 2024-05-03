@@ -18,11 +18,12 @@ interactions with light sources are created. See Holschuch, EGRW '94
 */
 void
 GatheringSimpleStrategy::patchLazyCreateInteractions(
-        VoxelGrid *sceneWorldVoxelGrid,
-        Patch *patch,
-        GalerkinState *galerkinState,
-        java::ArrayList<Geometry *> *sceneGeometries,
-        java::ArrayList<Geometry *> *sceneClusteredGeometries) {
+    VoxelGrid *sceneWorldVoxelGrid,
+    Patch *patch,
+    const GalerkinState *galerkinState,
+    java::ArrayList<Geometry *> *sceneGeometries,
+    java::ArrayList<Geometry *> *sceneClusteredGeometries)
+{
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {

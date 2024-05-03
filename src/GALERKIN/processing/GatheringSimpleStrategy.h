@@ -12,7 +12,7 @@ class GatheringSimpleStrategy final: public GatheringStrategy {
     patchLazyCreateInteractions(
         VoxelGrid *sceneWorldVoxelGrid,
         Patch *patch,
-        GalerkinState *galerkinState,
+        const GalerkinState *galerkinState,
         java::ArrayList<Geometry *> *sceneGeometries,
         java::ArrayList<Geometry *> *sceneClusteredGeometries);
 

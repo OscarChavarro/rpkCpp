@@ -414,7 +414,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     GalerkinElement *rcv,
     GalerkinElement *src,
     Interaction *link,
-    GalerkinState *galerkinState)
+    const GalerkinState *galerkinState)
 {
     link->receiverElement = rcv;
     link->sourceElement = src;
