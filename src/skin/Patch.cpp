@@ -670,7 +670,7 @@ Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
 void
-Patch::getBoundingBox(BoundingBox *bounds) {
+Patch::computeAndGetBoundingBox(BoundingBox *bounds) {
     computeBoundingBox();
     bounds->copyFrom(boundingBox);
 }

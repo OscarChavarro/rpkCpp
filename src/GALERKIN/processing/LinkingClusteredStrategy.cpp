@@ -17,11 +17,11 @@ LinkingClusteredStrategy::createInitialLinks(
     GalerkinElement *sourceElement = nullptr;
 
     switch ( role ) {
-        case RECEIVER:
+        case GalerkinRole::RECEIVER:
             receiverElement = element;
             sourceElement = galerkinState->topCluster;
             break;
-        case SOURCE:
+        case GalerkinRole::SOURCE:
             sourceElement = element;
             receiverElement = galerkinState->topCluster;
             break;

@@ -112,7 +112,7 @@ Cluster::clusterAddPatch(Patch *patch) {
         if ( patch->boundingBox != nullptr ) {
             patchBoundingBox = *patch->boundingBox;
         } else {
-            patch->getBoundingBox(&patchBoundingBox);
+            patch->computeAndGetBoundingBox(&patchBoundingBox);
         }
         boundingBox.enlarge(&patchBoundingBox);
     }

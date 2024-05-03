@@ -22,7 +22,7 @@ patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *bounding
     BoundingBox currentPatchBoundingBox;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->getBoundingBox(&currentPatchBoundingBox);
+        patchList->get(i)->computeAndGetBoundingBox(&currentPatchBoundingBox);
         boundingBox->enlarge(&currentPatchBoundingBox);
     }
 

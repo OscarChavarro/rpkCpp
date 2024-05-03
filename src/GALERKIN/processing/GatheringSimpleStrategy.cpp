@@ -27,8 +27,8 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
     if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
             scene,
-            SOURCE,
             galerkinState,
+            GalerkinRole::SOURCE,
             topLevelElement);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }
@@ -80,8 +80,8 @@ GatheringSimpleStrategy::patchGather(
         && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
             scene,
-            RECEIVER,
             galerkinState,
+            GalerkinRole::RECEIVER,
             topLevelElement);
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
     }

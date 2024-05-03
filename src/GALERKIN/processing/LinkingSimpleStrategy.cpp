@@ -1,12 +1,11 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "GALERKIN/Shaft.h"
-#include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
-static void
-createInitialLink(
+void
+LinkingSimpleStrategy::createInitialLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
@@ -23,11 +22,11 @@ createInitialLink(
     GalerkinElement *src = nullptr;
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     switch ( role ) {
-        case SOURCE:
+        case GalerkinRole::SOURCE:
             rcv = topLevelElement;
             src = topElement;
             break;
-        case RECEIVER:
+        case GalerkinRole::RECEIVER:
             rcv = topElement;
             src = topLevelElement;
             break;
@@ -50,7 +49,7 @@ createInitialLink(
             }
         } else {
             BoundingBox boundingBox;
-            patch->getBoundingBox(&boundingBox);
+            patch->computeAndGetBoundingBox(&boundingBox);
             shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         }
 
@@ -116,8 +115,8 @@ createInitialLink(
 /**
 Yes... we exploit the hierarchical structure of the scene during initial linking
 */
-static void
-geometryLink(
+void
+LinkingSimpleStrategy::geometryLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
@@ -151,7 +150,7 @@ geometryLink(
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            geometryLink(
+            LinkingSimpleStrategy::geometryLink(
                 scene,
                 galerkinState,
                 role,
@@ -164,7 +163,7 @@ geometryLink(
     } else {
         const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-            createInitialLink(
+            LinkingSimpleStrategy::createInitialLink(
                 scene,
                 galerkinState,
                 role,
@@ -182,16 +181,16 @@ geometryLink(
 }
 
 /**
-Creates the initial interactions for a toplevel element which is
+Creates the initial interactions for a top level element which is
 considered to be a SOURCE or RECEIVER according to 'role'. Interactions
-are stored at the receiver element when doing gathering and at the
-source element when doing shooting
+are stored at element for both source and receiver when doing gathering and at the
+source element only when doing shooting
 */
 void
 LinkingSimpleStrategy::createInitialLinks(
     const Scene *scene,
-    const GalerkinRole role,
     const GalerkinState *galerkinState,
+    const GalerkinRole role,
     GalerkinElement *topElement)
 {
     if ( topElement->flags & IS_CLUSTER_MASK ) {
@@ -199,12 +198,12 @@ LinkingSimpleStrategy::createInitialLinks(
     }
 
     BoundingBox topLevelBoundingBox;
-    topElement->patch->getBoundingBox(&topLevelBoundingBox);
+    topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
 
     java::ArrayList<Geometry *> *globalCandidateList = scene->clusteredGeometryList;
 
     for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
-        geometryLink(
+        LinkingSimpleStrategy::geometryLink(
             scene,
             galerkinState,
             role,

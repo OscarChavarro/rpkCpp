@@ -69,7 +69,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself
     if ( galerkinState->iterationNumber <= 1 ) {
-        LinkingClusteredStrategy::createInitialLinks(galerkinState->topCluster, RECEIVER, galerkinState);
+        LinkingClusteredStrategy::createInitialLinks(galerkinState->topCluster, GalerkinRole::RECEIVER, galerkinState);
     }
 
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;

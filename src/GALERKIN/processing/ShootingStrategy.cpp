@@ -88,12 +88,12 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 
     if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
-            LinkingClusteredStrategy::createInitialLinks(topLevelElement, SOURCE, galerkinState);
+            LinkingClusteredStrategy::createInitialLinks(topLevelElement, GalerkinRole::SOURCE, galerkinState);
         } else {
             LinkingSimpleStrategy::createInitialLinks(
                 scene,
-                SOURCE,
                 galerkinState,
+                GalerkinRole::SOURCE,
                 topLevelElement);
         }
         topLevelElement->flags |= INTERACTIONS_CREATED_MASK;

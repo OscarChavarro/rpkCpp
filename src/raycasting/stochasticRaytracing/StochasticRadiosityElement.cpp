@@ -907,7 +907,7 @@ stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *
     if ( elem->isCluster() ) {
         boundingBox->copyFrom(&elem->geometry->boundingBox);
     } else if ( !elem->upTrans ) {
-        elem->patch->getBoundingBox(boundingBox);
+        elem->patch->computeAndGetBoundingBox(boundingBox);
         } else {
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 Vertex *v = elem->vertices[i];

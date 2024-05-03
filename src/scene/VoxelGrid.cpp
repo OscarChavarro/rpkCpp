@@ -190,7 +190,7 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
     if ( patch->boundingBox != nullptr ) {
         localBounds = *patch->boundingBox;
     } else {
-        patch->getBoundingBox(&localBounds);
+        patch->computeAndGetBoundingBox(&localBounds);
     }
 
     VoxelData *voxelData = new VoxelData(patch, VOXEL_DATA_PATCH_MASK);

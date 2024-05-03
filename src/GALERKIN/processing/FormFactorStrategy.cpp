@@ -548,12 +548,12 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // If the receiver is another one than before, determine the cubature
     // rule to be used on it and the nodes (positions on the patch)
     if ( receiverElement != formFactorLastReceived ) {
-        determineNodes(receiverElement, RECEIVER, galerkinState, &receiveCubatureRule, x);
+        determineNodes(receiverElement, GalerkinRole::RECEIVER, galerkinState, &receiveCubatureRule, x);
     }
 
     // Same for the source element
     if ( sourceElement != formFactorLastSource ) {
-        determineNodes(sourceElement, SOURCE, galerkinState, &sourceCubatureRule, y);
+        determineNodes(sourceElement, GalerkinRole::SOURCE, galerkinState, &sourceCubatureRule, y);
     }
 
     // Evaluate the radiosity kernel between each pair of nodes on the source

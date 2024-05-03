@@ -10,12 +10,32 @@
 #include "scene/Scene.h"
 
 class LinkingSimpleStrategy {
+  private:
+    static void
+    createInitialLink(
+        const Scene *scene,
+        const GalerkinState *galerkinState,
+        GalerkinRole role,
+        java::ArrayList<Geometry *> **candidateList,
+        GalerkinElement *topElement,
+        BoundingBox *topLevelBoundingBox,
+        Patch *patch);
+
+    static void
+    geometryLink(
+        const Scene *scene,
+        const GalerkinState *galerkinState,
+        GalerkinRole role,
+        java::ArrayList<Geometry *> **candidateList,
+        GalerkinElement *topElement,
+        BoundingBox *topLevelBoundingBox,
+        Geometry *geometry);
   public:
     static void
     createInitialLinks(
         const Scene *scene,
-        GalerkinRole role,
         const GalerkinState *galerkinState,
+        GalerkinRole role,
         GalerkinElement *topElement);
 };
 

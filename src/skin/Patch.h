@@ -95,7 +95,7 @@ class Patch {
 
     int hasZeroVertices() const;
     void computeBoundingBox();
-    void getBoundingBox(BoundingBox *bounds);
+    void computeAndGetBoundingBox(BoundingBox *bounds);
     RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
