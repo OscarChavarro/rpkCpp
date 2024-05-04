@@ -1,0 +1,220 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A NAME=begin>Hierarchical Contexts and Transformations</A>
+</H2>
+As mentioned in the last subsection, there are two hierarchical
+contexts in MGF, the current object and the current transformation.
+We will start by discussing the current object, since it is
+the simpler of the two.
+<P>
+<H3>
+Objects
+</H3>
+There is no particular need in lighting simulation or rendering to
+name objects, but it may help the user
+to know what object a particular surface is associated with.
+The
+<A HREF="o.html">o</A>
+entity provides a convenient mechanism for associating names with
+surfaces.
+The basic use of this entity is as follows:
+<P>
+<PRE>
+o object_name
+	[object entities...]
+	o subobject_name
+		[subobject entities...]
+	o
+	[more object entities and subobjects...]
+o
+</PRE>
+The
+<A HREF="o.html">o</A>
+keyword by itself marks the end of an object context.
+Any number of hierarchical context levels are supported, and there are no
+rules governing the choice of object names except that they begin
+with a letter and be made up of printing, non-white ASCII characters.
+Indentation is not necessary of course, but it does improve
+readability.
+<P>
+<H3>
+Transformations
+</H3>
+MGF supports only rigid-body (i.e. non-distorting) transformations
+with uniform scaling.
+Unlike the other contexts, transformations have no associated
+name, only arguments.
+Thus, there is no way to reestablish a previous transformation other
+than to give the same arguments over again.
+Since the arguments are concise and self-explanatory, this was thought
+sufficient.
+The following transformation flags and
+parameters are defined:
+<PRE>
+	-t dx dy dz	translate objects along the given vector
+	-rx degrees	rotate objects about the X-axis
+	-ry degrees	rotate objects about the Y-axis
+	-rz degrees	rotate objects about the Z-axis
+	-s scalefactor	scale objects by the given factor
+	-mx		mirror objects about the Y-Z plane
+	-my		mirror objects about the X-Z plane
+	-mz		mirror objects about the X-Y plane
+	-i N		repeat the following arguments N times
+	-a N		make an array of N geometric instances
+</PRE>
+Transform arguments have a cumulative effect.
+That is, a rotation
+about X of 20 degrees followed by a rotation about X of -50 degrees
+results in a total rotation of -30 degrees.
+However, if the two
+rotations are separated by some translation vector, the cumulative
+effect is quite different.
+It is best to think of each argument as
+acting on the included geometric objects, and each subsequent transformation
+argument affects the objects relative to their new position/orientation.
+<P>
+For example, rotating an object about its center is most easily done
+by translating
+the object back to the origin, applying the desired rotation, and translating
+it again back to its original position, like so:
+<P>
+<PRE>
+# rotate an included object 20 degrees clockwise looking down
+# an axis parallel to Y and passing through the point (15,0,-35)
+xf -t -15 0 35 -ry -20 -t 15 0 -35
+i object.mgf
+xf
+</PRE>
+Note that the include entity,
+<A HREF="i.html">i</A>,
+permits a transformation to be given with it, so the above could
+have been written more compactly as:
+<P>
+<PRE>
+i object.mgf -t -15 0 35 -ry -20 -t 15 0 -35
+</PRE>
+Rotations are given in degrees counter-clockwise about a principal axis.
+That is, with the thumb of the right hand pointing in the direction
+of the axis, rotation follows the curl of the fingers.
+<P>
+The transform entity itself is cumulative, but in the reverse
+order to its arguments.
+That is, later transformations (i.e. enclosed transformations)
+are prepended to existing (i.e. enclosing) ones.
+A transform command
+with no arguments is used to return to the previous condition.
+It is
+necessary that transforms and their end statements ("xf" by itself) be
+balanced in a file, so that later or enclosing files are not affected.
+<P>
+Transformations apply only to geometric types, e.g. polygons, spheres, etc.
+Vertices and the components that go into geometry are not directly affected.
+This is to avoid confusion and the inadvertent multiple application of a
+given transformation.
+For example:
+<P>
+<PRE>
+xf -t 5 0 0
+v v1 =
+	p 0 10 0
+	n 0 0 1
+xf -rx 180
+# Transform now in effect is "-rx 180 -t 5 0 0"
+ring v1 0 2
+xf
+xf
+</PRE>
+The final ring center is (5,-10,0) -- note that the vertex itself is
+not affected by the transformation, only the geometry that calls on
+it.
+The normal orientation is (0,0,-1) due to the rotation about X,
+which also reversed the sign of the central Y coordinate.
+<P>
+<H3>
+Arrays
+</H3>
+The -a N transform specification causes the following transform
+arguments to be repeated along with the contents of the included
+objects N times.
+The first instance of the geometry will be in its
+initial location; the second instance will be repositioned according
+to the named transformation; the third instance will be repositioned by
+applying this transformation twice, and so on up to N-1 applications.
+<P>
+Multi-dimensional arrays may be specified with a single include
+entity by giving multiple array commands separated by their
+corresponding transforms.
+A final transformation may be given
+by preceding it with a -i 1 specification.
+In other words, the
+scope of an array command continues until the next -i or -a option.
+<P>
+The following MGF description places 60 spheres at a one unit spacing
+in a 3x4x5 array, then moves the whole thing to an origin of
+(15,30,45):
+<P>
+<PRE>
+v v0 =
+	p 0 0 0
+xf -a 3 -t 1 0 0 -a 4 -t 0 1 0 -a 5 -t 0 0 1 -i 1 -t 15 30 45
+sph v0 0.1
+xf
+</PRE>
+Note the "-i 1" in the specification, which marks the end of the
+third array arguments before the final translation.
+<P>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

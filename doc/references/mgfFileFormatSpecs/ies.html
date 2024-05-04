@@ -1,0 +1,62 @@
+<TITLE>
+MGF Entity ies
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+ies - include IESNA luminaire file
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>ies</B>
+<I>pathname</I>
+[
+<B>-m</B>
+<I>multiplier</I>
+]
+[
+<I>transform</I>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Load the IES standard luminaire information contained in the file
+<I>pathname.</I>
+If a
+<I>multiplier</I>
+is given, all candela values will be multiplied by this factor.
+(This option must appear first if present.)
+If a
+<I>transform</I>
+specification is given, then it will be applied as though the
+statement were enclosed by beginning and ending
+<A HREF="xf.html">xf</A>
+entities with this transformation.
+<P>
+The
+<I>pathname</I>
+will be interpreted relative to the enclosing MGF file, and all
+restrictions discussed under the
+<A HREF="i.html">i</A>
+entity also apply to the IES file name.
+The suggested suffix is ".ies", but this has not been followed
+consistently by lighting manufacturers.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Insert 10 2x4' fluorescent troffers in two groups
+ies cf9pr240.ies -t 3.6576 2.1336 2.74 -a 3 -t 2.4384 0 0 -a 2 -t 0 2.4384 0
+ies cf9pr240.ies -rz 90 -t 1.2192 1.8288 2.74 \
+                -a 2 -t 9.7536 0 0 -a 2 -t 0 3.048 0
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="i.html">i</A>,
+<A HREF="o.html">o</A>,
+<A HREF="xf.html">xf</A>

@@ -1,0 +1,57 @@
+<TITLE>
+mg_fgetpos, mg_fgoto - get current file position and seek to pointer
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+mg_fgetpos, mg_fgoto - get current file position and seek to pointer
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>void</B>
+mg_fgetpos( MG_FPOS *pos )
+<P>
+<B>int</B>
+mg_fgoto( MG_FPOS *pos )
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>mg_fgetpos</I>
+gets the current MGF file position and loads it into the passed
+<I>MG_FPOS</I>
+structure,
+<I>pos.</I>
+<P>
+The
+<I>mg_fgoto</I>
+function seeks to the position
+<I>pos,</I>
+taken from a previous call to
+<I>mg_fgetpos.</I>
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+If
+<I>mg_fgoto</I>
+is passed an illegal pointer or one that does not correspond to the
+current
+<I>mg_file</I>
+context, it will return the
+<I>MG_ESEEK</I>
+error value.
+Normally, it returns
+<I>MG_OK</I>
+(0).
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_load.html">mg_load</A>, <A HREF="mg_open.html">mg_open</A>
+<P>

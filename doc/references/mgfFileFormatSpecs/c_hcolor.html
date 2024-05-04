@@ -1,0 +1,172 @@
+<TITLE>
+c_hcolor, c_getcolor, c_ccname, c_ccolor, c_ccvt, c_isgrey -
+color entity support
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+c_hcolor, c_getcolor, c_ccname, c_ccolor, c_ccvt, c_isgrey -
+color entity support
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>int</B>
+c_hcolor(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+C_COLOR *c_getcolor(
+<B>char</B>
+*name )
+<P>
+<B>extern char</B>
+*c_ccname
+<P>
+<B>extern</B>
+C_COLOR *c_ccolor
+<P>
+<B>void</B>
+c_ccvt( C_COLOR *cvp,
+<B>int</B>
+cflags )
+<P>
+<B>int</B>
+c_isgrey( C_COLOR *cvp )
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>c_hcolor</I>
+function supports the MGF entities,
+<A HREF="c.html">c</A>,
+<A HREF="cxy.html">cxy</A>,
+<A HREF="cspec.html">cspec</A>,
+<A HREF="cct.html">cct</A>
+and
+<A HREF="cmix.html">cmix</A>.
+It is an error to support any of the color field entities without
+supporting the
+<A HREF="c.html">c</A>
+entity itself.
+The assignments are normally made to the
+<I>mg_ehand</I>
+array prior to parser initialization, like so:
+<P>
+<PRE>
+mg_ehand[MG_E_COLOR] = c_hcolor;	/* support "c" entity */
+mg_ehand[MG_E_CXY] = c_hcolor;		/* support "cxy" entity */
+mg_ehand[MG_E_CSPEC] = c_hcolor;	/* support "cspec" entity */
+mg_ehand[MG_E_CCT] = c_hcolor;		/* support "cct" entity */
+mg_ehand[MG_E_CMIX] = c_hcolor;		/* support "cmix" entity */
+/* other entity handler assignments... */
+mg_init();			/* initialize parser */
+</PRE>
+If the loader/translator has no use for spectral data, the entries for
+<A HREF="cspec.html">cspec</A>
+and
+<A HREF="cct.html">cct</A>
+may be left with their original NULL assignments and these entities will
+be re-expressed appropriately as tristimulus values.
+<P>
+The
+<I>c_getcolor</I>
+function takes the name of a defined color and returns a pointer to its
+<I>C_COLOR</I>
+structure, defined in "parser.h" as:
+<P>
+<PRE>
+#define C_CMINWL	380		/* minimum wavelength */
+#define C_CMAXWL	780		/* maximum wavelength */
+#define C_CNSS		41		/* number of spectral samples */
+#define C_CWLI		((C_CMAXWL-C_CMINWL)/(C_CNSS-1))
+#define C_CMAXV		10000		/* nominal maximum sample value */
+#define C_CLPWM		(683./C_CMAXV)	/* peak lumens/watt multiplier */
+
+typedef struct {
+	int	clock;			/* incremented each change */
+	short	flags;			/* what's been set */
+	short	ssamp[C_CNSS];		/* spectral samples, min wl to max */
+	long	ssum;			/* straight sum of spectral values */
+	float	cx, cy;			/* xy chromaticity value */
+	float	eff;			/* efficacy (lumens/watt) */
+} C_COLOR;		/* color context */
+</PRE>
+The
+<I>clock</I>
+member will be incremented each time the value gets changed by a
+color field entity, and may be reset by the calling program if
+desired.
+This is a convenient way to keep track of whether or not a color has
+changed since its last use.
+The
+<I>flags</I>
+member indicates which color representations have been assigned,
+and is an inclusive OR of one or more of the following:
+<P>
+<PRE>
+#define C_CSSPEC	01		/* flag if spectrum is set */
+#define C_CDSPEC	02		/* flag if defined w/ spectrum */
+#define C_CSXY		04		/* flag if xy is set */
+#define C_CDXY		010		/* flag if defined w/ xy */
+#define C_CSEFF		020		/* flag if efficacy set */
+</PRE>
+<P>
+It is possible but not recommended to alter the contents of the
+color structure returned by
+<I>c_getcolor.</I>
+Normally, this routine is never called directly, since there are no
+entities that access colors by name other than
+<A HREF="c.html">c</A>.
+<P>
+The global variable
+<I>c_ccname</I>
+points to the name of the current color, or NULL if it is unnamed.
+The variable
+<I>c_ccolor</I>
+points to the current color value, which should never be NULL.
+<P>
+The
+<I>c_ccvt</I>
+routine takes a
+<I>C_COLOR</I>
+structure and a set of desired flag settings and computes the
+missing color representation(s).
+<P>
+The
+<I>c_isgrey</I>
+function returns 1 if the passed color is very close to neutral
+grey, or 0 otherwise.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>c_hcolor</I>
+function returns
+<I>MG_OK</I>
+(0) if the color is handled correctly, or one of the predefined
+error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+<P>
+The
+<I>c_getcolor</I>
+function returns NULL if the specified color name is undefined, at
+which point the calling function should return an
+<I>MG_EUNDEF</I>
+error.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c_hmater.html">c_hmaterial</A>, <A HREF="c_hvert.html">c_hvertex</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>
+<P>

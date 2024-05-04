@@ -1,0 +1,54 @@
+<TITLE>
+mgf2inv - convert from MGF to Inventor or VRML format
+</TITLE>
+<H4>
+NAME
+</H4>
+mgf2inv - convert from MGF to Inventor or VRML format
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>mgf2inv</B>
+[
+<B>-1|-2|-vrml</B>
+[
+<B>input</B> ..
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>Mgf2inv</I>
+takes one or more MGF input files and converts it to
+Inventor or VRML format.
+If the
+<I>-1</I>
+option is used, then Inventor 1.0 ASCII output is produced.
+If the
+<I>-2</I>
+option is used, then Inventor 2.0 ASCII output is produced.
+(This is the default.)
+If the
+<I>-vrml</I>
+option is used, then VRML 1.0 ASCII output is produced.
+<P>
+This converter does not work properly for light sources, since
+the output formats do not support IES-type luminaires with recorded
+distributions.
+Also, some material information may be lost because Inventor lacks
+a physically valid reflectance model.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To take an MGF file and convert it to VRML format:
+<PRE>
+	mgf2inv -vrml myscene.mgf > myscene.iv
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mgf2rad.html">mgf2rad</A>, <A HREF="mgfilt.html">mgfilt</A>,
+<A HREF="rad2mgf.html">rad2mgf</A>
+<P>

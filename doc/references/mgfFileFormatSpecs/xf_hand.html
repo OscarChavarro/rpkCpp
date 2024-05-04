@@ -1,0 +1,154 @@
+<TITLE>
+xf_handler, xf_clear, xf_context, xf_argend - transformation support
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+xf_handler, xf_clear, xf_context, xf_argend - transformation support
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>int</B>
+xf_handler(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+<B>void</B>
+xf_clear(
+<B>void</B>
+)
+<P>
+<B>extern</B>
+XF_SPEC *xf_context
+<P>
+<B>extern char</B>
+**xf_argend
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>xf_handler</I>
+routine should be assigned to the
+<I>MG_E_XF</I>
+entry of the parser's
+<I>mg_ehand</I>
+array prior to calling
+<I>mg_load</I>
+if the loader/translator wishes to support hierarchical
+transformations.
+(Note that all MGF geometric entities require this support.)
+<P>
+The
+<I>xf_clear</I>
+function may be used to clear the transform stack and free any
+associated memory, but this is usually not necessary since
+<A HREF="xf.html">xf</A>
+begin and end entities are normally balanced in the input.
+<P>
+The global
+<I>xf_context</I>
+variable points to the current transformation context, which is of
+the type
+<I>XF_SPEC,</I>
+described in "parser.h":
+<P>
+<PRE>
+typedef struct xf_spec {
+	long	xid;			/* unique transform id */
+	short	xac;			/* context argument count */
+	short	rev;			/* boolean true if vertices reversed */
+	XF	xf;			/* cumulative transformation */
+	struct xf_array	*xarr;		/* transformation array pointer */
+	struct xf_spec	*prev;		/* previous transformation context */
+} XF_SPEC;		/* followed by argument buffer */
+</PRE>
+The
+<I>xid</I>
+member is a identifier associated with this transformation,
+which should be the same for identical transformations, as an aid to
+vertex sharing.
+(See also the
+<I>c_hvertex</I>
+page.)
+The
+<I>xac</I>
+member indicates the total number of transform arguments, and is
+used to indicate the position of the first argument relative to the
+last one pointed to by the global
+<I>xf_argend</I>
+variable.
+<P>
+The first transform argument starts at
+<I>xf_argv,</I>
+which is a macro defined in "parser.h" as:
+<P>
+<PRE>
+#define xf_argv		(xf_argend - xf_context -&gt xac)
+</PRE>
+Note that accessing this macro will result in a segmentation violation
+if the current context is NULL, so one should first test the second macro
+<I>xf_argc</I>
+against zero.
+This macro is defined as:
+<P>
+<PRE>
+#define xf_argc		(xf_context==NULL ? 0 : xf_context -&gt xac)
+</PRE>
+<P>
+Normally, neither of these macros will be used, since there are
+routines for transforming points, vectors and scalars directly based
+on the current transformation context.
+(See the
+<I>xf_xfmpoint</I>
+page for details.)
+<P>
+The
+<I>rev</I>
+member of the
+<I>XF_SPEC</I>
+structure indicates whether or not this transform reverses the order
+of polygon vertices.
+This member will be 1 if the transformation mirrors about an odd
+number of coordinate axes, thus inverting faces.
+The usual thing to do in this circumstance is to interpret the
+vertex arguments in the reverse order, so as to bring the face back
+to its original orientation in the new position.
+<P>
+The
+<I>xf</I>
+member contains the transformation scalefactor (in xf.sca)
+and 4x4 homogeneous matrix (in xf.xfm), but these will usually not
+be accessed directly.
+Likewise, the
+<I>xarr</I>
+and
+<I>prev</I>
+members point to data that should not be needed by the calling
+program.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>xf_handler</I>
+function returns
+<I>MG_OK</I>
+(0) if the color is handled correctly, or one of the predefined
+error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c_hvert.html">c_hvertex</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>,
+<A HREF="obj_hand.html">obj_handler</A>,
+<A HREF="xf_xfmp.html">xf_xfmpoint</A>
+<P>

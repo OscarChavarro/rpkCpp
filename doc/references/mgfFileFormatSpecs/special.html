@@ -1,0 +1,101 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A NAME=begin>What makes MGF special?</A>
+</H2>
+There are three principal reasons to use MGF as an input language for
+lighting simulation and physically-based rendering:<P>
+<OL>
+<LI>It's the only existing format that describes materials physically.
+<LI>It is endorsed by the Illuminating Engineering Society of North
+America (IESNA) as part of their LM-63-1995 standard for luminaire data.
+<LI>It's easy and fun to support since it comes with a standard parser
+and sample scenes and objects at the web site,
+<A HREF="https://radsite.lbl.gov/mgf/HOME.html">
+http://radsite.lbl.gov/mgf/HOME.html</A>.
+</OL>
+The standard parser provides both immediate and long-term
+benefits, since it presents a programming interface that is more
+stable even than the language itself.
+Unlike AutoCAD DXF and other de facto standards, a change to the
+language will not break existing programs.
+This is because the parser gives the calling software only those
+entities it can handle.
+If the translator understands only polygons, it will be given only
+polygons.
+If a new geometric primitive is included in a later version of the
+standard, the new parser that comes with it will still be able to
+express this entity as polygons.
+Thus, the urgency of modifying code to support a changing standard
+is removed, and long-term stability is assured.
+<P>
+This notion of
+<I>extensibility</I>
+is a cornerstone of the format, and it goes well beyond the
+extensibility of other languages because is guarantees that new
+versions of the standard will not break existing programs, and the
+new information will be used as much as possible.
+Other languages either require that all translators stay up to date
+with the latest standard, or allow forward compatibility by simply
+<A HREF="notes.html#1">ignoring new entities</A>.
+In MGF, if NURBS are added at some point and the translator or
+loader does not handle them directly, the new version of the parser
+will automatically convert them to smoothed polygons without
+changing a single line of the calling program.
+It is merely necessary to link to the new library, and all the new
+entities are supported.
+<P>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

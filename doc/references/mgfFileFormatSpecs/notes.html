@@ -1,0 +1,27 @@
+<TITLE>
+MGF Footnotes
+</TITLE>
+<H3><A NAME=1>Ignoring new entities.</A></H3>
+If an old version of the MGF parser encounters new entities it does
+not recognize, the default action is to ignore them, printing a warning
+message.
+This may be overridden to support custom entities, but such
+practice is discouraged because it weakens the standard.
+<P>
+<H3><A NAME=2>IESNA Publication LM-63.</A></H3>
+To obtain the latest version of this standard for luminaire data, write to:
+<PRE>
+	Illuminating Engineering Society of North America
+	345 East 47th St.
+	New York, NY  10017.
+</PRE>
+<H3><A NAME=3>MGF Identifier.</A></H3>
+A name in MGF is any sequence of printing, non-white ASCII characters
+beginning with a letter.
+<P>
+<H3><A NAME=4>Rendering Polygons with Seams.</A></H3>
+For systems that
+are sensitive to seam position, it is probably safest for their MGF
+loader/translator to re-expresses seams in terms of holes again, which can
+be done easily so long as vertices are shared in the fashion shown.
+<P>

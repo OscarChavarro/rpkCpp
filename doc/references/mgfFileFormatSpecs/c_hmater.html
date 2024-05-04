@@ -1,0 +1,173 @@
+<TITLE>
+c_hmaterial, c_getmaterial, c_cmname, c_cmaterial -
+material entity support
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+c_hmaterial, c_getmaterial, c_cmname, c_cmaterial -
+material entity support
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>int</B>
+c_hmaterial(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+C_MATERIAL *c_getmaterial(
+<B>char</B>
+*name )
+<P>
+<B>extern char</B>
+*c_cmname
+<P>
+<B>extern</B>
+C_MATERIAL *c_cmaterial
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>c_hmaterial</I>
+function supports the MGF entities,
+<A HREF="m.html">m</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+and
+<A HREF="ts.html">ts</A>.
+It is an error to support any of the material field entities without
+supporting the
+<A HREF="m.html">m</A>
+entity itself.
+The assignments are normally made to the
+<I>mg_ehand</I>
+array prior to parser initialization, like so:
+<P>
+<PRE>
+mg_ehand[MG_E_MATERIAL] = c_hmaterial;		/* support "m" entity */
+mg_ehand[MG_E_ED] = c_hmaterial;		/* support "ed" entity */
+mg_ehand[MG_E_IR] = c_hmaterial;		/* support "ir" entity */
+mg_ehand[MG_E_RD] = c_hmaterial;		/* support "rd" entity */
+mg_ehand[MG_E_RS] = c_hmaterial;		/* support "rs" entity */
+mg_ehand[MG_E_SIDES] = c_hmaterial;		/* support "sides" entity */
+mg_ehand[MG_E_TD] = c_hmaterial;		/* support "td" entity */
+mg_ehand[MG_E_TS] = c_hmaterial;		/* support "ts" entity */
+/* other entity handler assignments... */
+mg_init();			/* initialize parser */
+</PRE>
+Any of the above entities besides
+<A HREF="m.html">m</A>
+may be unsupported, but the parser will not attempt to include their
+effect into other members, e.g. an unsupported
+<A HREF="rs.html">rs</A>
+component will not be added back into the
+<A HREF="rd.html">rd</A>
+member.
+It is therefore safer to support all of the relevant material
+entities and make final approximations from the complete
+<I>C_MATERIAL</I>
+structure.
+<P>
+The
+<I>c_getmaterial</I>
+function takes the name of a defined material and returns a pointer to its
+<I>C_MATERIAL</I>
+structure, defined in "parser.h" as:
+<P>
+<PRE>
+#define C_1SIDEDTHICK	0.005		/* assumed thickness of 1-sided mat. */
+
+typedef struct {
+	int	clock;		/* incremented each change -- resettable */
+	int	sided;		/* 1 if surface is 1-sided, 0 for 2-sided */
+	float	nr, ni;		/* index of refraction, real and imaginary */
+	float	rd;		/* diffuse reflectance */
+	C_COLOR	rd_c;		/* diffuse reflectance color */
+	float	td;		/* diffuse transmittance */
+	C_COLOR	td_c;		/* diffuse transmittance color */
+	float	ed;		/* diffuse emittance */
+	C_COLOR	ed_c;		/* diffuse emittance color */
+	float	rs;		/* specular reflectance */
+	C_COLOR	rs_c;		/* specular reflectance color */
+	float	rs_a;		/* specular reflectance roughness */
+	float	ts;		/* specular transmittance */
+	C_COLOR	ts_c;		/* specular transmittance color */
+	float	ts_a;		/* specular transmittance roughness */
+} C_MATERIAL;		/* material context */
+</PRE>
+The
+<I>clock</I>
+member will be incremented each time the value gets changed by a
+material field entity, and may be reset by the calling program if
+desired.
+This is a convenient way to keep track of whether or not a material has
+changed since its last use.
+<P>
+All reflectance and transmittance values correspond to normal
+incidence, and may vary as a function of angle depending on the
+index of refraction.
+A solid object is normally represented with a one-sided material.
+A two-sided material is most appropriate for thin surfaces, though
+it may be used also when the surface normal orientations in a model
+are unreliable.
+<P>
+If a transparent or translucent surface is one-sided, then the
+absorption will change as a function of distance through the
+material, and a single value for diffuse or specular transmittance is
+ambiguous.
+We therefore define a standard thickness,
+<I>C_1SIDEDTHICK,</I>
+which is the object thickness to which the given values correspond,
+so that one may compute the isotropic absorptance of the material.
+<P>
+It is possible but not recommended to alter the contents of the
+material structure returned by
+<I>c_getmaterial.</I>
+Normally, this routine is never called directly, since there are no
+entities that access materials by name other than
+<A HREF="m.html">m</A>.
+<P>
+The global variable
+<I>c_cmname</I>
+points to the name of the current material, or NULL if it is unnamed.
+The variable
+<I>c_cmaterial</I>
+points to the current material value, which should never be NULL.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>c_hmaterial</I>
+function returns
+<I>MG_OK</I>
+(0) if the color is handled correctly, or one of the predefined
+error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+<P>
+The
+<I>c_getmaterial</I>
+function returns NULL if the specified material name is undefined, at
+which point the calling function should return an
+<I>MG_EUNDEF</I>
+error.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c_hcolor.html">c_hcolor</A>, <A HREF="c_hvert.html">c_hvertex</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>
+<P>

@@ -1,0 +1,70 @@
+<TITLE>
+MGF Entity prism
+</TITLE>
+<H4>
+NAME
+</H4>
+prism - create a closed right prism
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>prism</B>
+<I>v1 v2 ... vN length</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Create a closed right prism using the current material.
+One end face will be enclosed by the named vertices, and the
+opposite end face will be a mirror image at a distance
+<I>length</I>
+from the original.
+The edges will be extruded into N quadrilaterals connecting
+the two end faces.
+<P>
+The order of vertices determines the original face orientation
+according to the right-hand rule as explained for the
+<A HREF="f.html">f</A>
+entity.
+Normally, the prism is extruded in the direction opposite to the
+original surface normal, resulting in faces that all point outward.
+If the specified
+<I>length</I>
+is negative, the prism will be extruded above the original face
+and all surface normals will point inward.
+<P>
+If the vertices have associated normals, they are applied to the
+side faces only, and should generally point in the appropriate
+direction (i.e. in or out depending on whether
+<I>length</I>
+is negative or positive).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Make a unit cube starting at the origin and \
+	extending to the positive octant
+v cv0 =
+	p 0 0 0
+v cv1 =
+	p 0 1 0
+v cv2 =
+	p 1 1 0
+v cv3 =
+	p 1 0 0
+# Right hand rule has original face looking in -Z direction
+prism cv0 cv1 cv2 cv3 1
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cyl.html">cyl</A>,
+<A HREF="cone.html">cone</A>,
+<A HREF="f.html">f</A>,
+<A HREF="m.html">m</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

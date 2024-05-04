@@ -1,0 +1,68 @@
+<TITLE>
+mgfilt - get usable MGF entities from input
+</TITLE>
+<H4>
+NAME
+</H4>
+mgfilt - get usable MGF entities from input
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>mgfilt</B>
+<B>version</B>
+[
+<B>input</B> ..
+]
+<P>
+or
+<P>
+<B>mgfilt</B>
+<B>e1,e2,..</B>
+[
+<B>input</B> ..
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>Mgfilt</I>
+takes one or more MGF input files and converts all the entities to
+the types listed.
+In the first form, a single integer is given for the
+<I>version</I>
+of MGF that is to be produced.
+Since MGF is in its first major release, this is not yet a useful
+form, but it will be when the second major release comes out.
+This has the necessary side-effect of expanding all included files.
+(See the <A HREF="i.html">i</A> entity.)
+<P>
+In the second form,
+<I>mgfilt</I>
+produces only the entities listed in the first argument, which must
+be comma-separated.
+The listed entity order is not important, but all entities given
+must be defined in the current version of MGF.
+Unknown entities will be summarily discarded on the input, and a
+warning message will be printed to the standard error.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To take an MGF version 3 file and send it to a version 2
+translator:
+<PRE>
+	mgfilt 2 input.mgf | mgf2rad > input.rad
+</PRE>
+To take an MGF file and produce only flat polygonal faces
+with no materials:
+<PRE>
+	mgfilt f,v,p,xf input.mgf > flatpoly.mgf
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="i.html">i</A>,
+<A HREF="mgf2rad.html">mgf2rad</A>, <A HREF="mgf2inv.html">mgf2inv</A>,
+<A HREF="rad2mgf.html">rad2mgf</A>
+<P>

@@ -1,0 +1,75 @@
+<TITLE>
+MGF Entity xf
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+xf - begin or end transformation context
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>xf</B>
+[
+<I>transform</I>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+If a set of
+<I>transform</I>
+arguments are given, we push a new transformation context onto the
+stack.
+If the
+<A HREF="xf.html">xf</A>
+keyword is given by itself, then we pop the last transformation
+context off the stack.
+The total transformation in effect at any given time is
+computed by prepending each set subcontext arguments onto those of
+its enclosing context.
+This and other details about transformation specifications
+are explained in some detail in section 2.2.2.
+<P>
+The following transformation flags and
+parameters are defined:
+<DL>
+<DT>-t dx dy dz
+<DD>translate objects along the given vector
+<DT>-rx degrees
+<DD>rotate objects about the X-axis
+<DT>-ry degrees
+<DD>rotate objects about the Y-axis
+<DT>-rz degrees
+<DD>rotate objects about the Z-axis
+<DT>-s scalefactor
+<DD>scale objects by the given factor
+<DT>-mx
+<DD>mirror objects about the Y-Z plane
+<DT>-my
+<DD>mirror objects about the X-Z plane
+<DT>-mz
+<DD>mirror objects about the X-Y plane
+<DT>-i N
+<DD>repeat the following arguments N times
+<DT>-a N
+<DD>make an array of N geometric instances
+</DL>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Create 3x5 array of evenly-spaced spheres (grid size = 3)
+v vc =
+	p 0 0 0
+xf -t 1 1 10 -a 3 -t 3 0 0 -a 5 -t 0 3 0
+	sph vc .5
+xf
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="i.html">i</A>,
+<A HREF="ies.html">ies</A>,
+<A HREF="o.html">o</A>

@@ -1,0 +1,106 @@
+<TITLE>
+MGF Entity v
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+v - get or set the current vertex context
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>v</B>
+[
+<I>id</I>
+[
+<B>=</B>
+[
+<I>template</I>
+]
+]
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+If the
+<A HREF="v.html">v</A>
+keyword is given by itself, then it establishes
+the unnamed vertex context, which is the origin with no normal.
+This context may be modified, but the changes will not be saved.
+(The unnamed vertex is never used except as a source of default
+values since all geometric entities call their vertices by name.)
+<P>
+If the keyword is followed by an <A HREF="notes.html#3">identifier</A>
+<I>id,</I>
+then it reestablishes a previous context.
+If the specified context was never defined, an error will result.
+<P>
+If the entity is given with an identifier
+followed by an equals sign ('='), then a new context is established,
+and cleared to the default vertex (the origin).
+(Note that the equals sign must be separated from other
+arguments by white space to be properly recognized.)
+If the equals sign is followed by a second identifier
+<I>template,</I>
+then this previously defined vertex will be used as a source of
+default values instead.
+This may be used to establish a vertex alias, or to modify an
+existing vertex and give it a new name.
+<P>
+A non-zero vertex normal must be given for
+certain entities, specifically
+<A HREF="ring.html">ring</A>
+and
+<A HREF="torus.html">torus</A>
+require a normal direction.
+An
+<A HREF="f.html">f</A>
+entity will interpolate vertex normals if given, and
+use the polygon plane normal otherwise.
+See the
+<A HREF="prism.html">prism</A>
+entry for an explanation of how it interprets and uses vertex
+normals.
+The other entities ignore vertex normals if present.
+<P>
+The actual position and normal direction for a vertex is determined
+at the time of use by a geometric entity.
+Specifically, the transformation in effect at the time the vertex is
+defined is irrelevant.
+The only transformation that matters is the one that is applied to
+the geometry itself.
+This prevents double-transformation of vertices and allows one set
+of vertices to be used for multiple purposes, e.g. the front and
+back sides of a drawer.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Make a capped cylinder
+v end1 =
+	p 0 0 0
+	n 0 0 -1
+v end2 =
+	p 0 0 1
+cyl end1 1.2 end2
+# Forgot normal for end2
+v end2
+	n 0 0 1
+ring end1 0 1.2
+ring end2 0 1.2
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cone.html">cone</A>,
+<A HREF="cyl.html">cyl</A>,
+<A HREF="f.html">f</A>,
+<A HREF="n.html">n</A>,
+<A HREF="p.html">p</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>

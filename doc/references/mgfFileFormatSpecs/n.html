@@ -1,0 +1,51 @@
+<TITLE>
+MGF Entity n
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+n - set the surface normal direction for the current vertex
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>n</B>
+<I>dx dy dz</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the 3-dimensional surface normal for the current vertex to the
+normalized vector along
+<I>(dx,dy,dz).</I>
+If this vector is zero, then the surface normal is effectively
+unset.
+The actual surface normal orientation of the vertex will be determined
+by the transformation in effect at the time the vertex is applied to a
+geometric surface entity.
+The current transform when the normal is set is irrelevant.
+<P>
+The default vertex normal is the zero vector (i.e. no normal).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Make a chain of 10 interlocking doughnuts
+v tcent =
+	p 0 0 0
+	n 0 1 0
+xf -a 10 -rx 90 -t .2 0 0
+	torus tcent .1 .2
+xf
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="f.html">f</A>,
+<A HREF="p.html">p</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

@@ -1,0 +1,99 @@
+<TITLE>
+mg_handle, mg_entity, mg_ename, mg_nqcdivs - entity assistance and control
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+mg_handle, mg_entity, mg_ename, mg_nqcdivs - entity assistance and control
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>int</B>
+mg_handle(
+<B>int</B>
+en,
+<B>int</B>
+ac,
+<B>char</B>
+*av )
+<P>
+<B>int</B>
+mg_entity(
+<B>char</B>
+*name )
+<P>
+<B>extern char</B>
+mg_ename[MG_NENTITIES][MG_MAXELEN]
+<P>
+<B>extern int</B>
+mg_nqcdivs
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>mg_handle</I>
+routine may be used to pass entities back to the parser
+to be redirected through the
+<I>mg_ehand</I>
+dispatch table.
+This method is recommended rather than calling through
+<I>mg_ehand</I>
+directly, since the parser sometimes has its own support routines
+that it needs to call for specific entities.
+The first argument,
+<I>en,</I>
+is the corresponding entity number, or -1 if
+<I>mg_handle</I>
+should figure it out from the first
+<I>av</I>
+argument.
+<P>
+The
+<I>mg_entity</I>
+function gets an entity number from its name, using a hash
+table on the
+<I>mg_ename</I>
+list.
+<P>
+The
+<I>mg_ename</I>
+table contains the string names corresponding to each MGF entity in
+the designated order.
+(See the
+<I>mg_init</I>
+page for the list of MGF entities.)
+<P>
+The global integer variable
+<I>mg_nqcdivs</I>
+tells the parser how many subdivisions to use per quarter circle (90
+degrees) when tesselating curved geometry.
+The default value is 5, and it may be reset at any time by the
+calling program.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>mg_handle</I>
+function returns
+<I>MG_OK</I>
+if the entity is handled correctly, or one of the predefined error
+values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of error values.)
+<P>
+The
+<I>mg_entity</I>
+function returns -1 if the passed name does not appear in the
+<I>mg_ename</I>
+list.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>, <A HREF="mg_open.html">mg_open</A>
+<P>

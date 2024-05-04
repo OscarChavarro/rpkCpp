@@ -1,0 +1,231 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A NAME=begin>Entities and Contexts</A>
+</H2>
+An
+<I>entity</I>
+in MGF is any non-blank line, which must be one of a finite set of
+command keywords followed by zero or more arguments.
+(As mentioned previously, an entity may continue over multiple lines
+by escaping the newline with a backslash.)
+Table 1 gives a list of entities and their expected arguments.
+Section 3 gives more detailed information on each entity.
+<PRE>
+Keyword	Arguments		Interpretation
+===============================================================================
+#	[anything ...]		a comment
+o	[name]			begin/end object context
+xf	[xform]			begin/end transformation context
+i	pathname [xform]	include file (with transformation)
+ies	pathname [-m f][xform]	include IES luminaire (with transformation)
+-------------------------------------------------------------------------------
+c	[id [= [template]]]	get/set color context
+cxy	x y			set CIE (x,y) chromaticity for current color
+cspec	l_min l_max v1 v2 ...	set relative spectrum for current color
+cct	temperature		set spectrum based on black body temperature
+cmix	w1 c1 w2 c2 ...		mix named colors to make current color
+-------------------------------------------------------------------------------
+m	[id [= [template]]]	get/set material context
+sides	{1|2}			set number of sides for current material
+rd	rho_d			set diffuse reflectance for current material
+td	tau_d			set diffuse transmittance for current material
+ed	epsilon_d		set diffuse emittance for current material
+rs	rho_s alpha_r		set specular reflectance for current material
+ts	tau_s alpha_t		set specular transmittance for current material
+ir	n_real n_imag		set index of refraction for current material
+-------------------------------------------------------------------------------
+v	[id [= [template]]]	get/set vertex context
+p	x y z			set point position for current vertex
+n	dx dy dz		set surface normal for current vertex
+-------------------------------------------------------------------------------
+f	v1 v2 v3 ...		polygon using current material, spec. vertices
+sph	vc radius		sphere
+cyl	v1 radius v2		truncated right cylinder (open-ended)
+cone	v1 rad1 v2 rad2		truncated right cone (open-ended)
+prism	v1 v2 v3 ... length	truncated right prism (closed solid)
+ring	vc rmin rmax		circular ring with inner and outer radii
+torus	vc rmin rmax		circular torus with inner and outer radii
+-------------------------------------------------------------------------------
+</PRE>
+<BLOCKQUOTE>
+<B>Table 1</B>.
+MGF entities and their arguments.
+Arguments in brackets are optional.
+Arguments in curly braces mean one of the given choices must
+appear.
+Ellipsis (...) mean that any number of arguments may be given.
+</BLOCKQUOTE>
+A
+<I>context</I>
+describes the current state of the interpreter, and affects or is
+affected by certain entities as they are read in.
+MGF contexts can be divided into two types,
+<I>hierarchical contexts</I>
+and
+<I>named contexts</I>.
+<P>
+Hierarchical contexts are manipulated by a single entity and
+have an associated "stack" onto which new
+contexts are "pushed" using the entity.
+The last context may be "popped" by giving the entity again with no
+arguments.
+The two hierarchical contexts in MGF are the current transformation,
+manipulated with the
+<A HREF="xf.html">xf</A>
+entity, and the current object, manipulated with the
+<A HREF="o.html">o</A>
+entity.
+<PRE>
+Context		Cntl. Entity	Default Value	Field Entities	Affects
+===============================================================================
+Object		o		-		-		-
+Transform	xf		-		-		f, sph, cyl,
+								cone, ring,
+								torus, prism
+Material	m		2-sided black	sides, rd, td,	f, sph, cyl,
+						ed, rs, ts	cone, ring,
+								torus, prism
+Color		c		neutral grey	cxy, cspec,	rd, td, ed,
+						cct, cmix	rs, ts
+Vertex		v		(0,0,0),	p, n		f, sph, cyl,
+				no normal			cone, ring,
+								torus, prism
+-------------------------------------------------------------------------------
+</PRE>
+<BLOCKQUOTE>
+<B>Table 2</B>.
+MGF contexts and their related entities and default values.
+</BLOCKQUOTE>
+Named contexts in contrast hold sets of values that are swapped
+in and out one at a time.
+There are three named contexts in MGF, the current material, the
+current color and the current vertex.
+Each one may be associated with an <A HREF="notes.html#3">identifier</A>,
+and one of each is in effect at any given time.
+Initially, these contexts are unnamed, and invoking an unnamed
+context always returns to the original (default) values.
+(See Table 2 for a list of contexts, their related
+entities and defaults.)
+<P>
+It is easiest to think of a context as a "scratch space" where
+values are written by some entities and read by others.
+Naming a context allows us to reestablish the same scratch space
+later, usually for reference but it can be altered as well.
+Let us say we wanted to create a smooth blue plastic material with a
+diffuse reflectance of 20% and a specular reflectance of 4%:
+<P>
+<PRE>
+# Establish a new material context called "blue_plastic"
+m blue_plastic =
+	# Reestablish a previous color context called "blue"
+	c blue
+	# Set the diffuse reflectance, which uses the above color
+	rd .20
+	# Get the unnamed color context (always starts out grey)
+	c
+	# Set the specular reflectance, which is uncolored
+	rs .04 0
+# We're done, the current material context is now "blue_plastic"
+</PRE>
+Note that the above assumes that we have previously defined a color
+context named "blue".
+If we forgot to do that, the above description would generate an
+"undefined" error.
+The color context affects the material context indirectly because it
+is read by the specular and diffuse reflectance entities, which are
+in turn written to the current material.
+It is not necessary to indent the entities that affect the material
+definition, but it improves readability.
+Note also that there is no explicit end to the material definition.
+As long as a context remains in effect, its contents may be altered
+by its field entities.
+This will not affect previous uses of the context, however.
+For example, a surface entity following the above definition will 
+have the specified color and reflectance, and later changes to the
+material "blue_plastic" will have no effect on it.
+<P>
+Each of the three named contexts has an associated entity that
+controls it.
+The material context is controlled by the
+<A HREF="m.html">m</A>
+entity, the color context is controlled by the
+<A HREF="c.html">c</A>
+entity, and the vertex context is controlled by the
+<A HREF="v.html">v</A>
+entity.
+There are exactly four forms for each entity.
+The first form is the keyword by itself, which establishes
+an unnamed context with predetermined default values.
+This is a useful way to set values without worrying about saving
+them for recall later.
+The second form is to give the keyword with a previously defined
+name.
+This reestablishes a prior context for reuse.
+The third form is to give the keyword with a name followed by an
+equals sign.
+(There must be a space between the name and the equals sign, since
+it is a separate argument.)
+This establishes a new context and assigns it the same default
+values as the unnamed context.
+The fourth and final form gives the keyword followed by a name then
+an equals then the name of a previous context definition.
+This establishes a new context for the first name, assigning the
+values from the second named context rather than the usual defaults.
+This is a convenient way create an alias or
+to modify a context under a new name (i.e. "save as").
+<P>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

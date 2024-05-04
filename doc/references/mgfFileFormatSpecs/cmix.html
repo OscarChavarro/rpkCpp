@@ -1,0 +1,60 @@
+<TITLE>
+MGF Entity cmix
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cmix - mix two or more named colors to make the current color
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cmix</B>
+<I>w1 c1 w2 c2 ...</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<A HREF="cmix.html">cmix</A>
+entity sums together two or more named colors using specified
+weighting coefficients, which correspond to the relative
+photometric brightness of each.
+As in all color specifications, the result is normalized so the
+absolute scale of the weights does not matter, only their relative 
+values.
+<P>
+If any of the colors is a spectral quantity (i.e. from a
+<A HREF="cspec.html">cspec</A>
+or
+<A HREF="cct.html">cct</A>
+entity), then all the colors are first converted to spectral
+quantities.
+This is done with an approximation for CIE (x,y) chromaticities,
+which may be problematic depending on their values.
+In general, it is safest to add together colors that are either
+all spectral quantities or all CIE quantities.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define RGB primaries for a standard color monitor
+c R =
+	cxy 0.640 0.330
+c G =
+	cxy 0.290 0.600
+c B =
+	cxy 0.150 0.060
+# Mix them together in appropriate amounts for white
+c white =
+	cmix 0.265 R 0.670 G 0.065 B
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="cct.html">cct</A>,
+<A HREF="cspec.html">cspec</A>,
+<A HREF="cxy.html">cxy</A>

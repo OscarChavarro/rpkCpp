@@ -1,0 +1,53 @@
+<TITLE>
+MGF Entity td
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+td - set the diffuse transmittance for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>td</B>
+<I>tau_d</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the diffuse transmittance for the current material to
+<I>tau_d</I>
+using the current color to determine the spectral characteristics.
+This is the fraction of visible light that is transmitted through a
+surface equally in all (transmitted) directions.
+Like reflectance, transmittance is measured according to the
+standard v(lambda) curve, and assumes an equal-energy white light source.
+It is probably not possible to create a material with a diffuse
+transmittance above 50%, since well-diffused light will be reflected
+as well.
+<P>
+The default diffuse transmittance is zero.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Model a perfect spherical diffuser, i.e. light hitting \
+	either side will be scattered equally in all directions
+m wonderland_diffuser =
+	c
+	td .5
+	rd .5
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="ts.html">ts</A>

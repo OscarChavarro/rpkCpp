@@ -1,0 +1,99 @@
+<TITLE>
+3ds2mgf - convert 3D Studio binary file to Materials and Geometry Format
+</TITLE>
+<H4>
+NAME
+</H4>
+3ds2mgf - convert 3D Studio binary file to Materials and Geometry Format
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>3ds2mgf</B>
+<B>input</B>
+[
+<B>output</B>
+][
+<B>-lMatlib</B>
+][
+<B>-xObjname</B>
+][
+<B>-sAngle</B>
+][
+<B>-aAnimfile</B>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>3ds2mgf</I>
+converts a 3D Studio binary scene description
+to the Materials and Geometry Format (MGF).
+If no output file name is given, the input root name
+will be taken as the output root, and an "mgf" extension
+will be added.
+This file will contain any light sources and materials, and an include
+statement for a similarly named file ending in "inc", which will contain
+the MGF geometry of all the translated 3DS meshes.
+<P>
+The MGF material names and properties
+for the surfaces will be those assigned in 3D Studio,
+unless they are named in one or more MGF material libraries given in a
+<I>-l</I>
+option.
+<P>
+The
+<I>-a</I>
+option may be used to specify a 3D Studio animation file, and together with the
+<I>-f</I>
+option,
+<I>3ds2mgf</I>
+will generate a scene description for the specified frame.
+<P>
+Note that there are no spaces between the options and their arguments.
+<P>
+<H4>
+LIMITATIONS
+</H4>
+Obviously, since 3D Studio has no notion of physical materials, the
+translation to MGF material descriptions is very ad hoc, and it will
+usually be necessary to edit the materials and light sources in
+the output file or replace materials with proper entries from a material
+library using the
+<I>-l</I>
+option.
+<P>
+With smoothing turned on (i.e., a non-zero value for the
+<I>-s</I>
+option), vertices in the MGF output will not be linked in a proper
+mesh for each object.
+This is due to the way the automatic smoothing code was originally
+written, and is too difficult to repair.
+If a good mesh is needed, then smoothing must be turned off.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To convert a 3D Studio robot model to MGF without smoothing.
+(Output will be put into "robot.mgf" and "robot.inc".)
+<PRE>
+	3ds2mgf robot.3ds -s0
+</PRE>
+To convert a DC10 jet model to MGF using a hand-created material library:
+<PRE>
+	3ds2mgf dc10.3ds -ldc10mat.mgf
+</PRE>
+<H4>
+AUTHORS
+</H4>
+Steve Anger, Jeff Bowermaster and Greg Ward
+<P>
+Extended from 3ds2pov 1.8.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mgf2inv.html">mgf2inv(1)</A>,
+<A HREF="mgf2meta.html">mgf2meta(1)</A>,
+<A HREF="mgf2rad.html">mgf2rad(1)</A>
+<P>

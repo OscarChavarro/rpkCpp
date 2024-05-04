@@ -1,0 +1,279 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A NAME=begin>Detailed MGF Example</A>
+</H2>
+The following example of a simple room with a single door
+and six file cabinets shows MGF in action, with copious comments to
+help explain what's going on.
+<P>
+<P>
+<PRE>
+# "ceiling_tile" is a diffuse white surface with 75% reflectance:
+# Create new named material context and clear it
+m ceiling_tile =
+	# Specify one-sided material so we can see through from above
+	sides 1
+	# Set neutral color
+	c
+	# Set diffuse reflectance
+	rd .75
+# "stainless_steel" is a mostly specular surface with 70% reflectance:
+m stainless_steel =
+	sides 1
+	c
+	# Set specular reflectance to 50%, .08 roughness
+	rs .5 .08
+	# Other 20% reflectance is diffuse
+	rd .2
+
+# The following materials were measured with a spectrophotometer:
+m beige_paint =
+	sides 1
+	# Set diffuse spectral reflectance
+	c
+		# Spectrum measured in 10 nm increments from 400 to 700 nm
+		cspec 400 700 35.29 44.87 47.25 47.03 46.87 47.00 47.09 \
+			 47.15 46.80 46.17 46.26 48.74 51.08 51.31 51.10 \
+			 51.11 50.52 50.36 51.72 53.61 53.95 52.08 49.49 \
+			 48.30 48.75 49.99 51.35 52.75 54.44 56.34 58.00
+	rd 0.5078
+	# Neutral (grey) specular component
+	c
+	rs 0.0099 0.08000
+m mottled_carpet =
+	sides 1
+	c
+		cspec 400 700 11.23 11.28 11.39 11.49 11.61 11.73 11.88 \
+			 12.02 12.12 12.19 12.30 12.37 12.37 12.36 12.34 \
+			 12.28 12.22 12.29 12.45 12.59 12.70 12.77 12.82 \
+			 12.88 12.98 13.24 13.67 14.31 15.55 17.46 19.75
+	rd 0.1245
+m reddish_cloth =
+	# 2-sided so we can observe it from behind
+	sides 2
+	c
+		cspec 400 700 28.62 27.96 27.86 28.28 29.28 30.49 31.61 \
+			 32.27 32.26 31.83 31.13 30.07 29.14 29.03 29.69 \
+			 30.79 32.30 33.90 34.56 34.32 33.85 33.51 33.30 \
+			 33.43 34.06 35.26 37.04 39.41 42.55 46.46 51.00
+	rd 0.3210
+m burgundy_formica =
+	sides 1
+	c
+		cspec 400 700  3.86  3.74  3.63  3.51  3.34  3.21  3.14 \
+			  3.09  3.08  3.14  3.13  2.91  2.72  2.74  2.72 \
+			  2.60  2.68  3.40  4.76  6.05  6.65  6.75  6.68 \
+			  6.63  6.56  6.51  6.46  6.41  6.36  6.34  6.34
+	rd 0.0402
+	c
+	rs 0.0284 0.05000
+m speckled_grey_formica =
+	sides 1
+	c
+		cspec 400 700 30.95 44.77 51.15 52.60 53.00 53.37 53.68 \
+			 54.07 54.33 54.57 54.85 55.20 55.42 55.51 55.54 \
+			 55.46 55.33 55.30 55.52 55.81 55.91 55.92 56.00 \
+			 56.22 56.45 56.66 56.72 56.58 56.44 56.39 56.39
+	rd 0.5550
+	c
+	rs 0.0149 0.15000
+
+# 40' x 22' x 9' office space with no windows and one door
+
+# All measurements are in inches, so enclose with a metric conversion:
+xf -s .0254
+
+# The room corner vertices:
+v rc.xyz =
+	p 0 0 0
+v rc.Xyz =
+	p 480 0 0
+v rc.xYz =
+	p 0 264 0
+v rc.xyZ =
+	p 0 0 108
+v rc.XYz =
+	p 480 264 0
+v rc.xYZ =
+	p 0 264 108
+v rc.XyZ =
+	p 480 0 108
+v rc.XYZ =
+	p 480 264 108
+
+# The floor:
+# Push object name
+o floor
+	# Get previously defined carpet material
+	m mottled_carpet
+	# Polygonal face using defined vertices
+	f rc.xyz rc.Xyz rc.XYz rc.xYz
+# Pop object name
+o
+
+# The ceiling:
+o ceiling
+	m ceiling_tile
+	f rc.xyZ rc.xYZ rc.XYZ rc.XyZ
+o
+
+# The door outline vertices:
+v do.xz =
+	p 216 0 0
+v do.Xz =
+	p 264 0 0
+v do.xZ =
+	p 216 0 84
+v do.XZ =
+	p 264 0 84
+
+# The walls:
+o wall
+	m beige_paint
+	o x
+		f rc.xyz rc.xYz rc.xYZ rc.xyZ
+	o
+	o X
+		f rc.Xyz rc.XyZ rc.XYZ rc.XYz
+	o
+	o y
+		f rc.xyz rc.xyZ rc.XyZ rc.Xyz do.Xz do.XZ do.xZ do.xz
+	o
+	o Y
+		f rc.xYz rc.XYz rc.XYZ rc.xYZ
+	o
+o
+
+# The door and jam vertices:
+v djo.xz =
+	p 216 .5 0
+v djo.xZ =
+	p 216 .5 84
+v djo.XZ =
+	p 264 .5 84
+v djo.Xz =
+	p 264 .5 0
+v dji.Xz =
+	p 262 .5 0
+v dji.XZ =
+	p 262 .5 82
+v dji.xZ =
+	p 218 .5 82
+v dji.xz =
+	p 218 .5 0
+v door.xz =
+	p 218 0 0
+v door.xZ =
+	p 218 0 82
+v door.XZ =
+	p 262 0 82
+v door.Xz =
+	p 262 0 0
+
+# The door, jam and knob
+o door
+	m burgundy_formica
+	f door.xz door.xZ door.XZ door.Xz
+	o jam
+		m beige_paint
+		f djo.xz djo.xZ djo.XZ djo.Xz dji.Xz dji.XZ dji.xZ dji.xz
+		f djo.xz do.xz do.xZ djo.xZ
+		f djo.xZ do.xZ do.XZ djo.XZ
+		f djo.Xz djo.XZ do.XZ do.Xz
+		f dji.xz dji.xZ door.xZ door.xz
+		f dji.xZ dji.XZ door.XZ door.xZ
+		f dji.Xz door.Xz door.XZ dji.XZ
+	o
+	o knob
+		m stainless_steel
+		# Define vertices needed for curved geometry
+		v kb1 =
+			p 257 0 36
+		v kb2 =
+			p 257 .25 36
+			n 0 1 0
+		v kb3 =
+			p 257 2 36
+		# 1" diameter cylindrical base from kb1 to kb2
+		cyl kb1 1 kb2
+		# Ring at base of knob stem
+		ring kb2 .4 1
+		# Knob stem
+		cyl kb2 .4 kb3
+		# Spherical knob
+		sph kb3 .85
+	o
+o
+
+# Six file cabinets (36" wide each)
+# ("filecab.inc" was given as an earlier example in Section 1.2)
+o filecab.x
+	# include a file as an array of three 36" apart
+	i filecab.inc -t -36 0 0 -rz -90 -t 1 54 0 -a 3 -t 0 36 0
+o
+o filecab.X
+	# the other three cabinets
+	i filecab.inc -rz 90 -t 479 54 0 -a 3 -t 0 36 0
+o
+
+# End of transform from inches to meters:
+xf
+
+# The 10 recessed fluorescent ceiling fixtures
+ies hlrs2gna.ies -t 1.2192 2.1336 2.74 -a 5 -t 2.4384 0 0 -a 2 -t 0 2.4384 0
+</PRE>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

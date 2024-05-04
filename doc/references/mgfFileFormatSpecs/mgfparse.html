@@ -1,0 +1,296 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A NAME=begin>MGF Parser Library</A>
+</H1>
+The principal motivation for creating a standard parser library for
+MGF is to make it easy for software developers to offer some base
+level of compliance.
+The key to making MGF easy to support in fact is the parser, which
+has the ability to express higher order entities in terms of
+lower order ones.
+For example, tori are part of the MGF specification, but if a given
+program or translator does not support them, the parser will convert
+them to cones.
+If cones are not supported either, it will convert them further into
+smoothed polygons.
+If smoothing (vertex normal information) is not supported, it will
+be ignored and the program will just get flat polygons.
+This is done in such a way that future versions of the standard may
+include new entities that old software does not even have to know
+about, and they will be converted appropriately.
+Forward compatibility is thus built right into the parser loading
+mechanism itself -- the programmer simply links to the new code and
+the new standard is supported without any further changes.
+<P>
+<H4>
+Language
+</H4>
+The provided MGF parser is written in ANSI-C.
+This language was chosen for reasons of portability and efficiency.
+Almost all systems support some form of ANSI-compatible C, and many
+languages can cross-link to C libraries without modification.
+Backward compatibility to Kernighan and Ritchie C is achieved by
+compiling with the -DNOPROTO flag.
+<P>
+All of the data structures and prototypes needed for the library
+are in the header file "parser.h".
+This file is the best resource for the parser and is updated with
+each MGF release.
+<P>
+<H4>
+Mechanism
+</H4>
+The parser works by a simple callback mechanism to routines that
+actually interpret the individual entities.
+Some of these routines will belong to the calling program, and some
+will be entity support routines included in the library itself.
+There is a global array of function pointers, called
+<I>mg_ehand.</I>
+It is defined thus:
+<P>
+<PRE>
+extern int	(*mg_ehand[MG_NENTITIES])(int argc, char **argv);
+</PRE>
+Before parsing begins, this dispatch table is initialized to point to the
+routines that will handle each supported entity.
+Every entity handler has the same basic prototype, which is the
+same as the
+<I>main</I>
+function, i.e:
+<P>
+<PRE>
+extern int	<I>handler</I>(int argc, char **argv);
+</PRE>
+The first argument is the number of words in the MGF entity
+(counting the entity itself) and the second argument is an array of
+nul-terminated strings with the entity and its arguments.
+The function should return zero or one of the error
+codes defined in "parser.h".
+A non-zero return value causes the parser to abort, returning the
+error up through its call stack to the entry function, usually
+<I>mg_load.</I>
+<P>
+A special function pointer for undefined entities is
+defined as follows:
+<P>
+<PRE>
+extern int	(*mg_uhand)(int argc, char **argv);
+</PRE>
+By default, this points to the library function
+<I>mg_defuhand,</I>
+which prints an error message on the first unknown entity and keeps a
+count from then on, which is stored in the global unsigned integer
+<I>mg_nunknown.</I>
+If the
+<I>mg_uhand</I>
+pointer is assigned a value of NULL instead, parsing will abort at the
+first unrecognized entity.
+The reason this is not the default action is that ignoring unknown entities
+offers a certain base level of forward compatibility.
+Ignoring things one does not understand is not the best approach, but it
+is usually better than quitting with an error message if the input is
+in fact valid, but is a later version of the standard.
+The real solution is to update the interpreter by linking to a new version
+of the parser, or use a new version of the
+<I>mgfilt</I>
+command to convert the new MGF input to an older standard.
+<P>
+The
+<I>mg_uhand</I>
+pointer may also be used to customize the language for a particular
+application by adding entities, though this is discouraged because it
+tends to weaken the standard.
+<P>
+The skeletal framework for an MGF loader or translator is to assign
+function pointers to the
+<I>mg_ehand</I>
+array, call the parser initialization function
+<I>mg_init,</I>
+then call the file loader function
+<I>mg_load</I>
+once for each input file.
+This will in turn make calls back to the functions assigned to
+<I>mg_ehand.</I>
+To give a simple example, let us look at a
+translator that understands only flat polygonal faces, putting out
+vertex locations immediately after each "face" keyword:
+<P>
+<PRE>
+#include &lt stdio.h &gt
+#include "parser.h"
+
+int
+myfaceh(ac, av)			/* face handling routine */
+int	ac;
+char	**av;
+{
+	C_VERTEX	*vp;	/* vertex structure pointer */
+	FVECT	vert;		/* vertex point location */
+	int	i;
+
+	if (ac &lt 4)			/* check # arguments */
+		return(MG_EARGC);
+	printf("face\n");		/* begin face output */
+	for (i = 1; i &lt ac; i++) {
+		if ((vp = c_getvert(av[i])) == NULL)	/* vertex from name */
+			return(MG_EUNDEF);
+		xf_xfmpoint(vert, vp -&gt p);		/* apply transform */
+		printf("%15.9f %15.9f %15.9f\n",
+			vert[0], vert[1], vert[2]);	/* output vertex */
+	}
+	printf(";\n");			/* end of face output */
+	return(MG_OK);			/* normal exit */
+}
+
+main(argc, argv)		/* translate MGF file(s) */
+int	argc;
+char	**argv;
+{
+	int	i;
+					/* initialize dispatch table */
+	mg_ehand[MG_E_FACE] = myfaceh;		/* ours */
+	mg_ehand[MG_E_VERTEX] = c_hvertex;	/* parser lib */
+	mg_ehand[MG_E_POINT] = c_hvertex;	/* parser lib */
+	mg_ehand[MG_E_XF] = xf_handler;		/* parser lib */
+	mg_init();				/* initialize parser */
+	for (i = 1; i &lt argc; i++)		/* load each file argument */
+		if (mg_load(argv[i]) != MG_OK)	/* and check for error */
+			exit(1);
+	exit(0);			/* all done! */
+}
+</PRE>
+Hopefully, this example demonstrates just how easy it is to
+write an MGF translator.
+Of course, translators get more complicated the more entity
+types they support, but the point is that one does not
+<I>have</I>
+to support every entity -- the parser handles what the translator
+does not.
+Also, the library includes many general entity handlers,
+further reducing the burden on the programmer.
+This same principle means that it is not necessary to modify an
+existing program to accommodate a new version of MGF -- one need only
+link to the new parser library to comply with the new standard.
+<P>
+<H4>
+Division of Labor
+</H4>
+As seen in the previous example, there are two parser routines that
+are normally called directly in an MGF translator or loader program.
+The first is
+<I>mg_init,</I>
+which takes no arguments but relies on the program having
+initialized those parts of the global
+<I>mg_ehand</I>
+array it cares about.
+The second routine is
+<I>mg_load,</I>
+which is called once on each input file.
+(A third routine,
+<I>mg_clear,</I>
+may be called to free the parser data structures after each file or
+after all files, if the program plans to continue rather than
+exit.)
+<P>
+The rest of the routines in a translator or loader program are
+called indirectly through the
+<I>mg_ehand</I>
+dispatch table, and they are the ones that do the real work of
+supporting the MGF entities.
+In addition to converting or discarding entities that the calling
+program does not know or care about, the parser library includes a
+set of context handlers that greatly simplify the translation
+process.
+There are three handlers for each of the three named contexts and
+their constituents, and two handlers for the two hierarchical
+context entities.
+To use these handlers, one simply sets the appropriate positions in the
+<I>mg_ehand</I>
+dispatch table to point to these functions.
+Additional functions and global data structures provide convenient
+access to the relevant contexts, and all of these are detailed in
+the following manual pages.
+<P>
+<H4><A NAME=index>Library Routines</A></H4>
+<DL>
+<DT><A HREF="mg_init.html">mg_init</A>, mg_ehand, mg_uhand
+<DD>Initialize MGF entity handlers
+<DT><A HREF="mg_load.html">mg_load</A>, mg_clear, mg_file, mg_err
+<DD>Load MGF file, clear data structures
+<DT><A HREF="mg_open.html">mg_open</A>, mg_read, mg_parse, mg_close
+<DD>MGF file loading subroutines
+<DT><A HREF="mg_fgetp.html">mg_fgetpos</A>, mg_fgoto
+<DD>Get current file position and seek to pointer
+<DT><A HREF="mg_hand.html">mg_handle</A>, mg_entity, mg_ename, mg_nqcdivs
+<DD>Entity assistance and control
+<DT><A HREF="isint.html">isint</A>, isflt, isname
+<DD>Determine if string fits integer or real format,
+or is legal identifier
+<DT><A HREF="c_hvert.html">c_hvertex</A>, c_getvert, c_cvname, c_cvertex
+<DD>Vertex entity support
+<DT><A HREF="c_hcolor.html">c_hcolor</A>, c_getcolor, c_ccname, c_ccolor, c_ccvt, c_isgrey
+<DD>Color entity support
+<DT><A HREF="c_hmater.html">c_hmaterial</A>, c_getmaterial, c_cmname, c_cmaterial
+<DD>Material entity support
+<DT><A HREF="obj_hand.html">obj_handler</A>, obj_clear, obj_nnames, obj_name
+<DD>Object name support
+<DT><A HREF="xf_hand.html">xf_handler</A>, xf_clear, xf_context, xf_argend
+<DD>Transformation support
+<DT><A HREF="xf_xfmp.html">xf_xfmpoint</A>, xf_xfmvect, xf_rotvect, xf_scale
+<DD>Apply current transformation
+</DL>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

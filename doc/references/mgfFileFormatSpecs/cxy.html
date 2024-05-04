@@ -1,0 +1,62 @@
+<TITLE>
+MGF Entity cxy
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cxy - set the CIE (x,y) chromaticity for the current color
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cxy</B>
+<I>x y</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+This entity sets the current color using (x,y) chromaticity
+coordinates for the 1931 CIE standard 2 degree observer.
+Legal values for
+<I>x</I>
+and
+<I>y</I>
+are greater than zero and sum to less than one, and more
+specifically they must fit within the curve of the visible spectrum.
+The
+<I>x</I>
+coordinate roughly corresponds to the red part of the spectrum and
+the
+<I>y</I>
+coordinate corresponds to the green.
+The CIE z coordinate is implicit, since it is equal to (1-x-y).
+<P>
+All colors in MGF are absolute, thus colorimeter measurements should
+be conducted the same for surfaces as for light sources.
+Applying a standard illuminant calculation is redundant and
+introduces inaccuracies, and should therefore be avoided if
+possible.
+<P>
+Conversion between CIE colors and those more commonly used in
+computer graphics are described in the application notes section
+6.1.1.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Set unnamed color context
+c
+# Set CIE chromaticity to a bluish hue
+cxy .15 .2
+# Apply color to diffuse reflectance of 15%
+rd .15
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="cct.html">cct</A>,
+<A HREF="cmix.html">cmix</A>,
+<A HREF="cspec.html">cspec</A>

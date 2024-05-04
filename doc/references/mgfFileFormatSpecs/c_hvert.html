@@ -1,0 +1,137 @@
+<TITLE>
+c_hvertex, c_getvert, c_cvname, c_cvertex - vertex entity support
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+c_hvertex, c_getvert, c_cvname, c_cvertex - vertex entity support
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>int</B>
+c_hvertex(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+C_VERTEX *c_getvert(
+<B>char</B>
+*name )
+<P>
+<B>extern char</B>
+*c_vname
+<P>
+<B>extern</B>
+C_VERTEX *c_cvertex
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>c_hvertex</I>
+function handles the MGF vertex entities,
+<A HREF="v.html">v</A>,
+<A HREF="p.html">p</A>
+and
+<A HREF="n.html">n</A>.
+If either
+<A HREF="p.html">p</A>
+or
+<A HREF="n.html">n</A>
+is supported, then
+<A HREF="v.html">v</A>
+must be also.
+The assignments are normally made to the
+<I>mg_ehand</I>
+array prior to parser initialization, like so:
+<P>
+<PRE>
+mg_ehand[MG_E_VERTEX] = c_hvertex;		/* support "v" entity */
+mg_ehand[MG_E_POINT] = c_hvertex;		/* support "p" entity */
+mg_ehand[MG_E_NORMAL] = c_hvertex;		/* support "n" entity */
+/* other entity handler assignments... */
+mg_init();			/* initialize parser */
+</PRE>
+If vertex normals are not understood by any of the program-supported
+entities, then the
+<I>MG_E_NORMAL</I>
+entry may be left with its original NULL assignment.
+<P>
+The
+<I>c_getvert</I>
+call takes the name of a defined vertex and returns a pointer to its
+<I>C_VERTEX</I>
+structure, defined in "parser.h" as:
+<P>
+<PRE>
+typedef FLOAT  FVECT[3];	/* a 3-d real vector */
+
+typedef struct {
+	int	clock;		/* incremented each change -- resettable */
+	FVECT	p, n;		/* point and normal */
+} C_VERTEX;		/* vertex context */
+</PRE>
+The
+<I>clock</I>
+member will be incremented each time the value gets changed by a
+<A HREF="p.html">p</A>
+or
+<A HREF="n.html">n</A>
+entity, and may be reset by the controlling program if desired.
+This is a convenient way to keep track of whether or not a vertex has
+changed since its last use.
+To link identical vertices, one must also check that the current
+transform has not changed, which is uniquely identified by the
+global
+<I>xf_context -&gt xid</I>
+variable, but only if one is using the parser libraries transform
+handler.
+(See the
+<I>xf_handler</I>
+page.)
+<P>
+It is possible but not recommended to alter the contents of the
+vertex structure returned by
+<I>c_getvert.</I>
+Normally it is read during the
+interpretation of entities using named vertices.
+<P>
+The name of the current vertex is given by the global
+<I>c_cvname</I>
+variable, which is set to NULL if the unnamed vertex is current.
+The current vertex value is pointed to by the global variable
+<I>c_cvertex,</I>
+which should never be NULL.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>c_hvertex</I>
+function returns
+<I>MG_OK</I>
+(0) if the vertex is handled correctly, or one of the predefined
+error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+<P>
+The
+<I>c_getvert</I>
+function returns NULL if the specified vertex name is undefined, at
+which point the calling function should return an
+<I>MG_EUNDEF</I>
+error.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c_hcolor.html">c_hcolor</A>, <A HREF="c_hmater.html">c_hmaterial</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>,
+<A HREF="xf_hand.html">xf_handler</A>
+<P>

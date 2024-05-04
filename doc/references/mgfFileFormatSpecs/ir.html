@@ -1,0 +1,54 @@
+<TITLE>
+MGF Entity ir
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+ir - set the complex index of refraction for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>ir</B>
+<I>n_real n_imag</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the index of refraction for the current material to
+<I>(n_real,n_imag).</I>
+If the material is a dielectric (as opposed to metallic), then
+<I>n_imag</I>
+should be zero.
+For solid dielectric objects, the material should be made one-sided.
+If it is being used for thin objects, then a two-sided
+material is appropriate.
+(See the
+<A HREF="sides.html">sides</A>
+entity.)\0
+<P>
+The default index of refraction is that of a vacuum, (1,0).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define polished aluminum material
+m polished_aluminum =
+	# Complex index of refraction (from physics table)
+	ir .770058 6.08351
+	c
+	rs .75 0
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>

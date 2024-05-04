@@ -1,0 +1,77 @@
+<TITLE>
+MGF Entity i
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+i - include MGF data file
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>i</B>
+<I>pathname</I>
+[
+<I>transform</I>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Include the information contained in the file
+<I>pathname.</I>
+If a
+<I>transform</I>
+specification is given, then it will be applied as though the
+include statement were enclosed by beginning and ending
+<A HREF="xf.html">xf</A>
+entities with this transformation.
+<P>
+The
+<I>pathname</I>
+will be interpreted relative to the enclosing MGF file.
+That is, if the file containing the include statement is in some
+parent or subdirectory, then the given pathname is appended to this
+directory.
+It is illegal to specify a
+<I>pathname</I>
+relative to the root directory, and the MGF standard requires that
+all filenames adhere to the ISO-9660 8.3 name format for maximum
+portability between systems.
+The directory separator is defined to be slash ('/'), and drive
+specifications (such as "c:") are not allowed.
+All pathnames should be given in lower case, and will be converted to
+upper case on systems that require it.
+(That way, there are no accidental name collisions.)\0
+<P>
+The suggested suffix for MGF-adherent files is ".mgf".
+Files that are not in metric units but are in MGF may be given any
+suffix, but we suggest using ".inc" as a convention.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define vertices for 62x30" partition
+i pv62x30.inc
+# Insert 2 62x30" partitions
+o cpart1
+        i partn.inc -t 75 130.5 0
+o
+o cpart3
+        i partn.inc -t 186 130.5 0
+o
+# Define vertices for 62x36" partition
+i pv62x36.inc
+# Insert 62x36" partition
+o cpart2
+        i partn.inc -t 105 130.5 0
+o
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="ies.html">ies</A>,
+<A HREF="o.html">o</A>,
+<A HREF="xf.html">xf</A>

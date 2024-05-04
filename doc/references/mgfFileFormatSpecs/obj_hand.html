@@ -1,0 +1,79 @@
+<TITLE>
+obj_handler, obj_clear, obj_nnames, obj_name - object name support
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+obj_handler, obj_clear, obj_nnames, obj_name - object name support
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>int</B>
+obj_handler(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+<B>void</B>
+obj_clear(
+<B>void</B>
+)
+<P>
+<B>extern int</B>
+obj_nnames
+<P>
+<B>extern char</B>
+**obj_name
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>obj_handler</I>
+routine should be assigned to the
+<I>MG_E_OBJECT</I>
+entry of the parser's
+<I>mg_ehand</I>
+array prior to calling
+<I>mg_load</I>
+if the loader/translator wishes to support hierarchical object
+names.
+<P>
+The
+<I>obj_clear</I>
+function may be used to clear the object name stack and free any
+associated memory, but this is usually not necessary since
+<A HREF="o.html">o</A>
+begin and end entities are normally balanced in the input.
+<P>
+The global
+<I>obj_nnames</I>
+variable indicates the number of names currently in the object
+stack, and the
+<I>obj_name</I>
+list contains the name strings in the same order as they were
+encountered on the input.
+(I.e. the most recently pushed name is last.)
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>obj_handler</I>
+function returns
+<I>MG_OK</I>
+(0) if the color is handled correctly, or one of the predefined
+error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>,
+<A HREF="xf_hand.html">xf_handler</A>
+<P>

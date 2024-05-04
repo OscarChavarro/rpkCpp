@@ -1,0 +1,59 @@
+<TITLE>
+MGF Entity sph
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+sph - create a sphere
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>sph</B>
+<I>vc rad</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Create a sphere made of the current material with its center at the
+named vertex
+<I>vc</I>
+and a radius of
+<I>rad.</I>
+If the vertex is undefined an error will result.
+<P>
+The surface normal is usually directed outward, but will be directed
+inward if the given radius is negative.
+(This typically matters only for one-sided materials.)
+A zero radius is illegal.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Create a thick glass sphere with a hollow inside
+m glass =
+	sides 1
+	ir 1.52 0
+	c
+	rs .06 0
+	ts .88 0
+v cent =
+	p 0 0 1.1
+# The outer shell
+sph cent .1
+# The inner bubble
+sph cent -.08
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cone.html">cone</A>,
+<A HREF="cyl.html">cyl</A>,
+<A HREF="f.html">f</A>,
+<A HREF="m.html">m</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

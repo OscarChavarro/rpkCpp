@@ -1,0 +1,104 @@
+<TITLE>
+mg_load, mg_clear, mg_file, mg_err - load MGF file, clear data structures
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+mg_load, mg_clear, mg_file, mg_err - load MGF file, clear data structures
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>int</B>
+mg_load(
+<B>char</B>
+*filename )
+<P>
+<B>void</B>
+mg_clear(
+<B>void</B>
+)
+<P>
+<B>extern</B>
+MG_FCTXT *mg_file
+<P>
+<B>extern char</B>
+*mg_err[MG_NERRS]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>mg_load</I>
+function loads the named file, or standard input if
+<I>filename</I>
+is the NULL pointer.
+Calls back to the appropriate MGF handler routines are made through the
+<I>mg_ehand</I>
+dispatch table.
+<P>
+The global
+<I>mg_file</I>
+variable points to the current file context structure, which
+may be useful for the interpretation of certain entities, such as
+<A HREF="ies.html">ies</A>,
+which must know the directory path of the enclosing file.
+This structure is of the defined type
+<I>MG_FCTXT,</I>
+given in "parser.h" as:
+<P>
+<PRE>
+typedef struct mg_fctxt {
+	char	fname[96];		/* file name */
+	FILE	*fp;			/* stream pointer */
+	int	fid;			/* unique file context id */
+	char	inpline[4096];		/* input line */
+	int	lineno;			/* line number */
+	struct mg_fctxt	*prev;		/* previous context */
+} MG_FCTXT;		/* file context */
+</PRE>
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+If an error is encountered during parsing,
+<I>mg_load</I>
+will print an appropriate error message to the standard error stream
+and return one of the non-zero values from "parser.h" listed below:
+<P>
+<PRE>
+#define MG_OK			0		/* normal return value */
+#define MG_EUNK			1		/* unknown entity */
+#define MG_EARGC		2		/* wrong number of arguments */
+#define MG_ETYPE		3		/* argument type error */
+#define MG_EILL			4		/* illegal argument value */
+#define MG_EUNDEF		5		/* undefined reference */
+#define MG_ENOFILE		6		/* cannot open input file */
+#define MG_EINCL		7		/* error in included file */
+#define MG_EMEM			8		/* out of memory */
+#define MG_ESEEK		9		/* file seek error */
+#define MG_EBADMAT		10		/* bad material specification */
+#define MG_ELINE		11		/* input line too long */
+#define MG_ECNTXT		12		/* unmatched context close */
+
+#define MG_NERRS	13
+</PRE>
+If it is inappropriate to send output to standard error, the calling
+program should use the routines listed under
+<I>mg_open</I>
+for better control over the parsing process.
+<P>
+The
+<I>mg_err</I>
+array contains error messages corresponding to each of the values
+listed above in the native country's language.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_fgetp.html">mg_fgetpos</A>, <A HREF="mg_hand.html">mg_handle</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_open.html">mg_open</A>
+<P>

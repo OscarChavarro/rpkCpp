@@ -1,0 +1,117 @@
+<TITLE>
+mgf2rad - convert Materials and Geometry Format file to RADIANCE description
+</TITLE>
+<H4>
+NAME
+</H4>
+mgf2rad - convert Materials and Geometry Format file to RADIANCE description
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>mgf2rad</B>
+[
+<B>-m matfile</B>
+][
+<B>-e mult</B>
+][
+<B>-g dist</B>
+]
+[
+<B>input</B> ..
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>Mgf2rad</I>
+converts one or more Materials and Geometry Format (MGF)
+files to a RADIANCE scene description.
+By definition, all output dimensions are in meters.
+The material names and properties
+for the surfaces will be those assigned in MGF.
+Any materials not defined in MGF will result in an error during
+translation.
+Light sources are described inline as IES luminaire files, and
+<I>mgf2rad</I>
+calls the program
+<I>ies2rad(1)</I>
+to translate these files.
+If an IES file in turn contains an MGF description of the local
+fixture geometry, this may result in a recursive call to
+<I>mgf2rad,</I>
+which is normal and should be transparent.
+The only side-effect of this additional translation is the
+appearance of other RADIANCE scene and data files produced
+automatically by
+<I>ies2rad.</I>
+<P>
+The
+<I>-m</I>
+option may be used to put all the translated materials into a separate
+RADIANCE file.
+This is not always advisable, as any given material name may be
+reused at different points in the MGF description, and writing them
+to a separate file loses the contextual association between
+materials and surfaces.
+As long as unique material names are used throughout the MGF
+description and material properties are not redefined, there
+will be no problem.
+Note that this is the only way to get all the translated materials
+into a single file, since no output is produced for unreferenced
+materials; i.e. translating just the MGF materials does not work.
+<P>
+The
+<I>-e</I>
+option may be used to multiply all the emission values by the
+given
+<I>mult</I>
+factor.
+The
+<I>-g</I>
+option may be used to establish a glow distance (in meters)
+for all emitting surfaces.
+These two options are employed principally by
+<I>ies2rad,</I>
+and are not generally useful to most users.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To translate two MGF files into one RADIANCE materials file and
+one geometry file:
+<PRE>
+	mgf2rad -m materials.rad building1.mgf building2.mgf > building1+2.rad
+</PRE>
+To create an octree directly from two MGF files and one RADIANCE
+file:
+<PRE>
+	oconv '\!mgf2rad materials.mgf scene.mgf' source.rad > scene.oct
+</PRE>
+<H4>
+FILES
+</H4>
+<DL>
+<DT>tmesh.cal
+<DD>Used to smooth polygonal geometry
+<DT>*.rad
+<DD>RADIANCE source descriptions created by ies2rad
+<DT>*.dat
+<DD>RADIANCE source data created by ies2rad
+<DT>source.cal
+<DD>Used for IES source coordinates
+</DL>
+<H4>
+AUTHOR
+</H4>
+Greg Ward
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/ies2rad.1.html">ies2rad(1)</A>,
+<A HREF="mgf2meta.html">mgf2meta(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/oconv.1.html">oconv(1)</A>,
+<A HREF="rad2mgf.html">rad2mgf(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/xform.1.html">xform(1)</A>
+<P>

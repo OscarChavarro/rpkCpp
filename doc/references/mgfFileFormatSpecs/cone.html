@@ -1,0 +1,78 @@
+<TITLE>
+MGF Entity cone
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cone - create an open-ended, truncated right cone
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cone</B>
+<I>v1 rad1 v2 rad2</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Create a truncated right cone using the current material.
+The starting radius is
+<I>rad1</I>
+at
+<I>v1</I>
+and the ending radius is
+is
+<I>rad2</I>
+at
+<I>v2.</I>
+The ends will be open, but may be capped using the
+<A HREF="ring.html">ring</A>
+entity if desired.
+<P>
+The surface normal will usually be directed outward, but may be
+directed inward by giving negative values for both radii.
+(It is illegal for the signs of the two radii to disagree.)\0
+One but not both radii may be zero, indicating that the cone comes
+to a point.
+<P>
+Although it is not strictly forbidden to have equal cone radii, the
+<A HREF="cyl.html">cyl</A>
+entity should be used in such cases.
+Likewise, the
+<A HREF="ring.html">ring</A>
+entity must be used if
+<I>v1</I>
+and
+<I>v2</I>
+are equal.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# A parasol
+o parasol
+	v v1 =
+		p 0 0 0
+	v v2 =
+		p 0 0 .75
+	v v3 =
+		p 0 0 .7
+	m handle_mat
+	cyl v1 .002 v2
+	m parasol_paper
+	cyl v2 0 v3 .33
+o
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cyl.html">cyl</A>,
+<A HREF="f.html">f</A>,
+<A HREF="m.html">m</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

@@ -1,0 +1,65 @@
+<TITLE>
+MGF Entity o
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<P>
+<H4>
+NAME
+</H4>
+o - begin or end object context
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>o</B>
+[
+<I>name</I>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+If
+<I>name</I>
+is given, we push a new object context onto the stack, which is to
+say that we begin a new subobject by this <A HREF="notes.html#3">name</A>.
+If the
+<A HREF="o.html">o</A>
+keyword is given by itself, then we pop the last object context off
+the stack, which means that we leave the current subobject.
+<P>
+All geometry between the start of an object context and its matching
+end statement is associated with the given name.
+This may be used in modeling software to help identify objects and
+subobjects, or it may be ignored altogether.
+<P>
+Object begin and end statements should be balanced in a file, and
+care should be taken not to overlap transform
+(<A HREF="xf.html">xf</A>)
+contexts with object contexts, especially when arrays are involved.
+This is because the standard parser will assign object contexts to
+instanced geometry, which can get confused with other object
+contexts if a clear enclosure is not maintained.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+o body
+	o torso
+		i torso.mgf
+	o
+	o arm
+		o left
+			i leftarm.mgf
+		o
+		o right
+			i leftarm.mgf -mx
+		o
+	o
+o
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="xf.html">xf</A>

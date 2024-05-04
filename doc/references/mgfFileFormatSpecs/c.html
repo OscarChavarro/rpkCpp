@@ -1,0 +1,73 @@
+<TITLE>
+MGF Entity c
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+c - get or set the current color context
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>c</B>
+[
+<I>id</I>
+[
+<B>=</B>
+[
+<I>template</I>
+]
+]
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+If the
+<A HREF="c.html">c</A>
+keyword is given by itself, then it establishes the unnamed color
+context, which is neutral (i.e. equal-energy) grey.
+This context may be modified, but the changes will not be saved.
+<P>
+If the keyword is followed by an <A HREF="notes.html#3">identifier</A>
+<I>id,</I>
+then it reestablishes a previous context.
+If the specified context was never defined, an error will result.
+<P>
+If the entity is given with an identifier
+followed by an equals sign ('='), then a new context is established,
+and cleared to the default neutral grey.
+(Note that the equals sign must be separated from other
+arguments by white space to be properly recognized.)\0
+If the equals sign is followed by a second identifier
+<I>template,</I>
+then this previously defined color will be used as a source of
+default values rather than grey.
+This is most useful for establishing a color alias.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define the color "red32"
+c red32 =
+	cxy .42 .15
+# Make "cabinet_color" an alias for "red32"
+c cabinet_color = red32
+
+# Later in another part of the description...
+
+# Get our cabinet color
+c cabinet_color
+# Get the geometry
+i cabgeom.mgf
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cct.html">cct</A>,
+<A HREF="cmix.html">cmix</A>,
+<A HREF="cspec.html">cspec</A>,
+<A HREF="cxy.html">cxy</A>,
+<A HREF="m.html">m</A>

@@ -1,0 +1,73 @@
+<TITLE>
+isint, isflt, isname - determine if string fits integer or real format,
+or is legal identifier
+</TITLE>
+<H4>
+NAME
+</H4>
+isint, isflt, isname - determine if string fits integer or real format,
+or is legal identifier
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>int</B>
+isint(
+<B>char</B>
+*str )
+<P>
+<B>int</B>
+isflt(
+<B>char</B>
+*str )
+<P>
+<B>int</B>
+isname(
+<B>char</B>
+*str )
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>isint</I>
+function checks to see if the passed string
+<I>str</I>
+matches a decimal integer format (positive or negative),
+and returns 1 or 0 based on whether it does or does not.
+<P>
+The
+<I>isflt</I>
+function checks to see if the passed string
+<I>str</I>
+matches a floating point format (positive or negative with optional
+exponent), and returns 1 or 0 based on whether it does or does not.
+<P>
+The
+<I>isname</I>
+function checks to see if the passed string
+<I>str</I>
+is a legal identifier name.
+In MGF, a legal identifier must begin with a letter and contain only
+visible ASCII characters (those between decimal 33 and 127 inclusive).
+The one caveat to this is that names may begin with one or more
+underscores ('_'), but this is a trick employed by the parser to
+maintain a separate name space from the user, and is not legal usage
+otherwise.
+<P>
+Note that a string that matches an integer format is also a valid
+floating point value.
+Conversely, a string that is not a floating point number cannot be a
+valid integer.
+<P>
+These routines are useful for checking arguments passed to entity
+handlers that certain types in certain positions.
+If an invalid argument is passed, the handler should return an
+<I>MG_ETYPE</I>
+error.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>
+<P>

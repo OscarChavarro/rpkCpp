@@ -1,0 +1,77 @@
+<TITLE>
+xf_xfmpoint xf_xfmvect, xf_rotvect, xf_scale - apply current
+transformation
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+xf_xfmpoint, xf_xfmvect, xf_rotvect, xf_scale - apply current
+transformation
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>void</B>
+xf_xfmpoint( FVECT pnew, FVECT pold )
+<P>
+<B>void</B>
+xf_xfmvect( FVECT vnew, FVECT vold )
+<P>
+<B>void</B>
+xf_rotvect( FVECT nnew, FVECT nold )
+<P>
+<B>double</B>
+xf_scale(
+<B>double</B>
+sold )
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<I>xf_xfmpoint</I>
+routine applies the current transformation defined by
+<I>xf_context</I>
+to the point
+<I>pold,</I>
+scaling, rotating and moving it to its proper location, which is put in
+<I>pnew.</I>
+(As for
+<I>xf_xfmvect</I>
+and
+<I>xf_rotvect,</I>
+the two arguments may point to the same vector.)
+<P>
+The
+<I>xf_xfmvect</I>
+routine applies the current transformation to the vector
+<I>vold,</I>
+scaling and rotating it to its proper location, which is put in
+<I>vnew.</I>
+The only difference between
+<I>xf_xfmpoint</I>
+and
+<I>xf_xfmvect</I>
+is that in the latter, the final translation is not applied.
+<P>
+The
+<I>xf_rotvect</I>
+routine rotates the vector
+<I>nold</I>
+using the current transformation, and stores the result in
+<I>nnew.</I>
+No translation or scaling is applied, which is the appropriate
+action for surface normal vectors for example.
+<P>
+The
+<I>xf_scale</I>
+function takes a scalar argument
+<I>sold</I>
+and applies the current scale factor, returning the result.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="xf_hand.html">xf_handler</A>
+<P>

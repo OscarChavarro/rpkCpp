@@ -1,0 +1,109 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+
+Downloaded at May 4 2024 from <A HREF="https://radsite.lbl.gov/mgf/mgfhtml/entref.html">https://radsite.lbl.gov/mgf/mgfhtml/entref.html</A>.
+
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A NAME=begin>MGF Entity Reference</A>
+</H1>
+There are currently 28 entities in the MGF specification.
+For ease of reference we have broken these into five categories:
+<OL>
+<LI>General
+<PRE>
+<A HREF="com.html">#</A>	[anything ...]		a comment
+<A HREF="o.html">o</A>	[name]			begin/end object context
+<A HREF="xf.html">xf</A>	[xform]			begin/end transformation context
+<A HREF="i.html">i</A>	pathname [xform]	include file (with transformation)
+<A HREF="ies.html">ies</A>	pathname [-m f][xform]	include IES luminaire (with transformation)
+</PRE>
+<LI>Color
+<PRE>
+<A HREF="c.html">c</A>	[id [= [template]]]	get/set color context
+<A HREF="cxy.html">cxy</A>	x y			set CIE (x,y) chromaticity for current color
+<A HREF="cspec.html">cspec</A>	l_min l_max v1 v2 ...	set relative spectrum for current color
+<A HREF="cct.html">cct</A>	temperature		set spectrum based on black body temperature
+<A HREF="cmix.html">cmix</A>	w1 c1 w2 c2 ...		mix named colors to make current color
+</PRE>
+<LI>Material
+<PRE>
+<A HREF="m.html">m</A>	[id [= [template]]]	get/set material context
+<A HREF="sides.html">sides</A>	{1|2}			set number of sides for current material
+<A HREF="rd.html">rd</A>	rho_d			set diffuse reflectance for current material
+<A HREF="td.html">td</A>	tau_d			set diffuse transmittance for current material
+<A HREF="ed.html">ed</A>	epsilon_d		set diffuse emittance for current material
+<A HREF="rs.html">rs</A>	rho_s alpha_r		set specular reflectance for current material
+<A HREF="ts.html">ts</A>	tau_s alpha_t		set specular transmittance for current material
+<A HREF="ir.html">ir</A>	n_real n_imag		set index of refraction for current material
+</PRE>
+<LI>Vertex
+<PRE>
+<A HREF="v.html">v</A>	[id [= [template]]]	get/set vertex context
+<A HREF="p.html">p</A>	x y z			set point position for current vertex
+<A HREF="n.html">n</A>	dx dy dz		set surface normal for current vertex
+</PRE>
+<LI>Geometry
+<PRE>
+<A HREF="f.html">f</A>	v1 v2 v3 ...		polygon using current material, spec. vertices
+<A HREF="sph.html">sph</A>	vc radius		sphere
+<A HREF="cyl.html">cyl</A>	v1 radius v2		truncated right cylinder (open-ended)
+<A HREF="cone.html">cone</A>	v1 rad1 v2 rad2		truncated right cone (open-ended)
+<A HREF="prism.html">prism</A>	v1 v2 v3 ... length	truncated right prism (closed solid)
+<A HREF="ring.html">ring</A>	vc rmin rmax		circular ring with inner and outer radii
+<A HREF="torus.html">torus</A>	vc rmin rmax		circular torus with inner and outer radii
+</PRE>
+</OL>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

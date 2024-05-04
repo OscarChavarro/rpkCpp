@@ -1,0 +1,100 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A NAME=begin>MGF's place in the world of standards</A>
+</H2>
+MGF was developed initially to support detailed geometric
+description of light fixtures for the IESNA luminaire data standard,
+<A HREF="notes.html#2">publication LM-63</A>.
+Existing standards for geometric description were either too
+cumbersome (e.g.
+<A HREF="https://radsite.lbl.gov/radiance/HOME.html">Radiance</A>)
+or did not include physical materials (e.g. IGES).
+It was noted early on that a standard able to fully describe
+luminaires would necessarily be
+capable of describing other objects as well; indeed whole
+environments could be defined this way.
+Since the descriptions would be physical, they could serve as input
+to both lighting simulation and rendering software.
+A standard language for describing the appearance of physical
+objects has been lacking for some time, and current efforts in this
+direction (i.e. STEP) seem several years away from fruition.
+(There are other languages for describing realistic scenes
+that deserve mention here, such as
+<A HREF=http://www.eit.com/vrml/>VRML</A>
+and the
+<A HREF=http://info.mcc.ac.uk/CGU/MSDL/MSDL-intro.html>
+Manchester Scene Description Language</A>,
+but none give specific attention to physical
+material properties and are thus unsuitable for lighting
+simulation.)
+<P>
+In short, we saw this as an opportunity to offer the lighting and
+rendering community a simple and easy-to-support standard for
+describing environments in a physically valid way.
+Our hope is that this will promote sharing color, material and object
+libraries as well as complete scene descriptions.
+Sharing libraries is of obvious benefit to users and software
+developers alike.
+Sharing scenes should also permit
+comparisons between rendering systems and
+intervalidation of lighting calculations.
+As anyone who works in this field knows, modeling is the most
+difficult step in creating any simulation or rendering, and there is
+no excuse for this data being held prisoner by a proprietary data
+format.
+<P>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

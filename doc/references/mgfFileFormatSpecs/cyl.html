@@ -1,0 +1,64 @@
+<TITLE>
+MGF Entity cyl
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cyl - create an open-ended, truncated right cylinder
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cyl</B>
+<I>v1 rad v2</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Create a truncated right cylinder of radius
+<I>rad</I>
+using the current material, starting at the named vertex
+<I>v1</I>
+and continuing to
+<I>v2.</I>
+The ends will be open, but may be capped using the
+<A HREF="ring.html">ring</A>
+entity if desired.
+<P>
+The surface normal will usually be directed outward, but may be
+directed inward by giving a negative value for
+<I>rad.</I>
+A zero radius is illegal, and
+<I>v1</I>
+cannot equal
+<I>v2.</I>
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# A stylus with one rounded and one pointed end
+o stylus
+	v vtip0 =
+		p 0 0 0
+	v vtip1 =
+		p 0 0 .005
+	v vend =
+		p 0 0 .05
+	cyl vtip1 .0015 vend
+	sph vend .0015
+	cone vtip0 0 vtip1 .0015
+o
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cone.html">cone</A>,
+<A HREF="f.html">f</A>,
+<A HREF="m.html">m</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

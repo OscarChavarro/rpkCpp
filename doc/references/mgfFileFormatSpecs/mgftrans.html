@@ -1,0 +1,97 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A NAME=begin>MGF Translators</A>
+</H1>
+Initially, there are six translators for MGF data, and
+three of these are distributed with the MGF parser itself,
+<A HREF="mgfilt.html">mgfilt</A>,
+<A HREF="mgf2inv.html">mgf2inv</A>
+and
+<A HREF="3ds2mgf.html">3ds2mgf</A>.
+Two of the other translators,
+<A HREF="mgf2rad.html">mgf2rad</A>
+and
+<A HREF="rad2mgf.html">rad2mgf</A>
+convert between MGF and the Radiance scene description language,
+and are distributed for free with the rest of the
+<A HREF="https://radsite.lbl.gov/radiance/HOME.html">Radiance package</A>.
+The sixth translator,
+<A HREF="mgf2meta.html">mgf2meta,</A>
+converts to a 2-dimensional line plot, and is also
+distributed with Radiance.
+<P>
+Mgfilt is a simple but useful utility that takes MGF on its input
+and produces MGF on its output.
+It uses the parser to convert entities that are not wanted or
+understood, and produces only the requested ones.
+This is useful for seeing what exactly a program must understand
+when it supports a given set of entities, and may serve as a
+substitute for linking to the parser library for programmers who
+wish to interpret the ASCII input directly but without all the
+unwanted entities.
+In future releases of MGF, this utility will also be handy for
+taking new entities and producing older versions of MGF for
+translators that have not yet been updated properly.
+<P>
+Mgf2inv converts from MGF to Inventor or VRML format.
+Some information is lost, because these formats do not support
+physical light sources or materials.
+3ds2mgf converts from 3D Studio binary format to MGF.
+Care must be taken to correct for errors in the material descriptions,
+since 3D Studio is completely non-physical.
+<P>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</A>
+</H2>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

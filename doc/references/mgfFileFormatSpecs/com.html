@@ -1,0 +1,43 @@
+<TITLE>
+MGF Entity #
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+# - a comment
+<H4>
+SYNOPSIS
+</H4>
+<B>#</B>
+[
+<I>anything</I>
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+A comment is a bit of text explanation.
+Since it is an entity like any other (except that it has no effect),
+there must be at least one space between the keyword (which is a
+pound sign) and the "arguments," and the end of line may be escaped
+as usual with the backslash character ('\').
+<P>
+A comment may actually be used to hold auxiliary information such as
+view parameters, which may be interpreted by some destination program.
+Care should be taken under such circumstances that the user does not
+inadvertently mung or mimic this information in other comments, and
+it is therefore advisable to use an additional set of identifying
+characters to distinguish such data.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# The following include file is in inches, so convert to meters
+i cubgeom.inc -s .0254
+# Stuff we don't want to see at the moment:
+# i person.mgf -t 3 2 0
+# ies hlrs3gna.ies -rz 90 -t 1.524 1.8288 2.74 \
+                -a 6 -t 1.8288 0 0 -a 2 -t 0 3.048 0
+</PRE>

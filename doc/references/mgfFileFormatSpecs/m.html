@@ -1,0 +1,96 @@
+<TITLE>
+MGF Entity m
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+m - get or set the current material context
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>m</B>
+[
+<I>id</I>
+[
+<B>=</B>
+[
+<I>template</I>
+]
+]
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+If the
+<A HREF="m.html">m</A>
+keyword is given by itself, then it establishes
+the unnamed material context, which is a perfect two-sided black absorber.
+This context may be modified, but the changes will not be saved.
+<P>
+If the keyword is followed by an <A HREF="notes.html#3">identifier</A>
+<I>id,</I>
+then it reestablishes a previous context.
+If the specified context was never defined, an error will result.
+<P>
+If the entity is given with an identifier
+followed by an equals sign ('='), then a new context is established,
+and cleared to the default material.
+(Note that the equals sign must be separated from other
+arguments by white space to be properly recognized.)
+If the equals sign is followed by a second identifier
+<I>template,</I>
+then this previously defined material will be used as a source of
+default values instead.
+This may be used to establish a material alias, or to modify an
+existing material and give it a new name.
+<P>
+The sum of the diffuse and specular reflectances and transmittances
+must not be greater than one (with no negative values, obviously).
+These values are assumed to be measured at normal incidence.
+If an index of refraction is given, this may modify the balance between
+diffuse and specular reflectance at other incident angles.
+If the
+material is one-sided (see 
+<A HREF="sides.html">sides</A>
+entity), then it may be a dielectric interface.
+In this case, the specular transmittance given is that which would be
+measured at normal incidence for a pane of the material 5 mm thick.
+This is important for figuring the actual transmittance for non-planar
+geometries assuming a uniformly absorbing medium.
+(Diffuse transmittance will not be affected by thickness.)
+If the index of
+refraction has an imaginary part, then the surface is a metal and this
+implies other properties as well.
+The default index of refraction is that of a vacuum, i.e. (1,0).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define a blue enamel paint
+m blue_enamel =
+        c
+                cxy 0.2771 0.2975
+        rd 0.5011
+        c
+        rs 0.0100 0.0350
+# Assign blue_enamel to be the color of the south wall
+m swall_mat = blue_enamel
+# ...
+# South wall face
+m swall_mat
+f sv1 sv2 sv3 sv4
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>

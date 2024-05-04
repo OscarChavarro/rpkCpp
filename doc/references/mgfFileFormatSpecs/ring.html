@@ -1,0 +1,62 @@
+<TITLE>
+MGF Entity ring
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+ring - create a circular ring with inner and outer radii
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>ring</B>
+<I>vc rmin rmax</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Create a circular face of the current material centered on the named
+vertex
+<I>vc</I>
+with an inner radius of
+<I>rmin</I>
+and an outer radius of
+<I>rmax.</I>
+The surface orientation is determined by the normal vector
+associated with
+<I>vc.</I>
+If this vertex is undefined or has no normal, an error will result.
+The minimum radius may be equal to but not less than zero, and the
+maximum radius must be strictly greater than the minimum.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# The proverbial brass ring
+o brass_ring
+	m brass
+	v end1 =
+		p 0 -.005 0
+		n 0 -1 0
+	v end2 =
+		p 0 .005 0
+		n 0 1 0
+	ring end1 .02 .03
+	cyl end1 .03 end2
+	ring end2 .02 .03
+	cyl end2 -.02 end1
+o
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cyl.html">cyl</A>,
+<A HREF="cone.html">cone</A>,
+<A HREF="f.html">f</A>,
+<A HREF="m.html">m</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

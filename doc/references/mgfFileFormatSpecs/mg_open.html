@@ -1,0 +1,121 @@
+<TITLE>
+mg_open, mg_read, mg_parse, mg_close - MGF file loading subroutines
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+mg_open, mg_read, mg_parse, mg_close - MGF file loading subroutines
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>int</B>
+mg_open( MG_FCTXT *fcp,
+<B>char</B>
+*filename )
+<P>
+<B>int</B>
+mg_read(
+<B>void</B>
+)
+<P>
+<B>int</B>
+mg_parse(
+<B>void</B>
+)
+<P>
+<B>void</B>
+mg_close(
+<B>void</B>
+)
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Most loaders and translators will call the
+<I>mg_load</I>
+routine to handle the above operations, but some programs or
+entity handlers require tighter control over the loading process.
+<P>
+The
+<I>mg_open</I>
+routine takes an uninitialized
+<I>MG_FCTXT</I>
+structure and a file name as its arguments.
+If
+<I>filename</I>
+is the NULL pointer, the standard input is "opened."
+The
+<I>fcp</I>
+structure will be set by
+<I>mg_open</I>
+prior to its return, and the global
+<I>mg_file</I>
+pointer will be assigned to point to it.
+This variable must not be destroyed until after the file is closed
+with a call to
+<I>mg_close.</I>
+(See the
+<I>mg_load</I>
+page for a definition of
+<I>mg_file</I>
+and the
+<I>MG_FCTXT</I>
+type.)
+<P>
+The
+<I>mg_read</I>
+function reads the next input line from the current file,
+returning the number of characters in the line, or zero if the
+end of file is reached or there is a file error.
+If the value returned equals MG_MAXLINE-1,
+then the input line was too long, and you
+should return an MG_ELINE error.
+The function keeps track of the
+line number in the current file context
+<I>mg_file,</I>
+which also contains the line that was read.
+<P>
+The
+<I>mg_parse</I>
+function breaks the current line in the
+<I>mg_file</I>
+structure into words and calls the appropriate handler routine, if
+any.
+Blank lines and unsupported entities cause a quick return.
+<P>
+The
+<I>mg_close</I>
+routine closes the current input file (unless it is the standard
+input) and returns to the previous file context (if any).
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+The
+<I>mg_open</I>
+function returns
+<I>MG_OK</I>
+(0) normally, or
+<I>MG_ENOFILE</I>
+if the open fails for some reason.
+<P>
+The
+<I>mg_parse</I>
+function returns
+<I>MG_OK</I>
+if the current line was successfully interpreted, or one of the
+defined error values if there is a problem.
+(See the
+<I>mg_load</I>
+page for the defined error values.)
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_fgetp.html">mg_fgetpos</A>, <A HREF="mg_hand.html">mg_handle</A>,
+<A HREF="mg_init.html">mg_init</A>, <A HREF="mg_load.html">mg_load</A>
+<P>

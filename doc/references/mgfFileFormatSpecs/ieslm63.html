@@ -1,0 +1,128 @@
+<title>
+The Materials and Geometry Format
+</title>
+<h1>
+The Materials and Geometry Format
+</h1>
+<h4>
+Version 1.0, May 1995
+</h4>
+<address>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</address>
+<h1>
+<a HREF="intro.html#begin">Introduction</a>
+</h1>
+<h2>
+<a HREF="special.html#begin">What makes MGF special?</a>
+</h2>
+<h2>
+<a HREF="appear.html#begin">What does MGF look like?</a>
+</h2>
+<h2>
+<a HREF="standard.html#begin">MGF's place in the world of standards</a>
+</h2>
+<h1>
+<a HREF="basics.html#begin">MGF Basics</a>
+</h1>
+<h2>
+<a HREF="entcont.html#begin">Entities and Contexts</a>
+</h2>
+<h2>
+<a HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</a>
+</h2>
+<h2>
+<a HREF="detexamp.html#begin">Detailed MGF Example</a>
+</h2>
+<h1>
+<a HREF="index.html#begin">MGF Entity Reference</a>
+</h1>
+<h1>
+<a HREF="mgftrans.html#begin">MGF Translators</a>
+</h1>
+<h1>
+<a HREF="mgfparse.html#begin">MGF Parser Library</a>
+</h1>
+<h1>
+Application Notes
+</h1>
+<h2>
+<a HREF="stanprac.html#begin">Relation to Standard Practices in Computer Graphics</a>
+</h2>
+<h2>
+<a NAME="begin">Relation to IESNA LM-63 and Luminaire Catalogs</a>
+</h2>
+Recently, the Illuminating Engineering Society of North America
+(IESNA) adopted MGF as the <a HREF="notes.html#2">official standard</a>
+for representing luminaire geometry and materials.
+The way this works in an IES luminaire data file is through the
+addition of a keyword called LUMINOUSGEOMETRY, which is given on a
+line in the header portion of a file (before the TILT specification)
+like so:
+<p>
+<b>[LUMINOUSGEOMETRY]</b>
+<i>mgf_file</i>
+<p>
+The given MGF file must exist relative to the directory containing
+the IES file (i.e. the same stipulations and restrictions on pathnames
+apply as for the MGF
+<a HREF="i.html">i</a>
+entity).
+Furthermore, the position of the MGF geometry must be
+such that the gross geometric specification of emitting surfaces
+in the IES file completely
+blocks or encloses the luminous portions of the MGF description.
+Specifically, any ray traced towards the MGF geometry must strike
+the IES gross geometry before it strikes any luminous surface in the
+MGF description.
+This provides a convenient way of preventing overcounting in the
+illumination calculation, while still allowing for accurate fixture
+appearance.
+<p>
+To give two examples, let us consider first a recessed can, followed
+by a hanging direct/indirect fluorescent fixture.
+<p>
+The most appropriate IES geometric specification for the emitting
+area of a can light would be a circular disk.
+Since the IES gross geometry gives only the diameter of the disk, the
+actual 3-dimensional placement is implicitly defined as having a
+center at the origin, with the radiating disk facing in the
+negative Z direction (nadir, downwards).
+The MGF geometry would then be placed such that any luminous portion
+was above this disk, and no portion of it would obstruct the IES
+geometry.
+The most sensible position therefore has the IES disk flush with the
+MGF can opening, as shown in Figure 3.
+<p>
+<img SRC="fig3.gif" WIDTH="258" HEIGHT="225">
+<p>
+In the case of a direct/indirect fluorescent fixture, light will
+exit both the top and the bottom sides, and the IES geometry must
+enclose the radiating portion of the fixture entirely.
+It is acceptable to have additional MGF geometry above the 
+fixture so long as it does not radiate, which is what we must do if
+we wish to include the support rods, as shown in Figure 4.
+<p>
+<img SRC="fig4.gif" WIDTH="456" HEIGHT="208">
+<p>
+Note that the origin is always in the exact center of the IES
+geometry.
+<p>
+Not all fixtures will fit the simple IES geometry specification so
+nicely.
+For odd-shaped fixtures, it may be necessary to use an IES geometry
+that does not match the radiating area terribly well in order that
+it completely block or enclose the required MGF specification.
+<p>
+The unit of length in the MGF file is always meters, regardless of
+the units specified in the enclosing IES file.
+However, any and all multipliers applied to the candlepower data in the
+IES file will also be applied to the emittance of surfaces in the
+MGF specification, so that one MGF file may serve similar
+luminaires that differ in their total output.
+<p>
+<h1>
+<a HREF="credits.html#begin">Credits</a>
+</h1>

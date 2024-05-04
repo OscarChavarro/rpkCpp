@@ -1,0 +1,63 @@
+<TITLE>
+MGF Entity cspec
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cspec - set the relative spectrum for the current color
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cspec</B>
+<I>l_min l_max o1 o2 ... oN</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Assign a relative spectrum measured between
+<I>l_min</I>
+and
+<I>l_max</I>
+nanometers at evenly spaced intervals.
+The first value,
+<I>o1</I>
+corresponds to the measurement at
+<I>l_min,</I>
+and the last value,
+<I>oN</I>
+corresponds to the measurement at
+<I>l_max.</I>
+Values in between are separated by
+<I>"(l_max-l_min)/(N-1)"</I>
+nanometers.
+All values must be non-negative unless defining a component for
+complementary color mixing, and the spectrum outside of the
+specified range is assumed to be zero.
+(The visible range is 380 to 780 nm.)
+The actual units and scale of the measurements do not matter,
+since the total will be
+normalized according to whatever the color is modifying
+(e.g. photometric reflectance or emittance).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Color measured at 10 nm increments from 400 to 700
+m reddish_cloth =
+        c
+                cspec 400 700 28.62 27.96 27.86 28.28 29.28 30.49 31.61 \
+                         32.27 32.26 31.83 31.13 30.07 29.14 29.03 29.69 \
+                         30.79 32.30 33.90 34.56 34.32 33.85 33.51 33.30 \
+                         33.43 34.06 35.26 37.04 39.41 42.55 46.46 51.00
+        rd 0.3210
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="cct.html">cct</A>,
+<A HREF="cmix.html">cmix</A>,
+<A HREF="cxy.html">cxy</A>

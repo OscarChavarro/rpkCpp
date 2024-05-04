@@ -1,0 +1,55 @@
+<TITLE>
+MGF Entity rs
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+rs - set the specular reflectance for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>rs</B>
+<I>rho_s alpha_r</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the specular reflectance for the current material to
+<I>rho_s</I>
+using the current color to determine the spectral characteristics.
+The surface roughness parameter is set to
+<I>alpha_r,</I>
+which is the RMS height of surface variations over the
+autocorrelation distance (equivalent to RMS facet slope).
+A roughness value of zero means a perfectly smooth surface, and
+values greater than 0.2 are unusual.
+(See application notes section 6.1.2 for a comparison between the
+roughness parameter and Phong specular power.)
+<P>
+The default specular reflectance is zero.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define a slightly rough brass metallic surface
+m rough_brass =
+	c
+		cxy .3820 .4035
+	# 30% specular, 9% diffuse
+	rs .30 .08
+	rd .09
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>

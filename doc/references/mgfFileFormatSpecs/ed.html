@@ -1,0 +1,60 @@
+<TITLE>
+MGF Entity ed
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+ed - set the diffuse emittance for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>ed</B>
+<I>epsilon_d</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the diffuse emittance for the current material to
+<I>epsilon_d</I>
+lumens per square meter using the current color to determine the
+spectral characteristics.
+Note that this is emittance rather than exitance, and therefore
+does not include reflected or transmitted light, which is a function
+of the other material settings and the illuminated environment.
+<P>
+The total lumen output of a convex emitting object
+is the radiating area of that object multiplied by its emittance.
+Therefore, one can compute the appropriate
+<I>epsilon_d</I>
+value for an emitter by dividing the total lumen output by the
+radiating area (in square meters).
+<P>
+The default emittance is zero.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# A 100-watt incandescent bulb (1600 lumens) modeled as a sphere
+m
+	c
+	cct 3000
+	ed 87712
+v cent =
+	p 0 0 0
+sph cent .0381
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>

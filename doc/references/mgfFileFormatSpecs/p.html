@@ -1,0 +1,50 @@
+<TITLE>
+MGF Entity p
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+p - set the point location for the current vertex
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>p</B>
+<I>px py pz</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the 3-dimensional position for the current vertex to
+<I>(px,py,pz).</I>
+The actual position of the vertex will be determined by the
+transformation in effect at the time the vertex is applied to a
+geometric surface entity.
+The transform current when the position is set is irrelevant.
+<P>
+The default vertex position is the origin, (0,0,0).
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Make a small circle of 6 spheres
+v scent =
+	p 1 0 0
+xf -a 6 -rz 60
+	sph scent .05
+xf
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="cone.html">cone</A>,
+<A HREF="cyl.html">cyl</A>,
+<A HREF="f.html">f</A>,
+<A HREF="n.html">n</A>,
+<A HREF="prism.html">prism</A>,
+<A HREF="ring.html">ring</A>,
+<A HREF="sph.html">sph</A>,
+<A HREF="torus.html">torus</A>,
+<A HREF="v.html">v</A>

@@ -1,0 +1,141 @@
+<TITLE>
+mg_init, mg_ehand, mg_uhand - initialize MGF entity handlers
+</TITLE>
+<A HREF="mgfparse.html#index">Return to index</A>
+<H4>
+NAME
+</H4>
+mg_init, mg_ehand, mg_uhand - initialize MGF entity handlers
+<P>
+<H4>
+SYNOPSIS
+</H4>
+#include "parser.h"
+<P>
+<B>void</B>
+mg_init(
+<B>void</B>
+)
+<P>
+<B>int</B>
+mg_defuhand(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+<B>extern int</B>
+(*mg_ehand[MG_NENTITIES])(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+<B>extern int</B>
+(*mg_uhand)(
+<B>int</B>
+argc,
+<B>char</B>
+**argv )
+<P>
+<B>extern unsigned</B>
+mg_nunknown
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The parser dispatch table,
+<I>mg_ehand</I>
+is initially set to all NULL pointers, and it
+is the duty of the calling program to assign entity handler functions to
+each of the supported entity positions in the array.
+The entities are given in the include file "parser.h" as the
+following:
+<P>
+<PRE>
+#define MG_E_COMMENT		0		/* #		*/
+#define MG_E_COLOR		1		/* c		*/
+#define MG_E_CCT		2		/* cct		*/
+#define MG_E_CONE		3		/* cone		*/
+#define MG_E_CMIX		4		/* cmix		*/
+#define MG_E_CSPEC		5		/* cspec	*/
+#define MG_E_CXY		6		/* cxy		*/
+#define MG_E_CYL		7		/* cyl		*/
+#define MG_E_ED			8		/* ed		*/
+#define MG_E_FACE		9		/* f		*/
+#define MG_E_INCLUDE		10		/* i		*/
+#define MG_E_IES		11		/* ies		*/
+#define MG_E_IR			12		/* ir		*/
+#define MG_E_MATERIAL		13		/* m		*/
+#define MG_E_NORMAL		14		/* n		*/
+#define MG_E_OBJECT		15		/* o		*/
+#define MG_E_POINT		16		/* p		*/
+#define MG_E_PRISM		17		/* prism	*/
+#define MG_E_RD			18		/* rd		*/
+#define MG_E_RING		19		/* ring		*/
+#define MG_E_RS			20		/* rs		*/
+#define MG_E_SIDES		21		/* sides	*/
+#define MG_E_SPH		22		/* sph		*/
+#define MG_E_TD			23		/* td		*/
+#define MG_E_TORUS		24		/* torus	*/
+#define MG_E_TS			25		/* ts		*/
+#define MG_E_VERTEX		26		/* v		*/
+#define MG_E_XF			27		/* xf		*/
+
+#define MG_NENTITIES	28		/* total # entities */
+</PRE>
+<P>
+Once the
+<I>mg_ehand</I>
+array has been set by the program, the
+<I>mg_init</I>
+routine must be called to complete the initialization process.
+This should be done once and only once per invocation, before any other
+parser routines are called.
+<P>
+The
+<I>mg_uhand</I>
+variable points to the current handler for unknown entities
+encountered on the input.
+Its default value points to the
+<I>mg_defuhand</I>
+function, which simply increments the global variable
+<I>mg_nunknown,</I>
+printing a warning message on the standard error on the first
+offense.
+(This message may be avoided by incrementing
+<I>mg_nunknown</I>
+before processing begins.)
+If
+<I>mg_uhand</I>
+is assigned a value of NULL, then an unknown entity will return an
+<I>MG_EUNK</I>
+error, which will cause the parser to abort.
+(See the
+<I>mg_load</I>
+page for a list of errors.)
+If the
+<I>mg_uhand</I>
+pointer is assigned to another function, that function will receive
+any unknown entities and their arguments, and the parsing will
+abort if the new function returns a non-zero error value.
+This offers a convenient way to customize the language by adding
+non-standard entities.
+<P>
+<H4>
+DIAGNOSTICS
+</H4>
+If an inconsistent set of entities has been set for support, the
+<I>mg_init</I>
+routine will print an informative message to standard error and abort
+the calling program with a call to
+<I>exit.</I>
+This is normally unacceptable behavior for a library routine, but since
+such an error indicates a fault with the calling program itself,
+recovery is impossible.
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="mg_load.html">mg_load</A>, <A HREF="mg_hand.html">mg_handle</A>
+<P>

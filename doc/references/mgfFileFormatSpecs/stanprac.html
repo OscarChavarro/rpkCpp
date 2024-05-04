@@ -1,0 +1,308 @@
+<TITLE>
+The Materials and Geometry Format
+</TITLE>
+<H1>
+The Materials and Geometry Format
+</H1>
+<H4>
+Version 1.0, May 1995
+</H4>
+<ADDRESS>
+Greg Ward,
+Lawrence Berkeley Laboratory,
+GJWard@Lbl.Gov
+</ADDRESS>
+<H1>
+<A HREF="intro.html#begin">Introduction</A>
+</H1>
+<H2>
+<A HREF="special.html#begin">What makes MGF special?</A>
+</H2>
+<H2>
+<A HREF="appear.html#begin">What does MGF look like?</A>
+</H2>
+<H2>
+<A HREF="standard.html#begin">MGF's place in the world of standards</A>
+</H2>
+<H1>
+<A HREF="basics.html#begin">MGF Basics</A>
+</H1>
+<H2>
+<A HREF="entcont.html#begin">Entities and Contexts</A>
+</H2>
+<H2>
+<A HREF="hiercont.html#begin">Hierarchical Contexts and Transformations</A>
+</H2>
+<H2>
+<A HREF="detexamp.html#begin">Detailed MGF Example</A>
+</H2>
+<H1>
+<A HREF="index.html#begin">MGF Entity Reference</A>
+</H1>
+<H1>
+<A HREF="mgftrans.html#begin">MGF Translators</A>
+</H1>
+<H1>
+<A HREF="mgfparse.html#begin">MGF Parser Library</A>
+</H1>
+<H1>
+Application Notes
+</H1>
+<H2>
+<A NAME=begin>Relation to Standard Practices in Computer Graphics</A>
+</H2>
+For those coming from a computer graphics background, some of the
+choices in the material model may seem strange or even capricious.
+Why not simply stick with RGB colors and a Phong specular component
+like everyone else?
+What is the point in choosing the number of sides to a material?
+<P>
+In the real world, a surface can have only one side,
+defining the interface between one volume and another.
+Many object-space rendering packages (e.g. z-buffer algorithms) take
+advantage of this fact by culling back-facing polygons and thus saving
+as much as 50% of the preprocessing time.
+However, many models rely on an
+approximation whereby a single surface is used to represent a very thin
+volume, such as a pane of glass, and this also can provide significant
+calculational savings in an image-space algorithm (such as
+ray-tracing).
+Also, many models are created in such a way that the front vs. back
+information is lost or confused, so that the back side of one or
+more surfaces may have to serve as the front side during rendering.
+(AutoCAD is one easily identified culprit in this department.)
+Since both types of surface models are useful and any
+rendering algorithm may ultimately be applied, MGF provides a way
+to specify sidedness rather than picking one interpretation or the other.
+<P>
+The problem with RGB is that there is no accepted standard, and even
+if we were to set one it would either be impossible to realize (i.e.
+impossible to create phosphors with the chosen colors) or it would
+have a gamut that excludes many saturated colors.
+The CIE color system was very carefully conceived and developed,
+and is the standard to which all photometric measurements adhere.
+It is therefore the logical choice in any standard format, though it
+has been too often ignored by the computer graphics community.
+<P>
+Regarding Phong shading, this was never a physical model and making it
+behave basic laws of reciprocity and energy balance is difficult.
+More to the point, specular power has almost nothing to do with
+surface microstructure, and is difficult to set properly
+even if every physical characteristic of a material has
+been carefully measured.
+This is the ultimate indictment of any physical model -- that it
+is incapable of reproducing any measurement whatsoever.
+<P>
+Admittedly, the compliment of diffuse and specular component plus
+surface roughness and index of refraction used in MGF is less than a
+perfect model, but it is serviceable for most materials and
+relatively simple to incorporate into a rendering algorithm.
+In the long term, MGF shall probably include full spectral
+scattering functions, though the sheer quantity of data involved
+makes this burdensome from both the measurement side and the
+simulation side.
+<P>
+<H3>
+Converting between Phong Specular Power and Gaussian Roughness
+</H3>
+So-called specular reflection and transmission are modeled using a
+Gaussian distribution of surface facets.
+The roughness parameters to the
+<A HREF="rs.html">rs</A>
+and
+<A HREF="ts.html">ts</A>
+entities specify
+the root-mean-squared (RMS) surface facet slope, which varies from 0
+for a perfectly smooth surface to around .2 for a fairly rough one.
+The effect this will have on the reflected component distribution is
+well-defined, but predicting the behavior of the transmitted
+component requires further assumptions.
+We assume that the surface
+scatters light passing through it just as much as it scatters
+reflected light.
+This assumption is approximately correct for a
+two-sided transparent material with an index of refraction of 1.5
+(like glass) and both sides having the given RMS facet slope.
+<P>
+Oftentimes, one is translating from a Phong exponent on the cosine
+of the half-vector-to-normal angle to the more physical but less
+familiar Gaussian model of MGF.
+The hardest part is translating the specular power to a roughness value.
+For this, we recommend the following approximation:
+<PRE>
+	roughness = sqrt(2/specular_power)
+</PRE>
+It is not a perfect correlation, but it is about as close as one can get.
+<P>
+<H3>
+Converting between RGB and CIE Colors
+</H3>
+Unlike most graphics languages, MGF does not use an RGB color model,
+simply because there is no recognized definition for this model.
+It is based on computer monitor phosphors, which vary from one
+CRT to the next.
+(There is an RGB standard defined in the TV
+industry, but this has a rather poor correlation to most computer
+monitors and it is impossible to express many real-world colors
+within its limited gamut.)
+<P>
+MGF uses two alternative, well-defined standards, spectral power
+distributions and the 1931 CIE 2 degree standard observer.
+With the CIE standard, any viewable
+color may be exactly represented as an (x,y) chromaticity value.
+Unfortunately, the interaction between
+colors (i.e. colored light sources and interreflections) cannot be
+specified exactly with any finite coordinate set, including CIE
+chromaticities.
+So, MGF offers the ability to give reflectance,
+transmittance or emittance as a function of wavelength over the visible
+spectrum.
+This function is still discretized, but at a user-selectable
+resolution.
+Furthermore, spectral colors may be mixed, providing (nearly)
+arbitrary basis functions, which can produce more accurate results in
+some cases and are merely a convenience for translation in others.
+<P>
+Conversion back and forth between CIE chromaticity coordinates and spectral
+samples is provided within the MGF parser.
+Unfortunately, conversion
+to and from RGB values depends on a particular RGB definition, and as we
+have said, there is no recognized standard.
+We therefore recommend that
+you decide yourself what chromaticity values to use for each RGB primary,
+and adopt the following code to convert between CIE and RGB coordinates.
+<P>
+<PRE>
+#ifdef  NTSC
+#define  CIE_x_r		0.670		/* standard NTSC primaries */
+#define  CIE_y_r		0.330
+#define  CIE_x_g		0.210
+#define  CIE_y_g		0.710
+#define  CIE_x_b		0.140
+#define  CIE_y_b		0.080
+#define  CIE_x_w		0.3333		/* monitor white point */
+#define  CIE_y_w		0.3333
+#else
+#define  CIE_x_r		0.640		/* nominal CRT primaries */
+#define  CIE_y_r		0.330
+#define  CIE_x_g		0.290
+#define  CIE_y_g		0.600
+#define  CIE_x_b		0.150
+#define  CIE_y_b		0.060
+#define  CIE_x_w		0.3333		/* monitor white point */
+#define  CIE_y_w		0.3333
+#endif
+
+#define CIE_D		(	CIE_x_r*(CIE_y_g - CIE_y_b) + \
+				CIE_x_g*(CIE_y_b - CIE_y_r) + \
+				CIE_x_b*(CIE_y_r - CIE_y_g)	)
+#define CIE_C_rD	( (1./CIE_y_w) * \
+				( CIE_x_w*(CIE_y_g - CIE_y_b) - \
+				  CIE_y_w*(CIE_x_g - CIE_x_b) + \
+				  CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g	) )
+#define CIE_C_gD	( (1./CIE_y_w) * \
+				( CIE_x_w*(CIE_y_b - CIE_y_r) - \
+				  CIE_y_w*(CIE_x_b - CIE_x_r) - \
+				  CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r	) )
+#define CIE_C_bD	( (1./CIE_y_w) * \
+				( CIE_x_w*(CIE_y_r - CIE_y_g) - \
+				  CIE_y_w*(CIE_x_r - CIE_x_g) + \
+				  CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r	) )
+
+#define CIE_rf		(CIE_y_r*CIE_C_rD/CIE_D)
+#define CIE_gf		(CIE_y_g*CIE_C_gD/CIE_D)
+#define CIE_bf		(CIE_y_b*CIE_C_bD/CIE_D)
+
+float  xyz2rgbmat[3][3] = {	/* XYZ to RGB */
+	{(CIE_y_g - CIE_y_b - CIE_x_b*CIE_y_g + CIE_y_b*CIE_x_g)/CIE_C_rD,
+	 (CIE_x_b - CIE_x_g - CIE_x_b*CIE_y_g + CIE_x_g*CIE_y_b)/CIE_C_rD,
+	 (CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g)/CIE_C_rD},
+	{(CIE_y_b - CIE_y_r - CIE_y_b*CIE_x_r + CIE_y_r*CIE_x_b)/CIE_C_gD,
+	 (CIE_x_r - CIE_x_b - CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r)/CIE_C_gD,
+	 (CIE_x_b*CIE_y_r - CIE_x_r*CIE_y_b)/CIE_C_gD},
+	{(CIE_y_r - CIE_y_g - CIE_y_r*CIE_x_g + CIE_y_g*CIE_x_r)/CIE_C_bD,
+	 (CIE_x_g - CIE_x_r - CIE_x_g*CIE_y_r + CIE_x_r*CIE_y_g)/CIE_C_bD,
+	 (CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r)/CIE_C_bD}
+};
+
+float  rgb2xyzmat[3][3] = {	/* RGB to XYZ */
+	{CIE_x_r*CIE_C_rD/CIE_D,CIE_x_g*CIE_C_gD/CIE_D,CIE_x_b*CIE_C_bD/CIE_D},
+	{CIE_y_r*CIE_C_rD/CIE_D,CIE_y_g*CIE_C_gD/CIE_D,CIE_y_b*CIE_C_bD/CIE_D},
+	{(1.-CIE_x_r-CIE_y_r)*CIE_C_rD/CIE_D,
+	 (1.-CIE_x_g-CIE_y_g)*CIE_C_gD/CIE_D,
+	 (1.-CIE_x_b-CIE_y_b)*CIE_C_bD/CIE_D}
+};
+
+
+cie_rgb(rgbcolor, ciecolor)		/* convert CIE to RGB */
+register float  *rgbcolor, *ciecolor;
+{
+	register int  i;
+
+	for (i = 0; i < 3; i++) {
+		rgbcolor[i] =	xyz2rgbmat[i][0]*ciecolor[0] +
+				xyz2rgbmat[i][1]*ciecolor[1] +
+				xyz2rgbmat[i][2]*ciecolor[2] ;
+		if (rgbcolor[i] < 0.0)		/* watch for negative values */
+			rgbcolor[i] = 0.0;
+	}
+}
+
+
+rgb_cie(ciecolor, rgbcolor)		/* convert RGB to CIE */
+register float  *ciecolor, *rgbcolor;
+{
+	register int  i;
+
+	for (i = 0; i < 3; i++)
+		ciecolor[i] =	rgb2xyzmat[i][0]*rgbcolor[0] +
+				rgb2xyzmat[i][1]*rgbcolor[1] +
+				rgb2xyzmat[i][2]*rgbcolor[2] ;
+}
+</PRE>
+An alternative to adopting the above code is to use the MGF "cmix"
+entity to convert from RGB directly by naming the three primaries in
+terms of their chromaticities, e.g:
+<P>
+<PRE>
+c R =
+	cxy 0.640 0.330
+c G =
+	cxy 0.290 0.600
+c B =
+	cxy 0.150 0.060
+</PRE>
+<P>
+Then, converting from RGB to MGF colors is as simple as multiplying each
+component by its relative luminance in a cmix statement, for instance:
+<P>
+<PRE>
+c white =
+	cmix 0.265 R 0.670 G 0.065 B
+</PRE>
+<P>
+For the chosen RGB standard, the above specification would result a pure
+white.
+The reason the coefficients are not all 1 as you might expect is
+that cmix uses relative luminance as the standard for its weights.
+Since
+blue is less luminous for the same energy than red, which is in turn
+less luminous than green, the weights cannot be the same to achieve an
+even spectral balance.
+Unfortunately, computing these relative weights
+is not straightforward, though it is given in the above macros as CIE_rf,
+CIE_gf and CIE_bf.
+(The common factors in these macros may of course
+be removed since
+<A HREF="cmix.html">cmix</A>
+weights are all relative.)
+Alternatively, one could measure the actual full scale luminance of
+the phosphors with a luminance probe and get the same relative
+values.
+<P>
+<H2>
+<A HREF="ieslm63.html#begin">Relation to IESNA LM-63 and Luminaire Catalogs</A>
+</H2>
+<H1>
+<A HREF="credits.html#begin">Credits</A>
+</H1>

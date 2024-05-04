@@ -1,0 +1,95 @@
+<TITLE>
+rad2mgf - convert RADIANCE scene description to Materials and Geometry Format
+</TITLE>
+<H4>
+NAME
+</H4>
+rad2mgf - convert RADIANCE scene description to Materials and Geometry Format
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>rad2mgf</B>
+[
+<B>-dU</B>
+]
+[
+<B>input</B> ..
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>Rad2mgf</I>
+converts one or more RADIANCE scene files
+to the Materials and Geometry Format (MGF).
+Input units are specified with the
+<I>-mU</I>
+option, where
+<I>U</I>
+is one of 'm' (meters), 'c' (centimeters), 'f' (feet) or 'i'
+(inches).
+The assumed unit is meters, which is the required output unit for
+MGF (thus the need to know).
+If the input dimensions are in none of these units, then the user
+should apply
+<I>xform(1)</I>
+with the
+<I>-s</I>
+option to bring the units into line prior to translation.
+<P>
+The MGF material names and properties
+for the surfaces will be those assigned in RADIANCE.
+If a referenced material has not been defined, then its name will
+be invoked in the MGF output without definition, and the description
+will be incomplete.
+<P>
+<H4>
+LIMITATIONS
+</H4>
+Although MGF supports all of the geometric types and the most
+common material types used in RADIANCE, there is currently no
+support for advanced BRDF materials, patterns, textures or mixtures.
+Also, the special types "source" and "antimatter" are not supported,
+and all light source materials are converted to simple diffuse emitters
+(except "illum" materials, which are converted to their alternates).
+These primitives are reproduced as comments in the output and
+must be replaced manually if necessary.
+<P>
+The RADIANCE "instance" type is treated specially.
+<I>Rad2mgf</I>
+converts each instance to an MGF include statement, using the corresponding
+transformation and a file name derived from the octree name.
+(The original octree suffix is replaced by ".mgf".)
+For this to work, the user must separately create the referenced
+MGF files from the original RADIANCE descriptions.
+The description file names can usually be determined using the
+<I>getinfo(1)</I>
+command run on the octrees in question.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To convert three RADIANCE files (in feet) to one MGF file:
+<PRE>
+	rad2mgf -df file1.rad file2.rad file3.rad > scene.mgf
+</PRE>
+To translate a RADIANCE materials file to MGF:
+<PRE>
+	rad2mgf materials.rad > materials.mgf
+</PRE>
+<H4>
+AUTHOR
+</H4>
+Greg Ward
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/getinfo.1.html">getinfo(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/ies2rad.1.html">ies2rad(1)</A>,
+<A HREF="mgf2meta.html">mgf2meta(1)</A>,
+<A HREF="mgf2rad.html">mgf2rad(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/oconv.1.html">oconv(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/xform.1.html">xform(1)</A>
+<P>

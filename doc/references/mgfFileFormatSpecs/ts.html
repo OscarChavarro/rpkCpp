@@ -1,0 +1,62 @@
+<TITLE>
+MGF Entity ts
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+ts - set the specular transmittance for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>ts</B>
+<I>tau_s alpha_t</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the specular transmittance for the current material to
+<I>tau_s</I>
+using the current color to determine the spectral characteristics.
+The effective surface roughness is set to
+<I>alpha_t.</I>
+Rays will be transmitted with the same distribution as they would
+have been reflected with if this roughness value were given to the
+<A HREF="rs.html">rs</A>
+entity.
+<P>
+The default specular transmittance is zero.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define a green glass material (58% transmittance)
+m glass =
+	sides 2
+        ir 1.52 0
+        c
+        rs 0.0725 0
+	c
+		cxy .23 .38
+        ts 0.5815 0
+# Define an uncolored translucent plastic (40% transmittance)
+m translucent =
+	sides 2
+	ir 1.4 0
+	c
+	rs .045 0
+	ts .40 .05
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>

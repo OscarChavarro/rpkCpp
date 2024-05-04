@@ -1,0 +1,46 @@
+<TITLE>
+MGF Entity cct
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+cct - set the current color to a black body spectrum
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>cct</B>
+<I>temperature</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<A HREF="cct.html">cct</A>
+entity sets the current color to the spectrum of an ideal
+black body radiating at
+<I>temperature</I>
+degrees Kelvin.
+This is often the most convenient way to set the color of an
+incandescent light source, but it is not recommended for
+fluorescent lamps or other materials that do not fit a
+black body spectrum.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Define an incandescent source material at 3000 degrees K
+m incand3000k =
+	c
+		cct 3000
+	ed 1500
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="cmix.html">cmix</A>,
+<A HREF="cspec.html">cspec</A>,
+<A HREF="cxy.html">cxy</A>

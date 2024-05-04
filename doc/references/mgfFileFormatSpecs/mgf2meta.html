@@ -1,0 +1,93 @@
+<TITLE>
+mgf2meta - convert Materials and Geometry Format file to Metafile graphics
+</TITLE>
+<H4>
+NAME
+</H4>
+mgf2meta - convert Materials and Geometry Format file to Metafile graphics
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>mgf2meta</B>
+[
+<B>-t threshold</B>
+]
+<B>{x|y|z} xmin xmax ymin ymax zmin zmax</B>
+[
+<B>input</B> ..
+]
+<P>
+<H4>
+DESCRIPTION
+</H4>
+<I>Mgf2meta</I>
+converts one or more Materials and Geometry Format (MGF)
+files to a 2-D orthographic projection along the selected axis in the
+<I>metafile(1)</I>
+graphics format.
+All geometry is clipped to the specified bounding box, and the
+resulting orientation is as follows:
+<PRE>
+	Projection	Orientation
+	=======		========
+	x		Y-axis right, Z-axis up
+	y		Z-axis right, X-axis up
+	z		X-axis right, Z-axis up
+</PRE>
+If multiple input files are given, the first file prints in black,
+the second prints in red, the third in green and the fourth in blue.
+If more than four input files are given, they cycle through the
+colors again in three other line types:  dashed, dotted and
+dot-dashed.
+<P>
+The
+<I>-t</I>
+option may be used to randomly throw out line segments that are
+shorter than the given
+<I>threshold</I>
+(given as a fraction of the plot width).
+Segments are included with a
+probability equal to the square of the line length over the square
+of the threshold.
+This can greatly reduce the number of lines in the drawing (and
+therefore improve the drawing speed) with only a modest loss in
+quality.
+A typical value for this parameter is 0.005.
+<P>
+All MGF material information is ignored on the input.
+<P>
+<H4>
+EXAMPLES
+</H4>
+To project two MGF files along the Z-axis and display them under
+X11:
+<PRE>
+	mgf2meta z 0 10 0 15 0 9 building1.mgf building2.mgf | x11meta
+</PRE>
+To convert a RADIANCE scene to a line drawing in RADIANCE picture
+format:
+<PRE>
+	rad2mgf scene.rad | mgf2meta x `getbbox -h scene.rad` | meta2tga \
+		| ra_t8 -r > scene.pic
+</PRE>
+<H4>
+AUTHOR
+</H4>
+Greg Ward
+<P>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/getbbox.1.html">getbbox(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/meta2tga.1.html">meta2tga(1)</A>,
+metafile(5),
+<A HREF="mgf2rad.html">mgf2rad(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/pflip.1.html">pflip(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/protate.1.html">protate(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/psmeta.1.html">psmeta(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/ra_t8.1.html">ra_t8(1)</A>,
+<A HREF="rad2mgf.html">rad2mgf(1)</A>,
+<A HREF="https://radsite.lbl.gov/radiance/man_html2R3/t4014.1.html">t4014(1)</A>,
+x11meta(1)
+<P>

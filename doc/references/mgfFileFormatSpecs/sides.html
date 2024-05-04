@@ -1,0 +1,69 @@
+<TITLE>
+MGF Entity sides
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+sides - set the number of sides for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>sides</B>
+{
+<B>1</B>
+|
+<B>2</B>
+}
+<P>
+<H4>
+DESCRIPTION
+</H4>
+The
+<A HREF="sides.html">sides</A>
+entity is used to set the number of sides for the current material.
+If a surface is two-sided, then it will appear
+identical when viewed from either the front or the back.
+If a surface is one-sided,
+then it appears invisible when viewed from the back side.
+This means
+that a transmitting object will affect the light coming in through the
+front surface and ignore the characteristics of the back surface,
+unless the index of refraction is set.
+If the index of refraction is set, then the object will act as a
+solid piece of dielectric material.
+In either case, the transmission properties of the exiting surface
+should be the same as the incident surface for the model to be
+physically valid.
+<P>
+The default number of sides is two.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# Describe a blue crystal ball
+m blue_crystal =
+        ir 1.650000 0
+	# Solid dielectrics must use one-sided materials
+        sides 1
+        c
+        rs 0.0602 0
+        c
+                cxy 0.3127 0.2881
+        ts 0.6425 0
+v sc =
+	p 10 15 1.5
+sph sc .02
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rd.html">rd</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>

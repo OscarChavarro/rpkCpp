@@ -1,0 +1,56 @@
+<TITLE>
+MGF Entity rd
+</TITLE>
+<A HREF="index.html#begin">Return to index</A>
+<H4>
+NAME
+</H4>
+rd - set the diffuse reflectance for the current material
+<P>
+<H4>
+SYNOPSIS
+</H4>
+<B>rd</B>
+<I>rho_d</I>
+<P>
+<H4>
+DESCRIPTION
+</H4>
+Set the diffuse reflectance for the current material to
+<I>rho_d</I>
+using the current color to determine the spectral characteristics.
+This is the fraction of visible light that is reflected from a
+surface equally in all directions according to Lambert's law, and is
+often called the "Lambertian component."
+Photometric reflectance is measured according to v(lambda)
+response function of the 1931 CIE standard 2
+degree observer, and assumes an equal-energy white light source.
+The value must be between zero and one, and may be further
+restricted by the luminosity of the selected color.
+(I.e. it is impossible to have a violet material with a photometric
+reflectance close to one since the eye is less sensitive in this part
+of the spectrum.)
+<P>
+The default diffuse reflectance is zero.
+<P>
+<H4>
+EXAMPLE
+</H4>
+<PRE>
+# An off-white paint with 70% reflectance
+m flat_white70 =
+	c
+		cxy .3632 .3420
+	rd .70
+</PRE>
+<H4>
+SEE ALSO
+</H4>
+<A HREF="c.html">c</A>,
+<A HREF="ed.html">ed</A>,
+<A HREF="ir.html">ir</A>,
+<A HREF="m.html">m</A>,
+<A HREF="rs.html">rs</A>,
+<A HREF="sides.html">sides</A>,
+<A HREF="td.html">td</A>,
+<A HREF="ts.html">ts</A>
