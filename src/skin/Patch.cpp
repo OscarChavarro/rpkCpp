@@ -962,18 +962,18 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     double B = (a + 0.5 * c) / area;
     double C = -(*u);
     if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
-        logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
-          A, B, -C, id);
-        fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
+        //logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
+        //  A, B, -C, id);
+        //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 
     A = 0.5 * c / area;
     B = (a + 0.5 * b) / area;
     C = -(*v);
     if ( !solveQuadraticUnitInterval(A, B, C, v) ) {
-        logError(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d",
-          A, B, -C, id);
-        fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
+        //logError(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d",
+        //  A, B, -C, id);
+        //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 }
 

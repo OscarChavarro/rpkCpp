@@ -45,12 +45,12 @@ class Shaft {
     static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
     static bool verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, double d, int side);
-    static int testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
+    static ShaftPlanePosition testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
     void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
-    int shaftPatchTest(Patch *patch);
+    ShaftPlanePosition shaftPatchTest(Patch *patch);
     bool closedGeometry(const Geometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
@@ -60,19 +60,19 @@ class Shaft {
     BoundingBox *referenceItem2;
     BoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
-    int numberOfPlanesInSet;  // Number of numberOfPlanesInSet in plane-set
+    int numberOfPlanesInSet;  // Number of planes in plane-set
     Patch *omit[2]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
     Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToNotOpen;
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
-				      // to lay within the shaft
+                      // to lay within the shaft
     Vector3D center2;
     bool cut; // A boolean initialized to FALSE when the shaft is created and set
               // to TRUE during shaft culling if there are patches that cut the shaft. If
-			  // after shaft culling, this flag is TRUE, there is full occlusion due to
+              // after shaft culling, this flag is TRUE, there is full occlusion due to
               // one occluder.
-			  // As soon as such a situation is detected, shaft culling ends and the
+              // As soon as such a situation is detected, shaft culling ends and the
               // occluder in question is the first patch in the returned candidate list.
               // The candidate list does not contain all occluder!
 
