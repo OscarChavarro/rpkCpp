@@ -33,12 +33,12 @@ class HierarchicalRefinementStrategy {
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
         bool isClusteredGeometry,
-        const GalerkinState *state);
+        const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementUnCull(
         java::ArrayList<Geometry *> **candidatesList,
-        const GalerkinState *state);
+        const GalerkinState *galerkinState);
 
     static double
     hierarchicRefinementColorToError(ColorRgb rad);
@@ -47,7 +47,7 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementLinkErrorThreshold(
         const Interaction *link,
         double receiverArea,
-        const GalerkinState *state);
+        const GalerkinState *galerkinState);
 
     static double
     hierarchicRefinementApproximationError(
@@ -83,7 +83,7 @@ class HierarchicalRefinementStrategy {
         const GalerkinState *galerkinState);
 
     static void
-    hierarchicRefinementStoreInteraction(Interaction *link, const GalerkinState *state);
+    hierarchicRefinementStoreInteraction(Interaction *link, const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementRegularSubdivideSource(
@@ -126,21 +126,21 @@ class HierarchicalRefinementStrategy {
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
         Interaction *link,
-        GalerkinState *state,
+        GalerkinState *galerkinState,
         const RenderOptions *renderOptions);
 
     static bool
-    refineInteraction(const Scene *scene, Interaction *link, GalerkinState *state, const RenderOptions *renderOptions);
+    refineInteraction(const Scene *scene, Interaction *link, GalerkinState *galerkinState, const RenderOptions *renderOptions);
 
     static void
-    removeRefinedInteractions(const GalerkinState *state, const java::ArrayList<Interaction *> *interactionsToRemove);
+    removeRefinedInteractions(const GalerkinState *galerkinState, const java::ArrayList<Interaction *> *interactionsToRemove);
 
   public:
     static void
     refineInteractions(
         const Scene *scene,
         const GalerkinElement *parentElement,
-        GalerkinState *state,
+        GalerkinState *galerkinState,
         RenderOptions *renderOptions);
 };
 

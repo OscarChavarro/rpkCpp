@@ -38,7 +38,7 @@ class Raytracer {
     // Raytrace the current scene as seen with the current camera. If 'ip'
     // is not a nullptr pointer, write the ray-traced image using the image output
     // handle pointed by 'ip'
-    void (*Raytrace)(ImageOutputHandle *ip, Scene *scene, RadianceMethod *context, RenderOptions *renderOptions);
+    void (*Raytrace)(ImageOutputHandle *ip, Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
 
     // Re-displays last ray-traced image. Returns FALSE if there is no
     // previous ray-traced image and TRUE there is
@@ -63,7 +63,7 @@ rayTrace(
     int isPipe,
     Raytracer *activeRayTracer,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions);
 
 #endif

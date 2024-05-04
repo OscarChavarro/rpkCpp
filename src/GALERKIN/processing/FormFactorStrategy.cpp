@@ -563,18 +563,20 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
     unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
-    if ( receiverElement != formFactorLastReceived
-      || sourceElement != formFactorLastSource ) {
+        if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {
         // Use shadow caching for accelerating occlusion detection
         ShadowCache shadowCache;
 
         // Mark the patches in order to avoid immediate self-intersections
-        Patch::dontIntersect(4, receiverElement->isCluster() ? nullptr : receiverElement->patch,
-                             receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
-                             sourceElement->isCluster() ? nullptr : sourceElement->patch,
-                             sourceElement->isCluster() ? nullptr : sourceElement->patch->twin);
-        geomDontIntersect(receiverElement->isCluster() ? receiverElement->geometry : nullptr,
-                          sourceElement->isCluster() ? sourceElement->geometry : nullptr);
+        Patch::dontIntersect(
+            4,
+            receiverElement->isCluster() ? nullptr : receiverElement->patch,
+            receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
+            sourceElement->isCluster() ? nullptr : sourceElement->patch,
+            sourceElement->isCluster() ? nullptr : sourceElement->patch->twin);
+        geomDontIntersect(
+            receiverElement->isCluster() ? receiverElement->geometry : nullptr,
+            sourceElement->isCluster() ? sourceElement->geometry : nullptr);
 
         maximumKernelValue = 0.0; // Compute maximum un-occluded kernel value
         visibilityCount = 0; // Count the number of rays that "pass" occluders

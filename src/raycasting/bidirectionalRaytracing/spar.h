@@ -53,7 +53,7 @@ class Spar {
     Spar();
     virtual ~Spar();
 
-    virtual void init(SparConfig *config, RadianceMethod *context);
+    virtual void init(SparConfig *config, RadianceMethod *radianceMethod);
     virtual void parseAndInit(int group, char *regExp);
     virtual ColorRgb handlePath(SparConfig *config, CBiPath *path);
 };
@@ -64,7 +64,7 @@ all bidirectional paths
 */
 class LeSpar : public Spar {
   public:
-    virtual void init(SparConfig *sparConfig, RadianceMethod *context);
+    virtual void init(SparConfig *sparConfig, RadianceMethod *radianceMethod);
 };
 
 /**
@@ -73,7 +73,7 @@ of eye paths. GetDirectRadiance is used as a readout function
 */
 class LDSpar : public Spar {
   public:
-    virtual void init(SparConfig *sparConfig, RadianceMethod *context);
+    virtual void init(SparConfig *sparConfig, RadianceMethod *radianceMethod);
 };
 
 #endif

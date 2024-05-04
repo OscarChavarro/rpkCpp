@@ -227,7 +227,7 @@ basisGalerkinRadianceAtPoint(
     const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
 
     rad.clear();
-    if ( !coefficients ) {
+    if ( coefficients == nullptr ) {
         return rad;
     }
 

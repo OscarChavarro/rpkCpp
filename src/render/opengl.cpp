@@ -439,11 +439,11 @@ openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *rend
 }
 
 static void
-openGlReallyRender(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
+openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
-    if ( context != nullptr ) {
-        context->renderScene(scene, renderOptions);
+    if ( radianceMethod != nullptr ) {
+        radianceMethod->renderScene(scene, renderOptions);
     } else if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(scene, openGlRenderPatch, renderOptions);
     } else {
@@ -455,7 +455,7 @@ openGlReallyRender(const Scene *scene, const RadianceMethod *context, const Rend
 }
 
 static void
-openGlRenderRadiance(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
+openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     if ( renderOptions->smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -470,7 +470,7 @@ openGlRenderRadiance(const Scene *scene, const RadianceMethod *context, const Re
         glDisable(GL_CULL_FACE);
     }
 
-    openGlReallyRender(scene, context, renderOptions);
+    openGlReallyRender(scene, radianceMethod, renderOptions);
 
     if ( renderOptions->drawBoundingBoxes ) {
         renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
@@ -488,7 +488,7 @@ void
 openGlRenderScene(
     const Scene *scene,
     int (*reDisplayCallback)(),
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     openGlRenderSetLineWidth(renderOptions->lineWidth);
@@ -500,7 +500,7 @@ openGlRenderScene(
     }
 
     if ( !renderOptions->renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
-        openGlRenderRadiance(scene, context, renderOptions);
+        openGlRenderRadiance(scene, radianceMethod, renderOptions);
     }
 
     // Call installed render hooks, that want to render something in the scene

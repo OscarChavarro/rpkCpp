@@ -8,7 +8,7 @@ extern void
 sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    MgfContext *context,
+    MgfContext *mgfContext,
     Scene *scene);
 
 #endif

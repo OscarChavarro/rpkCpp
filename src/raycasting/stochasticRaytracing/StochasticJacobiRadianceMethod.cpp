@@ -178,7 +178,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     Scene* scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     double refUnShot;
@@ -240,10 +240,10 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             }
 
             openGlRenderScene(
-                scene,
-                f,
-                context,
-                renderOptions);
+                    scene,
+                    f,
+                    radianceMethod,
+                    renderOptions);
         }
     }
 

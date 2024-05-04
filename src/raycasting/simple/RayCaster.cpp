@@ -65,13 +65,13 @@ RayCaster::getRadianceAtPixel(
     int x,
     int y,
     Patch *patch,
-    const RadianceMethod *context,
-    const RenderOptions *renderOptions)
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) const
 {
     ColorRgb rad{};
     rad.clear();
 
-    if ( context != nullptr ) {
+    if ( radianceMethod != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
         ray.pos = camera->eyePosition;
@@ -96,13 +96,13 @@ RayCaster::getRadianceAtPixel(
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = context->getRadiance(camera, patch, u, v, dir, renderOptions);
+        rad = radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions);
     }
     return rad;
 }
 
 void
-RayCaster::render(const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions) {
+RayCaster::render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     #ifdef RAYTRACING_ENABLED
         clock_t t = clock();
     #endif
@@ -121,7 +121,7 @@ RayCaster::render(const Scene *scene, const RadianceMethod *context, const Rende
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, context, renderOptions);
+                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, radianceMethod, renderOptions);
                 screenBuffer->add(x, y, rad);
             }
         }
@@ -198,13 +198,13 @@ static void
 rayCasterExecute(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions) {
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
     globalRayCaster = new RayCaster(nullptr, scene->camera);
-    globalRayCaster->render(scene, context, renderOptions);
+    globalRayCaster->render(scene, radianceMethod, renderOptions);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
     }
@@ -222,7 +222,7 @@ rayCast(
     FILE *fp,
     const int isPipe,
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) {
     ImageOutputHandle *img = nullptr;
 
@@ -241,7 +241,7 @@ rayCast(
     }
 
     RayCaster *rc = new RayCaster(nullptr, scene->camera);
-    rc->render(scene, context, renderOptions);
+    rc->render(scene, radianceMethod, renderOptions);
     if ( img != nullptr ) {
         rc->save(img);
     }

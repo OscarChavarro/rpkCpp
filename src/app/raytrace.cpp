@@ -117,7 +117,7 @@ batchSaveRaytracingImage(
     FILE *fp,
     int isPipe,
     const Scene *scene,
-    const RadianceMethod * /*context*/,
+    const RadianceMethod * /*radianceMethod*/,
     const RenderOptions * /*renderOptions*/)
 {
     clock_t t;
@@ -156,7 +156,7 @@ batchRayTrace(
     FILE *fp,
     int isPipe,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     renderOptions->renderRayTracedImage = true;
@@ -164,13 +164,13 @@ batchRayTrace(
 
     canvasPushMode();
     rayTrace(
-        filename,
-        fp,
-        isPipe,
-        GLOBAL_raytracer_activeRaytracer,
-        scene,
-        context,
-        renderOptions);
+            filename,
+            fp,
+            isPipe,
+            GLOBAL_raytracer_activeRaytracer,
+            scene,
+            radianceMethod,
+            renderOptions);
     canvasPullMode();
 }
 

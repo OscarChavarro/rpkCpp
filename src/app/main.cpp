@@ -44,7 +44,7 @@ static void
 mainParseOptions(
     int *argc,
     char **argv,
-    RadianceMethod **context,
+    RadianceMethod **radianceMethod,
     Camera *camera,
     MgfContext *mgfContext,
     int *outputImageWidth,
@@ -61,7 +61,7 @@ mainParseOptions(
     renderParseOptions(argc, argv, renderOptions);
     toneMapParseOptions(argc, argv);
     cameraParseOptions(argc, argv, camera, *outputImageWidth, *outputImageHeight);
-    radianceParseOptions(argc, argv, context);
+    radianceParseOptions(argc, argv, radianceMethod);
 
 #ifdef RAYTRACING_ENABLED
     rayTracingParseOptions(argc, argv);
@@ -75,7 +75,7 @@ mainCreateOffscreenCanvasWindow(
     const int outputImageWidth,
     const int outputImageHeight,
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     openGlMesaRenderCreateOffscreenWindow(scene->camera, outputImageWidth, outputImageHeight);
@@ -90,7 +90,7 @@ mainCreateOffscreenCanvasWindow(
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, renderCallback, context, renderOptions);
+        openGlRenderScene(scene, renderCallback, radianceMethod, renderOptions);
     #endif
 }
 
@@ -117,15 +117,15 @@ mainExecuteRendering(
 }
 
 static void
-mainFreeMemory(MgfContext *context) {
+mainFreeMemory(MgfContext *mgfContext) {
     deleteOptionsMemory();
-    mgfFreeMemory(context);
+    mgfFreeMemory(mgfContext);
     galerkinFreeMemory();
     Cluster::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();
     VoxelGrid::freeVoxelGridElements();
-    if ( context->radianceMethod != nullptr ) {
-        delete context->radianceMethod;
+    if ( mgfContext->radianceMethod != nullptr ) {
+        delete mgfContext->radianceMethod;
     }
 }
 

@@ -17,7 +17,7 @@ rayTrace(
     int isPipe,
     Raytracer *activeRayTracer,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     ImageOutputHandle *img = nullptr;
@@ -36,7 +36,7 @@ rayTrace(
     }
 
     if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scene, context, renderOptions);
+        activeRayTracer->Raytrace(img, scene, radianceMethod, renderOptions);
     }
 
     if ( img ) {

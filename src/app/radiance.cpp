@@ -35,24 +35,24 @@ static CommandLineOptionDescription globalRadianceOptions[] = {
 This routine sets the current radiance method to be used + initializes
 */
 void
-setRadianceMethod(RadianceMethod *newMethod, Scene *scene) {
-    if ( newMethod != nullptr ) {
-        newMethod->terminate(scene->patchList);
+setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
+    if ( radianceMethod != nullptr ) {
+        radianceMethod->terminate(scene->patchList);
         // Until we have radiance data convertors, we dispose of the old data and
         // allocate new data for the new method
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            newMethod->destroyPatchData(scene->patchList->get(i));
+            radianceMethod->destroyPatchData(scene->patchList->get(i));
         }
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            newMethod->createPatchData(scene->patchList->get(i));
+            radianceMethod->createPatchData(scene->patchList->get(i));
         }
-        newMethod->initialize(scene);
+        radianceMethod->initialize(scene);
     }
 }
 
 void
-radianceDefaults(RadianceMethod *context, Scene *scene) {
-    setRadianceMethod(context, scene);
+radianceDefaults(RadianceMethod *radianceMethod, Scene *scene) {
+    setRadianceMethod(radianceMethod, scene);
 }
 
 static void

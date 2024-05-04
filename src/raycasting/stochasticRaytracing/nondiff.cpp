@@ -170,7 +170,7 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context, RenderOptions *renderOptions) {
+doNonDiffuseFirstShot(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,
@@ -182,8 +182,8 @@ doNonDiffuseFirstShot(Scene *scene, RadianceMethod *context, RenderOptions *rend
         f = GLOBAL_raytracer_activeRaytracer->Redisplay;
     }
     openGlRenderScene(
-        scene,
-        f,
-        context,
-        renderOptions);
+            scene,
+            f,
+            radianceMethod,
+            renderOptions);
 }

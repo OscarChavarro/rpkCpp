@@ -1025,7 +1025,7 @@ static void
 biDirPathTrace(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions * /*renderOptions*/) {
     // Install the samplers to be used in the state
 
@@ -1096,8 +1096,8 @@ biDirPathTrace(
         sc->leSpar = leSpar;
         sc->ldSpar = ldSpar;
 
-        leSpar->init(sc, context);
-        ldSpar->init(sc, context);
+        leSpar->init(sc, radianceMethod);
+        ldSpar->init(sc, radianceMethod);
 
         config.sparList->add(leSpar);
         config.sparList->add(ldSpar);

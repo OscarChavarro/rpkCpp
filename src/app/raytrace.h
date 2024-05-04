@@ -19,7 +19,7 @@
         FILE *fp,
         int isPipe,
         const Scene *scene,
-        const RadianceMethod *context,
+        const RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions);
 
     extern void
@@ -28,7 +28,7 @@
         FILE *fp,
         int isPipe,
         Scene *scene,
-        RadianceMethod *context,
+        RadianceMethod *radianceMethod,
         RenderOptions *renderOptions);
 
 #endif

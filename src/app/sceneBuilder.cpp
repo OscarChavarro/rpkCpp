@@ -176,7 +176,7 @@ Returns true if successful. There's nothing GUI specific in this function.
 When a file cannot be read, the current scene is restored
 */
 static bool
-sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
+sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     // Check whether the file can be opened if not reading from stdin
     if ( fileName[0] != '#' ) {
         FILE *input = fopen(fileName, "r");
@@ -230,8 +230,8 @@ sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(fileName, context);
-        scene->geometryList = context->geometries;
+        readMgf(fileName, mgfContext);
+        scene->geometryList = mgfContext->geometries;
     }
 
     clock_t t = clock();
@@ -337,7 +337,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *context, Scene *scene) {
     fprintf(stderr, "Initializing radiance method ... ");
     fflush(stderr);
 
-    setRadianceMethod(context->radianceMethod, scene);
+    setRadianceMethod(mgfContext->radianceMethod, scene);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
@@ -366,14 +366,14 @@ void
 sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    MgfContext *context,
+    MgfContext *mgfContext,
     Scene *scene)
 {
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !sceneBuilderReadFile(argv[1], context, scene) ) {
+        } else if ( !sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
                 exit(1);
             }
     }

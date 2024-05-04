@@ -21,7 +21,7 @@ extern void
 openGlRenderScene(
     const Scene *scene,
     int (*reDisplayCallback)(),
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions);
 
 extern void openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height);

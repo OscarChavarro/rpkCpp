@@ -178,7 +178,7 @@ static ColorRgb
 photonMapDoComputePixelFluxEstimate(
     Camera *camera,
     PhotonMapConfig *config,
-    RadianceMethod * /*context*/)
+    RadianceMethod * /*radianceMethod*/)
 {
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
@@ -280,7 +280,7 @@ photonMapDoScreenNEE(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
-    RadianceMethod *context)
+    RadianceMethod *radianceMethod)
 {
     int nx;
     int ny;
@@ -303,7 +303,7 @@ photonMapDoScreenNEE(
             &pixX,
             &pixY) ) {
         // Visible !
-        f = photonMapDoComputePixelFluxEstimate(camera, config, context);
+        f = photonMapDoComputePixelFluxEstimate(camera, config, radianceMethod);
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
@@ -379,7 +379,7 @@ photonMapHandlePath(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
-    RadianceMethod *context)
+    RadianceMethod *radianceMethod)
 {
     bool lDone;
     CBiPath *bp = &config->biPath;
@@ -411,7 +411,7 @@ photonMapHandlePath(
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, context);
+                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
                 }
             }
         } else {
@@ -423,7 +423,7 @@ photonMapHandlePath(
                     // Screen next event estimation for testing
 
                     bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, context);
+                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
                 }
             }
         }
@@ -485,13 +485,12 @@ photonMapTracePaths(
     Background *sceneBackground,
     int numberOfPaths,
     BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS,
-    RadianceMethod *context = nullptr) {
-    int i;
-
+    RadianceMethod *radianceMethod = nullptr)
+{
     // Fill in config structures
-    for ( i = 0; i < numberOfPaths; i++ ) {
+    for ( int i = 0; i < numberOfPaths; i++ ) {
         photonMapTracePath(camera, sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
-        photonMapHandlePath(camera, sceneWorldVoxelGrid, &GLOBAL_photonMap_config, context);
+        photonMapHandlePath(camera, sceneWorldVoxelGrid, &GLOBAL_photonMap_config, radianceMethod);
     }
 }
 
@@ -500,7 +499,7 @@ photonMapBRRealIteration(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
-    RadianceMethod *context)
+    RadianceMethod *radianceMethod)
 {
     GLOBAL_photonMap_state.iterationNumber++;
 
@@ -536,12 +535,12 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
         photonMapTracePaths(
-            camera,
-            sceneWorldVoxelGrid,
-            sceneBackground,
-            (int)GLOBAL_photonMap_state.gPathsPerIteration,
-            BSDF_ALL_COMPONENTS,
-            context);
+                camera,
+                sceneWorldVoxelGrid,
+                sceneBackground,
+                (int)GLOBAL_photonMap_state.gPathsPerIteration,
+                BSDF_ALL_COMPONENTS,
+                radianceMethod);
 
         fprintf(stderr, "Global map: ");
         GLOBAL_photonMap_config.globalMap->PrintStats(stderr);

@@ -22,7 +22,7 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions);
 
 static ColorRgb
@@ -33,7 +33,7 @@ stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode *thisNode,
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     int siCurrent; // What scatter block are we handling
@@ -123,26 +123,26 @@ stochasticRaytracerGetScatteredRadiance(
                     if ( siCurrent == -1 ) {
                         // Storage bounce
                         radiance = stochasticRaytracerGetRadiance(
-                            camera,
-                            sceneVoxelGrid,
-                            sceneBackground,
-                            &newNode,
-                            config,
-                            READ_NOW,
-                            numberOfSamples,
-                            context,
-                            renderOptions);
+                                camera,
+                                sceneVoxelGrid,
+                                sceneBackground,
+                                &newNode,
+                                config,
+                                READ_NOW,
+                                numberOfSamples,
+                                radianceMethod,
+                                renderOptions);
                     } else {
                         radiance = stochasticRaytracerGetRadiance(
-                            camera,
-                            sceneVoxelGrid,
-                            sceneBackground,
-                            &newNode,
-                            config,
-                            readout,
-                            numberOfSamples,
-                            context,
-                            renderOptions);
+                                camera,
+                                sceneVoxelGrid,
+                                sceneBackground,
+                                &newNode,
+                                config,
+                                readout,
+                                numberOfSamples,
+                                radianceMethod,
+                                renderOptions);
                     }
 
                     // Frame coherent & correlated sampling
@@ -336,7 +336,7 @@ stochasticRaytracerGetRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout,
     int usedScatterSamples,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     ColorRgb result;
@@ -385,7 +385,7 @@ stochasticRaytracerGetRadiance(
         // Stored radiance
         if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
-            if ( context->className == PHOTON_MAP ) {
+            if ( radianceMethod->className == PHOTON_MAP ) {
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
@@ -410,7 +410,7 @@ stochasticRaytracerGetRadiance(
                 // (u, v) coordinates of intersection point
                 thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
 
-                radiance = context->getRadiance(
+                radiance = radianceMethod->getRadiance(
                     camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, renderOptions);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
@@ -439,18 +439,18 @@ stochasticRaytracerGetRadiance(
 
         // Scattered light
         radiance = stochasticRaytracerGetScatteredRadiance(
-            camera,
-            sceneVoxelGrid,
-            sceneBackground,
-            thisNode,
-            config,
-            readout,
-            context,
-            renderOptions);
+                camera,
+                sceneVoxelGrid,
+                sceneBackground,
+                thisNode,
+                config,
+                readout,
+                radianceMethod,
+                renderOptions);
         result.add(result, radiance);
 
         // Emitted Light
-        if ( (config->radMode == STORED_PHOTON_MAP) && (context->className == PHOTON_MAP) ) {
+        if ( (config->radMode == STORED_PHOTON_MAP) && (radianceMethod->className == PHOTON_MAP) ) {
             // Check if Le would contribute to a caustic
             if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
                 // Caustic contribution: (E...(D|G)...?L) with ? some specular bounce
@@ -510,7 +510,7 @@ calcPixel(
     int nx,
     int ny,
     StochasticRaytracingConfiguration *config,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     int i;
@@ -556,15 +556,15 @@ calcPixel(
             }
 
             col = stochasticRaytracerGetRadiance(
-                camera,
-                sceneVoxelGrid,
-                sceneBackground,
-                &pixelNode,
-                config,
-                config->initialReadout,
-                config->samplesPerPixel,
-                context,
-                renderOptions);
+                    camera,
+                    sceneVoxelGrid,
+                    sceneBackground,
+                    &pixelNode,
+                    config,
+                    config->initialReadout,
+                    config->samplesPerPixel,
+                    radianceMethod,
+                    renderOptions);
 
             // Frame coherent & correlated sampling
             if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
@@ -607,10 +607,10 @@ void
 rtStochasticTrace(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *context,
+    RadianceMethod *radianceMethod,
     RenderOptions * /*renderOptions*/)
 {
-    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, context); // config filled in by constructor
+    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, radianceMethod); // config filled in by constructor
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {

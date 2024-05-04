@@ -52,7 +52,7 @@ openGlSaveScreen(
     FILE *fp,
     const int isPipe,
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     ImageOutputHandle *img;
@@ -63,7 +63,7 @@ openGlSaveScreen(
 
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderOptions->trace ) {
-        rayCast(fileName, fp, isPipe, scene, context, renderOptions);
+        rayCast(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
         return;
     }
 
@@ -101,16 +101,16 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *context, const RenderOptions *renderOptions),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions),
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene, context, renderOptions);
+    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
 
     closeFile(fp, isPipe);
 }
@@ -121,7 +121,7 @@ batchSaveRadianceImage(
     FILE *fp,
     const int isPipe,
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     clock_t t;
@@ -143,7 +143,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
-    openGlSaveScreen(fileName, fp, isPipe, scene, context, renderOptions);
+    openGlSaveScreen(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
@@ -155,7 +155,7 @@ batchSaveRadianceModel(
     FILE *fp,
     int /*isPipe*/,
     const Scene *scene,
-    const RadianceMethod *context,
+    const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
     clock_t t;
@@ -169,8 +169,8 @@ batchSaveRadianceModel(
     fflush(stdout);
     t = clock();
 
-    if ( context != nullptr ) {
-        context->writeVRML(scene->camera, fp, renderOptions);
+    if ( radianceMethod != nullptr ) {
+        radianceMethod->writeVRML(scene->camera, fp, renderOptions);
     } else {
         writeVRML(scene->camera, fp, scene->patchList);
     }

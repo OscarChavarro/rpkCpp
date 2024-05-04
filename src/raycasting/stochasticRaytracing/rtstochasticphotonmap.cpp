@@ -14,7 +14,7 @@ StochasticRaytracingConfiguration::init(
     Camera *defaultCamera,
     RayTracingStochasticState &state,
     java::ArrayList<Patch *> *lightList,
-    RadianceMethod *context)
+    RadianceMethod *radianceMethod)
 {
     // Copy state options
 
@@ -27,10 +27,10 @@ StochasticRaytracingConfiguration::init(
     backgroundSampling = state.backgroundSampling;
 
     if ( radMode != STORED_NONE ) {
-        if ( context == nullptr ) {
+        if ( radianceMethod == nullptr ) {
             logError("Stored Radiance", "No radiance method active, using no storage");
             radMode = STORED_NONE;
-        } else if ( (radMode == STORED_PHOTON_MAP) && (context->className != PHOTON_MAP) ) {
+        } else if ( (radMode == STORED_PHOTON_MAP) && (radianceMethod->className != PHOTON_MAP) ) {
             logError("Stored Radiance", "Photon map method not active, using no storage");
             radMode = STORED_NONE;
         }
@@ -80,11 +80,11 @@ StochasticRaytracingConfiguration::init(
     screen = new ScreenBuffer(nullptr, defaultCamera);
     screen->setFactor(1.0); // We're storing plain radiance
 
-    initDependentVars(lightList, context);
+    initDependentVars(lightList, radianceMethod);
 }
 
 void
-StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *context) {
+StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod) {
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;
@@ -116,10 +116,10 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
     BSDF_FLAGS storeFlags;
 
-    if ( (context == nullptr) || (radMode == STORED_NONE) ) {
+    if ((radianceMethod == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
     } else {
-        if ( context->className == PHOTON_MAP ) {
+        if ( radianceMethod->className == PHOTON_MAP ) {
             storeFlags = BSDF_GLOSSY_COMPONENT | BSDF_DIFFUSE_COMPONENT;
         } else {
             storeFlags = BRDF_DIFFUSE_COMPONENT;
