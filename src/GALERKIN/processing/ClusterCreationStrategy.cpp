@@ -2,75 +2,36 @@
 #include "common/mymath.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
 
-static SGL_CONTEXT *globalSglContext; // Sgl context for determining equivalent blocker sizes
-static unsigned char *globalBuffer1; // Needed for eroding and expanding
-static unsigned char *globalBuffer2;
-static java::ArrayList<GalerkinElement *> *globalIrregularElementsToDelete = nullptr;
-static java::ArrayList<GalerkinElement *> *globalHierarchyElements = nullptr;
+java::ArrayList<GalerkinElement *> *ClusterCreationStrategy::irregularElementsToDelete = nullptr;
+java::ArrayList<GalerkinElement *> *ClusterCreationStrategy::hierarchyElements = nullptr;
 
-static GalerkinElement *galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState);
-
-/**
-Geoms will be rendered into a frame buffer of this size for determining
-the equivalent blocker size
-*/
-#define FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS 30
-
-/**
-Equivalent blocker size determination: first call blockerInit(),
-then call GeomBlcokerSize() of GeomBlockserSizeInDirection() for the
-geoms for which you like to compute the equivalent blocker size, and
-finally terminate with BlockerTerminate()
-
-Creates an sgl context needed for determining the equivalent blocker size
-of some objects
-*/
-static void
-blockerInit() {
-    globalSglContext = new SGL_CONTEXT(FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS, FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS);
-    GLOBAL_sgl_currentContext->sglDepthTesting(true);
-
-    globalBuffer1 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
-    globalBuffer2 = new unsigned char [FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS * FRAME_BUFFER_SIDE_LENGTH_IN_PIXELS];
-}
-
-/**
-Destroys the sgl context created by blockerInit()
-*/
-static void
-blockerTerminate() {
-    delete[] globalBuffer2;
-    delete[] globalBuffer1;
-    delete globalSglContext;
-}
-
-static void
-addElementToIrregularChildrenDeletionCache(GalerkinElement *element) {
-    if ( globalIrregularElementsToDelete == nullptr ) {
-        globalIrregularElementsToDelete = new java::ArrayList<GalerkinElement *>();
+void
+ClusterCreationStrategy::addElementToIrregularChildrenDeletionCache(GalerkinElement *element) {
+    if ( irregularElementsToDelete == nullptr ) {
+        irregularElementsToDelete = new java::ArrayList<GalerkinElement *>();
     }
-    globalIrregularElementsToDelete->add(element);
+    irregularElementsToDelete->add(element);
 }
 
-static void
-addElementToHierarchiesDeletionCache(GalerkinElement *element) {
-    if ( globalHierarchyElements == nullptr ) {
-        globalHierarchyElements = new java::ArrayList<GalerkinElement *>();
+void
+ClusterCreationStrategy::addElementToHierarchiesDeletionCache(GalerkinElement *element) {
+    if ( hierarchyElements == nullptr ) {
+        hierarchyElements = new java::ArrayList<GalerkinElement *>();
     }
-    globalHierarchyElements->add(element);
+    hierarchyElements->add(element);
 }
 
 /**
 Creates a cluster hierarchy for the Geometry and adds it to the sub-cluster list of the
 given parent cluster
 */
-static void
-geomAddClusterChild(Geometry *geometry, GalerkinElement *parentCluster, GalerkinState *galerkinState) {
-    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geometry, galerkinState);
+void
+ClusterCreationStrategy::geomAddClusterChild(Geometry *geometry, GalerkinElement *parentCluster, GalerkinState *galerkinState) {
+    GalerkinElement *cluster = ClusterCreationStrategy::galerkinDoCreateClusterHierarchy(geometry, galerkinState);
 
     if ( parentCluster->irregularSubElements == nullptr ) {
         parentCluster->irregularSubElements = new java::ArrayList<Element *>();
-        addElementToIrregularChildrenDeletionCache(parentCluster);
+        ClusterCreationStrategy::addElementToIrregularChildrenDeletionCache(parentCluster);
     }
     parentCluster->irregularSubElements->add(cluster);
     if ( cluster != nullptr ) {
@@ -82,13 +43,13 @@ geomAddClusterChild(Geometry *geometry, GalerkinElement *parentCluster, Galerkin
 Adds the toplevel (surface) element of the patch to the list of irregular
 sub-elements of the cluster
 */
-static void
-patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
+void
+ClusterCreationStrategy::patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
     GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
 
     if ( cluster->irregularSubElements == nullptr ) {
         cluster->irregularSubElements = new java::ArrayList<Element *>();
-        addElementToIrregularChildrenDeletionCache(cluster);
+        ClusterCreationStrategy::addElementToIrregularChildrenDeletionCache(cluster);
     }
     cluster->irregularSubElements->add(surfaceElement);
     surfaceElement->parent = cluster;
@@ -98,8 +59,8 @@ patchAddClusterChild(Patch *patch, GalerkinElement *cluster) {
 Initializes the cluster element. Called bottom-up: first the
 lowest level clusters and so up
 */
-static void
-clusterInit(GalerkinElement *cluster, const GalerkinState *galerkinState) {
+void
+ClusterCreationStrategy::clusterInit(GalerkinElement *cluster, const GalerkinState *galerkinState) {
     // Total area of surfaces inside the cluster is sum of the areas of
     // the sub-clusters + pull radiance
     cluster->area = 0.0;
@@ -141,8 +102,8 @@ clusterInit(GalerkinElement *cluster, const GalerkinState *galerkinState) {
 Creates a cluster for the Geometry, recursively traverses for the children GEOMs, initializes and
 returns the created cluster
 */
-static GalerkinElement *
-galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState) {
+GalerkinElement *
+ClusterCreationStrategy::galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState) {
     // Geom will be nullptr if e.g. no scene is loaded when selecting
     // Galerkin radiosity for radiance computations
     if ( parentGeometry == nullptr ) {
@@ -151,7 +112,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerk
 
     // Create a cluster for the parentGeometry
     GalerkinElement *cluster = new GalerkinElement(parentGeometry, galerkinState);
-    addElementToHierarchiesDeletionCache(cluster);
+    ClusterCreationStrategy::addElementToHierarchiesDeletionCache(cluster);
 
     parentGeometry->radianceData = cluster;
 
@@ -169,7 +130,7 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerk
         }
     }
 
-    clusterInit(cluster, galerkinState);
+    ClusterCreationStrategy::clusterInit(cluster, galerkinState);
 
     return cluster;
 }
@@ -177,38 +138,30 @@ galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerk
 /**
 Creates a cluster for the Geometry, recurse for the children geometries, initializes and
 returns the created cluster.
-
-First initializes for equivalent blocker size determination, then calls
-the above function, and finally terminates equivalent blocker size
-determination
 */
 GalerkinElement *
 ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState) {
-    blockerInit();
-    GalerkinElement *cluster = galerkinDoCreateClusterHierarchy(geometry, galerkinState);
-    blockerTerminate();
-
-    return cluster;
+    return ClusterCreationStrategy::galerkinDoCreateClusterHierarchy(geometry, galerkinState);
 }
 
 void
 ClusterCreationStrategy::freeClusterElements() {
-    if ( globalIrregularElementsToDelete != nullptr ) {
-        for ( int i = 0; i < globalIrregularElementsToDelete->size(); i++ ) {
-            GalerkinElement *element = globalIrregularElementsToDelete->get(i);
+    if ( irregularElementsToDelete != nullptr ) {
+        for ( int i = 0; i < irregularElementsToDelete->size(); i++ ) {
+            GalerkinElement *element = irregularElementsToDelete->get(i);
             delete element->irregularSubElements;
         }
 
-        delete globalIrregularElementsToDelete;
-        globalIrregularElementsToDelete = nullptr;
+        delete irregularElementsToDelete;
+        irregularElementsToDelete = nullptr;
     }
 
-    if ( globalHierarchyElements != nullptr ) {
-        for ( int i = 0; i < globalHierarchyElements->size(); i++ ) {
-            GalerkinElement *element = globalHierarchyElements->get(i);
+    if ( hierarchyElements != nullptr ) {
+        for ( int i = 0; i < hierarchyElements->size(); i++ ) {
+            GalerkinElement *element = hierarchyElements->get(i);
             delete element;
         }
-        delete globalHierarchyElements;
-        globalHierarchyElements = nullptr;
+        delete hierarchyElements;
+        hierarchyElements = nullptr;
     }
 }
