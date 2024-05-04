@@ -37,7 +37,7 @@
 #define DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS 200
 
 // Default strategy is "overlap open", which was the most efficient strategy tested
-#define DEFAULT_GAL_SHAFT_CULL_STRATEGY OVERLAP_OPEN
+#define DEFAULT_GAL_SHAFT_CULL_STRATEGY ShaftCullStrategy::OVERLAP_OPEN
 
 // Other Constant initial values
 #define DEFAULT_GAL_ITERATION_NOT_INITIALIZED (-1)

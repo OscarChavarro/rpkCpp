@@ -123,10 +123,10 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vec
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the sample point
-                const float *bbx = scratchRenderElements(src, sample, galerkinState);
+                const float *bbx = ScratchVisibilityStrategy::scratchRenderElements(src, sample, galerkinState);
 
                 // Compute average radiance on the virtual screen
-                globalSourceRadiance = scratchRadiance(galerkinState);
+                globalSourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
 
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
@@ -229,11 +229,11 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
                 return rcv->area;
             } else {
-                const float *bbx = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
+                const float *bbx = ScratchVisibilityStrategy::scratchRenderElements(rcv, globalSamplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
                 // the total number of pixels * area of the virtual screen
-                globalProjectedArea = (double)scratchNonBackgroundPixels(galerkinState) *
+                globalProjectedArea = (double)ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState) *
                                       (bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y]) /
                                       (double)(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
                 return globalProjectedArea;
@@ -359,10 +359,10 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                                                                   ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
                                                                   galerkinState, &globalSourceRadiance);
             } else {
-                const float *boundingBox = scratchRenderElements(rcv, globalSamplePoint, galerkinState);
+                const float *boundingBox = ScratchVisibilityStrategy::scratchRenderElements(rcv, globalSamplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer
-                scratchPixelsPerElement(galerkinState);
+                ScratchVisibilityStrategy::scratchPixelsPerElement(galerkinState);
 
                 // Area corresponding to one pixel on the virtual screen
                 globalPixelArea = (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /

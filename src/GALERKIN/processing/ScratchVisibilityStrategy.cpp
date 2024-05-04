@@ -3,11 +3,8 @@ Scratch renderer routines. Used for handling intra-cluster visibility
 with a Z-buffer visibility algorithm in software
 */
 
-#include "SGL/sgl.h"
-#include "skin/Geometry.h"
-#include "GALERKIN/GalerkinState.h"
-#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch
@@ -20,7 +17,7 @@ static Vector3D globalEyePoint;
 Create a scratch software renderer for various operations on clusters
 */
 void
-scratchInit(GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchInit(GalerkinState *galerkinState) {
     galerkinState->scratch = new SGL_CONTEXT(galerkinState->scratchFrameBufferSize, galerkinState->scratchFrameBufferSize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
 }
@@ -29,15 +26,15 @@ scratchInit(GalerkinState *galerkinState) {
 Terminates scratch rendering
 */
 void
-scratchTerminate(GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchTerminate(GalerkinState *galerkinState) {
     if ( galerkinState->scratch != nullptr ) {
         delete galerkinState->scratch;
         galerkinState->scratch = nullptr;
     }
 }
 
-static void
-scratchRenderElementPtr(
+void
+ScratchVisibilityStrategy::scratchRenderElementPtr(
     GalerkinElement *elem,
     const GalerkinState * /*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/)
@@ -68,7 +65,7 @@ containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
 float *
-scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState) {
     Vector3D centre = cluster->midPoint();
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
@@ -135,7 +132,7 @@ After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
 ColorRgb
-scratchRadiance(const GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
     int nonBackGround;
     const SGL_PIXEL *pix;
     ColorRgb rad;
@@ -167,7 +164,7 @@ scratchRadiance(const GalerkinState *galerkinState) {
 Computes the number of non background pixels
 */
 int
-scratchNonBackgroundPixels(const GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galerkinState) {
     const SGL_PIXEL *pix;
     int nonBackGround = 0;
 
@@ -189,7 +186,7 @@ accumulated in the tmp field of the elements. This field should be
 initialized to zero before
 */
 void
-scratchPixelsPerElement(const GalerkinState *galerkinState) {
+ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkinState) {
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
         const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
