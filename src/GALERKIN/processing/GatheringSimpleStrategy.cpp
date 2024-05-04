@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Camera.h"
 #include "render/potential.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 #include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"

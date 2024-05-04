@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "skin/Geometry.h"
 
 Geometry *Geometry::excludedGeometry1 = nullptr;

@@ -20,7 +20,7 @@ bool
 CPhotonMapSampler::chooseComponent(
     BSDF_FLAGS flags1,
     BSDF_FLAGS flags2,
-    BSDF *bsdf,
+    const BSDF *bsdf,
     RayHit *hit,
     bool doRR,
     double *x,
@@ -146,14 +146,14 @@ CPhotonMapSampler::sample(
 */
 
 static RefractionIndex
-bsdfGeometricIOR(BSDF *bsdf) {
+bsdfGeometricIOR(const BSDF *bsdf) {
     RefractionIndex nc{};
 
     bsdfIndexOfRefraction(bsdf, &nc);
 
     // Convert to geometric IOR if necessary
     if ( nc.ni > EPSILON ) {
-        nc.nr = complexToGeometricRefractionIndex(nc);
+        nc.nr = nc.complexToGeometricRefractionIndex();
         nc.ni = 0.0; // ? Necessary ?
     }
 
@@ -176,7 +176,7 @@ chooseFresnelDirection(
 
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
-    BSDF *bsdf = thisNode->m_useBsdf;
+    const BSDF *bsdf = thisNode->m_useBsdf;
 
     ColorRgb reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
                                                    &thisNode->m_normal);
@@ -196,7 +196,7 @@ chooseFresnelDirection(
     float cosI;
     float cost;
     float F;  // Fresnel reflection. (Refraction = 1 - T)
-    int tir; // total internal reflection
+    bool tir; // total internal reflection
     Vector3D reflectedDir;
     Vector3D refractedDir;
 
@@ -306,7 +306,7 @@ bool
 CPhotonMapSampler::fresnelSample(
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    SimpleRaytracingPathNode *prevNode,
+    const SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x2,

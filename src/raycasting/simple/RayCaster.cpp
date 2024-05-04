@@ -12,7 +12,7 @@ a software frame buffer directly.
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "IMAGE/imagec.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 

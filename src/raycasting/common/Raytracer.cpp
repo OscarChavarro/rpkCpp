@@ -1,4 +1,4 @@
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "raycasting/common/Raytracer.h"
 
 double GLOBAL_raytracer_totalTime = 0.0;

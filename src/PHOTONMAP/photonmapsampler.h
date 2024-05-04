@@ -19,7 +19,7 @@ class CPhotonMapSampler : public CBsdfSampler {
     fresnelSample(
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
-        SimpleRaytracingPathNode *prevNode,
+        const SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         double x2,
@@ -45,7 +45,7 @@ class CPhotonMapSampler : public CBsdfSampler {
     chooseComponent(
         BSDF_FLAGS flags1,
         BSDF_FLAGS flags2,
-        BSDF *bsdf,
+        const BSDF *bsdf,
         RayHit *hit,
         bool doRR,
         double *x,

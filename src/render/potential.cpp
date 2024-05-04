@@ -6,14 +6,14 @@ Routines dealing with view potential
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "scene/Camera.h"
 #include "render/canvas.h"
 #include "render/softids.h"
 #include "render/potential.h"
 
 /**
-In analogy with Smits, "Importance-driven Radiosity", SIGGRAPH '92, we
+In analogy with [SMIT1992] Smits, "Importance-driven Radiosity", SIGGRAPH '92, we
 call the integral of potential over surface area "importance"
 */
 

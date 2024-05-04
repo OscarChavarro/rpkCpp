@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "skin/Compound.h"
 #include "skin/Geometry.h"
 

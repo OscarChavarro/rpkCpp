@@ -12,7 +12,7 @@ Creates a BSDF instance with given data and methods
 BSDF::BSDF(
         PhongBidirectionalReflectanceDistributionFunction *brdf,
         PhongBidirectionalTransmittanceDistributionFunction *btdf,
-        TEXTURE *texture)
+        Texture *texture)
 {
     this->brdf = brdf;
     this->btdf = btdf;

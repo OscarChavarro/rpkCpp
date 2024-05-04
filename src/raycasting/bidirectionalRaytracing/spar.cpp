@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/spar.h"
 

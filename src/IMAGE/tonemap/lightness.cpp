@@ -4,7 +4,7 @@ Lightness tone map
 
 #include "common/error.h"
 #include "common/cie.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "IMAGE/tonemap/lightness.h"
 
 static void lightnessDefaults() {

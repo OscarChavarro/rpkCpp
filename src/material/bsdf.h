@@ -15,7 +15,7 @@ light scattering.
 #include "common/ColorRgb.h"
 #include "material/RayHit.h"
 #include "material/xxdf.h"
-#include "material/texture.h"
+#include "material/Texture.h"
 #include "material/brdf.h"
 #include "material/btdf.h"
 
@@ -25,9 +25,9 @@ class BSDF {
   public:
     PhongBidirectionalReflectanceDistributionFunction *brdf;
     PhongBidirectionalTransmittanceDistributionFunction *btdf;
-    TEXTURE *texture;
+    Texture *texture;
 
-    explicit BSDF(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, TEXTURE *texture);
+    explicit BSDF(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, Texture *texture);
     virtual ~BSDF();
 };
 

@@ -1,7 +1,7 @@
 #include <cstdio>
 
 #include "common/error.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"

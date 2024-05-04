@@ -3,7 +3,7 @@ Non diffuse first shot
 */
 
 #include "java/util/ArrayList.txx"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"

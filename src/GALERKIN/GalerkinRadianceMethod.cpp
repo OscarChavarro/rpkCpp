@@ -12,7 +12,7 @@ Galerkin radiosity, with the following variants:
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "common/options.h"
 #include "io/writevrml.h"
 #include "render/opengl.h"

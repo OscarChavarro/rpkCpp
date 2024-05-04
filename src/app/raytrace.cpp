@@ -9,7 +9,7 @@
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/raytrace.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "common/RenderOptions.h"
 #include "render/canvas.h"
 

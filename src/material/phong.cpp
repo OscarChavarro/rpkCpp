@@ -393,7 +393,7 @@ phongBtdfEval(
     float tmpFloat;
     float dotProduct;
     Vector3D idealRefracted;
-    int totalIR;
+    bool totalIR;
     int isReflection;
     char nonDiffuseFlag;
     Vector3D inRev;
@@ -456,7 +456,7 @@ phongBtdfSample(
     double *probabilityDensityFunction)
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
-    int totalIR;
+    bool totalIR;
     Vector3D idealDir;
     Vector3D invNormal;
     CoordSys coord;
@@ -577,7 +577,7 @@ phongBtdfEvalPdf(
     double avgKd;
     char nonDiffuseFlag;
     Vector3D idealDir;
-    int totalIR;
+    bool totalIR;
     Vector3D goodNormal;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);

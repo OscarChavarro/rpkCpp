@@ -23,6 +23,7 @@ set(MAIN_SRC
     src/common/cie.cpp
     src/common/RenderOptions.cpp
     src/common/stratification.cpp
+    src/common/Statistics.cpp
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
@@ -36,9 +37,8 @@ set(MAIN_SRC
     src/QMC/faure.cpp
     src/QMC/nied63.cpp
     src/QMC/sobol.cpp
-    src/material/texture.cpp
+    src/material/Texture.cpp
     src/material/brdf.cpp
-    src/material/statistics.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
     src/material/PhongEmittanceDistributionFunction.cpp

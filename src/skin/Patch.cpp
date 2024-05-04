@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "QMC/nied31.h"
 #include "skin/Patch.h"
 

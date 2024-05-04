@@ -21,7 +21,7 @@ enum SAMPLING_MODE {
 };
 
 static ColorRgb
-splitBsdfEvalTexture(const TEXTURE *texture, RayHit *hit) {
+splitBsdfEvalTexture(const Texture *texture, RayHit *hit) {
     Vector3D texCoord;
     ColorRgb col;
     col.clear();
@@ -35,7 +35,7 @@ splitBsdfEvalTexture(const TEXTURE *texture, RayHit *hit) {
         return col;
     }
 
-    return evalTextureColor(texture, texCoord.x, texCoord.y);
+    return texture->evaluateColor(texCoord.x, texCoord.y);
 }
 
 static double

@@ -48,7 +48,7 @@ CSpecularSampler::sample(
         dir = idealReflectedDirection(&thisNode->m_inDirT, &thisNode->m_normal);
     } else {
         // REFRACT
-        int dummyInt;
+        bool dummyBoolean;
         RefractionIndex inIndex{};
         RefractionIndex outIndex{};
 
@@ -60,7 +60,7 @@ CSpecularSampler::sample(
 
         dir = idealRefractedDirection(&thisNode->m_inDirT,
                                       &thisNode->m_normal,
-                                      inIndex, outIndex, &dummyInt);
+                                      inIndex, outIndex, &dummyBoolean);
     }
 
     PNAN(pdfDir);

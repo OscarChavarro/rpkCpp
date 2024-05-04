@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "common/mymath.h"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/ShadowCache.h"
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"

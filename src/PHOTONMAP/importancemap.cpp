@@ -2,7 +2,7 @@
 Implementation of the special importance map functions
 */
 
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/importancemap.h"
 #include "common/error.h"

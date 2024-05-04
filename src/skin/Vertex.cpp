@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "material/statistics.h"
+#include "common/Statistics.h"
 #include "skin/Vertex.h"
 
 unsigned int Vertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
