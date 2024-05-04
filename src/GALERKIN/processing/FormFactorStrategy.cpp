@@ -623,7 +623,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     formFactorLastReceived = receiverElement;
     formFactorLastSource = sourceElement;
 
-    if ( galerkinState->clusteringStrategy == ISOTROPIC
+    if ( galerkinState->clusteringStrategy == GalerkinClusteringStrategy::ISOTROPIC
         && (receiverElement->isCluster() || sourceElement->isCluster()) ) {
         if ( link-> deltaK != nullptr ) {
             delete[] link->deltaK;

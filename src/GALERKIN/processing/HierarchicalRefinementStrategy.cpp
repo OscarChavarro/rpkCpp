@@ -287,7 +287,9 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     threshold = hierarchicRefinementLinkErrorThreshold(link, receiveArea, galerkinState);
     error = hierarchicRefinementApproximationError(link, srcRho, rcvRho, galerkinState);
 
-    if ( link->sourceElement->isCluster() && error < threshold && galerkinState->clusteringStrategy != ISOTROPIC ) {
+    if ( link->sourceElement->isCluster()
+      && error < threshold
+      && galerkinState->clusteringStrategy != GalerkinClusteringStrategy::ISOTROPIC ) {
         error += sourceClusterRadianceVariationError(link, rcvRho, receiveArea, galerkinState);
     }
 

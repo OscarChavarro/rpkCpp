@@ -56,7 +56,7 @@ void
 ClusterTraversalStrategy::accumulatePowerToSamplePoint(
     GalerkinElement *src,
     const GalerkinState *galerkinState,
-    ColorRgb * /*accumulatedRadiance*/)
+    ColorRgb *accumulatedRadiance)
 {
     float srcOs;
     float dist;
@@ -82,7 +82,7 @@ ClusterTraversalStrategy::accumulatePowerToSamplePoint(
         rad = src->unShotRadiance[0];
     }
 
-    globalSourceRadiance.addScaled(globalSourceRadiance, srcOs * src->area, rad);
+    accumulatedRadiance->addScaled(globalSourceRadiance, srcOs * src->area, rad);
 }
 
 /**
@@ -93,26 +93,29 @@ towards the sample point
 ColorRgb
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState) {
     switch ( galerkinState->clusteringStrategy ) {
-        case ISOTROPIC:
+        case GalerkinClusteringStrategy::ISOTROPIC:
             return src->radiance[0];
 
-        case ORIENTED: {
+        case GalerkinClusteringStrategy::ORIENTED: {
             globalSamplePoint = sample;
 
             // Accumulate the power emitted by the patches in the source cluster
             // towards the sample point
-            globalSourceRadiance.clear();
-            ClusterTraversalStrategy::traverseAllLeafElements(src,
-                                                              ClusterTraversalStrategy::accumulatePowerToSamplePoint,
-                                                              galerkinState, &globalSourceRadiance);
+            ColorRgb sourceRadiance;
+            sourceRadiance.clear();
+            ClusterTraversalStrategy::traverseAllLeafElements(
+                src,
+                ClusterTraversalStrategy::accumulatePowerToSamplePoint,
+                galerkinState,
+                &sourceRadiance);
 
             // Divide by the source area used for computing the form factor:
             // src->area / 4.0 (average projected area)
-            globalSourceRadiance.scale(4.0f / src->area);
-            return globalSourceRadiance;
+            sourceRadiance.scale(4.0f / src->area);
+            return sourceRadiance;
         }
 
-        case Z_VISIBILITY:
+        case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !src->isCluster() || !src->geometry->boundingBox.outOfBounds(&sample) ) {
                 return src->radiance[0];
             } else {
@@ -207,10 +210,10 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
     }
 
     switch ( galerkinState->clusteringStrategy ) {
-        case ISOTROPIC:
+        case GalerkinClusteringStrategy::ISOTROPIC:
             return rcv->area;
 
-        case ORIENTED: {
+        case GalerkinClusteringStrategy::ORIENTED: {
             globalSamplePoint = src->midPoint();
             globalProjectedArea = 0.0;
             ClusterTraversalStrategy::traverseAllLeafElements(
@@ -221,7 +224,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             return globalProjectedArea;
         }
 
-        case Z_VISIBILITY:
+        case GalerkinClusteringStrategy::Z_VISIBILITY:
             globalSamplePoint = src->midPoint();
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
                 return rcv->area;
@@ -342,15 +345,15 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
     globalSamplePoint = src->midPoint();
 
     switch ( galerkinState->clusteringStrategy ) {
-        case ISOTROPIC:
+        case GalerkinClusteringStrategy::ISOTROPIC:
             ClusterTraversalStrategy::isotropicGatherRadiance(rcv, 1.0, link, srcRad);
             break;
-        case ORIENTED:
+        case GalerkinClusteringStrategy::ORIENTED:
             ClusterTraversalStrategy::traverseAllLeafElements(rcv,
                                                               ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
                                                               galerkinState, &globalSourceRadiance);
             break;
-        case Z_VISIBILITY:
+        case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
                 ClusterTraversalStrategy::traverseAllLeafElements(rcv,
                                                                   ClusterTraversalStrategy::orientedSurfaceGatherRadiance,

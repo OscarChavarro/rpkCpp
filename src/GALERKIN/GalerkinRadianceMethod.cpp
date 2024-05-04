@@ -382,7 +382,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
                                                                                &galerkinState);
 
     // Create a scratch software renderer for various operations on clusters
-    if ( galerkinState.clusteringStrategy == Z_VISIBILITY ) {
+    if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
         scratchInit(&galerkinState);
     }
 
@@ -438,7 +438,7 @@ GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(GalerkinElement *cluster
 
 void
 GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-    if ( galerkinState.clusteringStrategy == Z_VISIBILITY ) {
+    if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
         scratchTerminate(&galerkinState);
     }
     if ( galerkinState.topCluster != nullptr ) {
