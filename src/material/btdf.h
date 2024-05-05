@@ -13,8 +13,6 @@ btdfTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btd
 extern void
 btdfIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
 
-/************* BTDF Evaluation functions ****************/
-
 /**
 All components of the Btdf
 

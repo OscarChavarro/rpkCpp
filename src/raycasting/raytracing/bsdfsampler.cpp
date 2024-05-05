@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "common/error.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 

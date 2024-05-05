@@ -4,7 +4,7 @@
 #include <cstdio>
 
 #include "material/PhongEmittanceDistributionFunction.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "material/RayHit.h"
 
 class Material {

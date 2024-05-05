@@ -2,7 +2,7 @@
 Bidirectional Reflectance Distribution Functions
 */
 
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "material/SplitBidirectionalScatteringDistributionFunction.h"
 
 

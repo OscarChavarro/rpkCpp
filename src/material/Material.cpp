@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "material/Material.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 
 Material::Material(): name(), edf(), bsdf(), sided(0) {
     name = new char[10];

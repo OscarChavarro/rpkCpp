@@ -43,11 +43,11 @@ set(MAIN_SRC
     src/material/xxdf.cpp
     src/material/btdf.cpp
     src/material/PhongEmittanceDistributionFunction.cpp
-    src/material/bsdf.cpp
-    src/material/Material.cpp
     src/material/PhongBidirectionalReflectanceDistributionFunction.cpp
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp
     src/material/SplitBidirectionalScatteringDistributionFunction.cpp
+    src/material/BidirectionalScatteringDistributionFunction.cpp
+    src/material/Material.cpp
     src/skin/PatchSet.cpp
     src/skin/RayHit.cpp
     src/skin/Compound.cpp

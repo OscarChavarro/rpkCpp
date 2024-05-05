@@ -8,7 +8,7 @@ and contain necessary information for raytracing-like algorithms
 
 #include "common/Ray.h"
 #include "common/ColorRgb.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 
 // -- For evaluation of bi paths, should change!
 #include "raycasting/common/bsdfcomp.h"

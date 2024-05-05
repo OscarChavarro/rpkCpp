@@ -27,8 +27,8 @@ btdfIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction 
     if ( btdf != nullptr ) {
         btdf->indexOfRefraction(index);
     } else {
-        index->nr = 1.0;
-        index->ni = 0.0; // Vacuum
+        index->nr = 1.0; // Vacuum
+        index->ni = 0.0;
     }
 }
 

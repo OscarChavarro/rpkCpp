@@ -6,7 +6,7 @@ Some utility routines for ray intersections and for statistics
 #define __RAY_TOOLS__
 
 #include "common/Ray.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"

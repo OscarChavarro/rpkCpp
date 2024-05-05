@@ -4,7 +4,7 @@
 #include "material/Texture.h"
 #include "material/btdf.h"
 #include "material/RayHit.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 
 /**
 Selects sampling mode according to given probabilities and random number x1.

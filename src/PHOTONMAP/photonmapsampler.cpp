@@ -5,7 +5,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #include <cmath>
 
 #include "PHOTONMAP/photonmapsampler.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "common/error.h"
 #include "raycasting/common/raytools.h"
 

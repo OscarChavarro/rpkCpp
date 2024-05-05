@@ -19,7 +19,7 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
         return col;
     }
 
-    if ( !hit || !hit->getTexCoord(&texCoord) ) {
+    if ( hit == nullptr || !hit->getTexCoord(&texCoord) ) {
         logWarning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
@@ -130,7 +130,8 @@ Returns the scattered power (diffuse/glossy/specular
 reflectance and/or transmittance) according to flags
 */
 ColorRgb
-SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
+SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+    const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb albedo;
     albedo.clear();
 

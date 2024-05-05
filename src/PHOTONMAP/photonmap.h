@@ -2,7 +2,7 @@
 #define __PHOTON_MAP__
 
 #include "common/ColorRgb.h"
-#include "material/bsdf.h"
+#include "material/BidirectionalScatteringDistributionFunction.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/photon.h"
