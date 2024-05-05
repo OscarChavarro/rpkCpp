@@ -5,7 +5,8 @@ Bidirectional Reflectance Distribution Functions
 #ifndef __BRDF__
 #define __BRDF__
 
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
+#include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 
 extern ColorRgb brdfReflectance(const PhongBidirectionalReflectanceDistributionFunction *brdf, char flags);
 

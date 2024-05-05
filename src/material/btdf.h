@@ -5,7 +5,7 @@ Bidirectional Transmittance Distribution Functions
 #ifndef __BTDF__
 #define __BTDF__
 
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
 extern ColorRgb
 btdfTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);

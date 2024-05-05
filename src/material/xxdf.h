@@ -6,6 +6,7 @@ General definitions for edf, brdf, btdf, etc.
 #define __XXDF__
 
 #include "common/linealAlgebra/Vector3D.h"
+#include "material/RefractionIndex.h"
 
 /**
 Contributions to outgoing radiance are divided into three components :
@@ -43,7 +44,7 @@ Contributions to outgoing radiance are divided into three components :
 #define BSDF_COMPONENTS 6
 
 #define NO_COMPONENTS 0
-#define BSDF_ALL_COMPONENTS (BRDF_DIFFUSE_COMPONENT|BRDF_GLOSSY_COMPONENT|BRDF_SPECULAR_COMPONENT|BTDF_DIFFUSE_COMPONENT|BTDF_GLOSSY_COMPONENT|BTDF_SPECULAR_COMPONENT)
+#define BSDF_ALL_COMPONENTS (BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT | BRDF_SPECULAR_COMPONENT | BTDF_DIFFUSE_COMPONENT | BTDF_GLOSSY_COMPONENT | BTDF_SPECULAR_COMPONENT)
 
 // Converts BSDFFLAGS to XXDFFLAGS
 #define GET_BRDF_FLAGS(bsflags) ((bsflags) & ALL_COMPONENTS)
@@ -54,14 +55,6 @@ Contributions to outgoing radiance are divided into three components :
 #define SET_BTDF_FLAGS(xxflags) (((xxflags) & ALL_COMPONENTS) << XXDF_COMPONENTS)
 
 typedef char BSDF_FLAGS;
-
-class RefractionIndex {
-  public:
-    float nr;
-    float ni;
-
-    float complexToGeometricRefractionIndex() const;
-};
 
 extern Vector3D idealReflectedDirection(const Vector3D *in, const Vector3D *normal);
 

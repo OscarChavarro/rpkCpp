@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/splitbsdf.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
@@ -218,14 +218,17 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
     if ( !Rd.isBlack() || !Rs.isBlack() ) {
-        brdf = phongBrdfCreate(&Rd, &Rs, Nr);
+        brdf = new PhongBidirectionalReflectanceDistributionFunction(&Rd, &Rs, Nr);
     }
 
     PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
     if ( !Td.isBlack() || !Ts.isBlack() ) {
-        btdf = phongBtdfCreate(&Td, &Ts, Nt,
-                globalMgfCurrentMaterial->nr,
-                globalMgfCurrentMaterial->ni);
+        btdf = new PhongBidirectionalTransmittanceDistributionFunction(
+            &Td,
+            &Ts,
+            Nt,
+            globalMgfCurrentMaterial->nr,
+            globalMgfCurrentMaterial->ni);
     }
 
     BSDF *bsdf = new BSDF(brdf, btdf, nullptr);

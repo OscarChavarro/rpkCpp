@@ -3,7 +3,7 @@ Bidirectional Transmittance Distribution Functions
 */
 
 #include "material/btdf.h"
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
 /**
 Returns the transmittance of the BTDF

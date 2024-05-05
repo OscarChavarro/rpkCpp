@@ -1,11 +1,13 @@
 /**
-Routine for sampling directions on a spherical triangle or
-quadrilateral using Arvo's technique published in SIGGRAPH '95 p 437
-and similar stuff
+Routines used to sample a spherical triangle or quadrilateral
+using Arvo's technique published in SIGGRAPH '95 p 437
+
+References:
+- [ARVO1995b] "Stratified Sampling of Spherical Triangles", SIGGRAPH 1995
 */
 
-#ifndef __SPHERICAL__
-#define __SPHERICAL__
+#ifndef __COORDINATE_SYSTEM__
+#define __COORDINATE_SYSTEM__
 
 #include "common/linealAlgebra/Vector3D.h"
 

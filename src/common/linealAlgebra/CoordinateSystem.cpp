@@ -1,11 +1,3 @@
-/**
-Routines used to sample a spherical triangle or quadrilateral
-using Arvo's technique published in SIGGRAPH '95 p 437
-
-References:
-- [ARVO1995b] "Stratified Sampling of Spherical Triangles", SIGGRAPH 1995
-*/
-
 #include "common/linealAlgebra/Float.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 

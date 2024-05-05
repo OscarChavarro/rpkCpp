@@ -38,6 +38,7 @@ set(MAIN_SRC
     src/QMC/faure.cpp
     src/QMC/nied63.cpp
     src/QMC/sobol.cpp
+    src/material/RefractionIndex.cpp
     src/material/Texture.cpp
     src/material/brdf.cpp
     src/material/xxdf.cpp
@@ -46,7 +47,8 @@ set(MAIN_SRC
     src/material/bsdf.cpp
     src/material/Material.cpp
     src/material/splitbsdf.cpp
-    src/material/phong.cpp
+    src/material/PhongBidirectionalReflectanceDistributionFunction.cpp
+    src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp
     src/skin/PatchSet.cpp
     src/skin/RayHit.cpp
     src/skin/Compound.cpp

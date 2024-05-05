@@ -4,7 +4,7 @@ Bidirectional Reflectance Distribution Functions
 
 #include "common/error.h"
 #include "material/brdf.h"
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
 /**
 Returns the diffuse reflectance of the BRDF according to the flags
@@ -12,7 +12,7 @@ Returns the diffuse reflectance of the BRDF according to the flags
 ColorRgb
 brdfReflectance(const PhongBidirectionalReflectanceDistributionFunction *brdf, const char flags) {
     if ( brdf != nullptr ) {
-        ColorRgb test = phongReflectance(brdf, flags);
+        ColorRgb test = brdf->reflectance(flags);
         if ( !std::isfinite(test.average()) ) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
@@ -78,8 +78,8 @@ brdfEvalPdf(
     double *probabilityDensityFunctionRR)
 {
     if ( brdf != nullptr ) {
-        phongBrdfEvalPdf(brdf, in, out,
-                                   normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+        evaluateProbabilityDensityFunction(brdf, in, out,
+                                           normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;
     }

@@ -4,7 +4,7 @@
 #include <cstdio>
 
 #include "material/RayHit.h"
-#include "material/phong.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
 /**
 Emittance Distribution Functions: the self-emitted radiance

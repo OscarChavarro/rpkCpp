@@ -1,6 +1,8 @@
 #include "common/error.h"
-#include "material/PhongEmittanceDistributionFunction.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
+#include "material/xxdf.h"
+#include "material/PhongEmittanceDistributionFunction.h"
+#include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 
 /**
 Creates Phong type EDF, BRDF, BTDF data structs:
