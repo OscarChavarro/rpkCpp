@@ -418,8 +418,12 @@ stochasticRaytracerGetRadiance(
                 // -- radiance method does...
                 ColorRgb diffEmit;
 
-                diffEmit = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF),
-                                   BRDF_DIFFUSE_COMPONENT, nullptr);
+                if ( thisEdf == nullptr ) {
+                    diffEmit.clear();
+                } else {
+                    diffEmit = thisEdf->phongEdfEval(
+                        &thisNode->m_hit, &(thisNode->m_inDirF), BRDF_DIFFUSE_COMPONENT, nullptr);
+                }
 
                 radiance.subtract(radiance, diffEmit);
             }
@@ -493,7 +497,11 @@ stochasticRaytracerGetRadiance(
                 weight = 1;
             }
 
-            col = edfEval(thisEdf, &thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, nullptr);
+            if ( thisEdf == nullptr ) {
+                col.clear();
+            } else {
+                col = thisEdf->phongEdfEval(&thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, nullptr);
+            }
 
             result.addScaled(result, (float) weight, col);
         }

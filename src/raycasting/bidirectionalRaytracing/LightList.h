@@ -43,7 +43,7 @@ public:
     Patch *sample(double *x1, double *pdf);
 
     // Normal PDF evaluation : uniform over emitted power
-    double evalPdf(Patch *light, Vector3D *point);
+    double evalPdf(Patch *light, const Vector3D *point);
 
     // Importance sampling routines
     Patch *sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf);
@@ -66,7 +66,7 @@ protected:
     // Specialisations by patch type (normal or virtual) of ComputeOneLightImportance
     static double
     computeOneLightImportanceVirtual(
-        Patch *light,
+        const Patch *light,
         const Vector3D *,
         const Vector3D *,
         float);
@@ -79,9 +79,9 @@ protected:
         float emittedFlux);
 
     // specialisations by patch type (normal or virtual) of EvalPDF
-    double evalPdfVirtual(Patch *light, Vector3D *) const;
+    double evalPdfVirtual(const Patch *light, const Vector3D *) const;
 
-    double evalPdfReal(Patch *light, Vector3D *) const;
+    double evalPdfReal(Patch *light, const Vector3D *) const;
 
     friend class LightListIterator;
 };

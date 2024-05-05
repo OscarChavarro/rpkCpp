@@ -291,10 +291,12 @@ pathNodeConnect(
     // bsdf(LP->L->E)  (reciprocity assumed !)
     if ( nodeLP == nullptr ) {
         // nodeL is  light source
-        nodeY->m_bsdfEval = edfEval(nodeY->m_hit.material->edf,
-                                    &nodeY->m_hit,
-                                    &dirLE,
-                                    bsdfFlagsL, nullptr);
+        if ( nodeY->m_hit.material->edf == nullptr ) {
+            nodeY->m_bsdfEval.clear();
+        } else {
+            nodeY->m_bsdfEval = nodeY->m_hit.material->edf->phongEdfEval(
+                &nodeY->m_hit, &dirLE, bsdfFlagsL, nullptr);
+        }
         nodeY->m_bsdfComp.Clear();
         nodeY->m_bsdfComp.Fill(nodeY->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {

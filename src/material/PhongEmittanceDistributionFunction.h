@@ -23,18 +23,17 @@ class PhongEmittanceDistributionFunction {
     float Ns;
 
     PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
-    ColorRgb phongEmittance(const RayHit * /*hit*/, const char flags) const;
+
+    ColorRgb phongEmittance(const RayHit * /*hit*/, char flags) const;
+    bool edfIsTextured() const;
+
+    ColorRgb
+    phongEdfEval(
+        RayHit *hit,
+        const Vector3D *out,
+        char flags,
+        double *probabilityDensityFunction) const;
 };
-
-extern bool edfIsTextured(const PhongEmittanceDistributionFunction *edf);
-
-extern ColorRgb
-edfEval(
-    const PhongEmittanceDistributionFunction *edf,
-    RayHit *hit,
-    const Vector3D *out,
-    char flags,
-    double *probabilityDensityFunction);
 
 extern Vector3D
 edfSample(

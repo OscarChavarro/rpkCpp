@@ -55,20 +55,21 @@ Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
 
 bool
-edfIsTextured(const PhongEmittanceDistributionFunction * /*edf*/) {
+PhongEmittanceDistributionFunction::edfIsTextured() const {
     return false;
 }
 
 /**
-Edf evaluations
+Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
+out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
+computed and returned in probabilityDensityFunction
 */
-static ColorRgb
-phongEdfEval(
-    const PhongEmittanceDistributionFunction *edf,
+ColorRgb
+PhongEmittanceDistributionFunction::phongEdfEval(
     RayHit *hit,
     const Vector3D *out,
     char flags,
-    double *probabilityDensityFunction)
+    double *probabilityDensityFunction) const
 {
     Vector3D normal;
     ColorRgb result;
@@ -94,7 +95,7 @@ phongEdfEval(
 
     if ( flags & DIFFUSE_COMPONENT ) {
         // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
-        result.add(result, edf->kd);
+        result.add(result, kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
         }
@@ -105,31 +106,6 @@ phongEdfEval(
     }
 
     return result;
-}
-
-/**
-Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
-out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
-computed and returned in probabilityDensityFunction
-*/
-ColorRgb
-edfEval(
-    const PhongEmittanceDistributionFunction *edf,
-    RayHit *hit,
-    const Vector3D *out,
-    char flags,
-    double *probabilityDensityFunction)
-{
-    if ( edf != nullptr ) {
-        return phongEdfEval(edf, hit, out, flags, probabilityDensityFunction);
-    } else {
-        ColorRgb val;
-        val.clear();
-        if ( probabilityDensityFunction ) {
-            *probabilityDensityFunction = 0.0;
-        }
-        return val;
-    }
 }
 
 /**

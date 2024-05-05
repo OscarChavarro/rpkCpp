@@ -141,11 +141,15 @@ UniformLightSampler::evalPDF(
     if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        edfEval(newNode->m_hit.patch->material->edf,
+        if ( newNode->m_hit.patch->material->edf == nullptr ) {
+            pdfdir = 0.0;
+        } else {
+            newNode->m_hit.patch->material->edf->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);
+        }
 
         pdf *= pdfdir;
     } else {
@@ -277,11 +281,15 @@ ImportantLightSampler::evalPDF(
     if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        edfEval(newNode->m_hit.patch->material->edf,
+        if ( newNode->m_hit.patch->material->edf == nullptr ) {
+            pdfdir = 0.0;
+        } else {
+            newNode->m_hit.patch->material->edf->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
                 &pdfdir);
+        }
 
         pdf *= pdfdir;
     } else {

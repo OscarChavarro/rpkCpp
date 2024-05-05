@@ -605,13 +605,12 @@ Only for surface elements
 */
 int
 stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
-    Material *mat;
     if ( elem->isCluster() ) {
         logFatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    mat = elem->patch->material;
-    return bsdfIsTextured(mat->bsdf) || edfIsTextured(mat->edf);
+    Material *mat = elem->patch->material;
+    return bsdfIsTextured(mat->bsdf) || mat->edf->edfIsTextured();
 }
 
 /**
@@ -639,7 +638,6 @@ Computes average reflectance and emittance of a surface sub-element
 static void
 monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadiosityElement *elem) {
     Patch *patch = elem->patch;
-    int i;
     int numberOfSamples;
     int isTextured;
     int nbits;
@@ -657,7 +655,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     stochasticRadiosityElementRange(elem, &nbits, &msb1, &rMostSignificantBit2);
 
     n = 1;
-    for ( i = 0; i < numberOfSamples; i++, n++ ) {
+    for ( int i = 0; i < numberOfSamples; i++, n++ ) {
         ColorRgb sample;
         niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.uv.u = (double) xi[0] * RECIP;

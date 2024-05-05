@@ -226,11 +226,15 @@ handlePathX0(
 
         if ( endingEdf != nullptr ) {
             // Landed on a light : fill in values for BPT
-            eyeEndNode->m_bsdfEval = edfEval(endingEdf,
-                                             &eyeEndNode->m_hit,
-                                             &eyeEndNode->m_inDirF,
-                                             ALL_COMPONENTS,
-                                             nullptr);
+            if ( endingEdf == nullptr ) {
+                eyeEndNode->m_bsdfEval.clear();
+            } else {
+                eyeEndNode->m_bsdfEval = endingEdf->phongEdfEval(
+                    &eyeEndNode->m_hit,
+                    &eyeEndNode->m_inDirF,
+                    ALL_COMPONENTS,
+                    nullptr);
+            }
             eyeEndNode->m_bsdfComp.Fill(eyeEndNode->m_bsdfEval,
                                         BRDF_DIFFUSE_COMPONENT);
 

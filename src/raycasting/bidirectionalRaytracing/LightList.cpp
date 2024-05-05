@@ -94,7 +94,7 @@ LightList::sample(double *x1, double *pdf) {
 }
 
 double
-LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
+LightList::evalPdfVirtual(const Patch *light, const Vector3D */*point*/) const {
     // EvalPDF for virtual patches (see EvalPDF)
     double probabilityDensityFunction;
 
@@ -102,7 +102,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     ColorRgb e;
-    if ( light->material->edf = nullptr) {
+    if ( light->material->edf == nullptr) {
         e.clear();
     } else {
         e = light->material->edf->phongEmittance(nullptr, all);
@@ -113,7 +113,7 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
 }
 
 double
-LightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
+LightList::evalPdfReal(Patch *light, const Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
     ColorRgb color;
     double pdf;
@@ -127,7 +127,7 @@ LightList::evalPdfReal(Patch *light, Vector3D */*point*/) const {
 }
 
 double
-LightList::evalPdf(Patch *light, Vector3D *point) {
+LightList::evalPdf(Patch *light, const Vector3D *point) {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -141,14 +141,14 @@ LightList::evalPdf(Patch *light, Vector3D *point) {
     }
 }
 
-/*************************************************************************/
 /* Important light sampling */
 
 double
-LightList::computeOneLightImportanceVirtual(Patch *light,
-                                            const Vector3D *,
-                                            const Vector3D *,
-                                            float) {
+LightList::computeOneLightImportanceVirtual(
+    const Patch *light,
+    const Vector3D *,
+    const Vector3D *,
+    float) {
     // ComputeOneLightImportance for virtual patches
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
