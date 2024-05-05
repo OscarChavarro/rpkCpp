@@ -145,8 +145,8 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
         success = bsdfShadingFrame(material->bsdf, this, inX, inY, inZ);
     }
 
-    if ( !success && material && material->edf ) {
-        success = edfShadingFrame(material->edf, this, inX, inY, inZ);
+    if ( !success && material != nullptr && material->edf != nullptr ) {
+        success = PhongEmittanceDistributionFunction::edfShadingFrame(this, inX, inY, inZ);
     }
 
     if ( !success && computeUv(&uv) ) {

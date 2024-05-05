@@ -55,7 +55,7 @@ Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
 
 bool
-PhongEmittanceDistributionFunction::edfIsTextured() const {
+PhongEmittanceDistributionFunction::edfIsTextured() {
     return false;
 }
 
@@ -91,10 +91,10 @@ PhongEmittanceDistributionFunction::phongEdfEval(
         return result;
     } // Back face of a light does not radiate
 
-    // kd + ks (idealReflected * out)^n
+    // kd + ks (idealReflected * out) ^ n
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        // Divide by PI to turn radiant exitance [W/m^2] into exitant radiance [W/m^2 sr]
+        // Divide by PI to turn radiant exitance [W / m ^ 2] into exitant radiance [W / m ^ 2 sr]
         result.add(result, kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
@@ -109,7 +109,10 @@ PhongEmittanceDistributionFunction::phongEdfEval(
 }
 
 /**
-Edf sampling
+Samples a direction according to the specified edf and emission range determined
+by flags. If emitted_radiance is not a null pointer, the emitted radiance along
+the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
+of the generated direction is computed and returned in probabilityDensityFunction
 */
 static Vector3D
 phongEdfSample(
@@ -152,12 +155,6 @@ phongEdfSample(
     return dir;
 }
 
-/**
-Samples a direction according to the specified edf and emission range determined
-by flags. If emitted_radiance is not a null pointer, the emitted radiance along
-the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
-of the generated direction is computed and returned in probabilityDensityFunction
-*/
 Vector3D
 edfSample(
     const PhongEmittanceDistributionFunction *edf,
@@ -193,8 +190,7 @@ routine - pointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
 bool
-edfShadingFrame(
-    const PhongEmittanceDistributionFunction * /*edf*/,
+PhongEmittanceDistributionFunction::edfShadingFrame(
     const RayHit * /*hit*/,
     const Vector3D * /*X*/,
     const Vector3D * /*Y*/,

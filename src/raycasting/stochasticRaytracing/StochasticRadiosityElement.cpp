@@ -609,8 +609,8 @@ stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         logFatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    Material *mat = elem->patch->material;
-    return bsdfIsTextured(mat->bsdf) || mat->edf->edfIsTextured();
+    const Material *mat = elem->patch->material;
+    return bsdfIsTextured(mat->bsdf) || PhongEmittanceDistributionFunction::edfIsTextured();
 }
 
 /**
