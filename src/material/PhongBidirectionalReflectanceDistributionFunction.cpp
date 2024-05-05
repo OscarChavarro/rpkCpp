@@ -1,6 +1,5 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
-#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/xxdf.h"
 
 /**
@@ -75,12 +74,11 @@ PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags)
 Brdf evaluations
 */
 ColorRgb
-phongBrdfEval(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+PhongBidirectionalReflectanceDistributionFunction::evaluate(
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
-    const char flags)
+    char flags) const
 {
     ColorRgb result;
     float tmpFloat;
@@ -98,24 +96,24 @@ phongBrdfEval(
         return result;
     }
 
-    if ( (flags & DIFFUSE_COMPONENT) && (brdf->avgKd > 0.0) ) {
-        result.addScaled(result, (float)M_1_PI, brdf->Kd);
+    if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0.0) ) {
+        result.addScaled(result, (float)M_1_PI, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf) ) {
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-    if ( (flags & nonDiffuseFlag) && (brdf->avgKs > 0.0) ) {
+    if ( (flags & nonDiffuseFlag) && (avgKs > 0.0) ) {
         idealReflected = idealReflectedDirection(&inRev, normal);
         dotProduct = vectorDotProduct(idealReflected, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = std::pow(dotProduct, brdf->Ns); // cos(a) ^ n
-            tmpFloat *= (brdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
-            result.addScaled(result, tmpFloat, brdf->Ks);
+            tmpFloat = std::pow(dotProduct, Ns); // cos(a) ^ n
+            tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
+            result.addScaled(result, tmpFloat, Ks);
         }
     }
 
@@ -126,51 +124,46 @@ phongBrdfEval(
 Brdf sampling
 */
 Vector3D
-phongBrdfSample(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+PhongBidirectionalReflectanceDistributionFunction::sample(
     const Vector3D *in,
     const Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
+    const int doRussianRoulette,
+    const char flags,
     double x1,
-    double x2,
-    double *probabilityDensityFunction)
+    const double x2,
+    double *probabilityDensityFunction) const
 {
-    Vector3D newDir = {0.0, 0.0, 0.0};
-    Vector3D idealDir;
-    double cosTheta;
-    double diffPdf;
-    double nonDiffPdf;
-    double scatteredPower;
-    double avgKd;
-    double avgKs;
-    float tmpFloat;
-    CoordinateSystem coord;
-    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
     *probabilityDensityFunction = 0;
 
+    double localAverageKd;
+
     if ( flags & DIFFUSE_COMPONENT ) {
-        avgKd = brdf->avgKd;
+        localAverageKd = avgKd;
     } else {
-        avgKd = 0.0;
+        localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf) ) {
+    char nonDiffuseFlag;
+
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
+    double localAverageKs;
+
     if ( flags & nonDiffuseFlag ) {
-        avgKs = brdf->avgKs;
+        localAverageKs = avgKs;
     } else {
-        avgKs = 0.0;
+        localAverageKs = 0.0;
     }
 
-    scatteredPower = avgKd + avgKs;
+    double scatteredPower = localAverageKd + localAverageKs;
+    Vector3D newDir = {0.0, 0.0, 0.0};
 
     if ( scatteredPower < EPSILON ) {
         return newDir;
@@ -187,11 +180,15 @@ phongBrdfSample(
         x1 /= scatteredPower;
     }
 
-    idealDir = idealReflectedDirection(&inRev, normal);
+    Vector3D idealDir = idealReflectedDirection(&inRev, normal);
+    CoordinateSystem coord;
+    double diffPdf;
+    float tmpFloat;
+    double nonDiffPdf;
 
-    if ( x1 < (avgKd / scatteredPower) ) {
+    if ( x1 < (localAverageKd / scatteredPower) ) {
         // Sample diffuse
-        x1 = x1 / (avgKd / scatteredPower);
+        x1 = x1 / (localAverageKd / scatteredPower);
 
         coord.setFromZAxis(normal);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
@@ -199,19 +196,18 @@ phongBrdfSample(
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
-            nonDiffPdf = (brdf->Ns + 1.0) * std::pow(tmpFloat,
-                                                     brdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * std::pow(tmpFloat, Ns) / (2.0 * M_PI);
         } else {
             nonDiffPdf = 0;
         }
     } else {
         // Sample specular
-        x1 = (x1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
+        x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
         coord.setFromZAxis(&idealDir);
-        newDir = coord.sampleHemisphereCosNTheta(brdf->Ns, x1, x2, &nonDiffPdf);
+        newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
-        cosTheta = vectorDotProduct(*normal, newDir);
+        double cosTheta = vectorDotProduct(*normal, newDir);
         if ( cosTheta <= 0 ) {
             return newDir;
         }
@@ -220,7 +216,7 @@ phongBrdfSample(
     }
 
     // Combine probabilityDensityFunctions
-    *probabilityDensityFunction = avgKd * diffPdf + avgKs * nonDiffPdf;
+    *probabilityDensityFunction = localAverageKd * diffPdf + localAverageKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
         *probabilityDensityFunction /= scatteredPower;
@@ -230,14 +226,13 @@ phongBrdfSample(
 }
 
 void
-evaluateProbabilityDensityFunction(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
+PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFunction(
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
     char flags,
     double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR)
+    double *probabilityDensityFunctionRR) const
 {
     double cos_theta;
     double cos_alpha;
@@ -245,8 +240,8 @@ evaluateProbabilityDensityFunction(
     double diffPdf;
     double nonDiffPdf;
     double scatteredPower;
-    double avgKs;
-    double avgKd;
+    double localAverageKs;
+    double localAverageKd;
     char nonDiffuseFlag;
     Vector3D idealDir;
     Vector3D inRev;
@@ -273,24 +268,24 @@ evaluateProbabilityDensityFunction(
 
     // 'out' is a reflected direction
     if ( flags & DIFFUSE_COMPONENT ) {
-        avgKd = brdf->avgKd; // Store in phong data ?
+        localAverageKd = avgKd; // Store in phong data ?
     } else {
-        avgKd = 0.0;
+        localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*brdf) ) {
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
     if ( flags & nonDiffuseFlag ) {
-        avgKs = brdf->avgKs;
+        localAverageKs = avgKs;
     } else {
-        avgKs = 0.0;
+        localAverageKs = 0.0;
     }
 
-    scatteredPower = avgKd + avgKs;
+    scatteredPower = localAverageKd + localAverageKs;
 
     if ( scatteredPower < EPSILON ) {
         return;
@@ -311,7 +306,7 @@ evaluateProbabilityDensityFunction(
         cos_alpha = vectorDotProduct(idealDir, *out);
 
         if ( cos_alpha > 0 ) {
-            nonDiffPdf = (brdf->Ns + 1.0) * std::pow(cos_alpha, brdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * std::pow(cos_alpha, Ns) / (2.0 * M_PI);
         }
     }
 

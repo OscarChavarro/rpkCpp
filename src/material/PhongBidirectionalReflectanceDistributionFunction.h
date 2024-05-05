@@ -12,45 +12,37 @@ Choice is arbitrary for the moment.
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
 class PhongBidirectionalReflectanceDistributionFunction {
-  public:
+  private:
     ColorRgb Kd;
     ColorRgb Ks;
     float avgKd;
     float avgKs;
     float Ns;
 
+  public:
     explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
 
     ColorRgb reflectance(char flags) const;
+    ColorRgb evaluate(const Vector3D *in, const Vector3D *out, const Vector3D *normal, char flags) const;
+
+    Vector3D
+    sample(
+        const Vector3D *in,
+        const Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction) const;
+
+    void
+    evaluateProbabilityDensityFunction(
+        const Vector3D *in,
+        const Vector3D *out,
+        const Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR) const;
 };
-
-extern ColorRgb
-phongBrdfEval(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    const Vector3D *normal,
-    char flags);
-
-extern Vector3D
-phongBrdfSample(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
-    const Vector3D *in,
-    const Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x1,
-    double x2,
-    double *probabilityDensityFunction);
-
-extern void
-evaluateProbabilityDensityFunction(
-    const PhongBidirectionalReflectanceDistributionFunction *brdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    const Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR);
 
 #endif

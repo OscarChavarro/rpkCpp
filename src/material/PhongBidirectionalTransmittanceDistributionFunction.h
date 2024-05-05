@@ -11,7 +11,7 @@ this should not be needed. In C++ this would of course
 be a plain complex number
 */
 class PhongBidirectionalTransmittanceDistributionFunction {
-  public:
+  private:
     ColorRgb Kd;
     ColorRgb Ks;
     float avgKd;
@@ -19,46 +19,44 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     float Ns;
     RefractionIndex refractionIndex;
 
+  public:
     PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
 
+    ColorRgb transmittance(char flags) const;
+    void indexOfRefraction(RefractionIndex *index) const;
+
+    ColorRgb
+    evaluate(
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        const Vector3D *in,
+        const Vector3D *out,
+        const Vector3D *normal,
+        char flags) const;
+
+    Vector3D
+    sample(
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        const Vector3D *in,
+        const Vector3D *normal,
+        int doRussianRoulette,
+        char flags,
+        double x1,
+        double x2,
+        double *probabilityDensityFunction) const;
+
+    void
+    evaluateProbabilityDensityFunction(
+        RefractionIndex inIndex,
+        RefractionIndex outIndex,
+        const Vector3D *in,
+        const Vector3D *out,
+        const Vector3D *normal,
+        char flags,
+        double *probabilityDensityFunction,
+        double *probabilityDensityFunctionRR) const;
+
 };
-
-extern ColorRgb phongTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags);
-extern void phongIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index);
-
-extern ColorRgb
-phongBtdfEval(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    const Vector3D *in,
-    const Vector3D *out,
-    const Vector3D *normal,
-    char flags);
-
-extern Vector3D
-phongBtdfSample(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    const Vector3D *in,
-    const Vector3D *normal,
-    int doRussianRoulette,
-    char flags,
-    double x1,
-    double x2,
-    double *probabilityDensityFunction);
-
-extern void
-phongBtdfEvalPdf(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
-    RefractionIndex inIndex,
-    RefractionIndex outIndex,
-    const Vector3D *in,
-    const Vector3D *out,
-    const Vector3D *normal,
-    char flags,
-    double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR);
 
 #endif

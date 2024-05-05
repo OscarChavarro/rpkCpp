@@ -11,7 +11,7 @@ Returns the transmittance of the BTDF
 ColorRgb
 btdfTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
     if ( btdf != nullptr ) {
-        return phongTransmittance(btdf, flags);
+        return btdf->transmittance(flags);
     } else {
         static ColorRgb reflected;
         reflected.clear();
@@ -25,7 +25,7 @@ Returns the index of refraction of the BTDF
 void
 btdfIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
     if ( btdf != nullptr ) {
-        phongIndexOfRefraction(btdf, index);
+        btdf->indexOfRefraction(index);
     } else {
         index->nr = 1.0;
         index->ni = 0.0; // Vacuum
@@ -43,7 +43,7 @@ btdfEval(
     char flags)
 {
     if ( btdf != nullptr ) {
-        return phongBtdfEval(btdf, inIndex, outIndex, in, out, normal, flags);
+        return btdf->evaluate(inIndex, outIndex, in, out, normal, flags);
     } else {
         ColorRgb reflectedColor;
         reflectedColor.clear();
@@ -65,8 +65,8 @@ btdfSample(
     double *probabilityDensityFunction)
 {
     if ( btdf != nullptr ) {
-        return phongBtdfSample(btdf, inIndex, outIndex, in, normal,
-                                     doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
+        return btdf->sample(
+                inIndex, outIndex, in, normal, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
         *probabilityDensityFunction = 0;
@@ -87,9 +87,15 @@ btdfEvalPdf(
     double *probabilityDensityFunctionRR)
 {
     if ( btdf != nullptr ) {
-        phongBtdfEvalPdf(
-                btdf, inIndex, outIndex, in, out,
-                normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+        btdf->evaluateProbabilityDensityFunction(
+                inIndex,
+                outIndex,
+                in,
+                out,
+                normal,
+                flags,
+                probabilityDensityFunction,
+                probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;
     }

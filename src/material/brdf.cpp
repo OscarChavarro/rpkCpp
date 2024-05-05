@@ -36,7 +36,7 @@ brdfEval(
     const char flags)
 {
     if ( brdf != nullptr ) {
-        return phongBrdfEval(brdf, in, out, normal, flags);
+        return brdf->evaluate(in, out, normal, flags);
     } else {
         ColorRgb reflectedColor;
         reflectedColor.clear();
@@ -59,7 +59,7 @@ brdfSample(
     double *probabilityDensityFunction)
 {
     if ( brdf != nullptr ) {
-        return phongBrdfSample(brdf, in, normal, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
+        return brdf->sample(in, normal, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
         *probabilityDensityFunction = 0;
@@ -78,8 +78,13 @@ brdfEvalPdf(
     double *probabilityDensityFunctionRR)
 {
     if ( brdf != nullptr ) {
-        evaluateProbabilityDensityFunction(brdf, in, out,
-                                           normal, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+        brdf->evaluateProbabilityDensityFunction(
+            in,
+            out,
+            normal,
+            flags,
+            probabilityDensityFunction,
+            probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;
     }

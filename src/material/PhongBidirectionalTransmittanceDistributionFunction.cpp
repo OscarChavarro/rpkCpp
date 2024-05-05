@@ -18,27 +18,27 @@ PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmitt
 }
 
 ColorRgb
-phongTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *btdf, char flags) {
+PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
     ColorRgb result;
 
     result.clear();
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, btdf->Kd);
+        result.add(result, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf) ) {
+    if ( PHONG_IS_SPECULAR(*this) ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, btdf->Ks);
+            result.add(result, Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, btdf->Ks);
+            result.add(result, Ks);
         }
     }
 
     if ( !std::isfinite(result.average()) ) {
-        logFatal(-1, "phongTransmittance", "Oops - result is not finite!");
+        logFatal(-1, "transmittance", "Oops - result is not finite!");
     }
 
     return result;
@@ -48,31 +48,23 @@ phongTransmittance(const PhongBidirectionalTransmittanceDistributionFunction *bt
 Refraction index
 */
 void
-phongIndexOfRefraction(const PhongBidirectionalTransmittanceDistributionFunction *btdf, RefractionIndex *index) {
-    index->nr = btdf->refractionIndex.nr;
-    index->ni = btdf->refractionIndex.ni;
+PhongBidirectionalTransmittanceDistributionFunction::indexOfRefraction(RefractionIndex *index) const {
+    index->nr = refractionIndex.nr;
+    index->ni = refractionIndex.ni;
 }
 
 /**
 Btdf evaluations
 */
 ColorRgb
-phongBtdfEval(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
-    char flags)
+    char flags) const
 {
-    ColorRgb result;
-    float tmpFloat;
-    float dotProduct;
-    Vector3D idealRefracted;
-    bool totalIR;
-    int isReflection;
-    char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -81,38 +73,39 @@ phongBtdfEval(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
+    ColorRgb result;
     result.clear();
 
-    if ( (flags & DIFFUSE_COMPONENT) && (btdf->avgKd > 0) ) {
+    if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {
         // Diffuse part
 
         // Normal is pointing away from refracted direction
-        isReflection = (vectorDotProduct(*normal, *out) >= 0);
+        int isReflection = (vectorDotProduct(*normal, *out) >= 0);
 
         if ( !isReflection ) {
-            result = btdf->Kd;
+            result = Kd;
             result.scale((float)M_1_PI);
         }
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf) ) {
+    char nonDiffuseFlag;
+
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
-    if ( (flags & nonDiffuseFlag) && (btdf->avgKs > 0) ) {
+    if ( (flags & nonDiffuseFlag) && (avgKs > 0) ) {
         // Specular part
-
-        idealRefracted = idealRefractedDirection(&inRev, normal, inIndex,
-                                                 outIndex, &totalIR);
-
-        dotProduct = vectorDotProduct(idealRefracted, *out);
+        bool totalIR;
+        Vector3D idealRefracted = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
+        float dotProduct = vectorDotProduct(idealRefracted, *out);
 
         if ( dotProduct > 0 ) {
-            tmpFloat = std::pow(dotProduct, btdf->Ns); // cos(a) ^ n
-            tmpFloat *= (btdf->Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
-            result.addScaled(result, tmpFloat, btdf->Ks);
+            float tmpFloat = std::pow(dotProduct, Ns); // cos(a) ^ n
+            tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
+            result.addScaled(result, tmpFloat, Ks);
         }
     }
 
@@ -120,8 +113,7 @@ phongBtdfEval(
 }
 
 Vector3D
-phongBtdfSample(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+PhongBidirectionalTransmittanceDistributionFunction::sample(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     const Vector3D *in,
@@ -130,7 +122,7 @@ phongBtdfSample(
     char flags,
     double x1,
     double x2,
-    double *probabilityDensityFunction)
+    double *probabilityDensityFunction) const
 {
     Vector3D newDir = {0.0, 0.0, 0.0};
     bool totalIR;
@@ -138,8 +130,8 @@ phongBtdfSample(
     Vector3D invNormal;
     CoordinateSystem coord;
     double cosTheta;
-    double avgKd;
-    double avgKs;
+    double localAverageKd;
+    double localAverageKs;
     double scatteredPower;
     double diffPdf;
     double nonDiffPdf;
@@ -152,24 +144,24 @@ phongBtdfSample(
 
     // Choose sampling mode
     if ( flags & DIFFUSE_COMPONENT ) {
-        avgKd = btdf->avgKd; // Store in phong data ?
+        localAverageKd = avgKd; // Store in phong data ?
     } else {
-        avgKd = 0.0;
+        localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf) ) {
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
     if ( flags & nonDiffuseFlag ) {
-        avgKs = btdf->avgKs;
+        localAverageKs = avgKs;
     } else {
-        avgKs = 0.0;
+        localAverageKs = 0.0;
     }
 
-    scatteredPower = avgKd + avgKs;
+    scatteredPower = localAverageKd + localAverageKs;
 
     if ( scatteredPower < EPSILON ) {
         return newDir;
@@ -189,9 +181,9 @@ phongBtdfSample(
     idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
     vectorScale(-1, *normal, invNormal);
 
-    if ( x1 < (avgKd / scatteredPower) ) {
+    if ( x1 < (localAverageKd / scatteredPower) ) {
         // Sample diffuse
-        x1 = x1 / (avgKd / scatteredPower);
+        x1 = x1 / (localAverageKd / scatteredPower);
 
         coord.setFromZAxis(&invNormal);
 
@@ -200,17 +192,16 @@ phongBtdfSample(
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
         if ( tmpFloat > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(tmpFloat,
-                                                btdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * std::pow(tmpFloat, Ns) / (2.0 * M_PI);
         } else {
             nonDiffPdf = 0;
         }
     } else {
         // Sample specular
-        x1 = (x1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
+        x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
         coord.setFromZAxis(&idealDir);
-        newDir = coord.sampleHemisphereCosNTheta(btdf->Ns, x1, x2, &nonDiffPdf);
+        newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
         cosTheta = vectorDotProduct(*normal, newDir);
         if ( cosTheta > 0 ) {
@@ -222,7 +213,7 @@ phongBtdfSample(
     }
 
     // Combine Probability Density Functions
-    *probabilityDensityFunction = avgKd * diffPdf + avgKs * nonDiffPdf;
+    *probabilityDensityFunction = localAverageKd * diffPdf + localAverageKs * nonDiffPdf;
 
     if ( !doRussianRoulette ) {
         *probabilityDensityFunction /= scatteredPower;
@@ -232,29 +223,16 @@ phongBtdfSample(
 }
 
 void
-phongBtdfEvalPdf(
-    const PhongBidirectionalTransmittanceDistributionFunction *btdf,
+PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityFunction(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
-    const char flags,
+    char flags,
     double *probabilityDensityFunction,
-    double *probabilityDensityFunctionRR)
+    double *probabilityDensityFunctionRR) const
 {
-    double cosTheta;
-    double cosAlpha;
-    double cosIn;
-    double diffPdf;
-    double nonDiffPdf = 0.0;
-    double scatteredPower;
-    double avgKs;
-    double avgKd;
-    char nonDiffuseFlag;
-    Vector3D idealDir;
-    bool totalIR;
-    Vector3D goodNormal;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
 
@@ -262,50 +240,60 @@ phongBtdfEvalPdf(
     *probabilityDensityFunctionRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
+    Vector3D goodNormal;
+    double cosIn = vectorDotProduct(*in, *normal);
 
-    cosIn = vectorDotProduct(*in, *normal);
     if ( cosIn >= 0 ) {
         vectorCopy(*normal, goodNormal);
     } else {
         vectorScale(-1, *normal, goodNormal);
     }
 
-    cosTheta = vectorDotProduct(goodNormal, *out);
+    double cosTheta = vectorDotProduct(goodNormal, *out);
 
+    double localAverageKd;
     if ( flags & DIFFUSE_COMPONENT && (cosTheta < 0) ) {
         // Transmitted ray
-        avgKd = btdf->avgKd;
+        localAverageKd = avgKd;
     } else {
-        avgKd = 0.0;
+        localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*btdf) ) {
+    char nonDiffuseFlag;
+    if ( PHONG_IS_SPECULAR(*this) ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
     }
 
+    double localAverageKs;
     if ( flags & nonDiffuseFlag ) {
-        avgKs = btdf->avgKs;
+        localAverageKs = avgKs;
     } else {
-        avgKs = 0.0;
+        localAverageKs = 0.0;
     }
 
-    scatteredPower = avgKd + avgKs;
+    double scatteredPower = localAverageKd + localAverageKs;
 
     if ( scatteredPower < EPSILON ) {
         return;
     }
 
     // Diffuse sampling probabilityDensityFunction
-    if ( avgKd > 0 ) {
+    double diffPdf;
+    if ( localAverageKd > 0 ) {
         diffPdf = cosTheta / M_PI;
     } else {
         diffPdf = 0.0;
     }
 
     // Glossy or specular
-    if ( avgKs > 0 ) {
+    double nonDiffPdf = 0.0;
+    if ( localAverageKs > 0 ) {
+        double cosAlpha;
+        Vector3D idealDir;
+        bool totalIR;
+
         if ( cosIn >= 0 ) {
             idealDir = idealRefractedDirection(&inRev, &goodNormal, inIndex,
                                                outIndex, &totalIR);
@@ -319,10 +307,10 @@ phongBtdfEvalPdf(
 
         nonDiffPdf = 0.0;
         if ( cosAlpha > 0 ) {
-            nonDiffPdf = (btdf->Ns + 1.0) * std::pow(cosAlpha, btdf->Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * std::pow(cosAlpha, Ns) / (2.0 * M_PI);
         }
     }
 
-    *probabilityDensityFunction = (avgKd * diffPdf + avgKs * nonDiffPdf) / scatteredPower;
+    *probabilityDensityFunction = (localAverageKd * diffPdf + localAverageKs * nonDiffPdf) / scatteredPower;
     *probabilityDensityFunctionRR = scatteredPower;
 }
