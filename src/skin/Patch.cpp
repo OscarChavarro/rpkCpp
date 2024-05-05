@@ -248,7 +248,7 @@ Patch::randomWalkRadiosityPatchArea() {
             if ( std::fabs(b) / this->area < EPSILON && std::fabs(c) / this->area < EPSILON ) {
                 this->jacobian = nullptr;
             } else {
-                this->jacobian = jacobianCreate(a, b, c);
+                this->jacobian = new Jacobian(a, b, c);
             }
             break;
         default:

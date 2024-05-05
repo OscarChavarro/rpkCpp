@@ -1,11 +1,10 @@
 #include "skin/Jacobian.h"
 
-Jacobian *
-jacobianCreate(float A, float B, float C) {
-    Jacobian *jacobian = new Jacobian();
-    jacobian->A = A;
-    jacobian->B = B;
-    jacobian->C = C;
+Jacobian::Jacobian(const float inA, const float inB, const float inC) {
+    A = inA;
+    B = inB;
+    C = inC;
+}
 
-    return jacobian;
+Jacobian::~Jacobian() {
 }

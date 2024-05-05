@@ -18,14 +18,14 @@ digraph G {
     PatchSet [shape=box, style=filled, fillcolor="#80ff80"];
     Compound [shape=box, style=filled, fillcolor="#80ff80"];
     Vertex [shape=box, style=filled, fillcolor="#80ff80"];
-    Jacobian [shape=box, style=filled, fillcolor="#80ff80"];
+    Jacobian [shape=box];
     BoundingBox [shape=box, style=filled, fillcolor="#80ff80"];
     GeometryClassId [shape=box, style=filled, fillcolor="#80ff80"];
 
     Material [shape=box, style=filled, fillcolor="#ffff80"];
-    BSDF [shape=box, style=filled, fillcolor="#ffff80"];
+    BidirectionalScatteringDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     PhongEmittanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
-    TEXTURE [shape=box, style=filled, fillcolor="#ffff80"];
+    Texture [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBidirectionalTransmittanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
     RefractionIndex [shape=box, style=filled, fillcolor="#ffff80"];
     PhongBidirectionalReflectanceDistributionFunction [shape=box, style=filled, fillcolor="#ffff80"];
@@ -66,11 +66,11 @@ digraph G {
     PhongBidirectionalReflectanceDistributionFunction -> ColorRgb;
     PhongBidirectionalTransmittanceDistributionFunction -> ColorRgb;
     PhongBidirectionalTransmittanceDistributionFunction -> RefractionIndex;
-    BSDF -> PhongBidirectionalReflectanceDistributionFunction;
-    BSDF -> PhongBidirectionalTransmittanceDistributionFunction;
-    BSDF -> TEXTURE;
+    BidirectionalScatteringDistributionFunction -> PhongBidirectionalReflectanceDistributionFunction;
+    BidirectionalScatteringDistributionFunction -> PhongBidirectionalTransmittanceDistributionFunction;
+    BidirectionalScatteringDistributionFunction -> Texture;
     Material -> PhongEmittanceDistributionFunction;
-    Material -> BSDF;
+    Material -> BidirectionalScatteringDistributionFunction;
     Geometry -> BoundingBox;
     Geometry -> Element;
     Geometry -> GeometryClassId;

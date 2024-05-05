@@ -9,8 +9,9 @@ class Jacobian {
     float A;
     float B;
     float C;
-};
 
-extern Jacobian *jacobianCreate(float A, float B, float C);
+    explicit Jacobian(float inA, float inB, float inC);
+    virtual ~Jacobian();
+};
 
 #endif
