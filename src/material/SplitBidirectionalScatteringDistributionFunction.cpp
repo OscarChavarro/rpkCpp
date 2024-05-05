@@ -99,7 +99,12 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     }
     *reflection = reflectance.average();
 
-    ColorRgb transmittance = btdfTransmittance(bsdf->btdf, *btdfFlags);
+    ColorRgb transmittance;
+    if ( bsdf->btdf == nullptr ) {
+        transmittance.clear();
+    } else {
+        transmittance = bsdf->btdf->transmittance(*btdfFlags);
+    }
     *transmission = transmittance.average();
 }
 
@@ -150,9 +155,9 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
         albedo.add(albedo, reflectance);
     }
 
-    if ( bsdf->btdf ) {
-        ColorRgb trans = btdfTransmittance(bsdf->btdf, GET_BTDF_FLAGS(flags));
-        albedo.add(albedo, trans);
+    if ( bsdf->btdf != nullptr ) {
+        ColorRgb transmitted = bsdf->btdf->transmittance(GET_BTDF_FLAGS(flags));
+        albedo.add(albedo, transmitted);
     }
 
     return albedo;
@@ -160,7 +165,12 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
 
 void
 SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(const BidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index) {
-    btdfIndexOfRefraction(bsdf->btdf, index);
+    if ( bsdf->btdf == nullptr ) {
+        index->nr = 1.0; // Vacuum
+        index->ni = 0.0;
+    } else {
+        bsdf->btdf->indexOfRefraction(index);
+    }
 }
 
 /**
@@ -212,8 +222,14 @@ SplitBidirectionalScatteringDistributionFunction::evaluate(
         ColorRgb refractionCol;
         bsdfIndexOfRefraction(inBsdf, &inIndex);
         bsdfIndexOfRefraction(outBsdf, &outIndex);
-        refractionCol = btdfEval(bsdf->btdf, inIndex, outIndex,
-                                 in, out, &normal, GET_BTDF_FLAGS(flags));
+
+        if ( bsdf->btdf == nullptr ) {
+            refractionCol.clear();
+        } else {
+            refractionCol = bsdf->btdf->evaluate(
+                inIndex, outIndex, in, out, &normal, GET_BTDF_FLAGS(flags));
+        }
+
         result.add(result, refractionCol);
     }
 
@@ -304,8 +320,14 @@ SplitBidirectionalScatteringDistributionFunction::sample(
             *probabilityDensityFunction = reflection * p;
             break;
         case SplitBSDFSamplingMode::SAMPLE_TRANSMISSION:
-            out = btdfSample(bsdf->btdf, inIndex, outIndex, in, &normal,
-                             false, btdfFlags, x1, x2, &p);
+            if ( bsdf->btdf == nullptr ) {
+                p = 0.0;
+                out.x = 0.0f;
+                out.y = 0.0f;
+                out.z = 0.0f;
+            } else {
+                out = bsdf->btdf->sample(inIndex, outIndex, in, &normal, false, btdfFlags, x1, x2, &p);
+            }
             if ( p < EPSILON ) {
                 return out;
             }
@@ -333,8 +355,11 @@ SplitBidirectionalScatteringDistributionFunction::sample(
         *probabilityDensityFunction += reflection * p;
     }
     if ( mode != SplitBSDFSamplingMode::SAMPLE_TRANSMISSION ) {
-        btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, &out, &normal,
-                    btdfFlags, &p, &pRR);
+        if ( bsdf->btdf == nullptr ) {
+            p = 0.0;
+        } else {
+            bsdf->btdf->evaluateProbabilityDensityFunction(inIndex, outIndex, in, &out, &normal, btdfFlags, &p, &pRR);
+        }
         *probabilityDensityFunction += transmission * p;
     }
 
@@ -411,7 +436,11 @@ SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
     }
     *probabilityDensityFunction += pReflection * p;
 
-    btdfEvalPdf(bsdf->btdf, inIndex, outIndex, in, out, &normal, btdfFlags, &p, &pRR);
+    if ( bsdf->btdf == nullptr ) {
+        p = 0.0;
+    } else {
+        bsdf->btdf->evaluateProbabilityDensityFunction(inIndex, outIndex, in, out, &normal, btdfFlags, &p, &pRR);
+    }
     *probabilityDensityFunction += pTransmission * p;
 
     *probabilityDensityFunction /= pScattering;

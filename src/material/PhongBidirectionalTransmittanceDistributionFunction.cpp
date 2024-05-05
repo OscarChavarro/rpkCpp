@@ -4,6 +4,17 @@
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
+/**
+All components of the Btdf
+
+Vector directions :
+
+in : towards patch
+out : from patch
+normal : leaving from patch, on the incoming side.
+         So in.normal < 0 !!!
+*/
+
 PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmittanceDistributionFunction(
     const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
     refractionIndex()
@@ -20,6 +31,9 @@ PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmitt
 PhongBidirectionalTransmittanceDistributionFunction::~PhongBidirectionalTransmittanceDistributionFunction() {
 }
 
+/**
+Returns the transmittance of the BTDF
+*/
 ColorRgb
 PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
     ColorRgb result;

@@ -41,7 +41,6 @@ set(MAIN_SRC
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
     src/material/xxdf.cpp
-    src/material/btdf.cpp
     src/material/PhongEmittanceDistributionFunction.cpp
     src/material/PhongBidirectionalReflectanceDistributionFunction.cpp
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp

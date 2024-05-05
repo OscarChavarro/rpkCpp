@@ -16,8 +16,8 @@ light scattering.
 #include "material/RayHit.h"
 #include "material/xxdf.h"
 #include "material/Texture.h"
-#include "material/btdf.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
+#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
 class BidirectionalScatteringDistributionFunction {
   public:

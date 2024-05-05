@@ -2,7 +2,6 @@
 #define __SPLIT_BSDF__
 
 #include "material/Texture.h"
-#include "material/btdf.h"
 #include "material/RayHit.h"
 #include "material/BidirectionalScatteringDistributionFunction.h"
 
