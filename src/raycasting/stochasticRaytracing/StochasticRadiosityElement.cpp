@@ -627,7 +627,7 @@ stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem) {
     rd = elem->Rd.maximumComponent();
     if ( rd < EPSILON ) {
         // Avoid divisions by zero
-        rd = EPSILON;
+        rd = (float)EPSILON;
     }
     return rd;
 }
@@ -644,7 +644,8 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     niedindex msb1;
     niedindex rMostSignificantBit2;
     niedindex n;
-    ColorRgb albedo, emittance;
+    ColorRgb albedo;
+    ColorRgb emittance;
     RayHit hit;
     hit.init(patch, nullptr, &patch->midPoint, &patch->normal, patch->material, 0.0);
 

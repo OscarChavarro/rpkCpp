@@ -3,7 +3,7 @@
 #include "PHOTONMAP/photonmap.h"
 
 bool
-zeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags) {
+zeroAlbedo(BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
     ColorRgb color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
     return (color.average() < EPSILON);
 }
@@ -343,7 +343,7 @@ CPhotonMap::IrradianceReconstruct(
 
 ColorRgb
 CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
-                              BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf) {
+                        BidirectionalScatteringDistributionFunction *bsdf, BidirectionalScatteringDistributionFunction *inBsdf, BidirectionalScatteringDistributionFunction *outBsdf) {
     // Find the nearest photons
     float maxDistance;
     ColorRgb result;
@@ -392,9 +392,13 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         Vector3D dir = m_photons[i]->Dir();
-        eval = bsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
-                        &dir,
-                        BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+
+        if ( bsdf == nullptr ) {
+            eval.clear();
+        } else {
+            eval = SplitBidirectionalScatteringDistributionFunction::evaluate(
+                    bsdf, hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+        }
         power = m_photons[i]->Power();
 
         col.scalarProduct(eval, power);

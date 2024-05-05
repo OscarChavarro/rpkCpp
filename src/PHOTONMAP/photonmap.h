@@ -9,7 +9,7 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool zeroAlbedo(BSDF *bsdf, RayHit *hit, BSDF_FLAGS flags);
+bool zeroAlbedo(BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 ColorRgb getFalseColor(float val);
@@ -113,7 +113,7 @@ class CPhotonMap {
 
     // Reconstruct
     virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,
-                                 BSDF *bsdf, BSDF *inBsdf, BSDF *outBsdf);
+                                 BidirectionalScatteringDistributionFunction *bsdf, BidirectionalScatteringDistributionFunction *inBsdf, BidirectionalScatteringDistributionFunction *outBsdf);
 
     bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                                ColorRgb &diffuseAlbedo,

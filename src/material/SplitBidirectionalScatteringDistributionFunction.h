@@ -45,7 +45,7 @@ class SplitBidirectionalScatteringDistributionFunction {
 
     static void
     splitBsdfProbabilities(
-        const BSDF *bsdf,
+        const BidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         BSDF_FLAGS flags,
         double *texture,
@@ -62,27 +62,27 @@ class SplitBidirectionalScatteringDistributionFunction {
         double *x1);
 
   public:
-    static ColorRgb splitBsdfScatteredPower(const BSDF *bsdf, RayHit *hit, char flags);
-    static int splitBsdfIsTextured(const BSDF *bsdf);
+    static ColorRgb splitBsdfScatteredPower(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
+    static int splitBsdfIsTextured(const BidirectionalScatteringDistributionFunction *bsdf);
 
     static ColorRgb
     evaluate(
-        const BSDF *bsdf,
+        const BidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
-        const BSDF *inBsdf,
-        const BSDF *outBsdf,
+        const BidirectionalScatteringDistributionFunction *inBsdf,
+        const BidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
         const Vector3D *out,
         char flags);
 
-    static void indexOfRefraction(const BSDF *bsdf, RefractionIndex *index);
+    static void indexOfRefraction(const BidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index);
 
     static Vector3D
     sample(
-        const BSDF *bsdf,
+        const BidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
-        const BSDF *inBsdf,
-        const BSDF *outBsdf,
+        const BidirectionalScatteringDistributionFunction *inBsdf,
+        const BidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
         int doRussianRoulette,
         char flags,
@@ -92,10 +92,10 @@ class SplitBidirectionalScatteringDistributionFunction {
 
     static void
     evaluateProbabilityDensityFunction(
-        const BSDF *bsdf,
+        const BidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
-        const BSDF *inBsdf,
-        const BSDF *outBsdf,
+        const BidirectionalScatteringDistributionFunction *inBsdf,
+        const BidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
         const Vector3D *out,
         char flags,

@@ -20,7 +20,7 @@ bool
 CPhotonMapSampler::chooseComponent(
     BSDF_FLAGS flags1,
     BSDF_FLAGS flags2,
-    const BSDF *bsdf,
+    const BidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
     bool doRR,
     double *x,
@@ -83,7 +83,7 @@ CPhotonMapSampler::sample(
     bool doRR,
     BSDF_FLAGS flags)
 {
-    BSDF *bsdf = thisNode->m_useBsdf;
+    BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool sChosen;
     float pdfChoice;
     BSDF_FLAGS sFlagMask;
@@ -146,7 +146,7 @@ CPhotonMapSampler::sample(
 */
 
 static RefractionIndex
-bsdfGeometricIOR(const BSDF *bsdf) {
+bsdfGeometricIOR(const BidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
 
     bsdfIndexOfRefraction(bsdf, &nc);
@@ -176,7 +176,7 @@ chooseFresnelDirection(
 
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
-    const BSDF *bsdf = thisNode->m_useBsdf;
+    const BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
 
     ColorRgb reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
                                                    &thisNode->m_normal);
@@ -383,7 +383,7 @@ CPhotonMapSampler::gdSample(
     // -- Currently NEVER reached!
 
     // Choose G or D
-    BSDF *bsdf = thisNode->m_useBsdf;
+    BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool dChosen;
     float pdfChoice;
 

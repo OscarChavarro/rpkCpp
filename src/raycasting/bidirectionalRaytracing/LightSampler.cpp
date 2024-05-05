@@ -86,8 +86,13 @@ UniformLightSampler::sample(
 
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
-        double pdf;
-        Vector3D dir = edfSample(light->material->edf, &(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
+        double pdf = 0.0;
+        Vector3D dir(0.0f, 0.0f, 0.0f);
+
+        if ( light->material->edf != nullptr ) {
+            dir = light->material->edf->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
+        }
+
         vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         newNode->m_hit.init(light, nullptr, &point, nullptr, light->material, 0.0);
@@ -227,8 +232,13 @@ ImportantLightSampler::sample(
 
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
-        double pdf;
-        Vector3D dir = edfSample(light->material->edf, nullptr, flags, x1, x2, nullptr, &pdf);
+        double pdf = 0.0;
+        Vector3D dir(0.0f, 0.0f, 0.0f);
+
+        if ( light->material->edf != nullptr ) {
+            dir = light->material->edf->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
+        }
+
         vectorAdd(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
 
         newNode->m_hit.init(light, nullptr, &point, nullptr, light->material, 0.0);

@@ -38,11 +38,11 @@ traceWorld(
 
 RayHit *
 findRayIntersection(
-    VoxelGrid *sceneWorldVoxelGrid,
-    Ray *ray,
-    Patch *patch,
-    BSDF *currentBsdf,
-    RayHit *hitStore)
+        VoxelGrid *sceneWorldVoxelGrid,
+        Ray *ray,
+        Patch *patch,
+        BidirectionalScatteringDistributionFunction *currentBsdf,
+        RayHit *hitStore)
 {
     int hitFlags;
     RayHit *newHit;

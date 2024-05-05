@@ -25,6 +25,9 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
     Ns = (float)NsParameter;
 }
 
+PhongEmittanceDistributionFunction::~PhongEmittanceDistributionFunction() {
+}
+
 /**
 Returns emittance, reflectance, transmittance
 */
@@ -114,17 +117,15 @@ by flags. If emitted_radiance is not a null pointer, the emitted radiance along
 the generated direction is returned. If probabilityDensityFunction is not null, the stochasticJacobiProbability density
 of the generated direction is computed and returned in probabilityDensityFunction
 */
-static Vector3D
-phongEdfSample(
-    const PhongEmittanceDistributionFunction *edf,
+Vector3D
+PhongEmittanceDistributionFunction::phongEdfSample(
     RayHit *hit,
     char flags,
     double xi1,
     double xi2,
     ColorRgb *selfEmittedRadiance,
-    double *probabilityDensityFunction)
+    double *probabilityDensityFunction) const
 {
-    Vector3D dir = {0.0, 0.0, 1.0};
     if ( selfEmittedRadiance ) {
         selfEmittedRadiance->clear();
     }
@@ -132,6 +133,7 @@ phongEdfSample(
         *probabilityDensityFunction = 0.0;
     }
 
+    Vector3D dir = {0.0, 0.0, 1.0};
     if ( flags & DIFFUSE_COMPONENT ) {
         double sProbabilityDensityFunction;
         CoordinateSystem coord;
@@ -148,30 +150,11 @@ phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->scaledCopy((1.0f / (float) M_PI), edf->Kd);
+            selfEmittedRadiance->scaledCopy((1.0f / (float) M_PI), Kd);
         }
     }
 
     return dir;
-}
-
-Vector3D
-edfSample(
-    const PhongEmittanceDistributionFunction *edf,
-    RayHit *hit,
-    char flags,
-    double xi1,
-    double xi2,
-    ColorRgb *emittedRadiance,
-    double *probabilityDensityFunction)
-{
-    if ( edf != nullptr ) {
-        return phongEdfSample(edf, hit, flags, xi1, xi2, emittedRadiance, probabilityDensityFunction);
-    } else {
-        Vector3D v = {0.0, 0.0, 0.0};
-        logFatal(-1, "edfSample", "Can't sample EDF");
-        return v;
-    }
 }
 
 /**

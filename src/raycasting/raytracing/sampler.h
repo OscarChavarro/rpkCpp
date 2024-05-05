@@ -104,22 +104,26 @@ class CSurfaceSampler : public Sampler {
     */
     inline ColorRgb
     DoBsdfEval(
-        BSDF *bsdf,
-        RayHit *hit,
-        BSDF *inBsdf,
-        BSDF *outBsdf,
-        Vector3D *in,
-        Vector3D *out,
-        BSDF_FLAGS flags,
-        BsdfComp *bsdfComp) const
+            BidirectionalScatteringDistributionFunction *bsdf,
+            RayHit *hit,
+            BidirectionalScatteringDistributionFunction *inBsdf,
+            BidirectionalScatteringDistributionFunction *outBsdf,
+            Vector3D *in,
+            Vector3D *out,
+            BSDF_FLAGS flags,
+            BsdfComp *bsdfComp) const
     {
         if ( m_computeBsdfComponents ) {
-            return (bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf,
-                                       in, out, flags, *bsdfComp));
+            return bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
         } else {
             bsdfComp->Clear();
-            return (bsdfEval(bsdf, hit, inBsdf, outBsdf,
-                             in, out, flags));
+            ColorRgb radiance;
+            if ( bsdf == nullptr ) {
+                radiance.clear();
+            } else {
+                radiance = SplitBidirectionalScatteringDistributionFunction::evaluate(bsdf, hit, inBsdf, outBsdf, in, out, flags);
+            }
+            return radiance;
         }
     }
 

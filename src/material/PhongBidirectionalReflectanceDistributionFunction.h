@@ -29,6 +29,7 @@ class PhongBidirectionalReflectanceDistributionFunction {
 
   public:
     explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
+    virtual ~PhongBidirectionalReflectanceDistributionFunction();
 
     ColorRgb reflectance(char flags) const;
     ColorRgb evaluate(const Vector3D *in, const Vector3D *out, const Vector3D *normal, char flags) const;

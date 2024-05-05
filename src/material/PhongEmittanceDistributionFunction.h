@@ -1,8 +1,6 @@
 #ifndef __PhongEmittanceDistributionFunctions__
 #define __PhongEmittanceDistributionFunctions__
 
-#include <cstdio>
-
 #include "material/RayHit.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
@@ -10,21 +8,17 @@
 Emittance Distribution Functions: the self-emitted radiance
 distribution of light sources
 */
-
-/**
-If a new implementation of EmittanceDistributionFunctions is needed, this class will be
-just an implementation of that interface.
-*/
 class PhongEmittanceDistributionFunction {
-  public:
+  private:
     ColorRgb Kd;
     ColorRgb kd;
     ColorRgb Ks;
     float Ns;
 
-    PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
+  public:
+    explicit PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
+    virtual ~PhongEmittanceDistributionFunction();
 
-    ColorRgb phongEmittance(const RayHit * /*hit*/, char flags) const;
     static bool edfIsTextured();
 
     static bool
@@ -34,22 +28,24 @@ class PhongEmittanceDistributionFunction {
         const Vector3D *Y,
         const Vector3D *Z);
 
+    ColorRgb phongEmittance(const RayHit * /*hit*/, char flags) const;
+
     ColorRgb
     phongEdfEval(
         RayHit *hit,
         const Vector3D *out,
         char flags,
         double *probabilityDensityFunction) const;
-};
 
-extern Vector3D
-edfSample(
-    const PhongEmittanceDistributionFunction *edf,
-    RayHit *hit,
-    char flags,
-    double xi1,
-    double xi2,
-    ColorRgb *emittedRadiance,
-    double *probabilityDensityFunction);
+    Vector3D
+    phongEdfSample(
+        RayHit *hit,
+        char flags,
+        double xi1,
+        double xi2,
+        ColorRgb *selfEmittedRadiance,
+        double *probabilityDensityFunction) const ;
+
+};
 
 #endif

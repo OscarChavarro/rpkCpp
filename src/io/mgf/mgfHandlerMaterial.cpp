@@ -231,7 +231,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
             globalMgfCurrentMaterial->ni);
     }
 
-    BSDF *bsdf = new BSDF(brdf, btdf, nullptr);
+    BidirectionalScatteringDistributionFunction *bsdf = new BidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
 
     (*material) = materialCreate(
         materialName,

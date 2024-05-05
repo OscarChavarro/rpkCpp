@@ -17,6 +17,9 @@ PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmitt
     refractionIndex.ni = inNi;
 }
 
+PhongBidirectionalTransmittanceDistributionFunction::~PhongBidirectionalTransmittanceDistributionFunction() {
+}
+
 ColorRgb
 PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
     ColorRgb result;

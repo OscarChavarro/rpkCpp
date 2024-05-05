@@ -70,7 +70,7 @@ account potential texturing
 */
 void
 SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
-    const BSDF *bsdf,
+    const BidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
     BSDF_FLAGS flags,
     double *texture,
@@ -130,7 +130,7 @@ Returns the scattered power (diffuse/glossy/specular
 reflectance and/or transmittance) according to flags
 */
 ColorRgb
-SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const BSDF *bsdf, RayHit *hit, char flags) {
+SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb albedo;
     albedo.clear();
 
@@ -158,16 +158,27 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const 
 }
 
 void
-SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(const BSDF *bsdf, RefractionIndex *index) {
+SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(const BidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index) {
     btdfIndexOfRefraction(bsdf->btdf, index);
 }
 
+/**
+Bsdf evaluations
+All components of the Bsdf
+
+Vector directions :
+
+in: from patch
+out: from patch
+hit->normal : leaving from patch, on the incoming side.
+         So in . hit->normal > 0!
+*/
 ColorRgb
 SplitBidirectionalScatteringDistributionFunction::evaluate(
-    const BSDF *bsdf,
+    const BidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
-    const BSDF *inBsdf,
-    const BSDF *outBsdf,
+    const BidirectionalScatteringDistributionFunction *inBsdf,
+    const BidirectionalScatteringDistributionFunction *outBsdf,
     const Vector3D *in,
     const Vector3D *out,
     char flags)
@@ -210,10 +221,10 @@ SplitBidirectionalScatteringDistributionFunction::evaluate(
 
 Vector3D
 SplitBidirectionalScatteringDistributionFunction::sample(
-    const BSDF *bsdf,
+    const BidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
-    const BSDF *inBsdf,
-    const BSDF *outBsdf,
+    const BidirectionalScatteringDistributionFunction *inBsdf,
+    const BidirectionalScatteringDistributionFunction *outBsdf,
     const Vector3D *in,
     int doRussianRoulette,
     char flags,
@@ -338,10 +349,10 @@ the pdf will be 0 upon return
 */
 void
 SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
-    const BSDF *bsdf,
+    const BidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
-    const BSDF *inBsdf,
-    const BSDF *outBsdf,
+    const BidirectionalScatteringDistributionFunction *inBsdf,
+    const BidirectionalScatteringDistributionFunction *outBsdf,
     const Vector3D *in,
     const Vector3D *out,
     char flags,
@@ -406,6 +417,6 @@ SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
 }
 
 int
-SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(const BSDF *bsdf) {
+SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(const BidirectionalScatteringDistributionFunction *bsdf) {
     return bsdf->texture != nullptr;
 }

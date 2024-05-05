@@ -66,9 +66,9 @@ class SimpleRaytracingPathNode {
     // one to check immediately if any previous node in the path had a certain
     // scattering component used. accUsed = prev->used | prev->accUsed
 
-    BSDF *m_useBsdf; // bsdf used for scattering
-    BSDF *m_inBsdf; // Medium of incoming ray
-    BSDF *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
+    BidirectionalScatteringDistributionFunction *m_useBsdf; // bsdf used for scattering
+    BidirectionalScatteringDistributionFunction *m_inBsdf; // Medium of incoming ray
+    BidirectionalScatteringDistributionFunction *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
     PathRayType m_rayType;
     int m_depth; // First node in a path has depth 0
 
@@ -101,7 +101,7 @@ class SimpleRaytracingPathNode {
         }
     }
 
-    BSDF *getPreviousBsdf(); // Searches backwards for matching node
+    BidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
     void print(FILE *out);

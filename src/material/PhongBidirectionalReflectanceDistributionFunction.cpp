@@ -47,6 +47,9 @@ PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectance
     Ns = (float)inNs;
 }
 
+PhongBidirectionalReflectanceDistributionFunction::~PhongBidirectionalReflectanceDistributionFunction() {
+}
+
 /**
 Returns the diffuse reflectance of the BRDF according to the flags
 */

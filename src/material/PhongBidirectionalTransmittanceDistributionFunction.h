@@ -20,7 +20,8 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     RefractionIndex refractionIndex;
 
   public:
-    PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
+    explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
+    virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
     ColorRgb transmittance(char flags) const;
     void indexOfRefraction(RefractionIndex *index) const;

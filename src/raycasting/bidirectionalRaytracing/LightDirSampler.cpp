@@ -21,7 +21,7 @@ LightDirSampler::sample(
     bool /* doRR */doRR,
     BSDF_FLAGS /* flags */flags)
 {
-    double pdfDir;
+    double pdfDir = 0.0;
 
     if ( !thisNode->m_hit.material->edf ) {
         logError("CLightDirSampler::sample", "No EDF");
@@ -29,10 +29,10 @@ LightDirSampler::sample(
     }
 
     // Sample a light direction
-    Vector3D dir = edfSample(thisNode->m_hit.material->edf,
-                             &thisNode->m_hit, DIFFUSE_COMPONENT,
-                             x1, x2, &thisNode->m_bsdfEval,
-                             &pdfDir);
+    Vector3D dir(0.0f, 0.0f, 0.0f);
+    if ( thisNode->m_hit.material->edf != nullptr ) {
+        dir = thisNode->m_hit.material->edf->phongEdfSample(&thisNode->m_hit, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
+    }
 
     if ( pdfDir < EPSILON ) {
         return false;
@@ -48,12 +48,7 @@ LightDirSampler::sample(
         return false;
     }
 
-    // thisNode->m_bsdfEval = EdfEval(thisNode->m_hit.material->edf,
-    // &thisNode->m_hit,
-    // &(newNode->m_inDirT),
-    // DIFFUSE_COMPONENT, (double *)0);
-
-    /* -- Diffuse lights only, put this correctly in 'DoBsdfEval' -- */
+    // Diffuse lights only, put this correctly in 'bsdfEval'
     thisNode->m_bsdfComp.Clear();
     thisNode->m_bsdfComp.Fill(thisNode->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
 

@@ -66,7 +66,7 @@ nextLightSample(Patch *patch, double *zeta) {
 }
 
 static Ray
-sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dir_selection_pdf) {
+sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
     Ray ray;
     do {
         double zeta[4];
@@ -76,29 +76,36 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
         patch->uniformPoint(zeta[0], zeta[1], &ray.pos);
 
         hit.init(patch, nullptr, &ray.pos, &patch->normal, patch->material, 0.0);
-        ray.dir = edfSample(patch->material->edf, &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad,
-                            dir_selection_pdf);
-    } while ( *dir_selection_pdf == 0.0 );
+        *dirSelectionPdf = 0.0;
+        ray.dir.x = 0.0;
+        ray.dir.y = 0.0;
+        ray.dir.z = 0.0;
+        if ( patch->material->edf != nullptr ) {
+            ray.dir = patch->material->edf->phongEdfSample(
+                &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+        }
+    } while ( *dirSelectionPdf == 0.0 );
 
-    /* The following is only correct if no rejections would result in the */
-    /* loop above, i.o.w. the surface is not textured, or it is textured, but there */
-    /* are no areas that are non-self emitting. */
-    *point_selection_pdf = 1. / patch->area;  /* uniform area sampling */
+    // The following is only correct if no rejections would result in the
+    // loop above, i.o.w. the surface is not textured, or it is textured, but there
+    // are no areas that are non-self emitting
+    *point_selection_pdf = 1.0 / patch->area;  // Uniform area sampling
     return ray;
 }
 
 static void
 sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
     ColorRgb rad;
-    double point_selection_pdf, dir_selection_pdf;
-    Ray ray = sampleLightRay(light->patch, &rad, &point_selection_pdf, &dir_selection_pdf);
+    double pointSelectionPdf;
+    double dirSelectionPdf;
+    Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
     RayHit hitStore;
     RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
     hit = mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
-        double pdf = light_selection_pdf * point_selection_pdf * dir_selection_pdf;
+        double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = vectorDotProduct(ray.dir, light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgb Rd = topLevelStochasticRadiosityElement(hit->patch)->Rd;
