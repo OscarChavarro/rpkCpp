@@ -4,7 +4,7 @@ be nullptr
 */
 
 #include "common/error.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/splitbsdf.h"
 
 // Texture modulates diffuse reflection
@@ -48,9 +48,9 @@ Albedo is assumed to be 1
 */
 static Vector3D
 texturedScattererSample(const Vector3D * /*in*/, const Vector3D *normal, double x1, double x2, double *probabilityDensityFunction) {
-    CoordSys coord;
-    vectorCoordSys(normal, &coord);
-    return sampleHemisphereCosTheta(&coord, x1, x2, probabilityDensityFunction);
+    CoordinateSystem coord;
+    coord.setFromZAxis(normal);
+    return coord.sampleHemisphereCosTheta(x1, x2, probabilityDensityFunction);
 }
 
 static void

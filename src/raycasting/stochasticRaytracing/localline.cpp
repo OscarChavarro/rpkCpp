@@ -3,7 +3,7 @@ Generate and trace a local line
 */
 
 #include "common/mymath.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 
@@ -11,7 +11,7 @@ Generate and trace a local line
 Creates a coordinate system on the patch P with Z direction along the normal
 */
 static void
-patchCoordSys(Patch *patch, CoordSys *coord) {
+patchCoordSys(Patch *patch, CoordinateSystem *coord) {
     coord->Z = patch->normal;
     vectorSubtract(*patch->vertex[1]->point, *patch->vertex[0]->point, coord->X);
     vectorNormalize(coord->X);
@@ -26,7 +26,7 @@ by the 4-dimensional sample vector xi
 Ray
 mcrGenerateLocalLine(Patch *patch, double *xi) {
     static Patch *previousPatch = nullptr;
-    static CoordSys coordSys;
+    static CoordinateSystem coordSys;
     Ray ray;
     double pdf;
 
@@ -38,7 +38,7 @@ mcrGenerateLocalLine(Patch *patch, double *xi) {
     }
 
     patch->uniformPoint(xi[0], xi[1], &ray.pos);
-    ray.dir = sampleHemisphereCosTheta(&coordSys, xi[2], xi[3], &pdf);
+    ray.dir = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf);
 
     return ray;
 }

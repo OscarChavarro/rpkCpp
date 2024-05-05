@@ -397,11 +397,11 @@ CPhotonMapSampler::gdSample(
 
     // Importance sampling using photon map x_1 & x_2 get transformed
 
-    CoordSys coord;
+    CoordinateSystem coord;
     float glossy_exponent;
 
     if ( dChosen ) {
-        vectorCoordSys(&thisNode->m_normal, &coord);
+        coord.setFromZAxis(&thisNode->m_normal);
         glossy_exponent = 1;
         flags = BRDF_DIFFUSE_COMPONENT;
     } else {

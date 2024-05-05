@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "common/error.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 

@@ -1,6 +1,6 @@
 #include "common/error.h"
 #include "material/PhongEmittanceDistributionFunction.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 
 /**
 Creates Phong type EDF, BRDF, BTDF data structs:
@@ -163,7 +163,7 @@ phongEdfSample(
 
     if ( flags & DIFFUSE_COMPONENT ) {
         double sProbabilityDensityFunction;
-        CoordSys coord;
+        CoordinateSystem coord;
 
         Vector3D normal;
         if ( !hit->shadingNormal(&normal) ) {
@@ -171,8 +171,8 @@ phongEdfSample(
             return dir;
         }
 
-        vectorCoordSys(&normal, &coord);
-        dir = sampleHemisphereCosTheta(&coord, xi1, xi2, &sProbabilityDensityFunction);
+        coord.setFromZAxis(&normal);
+        dir = coord.sampleHemisphereCosTheta(xi1, xi2, &sProbabilityDensityFunction);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }

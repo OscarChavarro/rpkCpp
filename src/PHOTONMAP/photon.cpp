@@ -1,14 +1,13 @@
 #include "PHOTONMAP/photon.h"
 #include "common/error.h"
 
-void CPhoton::FindRS(double *r, double *s, CoordSys *coord,
+void CPhoton::FindRS(double *r, double *s, CoordinateSystem *coord,
                      BSDF_FLAGS flag, float n) {
     double phi;
     double theta;
 
     // Determine angles
-
-    vectorToSphericalCoord(&m_dir, coord, &phi, &theta);
+    coord->rectangularToSphericalCoord(&m_dir, &phi, &theta);
 
     // Compute r,s
 

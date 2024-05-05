@@ -3,7 +3,7 @@ Phong-type EDFs, BRDFs, BTDFs
 */
 
 #include "common/error.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/phong.h"
 
 /**
@@ -200,7 +200,7 @@ phongBrdfSample(
     double avgKd;
     double avgKs;
     float tmpFloat;
-    CoordSys coord;
+    CoordinateSystem coord;
     char nonDiffuseFlag;
     Vector3D inRev;
     vectorScale(-1.0, *in, inRev);
@@ -248,8 +248,8 @@ phongBrdfSample(
         // Sample diffuse
         x1 = x1 / (avgKd / scatteredPower);
 
-        vectorCoordSys(normal, &coord);
-        newDir = sampleHemisphereCosTheta(&coord, x1, x2, &diffPdf);
+        coord.setFromZAxis(normal);
+        newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
@@ -263,9 +263,8 @@ phongBrdfSample(
         // Sample specular
         x1 = (x1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
-        vectorCoordSys(&idealDir, &coord);
-        newDir = sampleHemisphereCosNTheta(&coord, brdf->Ns, x1, x2,
-                                           &nonDiffPdf);
+        coord.setFromZAxis(&idealDir);
+        newDir = coord.sampleHemisphereCosNTheta(brdf->Ns, x1, x2, &nonDiffPdf);
 
         cosTheta = vectorDotProduct(*normal, newDir);
         if ( cosTheta <= 0 ) {
@@ -459,7 +458,7 @@ phongBtdfSample(
     bool totalIR;
     Vector3D idealDir;
     Vector3D invNormal;
-    CoordSys coord;
+    CoordinateSystem coord;
     double cosTheta;
     double avgKd;
     double avgKs;
@@ -516,9 +515,9 @@ phongBtdfSample(
         // Sample diffuse
         x1 = x1 / (avgKd / scatteredPower);
 
-        vectorCoordSys(&invNormal, &coord);
+        coord.setFromZAxis(&invNormal);
 
-        newDir = sampleHemisphereCosTheta(&coord, x1, x2, &diffPdf);
+        newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
         tmpFloat = vectorDotProduct(idealDir, newDir);
 
@@ -532,9 +531,8 @@ phongBtdfSample(
         // Sample specular
         x1 = (x1 - (avgKd / scatteredPower)) / (avgKs / scatteredPower);
 
-        vectorCoordSys(&idealDir, &coord);
-        newDir = sampleHemisphereCosNTheta(&coord, btdf->Ns, x1, x2,
-                                           &nonDiffPdf);
+        coord.setFromZAxis(&idealDir);
+        newDir = coord.sampleHemisphereCosNTheta(btdf->Ns, x1, x2, &nonDiffPdf);
 
         cosTheta = vectorDotProduct(*normal, newDir);
         if ( cosTheta > 0 ) {

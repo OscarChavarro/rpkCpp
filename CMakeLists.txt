@@ -28,6 +28,7 @@ set(MAIN_SRC
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
     src/common/linealAlgebra/Vector3Dd.cpp
+    src/common/linealAlgebra/CoordinateSystem.cpp
     src/common/numericalAnalysis/CubatureRule.cpp
     src/common/dataStructures/CircularList.cpp
     src/common/dataStructures/KDTree.cpp
@@ -44,7 +45,6 @@ set(MAIN_SRC
     src/material/PhongEmittanceDistributionFunction.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
-    src/material/spherical.cpp
     src/material/splitbsdf.cpp
     src/material/phong.cpp
     src/skin/PatchSet.cpp

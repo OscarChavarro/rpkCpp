@@ -459,12 +459,12 @@ CPhotonMap::GetDensityColor(RayHit &hit) {
 
 double
 CPhotonMap::Sample(
-    Vector3D &pos,
-    double *r,
-    double *s,
-    CoordSys *coord,
-    BSDF_FLAGS flag,
-    float n)
+        Vector3D &pos,
+        double *r,
+        double *s,
+        CoordinateSystem *coord,
+        BSDF_FLAGS flag,
+        float n)
 {
     ColorRgb color;
 

@@ -3,7 +3,7 @@
 
 #include "common/ColorRgb.h"
 #include "material/bsdf.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/photon.h"
 #include "PHOTONMAP/samplegrid.h"
@@ -136,7 +136,7 @@ class CPhotonMap {
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
 
-    double Sample(Vector3D &pos, double *r, double *s, CoordSys *coord,
+    double Sample(Vector3D &pos, double *r, double *s, CoordinateSystem *coord,
                   BSDF_FLAGS flag, float n = 1);
 
     // Utility functions

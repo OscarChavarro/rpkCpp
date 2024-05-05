@@ -9,7 +9,7 @@ Data structure for individual photons
 
 #include "common/ColorRgb.h"
 #include "common/mymath.h"
-#include "material/spherical.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "material/xxdf.h"
 
@@ -61,7 +61,7 @@ class CPhoton {
     // Importance sampling utility functions
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
-    void FindRS(double *r, double *s, CoordSys *coord, BSDF_FLAGS flag, float n);
+    void FindRS(double *r, double *s, CoordinateSystem *coord, BSDF_FLAGS flag, float n);
 };
 
 
