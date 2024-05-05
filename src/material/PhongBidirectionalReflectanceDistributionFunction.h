@@ -11,6 +11,14 @@ Choice is arbitrary for the moment.
 #define PHONG_LOWEST_SPECULAR_EXP 250
 #define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
 
+/**
+BRDF evaluation functions :
+  Vector3D in : incoming ray direction (to patch)
+  Vector3D out : reflected ray direction (from patch)
+  Vector3D normal : normal vector
+  char flags : flags indicating which components must be
+    evaluated
+*/
 class PhongBidirectionalReflectanceDistributionFunction {
   private:
     ColorRgb Kd;

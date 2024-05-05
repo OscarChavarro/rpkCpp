@@ -40,15 +40,14 @@ set(MAIN_SRC
     src/QMC/sobol.cpp
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
-    src/material/brdf.cpp
     src/material/xxdf.cpp
     src/material/btdf.cpp
     src/material/PhongEmittanceDistributionFunction.cpp
     src/material/bsdf.cpp
     src/material/Material.cpp
-    src/material/splitbsdf.cpp
     src/material/PhongBidirectionalReflectanceDistributionFunction.cpp
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp
+    src/material/SplitBidirectionalScatteringDistributionFunction.cpp
     src/skin/PatchSet.cpp
     src/skin/RayHit.cpp
     src/skin/Compound.cpp

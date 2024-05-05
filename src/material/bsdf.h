@@ -16,10 +16,8 @@ light scattering.
 #include "material/RayHit.h"
 #include "material/xxdf.h"
 #include "material/Texture.h"
-#include "material/brdf.h"
 #include "material/btdf.h"
-
-class SPLIT_BSDF;
+#include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 
 class BSDF {
   public:
@@ -114,6 +112,6 @@ bsdfEvalPdf(
 
 extern int bsdfIsTextured(const BSDF *bsdf);
 
-#include "material/splitbsdf.h"
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
 
 #endif

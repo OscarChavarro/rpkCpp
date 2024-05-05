@@ -3,7 +3,7 @@ Bidirectional Reflectance Distribution Functions
 */
 
 #include "material/bsdf.h"
-#include "material/splitbsdf.h"
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
 
 
 /**
@@ -43,7 +43,7 @@ bsdfScatteredPower(const BSDF *bsdf, RayHit *hit, const Vector3D * /*inDir*/, co
     ColorRgb reflectionColor;
     reflectionColor.clear();
     if ( bsdf != nullptr ) {
-        reflectionColor = splitBsdfScatteredPower(bsdf, hit, flags);
+        reflectionColor = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags);
     }
     return reflectionColor;
 }
@@ -51,7 +51,7 @@ bsdfScatteredPower(const BSDF *bsdf, RayHit *hit, const Vector3D * /*inDir*/, co
 int
 bsdfIsTextured(const BSDF *bsdf) {
     if ( bsdf != nullptr ) {
-        return splitBsdfIsTextured(bsdf);
+        return SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(bsdf);
     }
     return false;
 }
@@ -63,7 +63,7 @@ hit point ("brush" direction relevant for anisotropic shaders e.g.). Y
 is perpendicular to X and Z. X and Y may be null pointers. In this case,
 only the shading normal is returned, avoiding computation of the X and
 Y axis if possible).
-Note: also edf's can have a routine for computing the shading frame. If a
+Note: edf can have also a routine for computing the shading frame. If a
 material has both an edf and a bsdf, the shading frame shall of course
 be the same.
 This routine returns TRUE if a shading frame could be constructed and FALSE if
@@ -73,7 +73,7 @@ needed)
 */
 bool
 bsdfShadingFrame(const BSDF * /*bsdf*/, const RayHit * /*hit*/, const Vector3D * /*X*/, const Vector3D * /*Y*/, const Vector3D * /*Z*/) {
-    //return bsdf->methods->shadingFrame(bsdf->data, hit, X, Y, Z);
+    // Not implemented, should call to bsdf->methods->shadingFrame or something like that
     return false;
 }
 
@@ -83,10 +83,10 @@ Returns the index of refraction of the BSDF
 void
 bsdfIndexOfRefraction(const BSDF *bsdf, RefractionIndex *index) {
     if ( bsdf != nullptr ) {
-        splitBsdfIndexOfRefraction(bsdf, index);
+        SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, index);
     } else {
         index->nr = 1.0;
-        index->ni = 0.0; /* Vacuum */
+        index->ni = 0.0; // Vacuum
     }
 }
 
@@ -96,10 +96,10 @@ All components of the Bsdf
 
 Vector directions :
 
-in : from patch !!
-out : from patch
+in: from patch
+out: from patch
 hit->normal : leaving from patch, on the incoming side.
-         So in . hit->normal > 0 !!!
+         So in . hit->normal > 0!
 */
 ColorRgb
 bsdfEval(
@@ -111,7 +111,7 @@ bsdfEval(
     const Vector3D *out,
     const char flags) {
     if ( bsdf != nullptr ) {
-        return splitBsdfEval(bsdf, hit, inBsdf, outBsdf, in, out, flags);
+        return SplitBidirectionalScatteringDistributionFunction::evaluate(bsdf, hit, inBsdf, outBsdf, in, out, flags);
     } else {
         ColorRgb reflectionColor;
         reflectionColor.clear();
@@ -178,8 +178,8 @@ bsdfSample(
     double *probabilityDensityFunction)
 {
     if ( bsdf != nullptr ) {
-        return splitBsdfSample(bsdf, hit, inBsdf, outBsdf, in,
-                                     doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
+        return SplitBidirectionalScatteringDistributionFunction::sample(
+                bsdf, hit, inBsdf, outBsdf, in, doRussianRoulette, flags, x_1, x_2, probabilityDensityFunction);
     } else {
         Vector3D dummy = {0.0, 0.0, 0.0};
         *probabilityDensityFunction = 0;
@@ -200,8 +200,8 @@ bsdfEvalPdf(
     double *probabilityDensityFunctionRR)
 {
     if ( bsdf != nullptr ) {
-        splitBsdfEvalPdf(bsdf, hit, inBsdf, outBsdf, in, out,
-                               flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+        SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+                bsdf, hit, inBsdf, outBsdf, in, out, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
     } else {
         *probabilityDensityFunction = 0;
     }

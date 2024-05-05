@@ -3,7 +3,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
-#include "material/splitbsdf.h"
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/words.h"
