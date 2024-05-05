@@ -28,22 +28,22 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
 /**
 Returns emittance, reflectance, transmittance
 */
-static ColorRgb
-phongEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit * /*hit*/, const char flags) {
+ColorRgb
+PhongEmittanceDistributionFunction::phongEmittance(const RayHit * /*hit*/, const char flags) const {
     ColorRgb result;
 
     result.clear();
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, edf->Kd);
+        result.add(result, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*edf) ) {
+    if ( PHONG_IS_SPECULAR(*this) ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, edf->Ks);
+            result.add(result, Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, edf->Ks);
+            result.add(result, Ks);
         }
     }
 
@@ -53,16 +53,6 @@ phongEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit * /*h
 /**
 Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
-ColorRgb
-edfEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit *hit, char flags) {
-    if ( edf != nullptr ) {
-        return phongEmittance(edf, hit, flags);
-    } else {
-        ColorRgb emit;
-        emit.clear();
-        return emit;
-    }
-}
 
 bool
 edfIsTextured(const PhongEmittanceDistributionFunction * /*edf*/) {

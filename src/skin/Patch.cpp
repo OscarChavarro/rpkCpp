@@ -747,7 +747,12 @@ Patch::averageEmittance(char components) {
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
-        sample = edfEmittance(material->edf, &hit, components);
+
+        if ( material->edf == nullptr ) {
+            sample.clear();
+        } else {
+            sample = material->edf->phongEmittance(&hit, components);
+        }
         emittance.add(emittance, sample);
     }
     emittance.scaleInverse((float) numberOfSamples, emittance);

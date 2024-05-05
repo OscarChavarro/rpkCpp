@@ -23,9 +23,9 @@ class PhongEmittanceDistributionFunction {
     float Ns;
 
     PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
+    ColorRgb phongEmittance(const RayHit * /*hit*/, const char flags) const;
 };
 
-extern ColorRgb edfEmittance(const PhongEmittanceDistributionFunction *edf, const RayHit *hit, char flags);
 extern bool edfIsTextured(const PhongEmittanceDistributionFunction *edf);
 
 extern ColorRgb

@@ -21,7 +21,12 @@ LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches)
 
                 // calc emittedFlux
                 if ( light->hasZeroVertices() ) {
-                    ColorRgb e = edfEmittance(light->material->edf, nullptr, DIFFUSE_COMPONENT);
+                    ColorRgb e;
+                    if ( light->material->edf == nullptr ) {
+                        e.clear();
+                    } else {
+                        e = light->material->edf->phongEmittance(nullptr, DIFFUSE_COMPONENT);
+                    }
                     info.emittedFlux = e.average();
                 } else {
                     lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
@@ -96,7 +101,12 @@ LightList::evalPdfVirtual(Patch *light, Vector3D */*point*/) const {
     // Prob for choosing this light
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    ColorRgb e = edfEmittance(light->material->edf, nullptr, all);
+    ColorRgb e;
+    if ( light->material->edf = nullptr) {
+        e.clear();
+    } else {
+        e = light->material->edf->phongEmittance(nullptr, all);
+    }
     probabilityDensityFunction = e.average() / totalFlux;
 
     return probabilityDensityFunction;
@@ -142,7 +152,13 @@ LightList::computeOneLightImportanceVirtual(Patch *light,
     // ComputeOneLightImportance for virtual patches
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    ColorRgb e = edfEmittance(light->material->edf, nullptr, all);
+    ColorRgb e;
+
+    if ( light->material->edf == nullptr ) {
+        e.clear();
+    } else {
+        e = light->material->edf->phongEmittance(nullptr, all);
+    }
     return e.average();
 }
 

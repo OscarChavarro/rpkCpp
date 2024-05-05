@@ -79,14 +79,10 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     char *brdfFlags,
     char *btdfFlags)
 {
-    ColorRgb textureColor;
-    ColorRgb reflectance;
-    ColorRgb transmittance;
-
     *texture = 0.0;
     if ( bsdf->texture && (flags & TEXTURED_COMPONENT) ) {
-        // bsdf has a texture for diffuse reflection and diffuse reflection
-        // needs to be sampled
+        // bsdf has a texture for diffuse reflection and diffuse reflection needs to be sampled
+        ColorRgb textureColor;
         textureColor = SplitBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(bsdf->texture, hit);
         *texture = textureColor.average();
         flags &= ~TEXTURED_COMPONENT;
@@ -95,6 +91,7 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     *brdfFlags = GET_BRDF_FLAGS(flags);
     *btdfFlags = GET_BTDF_FLAGS(flags);
 
+    ColorRgb reflectance;
     if ( bsdf->brdf == nullptr ) {
         reflectance.clear();
     } else {
@@ -102,7 +99,7 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     }
     *reflection = reflectance.average();
 
-    transmittance = btdfTransmittance(bsdf->btdf, *btdfFlags);
+    ColorRgb transmittance = btdfTransmittance(bsdf->btdf, *btdfFlags);
     *transmission = transmittance.average();
 }
 
@@ -224,18 +221,7 @@ SplitBidirectionalScatteringDistributionFunction::sample(
     double x2,
     double *probabilityDensityFunction)
 {
-    double texture;
-    double reflection;
-    double transmission;
-    double scattering;
-    double p;
-    double pRR;
-    RefractionIndex inIndex{};
-    RefractionIndex outIndex{};
-    char brdfFlags;
-    char btdfFlags;
     Vector3D normal;
-    SplitBSDFSamplingMode mode;
     Vector3D out;
 
     *probabilityDensityFunction = 0; // So we can return safely
@@ -247,6 +233,11 @@ SplitBidirectionalScatteringDistributionFunction::sample(
 
     // Calculate probabilities for sampling the texture, reflection minus texture,
     // and transmission. Also fills in correct b[r|t]dfFlags
+    double texture;
+    double reflection;
+    double transmission;
+    char brdfFlags;
+    char btdfFlags;
     SplitBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
         bsdf,
         hit,
@@ -256,7 +247,8 @@ SplitBidirectionalScatteringDistributionFunction::sample(
         &transmission,
         &brdfFlags,
         &btdfFlags);
-    scattering = texture + reflection + transmission;
+
+    double scattering = texture + reflection + transmission;
     if ( scattering < EPSILON ) {
         return out;
     }
@@ -269,13 +261,17 @@ SplitBidirectionalScatteringDistributionFunction::sample(
         reflection /= scattering;
         transmission /= scattering;
     }
-    mode = SplitBidirectionalScatteringDistributionFunction::splitBsdfSamplingMode(
+
+    SplitBSDFSamplingMode mode = SplitBidirectionalScatteringDistributionFunction::splitBsdfSamplingMode(
         texture, reflection, transmission, &x1);
+    RefractionIndex inIndex{};
+    RefractionIndex outIndex{};
 
     bsdfIndexOfRefraction(inBsdf, &inIndex);
     bsdfIndexOfRefraction(outBsdf, &outIndex);
 
     // Sample according to the selected mode
+    double p;
     switch ( mode ) {
         case SplitBSDFSamplingMode::SAMPLE_TEXTURE:
             out = SplitBidirectionalScatteringDistributionFunction::texturedScattererSample(in, &normal, x1, x2, &p);
@@ -314,6 +310,8 @@ SplitBidirectionalScatteringDistributionFunction::sample(
         SplitBidirectionalScatteringDistributionFunction::texturedScattererEvalPdf(in, &out, &normal, &p);
         *probabilityDensityFunction += texture * p;
     }
+
+    double pRR;
     if ( mode != SplitBSDFSamplingMode::SAMPLE_REFLECTION ) {
         if ( bsdf->brdf == nullptr ) {
             p = 0.0;
