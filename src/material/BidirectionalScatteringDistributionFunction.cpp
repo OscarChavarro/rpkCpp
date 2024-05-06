@@ -5,7 +5,6 @@ Bidirectional Reflectance Distribution Functions
 #include "material/BidirectionalScatteringDistributionFunction.h"
 #include "material/SplitBidirectionalScatteringDistributionFunction.h"
 
-
 /**
 Creates a BSDF instance with given data and methods
 */
@@ -39,7 +38,11 @@ BidirectionalScatteringDistributionFunction::~BidirectionalScatteringDistributio
 Returns the scattered power of the BSDF, depending on the flags
 */
 ColorRgb
-bsdfScatteredPower(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, const Vector3D * /*inDir*/, const char flags) {
+bsdfScatteredPower(
+    const BidirectionalScatteringDistributionFunction *bsdf,
+    RayHit *hit,
+    const Vector3D * /*inDir*/,
+    const char flags) {
     ColorRgb reflectionColor;
     reflectionColor.clear();
     if ( bsdf != nullptr ) {
@@ -85,8 +88,8 @@ bsdfIndexOfRefraction(const BidirectionalScatteringDistributionFunction *bsdf, R
     if ( bsdf != nullptr ) {
         SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, index);
     } else {
-        index->nr = 1.0;
-        index->ni = 0.0; // Vacuum
+        index->nr = 1.0; // Vacuum
+        index->ni = 0.0;
     }
 }
 

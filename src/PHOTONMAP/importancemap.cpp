@@ -83,7 +83,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &norm
 
     float density;
 
-    CheckNBalance();
+    checkNBalance();
 
     if ( m_precomputeIrradiance ) {
         if ( !m_irradianceComputed || (m_preReconPhotons != *m_estimate_nrp))

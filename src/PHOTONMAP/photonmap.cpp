@@ -1,10 +1,16 @@
 #include "common/error.h"
 #include "common/Statistics.h"
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
 #include "PHOTONMAP/photonmap.h"
 
 bool
-zeroAlbedo(BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
-    ColorRgb color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags);
+zeroAlbedo(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
+    ColorRgb color;
+    if ( bsdf == nullptr ) {
+        color.clear();
+    } else {
+        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags);
+    }
     return (color.average() < EPSILON);
 }
 
@@ -342,8 +348,13 @@ CPhotonMap::IrradianceReconstruct(
 }
 
 ColorRgb
-CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
-                        BidirectionalScatteringDistributionFunction *bsdf, BidirectionalScatteringDistributionFunction *inBsdf, BidirectionalScatteringDistributionFunction *outBsdf) {
+CPhotonMap::Reconstruct(
+    RayHit *hit,
+    Vector3D &outDir,
+    BidirectionalScatteringDistributionFunction *bsdf,
+    BidirectionalScatteringDistributionFunction *inBsdf,
+    BidirectionalScatteringDistributionFunction *outBsdf)
+{
     // Find the nearest photons
     float maxDistance;
     ColorRgb result;
@@ -354,13 +365,21 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     result.clear();
 
-    ColorRgb diffuseAlbedo, glossyAlbedo;
+    ColorRgb diffuseAlbedo;
+    ColorRgb glossyAlbedo;
 
-    diffuseAlbedo = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, BRDF_DIFFUSE_COMPONENT);
-    // -- TODO Irradiance pre-computation for diffuse transmission
-    glossyAlbedo = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+    diffuseAlbedo.clear();
+    glossyAlbedo.clear();
 
-    CheckNBalance();
+    if ( bsdf != nullptr ) {
+        diffuseAlbedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            bsdf, hit, BRDF_DIFFUSE_COMPONENT);
+        // -- TODO Irradiance pre-computation for diffuse transmission
+        glossyAlbedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            bsdf, hit, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+    }
+
+    checkNBalance();
 
     if ( glossyAlbedo.average() < EPSILON ) {
         if ( diffuseAlbedo.average() < EPSILON ) {
@@ -379,7 +398,7 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
 
     // Normal reconstruct...
 
-    // locate nearest photons using a max radius limit
+    // Locate nearest photons using a max radius limit
     m_nrpFound = DoQuery(&hit->point);
 
     if ( m_nrpFound < 3 ) {
@@ -387,7 +406,6 @@ CPhotonMap::Reconstruct(RayHit *hit, Vector3D &outDir,
     }
 
     // Construct radiance estimate
-
     maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {

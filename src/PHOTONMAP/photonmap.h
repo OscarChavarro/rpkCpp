@@ -9,7 +9,7 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool zeroAlbedo(BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
+bool zeroAlbedo(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 ColorRgb getFalseColor(float val);
@@ -155,7 +155,7 @@ class CPhotonMap {
         m_kdtree->balance();
     }
 
-    void CheckNBalance() {
+    void checkNBalance() {
         if ((!m_balanced) && (m_doBalancing || m_precomputeIrradiance) ) {
             Balance();
         }

@@ -10,6 +10,7 @@ path nodes and have to possible actions :
 #ifndef __SAMPLER__
 #define __SAMPLER__
 
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/pathnode.h"
 #include "scene/Background.h"
 #include "scene/VoxelGrid.h"
@@ -104,14 +105,14 @@ class CSurfaceSampler : public Sampler {
     */
     inline ColorRgb
     DoBsdfEval(
-            BidirectionalScatteringDistributionFunction *bsdf,
-            RayHit *hit,
-            BidirectionalScatteringDistributionFunction *inBsdf,
-            BidirectionalScatteringDistributionFunction *outBsdf,
-            Vector3D *in,
-            Vector3D *out,
-            BSDF_FLAGS flags,
-            BsdfComp *bsdfComp) const
+        const BidirectionalScatteringDistributionFunction *bsdf,
+        RayHit *hit,
+        const BidirectionalScatteringDistributionFunction *inBsdf,
+        const BidirectionalScatteringDistributionFunction *outBsdf,
+        const Vector3D *in,
+        const Vector3D *out,
+        BSDF_FLAGS flags,
+        BsdfComp *bsdfComp) const
     {
         if ( m_computeBsdfComponents ) {
             return bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);

@@ -20,9 +20,9 @@ class Material {
 
 extern Material *
 materialCreate(
-        const char *inName,
-        PhongEmittanceDistributionFunction *edf,
-        BidirectionalScatteringDistributionFunction *bsdf,
-        int sided);
+    const char *inName,
+    PhongEmittanceDistributionFunction *edf,
+    BidirectionalScatteringDistributionFunction *bsdf,
+    int sided);
 
 #endif

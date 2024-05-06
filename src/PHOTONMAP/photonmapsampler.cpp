@@ -33,10 +33,17 @@ CPhotonMapSampler::chooseComponent(
     float totalPower;
 
     // Choose between flags1 or flags2 scattering
-    color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags1);
+    color.clear();
+
+    if ( bsdf != nullptr ) {
+        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags1);
+    }
     power1 = color.average();
 
-    color = bsdfScatteredPower(bsdf, hit, &hit->geometricNormal, flags2);
+    color.clear();
+    if ( bsdf != nullptr ) {
+        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags2);
+    }
     power2 = color.average();
 
     totalPower = power1 + power2;
@@ -177,11 +184,19 @@ chooseFresnelDirection(
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
     const BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    ColorRgb reflectance;
+    reflectance.clear();
+    if ( bsdf != nullptr ) {
+        reflectance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
+    }
 
-    ColorRgb reflectance = bsdfSpecularReflectance(bsdf, &thisNode->m_hit,
-                                                   &thisNode->m_normal);
-    ColorRgb transmittance = bsdfSpecularTransmittance(bsdf, &thisNode->m_hit,
-                                                       &thisNode->m_normal);
+    ColorRgb transmittance;
+    transmittance.clear();
+    if ( bsdf != nullptr ) {
+        transmittance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
+    }
 
     bool reflective = (reflectance.average() > EPSILON);
     bool trans = (transmittance.average() > EPSILON);

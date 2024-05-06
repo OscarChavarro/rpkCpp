@@ -16,10 +16,10 @@ Material::~Material() {
 
 Material *
 materialCreate(
-        const char *inName,
-        PhongEmittanceDistributionFunction *edf,
-        BidirectionalScatteringDistributionFunction *bsdf,
-        int sided)
+    const char *inName,
+    PhongEmittanceDistributionFunction *edf,
+    BidirectionalScatteringDistributionFunction *bsdf,
+    int sided)
 {
     Material *m = new Material();
     delete[] m->name;
