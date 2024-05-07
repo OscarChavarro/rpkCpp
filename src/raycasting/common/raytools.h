@@ -12,7 +12,13 @@ Some utility routines for ray intersections and for statistics
 #include "scene/VoxelGrid.h"
 #include "raycasting/common/pathnode.h"
 
-extern RayHit *findRayIntersection(VoxelGrid *sceneWorldVoxelGrid, Ray *ray, Patch *patch, PhongBidirectionalScatteringDistributionFunction *currentBsdf, RayHit *hitStore);
+extern RayHit *
+findRayIntersection(
+    const VoxelGrid *sceneWorldVoxelGrid,
+    Ray *ray,
+    Patch *patch,
+    const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
+    RayHit *hitStore);
 
 extern bool
 pathNodesVisible(
@@ -22,8 +28,8 @@ pathNodesVisible(
 
 extern bool
 eyeNodeVisible(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
+    const Camera *camera,
+    const VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *eyeNode,
     SimpleRaytracingPathNode *node,
     float *pixX,

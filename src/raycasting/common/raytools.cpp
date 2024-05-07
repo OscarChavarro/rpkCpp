@@ -8,7 +8,7 @@
 
 static RayHit *
 traceWorld(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
     unsigned int flags = PATH_FRONT_HIT_FLAGS,
@@ -22,7 +22,7 @@ traceWorld(
         hitStore = &myHitStore;
     }
 
-    dist = HUGE;
+    dist = HUGE_FLOAT;
     Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
     result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
@@ -38,11 +38,11 @@ traceWorld(
 
 RayHit *
 findRayIntersection(
-        VoxelGrid *sceneWorldVoxelGrid,
-        Ray *ray,
-        Patch *patch,
-        PhongBidirectionalScatteringDistributionFunction *currentBsdf,
-        RayHit *hitStore)
+    const VoxelGrid *sceneWorldVoxelGrid,
+    Ray *ray,
+    Patch *patch,
+    const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
+    RayHit *hitStore)
 {
     int hitFlags;
     RayHit *newHit;
@@ -61,12 +61,11 @@ findRayIntersection(
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
-    if ( newHit != nullptr && (newHit->flags & HIT_BACK) ) {
-        if ( newHit->patch->material->getBsdf() != currentBsdf ) {
-            // Whoops, intersected with wrong patch (accuracy problem)
-            newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
-            GLOBAL_raytracer_rayCount++; // Statistics
-        }
+    if ( newHit != nullptr && (newHit->flags & HIT_BACK) &&
+         newHit->patch->material->getBsdf() != currentBsdf ) {
+        // Whoops, intersected with wrong patch (accuracy problem)
+        newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
+        GLOBAL_raytracer_rayCount++; // Statistics
     }
 
     return newHit;
@@ -142,17 +141,22 @@ pathNodesVisible(
 
     if ( doTest ) {
         if ( node2->m_hit.patch->hasZeroVertices() ) {
-            fDistance = HUGE;
+            fDistance = HUGE_FLOAT;
         } else {
             fDistance = (float) dist;
         }
 
         Patch::dontIntersect(
-            3, node2->m_hit.patch, node1->m_hit.patch,
-             node1->m_hit.patch ? node1->m_hit.patch->twin : nullptr);
-        hit = sceneWorldVoxelGrid->gridIntersect(&ray,
-            0.0, &fDistance,
-            HIT_FRONT | HIT_BACK | HIT_ANY, &hitStore);
+            3,
+            node2->m_hit.patch,
+            node1->m_hit.patch,
+            node1->m_hit.patch != nullptr ? node1->m_hit.patch->twin : nullptr);
+        hit = sceneWorldVoxelGrid->gridIntersect(
+            &ray,
+            0.0,
+            &fDistance,
+            HIT_FRONT | HIT_BACK | HIT_ANY,
+            &hitStore);
         Patch::dontIntersect(0);
         visible = (hit == nullptr);
 
@@ -161,7 +165,7 @@ pathNodesVisible(
         visible = false;
     }
 
-    return (visible);
+    return visible;
 }
 
 /**
@@ -169,8 +173,8 @@ Can the eye see the node ?  If so, pix_x and pix_y are filled in
 */
 bool
 eyeNodeVisible(
-    Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
+    const Camera *camera,
+    const VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *eyeNode,
     SimpleRaytracingPathNode *node,
     float *pixX,
@@ -178,14 +182,13 @@ eyeNodeVisible(
 {
     Vector3D dir;
     Ray ray;
-    RayHit *hit;
+    const RayHit *hit;
     RayHit hitStore;
     double cosRayLight;
     double cosRayEye;
     double dist;
     double dist2;
     float fDistance;
-    bool visible;
     double x;
     double y;
     double z;
@@ -202,11 +205,9 @@ eyeNodeVisible(
     vectorScaleInverse((float)dist, dir, dir);
 
     // Determine which pixel is visible
-
     z = vectorDotProduct(dir, camera->Z);
 
-    visible = false;
-
+    bool visible = false;
     if ( z > 0.0 ) {
         x = vectorDotProduct(dir, camera->X);
         xz = x / z;
@@ -239,10 +240,8 @@ eyeNodeVisible(
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
 
-                    // geomFactor
-
+                    // Geometry factor
                     if ( visible ) {
-                        // *geomFactor = cosRayEye * cosRayLight / dist2;
                         *pixX = (float)xz;
                         *pixY = (float)yz;
                     }
