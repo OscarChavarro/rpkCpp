@@ -24,7 +24,7 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
     ColorRgb transmittance(char flags) const;
-    void indexOfRefraction(RefractionIndex *index) const;
+    void setIndexOfRefraction(RefractionIndex *index) const;
 
     ColorRgb
     evaluate(

@@ -263,10 +263,9 @@ Returns the index of refraction of the BSDF
 void
 PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(RefractionIndex *index) const {
     if ( btdf == nullptr ) {
-        index->nr = 1.0; // Vacuum
-        index->ni = 0.0;
+        index->set(1.0, 0.0); // Vacuum
     } else {
-        btdf->indexOfRefraction(index);
+        btdf->setIndexOfRefraction(index);
     }
 }
 
@@ -533,15 +532,13 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
 
     // Probability of sampling the outgoing direction, after survival decision
     if ( inBsdf == nullptr ) {
-        inIndex.nr = 1.0; // Vacuum
-        inIndex.ni = 0.0;
+        inIndex.set(1.0, 0.0); // Vacuum
     } else {
         inBsdf->indexOfRefraction(&inIndex);
     }
 
     if ( outBsdf == nullptr ) {
-        outIndex.nr = 1.0; // Vacuum
-        outIndex.ni = 0.0;
+        outIndex.set(1.0, 0.0); // Vacuum
     } else {
         outBsdf->indexOfRefraction(&outIndex);
     }

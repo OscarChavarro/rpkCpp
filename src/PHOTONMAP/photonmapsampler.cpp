@@ -157,16 +157,14 @@ bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
 
     if ( bsdf == nullptr ) {
-        nc.nr = 1.0; // Vacuum
-        nc.ni = 0.0;
+        nc.set(1.0, 0.0); // Vacuum
     } else {
         bsdf->indexOfRefraction(&nc);
     }
 
     // Convert to geometric IOR if necessary
-    if ( nc.ni > EPSILON ) {
-        nc.nr = nc.complexToGeometricRefractionIndex();
-        nc.ni = 0.0; // ? Necessary ?
+    if ( nc.getNi() > EPSILON ) {
+        nc.set(nc.complexToGeometricRefractionIndex(), 0.0);
     }
 
     return nc;
@@ -257,8 +255,8 @@ chooseFresnelDirection(
 
             float rParallel;
             float rPerpendicular;
-            float nt = nc_out.nr;
-            float ni = nc_in.nr;
+            float nt = nc_out.getNr();
+            float ni = nc_in.getNr();
 
             rParallel = (nt * cosI - ni * cost) / (nt * cosI + ni * cost);
             rPerpendicular = (ni * cosI - nt * cost) / (ni * cosI + nt * cost);

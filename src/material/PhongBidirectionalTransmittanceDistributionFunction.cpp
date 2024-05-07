@@ -24,8 +24,7 @@ PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmitt
     Ks = *inKs;
     avgKs = Ks.average();
     Ns = inNs;
-    refractionIndex.nr = inNr;
-    refractionIndex.ni = inNi;
+    refractionIndex.set(inNr, inNi);
 }
 
 PhongBidirectionalTransmittanceDistributionFunction::~PhongBidirectionalTransmittanceDistributionFunction() {
@@ -65,9 +64,8 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
 Refraction index
 */
 void
-PhongBidirectionalTransmittanceDistributionFunction::indexOfRefraction(RefractionIndex *index) const {
-    index->nr = refractionIndex.nr;
-    index->ni = refractionIndex.ni;
+PhongBidirectionalTransmittanceDistributionFunction::setIndexOfRefraction(RefractionIndex *index) const {
+    index->set(refractionIndex.getNr(), refractionIndex.getNi());
 }
 
 /**

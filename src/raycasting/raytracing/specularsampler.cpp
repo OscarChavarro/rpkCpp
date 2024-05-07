@@ -61,15 +61,13 @@ CSpecularSampler::sample(
         pdfDir *= avgTransmittance / avgScattering;
 
         if ( thisNode->m_inBsdf == nullptr ) {
-            inIndex.nr = 1.0; // Vacuum
-            inIndex.ni = 0.0;
+            inIndex.set(1.0, 0.0); // Vacuum
         } else {
             thisNode->m_inBsdf->indexOfRefraction(&inIndex);
         }
 
         if ( thisNode->m_outBsdf == nullptr ) {
-            outIndex.nr = 1.0; // Vacuum
-            outIndex.ni = 0.0;
+            outIndex.set(1.0, 0.0); // Vacuum
         } else {
             thisNode->m_outBsdf->indexOfRefraction(&outIndex);
         }

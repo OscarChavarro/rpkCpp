@@ -33,7 +33,7 @@ idealRefractedDirection(
     bool *totalInternalReflection)
 {
     // Only real part of n for now
-    float refractionIndex = inIndex.nr / outIndex.nr;
+    float refractionIndex = inIndex.getNr() / outIndex.getNr();
     float Ci = -vectorDotProduct(*in, *normal);
     float Ct2 = 1 + refractionIndex * refractionIndex * (Ci * Ci - 1);
 
