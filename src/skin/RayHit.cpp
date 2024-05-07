@@ -42,7 +42,6 @@ than hit positions returned by ray intersection routines
 int
 RayHit::init(
     Patch *inPatch,
-    const Geometry *inGeometry,
     const Vector3D *inPoint,
     const Vector3D *inGeometryNormal,
     Material *inMaterial)
@@ -51,9 +50,6 @@ RayHit::init(
     patch = inPatch;
     if ( inPatch != nullptr ) {
         flags |= HIT_PATCH;
-    }
-    if ( inGeometry != nullptr ) {
-        flags |= HIT_GEOMETRY;
     }
     if ( inPoint != nullptr ) {
         point = *inPoint;

@@ -31,14 +31,14 @@ CEyeSampler::sample(
 
     RayHit *hit = &newNode->m_hit;
 
-    hit->init(nullptr, nullptr, &camera->eyePosition, &camera->Z, nullptr);
-    hit->normal = camera->Z;
+    hit->init(nullptr, &camera->eyePosition, &camera->Z, nullptr);
+    hit->setNormal(&camera->Z);
     hit->shadingFrame.X = camera->X;
     hit->shadingFrame.Y = camera->Y;
     hit->shadingFrame.Z = camera->Z;
     hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
 
-    vectorCopy(newNode->m_hit.normal, newNode->m_normal);
+    vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
     newNode->m_G = 1.0;
 
     // outDir's not filled in

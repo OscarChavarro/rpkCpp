@@ -41,11 +41,11 @@ Sampler::sampleTransfer(
     if ( !hit ) {
         if ( sceneBackground ) {
             // Fill in path node for background
-            newNode->m_hit.init(sceneBackground->bkgPatch, nullptr, nullptr, dir, nullptr);
+            newNode->m_hit.init(sceneBackground->bkgPatch, nullptr, dir, nullptr);
             newNode->m_inDirT = *dir;
             newNode->m_inDirF = -(*dir);
             newNode->m_pdfFromPrev = pdfDir;
-            newNode->m_G = std::fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
+            newNode->m_G = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
@@ -61,14 +61,16 @@ Sampler::sampleTransfer(
 
     if ( hit->flags & HIT_BACK ) {
         // Back hit, invert normal (only happens when newNode->m_inBsdf != nullptr
-        vectorScale(-1, newNode->m_hit.normal, newNode->m_hit.normal);
+        Vector3D normal;
+        vectorScale(-1, newNode->m_hit.getNormal(), normal);
+        newNode->m_hit.setNormal(&normal);
     }
 
     vectorCopy(ray.dir, newNode->m_inDirT);
     vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
 
     // Check for shading normal vs. geometric normal errors
-    if ( vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirF) < 0 ) {
+    if ( vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirF) < 0 ) {
         // Error("Sample", "Shading normal anomaly");
         return false;
     }
@@ -77,8 +79,8 @@ Sampler::sampleTransfer(
     double dist2;
     Vector3D tmpVec;
 
-    double cosA = std::fabs(vectorDotProduct(thisNode->m_hit.normal, newNode->m_inDirT));
-    double cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal, newNode->m_inDirT));
+    double cosA = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
+    double cosB = std::fabs(vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirT));
     vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
     dist2 = vectorNorm2(tmpVec);
 

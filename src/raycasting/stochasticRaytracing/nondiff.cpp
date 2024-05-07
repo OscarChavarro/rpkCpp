@@ -75,7 +75,7 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
 
         patch->uniformPoint(zeta[0], zeta[1], &ray.pos);
 
-        hit.init(patch, nullptr, &ray.pos, &patch->normal, patch->material);
+        hit.init(patch, &ray.pos, &patch->normal, patch->material);
         *dirSelectionPdf = 0.0;
         ray.dir.x = 0.0;
         ray.dir.y = 0.0;

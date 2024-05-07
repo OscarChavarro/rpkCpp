@@ -492,7 +492,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     RayHit hit;
     Vector3D point;
     patch->uniformPoint(u, v, &point);
-    hit.init(patch, nullptr, &point, &patch->normal, patch->material);
+    hit.init(patch, &point, &patch->normal, patch->material);
     hit.uv.u = u;
     hit.uv.v = v;
     hit.flags |= HIT_UV;

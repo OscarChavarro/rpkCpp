@@ -38,7 +38,6 @@ a ray intersection routine is a front or back hit
 #define HIT_NORMAL 0x800 // shading normal (filled in by HitShadingNormal() or HitShadingFrame())
 
 // TODO: this is coupling hit with skin level classes :(
-class Geometry;
 class Patch;
 
 class Material;
@@ -70,7 +69,6 @@ class RayHit {
     int
     init(
         Patch *inPatch,
-        const Geometry *inGeometry,
         const Vector3D *inPoint,
         const Vector3D *inGeometryNormal,
         Material *inMaterial);
@@ -78,6 +76,15 @@ class RayHit {
     int getTexCoord(Vector3D *outTexCoord);
     int setShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
     int shadingNormal(Vector3D *inNormal);
+
+    inline Vector3D getNormal() const {
+        return shadingFrame.Z;
+    }
+
+    inline void setNormal(const Vector3D *n) {
+        shadingFrame.Z = *n;
+        normal = *n;
+    }
 };
 
 #endif
