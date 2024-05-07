@@ -39,6 +39,7 @@ a ray intersection routine is a front or back hit
 // TODO: this is coupling hit with skin level classes :(
 class Geometry;
 class Patch;
+
 class Material;
 
 /**
@@ -63,7 +64,6 @@ class RayHit {
     Vector3D Y;
     Vector3D Z;
     Vector2Dd uv; // Bi-linear/barycentric parameters of hit
-    float distance; // Distance to ray origin: always computed
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
     RayHit();

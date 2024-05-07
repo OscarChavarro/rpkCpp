@@ -161,7 +161,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
 Adds the patch to the list of patches that share the vertex
 */
 void
-Patch::patchConnectVertex(Vertex *paramVertex) {
+Patch::connectVertex(Vertex *paramVertex) {
     paramVertex->patches->add(this);
 }
 
@@ -169,9 +169,9 @@ Patch::patchConnectVertex(Vertex *paramVertex) {
 Adds the patch to the list of patches sharing each vertex
 */
 void
-Patch::patchConnectVertices() {
+Patch::connectVertices() {
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        patchConnectVertex(vertex[i]);
+        connectVertex(vertex[i]);
     }
 }
 
@@ -186,7 +186,7 @@ square [0, 1] ^ 2 or the standard triangle (0, 0), (1, 0), (0, 1) to the patch.
 The normal of the patch should have been computed before calling this routine
 */
 float
-Patch::randomWalkRadiosityPatchArea() {
+Patch::computeRandomWalkRadiosityArea() {
     const Vector3D *p1;
     const Vector3D *p2;
     const Vector3D *p3;
@@ -253,7 +253,7 @@ Patch::randomWalkRadiosityPatchArea() {
             }
             break;
         default:
-            logFatal(2, "randomWalkRadiosityPatchArea", "Can only handle triangular and quadrilateral patches.\n");
+            logFatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.\n");
             this->jacobian = nullptr;
             this->area = 0.0;
     }
@@ -304,47 +304,46 @@ Returns (u, v) coordinates of the point in the triangle
 Didier Badouel, Graphics Gems I, p390
 */
 bool
-Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) {
+Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
     double u0;
     double v0;
     double alpha;
     double beta;
-    Vertex **v;
     Vector2Dd p0;
     Vector2Dd p1;
     Vector2Dd p2;
 
     // Project to 2D
-    v = vertex;
+    int vertexIndex = 0;
     switch ( index ) {
         case X_NORMAL:
-            u0 = (*v)->point->y;
-            v0 = (*v)->point->z;
+            u0 = vertex[vertexIndex]->point->y;
+            v0 = vertex[vertexIndex]->point->z;
             vector2DSet(p0, point->y - u0, point->z - v0);
-            v++;
-            vector2DSet(p1, (*v)->point->y - u0, (*v)->point->z - v0);
-            v++;
-            vector2DSet(p2, (*v)->point->y - u0, (*v)->point->z - v0);
+            vertexIndex++;
+            vector2DSet(p1, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
+            vertexIndex++;
+            vector2DSet(p2, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case Y_NORMAL:
-            u0 = (*v)->point->x;
-            v0 = (*v)->point->z;
+            u0 = vertex[vertexIndex]->point->x;
+            v0 = vertex[vertexIndex]->point->z;
             vector2DSet(p0, point->x - u0, point->z - v0);
-            v++;
-            vector2DSet(p1, (*v)->point->x - u0, (*v)->point->z - v0);
-            v++;
-            vector2DSet(p2, (*v)->point->x - u0, (*v)->point->z - v0);
+            vertexIndex++;
+            vector2DSet(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
+            vertexIndex++;
+            vector2DSet(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case Z_NORMAL:
-            u0 = (*v)->point->x;
-            v0 = (*v)->point->y;
+            u0 = vertex[vertexIndex]->point->x;
+            v0 = vertex[vertexIndex]->point->y;
             vector2DSet(p0, point->x - u0, point->y - v0);
-            v++;
-            vector2DSet(p1, (*v)->point->x - u0, (*v)->point->y - v0);
-            v++;
-            vector2DSet(p2, (*v)->point->x - u0, (*v)->point->y - v0);
+            vertexIndex++;
+            vector2DSet(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
+            vertexIndex++;
+            vector2DSet(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
             break;
 
         default:
@@ -354,14 +353,14 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) {
     if ( p1.u < -EPSILON || p1.u > EPSILON ) {
         // p1.u non zero
         beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
-        if ( beta >= 0. && beta <= 1.0 ) {
+        if ( beta >= 0.0 && beta <= 1.0 ) {
             alpha = (p0.u - beta * p2.u) / p1.u;
         } else {
             return false;
         }
     } else {
         beta = p0.u / p2.u;
-        if ( beta >= 0. && beta <= 1.0 ) {
+        if ( beta >= 0.0 && beta <= 1.0 ) {
             alpha = (p0.v - beta * p2.v) / p1.v;
         } else {
             return false;
@@ -369,7 +368,7 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) {
     }
     uv->u = alpha;
     uv->v = beta;
-    if ( alpha < 0. || (alpha + beta) > 1.0 ) {
+    if ( alpha < 0.0 || (alpha + beta) > 1.0 ) {
         return false;
     }
     return true;
@@ -381,8 +380,7 @@ Christophe Schlick and Gilles Subrenat (15 May 1994)
 in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241
 */
 int
-Patch::quadUv(Patch *patch, const Vector3D *point, Vector2Dd *uv) {
-    Vertex **p;
+Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     Vector2Dd A; // Projected vertices
     Vector2Dd B;
     Vector2Dd C;
@@ -404,38 +402,38 @@ Patch::quadUv(Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     int isInside = false;
 
     // Projection on the plane that is most parallel to the facet
-    p = patch->vertex;
+    int vertexIndex = 0;
     switch ( patch->index ) {
         case X_NORMAL:
-            vector2DSet(A, (*p)->point->y, (*p)->point->z);
-            p++;
-            vector2DSet(B, (*p)->point->y, (*p)->point->z);
-            p++;
-            vector2DSet(C, (*p)->point->y, (*p)->point->z);
-            p++;
-            vector2DSet(D, (*p)->point->y, (*p)->point->z);
+            vector2DSet(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(B, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(C, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(D, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vector2DSet(M, point->y, point->z);
             break;
 
         case Y_NORMAL:
-            vector2DSet(A, (*p)->point->x, (*p)->point->z);
-            p++;
-            vector2DSet(B, (*p)->point->x, (*p)->point->z);
-            p++;
-            vector2DSet(C, (*p)->point->x, (*p)->point->z);
-            p++;
-            vector2DSet(D, (*p)->point->x, (*p)->point->z);
+            vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            vertexIndex++;
+            vector2DSet(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
             vector2DSet(M, point->x, point->z);
             break;
 
         case Z_NORMAL:
-            vector2DSet(A, (*p)->point->x, (*p)->point->y);
-            p++;
-            vector2DSet(B, (*p)->point->x, (*p)->point->y);
-            p++;
-            vector2DSet(C, (*p)->point->x, (*p)->point->y);
-            p++;
-            vector2DSet(D, (*p)->point->x, (*p)->point->y);
+            vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            vertexIndex++;
+            vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            vertexIndex++;
+            vector2DSet(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            vertexIndex++;
+            vector2DSet(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
             vector2DSet(M, point->x, point->y);
             break;
 
@@ -514,7 +512,7 @@ Badouels and Schlicks method from graphics gems: slower, but consumes less stora
 (u,v) parameters as a side result
 */
 bool
-Patch::hitInPatch(RayHit *hit, Patch *patch) {
+Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
     hit->flags |= HIT_UV; // uv parameters computed as a side result
     return (patch->numberOfVertices == 3)
            ? triangleUv(&hit->point, &hit->uv)
@@ -626,7 +624,7 @@ Patch::Patch(
     }
 
     // Also computes the jacobian
-    area = randomWalkRadiosityPatchArea();
+    area = computeRandomWalkRadiosityArea();
 
     // Patch midpoint
     computeMidpoint(&midPoint);
@@ -641,7 +639,7 @@ Patch::Patch(
     index = (char)vector3DDominantCoord(&normal);
 
     // Tell the vertices that there's a new Patch using them
-    patchConnectVertices();
+    connectVertices();
 
     directPotential = 0.0;
     color.set(0.0, 0.0, 0.0);
@@ -921,7 +919,6 @@ Patch::intersect(
     }
 
     // Intersection point of ray with plane of patch
-    hit.distance = dist;
     vectorSumScaled(ray->pos, dist, ray->dir, hit.point);
 
     // Test whether it lays inside or outside the patch
@@ -1043,7 +1040,7 @@ WARNING: The (u,v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
 int
-Patch::uv(const Vector3D *point, double *u, double *v) {
+Patch::uv(const Vector3D *point, double *u, double *v) const {
     Vector2Dd uv;
     bool inside = false;
 
@@ -1068,7 +1065,7 @@ Patch::uv(const Vector3D *point, double *u, double *v) {
 Like above, but returns uniform coordinates (inverse of uniformPoint())
 */
 int
-Patch::uniformUv(const Vector3D *point, double *u, double *v) {
+Patch::uniformUv(const Vector3D *point, double *u, double *v) const {
     int inside = uv(point, u, v);
     if ( jacobian != nullptr ) {
         biLinearToUniform(u, v);

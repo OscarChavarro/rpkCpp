@@ -16,9 +16,9 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 Creates a BSDF instance with given data and methods
 */
 PhongBidirectionalScatteringDistributionFunction::PhongBidirectionalScatteringDistributionFunction(
-        PhongBidirectionalReflectanceDistributionFunction *brdf,
-        PhongBidirectionalTransmittanceDistributionFunction *btdf,
-        Texture *texture)
+    PhongBidirectionalReflectanceDistributionFunction *brdf,
+    PhongBidirectionalTransmittanceDistributionFunction *btdf,
+    Texture *texture)
 {
     this->brdf = brdf;
     this->btdf = btdf;
@@ -126,9 +126,9 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
 
 double
 PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
-        const Vector3D * /*in*/,
-        const Vector3D * /*out*/,
-        const Vector3D * /*normal*/)
+    const Vector3D * /*in*/,
+    const Vector3D * /*out*/,
+    const Vector3D * /*normal*/)
 {
     return (1.0 / M_PI);
 }
@@ -138,11 +138,11 @@ Albedo is assumed to be 1
 */
 Vector3D
 PhongBidirectionalScatteringDistributionFunction::texturedScattererSample(
-        const Vector3D * /*in*/,
-        const Vector3D *normal,
-        double x1,
-        double x2,
-        double *probabilityDensityFunction)
+    const Vector3D * /*in*/,
+    const Vector3D *normal,
+    double x1,
+    double x2,
+    double *probabilityDensityFunction)
 {
     CoordinateSystem coord;
     coord.setFromZAxis(normal);
@@ -151,16 +151,16 @@ PhongBidirectionalScatteringDistributionFunction::texturedScattererSample(
 
 void
 PhongBidirectionalScatteringDistributionFunction::texturedScattererEvalPdf(
-        const Vector3D * /*in*/,
-        const Vector3D *out,
-        const Vector3D *normal,
-        double *probabilityDensityFunction)
+    const Vector3D * /*in*/,
+    const Vector3D *out,
+    const Vector3D *normal,
+    double *probabilityDensityFunction)
 {
     *probabilityDensityFunction = vectorDotProduct(*normal, *out) / M_PI;
 }
 
 /**
-sample a split bsdf. If no sample was taken (RR/absorption)
+Sample a split bsdf. If no sample was taken (RR/absorption)
 the pdf will be 0 upon return  Computes probabilities for sampling the texture, reflection minus texture,
 or transmission. Also determines b[r|t]dfFlags taking into
 account potential texturing

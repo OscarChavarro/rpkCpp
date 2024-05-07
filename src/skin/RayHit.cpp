@@ -16,7 +16,6 @@ RayHit::RayHit():
     Y(),
     Z(),
     uv(),
-    distance(),
     flags()
 {
 }
@@ -69,7 +68,6 @@ RayHit::init(
     }
     material = inMaterial;
     flags |= HIT_MATERIAL;
-    distance = inDistance;
     flags |= HIT_DIST;
     normal.set(0, 0, 0);
     texCoord = normal;
