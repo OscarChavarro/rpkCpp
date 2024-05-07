@@ -540,6 +540,9 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
     }
 
     if ( outBsdf == nullptr ) {
+        outIndex.nr = 1.0; // Vacuum
+        outIndex.ni = 0.0;
+    } else {
         outBsdf->indexOfRefraction(&outIndex);
     }
 
