@@ -131,8 +131,7 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfSamplingMode(double t
 }
 
 /**
-Returns the scattered power (diffuse/glossy/specular
-reflectance and/or transmittance) according to flags
+Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
 */
 ColorRgb
 SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
@@ -163,6 +162,9 @@ SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
     return albedo;
 }
 
+/**
+Returns the index of refraction of the BSDF
+*/
 void
 SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(const BidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index) {
     if ( bsdf->btdf == nullptr ) {
@@ -220,8 +222,9 @@ SplitBidirectionalScatteringDistributionFunction::evaluate(
         RefractionIndex inIndex{};
         RefractionIndex outIndex{};
         ColorRgb refractionCol;
-        bsdfIndexOfRefraction(inBsdf, &inIndex);
-        bsdfIndexOfRefraction(outBsdf, &outIndex);
+
+        SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(inBsdf, &inIndex);
+        SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(outBsdf, &outIndex);
 
         if ( bsdf->btdf == nullptr ) {
             refractionCol.clear();
@@ -236,6 +239,12 @@ SplitBidirectionalScatteringDistributionFunction::evaluate(
     return result;
 }
 
+/**
+Sampling and pdf evaluation
+
+Sampling routines, parameters as in evaluation, except that two
+random numbers x1 and x2 are needed (2D sampling process)
+*/
 Vector3D
 SplitBidirectionalScatteringDistributionFunction::sample(
     const BidirectionalScatteringDistributionFunction *bsdf,
@@ -295,8 +304,8 @@ SplitBidirectionalScatteringDistributionFunction::sample(
     RefractionIndex inIndex{};
     RefractionIndex outIndex{};
 
-    bsdfIndexOfRefraction(inBsdf, &inIndex);
-    bsdfIndexOfRefraction(outBsdf, &outIndex);
+    SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(inBsdf, &inIndex);
+    SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(outBsdf, &outIndex);
 
     // Sample according to the selected mode
     double p;
@@ -423,8 +432,8 @@ SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
     *probabilityDensityFunctionRR = pScattering;
 
     // Probability of sampling the outgoing direction, after survival decision
-    bsdfIndexOfRefraction(inBsdf, &inIndex);
-    bsdfIndexOfRefraction(outBsdf, &outIndex);
+    SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(inBsdf, &inIndex);
+    SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(outBsdf, &outIndex);
 
     SplitBidirectionalScatteringDistributionFunction::texturedScattererEvalPdf(in, out, &normal, &p);
     *probabilityDensityFunction = pTexture * p;

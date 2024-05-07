@@ -76,11 +76,14 @@ stochasticRaytracerGetScatteredRadiance(
 
         if ( numberOfSamples > 2 ) {
             // Some bigger value may be more efficient
-            ColorRgb albedo = bsdfScatteredPower(
-                thisNode->m_useBsdf,
-                  &thisNode->m_hit,
-                  &thisNode->m_normal,
-                  si->flags);
+            ColorRgb albedo;
+            albedo.clear();
+            if ( thisNode->m_useBsdf != nullptr ) {
+                albedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+                        thisNode->m_useBsdf,
+                        &thisNode->m_hit,
+                        si->flags);
+            }
             if ( albedo.average() < EPSILON ) {
                 // Skip, no contribution anyway
                 numberOfSamples = 0;

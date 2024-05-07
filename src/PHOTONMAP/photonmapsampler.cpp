@@ -156,7 +156,12 @@ static RefractionIndex
 bsdfGeometricIOR(const BidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
 
-    bsdfIndexOfRefraction(bsdf, &nc);
+    if ( bsdf == nullptr ) {
+        nc.nr = 1.0; // Vacuum
+        nc.ni = 0.0;
+    } else {
+        SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, &nc);
+    }
 
     // Convert to geometric IOR if necessary
     if ( nc.ni > EPSILON ) {

@@ -21,17 +21,22 @@ CBsdfSampler::sample(
     double pdfDir;
 
     // Sample direction
-    Vector3D dir = bsdfSample(
-        thisNode->m_useBsdf,
-        &thisNode->m_hit,
-        thisNode->m_inBsdf,
-        thisNode->m_outBsdf,
-        &thisNode->m_inDirF,
-        doRR,
-        flags,
-        x1,
-        x2,
-        &pdfDir);
+    Vector3D dir = {0.0, 0.0, 0.0};
+    pdfDir = 0.0;
+
+    if ( thisNode->m_useBsdf != nullptr ) {
+        dir = SplitBidirectionalScatteringDistributionFunction::sample(
+            thisNode->m_useBsdf,
+            &thisNode->m_hit,
+            thisNode->m_inBsdf,
+            thisNode->m_outBsdf,
+            &thisNode->m_inDirF,
+            doRR,
+            flags,
+            x1,
+            x2,
+            &pdfDir);
+    }
 
     PNAN(pdfDir);
 
@@ -42,12 +47,14 @@ CBsdfSampler::sample(
 
     newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
     if ( doRR ) {
-        ColorRgb albedo = bsdfScatteredPower(thisNode->m_useBsdf, &thisNode->m_hit,
-                                             &thisNode->m_inDirF, flags);
+        ColorRgb albedo;
+        albedo.clear();
+        if ( thisNode->m_useBsdf != nullptr ) {
+            albedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+                thisNode->m_useBsdf, &thisNode->m_hit, flags);
+        }
         newNode->accumulatedRussianRouletteFactors *= albedo.average();
     }
-
-
 
     // Reflection Type, changes thisNode->m_rayType and newNode->m_inBsdf
     DetermineRayType(thisNode, newNode, &dir);
@@ -76,22 +83,24 @@ CBsdfSampler::sample(
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
         double cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
-        double pdfDirI, pdfRR;
+        double pdfDirI = 0.0;
+        double pdfRR = 0.0;
 
-        // prevpdf : new->this->prev pdf evaluation
-        // normal direction is handled by the evalpdf routine
-        // Are the flags usable in both directions?
-        bsdfEvalPdf(
-            thisNode->m_useBsdf,
-            &thisNode->m_hit,
-            thisNode->m_outBsdf,
-            thisNode->m_inBsdf,
-            &newNode->m_inDirT,
-            &thisNode->m_inDirF,
-            flags,
-            &pdfDirI,
-            &pdfRR);
-
+        if ( thisNode->m_useBsdf != nullptr ) {
+            // prevpdf : new->this->prev pdf evaluation
+            // normal direction is handled by the evalpdf routine
+            // Are the flags usable in both directions?
+            SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+                thisNode->m_useBsdf,
+                &thisNode->m_hit,
+                thisNode->m_outBsdf,
+                thisNode->m_inBsdf,
+                &newNode->m_inDirT,
+                &thisNode->m_inDirF,
+                flags,
+                &pdfDirI,
+                &pdfRR);
+        }
 
         PNAN(pdfDirI);
         PNAN(pdfRR);
@@ -112,10 +121,64 @@ CBsdfSampler::evalPDF(
     double *pdf,
     double *pdfRR)
 {
-    double pdfDir;
+    double pdfH;
+    double pdfRRH;
+
+    if ( pdf == nullptr ) {
+        pdf = &pdfH;
+    }
+    if ( pdfRR == nullptr ) {
+        pdfRR = &pdfRRH;
+    }
+
+    // More efficient with extra params?
     double dist2;
     double dist;
-    double cosa;
+    Vector3D outDir;
+
+    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
+    dist2 = vectorNorm2(outDir);
+    dist = std::sqrt(dist2);
+    vectorScaleInverse((float)dist, outDir, outDir);
+
+    // Beware : NOT RECIPROKE!
+    double pdfDir;
+    pdfDir = 0;
+    *pdfRR = 0;
+    if ( thisNode->m_useBsdf != nullptr ) {
+        SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+            thisNode->m_useBsdf,
+            &thisNode->m_hit,
+            thisNode->m_inBsdf,
+            thisNode->m_outBsdf,
+            &thisNode->m_inDirF,
+            &outDir,
+            flags,
+            &pdfDir,
+            pdfRR);
+    }
+
+    // To area measure
+    double cosA;
+
+    cosA = -vectorDotProduct(outDir, newNode->m_normal);
+
+    *pdf = pdfDir * cosA / dist2;
+
+    return *pdf * *pdfRR;
+}
+
+double
+CBsdfSampler::EvalPDFPrev(
+    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode */*newNode*/,
+    BSDF_FLAGS flags,
+    double *pdf,
+    double *pdfRR)
+{
+    double pdfDir;
+    double cosB;
     double pdfH;
     double pdfRRH;
     Vector3D outDir;
@@ -127,60 +190,32 @@ CBsdfSampler::evalPDF(
         pdfRR = &pdfRRH;
     }
 
-    /* -- more efficient with extra params ?? -- */
-    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
-    dist2 = vectorNorm2(outDir);
-    dist = std::sqrt(dist2);
-    vectorScaleInverse((float)dist, outDir, outDir);
-
-    // Beware : NOT RECIPROKE !!!!!!
-    bsdfEvalPdf(thisNode->m_useBsdf,
-                &thisNode->m_hit,
-                thisNode->m_inBsdf, thisNode->m_outBsdf,
-                &thisNode->m_inDirF, &outDir,
-                flags, &pdfDir, pdfRR);
-
-    // To area measure
-    cosa = -vectorDotProduct(outDir, newNode->m_normal);
-
-    *pdf = pdfDir * cosa / dist2;
-
-    return *pdf * *pdfRR;
-}
-
-
-double
-CBsdfSampler::EvalPDFPrev(SimpleRaytracingPathNode *prevNode,
-                                 SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode */*newNode*/,
-                                 BSDF_FLAGS flags,
-                                 double *pdf, double *pdfRR) {
-    double pdfDir, cosb, pdfH, pdfRRH;
-    Vector3D outDir;
-
-    if ( pdf == nullptr ) {
-        pdf = &pdfH;
-    }
-    if ( pdfRR == nullptr ) {
-        pdfRR = &pdfRRH;
-    }
-
-    /* -- more efficient with extra params ?? -- */
+    // More efficient with extra params?
 
     vectorSubtract(prevNode->m_hit.point, thisNode->m_hit.point, outDir);
     vectorNormalize(outDir);
 
-    // Beware : NOT RECIPROKE !!!!!!
-    bsdfEvalPdf(thisNode->m_useBsdf,
-                &thisNode->m_hit,
-                thisNode->m_outBsdf, thisNode->m_inBsdf,
-                &outDir, &thisNode->m_inDirF,
-                flags, &pdfDir, pdfRR);
+    // Beware : NOT RECIPROKE!
+    pdfDir = 0.0;
+    *pdfRR = 0.0;
+    if ( thisNode->m_useBsdf != nullptr ) {
+        SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+            thisNode->m_useBsdf,
+            &thisNode->m_hit,
+            thisNode->m_outBsdf,
+            thisNode->m_inBsdf,
+            &outDir,
+            &thisNode->m_inDirF,
+            flags,
+            &pdfDir,
+            pdfRR);
+    }
 
     // To area measure
 
-    cosb = vectorDotProduct(thisNode->m_inDirF, thisNode->m_normal);
+    cosB = vectorDotProduct(thisNode->m_inDirF, thisNode->m_normal);
 
-    *pdf = pdfDir * thisNode->m_G / cosb;
+    *pdf = pdfDir * thisNode->m_G / cosB;
 
     return *pdf * *pdfRR;
 }

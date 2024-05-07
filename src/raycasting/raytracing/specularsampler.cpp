@@ -25,11 +25,14 @@ CSpecularSampler::sample(
         thisNode->m_useBsdf,
         &thisNode->m_hit,
         GET_BRDF_FLAGS(flags));
-    ColorRgb transmittance = bsdfScatteredPower(
-        thisNode->m_useBsdf,
-        &thisNode->m_hit,
-        &thisNode->m_hit.normal,
-        GET_BTDF_FLAGS(flags));
+    ColorRgb transmittance;
+    transmittance.clear();
+    if ( thisNode->m_useBsdf != nullptr ) {
+        transmittance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            thisNode->m_useBsdf,
+            &thisNode->m_hit,
+            GET_BTDF_FLAGS(flags));
+    }
 
     float avgReflectance = reflectance.average();
     float avgTransmittance = transmittance.average();
@@ -55,12 +58,26 @@ CSpecularSampler::sample(
         reflect = false;
         pdfDir *= avgTransmittance / avgScattering;
 
-        bsdfIndexOfRefraction(thisNode->m_inBsdf, &inIndex);
-        bsdfIndexOfRefraction(thisNode->m_outBsdf, &outIndex);
+        if ( thisNode->m_inBsdf == nullptr ) {
+            inIndex.nr = 1.0; // Vacuum
+            inIndex.ni = 0.0;
+        } else {
+            SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_inBsdf, &inIndex);
+        }
 
-        dir = idealRefractedDirection(&thisNode->m_inDirT,
-                                      &thisNode->m_normal,
-                                      inIndex, outIndex, &dummyBoolean);
+        if ( thisNode->m_outBsdf == nullptr ) {
+            outIndex.nr = 1.0; // Vacuum
+            outIndex.ni = 0.0;
+        } else {
+            SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_outBsdf, &outIndex);
+        }
+
+        dir = idealRefractedDirection(
+            &thisNode->m_inDirT,
+            &thisNode->m_normal,
+            inIndex,
+            outIndex,
+            &dummyBoolean);
     }
 
     PNAN(pdfDir);

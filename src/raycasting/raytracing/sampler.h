@@ -115,7 +115,13 @@ class CSurfaceSampler : public Sampler {
         BsdfComp *bsdfComp) const
     {
         if ( m_computeBsdfComponents ) {
-            return bsdfEvalComponents(bsdf, hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
+            if ( bsdf == nullptr ) {
+                ColorRgb black;
+                black.clear();
+                return black;
+            } else {
+                return bsdf->bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
+            }
         } else {
             bsdfComp->Clear();
             ColorRgb radiance;

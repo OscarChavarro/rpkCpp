@@ -1,9 +1,10 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/render.h"
+#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 static StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world);
@@ -610,7 +611,9 @@ stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         return false;
     }
     const Material *mat = elem->patch->material;
-    return bsdfIsTextured(mat->bsdf) || PhongEmittanceDistributionFunction::edfIsTextured();
+    return mat->bsdf != nullptr
+        && (SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(mat->bsdf)
+        || PhongEmittanceDistributionFunction::edfIsTextured());
 }
 
 /**
@@ -664,7 +667,11 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         hit.flags |= HIT_UV;
         patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
         if ( patch->material->bsdf ) {
-            sample = bsdfScatteredPower(patch->material->bsdf, &hit, &patch->normal, BRDF_DIFFUSE_COMPONENT);
+            sample.clear();
+            if ( patch->material->bsdf != nullptr ) {
+                sample = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+                    patch->material->bsdf, &hit, BRDF_DIFFUSE_COMPONENT);
+            }
             albedo.add(albedo, sample);
         }
         if ( patch->material->edf ) {
