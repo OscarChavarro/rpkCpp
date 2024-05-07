@@ -33,9 +33,9 @@ CEyeSampler::sample(
 
     hit->init(nullptr, nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->normal = camera->Z;
-    hit->X = camera->X;
-    hit->Y = camera->Y;
-    hit->Z = camera->Z;
+    hit->shadingFrame.X = camera->X;
+    hit->shadingFrame.Y = camera->Y;
+    hit->shadingFrame.Z = camera->Z;
     hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
 
     vectorCopy(newNode->m_hit.normal, newNode->m_normal);

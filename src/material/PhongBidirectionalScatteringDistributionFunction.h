@@ -16,7 +16,7 @@ functions that relate to brdf or btdf like reflectance etc.
 
 /**
 Selects sampling mode according to given probabilities and random number x1.
-If the selected mode is not absorption, x_1 is rescaled to the interval [0, 1)
+If the selected mode is not absorption, x1 is rescaled to the interval [0, 1)
 again
 */
 enum SplitBSDFSamplingMode {

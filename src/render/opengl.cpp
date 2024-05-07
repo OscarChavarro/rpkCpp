@@ -36,7 +36,7 @@ openGlRenderRayTraced(int (*reDisplayCallback)()) {
 }
 
 static void
-openGlRenderClearWindow(Camera *camera) {
+openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -67,7 +67,7 @@ openGlRenderSetCamera(Camera *camera, java::ArrayList<Geometry *> *sceneGeometri
 }
 
 static void
-openGlInitState(Camera *camera) {
+openGlInitState(const Camera *camera) {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_DEPTH_TEST);
 
@@ -83,7 +83,7 @@ openGlInitState(Camera *camera) {
 Creates an offscreen window for rendering
 */
 void
-openGlMesaRenderCreateOffscreenWindow(Camera *camera, int width, int height) {
+openGlMesaRenderCreateOffscreenWindow(const Camera *camera, const int width, const int height) {
     GLubyte *imageBuffer = (GLubyte *)malloc(width * height * sizeof(GLubyte) * 4);
 
     OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
@@ -147,7 +147,7 @@ openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
 Renders a convex polygon with Gouraud shading
 */
 void
-openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *verticesColors) {
+openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors) {
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         openGlRenderSetColor(&verticesColors[i]);
@@ -156,7 +156,7 @@ openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, ColorRgb *v
     glEnd();
 }
 
-void
+static void
 openGlRenderPatchFlat(Patch *patch) {
     openGlRenderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
@@ -184,7 +184,7 @@ openGlRenderPatchFlat(Patch *patch) {
     }
 }
 
-void
+static void
 openGlRenderPatchSmooth(Patch *patch) {
     switch ( patch->numberOfVertices ) {
         case 3:
@@ -223,7 +223,7 @@ openGlRenderPatchSmooth(Patch *patch) {
 Renders the patch outline in the current color
 */
 void
-openGlRenderPatchOutline(Patch *patch) {
+openGlRenderPatchOutline(const Patch *patch) {
     glBegin(GL_LINE_LOOP);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         glVertex3fv((GLfloat *) &patch->vertex[i]->point);
@@ -253,12 +253,12 @@ openGlRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *rende
 
 static void
 openGlReallyRenderOctreeLeaf(
-    Camera *camera,
+    const Camera *camera,
     Geometry *geometry,
     void (*renderPatch)(Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
-    java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
+    const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         renderPatch(patchList->get(i), camera, renderOptions);
     }
@@ -266,7 +266,7 @@ openGlReallyRenderOctreeLeaf(
 
 static void
 openGlRenderOctreeLeaf(
-    Camera *camera,
+    const Camera *camera,
     Geometry *geometry,
     void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
@@ -275,7 +275,7 @@ openGlRenderOctreeLeaf(
 }
 
 static int
-openGlViewCullBounds(Camera *camera, BoundingBox *bounds) {
+openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
@@ -308,7 +308,7 @@ clusteredWorldGeom is such a geometry e.g.
 static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
-    Geometry *geometry,
+    const Geometry *geometry,
     void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *renderOptions),
     const RenderOptions *renderOptions)
 {
@@ -339,7 +339,7 @@ openGlRenderOctreeNonLeaf(
     for ( i = 0; i < n; i++ ) {
         if ( openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
             octree_children[i].geometry = nullptr; // culled
-            octree_children[i].distance = HUGE;
+            octree_children[i].distance = HUGE_FLOAT;
         } else {
             // Not culled, compute distance from eye to midpoint of child
             octree_children[i].distance = openGlBoundsDistance2(
@@ -367,7 +367,7 @@ openGlRenderOctreeNonLeaf(
 
         // remove it from the list
         octree_children[closest].geometry = nullptr;
-        octree_children[closest].distance = HUGE;
+        octree_children[closest].distance = HUGE_FLOAT;
         remaining--;
     }
     delete children;
@@ -427,7 +427,7 @@ Indicates that the scene has modified, so a new display list should be
 compiled and rendered from now on. Only relevant when using display lists
 */
 void
-openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, RenderOptions *renderOptions) {
+openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions) {
     if ( globalDisplayListId >= 0 ) {
         glDeleteLists(globalDisplayListId, 1);
     }
@@ -495,10 +495,6 @@ openGlRenderScene(
 
     canvasPushMode();
 
-    if ( scene->camera->changed ) {
-        //renderOptions->renderRayTracedImage = false;
-    }
-
     if ( !renderOptions->renderRayTracedImage || !openGlRenderRayTraced(reDisplayCallback) ) {
         openGlRenderRadiance(scene, radianceMethod, renderOptions);
     }
@@ -518,7 +514,7 @@ Renders an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb *rgb) {
+openGlRenderPixels(const Camera *camera, int x, int y, int width, int height, const ColorRgb *rgb) {
     int rowLength;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
@@ -526,7 +522,7 @@ openGlRenderPixels(Camera *camera, int x, int y, int width, int height, ColorRgb
     GLubyte *c = new GLubyte[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
-        ColorRgb *rgbP = &rgb[j * width];
+        const ColorRgb *rgbP = &rgb[j * width];
 
         GLubyte *p = c + j * rowLength; // Let each line start on an 8-byte boundary
         for ( int i = 0; i < width; i++, rgbP++ ) {
@@ -574,6 +570,6 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-sglRenderIds(long *x, long *y, const Scene *scene, RenderOptions *renderOptions) {
+sglRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
     return softRenderIds(x, y, scene, renderOptions);
 }

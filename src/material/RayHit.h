@@ -8,6 +8,7 @@ used as a parameter for BSDF/EDF queries
 
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 
 /**
 The flags below have a double function: if passed as an argument
@@ -60,9 +61,7 @@ class RayHit {
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
     Vector3D normal; // Shading normal
-    Vector3D X; // Shading frame (Z = shading normal: hit->Z == hit->normal)
-    Vector3D Y;
-    Vector3D Z;
+    CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)
     Vector2Dd uv; // Bi-linear/barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
@@ -77,7 +76,7 @@ class RayHit {
         Material *inMaterial);
 
     int getTexCoord(Vector3D *outTexCoord);
-    int shadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
+    int setShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
     int shadingNormal(Vector3D *inNormal);
 };
 

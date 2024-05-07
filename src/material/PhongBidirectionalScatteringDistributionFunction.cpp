@@ -63,7 +63,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
     const Vector3D * /*Y*/,
     const Vector3D * /*Z*/)
 {
-    // Not implemented, should call to bsdf->methods->shadingFrame or something like that
+    // Not implemented, should call to bsdf->methods->setShadingFrame or something like that
     return false;
 }
 

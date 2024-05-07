@@ -214,7 +214,6 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     scene->geometryList = nullptr;
 
     Patch::setNextId(1);
-    scene->clusteredGeometryList = new java::ArrayList<Geometry *>();
     scene->background = nullptr;
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well

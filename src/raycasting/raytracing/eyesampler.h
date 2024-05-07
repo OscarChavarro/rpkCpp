@@ -10,7 +10,7 @@ Just fills in the eye point in the node
 class CEyeSampler : public Sampler {
 public:
     // Sample : newNode gets filled, others may change
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -18,19 +18,19 @@ public:
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        double x_1,
-        double x_2,
+        double x1,
+        double x2,
         bool doRR = false,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
+        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) final;
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
         double *probabilityDensityFunction = nullptr,
-        double *probabilityDensityFunctionRR = nullptr);
+        double *probabilityDensityFunctionRR = nullptr) final;
 };
 
 #endif

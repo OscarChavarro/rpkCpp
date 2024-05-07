@@ -11,6 +11,7 @@ Scene::Scene():
     lightSourcePatchList()
 {
     camera = new Camera();
+    clusteredGeometryList = new java::ArrayList<Geometry *>();
 }
 
 Scene::~Scene() {
