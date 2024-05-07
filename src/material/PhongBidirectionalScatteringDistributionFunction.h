@@ -51,16 +51,15 @@ class PhongBidirectionalScatteringDistributionFunction {
         const Vector3D *normal,
         double *probabilityDensityFunction);
 
-    static void
+    void
     splitBsdfProbabilities(
-        const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         BSDF_FLAGS flags,
         double *texture,
         double *reflection,
         double *transmission,
         char *brdfFlags,
-        char *btdfFlags);
+        char *btdfFlags) const;
 
     static SplitBSDFSamplingMode
     splitBsdfSamplingMode(
@@ -93,24 +92,22 @@ public:
         char flags,
         ColorRgb *colArray) const;
 
-    static ColorRgb splitBsdfScatteredPower(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
-    static int splitBsdfIsTextured(const PhongBidirectionalScatteringDistributionFunction *bsdf);
+    ColorRgb splitBsdfScatteredPower(RayHit *hit, char flags) const;
+    int splitBsdfIsTextured() const;
 
-    static ColorRgb
+    ColorRgb
     evaluate(
-        const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
         const PhongBidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
         const Vector3D *out,
-        char flags);
+        char flags) const;
 
-    static void indexOfRefraction(const PhongBidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index);
+    void indexOfRefraction(RefractionIndex *index) const;
 
-    static Vector3D
+    Vector3D
     sample(
-        const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
         const PhongBidirectionalScatteringDistributionFunction *outBsdf,
@@ -119,11 +116,10 @@ public:
         char flags,
         double x1,
         double x2,
-        double *probabilityDensityFunction);
+        double *probabilityDensityFunction) const;
 
-    static void
+    void
     evaluateProbabilityDensityFunction(
-        const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
         const PhongBidirectionalScatteringDistributionFunction *outBsdf,
@@ -131,7 +127,7 @@ public:
         const Vector3D *out,
         char flags,
         double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR);
+        double *probabilityDensityFunctionRR) const;
 };
 
 #endif

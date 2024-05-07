@@ -9,7 +9,7 @@ zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit 
     if ( bsdf == nullptr ) {
         color.clear();
     } else {
-        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags);
+        color = bsdf->splitBsdfScatteredPower(hit, flags);
     }
     return (color.average() < EPSILON);
 }
@@ -372,11 +372,9 @@ CPhotonMap::Reconstruct(
     glossyAlbedo.clear();
 
     if ( bsdf != nullptr ) {
-        diffuseAlbedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-            bsdf, hit, BRDF_DIFFUSE_COMPONENT);
+        diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit, BRDF_DIFFUSE_COMPONENT);
         // -- TODO Irradiance pre-computation for diffuse transmission
-        glossyAlbedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-            bsdf, hit, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     }
 
     checkNBalance();
@@ -414,8 +412,8 @@ CPhotonMap::Reconstruct(
         if ( bsdf == nullptr ) {
             eval.clear();
         } else {
-            eval = PhongBidirectionalScatteringDistributionFunction::evaluate(
-                bsdf, hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+            eval = bsdf->evaluate(
+                hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         }
         power = m_photons[i]->Power();
 

@@ -499,8 +499,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     ColorRgb result;
     result.clear();
     if ( hit.material->bsdf != nullptr ) {
-        result = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-            hit.material->bsdf, &hit, BRDF_DIFFUSE_COMPONENT);
+        result = hit.material->bsdf->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
     }
     return result;
 }

@@ -36,13 +36,13 @@ CPhotonMapSampler::chooseComponent(
     color.clear();
 
     if ( bsdf != nullptr ) {
-        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags1);
+        color = bsdf->splitBsdfScatteredPower(hit, flags1);
     }
     power1 = color.average();
 
     color.clear();
     if ( bsdf != nullptr ) {
-        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags2);
+        color = bsdf->splitBsdfScatteredPower(hit, flags2);
     }
     power2 = color.average();
 
@@ -160,7 +160,7 @@ bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
         nc.nr = 1.0; // Vacuum
         nc.ni = 0.0;
     } else {
-        PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, &nc);
+        bsdf->indexOfRefraction(&nc);
     }
 
     // Convert to geometric IOR if necessary
@@ -192,15 +192,13 @@ chooseFresnelDirection(
     ColorRgb reflectance;
     reflectance.clear();
     if ( bsdf != nullptr ) {
-        reflectance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-            bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
+        reflectance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
     transmittance.clear();
     if ( bsdf != nullptr ) {
-        transmittance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-            bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
+        transmittance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
     bool reflective = (reflectance.average() > EPSILON);

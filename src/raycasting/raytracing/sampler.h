@@ -128,7 +128,7 @@ class CSurfaceSampler : public Sampler {
             if ( bsdf == nullptr ) {
                 radiance.clear();
             } else {
-                radiance = PhongBidirectionalScatteringDistributionFunction::evaluate(bsdf, hit, inBsdf, outBsdf, in, out, flags);
+                radiance = bsdf->evaluate(hit, inBsdf, outBsdf, in, out, flags);
             }
             return radiance;
         }
