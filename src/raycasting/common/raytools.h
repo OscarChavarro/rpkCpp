@@ -6,13 +6,13 @@ Some utility routines for ray intersections and for statistics
 #define __RAY_TOOLS__
 
 #include "common/Ray.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/common/pathnode.h"
 
-extern RayHit *findRayIntersection(VoxelGrid *sceneWorldVoxelGrid, Ray *ray, Patch *patch, BidirectionalScatteringDistributionFunction *currentBsdf, RayHit *hitStore);
+extern RayHit *findRayIntersection(VoxelGrid *sceneWorldVoxelGrid, Ray *ray, Patch *patch, PhongBidirectionalScatteringDistributionFunction *currentBsdf, RayHit *hitStore);
 
 extern bool
 pathNodesVisible(

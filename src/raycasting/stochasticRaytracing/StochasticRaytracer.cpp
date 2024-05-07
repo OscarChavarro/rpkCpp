@@ -79,10 +79,10 @@ stochasticRaytracerGetScatteredRadiance(
             ColorRgb albedo;
             albedo.clear();
             if ( thisNode->m_useBsdf != nullptr ) {
-                albedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
-                        thisNode->m_useBsdf,
-                        &thisNode->m_hit,
-                        si->flags);
+                albedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+                    thisNode->m_useBsdf,
+                    &thisNode->m_hit,
+                    si->flags);
             }
             if ( albedo.average() < EPSILON ) {
                 // Skip, no contribution anyway

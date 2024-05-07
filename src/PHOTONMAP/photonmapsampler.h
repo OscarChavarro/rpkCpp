@@ -45,7 +45,7 @@ class CPhotonMapSampler : public CBsdfSampler {
     chooseComponent(
         BSDF_FLAGS flags1,
         BSDF_FLAGS flags2,
-        const BidirectionalScatteringDistributionFunction *bsdf,
+        const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         bool doRR,
         double *x,

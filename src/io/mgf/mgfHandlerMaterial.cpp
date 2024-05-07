@@ -3,7 +3,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
-#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/words.h"
@@ -231,7 +231,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
             globalMgfCurrentMaterial->ni);
     }
 
-    BidirectionalScatteringDistributionFunction *bsdf = new BidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
+    PhongBidirectionalScatteringDistributionFunction *bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
 
     (*material) = materialCreate(
         materialName,

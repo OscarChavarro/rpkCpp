@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/render.h"
-#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
@@ -612,7 +612,7 @@ stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
     }
     const Material *mat = elem->patch->material;
     return mat->bsdf != nullptr
-        && (SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(mat->bsdf)
+        && (PhongBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(mat->bsdf)
         || PhongEmittanceDistributionFunction::edfIsTextured());
 }
 
@@ -669,7 +669,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         if ( patch->material->bsdf ) {
             sample.clear();
             if ( patch->material->bsdf != nullptr ) {
-                sample = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+                sample = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
                     patch->material->bsdf, &hit, BRDF_DIFFUSE_COMPONENT);
             }
             albedo.add(albedo, sample);

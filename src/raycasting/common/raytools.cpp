@@ -41,7 +41,7 @@ findRayIntersection(
         VoxelGrid *sceneWorldVoxelGrid,
         Ray *ray,
         Patch *patch,
-        BidirectionalScatteringDistributionFunction *currentBsdf,
+        PhongBidirectionalScatteringDistributionFunction *currentBsdf,
         RayHit *hitStore)
 {
     int hitFlags;

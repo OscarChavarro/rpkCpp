@@ -11,7 +11,7 @@ A chain list is a set of scattering modes
 
 #include "common/dataStructures/CircularList.h"
 #include "common/ColorRgb.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/pathnode.h"
 #include "raycasting/raytracing/bipath.h"
 

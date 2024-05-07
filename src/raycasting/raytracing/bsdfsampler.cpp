@@ -1,7 +1,7 @@
 #include <cmath>
 
 #include "common/error.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 
@@ -25,7 +25,7 @@ CBsdfSampler::sample(
     pdfDir = 0.0;
 
     if ( thisNode->m_useBsdf != nullptr ) {
-        dir = SplitBidirectionalScatteringDistributionFunction::sample(
+        dir = PhongBidirectionalScatteringDistributionFunction::sample(
             thisNode->m_useBsdf,
             &thisNode->m_hit,
             thisNode->m_inBsdf,
@@ -50,7 +50,7 @@ CBsdfSampler::sample(
         ColorRgb albedo;
         albedo.clear();
         if ( thisNode->m_useBsdf != nullptr ) {
-            albedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            albedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
                 thisNode->m_useBsdf, &thisNode->m_hit, flags);
         }
         newNode->accumulatedRussianRouletteFactors *= albedo.average();
@@ -90,7 +90,7 @@ CBsdfSampler::sample(
             // prevpdf : new->this->prev pdf evaluation
             // normal direction is handled by the evalpdf routine
             // Are the flags usable in both directions?
-            SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+            PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
                 thisNode->m_useBsdf,
                 &thisNode->m_hit,
                 thisNode->m_outBsdf,
@@ -146,7 +146,7 @@ CBsdfSampler::evalPDF(
     pdfDir = 0;
     *pdfRR = 0;
     if ( thisNode->m_useBsdf != nullptr ) {
-        SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+        PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
             thisNode->m_useBsdf,
             &thisNode->m_hit,
             thisNode->m_inBsdf,
@@ -199,7 +199,7 @@ CBsdfSampler::EvalPDFPrev(
     pdfDir = 0.0;
     *pdfRR = 0.0;
     if ( thisNode->m_useBsdf != nullptr ) {
-        SplitBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
+        PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunction(
             thisNode->m_useBsdf,
             &thisNode->m_hit,
             thisNode->m_outBsdf,

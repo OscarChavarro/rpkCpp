@@ -63,7 +63,7 @@ SimpleRaytracingPathNode::print(FILE *out) {
 
 SimpleRaytracingPathNode *
 SimpleRaytracingPathNode::GetMatchingNode() {
-    BidirectionalScatteringDistributionFunction *thisBsdf;
+    PhongBidirectionalScatteringDistributionFunction *thisBsdf;
     int backHits;
     SimpleRaytracingPathNode *tmpNode = previous();
     SimpleRaytracingPathNode *matchedNode = nullptr;
@@ -100,7 +100,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
     }
 }
 
-BidirectionalScatteringDistributionFunction *
+PhongBidirectionalScatteringDistributionFunction *
 SimpleRaytracingPathNode::getPreviousBsdf() {
     SimpleRaytracingPathNode *matchedNode;
 

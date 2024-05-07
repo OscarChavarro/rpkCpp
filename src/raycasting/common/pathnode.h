@@ -8,7 +8,7 @@ and contain necessary information for raytracing-like algorithms
 
 #include "common/Ray.h"
 #include "common/ColorRgb.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 // -- For evaluation of bi paths, should change!
 #include "raycasting/common/bsdfcomp.h"
@@ -66,9 +66,9 @@ class SimpleRaytracingPathNode {
     // one to check immediately if any previous node in the path had a certain
     // scattering component used. accUsed = prev->used | prev->accUsed
 
-    BidirectionalScatteringDistributionFunction *m_useBsdf; // bsdf used for scattering
-    BidirectionalScatteringDistributionFunction *m_inBsdf; // Medium of incoming ray
-    BidirectionalScatteringDistributionFunction *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
+    PhongBidirectionalScatteringDistributionFunction *m_useBsdf; // bsdf used for scattering
+    PhongBidirectionalScatteringDistributionFunction *m_inBsdf; // Medium of incoming ray
+    PhongBidirectionalScatteringDistributionFunction *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
     PathRayType m_rayType;
     int m_depth; // First node in a path has depth 0
 
@@ -101,7 +101,7 @@ class SimpleRaytracingPathNode {
         }
     }
 
-    BidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
+    PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
     void print(FILE *out);

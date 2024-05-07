@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "material/Material.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 Material::Material(): name(), edf(), bsdf(), sided(0) {
     name = new char[10];
@@ -18,7 +18,7 @@ Material *
 materialCreate(
     const char *inName,
     PhongEmittanceDistributionFunction *edf,
-    BidirectionalScatteringDistributionFunction *bsdf,
+    PhongBidirectionalScatteringDistributionFunction *bsdf,
     int sided)
 {
     Material *m = new Material();

@@ -9,7 +9,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "common/mymath.h"
 #include "common/Statistics.h"
 #include "common/options.h"
-#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 #include "render/potential.h"
@@ -499,7 +499,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     ColorRgb result;
     result.clear();
     if ( hit.material->bsdf != nullptr ) {
-        result = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        result = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             hit.material->bsdf, &hit, BRDF_DIFFUSE_COMPONENT);
     }
     return result;

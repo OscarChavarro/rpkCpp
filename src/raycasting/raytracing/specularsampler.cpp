@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
 
@@ -21,14 +21,14 @@ CSpecularSampler::sample(
     bool reflect;
 
     // Choose a scattering mode : reflection vs. refraction
-    ColorRgb reflectance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+    ColorRgb reflectance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
         thisNode->m_useBsdf,
         &thisNode->m_hit,
         GET_BRDF_FLAGS(flags));
     ColorRgb transmittance;
     transmittance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
-        transmittance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        transmittance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             thisNode->m_useBsdf,
             &thisNode->m_hit,
             GET_BTDF_FLAGS(flags));
@@ -62,14 +62,14 @@ CSpecularSampler::sample(
             inIndex.nr = 1.0; // Vacuum
             inIndex.ni = 0.0;
         } else {
-            SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_inBsdf, &inIndex);
+            PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_inBsdf, &inIndex);
         }
 
         if ( thisNode->m_outBsdf == nullptr ) {
             outIndex.nr = 1.0; // Vacuum
             outIndex.ni = 0.0;
         } else {
-            SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_outBsdf, &outIndex);
+            PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(thisNode->m_outBsdf, &outIndex);
         }
 
         dir = idealRefractedDirection(

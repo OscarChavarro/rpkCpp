@@ -4,7 +4,7 @@
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "QMC/nied31.h"
-#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 
 #define TOLERANCE 1e-5
@@ -690,7 +690,7 @@ int
 Patch::getNumberOfSamples() const {
     int numberOfSamples = 1;
     if ( material->bsdf != nullptr
-        && SplitBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(material->bsdf) ) {
+        && PhongBidirectionalScatteringDistributionFunction::splitBsdfIsTextured(material->bsdf) ) {
         if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
              vertex[0]->textureCoordinates == vertex[2]->textureCoordinates &&
              (numberOfVertices == 3 || vertex[0]->textureCoordinates == vertex[3]->textureCoordinates) &&
@@ -727,7 +727,7 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample.clear();
         if ( material->bsdf != nullptr ) {
-            sample = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+            sample = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
                 material->bsdf, &hit, components);
         }
         albedo.add(albedo, sample);

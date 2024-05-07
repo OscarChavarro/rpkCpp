@@ -1,15 +1,15 @@
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "material/SplitBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "PHOTONMAP/photonmap.h"
 
 bool
-zeroAlbedo(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
+zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
     ColorRgb color;
     if ( bsdf == nullptr ) {
         color.clear();
     } else {
-        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags);
+        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags);
     }
     return (color.average() < EPSILON);
 }
@@ -351,9 +351,9 @@ ColorRgb
 CPhotonMap::Reconstruct(
     RayHit *hit,
     Vector3D &outDir,
-    BidirectionalScatteringDistributionFunction *bsdf,
-    BidirectionalScatteringDistributionFunction *inBsdf,
-    BidirectionalScatteringDistributionFunction *outBsdf)
+    PhongBidirectionalScatteringDistributionFunction *bsdf,
+    PhongBidirectionalScatteringDistributionFunction *inBsdf,
+    PhongBidirectionalScatteringDistributionFunction *outBsdf)
 {
     // Find the nearest photons
     float maxDistance;
@@ -372,10 +372,10 @@ CPhotonMap::Reconstruct(
     glossyAlbedo.clear();
 
     if ( bsdf != nullptr ) {
-        diffuseAlbedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        diffuseAlbedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             bsdf, hit, BRDF_DIFFUSE_COMPONENT);
         // -- TODO Irradiance pre-computation for diffuse transmission
-        glossyAlbedo = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        glossyAlbedo = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             bsdf, hit, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     }
 
@@ -414,8 +414,8 @@ CPhotonMap::Reconstruct(
         if ( bsdf == nullptr ) {
             eval.clear();
         } else {
-            eval = SplitBidirectionalScatteringDistributionFunction::evaluate(
-                    bsdf, hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+            eval = PhongBidirectionalScatteringDistributionFunction::evaluate(
+                bsdf, hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         }
         power = m_photons[i]->Power();
 

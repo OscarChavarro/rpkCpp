@@ -2,14 +2,14 @@
 #define __PHOTON_MAP__
 
 #include "common/ColorRgb.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/photon.h"
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool zeroAlbedo(const BidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
+bool zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
 
 // Convert a value val given a maximum into some nice color
 ColorRgb getFalseColor(float val);
@@ -113,7 +113,7 @@ class CPhotonMap {
 
     // Reconstruct
     virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,
-                                 BidirectionalScatteringDistributionFunction *bsdf, BidirectionalScatteringDistributionFunction *inBsdf, BidirectionalScatteringDistributionFunction *outBsdf);
+                                 PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
                                ColorRgb &diffuseAlbedo,

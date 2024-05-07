@@ -5,7 +5,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #include <cmath>
 
 #include "PHOTONMAP/photonmapsampler.h"
-#include "material/BidirectionalScatteringDistributionFunction.h"
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "common/error.h"
 #include "raycasting/common/raytools.h"
 
@@ -20,7 +20,7 @@ bool
 CPhotonMapSampler::chooseComponent(
     BSDF_FLAGS flags1,
     BSDF_FLAGS flags2,
-    const BidirectionalScatteringDistributionFunction *bsdf,
+    const PhongBidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
     bool doRR,
     double *x,
@@ -36,13 +36,13 @@ CPhotonMapSampler::chooseComponent(
     color.clear();
 
     if ( bsdf != nullptr ) {
-        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags1);
+        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags1);
     }
     power1 = color.average();
 
     color.clear();
     if ( bsdf != nullptr ) {
-        color = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags2);
+        color = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(bsdf, hit, flags2);
     }
     power2 = color.average();
 
@@ -90,7 +90,7 @@ CPhotonMapSampler::sample(
     bool doRR,
     BSDF_FLAGS flags)
 {
-    BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool sChosen;
     float pdfChoice;
     BSDF_FLAGS sFlagMask;
@@ -153,14 +153,14 @@ CPhotonMapSampler::sample(
 */
 
 static RefractionIndex
-bsdfGeometricIOR(const BidirectionalScatteringDistributionFunction *bsdf) {
+bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
 
     if ( bsdf == nullptr ) {
         nc.nr = 1.0; // Vacuum
         nc.ni = 0.0;
     } else {
-        SplitBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, &nc);
+        PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(bsdf, &nc);
     }
 
     // Convert to geometric IOR if necessary
@@ -188,18 +188,18 @@ chooseFresnelDirection(
 
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
-    const BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    const PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     ColorRgb reflectance;
     reflectance.clear();
     if ( bsdf != nullptr ) {
-        reflectance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        reflectance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
     transmittance.clear();
     if ( bsdf != nullptr ) {
-        transmittance = SplitBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
+        transmittance = PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(
             bsdf, &thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
@@ -403,7 +403,7 @@ CPhotonMapSampler::gdSample(
     // -- Currently NEVER reached!
 
     // Choose G or D
-    BidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool dChosen;
     float pdfChoice;
 
