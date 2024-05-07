@@ -665,7 +665,7 @@ PhotonMapRadianceMethod::getRadiance(
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);
-    hit.init(patch, nullptr, &point, &patch->normal, patch->material, 0.0);
+    hit.init(patch, nullptr, &point, &patch->normal, patch->material);
     hit.shadingNormal(&hit.normal);
 
     if ( zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {

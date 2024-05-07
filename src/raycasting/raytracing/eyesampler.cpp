@@ -31,7 +31,7 @@ CEyeSampler::sample(
 
     RayHit *hit = &newNode->m_hit;
 
-    hit->init(nullptr, nullptr, &camera->eyePosition, &camera->Z, nullptr, 0.0);
+    hit->init(nullptr, nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->normal = camera->Z;
     hit->X = camera->X;
     hit->Y = camera->Y;

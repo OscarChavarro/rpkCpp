@@ -47,8 +47,7 @@ RayHit::init(
     const Geometry *inGeometry,
     const Vector3D *inPoint,
     const Vector3D *inGeometryNormal,
-    Material *inMaterial,
-    float inDistance)
+    Material *inMaterial)
 {
     flags = 0;
     patch = inPatch;

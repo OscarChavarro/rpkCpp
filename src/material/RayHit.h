@@ -74,8 +74,7 @@ class RayHit {
         const Geometry *inGeometry,
         const Vector3D *inPoint,
         const Vector3D *inGeometryNormal,
-        Material *inMaterial,
-        float inDistance);
+        Material *inMaterial);
 
     int getTexCoord(Vector3D *outTexCoord);
     int shadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);

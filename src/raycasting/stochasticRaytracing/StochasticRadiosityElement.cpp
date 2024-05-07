@@ -649,7 +649,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     ColorRgb albedo;
     ColorRgb emittance;
     RayHit hit;
-    hit.init(patch, nullptr, &patch->midPoint, &patch->normal, patch->material, 0.0);
+    hit.init(patch, nullptr, &patch->midPoint, &patch->normal, patch->material);
 
     isTextured = stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
