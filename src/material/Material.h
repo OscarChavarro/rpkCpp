@@ -8,9 +8,11 @@
 #include "material/RayHit.h"
 
 class Material {
+  private:
+    PhongEmittanceDistributionFunction *edf; // Emittance distribution function
+
   public:
     char *name; // Material name
-    PhongEmittanceDistributionFunction *edf; // Emittance distribution function
     PhongBidirectionalScatteringDistributionFunction *bsdf; // Reflection and transmission together
     bool sided; // True for 1-sided surface, false for 2-sided, see mgf docs
 
@@ -20,6 +22,11 @@ class Material {
         PhongBidirectionalScatteringDistributionFunction *bsdf,
         bool sided);
     virtual ~Material();
+
+    inline PhongEmittanceDistributionFunction *
+    getEdf() {
+        return edf;
+    }
 };
 
 #endif

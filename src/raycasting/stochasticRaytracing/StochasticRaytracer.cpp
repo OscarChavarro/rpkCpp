@@ -378,7 +378,7 @@ stochasticRaytracerGetRadiance(
         result.scale((float)weight);
     } else {
         // Handle non-background
-        PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->edf;
+        PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->getEdf();
 
         result.clear();
 

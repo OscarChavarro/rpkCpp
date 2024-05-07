@@ -139,7 +139,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     directPotential = patch->directPotential;
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
-    if ( patch->material != nullptr && patch->material->edf != nullptr ) {
+    if ( patch->material != nullptr && patch->material->getEdf() != nullptr ) {
         flags |= IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
         Ed.scaleInverse(M_PI, Ed);

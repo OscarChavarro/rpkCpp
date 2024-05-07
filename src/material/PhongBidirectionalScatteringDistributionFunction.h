@@ -28,6 +28,10 @@ enum SplitBSDFSamplingMode {
 
 class PhongBidirectionalScatteringDistributionFunction {
   private:
+    PhongBidirectionalReflectanceDistributionFunction *brdf;
+    PhongBidirectionalTransmittanceDistributionFunction *btdf;
+    Texture *texture;
+
     static ColorRgb splitBsdfEvalTexture(const Texture *texture,  RayHit *hit);
 
     static double
@@ -68,11 +72,7 @@ class PhongBidirectionalScatteringDistributionFunction {
         double transmission,
         double *x1);
 
-public:
-    PhongBidirectionalReflectanceDistributionFunction *brdf;
-    PhongBidirectionalTransmittanceDistributionFunction *btdf;
-    Texture *texture;
-
+  public:
     explicit PhongBidirectionalScatteringDistributionFunction(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, Texture *texture);
     virtual ~PhongBidirectionalScatteringDistributionFunction();
 

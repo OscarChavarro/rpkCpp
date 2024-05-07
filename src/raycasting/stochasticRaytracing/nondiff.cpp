@@ -80,8 +80,8 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
         ray.dir.x = 0.0;
         ray.dir.y = 0.0;
         ray.dir.z = 0.0;
-        if ( patch->material->edf != nullptr ) {
-            ray.dir = patch->material->edf->phongEdfSample(
+        if ( patch->material->getEdf() != nullptr ) {
+            ray.dir = patch->material->getEdf()->phongEdfSample(
                 &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
         }
     } while ( *dirSelectionPdf == 0.0 );

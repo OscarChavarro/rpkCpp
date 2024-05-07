@@ -89,8 +89,8 @@ UniformLightSampler::sample(
         double pdf = 0.0;
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
-        if ( light->material->edf != nullptr ) {
-            dir = light->material->edf->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
+        if ( light->material->getEdf() != nullptr ) {
+            dir = light->material->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         }
 
         vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -146,10 +146,10 @@ UniformLightSampler::evalPDF(
     if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        if ( newNode->m_hit.patch->material->edf == nullptr ) {
+        if ( newNode->m_hit.patch->material->getEdf() == nullptr ) {
             pdfdir = 0.0;
         } else {
-            newNode->m_hit.patch->material->edf->phongEdfEval(
+            newNode->m_hit.patch->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
@@ -235,8 +235,8 @@ ImportantLightSampler::sample(
         double pdf = 0.0;
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
-        if ( light->material->edf != nullptr ) {
-            dir = light->material->edf->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
+        if ( light->material->getEdf() != nullptr ) {
+            dir = light->material->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
         }
 
         vectorAdd(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
@@ -291,10 +291,10 @@ ImportantLightSampler::evalPDF(
     if ( newNode->m_hit.patch->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        if ( newNode->m_hit.patch->material->edf == nullptr ) {
+        if ( newNode->m_hit.patch->material->getEdf() == nullptr ) {
             pdfdir = 0.0;
         } else {
-            newNode->m_hit.patch->material->edf->phongEdfEval(
+            newNode->m_hit.patch->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,

@@ -96,7 +96,7 @@ static void
 sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
          && patch->material != nullptr
-         && patch->material->edf != nullptr ) {
+         && patch->material->getEdf() != nullptr ) {
         lights->add(patch);
         GLOBAL_statistics.numberOfLightSources++;
     }

@@ -672,8 +672,8 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
             }
             albedo.add(albedo, sample);
         }
-        if ( patch->material->edf ) {
-            sample = patch->material->edf->phongEmittance(&hit, DIFFUSE_COMPONENT);
+        if ( patch->material->getEdf() ) {
+            sample = patch->material->getEdf()->phongEmittance(&hit, DIFFUSE_COMPONENT);
             emittance.add(emittance, sample);
         }
     }

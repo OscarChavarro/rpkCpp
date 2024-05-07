@@ -23,15 +23,15 @@ LightDirSampler::sample(
 {
     double pdfDir = 0.0;
 
-    if ( !thisNode->m_hit.material->edf ) {
+    if ( !thisNode->m_hit.material->getEdf() ) {
         logError("CLightDirSampler::sample", "No EDF");
         return false;
     }
 
     // Sample a light direction
     Vector3D dir(0.0f, 0.0f, 0.0f);
-    if ( thisNode->m_hit.material->edf != nullptr ) {
-        dir = thisNode->m_hit.material->edf->phongEdfSample(&thisNode->m_hit, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
+    if ( thisNode->m_hit.material->getEdf() != nullptr ) {
+        dir = thisNode->m_hit.material->getEdf()->phongEdfSample(&thisNode->m_hit, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
     }
 
     if ( pdfDir < EPSILON ) {
@@ -77,7 +77,7 @@ LightDirSampler::evalPDF(
     double dist2;
     Vector3D outDir;
 
-    if ( !thisNode->m_hit.material->edf ) {
+    if ( !thisNode->m_hit.material->getEdf() ) {
         logError("CLightDirSampler::evalPdf", "No EDF");
         return false;
     }
@@ -89,10 +89,10 @@ LightDirSampler::evalPDF(
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // EDF sampling
-    if ( thisNode->m_hit.material->edf == nullptr ) {
+    if ( thisNode->m_hit.material->getEdf() == nullptr ) {
         pdfDir = 0.0;
     } else {
-        thisNode->m_hit.material->edf->phongEdfEval(&thisNode->m_hit, &outDir, DIFFUSE_COMPONENT, &pdfDir);
+        thisNode->m_hit.material->getEdf()->phongEdfEval(&thisNode->m_hit, &outDir, DIFFUSE_COMPONENT, &pdfDir);
     }
 
     if ( pdfDir < 0.0 ) {
