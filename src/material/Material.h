@@ -10,10 +10,10 @@
 class Material {
   private:
     PhongEmittanceDistributionFunction *edf; // Emittance distribution function
+    PhongBidirectionalScatteringDistributionFunction *bsdf; // Reflection and transmission together
 
   public:
     char *name; // Material name
-    PhongBidirectionalScatteringDistributionFunction *bsdf; // Reflection and transmission together
     bool sided; // True for 1-sided surface, false for 2-sided, see mgf docs
 
     explicit Material(
@@ -24,8 +24,13 @@ class Material {
     virtual ~Material();
 
     inline PhongEmittanceDistributionFunction *
-    getEdf() {
+    getEdf() const {
         return edf;
+    }
+
+    inline PhongBidirectionalScatteringDistributionFunction *
+    getBsdf() const {
+        return bsdf;
     }
 };
 

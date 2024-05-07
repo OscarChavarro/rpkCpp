@@ -337,7 +337,7 @@ photonMapDoPhotonStore(
         // Only add photons on surfaces with a certain reflection
         // coefficient
 
-        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.patch->material->bsdf;
+        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.patch->material->getBsdf();
 
         if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.point, power, node->m_inDirF);
@@ -660,7 +660,7 @@ PhotonMapRadianceMethod::getRadiance(
 {
     RayHit hit;
     Vector3D point;
-    PhongBidirectionalScatteringDistributionFunction *bsdf = patch->material->bsdf;
+    PhongBidirectionalScatteringDistributionFunction *bsdf = patch->material->getBsdf();
     ColorRgb radiance;
     float density;
 

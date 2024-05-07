@@ -14,7 +14,7 @@ Store a importon/poton. Some acceptance tests are performed first
 static bool
 HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.patch->material ) {
-        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.patch->material->bsdf;
+        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.patch->material->getBsdf();
         return !zeroAlbedo(bsdf, &node->m_hit,
                            BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     } else {

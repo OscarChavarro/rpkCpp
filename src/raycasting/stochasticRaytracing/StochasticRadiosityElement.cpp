@@ -611,8 +611,8 @@ stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem) {
         return false;
     }
     const Material *mat = elem->patch->material;
-    return mat->bsdf != nullptr
-        && (mat->bsdf->splitBsdfIsTextured() || PhongEmittanceDistributionFunction::edfIsTextured());
+    return mat->getBsdf() != nullptr
+        && (mat->getBsdf()->splitBsdfIsTextured() || PhongEmittanceDistributionFunction::edfIsTextured());
 }
 
 /**
@@ -665,10 +665,10 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
         patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
-        if ( patch->material->bsdf ) {
+        if ( patch->material->getBsdf() ) {
             sample.clear();
-            if ( patch->material->bsdf != nullptr ) {
-                sample = patch->material->bsdf->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+            if ( patch->material->getBsdf() != nullptr ) {
+                sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
             }
             albedo.add(albedo, sample);
         }

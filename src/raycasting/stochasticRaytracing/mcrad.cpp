@@ -498,14 +498,14 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     hit.flags |= HIT_UV;
     ColorRgb result;
     result.clear();
-    if ( hit.material->bsdf != nullptr ) {
-        result = hit.material->bsdf->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+    if ( hit.material->getBsdf() != nullptr ) {
+        result = hit.material->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
     }
     return result;
 }
 
 static ColorRgb
-vertexReflectance(Vertex *v) {
+vertexReflectance(const Vertex *v) {
     int count = 0;
     ColorRgb rd;
 
@@ -515,7 +515,7 @@ vertexReflectance(Vertex *v) {
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
+        const StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
         if ( !element->regularSubElements ) {
             rd.add(rd, element->Rd);
             count++;

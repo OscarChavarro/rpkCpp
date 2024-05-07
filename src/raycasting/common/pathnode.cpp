@@ -74,7 +74,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
     while ( tmpNode && backHits > 0 ) {
         switch ( tmpNode->m_rayType ) {
             case ENTERS:
-                if ( tmpNode->m_hit.patch->material->bsdf == thisBsdf ) {
+                if ( tmpNode->m_hit.patch->material->getBsdf() == thisBsdf ) {
                     backHits--; // Entering point in this material
                 }
                 break;
@@ -109,8 +109,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
         return (m_inBsdf);  // Should not happen
     }
 
-    if ( m_hit.patch->material->bsdf !=
-         m_inBsdf ) {
+    if ( m_hit.patch->material->getBsdf() != m_inBsdf ) {
         logWarning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
@@ -139,7 +138,7 @@ SimpleRaytracingPathNode::assignBsdfAndNormal() {
     vectorCopy(m_hit.normal, m_normal); // Possible double format
 
     // Assign bsdf's
-    m_useBsdf = thisMaterial->bsdf;
+    m_useBsdf = thisMaterial->getBsdf();
 
     if ( m_hit.flags & HIT_FRONT ) {
         m_outBsdf = m_useBsdf; // In filled in when creating this node

@@ -689,7 +689,7 @@ Patch::computeBoundingBox() {
 int
 Patch::getNumberOfSamples() const {
     int numberOfSamples = 1;
-    if ( material->bsdf != nullptr && material->bsdf->splitBsdfIsTextured() ) {
+    if ( material->getBsdf() != nullptr && material->getBsdf()->splitBsdfIsTextured() ) {
         if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
              vertex[0]->textureCoordinates == vertex[2]->textureCoordinates &&
              (numberOfVertices == 3 || vertex[0]->textureCoordinates == vertex[3]->textureCoordinates) &&
@@ -725,8 +725,8 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         hit.flags |= HIT_UV;
         pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
         sample.clear();
-        if ( material->bsdf != nullptr ) {
-            sample = material->bsdf->splitBsdfScatteredPower(&hit, components);
+        if ( material->getBsdf() != nullptr ) {
+            sample = material->getBsdf()->splitBsdfScatteredPower(&hit, components);
         }
         albedo.add(albedo, sample);
     }

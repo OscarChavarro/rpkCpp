@@ -141,7 +141,7 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
         return false;
     }
 
-    if ( material && material->bsdf ) {
+    if ( material && material->getBsdf() ) {
         success = PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(this, inX, inY, inZ);
     }
 

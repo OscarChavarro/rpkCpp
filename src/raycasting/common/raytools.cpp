@@ -62,7 +62,7 @@ findRayIntersection(
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
     if ( newHit != nullptr && (newHit->flags & HIT_BACK) ) {
-        if ( newHit->patch->material->bsdf != currentBsdf ) {
+        if ( newHit->patch->material->getBsdf() != currentBsdf ) {
             // Whoops, intersected with wrong patch (accuracy problem)
             newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
             GLOBAL_raytracer_rayCount++; // Statistics
@@ -77,13 +77,13 @@ pathNodesVisible : send a shadow ray
 */
 bool
 pathNodesVisible(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *node1,
     SimpleRaytracingPathNode *node2)
 {
     Vector3D dir;
     Ray ray;
-    RayHit *hit;
+    const RayHit *hit;
     RayHit hitStore;
     double cosRay1;
     double cosRay2;

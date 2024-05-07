@@ -16,7 +16,7 @@ extern RayHit *findRayIntersection(VoxelGrid *sceneWorldVoxelGrid, Ray *ray, Pat
 
 extern bool
 pathNodesVisible(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     SimpleRaytracingPathNode *node1,
     SimpleRaytracingPathNode *node2);
 
