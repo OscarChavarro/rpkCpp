@@ -264,7 +264,7 @@ Returns the index of refraction of the BSDF
 */
 void
 PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(const PhongBidirectionalScatteringDistributionFunction *bsdf, RefractionIndex *index) {
-    if ( bsdf->btdf == nullptr ) {
+    if ( bsdf == nullptr || bsdf->btdf == nullptr ) {
         index->nr = 1.0; // Vacuum
         index->ni = 0.0;
     } else {
