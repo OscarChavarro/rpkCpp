@@ -459,7 +459,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
         if ( std::fabs(a) > EPSILON ) {
             // Avoid degenerate faces
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
-            if ( !context->currentMaterial->sided && face != nullptr ) {
+            if ( !context->currentMaterial->isSided() && face != nullptr ) {
                 Patch *twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], nullptr, context);
                 face->twin = twin;
                 if ( twin != nullptr ) {
@@ -509,7 +509,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
         backV[i] = nullptr;
-        if ( !context->currentMaterial->sided )
+        if ( !context->currentMaterial->isSided() )
             backV[i] = getBackFaceVertex(v[i], context);
     }
 
@@ -517,13 +517,15 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
     }
-    if ( !context->currentMaterial->sided ) vectorScale(-1.0, normal, backNormal);
+    if ( !context->currentMaterial->isSided() ) {
+        vectorScale(-1.0, normal, backNormal);
+    }
 
     errcode = MGF_OK;
     if ( argc == 4 ) {
         // Triangles
         face = newFace(v[0], v[1], v[2], nullptr, context);
-        if ( !context->currentMaterial->sided && face != nullptr ) {
+        if ( !context->currentMaterial->isSided() && face != nullptr ) {
             twin = newFace(backV[2], backV[1], backV[0], nullptr, context);
             face->twin = twin;
             if ( twin != nullptr ) {
@@ -534,7 +536,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
             // Quadrilaterals
             if ( context->inComplex || faceIsConvex(argc - 1, v, &normal) ) {
                 face = newFace(v[0], v[1], v[2], v[3], context);
-                if ( !context->currentMaterial->sided && face != nullptr ) {
+                if ( !context->currentMaterial->isSided() && face != nullptr ) {
                     twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
                     face->twin = twin;
                     if ( twin != nullptr ) {

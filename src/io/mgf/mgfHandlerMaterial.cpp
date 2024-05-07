@@ -44,7 +44,7 @@ static Material *
 materialLookup(const char *name, const MgfContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
-        if ( m != nullptr && m->name != nullptr && strcmp(m->name, name) == 0 ) {
+        if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
             return m;
         }
     }
@@ -141,7 +141,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     // Is it another material than the one used for the previous face ?? If not, the
     // material remains the same
-    if ( strcmp(materialName, (*material)->name) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, (*material)->getName()) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
         return false;
     }
 
@@ -267,7 +267,7 @@ mgfMaterialChanged(const Material *material, const MgfContext *context) {
 
     // Is it another material than the one used for the previous face? If not, the
     // globalCurrentMaterial remains the same
-    if ( strcmp(materialName, material->name) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, material->getName()) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
         return false;
     }
 

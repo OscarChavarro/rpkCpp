@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "material/Material.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 Material::Material(
     const char *inName,
