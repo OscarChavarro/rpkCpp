@@ -153,7 +153,7 @@ main(int argc, char *argv[]) {
         &renderOptions);
 
     // 3. Load scene elements from MGF file
-    Material defaultMaterial;
+    Material defaultMaterial("(default)", nullptr, nullptr, false);
     mgfContext.radianceMethod = selectedRadianceMethod;
     mgfContext.monochrome = DEFAULT_MONOCHROME;
     mgfContext.currentMaterial = &defaultMaterial;

@@ -233,11 +233,11 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     PhongBidirectionalScatteringDistributionFunction *bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
 
-    (*material) = materialCreate(
+    (*material) = new Material(
         materialName,
          edf,
          bsdf,
-         allSurfacesSided ? 1 : globalMgfCurrentMaterial->sided);
+        allSurfacesSided || globalMgfCurrentMaterial->sided);
 
     context->materials->add(0, (*material));
 

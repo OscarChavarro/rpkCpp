@@ -4,9 +4,9 @@
 #include "io/mgf/MgfColorContext.h"
 
 class MgfMaterialContext {
-public:
+  public:
     int clock; // Incremented each change -- resettable
-    int sided; // 1 if surface is 1-sided, 0 for 2-sided
+    bool sided; // true if surface is 1-sided, false for 2-sided
     float nr; // Index of refraction, real and imaginary
     float ni;
     float rd; // Diffuse reflectance

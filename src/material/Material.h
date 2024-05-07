@@ -12,17 +12,14 @@ class Material {
     char *name; // Material name
     PhongEmittanceDistributionFunction *edf; // Emittance distribution function
     PhongBidirectionalScatteringDistributionFunction *bsdf; // Reflection and transmission together
-    int sided; // 1 for 1-sided surface, 0 for 2-sided, see mgf docs
+    bool sided; // True for 1-sided surface, false for 2-sided, see mgf docs
 
-    Material();
+    explicit Material(
+        const char *inName,
+        PhongEmittanceDistributionFunction *edf,
+        PhongBidirectionalScatteringDistributionFunction *bsdf,
+        bool sided);
     virtual ~Material();
 };
-
-extern Material *
-materialCreate(
-    const char *inName,
-    PhongEmittanceDistributionFunction *edf,
-    PhongBidirectionalScatteringDistributionFunction *bsdf,
-    int sided);
 
 #endif
