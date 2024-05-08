@@ -54,7 +54,7 @@ protected:
     Vector3D lastPoint;
     Vector3D lastNormal;
 
-    void computeLightImportance(Vector3D *point, Vector3D *normal);
+    void computeLightImportance(const Vector3D *point, const Vector3D *normal);
 
     static double
     computeOneLightImportance(

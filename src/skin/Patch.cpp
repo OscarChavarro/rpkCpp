@@ -1040,10 +1040,10 @@ Patch::uniformPoint(double u, double v, Vector3D *point) const {
 }
 
 /**
-Computes (u,v) parameters of the point on the patch (barycentric or bi-linear
+Computes (u, v) parameters of the point on the patch (barycentric or bi-linear
 parametrisation). Returns true if the point is inside the patch and false if
 not.
-WARNING: The (u,v) coordinates are correctly computed only for positions inside
+WARNING: The (u, v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
 int

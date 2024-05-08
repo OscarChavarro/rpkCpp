@@ -47,6 +47,7 @@ routines
 */
 class RayHit {
   private:
+    Vector3D point; // Intersection point
     Patch *patch; // Patch that was hit
     Vector3D texCoord; // Texture coordinate
 
@@ -55,7 +56,6 @@ class RayHit {
     bool hitInitialised() const;
 
   public:
-    Vector3D point; // Intersection point
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)

@@ -389,7 +389,7 @@ stochasticRaytracerGetRadiance(
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = vectorDist2(thisNode->m_hit.point, thisNode->previous()->m_hit.point);
+                    float dist2 = vectorDist2(thisNode->m_hit.getPoint(), thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapGetNodeGRadiance(thisNode);
@@ -408,7 +408,8 @@ stochasticRaytracerGetRadiance(
                 double v;
 
                 // (u, v) coordinates of intersection point
-                thisNode->m_hit.getPatch()->uv(&thisNode->m_hit.point, &u, &v);
+                Vector3D position = thisNode->m_hit.getPoint();
+                thisNode->m_hit.getPatch()->uv(&position, &u, &v);
 
                 radiance = radianceMethod->getRadiance(
                     camera, thisNode->m_hit.getPatch(), u, v, thisNode->m_inDirF, renderOptions);

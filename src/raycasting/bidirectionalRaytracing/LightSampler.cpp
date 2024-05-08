@@ -93,7 +93,7 @@ UniformLightSampler::sample(
             dir = light->material->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         }
 
-        vectorSubtract(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
+        vectorSubtract(thisNode->m_hit.getPoint(), dir, point); // Fake hit at distance 1!
 
         newNode->m_hit.init(light, &point, nullptr, light->material);
 
@@ -135,13 +135,14 @@ UniformLightSampler::evalPDF(
     double * /*pdfRR*/)
 {
     double pdf;
-    double pdfdir;
+    double pdfDir;
 
     // The light point is in NEW NODE!
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
-        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.getPatch(), &newNode->m_hit.point);
+        Vector3D position = newNode->m_hit.getPoint();
+        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.getPatch(), &position);
     }
 
     // Prob for choosing this point(/direction)
@@ -149,16 +150,16 @@ UniformLightSampler::evalPDF(
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
         if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
-            pdfdir = 0.0;
+            pdfDir = 0.0;
         } else {
             newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
-                &pdfdir);
+                &pdfDir);
         }
 
-        pdf *= pdfdir;
+        pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
         if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {
@@ -166,7 +167,6 @@ UniformLightSampler::evalPDF(
         } else {
             pdf = 0.0;
         }
-
     }
 
     return pdf;
@@ -211,7 +211,8 @@ ImportantLightSampler::sample(
 
             vectorScale(-1, thisNode->m_normal, invNormal);
 
-            light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
+            Vector3D position = thisNode->m_hit.getPoint();
+            light = GLOBAL_lightList->sampleImportant(&position,
                                                       &invNormal, &x1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
@@ -219,7 +220,8 @@ ImportantLightSampler::sample(
         }
     } else {
         if ( thisNode->m_inBsdf == nullptr ) {
-            light = GLOBAL_lightList->sampleImportant(&thisNode->m_hit.point,
+            Vector3D position = thisNode->m_hit.getPoint();
+            light = GLOBAL_lightList->sampleImportant(&position,
                                                       &thisNode->m_normal,
                                                       &x1, &pdfLight);
         } else {
@@ -241,7 +243,7 @@ ImportantLightSampler::sample(
             dir = light->material->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
         }
 
-        vectorAdd(thisNode->m_hit.point, dir, point);   // fake hit at distance 1!
+        vectorAdd(thisNode->m_hit.getPoint(), dir, point);   // fake hit at distance 1!
 
         newNode->m_hit.init(light, &point, nullptr, light->material);
 
@@ -285,16 +287,18 @@ ImportantLightSampler::evalPDF(
     double pdfdir;
 
     // The light point is in NEW NODE !!
+    Vector3D newPosition = newNode->m_hit.getPoint();
+    Vector3D thisPosition = thisNode->m_hit.getPoint();
     pdf = GLOBAL_lightList->evalPdfImportant(
     newNode->m_hit.getPatch(),
-    &newNode->m_hit.point,
-    &thisNode->m_hit.point,
+    &newPosition,
+    &thisPosition,
     &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
     if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
         // virtual patch has no area!
-        // choosing a point == choosing a dir --> use pdf from evalEdf
+        // choosing newPosition point == choosing newPosition dir --> use pdf from evalEdf
         if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
             pdfdir = 0.0;
         } else {

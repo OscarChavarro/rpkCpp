@@ -250,7 +250,7 @@ LightList::computeOneLightImportance(Patch *light,
 }
 
 void
-LightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
+LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal) {
     if ( (vectorEqual(*point, lastPoint, EPSILON)) &&
         (vectorEqual(*normal, lastNormal, EPSILON)) ) {
         return; // Still ok !!
@@ -285,7 +285,8 @@ LightList::computeLightImportance(Vector3D *point, Vector3D *normal) {
 
 Patch *
 LightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf) {
-    LightInfo *info, *lastInfo;
+    const LightInfo *info;
+    const LightInfo *lastInfo;
     CTSList_Iter<LightInfo> iterator(*this);
     double rnd;
     double currentSum;

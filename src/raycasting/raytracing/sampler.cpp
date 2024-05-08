@@ -23,9 +23,9 @@ Sampler::sampleTransfer(
     double pdfDir)
 {
     Ray ray;
-    RayHit *hit;
+    const RayHit *hit;
 
-    ray.pos = thisNode->m_hit.point;
+    ray.pos = thisNode->m_hit.getPoint();
     ray.dir = *dir;
 
     // Fill in depth
@@ -81,7 +81,7 @@ Sampler::sampleTransfer(
 
     double cosA = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
     double cosB = std::fabs(vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirT));
-    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, tmpVec);
+    vectorSubtract(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint(), tmpVec);
     dist2 = vectorNorm2(tmpVec);
 
     if ( dist2 < EPSILON ) {

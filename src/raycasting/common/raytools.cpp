@@ -99,8 +99,7 @@ pathNodesVisible(
         return false;
     }
 
-    vectorSubtract(node2->m_hit.point, node1->m_hit.point,
-                   dir);
+    vectorSubtract(node2->m_hit.getPoint(), node1->m_hit.getPoint(), dir);
 
     dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);
@@ -109,7 +108,7 @@ pathNodesVisible(
 
     dist = dist * (1 - EPSILON);
 
-    ray.pos = node1->m_hit.point;
+    ray.pos = node1->m_hit.getPoint();
     vectorCopy(dir, ray.dir);
 
     cosRay1 = vectorDotProduct(dir, node1->m_normal);
@@ -197,7 +196,7 @@ eyeNodeVisible(
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
-    vectorSubtract(node->m_hit.point, eyeNode->m_hit.point, dir);
+    vectorSubtract(node->m_hit.getPoint(), eyeNode->m_hit.getPoint(), dir);
 
     dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);
@@ -222,7 +221,7 @@ eyeNodeVisible(
                 // Check normal directions
                 dist = dist * (1 - EPSILON);
 
-                ray.pos = eyeNode->m_hit.point;
+                ray.pos = eyeNode->m_hit.getPoint();
                 vectorCopy(dir, ray.dir);
 
                 cosRayEye = vectorDotProduct(dir, eyeNode->m_normal);
