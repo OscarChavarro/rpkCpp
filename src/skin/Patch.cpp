@@ -515,9 +515,12 @@ bool
 Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
     hit->flags |= HIT_UV; // uv parameters computed as a side result
     Vector3D position = hit->getPoint();
-    return (patch->numberOfVertices == 3)
-           ? triangleUv(&position, &hit->uv)
-           : quadUv(patch, &position, &hit->uv);
+    Vector2Dd uv;
+    bool result = (patch->numberOfVertices == 3)
+       ? triangleUv(&position, &uv)
+       : quadUv(patch, &position, &uv);
+    hit->setUv(&uv);
+    return result;
 }
 
 /**
@@ -719,11 +722,10 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
         const unsigned *xi = Nied31(i);
-        hit.uv.u = (double) xi[0] * RECIP;
-        hit.uv.v = (double) xi[1] * RECIP;
+        hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         hit.flags |= HIT_UV;
         Vector3D position = hit.getPoint();
-        pointBarycentricMapping(hit.uv.u, hit.uv.v, &position);
+        pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
         sample.clear();
         if ( material->getBsdf() != nullptr ) {
             sample = material->getBsdf()->splitBsdfScatteredPower(&hit, components);
@@ -747,11 +749,10 @@ Patch::averageEmittance(char components) {
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
         const unsigned *xi = Nied31(i);
-        hit.uv.u = (double) xi[0] * RECIP;
-        hit.uv.v = (double) xi[1] * RECIP;
+        hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         hit.flags |= HIT_UV;
         Vector3D position = hit.getPoint();
-        pointBarycentricMapping(hit.uv.u, hit.uv.v, &position);
+        pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
 
         if ( material->getEdf() == nullptr ) {
             sample.clear();
@@ -934,7 +935,10 @@ Patch::intersect(
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
             position = hit.getPoint();
-            hit.getPatch()->uv(&position, &hit.uv.u, &hit.uv.v);
+            double u;
+            double v;
+            hit.getPatch()->uv(&position, &u, &v);
+            hit.setUv(u, v);
             hit.setPoint(&position);
             hit.flags &= HIT_UV;
         }

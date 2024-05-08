@@ -53,13 +53,13 @@ class RayHit {
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)
+    Vector2Dd uv; // Bi-linear / barycentric parameters of hit
 
     bool computeUv(Vector2Dd *inUv);
     bool pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
     bool hitInitialised() const;
 
   public:
-    Vector2Dd uv; // Bi-linear/barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
     RayHit();
@@ -134,6 +134,22 @@ class RayHit {
     inline void
     setMaterial(Material *inMaterial) {
         material = inMaterial;
+    }
+
+    inline Vector2Dd
+    getUv() const {
+        return uv;
+    }
+
+    inline void
+    setUv(const Vector2Dd *inUv) {
+        uv = *inUv;
+    }
+
+    inline void
+    setUv(const double inU, const double inV) {
+        uv.u = inU;
+        uv.v = inV;
     }
 };
 

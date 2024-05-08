@@ -516,11 +516,11 @@ stochasticJacobiNextSample(
 Determines uniform (u,v) parameters of hit point on hit patch
 */
 static void
-stochasticJacobiUniformHitCoordinates(RayHit *hit, double *uHit, double *vHit) {
+stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
     if ( hit->flags & HIT_UV ) {
         // (u,v) coordinates obtained as side result of intersection test
-        *uHit = hit->uv.u;
-        *vHit = hit->uv.v;
+        *uHit = hit->getUv().u;
+        *vHit = hit->getUv().v;
         if ( hit->getPatch()->jacobian ) {
             hit->getPatch()->biLinearToUniform(uHit, vHit);
         }
