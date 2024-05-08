@@ -6,8 +6,8 @@
 #define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates
 
 RayHit::RayHit():
-    texCoord(),
     patch(),
+    texCoord(),
     point(),
     geometricNormal(),
     material(),

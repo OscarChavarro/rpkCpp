@@ -64,7 +64,7 @@ findRayIntersection(
     if ( newHit != nullptr && (newHit->flags & HIT_BACK) &&
          newHit->getPatch()->material->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
-        newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
+        newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->getPatch(), hitStore);
         GLOBAL_raytracer_rayCount++; // Statistics
     }
 
@@ -94,7 +94,7 @@ pathNodesVisible(
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
-    if ( node1->m_hit.patch == node2->m_hit.patch ) {
+    if ( node1->m_hit.getPatch() == node2->m_hit.getPatch() ) {
         // Same patch cannot see itself. Wrong for concave primitives!
         return false;
     }
@@ -140,7 +140,7 @@ pathNodesVisible(
     }
 
     if ( doTest ) {
-        if ( node2->m_hit.patch->hasZeroVertices() ) {
+        if ( node2->m_hit.getPatch()->hasZeroVertices() ) {
             fDistance = HUGE_FLOAT;
         } else {
             fDistance = (float) dist;
@@ -148,9 +148,9 @@ pathNodesVisible(
 
         Patch::dontIntersect(
             3,
-            node2->m_hit.patch,
-            node1->m_hit.patch,
-            node1->m_hit.patch != nullptr ? node1->m_hit.patch->twin : nullptr);
+            node2->m_hit.getPatch(),
+            node1->m_hit.getPatch(),
+            node1->m_hit.getPatch() != nullptr ? node1->m_hit.getPatch()->twin : nullptr);
         hit = sceneWorldVoxelGrid->gridIntersect(
             &ray,
             0.0,
@@ -231,8 +231,8 @@ eyeNodeVisible(
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = (float) dist;
                     Patch::dontIntersect(
-                        3, node->m_hit.patch, eyeNode->m_hit.patch,
-                         eyeNode->m_hit.patch ? eyeNode->m_hit.patch->twin : nullptr);
+                        3, node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
+                         eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
                     hit = sceneWorldVoxelGrid->gridIntersect(&ray,
                         0.0, &fDistance,
                         HIT_FRONT | HIT_ANY, &hitStore);

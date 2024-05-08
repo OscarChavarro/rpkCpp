@@ -34,7 +34,7 @@ Sampler::sampleTransfer(
     hit = findRayIntersection(
         sceneVoxelGrid,
         &ray,
-        thisNode->m_hit.patch,
+        thisNode->m_hit.getPatch(),
         newNode->m_inBsdf,
         &newNode->m_hit);
 

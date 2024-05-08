@@ -923,12 +923,12 @@ Patch::intersect(
 
     // Test whether it lays inside or outside the patch
     if ( hitInPatch(&hit, this) ) {
-        hit.patch = this;
+        hit.setPatch(this);
         hit.material = material;
         hit.geometricNormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
-            hit.patch->uv(&hit.point, &hit.uv.u, &hit.uv.v);
+            hit.getPatch()->uv(&hit.point, &hit.uv.u, &hit.uv.v);
             hit.flags &= HIT_UV;
         }
         *hitStore = hit;

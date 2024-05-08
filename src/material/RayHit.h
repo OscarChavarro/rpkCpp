@@ -48,6 +48,7 @@ routines
 */
 class RayHit {
   private:
+    Patch *patch; // Patch that was hit
     Vector3D texCoord; // Texture coordinate
 
     int computeUv(Vector2Dd *inUv);
@@ -55,7 +56,6 @@ class RayHit {
     bool hitInitialised() const;
 
   public:
-    Patch *patch; // Patch that was hit
     Vector3D point; // Intersection point
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
@@ -87,6 +87,11 @@ class RayHit {
     inline Patch*
     getPatch() const {
         return patch;
+    }
+
+    inline void
+    setPatch(Patch *inPatch) {
+        patch = inPatch;
     }
 };
 

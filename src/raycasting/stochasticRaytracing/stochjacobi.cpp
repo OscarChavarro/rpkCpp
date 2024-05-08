@@ -521,11 +521,11 @@ stochasticJacobiUniformHitCoordinates(RayHit *hit, double *uHit, double *vHit) {
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->uv.u;
         *vHit = hit->uv.v;
-        if ( hit->patch->jacobian ) {
-            hit->patch->biLinearToUniform(uHit, vHit);
+        if ( hit->getPatch()->jacobian ) {
+            hit->getPatch()->biLinearToUniform(uHit, vHit);
         }
     } else {
-        hit->patch->uniformUv(&hit->point, uHit, vHit);
+        hit->getPatch()->uniformUv(&hit->point, uHit, vHit);
     }
 
     // Clip uv coordinates to lay strictly inside the hit patch
@@ -576,7 +576,7 @@ stochasticJacobiElementShootRay(
         double vHit = 0.0;
         stochasticJacobiUniformHitCoordinates(hit, &uHit, &vHit);
         stochasticJacobiRefineAndPropagate(topLevelStochasticRadiosityElement(src->patch), zeta[0], zeta[1],
-                                           topLevelStochasticRadiosityElement(hit->patch), uHit, vHit, &ray, renderOptions);
+                                           topLevelStochasticRadiosityElement(hit->getPatch()), uHit, vHit, &ray, renderOptions);
     } else {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
     }

@@ -108,13 +108,13 @@ sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double lig
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = vectorDotProduct(ray.dir, light->patch->normal);
         ColorRgb receivedRadiosity;
-        ColorRgb Rd = topLevelStochasticRadiosityElement(hit->patch)->Rd;
-        receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->patch->area * pdf * globalNumberOfSamples)), rad);
+        ColorRgb Rd = topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
+        receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
-        getTopLevelPatchRad(hit->patch)[0].add(getTopLevelPatchRad(hit->patch)[0], receivedRadiosity);
-        getTopLevelPatchUnShotRad(hit->patch)[0].add(getTopLevelPatchUnShotRad(hit->patch)[0], receivedRadiosity);
-        topLevelStochasticRadiosityElement(hit->patch)->sourceRad.add(
-            topLevelStochasticRadiosityElement(hit->patch)->sourceRad, receivedRadiosity);
+        getTopLevelPatchRad(hit->getPatch())[0].add(getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
+        getTopLevelPatchUnShotRad(hit->getPatch())[0].add(getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
+        topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad.add(
+            topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad, receivedRadiosity);
     }
 }
 
