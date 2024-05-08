@@ -513,7 +513,8 @@ Badouels and Schlicks method from graphics gems: slower, but consumes less stora
 */
 bool
 Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
-    hit->flags |= HIT_UV; // uv parameters computed as a side result
+    unsigned int newFlags = hit->getFlags() | HIT_UV;
+    hit->setFlags(newFlags); // uv parameters computed as a side result
     Vector3D position = hit->getPoint();
     Vector2Dd uv;
     bool result = (patch->numberOfVertices == 3)
@@ -723,7 +724,8 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         ColorRgb sample;
         const unsigned *xi = Nied31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        hit.flags |= HIT_UV;
+        unsigned int newFlags = hit.getFlags() | HIT_UV;
+        hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
         sample.clear();
@@ -750,7 +752,8 @@ Patch::averageEmittance(char components) {
         ColorRgb sample;
         const unsigned *xi = Nied31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        hit.flags |= HIT_UV;
+        unsigned int newFlags = hit.getFlags() | HIT_UV;
+        hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
 
@@ -901,14 +904,16 @@ Patch::intersect(
         if ( !(hitFlags & HIT_BACK) ) {
             return nullptr;
         } else {
-            hit.flags = HIT_BACK;
+            unsigned int newFlags = hit.getFlags() | HIT_BACK;
+            hit.setFlags(newFlags);
         }
     } else if ( dist < -EPSILON ) {
         // Front facing patch
         if ( !(hitFlags & HIT_FRONT) ) {
             return nullptr;
         } else {
-            hit.flags = HIT_FRONT;
+            unsigned int newFlags = hit.getFlags() | HIT_FRONT;
+            hit.setFlags(newFlags);
         }
     } else {
         // Ray is parallel with the plane of the patch
@@ -932,15 +937,17 @@ Patch::intersect(
         hit.setPatch(this);
         hit.setMaterial(material);
         hit.setGeometricNormal(&normal);
-        hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
-        if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
+        unsigned int newFlags = hit.getFlags() | HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
+        hit.setFlags(newFlags);
+        if ( hitFlags & HIT_UV && !(hit.getFlags() & HIT_UV) ) {
             position = hit.getPoint();
             double u;
             double v;
             hit.getPatch()->uv(&position, &u, &v);
             hit.setUv(u, v);
             hit.setPoint(&position);
-            hit.flags &= HIT_UV;
+            newFlags = hit.getFlags() & HIT_UV;
+            hit.setFlags(newFlags);
         }
         *hitStore = hit;
         *maximumDistance = dist;

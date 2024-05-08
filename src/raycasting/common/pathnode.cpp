@@ -103,7 +103,7 @@ PhongBidirectionalScatteringDistributionFunction *
 SimpleRaytracingPathNode::getPreviousBsdf() {
     SimpleRaytracingPathNode *matchedNode;
 
-    if ( !(m_hit.flags & HIT_BACK) ) {
+    if ( !(m_hit.getFlags() & HIT_BACK) ) {
         logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return (m_inBsdf);  // Should not happen
     }
@@ -139,7 +139,7 @@ SimpleRaytracingPathNode::assignBsdfAndNormal() {
     // Assign bsdf's
     m_useBsdf = thisMaterial->getBsdf();
 
-    if ( m_hit.flags & HIT_FRONT ) {
+    if ( m_hit.getFlags() & HIT_FRONT ) {
         m_outBsdf = m_useBsdf; // In filled in when creating this node
     } else {
         // BACK HIT

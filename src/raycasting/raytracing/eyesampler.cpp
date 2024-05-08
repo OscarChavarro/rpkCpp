@@ -28,19 +28,18 @@ CEyeSampler::sample(
     // Choose point on eye : N/A
 
     // Fake a hit record
-
     RayHit *hit = &newNode->m_hit;
 
     hit->init(nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->setNormal(&camera->Z);
-    hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
+    unsigned int newFlags = hit->getFlags() | HIT_NORMAL | HIT_SHADING_FRAME;
+    hit->setFlags(newFlags);
     hit->setShadingFrame(&camera->X, &camera->Y, &camera->Z);
 
     vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
     newNode->m_G = 1.0;
 
     // outDir's not filled in
-
     newNode->m_pdfFromPrev = 1.0; // Differential eye area cancels out with computing the flux
 
     newNode->m_pdfFromNext = 0.0; // Eye cannot be hit accidentally, this pdf is never used

@@ -662,7 +662,8 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         ColorRgb sample;
         niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv((double)xi[0] * RECIP, (double)xi[1] * RECIP);
-        hit.flags |= HIT_UV;
+        unsigned int newFlags = hit.getFlags() | HIT_UV;
+        hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->uniformPoint(hit.getUv().u, hit.getUv().v, &position);
         if ( patch->material->getBsdf() ) {

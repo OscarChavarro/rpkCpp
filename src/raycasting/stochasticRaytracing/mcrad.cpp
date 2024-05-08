@@ -494,7 +494,8 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     patch->uniformPoint(u, v, &point);
     hit.init(patch, &point, &patch->normal, patch->material);
     hit.setUv(u, v);
-    hit.flags |= HIT_UV;
+    unsigned int newFlags = hit.getFlags() | HIT_UV;
+    hit.setFlags(newFlags);
     ColorRgb result;
     result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {

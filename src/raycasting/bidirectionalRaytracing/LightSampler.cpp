@@ -205,7 +205,7 @@ ImportantLightSampler::sample(
 
     // Choose light
 
-    if ( thisNode->m_hit.flags & HIT_BACK ) {
+    if ( thisNode->m_hit.getFlags() & HIT_BACK ) {
         if ( thisNode->m_outBsdf == nullptr ) {
             Vector3D invNormal;
 

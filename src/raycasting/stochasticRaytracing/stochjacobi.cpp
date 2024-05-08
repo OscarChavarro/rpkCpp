@@ -517,7 +517,7 @@ Determines uniform (u,v) parameters of hit point on hit patch
 */
 static void
 stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
-    if ( hit->flags & HIT_UV ) {
+    if ( hit->getFlags() & HIT_UV ) {
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->getUv().u;
         *vHit = hit->getUv().v;
