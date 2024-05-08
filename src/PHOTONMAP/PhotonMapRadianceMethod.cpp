@@ -333,11 +333,12 @@ photonMapDoPhotonStore(
     SimpleRaytracingPathNode *node,
     ColorRgb power)
 {
-    if ( node->m_hit.patch && node->m_hit.patch->material ) {
+    if ( node->m_hit.getPatch() && node->m_hit.getPatch()->material ) {
         // Only add photons on surfaces with a certain reflection
         // coefficient
 
-        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.patch->material->getBsdf();
+        const PhongBidirectionalScatteringDistributionFunction *bsdf;
+        bsdf = node->m_hit.getPatch()->material->getBsdf();
 
         if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.point, power, node->m_inDirF);

@@ -36,30 +36,29 @@ SimpleRaytracingPathNode::print(FILE *out) {
         vector3DPrint(out, m_inDirF);
         fprintf(out, "\n");
         fprintf(out, "Cos in  %f\n", vectorDotProduct(m_normal, m_inDirF));
-        fprintf(out, "GCos in %f\n", vectorDotProduct(m_hit.patch->normal,
-                                                      m_inDirF));
+        fprintf(out, "GCos in %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_inDirF));
     }
     if ( m_next ) {
         fprintf(out, "OutF: ");
         vector3DPrint(out, m_next->m_inDirT);
         fprintf(out, "\n");
         fprintf(out, "Cos out %f\n", vectorDotProduct(m_normal, m_next->m_inDirT));
-        fprintf(out, "GCos out %f\n", vectorDotProduct(m_hit.patch->normal,
-                                                       m_next->m_inDirT));
+        fprintf(out, "GCos out %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_next->m_inDirT));
     }
 }
 
-/* GetPreviousBsdf
- *
- * Searches back in the path to find the bsdf on the outside
- * of the current path/material. The last node should be
- * a back hit -> Leaving ray-type. If not, the current bsdf
- * is returned and an error is reported
- */
+/**
+GetPreviousBsdf
 
-/* Helper routine, searches the corresponding 'Enters'
- * node for this node
- */
+Searches back in the path to find the bsdf on the outside
+of the current path/material. The last node should be
+a back hit -> Leaving ray-type. If not, the current bsdf
+is returned and an error is reported
+*/
+
+/**
+Helper routine, searches the corresponding 'Enters' node for this node
+*/
 
 SimpleRaytracingPathNode *
 SimpleRaytracingPathNode::GetMatchingNode() {
@@ -74,7 +73,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
     while ( tmpNode && backHits > 0 ) {
         switch ( tmpNode->m_rayType ) {
             case ENTERS:
-                if ( tmpNode->m_hit.patch->material->getBsdf() == thisBsdf ) {
+                if ( tmpNode->m_hit.getPatch()->material->getBsdf() == thisBsdf ) {
                     backHits--; // Entering point in this material
                 }
                 break;
@@ -109,7 +108,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
         return (m_inBsdf);  // Should not happen
     }
 
-    if ( m_hit.patch->material->getBsdf() != m_inBsdf ) {
+    if ( m_hit.getPatch()->material->getBsdf() != m_inBsdf ) {
         logWarning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
@@ -126,14 +125,14 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
 
 void
 SimpleRaytracingPathNode::assignBsdfAndNormal() {
-    Material *thisMaterial;
+    const Material *thisMaterial;
 
-    if ( m_hit.patch == nullptr ) {
+    if ( m_hit.getPatch() == nullptr ) {
         // Invalid node
         return;
     }
 
-    thisMaterial = m_hit.patch->material;
+    thisMaterial = m_hit.getPatch()->material;
 
     vectorCopy(m_hit.getNormal(), m_normal); // Possible double format
 

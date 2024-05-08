@@ -83,6 +83,11 @@ class RayHit {
     inline void setNormal(const Vector3D *n) {
         shadingFrame.Z = *n;
     }
+
+    inline Patch*
+    getPatch() const {
+        return patch;
+    }
 };
 
 #endif

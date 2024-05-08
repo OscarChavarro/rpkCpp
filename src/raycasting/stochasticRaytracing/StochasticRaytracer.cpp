@@ -408,10 +408,10 @@ stochasticRaytracerGetRadiance(
                 double v;
 
                 // (u, v) coordinates of intersection point
-                thisNode->m_hit.patch->uv(&thisNode->m_hit.point, &u, &v);
+                thisNode->m_hit.getPatch()->uv(&thisNode->m_hit.point, &u, &v);
 
                 radiance = radianceMethod->getRadiance(
-                    camera, thisNode->m_hit.patch, u, v, thisNode->m_inDirF, renderOptions);
+                    camera, thisNode->m_hit.getPatch(), u, v, thisNode->m_inDirF, renderOptions);
 
                 // This includes Le diffuse, subtract first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a

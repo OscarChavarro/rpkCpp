@@ -155,7 +155,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
                     ray,
                     rcvDist * ((float)EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
             if ( hit != nullptr ) {
-                shadowCache->addToShadowCache(hit->patch);
+                shadowCache->addToShadowCache(hit->getPatch());
                 return 0.0;
             } else {
                 return 1.0;

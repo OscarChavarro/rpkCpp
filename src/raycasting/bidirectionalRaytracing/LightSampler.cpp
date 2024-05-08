@@ -141,17 +141,17 @@ UniformLightSampler::evalPDF(
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
-        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.patch, &newNode->m_hit.point);
+        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.getPatch(), &newNode->m_hit.point);
     }
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->hasZeroVertices() ) {
+    if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        if ( newNode->m_hit.patch->material->getEdf() == nullptr ) {
+        if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
             pdfdir = 0.0;
         } else {
-            newNode->m_hit.patch->material->getEdf()->phongEdfEval(
+            newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
@@ -161,8 +161,8 @@ UniformLightSampler::evalPDF(
         pdf *= pdfdir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= EPSILON && newNode->m_hit.patch->area > EPSILON ) {
-            pdf = pdf / newNode->m_hit.patch->area;
+        if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->area;
         } else {
             pdf = 0.0;
         }
@@ -286,19 +286,19 @@ ImportantLightSampler::evalPDF(
 
     // The light point is in NEW NODE !!
     pdf = GLOBAL_lightList->evalPdfImportant(
-    newNode->m_hit.patch,
+    newNode->m_hit.getPatch(),
     &newNode->m_hit.point,
     &thisNode->m_hit.point,
     &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
-    if ( newNode->m_hit.patch->hasZeroVertices() ) {
+    if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        if ( newNode->m_hit.patch->material->getEdf() == nullptr ) {
+        if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
             pdfdir = 0.0;
         } else {
-            newNode->m_hit.patch->material->getEdf()->phongEdfEval(
+            newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
@@ -308,8 +308,8 @@ ImportantLightSampler::evalPDF(
         pdf *= pdfdir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= EPSILON && newNode->m_hit.patch->area > EPSILON ) {
-            pdf = pdf / newNode->m_hit.patch->area;
+        if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->area;
         } else {
             pdf = 0.0;
         }

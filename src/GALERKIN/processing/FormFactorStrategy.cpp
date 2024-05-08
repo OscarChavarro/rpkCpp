@@ -57,7 +57,7 @@ FormFactorStrategy::shadowTestDiscretization(
                 hitStore);
         }
         if ( hit != nullptr ) {
-            shadowCache->addToShadowCache(hit->patch);
+            shadowCache->addToShadowCache(hit->getPatch());
         }
     }
 

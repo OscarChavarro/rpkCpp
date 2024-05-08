@@ -62,7 +62,7 @@ findRayIntersection(
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
     if ( newHit != nullptr && (newHit->flags & HIT_BACK) &&
-         newHit->patch->material->getBsdf() != currentBsdf ) {
+         newHit->getPatch()->material->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
         newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->patch, hitStore);
         GLOBAL_raytracer_rayCount++; // Statistics
