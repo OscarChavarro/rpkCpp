@@ -50,7 +50,7 @@ class CPhotonMap {
     bool m_cosinesOk; // indicates if cosines are computed
 
   protected:
-    // nearest photon queries must use these fucntions!
+    // nearest photon queries must use these functions!
     int
     doQuery(
         Vector3D *position,
@@ -79,29 +79,16 @@ class CPhotonMap {
     }
 
     // Compute cosines of photons with a supplied normal
-    void ComputeCosines(Vector3D &normal);
+    void computeCosines(Vector3D normal);
 
     // Add a photon taking possible irrPhoton into account
     void doAddPhoton(CPhoton &photon, Vector3D normal, short flags);
 
   public:
-    // Constructor
-
     explicit CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
-
-    // Destructor
-
     virtual ~CPhotonMap();
 
-    // Initialize
-
-    void Init();
-
-    // Set total paths
-
-    void SetTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }
-
-    // Adding photons, returns if photon was added
+    void setTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }
 
     virtual bool addPhoton(CPhoton &photon, Vector3D normal, short flags);
 
@@ -130,7 +117,7 @@ class CPhotonMap {
         const ColorRgb &diffuseAlbedo,
         ColorRgb *result);
 
-    virtual float GetCurrentDensity(RayHit &hit, int nrPhotons);
+    virtual float getCurrentDensity(RayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
     virtual ColorRgb GetDensityColor(RayHit &hit);

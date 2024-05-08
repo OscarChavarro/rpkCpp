@@ -930,7 +930,7 @@ Patch::intersect(
     if ( hitInPatch(&hit, this) ) {
         hit.setPatch(this);
         hit.material = material;
-        hit.geometricNormal = normal;
+        hit.setGeometricNormal(&normal);
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
             position = hit.getPoint();

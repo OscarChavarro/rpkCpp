@@ -202,7 +202,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
         *currentDirectory = '\0';
     }
 
-    // Init compute method
+    // init compute method
     setRadianceMethod(nullptr, scene);
 
 #ifdef RAYTRACING_ENABLED

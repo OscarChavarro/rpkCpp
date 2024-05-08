@@ -50,13 +50,13 @@ class RayHit {
     Vector3D point; // Intersection point
     Patch *patch; // Patch that was hit
     Vector3D texCoord; // Texture coordinate
+    Vector3D geometricNormal;
 
     bool computeUv(Vector2Dd *inUv);
     bool pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
     bool hitInitialised() const;
 
   public:
-    Vector3D geometricNormal;
     Material *material; // Material of hit surface
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)
     Vector2Dd uv; // Bi-linear/barycentric parameters of hit
@@ -101,6 +101,16 @@ class RayHit {
     inline void
     setPoint(const Vector3D *position) {
         point = *position;
+    }
+
+    inline Vector3D
+    getGeometricNormal() const {
+        return geometricNormal;
+    }
+
+    inline void
+    setGeometricNormal(const Vector3D *inNormal) {
+        geometricNormal = *inNormal;
     }
 };
 

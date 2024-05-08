@@ -513,8 +513,8 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_state.i_iteration_nr++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.importanceMap;
         GLOBAL_photonMap_state.totalIPaths = GLOBAL_photonMap_state.i_iteration_nr * GLOBAL_photonMap_state.iPathsPerIteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
-        GLOBAL_photonMap_config.importanceCMap->SetTotalPaths(GLOBAL_photonMap_state.totalIPaths);
+        GLOBAL_photonMap_config.currentMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
+        GLOBAL_photonMap_config.importanceCMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
         tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
 
@@ -528,7 +528,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_state.gIterationNumber++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.globalMap;
         GLOBAL_photonMap_state.totalGPaths = GLOBAL_photonMap_state.gIterationNumber * GLOBAL_photonMap_state.gPathsPerIteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalGPaths);
+        GLOBAL_photonMap_config.currentMap->setTotalPaths(GLOBAL_photonMap_state.totalGPaths);
 
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
@@ -550,7 +550,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_state.cIterationNumber++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.causticMap;
         GLOBAL_photonMap_state.totalCPaths = GLOBAL_photonMap_state.cIterationNumber * GLOBAL_photonMap_state.cPathsPerIteration;
-        GLOBAL_photonMap_config.currentMap->SetTotalPaths(GLOBAL_photonMap_state.totalCPaths);
+        GLOBAL_photonMap_config.currentMap->setTotalPaths(GLOBAL_photonMap_state.totalCPaths);
 
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
