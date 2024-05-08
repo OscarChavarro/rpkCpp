@@ -214,20 +214,13 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                    "-----------------------------------\n\n", it);
 
             canvasPushMode();
-            if ( radianceMethod == nullptr ) {
-                fprintf(stderr, "No radiance method selected. Aborting program.\n");
-                fflush(stderr);
-                exit(1);
-            }
             done = radianceMethod->doStep(scene, renderOptions);
             canvasPullMode();
 
             fflush(stdout);
             fflush(stderr);
 
-            if ( radianceMethod != nullptr ) {
-                printf("%s", radianceMethod->getStats());
-            }
+            printf("%s", radianceMethod->getStats());
 
             int (*f)() = nullptr;
             #ifdef RAYTRACING_ENABLED

@@ -16,7 +16,7 @@ class RenderOptions {
     ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
     ColorRgb clusterColor; // Color in which to show cluster bounding boxes
     float lineWidth;
-    char drawOutlines; // True for drawing facet outlines
+    bool drawOutlines; // True for drawing facet outlines
     char noShading; // False for using any kind of shading
     char smoothShading;  // True for rendering with Gouraud interpolation
     char backfaceCulling; // True for backface culling

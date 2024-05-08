@@ -551,9 +551,18 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
     if ( renderOptions->frustumCulling ) {
         openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
     } else {
+        RenderOptions modifiedRenderOptions = *renderOptions;
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            if ( !GLOBAL_render_glutDebugState.showSelectedPathOnly || i == GLOBAL_render_glutDebugState.selectedPatch ) {
+            if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
+                if ( i == GLOBAL_render_glutDebugState.selectedPatch ) {
+                    modifiedRenderOptions.drawOutlines = true;
+                } else {
+                    modifiedRenderOptions.drawOutlines = false;
+                }
+                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
+            } else {
                 galerkinRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
+
             }
         }
     }

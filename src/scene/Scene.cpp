@@ -1,5 +1,10 @@
 #include "scene/Scene.h"
 
+static char *globalCompoundType = (char *)"Compound";
+static char *globalMeshSurfaceType = (char *)"MeshSurface";
+static char *globalPatchSetType = (char *)"PatchSet";
+static char *globalUnknownType = (char *)"<unknown>";
+
 Scene::Scene():
     background(),
     camera(),
@@ -42,5 +47,70 @@ Scene::~Scene() {
     if ( camera != nullptr ) {
         delete camera;
         camera = nullptr;
+    }
+}
+
+char *
+Scene::printGeometryType(GeometryClassId id) {
+    char *response = globalUnknownType;
+    if ( id == GeometryClassId::SURFACE_MESH ) {
+        response = globalMeshSurfaceType;
+    } else if ( id == GeometryClassId::COMPOUND ) {
+        response = globalCompoundType;
+    } else if ( id == GeometryClassId::PATCH_SET ) {
+        response = globalPatchSetType;
+    }
+    return response;
+}
+
+void
+Scene::printPatchSet(const PatchSet *patchSet) {
+    printf("  - Type: PatchSet\n");
+    if ( patchSet->patchList != nullptr ) {
+        printf("  - Patches: %ld\n", patchSet->patchList->size());
+    } else {
+        printf("  - Patches: null list!\n");
+    }
+}
+
+void
+Scene::printCompound(const Compound *compound) {
+    printf("  - Type: Compound\n");
+    if ( compound->compoundData->children != nullptr ) {
+        printf("    . Outer children: %ld\n", compound->compoundData->children->size());
+    }
+    if ( compound->children != nullptr ) {
+        printf("    . Inner children: %ld\n", compound->children->size());
+    }
+}
+
+void
+Scene::printSurfaceMesh(const MeshSurface *mesh) {
+    printf("  - Type: SurfaceMesh\n");
+    printf("    . Inner id: %d\n", mesh->meshId);
+    // Note that mesh is not used anymore after initial MGF read process, all needed is patches,
+    // compounds/clusters and materials.
+    //printf("    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
+    //   mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
+}
+
+void Scene::print() const {
+    printf("= geometryList ================================================================\n");
+    printf("Geometries on list: %ld\n", geometryList->size());
+    for ( int i = 0; i < geometryList->size(); i++ ) {
+        Geometry *geometry = geometryList->get(i);
+        printf("  - Index: [%d of %ld] / [%s]\n", i + 1, geometryList->size(), printGeometryType(geometry->className));
+        printf("    . Id: %d\n", geometry->id);
+        printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
+
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            printSurfaceMesh((MeshSurface *)geometry);
+        } else if ( geometry->className == GeometryClassId::COMPOUND ) {
+            printCompound((Compound *)geometry);
+        } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
+            printPatchSet((PatchSet *)geometry);
+        } else {
+            printf("  - Type: *** UNKNOWN!\n");
+        }
     }
 }

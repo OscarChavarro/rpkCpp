@@ -332,7 +332,10 @@ GalerkinElement::regularSubDivide(const RenderOptions *renderOptions) {
         subElement[i]->Ed = Ed;
 
         openGlRenderSetColor(&renderOptions->outlineColor);
-        subElement[i]->drawOutline(renderOptions);
+
+        if  ( renderOptions->drawOutlines ) {
+            subElement[i]->drawOutline(renderOptions);
+        }
     }
 
     regularSubElements = (Element **)subElement;
@@ -553,7 +556,7 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 }
 
 void
-GalerkinElement::draw(int mode, const RenderOptions *renderOptions) {
+GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     Vector3D p[4];
     int numberOfVertices;
 
@@ -667,7 +670,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) {
 Draws element outline in the current outline color
 */
 void
-GalerkinElement::drawOutline(const RenderOptions *renderOptions) {
+GalerkinElement::drawOutline(const RenderOptions *renderOptions) const {
     draw(OUTLINE, renderOptions);
 }
 
@@ -675,7 +678,7 @@ GalerkinElement::drawOutline(const RenderOptions *renderOptions) {
 Renders a surface element flat shaded based on its radiance
 */
 void
-GalerkinElement::render(const RenderOptions *renderOptions) {
+GalerkinElement::render(const RenderOptions *renderOptions) const {
     int renderCode = 0;
 
     if ( renderOptions->drawOutlines ) {

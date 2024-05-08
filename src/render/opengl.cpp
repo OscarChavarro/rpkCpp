@@ -43,7 +43,7 @@ openGlRenderClearWindow(const Camera *camera) {
 }
 
 static void
-openGlRenderSetCamera(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
+openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderClearWindow(camera);
 
     // Use the full viewport
@@ -77,6 +77,9 @@ openGlInitState(const Camera *camera) {
     glFinish();
 
     globalDisplayListId = -1;
+
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f);
 }
 
 /**
@@ -105,10 +108,15 @@ Renders a line from point p to point q, for eg debugging
 */
 void
 openGlRenderLine(Vector3D *x, Vector3D *y) {
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
     glBegin(GL_LINES);
         glVertex3fv((GLfloat *) x);
         glVertex3fv((GLfloat *) y);
     glEnd();
+
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(1.0f, 1.0f);
 }
 
 /**
@@ -157,7 +165,7 @@ openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const Color
 }
 
 static void
-openGlRenderPatchFlat(Patch *patch) {
+openGlRenderPatchFlat(const Patch *patch) {
     openGlRenderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
         case 3:
@@ -185,7 +193,7 @@ openGlRenderPatchFlat(Patch *patch) {
 }
 
 static void
-openGlRenderPatchSmooth(Patch *patch) {
+openGlRenderPatchSmooth(const Patch *patch) {
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);

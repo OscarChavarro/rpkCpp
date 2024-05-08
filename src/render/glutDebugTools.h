@@ -17,6 +17,6 @@ class GlutDebugState {
 extern GlutDebugState GLOBAL_render_glutDebugState;
 
 extern void
-executeGlutGui(int argc, char *argv[], Scene *scene, RadianceMethod *radianceMethod);
+executeGlutGui(int argc, char *argv[], Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
 
 #endif
