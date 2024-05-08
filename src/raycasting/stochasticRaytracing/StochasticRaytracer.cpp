@@ -372,13 +372,13 @@ stochasticRaytracerGetRadiance(
             weight = cr / (cr + cl);
         }
 
-        result = backgroundRadiance(sceneBackground, &(thisNode->previous()->m_hit.point),
-                                    &(thisNode->m_inDirF), nullptr);
+        Vector3D position = thisNode->previous()->m_hit.getPoint();
+        result = backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), nullptr);
 
         result.scale((float)weight);
     } else {
         // Handle non-background
-        PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->getEdf();
+        const PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.material->getEdf();
 
         result.clear();
 

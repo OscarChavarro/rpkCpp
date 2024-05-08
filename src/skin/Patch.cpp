@@ -514,9 +514,10 @@ Badouels and Schlicks method from graphics gems: slower, but consumes less stora
 bool
 Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
     hit->flags |= HIT_UV; // uv parameters computed as a side result
+    Vector3D position = hit->getPoint();
     return (patch->numberOfVertices == 3)
-           ? triangleUv(&hit->point, &hit->uv)
-           : quadUv(patch, &hit->point, &hit->uv);
+           ? triangleUv(&position, &hit->uv)
+           : quadUv(patch, &position, &hit->uv);
 }
 
 /**
@@ -721,7 +722,8 @@ Patch::averageNormalAlbedo(BSDF_FLAGS components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
+        Vector3D position = hit.getPoint();
+        pointBarycentricMapping(hit.uv.u, hit.uv.v, &position);
         sample.clear();
         if ( material->getBsdf() != nullptr ) {
             sample = material->getBsdf()->splitBsdfScatteredPower(&hit, components);
@@ -748,7 +750,8 @@ Patch::averageEmittance(char components) {
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        pointBarycentricMapping(hit.uv.u, hit.uv.v, &hit.point);
+        Vector3D position = hit.getPoint();
+        pointBarycentricMapping(hit.uv.u, hit.uv.v, &position);
 
         if ( material->getEdf() == nullptr ) {
             sample.clear();
@@ -919,7 +922,9 @@ Patch::intersect(
     }
 
     // Intersection point of ray with plane of patch
-    vectorSumScaled(ray->pos, dist, ray->dir, hit.point);
+    Vector3D position;
+    vectorSumScaled(ray->pos, dist, ray->dir, position);
+    hit.setPoint(&position);
 
     // Test whether it lays inside or outside the patch
     if ( hitInPatch(&hit, this) ) {
@@ -928,7 +933,9 @@ Patch::intersect(
         hit.geometricNormal = normal;
         hit.flags |= HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
         if ( hitFlags & HIT_UV && !(hit.flags & HIT_UV) ) {
-            hit.getPatch()->uv(&hit.point, &hit.uv.u, &hit.uv.v);
+            position = hit.getPoint();
+            hit.getPatch()->uv(&position, &hit.uv.u, &hit.uv.v);
+            hit.setPoint(&position);
             hit.flags &= HIT_UV;
         }
         *hitStore = hit;

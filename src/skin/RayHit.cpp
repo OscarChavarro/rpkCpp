@@ -76,7 +76,7 @@ RayHit::init(
 Fills in (u,v) parameters of hit point on the hit patch, computing it if not
 computed before. Returns FALSE if the (u,v) parameters could not be determined
 */
-int
+bool
 RayHit::computeUv(Vector2Dd *inUv) {
     if ( flags & HIT_UV ) {
         *inUv = uv;
@@ -123,7 +123,7 @@ if the shading frame could not be determined.
 If X and Y are null pointers, only the shading normal is returned in Z
 possibly avoiding computations of the X and Y axis
 */
-int
+bool
 RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     int success = false;
 
