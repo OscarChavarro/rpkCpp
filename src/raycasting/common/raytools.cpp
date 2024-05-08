@@ -28,9 +28,9 @@ traceWorld(
 
     if ( result ) {
         // Compute shading frame (Z-axis = shading normal) at intersection point
-        result->setShadingFrame(&result->shadingFrame.X, &result->shadingFrame.Y, &result->shadingFrame.Z);
+        CoordinateSystem frame = result->getShadingFrame();
+        result->setShadingFrame(&frame);
     }
-
     Patch::dontIntersect(0);
 
     return result;

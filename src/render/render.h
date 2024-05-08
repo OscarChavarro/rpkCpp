@@ -8,9 +8,9 @@
 #include "scene/Camera.h"
 
 extern void renderBounds(BoundingBox bounds);
-extern void renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions);
-extern void renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions);
-extern void renderGetNearFar(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries);
+extern void renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions);
+extern void renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions);
+extern void renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
 extern void renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions);
 
 #endif

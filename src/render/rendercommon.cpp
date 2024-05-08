@@ -61,14 +61,14 @@ Computes front- and back-clipping plane distance for the current GLOBAL_scene_wo
 camera
 */
 void
-renderGetNearFar(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
+renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
     Vector3D b[2];
     Vector3D d;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
-        camera->far = 10.0;
-        camera->near = 0.1;
+        camera->far = 10.0f;
+        camera->near = 0.1f;
         return;
     }
 
@@ -77,8 +77,8 @@ renderGetNearFar(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries) {
     b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
     b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    camera->far = -HUGE;
-    camera->near = HUGE;
+    camera->far = -HUGE_FLOAT;
+    camera->near = HUGE_FLOAT;
     for ( int i = 0; i <= 1; i++ ) {
         for ( int j = 0; j <= 1; j++ ) {
             for ( int k = 0; k <= 1; k++ ) {
@@ -137,8 +137,8 @@ renderBounds(BoundingBox bounds) {
     openGlRenderLine(&p[3], &p[7]);
 }
 
-void
-renderGeomBounds(Camera *camera, Geometry *geometry) {
+static void
+renderGeomBounds(Camera *camera, const Geometry *geometry) {
     BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
@@ -158,7 +158,7 @@ renderGeomBounds(Camera *camera, Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
+renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
     openGlRenderSetColor(&renderOptions->boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         renderGeomBounds(camera, sceneGeometries->get(i));
@@ -169,7 +169,7 @@ renderBoundingBoxHierarchy(Camera *camera, java::ArrayList<Geometry *> *sceneGeo
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(Camera *camera, java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
+renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
     openGlRenderSetColor(&renderOptions->clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         renderGeomBounds(camera, clusteredGeometryList->get(i));

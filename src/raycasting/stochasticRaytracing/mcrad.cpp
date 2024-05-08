@@ -498,8 +498,8 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     hit.flags |= HIT_UV;
     ColorRgb result;
     result.clear();
-    if ( hit.material->getBsdf() != nullptr ) {
-        result = hit.material->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+    if ( hit.getMaterial()->getBsdf() != nullptr ) {
+        result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
     }
     return result;
 }

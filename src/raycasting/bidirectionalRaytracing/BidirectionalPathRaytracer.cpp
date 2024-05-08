@@ -179,7 +179,7 @@ handlePathX0(
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
 {
-    PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.material ? path->m_eyeEndNode->m_hit.material->getEdf() : nullptr;
+    PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     ColorRgb oldBsdfEval;
     ColorRgb f;
     ColorRgb fRad;

@@ -152,12 +152,12 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
 /**
 Fills in shading frame: Z is the shading normal
 */
-int
-RayHit::setShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
+bool
+RayHit::setShadingFrame(CoordinateSystem *frame) {
     if ( flags & HIT_SHADING_FRAME ) {
-        *inX = shadingFrame.X;
-        *inY = shadingFrame.Y;
-        *inZ = shadingFrame.Z;
+        frame->X = shadingFrame.X;
+        frame->Y = shadingFrame.Y;
+        frame->Z = shadingFrame.Z;
         return true;
     }
 
@@ -167,9 +167,9 @@ RayHit::setShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
 
     flags |= HIT_SHADING_FRAME | HIT_NORMAL;
 
-    *inX = shadingFrame.X;
-    *inY = shadingFrame.Y;
-    *inZ = shadingFrame.Z;
+    frame->X = shadingFrame.X;
+    frame->Y = shadingFrame.Y;
+    frame->Z = shadingFrame.Z;
     return true;
 }
 

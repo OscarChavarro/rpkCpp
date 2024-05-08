@@ -33,10 +33,8 @@ CEyeSampler::sample(
 
     hit->init(nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->setNormal(&camera->Z);
-    hit->shadingFrame.X = camera->X;
-    hit->shadingFrame.Y = camera->Y;
-    hit->shadingFrame.Z = camera->Z;
     hit->flags |= HIT_NORMAL | HIT_SHADING_FRAME;
+    hit->setShadingFrame(&camera->X, &camera->Y, &camera->Z);
 
     vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
     newNode->m_G = 1.0;
@@ -68,4 +66,3 @@ CEyeSampler::evalPDF(
     double * /*probabilityDensityFunctionRR*/) {
     return 1.0;
 }
-
