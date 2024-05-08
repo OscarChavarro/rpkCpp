@@ -51,22 +51,31 @@ class CPhotonMap {
 
   protected:
     // nearest photon queries must use these fucntions!
-    int DoQuery(Vector3D *pos, int nrPhotons, float maxradius,
-                short excludeFlags = 0) {
+    int
+    doQuery(
+        Vector3D *position,
+        int numberOfPhotons,
+        float maximumRadius,
+        short excludeFlags = 0) {
         m_cosinesOk = false;
-        return m_kdtree->query((float *) pos, nrPhotons,
-                               m_photons, m_distances, maxradius,
-                               excludeFlags);
+        return m_kdtree->query(
+            (float *)position,
+            numberOfPhotons,
+            m_photons,
+            m_distances,
+            maximumRadius,
+            excludeFlags);
     }
 
-    int DoQuery(Vector3D *pos) {
+    int doQuery(Vector3D *pos) {
         m_cosinesOk = false;
         return m_kdtree->query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
                                m_photons, m_distances, (float) GetMaxR2());
     }
 
-    CIrrPhoton *DoIrradianceQuery(Vector3D *pos, Vector3D *normal, float maxR2 = HUGE_FLOAT) {
-        return m_kdtree->NormalPhotonQuery(pos, normal, 0.8f, maxR2);
+    CIrrPhoton *
+    DoIrradianceQuery(Vector3D *position, Vector3D *normal, float maxR2 = HUGE_FLOAT) {
+        return m_kdtree->normalPhotonQuery(position, normal, 0.8f, maxR2);
     }
 
     // Compute cosines of photons with a supplied normal
@@ -114,9 +123,12 @@ class CPhotonMap {
     virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
-    bool IrradianceReconstruct(RayHit *hit, Vector3D &outDir,
-                               ColorRgb &diffuseAlbedo,
-                               ColorRgb *result);
+    bool
+    IrradianceReconstruct(
+        RayHit *hit,
+        const Vector3D &outDir,
+        const ColorRgb &diffuseAlbedo,
+        ColorRgb *result);
 
     virtual float GetCurrentDensity(RayHit &hit, int nrPhotons);
 
@@ -135,7 +147,7 @@ class CPhotonMap {
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
 
-    double Sample(Vector3D &pos, double *r, double *s, CoordinateSystem *coord,
+    double sample(Vector3D position, double *r, double *s, CoordinateSystem *coord,
                   BSDF_FLAGS flag, float n = 1);
 
     // Utility functions

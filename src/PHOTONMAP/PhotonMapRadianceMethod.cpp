@@ -341,7 +341,7 @@ photonMapDoPhotonStore(
         bsdf = node->m_hit.getPatch()->material->getBsdf();
 
         if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
-            CPhoton photon(node->m_hit.point, power, node->m_inDirF);
+            CPhoton photon(node->m_hit.getPoint(), power, node->m_inDirF);
 
             // Determine photon flags
             short flags = 0;
@@ -358,10 +358,10 @@ photonMapDoPhotonStore(
                 if ( GLOBAL_photonMap_state.densityControl == CONSTANT_RD ) {
                     reqDensity = GLOBAL_photonMap_state.constantRD;
                 } else {
-                    reqDensity = GLOBAL_photonMap_config.currentImpMap->GetRequiredDensity(
-                        camera,
-                        node->m_hit.point,
-                        node->m_hit.getNormal());
+                    reqDensity = GLOBAL_photonMap_config.currentImpMap->getRequiredDensity(
+                            camera,
+                            node->m_hit.getPoint(),
+                            node->m_hit.getNormal());
                 }
 
                 return GLOBAL_photonMap_config.currentMap->DC_AddPhoton(photon, node->m_hit, reqDensity, flags);
@@ -697,16 +697,16 @@ PhotonMapRadianceMethod::getRadiance(
             {
                 Vector3D nn = hit.getNormal();
                 GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
-                density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(
-                        camera, hit.point, nn);
+                density = GLOBAL_photonMap_config.importanceCMap->getRequiredDensity(
+                        camera, hit.getPoint(), nn);
                 hit.setNormal(&nn);
                 radiance = getFalseColor(density);
             }
             break;
         case REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
-            density = GLOBAL_photonMap_config.importanceMap->GetRequiredDensity(
-                camera, hit.point, hit.getNormal());
+            density = GLOBAL_photonMap_config.importanceMap->getRequiredDensity(
+                    camera, hit.getPoint(), hit.getNormal());
             radiance = getFalseColor(density);
             break;
         case GLOBAL_RADIANCE:

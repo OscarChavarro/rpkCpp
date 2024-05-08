@@ -18,7 +18,7 @@ CImportanceMap::addPhoton(
 
 // Reconstruct
 float
-CImportanceMap::ReconstructImp(Vector3D &pos, Vector3D &normal /*, IMPORTANCE_OPTION option */) {
+CImportanceMap::reconstructImportance(Vector3D /*pos*/, Vector3D &normal /*, IMPORTANCE_OPTION option */) {
     float maxDistance;
     float result = 0.0;
     float importance;
@@ -61,7 +61,7 @@ CImportanceMap::GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal
     float density;
 
     // Reconstruct importance
-    density = ReconstructImp(pos, normal);
+    density = reconstructImportance(pos, normal);
 
     // Rescale
     //if(!pmapstate.pixelImportance)
@@ -76,7 +76,7 @@ CImportanceMap::GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal
 }
 
 float
-CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D normal) {
+CImportanceMap::getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal) {
     if ( m_nrPhotons == 0 ) {
         return GLOBAL_photonMap_state.constantRD;
     }  // Safety, if no importance map was constructed
@@ -98,7 +98,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D norma
                     density *= *m_impScalePtr;
                     break;
                 default:
-                    logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
+                    logError("CImportanceMap::getRequiredDensity", "Unsupported importance option");
                     return 0;
             }
         } else
@@ -107,7 +107,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D norma
         // normal query or no irradiance photon found
 
         // Query photons, to be used by the appropriate req dest method
-        m_nrpFound = DoQuery(&pos);
+        m_nrpFound = doQuery(&pos);
 
         if ( m_nrpFound < 3 )
             return 0; // pmapstate.minimumImpRD;
@@ -118,7 +118,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D norma
                 density *= *m_impScalePtr;
                 break;
             default:
-                logError("CImportanceMap::GetRequiredDensity", "Unsupported importance option");
+                logError("CImportanceMap::getRequiredDensity", "Unsupported importance option");
                 return 0;
         }
     }
@@ -139,7 +139,7 @@ CImportanceMap::ComputeAllRequiredDensities(
     float *diff)
 {
     // Query photons, to be used by the appropriate req dest method
-    m_nrpFound = DoQuery(&pos);
+    m_nrpFound = doQuery(&pos);
     if ( m_nrpFound < 5 ) {
         // not enough photons
         *imp = *pot = *diff = 0.0;

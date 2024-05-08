@@ -32,7 +32,7 @@ class CPhoton {
   public:
     CPhoton() {};
 
-    CPhoton(Vector3D &pos, ColorRgb &power, Vector3D &dir)
+    CPhoton(Vector3D pos, ColorRgb &power, Vector3D &dir)
             : m_pos(pos), m_power(power), m_dir(dir) { /*m_dcWeight = 1.0;*/ }
 
     inline Vector3D
@@ -104,7 +104,7 @@ class CImporton : public CIrrPhoton {
     }
 
     CImporton(
-        Vector3D &pos,
+        Vector3D pos,
         float importance,
         float potential,
         float footprint,

@@ -426,7 +426,7 @@ CPhotonMapSampler::gdSample(
         return false;
     }
 
-    double photonMapPdf = m_photonMap->Sample(thisNode->m_hit.point, &x1, &x2, &coord, flags,
+    double photonMapPdf = m_photonMap->sample(thisNode->m_hit.getPoint(), &x1, &x2, &coord, flags,
                                               glossy_exponent);
 
     // Do real sampling

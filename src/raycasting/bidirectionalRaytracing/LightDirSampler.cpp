@@ -83,7 +83,7 @@ LightDirSampler::evalPDF(
     }
     /* -- more efficient with extra params ?? -- */
 
-    vectorSubtract(newNode->m_hit.point, thisNode->m_hit.point, outDir);
+    vectorSubtract(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint(), outDir);
     dist2 = vectorNorm2(outDir);
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);

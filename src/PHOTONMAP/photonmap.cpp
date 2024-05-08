@@ -279,7 +279,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     // Locate the nearest photons using a max radius limit
 
     Vector3D pos = photon->Pos();
-    m_nrpFound = DoQuery(&pos);
+    m_nrpFound = doQuery(&pos);
 
     if ( m_nrpFound > 3 ) {
         // Construct irradiance estimate
@@ -320,8 +320,8 @@ CPhotonMap::PrecomputeIrradiance() {
 bool
 CPhotonMap::IrradianceReconstruct(
     RayHit *hit,
-    Vector3D &outDir,
-    ColorRgb &diffuseAlbedo,
+    const Vector3D &outDir,
+    const ColorRgb &diffuseAlbedo,
     ColorRgb *result)
 {
     if ( !m_irradianceComputed ) {
@@ -329,18 +329,12 @@ CPhotonMap::IrradianceReconstruct(
     }
 
     Vector3D normal = hit->getNormal();
-    CIrrPhoton *photon = DoIrradianceQuery(&hit->point, &normal);
+    Vector3D position = hit->getPoint();
+    const CIrrPhoton *photon = DoIrradianceQuery(&position, &normal);
     hit->setNormal(&normal);
 
     if ( photon ) {
-        //float factor = 1.0 / (M_PI * m_totalPaths);
-        //colorProductScaled(photon->m_irradiance, factor, diffuseAlbedo, *result);
-
         result->scalarProduct(photon->m_irradiance, diffuseAlbedo);
-
-        // COLOR eval = BsdfEval(bsdf, hit, inBsdf, outBsdf, &outDir,
-        // &hit->normal, BRDF_DIFFUSE_COMPONENT);
-        // scalarProduct(photon->m_irradiance, eval, *result);
         return true;
     } else {
         // No appropriate photon found
@@ -398,7 +392,8 @@ CPhotonMap::Reconstruct(
     // Normal reconstruct...
 
     // Locate nearest photons using a max radius limit
-    m_nrpFound = DoQuery(&hit->point);
+    Vector3D position = hit->getPoint();
+    m_nrpFound = doQuery(&position);
 
     if ( m_nrpFound < 3 ) {
         return result;
@@ -445,7 +440,8 @@ CPhotonMap::GetCurrentDensity(RayHit &hit, int nrPhotons) {
         return 0.0;
     }
 
-    m_nrpFound = DoQuery(&hit.point, nrPhotons, (float)GetMaxR2());
+    Vector3D position = hit.getPoint();
+    m_nrpFound = doQuery(&position, nrPhotons, (float) GetMaxR2());
 
     if ( m_nrpFound < 3 ) {
         return 0.0;
@@ -479,24 +475,24 @@ CPhotonMap::GetDensityColor(RayHit &hit) {
 }
 
 double
-CPhotonMap::Sample(
-        Vector3D &pos,
-        double *r,
-        double *s,
-        CoordinateSystem *coord,
-        BSDF_FLAGS flag,
-        float n)
+CPhotonMap::sample(
+    Vector3D position,
+    double *r,
+    double *s,
+    CoordinateSystem *coord,
+    BSDF_FLAGS flag,
+    float n)
 {
     ColorRgb color;
 
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !vectorEqual(m_sampleLastPos, pos, 0.0001) ) {
+    if ( !vectorEqual(m_sampleLastPos, position, 0.0001f) ) {
         // Need a new grid
 
         m_grid->Init();
 
         // Find the nearest photons
-        m_nrpFound = DoQuery(&pos, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
+        m_nrpFound = doQuery(&position, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
 
         double pr;
         double ps;
@@ -510,7 +506,7 @@ CPhotonMap::Sample(
         }
 
         m_grid->EnsureNonZeroEntries();
-        m_sampleLastPos = pos; // Caching
+        m_sampleLastPos = position; // Caching
     }
 
     // Sample

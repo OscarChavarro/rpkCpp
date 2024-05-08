@@ -93,6 +93,16 @@ class RayHit {
     setPatch(Patch *inPatch) {
         patch = inPatch;
     }
+
+    inline Vector3D
+    getPoint() const {
+        return point;
+    }
+
+    inline void
+    setPoint(const Vector3D *inPosition) {
+        point = *inPosition;
+    }
 };
 
 #endif

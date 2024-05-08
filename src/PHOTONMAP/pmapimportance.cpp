@@ -36,8 +36,7 @@ DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb 
         // Compute footprint
         float footprintF = 1.0;
 
-        CImporton importon(node->m_hit.point, importanceF, potentialF, footprintF,
-                           node->m_inDirF);
+        CImporton importon(node->m_hit.getPoint(), importanceF, potentialF, footprintF, node->m_inDirF);
 
         return map->addPhoton(importon, node->m_hit.getNormal(), 0);
     } else {

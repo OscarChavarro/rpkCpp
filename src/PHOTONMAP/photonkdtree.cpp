@@ -89,8 +89,8 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 }
 
 CIrrPhoton *
-CPhotonkdtree::NormalPhotonQuery(
-    Vector3D *pos,
+CPhotonkdtree::normalPhotonQuery(
+    Vector3D *position,
     const Vector3D *normal,
     float threshold,
     float maxR2)
@@ -98,7 +98,7 @@ CPhotonkdtree::NormalPhotonQuery(
     // Fill qdat_s
     qdat_s.photon = nullptr;
     qdat_s.normal = *normal;
-    qdat_s.point = (float *) pos;
+    qdat_s.point = (float *)position;
     qdat_s.threshold = threshold;
     qdat_s.maximumDistance = maxR2;
 

@@ -35,9 +35,9 @@ class CImportanceMap : public CPhotonMap {
     virtual void PrecomputeIrradiance();
 
     // New functions
-    virtual float ReconstructImp(Vector3D &pos, Vector3D &normal);
+    virtual float reconstructImportance(Vector3D, Vector3D &normal);
     virtual float GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal);
-    virtual float GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D normal);
+    virtual float getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal);
 
 protected:
     void

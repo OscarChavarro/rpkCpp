@@ -26,7 +26,7 @@ void
 SimpleRaytracingPathNode::print(FILE *out) {
     fprintf(out, "Path node at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
-    vector3DPrint(out, m_hit.point);
+    vector3DPrint(out, m_hit.getPoint());
     fprintf(out, "\n");
     fprintf(out, "Norm: ");
     vector3DPrint(out, m_normal);

@@ -664,7 +664,9 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
         hit.uv.u = (double) xi[0] * RECIP;
         hit.uv.v = (double) xi[1] * RECIP;
         hit.flags |= HIT_UV;
-        patch->uniformPoint(hit.uv.u, hit.uv.v, &hit.point);
+        Vector3D position = hit.getPoint();
+        patch->uniformPoint(hit.uv.u, hit.uv.v, &position);
+        hit.setPoint(&position);
         if ( patch->material->getBsdf() ) {
             sample.clear();
             if ( patch->material->getBsdf() != nullptr ) {

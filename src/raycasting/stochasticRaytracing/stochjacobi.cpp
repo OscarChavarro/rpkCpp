@@ -525,7 +525,8 @@ stochasticJacobiUniformHitCoordinates(RayHit *hit, double *uHit, double *vHit) {
             hit->getPatch()->biLinearToUniform(uHit, vHit);
         }
     } else {
-        hit->getPatch()->uniformUv(&hit->point, uHit, vHit);
+        Vector3D position = hit->getPoint();
+        hit->getPatch()->uniformUv(&position, uHit, vHit);
     }
 
     // Clip uv coordinates to lay strictly inside the hit patch

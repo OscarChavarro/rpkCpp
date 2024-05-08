@@ -121,7 +121,7 @@ tracePath(
 
         P = hit->getPatch();
         survivalProb = SurvivalProbability(P);
-        pathAddNode(path, P, survivalProb, hit->point, outpoint);
+        pathAddNode(path, P, survivalProb, hit->getPoint(), outpoint);
     } while ( drand48() < survivalProb ); // Repeat until absorption
 
     return path;
