@@ -39,7 +39,7 @@ DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb 
         CImporton importon(node->m_hit.point, importanceF, potentialF, footprintF,
                            node->m_inDirF);
 
-        return map->AddPhoton(importon, node->m_hit.normal, 0);
+        return map->addPhoton(importon, node->m_hit.getNormal(), 0);
     } else {
         return false;
     }

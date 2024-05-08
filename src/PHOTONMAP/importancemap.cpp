@@ -8,12 +8,12 @@ Implementation of the special importance map functions
 #include "common/error.h"
 
 bool
-CImportanceMap::AddPhoton(
+CImportanceMap::addPhoton(
     CPhoton &photon,
-    Vector3D &normal,
+    Vector3D normal,
     short flags)
 {
-    return CPhotonMap::AddPhoton(photon, normal, flags);
+    return CPhotonMap::addPhoton(photon, normal, flags);
 }
 
 // Reconstruct
@@ -76,7 +76,7 @@ CImportanceMap::GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal
 }
 
 float
-CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &normal) {
+CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D normal) {
     if ( m_nrPhotons == 0 ) {
         return GLOBAL_photonMap_state.constantRD;
     }  // Safety, if no importance map was constructed
@@ -89,8 +89,7 @@ CImportanceMap::GetRequiredDensity(Camera *camera, Vector3D &pos, Vector3D &norm
         if ( !m_irradianceComputed || (m_preReconPhotons != *m_estimate_nrp))
             PrecomputeIrradiance();
 
-        CImporton *photon = (CImporton *) DoIrradianceQuery(&pos, &normal,
-                                                            m_totalMaxDistance);
+        CImporton *photon = (CImporton *) DoIrradianceQuery(&pos, &normal, m_totalMaxDistance);
 
         if ( photon ) {
             switch ( GLOBAL_photonMap_state.importanceOption ) {

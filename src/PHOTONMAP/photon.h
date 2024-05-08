@@ -74,7 +74,7 @@ class CIrrPhoton : public CPhoton {
   public:
     inline Vector3D Normal() const { return m_normal; }
 
-    inline void SetNormal(const Vector3D &normal) { m_normal = normal; }
+    inline void setNormal(const Vector3D &normal) { m_normal = normal; }
 
     inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
 

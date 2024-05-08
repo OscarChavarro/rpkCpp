@@ -65,16 +65,15 @@ class CPhotonMap {
                                m_photons, m_distances, (float) GetMaxR2());
     }
 
-    CIrrPhoton *DoIrradianceQuery(Vector3D *pos, Vector3D *normal,
-                                  float maxR2 = HUGE) {
-        return m_kdtree->NormalPhotonQuery(pos, normal, 0.8, maxR2);
+    CIrrPhoton *DoIrradianceQuery(Vector3D *pos, Vector3D *normal, float maxR2 = HUGE_FLOAT) {
+        return m_kdtree->NormalPhotonQuery(pos, normal, 0.8f, maxR2);
     }
 
     // Compute cosines of photons with a supplied normal
     void ComputeCosines(Vector3D &normal);
 
     // Add a photon taking possible irrPhoton into account
-    void DoAddPhoton(CPhoton &photon, Vector3D &normal, short flags);
+    void doAddPhoton(CPhoton &photon, Vector3D normal, short flags);
 
   public:
     // Constructor
@@ -95,7 +94,7 @@ class CPhotonMap {
 
     // Adding photons, returns if photon was added
 
-    virtual bool AddPhoton(CPhoton &photon, Vector3D &normal, short flags);
+    virtual bool addPhoton(CPhoton &photon, Vector3D normal, short flags);
 
     bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);

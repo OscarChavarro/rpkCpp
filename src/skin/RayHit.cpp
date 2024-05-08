@@ -11,7 +11,6 @@ RayHit::RayHit():
     point(),
     geometricNormal(),
     material(),
-    normal(),
     shadingFrame(),
     uv(),
     flags()
@@ -62,11 +61,12 @@ RayHit::init(
     material = inMaterial;
     flags |= HIT_MATERIAL;
     flags |= HIT_DIST;
-    normal.set(0, 0, 0);
-    texCoord = normal;
-    shadingFrame.X = normal;
-    shadingFrame.Y = normal;
-    shadingFrame.Z = normal;
+    Vector3D localNormal;
+    localNormal.set(0, 0, 0);
+    texCoord = localNormal;
+    shadingFrame.X = localNormal;
+    shadingFrame.Y = localNormal;
+    shadingFrame.Z = localNormal;
     uv.u = 0.0;
     uv.v = 0.0;
     return hitInitialised();
@@ -165,7 +165,6 @@ RayHit::setShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
         return false;
     }
 
-    normal = shadingFrame.Z; // shading normal
     flags |= HIT_SHADING_FRAME | HIT_NORMAL;
 
     *inX = shadingFrame.X;
@@ -181,16 +180,17 @@ of shading X and Y axis if possible
 int
 RayHit::shadingNormal(Vector3D *inNormal) {
     if ( flags & HIT_SHADING_FRAME || flags & HIT_NORMAL ) {
-        *inNormal = normal;
+        *inNormal = shadingFrame.Z;
         return true;
     }
 
-    if ( !pointShadingFrame(nullptr, nullptr, &normal) ) {
+    Vector3D localNormal = shadingFrame.Z;
+    if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
         return false;
     }
 
     flags |= HIT_NORMAL;
-    shadingFrame.Z = normal;
+    shadingFrame.Z = localNormal;
     *inNormal = shadingFrame.Z;
     return true;
 }

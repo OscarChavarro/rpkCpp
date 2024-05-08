@@ -137,15 +137,15 @@ CPhotonMap::ComputeCosines(Vector3D &normal) {
 
 // Adding photons
 void
-CPhotonMap::DoAddPhoton(
+CPhotonMap::doAddPhoton(
     CPhoton &photon,
-    Vector3D &normal,
+    Vector3D normal,
     short flags)
 {
     if ( m_precomputeIrradiance ) {
         CIrrPhoton irrPhoton;
         irrPhoton.Copy(photon);
-        irrPhoton.SetNormal(normal);
+        irrPhoton.setNormal(normal);
         m_kdtree->addPoint(&irrPhoton, flags);
     } else {
         m_kdtree->addPoint(&photon, flags);
@@ -153,11 +153,10 @@ CPhotonMap::DoAddPhoton(
 }
 
 bool
-CPhotonMap::AddPhoton(CPhoton &photon, Vector3D &normal, short flags) {
+CPhotonMap::addPhoton(CPhoton &photon, Vector3D normal, short flags) {
     drand48(); // Just to keep in sync with density controlled storage
 
-    DoAddPhoton(photon, normal, flags);
-    //m_kdtree->addPoint(&photon, flags);
+    doAddPhoton(photon, normal, flags);
     m_nrPhotons++;
     m_totalPhotons++;
     m_balanced = false;
@@ -232,7 +231,7 @@ CPhotonMap::DC_AddPhoton(
     // Roulette
     if ( drand48() < acceptProb ) {
         // Store
-        DoAddPhoton(photon, hit.normal, flags);
+        doAddPhoton(photon, hit.getNormal(), flags);
         m_nrPhotons++;
         m_balanced = false;
         m_irradianceComputed = false;
@@ -329,7 +328,9 @@ CPhotonMap::IrradianceReconstruct(
         PrecomputeIrradiance();
     }
 
-    CIrrPhoton *photon = DoIrradianceQuery(&hit->point, &hit->normal);
+    Vector3D normal = hit->getNormal();
+    CIrrPhoton *photon = DoIrradianceQuery(&hit->point, &normal);
+    hit->setNormal(&normal);
 
     if ( photon ) {
         //float factor = 1.0 / (M_PI * m_totalPaths);

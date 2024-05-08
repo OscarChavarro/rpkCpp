@@ -351,8 +351,7 @@ CPhotonMapSampler::fresnelSample(
     // given by ChooseFresnelDirection, but may be divided by a cosine
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
-        float cosB = std::fabs(vectorDotProduct(newNode->m_hit.normal,
-                                           newNode->m_inDirT));
+        float cosB = std::fabs(vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirT));
         thisNode->m_bsdfEval.scaleInverse(cosB, scatteringColor);
     } else {
         thisNode->m_bsdfEval = scatteringColor;

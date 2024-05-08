@@ -59,7 +59,6 @@ class RayHit {
     Vector3D point; // Intersection point
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
-    Vector3D normal; // Shading normal
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)
     Vector2Dd uv; // Bi-linear/barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
@@ -83,7 +82,6 @@ class RayHit {
 
     inline void setNormal(const Vector3D *n) {
         shadingFrame.Z = *n;
-        normal = *n;
     }
 };
 

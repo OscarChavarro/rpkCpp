@@ -16,7 +16,7 @@ public:
 
     // NormalPhotonQuery : find the nearest photon with a similar normal constraint
     // returns nullptr is no appropriate photon was found (should barely ever happen)
-    virtual CIrrPhoton *NormalPhotonQuery(Vector3D *pos, Vector3D *normal,
+    virtual CIrrPhoton *NormalPhotonQuery(Vector3D *pos, const Vector3D *normal,
                                           float threshold, float maxR2);
 
 protected:

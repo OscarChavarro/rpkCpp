@@ -91,7 +91,7 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 CIrrPhoton *
 CPhotonkdtree::NormalPhotonQuery(
     Vector3D *pos,
-    Vector3D *normal,
+    const Vector3D *normal,
     float threshold,
     float maxR2)
 {

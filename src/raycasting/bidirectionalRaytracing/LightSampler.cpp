@@ -260,8 +260,10 @@ ImportantLightSampler::sample(
 
         // Fake a hit record
         newNode->m_hit.init(light, &point, &light->normal, light->material);
-        newNode->m_hit.shadingNormal(&newNode->m_hit.normal);
-        vectorCopy(newNode->m_hit.normal, newNode->m_normal);
+        Vector3D normal = newNode->m_hit.getNormal();
+        newNode->m_hit.shadingNormal(&normal);
+        newNode->m_hit.setNormal(&normal);
+        vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
     }
 
     // outDir's, m_G not filled in yet (light direction sampler does this)

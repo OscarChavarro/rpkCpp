@@ -351,7 +351,7 @@ photonMapDoPhotonStore(
             }
 
             if ( GLOBAL_photonMap_state.densityControl == NO_DENSITY_CONTROL ) {
-                return GLOBAL_photonMap_config.currentMap->AddPhoton(photon, node->m_hit.normal, flags);
+                return GLOBAL_photonMap_config.currentMap->addPhoton(photon, node->m_hit.getNormal(), flags);
             } else {
                 float reqDensity;
                 if ( GLOBAL_photonMap_state.densityControl == CONSTANT_RD ) {
@@ -360,11 +360,10 @@ photonMapDoPhotonStore(
                     reqDensity = GLOBAL_photonMap_config.currentImpMap->GetRequiredDensity(
                         camera,
                         node->m_hit.point,
-                        node->m_hit.normal);
+                        node->m_hit.getNormal());
                 }
 
-                return GLOBAL_photonMap_config.currentMap->DC_AddPhoton(photon, node->m_hit,
-                                                                        reqDensity, flags);
+                return GLOBAL_photonMap_config.currentMap->DC_AddPhoton(photon, node->m_hit, reqDensity, flags);
             }
         }
     }
@@ -387,7 +386,6 @@ photonMapHandlePath(
     float factor;
 
     // Iterate over all light nodes
-
     bp->m_lightSize = 1;
     SimpleRaytracingPathNode *currentNode = bp->m_lightPath;
 
@@ -666,7 +664,9 @@ PhotonMapRadianceMethod::getRadiance(
 
     patch->pointBarycentricMapping(u, v, &point);
     hit.init(patch, &point, &patch->normal, patch->material);
-    hit.shadingNormal(&hit.normal);
+    Vector3D normal = hit.getNormal();
+    hit.shadingNormal(&normal);
+    hit.setNormal(&normal);
 
     if ( zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
         radiance.clear();
@@ -693,15 +693,19 @@ PhotonMapRadianceMethod::getRadiance(
             radiance = GLOBAL_photonMap_config.importanceMap->GetDensityColor(hit);
             break;
         case REC_C_DENSITY:
-            GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
-            density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(
-                camera, hit.point, hit.normal);
-            radiance = getFalseColor(density);
+            {
+                Vector3D nn = hit.getNormal();
+                GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
+                density = GLOBAL_photonMap_config.importanceCMap->GetRequiredDensity(
+                        camera, hit.point, nn);
+                hit.setNormal(&nn);
+                radiance = getFalseColor(density);
+            }
             break;
         case REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->GetRequiredDensity(
-                camera, hit.point, hit.normal);
+                camera, hit.point, hit.getNormal());
             radiance = getFalseColor(density);
             break;
         case GLOBAL_RADIANCE:
