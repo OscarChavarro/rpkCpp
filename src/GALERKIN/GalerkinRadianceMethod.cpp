@@ -556,13 +556,17 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
             if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
                 if ( i == GLOBAL_render_glutDebugState.selectedPatch ) {
                     modifiedRenderOptions.drawOutlines = true;
+                    modifiedRenderOptions.outlineColor = ColorRgb(1.0f, 0.0f, 0.0f);
                 } else {
                     modifiedRenderOptions.drawOutlines = false;
                 }
                 galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
             } else {
-                galerkinRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
-
+                modifiedRenderOptions.outlineColor = ColorRgb(0.4f, 0.1f, 0.1f);
+                if ( i == GLOBAL_render_glutDebugState.selectedPatch ) {
+                    modifiedRenderOptions.outlineColor = ColorRgb(0.0f, 0.0f, 1.0f);
+                }
+                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
             }
         }
     }

@@ -333,7 +333,7 @@ GalerkinElement::regularSubDivide(const RenderOptions *renderOptions) {
 
         openGlRenderSetColor(&renderOptions->outlineColor);
 
-        if  ( renderOptions->drawOutlines ) {
+        if  ( renderOptions->drawOutlines) {
             subElement[i]->drawOutline(renderOptions);
         }
     }
@@ -620,9 +620,9 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     if ( mode & OUTLINE ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
-            ColorRgb yellow = {1.0, 1.0, 0.0};
+            //ColorRgb yellow = {1.0, 1.0, 0.0};
 
-            openGlRenderSetColor(&yellow);
+            openGlRenderSetColor(&renderOptions->outlineColor);
             openGlRenderLine(&p[0], &p[1]);
             openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[0]);
