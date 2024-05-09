@@ -15,5 +15,13 @@ nohup sh scripts/07_runSalonDeClase.sh &> output/07.log &
 disown
 nohup sh scripts/08_runSoda.sh &> output/08.log &
 disown
-nohup sh scripts/10_floorRaycasting.sh &> output/10.log &
+nohup sh scripts/10_floorRayMatting.sh &> output/10.log &
+disown
+nohup sh scripts/11_floorRayCasting.sh &> output/11.log &
+disown
+nohup sh scripts/12_floorBidirectionalPathTracing.sh &> output/12.log &
+disown
+nohup sh scripts/13_floorStochasticRaytracingRandomWalk.sh &> output/13.log &
+disown
+nohup sh scripts/14_floorStochasticRaytracingJacobi.sh &> output/14.log &
 disown
