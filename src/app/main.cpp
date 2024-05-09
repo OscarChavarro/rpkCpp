@@ -162,8 +162,8 @@ main(int argc, char *argv[]) {
     // 4. Run main radiosity simulation and export result
     mainExecuteRendering(imageOutputWidth, imageOutputHeight, &scene, selectedRadianceMethod, &renderOptions);
 
-    // X.
-    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &renderOptions);
+    // X. Interactive visual debug GUI tool
+    //executeGlutGui(argc, argv, &scene, mgfContext.radianceMethod, &renderOptions, mainFreeMemory, &mgfContext);
 
     // 5. Free used memory
     mainFreeMemory(&mgfContext);

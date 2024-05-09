@@ -2,6 +2,7 @@
 #define __GLUT__
 
 #include "java/util/ArrayList.h"
+#include "io/mgf/MgfContext.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 
@@ -17,6 +18,13 @@ class GlutDebugState {
 extern GlutDebugState GLOBAL_render_glutDebugState;
 
 extern void
-executeGlutGui(int argc, char *argv[], Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
+executeGlutGui(
+    int argc,
+    char *argv[],
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    RenderOptions *renderOptions,
+    void (*memoryFreeCallBack)(MgfContext *mgfContext),
+    MgfContext *mgfContext);
 
 #endif

@@ -20,8 +20,8 @@ class RenderOptions {
     char noShading; // False for using any kind of shading
     char smoothShading;  // True for rendering with Gouraud interpolation
     char backfaceCulling; // True for backface culling
-    char drawBoundingBoxes; // True for showing bounding boxes
-    char drawClusters; // True for showing cluster hierarchy
+    bool drawBoundingBoxes; // True for showing bounding boxes
+    bool drawClusters; // True for showing cluster hierarchy
     char frustumCulling; // Frustum culling accelerates rendering of large scenes.
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff

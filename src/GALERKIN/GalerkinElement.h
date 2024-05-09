@@ -22,7 +22,7 @@ a pointer to the Geometry to which they are associated, while a surface element 
 a pointer to the Patch to which is belongs, they have only irregular sub-elements,
 and no up trans
 */
-class GalerkinElement : public Element {
+class GalerkinElement final : public Element {
   private:
     explicit GalerkinElement(GalerkinState *inGalerkinState);
 
