@@ -32,11 +32,6 @@ ScreenBuffer::~ScreenBuffer() {
     }
 }
 
-void
-ScreenBuffer::setRgbImage(bool isRGB) {
-    m_RGBImage = isRGB;
-}
-
 bool
 ScreenBuffer::isRgbImage() const {
     return m_RGBImage;
@@ -125,70 +120,11 @@ ScreenBuffer::set(int x, int y, ColorRgb radiance) {
     m_Synced = false;
 }
 
-void
-ScreenBuffer::scaleRadiance(float factor) {
-    for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        m_Radiance[i].scale(factor);
-    }
-
-    m_Synced = false;
-}
-
 ColorRgb
 ScreenBuffer::get(int x, int y) {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
 
     return m_Radiance[index];
-}
-
-ColorRgb
-ScreenBuffer::getBiLinear(float x, float y) {
-    int nx0, nx1, ny0, ny1;
-    Vector2D center;
-    ColorRgb color{};
-
-    getPixel(x, y, &nx0, &ny0);
-    center = getPixelCenter(nx0, ny0);
-
-    x = (x - center.u) / getPixXSize();
-    y = (y - center.v) / getPixYSize();
-
-    if ( x < 0 ) {
-        // Point on left side of pixel center
-        x = -x;
-        nx1 = intMax(nx0 - 1, 0);
-    } else {
-        nx1 = intMin(getHRes(), nx0 + 1);
-    }
-
-    if ( y < 0 ) {
-        y = -y;
-        ny1 = intMax(ny0 - 1, 0);
-    } else {
-        ny1 = intMin(getVRes(), ny0 + 1);
-    }
-
-    // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
-    // nx0 and nx1 may be the same (at border of image). Same for ny
-
-    ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
-    ColorRgb c1 = get(nx1, ny0); // u = 1
-    ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
-    ColorRgb c3 = get(nx0, ny1); // v = 1
-
-    color.interpolateBiLinear(c0, c1, c2, c3, x, y);
-
-    return color;
-}
-
-void
-ScreenBuffer::setFactor(float factor) {
-    m_Factor = factor;
-}
-
-void
-ScreenBuffer::setAddScaleFactor(float factor) {
-    m_AddFactor = factor;
 }
 
 void
@@ -225,25 +161,6 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
     }
 
     fprintf(stderr, "done.\n");
-}
-
-void
-ScreenBuffer::writeFile(char *fileName) {
-    int isPipe;
-    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
-    if ( !fp ) {
-        return;
-    }
-
-    ImageOutputHandle *ip =
-            createRadianceImageOutputHandle(fileName, fp, isPipe,
-                                            camera.xSize, camera.ySize,
-                                            (float) GLOBAL_statistics.referenceLuminance / 179.0f);
-
-    writeFile(ip);
-
-    // DeleteImageOutputHandle(ip);
-    closeFile(fp, isPipe);
 }
 
 void
@@ -297,16 +214,6 @@ ScreenBuffer::getScreenXMin() const {
 float
 ScreenBuffer::getScreenYMin() const {
     return -camera.pixelHeight * (float)camera.ySize / 2.0f;
-}
-
-float
-ScreenBuffer::getScreenXMax() const {
-    return camera.pixelWidth * (float)camera.xSize / 2.0f;
-}
-
-float
-ScreenBuffer::getScreenYMax() const {
-    return camera.pixelHeight * (float)camera.ySize / 2.0f;
 }
 
 float
@@ -396,3 +303,104 @@ computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
 
     return (float)factor;
 }
+
+#ifdef RAYTRACING_ENABLED
+
+float
+ScreenBuffer::getScreenXMax() const {
+    return camera.pixelWidth * (float)camera.xSize / 2.0f;
+}
+
+float
+ScreenBuffer::getScreenYMax() const {
+    return camera.pixelHeight * (float)camera.ySize / 2.0f;
+}
+
+ColorRgb
+ScreenBuffer::getBiLinear(float x, float y) {
+    int nx0;
+    int nx1;
+    int ny0;
+    int ny1;
+    Vector2D center;
+    ColorRgb color{};
+
+    getPixel(x, y, &nx0, &ny0);
+    center = getPixelCenter(nx0, ny0);
+
+    x = (x - center.u) / getPixXSize();
+    y = (y - center.v) / getPixYSize();
+
+    if ( x < 0 ) {
+        // Point on left side of pixel center
+        x = -x;
+        nx1 = intMax(nx0 - 1, 0);
+    } else {
+        nx1 = intMin(getHRes(), nx0 + 1);
+    }
+
+    if ( y < 0 ) {
+        y = -y;
+        ny1 = intMax(ny0 - 1, 0);
+    } else {
+        ny1 = intMin(getVRes(), ny0 + 1);
+    }
+
+    // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
+    // nx0 and nx1 may be the same (at border of image). Same for ny
+
+    ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
+    ColorRgb c1 = get(nx1, ny0); // u = 1
+    ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
+    ColorRgb c3 = get(nx0, ny1); // v = 1
+
+    color.interpolateBiLinear(c0, c1, c2, c3, x, y);
+
+    return color;
+}
+
+void
+ScreenBuffer::scaleRadiance(float factor) {
+    for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
+        m_Radiance[i].scale(factor);
+    }
+
+    m_Synced = false;
+}
+
+void
+ScreenBuffer::setAddScaleFactor(float factor) {
+    m_AddFactor = factor;
+}
+
+void
+ScreenBuffer::setFactor(float factor) {
+    m_Factor = factor;
+}
+
+void
+ScreenBuffer::setRgbImage(bool isRGB) {
+    m_RGBImage = isRGB;
+}
+
+void
+ScreenBuffer::writeFile(const char *fileName) {
+    int isPipe;
+    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
+    if ( !fp ) {
+        return;
+    }
+
+    ImageOutputHandle *ip = createRadianceImageOutputHandle(
+        fileName,
+        fp,
+        isPipe,
+        camera.xSize,
+        camera.ySize,
+        (float) GLOBAL_statistics.referenceLuminance / 179.0f);
+
+    writeFile(ip);
+    closeFile(fp, isPipe);
+}
+
+#endif

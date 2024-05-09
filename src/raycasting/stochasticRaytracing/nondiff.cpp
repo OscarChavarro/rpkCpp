@@ -2,6 +2,10 @@
 Non diffuse first shot
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
 #include "render/opengl.h"
@@ -194,3 +198,5 @@ doNonDiffuseFirstShot(Scene *scene, RadianceMethod *radianceMethod, RenderOption
             radianceMethod,
             renderOptions);
 }
+
+#endif

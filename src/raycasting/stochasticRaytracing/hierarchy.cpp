@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "java/util/ArrayList.txx"
 #include "skin/Vertex.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -85,3 +89,5 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
     delete GLOBAL_stochasticRaytracing_hierarchy.texCoords;
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
 }
+
+#endif

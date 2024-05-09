@@ -8,6 +8,10 @@ sampling positions on shooters with higher order radiosity approximation
 TODO: global lines and global line bundles.
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -871,3 +875,5 @@ doStochasticJacobiIteration(
     stochasticJacobiShootRays(sceneWorldVoxelGrid, scenePatches, renderOptions);
     stochasticJacobiPushUpdatePullSweep();
 }
+
+#endif

@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstring>
 
 #include "common/error.h"
@@ -186,3 +190,5 @@ filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFa
         }
     }
 }
+
+#endif

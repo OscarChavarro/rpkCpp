@@ -1,4 +1,9 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
 #include "common/error.h"
+#endif
+
 #include "skin/Element.h"
 
 Element::Element():
@@ -49,25 +54,6 @@ Element::topTransform(Matrix2x2 *xf) const {
     } while ( window != nullptr && window->upTrans );
 
     return xf;
-}
-
-/**
-Returns true if elem is a leaf element
-*/
-bool
-Element::isLeaf() const {
-    return regularSubElements == nullptr && (irregularSubElements == nullptr || irregularSubElements->size() == 0);
-}
-
-Element *
-Element::childContainingElement(Element *descendant) {
-    while ( descendant != nullptr && descendant->parent != this ) {
-        descendant = descendant->parent;
-    }
-    if ( descendant == nullptr ) {
-        logFatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
-    }
-    return descendant;
 }
 
 /**
@@ -125,6 +111,27 @@ Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, cons
     }
 }
 
+#ifdef RAYTRACING_ENABLED
+
+/**
+Returns true if elem is a leaf element
+*/
+bool
+Element::isLeaf() const {
+    return regularSubElements == nullptr && (irregularSubElements == nullptr || irregularSubElements->size() == 0);
+}
+
+Element *
+Element::childContainingElement(Element *descendant) {
+    while ( descendant != nullptr && descendant->parent != this ) {
+        descendant = descendant->parent;
+    }
+    if ( descendant == nullptr ) {
+        logFatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+    }
+    return descendant;
+}
+
 /**
 Returns true if there are children elements and false if top is nullptr or a leaf element
 */
@@ -151,3 +158,5 @@ Element::traverseAllChildren(void (*traversalCallbackFunction)(Element *)) const
         return false;
     }
 }
+
+#endif

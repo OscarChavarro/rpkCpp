@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstdlib>
 #include <ctime>
 
@@ -784,3 +788,5 @@ PhotonMapRadianceMethod::getStats() {
 
     return stats;
 }
+
+#endif

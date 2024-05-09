@@ -10,10 +10,13 @@
 #include "scene/Scene.h"
 
 enum RadianceMethodAlgorithm {
-    GALERKIN,
+    GALERKIN
+#ifdef RAYTRACING_ENABLED
+    ,
     STOCHASTIC_JACOBI,
     RANDOM_WALK,
     PHOTON_MAP
+#endif
 };
 
 class RadianceMethod {

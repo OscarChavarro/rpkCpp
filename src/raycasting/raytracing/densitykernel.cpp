@@ -7,6 +7,7 @@ Olivier Ceulemans.
 #include "common/mymath.h"
 #include "raycasting/raytracing/densitykernel.h"
 
+#ifdef RAYTRACING_ENABLED
 CKernel2D::CKernel2D() {
     Init(1.0, 1.0);
 }
@@ -144,3 +145,4 @@ CKernel2D::varCover(
     // h determined, now splat the fucker
     Cover(center, 1.0f / (float)totalSamples, color, dest);
 }
+#endif

@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "render/render.h"
@@ -968,3 +972,5 @@ void
 stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp) {
     *parent_imp += child->area / parent->area * (*child_imp);
 }
+
+#endif

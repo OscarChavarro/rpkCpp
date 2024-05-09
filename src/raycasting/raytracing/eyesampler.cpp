@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "scene/Camera.h"
 #include "raycasting/raytracing/eyesampler.h"
@@ -65,3 +69,5 @@ CEyeSampler::evalPDF(
     double * /*probabilityDensityFunctionRR*/) {
     return 1.0;
 }
+
+#endif

@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 /**
 Implements option handling for bidirectional path tracing
 */
@@ -77,3 +81,5 @@ void
 biDirectionalPathParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
 }
+
+#endif

@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 /**
 Options defaults and parsing for stochastic raytracing
 */
@@ -108,3 +112,5 @@ void
 RTStochasticParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
 }
+
+#endif

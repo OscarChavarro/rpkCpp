@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 /**
 Options defaults and parsing for ray matting
 */
@@ -34,3 +38,5 @@ void
 rayMattingParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalRayMatterOptions, argc, argv);
 }
+
+#endif

@@ -2,6 +2,10 @@
 Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <ctime>
 
 #include "raycasting/common/raytools.h"
@@ -179,3 +183,5 @@ Raytracer GLOBAL_rayCasting_RayMatting = {
     SaveImage,
     Terminate
 };
+
+#endif

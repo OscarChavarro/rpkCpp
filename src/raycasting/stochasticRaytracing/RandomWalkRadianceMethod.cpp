@@ -8,6 +8,8 @@
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #include "scene/Background.h"
 
+#ifdef RAYTRACING_ENABLED
+
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
     monteCarloRadiosityDefaults();
     className = RANDOM_WALK;
@@ -502,3 +504,5 @@ RandomWalkRadianceMethod::getStats() {
 
     return stats;
 }
+
+#endif

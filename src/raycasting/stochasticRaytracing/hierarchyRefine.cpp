@@ -6,6 +6,10 @@ Hanrahan, Pat. et al, "A rapid hierarchical radiosity algorithm", SIGGRAPH 1991
 Smits, Brian. et al, "An importance-driven radiosity algorithm", SIGGRAPH 1992
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/Statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
@@ -244,3 +248,5 @@ hierarchyRefine(
     }
     return link;
 }
+
+#endif

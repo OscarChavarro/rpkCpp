@@ -1,6 +1,7 @@
 #ifndef __PATCH__
 #define __PATCH__
 
+#include "common/RenderOptions.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
 #include "skin/Jacobian.h"
@@ -88,16 +89,10 @@ class Patch {
         flags &= ~PATCH_VISIBILITY;
     }
 
-    bool
-    isVisible() const {
-        return (flags & PATCH_VISIBILITY) != 0;
-    }
-
     int hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
     int uv(const Vector3D *point, double *u, double *v) const;
-    int uniformUv(const Vector3D *point, double *u, double *v) const;
     void biLinearToUniform(double *u, double *v) const;
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const;
     Vector3D textureCoordAtUv(double u, double v) const;
@@ -108,6 +103,17 @@ class Patch {
     RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
     ColorRgb averageNormalAlbedo(BSDF_FLAGS components);
     ColorRgb averageEmittance(char components);
+
+#ifdef RAYTRACING_ENABLED
+    bool
+    isVisible() const {
+        return (flags & PATCH_VISIBILITY) != 0;
+    }
+
+    int uniformUv(const Vector3D *point, double *u, double *v) const;
+
+#endif
+
 };
 
 #endif

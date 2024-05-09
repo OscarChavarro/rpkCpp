@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstring>
 
 #include "common/error.h"
@@ -1212,3 +1216,5 @@ GLOBAL_raytracing_biDirectionalPathMethod = {
     biDirPathSaveImage,
     biDirPathTerminate
 };
+
+#endif

@@ -7,6 +7,8 @@
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 
+#ifdef RAYTRACING_ENABLED
+
 CSeed CSeedConfig::xOrSeed;
 
 void
@@ -240,3 +242,5 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     // Main init the seed config
     seedConfig.init(samplerConfig.maxDepth);
 }
+
+#endif

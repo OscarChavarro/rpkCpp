@@ -2,6 +2,10 @@
 Generate and trace a local line
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/mymath.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -74,3 +78,5 @@ mcrShootRay(VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStor
 
     return hit;
 }
+
+#endif

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 
+#include "common/RenderOptions.h"
 #include "common/linealAlgebra/Vector2D.h"
 #include "IMAGE/imagecpp.h"
 #include "common/ColorRgb.h"
@@ -33,17 +34,17 @@ class ScreenBuffer {
 
     void init(Camera *inCamera, Camera *defaultCamera);
 
+  protected:
+    void syncLine(int lineNumber);
+
   public:
     explicit ScreenBuffer(Camera *camera, Camera *defaultCamera); // Also calls mainInitApplication()
     ~ScreenBuffer();
-    void setRgbImage(bool isRGB);
     bool isRgbImage() const;
     void copy(ScreenBuffer *source, Camera *defaultCamera);
     void merge(ScreenBuffer *src1, ScreenBuffer *src2, Camera *defaultCamera);
     float getScreenXMin() const;
     float getScreenYMin() const;
-    float getScreenXMax() const;
-    float getScreenYMax() const;
     float getPixXSize() const;
     float getPixYSize() const;
     Vector2D getPixelPoint(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
@@ -56,21 +57,27 @@ class ScreenBuffer {
     int getVRes() const;
     ColorRgb get(int x, int y);
     void set(int x, int y, ColorRgb radiance);
-    ColorRgb getBiLinear(float x, float y);
     void render();
     void renderScanline(int y);
     void writeFile(ImageOutputHandle *ip);
-    void writeFile(char *fileName);
     void add(int x, int y, ColorRgb radiance);
-    void setFactor(float factor);
-    void setAddScaleFactor(float factor);
-    void scaleRadiance(float factor);
     void sync();
 
-  protected:
-    void syncLine(int lineNumber);
+#ifdef RAYTRACING_ENABLED
+    float getScreenXMax() const;
+    float getScreenYMax() const;
+    ColorRgb getBiLinear(float x, float y);
+    void scaleRadiance(float factor);
+    void setAddScaleFactor(float factor);
+    void setFactor(float factor);
+    void setRgbImage(bool isRGB);
+    void writeFile(const char *fileName);
+#endif
+
 };
 
-extern float computeFluxToRadFactor(Camera *camera, int pixX, int pixY);
+#ifdef RAYTRACING_ENABLED
+    extern float computeFluxToRadFactor(Camera *camera, int pixX, int pixY);
+#endif
 
 #endif

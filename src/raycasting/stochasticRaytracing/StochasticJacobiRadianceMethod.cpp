@@ -16,6 +16,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 
 #define STRING_SIZE 2000
 
+#ifdef RAYTRACING_ENABLED
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
     monteCarloRadiosityDefaults();
     className = STOCHASTIC_JACOBI;
@@ -553,3 +554,4 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
 
     return false; // Always continue computing (never fully converged)
 }
+#endif

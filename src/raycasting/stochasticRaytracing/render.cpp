@@ -2,6 +2,10 @@
 Rendering elements
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -461,3 +465,5 @@ stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *ele
     }
     return radiance;
 }
+
+#endif

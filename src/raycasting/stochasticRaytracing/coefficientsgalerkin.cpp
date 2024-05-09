@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/stochasticRaytracing/mcradP.h"
 
 /**
@@ -47,3 +51,5 @@ reAllocCoefficients(StochasticRadiosityElement *elem) {
         allocCoefficients(elem);
     }
 }
+
+#endif

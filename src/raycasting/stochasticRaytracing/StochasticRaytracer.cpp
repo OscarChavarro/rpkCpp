@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/stratification.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"
@@ -711,3 +715,5 @@ GLOBAL_raytracing_stochasticMethod =
         RTStochastic_SaveImage,
         stochasticRayTracerTerminate
 };
+
+#endif

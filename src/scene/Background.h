@@ -1,6 +1,7 @@
 #ifndef __BACKGROUND__
 #define __BACKGROUND__
 
+#include "common/RenderOptions.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 #include "skin/Patch.h"
@@ -36,7 +37,11 @@ class Background {
     BACKGROUND_METHODS *methods; // class methods operating on state
 };
 
-extern ColorRgb backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+
+#ifdef RAYTRACING_ENABLED
+    extern ColorRgb backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+#endif
+
 extern ColorRgb backgroundPower(Background *bkg, Vector3D *position);
 
 #endif

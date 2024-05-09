@@ -2,6 +2,10 @@
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
@@ -600,3 +604,5 @@ float
 monteCarloRadiosityScalarReflectance(Patch *P) {
     return stochasticRadiosityElementScalarReflectance(topLevelStochasticRadiosityElement(P));
 }
+
+#endif

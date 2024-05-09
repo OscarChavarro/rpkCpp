@@ -2,6 +2,7 @@
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
 
+#ifdef RAYTRACING_ENABLED
 const int DHL_ARRAY_SIZE = 20;
 
 CDensityHitList::CDensityHitList(): m_cacheLowerLimit() {
@@ -173,3 +174,5 @@ CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
 
     return dest;
 }
+
+#endif

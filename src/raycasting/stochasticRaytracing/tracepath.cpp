@@ -2,6 +2,10 @@
 Random walk generation
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
@@ -205,3 +209,5 @@ tracePaths(
             getTopLevelPatchRad(patch)[0]);
     }
 }
+
+#endif

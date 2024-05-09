@@ -1080,18 +1080,6 @@ Patch::uv(const Vector3D *point, double *u, double *v) const {
 }
 
 /**
-Like above, but returns uniform coordinates (inverse of uniformPoint())
-*/
-int
-Patch::uniformUv(const Vector3D *point, double *u, double *v) const {
-    int inside = uv(point, u, v);
-    if ( jacobian != nullptr ) {
-        biLinearToUniform(u, v);
-    }
-    return inside;
-}
-
-/**
 Computes a vertex color for the vertices of the patch
 */
 void
@@ -1128,3 +1116,19 @@ bool
 Patch::facing(const Patch *other) const {
     return isAtLeastPartlyInFront(other) && other->isAtLeastPartlyInFront(this);
 }
+
+#ifdef RAYTRACING_ENABLED
+
+/**
+Like 'uv', but returns uniform coordinates (inverse of uniformPoint())
+*/
+int
+Patch::uniformUv(const Vector3D *point, double *u, double *v) const {
+    int inside = uv(point, u, v);
+    if ( jacobian != nullptr ) {
+        biLinearToUniform(u, v);
+    }
+    return inside;
+}
+
+#endif

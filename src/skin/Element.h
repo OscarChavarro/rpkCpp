@@ -1,16 +1,19 @@
 #ifndef __ELEMENT__
 #define __ELEMENT__
 
-#include "common/linealAlgebra/Matrix2x2.h"
 #include "common/RenderOptions.h"
 #include "common/ColorRgb.h"
+#include "common/linealAlgebra/Matrix2x2.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
 #include "common/RenderOptions.h"
 
 enum ElementTypes {
-    ELEMENT_GALERKIN,
+    ELEMENT_GALERKIN
+#ifdef RAYTRACING_ENABLED
+    ,
     ELEMENT_STOCHASTIC_RADIOSITY
+#endif
 };
 
 // If set, indicates that the element is a cluster element. If not set, the element is a surface element
@@ -55,12 +58,15 @@ class Element {
     }
 
     Matrix2x2 *topTransform(Matrix2x2 *xf) const;
-    bool isLeaf() const;
-    Element *childContainingElement(Element *descendant);
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RenderOptions *renderOptions), const RenderOptions *renderOptions);
+
+#ifdef RAYTRACING_ENABLED
+    bool isLeaf() const;
+    Element *childContainingElement(Element *descendant);
     bool traverseAllChildren(void (*traversalCallbackFunction)(Element *)) const;
+#endif
 };
 
 #endif

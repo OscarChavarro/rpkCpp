@@ -6,6 +6,7 @@ used as a parameter for BSDF/EDF queries
 #ifndef __RAY_HIT__
 #define __RAY_HIT__
 
+#include "common/RenderOptions.h"
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
@@ -78,13 +79,6 @@ class RayHit {
     inline CoordinateSystem
     getShadingFrame() const {
         return shadingFrame;
-    }
-
-    inline void
-    setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
-        shadingFrame.X = *inX;
-        shadingFrame.Y = *inY;
-        shadingFrame.Z = *inZ;
     }
 
     inline Vector3D getNormal() const {
@@ -160,6 +154,16 @@ class RayHit {
     setFlags(unsigned int inFlags) {
         flags = inFlags;
     }
+
+#ifdef RAYTRACING_ENABLED
+    inline void
+    setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
+        shadingFrame.X = *inX;
+        shadingFrame.Y = *inY;
+        shadingFrame.Z = *inZ;
+    }
+#endif
+
 };
 
 #endif

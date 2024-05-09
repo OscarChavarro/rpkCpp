@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 /**
 Importon tracing
 */
@@ -14,7 +18,7 @@ Store a importon/poton. Some acceptance tests are performed first
 static bool
 HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.getPatch()->material ) {
-        PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->material->getBsdf();
+        const PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->material->getBsdf();
         return !zeroAlbedo(bsdf, &node->m_hit,
                            BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     } else {
@@ -145,3 +149,5 @@ tracePotentialPaths(
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state
     GLOBAL_photonMap_config.eyeConfig.minDepth = 1;
 }
+
+#endif

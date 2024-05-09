@@ -2,6 +2,10 @@
 Determination of constant control radiosity value
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
 
@@ -308,3 +312,5 @@ determineControlRadiosity(
     fprintf(stderr, "\n");
     return beta;
 }
+
+#endif
