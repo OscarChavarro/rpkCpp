@@ -109,7 +109,7 @@ FormFactorStrategy::determineNodes(
 
         // Compute the transform relating positions on the element to positions on
         // the patch to which it belongs
-        if ( element->upTrans != nullptr ) {
+        if ( element->transformToParent != nullptr ) {
             element->topTransform(&topTransform);
         }
 
@@ -119,7 +119,7 @@ FormFactorStrategy::determineNodes(
             Vector2D node;
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
-            if ( element->upTrans != nullptr ) {
+            if ( element->transformToParent != nullptr ) {
                 transformPoint2D(topTransform, node, node);
             }
             element->patch->uniformPoint(node.u, node.v, &x[k]);

@@ -3,29 +3,25 @@
 #include "common/mymath.h"
 #include "render/render.h"
 #include "render/opengl.h"
-#include "render/ScreenBuffer.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/GalerkinState.h"
 
 // Element render modes, additive
-#define OUTLINE 1
-#define FLAT 2
-#define GOURAUD 4
-#define STRONG 8
+#define OUTLINE 0x01
+#define FLAT 0x02
+#define GOURAUD 0x04
+#define STRONG 0x08
 #define NOT_A_REGULAR_SUB_ELEMENT (-1)
 
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
 /**
-Orientation and position of regular sub-elements is fully determined by the
-following transformations. A uniform mapping of parameter domain to the
-elements is supposed (i.o.w. use uniformPoint() to map (u,v) coordinates
-on the toplevel element to a 3D point on the patch). The sub-elements
-have equal area. No explicit Jacobian stuff needed to compute integrals etc..
-etc
+Orientation and position of regular sub-elements is fully determined by the following transformations.
+A uniform mapping of parameter domain to the elements is supposed (in other words use uniformPoint() to map
+(u,v) coordinates on the toplevel element to a 3D point on the patch). The sub-elements
+have equal area. No explicit Jacobian stuff needed to compute integrals etc.
 */
 
 /**
@@ -44,18 +40,42 @@ Up-transforms for regular quadrilateral sub-elements:
    0 +---------+---------+
      0        0.5        1   (u)
 */
-Matrix2x2 GLOBAL_galerkin_QuadUpTransformMatrix[4] = {
-    // South-west [0, 0.5] x [0, 0.5]
-    {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
+Matrix2x2 globalQuadToParentTransformMatrix[4] = {
+    // 1: South-west [0, 0.5] x [0, 0.5]
+    {
+        {
+            {0.5, 0.0},
+            {0.0, 0.5}
+        },
+        {0.0, 0.0}
+    },
 
-    // South-east: [0.5, 1] x [0, 0.5]
-    {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.0}},
+    // 2: South-east [0.5, 1] x [0, 0.5]
+    {
+        {
+            {0.5, 0.0},
+            {0.0, 0.5}
+        },
+        {0.5, 0.0}
+    },
 
-    // North-west: [0, 0.5] x [0.5, 1]
-    {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.5}},
+    // 3: North-west [0, 0.5] x [0.5, 1]
+    {
+        {
+            {0.5, 0.0},
+            {0.0, 0.5}
+        },
+        {0.0, 0.5}
+    },
 
-    // North-east: [0.5, 1] x [0.5, 1]
-    {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.5}},
+    // 4: North-east [0.5, 1] x [0.5, 1]
+    {
+        {
+            {0.5, 0.0},
+            {0.0, 0.5}
+        },
+        {0.5, 0.5}
+    }
 };
 
 /**
@@ -76,18 +96,42 @@ Up-transforms for regular triangular sub-elements:
   0 +---------+---------+
     0        0.5        1  (u)
 */
-Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4] = {
-    // Left: (0, 0), (0.5, 0), (0, 0.5)
-    {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.0}},
+Matrix2x2 globalTriangleToParentTransformMatrix[4] = {
+    // 1: Left [0, 0], [0.5, 0], [0, 0.5]
+    {
+        {
+            {0.5,  0.0},
+            {0.0, 0.5}
+        },
+        {0.0, 0.0}
+    },
 
-    // Right: (0.5, 0), (1, 0), (0.5, 0.5)
-    {{{0.5,  0.0}, {0.0, 0.5}},  {0.5, 0.0}},
+    // 2: Right [0.5, 0], [1, 0], [0.5, 0.5]
+    {
+        {
+            {0.5,  0.0},
+            {0.0, 0.5}
+        },
+        {0.5, 0.0}
+    },
 
-    // Top: (0, 0.5), (0.5, 0.5), (0, 1)
-    {{{0.5,  0.0}, {0.0, 0.5}},  {0.0, 0.5}},
+    // 3: Top [0, 0.5], [0.5, 0.5], [0, 1]
+    {
+        {
+            {0.5, 0.0},
+            {0.0, 0.5}
+        },
+        {0.0, 0.5}
+    },
 
-    // Middle: (0.5, 0.5), (0, 0.5), (0.5, 0)
-    {{{-0.5, 0.0}, {0.0, -0.5}}, {0.5, 0.5}},
+    // 4: Middle [0.5, 0.5], [0, 0.5], [0.5, 0]
+    {
+        {
+            {-0.5, 0.0},
+            {0.0, -0.5}
+        },
+        {0.5, 0.5}
+    }
 };
 
 /**
@@ -114,7 +158,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     parent = nullptr;
     regularSubElements = nullptr;
     irregularSubElements = nullptr; // New list
-    upTrans = nullptr;
+    transformToParent = nullptr;
     area = 0.0;
     childNumber = NOT_A_REGULAR_SUB_ELEMENT;
     basisSize = 0;
@@ -142,7 +186,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     if ( patch->material != nullptr && patch->material->getEdf() != nullptr ) {
         flags |= IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
-        Ed.scaleInverse(M_PI, Ed);
+        Ed.scaleInverse((float)M_PI, Ed);
     }
 
     patch->radianceData = this;
@@ -301,44 +345,46 @@ GalerkinElement::regularSubDivide(const RenderOptions *renderOptions) {
         return;
     }
 
-    GalerkinElement **subElement = new GalerkinElement *[4];
+    GalerkinElement **new4ChildrenSet = new GalerkinElement *[4];
 
     for ( int i = 0; i < 4; i++ ) {
-        subElement[i] = new GalerkinElement(galerkinState);
-        subElement[i]->patch = patch;
-        subElement[i]->parent = this;
-        subElement[i]->upTrans =
+        GalerkinElement *child = new GalerkinElement(galerkinState);
+        child->patch = patch;
+        child->parent = this;
+        child->transformToParent =
             patch->numberOfVertices == 3 ?
-            &GLOBAL_galerkin_TriangularUpTransformMatrix[i] :
-            &GLOBAL_galerkin_QuadUpTransformMatrix[i];
-        subElement[i]->area = 0.25f * area;  // Uniform mapping is always used
-        subElement[i]->blockerSize = 2.0f * (float)std::sqrt(subElement[i]->area / M_PI);
-        subElement[i]->childNumber = (char)i;
-        subElement[i]->reAllocCoefficients();
+            &globalTriangleToParentTransformMatrix[i] :
+            &globalQuadToParentTransformMatrix[i];
+        child->area = 0.25f * area;  // Uniform mapping is always used
+        child->blockerSize = 2.0f * (float)std::sqrt(child->area / M_PI);
+        child->childNumber = (char)i;
+        child->reAllocCoefficients();
 
-        basisGalerkinPush(this, radiance, subElement[i], subElement[i]->radiance);
+        basisGalerkinPush(this, radiance, child, child->radiance);
 
-        subElement[i]->potential = potential;
-        subElement[i]->directPotential = directPotential;
+        child->potential = potential;
+        child->directPotential = directPotential;
 
         if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-            basisGalerkinPush(this, unShotRadiance, subElement[i], subElement[i]->unShotRadiance);
-            subElement[i]->unShotPotential = unShotPotential;
+            basisGalerkinPush(this, unShotRadiance, child, child->unShotRadiance);
+            child->unShotPotential = unShotPotential;
         }
 
-        subElement[i]->flags |= (flags & IS_LIGHT_SOURCE_MASK);
+        child->flags |= (flags & IS_LIGHT_SOURCE_MASK);
 
-        subElement[i]->Rd = Rd;
-        subElement[i]->Ed = Ed;
+        child->Rd = Rd;
+        child->Ed = Ed;
 
         openGlRenderSetColor(&renderOptions->outlineColor);
 
         if  ( renderOptions->drawOutlines) {
-            subElement[i]->drawOutline(renderOptions);
+            child->drawOutline(renderOptions);
         }
+
+        new4ChildrenSet[i] = child;
     }
 
-    regularSubElements = (Element **)subElement;
+    regularSubElements = (Element **)new4ChildrenSet;
 }
 
 /**
@@ -440,20 +486,20 @@ GalerkinElement::vertices(Vector3D *p, int n) const {
         Matrix2x2 topTrans{};
         Vector2D uv;
 
-        if ( upTrans ) {
+        if ( transformToParent != nullptr ) {
             topTransform(&topTrans);
         }
 
         uv.u = 0.0;
         uv.v = 0.0;
-        if ( upTrans ) {
+        if ( transformToParent != nullptr ) {
             transformPoint2D(topTrans, uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[0]);
 
         uv.u = 1.0;
         uv.v = 0.0;
-        if ( upTrans ) {
+        if ( transformToParent != nullptr ) {
             transformPoint2D(topTrans, uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
@@ -461,21 +507,21 @@ GalerkinElement::vertices(Vector3D *p, int n) const {
         if ( patch->numberOfVertices == 4 ) {
             uv.u = 1.0;
             uv.v = 1.0;
-            if ( upTrans ) {
+            if ( transformToParent != nullptr ) {
                 transformPoint2D(topTrans, uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
 
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( upTrans ) {
+            if ( transformToParent != nullptr ) {
                 transformPoint2D(topTrans, uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
             uv.u = 0.0;
             uv.v = 1.0;
-            if ( upTrans ) {
+            if ( transformToParent != nullptr ) {
                 transformPoint2D(topTrans, uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
@@ -620,8 +666,6 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     if ( mode & OUTLINE ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
-            //ColorRgb yellow = {1.0, 1.0, 0.0};
-
             openGlRenderSetColor(&renderOptions->outlineColor);
             openGlRenderLine(&p[0], &p[1]);
             openGlRenderLine(&p[1], &p[2]);
@@ -692,4 +736,10 @@ GalerkinElement::render(const RenderOptions *renderOptions) const {
     }
 
     draw(renderCode, renderOptions);
+}
+
+void
+basisGalerkinInitBasis() {
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, &GLOBAL_crt8);
 }

@@ -194,7 +194,7 @@ elements with given basis and up transform. The cubature rule 'cr' is used
 to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */
-static void
+void
 basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
     const Matrix2x2 upTransform[],
@@ -314,10 +314,4 @@ basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState
     ColorRgb Bup[MAX_BASIS_SIZE];
     colorsArrayClear(bDown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, bDown, Bup, galerkinState);
-}
-
-void
-basisGalerkinInitBasis() {
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, GLOBAL_galerkin_QuadUpTransformMatrix, &GLOBAL_crq8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, GLOBAL_galerkin_TriangularUpTransformMatrix, &GLOBAL_crt8);
 }

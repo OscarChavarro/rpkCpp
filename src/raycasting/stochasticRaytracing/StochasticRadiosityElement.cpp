@@ -165,7 +165,7 @@ createElement() {
     elem->parent = nullptr;
     elem->regularSubElements = nullptr;
     elem->irregularSubElements = nullptr;
-    elem->upTrans = nullptr;
+    elem->transformToParent = nullptr;
     elem->childNumber = -1;
     elem->numberOfVertices = 0;
     elem->flags = 0x00;
@@ -740,7 +740,7 @@ monteCarloRadiosityCreateSurfaceSubElement(
 
     elem->parent = parent;
     elem->childNumber = (char)childNumber;
-    elem->upTrans = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triangleUpTransform[childNumber] : &GLOBAL_stochasticRaytracing_quadUpTransform[childNumber];
+    elem->transformToParent = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triangleUpTransform[childNumber] : &GLOBAL_stochasticRaytracing_quadUpTransform[childNumber];
 
     allocCoefficients(elem);
     stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
@@ -915,7 +915,7 @@ float *
 stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox) {
     if ( elem->isCluster() ) {
         boundingBox->copyFrom(&elem->geometry->boundingBox);
-    } else if ( !elem->upTrans ) {
+    } else if ( !elem->transformToParent ) {
         elem->patch->computeAndGetBoundingBox(boundingBox);
         } else {
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {

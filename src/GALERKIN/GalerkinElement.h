@@ -6,9 +6,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #define __GALERKIN_ELEMENT__
 
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
 #include "scene/Polygon.h"
-#include "scene/Camera.h"
 #include "GALERKIN/Interaction.h"
 
 class GalerkinState;
@@ -69,8 +67,8 @@ determined by the following transforms, that transform (u,v)
 parameters of a point on a sub-element to the (u',v') parameters
 of the same point on the parent element
 */
-extern Matrix2x2 GLOBAL_galerkin_QuadUpTransformMatrix[4];
-extern Matrix2x2 GLOBAL_galerkin_TriangularUpTransformMatrix[4];
+extern Matrix2x2 globalQuadToParentTransformMatrix[4];
+extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
 
 extern int galerkinElementGetNumberOfElements();
 extern int galerkinElementGetNumberOfClusters();
@@ -92,6 +90,8 @@ galerkinGetElement(const Patch *patch) {
     }
     return (GalerkinElement *)patch->radianceData;
 }
+
+extern void basisGalerkinInitBasis();
 
 #include "GALERKIN/GalerkinState.h"
 

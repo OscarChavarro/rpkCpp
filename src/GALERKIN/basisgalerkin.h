@@ -47,7 +47,12 @@ basisGalerkinPush(
     const GalerkinElement *child,
     ColorRgb *childCoefficients);
 
-extern void basisGalerkinInitBasis();
 extern void basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *basisGalerkinPushPullRadiance);
+
+extern void
+basisGalerkinComputeRegularFilterCoefficients(
+        GalerkinBasis *basis,
+        const Matrix2x2 upTransform[],
+        const CubatureRule *cubaRule);
 
 #endif

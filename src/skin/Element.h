@@ -30,24 +30,25 @@ class Element {
     int id; // Unique ID number for the element
     ColorRgb Ed; // Diffuse emittance radiance
     ColorRgb Rd; // Reflectance
-    Patch *patch;
-    Geometry *geometry;
     ColorRgb *radiance; // Total radiance on the element as computed so far
     ColorRgb *receivedRadiance; // Radiance received during iteration
     ColorRgb *unShotRadiance; // For progressive refinement radiosity
-    Element *parent; // Parent element in a hierarchy, or
-        // nullptr pointer if there is no parent
-    Element **regularSubElements; // For surface elements with regular quadtree subdivision
-        // A nullptr pointer if there are no regular sub-elements, or an array containing
-        // exactly 4 pointers to the sub-elements
-    java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
-    Matrix2x2 *upTrans; // Relates surface element (u, v) coordinates to patch (u, v) coordinates,
-    // if non-null, transforms (u, v) coordinates on a sub-element to the (u, v) coordinates
-    // of the same point on the parent surface element. It is nullptr if the element is a
-    // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
     float area; // Area of all surfaces contained in the element
     ElementTypes className;
     unsigned char flags;
+
+    Patch *patch;
+    Geometry *geometry;
+
+    Element *parent; // Parent element in a hierarchy, or nullptr pointer if there is no parent
+    Element **regularSubElements; // For surface elements with regular quadtree subdivision
+        // A nullptr pointer if there are no regular sub-elements (child element in hierarchy), or a 4-sized
+        // array containing with sub-elements. Note both triangles and quads are subdivided in 4.
+    java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
+    Matrix2x2 *transformToParent; // Relates surface element (u, v) coordinates to patch (u, v) coordinates,
+        // if non-null, transforms (u, v) coordinates on a sub-element to the (u, v) coordinates
+        // of the same point on the parent surface element. It is nullptr if the element is a
+        // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
 
     Element();
     virtual ~Element() {};

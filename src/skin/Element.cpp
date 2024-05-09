@@ -7,22 +7,22 @@
 #include "skin/Element.h"
 
 Element::Element():
-    id(),
-    Ed(),
-    Rd(),
-    patch(),
-    geometry(),
-    radiance(),
-    receivedRadiance(),
-    unShotRadiance(),
-    parent(),
-    regularSubElements(),
-    irregularSubElements(),
-    upTrans(),
-    area(),
-    className()
+        id(),
+        Ed(),
+        Rd(),
+        radiance(),
+        receivedRadiance(),
+        unShotRadiance(),
+        area(),
+        className(),
+        patch(),
+        geometry(),
+        parent(),
+        regularSubElements(),
+        irregularSubElements(),
+        transformToParent()
 {
-    flags = 0x0;
+    flags = 0x00;
     Ed.clear();
     Rd.clear();
 }
@@ -40,18 +40,18 @@ xf (pointer to the transform) is returned
 Matrix2x2 *
 Element::topTransform(Matrix2x2 *xf) const {
     // Top level element: no transform necessary to transform to top
-    if ( !upTrans ) {
+    if ( !transformToParent ) {
         return nullptr;
     }
 
     const Element *window = this;
-    *xf = *window->upTrans;
+    *xf = *window->transformToParent;
     do {
         window = window->parent;
-        if ( window != nullptr && window->upTrans != nullptr ) {
-            matrix2DPreConcatTransform(*window->upTrans, *xf, *xf);
+        if ( window != nullptr && window->transformToParent != nullptr ) {
+            matrix2DPreConcatTransform(*window->transformToParent, *xf, *xf);
         }
-    } while ( window != nullptr && window->upTrans );
+    } while ( window != nullptr && window->transformToParent );
 
     return xf;
 }
