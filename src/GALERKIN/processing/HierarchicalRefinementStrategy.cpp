@@ -477,15 +477,14 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    sourceElement->regularSubDivide(renderOptions);
+    sourceElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = (GalerkinElement *)sourceElement->regularSubElements[i];
         Interaction subInteraction{};
@@ -502,8 +501,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
                     scene,
                     candidatesList,
                     &subInteraction,
-                    galerkinState,
-                    renderOptions) ) ) {
+                    galerkinState) ) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
         }
     }
@@ -521,15 +519,14 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
     GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
-    receiverElement->regularSubDivide(renderOptions);
+    receiverElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         GalerkinElement *child = (GalerkinElement *)receiverElement->regularSubElements[i];
@@ -545,8 +542,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
                     scene,
                     candidatesList,
                     &subInteraction,
-                    galerkinState,
-                    renderOptions) ) {
+                    galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
         }
     }
@@ -565,8 +561,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -597,8 +592,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
                     scene,
                     candidatesList,
                     &subInteraction,
-                    galerkinState,
-                    renderOptions) ) {
+                    galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
         }
     }
@@ -617,8 +611,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
     bool isClusteredGeometry,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
     hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
@@ -649,8 +642,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
                     scene,
                     candidatesList,
                     &subInteraction,
-                    galerkinState,
-                    renderOptions) ) {
+                    galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
         }
     }
@@ -670,8 +662,7 @@ HierarchicalRefinementStrategy::refineRecursive(
     const Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
     Interaction *link,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     bool refined = false;
 
@@ -687,8 +678,7 @@ HierarchicalRefinementStrategy::refineRecursive(
                     candidatesList,
                     link,
                     isClusteredGeometry,
-                    galerkinState,
-                    renderOptions);
+                    galerkinState);
             refined = true;
             break;
         case REGULAR_SUBDIVIDE_RECEIVER:
@@ -697,8 +687,7 @@ HierarchicalRefinementStrategy::refineRecursive(
                     candidatesList,
                     link,
                     isClusteredGeometry,
-                    galerkinState,
-                    renderOptions);
+                    galerkinState);
             refined = true;
             break;
         case SUBDIVIDE_SOURCE_CLUSTER:
@@ -707,8 +696,7 @@ HierarchicalRefinementStrategy::refineRecursive(
                     candidatesList,
                     link,
                     isClusteredGeometry,
-                    galerkinState,
-                    renderOptions);
+                    galerkinState);
             refined = true;
             break;
         case SUBDIVIDE_RECEIVER_CLUSTER:
@@ -717,8 +705,7 @@ HierarchicalRefinementStrategy::refineRecursive(
                     candidatesList,
                     link,
                     isClusteredGeometry,
-                    galerkinState,
-                    renderOptions);
+                    galerkinState);
             refined = true;
             break;
         default:
@@ -732,7 +719,7 @@ HierarchicalRefinementStrategy::refineRecursive(
 Candidate occluder list for a pair of patches, note it is changed inside the methods!
 */
 bool
-HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteraction(const Scene *scene, Interaction *link, GalerkinState *galerkinState, const RenderOptions *renderOptions) {
+HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteraction(const Scene *scene, Interaction *link, GalerkinState *galerkinState) {
     java::ArrayList<Geometry *> *candidateOccluderList = scene->clusteredGeometryList;
 
     if ( galerkinState->exactVisibility && link->visibility == 255 ) {
@@ -740,7 +727,7 @@ HierarchicalRefinementStrategy::HierarchicalRefinementStrategy::refineInteractio
     }
 
     // We know for sure that there is full visibility
-    return refineRecursive(scene, &candidateOccluderList, link, galerkinState, renderOptions);
+    return refineRecursive(scene, &candidateOccluderList, link, galerkinState);
 }
 
 void
@@ -764,8 +751,7 @@ void
 HierarchicalRefinementStrategy::refineInteractions(
     const Scene *scene,
     const GalerkinElement *parentElement,
-    GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     // Interactions will only be replaced by lower level interactions. We try refinement
     // beginning at the lowest levels in the hierarchy and working upwards to
@@ -777,8 +763,7 @@ HierarchicalRefinementStrategy::refineInteractions(
         refineInteractions(
                 scene,
                 (GalerkinElement *)parentElement->irregularSubElements->get(i),
-                galerkinState,
-                renderOptions);
+                galerkinState);
     }
 
     if ( parentElement->regularSubElements != nullptr ) {
@@ -786,8 +771,7 @@ HierarchicalRefinementStrategy::refineInteractions(
             refineInteractions(
                     scene,
                     (GalerkinElement *)parentElement->regularSubElements[i],
-                    galerkinState,
-                    renderOptions);
+                    galerkinState);
         }
     }
 
@@ -799,8 +783,7 @@ HierarchicalRefinementStrategy::refineInteractions(
         if ( refineInteraction(
                 scene,
                 interaction,
-                galerkinState,
-                renderOptions) ) {
+                galerkinState) ) {
             interactionsToRemove->add(interaction);
         }
     }

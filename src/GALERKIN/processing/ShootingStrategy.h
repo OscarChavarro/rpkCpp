@@ -34,10 +34,9 @@ class ShootingStrategy {
 
     static void
     patchPropagateUnShotRadianceAndPotential(
-        Scene *scene,
+        const Scene *scene,
         const Patch *patch,
-        GalerkinState *galerkinState,
-        RenderOptions *renderOptions);
+        GalerkinState *galerkinState);
 
     static float
     shootingPushPullPotential(GalerkinElement *element, float down);
@@ -46,10 +45,10 @@ class ShootingStrategy {
     patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState);
 
     static void
-    doPropagate(Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    doPropagate(const Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState);
 
     static bool
-    propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    propagateRadiance(const Scene *scene, GalerkinState *galerkinState);
 
     static void
     clusterUpdatePotential(GalerkinElement *clusterElement);
@@ -57,14 +56,13 @@ class ShootingStrategy {
     static Patch *
     choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches);
 
-    static void
-    propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    static void propagatePotential(const Scene *scene, GalerkinState *galerkinState);
 
     static void
     shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);
 
   public:
-    static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions);
+    static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions);
 };
 
 #endif

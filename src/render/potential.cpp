@@ -21,10 +21,10 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(const Scene *scene, RenderOptions *renderOptions) {
+updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     Patch **id2patch;
     unsigned long *ids;
-    unsigned long *id;
+    const unsigned long *id;
     long j;
     long x;
     long y;
@@ -69,8 +69,8 @@ updateDirectPotential(const Scene *scene, RenderOptions *renderOptions) {
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    h = 2.0f * (float)std::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    v = 2.0f * (float)std::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
+    h = 2.0f * std::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
+    v = 2.0f * std::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
@@ -108,16 +108,18 @@ updateDirectPotential(const Scene *scene, RenderOptions *renderOptions) {
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 
-        patch->directPotential = newDirectImportance[i] / patch->area;
+        if ( patch != nullptr ) {
+            patch->directPotential = newDirectImportance[i] / patch->area;
 
-        if ( patch->directPotential > GLOBAL_statistics.maxDirectPotential ) {
-            GLOBAL_statistics.maxDirectPotential = patch->directPotential;
-        }
-        GLOBAL_statistics.totalDirectPotential += newDirectImportance[i];
-        GLOBAL_statistics.averageDirectPotential += newDirectImportance[i];
+            if ( patch->directPotential > GLOBAL_statistics.maxDirectPotential ) {
+                GLOBAL_statistics.maxDirectPotential = patch->directPotential;
+            }
+            GLOBAL_statistics.totalDirectPotential += newDirectImportance[i];
+            GLOBAL_statistics.averageDirectPotential += newDirectImportance[i];
 
-        if ( newDirectImportance[i] > GLOBAL_statistics.maxDirectImportance ) {
-            GLOBAL_statistics.maxDirectImportance = newDirectImportance[i];
+            if ( newDirectImportance[i] > GLOBAL_statistics.maxDirectImportance ) {
+                GLOBAL_statistics.maxDirectImportance = newDirectImportance[i];
+            }
         }
     }
     GLOBAL_statistics.averageDirectPotential /= GLOBAL_statistics.totalArea;
@@ -128,8 +130,8 @@ updateDirectPotential(const Scene *scene, RenderOptions *renderOptions) {
 }
 
 static void
-softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
-    SGL_PIXEL *pix;
+softGetPatchPointers(const SGL_CONTEXT *sgl, const java::ArrayList<Patch *> *scenePatches) {
+    const SGL_PIXEL *pix;
     int i;
 
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -145,7 +147,7 @@ softGetPatchPointers(SGL_CONTEXT *sgl, java::ArrayList<Patch *> *scenePatches) {
 }
 
 static void
-softUpdateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
+softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
     clock_t t = clock();
     SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
@@ -163,7 +165,7 @@ softUpdateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility(Scene *scene, RenderOptions *renderOptions) {
+updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
     canvasPushMode();
     softUpdateDirectVisibility(scene, renderOptions);
     canvasPullMode();

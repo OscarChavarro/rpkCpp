@@ -75,7 +75,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 
     // Refines and computes light transport over the refined links
-    HierarchicalRefinementStrategy::refineInteractions(scene, galerkinState->topCluster, galerkinState, renderOptions);
+    HierarchicalRefinementStrategy::refineInteractions(scene, galerkinState->topCluster, galerkinState);
 
     // TODO: This makes galerkinState non const. Check if this can be changed
     galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;

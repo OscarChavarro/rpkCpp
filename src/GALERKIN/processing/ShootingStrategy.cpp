@@ -79,10 +79,9 @@ at all levels of the element hierarchy for the patch
 */
 void
 ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
-    Scene *scene,
+    const Scene *scene,
     const Patch *patch,
-    GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
@@ -104,8 +103,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
     HierarchicalRefinementStrategy::refineInteractions(
         scene,
         topLevelElement,
-        galerkinState,
-        renderOptions);
+        galerkinState);
 
     // Clear the un-shot radiance at all levels
     clearUnShotRadianceAndPotential(topLevelElement);
@@ -163,9 +161,9 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
 }
 
 void
-ShootingStrategy::doPropagate(Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState) {
     // Propagate the un-shot power of the shooting patch into the environment
-    patchPropagateUnShotRadianceAndPotential(scene, shootingPatch, galerkinState, renderOptions);
+    patchPropagateUnShotRadianceAndPotential(scene, shootingPatch, galerkinState);
 
     // Recompute the colors of all patches, not only the patches that received
     // radiance from the shooting patch, since the ambient term has also changed
@@ -189,10 +187,10 @@ ShootingStrategy::doPropagate(Scene *scene, const Patch *shootingPatch, Galerkin
 }
 
 bool
-ShootingStrategy::propagateRadiance(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+ShootingStrategy::propagateRadiance(const Scene *scene, GalerkinState *galerkinState) {
     // Choose a shooting patch. also accumulates the total un-shot power into
     // galerkinState->ambientRadiance
-    Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
+    const Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
     if ( !shootingPatch ) {
         return true;
     }
@@ -204,8 +202,7 @@ ShootingStrategy::propagateRadiance(Scene *scene, GalerkinState *galerkinState, 
     doPropagate(
         scene,
         shootingPatch,
-        galerkinState,
-        renderOptions);
+        galerkinState);
 
     return false;
 }
@@ -253,8 +250,8 @@ ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *s
 }
 
 void
-ShootingStrategy::propagatePotential(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
-    Patch *shootingPatch;
+ShootingStrategy::propagatePotential(const Scene *scene, GalerkinState *galerkinState) {
+    const Patch *shootingPatch;
 
     shootingPatch = choosePotentialShootingPatch(scene->patchList);
     if ( shootingPatch ) {
@@ -262,7 +259,7 @@ ShootingStrategy::propagatePotential(Scene *scene, GalerkinState *galerkinState,
 
         openGlRenderSetColor(&white);
         openGlRenderPatchOutline(shootingPatch);
-        doPropagate(scene, shootingPatch, galerkinState, renderOptions);
+        doPropagate(scene, shootingPatch, galerkinState);
     } else {
         fprintf(stderr, "No patches with un-shot potential??\n");
     }
@@ -290,7 +287,7 @@ One step of the progressive refinement radiosity algorithm
 Returns true when converged and false if not
 */
 bool
-ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             updateDirectPotential(scene, renderOptions);
@@ -305,7 +302,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, Ren
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scene, galerkinState, renderOptions);
+        propagatePotential(scene, galerkinState);
     }
-    return propagateRadiance(scene, galerkinState, renderOptions);
+    return propagateRadiance(scene, galerkinState);
 }

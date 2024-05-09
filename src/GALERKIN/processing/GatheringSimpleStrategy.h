@@ -18,8 +18,7 @@ class GatheringSimpleStrategy final: public GatheringStrategy {
     patchGather(
         Patch *patch,
         const Scene *scene,
-        GalerkinState *galerkinState,
-        RenderOptions *renderOptions);
+        GalerkinState *galerkinState);
 
   public:
     GatheringSimpleStrategy();

@@ -61,8 +61,7 @@ void
 GatheringSimpleStrategy::patchGather(
     Patch *patch,
     const Scene *scene,
-    GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
@@ -87,7 +86,7 @@ GatheringSimpleStrategy::patchGather(
     }
 
     // Refine the interactions and compute light transport at the leaves
-    HierarchicalRefinementStrategy::refineInteractions(scene, topLevelElement, galerkinState, renderOptions);
+    HierarchicalRefinementStrategy::refineInteractions(scene, topLevelElement, galerkinState);
 
     // Immediately convert received radiance into radiance, make the representation
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
@@ -108,7 +107,11 @@ GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
 Does one step of the radiance computations, returns true if the computations have converged and false if not
 */
 bool
-GatheringSimpleStrategy::doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+GatheringSimpleStrategy::doGatheringIteration(
+    const Scene *scene,
+    GalerkinState *galerkinState,
+    RenderOptions *renderOptions)
+{
     if ( galerkinState->importanceDriven &&
          ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
         updateDirectPotential(scene, renderOptions);
@@ -131,7 +134,7 @@ GatheringSimpleStrategy::doGatheringIteration(const Scene *scene, GalerkinState 
 
     // One iteration = gather to all patches
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        GatheringSimpleStrategy::patchGather(scene->patchList->get(i), scene, galerkinState, renderOptions);
+        GatheringSimpleStrategy::patchGather(scene->patchList->get(i), scene, galerkinState);
     }
 
     // Update the radiosity after gathering to all patches with Jacobi, immediately
