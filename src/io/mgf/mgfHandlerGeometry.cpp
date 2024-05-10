@@ -54,14 +54,14 @@ doDiscreteConic(int argc, char **argv, MgfContext *context) {
 static Vector3D *
 installPoint(float x, float y, float z, MgfContext *context) {
     Vector3D *coord = new Vector3D(x, y, z);
-    context->currentPointList->add(0, coord);
+    context->currentPointList->add(coord);
     return coord;
 }
 
 static Vector3D *
 installNormal(float x, float y, float z, MgfContext *context) {
     Vector3D *norm = new Vector3D(x, y, z);
-    context->currentNormalList->add(0, norm);
+    context->currentNormalList->add(norm);
     return norm;
 }
 
@@ -151,7 +151,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
         context->radianceMethod->createPatchData(theFace);
     }
 
-    context->currentFaceList->add(0, theFace);
+    context->currentFaceList->add(theFace);
 
     return theFace;
 }

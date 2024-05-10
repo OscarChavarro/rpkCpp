@@ -19,7 +19,7 @@ enum MaterialColorFlags {
     FACE_COLORS
 };
 
-class MeshSurface : public Geometry {
+class MeshSurface final : public Geometry {
   public:
     int meshId;
 
@@ -49,7 +49,6 @@ class MeshSurface : public Geometry {
 
     Material *material;
 
-    MeshSurface();
     MeshSurface(
         Material *material,
         java::ArrayList<Vector3D *> *points,

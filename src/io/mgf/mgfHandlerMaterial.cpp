@@ -239,7 +239,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
          bsdf,
         allSurfacesSided || globalMgfCurrentMaterial->sided);
 
-    context->materials->add(0, (*material));
+    context->materials->add((*material));
 
     // Reset the clock value to be aware of possible changes in future
     globalMgfCurrentMaterial->clock = 0;

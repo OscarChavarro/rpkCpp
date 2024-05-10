@@ -65,7 +65,6 @@ Scene::printGeometryType(GeometryClassId id) {
 
 void
 Scene::printPatchSet(const PatchSet *patchSet) {
-    printf("  - Type: PatchSet\n");
     if ( patchSet->patchList != nullptr ) {
         printf("  - Patches: %ld\n", patchSet->patchList->size());
     } else {
@@ -75,7 +74,6 @@ Scene::printPatchSet(const PatchSet *patchSet) {
 
 void
 Scene::printCompound(const Compound *compound) {
-    printf("  - Type: Compound\n");
     if ( compound->compoundData->children != nullptr ) {
         printf("    . Outer children: %ld\n", compound->compoundData->children->size());
     }
@@ -88,10 +86,8 @@ void
 Scene::printSurfaceMesh(const MeshSurface *mesh) {
     printf("  - Type: SurfaceMesh\n");
     printf("    . Inner id: %d\n", mesh->meshId);
-    // Note that mesh is not used anymore after initial MGF read process, all needed is patches,
-    // compounds/clusters and materials.
-    //printf("    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
-    //   mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
+    printf("    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
+       mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
 }
 
 void Scene::print() const {
@@ -104,13 +100,12 @@ void Scene::print() const {
         printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            // Note that empty meshes are being removed, this case will usually not show on Galerkin
             printSurfaceMesh((MeshSurface *)geometry);
         } else if ( geometry->className == GeometryClassId::COMPOUND ) {
             printCompound((Compound *)geometry);
         } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
             printPatchSet((PatchSet *)geometry);
-        } else {
-            printf("  - Type: *** UNKNOWN!\n");
         }
     }
 }

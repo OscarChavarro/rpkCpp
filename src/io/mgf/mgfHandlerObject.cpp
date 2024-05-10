@@ -7,6 +7,7 @@ Hierarchical object names tracking
 #include "java/util/ArrayList.txx"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
+#include "common/error.h"
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
@@ -77,7 +78,11 @@ handleObject2Entity(int ac, char **av) {
             globalObjectNamesList = (char **) malloc(
                     (globalObjectMaxName = ALLOC_INC) * sizeof(char *));
         } else {
-            globalObjectNamesList = (char **) realloc((void *) globalObjectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));
+            globalObjectNamesList = (char **)realloc((void *) globalObjectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));
+            if ( globalObjectNamesList == nullptr ) {
+                fprintf(stderr, "Memory error\n");
+                exit(1);
+            }
         }
         if ( globalObjectNamesList == nullptr) {
             return MGF_ERROR_OUT_OF_MEMORY;
@@ -109,7 +114,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
             context->currentVertexList,
             context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
-        context->currentGeometryList->add(0, newGeometry);
+        context->currentGeometryList->add(newGeometry);
         context->allGeometries->add(newGeometry);
     }
     context->inSurface = false;
@@ -146,13 +151,12 @@ handleObjectEntity(int argc, char **argv, MgfContext *context) {
 
         popCurrentGeometryList(context);
 
-        if ( newGeometry != nullptr ) {
-            context->currentGeometryList->add(0, newGeometry);
+        if ( newGeometry != nullptr && context->currentGeometryList ) {
+            context->currentGeometryList->add(newGeometry);
             context->geometries = context->currentGeometryList;
             context->allGeometries->add(newGeometry);
+            mgfObjectNewSurface(context);
         }
-
-        mgfObjectNewSurface(context);
     }
 
     return handleObject2Entity(argc, argv);

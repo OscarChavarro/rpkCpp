@@ -61,12 +61,12 @@ sceneBuilderComputeStats(Scene *scene) {
             GLOBAL_statistics.averageReflectivity);
     averageAbsorption.subtract(one, GLOBAL_statistics.averageReflectivity);
     GLOBAL_statistics.estimatedAverageRadiance.scaleInverse(
-            M_PI * GLOBAL_statistics.totalArea,
+            (float)M_PI * GLOBAL_statistics.totalArea,
             GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
     BP = backgroundPower(scene->background, &zero);
-    BP.scale(1.0 / (4.0 * M_PI));
+    BP.scale(1.0f / (4.0f * (float)M_PI));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
     GLOBAL_statistics.estimatedAverageRadiance.divide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption);
@@ -165,6 +165,28 @@ sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::Arr
                 if ( patch != nullptr ) {
                     patchList->add(patch);
                 }
+            }
+        }
+    }
+}
+
+static void
+removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+    for ( int i = 0; i < geometryList->size(); i++ ) {
+        const Geometry *geometry = geometryList->get(i);
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            const MeshSurface *mesh = (const MeshSurface *)geometry;
+            if ( mesh->vertices->size() == 0 ) {
+                for ( int j = 0; j < mgfContext->allGeometries->size(); j++ ) {
+                    const Geometry *deletionCandidate = mgfContext->allGeometries->get(j);
+                    if ( deletionCandidate == geometry ) {
+                        mgfContext->allGeometries->remove(j);
+                        break;
+                    }
+                }
+                delete geometry;
+                geometryList->remove(i);
+                i--;
             }
         }
     }
@@ -356,6 +378,8 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     // Remove possible render hooks
     removeAllRenderHooks();
 
+    removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
+
     fprintf(stderr, "Initialisations done.\n");
 
     return true;
@@ -373,7 +397,7 @@ sceneBuilderCreateModel(
         if ( *argv[1] == '-' ) {
             logError(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
-                exit(1);
-            }
+            exit(1);
+        }
     }
 }

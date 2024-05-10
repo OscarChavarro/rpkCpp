@@ -6,9 +6,6 @@
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
 static int globalNextSurfaceId = 0;
 
-MeshSurface::MeshSurface(): meshId(), vertices(), positions(), normals(), faces(), material() {
-}
-
 MeshSurface::~MeshSurface() {
     if ( positions != nullptr) {
         for ( int i = 0; i < positions->size(); i++ ) {
@@ -107,6 +104,7 @@ MeshSurface::MeshSurface(
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
+    this->id = nextGeometryId++;
     this->meshId = globalNextSurfaceId++;
     this->compoundData = nullptr;
     this->patchSetData = nullptr;

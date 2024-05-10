@@ -47,7 +47,7 @@ been initialised before
 */
 void
 reAllocCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem->basis != ActualBasis(elem) ) {
+    if ( elem != nullptr && elem->basis != ActualBasis(elem) ) {
         allocCoefficients(elem);
     }
 }
