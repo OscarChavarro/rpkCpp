@@ -6,7 +6,7 @@ class PixelFilter {
     PixelFilter();
     virtual ~PixelFilter();
 
-    virtual void sample(double *xi1, double *xi2);
+    virtual void sample(double *xi1, double *xi2) = 0;
 };
 
 #endif

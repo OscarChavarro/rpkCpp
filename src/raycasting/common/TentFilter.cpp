@@ -6,7 +6,8 @@ TentFilter::TentFilter() {};
 
 TentFilter::~TentFilter() {};
 
-void TentFilter::sample(double *xi1, double *xi2) {
+void
+TentFilter::sample(double *xi1, double *xi2) {
     double x = std::fabs(2 * (*xi1) - 1.0);
     double sx = *xi1 < 0.5 ? -1 : +1;
     double y = std::fabs(2 * (*xi2) - 1.0);

@@ -8,14 +8,14 @@
 class RayMatter {
   private:
     ScreenBuffer *screenBuffer;
-    bool doDeleteScreen;
     PixelFilter *pixelFilter;
+    bool doDeleteScreen;
 
   public:
     explicit RayMatter(ScreenBuffer *screen, Camera *camera);
     virtual ~RayMatter();
 
-    void checkFilter();
+    void createFilter();
     void doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid);
     void display();
     void save(ImageOutputHandle *ip);

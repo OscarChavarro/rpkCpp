@@ -16,6 +16,9 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 
+static RayMatter *rm = nullptr;
+RayMatterState GLOBAL_rayCasting_rayMatterState;
+
 RayMatter::RayMatter(ScreenBuffer *screen, Camera *camera) {
     if ( screen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, camera);
@@ -39,52 +42,51 @@ RayMatter::~RayMatter() {
 }
 
 void
-RayMatter::checkFilter() {
-    if ( pixelFilter ) {
+RayMatter::createFilter() {
+    if ( pixelFilter != nullptr ) {
         delete pixelFilter;
+        pixelFilter = nullptr;
     }
 
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_BOX_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::BOX_FILTER ) {
         pixelFilter = new BoxFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_TENT_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::TENT_FILTER ) {
         pixelFilter = new TentFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS_FILTER ) {
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::GAUSS_FILTER ) {
         pixelFilter = new NormalFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS2_FILTER ) {
-        pixelFilter = new NormalFilter(.5, 1.5);
+    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::GAUSS2_FILTER ) {
+        pixelFilter = new NormalFilter(0.5, 1.5);
     }
 }
 
 void
 RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid) {
     clock_t t = clock();
-    ColorRgb matte;
 
-    checkFilter();
-
-    long width = camera->xSize;
-    long height = camera->ySize;
+    createFilter();
 
     // Main loop for ray matter
-    for ( long y = 0; y < height; y++ ) {
-        for ( long x = 0; x < width; x++ ) {
+    for ( int y = 0; y < camera->ySize; y++ ) {
+        for ( int x = 0; x < camera->xSize; x++ ) {
             float hits = 0;
 
             for ( int i = 0; i < GLOBAL_rayCasting_rayMatterState.samplesPerPixel; i++ ) {
                 // Uniform random var
-                double xi1 = drand48();
-                double xi2 = drand48();
+                double dx = drand48();
+                double dy = drand48();
 
                 // Insert non-uniform sampling here
-                pixelFilter->sample(&xi1, &xi2);
+                if ( pixelFilter != nullptr ) {
+                    pixelFilter->sample(&dx, &dy);
+                }
 
                 // Generate ray
                 Ray ray;
                 ray.pos = camera->eyePosition;
-                ray.dir = screenBuffer->getPixelVector((int)x, (int)y, (float)xi1, (float)xi2);
+                ray.dir = screenBuffer->getPixelVector(x, y, (float)dx, (float)dy);
                 vectorNormalize(ray.dir);
 
                 // Check if hit
@@ -99,15 +101,17 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
                 value = 1.0;
             }
 
+            ColorRgb matte;
             matte.set(value, value, value);
-            screenBuffer->add((int)x, (int)y, matte);
+            screenBuffer->add(x, y, matte);
         }
 
-        screenBuffer->renderScanline((int)y);
+        screenBuffer->renderScanline(y);
     }
 
     GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
-    GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
+    GLOBAL_raytracer_rayCount = 0;
+    GLOBAL_raytracer_pixelCount = 0;
 }
 
 void
@@ -119,9 +123,6 @@ void
 RayMatter::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
-
-static RayMatter *rm = nullptr;
-RayMattingState GLOBAL_rayCasting_rayMatterState;
 
 static void
 iRayMatte(
@@ -154,12 +155,12 @@ reDisplay() {
 }
 
 static int
-saveImage(ImageOutputHandle *ip) {
+saveImage(ImageOutputHandle *imageOutputHandle) {
     if ( !rm ) {
         return false;
     }
 
-    rm->save(ip);
+    rm->save(imageOutputHandle);
     return true;
 }
 

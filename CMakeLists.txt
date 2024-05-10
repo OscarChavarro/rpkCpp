@@ -100,7 +100,6 @@ set(MAIN_SRC
     src/render/canvas.cpp
     src/render/rendercommon.cpp
     src/render/ScreenBuffer.cpp
-    src/render/glutDebugTools.cpp
     src/GALERKIN/GalerkinState.cpp
     src/GALERKIN/basisgalerkin.cpp
     src/GALERKIN/GalerkinRadianceMethod.cpp
@@ -180,6 +179,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
+    src/app/glutDebugTools.cpp
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/sceneBuilder.cpp

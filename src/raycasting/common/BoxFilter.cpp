@@ -6,5 +6,7 @@ BoxFilter::BoxFilter() {
 BoxFilter::~BoxFilter() {
 }
 
-void BoxFilter::sample(double *, double *) {
+void
+BoxFilter::sample(double * /*dx*/, double * /*dy*/) {
+    // Box filter means not changing original (dx, dy) point.
 }

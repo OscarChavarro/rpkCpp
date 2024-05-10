@@ -11,15 +11,15 @@ Options defaults and parsing for ray matting
 
 void
 rayMattingDefaults() {
-    GLOBAL_rayCasting_rayMatterState.filter = RM_TENT_FILTER;
+    GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
     GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
 }
 
 static ENUMDESC globalRayMatterPixelFilters[] = {
-    {RM_BOX_FILTER, "box", 2},
-    {RM_TENT_FILTER, "tent", 2},
-    {RM_GAUSS_FILTER, "gaussian 1/sqrt2", 2},
-    {RM_GAUSS2_FILTER, "gaussian 1/2", 2},
+    {BOX_FILTER, "box", 2},
+    {TENT_FILTER, "tent", 2},
+    {GAUSS_FILTER, "gaussian 1/sqrt2", 2},
+    {GAUSS2_FILTER, "gaussian 1/2", 2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
