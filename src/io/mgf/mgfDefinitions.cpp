@@ -92,7 +92,8 @@ Pass entity to appropriate handler
 */
 int
 mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context) {
-    if ( entityIndex < 0 && (entityIndex = mgfEntity(argv[0], context)) < 0 ) {
+    entityIndex = mgfEntity(argv[0], context);
+    if ( entityIndex < 0 ) {
         // Unknown entity
         return mgfDefaultHandlerForUnknownEntities(argc, argv, context);
     }
@@ -112,8 +113,6 @@ shaftCullOpen new input file
 int
 mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContext *context) {
     static int numberOfFileIds;
-    const char *cp;
-    int isPipe;
 
     readerContext->fileContextId = ++numberOfFileIds;
     readerContext->lineNumber = 0;
@@ -127,13 +126,17 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
     }
 
     // Get name relative to this context
-    if ( context->readerContext != nullptr && (cp = strrchr(context->readerContext->fileName, '/')) != nullptr ) {
-        strcpy(readerContext->fileName, context->readerContext->fileName);
-        strcpy(readerContext->fileName + (cp - context->readerContext->fileName + 1), functionCallback);
+    if ( context->readerContext != nullptr ) {
+        const char *cp = strrchr(context->readerContext->fileName, '/');
+        if ( cp != nullptr ) {
+            strcpy(readerContext->fileName, context->readerContext->fileName);
+            strcpy(readerContext->fileName + (cp - context->readerContext->fileName + 1), functionCallback);
+        }
     } else {
         strcpy(readerContext->fileName, functionCallback);
     }
 
+    int isPipe;
     readerContext->fp = openFileCompressWrapper(readerContext->fileName, "r", &isPipe);
     readerContext->isPipe = (char)isPipe;
 

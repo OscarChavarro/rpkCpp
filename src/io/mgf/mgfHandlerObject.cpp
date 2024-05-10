@@ -7,7 +7,6 @@ Hierarchical object names tracking
 #include "java/util/ArrayList.txx"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
-#include "common/error.h"
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
