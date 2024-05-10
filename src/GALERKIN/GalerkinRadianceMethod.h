@@ -37,7 +37,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
         ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
     }
 
-    static void renderElementHierarchy(GalerkinElement *element, const RenderOptions *renderOptions);
+    static void renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions);
     static void galerkinRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 

@@ -728,51 +728,51 @@ Installs cubature rules for triangles and quadrilaterals of the specified degree
 void
 setCubatureRules(CubatureRule **triRule, CubatureRule **quadRule, CubatureDegree degree) {
     switch ( degree ) {
-        case DEGREE_1:
+        case CubatureDegree::DEGREE_1:
             *triRule = &globalCrt1;
             *quadRule = &globalCrq1;
             break;
-        case DEGREE_2:
+        case CubatureDegree::DEGREE_2:
             *triRule = &globalCrt2;
             *quadRule = &globalCrq2;
             break;
-        case DEGREE_3:
+        case CubatureDegree::DEGREE_3:
             *triRule = &globalCrt3;
             *quadRule = &globalCrq3;
             break;
-        case DEGREE_4:
+        case CubatureDegree::DEGREE_4:
             *triRule = &globalCrt4;
             *quadRule = &globalCrq4;
             break;
-        case DEGREE_5:
+        case CubatureDegree::DEGREE_5:
             *triRule = &globalCrt5;
             *quadRule = &globalCrq5;
             break;
-        case DEGREE_6:
+        case CubatureDegree::DEGREE_6:
             *triRule = &globalCrt7;
             *quadRule = &globalCrq6;
             break;
-        case DEGREE_7:
+        case CubatureDegree::DEGREE_7:
             *triRule = &globalCrt7;
             *quadRule = &globalCrq7;
             break;
-        case DEGREE_8:
+        case CubatureDegree::DEGREE_8:
             *triRule = &GLOBAL_crt8;
             *quadRule = &GLOBAL_crq8;
             break;
-        case DEGREE_9:
+        case CubatureDegree::DEGREE_9:
             *triRule = &globalCrt9;
             *quadRule = &globalCrq9;
             break;
-        case DEGREE_3_PROD:
+        case CubatureDegree::DEGREE_3_PROD:
             *triRule = &globalCrt5;
             *quadRule = &globalCrq3Pg;
             break;
-        case DEGREE_5_PROD:
+        case CubatureDegree::DEGREE_5_PROD:
             *triRule = &globalCrt7;
             *quadRule = &globalCrq5Pg;
             break;
-        case DEGREE_7_PROD:
+        case CubatureDegree::DEGREE_7_PROD:
             *triRule = &globalCrt9;
             *quadRule = &globalCrq7Pg;
             break;

@@ -223,9 +223,10 @@ basisGalerkinRadianceAtPoint(
     const double u,
     const double v)
 {
-    ColorRgb rad;
-    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ?
+        &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
 
+    ColorRgb rad;
     rad.clear();
     if ( coefficients == nullptr ) {
         return rad;
@@ -233,7 +234,7 @@ basisGalerkinRadianceAtPoint(
 
     for ( int i = 0; i < element->basisSize; i++ ) {
         double f = basis->function[i](u, v);
-        rad.addScaled(rad, (float) f, coefficients[i]);
+        rad.addScaled(rad, (float)f, coefficients[i]);
     }
 
     return rad;
@@ -272,7 +273,6 @@ basisGalerkinPush(
     const GalerkinElement *child,
     ColorRgb *childCoefficients)
 {
-    const GalerkinBasis *basis;
     int sigma = (unsigned char)child->childNumber;
 
     if ( element->isCluster() ) {
@@ -289,7 +289,8 @@ basisGalerkinPush(
         }
 
         // Parent and child basis should be the same
-        basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+        const GalerkinBasis *basis = child->patch->numberOfVertices == 3 ?
+            &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
         for ( int beta = 0; beta < child->basisSize; beta++ ) {
             childCoefficients[beta].clear();
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {

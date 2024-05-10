@@ -89,7 +89,6 @@ printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
     }
     const GalerkinElement *element = galerkinGetElement(patch);
     printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
-    printf("  - Interactions: %ld\n", element->interactions->size());
     printElementHierarchy(element, 0);
 }
 
@@ -145,6 +144,9 @@ extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
     switch ( keyCode ) {
         case GLUT_KEY_F2:
             globalRenderOptions->drawOutlines = !globalRenderOptions->drawOutlines;
+            break;
+        case GLUT_KEY_F3:
+            globalRenderOptions->drawSurfaces = !globalRenderOptions->drawSurfaces;
             break;
         case GLUT_KEY_F4:
             globalRenderOptions->drawBoundingBoxes = !globalRenderOptions->drawBoundingBoxes;

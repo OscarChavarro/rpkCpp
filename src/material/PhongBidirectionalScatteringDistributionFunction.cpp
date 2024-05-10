@@ -303,7 +303,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
         case SplitBSDFSamplingMode::SAMPLE_TEXTURE:
             out = PhongBidirectionalScatteringDistributionFunction::texturedScattererSample(in, &normal, x1, x2, &p);
             if ( p < EPSILON ) {
-                // Don´t care
+                // Don't care
                 return out;
             }
             *probabilityDensityFunction = localTexture * p; /* other components will be added later */

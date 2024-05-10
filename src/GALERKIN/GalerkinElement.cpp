@@ -268,16 +268,16 @@ GalerkinElement::reAllocCoefficients() {
         localBasisSize = 1;
     } else {
         switch ( galerkinState->basisType ) {
-            case CONSTANT:
+            case GalerkinBasisType::CONSTANT:
                 localBasisSize = 1;
                 break;
-            case LINEAR:
+            case GalerkinBasisType::LINEAR:
                 localBasisSize = 3;
                 break;
-            case QUADRATIC:
+            case GalerkinBasisType::QUADRATIC:
                 localBasisSize = 6;
                 break;
-            case CUBIC:
+            case GalerkinBasisType::CUBIC:
                 localBasisSize = 10;
                 break;
             default:
@@ -597,9 +597,6 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 
 void
 GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
-    Vector3D p[4];
-    int numberOfVertices;
-
     if ( isCluster() ) {
         if ( mode & OUTLINE || mode & STRONG ) {
             renderBounds(geometry->getBoundingBox());
@@ -607,53 +604,56 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
         return;
     }
 
-    numberOfVertices = vertices(p, 4);
+    Vector3D p[4];
+    int numberOfVertices = vertices(p, 4);
 
-    if ( mode & FLAT ) {
-        ColorRgb color{};
-        ColorRgb rho = patch->radianceData->Rd;
+    // Draw surfaces
+    if ( renderOptions->drawSurfaces ) {
+        if ( mode & FLAT ) {
+            ColorRgb color{};
+            ColorRgb rho = patch->radianceData->Rd;
 
-        if ( galerkinState->useAmbientRadiance ) {
-            ColorRgb radVis;
-            radVis.scalarProduct(rho, galerkinState->ambientRadiance);
-            radVis.add(radVis, radiance[0]);
-            radianceToRgb(radVis, &color);
-        } else {
-            radianceToRgb(radiance[0], &color);
-        }
-        openGlRenderSetColor(&color);
-        openGlRenderPolygonFlat(numberOfVertices, p);
-    } else if ( mode & GOURAUD ) {
-        ColorRgb vertColor[4];
-        ColorRgb vertRadiosity[4];
-        int i;
-
-        if ( numberOfVertices == 3 ) {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
-        } else {
-            vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-            vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-            vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0);
-            vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
-        }
-
-        if ( galerkinState->useAmbientRadiance ) {
-            ColorRgb reflectivity = patch->radianceData->Rd;
-            ColorRgb ambient;
-
-            ambient.scalarProduct(reflectivity, galerkinState->ambientRadiance);
-            for ( i = 0; i < numberOfVertices; i++ ) {
-                vertRadiosity[i].add(vertRadiosity[i], ambient);
+            if ( galerkinState->useAmbientRadiance ) {
+                ColorRgb radVis;
+                radVis.scalarProduct(rho, galerkinState->ambientRadiance);
+                radVis.add(radVis, radiance[0]);
+                radianceToRgb(radVis, &color);
+            } else {
+                radianceToRgb(radiance[0], &color);
             }
-        }
+            openGlRenderSetColor(&color);
+            openGlRenderPolygonFlat(numberOfVertices, p);
+        } else if ( mode & GOURAUD ) {
+            ColorRgb vertRadiosity[4];
 
-        for ( i = 0; i < numberOfVertices; i++ ) {
-            radianceToRgb(vertRadiosity[i], &vertColor[i]);
-        }
+            if ( numberOfVertices == 3 ) {
+                vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
+                vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
+                vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+            } else {
+                vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
+                vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
+                vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0);
+                vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+            }
 
-        openGlRenderPolygonGouraud(numberOfVertices, p, vertColor);
+            if ( galerkinState->useAmbientRadiance ) {
+                ColorRgb reflectivity = patch->radianceData->Rd;
+                ColorRgb ambient;
+
+                ambient.scalarProduct(reflectivity, galerkinState->ambientRadiance);
+                for ( int i = 0; i < numberOfVertices; i++ ) {
+                    vertRadiosity[i].add(vertRadiosity[i], ambient);
+                }
+            }
+
+            ColorRgb vertexColors[4];
+            for ( int i = 0; i < numberOfVertices; i++ ) {
+                radianceToRgb(vertRadiosity[i], &vertexColors[i]);
+            }
+
+            openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors);
+        }
     }
 
     // Modifies the positions, that's why it comes last

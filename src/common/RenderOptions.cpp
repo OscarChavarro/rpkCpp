@@ -3,6 +3,7 @@
 #define DEFAULT_SMOOTH_SHADING true
 #define DEFAULT_BACKFACE_CULLING true
 #define DEFAULT_OUTLINE_DRAWING false
+#define DEFAULT_SURFACE_DRAWING true
 #define DEFAULT_BOUNDING_BOX_DRAWING false
 #define DEFAULT_CLUSTER_DRAWING false
 #define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
@@ -26,6 +27,7 @@ RenderOptions::RenderOptions():
 {
     smoothShading = DEFAULT_SMOOTH_SHADING;
     backfaceCulling = DEFAULT_BACKFACE_CULLING;
+    drawSurfaces = DEFAULT_SURFACE_DRAWING;
     drawOutlines = DEFAULT_OUTLINE_DRAWING;
     drawBoundingBoxes = DEFAULT_BOUNDING_BOX_DRAWING;
     drawClusters = DEFAULT_CLUSTER_DRAWING;

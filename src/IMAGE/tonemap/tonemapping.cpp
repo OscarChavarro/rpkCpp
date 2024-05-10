@@ -260,7 +260,7 @@ recomputeGammaTables(ColorRgb gamma) {
 }
 
 /**
-Rescale real world radiance using appropiately set up tone mapping algorithm
+Rescale real world radiance using properly set up tone mapping algorithm
 */
 ColorRgb *
 rescaleRadiance(ColorRgb in, ColorRgb *out) {

@@ -262,7 +262,7 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
 }
 
 void
-GalerkinRadianceMethod::renderElementHierarchy(GalerkinElement *element, const RenderOptions *renderOptions) {
+GalerkinRadianceMethod::renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions) {
     if ( element->regularSubElements == nullptr ) {
         element->render(renderOptions);
     } else {

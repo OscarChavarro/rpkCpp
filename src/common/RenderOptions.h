@@ -8,7 +8,7 @@ If this is undefined, the raytracing code can be trimmed as follows:
 - PHOTON MAP module can be removed
 - All of the ray-casting module can be removed except the RayCaster class
 */
-#define RAYTRACING_ENABLED
+//#define RAYTRACING_ENABLED
 
 class RenderOptions {
   public:
@@ -17,6 +17,7 @@ class RenderOptions {
     ColorRgb clusterColor; // Color in which to show cluster bounding boxes
     float lineWidth;
     bool drawOutlines; // True for drawing facet outlines
+    bool drawSurfaces;
     char noShading; // False for using any kind of shading
     char smoothShading;  // True for rendering with Gouraud interpolation
     char backfaceCulling; // True for backface culling
