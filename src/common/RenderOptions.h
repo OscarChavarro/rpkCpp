@@ -8,7 +8,7 @@ If this is undefined, the raytracing code can be trimmed as follows:
 - PHOTON MAP module can be removed
 - All of the ray-casting module can be removed except the RayCaster class
 */
-//#define RAYTRACING_ENABLED
+#define RAYTRACING_ENABLED
 
 class RenderOptions {
   public:
