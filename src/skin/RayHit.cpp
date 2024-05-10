@@ -118,6 +118,28 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
 }
 
 /**
+Fills in shading normal (Z axis of shading frame) only, avoiding computation
+of shading X and Y axis if possible
+*/
+int
+RayHit::shadingNormal(Vector3D *inNormal) {
+    if ( flags & HIT_SHADING_FRAME || flags & HIT_NORMAL ) {
+        *inNormal = shadingFrame.Z;
+        return true;
+    }
+
+    Vector3D localNormal = shadingFrame.Z;
+    if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
+        return false;
+    }
+
+    flags |= HIT_NORMAL;
+    shadingFrame.Z = localNormal;
+    *inNormal = shadingFrame.Z;
+    return true;
+}
+
+/**
 Computes shading frame at hit point. Z is the shading normal. Returns FALSE
 if the shading frame could not be determined.
 If X and Y are null pointers, only the shading normal is returned in Z
@@ -149,6 +171,7 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     return success;
 }
 
+#ifdef RAYTRACING_ENABLED
 /**
 Fills in shading frame: Z is the shading normal
 */
@@ -172,25 +195,4 @@ RayHit::setShadingFrame(CoordinateSystem *frame) {
     frame->Z = shadingFrame.Z;
     return true;
 }
-
-/**
-Fills in shading normal (Z axis of shading frame) only, avoiding computation
-of shading X and Y axis if possible
-*/
-int
-RayHit::shadingNormal(Vector3D *inNormal) {
-    if ( flags & HIT_SHADING_FRAME || flags & HIT_NORMAL ) {
-        *inNormal = shadingFrame.Z;
-        return true;
-    }
-
-    Vector3D localNormal = shadingFrame.Z;
-    if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
-        return false;
-    }
-
-    flags |= HIT_NORMAL;
-    shadingFrame.Z = localNormal;
-    *inNormal = shadingFrame.Z;
-    return true;
-}
+#endif

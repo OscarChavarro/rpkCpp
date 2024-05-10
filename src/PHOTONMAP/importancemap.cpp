@@ -2,6 +2,10 @@
 Implementation of the special importance map functions
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/Statistics.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/importancemap.h"
@@ -184,3 +188,5 @@ CImportanceMap::PrecomputeIrradiance() {
     m_avgImp /= (float)m_nrPhotons;
     m_totalMaxDistance *= 20.0f / (float)*m_estimate_nrp;
 }
+
+#endif

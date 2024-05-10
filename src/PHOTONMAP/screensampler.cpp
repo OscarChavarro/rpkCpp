@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cmath>
 
 #include "PHOTONMAP/screensampler.h"
@@ -104,4 +108,5 @@ ScreenSampler::evalPDF(
     return probabilityDensityFunction;
 }
 
+#endif
 

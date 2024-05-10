@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "skin/Patch.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
@@ -321,3 +325,5 @@ ImportantLightSampler::evalPDF(
 
     return pdf;
 }
+
+#endif

@@ -6,6 +6,10 @@ It's kind of a dual of a pixel sampler.
 #ifndef __LIGHT_DIR_SAMPLER__
 #define __LIGHT_DIR_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/raytracing/sampler.h"
 
 class LightDirSampler : public Sampler {
@@ -32,5 +36,7 @@ public:
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr);
 };
+
+#endif
 
 #endif

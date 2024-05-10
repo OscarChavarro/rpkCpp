@@ -5,6 +5,10 @@ The real importance map storage
 #ifndef __IMPORTANCE_MAP__
 #define __IMPORTANCE_MAP__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "PHOTONMAP/photonmap.h"
 
 // Importance map, derived from photon map
@@ -49,5 +53,7 @@ protected:
         float *pot,
         float *diff);
 };
+
+#endif
 
 #endif

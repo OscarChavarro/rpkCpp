@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cmath>
 
 #include "common/error.h"
@@ -214,6 +218,8 @@ CBsdfSampler::EvalPDFPrev(
 
     return *pdf * *pdfRR;
 }
+
+#endif
 
 
 

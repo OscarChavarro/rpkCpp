@@ -4,7 +4,6 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
 */
 
-
 #include "common/error.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -67,45 +66,6 @@ PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
     return false;
 }
 
-/**
-bsdfEvalComponents :
-Evaluates all requested components of the BSDF separately and
-stores the result in 'colArray'.
-Total evaluation is returned.
-*/
-ColorRgb
-PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
-    RayHit *hit,
-    const PhongBidirectionalScatteringDistributionFunction *inBsdf,
-    const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    const char flags,
-    ColorRgb *colArray) const
-{
-    // Some caching optimisation could be used here
-    ColorRgb result;
-    ColorRgb empty;
-    char thisFlag;
-
-    empty.clear();
-    result.clear();
-
-    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = (char)BSDF_INDEX_TO_COMP(i);
-
-        if ( flags & thisFlag ) {
-            colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(
-                hit, inBsdf, outBsdf, in, out, thisFlag);
-            result.add(result, colArray[i]);
-        } else {
-            colArray[i] = empty;  // Set to 0 for safety
-        }
-    }
-
-    return result;
-}
-
 ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Texture *texture,  RayHit *hit) {
     Vector3D texCoord;
@@ -124,15 +84,43 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
     return texture->evaluateColor(texCoord.x, texCoord.y);
 }
 
-double
-PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
-    const Vector3D * /*in*/,
-    const Vector3D * /*out*/,
-    const Vector3D * /*normal*/)
-{
-    return (1.0 / M_PI);
+/**
+Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
+*/
+ColorRgb
+PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit *hit, char flags) const {
+    ColorRgb albedo;
+    albedo.clear();
+
+    if ( texture && (flags & TEXTURED_COMPONENT) ) {
+        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, hit);
+        albedo.add(albedo, textureColor);
+        flags &= ~TEXTURED_COMPONENT; // Avoid taking it into account again
+    }
+
+    if ( brdf ) {
+        ColorRgb reflectance = brdf->reflectance(flags);
+        if ( !std::isfinite(reflectance.average()) ) {
+            logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+        }
+
+        albedo.add(albedo, reflectance);
+    }
+
+    if ( btdf != nullptr ) {
+        ColorRgb transmitted = btdf->transmittance(GET_BTDF_FLAGS(flags));
+        albedo.add(albedo, transmitted);
+    }
+
+    return albedo;
 }
 
+int
+PhongBidirectionalScatteringDistributionFunction::splitBsdfIsTextured() const {
+    return texture != nullptr;
+}
+
+#ifdef RAYTRACING_ENABLED
 /**
 Albedo is assumed to be 1
 */
@@ -227,37 +215,6 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfSamplingMode(double t
 }
 
 /**
-Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
-*/
-ColorRgb
-PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit *hit, char flags) const {
-    ColorRgb albedo;
-    albedo.clear();
-
-    if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, hit);
-        albedo.add(albedo, textureColor);
-        flags &= ~TEXTURED_COMPONENT; // Avoid taking it into account again
-    }
-
-    if ( brdf ) {
-        ColorRgb reflectance = brdf->reflectance(flags);
-        if ( !std::isfinite(reflectance.average()) ) {
-            logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
-        }
-
-        albedo.add(albedo, reflectance);
-    }
-
-    if ( btdf != nullptr ) {
-        ColorRgb transmitted = btdf->transmittance(GET_BTDF_FLAGS(flags));
-        albedo.add(albedo, transmitted);
-    }
-
-    return albedo;
-}
-
-/**
 Returns the index of refraction of the BSDF
 */
 void
@@ -267,74 +224,6 @@ PhongBidirectionalScatteringDistributionFunction::indexOfRefraction(RefractionIn
     } else {
         btdf->setIndexOfRefraction(index);
     }
-}
-
-/**
-Bsdf evaluations
-All components of the Bsdf
-
-Vector directions :
-
-in: from patch
-out: from patch
-hit->normal : leaving from patch, on the incoming side.
-         So in . hit->normal > 0!
-*/
-ColorRgb
-PhongBidirectionalScatteringDistributionFunction::evaluate(
-    RayHit *hit,
-    const PhongBidirectionalScatteringDistributionFunction *inBsdf,
-    const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-    const Vector3D *in,
-    const Vector3D *out,
-    char flags) const
-{
-    ColorRgb result;
-    Vector3D normal;
-
-    result.clear();
-    if ( !hit->shadingNormal(&normal) ) {
-        logWarning("evaluate", "Couldn't determine shading normal");
-        return result;
-    }
-
-    if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        double textureBsdf = PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
-                in, out, &normal);
-        ColorRgb textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, hit);
-        result.addScaled(result, (float) textureBsdf, textureCol);
-        flags &= ~TEXTURED_COMPONENT;
-    }
-
-    // Just add brdf and btdf contributions, the eval routines handle the direction of out.
-    // Note that out * normal is computed more than once :-(
-    if ( brdf != nullptr ) {
-        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, GET_BRDF_FLAGS(flags));
-        result.add(result, reflectionCol);
-
-        RefractionIndex inIndex{};
-        RefractionIndex outIndex{};
-        ColorRgb refractionCol;
-
-        if ( inBsdf != nullptr ) {
-            inBsdf->indexOfRefraction(&inIndex);
-        }
-
-        if ( outBsdf != nullptr ) {
-            outBsdf->indexOfRefraction(&outIndex);
-        }
-
-        if ( btdf == nullptr ) {
-            refractionCol.clear();
-        } else {
-            refractionCol = btdf->evaluate(
-                    inIndex, outIndex, in, out, &normal, GET_BTDF_FLAGS(flags));
-        }
-
-        result.add(result, refractionCol);
-    }
-
-    return result;
 }
 
 /**
@@ -476,6 +365,83 @@ PhongBidirectionalScatteringDistributionFunction::sample(
     return out;
 }
 
+double
+PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
+    const Vector3D * /*in*/,
+    const Vector3D * /*out*/,
+    const Vector3D * /*normal*/)
+{
+    return (1.0 / M_PI);
+}
+
+/**
+Bsdf evaluations
+All components of the Bsdf
+
+Vector directions :
+
+in: from patch
+out: from patch
+hit->normal : leaving from patch, on the incoming side.
+         So in . hit->normal > 0!
+*/
+ColorRgb
+PhongBidirectionalScatteringDistributionFunction::evaluate(
+    RayHit *hit,
+    const PhongBidirectionalScatteringDistributionFunction *inBsdf,
+    const PhongBidirectionalScatteringDistributionFunction *outBsdf,
+    const Vector3D *in,
+    const Vector3D *out,
+    char flags) const
+{
+    ColorRgb result;
+    Vector3D normal;
+
+    result.clear();
+    if ( !hit->shadingNormal(&normal) ) {
+        logWarning("evaluate", "Couldn't determine shading normal");
+        return result;
+    }
+
+    if ( texture && (flags & TEXTURED_COMPONENT) ) {
+        double textureBsdf = PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
+                in, out, &normal);
+        ColorRgb textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, hit);
+        result.addScaled(result, (float) textureBsdf, textureCol);
+        flags &= ~TEXTURED_COMPONENT;
+    }
+
+    // Just add brdf and btdf contributions, the eval routines handle the direction of out.
+    // Note that out * normal is computed more than once :-(
+    if ( brdf != nullptr ) {
+        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, GET_BRDF_FLAGS(flags));
+        result.add(result, reflectionCol);
+
+        RefractionIndex inIndex{};
+        RefractionIndex outIndex{};
+        ColorRgb refractionCol;
+
+        if ( inBsdf != nullptr ) {
+            inBsdf->indexOfRefraction(&inIndex);
+        }
+
+        if ( outBsdf != nullptr ) {
+            outBsdf->indexOfRefraction(&outIndex);
+        }
+
+        if ( btdf == nullptr ) {
+            refractionCol.clear();
+        } else {
+            refractionCol = btdf->evaluate(
+                    inIndex, outIndex, in, out, &normal, GET_BTDF_FLAGS(flags));
+        }
+
+        result.add(result, refractionCol);
+    }
+
+    return result;
+}
+
 /**
 Constructs shading frame at hit point. Returns TRUE if successful and
 FALSE if not. X and Y may be null pointers
@@ -563,7 +529,41 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
     *probabilityDensityFunction /= pScattering;
 }
 
-int
-PhongBidirectionalScatteringDistributionFunction::splitBsdfIsTextured() const {
-    return texture != nullptr;
+/**
+Evaluates all requested components of the BSDF separately and
+stores the result in 'colArray'.
+Total evaluation is returned.
+*/
+ColorRgb
+PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
+        RayHit *hit,
+        const PhongBidirectionalScatteringDistributionFunction *inBsdf,
+        const PhongBidirectionalScatteringDistributionFunction *outBsdf,
+        const Vector3D *in,
+        const Vector3D *out,
+        const char flags,
+        ColorRgb *colArray) const
+{
+    // Some caching optimisation could be used here
+    ColorRgb result;
+    ColorRgb empty;
+    char thisFlag;
+
+    empty.clear();
+    result.clear();
+
+    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
+        thisFlag = (char)BSDF_INDEX_TO_COMP(i);
+
+        if ( flags & thisFlag ) {
+            colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(
+                    hit, inBsdf, outBsdf, in, out, thisFlag);
+            result.add(result, colArray[i]);
+        } else {
+            colArray[i] = empty;  // Set to 0 for safety
+        }
+    }
+
+    return result;
 }
+#endif

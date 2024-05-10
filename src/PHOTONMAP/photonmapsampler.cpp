@@ -2,6 +2,10 @@
 This is a hack to get fresnel factors for perfect specular reflection and refraction
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cmath>
 
 #include "PHOTONMAP/photonmapsampler.h"
@@ -450,3 +454,5 @@ CPhotonMapSampler::gdSample(
 
     return ok;
 }
+
+#endif

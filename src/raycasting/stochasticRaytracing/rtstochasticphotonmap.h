@@ -1,6 +1,10 @@
 #ifndef __RT_STOCHASTIC_PHOTON_MAP__
 #define __RT_STOCHASTIC_PHOTON_MAP__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
@@ -212,5 +216,7 @@ public:
 private:
     void initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod);
 };
+
+#endif
 
 #endif

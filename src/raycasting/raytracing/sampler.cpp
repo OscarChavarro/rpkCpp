@@ -3,6 +3,8 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/sampler.h"
 
+#ifdef RAYTRACING_ENABLED
+
 /**
 sample transfer generates a new point on a surface by ray tracing
 given a certain direction and the pdf for that direction
@@ -121,3 +123,5 @@ CSurfaceSampler::DetermineRayType(
         newNode->m_inBsdf = thisNode->m_inBsdf; // staying in same medium
     }
 }
+
+#endif

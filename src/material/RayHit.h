@@ -58,10 +58,10 @@ class RayHit {
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
     bool computeUv(Vector2Dd *inUv);
-    bool pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
     bool hitInitialised() const;
+    bool pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ);
 
-  public:
+public:
     RayHit();
 
     int
@@ -73,21 +73,6 @@ class RayHit {
 
     int getTexCoord(Vector3D *outTexCoord);
     int shadingNormal(Vector3D *inNormal);
-
-    bool setShadingFrame(CoordinateSystem *frame);
-
-    inline CoordinateSystem
-    getShadingFrame() const {
-        return shadingFrame;
-    }
-
-    inline Vector3D getNormal() const {
-        return shadingFrame.Z;
-    }
-
-    inline void setNormal(const Vector3D *n) {
-        shadingFrame.Z = *n;
-    }
 
     inline Patch*
     getPatch() const {
@@ -109,19 +94,9 @@ class RayHit {
         point = *position;
     }
 
-    inline Vector3D
-    getGeometricNormal() const {
-        return geometricNormal;
-    }
-
     inline void
     setGeometricNormal(const Vector3D *inNormal) {
         geometricNormal = *inNormal;
-    }
-
-    inline Material *
-    getMaterial() const {
-        return material;
     }
 
     inline void
@@ -156,6 +131,31 @@ class RayHit {
     }
 
 #ifdef RAYTRACING_ENABLED
+    inline Vector3D getNormal() const {
+        return shadingFrame.Z;
+    }
+
+    inline void setNormal(const Vector3D *n) {
+        shadingFrame.Z = *n;
+    }
+
+    bool setShadingFrame(CoordinateSystem *frame);
+
+    inline CoordinateSystem
+    getShadingFrame() const {
+        return shadingFrame;
+    }
+
+    inline Material *
+    getMaterial() const {
+        return material;
+    }
+
+    inline Vector3D
+    getGeometricNormal() const {
+        return geometricNormal;
+    }
+
     inline void
     setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
         shadingFrame.X = *inX;

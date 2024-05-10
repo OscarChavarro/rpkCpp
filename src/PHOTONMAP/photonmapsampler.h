@@ -8,6 +8,10 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 #ifndef __PHOTON_MAP_SAMPLER__
 #define __PHOTON_MAP_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "PHOTONMAP/photonmap.h"
 
@@ -71,5 +75,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         bool doRR,
         BSDF_FLAGS flags);
 };
+
+#endif
 
 #endif

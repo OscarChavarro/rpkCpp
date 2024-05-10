@@ -6,6 +6,10 @@ importance sampling
 #ifndef __LIGHT_SAMPLER__
 #define __LIGHT_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/sampler.h"
 
@@ -70,5 +74,7 @@ class ImportantLightSampler : public CNextEventSampler {
         double *pdf,
         double *pdfRR);
 };
+
+#endif
 
 #endif

@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "skin/Patch.h"
 #include "QMC/nied31.h"
@@ -318,3 +322,5 @@ pathNodeConnect(
 
     return geom;
 }
+
+#endif

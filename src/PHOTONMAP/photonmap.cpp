@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -514,3 +518,5 @@ CPhotonMap::sample(
 
     return probabilityDensityFunction;
 }
+
+#endif

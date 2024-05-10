@@ -6,6 +6,10 @@ procedure of a monte carlo ray tracing like algorithm
 #ifndef __SAMPLER_TOOLS__
 #define __SAMPLER_TOOLS__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/raytracing/sampler.h"
 #include "raycasting/raytracing/pixelsampler.h"
 
@@ -160,5 +164,7 @@ pathNodeConnect(
     BSDF_FLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
     BSDF_FLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
     Vector3D *pDirEl = nullptr);
+
+#endif
 
 #endif

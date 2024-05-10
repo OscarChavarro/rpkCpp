@@ -7,6 +7,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #ifndef __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
+#include "common/RenderOptions.h"
 #include "common/ColorRgb.h"
 #include "material/RayHit.h"
 #include "material/xxdf.h"
@@ -14,6 +15,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 
+#ifdef RAYTRACING_ENABLED
 /**
 Selects sampling mode according to given probabilities and random number x1.
 If the selected mode is not absorption, x1 is rescaled to the interval [0, 1)
@@ -25,6 +27,7 @@ enum SplitBSDFSamplingMode {
     SAMPLE_TRANSMISSION,
     SAMPLE_ABSORPTION
 };
+#endif
 
 class PhongBidirectionalScatteringDistributionFunction {
   private:
@@ -34,12 +37,7 @@ class PhongBidirectionalScatteringDistributionFunction {
 
     static ColorRgb splitBsdfEvalTexture(const Texture *texture,  RayHit *hit);
 
-    static double
-    texturedScattererEval(
-        const Vector3D * /*in*/,
-        const Vector3D * /*out*/,
-        const Vector3D * /*normal*/);
-
+#ifdef RAYTRACING_ENABLED
     static Vector3D
     texturedScattererSample(
         const Vector3D * /*in*/,
@@ -72,7 +70,14 @@ class PhongBidirectionalScatteringDistributionFunction {
         double transmission,
         double *x1);
 
-  public:
+    static double
+    texturedScattererEval(
+        const Vector3D * /*in*/,
+        const Vector3D * /*out*/,
+        const Vector3D * /*normal*/);
+#endif
+
+public:
     explicit PhongBidirectionalScatteringDistributionFunction(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, Texture *texture);
     virtual ~PhongBidirectionalScatteringDistributionFunction();
 
@@ -82,28 +87,10 @@ class PhongBidirectionalScatteringDistributionFunction {
         const Vector3D *Y,
         const Vector3D *Z);
 
-    ColorRgb
-    bsdfEvalComponents(
-        RayHit *hit,
-        const PhongBidirectionalScatteringDistributionFunction *inBsdf,
-        const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        char flags,
-        ColorRgb *colArray) const;
-
     ColorRgb splitBsdfScatteredPower(RayHit *hit, char flags) const;
     int splitBsdfIsTextured() const;
 
-    ColorRgb
-    evaluate(
-        RayHit *hit,
-        const PhongBidirectionalScatteringDistributionFunction *inBsdf,
-        const PhongBidirectionalScatteringDistributionFunction *outBsdf,
-        const Vector3D *in,
-        const Vector3D *out,
-        char flags) const;
-
+#ifdef RAYTRACING_ENABLED
     void indexOfRefraction(RefractionIndex *index) const;
 
     Vector3D
@@ -118,6 +105,15 @@ class PhongBidirectionalScatteringDistributionFunction {
         double x2,
         double *probabilityDensityFunction) const;
 
+    ColorRgb
+    evaluate(
+        RayHit *hit,
+        const PhongBidirectionalScatteringDistributionFunction *inBsdf,
+        const PhongBidirectionalScatteringDistributionFunction *outBsdf,
+        const Vector3D *in,
+        const Vector3D *out,
+        char flags) const;
+
     void
     evaluateProbabilityDensityFunction(
         RayHit *hit,
@@ -128,6 +124,18 @@ class PhongBidirectionalScatteringDistributionFunction {
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
+
+    ColorRgb
+    bsdfEvalComponents(
+        RayHit *hit,
+        const PhongBidirectionalScatteringDistributionFunction *inBsdf,
+        const PhongBidirectionalScatteringDistributionFunction *outBsdf,
+        const Vector3D *in,
+        const Vector3D *out,
+        char flags,
+        ColorRgb *colArray) const;
+#endif
+
 };
 
 #endif

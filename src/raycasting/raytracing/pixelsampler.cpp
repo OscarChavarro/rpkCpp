@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cmath>
 #include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
@@ -113,3 +117,5 @@ CPixelSampler::evalPDF(
 
     return pdf;
 }
+
+#endif

@@ -5,6 +5,10 @@ Just fills in the eye point in the node
 #ifndef _EYE_SAMPLER__
 #define _EYE_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/raytracing/sampler.h"
 
 class CEyeSampler : public Sampler {
@@ -32,5 +36,7 @@ public:
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr) final;
 };
+
+#endif
 
 #endif

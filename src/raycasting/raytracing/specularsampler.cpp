@@ -1,3 +1,7 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "common/error.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
@@ -161,3 +165,5 @@ CSpecularSampler::EvalPDFPrev(
 
     return 0.0;
 }
+
+#endif

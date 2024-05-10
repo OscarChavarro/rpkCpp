@@ -3,6 +3,10 @@ Class implementation of path nodes. These node are building blocks of paths.
 and contain necessary information for raytracing-like algorithms
 */
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include <cstdio>
 
 #include "common/error.h"
@@ -146,3 +150,5 @@ SimpleRaytracingPathNode::assignBsdfAndNormal() {
         m_outBsdf = getPreviousBsdf();
     }
 }
+
+#endif

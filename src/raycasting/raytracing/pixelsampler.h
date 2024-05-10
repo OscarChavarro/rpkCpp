@@ -1,6 +1,10 @@
 #ifndef __PIXEL_SAMPLER__
 #define __PIXEL_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "scene/Camera.h"
 #include "raycasting/raytracing/sampler.h"
 
@@ -33,7 +37,10 @@ class CPixelSampler : public Sampler {
     void SetPixel(Camera *defaultCamera, int nx, int ny, Camera *camera = nullptr);
 
 protected:
-    double m_px, m_py;
+    double m_px;
+    double m_py;
 };
+
+#endif
 
 #endif

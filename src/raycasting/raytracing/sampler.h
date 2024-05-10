@@ -10,6 +10,9 @@ path nodes and have to possible actions :
 #ifndef __SAMPLER__
 #define __SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/pathnode.h"
 #include "scene/Background.h"
@@ -181,5 +184,6 @@ class CSurfaceSampler : public Sampler {
 
     void SetComputeBsdfComponents(bool computeBsdfComponents) { m_computeBsdfComponents = computeBsdfComponents; }
 };
+#endif
 
 #endif

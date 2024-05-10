@@ -5,6 +5,10 @@ Path node sampler using bsdf sampling
 #ifndef __BSDF_SAMPLER__
 #define __BSDF_SAMPLER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/raytracing/sampler.h"
 
 class CBsdfSampler : public CSurfaceSampler {
@@ -48,5 +52,7 @@ class CBsdfSampler : public CSurfaceSampler {
         double *pdf,
         double *pdfRR);
 };
+
+#endif
 
 #endif
