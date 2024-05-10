@@ -76,6 +76,13 @@ void
 Scene::printCompound(const Compound *compound) {
     if ( compound->compoundData->children != nullptr ) {
         printf("    . Outer children: %ld\n", compound->compoundData->children->size());
+        for ( int i = 0; i < compound->compoundData->children->size(); i++ ) {
+            const Geometry *child = compound->compoundData->children->get(i);
+            printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
+            if ( child->className == GeometryClassId::SURFACE_MESH ) {
+                printSurfaceMesh((MeshSurface *)child, 6);
+            }
+        }
     }
     if ( compound->children != nullptr ) {
         printf("    . Inner children: %ld\n", compound->children->size());
@@ -83,11 +90,21 @@ Scene::printCompound(const Compound *compound) {
 }
 
 void
-Scene::printSurfaceMesh(const MeshSurface *mesh) {
-    printf("  - Type: SurfaceMesh\n");
-    printf("    . Inner id: %d\n", mesh->meshId);
-    printf("    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
-       mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
+Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
+    char *spaces = new char[level + 1];
+
+    int i;
+    for ( i = 0; i < level; i++ ) {
+        spaces[i] = ' ';
+    }
+    spaces[i] = '\0';
+
+    printf("%s  - Type: SurfaceMesh\n", spaces);
+    printf("%s    . Inner id: %d\n", spaces, mesh->meshId);
+    printf("%s    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
+       spaces, mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
+
+    delete[] spaces;
 }
 
 void Scene::print() const {
@@ -101,7 +118,7 @@ void Scene::print() const {
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             // Note that empty meshes are being removed, this case will usually not show on Galerkin
-            printSurfaceMesh((MeshSurface *)geometry);
+            printSurfaceMesh((MeshSurface *)geometry, 0);
         } else if ( geometry->className == GeometryClassId::COMPOUND ) {
             printCompound((Compound *)geometry);
         } else if ( geometry->className == GeometryClassId::PATCH_SET ) {

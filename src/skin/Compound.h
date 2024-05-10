@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
 
-class Compound : public Geometry {
+class Compound final : public Geometry {
   public:
     java::ArrayList<Geometry *> *children;
 

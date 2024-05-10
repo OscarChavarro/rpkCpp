@@ -105,7 +105,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
 
-    if ( context->currentFaceList != nullptr ) {
+    if ( context->currentFaceList != nullptr && context->currentFaceList->size() > 0 ) {
         Geometry *newGeometry = new MeshSurface(
             context->currentMaterial,
             context->currentPointList,

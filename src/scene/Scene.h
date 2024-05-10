@@ -8,7 +8,7 @@
 class Scene {
   private:
     static char *printGeometryType(GeometryClassId id);
-    static void printSurfaceMesh(const MeshSurface *mesh);
+    static void printSurfaceMesh(const MeshSurface *mesh, int level);
     static void printCompound(const Compound *geometry);
     static void printPatchSet(const PatchSet *patchSet);
 

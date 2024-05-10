@@ -45,7 +45,11 @@ printElementHierarchy(const GalerkinElement *element, int level) {
             printf("    . ");
             break;
         default:
-            printf("      (%d) -> ", level);
+            printf("      (%d) ", level);
+            for ( int i = 3; i < level; i++ ) {
+                printf(" ");
+            }
+            printf("-> ");
             break;
     }
     const ColorRgb *c = element->radiance;
