@@ -111,17 +111,17 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
 Renders a bounding box
 */
 void
-renderBounds(BoundingBox bounds) {
+renderBoundingBox(BoundingBox boundingBox) {
     Vector3D p[8];
 
-    p[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    p[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    p[2].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
-    p[3].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MIN_Z]);
-    p[4].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
-    p[5].set(bounds.coordinates[MAX_X], bounds.coordinates[MIN_Y], bounds.coordinates[MAX_Z]);
-    p[6].set(bounds.coordinates[MIN_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
-    p[7].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    p[0].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
+    p[1].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
+    p[2].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MIN_Z]);
+    p[3].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MIN_Z]);
+    p[4].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MAX_Z]);
+    p[5].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MAX_Z]);
+    p[6].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MAX_Z]);
+    p[7].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MAX_Z]);
 
     openGlRenderLine(&p[0], &p[1]);
     openGlRenderLine(&p[1], &p[3]);
@@ -142,7 +142,7 @@ renderGeomBounds(Camera *camera, const Geometry *geometry) {
     BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
-        renderBounds(geometryBoundingBox);
+        renderBoundingBox(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {

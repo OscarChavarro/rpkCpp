@@ -89,7 +89,7 @@ toneMappingGammaCorrection(ColorRgb &rgb) {
 }
 
 inline ColorRgb
-toneMapScaleForDisplay(ColorRgb &radiance) {
+toneMapScaleForDisplay(const ColorRgb &radiance) {
     return GLOBAL_toneMap_options.toneMap->scaleForDisplay(radiance);
 }
 

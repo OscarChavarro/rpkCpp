@@ -46,7 +46,7 @@ makeToneMappingMethodsString() {
     str += n;
 
     for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        ToneMap *method = *toneMap;
+        const ToneMap *method = *toneMap;
         if ( !first ) {
             snprintf(str, STRING_SIZE, "\t         %n", &n);
             str += n;
@@ -82,7 +82,7 @@ brightnessAdjustOption(void * /*val*/) {
 
 static void
 chromaOption(void *value) {
-    float *chroma = (float *) value;
+    const float *chroma = (float *)value;
     if ( chroma == globalRxy ) {
         GLOBAL_toneMap_options.xr = chroma[0];
         GLOBAL_toneMap_options.yr = chroma[1];
@@ -173,7 +173,7 @@ rayCasterDefaults and option handling
 void
 toneMapDefaults() {
     for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        ToneMap *map = *toneMap;
+        const ToneMap *map = *toneMap;
         map->Defaults();
     }
 
@@ -185,20 +185,20 @@ toneMapDefaults() {
     GLOBAL_toneMap_options.maximumDisplayLuminance = DEFAULT_TM_LDMAX;
     GLOBAL_toneMap_options.maximumDisplayContrast = DEFAULT_TM_CMAX;
 
-    globalRxy[0] = GLOBAL_toneMap_options.xr = 0.640;
-    globalRxy[1] = GLOBAL_toneMap_options.yr = 0.330;
-    globalGxy[0] = GLOBAL_toneMap_options.xg = 0.290;
-    globalGxy[1] = GLOBAL_toneMap_options.yg = 0.600;
-    globalBxy[0] = GLOBAL_toneMap_options.xb = 0.150;
-    globalBxy[1] = GLOBAL_toneMap_options.yb = 0.060;
-    globalWxy[0] = GLOBAL_toneMap_options.xw = 0.333333333333;
-    globalWxy[1] = GLOBAL_toneMap_options.yw = 0.333333333333;
+    globalRxy[0] = GLOBAL_toneMap_options.xr = 0.640f;
+    globalRxy[1] = GLOBAL_toneMap_options.yr = 0.330f;
+    globalGxy[0] = GLOBAL_toneMap_options.xg = 0.290f;
+    globalGxy[1] = GLOBAL_toneMap_options.yg = 0.600f;
+    globalBxy[0] = GLOBAL_toneMap_options.xb = 0.150f;
+    globalBxy[1] = GLOBAL_toneMap_options.yb = 0.060f;
+    globalWxy[0] = GLOBAL_toneMap_options.xw = 0.333333333333f;
+    globalWxy[1] = GLOBAL_toneMap_options.yw = 0.333333333333f;
     computeColorConversionTransforms(GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
                                      GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
                                      GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
                                      GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 
-    GLOBAL_toneMap_options.gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+    GLOBAL_toneMap_options.gamma.set((float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
     GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness;
     GLOBAL_toneMap_options.toneMap->Init();
@@ -212,7 +212,7 @@ toneMapParseOptions(int *argc, char **argv) {
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 
     for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        ToneMap *map = *toneMap;
+        const ToneMap *map = *toneMap;
         if ( map->ParseOptions ) {
             map->ParseOptions(argc, argv);
         }
@@ -240,11 +240,10 @@ initToneMapping(java::ArrayList<Patch *> *scenePatches) {
 
 void
 recomputeGammaTable(int index, double gamma) {
-    int i;
     if ( gamma <= EPSILON ) {
         gamma = 1.0;
     }
-    for ( i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
+    for ( int i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
         GLOBAL_toneMap_options.gammaTab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1. / gamma);
     }
 }

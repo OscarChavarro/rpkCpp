@@ -213,34 +213,6 @@ basisGalerkinComputeRegularFilterCoefficients(
 }
 
 /**
-Given the radiance coefficients, this routine computes the radiance
-at the given point on the element
-*/
-ColorRgb
-basisGalerkinRadianceAtPoint(
-    const GalerkinElement *element,
-    const ColorRgb *coefficients,
-    const double u,
-    const double v)
-{
-    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ?
-        &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
-
-    ColorRgb rad;
-    rad.clear();
-    if ( coefficients == nullptr ) {
-        return rad;
-    }
-
-    for ( int i = 0; i < element->basisSize; i++ ) {
-        double f = basis->function[i](u, v);
-        rad.addScaled(rad, (float)f, coefficients[i]);
-    }
-
-    return rad;
-}
-
-/**
 Pushes radiance down in the element hierarchy from the parent element to the
 child element.
 
@@ -315,4 +287,35 @@ basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState
     ColorRgb Bup[MAX_BASIS_SIZE];
     colorsArrayClear(bDown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, bDown, Bup, galerkinState);
+}
+
+/**
+Generic interpolator. Note that this traverses the needed terms to contribute for the interpolated
+approximation of the solution over CONSTANT (1 term), LINEAR (3 terms), QUADRATIC (6 terms) or
+CUBIC (10 terms) degree polynomial.
+Given the radiance coefficients, this routine computes the radiance
+at the given point on the element
+*/
+ColorRgb
+basisGalerkinRadianceAtPoint(
+    const GalerkinElement *element,
+    const ColorRgb *coefficients,
+    const double u,
+    const double v)
+{
+    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ?
+        &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+
+    ColorRgb rad;
+    rad.clear();
+    if ( coefficients == nullptr ) {
+        return rad;
+    }
+
+    for ( int i = 0; i < element->basisSize; i++ ) {
+        float evaluatedTerm = (float)basis->function[i](u, v);
+        rad.addScaled(rad, evaluatedTerm, coefficients[i]);
+    }
+
+    return rad;
 }

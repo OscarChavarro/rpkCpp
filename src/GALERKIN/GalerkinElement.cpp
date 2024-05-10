@@ -11,7 +11,6 @@
 #define OUTLINE 0x01
 #define FLAT 0x02
 #define GOURAUD 0x04
-#define STRONG 0x08
 #define NOT_A_REGULAR_SUB_ELEMENT (-1)
 
 static int globalNumberOfElements = 0;
@@ -598,8 +597,8 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 void
 GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     if ( isCluster() ) {
-        if ( mode & OUTLINE || mode & STRONG ) {
-            renderBounds(geometry->getBoundingBox());
+        if ( mode & OUTLINE ) {
+            renderBoundingBox(geometry->getBoundingBox());
         }
         return;
     }
@@ -656,7 +655,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
         }
     }
 
-    // Modifies the positions, that's why it comes last
+    // Draw outlines
     if ( mode & OUTLINE ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
@@ -672,34 +671,6 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
             openGlRenderLine(&p[1], &p[2]);
             openGlRenderLine(&p[2], &p[3]);
             openGlRenderLine(&p[3], &p[0]);
-        }
-
-        if ( mode & STRONG ) {
-            if ( numberOfVertices == 3 ) {
-                Vector3D d;
-                Vector3D pt;
-
-                vectorSubtract(p[2], p[1], d);
-
-                for ( int i = 1; i < 4; i++ ) {
-                    vectorSumScaled(p[1], i * 0.25, d, pt);
-                    openGlRenderLine(&p[0], &pt);
-                }
-            } else if ( numberOfVertices == 4 ) {
-                Vector3D d1;
-                Vector3D d2;
-                Vector3D p1;
-                Vector3D p2;
-
-                vectorSubtract(p[1], p[0], d1);
-                vectorSubtract(p[3], p[2], d2);
-
-                for ( int i = 0; i < 5; i++ ) {
-                    vectorSumScaled(p[0], i * 0.25, d1, p1);
-                    vectorSumScaled(p[2], (1.0 - i * 0.25), d2, p2);
-                    openGlRenderLine(&p1, &p2);
-                }
-            }
         }
     }
 }
