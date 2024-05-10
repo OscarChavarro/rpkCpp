@@ -79,6 +79,7 @@ MgfContext::MgfContext():
     *vertexLookUpTable = LOOK_UP_INIT(free, free);
 
     allGeometries = new java::ArrayList<Geometry *>();
+    currentObjectName = nullptr;
 }
 
 MgfContext::~MgfContext() {

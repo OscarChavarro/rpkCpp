@@ -6,36 +6,6 @@
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
 static int globalNextSurfaceId = 0;
 
-MeshSurface::~MeshSurface() {
-    if ( positions != nullptr) {
-        for ( int i = 0; i < positions->size(); i++ ) {
-            delete positions->get(i);
-        }
-        delete positions;
-    }
-
-    if ( normals != nullptr ) {
-        for ( int i = 0; i < normals->size(); i++ ) {
-            delete normals->get(i);
-        }
-        delete normals;
-    }
-
-    if ( vertices != nullptr ) {
-        for ( int i = 0; i < vertices->size(); i++ ) {
-            delete vertices->get(i);
-        }
-        delete vertices;
-    }
-
-    if ( faces != nullptr ) {
-        for ( int i = 0; i < faces->size(); i++ ) {
-            delete faces->get(i);
-        }
-        delete faces;
-    }
-}
-
 /**
 Indicates on whether or not, and if so, which, colors are given when creating
 a new surface
@@ -94,17 +64,19 @@ surfaceConnectFace(MeshSurface *surf, Patch *face) {
 This routine creates a MeshSurface with given material, positions
 */
 MeshSurface::MeshSurface(
-    Material *material,
-    java::ArrayList<Vector3D *> *points,
-    java::ArrayList<Vector3D *> *normals,
-    const java::ArrayList<Vector3D *> * /*texCoords*/,
-    java::ArrayList<Vertex *> *inVertices,
-    java::ArrayList<Patch *> *faces,
-    enum MaterialColorFlags flags)
+        char *inObjectName,
+        Material *material,
+        java::ArrayList<Vector3D *> *points,
+        java::ArrayList<Vector3D *> *normals,
+        const java::ArrayList<Vector3D *> * /*texCoords*/,
+        java::ArrayList<Vertex *> *inVertices,
+        java::ArrayList<Patch *> *faces,
+        enum MaterialColorFlags flags)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
     this->id = nextGeometryId++;
+    this->objectName = inObjectName;
     this->meshId = globalNextSurfaceId++;
     this->compoundData = nullptr;
     this->patchSetData = nullptr;
@@ -152,6 +124,40 @@ MeshSurface::MeshSurface(
     this->itemCount = 0;
     this->omit = false;
     this->displayListId = -1;
+}
+
+MeshSurface::~MeshSurface() {
+    if ( this->objectName ) {
+        delete[] this->objectName;
+    }
+
+    if ( positions != nullptr) {
+        for ( int i = 0; i < positions->size(); i++ ) {
+            delete positions->get(i);
+        }
+        delete positions;
+    }
+
+    if ( normals != nullptr ) {
+        for ( int i = 0; i < normals->size(); i++ ) {
+            delete normals->get(i);
+        }
+        delete normals;
+    }
+
+    if ( vertices != nullptr ) {
+        for ( int i = 0; i < vertices->size(); i++ ) {
+            delete vertices->get(i);
+        }
+        delete vertices;
+    }
+
+    if ( faces != nullptr ) {
+        for ( int i = 0; i < faces->size(); i++ ) {
+            delete faces->get(i);
+        }
+        delete faces;
+    }
 }
 
 /**

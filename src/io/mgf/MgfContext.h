@@ -85,6 +85,7 @@ class MgfContext {
     java::ArrayList<Vertex *> *currentVertexList;
     java::ArrayList<Patch *> *currentFaceList;
     java::ArrayList<Geometry *> *currentGeometryList;
+    char *currentObjectName;
 
     MgfTransformContext *transformContext;
     MgfColorContext *unNamedColorContext;

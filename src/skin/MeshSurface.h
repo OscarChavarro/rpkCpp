@@ -22,6 +22,7 @@ enum MaterialColorFlags {
 class MeshSurface final : public Geometry {
   public:
     int meshId;
+    char *objectName;
 
     /**
     The vertices of the patches. Each vertex contains a pointer to the vertex
@@ -50,6 +51,7 @@ class MeshSurface final : public Geometry {
     Material *material;
 
     MeshSurface(
+        char *inObjectName,
         Material *material,
         java::ArrayList<Vector3D *> *points,
         java::ArrayList<Vector3D *> *normals,

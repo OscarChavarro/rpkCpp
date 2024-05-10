@@ -1,9 +1,9 @@
 #include "scene/Scene.h"
 
-static char *globalCompoundType = (char *)"Compound";
-static char *globalMeshSurfaceType = (char *)"MeshSurface";
-static char *globalPatchSetType = (char *)"PatchSet";
-static char *globalUnknownType = (char *)"<unknown>";
+static const char *globalCompoundType = "Compound";
+static const char *globalMeshSurfaceType = "MeshSurface";
+static const char *globalPatchSetType = "PatchSet";
+static const char *globalUnknownType = "<unknown>";
 
 Scene::Scene():
     background(),
@@ -50,9 +50,9 @@ Scene::~Scene() {
     }
 }
 
-char *
+const char *
 Scene::printGeometryType(GeometryClassId id) {
-    char *response = globalUnknownType;
+    const char *response = globalUnknownType;
     if ( id == GeometryClassId::SURFACE_MESH ) {
         response = globalMeshSurfaceType;
     } else if ( id == GeometryClassId::COMPOUND ) {
@@ -80,7 +80,7 @@ Scene::printCompound(const Compound *compound) {
             const Geometry *child = compound->compoundData->children->get(i);
             printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == GeometryClassId::SURFACE_MESH ) {
-                printSurfaceMesh((MeshSurface *)child, 6);
+                printSurfaceMesh((const MeshSurface *)child, 6);
             }
         }
     }
@@ -99,6 +99,7 @@ Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
     }
     spaces[i] = '\0';
 
+    printf("%s  - Object name: %s\n", spaces, mesh->objectName);
     printf("%s  - Type: SurfaceMesh\n", spaces);
     printf("%s    . Inner id: %d\n", spaces, mesh->meshId);
     printf("%s    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",

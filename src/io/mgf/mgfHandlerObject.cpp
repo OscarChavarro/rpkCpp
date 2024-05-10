@@ -104,8 +104,25 @@ mgfObjectSurfaceDone(MgfContext *context) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
 
+    if ( context->readerContext != nullptr ) {
+        const char *head = context->readerContext->inputLine;
+        if ( head[0] == 'o' && head[1] == ' ' ) {
+            char *tail = &context->readerContext->inputLine[2];
+            if ( strlen(tail) > 0 ) {
+                if ( context->currentObjectName != nullptr ) {
+                    delete[] context->currentObjectName;
+                }
+                context->currentObjectName = nullptr;
+                tail[strlen(tail) - 1] = '\0';
+                context->currentObjectName = new char[strlen(tail) + 1];
+                strcpy(context->currentObjectName, tail);
+            }
+        }
+    }
+
     if ( context->currentFaceList != nullptr && context->currentFaceList->size() > 0 ) {
         Geometry *newGeometry = new MeshSurface(
+            context->currentObjectName,
             context->currentMaterial,
             context->currentPointList,
             context->currentNormalList,
@@ -115,6 +132,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
             MaterialColorFlags::NO_COLORS);
         context->currentGeometryList->add(newGeometry);
         context->allGeometries->add(newGeometry);
+        context->currentObjectName = nullptr;
     }
     context->inSurface = false;
 }

@@ -185,7 +185,7 @@ batchParseOptions(int *argc, char **argv) {
 }
 
 void
-batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
+batchExecuteRadianceSimulation(const Scene *scene, RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     clock_t start_time;
     clock_t wasted_start;
     float wasted_secs;
