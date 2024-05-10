@@ -19,6 +19,8 @@ class ShaftPlane {
     int coordinateOffset[3]; // Coordinate offset for nearest corner in box-plane tests
 };
 
+#define MAX_SKIP_ELEMENTS 2
+
 // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
 // maximum 2 times the total number of vertices for a patch-to-patch shaft
 #define SHAFT_MAX_PLANES 16
@@ -61,9 +63,9 @@ class Shaft {
     BoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
     int numberOfPlanesInSet;  // Number of planes in plane-set
-    Patch *omit[2]; // Geometries to be ignored during shaft culling, maximum 2
+    Patch *omit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
-    Geometry *dontOpen[2]; // Geometries not to be opened during shaft culling, maximum 2
+    Geometry *dontOpen[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToNotOpen;
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
                       // to lay within the shaft

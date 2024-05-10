@@ -654,7 +654,7 @@ Returns true if the geometry is not to be enclosed in the shaft
 */
 int
 Shaft::patchIsOnOmitSet(const Patch *geometry) const {
-    for ( int i = 0; i < numberOfGeometriesToOmit; i++ ) {
+    for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( omit[i] == geometry ) {
             return true;
         }
@@ -667,7 +667,7 @@ Returns true if the geometry is not to be opened during shaft culling
 */
 bool
 Shaft::closedGeometry(const Geometry *geometry) const {
-    for ( int i = 0; i < numberOfGeometriesToNotOpen; i++ ) {
+    for ( int i = 0; i < numberOfGeometriesToNotOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( dontOpen[i] == geometry ) {
             return true;
         }
@@ -701,7 +701,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
         // the patch itself is inside, outside or overlapping the shaft
         if ( boundingBoxSide != ShaftPlanePosition::OUTSIDE &&
              ( boundingBoxSide == ShaftPlanePosition::INSIDE || shaftPatchTest(patch) != ShaftPlanePosition::OUTSIDE ) ) {
-            culledPatchList->add(0, patch);
+            culledPatchList->add(patch);
         }
     }
     return culledPatchList;
@@ -720,9 +720,9 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
         Geometry *newGeometry = geomDuplicateIfPatchSet(geometry);
         newGeometry->shaftCullGeometry = true;
-        candidateList->add(0, newGeometry);
+        candidateList->add(newGeometry);
     } else {
-        candidateList->add(0, geometry);
+        candidateList->add(geometry);
     }
 }
 
@@ -746,7 +746,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
             Geometry *newGeometry = geomCreatePatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
             newGeometry->isDuplicate = false;
-            candidateList->add(0, newGeometry);
+            candidateList->add(newGeometry);
         }
         delete culledPatches;
     }

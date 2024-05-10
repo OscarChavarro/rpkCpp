@@ -20,6 +20,13 @@ enum MaterialColorFlags {
 };
 
 class MeshSurface final : public Geometry {
+  private:
+    static int nextSurfaceId;
+    static MaterialColorFlags colorFlags;
+
+    static void normalizeVertexColor(Vertex *vertex);
+    void surfaceConnectFace(Patch *face) const;
+
   public:
     int meshId;
     char *objectName;

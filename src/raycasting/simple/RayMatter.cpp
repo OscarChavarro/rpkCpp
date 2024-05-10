@@ -10,6 +10,9 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 #include "raycasting/common/raytools.h"
 #include "render/ScreenBuffer.h"
+#include "raycasting/common/BoxFilter.h"
+#include "raycasting/common/TentFilter.h"
+#include "raycasting/common/NormalFilter.h"
 #include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 
@@ -22,7 +25,7 @@ RayMatter::RayMatter(ScreenBuffer *screen, Camera *camera) {
         doDeleteScreen = false;
     }
 
-    Filter = nullptr;
+    pixelFilter = nullptr;
     screenBuffer->setRgbImage(true);
 }
 
@@ -30,37 +33,37 @@ RayMatter::~RayMatter() {
     if ( doDeleteScreen ) {
         delete screenBuffer;
     }
-    if ( Filter != nullptr ) {
-        delete Filter;
+    if ( pixelFilter != nullptr ) {
+        delete pixelFilter;
     }
 }
 
 void
-RayMatter::CheckFilter() {
-    if ( Filter ) {
-        delete Filter;
+RayMatter::checkFilter() {
+    if ( pixelFilter ) {
+        delete pixelFilter;
     }
 
     if ( GLOBAL_rayCasting_rayMatterState.filter == RM_BOX_FILTER ) {
-        Filter = new BoxFilter;
+        pixelFilter = new BoxFilter;
     }
     if ( GLOBAL_rayCasting_rayMatterState.filter == RM_TENT_FILTER ) {
-        Filter = new TentFilter;
+        pixelFilter = new TentFilter;
     }
     if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS_FILTER ) {
-        Filter = new NormalFilter;
+        pixelFilter = new NormalFilter;
     }
     if ( GLOBAL_rayCasting_rayMatterState.filter == RM_GAUSS2_FILTER ) {
-        Filter = new NormalFilter(.5, 1.5);
+        pixelFilter = new NormalFilter(.5, 1.5);
     }
 }
 
 void
-RayMatter::Matting(Camera *camera, VoxelGrid *sceneWorldVoxelGrid) {
+RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid) {
     clock_t t = clock();
     ColorRgb matte;
 
-    CheckFilter();
+    checkFilter();
 
     long width = camera->xSize;
     long height = camera->ySize;
@@ -76,7 +79,7 @@ RayMatter::Matting(Camera *camera, VoxelGrid *sceneWorldVoxelGrid) {
                 double xi2 = drand48();
 
                 // Insert non-uniform sampling here
-                Filter->sample(&xi1, &xi2);
+                pixelFilter->sample(&xi1, &xi2);
 
                 // Generate ray
                 Ray ray;
@@ -125,12 +128,13 @@ iRayMatte(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod * /*radianceMethod*/,
-    RenderOptions * /*renderOptions*/) {
+    RenderOptions * /*renderOptions*/)
+{
     if ( rm != nullptr ) {
         delete rm;
     }
     rm = new RayMatter(nullptr, scene->camera);
-    rm->Matting(scene->camera, scene->voxelGrid);
+    rm->doMatting(scene->camera, scene->voxelGrid);
     if ( ip && rm != nullptr ) {
         rm->save(ip);
     }
@@ -140,7 +144,7 @@ iRayMatte(
 Returns false if there is no previous image and true if there is
 */
 static int
-Redisplay() {
+reDisplay() {
     if ( !rm ) {
         return false;
     }
@@ -150,7 +154,7 @@ Redisplay() {
 }
 
 static int
-SaveImage(ImageOutputHandle *ip) {
+saveImage(ImageOutputHandle *ip) {
     if ( !rm ) {
         return false;
     }
@@ -160,7 +164,7 @@ SaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-Terminate() {
+terminate() {
     if ( rm ) {
         delete rm;
     }
@@ -168,7 +172,7 @@ Terminate() {
 }
 
 static void
-Initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
+initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
 Raytracer GLOBAL_rayCasting_RayMatting = {
@@ -177,11 +181,11 @@ Raytracer GLOBAL_rayCasting_RayMatting = {
     "Ray Matting",
     rayMattingDefaults,
     rayMattingParseOptions,
-    Initialize,
+    initialize,
     iRayMatte,
-    Redisplay,
-    SaveImage,
-    Terminate
+    reDisplay,
+    saveImage,
+    terminate
 };
 
 #endif

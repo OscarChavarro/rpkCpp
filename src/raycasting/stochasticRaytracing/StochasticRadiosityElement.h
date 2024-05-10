@@ -54,24 +54,70 @@ stochasticRadiosityElementRange(
     int *numberOfBits,
     niedindex *mostSignificantBits1,
     niedindex *rMostSignificantBits2);
-extern float *stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox);
-extern StochasticRadiosityElement **stochasticRadiosityElementRegularSubdivideElement(StochasticRadiosityElement *element, RenderOptions *renderOptions);
-extern StochasticRadiosityElement *stochasticRadiosityElementRegularSubElementAtPoint(StochasticRadiosityElement *parent, double *u, double *v);
-extern StochasticRadiosityElement *stochasticRadiosityElementRegularLeafElementAtPoint(StochasticRadiosityElement *top, double *u, double *v);
-extern Vertex *stochasticRadiosityElementEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber);
-extern int stochasticRadiosityElementIsTextured(StochasticRadiosityElement *elem);
-extern float stochasticRadiosityElementScalarReflectance(StochasticRadiosityElement *elem);
-extern void stochasticRadiosityElementPushRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parentRadiance, ColorRgb *childRadiance);
+
+extern float *
+stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox);
+
+extern StochasticRadiosityElement **
+stochasticRadiosityElementRegularSubdivideElement(
+    StochasticRadiosityElement *element, const RenderOptions *renderOptions);
+
+extern StochasticRadiosityElement *
+stochasticRadiosityElementRegularSubElementAtPoint(
+    const StochasticRadiosityElement *parent, double *u, double *v);
+
+extern StochasticRadiosityElement *
+stochasticRadiosityElementRegularLeafElementAtPoint(
+    StochasticRadiosityElement *top, double *u, double *v);
+
+extern Vertex *
+stochasticRadiosityElementEdgeMidpointVertex(
+    const StochasticRadiosityElement *elem, int edgeNumber);
+
+extern int stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem);
+extern float stochasticRadiosityElementScalarReflectance(const StochasticRadiosityElement *elem);
+
+extern void
+stochasticRadiosityElementPushRadiance(
+    const StochasticRadiosityElement *parent,
+    StochasticRadiosityElement *child,
+    ColorRgb *parentRadiance,
+    ColorRgb *childRadiance);
+
 extern void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
-extern void stochasticRadiosityElementPullRadiance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad);
-extern void stochasticRadiosityElementPullImportance(StochasticRadiosityElement *parent, StochasticRadiosityElement *child, float *parent_imp, const float *child_imp);
+
+extern void
+stochasticRadiosityElementPullRadiance(
+    const StochasticRadiosityElement *parent,
+    const StochasticRadiosityElement *child,
+    ColorRgb *parent_rad,
+    ColorRgb *child_rad);
+
+extern void
+stochasticRadiosityElementPullImportance(
+    const StochasticRadiosityElement *parent,
+    const StochasticRadiosityElement *child,
+    float *parent_imp,
+    const float *child_imp);
 
 // In render.cpp
-extern ColorRgb stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
-extern ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions);
-extern void stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions);
-extern void stochasticRadiosityElementComputeNewVertexColors(Element *element);
-extern void stochasticRadiosityElementAdjustTVertexColors(Element *element);
-extern ColorRgb stochasticRadiosityElementColor(StochasticRadiosityElement *element);
+extern ColorRgb
+stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
+
+extern ColorRgb
+stochasticRadiosityElementDisplayRadianceAtPoint(
+    StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions);
+
+extern void
+stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions);
+
+extern void
+stochasticRadiosityElementComputeNewVertexColors(Element *element);
+
+extern void
+stochasticRadiosityElementAdjustTVertexColors(Element *element);
+
+extern ColorRgb
+stochasticRadiosityElementColor(StochasticRadiosityElement *element);
 
 #endif

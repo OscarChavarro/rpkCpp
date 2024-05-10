@@ -1,83 +1,34 @@
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
-#include "skin/Patch.h"
 #include "skin/MeshSurface.h"
 
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
-static int globalNextSurfaceId = 0;
+int MeshSurface::nextSurfaceId = 0;
 
 /**
 Indicates on whether or not, and if so, which, colors are given when creating
 a new surface
 */
-enum MaterialColorFlags globalColorFlags = NO_COLORS;
-
-static void
-normalizeVertexColor(Vertex *vertex) {
-    long numberOfPatches = 0;
-
-    if ( vertex->patches != nullptr ) {
-        numberOfPatches = vertex->patches->size();
-    }
-
-    if ( numberOfPatches > 0 ) {
-        vertex->color.r /= (float)numberOfPatches;
-        vertex->color.g /= (float)numberOfPatches;
-        vertex->color.b /= (float)numberOfPatches;
-    }
-}
-
-/**
-Fills in the MeshSurface back pointer of the face belonging to the given surface
-*/
-void
-surfaceConnectFace(MeshSurface *surf, Patch *face) {
-    int i;
-    ColorRgb rho;
-
-    face->material = surf->material;
-
-    // Also fill in a nicer default color for the patch
-    switch ( globalColorFlags ) {
-        case MaterialColorFlags::FACE_COLORS:
-            break;
-        case MaterialColorFlags::VERTEX_COLORS:
-            // Average color of the vertices
-            face->color.set(0, 0, 0);
-            for ( i = 0; i < face->numberOfVertices; i++ ) {
-                face->color.r += face->vertex[i]->color.r;
-                face->color.g += face->vertex[i]->color.g;
-                face->color.b += face->vertex[i]->color.b;
-            }
-            face->color.r /= (float) i;
-            face->color.g /= (float) i;
-            face->color.b /= (float) i;
-            break;
-        default: {
-            rho = face->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            rho.set(face->color.r, face->color.g, face->color.b);
-        }
-    }
-}
+MaterialColorFlags MeshSurface::colorFlags = NO_COLORS;
 
 /**
 This routine creates a MeshSurface with given material, positions
 */
 MeshSurface::MeshSurface(
-        char *inObjectName,
-        Material *material,
-        java::ArrayList<Vector3D *> *points,
-        java::ArrayList<Vector3D *> *normals,
-        const java::ArrayList<Vector3D *> * /*texCoords*/,
-        java::ArrayList<Vertex *> *inVertices,
-        java::ArrayList<Patch *> *faces,
-        enum MaterialColorFlags flags)
+    char *inObjectName,
+    Material *material,
+    java::ArrayList<Vector3D *> *points,
+    java::ArrayList<Vector3D *> *normals,
+    const java::ArrayList<Vector3D *> * /*texCoords*/,
+    java::ArrayList<Vertex *> *inVertices,
+    java::ArrayList<Patch *> *faces,
+    enum MaterialColorFlags flags)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
     this->id = nextGeometryId++;
     this->objectName = inObjectName;
-    this->meshId = globalNextSurfaceId++;
+    this->meshId = nextSurfaceId++;
     this->compoundData = nullptr;
     this->patchSetData = nullptr;
     this->className = GeometryClassId::SURFACE_MESH;
@@ -90,29 +41,29 @@ MeshSurface::MeshSurface(
     this->faces = faces;
     this->className = GeometryClassId::SURFACE_MESH;
 
-    globalColorFlags = flags;
+    colorFlags = flags;
 
-    // If globalColorFlags == VERTEX_COLORS< the inVertices are assumed to contain
+    // If colorFlags == VERTEX_COLORS< the inVertices are assumed to contain
     // the sum of the colors as used in each patch sharing the vertex
-    if ( globalColorFlags == VERTEX_COLORS ) {
+    if ( colorFlags == VERTEX_COLORS ) {
         for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
-            normalizeVertexColor(vertices->get(i));
+            MeshSurface::normalizeVertexColor(vertices->get(i));
         }
     }
 
     // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
     for ( int i = 0; this->faces != nullptr && i < this->faces->size(); i++ ) {
-        surfaceConnectFace(this, this->faces->get(i));
+        this->surfaceConnectFace(this->faces->get(i));
     }
 
     // Compute vertex colors
-    if ( globalColorFlags != VERTEX_COLORS ) {
+    if ( colorFlags != VERTEX_COLORS ) {
         for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
             vertices->get(i)->computeColor();
         }
     }
 
-    globalColorFlags = NO_COLORS;
+    colorFlags = NO_COLORS;
 
     patchListBounds(this->faces, &boundingBox);
 
@@ -157,6 +108,54 @@ MeshSurface::~MeshSurface() {
             delete faces->get(i);
         }
         delete faces;
+    }
+}
+
+void
+MeshSurface::normalizeVertexColor(Vertex *vertex) {
+    long numberOfPatches = 0;
+
+    if ( vertex->patches != nullptr ) {
+        numberOfPatches = vertex->patches->size();
+    }
+
+    if ( numberOfPatches > 0 ) {
+        vertex->color.r /= (float)numberOfPatches;
+        vertex->color.g /= (float)numberOfPatches;
+        vertex->color.b /= (float)numberOfPatches;
+    }
+}
+
+/**
+Fills in the MeshSurface back pointer of the face belonging to the given surface
+*/
+void
+MeshSurface::surfaceConnectFace(Patch *face) const {
+    int i;
+
+    face->material = material;
+
+    // Also fill in a nicer default color for the patch
+    switch ( colorFlags ) {
+        case MaterialColorFlags::FACE_COLORS:
+            break;
+        case MaterialColorFlags::VERTEX_COLORS:
+            // Average color of the vertices
+            face->color.set(0, 0, 0);
+            for ( i = 0; i < face->numberOfVertices; i++ ) {
+                face->color.r += face->vertex[i]->color.r;
+                face->color.g += face->vertex[i]->color.g;
+                face->color.b += face->vertex[i]->color.b;
+            }
+            face->color.r /= (float) i;
+            face->color.g /= (float) i;
+            face->color.b /= (float) i;
+            break;
+        default: {
+            ColorRgb rho;
+            rho = face->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
+            rho.set(face->color.r, face->color.g, face->color.b);
+        }
     }
 }
 

@@ -185,10 +185,10 @@ batchParseOptions(int *argc, char **argv) {
 }
 
 void
-batchExecuteRadianceSimulation(const Scene *scene, RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
     clock_t start_time;
     clock_t wasted_start;
-    float wasted_secs;
+    float wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
         printf("Empty world??\n");
@@ -196,7 +196,7 @@ batchExecuteRadianceSimulation(const Scene *scene, RadianceMethod *radianceMetho
     }
 
     start_time = clock();
-    wasted_secs = 0.0;
+    wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
         // GLOBAL_scene_world-space radiance computations
@@ -263,7 +263,7 @@ batchExecuteRadianceSimulation(const Scene *scene, RadianceMethod *radianceMetho
                 delete[] fileName;
             }
 
-            wasted_secs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;
+            wastedSecs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;
 
             fflush(stdout);
             fflush(stderr);
@@ -279,7 +279,7 @@ batchExecuteRadianceSimulation(const Scene *scene, RadianceMethod *radianceMetho
 
     if ( globalTimings ) {
         fprintf(stdout, "Radiance total time %g secs.\n",
-                ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wasted_secs);
+                ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED

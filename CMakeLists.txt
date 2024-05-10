@@ -125,7 +125,10 @@ set(MAIN_SRC
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp
-    src/raycasting/common/pixelfilter.cpp
+    src/raycasting/common/PixelFilter.cpp
+    src/raycasting/common/BoxFilter.cpp
+    src/raycasting/common/NormalFilter.cpp
+    src/raycasting/common/TentFilter.cpp
     src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
