@@ -29,7 +29,7 @@ createRotationMatrix(float angle, Vector3D axis) {
     Matrix4x4 xf = globalIdentityMatrix;
 
     // Singularity test
-    float s = vectorNorm(axis);
+    float s = axis.norm();
     if ( s < EPSILON ) {
         // Bad rotation axis
         return xf;

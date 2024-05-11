@@ -217,7 +217,7 @@ Patch::computeRandomWalkRadiosityArea() {
             d1.subtraction(*p2, *p1);
             d2.subtraction(*p3, *p2);
             vectorCrossProduct(d1, d2, cp1);
-            this->area = 0.5f * vectorNorm(cp1);
+            this->area = 0.5f * cp1.norm();
             break;
         case 4:
             p1 = this->vertex[0]->point;
@@ -528,7 +528,7 @@ Returns a pointer to the normal vector if everything is OK. nullptr pointer if d
 */
 static Vector3D *
 patchNormal(const Patch *patch, Vector3D *normal) {
-    float norm;
+    float localNorm;
     Vector3D previous;
     Vector3D current;
 
@@ -542,12 +542,12 @@ patchNormal(const Patch *patch, Vector3D *normal) {
         normal->z += (previous.x - current.x) * (previous.y + current.y);
     }
 
-    norm = vectorNorm(*normal);
-    if ( norm < EPSILON ) {
+    localNorm = normal->norm();
+    if ( localNorm < EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
     }
-    vectorScaleInverse(norm, *normal, *normal);
+    vectorScaleInverse(localNorm, *normal, *normal);
 
     return normal;
 }

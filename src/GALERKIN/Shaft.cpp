@@ -350,7 +350,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
     const Vector3D *next;
     const Vector3D *other;
     float d;
-    float norm;
+    float localNorm;
     ShaftPlanePosition side;
     int planesFoundForEdge;
 
@@ -366,12 +366,12 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
 
             // Compute normal and plane constant of the plane formed by cur, next and other
             vectorTripleCrossProduct(*cur, *next, *other, normal);
-            norm = vectorNorm(normal);
-            if ( norm < EPSILON ) {
+            localNorm = normal.norm();
+            if ( localNorm < EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            vectorScaleInverse(norm, normal, normal);
+            vectorScaleInverse(localNorm, normal, normal);
             d = -normal.dotProduct(*cur);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices

@@ -55,7 +55,7 @@ cameraComplete(Camera *camera) {
     camera->Z.subtraction(camera->lookPosition, camera->eyePosition);
 
     // Distance from virtual camera position to focus point
-    camera->viewDistance = vectorNorm(camera->Z);
+    camera->viewDistance = camera->Z.norm();
     if ( camera->viewDistance < EPSILON ) {
         logError("SetCamera", "eye point and look-point coincide");
         return nullptr;
@@ -64,7 +64,7 @@ cameraComplete(Camera *camera) {
 
     // camera->X is a direction pointing to the right in the window
     vectorCrossProduct(camera->Z, camera->upDirection, camera->X);
-    n = vectorNorm(camera->X);
+    n = camera->X.norm();
     if ( n < EPSILON ) {
         logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;

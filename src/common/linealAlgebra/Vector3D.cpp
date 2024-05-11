@@ -38,9 +38,7 @@ Vector3D::compareByDimensions(const Vector3D *v2, float epsilon) const {
         return code;
     }
 
-    if ( x < v2->x - epsilon ||
-         y < v2->y - epsilon ||
-         z < v2->z - epsilon ) {
+    if ( x < v2->x - epsilon || y < v2->y - epsilon || z < v2->z - epsilon ) {
         // Not the same coordinates
         return code;
     }

@@ -161,7 +161,7 @@ Computes the normal to the patch plane
 */
 static Vector3D *
 faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
-    double norm;
+    double localNorm;
     Vector3D prev;
     Vector3D cur;
     Vector3D n;
@@ -175,13 +175,13 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
         n.y += (prev.z - cur.z) * (prev.x + cur.x);
         n.z += (prev.x - cur.x) * (prev.y + cur.y);
     }
-    norm = vectorNorm(n);
+    localNorm = n.norm();
 
-    if ( norm < EPSILON ) {
+    if ( localNorm < EPSILON ) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    vectorScaleInverse((float) norm, n, n);
+    vectorScaleInverse((float) localNorm, n, n);
     *normal = n;
 
     return normal;
@@ -424,7 +424,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
             }
 
             vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
-            a = vectorNorm(nn);
+            a = nn.norm();
             vectorScaleInverse((float) a, nn, nn);
             d = vectorDist(nn, *normal);
 

@@ -22,6 +22,7 @@ class Vector3D {
     void print(FILE *fp) const;
     float dotProduct(Vector3D b) const;
     float norm2() const;
+    float norm() const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
@@ -145,8 +146,8 @@ Vector3D::norm2() const {
 Norm of a vector: square root of the square norm
 */
 inline float
-vectorNorm(const Vector3D &v) {
-    return std::sqrt(v.norm2());
+Vector3D::norm() const {
+    return std::sqrt(norm2());
 }
 
 /**
@@ -175,7 +176,7 @@ Normalizes a vector: scale it with the inverse of its norm
 */
 inline void
 vectorNormalize(Vector3D &v) {
-    float n = vectorNorm(v);
+    float n = v.norm();
     vectorScaleInverse(n, v, v);
 }
 
@@ -247,7 +248,7 @@ inline float
 vectorDist(const Vector3D &p1, const Vector3D &p2) {
     Vector3D d;
     d.subtraction(p2, p1);
-    return vectorNorm(d);
+    return d.norm();
 }
 
 /**

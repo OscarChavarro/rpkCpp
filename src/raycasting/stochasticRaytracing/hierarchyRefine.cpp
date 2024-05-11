@@ -116,7 +116,7 @@ formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadios
     Vector3D D;
     D.subtraction(src->midPoint, rcv->midPoint);
 
-    double d = vectorNorm(D);
+    double d = D.norm();
     double f = src->area / (M_PI * d * d + src->area);
     double f2 = 2.0 * f;
     double c1 = rcv->isCluster() ? 1.0 /*0.25*/ : std::fabs(D.dotProduct(rcv->patch->normal)) / d;
