@@ -486,7 +486,7 @@ CPhotonMap::sample(
     ColorRgb color;
 
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !vectorEqual(m_sampleLastPos, position, 0.0001f) ) {
+    if ( !m_sampleLastPos.equals(position, 0.0001f) ) {
         // Need a new grid
 
         m_grid->Init();

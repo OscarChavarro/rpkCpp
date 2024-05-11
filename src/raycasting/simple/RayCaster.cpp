@@ -5,7 +5,6 @@ a software frame buffer directly.
 
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
 #include <ctime>
 
 #include "java/util/ArrayList.txx"
@@ -106,7 +105,9 @@ RayCaster::render(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
+#ifdef RAYTRACING_ENABLED
     clock_t t = clock();
+#endif
 
     SoftIdsWrapper *idRenderer = new SoftIdsWrapper(scene, renderOptions);
 
@@ -132,9 +133,11 @@ RayCaster::render(
 
     delete idRenderer;
 
+#ifdef RAYTRACING_ENABLED
     GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
+#endif
 }
 
 void
@@ -147,8 +150,52 @@ RayCaster::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
+#ifdef RAYTRACING_ENABLED
 static RayCaster *globalRayCaster = nullptr;
+#endif
 
+/**
+Ray-Casts the current Radiance solution. Output is displayed on the screen
+and saved into the file with given name and file pointer. 'isPipe'
+reflects whether this file pointer is a pipe or not.
+*/
+void
+rayCast(
+    const char *fileName,
+    FILE *fp,
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) {
+    ImageOutputHandle *img = nullptr;
+
+    if ( fp ) {
+        img = createRadianceImageOutputHandle(
+            fileName,
+            fp,
+            isPipe,
+            scene->camera->xSize,
+            scene->camera->ySize,
+            (float)GLOBAL_statistics.referenceLuminance / 179.0f);
+
+        if ( img == nullptr ) {
+            return;
+        }
+    }
+
+    RayCaster *rc = new RayCaster(nullptr, scene->camera);
+    rc->render(scene, radianceMethod, renderOptions);
+    if ( img != nullptr ) {
+        rc->save(img);
+    }
+    delete rc;
+
+    if ( img ) {
+        deleteImageOutputHandle(img);
+    }
+}
+
+#ifdef RAYTRACING_ENABLED
 /**
 Returns false if there is no previous image and true if there is
 */
@@ -205,47 +252,6 @@ rayCasterExecute(
     globalRayCaster->render(scene, radianceMethod, renderOptions);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
-    }
-}
-
-/**
-Ray-Casts the current Radiance solution. Output is displayed on the screen
-and saved into the file with given name and file pointer. 'isPipe'
-reflects whether this file pointer is a pipe or not.
-*/
-void
-rayCast(
-    const char *fileName,
-    FILE *fp,
-    const int isPipe,
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions) {
-    ImageOutputHandle *img = nullptr;
-
-    if ( fp ) {
-        img = createRadianceImageOutputHandle(
-            fileName,
-            fp,
-            isPipe,
-            scene->camera->xSize,
-            scene->camera->ySize,
-            (float)GLOBAL_statistics.referenceLuminance / 179.0f);
-
-        if ( img == nullptr ) {
-            return;
-        }
-    }
-
-    RayCaster *rc = new RayCaster(nullptr, scene->camera);
-    rc->render(scene, radianceMethod, renderOptions);
-    if ( img != nullptr ) {
-        rc->save(img);
-    }
-    delete rc;
-
-    if ( img ) {
-        deleteImageOutputHandle(img);
     }
 }
 

@@ -251,8 +251,8 @@ LightList::computeOneLightImportance(Patch *light,
 
 void
 LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal) {
-    if ( (vectorEqual(*point, lastPoint, EPSILON)) &&
-        (vectorEqual(*normal, lastNormal, EPSILON)) ) {
+    if ((point->equals(lastPoint, EPSILON)) &&
+        (normal->equals(lastNormal, EPSILON)) ) {
         return; // Still ok !!
     }
 

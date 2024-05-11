@@ -157,7 +157,7 @@ Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal
     in = false;
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
         double e = vectorDotProduct(*normal, poly->vertex[i]) + d;
-        double tolerance = std::fabs(d) * EPSILON + vectorTolerance(poly->vertex[i]);
+        double tolerance = std::fabs(d) * EPSILON + poly->vertex[i].tolerance(EPSILON_FLOAT);
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -183,7 +183,7 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = vectorDotProduct(*normal, polygon->vertex[i]) + d;
-        double tolerance = std::fabs(d) * EPSILON + vectorTolerance(polygon->vertex[i]);
+        double tolerance = std::fabs(d) * EPSILON + polygon->vertex[i].tolerance(EPSILON_FLOAT);
         out |= e > tolerance;
         if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
             return false;
@@ -224,7 +224,7 @@ if the point is on the plane within tolerance distance d*EPSILON
 ShaftPlanePosition
 Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
     double e;
-    double tolerance = std::fabs(d * EPSILON) + vectorTolerance(*p);
+    double tolerance = std::fabs(d * EPSILON) + p->tolerance(EPSILON_FLOAT);
     e = vectorDotProduct(*normal, *p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
@@ -522,7 +522,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = vectorTolerance(*patch->vertex[j]->point); // Vertex tolerance
+        pTol[j] = patch->vertex[j]->point->tolerance(EPSILON_FLOAT); // Vertex tolerance
     }
 
     localPlane = &planeSet[0];

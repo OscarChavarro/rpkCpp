@@ -70,8 +70,8 @@ CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *proba
     float sin_theta = (float)std::sqrt(xi2);
 
     Vector3D dir;
-    vectorComb2(cos_phi, X, sin_phi, Y, dir);
-    vectorComb2(sin_theta, dir, cos_theta, Z, dir);
+    dir.combine(cos_phi, X, sin_phi, Y);
+    dir.combine(sin_theta, dir, cos_theta, Z);
 
     *probabilityDensityFunction = cos_theta / M_PI;
 
@@ -95,8 +95,8 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     float sinTheta = (float)std::sqrt(1.0 - cosTheta * cosTheta);
 
     Vector3D dir;
-    vectorComb2(cosPhi, X, sinPhi, Y, dir);
-    vectorComb2(sinTheta, dir, cosTheta, Z, dir);
+    dir.combine(cosPhi, X, sinPhi, Y);
+    dir.combine(sinTheta, dir, cosTheta, Z);
     *probabilityDensityFunction = (n + 1.0) * std::pow(cosTheta, n) / (2.0 * M_PI);
 
     return dir;

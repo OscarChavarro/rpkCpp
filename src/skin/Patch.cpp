@@ -289,8 +289,7 @@ Patch::computeTolerance() const {
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *p = vertex[i]->point;
-        float e = std::fabs(vectorDotProduct(normal, *p) + planeConstant)
-                  + vectorTolerance(*p);
+        float e = std::fabs(vectorDotProduct(normal, *p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -1099,7 +1098,7 @@ Patch::isAtLeastPartlyInFront(const Patch *other) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *vp = vertex[i]->point;
         double ep = vectorDotProduct(other->normal, *vp) + other->planeConstant;
-        double localTolerance = other->tolerance + vectorTolerance(*vp);
+        double localTolerance = other->tolerance + vp->tolerance(EPSILON_FLOAT);
         if ( ep > localTolerance ) {
             // P is at least partly in front of Q
             return true;

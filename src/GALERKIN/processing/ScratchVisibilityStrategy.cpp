@@ -74,7 +74,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == galerkinState->lastClusterId && vectorEqual(eye, galerkinState->lastEye, EPSILON_FLOAT) ) {
+    if ( cluster->id == galerkinState->lastClusterId && eye.equals(galerkinState->lastEye, EPSILON_FLOAT) ) {
         return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to

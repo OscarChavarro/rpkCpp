@@ -1,10 +1,5 @@
 #include "common/linealAlgebra/Vector3D.h"
 
-void
-vector3DDestroy(Vector3D *vector) {
-    free(vector);
-}
-
 /**
 Find the "dominant" part of the vector (eg patch-normal).  This
 is used to turn the point-in-polygon test into a 2D problem.
@@ -57,4 +52,9 @@ vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon)
 void
 vector3DPrint(FILE *fp, const Vector3D &v) {
     fprintf(fp, "%g %g %g", v.x, v.y, v.z);
+}
+
+void
+vector3DDestroy(Vector3D *vector) {
+    free(vector);
 }

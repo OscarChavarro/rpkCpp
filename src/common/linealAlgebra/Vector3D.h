@@ -1,7 +1,8 @@
-#ifndef __Vector3D__
-#define __Vector3D__
+#ifndef __VECTOR_3D__
+#define __VECTOR_3D__
 
 #include <cstdio>
+
 #include "common/linealAlgebra/Float.h"
 
 class Vector3D {
@@ -10,38 +11,35 @@ class Vector3D {
     float y;
     float z;
 
-    Vector3D() {
-        x = 0.0;
-        y = 0.0;
-        z = 0.0;
-    }
-
+    Vector3D();
     Vector3D(float a, float b, float c) : x(a), y(b), z(c) {}
 
-    /**
-    Compute (T * vector) with
-    T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
-    X, Y, Z form a coordinate system
-    */
-    Vector3D
-    transform(
-        const Vector3D &X,
-        const Vector3D &Y,
-        const Vector3D &Z) const;
+    Vector3D transform(const Vector3D &X, const Vector3D &Y, const Vector3D &Z) const;
+    float tolerance(float epsilon) const;
+    bool equals(const Vector3D &w, float epsilon) const;
 
-    /**
-    Fills in x, y, and z component of a vector
-    */
-    inline void set(const float xParam,
-                    const float yParam,
-                    const float zParam) {
-        x = xParam;
-        y = yParam;
-        z = zParam;
-    }
-
-    inline void copy(const Vector3D &v);
+    void set(float xParam, float yParam, float zParam);
+    void copy(const Vector3D &v);
+    void combine(float a, const Vector3D &v, float b, const Vector3D &w);
 };
+
+inline Vector3D::Vector3D() {
+    x = 0.0;
+    y = 0.0;
+    z = 0.0;
+}
+
+/**
+Fills in x, y, and z component of a vector
+*/
+inline void
+Vector3D::set(const float xParam,
+                const float yParam,
+                const float zParam) {
+    x = xParam;
+    y = yParam;
+    z = zParam;
+}
 
 /**
 Copies the vector v to d: d = v. They may be different vector types
@@ -57,19 +55,19 @@ Vector3D::copy(const Vector3D &v) {
 Tolerance value for e.g. a vertex position
 */
 inline float
-vectorTolerance(const Vector3D v) {
-    return EPSILON_FLOAT * (std::fabs(v.x) + std::fabs(v.y) + std::fabs(v.z));
+Vector3D::tolerance(float epsilon) const {
+    return epsilon * (std::fabs(x) + std::fabs(y) + std::fabs(z));
 }
 
 /**
 Two vectors are equal if their components are equal within the given tolerance
 */
 inline bool
-vectorEqual(const Vector3D &v, const Vector3D &w, const float eps) {
+Vector3D::equals(const Vector3D &w, const float epsilon) const {
     return (
-        doubleEqual(v.x, w.x, eps) &&
-        doubleEqual(v.y, w.y, eps) &&
-        doubleEqual(v.z, w.z, eps)
+        doubleEqual(x, w.x, epsilon) &&
+        doubleEqual(y, w.y, epsilon) &&
+        doubleEqual(z, w.z, epsilon)
     );
 }
 
@@ -190,16 +188,15 @@ vectorCrossProduct(const Vector3D &a, const Vector3D &b, Vector3D &d) {
 Linear combination of two vectors: d = a.v + b.w
 */
 inline void
-vectorComb2(
+Vector3D::combine(
     const float a,
     const Vector3D &v,
     const float b,
-    const Vector3D &w,
-    Vector3D &d)
+    const Vector3D &w)
 {
-    d.x = a * v.x + b * w.x;
-    d.y = a * v.y + b * w.y;
-    d.z = a * v.z + b * w.z;
+    x = a * v.x + b * w.x;
+    y = a * v.y + b * w.y;
+    z = a * v.z + b * w.z;
 }
 
 /**
@@ -305,8 +302,9 @@ vectorPointInQuadrilateral(
 }
 
 extern int vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon);
-extern void vector3DDestroy(Vector3D *vector);
 extern int vector3DDominantCoord(const Vector3D *v);
 extern void vector3DPrint(FILE *fp, const Vector3D &v);
+
+extern void vector3DDestroy(Vector3D *vector);
 
 #endif
