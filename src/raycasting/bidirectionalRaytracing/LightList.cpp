@@ -163,30 +163,35 @@ LightList::computeOneLightImportanceVirtual(
 }
 
 double
-LightList::computeOneLightImportanceReal(Patch *light,
-                                         const Vector3D *point,
-                                         const Vector3D *normal,
-                                         float emittedFlux) {
+LightList::computeOneLightImportanceReal(
+    const Patch *light,
+    const Vector3D *point,
+    const Vector3D *normal,
+    float emittedFlux)
+{
     // ComputeOneLightImportance for real patches
     int tried = 0;  // No positions on the patch are tried yet
     int done = false;
     double contribution = 0.0;
-    Vector3D lightPoint, light_normal;
+    Vector3D lightPoint;
+    Vector3D lightNormal;
     Vector3D dir;
-    double cosRayPatch, cosRayLight, dist2;
+    double cosRayPatch;
+    double cosRayLight;
+    double dist2;
 
     while ( !done && tried <= light->numberOfVertices ) {
         // Choose a point on the patch according to 'tried'
 
         if ( tried == 0 ) {
             lightPoint = light->midPoint;
-            light_normal = light->normal;
+            lightNormal = light->normal;
         } else {
             lightPoint = *(light->vertex[tried - 1]->point);
             if ( light->vertex[tried - 1]->normal != nullptr ) {
-                light_normal = *(light->vertex[tried - 1]->normal);
+                lightNormal = *(light->vertex[tried - 1]->normal);
             } else {
-                light_normal = light->normal;
+                lightNormal = light->normal;
             }
         }
 
@@ -199,8 +204,8 @@ LightList::computeOneLightImportanceReal(Patch *light,
         dist2 = vectorNorm2(dir);
 
         // Cosines have an addition distance length in them
-        cosRayLight = -vectorDotProduct(dir, light_normal);
-        cosRayPatch = vectorDotProduct(dir, *normal);
+        cosRayLight = -dir.dotProduct(lightNormal);
+        cosRayPatch = dir.dotProduct(*normal);
 
         if ( cosRayLight > 0 && cosRayPatch > 0 ) {
             // Orientation of surfaces ok.

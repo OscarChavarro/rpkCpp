@@ -144,7 +144,7 @@ PhongBidirectionalScatteringDistributionFunction::texturedScattererEvalPdf(
     const Vector3D *normal,
     double *probabilityDensityFunction)
 {
-    *probabilityDensityFunction = vectorDotProduct(*normal, *out) / M_PI;
+    *probabilityDensityFunction = normal->dotProduct(*out) / M_PI;
 }
 
 /**

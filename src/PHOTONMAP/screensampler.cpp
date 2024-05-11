@@ -29,8 +29,8 @@ ScreenSampler::sample(
     // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
 
     // Sample direction
-    double xSample = (double)(camera->pixelWidth * (double)camera->xSize * (-0.5 + x1));
-    double ySample = (double)(camera->pixelHeight * (double)camera->ySize * (-0.5 + x2));
+    double xSample = camera->pixelWidth * (double)camera->xSize * (-0.5 + x1);
+    double ySample = camera->pixelHeight * (double)camera->ySize * (-0.5 + x2);
 
     vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
@@ -38,7 +38,7 @@ ScreenSampler::sample(
     double distScreen = std::sqrt(distScreen2);
     vectorScaleInverse((float)distScreen, dir, dir);
 
-    double cosScreen = std::fabs(vectorDotProduct(camera->Z, dir));
+    double cosScreen = std::fabs(camera->Z.dotProduct(dir));
 
     double pdfDir = ((1.0 / (camera->pixelWidth * (float)camera->xSize *
                             camera->pixelHeight * (float)camera->ySize)) * // 1 / Area pixel
@@ -92,7 +92,7 @@ ScreenSampler::evalPDF(
     vectorScaleInverse((float)dist, outDir, outDir);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
-    cosA = vectorDotProduct(thisNode->m_normal, outDir);
+    cosA = thisNode->m_normal.dotProduct(outDir);
 
     // probabilityDensityFunction = 1/Apix * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
     //                 |__> to spherical angle           |__> to area on patch
@@ -102,7 +102,7 @@ ScreenSampler::evalPDF(
     probabilityDensityFunction = 1.0 /
         (camera->pixelHeight * (float)camera->ySize * camera->pixelWidth * (float)camera->xSize * cosA * cosA * cosA);
 
-    cosB = -vectorDotProduct(newNode->m_normal, outDir);
+    cosB = -newNode->m_normal.dotProduct(outDir);
     probabilityDensityFunction = probabilityDensityFunction * cosB / dist2;
 
     return probabilityDensityFunction;

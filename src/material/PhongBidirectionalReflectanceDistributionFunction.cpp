@@ -88,7 +88,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
 {
     ColorRgb result;
     float tmpFloat;
-    float dotProduct;
+    float localDotProduct;
     Vector3D idealReflected;
     char nonDiffuseFlag;
     Vector3D inRev;
@@ -97,7 +97,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     result.clear();
 
     // kd + ks (idealReflected * out)^n
-    if ( vectorDotProduct(*out, *normal) < 0 ) {
+    if ( out->dotProduct(*normal) < 0 ) {
         // Refracted ray
         return result;
     }
@@ -114,10 +114,10 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
 
     if ( (flags & nonDiffuseFlag) && (avgKs > 0.0) ) {
         idealReflected = idealReflectedDirection(&inRev, normal);
-        dotProduct = vectorDotProduct(idealReflected, *out);
+        localDotProduct = idealReflected.dotProduct(*out);
 
-        if ( dotProduct > 0 ) {
-            tmpFloat = std::pow(dotProduct, Ns); // cos(a) ^ n
+        if ( localDotProduct > 0 ) {
+            tmpFloat = std::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
@@ -199,7 +199,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         coord.setFromZAxis(normal);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
-        tmpFloat = vectorDotProduct(idealDir, newDir);
+        tmpFloat = idealDir.dotProduct(newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (Ns + 1.0) * std::pow(tmpFloat, Ns) / (2.0 * M_PI);
@@ -213,7 +213,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         coord.setFromZAxis(&idealDir);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
-        double cosTheta = vectorDotProduct(*normal, newDir);
+        double cosTheta = normal->dotProduct(newDir);
         if ( cosTheta <= 0 ) {
             return newDir;
         }
@@ -240,9 +240,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
 {
-    double cos_theta;
-    double cos_alpha;
-    double cos_in;
+    double cosAlpha;
     double diffPdf;
     double nonDiffPdf;
     double scatteredPower;
@@ -259,16 +257,15 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     *probabilityDensityFunctionRR = 0;
 
     // Ensure 'in' on the same side as 'normal'!
-    cos_in = vectorDotProduct(*in, *normal);
-    if ( cos_in >= 0 ) {
+    double cosIn = in->dotProduct(*normal);
+    if ( cosIn >= 0 ) {
         goodNormal.copy(*normal);
     } else {
         vectorScale(-1, *normal, goodNormal);
     }
 
-    cos_theta = vectorDotProduct(goodNormal, *out);
-
-    if ( cos_theta < 0 ) {
+    double cosTheta = goodNormal.dotProduct(*out);
+    if ( cosTheta < 0 ) {
         return;
     }
 
@@ -301,7 +298,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     diffPdf = 0.0;
 
     if ( avgKd > 0 ) {
-        diffPdf = cos_theta / M_PI;
+        diffPdf = cosTheta / M_PI;
     }
 
     // Glossy or specular
@@ -309,10 +306,10 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     if ( avgKs > 0 ) {
         idealDir = idealReflectedDirection(&inRev, &goodNormal);
 
-        cos_alpha = vectorDotProduct(idealDir, *out);
+        cosAlpha = idealDir.dotProduct(*out);
 
-        if ( cos_alpha > 0 ) {
-            nonDiffPdf = (Ns + 1.0) * std::pow(cos_alpha, Ns) / (2.0 * M_PI);
+        if ( cosAlpha > 0 ) {
+            nonDiffPdf = (Ns + 1.0) * std::pow(cosAlpha, Ns) / (2.0 * M_PI);
         }
     }
 

@@ -104,7 +104,7 @@ LightDirSampler::evalPDF(
         return 0.0;
     }
 
-    cosA = -vectorDotProduct(outDir, newNode->m_normal);
+    cosA = -outDir.dotProduct(newNode->m_normal);
 
     return pdfDir * cosA / dist2;
 }

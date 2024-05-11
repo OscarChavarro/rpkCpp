@@ -156,7 +156,7 @@ Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal
     out = false;
     in = false;
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
-        double e = vectorDotProduct(*normal, poly->vertex[i]) + d;
+        double e = normal->dotProduct(poly->vertex[i]) + d;
         double tolerance = std::fabs(d) * EPSILON + poly->vertex[i].tolerance(EPSILON_FLOAT);
         out |= (e > tolerance);
         in |= (e < -tolerance);
@@ -182,7 +182,7 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
     bool in = false;
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
-        double e = vectorDotProduct(*normal, polygon->vertex[i]) + d;
+        double e = normal->dotProduct(polygon->vertex[i]) + d;
         double tolerance = std::fabs(d) * EPSILON + polygon->vertex[i].tolerance(EPSILON_FLOAT);
         out |= e > tolerance;
         if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
@@ -225,7 +225,7 @@ ShaftPlanePosition
 Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
     double e;
     double tolerance = std::fabs(d * EPSILON) + p->tolerance(EPSILON_FLOAT);
-    e = vectorDotProduct(*normal, *p) + d;
+    e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
     }
@@ -372,7 +372,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             }
             // Co-linear vertices, try next vertex on p2
             vectorScaleInverse(norm, normal, normal);
-            d = -vectorDotProduct(normal, *cur);
+            d = -normal.dotProduct(*cur);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
@@ -539,7 +539,7 @@ Shaft::shaftPatchTest(Patch *patch) {
 
         in = out = false;
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-            e[j] = vectorDotProduct(planeNormal, *patch->vertex[j]->point) + localPlane->d;
+            e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane->d;
             tolerance = (float)(std::fabs(localPlane->d) * EPSILON + pTol[j]);
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {

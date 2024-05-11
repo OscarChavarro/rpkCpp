@@ -20,6 +20,7 @@ class Vector3D {
     int dominantCoordinate() const;
     int compareByDimensions(const Vector3D *v2, float epsilon) const;
     void print(FILE *fp) const;
+    float dotProduct(Vector3D b) const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
@@ -110,8 +111,8 @@ Vector3D::sumScaled(const Vector3D a, const double s, const Vector3D b) {
 Scalar vector product: a.b
 */
 inline float
-vectorDotProduct(const Vector3D a, const Vector3D b) {
-    return a.x * b.x + a.y * b.y + a.z * b. z;
+Vector3D::dotProduct(const Vector3D b) const {
+    return x * b.x + y * b.y + z * b. z;
 }
 
 /**
@@ -125,9 +126,9 @@ Vector3D::transform(
     const Vector3D &Y,
     const Vector3D &Z) const {
     return {
-        vectorDotProduct(X, *this),
-        vectorDotProduct(Y, *this),
-        vectorDotProduct(Z, *this),
+        X.dotProduct(*this),
+        Y.dotProduct(*this),
+        Z.dotProduct(*this),
     };
 }
 

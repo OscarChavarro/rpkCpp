@@ -84,7 +84,7 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
             for ( int k = 0; k <= 1; k++ ) {
                 d.set(b[i].x, b[j].y, b[k].z);
                 d.subtraction(d, camera->eyePosition);
-                float z = vectorDotProduct(d, camera->Z);
+                float z = d.dotProduct(camera->Z);
 
                 if ( z > camera->far ) {
                     camera->far = z;

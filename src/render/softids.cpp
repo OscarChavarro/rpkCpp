@@ -38,7 +38,7 @@ softRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderO
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
-         vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant < EPSILON ) {
+        patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < EPSILON ) {
         return;
     }
 

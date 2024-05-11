@@ -253,7 +253,7 @@ openGlRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *rende
     }
 
     if ( renderOptions->drawOutlines &&
-         (vectorDotProduct(patch->normal, camera->eyePosition) + patch->planeConstant > EPSILON) ) {
+         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > EPSILON) ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderPatchOutline(patch);
     }

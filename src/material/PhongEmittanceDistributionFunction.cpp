@@ -88,7 +88,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
         return result;
     }
 
-    cosL = vectorDotProduct(*out, normal);
+    cosL = out->dotProduct(normal);
 
     if ( cosL < 0.0 ) {
         return result;

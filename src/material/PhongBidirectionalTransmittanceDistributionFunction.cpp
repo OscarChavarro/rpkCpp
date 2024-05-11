@@ -95,7 +95,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
         // Diffuse part
 
         // Normal is pointing away from refracted direction
-        int isReflection = (vectorDotProduct(*normal, *out) >= 0);
+        bool isReflection = (normal->dotProduct(*out) >= 0);
 
         if ( !isReflection ) {
             result = Kd;
@@ -115,10 +115,10 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
         // Specular part
         bool totalIR;
         Vector3D idealRefracted = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
-        float dotProduct = vectorDotProduct(idealRefracted, *out);
+        float localDotProduct = idealRefracted.dotProduct(*out);
 
-        if ( dotProduct > 0 ) {
-            float tmpFloat = std::pow(dotProduct, Ns); // cos(a) ^ n
+        if ( localDotProduct > 0 ) {
+            float tmpFloat = std::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
@@ -204,7 +204,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
 
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
-        tmpFloat = vectorDotProduct(idealDir, newDir);
+        tmpFloat = idealDir.dotProduct(newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (Ns + 1.0) * std::pow(tmpFloat, Ns) / (2.0 * M_PI);
@@ -218,7 +218,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         coord.setFromZAxis(&idealDir);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 
-        cosTheta = vectorDotProduct(*normal, newDir);
+        cosTheta = normal->dotProduct(newDir);
         if ( cosTheta > 0 ) {
             diffPdf = cosTheta / M_PI;
         } else {
@@ -256,7 +256,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
 
     // Ensure 'in' on the same side as 'normal'!
     Vector3D goodNormal;
-    double cosIn = vectorDotProduct(*in, *normal);
+    double cosIn = in->dotProduct(*normal);
 
     if ( cosIn >= 0 ) {
         goodNormal.copy(*normal);
@@ -264,7 +264,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
         vectorScale(-1, *normal, goodNormal);
     }
 
-    double cosTheta = vectorDotProduct(goodNormal, *out);
+    double cosTheta = goodNormal.dotProduct(*out);
 
     double localAverageKd;
     if ( flags & DIFFUSE_COMPONENT && (cosTheta < 0) ) {
@@ -318,7 +318,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
                                                inIndex, &totalIR);
         }
 
-        cosAlpha = vectorDotProduct(idealDir, *out);
+        cosAlpha = idealDir.dotProduct(*out);
 
         nonDiffPdf = 0.0;
         if ( cosAlpha > 0 ) {

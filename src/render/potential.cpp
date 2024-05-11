@@ -88,8 +88,7 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                deltaImportance = vectorDotProduct(scene->camera->Z, pixDir) /
-                                  vectorDotProduct(pixDir, pixDir);
+                deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
 
                 newDirectImportance[the_id] += deltaImportance;

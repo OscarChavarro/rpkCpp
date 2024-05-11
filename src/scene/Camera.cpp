@@ -38,7 +38,7 @@ cameraComputeClippingPlanes(Camera *camera) {
     for ( int i = 0; i < 4; i++ ) {
         vectorTripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i], camera->viewPlanes[i].normal);
         vectorNormalize(camera->viewPlanes[i].normal);
-        camera->viewPlanes[i].d = -vectorDotProduct(camera->viewPlanes[i].normal, camera->eyePosition);
+        camera->viewPlanes[i].d = -camera->viewPlanes[i].normal.dotProduct(camera->eyePosition);
     }
 }
 

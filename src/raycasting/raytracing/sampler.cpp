@@ -47,7 +47,7 @@ Sampler::sampleTransfer(
             newNode->m_inDirT = *dir;
             newNode->m_inDirF.set(dir->x, dir->y, dir->z);
             newNode->m_pdfFromPrev = pdfDir;
-            newNode->m_G = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
+            newNode->m_G = std::fabs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
@@ -73,8 +73,8 @@ Sampler::sampleTransfer(
     vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
 
     // Check for shading normal vs. geometric normal errors
-    if ( vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirF) < 0 ) {
-        // Error("Sample", "Shading normal anomaly");
+    if ( newNode->m_hit.getNormal().dotProduct(newNode->m_inDirF) < 0 ) {
+        // Shading normal anomaly
         return false;
     }
 
@@ -82,8 +82,8 @@ Sampler::sampleTransfer(
     double dist2;
     Vector3D tmpVec;
 
-    double cosA = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
-    double cosB = std::fabs(vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirT));
+    double cosA = std::fabs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
+    double cosB = std::fabs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
     tmpVec.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = vectorNorm2(tmpVec);
 
@@ -104,9 +104,9 @@ void
 CSurfaceSampler::DetermineRayType(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    Vector3D *dir)
+    const Vector3D *dir)
 {
-    double cosThisPatch = vectorDotProduct(*dir, thisNode->m_normal);
+    double cosThisPatch = dir->dotProduct(thisNode->m_normal);
 
     if ( cosThisPatch < 0 ) {
         // Refraction !

@@ -41,7 +41,7 @@ CImportanceMap::reconstructImportance(Vector3D /*pos*/, Vector3D &normal /*, IMP
         // No bsdf eval : incoming importance !!!!!!
         importance = importon->Importance();
 
-        float cos_theta = vectorDotProduct(dir, normal);
+        float cos_theta = dir.dotProduct(normal);
         if ( cos_theta > 0.0 ) {
             result += importance;
         }

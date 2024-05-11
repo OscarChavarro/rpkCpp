@@ -9,7 +9,7 @@ Calculate the ideal reflected ray direction (independent of the brdf)
 */
 Vector3D
 idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
-    double tmp = 2 * vectorDotProduct(*normal, *in);
+    double tmp = 2 * normal->dotProduct(*in);
     Vector3D result;
 
     vectorScale((float)tmp, *normal, result);
@@ -34,7 +34,7 @@ idealRefractedDirection(
 {
     // Only real part of n for now
     float refractionIndex = inIndex.getNr() / outIndex.getNr();
-    float Ci = -vectorDotProduct(*in, *normal);
+    float Ci = -in->dotProduct(*normal);
     float Ct2 = 1 + refractionIndex * refractionIndex * (Ci * Ci - 1);
 
     if ( Ct2 < 0 ) {

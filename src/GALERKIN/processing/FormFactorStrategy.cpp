@@ -169,7 +169,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( sourceElement->isCluster() ) {
         cosThetaY = 0.25;
     } else {
-        cosThetaY = vectorDotProduct(ray.dir, sourceElement->patch->normal);
+        cosThetaY = ray.dir.dotProduct(sourceElement->patch->normal);
         if ( cosThetaY <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
@@ -181,7 +181,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( receiverElement->isCluster() ) {
         cosThetaX = 0.25;
     } else {
-        cosThetaX = -vectorDotProduct(ray.dir, receiverElement->patch->normal);
+        cosThetaX = -ray.dir.dotProduct(receiverElement->patch->normal);
         if ( cosThetaX <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;

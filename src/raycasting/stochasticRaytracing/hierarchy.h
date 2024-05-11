@@ -84,6 +84,6 @@ extern ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
 
 extern void elementHierarchyDefaults();
 extern void elementHierarchyInit(Geometry *clusteredWorldGeometry);
-extern void elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches);
+extern void elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches);
 
 #endif

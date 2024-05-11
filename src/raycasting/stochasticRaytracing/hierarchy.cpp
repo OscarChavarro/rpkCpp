@@ -33,7 +33,7 @@ elementHierarchyInit(Geometry *clusteredWorldGeometry) {
 }
 
 void
-elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
+elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
     stochasticRadiosityElementDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     GLOBAL_stochasticRaytracing_hierarchy.topCluster = nullptr;

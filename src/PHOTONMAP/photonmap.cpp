@@ -125,7 +125,7 @@ CPhotonMap::computeCosines(const Vector3D normal) {
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             dir = m_photons[i]->Dir();
-            m_cosines[i] = vectorDotProduct(dir, normal);
+            m_cosines[i] = dir.dotProduct(normal);
             if ( m_cosines[i] > 0 ) {
                 m_nrpCosinePos++;
             }
@@ -288,7 +288,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
         float maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            if ( vectorDotProduct(photon->Normal(), m_photons[i]->Dir()) > 0 ) {
+            if ( photon->Normal().dotProduct(m_photons[i]->Dir()) > 0 ) {
                 power = m_photons[i]->Power();
                 irradiance.add(irradiance, power);
             }

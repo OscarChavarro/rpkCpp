@@ -29,7 +29,7 @@ coordinates phi and theta of the vector with respect to the coordinate system
 */
 void
 CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, double *theta) const {
-    double z = vectorDotProduct(*C, Z);
+    double z = C->dotProduct(Z);
     if ( z > 1.0 ) {
         z = 1.0;
     }
@@ -44,8 +44,8 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
 
     c.sumScaled(*C, -z, Z);
     vectorNormalize(c);
-    double x = vectorDotProduct(c, X);
-    double y = vectorDotProduct(c, Y);
+    double x = c.dotProduct(X);
+    double y = c.dotProduct(Y);
 
     if ( x > 1.0 ) {
         x = 1.0;

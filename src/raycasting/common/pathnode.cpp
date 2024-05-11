@@ -39,15 +39,15 @@ SimpleRaytracingPathNode::print(FILE *out) {
         fprintf(out, "InF: ");
         m_inDirF.print(out);
         fprintf(out, "\n");
-        fprintf(out, "Cos in  %f\n", vectorDotProduct(m_normal, m_inDirF));
-        fprintf(out, "GCos in %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_inDirF));
+        fprintf(out, "Cos in  %f\n", m_normal.dotProduct(m_inDirF));
+        fprintf(out, "GCos in %f\n", m_hit.getPatch()->normal.dotProduct(m_inDirF));
     }
     if ( m_next ) {
         fprintf(out, "OutF: ");
         m_next->m_inDirT.print(out);
         fprintf(out, "\n");
-        fprintf(out, "Cos out %f\n", vectorDotProduct(m_normal, m_next->m_inDirT));
-        fprintf(out, "GCos out %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_next->m_inDirT));
+        fprintf(out, "Cos out %f\n", m_normal.dotProduct(m_next->m_inDirT));
+        fprintf(out, "GCos out %f\n", m_hit.getPatch()->normal.dotProduct(m_next->m_inDirT));
     }
 }
 
@@ -66,7 +66,7 @@ Helper routine, searches the corresponding 'Enters' node for this node
 
 SimpleRaytracingPathNode *
 SimpleRaytracingPathNode::GetMatchingNode() {
-    PhongBidirectionalScatteringDistributionFunction *thisBsdf;
+    const PhongBidirectionalScatteringDistributionFunction *thisBsdf;
     int backHits;
     SimpleRaytracingPathNode *tmpNode = previous();
     SimpleRaytracingPathNode *matchedNode = nullptr;

@@ -306,18 +306,17 @@ pathNodeConnect(
         nodeY->m_bsdfComp.Clear();
         nodeY->m_bsdfComp.Fill(nodeY->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {
-        nodeY->m_bsdfEval =
-                lightConfig->surfaceSampler->DoBsdfEval(nodeY->m_useBsdf,
-                                                        &nodeY->m_hit,
-                                                        nodeY->m_inBsdf, nodeY->m_outBsdf,
-                                                        &nodeY->m_inDirF, &dirLE,
-                                                        bsdfFlagsL,
-                                                        &nodeY->m_bsdfComp);
+        nodeY->m_bsdfEval = lightConfig->surfaceSampler->DoBsdfEval(
+            nodeY->m_useBsdf,
+            &nodeY->m_hit,
+            nodeY->m_inBsdf, nodeY->m_outBsdf,
+            &nodeY->m_inDirF, &dirLE,
+            bsdfFlagsL,
+            &nodeY->m_bsdfComp);
     }
 
-
-    double cosA = -vectorDotProduct(dirEL, nodeY->m_normal);
-    geom = std::fabs(cosA * vectorDotProduct(nodeX->m_normal, dirEL) / dist2);
+    double cosA = -dirEL.dotProduct(nodeY->m_normal);
+    geom = std::fabs(cosA * nodeX->m_normal.dotProduct(dirEL) / dist2);
 
     // Geom is always positive !  Visibility checking cannot be done
     // by checking cos signs because materials can be refractive.

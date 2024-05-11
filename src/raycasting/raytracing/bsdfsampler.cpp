@@ -82,7 +82,7 @@ CBsdfSampler::sample(
 
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
-        double cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
+        double cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
         double pdfDirI = 0.0;
         double pdfRR = 0.0;
 
@@ -156,7 +156,7 @@ CBsdfSampler::evalPDF(
     // To area measure
     double cosA;
 
-    cosA = -vectorDotProduct(outDir, newNode->m_normal);
+    cosA = -outDir.dotProduct(newNode->m_normal);
 
     *pdf = pdfDir * cosA / dist2;
 
@@ -205,8 +205,7 @@ CBsdfSampler::EvalPDFPrev(
     }
 
     // To area measure
-
-    cosB = vectorDotProduct(thisNode->m_inDirF, thisNode->m_normal);
+    cosB = thisNode->m_inDirF.dotProduct(thisNode->m_normal);
 
     *pdf = pdfDir * thisNode->m_G / cosB;
 

@@ -68,7 +68,7 @@ ClusterTraversalStrategy::accumulatePowerToSamplePoint(
     if ( dist < EPSILON ) {
         srcOs = 1.0f;
     } else {
-        srcOs = vectorDotProduct(dir, src->patch->normal) / dist;
+        srcOs = dir.dotProduct(src->patch->normal) / dist;
     }
     if ( srcOs <= 0.0f ) {
         // Receiver point is behind the src
@@ -177,7 +177,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
     if ( dist < EPSILON ) {
         rcvCos = 1.0;
     } else {
-        rcvCos = vectorDotProduct(dir, rcv->patch->normal) / dist;
+        rcvCos = dir.dotProduct(rcv->patch->normal) / dist;
     }
     if ( rcvCos <= 0.0 ) {
         // Sample point is behind the rcv

@@ -299,7 +299,7 @@ computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
     double factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
-    factor /= std::pow(vectorDotProduct(dir, camera->Z), 2);  // cos^2
+    factor /= std::pow(dir.dotProduct(camera->Z), 2);  // cos^2
 
     return (float)factor;
 }

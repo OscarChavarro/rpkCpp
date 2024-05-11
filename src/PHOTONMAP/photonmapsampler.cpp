@@ -226,7 +226,7 @@ chooseFresnelDirection(
             F = 1.0;
             reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
-            cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
+            cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
             if ( cosI < 0 ) {
                 logError("fresnelSample", "cosI < 0");
             }
@@ -244,14 +244,14 @@ chooseFresnelDirection(
         }
 
         // 4. Cosines and fresnel formulas are computed
-        cosI = vectorDotProduct(thisNode->m_normal, thisNode->m_inDirF);
+        cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
 
         if ( cosI < 0 ) {
             logError("fresnelSample", "cosI < 0");
         }
 
         if ( !tir ) {
-            cost = -vectorDotProduct(thisNode->m_normal, refractedDir);
+            cost = -thisNode->m_normal.dotProduct(refractedDir);
 
             if ( cost < 0 ) {
                 logError("fresnelSample", "cost < 0");
@@ -355,7 +355,7 @@ CPhotonMapSampler::fresnelSample(
     // given by ChooseFresnelDirection, but may be divided by a cosine
     // -- No bsdf components yet here !!
     if ( doCosInverse ) {
-        float cosB = std::fabs(vectorDotProduct(newNode->m_hit.getNormal(), newNode->m_inDirT));
+        float cosB = std::fabs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
         thisNode->m_bsdfEval.scaleInverse(cosB, scatteringColor);
     } else {
         thisNode->m_bsdfEval = scatteringColor;

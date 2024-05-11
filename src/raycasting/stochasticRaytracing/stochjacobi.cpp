@@ -1,6 +1,6 @@
 /**
 Generic stochastic Jacobi iteration (local lines)
-TODO: combined radiance/importance propagation
+TODO: combined radiance / importance propagation
 TODO: hierarchical refinement for importance propagation
 TODO: re-incorporate the rejection sampling technique for
 sampling positions on shooters with higher order radiosity approximation
@@ -93,7 +93,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
             radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
-        prob = /* M_PI * */ elem->area * radiance.sumAbsComponents();
+        prob = elem->area * radiance.sumAbsComponents();
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             // Weight with received importance
             float w = elem->importance - elem->sourceImportance;
@@ -235,7 +235,7 @@ stochasticJacobiPropagateRadianceClusterRecursive(
 {
     if ( currentElement != nullptr && !currentElement->isCluster() ) {
         // Trivial case
-        double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
+        double c = -dir * currentElement->patch->normal.dotProduct(ray->dir);
         if ( c > 0.0 ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
             double w = aFraction / currentElement->area / (double) globalNumberOfRays;
@@ -281,7 +281,7 @@ stochasticJacobiReceiverProjectedAreaRecursive(
 {
     if ( currentElement != nullptr && !currentElement->isCluster() ) {
         // Trivial case
-        double c = -dir * vectorDotProduct(currentElement->patch->normal, ray->dir);
+        double c = -dir * currentElement->patch->normal.dotProduct(ray->dir);
         if ( c > 0.0 ) {
             *area += c * currentElement->area;
         }
@@ -574,7 +574,7 @@ stochasticJacobiElementShootRay(
                                stochasticJacobiNextSample(src, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2, zeta));
 
     RayHit hitStore;
-    RayHit *hit = mcrShootRay(sceneWorldVoxelGrid, src->patch, &ray, &hitStore);
+    const RayHit *hit = mcrShootRay(sceneWorldVoxelGrid, src->patch, &ray, &hitStore);
 
     if ( hit ) {
         double uHit = 0.0;

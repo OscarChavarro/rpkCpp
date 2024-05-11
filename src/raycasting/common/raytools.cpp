@@ -115,8 +115,8 @@ pathNodesVisible(
     ray.pos = node1->m_hit.getPoint();
     ray.dir.copy(dir);
 
-    cosRay1 = vectorDotProduct(dir, node1->m_normal);
-    cosRay2 = -vectorDotProduct(dir, node2->m_normal);
+    cosRay1 = dir.dotProduct(node1->m_normal);
+    cosRay2 = -dir.dotProduct(node2->m_normal);
 
     doTest = false;
 
@@ -208,15 +208,15 @@ eyeNodeVisible(
     vectorScaleInverse((float)dist, dir, dir);
 
     // Determine which pixel is visible
-    z = vectorDotProduct(dir, camera->Z);
+    z = dir.dotProduct(camera->Z);
 
     bool visible = false;
     if ( z > 0.0 ) {
-        x = vectorDotProduct(dir, camera->X);
+        x = dir.dotProduct(camera->X);
         xz = x / z;
 
         if ( std::fabs(xz) < camera->pixelWidthTangent ) {
-            y = vectorDotProduct(dir, camera->Y);
+            y = dir.dotProduct(camera->Y);
             yz = y / z;
 
             if ( std::fabs(yz) < camera->pixelHeightTangent ) {
@@ -228,8 +228,8 @@ eyeNodeVisible(
                 ray.pos = eyeNode->m_hit.getPoint();
                 ray.dir.copy(dir);
 
-                cosRayEye = vectorDotProduct(dir, eyeNode->m_normal);
-                cosRayLight = -vectorDotProduct(dir, node->m_normal);
+                cosRayEye = dir.dotProduct(eyeNode->m_normal);
+                cosRayLight = -dir.dotProduct(node->m_normal);
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = (float) dist;

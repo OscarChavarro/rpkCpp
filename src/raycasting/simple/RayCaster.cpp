@@ -78,8 +78,8 @@ RayCaster::getRadianceAtPixel(
 
         // Find intersection point of ray with patch
         Vector3D point;
-        float dist = vectorDotProduct(patch->normal, ray.dir);
-        dist = -(vectorDotProduct(patch->normal, ray.pos) + patch->planeConstant) / dist;
+        float dist = patch->normal.dotProduct(ray.dir);
+        dist = -(patch->normal.dotProduct(ray.pos) + patch->planeConstant) / dist;
         point.sumScaled(ray.pos, dist, ray.dir);
 
         // Find surface coordinates of hit point on patch

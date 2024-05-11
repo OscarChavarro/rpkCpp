@@ -114,9 +114,9 @@ CSpecularSampler::sample(
 
     // Fill in probability for previous node, normally not yet used
     if ( m_computeFromNextPdf && prevNode ) {
-        double cosI = vectorDotProduct(thisNode->m_normal,
-                                       thisNode->m_inDirF);
-        double pdfDirI, pdfRR;
+        double cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
+        double pdfDirI;
+        double pdfRR;
 
         // prevPdf : new->this->prev pdf evaluation
         // normal direction is handled by the evalPdf routine

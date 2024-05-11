@@ -34,7 +34,7 @@ CPixelSampler::sample(
     double distPixel = std::sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
-    double cosPixel = std::fabs(vectorDotProduct(camera->Z, dir));
+    double cosPixel = std::fabs(camera->Z.dotProduct(dir));
 
     double pdfDir = ((1.0 / (camera->pixelWidth * camera->pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // Spherical angle measure
@@ -102,7 +102,7 @@ CPixelSampler::evalPDF(
 
     // pdf = 1 / A_pixel transformed to area measure
 
-    cosA = vectorDotProduct(thisNode->m_normal, outDir);
+    cosA = thisNode->m_normal.dotProduct(outDir);
 
     // pdf = 1/APixel * (r^2 / cos(dir, eyeNormal) * (cos(dir, patchNormal) / d^2)
     //                 |__> to spherical.angle           |__> to area on patch
@@ -111,7 +111,7 @@ CPixelSampler::evalPDF(
     // of viewing ray to the pixel.
     pdf = 1.0 / (camera->pixelHeight * camera->pixelWidth * cosA * cosA * cosA);
 
-    cosB = -vectorDotProduct(newNode->m_normal, outDir);
+    cosB = -newNode->m_normal.dotProduct(outDir);
     pdf = pdf * cosB / dist2;
 
     return pdf;

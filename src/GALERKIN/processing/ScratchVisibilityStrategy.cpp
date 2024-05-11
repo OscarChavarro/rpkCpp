@@ -44,7 +44,7 @@ ScratchVisibilityStrategy::scratchRenderElementPtr(
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point
-    if ( vectorDotProduct(patch->normal, globalEyePoint) + patch->planeConstant < EPSILON ) {
+    if ( patch->normal.dotProduct(globalEyePoint) + patch->planeConstant < EPSILON ) {
         return;
     }
 
@@ -85,7 +85,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     viewDirection.subtraction(centre, eye);
     vectorNormalize(viewDirection);
-    if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1.0 - EPSILON ) {
+    if ( std::fabs(up.dotProduct(viewDirection)) > 1.0 - EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
     lookAt = lookAtMatrix(eye, centre, up);

@@ -73,7 +73,7 @@ protected:
 
     static double
     computeOneLightImportanceReal(
-        Patch *light,
+        const Patch *light,
         const Vector3D *point,
         const Vector3D *normal,
         float emittedFlux);

@@ -253,7 +253,7 @@ BoundingBox::behindPlane(const Vector3D *norm, float d) const {
         P.z = coordinates[MIN_Z];
     }
 
-    return vectorDotProduct(*norm, P) + d <= 0.0;
+    return norm->dotProduct(P) + d <= 0.0;
 }
 
 /**

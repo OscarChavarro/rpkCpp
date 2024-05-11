@@ -93,7 +93,7 @@ class CSurfaceSampler : public Sampler {
     bool m_computeFromNextPdf;
     bool m_computeBsdfComponents;
 
-    static void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, Vector3D *dir);
+    static void DetermineRayType(SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, const Vector3D *dir);
 
   public:
     CSurfaceSampler() {

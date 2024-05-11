@@ -104,13 +104,13 @@ sampleLight(VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double lig
     double dirSelectionPdf;
     Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
     RayHit hitStore;
-    RayHit *hit;
+    const RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
     hit = mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
-        double outCos = vectorDotProduct(ray.dir, light->patch->normal);
+        double outCos = ray.dir.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgb Rd = topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);

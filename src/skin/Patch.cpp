@@ -231,9 +231,9 @@ Patch::computeRandomWalkRadiosityArea() {
             vectorCrossProduct(d1, d4, cp1);
             vectorCrossProduct(d1, d3, cp2);
             vectorCrossProduct(d2, d4, cp3);
-            a = vectorDotProduct(cp1, this->normal);
-            b = vectorDotProduct(cp2, this->normal);
-            c = vectorDotProduct(cp3, this->normal);
+            a = cp1.dotProduct(this->normal);
+            b = cp2.dotProduct(this->normal);
+            c = cp3.dotProduct(this->normal);
 
             this->area = a + 0.5f * (b + c);
             if ( this->area < 0.0 ) {
@@ -289,7 +289,7 @@ Patch::computeTolerance() const {
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *p = vertex[i]->point;
-        float e = std::fabs(vectorDotProduct(normal, *p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
+        float e = std::fabs(normal.dotProduct(*p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -633,7 +633,7 @@ Patch::Patch(
     computeMidpoint(&midPoint);
 
     // Plane constant
-    planeConstant = -vectorDotProduct(normal, midPoint);
+    planeConstant = -normal.dotProduct(midPoint);
 
     // Plane tolerance
     tolerance = computeTolerance();
@@ -896,7 +896,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    dist = vectorDotProduct(normal, ray->dir);
+    dist = normal.dotProduct(ray->dir);
     if ( dist > EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & HIT_BACK) ) {
@@ -918,7 +918,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    dist = -(vectorDotProduct(normal, ray->pos) + planeConstant) / dist;
+    dist = -(normal.dotProduct(ray->pos) + planeConstant) / dist;
 
     if ( dist > *maximumDistance || dist < minimumDistance ) {
         // Intersection too far or too close
@@ -1096,7 +1096,7 @@ bool
 Patch::isAtLeastPartlyInFront(const Patch *other) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *vp = vertex[i]->point;
-        double ep = vectorDotProduct(other->normal, *vp) + other->planeConstant;
+        double ep = other->normal.dotProduct(*vp) + other->planeConstant;
         double localTolerance = other->tolerance + vp->tolerance(EPSILON_FLOAT);
         if ( ep > localTolerance ) {
             // P is at least partly in front of Q
