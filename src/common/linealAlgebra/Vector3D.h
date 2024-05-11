@@ -21,6 +21,7 @@ class Vector3D {
     int compareByDimensions(const Vector3D *v2, float epsilon) const;
     void print(FILE *fp) const;
     float dotProduct(Vector3D b) const;
+    float norm2() const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
@@ -136,8 +137,8 @@ Vector3D::transform(
 Square of vector norm: scalar product with itself
 */
 inline float
-vectorNorm2(const Vector3D &v) {
-    return v.x * v.x + v.y * v.y + v.z * v.z;
+Vector3D::norm2() const {
+    return x * x + y * y + z * z;
 }
 
 /**
@@ -145,7 +146,7 @@ Norm of a vector: square root of the square norm
 */
 inline float
 vectorNorm(const Vector3D &v) {
-    return (float)std::sqrt((double) vectorNorm2(v));
+    return std::sqrt(v.norm2());
 }
 
 /**
@@ -256,7 +257,7 @@ inline float
 vectorDist2(const Vector3D &p1, const Vector3D &p2) {
     Vector3D d;
     d.subtraction(p2, p1);
-    return vectorNorm2(d);
+    return d.norm2();
 }
 
 /**

@@ -201,7 +201,7 @@ LightList::computeOneLightImportanceReal(
         Vector3D copy(point->x, point->y, point->z);
 
         dir.subtraction(lightPoint, copy);
-        dist2 = vectorNorm2(dir);
+        dist2 = dir.norm2();
 
         // Cosines have an addition distance length in them
         cosRayLight = -dir.dotProduct(lightNormal);

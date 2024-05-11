@@ -27,27 +27,23 @@ CSamplerConfig::init(bool useQMC, int qmcDepth) {
 }
 
 void
-CSamplerConfig::getRand(int depth, double *x_1, double *x_2) const {
+CSamplerConfig::getRand(int depth, double *x1, double *x2) const {
     if ( !m_useQMC || depth >= m_qmcDepth ) {
-        *x_1 = drand48();
-        *x_2 = drand48();
+        *x1 = drand48();
+        *x2 = drand48();
     } else {
         // Niederreiter
-        if ( depth == 0 ) {
-            *x_1 = drand48();
-            *x_2 = drand48();
+        if ( depth == 0 || depth == 2 ) {
+            *x1 = drand48();
+            *x2 = drand48();
         } else if ( depth == 1 ) {
-            unsigned *nrs = Nied31(m_qmcSeed[1]++);
-            *x_1 = nrs[0] * RECIP;
-            *x_2 = nrs[1] * RECIP;
-        } else if ( depth == 2 ) {
-            // unsigned *nrs = Nied(m_qmcSeed[1]++);
-            *x_1 = drand48(); // nrs[2] * RECIP;
-            *x_2 = drand48(); // nrs[3] * RECIP;
+            const unsigned *nrs = Nied31(m_qmcSeed[1]++);
+            *x1 = nrs[0] * RECIP;
+            *x2 = nrs[1] * RECIP;
         } else {
             printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
-            *x_1 = drand48();
-            *x_2 = drand48();
+            *x1 = drand48();
+            *x2 = drand48();
         }
     }
 }
@@ -180,7 +176,7 @@ pathNodeConnect(
     Vector3D dirEL;
 
     dirEL.subtraction(nodeY->m_hit.getPoint(), nodeX->m_hit.getPoint());
-    dist2 = vectorNorm2(dirEL);
+    dist2 = dirEL.norm2();
     dist = std::sqrt(dist2);
     vectorScaleInverse((float) dist, dirEL, dirEL);
     vectorScale(-1, dirEL, dirLE);

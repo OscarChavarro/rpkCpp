@@ -30,7 +30,7 @@ CPixelSampler::sample(
 
     vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
-    double distPixel2 = vectorNorm2(dir);
+    double distPixel2 = dir.norm2();
     double distPixel = std::sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
@@ -96,7 +96,7 @@ CPixelSampler::evalPDF(
 
     // More efficient with extra params?
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
-    dist2 = vectorNorm2(outDir);
+    dist2 = outDir.norm2();
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 

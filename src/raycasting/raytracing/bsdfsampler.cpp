@@ -133,7 +133,7 @@ CBsdfSampler::evalPDF(
     Vector3D outDir;
 
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
-    dist2 = vectorNorm2(outDir);
+    dist2 = outDir.norm2();
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
 

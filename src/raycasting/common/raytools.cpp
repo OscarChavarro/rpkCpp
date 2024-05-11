@@ -105,7 +105,7 @@ pathNodesVisible(
 
     dir.subtraction(node2->m_hit.getPoint(), node1->m_hit.getPoint());
 
-    dist2 = vectorNorm2(dir);
+    dist2 = dir.norm2();
     dist = std::sqrt(dist2);
 
     vectorScaleInverse((float) dist, dir, dir);
@@ -202,7 +202,7 @@ eyeNodeVisible(
     // Returns visibility and direction from eye to light node (newDir_e)
     dir.subtraction(node->m_hit.getPoint(), eyeNode->m_hit.getPoint());
 
-    dist2 = vectorNorm2(dir);
+    dist2 = dir.norm2();
     dist = std::sqrt(dist2);
 
     vectorScaleInverse((float)dist, dir, dir);

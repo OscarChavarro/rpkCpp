@@ -85,7 +85,7 @@ Sampler::sampleTransfer(
     double cosA = std::fabs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
     double cosB = std::fabs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
     tmpVec.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
-    dist2 = vectorNorm2(tmpVec);
+    dist2 = tmpVec.norm2();
 
     if ( dist2 < EPSILON ) {
         // Next node is useless, gives rise to numeric errors (Inf)

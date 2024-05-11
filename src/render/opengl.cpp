@@ -306,7 +306,7 @@ openGlBoundsDistance2(Vector3D p, const float *bounds) {
         0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
     d.subtraction(mid, p);
 
-    return vectorNorm2(d);
+    return d.norm2();
 }
 
 /**

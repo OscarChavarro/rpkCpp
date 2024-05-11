@@ -121,7 +121,7 @@ class CSamplerConfig {
         BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
 
     // Generate two random numbers. Depth needed for QMC sampling
-    void getRand(int depth, double *x_1, double *x_2) const;
+    void getRand(int depth, double *x1, double *x2) const;
 
 };
 

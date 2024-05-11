@@ -292,7 +292,7 @@ computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
 
     vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
                 dir);
-    double distPixel2 = vectorNorm2(dir);
+    double distPixel2 = dir.norm2();
     double distPixel = std::sqrt(distPixel2);
     vectorScaleInverse((float)distPixel, dir, dir);
 
