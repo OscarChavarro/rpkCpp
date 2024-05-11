@@ -138,7 +138,7 @@ SimpleRaytracingPathNode::assignBsdfAndNormal() {
 
     thisMaterial = m_hit.getPatch()->material;
 
-    vectorCopy(m_hit.getNormal(), m_normal); // Possible double format
+    m_normal.copy(m_hit.getNormal()); // Possible double format
 
     // Assign bsdf's
     m_useBsdf = thisMaterial->getBsdf();

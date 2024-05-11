@@ -185,7 +185,9 @@ pathNodeConnect(
     vectorScaleInverse((float) dist, dirEL, dirEL);
     vectorScale(-1, dirEL, dirLE);
 
-    if ( pDirEl ) vectorCopy(dirEL, *pDirEl);
+    if ( pDirEl ) {
+        pDirEl->copy(dirEL);
+    }
 
     // Always test the FOLLOW NEXT flags!
     nodeEP = nodeX->previous();

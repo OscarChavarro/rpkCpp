@@ -103,8 +103,8 @@ UniformLightSampler::sample(
 
         // Fill in directions
         vectorScale(-1, dir, newNode->m_inDirT);
-        vectorCopy(dir, newNode->m_inDirF);
-        vectorCopy(dir, newNode->m_normal);
+        newNode->m_inDirF.copy(dir);
+        newNode->m_normal.copy(dir);
 
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
@@ -116,7 +116,7 @@ UniformLightSampler::sample(
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
-        vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
+        newNode->m_normal.copy(newNode->m_hit.getNormal());
     }
 
     // inDir's not filled in
@@ -253,8 +253,8 @@ ImportantLightSampler::sample(
 
         // fill in directions
         vectorScale(-1, dir, newNode->m_inDirT);
-        vectorCopy(dir, newNode->m_inDirF);
-        vectorCopy(dir, newNode->m_normal);
+        newNode->m_inDirF.copy(dir);
+        newNode->m_normal.copy(dir);
 
         pdfPoint = pdf; // Every direction corresponds to 1 point
     } else {
@@ -269,7 +269,7 @@ ImportantLightSampler::sample(
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
-        vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
+        newNode->m_normal.copy(newNode->m_hit.getNormal());
     }
 
     // outDir's, m_G not filled in yet (light direction sampler does this)

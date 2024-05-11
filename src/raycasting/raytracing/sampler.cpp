@@ -45,7 +45,7 @@ Sampler::sampleTransfer(
             // Fill in path node for background
             newNode->m_hit.init(sceneBackground->bkgPatch, nullptr, dir, nullptr);
             newNode->m_inDirT = *dir;
-            newNode->m_inDirF = -(*dir);
+            newNode->m_inDirF.set(dir->x, dir->y, dir->z);
             newNode->m_pdfFromPrev = pdfDir;
             newNode->m_G = std::fabs(vectorDotProduct(thisNode->m_hit.getNormal(), newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
@@ -69,7 +69,7 @@ Sampler::sampleTransfer(
         newNode->m_hit.setNormal(&normal);
     }
 
-    vectorCopy(ray.dir, newNode->m_inDirT);
+    newNode->m_inDirT.copy(ray.dir);
     vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
 
     // Check for shading normal vs. geometric normal errors

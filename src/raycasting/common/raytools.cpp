@@ -113,7 +113,7 @@ pathNodesVisible(
     dist = dist * (1 - EPSILON);
 
     ray.pos = node1->m_hit.getPoint();
-    vectorCopy(dir, ray.dir);
+    ray.dir.copy(dir);
 
     cosRay1 = vectorDotProduct(dir, node1->m_normal);
     cosRay2 = -vectorDotProduct(dir, node2->m_normal);
@@ -226,7 +226,7 @@ eyeNodeVisible(
                 dist = dist * (1 - EPSILON);
 
                 ray.pos = eyeNode->m_hit.getPoint();
-                vectorCopy(dir, ray.dir);
+                ray.dir.copy(dir);
 
                 cosRayEye = vectorDotProduct(dir, eyeNode->m_normal);
                 cosRayLight = -vectorDotProduct(dir, node->m_normal);

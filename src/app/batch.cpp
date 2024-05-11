@@ -199,19 +199,16 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
     wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
-        // GLOBAL_scene_world-space radiance computations
-        int it = 0;
-        bool done = false;
-
         printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
 
         fflush(stdout);
         fflush(stderr);
 
-        while ( !done ) {
+        bool done = false;
+        for ( int iterationNumber = 0; !done; iterationNumber++ ) {
             printf("-----------------------------------\n"
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
-                   "-----------------------------------\n\n", it);
+                   "-----------------------------------\n\n", iterationNumber);
 
             canvasPushMode();
             done = radianceMethod->doStep(scene, renderOptions);
@@ -235,10 +232,10 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
 
             wasted_start = clock();
 
-            if ( (!(it % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
+            if ( (!(iterationNumber % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
                 int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalRadianceImageFileNameFormat, it);
+                snprintf(fileName, n, globalRadianceImageFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
                     "w",
@@ -252,7 +249,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             if ( *globalRadianceModelFileNameFormat ) {
                 int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalRadianceModelFileNameFormat, it);
+                snprintf(fileName, n, globalRadianceModelFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
                     "w",
@@ -268,8 +265,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             fflush(stdout);
             fflush(stderr);
 
-            it++;
-            if ( globalIterations > 0 && it >= globalIterations ) {
+            if ( globalIterations > 0 && iterationNumber >= globalIterations ) {
                 done = true;
             }
         }

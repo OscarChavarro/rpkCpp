@@ -40,7 +40,7 @@ CEyeSampler::sample(
     hit->setFlags(newFlags);
     hit->setShadingFrame(&camera->X, &camera->Y, &camera->Z);
 
-    vectorCopy(newNode->m_hit.getNormal(), newNode->m_normal);
+    newNode->m_normal.copy(newNode->m_hit.getNormal());
     newNode->m_G = 1.0;
 
     // outDir's not filled in

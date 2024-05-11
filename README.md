@@ -23,6 +23,10 @@ This is a full rewrite with the following features:
   - Variable names refactor to be self-explanatory.
   - Removing redundant comments from code that is self-explanatory.
   - Const parameter and methods used when possible to reinforce read-only / immutable elements.
+- Exotic C++ specific features unused (makes it easy to port code to other languages)
+  - Vanilla printf style functions preferred over `<<` streams
+  - Avoid the use of iterators and STL library
+  - Avoid the use of operator overload in favor of old style plain class methods
 - Reorganization in to new packages structure for clarity at software architecture level.
 - Memory leak free after valgrind analysis.
 - Use of global variables set to a minimum possible, replaced by parameters.

@@ -313,7 +313,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
     int maxPlanesPerEdge;
 
     // Test p2 wrt plane of p1
-    vectorCopy(polygon1->normal, normal); // Convert to double precision
+    normal.copy(polygon1->normal); // Convert to double precision
     switch ( testPolygonWithRespectToPlane(polygon2, &normal, polygon1->planeConstant) ) {
         case ShaftPlanePosition::INSIDE:
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is

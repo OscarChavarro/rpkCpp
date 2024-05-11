@@ -18,9 +18,6 @@ class Vector3D {
 
     Vector3D(float a, float b, float c) : x(a), y(b), z(c) {}
 
-    Vector3D operator-(const Vector3D &v) const;
-    Vector3D operator-() const;
-
     /**
     Compute (T * vector) with
     T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
@@ -42,42 +39,18 @@ class Vector3D {
         y = yParam;
         z = zParam;
     }
+
+    inline void copy(const Vector3D &v);
 };
-
-inline Vector3D Vector3D::operator-() const {
-    return {-x, -y, -z};
-}
-
-inline Vector3D Vector3D::operator-(const Vector3D &v) const {
-    return {x - v.x, y - v.y, z - v.z};
-}
-
-// Dot product (Warning: '&' has lower precedence than + -)
-inline float operator&(const Vector3D &l, const Vector3D &r) {
-    return l.x * r.x + l.y * r.y + l.z * r.z;
-}
-
-/**
-Compute (T * vector) with
-T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
-X, Y, Z form a coordinate system
-*/
-inline Vector3D
-Vector3D::transform(
-        const Vector3D &X,
-        const Vector3D &Y,
-        const Vector3D &Z) const {
-    return {X & *this, Y & *this, Z & *this};
-}
 
 /**
 Copies the vector v to d: d = v. They may be different vector types
 */
 inline void
-vectorCopy(const Vector3D &v, Vector3D &d) {
-    d.x = v.x;
-    d.y = v.y;
-    d.z = v.z;
+Vector3D::copy(const Vector3D &v) {
+    x = v.x;
+    y = v.y;
+    z = v.z;
 }
 
 /**
@@ -139,6 +112,23 @@ vectorDotProduct(const Vector3D a, const Vector3D b) {
 }
 
 /**
+Compute (T * vector) with
+T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
+X, Y, Z form a coordinate system
+*/
+inline Vector3D
+Vector3D::transform(
+    const Vector3D &X,
+    const Vector3D &Y,
+    const Vector3D &Z) const {
+    return {
+        vectorDotProduct(X, *this),
+        vectorDotProduct(Y, *this),
+        vectorDotProduct(Z, *this),
+    };
+}
+
+/**
 Square of vector norm: scalar product with itself
 */
 inline float
@@ -193,7 +183,7 @@ vectorCrossProduct(const Vector3D &a, const Vector3D &b, Vector3D &d) {
     tmp.x = a.y * b.z - a.z * b.y;
     tmp.y = a.z * b.x - a.x * b.z;
     tmp.z = a.x * b.y - a.y * b.x;
-    vectorCopy(tmp, d);
+    d.copy(tmp);
 }
 
 /**

@@ -261,7 +261,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     // Ensure 'in' on the same side as 'normal'!
     cos_in = vectorDotProduct(*in, *normal);
     if ( cos_in >= 0 ) {
-        vectorCopy(*normal, goodNormal);
+        goodNormal.copy(*normal);
     } else {
         vectorScale(-1, *normal, goodNormal);
     }

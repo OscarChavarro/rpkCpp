@@ -280,7 +280,6 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     irradiance.clear();
 
     // Locate the nearest photons using a max radius limit
-
     Vector3D pos = photon->Pos();
     m_nrpFound = doQuery(&pos);
 
@@ -289,7 +288,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
         float maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            if ( (photon->Normal() & m_photons[i]->Dir()) > 0 ) {
+            if ( vectorDotProduct(photon->Normal(), m_photons[i]->Dir()) > 0 ) {
                 power = m_photons[i]->Power();
                 irradiance.add(irradiance, power);
             }
@@ -298,7 +297,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
         // Now we have incoming radiance integrated over area estimate,
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-        float factor = (float)(1.0f / ((float)M_PI * (float)M_PI * maxDistance * (float)m_totalPaths));
+        float factor = (1.0f / ((float)M_PI * (float)M_PI * maxDistance * (float)m_totalPaths));
         irradiance.scale(factor);
     }
 
@@ -314,8 +313,7 @@ void
 CPhotonMap::PrecomputeIrradiance() {
     fprintf(stderr, "CPhotonMap::PrecomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback,
-                               this);
+        m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback, this);
         m_irradianceComputed = true;
     }
 }
@@ -386,7 +384,6 @@ CPhotonMap::Reconstruct(
                     return result;
                 } else {
                     // No appropriate irradiance photon -> do normal reconstruction
-                    // fprintf(stderr, "No irradiance photon found\n");
                 }
             }
         }

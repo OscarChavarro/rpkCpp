@@ -259,7 +259,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
     double cosIn = vectorDotProduct(*in, *normal);
 
     if ( cosIn >= 0 ) {
-        vectorCopy(*normal, goodNormal);
+        goodNormal.copy(*normal);
     } else {
         vectorScale(-1, *normal, goodNormal);
     }

@@ -71,20 +71,14 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
         }
     }
 
-    // if(!(node->m_flags & qdat_s.excludeFlags))
-    {
-        dist = sqrDistance3D((float *) node.m_data, qdat_s.point);
+    dist = sqrDistance3D((float *) node.m_data, qdat_s.point);
 
-        if ( dist < qdat_s.maximumDistance ) {
-            // Normal constraint
-
-            if ((((CIrrPhoton *) node.m_data)->Normal() & qdat_s.normal)
-                > qdat_s.threshold ) {
-                // Replace point if distance < maxdist AND normal is similar
-                qdat_s.maximumDistance = dist;
-                qdat_s.photon = (CIrrPhoton *) node.m_data;
-            }
-        }
+    // Normal constraint
+    if ( dist < qdat_s.maximumDistance &&
+         (vectorDotProduct(((CIrrPhoton *) node.m_data)->Normal(), qdat_s.normal) > qdat_s.threshold ) ) {
+        // Replace point if distance < maxdist AND normal is similar
+        qdat_s.maximumDistance = dist;
+        qdat_s.photon = (CIrrPhoton *) node.m_data;
     }
 }
 
