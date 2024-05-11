@@ -247,7 +247,7 @@ ImportantLightSampler::sample(
             dir = light->material->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
         }
 
-        vectorAdd(thisNode->m_hit.getPoint(), dir, point);   // fake hit at distance 1!
+        point.addition(thisNode->m_hit.getPoint(), dir);   // fake hit at distance 1!
 
         newNode->m_hit.init(light, &point, nullptr, light->material);
 

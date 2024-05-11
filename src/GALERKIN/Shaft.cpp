@@ -437,13 +437,13 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
     center1 = polygon1->vertex[0];
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
-        vectorAdd(center1, polygon1->vertex[i], center1);
+        center1.addition(center1, polygon1->vertex[i]);
     }
     vectorScaleInverse((float) polygon1->numberOfVertices, center1, center1);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
-        vectorAdd(center2, polygon2->vertex[i], center2);
+        center2.addition(center2, polygon2->vertex[i]);
     }
     vectorScaleInverse((float) polygon2->numberOfVertices, center2, center2);
 

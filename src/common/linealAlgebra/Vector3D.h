@@ -17,11 +17,12 @@ class Vector3D {
     Vector3D transform(const Vector3D &X, const Vector3D &Y, const Vector3D &Z) const;
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
-    void subtraction(const Vector3D& a, const Vector3D& b);
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
     void combine(float a, const Vector3D &v, float b, const Vector3D &w);
+    void addition(const Vector3D &a, const Vector3D &b);
+    void subtraction(const Vector3D& a, const Vector3D& b);
 };
 
 inline
@@ -85,10 +86,10 @@ Vector3D::subtraction(const Vector3D& a, const Vector3D& b) {
 Vector sum: d = a + b
 */
 inline void
-vectorAdd(const Vector3D &a, const Vector3D &b, Vector3D &d) {
-    d.x = a.x + b.x;
-    d.y = a.y + b.y;
-    d.z = a.z + b.z;
+Vector3D::addition(const Vector3D &a, const Vector3D &b) {
+    x = a.x + b.x;
+    y = a.y + b.y;
+    z = a.z + b.z;
 }
 
 /**

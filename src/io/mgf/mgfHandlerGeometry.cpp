@@ -358,7 +358,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
     center.set(0.0, 0.0, 0.0);
     for ( int i = 0; i < n; i++ ) {
-        vectorAdd(center, *(v[i]->point), center);
+        center.addition(center, *(v[i]->point));
     }
     vectorScaleInverse((float) n, center, center);
 

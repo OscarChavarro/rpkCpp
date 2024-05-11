@@ -273,7 +273,7 @@ Vector3D *
 Patch::computeMidpoint(Vector3D *p) {
     p->set(0, 0, 0);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        vectorAdd(*p, *(vertex[i]->point), *p);
+        p->addition(*p, *(vertex[i]->point));
     }
     vectorScaleInverse((float) numberOfVertices, *p, *p);
 

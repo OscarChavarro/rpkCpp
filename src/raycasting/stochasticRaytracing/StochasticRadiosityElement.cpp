@@ -626,7 +626,7 @@ static Vector3D
 galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     elem->midPoint.set(0.0, 0.0, 0.0);
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
-        vectorAdd(elem->midPoint, *elem->vertices[i]->point, elem->midPoint);
+        elem->midPoint.addition(elem->midPoint, *elem->vertices[i]->point);
     }
     vectorScaleInverse((float) elem->numberOfVertices, elem->midPoint, elem->midPoint);
 
