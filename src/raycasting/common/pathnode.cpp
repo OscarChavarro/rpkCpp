@@ -30,21 +30,21 @@ void
 SimpleRaytracingPathNode::print(FILE *out) {
     fprintf(out, "Path node at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
-    vector3DPrint(out, m_hit.getPoint());
+    m_hit.getPoint().print(out);
     fprintf(out, "\n");
     fprintf(out, "Norm: ");
-    vector3DPrint(out, m_normal);
+    m_normal.print(out);
     fprintf(out, "\n");
     if ( m_previous ) {
         fprintf(out, "InF: ");
-        vector3DPrint(out, m_inDirF);
+        m_inDirF.print(out);
         fprintf(out, "\n");
         fprintf(out, "Cos in  %f\n", vectorDotProduct(m_normal, m_inDirF));
         fprintf(out, "GCos in %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_inDirF));
     }
     if ( m_next ) {
         fprintf(out, "OutF: ");
-        vector3DPrint(out, m_next->m_inDirT);
+        m_next->m_inDirT.print(out);
         fprintf(out, "\n");
         fprintf(out, "Cos out %f\n", vectorDotProduct(m_normal, m_next->m_inDirT));
         fprintf(out, "GCos out %f\n", vectorDotProduct(m_hit.getPatch()->normal, m_next->m_inDirT));

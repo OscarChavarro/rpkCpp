@@ -19,6 +19,7 @@ class Vector3D {
     bool equals(const Vector3D &w, float epsilon) const;
     int dominantCoordinate() const;
     int compareByDimensions(const Vector3D *v2, float epsilon) const;
+    void print(FILE *fp) const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
@@ -304,10 +305,5 @@ vectorPointInQuadrilateral(
     p.y = v0.y + b * (v1.y - v0.y) + c * (v2.y - v0.y) + d * (v3.y - v0.y);
     p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
 }
-
-extern int compareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon);
-extern void vector3DPrint(FILE *fp, const Vector3D &v);
-
-extern void vector3DDestroy(Vector3D *vector);
 
 #endif

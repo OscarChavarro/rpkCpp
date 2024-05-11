@@ -50,11 +50,6 @@ Vector3D::compareByDimensions(const Vector3D *v2, float epsilon) const {
 }
 
 void
-vector3DPrint(FILE *fp, const Vector3D &v) {
-    fprintf(fp, "%g %g %g", v.x, v.y, v.z);
-}
-
-void
-vector3DDestroy(Vector3D *vector) {
-    free(vector);
+Vector3D::print(FILE *fp) const {
+    fprintf(fp, "%g %g %g", x, y, z);
 }

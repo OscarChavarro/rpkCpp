@@ -60,7 +60,7 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
         GLOBAL_stochasticRaytracing_hierarchy.coords != nullptr &&
         i < GLOBAL_stochasticRaytracing_hierarchy.coords->size();
         i++) {
-        vector3DDestroy(GLOBAL_stochasticRaytracing_hierarchy.coords->get(i));
+        delete GLOBAL_stochasticRaytracing_hierarchy.coords->get(i);
     }
 
     delete GLOBAL_stochasticRaytracing_hierarchy.coords;
@@ -71,7 +71,7 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
           GLOBAL_stochasticRaytracing_hierarchy.normals != nullptr &&
           i < GLOBAL_stochasticRaytracing_hierarchy.normals->size();
           i++ ) {
-        vector3DDestroy(GLOBAL_stochasticRaytracing_hierarchy.normals->get(i));
+        delete GLOBAL_stochasticRaytracing_hierarchy.normals->get(i);
     }
 
     delete GLOBAL_stochasticRaytracing_hierarchy.normals;
@@ -83,7 +83,7 @@ elementHierarchyTerminate(java::ArrayList<Patch *> *scenePatches) {
           i < GLOBAL_stochasticRaytracing_hierarchy.texCoords->size();
           i++ ) {
         Vector3D *texCoord = GLOBAL_stochasticRaytracing_hierarchy.texCoords->get(i);
-        vector3DDestroy(texCoord);
+        delete texCoord;
     }
 
     delete GLOBAL_stochasticRaytracing_hierarchy.texCoords;

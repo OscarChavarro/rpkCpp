@@ -289,14 +289,14 @@ optionsGetVector(Vector3D *v, const void * /*data*/) {
 
 static void
 optionsPrintVector(FILE *fp, const Vector3D *v, const void * /*data*/) {
-    vector3DPrint(fp, *v);
+    v->print(fp);
 }
 
 CommandLineOptions GLOBAL_options_vectorType = {
-        (int (*)(void *, void *)) optionsGetVector,
-        (void (*)(FILE *, void *, void *)) optionsPrintVector,
-        (void *) &globalDummyVector3D,
-        nullptr
+    (int (*)(void *, void *)) optionsGetVector,
+    (void (*)(FILE *, void *, void *)) optionsPrintVector,
+    (void *) &globalDummyVector3D,
+    nullptr
 };
 
 /**
