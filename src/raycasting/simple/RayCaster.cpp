@@ -6,8 +6,7 @@ a software frame buffer directly.
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include <ctime>
-#endif
+#include <ctime>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -102,10 +101,12 @@ RayCaster::getRadianceAtPixel(
 }
 
 void
-RayCaster::render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
-    #ifdef RAYTRACING_ENABLED
-        clock_t t = clock();
-    #endif
+RayCaster::render(
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions)
+{
+    clock_t t = clock();
 
     SoftIdsWrapper *idRenderer = new SoftIdsWrapper(scene, renderOptions);
 
@@ -131,11 +132,9 @@ RayCaster::render(const Scene *scene, const RadianceMethod *radianceMethod, cons
 
     delete idRenderer;
 
-    #ifdef RAYTRACING_ENABLED
-        GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
-        GLOBAL_raytracer_rayCount = 0;
-        GLOBAL_raytracer_pixelCount = 0;
-    #endif
+    GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
+    GLOBAL_raytracer_rayCount = 0;
+    GLOBAL_raytracer_pixelCount = 0;
 }
 
 void
@@ -148,7 +147,6 @@ RayCaster::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
-#ifdef RAYTRACING_ENABLED
 static RayCaster *globalRayCaster = nullptr;
 
 /**
@@ -209,7 +207,6 @@ rayCasterExecute(
         globalRayCaster->save(ip);
     }
 }
-#endif
 
 /**
 Ray-Casts the current Radiance solution. Output is displayed on the screen
@@ -252,7 +249,6 @@ rayCast(
     }
 }
 
-#ifdef RAYTRACING_ENABLED
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
