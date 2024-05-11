@@ -17,13 +17,15 @@ class Vector3D {
     Vector3D transform(const Vector3D &X, const Vector3D &Y, const Vector3D &Z) const;
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
+    void subtraction(const Vector3D& a, const Vector3D& b);
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
     void combine(float a, const Vector3D &v, float b, const Vector3D &w);
 };
 
-inline Vector3D::Vector3D() {
+inline
+Vector3D::Vector3D() {
     x = 0.0;
     y = 0.0;
     z = 0.0;
@@ -33,9 +35,7 @@ inline Vector3D::Vector3D() {
 Fills in x, y, and z component of a vector
 */
 inline void
-Vector3D::set(const float xParam,
-                const float yParam,
-                const float zParam) {
+Vector3D::set(const float xParam, const float yParam, const float zParam) {
     x = xParam;
     y = yParam;
     z = zParam;
@@ -75,10 +75,10 @@ Vector3D::equals(const Vector3D &w, const float epsilon) const {
 Vector difference
 */
 inline void
-vectorSubtract(const Vector3D& a, const Vector3D& b, Vector3D& d) {
-    d.x = a.x - b.x;
-    d.y = a.y - b.y;
-    d.z = a.z - b.z;
+Vector3D::subtraction(const Vector3D& a, const Vector3D& b) {
+    x = a.x - b.x;
+    y = a.y - b.y;
+    z = a.z - b.z;
 }
 
 /**
@@ -228,8 +228,8 @@ vectorTripleCrossProduct(
 {
     Vector3D d1;
     Vector3D d2;
-    vectorSubtract(v3, v2, d1);
-    vectorSubtract(v1, v2, d2);
+    d1.subtraction(v3, v2);
+    d2.subtraction(v1, v2);
     vectorCrossProduct(d1, d2, d);
 }
 
@@ -239,7 +239,7 @@ Distance between two positions in 3D space: s = |p2-p1|
 inline float
 vectorDist(const Vector3D &p1, const Vector3D &p2) {
     Vector3D d;
-    vectorSubtract(p2, p1, d);
+    d.subtraction(p2, p1);
     return vectorNorm(d);
 }
 
@@ -249,7 +249,7 @@ Squared distance between two positions in 3D space: s = |p2-p1|
 inline float
 vectorDist2(const Vector3D &p1, const Vector3D &p2) {
     Vector3D d;
-    vectorSubtract(p2, p1, d);
+    d.subtraction(p2, p1);
     return vectorNorm2(d);
 }
 

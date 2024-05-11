@@ -103,7 +103,7 @@ pathNodesVisible(
         return false;
     }
 
-    vectorSubtract(node2->m_hit.getPoint(), node1->m_hit.getPoint(), dir);
+    dir.subtraction(node2->m_hit.getPoint(), node1->m_hit.getPoint());
 
     dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);
@@ -200,7 +200,7 @@ eyeNodeVisible(
 
     // Determines visibility between two nodes,
     // Returns visibility and direction from eye to light node (newDir_e)
-    vectorSubtract(node->m_hit.getPoint(), eyeNode->m_hit.getPoint(), dir);
+    dir.subtraction(node->m_hit.getPoint(), eyeNode->m_hit.getPoint());
 
     dist2 = vectorNorm2(dir);
     dist = std::sqrt(dist2);

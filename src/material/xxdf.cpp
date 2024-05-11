@@ -13,7 +13,7 @@ idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
     Vector3D result;
 
     vectorScale((float)tmp, *normal, result);
-    vectorSubtract(*in, result, result);
+    result.subtraction(*in, result);
     vectorNormalize(result);
 
     return result;

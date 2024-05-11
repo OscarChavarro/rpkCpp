@@ -167,10 +167,10 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector3D n;
 
     n.set(0, 0, 0);
-    vectorSubtract(*(v[numberOfVertices - 1]->point), *(v[0]->point), cur);
+    cur.subtraction(*(v[numberOfVertices - 1]->point), *(v[0]->point));
     for ( int i = 0; i < numberOfVertices; i++ ) {
         prev = cur;
-        vectorSubtract(*(v[i]->point), *(v[0]->point), cur);
+        cur.subtraction(*(v[i]->point), *(v[0]->point));
         n.x += (prev.y - cur.y) * (prev.z + cur.z);
         n.y += (prev.z - cur.z) * (prev.x + cur.x);
         n.z += (prev.x - cur.x) * (prev.y + cur.y);

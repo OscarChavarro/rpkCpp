@@ -214,8 +214,8 @@ Patch::computeRandomWalkRadiosityArea() {
             p1 = this->vertex[0]->point;
             p2 = this->vertex[1]->point;
             p3 = this->vertex[2]->point;
-            vectorSubtract(*p2, *p1, d1);
-            vectorSubtract(*p3, *p2, d2);
+            d1.subtraction(*p2, *p1);
+            d2.subtraction(*p3, *p2);
             vectorCrossProduct(d1, d2, cp1);
             this->area = 0.5f * vectorNorm(cp1);
             break;
@@ -224,10 +224,10 @@ Patch::computeRandomWalkRadiosityArea() {
             p2 = this->vertex[1]->point;
             p3 = this->vertex[2]->point;
             p4 = this->vertex[3]->point;
-            vectorSubtract(*p2, *p1, d1);
-            vectorSubtract(*p3, *p2, d2);
-            vectorSubtract(*p3, *p4, d3);
-            vectorSubtract(*p4, *p1, d4);
+            d1.subtraction(*p2, *p1);
+            d2.subtraction(*p3, *p2);
+            d3.subtraction(*p3, *p4);
+            d4.subtraction(*p4, *p1);
             vectorCrossProduct(d1, d4, cp1);
             vectorCrossProduct(d1, d3, cp2);
             vectorCrossProduct(d2, d4, cp3);
@@ -533,11 +533,10 @@ patchNormal(const Patch *patch, Vector3D *normal) {
     Vector3D current;
 
     normal->set(0, 0, 0);
-    vectorSubtract(*patch->vertex[patch->numberOfVertices - 1]->point,
-                   *patch->vertex[0]->point, current);
+    current.subtraction(*patch->vertex[patch->numberOfVertices - 1]->point, *patch->vertex[0]->point);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         previous = current;
-        vectorSubtract(*patch->vertex[i]->point, *patch->vertex[0]->point, current);
+        current.subtraction(*patch->vertex[i]->point, *patch->vertex[0]->point);
         normal->x += (previous.y - current.y) * (previous.z + current.z);
         normal->y += (previous.z - current.z) * (previous.x + current.x);
         normal->z += (previous.x - current.x) * (previous.y + current.y);

@@ -112,18 +112,18 @@ Cheap form factor estimate to drive hierarchical refinement
 as in Hanrahan SIGGRAPH'91
 */
 static float
-formFactorEstimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
+formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src) {
     Vector3D D;
-    double d, c1, c2, f, f2;
-    vectorSubtract(src->midPoint, rcv->midPoint, D);
-    d = vectorNorm(D);
-    f = src->area / (M_PI * d * d + src->area);
-    f2 = 2. * f;
-    c1 = rcv->isCluster() ? 1.0 /*0.25*/ : std::fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
+    D.subtraction(src->midPoint, rcv->midPoint);
+
+    double d = vectorNorm(D);
+    double f = src->area / (M_PI * d * d + src->area);
+    double f2 = 2.0 * f;
+    double c1 = rcv->isCluster() ? 1.0 /*0.25*/ : std::fabs(vectorDotProduct(D, rcv->patch->normal)) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    c2 = src->isCluster() ? 1.0 /*0.25*/ : std::fabs(vectorDotProduct(D, src->patch->normal)) / d;
+    double c2 = src->isCluster() ? 1.0 /*0.25*/ : std::fabs(vectorDotProduct(D, src->patch->normal)) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }
@@ -133,36 +133,37 @@ formFactorEstimate(StochasticRadiosityElement *rcv, StochasticRadiosityElement *
 static int
 LowPowerLink(
     LINK *link,
-    Statistics *statistics)
+    const Statistics *statistics)
 {
     StochasticRadiosityElement *rcv = link->rcv;
-    StochasticRadiosityElement *src = link->src;
-    ColorRgb rhosrcrad;
+    const StochasticRadiosityElement *src = link->src;
+    ColorRgb rhoSrcRad;
     float ff = formFactorEstimate(rcv, src);
-    float threshold, propagated_power;
+    float threshold;
+    float propagatedPower;
 
     // Compute receiver reflectance times source radiosity
-    rhosrcrad.scaledCopy(M_PI, src->radiance[0]);
+    rhoSrcRad.scaledCopy((float)M_PI, src->radiance[0]);
     if ( !rcv->isCluster() ) {
         ColorRgb Rd = topLevelStochasticRadiosityElement(rcv->patch)->Rd;
-        rhosrcrad.selfScalarProduct(Rd);
+        rhoSrcRad.selfScalarProduct(Rd);
     }
 
     threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * statistics->maxSelfEmittedPower.maximumComponent();
-    propagated_power = rcv->area * ff * rhosrcrad.maximumComponent();
+    propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        propagated_power *= rcv->importance;
+        propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {
-            propagated_power *= stochasticRadiosityElementScalarReflectance(rcv);
+            propagatedPower *= stochasticRadiosityElementScalarReflectance(rcv);
         }
     }
 
-    return (propagated_power < threshold);
+    return (propagatedPower < threshold);
 }
 
-static REFINE_ACTION subDivideLargest(LINK *link) {
-    StochasticRadiosityElement *rcv = link->rcv;
-    StochasticRadiosityElement *src = link->src;
+static REFINE_ACTION subDivideLargest(const LINK *link) {
+    const StochasticRadiosityElement *rcv = link->rcv;
+    const StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
         return dontRefine;
     } else {

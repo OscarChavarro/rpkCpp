@@ -17,7 +17,7 @@ Creates a coordinate system on the patch P with Z direction along the normal
 static void
 patchCoordSys(Patch *patch, CoordinateSystem *coord) {
     coord->Z = patch->normal;
-    vectorSubtract(*patch->vertex[1]->point, *patch->vertex[0]->point, coord->X);
+    coord->X.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
     vectorNormalize(coord->X);
     vectorCrossProduct(coord->Z, coord->X, coord->Y);
 }
@@ -28,8 +28,8 @@ direction with respect to patch normal. Origin and direction are uniquely determ
 by the 4-dimensional sample vector xi
 */
 Ray
-mcrGenerateLocalLine(Patch *patch, double *xi) {
-    static Patch *previousPatch = nullptr;
+mcrGenerateLocalLine(Patch *patch, const double *xi) {
+    const static Patch *previousPatch = nullptr;
     static CoordinateSystem coordSys;
     Ray ray;
     double pdf;

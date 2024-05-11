@@ -190,32 +190,15 @@ LightList::computeOneLightImportanceReal(Patch *light,
             }
         }
 
-        // Previous
-        //    case 0: u = v = 0.5; break;
-        //    case 1: u = v = 0.0; break;
-        //    case 2: u = 1.0; v = 0.0; break;
-        //    case 3: u = 0.0; v = 1.0; break;
-        //    case 4: u = v = 1.0; break;
-        //
-        //      // TODO ? allow more vertices
-        //    }
-        //
-        //    patchPoint(light, u, v, &lightPoint);
-
         // Estimate the contribution
-
-        // light_normal = PatchNormalAtUV(light, u, v);
 
         // Ray direction (but no ray is shot of course)
         Vector3D copy(point->x, point->y, point->z);
 
-        vectorSubtract(lightPoint, copy, dir);
+        dir.subtraction(lightPoint, copy);
         dist2 = vectorNorm2(dir);
 
-        // Check normals
-
         // Cosines have an addition distance length in them
-
         cosRayLight = -vectorDotProduct(dir, light_normal);
         cosRayPatch = vectorDotProduct(dir, *normal);
 
@@ -228,7 +211,7 @@ LightList::computeOneLightImportanceReal(Patch *light,
             done = true;
         }
 
-        tried++; // trie next point on light
+        tried++; // Try next point on light
     }
 
     return contribution;

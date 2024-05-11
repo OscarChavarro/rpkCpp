@@ -153,7 +153,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     Ray ray;
     ray.pos = *y;
-    vectorSubtract(*x, *y, ray.dir);
+    ray.dir.subtraction(*x, *y);
     double distance = vectorNorm(ray.dir);
     vectorScaleInverse((float)distance, ray.dir, ray.dir);
 

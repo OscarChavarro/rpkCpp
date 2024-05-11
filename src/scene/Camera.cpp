@@ -52,7 +52,7 @@ cameraComplete(Camera *camera) {
     float n;
 
     // Compute viewing direction ==> Z axis of eye coordinate system
-    vectorSubtract(camera->lookPosition, camera->eyePosition, camera->Z);
+    camera->Z.subtraction(camera->lookPosition, camera->eyePosition);
 
     // Distance from virtual camera position to focus point
     camera->viewDistance = vectorNorm(camera->Z);

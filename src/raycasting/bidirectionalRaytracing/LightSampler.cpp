@@ -97,7 +97,7 @@ UniformLightSampler::sample(
             dir = light->material->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         }
 
-        vectorSubtract(thisNode->m_hit.getPoint(), dir, point); // Fake hit at distance 1!
+        point.subtraction(thisNode->m_hit.getPoint(), dir); // Fake hit at distance 1!
 
         newNode->m_hit.init(light, &point, nullptr, light->material);
 

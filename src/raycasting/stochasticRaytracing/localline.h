@@ -7,7 +7,7 @@ Generate and trace a local line
 
 #include "common/Ray.h"
 
-extern Ray mcrGenerateLocalLine(Patch *patch, double *xi);
+extern Ray mcrGenerateLocalLine(Patch *patch, const double *xi);
 extern RayHit *mcrShootRay(VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore);
 
 #endif

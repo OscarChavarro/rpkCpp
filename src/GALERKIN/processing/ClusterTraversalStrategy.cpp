@@ -63,7 +63,7 @@ ClusterTraversalStrategy::accumulatePowerToSamplePoint(
     Vector3D dir;
     ColorRgb rad;
 
-    vectorSubtract(globalSamplePoint, src->patch->midPoint, dir);
+    dir.subtraction(globalSamplePoint, src->patch->midPoint);
     dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         srcOs = 1.0f;
@@ -172,7 +172,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
     double dist;
     Vector3D dir;
 
-    vectorSubtract(globalSamplePoint, rcv->patch->midPoint, dir);
+    dir.subtraction(globalSamplePoint, rcv->patch->midPoint);
     dist = vectorNorm(dir);
     if ( dist < EPSILON ) {
         rcvCos = 1.0;

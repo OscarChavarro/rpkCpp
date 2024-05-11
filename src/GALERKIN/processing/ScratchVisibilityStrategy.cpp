@@ -83,7 +83,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
         galerkinState->lastEye = eye;
     }
 
-    vectorSubtract(centre, eye, viewDirection);
+    viewDirection.subtraction(centre, eye);
     vectorNormalize(viewDirection);
     if ( std::fabs(vectorDotProduct(up, viewDirection)) > 1.0 - EPSILON ) {
         up.set(0.0, 1.0, 0.0);

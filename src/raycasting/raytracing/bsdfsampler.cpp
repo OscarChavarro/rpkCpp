@@ -41,8 +41,6 @@ CBsdfSampler::sample(
             &pdfDir);
     }
 
-    PNAN(pdfDir);
-
     if ( pdfDir <= EPSILON ) {
         // No good sample
         return false;
@@ -103,9 +101,6 @@ CBsdfSampler::sample(
                 &pdfRR);
         }
 
-        PNAN(pdfDirI);
-        PNAN(pdfRR);
-
         prevNode->m_rrPdfFromNext = pdfRR;
         prevNode->m_pdfFromNext = pdfDirI * thisNode->m_G / cosI;
     }
@@ -137,7 +132,7 @@ CBsdfSampler::evalPDF(
     double dist;
     Vector3D outDir;
 
-    vectorSubtract(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint(), outDir);
+    outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = vectorNorm2(outDir);
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);
@@ -191,11 +186,10 @@ CBsdfSampler::EvalPDFPrev(
     }
 
     // More efficient with extra params?
-
-    vectorSubtract(prevNode->m_hit.getPoint(), thisNode->m_hit.getPoint(), outDir);
+    outDir.subtraction(prevNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     vectorNormalize(outDir);
 
-    // Beware : NOT RECIPROKE!
+    // Beware : NOT RECIPROCAL!
     pdfDir = 0.0;
     *pdfRR = 0.0;
     if ( thisNode->m_useBsdf != nullptr ) {

@@ -145,7 +145,7 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Vector3D Y;
     Vector3D Z;
 
-    vectorSubtract(eye, centre, Z); // Z positions towards viewer
+    Z.subtraction(eye, centre); // Z positions towards viewer
     vectorNormalize(Z);
 
     vectorCrossProduct(up, Z, X); // X positions right

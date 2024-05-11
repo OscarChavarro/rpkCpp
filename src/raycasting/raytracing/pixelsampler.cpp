@@ -94,9 +94,8 @@ CPixelSampler::evalPDF(
     double pdf;
     Vector3D outDir;
 
-    /* -- more efficient with extra params ?? -- */
-
-    vectorSubtract(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint(), outDir);
+    // More efficient with extra params?
+    outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = vectorNorm2(outDir);
     dist = std::sqrt(dist2);
     vectorScaleInverse((float)dist, outDir, outDir);

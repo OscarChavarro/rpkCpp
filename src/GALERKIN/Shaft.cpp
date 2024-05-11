@@ -639,7 +639,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
     ray.pos = center1;
-    vectorSubtract(center2, center1, ray.dir);
+    ray.dir.subtraction(center2, center1);
     dist = 1.0f - EPSILON_FLOAT;
     if ( patch->intersect(&ray, EPSILON_FLOAT, &dist, HIT_FRONT | HIT_BACK, &hitStore) ) {
         cut = true;
