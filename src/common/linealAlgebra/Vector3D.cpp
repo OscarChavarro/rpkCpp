@@ -1,16 +1,16 @@
 #include "common/linealAlgebra/Vector3D.h"
 
 /**
-Find the "dominant" part of the vector (eg patch-normal).  This
-is used to turn the point-in-polygon test into a 2D problem.
+Find the "dominant" part of the vector (eg patch-normal).
+This is used to turn the point-in-polygon test into a 2D problem.
 */
 int
-vector3DDominantCoord(const Vector3D *v) {
+Vector3D::dominantCoordinate() const {
     Vector3D anorm;
 
-    anorm.x = std::fabs(v->x);
-    anorm.y = std::fabs(v->y);
-    anorm.z = std::fabs(v->z);
+    anorm.x = std::fabs(x);
+    anorm.y = std::fabs(y);
+    anorm.z = std::fabs(z);
     double indexValue = floatMax(anorm.y, anorm.z);
     indexValue = floatMax(anorm.x, (float)indexValue);
 
@@ -22,25 +22,25 @@ vector3DDominantCoord(const Vector3D *v) {
 }
 
 int
-vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon) {
+Vector3D::compareByDimensions(const Vector3D *v2, float epsilon) const {
     int code = 0;
 
-    if ( v1->x > v2->x + epsilon ) {
+    if ( x > v2->x + epsilon ) {
         code += X_GREATER_MASK;
     }
-    if ( v1->y > v2->y + epsilon ) {
+    if ( y > v2->y + epsilon ) {
         code += Y_GREATER_MASK;
     }
-    if ( v1->z > v2->z + epsilon ) {
+    if ( z > v2->z + epsilon ) {
         code += Z_GREATER_MASK;
     }
     if ( code != 0 ) {
         return code;
     }
 
-    if ( v1->x < v2->x - epsilon ||
-         v1->y < v2->y - epsilon ||
-         v1->z < v2->z - epsilon ) {
+    if ( x < v2->x - epsilon ||
+         y < v2->y - epsilon ||
+         z < v2->z - epsilon ) {
         // Not the same coordinates
         return code;
     }

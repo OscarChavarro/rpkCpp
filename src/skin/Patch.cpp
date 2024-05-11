@@ -639,7 +639,7 @@ Patch::Patch(
     tolerance = computeTolerance();
 
     // Dominant part of normal
-    index = (char)vector3DDominantCoord(&normal);
+    index = (char)normal.dominantCoordinate();
 
     // Tell the vertices that there's a new Patch using them
     connectVertices();
@@ -927,7 +927,7 @@ Patch::intersect(
 
     // Intersection point of ray with plane of patch
     Vector3D position;
-    vectorSumScaled(ray->pos, dist, ray->dir, position);
+    position.sumScaled(ray->pos, dist, ray->dir);
     hit.setPoint(&position);
 
     // Test whether it lays inside or outside the patch

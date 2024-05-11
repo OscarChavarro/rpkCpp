@@ -17,12 +17,15 @@ class Vector3D {
     Vector3D transform(const Vector3D &X, const Vector3D &Y, const Vector3D &Z) const;
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
+    int dominantCoordinate() const;
+    int compareByDimensions(const Vector3D *v2, float epsilon) const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
     void combine(float a, const Vector3D &v, float b, const Vector3D &w);
     void addition(const Vector3D &a, const Vector3D &b);
     void subtraction(const Vector3D& a, const Vector3D& b);
+    void sumScaled(Vector3D a, double s, Vector3D b);
 };
 
 inline
@@ -96,10 +99,10 @@ Vector3D::addition(const Vector3D &a, const Vector3D &b) {
 Scaled vector sum: d = a + s.b
 */
 inline void
-vectorSumScaled(const Vector3D a, const double s, const Vector3D b, Vector3D &d) {
-    d.x = a.x + (float)s * b.x;
-    d.y = a.y + (float)s * b.y;
-    d.z = a.z + (float)s * b.z;
+Vector3D::sumScaled(const Vector3D a, const double s, const Vector3D b) {
+    x = a.x + (float)s * b.x;
+    y = a.y + (float)s * b.y;
+    z = a.z + (float)s * b.z;
 }
 
 /**
@@ -302,8 +305,7 @@ vectorPointInQuadrilateral(
     p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
 }
 
-extern int vectorCompareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon);
-extern int vector3DDominantCoord(const Vector3D *v);
+extern int compareByDimensions(const Vector3D *v1, const Vector3D *v2, float epsilon);
 extern void vector3DPrint(FILE *fp, const Vector3D &v);
 
 extern void vector3DDestroy(Vector3D *vector);

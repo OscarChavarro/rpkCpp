@@ -48,7 +48,7 @@ idealRefractedDirection(
 
     Vector3D result;
     vectorScale(refractionIndex, *in, result);
-    vectorSumScaled(result, normalScale, *normal, result);
+    result.sumScaled(result, normalScale, *normal);
     vectorNormalize(result);
     return result;
 }

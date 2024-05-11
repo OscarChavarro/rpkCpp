@@ -161,7 +161,7 @@ Cluster::clusterMovePatch(int parentIndex) {
         (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
     // Note: comparator values assumed: X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK, combined will give
     // an integer number from 0 to 7, or 8 if all are equal
-    int selectedChildClusterIndex = vectorCompareByDimensions(&boundingBoxCentroid, &midPatch, EPSILON_FLOAT);
+    int selectedChildClusterIndex = boundingBoxCentroid.compareByDimensions(&midPatch, EPSILON_FLOAT);
 
     // If the centroids (almost by EPSILON) coincides, don´t move current patch from parent cluster to sub-cluster
     if ( selectedChildClusterIndex == 0x08 ) {
