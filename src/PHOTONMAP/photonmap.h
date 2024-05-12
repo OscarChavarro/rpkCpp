@@ -95,7 +95,7 @@ class CPhotonMap {
     bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
-    void Redistribute(CPhoton &photon);
+    void Redistribute(CPhoton &photon) const;
 
     // Get a maximum radius^2 for locating the nearest photons
     virtual double GetMaxR2();

@@ -1,5 +1,6 @@
 #include <cstdarg>
 
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -491,7 +492,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
         if ( (v >= 0.0) && (v <= 1.0) ) {
             b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
             c = vector2DDeterminant(AM, AD);
-            u = realAbs(b) < EPSILON ? -1 : c / b;
+            u = java::Math::abs(b) < EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
     } else if ( std::fabs(vector2DDeterminant(BC, AD)) < EPSILON ) {
@@ -501,7 +502,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
         if ( (u >= 0.0) && (u <= 1.0) ) {
             b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
             c = vector2DDeterminant(AM, AB);
-            v = realAbs(b) < EPSILON ? -1 : c / b;
+            v = java::Math::abs(b) < EPSILON ? -1 : c / b;
             isInside = ((v >= 0.0) && (v <= 1.0));
         }
     } else {
@@ -522,7 +523,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
             }
             if ( (u >= 0.0) && (u <= 1.0) ) {
                 v = AD.u + u * AE.u;
-                if ( realAbs(v) < EPSILON ) {
+                if ( java::Math::abs(v) < EPSILON ) {
                     v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
                 } else {
                     v = (AM.u - u * AB.u) / v;

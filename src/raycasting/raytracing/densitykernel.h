@@ -24,7 +24,7 @@ public:
 
     float Evaluate(const Vector2D &point, const Vector2D &center) const;
 
-    void Cover(const Vector2D &point, float factor, ColorRgb &col, ScreenBuffer *screen) const;
+    void cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const;
 
     void
     varCover(

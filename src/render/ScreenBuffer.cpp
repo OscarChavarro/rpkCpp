@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "java/lang/Math.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "render/opengl.h"
@@ -333,16 +334,16 @@ ScreenBuffer::getBiLinear(float x, float y) {
     if ( x < 0 ) {
         // Point on left side of pixel center
         x = -x;
-        nx1 = intMax(nx0 - 1, 0);
+        nx1 = java::Math::max(nx0 - 1, 0);
     } else {
-        nx1 = intMin(getHRes(), nx0 + 1);
+        nx1 = java::Math::min(getHRes(), nx0 + 1);
     }
 
     if ( y < 0 ) {
         y = -y;
-        ny1 = intMax(ny0 - 1, 0);
+        ny1 = java::Math::max(ny0 - 1, 0);
     } else {
-        ny1 = intMin(getVRes(), ny0 + 1);
+        ny1 = java::Math::min(getVRes(), ny0 + 1);
     }
 
     // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that

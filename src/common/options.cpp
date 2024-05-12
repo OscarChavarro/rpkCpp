@@ -366,8 +366,16 @@ CommandLineOptions GLOBAL_options_xyType = {
 Argument parsing
 */
 
+static unsigned long
+unsignedLongMax(unsigned long a, unsigned long b) {
+    return a > b ? a : b;
+}
+
 static CommandLineOptionDescription *
 optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
+    if ( s == nullptr ) {
+        return nullptr;
+    }
     CommandLineOptionDescription *opt = options;
     while ( opt->name ) {
         if ( strncmp(s, opt->name,

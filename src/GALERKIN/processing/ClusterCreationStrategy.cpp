@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
@@ -94,8 +95,8 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *cluster, const GalerkinSta
     // Compute equivalent blocker (or blocker complement) size for multi-resolution
     // visibility
     const float *bbx = cluster->geometry->boundingBox.coordinates;
-    cluster->blockerSize = floatMax((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
-    cluster->blockerSize = floatMax(cluster->blockerSize, (bbx[MAX_Z] - bbx[MIN_Z]));
+    cluster->blockerSize = java::Math::max((bbx[MAX_X] - bbx[MIN_X]), (bbx[MAX_Y] - bbx[MIN_Y]));
+    cluster->blockerSize = java::Math::max(cluster->blockerSize, (bbx[MAX_Z] - bbx[MIN_Z]));
 }
 
 /**

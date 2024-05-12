@@ -1,9 +1,19 @@
 #ifndef __VECTOR_3D__
 #define __VECTOR_3D__
 
+#include <cmath>
 #include <cstdio>
 
 #include "common/linealAlgebra/Float.h"
+
+#define X_NORMAL 0
+#define Y_NORMAL 1
+#define Z_NORMAL 2
+
+#define X_GREATER_MASK 0x01
+#define Y_GREATER_MASK 0x02
+#define Z_GREATER_MASK 0x04
+#define XYZ_EQUAL_MASK 0x08
 
 class Vector3D {
   public:

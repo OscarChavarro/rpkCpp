@@ -2,6 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 
+#include "java/lang/Math.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -29,7 +30,7 @@ getFalseMonochrome(float val) {
         val = (float)std::log(1.0 + val);
     }
 
-    tmp = floatMin(val, max);
+    tmp = java::Math::min(val, max);
     tmp = (tmp / max);
 
     return tmp;
@@ -57,7 +58,7 @@ getFalseColor(float val) {
         val = (float)std::log(1.0 + val);
     }
 
-    tmp = floatMin(val, max);
+    tmp = java::Math::min(val, max);
 
     // Do some log scale ?
 
@@ -66,11 +67,11 @@ getFalseColor(float val) {
     if ( tmp <= 1.0 ) {
         b = tmp;
     } else if ( tmp < 2.0 ) {
-        g = (float)tmp - 1.0f;
-        b = 1.0f - (float)g;
+        g = tmp - 1.0f;
+        b = 1.0f - g;
     } else {
-        r = (float)tmp - 2.0f;
-        g = 1.0f - (float)r;
+        r = tmp - 2.0f;
+        g = 1.0f - r;
     }
 
     col.set(r, g, b);
@@ -179,7 +180,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
         }
     } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANS_COSINE ) {
         // Translated cosine
-        double ratio = floatMin(1.0, currentD / requiredD); // in [0,1]
+        double ratio = java::Math::min(1.0, currentD / requiredD); // in [0,1]
 
         return (0.5 * (1.0 + std::cos(ratio * M_PI)));
     } else {
@@ -189,7 +190,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
 }
 
 void
-CPhotonMap::Redistribute(CPhoton &photon) {
+CPhotonMap::Redistribute(CPhoton &photon) const {
     // Redistribute this photon over the nearest neighbours
     // m_distances, m_photons and m_cosines should be filled correctly!
     // only photons are used for which direction * normal > 0
@@ -321,7 +322,7 @@ CPhotonMap::PrecomputeIrradiance() {
 bool
 CPhotonMap::IrradianceReconstruct(
     RayHit *hit,
-    const Vector3D &outDir,
+    const Vector3D & /*outDir*/,
     const ColorRgb &diffuseAlbedo,
     ColorRgb *result)
 {

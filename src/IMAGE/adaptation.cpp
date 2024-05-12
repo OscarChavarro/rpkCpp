@@ -2,6 +2,7 @@
 Estimate static adaptation for tone mapping
 */
 
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/mymath.h"
 #include "common/error.h"
@@ -70,8 +71,8 @@ patchFillLumArea(Patch *patch) {
     globalLumArea->luminance = brightness;
     globalLumArea->area = patch->area;
 
-    globalLumMin = floatMin(globalLumMin, globalLumArea->luminance);
-    globalLumMax = floatMax(globalLumMax, globalLumArea->luminance);
+    globalLumMin = java::Math::min(globalLumMin, globalLumArea->luminance);
+    globalLumMax = java::Math::max(globalLumMax, globalLumArea->luminance);
 
     globalLumArea++;
     globalNumEntries++;

@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/linealAlgebra/vectorMacros.h"
 #include "common/error.h"
 #include "common/mymath.h"
 #include "io/mgf/lookup.h"
@@ -185,6 +184,30 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     *normal = n;
 
     return normal;
+}
+
+/**
+Given a vector p in 3D space and an index i, which is X_NORMAL, Y_NORMAL
+or Z_NORMAL, projects the vector on the YZ, XZ or XY plane respectively
+*/
+static void
+vectorProject(Vector2D &r, const Vector3D &p, const int i) {
+    switch ( i ) {
+        case X_NORMAL:
+            r.u = p.y;
+            r.v = p.z;
+            break;
+        case Y_NORMAL:
+            r.u = p.x;
+            r.v = p.z;
+            break;
+        case Z_NORMAL:
+            r.u = p.x;
+            r.v = p.y;
+            break;
+        default:
+            break;
+    }
 }
 
 /**

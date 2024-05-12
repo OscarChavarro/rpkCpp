@@ -1,10 +1,10 @@
 #include <ctime>
 
+#include "java/lang/Math.h"
 #include "common/ColorRgb.h"
 #include "scene/Camera.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/opengl.h"
-#include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"
 
@@ -164,8 +164,8 @@ screenIterateProgressive(
                 yStepDone = true;
             }
 
-            yMin = intMin(y0, yMin);
-            yMax = intMax(y1, yMax);
+            yMin = java::Math::min(y0, yMin);
+            yMax = java::Math::max(y1, yMax);
 
             x0 = 0;
             xSteps = 0;
@@ -191,7 +191,7 @@ screenIterateProgressive(
                         if ( (yMax > 0) && (yMax > yMin) ) {
                             openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                         }
-                        yMin = intMax(0, yMax - stepSize);
+                        yMin = java::Math::max(0, yMax - stepSize);
                     }
                 }
 

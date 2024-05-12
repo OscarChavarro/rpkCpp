@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3D.h"
 
 /**
@@ -11,8 +12,8 @@ Vector3D::dominantCoordinate() const {
     anorm.x = std::fabs(x);
     anorm.y = std::fabs(y);
     anorm.z = std::fabs(z);
-    double indexValue = floatMax(anorm.y, anorm.z);
-    indexValue = floatMax(anorm.x, (float)indexValue);
+    double indexValue = java::Math::max(anorm.y, anorm.z);
+    indexValue = java::Math::max(anorm.x, (float)indexValue);
 
     if ( indexValue == anorm.x ) {
         return X_NORMAL;

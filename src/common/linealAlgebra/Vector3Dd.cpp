@@ -2,6 +2,7 @@
 Routines for 3-d vectors
 */
 
+#include <cmath>
 #include <cstring>
 
 #include "common/linealAlgebra/Vector3Dd.h"

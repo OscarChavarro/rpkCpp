@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 
@@ -265,7 +266,7 @@ Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
     }
 
     // Compare plane constants
-    tolerance = std::fabs(floatMax(plane1->d, plane2->d) * EPSILON);
+    tolerance = std::fabs(java::Math::max(plane1->d, plane2->d) * EPSILON);
     if ( plane1->d < plane2->d - tolerance ) {
         return -1;
     } else if ( plane1->d > plane2->d + tolerance ) {

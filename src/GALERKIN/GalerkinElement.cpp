@@ -1,3 +1,4 @@
+#include "java/lang/Character.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
@@ -287,7 +288,7 @@ GalerkinElement::reAllocCoefficients() {
     ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
     colorsArrayClear(defaultRadiance, localBasisSize);
     if ( radiance ) {
-        colorsArrayCopy(defaultRadiance, radiance, charMin(basisSize, localBasisSize));
+        colorsArrayCopy(defaultRadiance, radiance, java::Character::min(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
@@ -295,8 +296,7 @@ GalerkinElement::reAllocCoefficients() {
     ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
     colorsArrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance ) {
-        colorsArrayCopy(defaultReceivedRadiance, receivedRadiance,
-                        charMin(basisSize, localBasisSize));
+        colorsArrayCopy(defaultReceivedRadiance, receivedRadiance, java::Character::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
@@ -306,8 +306,7 @@ GalerkinElement::reAllocCoefficients() {
         colorsArrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                colorsArrayCopy(defaultUnShotRadiance, unShotRadiance,
-                                charMin(basisSize, localBasisSize));
+                colorsArrayCopy(defaultUnShotRadiance, unShotRadiance, java::Character::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->material != nullptr ) {
                 defaultUnShotRadiance[0] = patch->radianceData->Ed;

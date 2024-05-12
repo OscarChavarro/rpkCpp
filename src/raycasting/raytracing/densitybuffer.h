@@ -5,6 +5,7 @@ Density estimation on screen
 #ifndef __DENSITY_BUFFER__
 #define __DENSITY_BUFFER__
 
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector2D.h"
 #include "common/ColorRgb.h"
 #include "render/ScreenBuffer.h"
@@ -99,13 +100,13 @@ class CDensityBuffer {
     CDensityHitList hitGrid[DHA_X_RES][DHA_Y_RES];
 
     inline int xIndex(float x) const {
-        return intMin(
+        return java::Math::min(
             (int)(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
              DHA_X_RES - 1);
     }
 
     inline int yIndex(float y) const {
-        return intMin(
+        return java::Math::min(
             (int)(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
             DHA_Y_RES - 1);
     }

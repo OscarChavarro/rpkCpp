@@ -4,6 +4,7 @@ Many routines borrowed from Density Estimation master thesis by
 Olivier Ceulemans.
 */
 
+#include "java/lang/Math.h"
 #include "common/mymath.h"
 #include "raycasting/raytracing/densitykernel.h"
 
@@ -43,8 +44,6 @@ CKernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
     Vector2D aux;
     float tp;
 
-    // Epanechnikov kernel
-
     // Find distance
     vector2DDifference(point, center, aux);
     tp = vector2DNorm2(aux);
@@ -52,7 +51,7 @@ CKernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
     if ( tp < m_h2 ) {
         // Point inside kernel
         tp = (1.0f - (tp * m_h2inv));
-        tp = M_2_PI * tp * m_h2inv;
+        tp = (float)M_2_PI * tp * m_h2inv;
         return tp;
     } else {
         return 0.0f;
@@ -60,29 +59,28 @@ CKernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
 }
 
 /**
-Cover the affected pixels of a screen buffer with the kernel
+cover the affected pixels of a screen buffer with the kernel
 IN: The screen buffer to cover.
 OUT: /
 */
 void
-CKernel2D::Cover(const Vector2D &point, float scale, ColorRgb &col, ScreenBuffer *screen) const {
+CKernel2D::cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const {
     // For each neighbourhood pixel : eval kernel and add contrib
 
-    int nx_min, nx_max, ny_min, ny_max, nx, ny;
+    int nxMin;
+    int nxMax;
+    int nyMin;
+    int nyMax;
     Vector2D center;
     ColorRgb addCol;
     float factor;
 
-    //  screen->GetPixel(point, &nx, &ny);
-    //screen->Add(nx, ny, col);
-    //return;
-
     // Get extents of possible pixels that are affected
-    screen->getPixel(point.u - m_h, point.v - m_h, &nx_min, &ny_min);
-    screen->getPixel(point.u + m_h, point.v + m_h, &nx_max, &ny_max);
+    screen->getPixel(point.u - m_h, point.v - m_h, &nxMin, &nyMin);
+    screen->getPixel(point.u + m_h, point.v + m_h, &nxMax, &nyMax);
 
-    for ( nx = nx_min; nx <= nx_max; nx++ ) {
-        for ( ny = ny_min; ny <= ny_max; ny++ ) {
+    for ( int nx = nxMin; nx <= nxMax; nx++ ) {
+        for ( int ny = nyMin; ny <= nyMax; ny++ ) {
             if ( (nx >= 0) && (ny >= 0) && (nx < screen->getHRes()) && (ny < screen->getVRes()) ) {
                 center = screen->getPixelCenter(nx, ny);
                 factor = scale * Evaluate(point, center);
@@ -108,8 +106,7 @@ CKernel2D::varCover(
     int scaleSamples,
     float baseSize)
 {
-    float screenScale = floatMax(ref->getPixXSize(), ref->getPixYSize());
-    //float screenFactor = ref->GetPixXSize() * ref->GetPixYSize();
+    float screenScale = java::Math::max(ref->getPixXSize(), ref->getPixYSize());
     float B = baseSize * screenScale; // what about the 8 ??
 
     // Use optimal N (samples per pixel) dependency for fixed kernels
@@ -129,7 +126,7 @@ CKernel2D::varCover(
     float avgG = color.average();
 
     if ( avgFe > EPSILON ) {
-        h = (float)(Bn * std::sqrt(avgG / avgFe));
+        h = Bn * std::sqrt(avgG / avgFe);
         // printf("fe %f G %f, h = %f\n", avgFe, avgG, h/screenScale);
     } else {
         const float maxRatio = 20; // ???
@@ -138,11 +135,11 @@ CKernel2D::varCover(
         printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
-    h = floatMax(1.0f * screenScale, h); // We want to cover at least one pixel...
+    h = java::Math::max(1.0f * screenScale, h); // We want to cover at least one pixel...
 
     SetH(h);
 
     // h determined, now splat the fucker
-    Cover(center, 1.0f / (float)totalSamples, color, dest);
+    cover(center, 1.0f / (float) totalSamples, color, dest);
 }
 #endif

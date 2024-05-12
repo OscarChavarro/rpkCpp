@@ -2,6 +2,7 @@
 Hierarchical refinement
 */
 
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
@@ -335,8 +336,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
 {
     // Update the number of effectively used radiance coefficients on the
     // receiver element
-    int a = intMin(link->numberOfBasisFunctionsOnReceiver, link->receiverElement->basisSize);
-    int b = intMin(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
+    int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, link->receiverElement->basisSize);
+    int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
     if ( a > link->receiverElement->basisUsed ) {
         link->receiverElement->basisUsed = (char)a;
     }

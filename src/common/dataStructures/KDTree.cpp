@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstring>
 
+#include "java/lang/Math.h"
 #include "common/error.h"
 #include "common/mymath.h"
 #include "common/linealAlgebra/Float.h"
@@ -492,8 +493,8 @@ KDTree::BQuery_rec(int index) {
 void
 KDTreeNode::findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const {
     if ( (loson == nullptr) && (hison == nullptr) ) {
-        *maxDepth = intMax(*maxDepth, depth);
-        *minDepth = intMin(*minDepth, depth);
+        *maxDepth = java::Math::max(*maxDepth, depth);
+        *minDepth = java::Math::min(*minDepth, depth);
     } else {
         if ( loson ) {
             loson->findMinMaxDepth(depth + 1, minDepth, maxDepth);

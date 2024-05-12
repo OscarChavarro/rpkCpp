@@ -7,6 +7,7 @@ Reference:
 Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "skin/Geometry.h"
@@ -268,8 +269,8 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     } else {
         int a;
         int b;
-        a = intMin(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
-        b = intMin(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
+        a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
+        b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( int alpha = 0; alpha < a; alpha++ ) {
             for ( int beta = 0; beta < b; beta++ ) {
                 rcvRad[alpha].addScaled(

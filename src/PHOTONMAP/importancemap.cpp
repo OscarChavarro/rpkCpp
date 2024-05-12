@@ -6,10 +6,10 @@ Implementation of the special importance map functions
 
 #ifdef RAYTRACING_ENABLED
 
-#include "common/Statistics.h"
 #include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/importancemap.h"
 #include "common/error.h"
+#include "java/lang/Math.h"
 
 bool
 CImportanceMap::addPhoton(
@@ -67,16 +67,12 @@ CImportanceMap::GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal
     // Reconstruct importance
     density = reconstructImportance(pos, normal);
 
-    // Rescale
-    //if(!pmapstate.pixelImportance)
-    //  density *= camera->hres * camera->vres;
-
     // We want impScale photons per pixel density, account for
     // the pixel area here
 
     density /= camera->pixelWidth * camera->pixelHeight;
 
-    return (density);
+    return density;
 }
 
 float
@@ -114,7 +110,7 @@ CImportanceMap::getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal
         m_nrpFound = doQuery(&pos);
 
         if ( m_nrpFound < 3 )
-            return 0; // pmapstate.minimumImpRD;
+            return 0; // State for minimumImpRD
 
         switch ( GLOBAL_photonMap_state.importanceOption ) {
             case USE_IMPORTANCE:
@@ -156,7 +152,7 @@ void
 CImportanceMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     float imp;
     float pot;
-    float diff;
+    float diff{};
     Vector3D pos = photon->Pos();
     Vector3D normal = photon->Normal();
 
@@ -164,7 +160,7 @@ CImportanceMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 
     // Abuse pot for tail enhancement
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree
-    m_totalMaxDistance = floatMax(pot, m_totalMaxDistance);
+    m_totalMaxDistance = java::Math::max(pot, m_totalMaxDistance);
 
     ((CImporton *) photon)->PSetAll(imp, pot, diff);
     if ( imp > m_maxImp ) {
