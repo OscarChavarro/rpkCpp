@@ -371,7 +371,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            vectorScaleInverse(localNorm, normal, normal);
+            normal.inverseScaledCopy(localNorm, normal, EPSILON_FLOAT);
             d = -normal.dotProduct(*cur);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
@@ -439,13 +439,13 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
         center1.addition(center1, polygon1->vertex[i]);
     }
-    vectorScaleInverse((float) polygon1->numberOfVertices, center1, center1);
+    center1.inverseScaledCopy((float) polygon1->numberOfVertices, center1, EPSILON_FLOAT);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
         center2.addition(center2, polygon2->vertex[i]);
     }
-    vectorScaleInverse((float) polygon2->numberOfVertices, center2, center2);
+    center2.inverseScaledCopy((float) polygon2->numberOfVertices, center2, EPSILON_FLOAT);
 
     // Determine the shaft planes
     numberOfPlanesInSet = 0;

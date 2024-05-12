@@ -16,7 +16,7 @@ CSamplerConfig::init(bool useQMC, int qmcDepth) {
         m_qmcSeed = new unsigned[m_qmcDepth];
 
         for ( int i = 0; i < m_qmcDepth; i++ ) {
-            m_qmcSeed[i] = lrand48();
+            m_qmcSeed[i] = (unsigned int)lrand48();
             printf("Seed %i\n", m_qmcSeed[i]);
 
             // Every possible path depth gets its own qmc seed to prevent correlation
@@ -178,7 +178,7 @@ pathNodeConnect(
     dirEL.subtraction(nodeY->m_hit.getPoint(), nodeX->m_hit.getPoint());
     dist2 = dirEL.norm2();
     dist = std::sqrt(dist2);
-    vectorScaleInverse((float) dist, dirEL, dirEL);
+    dirEL.inverseScaledCopy((float) dist, dirEL, EPSILON_FLOAT);
     dirLE.scaledCopy(-1, dirEL);
 
     if ( pDirEl ) {
@@ -208,9 +208,6 @@ pathNodeConnect(
         }
 
         nodeY->m_pdfFromNext = pdf;
-
-        PNAN(nodeY->m_pdfFromNext);
-
         nodeY->m_rrPdfFromNext = pdfRR;
 
         if ( (flags & FILL_OTHER_PDF) && (nodeLP != nullptr) ) {
@@ -250,8 +247,6 @@ pathNodeConnect(
         }
 
         nodeX->m_pdfFromNext = pdf;
-        PNAN(nodeX->m_pdfFromNext);
-
         nodeX->m_rrPdfFromNext = pdfRR;
 
         if ( (flags & FILL_OTHER_PDF) && (nodeEP != nullptr) ) {
@@ -290,7 +285,7 @@ pathNodeConnect(
             &nodeX->m_bsdfComp);
     }
 
-    // bsdf(LP->L->E)  (reciprocity assumed !)
+    // bsdf LP->L->E reciprocity assumed!
     if ( nodeLP == nullptr ) {
         // nodeL is  light source
         if ( nodeY->m_hit.getMaterial()->getEdf() == nullptr ) {

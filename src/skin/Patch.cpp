@@ -269,15 +269,13 @@ Patch::computeRandomWalkRadiosityArea() {
 Computes the mid point of the patch, stores the result in p and
 returns a pointer to p
 */
-Vector3D *
+void
 Patch::computeMidpoint(Vector3D *p) {
     p->set(0, 0, 0);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         p->addition(*p, *(vertex[i]->point));
     }
-    vectorScaleInverse((float) numberOfVertices, *p, *p);
-
-    return p;
+    p->inverseScaledCopy((float) numberOfVertices, *p, EPSILON_FLOAT);
 }
 
 /**
@@ -547,7 +545,7 @@ patchNormal(const Patch *patch, Vector3D *normal) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
     }
-    vectorScaleInverse(localNorm, *normal, *normal);
+    normal->inverseScaledCopy(localNorm, *normal, EPSILON_FLOAT);
 
     return normal;
 }

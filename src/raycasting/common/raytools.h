@@ -23,15 +23,15 @@ findRayIntersection(
 extern bool
 pathNodesVisible(
     const VoxelGrid *sceneWorldVoxelGrid,
-    SimpleRaytracingPathNode *node1,
-    SimpleRaytracingPathNode *node2);
+    const SimpleRaytracingPathNode *node1,
+    const SimpleRaytracingPathNode *node2);
 
 extern bool
 eyeNodeVisible(
     const Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
-    SimpleRaytracingPathNode *eyeNode,
-    SimpleRaytracingPathNode *node,
+    const SimpleRaytracingPathNode *eyeNode,
+    const SimpleRaytracingPathNode *node,
     float *pixX,
     float *pixY);
 

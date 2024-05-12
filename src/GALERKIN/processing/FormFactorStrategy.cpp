@@ -155,7 +155,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     ray.pos = *y;
     ray.dir.subtraction(*x, *y);
     double distance = ray.dir.norm();
-    vectorScaleInverse((float)distance, ray.dir, ray.dir);
+    ray.dir.inverseScaledCopy((float) distance, ray.dir, EPSILON_FLOAT);
 
     // Don't allow too nearby nodes to interact
     if ( distance < EPSILON ) {

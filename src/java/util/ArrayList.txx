@@ -4,6 +4,14 @@
 
 namespace java {
 
+template <class T>
+ArrayList<T>::ArrayList() {
+    currentSize = 0;
+    increaseChunk = 100;
+    maxSize = increaseChunk;
+    init();
+};
+
 template <class T> bool
 ArrayList<T>::add(T voxelData)
 {

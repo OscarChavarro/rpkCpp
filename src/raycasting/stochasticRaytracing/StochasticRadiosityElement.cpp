@@ -628,7 +628,7 @@ galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         elem->midPoint.addition(elem->midPoint, *elem->vertices[i]->point);
     }
-    vectorScaleInverse((float) elem->numberOfVertices, elem->midPoint, elem->midPoint);
+    elem->midPoint.inverseScaledCopy((float) elem->numberOfVertices, elem->midPoint, EPSILON_FLOAT);
 
     return elem->midPoint;
 }

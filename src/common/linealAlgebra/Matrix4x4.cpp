@@ -35,7 +35,7 @@ createRotationMatrix(float angle, Vector3D axis) {
         return xf;
     } else {
         // Normalize
-        vectorScaleInverse(s, axis, axis);
+        axis.inverseScaledCopy(s, axis, EPSILON_FLOAT);
     }
 
     float x = axis.x;

@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "java/util/ArrayList.txx"
 #include "io/mgf/MgfContext.h"
 
 MgfContext::MgfContext():

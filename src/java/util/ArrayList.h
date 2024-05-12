@@ -14,12 +14,7 @@ namespace java {
         T *Data;
 
     public:
-        ArrayList() {
-            currentSize = 0;
-            increaseChunk = 100;
-            maxSize = increaseChunk;
-            init();
-        };
+        ArrayList();
 
         ~ArrayList() {
             if ( Data ) {

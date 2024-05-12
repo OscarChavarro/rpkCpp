@@ -32,7 +32,7 @@ CPixelSampler::sample(
                 dir);
     double distPixel2 = dir.norm2();
     double distPixel = std::sqrt(distPixel2);
-    vectorScaleInverse((float)distPixel, dir, dir);
+    dir.inverseScaledCopy((float) distPixel, dir, EPSILON_FLOAT);
 
     double cosPixel = std::fabs(camera->Z.dotProduct(dir));
 
@@ -98,7 +98,7 @@ CPixelSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = std::sqrt(dist2);
-    vectorScaleInverse((float)dist, outDir, outDir);
+    outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
 
     // pdf = 1 / A_pixel transformed to area measure
 

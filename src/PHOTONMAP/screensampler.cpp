@@ -36,7 +36,7 @@ ScreenSampler::sample(
                 dir);
     double distScreen2 = dir.norm2();
     double distScreen = std::sqrt(distScreen2);
-    vectorScaleInverse((float)distScreen, dir, dir);
+    dir.inverseScaledCopy((float) distScreen, dir, EPSILON_FLOAT);
 
     double cosScreen = std::fabs(camera->Z.dotProduct(dir));
 
@@ -89,7 +89,7 @@ ScreenSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = std::sqrt(dist2);
-    vectorScaleInverse((float)dist, outDir, outDir);
+    outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
     cosA = thisNode->m_normal.dotProduct(outDir);

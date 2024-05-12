@@ -60,7 +60,7 @@ cameraComplete(Camera *camera) {
         logError("SetCamera", "eye point and look-point coincide");
         return nullptr;
     }
-    vectorScaleInverse(camera->viewDistance, camera->Z, camera->Z);
+    camera->Z.inverseScaledCopy(camera->viewDistance, camera->Z, EPSILON_FLOAT);
 
     // camera->X is a direction pointing to the right in the window
     vectorCrossProduct(camera->Z, camera->upDirection, camera->X);
@@ -69,7 +69,7 @@ cameraComplete(Camera *camera) {
         logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
-    vectorScaleInverse(n, camera->X, camera->X);
+    camera->X.inverseScaledCopy(n, camera->X, EPSILON_FLOAT);
 
     // camera->Y is a direction pointing down in the window
     vectorCrossProduct(camera->Z, camera->X, camera->Y);

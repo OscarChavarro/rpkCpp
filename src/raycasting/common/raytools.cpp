@@ -81,8 +81,8 @@ pathNodesVisible : send a shadow ray
 bool
 pathNodesVisible(
     const VoxelGrid *sceneWorldVoxelGrid,
-    SimpleRaytracingPathNode *node1,
-    SimpleRaytracingPathNode *node2)
+    const SimpleRaytracingPathNode *node1,
+    const SimpleRaytracingPathNode *node2)
 {
     Vector3D dir;
     Ray ray;
@@ -108,7 +108,7 @@ pathNodesVisible(
     dist2 = dir.norm2();
     dist = std::sqrt(dist2);
 
-    vectorScaleInverse((float) dist, dir, dir);
+    dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
 
     dist = dist * (1 - EPSILON);
 
@@ -178,8 +178,8 @@ bool
 eyeNodeVisible(
     const Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
-    SimpleRaytracingPathNode *eyeNode,
-    SimpleRaytracingPathNode *node,
+    const SimpleRaytracingPathNode *eyeNode,
+    const SimpleRaytracingPathNode *node,
     float *pixX,
     float *pixY)
 {
@@ -205,7 +205,7 @@ eyeNodeVisible(
     dist2 = dir.norm2();
     dist = std::sqrt(dist2);
 
-    vectorScaleInverse((float)dist, dir, dir);
+    dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
 
     // Determine which pixel is visible
     z = dir.dotProduct(camera->Z);

@@ -181,7 +181,7 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    vectorScaleInverse((float) localNorm, n, n);
+    n.inverseScaledCopy((float) localNorm, n, EPSILON_FLOAT);
     *normal = n;
 
     return normal;
@@ -360,7 +360,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     for ( int i = 0; i < n; i++ ) {
         center.addition(center, *(v[i]->point));
     }
-    vectorScaleInverse((float) n, center, center);
+    center.inverseScaledCopy((float) n, center, EPSILON_FLOAT);
 
     double maxD = vectorDist(center, *(v[0]->point));
     int max = 0;
@@ -425,7 +425,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
             vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
             a = nn.norm();
-            vectorScaleInverse((float) a, nn, nn);
+            nn.inverseScaledCopy((float) a, nn, EPSILON_FLOAT);
             d = vectorDist(nn, *normal);
 
             good = true;

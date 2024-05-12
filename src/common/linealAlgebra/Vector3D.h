@@ -31,6 +31,7 @@ class Vector3D {
     void subtraction(const Vector3D& a, const Vector3D& b);
     void sumScaled(Vector3D a, double s, Vector3D b);
     void scaledCopy(float s, const Vector3D &v);
+    void inverseScaledCopy(float s, const Vector3D &v, float epsilon);
 };
 
 inline
@@ -165,11 +166,11 @@ Vector3D::scaledCopy(const float s, const Vector3D &v) {
 Scales a vector with the inverse of the real number s if not zero: d = (1/s).v
 */
 inline void
-vectorScaleInverse(const float s, const Vector3D &v, Vector3D &d) {
-    float normalizedFactor = s < -EPSILON || s > EPSILON ? 1.0f/s : 1.0f;
-    d.x = normalizedFactor * v.x;
-    d.y = normalizedFactor * v.y;
-    d.z = normalizedFactor * v.z;
+Vector3D::inverseScaledCopy(const float s, const Vector3D &v, const float epsilon) {
+    float normalizedFactor = s < -epsilon || s > epsilon ? 1.0f / s : 1.0f;
+    x = normalizedFactor * v.x;
+    y = normalizedFactor * v.y;
+    z = normalizedFactor * v.z;
 }
 
 /**
@@ -178,7 +179,7 @@ Normalizes a vector: scale it with the inverse of its norm
 inline void
 vectorNormalize(Vector3D &v) {
     float n = v.norm();
-    vectorScaleInverse(n, v, v);
+    v.inverseScaledCopy(n, v, EPSILON_FLOAT);
 }
 
 /**
