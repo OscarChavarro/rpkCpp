@@ -1,3 +1,4 @@
+#include "java/lang/Float.h"
 #include "common/error.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/xxdf.h"
@@ -53,7 +54,7 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
         }
     }
 
-    if ( !std::isfinite(result.average()) ) {
+    if ( !java::Float::isFinite(result.average()) ) {
         logFatal(-1, "transmittance", "Oops - result is not finite!");
     }
 

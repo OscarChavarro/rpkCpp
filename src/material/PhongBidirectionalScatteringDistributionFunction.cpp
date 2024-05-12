@@ -4,6 +4,7 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
 */
 
+#include "java/lang/Float.h"
 #include "common/error.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -100,7 +101,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit
 
     if ( brdf ) {
         ColorRgb reflectance = brdf->reflectance(flags);
-        if ( !std::isfinite(reflectance.average()) ) {
+        if ( !java::Float::isFinite(reflectance.average()) ) {
             logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
 

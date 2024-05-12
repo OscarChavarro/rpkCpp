@@ -185,7 +185,7 @@ set(MAIN_SRC
     src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
-    src/app/main.cpp)
+    src/app/main.cpp src/java/lang/Float.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)
