@@ -216,7 +216,7 @@ Patch::computeRandomWalkRadiosityArea() {
             p3 = this->vertex[2]->point;
             d1.subtraction(*p2, *p1);
             d2.subtraction(*p3, *p2);
-            vectorCrossProduct(d1, d2, cp1);
+            cp1.crossProduct(d1, d2);
             this->area = 0.5f * cp1.norm();
             break;
         case 4:
@@ -228,9 +228,9 @@ Patch::computeRandomWalkRadiosityArea() {
             d2.subtraction(*p3, *p2);
             d3.subtraction(*p3, *p4);
             d4.subtraction(*p4, *p1);
-            vectorCrossProduct(d1, d4, cp1);
-            vectorCrossProduct(d1, d3, cp2);
-            vectorCrossProduct(d2, d4, cp3);
+            cp1.crossProduct(d1, d4);
+            cp2.crossProduct(d1, d3);
+            cp3.crossProduct(d2, d4);
             a = cp1.dotProduct(this->normal);
             b = cp2.dotProduct(this->normal);
             c = cp3.dotProduct(this->normal);
@@ -827,7 +827,7 @@ Patch::interpolatedFrameAtUv(
             X->set((float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
         }
 
-        vectorCrossProduct(*Z, *X, *Y); // *Y = (*Z) ^ (*X)
+        Y->crossProduct(*Z, *X); // *Y = (*Z) ^ (*X)
     }
 }
 

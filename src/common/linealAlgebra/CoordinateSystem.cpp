@@ -20,7 +20,7 @@ CoordinateSystem::setFromZAxis(const Vector3D *inZ) {
         X.z = 0.0;
     }
 
-    vectorCrossProduct(Z, X, Y);
+    Y.crossProduct(Z, X);
 }
 
 /**

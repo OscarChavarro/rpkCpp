@@ -15,11 +15,11 @@ Generate and trace a local line
 Creates a coordinate system on the patch P with Z direction along the normal
 */
 static void
-patchCoordSys(Patch *patch, CoordinateSystem *coord) {
+patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     coord->Z = patch->normal;
     coord->X.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
     coord->X.normalize(EPSILON_FLOAT);
-    vectorCrossProduct(coord->Z, coord->X, coord->Y);
+    coord->Y.crossProduct(coord->Z, coord->X);
 }
 
 /**
@@ -28,7 +28,7 @@ direction with respect to patch normal. Origin and direction are uniquely determ
 by the 4-dimensional sample vector xi
 */
 Ray
-mcrGenerateLocalLine(Patch *patch, const double *xi) {
+mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     const static Patch *previousPatch = nullptr;
     static CoordinateSystem coordSys;
     Ray ray;
@@ -61,15 +61,15 @@ someFeedback() {
 Determines nearest intersection point and patch
 */
 RayHit *
-mcrShootRay(VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
-    float dist = HUGE;
+mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
+    float dist = HUGE_FLOAT;
     RayHit *hit;
 
     // Reject self-intersections
     Patch::dontIntersect(2, P, P->twin);
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
-        EPSILON < P->tolerance ? EPSILON : P->tolerance,
+        EPSILON_FLOAT < P->tolerance ? EPSILON_FLOAT : P->tolerance,
         &dist,
         HIT_FRONT | HIT_POINT,
         hitStore);

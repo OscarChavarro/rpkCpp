@@ -28,8 +28,7 @@ CPixelSampler::sample(
     double xSample = (m_px + camera->pixelWidth * x1);
     double ySample = (m_py + camera->pixelHeight * x2);
 
-    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
-                dir);
+    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = std::sqrt(distPixel2);
     dir.inverseScaledCopy((float) distPixel, dir, EPSILON_FLOAT);

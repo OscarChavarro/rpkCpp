@@ -30,10 +30,10 @@ cameraComputeClippingPlanes(Camera *camera) {
     float y = camera->pixelHeightTangent * camera->viewDistance; // Half the height of the virtual screen
     Vector3D vScreen[4];
 
-    vectorComb3(camera->lookPosition, x, camera->X, -y, camera->Y, vScreen[0]); // Upper right corner: Y axis positions down!
-    vectorComb3(camera->lookPosition, x, camera->X, y, camera->Y, vScreen[1]); // Lower right
-    vectorComb3(camera->lookPosition, -x, camera->X, y, camera->Y, vScreen[2]); // Lower left
-    vectorComb3(camera->lookPosition, -x, camera->X, -y, camera->Y, vScreen[3]); // Upper left
+    vScreen[0].combine3(camera->lookPosition, x, camera->X, -y, camera->Y); // Upper right corner: Y axis positions down!
+    vScreen[1].combine3(camera->lookPosition, x, camera->X, y, camera->Y); // Lower right
+    vScreen[2].combine3(camera->lookPosition, -x, camera->X, y, camera->Y); // Lower left
+    vScreen[3].combine3(camera->lookPosition, -x, camera->X, -y, camera->Y); // Upper left
 
     for ( int i = 0; i < 4; i++ ) {
         vectorTripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i], camera->viewPlanes[i].normal);
@@ -63,7 +63,7 @@ cameraComplete(Camera *camera) {
     camera->Z.inverseScaledCopy(camera->viewDistance, camera->Z, EPSILON_FLOAT);
 
     // camera->X is a direction pointing to the right in the window
-    vectorCrossProduct(camera->Z, camera->upDirection, camera->X);
+    camera->X.crossProduct(camera->Z, camera->upDirection);
     n = camera->X.norm();
     if ( n < EPSILON ) {
         logError("SetCamera", "up-direction and viewing direction coincide");
@@ -72,7 +72,7 @@ cameraComplete(Camera *camera) {
     camera->X.inverseScaledCopy(n, camera->X, EPSILON_FLOAT);
 
     // camera->Y is a direction pointing down in the window
-    vectorCrossProduct(camera->Z, camera->X, camera->Y);
+    camera->Y.crossProduct(camera->Z, camera->X);
     camera->Y.normalize(EPSILON_FLOAT);
 
     // Compute horizontal and vertical field of view angle from the specified one

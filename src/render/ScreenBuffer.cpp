@@ -261,7 +261,7 @@ Vector3D
 ScreenBuffer::getPixelVector(int nx, int ny, float xOffset, float yOffset) const {
     Vector2D pix = getPixelPoint(nx, ny, xOffset, yOffset);
     Vector3D dir;
-    vectorComb3(camera.Z, pix.u, camera.X, pix.v, camera.Y, dir);
+    dir.combine3(camera.Z, pix.u, camera.X, pix.v, camera.Y);
     return dir;
 }
 
@@ -279,7 +279,7 @@ ScreenBuffer::getVRes() const {
 }
 
 float
-computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
+computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     Vector3D dir;
     double h = camera->pixelWidth;
     double v = camera->pixelHeight;
@@ -290,8 +290,7 @@ computeFluxToRadFactor(Camera *camera, int pixX, int pixY) {
     double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
     double ySample = y + v * 0.5;
 
-    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
-                dir);
+    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = std::sqrt(distPixel2);
     dir.inverseScaledCopy((float)distPixel, dir, EPSILON_FLOAT);

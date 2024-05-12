@@ -33,6 +33,8 @@ class Vector3D {
     void scaledCopy(float s, const Vector3D &v);
     void inverseScaledCopy(float s, const Vector3D &v, float epsilon);
     void normalize(float epsilon);
+    void crossProduct(const Vector3D &a, const Vector3D &b);
+    void combine3(const Vector3D &o, float a, const Vector3D &v, float b, const Vector3D &w);
 };
 
 inline
@@ -187,12 +189,10 @@ Vector3D::normalize(const float epsilon) {
 In product of two vectors
 */
 inline void
-vectorCrossProduct(const Vector3D &a, const Vector3D &b, Vector3D &d) {
-    Vector3D tmp;
-    tmp.x = a.y * b.z - a.z * b.y;
-    tmp.y = a.z * b.x - a.x * b.z;
-    tmp.z = a.x * b.y - a.y * b.x;
-    d.copy(tmp);
+Vector3D::crossProduct(const Vector3D &a, const Vector3D &b) {
+    x = a.y * b.z - a.z * b.y;
+    y = a.z * b.x - a.x * b.z;
+    z = a.x * b.y - a.y * b.x;
 }
 
 /**
@@ -214,17 +214,16 @@ Vector3D::combine(
 Affine linear combination of two vectors: d = o + a.v + b.w
 */
 inline void
-vectorComb3(
+Vector3D::combine3(
     const Vector3D &o,
     const float a,
     const Vector3D &v,
     const float b,
-    const Vector3D &w,
-    Vector3D &d)
+    const Vector3D &w)
 {
-    d.x = o.x + a * v.x + b * w.x;
-    d.y = o.y + a * v.y + b * w.y;
-    d.z = o.z + a * v.z + b * w.z;
+    x = o.x + a * v.x + b * w.x;
+    y = o.y + a * v.y + b * w.y;
+    z = o.z + a * v.z + b * w.z;
 }
 
 /**
@@ -241,7 +240,7 @@ vectorTripleCrossProduct(
     Vector3D d2;
     d1.subtraction(v3, v2);
     d2.subtraction(v1, v2);
-    vectorCrossProduct(d1, d2, d);
+    d.crossProduct(d1, d2);
 }
 
 /**

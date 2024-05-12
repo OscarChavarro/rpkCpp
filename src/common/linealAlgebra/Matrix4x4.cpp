@@ -148,14 +148,15 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Z.subtraction(eye, centre); // Z positions towards viewer
     Z.normalize(EPSILON_FLOAT);
 
-    vectorCrossProduct(up, Z, X); // X positions right
+    X.crossProduct(up, Z); // X positions right
     X.normalize(EPSILON_FLOAT);
 
-    vectorCrossProduct(Z, X, Y); // Y positions up
-    set3X3Matrix(xf.m, // View orientation transform
-                 X.x, X.y, X.z,
-                 Y.x, Y.y, Y.z,
-                 Z.x, Z.y, Z.z);
+    Y.crossProduct(Z, X); // Y positions up
+    set3X3Matrix(
+        xf.m, // View orientation transform
+        X.x, X.y, X.z,
+        Y.x, Y.y, Y.z,
+        Z.x, Z.y, Z.z);
 
     s.scaledCopy(-1.0, eye); // Translate eye to origin
     Matrix4x4 t = translationMatrix(s);

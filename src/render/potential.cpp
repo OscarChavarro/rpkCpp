@@ -82,8 +82,7 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 // Compute direction to center of pixel
-                vectorComb3(scene->camera->Z, (float)xSample, scene->camera->X, ySample,
-                            scene->camera->Y, pixDir);
+                pixDir.combine3(scene->camera->Z, (float) xSample, scene->camera->X, ySample, scene->camera->Y);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the

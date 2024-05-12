@@ -32,8 +32,7 @@ ScreenSampler::sample(
     double xSample = camera->pixelWidth * (double)camera->xSize * (-0.5 + x1);
     double ySample = camera->pixelHeight * (double)camera->ySize * (-0.5 + x2);
 
-    vectorComb3(camera->Z, (float)xSample, camera->X, (float)ySample, camera->Y,
-                dir);
+    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distScreen2 = dir.norm2();
     double distScreen = std::sqrt(distScreen2);
     dir.inverseScaledCopy((float) distScreen, dir, EPSILON_FLOAT);

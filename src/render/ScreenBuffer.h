@@ -77,7 +77,7 @@ class ScreenBuffer {
 };
 
 #ifdef RAYTRACING_ENABLED
-    extern float computeFluxToRadFactor(Camera *camera, int pixX, int pixY);
+    extern float computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
 #endif
 
 #endif

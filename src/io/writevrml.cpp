@@ -49,7 +49,7 @@ transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *mod
     cosA = camera->upDirection.dotProduct(upAxis);
     if ( cosA < 1.0 - EPSILON ) {
         *modelRotationAngle = (float)std::acos(cosA);
-        vectorCrossProduct(camera->upDirection, upAxis, *modelRotationAxis);
+        modelRotationAxis->crossProduct(camera->upDirection, upAxis);
         modelRotationAxis->normalize(EPSILON_FLOAT);
         return createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
