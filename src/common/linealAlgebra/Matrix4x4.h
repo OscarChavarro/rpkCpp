@@ -8,8 +8,8 @@ class Matrix4x4 {
   public:
     float m[4][4];
 
-    void transformPoint3D(const Vector3D src, Vector3D &dst) const;
-    void transformPoint4D(const Vector4D src, Vector4D &dst) const;
+    void transformPoint3D(Vector3D src, Vector3D &dst) const;
+    void transformPoint4D(Vector4D src, Vector4D &dst) const;
     void recoverRotationParameters(float *angle, Vector3D *axis) const;
 
     void set3X3Matrix(
