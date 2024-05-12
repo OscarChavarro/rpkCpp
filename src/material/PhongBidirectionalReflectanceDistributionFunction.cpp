@@ -92,7 +92,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     Vector3D idealReflected;
     char nonDiffuseFlag;
     Vector3D inRev;
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     result.clear();
 
@@ -140,7 +140,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
     double *probabilityDensityFunction) const
 {
     Vector3D inRev;
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     *probabilityDensityFunction = 0;
 
@@ -251,7 +251,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     Vector3D inRev;
     Vector3D goodNormal;
 
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     *probabilityDensityFunction = 0;
     *probabilityDensityFunctionRR = 0;
@@ -261,7 +261,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     if ( cosIn >= 0 ) {
         goodNormal.copy(*normal);
     } else {
-        vectorScale(-1, *normal, goodNormal);
+        goodNormal.scaledCopy(-1, *normal);
     }
 
     double cosTheta = goodNormal.dotProduct(*out);

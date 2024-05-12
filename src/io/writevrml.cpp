@@ -72,9 +72,9 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
     Matrix4x4 viewTransform{};
     float viewRotationAngle;
 
-    vectorScale(1.0, camera->X, X); // camera->X positions right in window
-    vectorScale(-1.0, camera->Y, Y); // camera->Y positions down in window, VRML wants y up
-    vectorScale(-1.0, camera->Z, Z); // camera->Z positions away, VRML wants Z to point towards viewer
+    X.scaledCopy(1.0, camera->X); // camera->X positions right in window
+    Y.scaledCopy(-1.0, camera->Y); // camera->Y positions down in window, VRML wants y up
+    Z.scaledCopy(-1.0, camera->Z); // camera->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform
     transformPoint3D(modelTransform, X, X);

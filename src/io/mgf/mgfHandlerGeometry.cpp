@@ -518,7 +518,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
         return MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
-        vectorScale(-1.0, normal, backNormal);
+        backNormal.scaledCopy(-1.0, normal);
     }
 
     errcode = MGF_OK;

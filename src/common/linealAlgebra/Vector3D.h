@@ -30,6 +30,7 @@ class Vector3D {
     void addition(const Vector3D &a, const Vector3D &b);
     void subtraction(const Vector3D& a, const Vector3D& b);
     void sumScaled(Vector3D a, double s, Vector3D b);
+    void scaledCopy(float s, const Vector3D &v);
 };
 
 inline
@@ -154,10 +155,10 @@ Vector3D::norm() const {
 Scale a vector: d = s.v (s is a real number)
 */
 inline void
-vectorScale(const float s, const Vector3D &v, Vector3D &d) {
-    d.x = s * v.x;
-    d.y = s * v.y;
-    d.z = s * v.z;
+Vector3D::scaledCopy(const float s, const Vector3D &v) {
+    x = s * v.x;
+    y = s * v.y;
+    z = s * v.z;
 }
 
 /**

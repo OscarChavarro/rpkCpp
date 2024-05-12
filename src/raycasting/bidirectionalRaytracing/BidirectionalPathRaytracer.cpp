@@ -381,11 +381,10 @@ computeNeFluxEstimate(
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
 
-    vectorScale(-1, path->m_dirEL, path->m_dirLE);
+    path->m_dirLE.scaledCopy(-1, path->m_dirEL);
 
     // Evaluate radiance and pdf and weight
     if ( config->baseConfig->useSpars ) {
-        // f = config->sparList->photonMapHandlePath(&config->sparConfig, path);
         config->sparList->handlePath(&config->sparConfig, path, fRad, &f);
     } else {
         f = path->EvalRadiance();

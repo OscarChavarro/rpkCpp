@@ -81,7 +81,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     char flags) const
 {
     Vector3D inRev;
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     // Specular-like refraction can turn into reflection.
     // So for refraction a complete sphere should be
@@ -153,7 +153,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
     float tmpFloat;
     char nonDiffuseFlag;
     Vector3D inRev;
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     *probabilityDensityFunction = 0;
 
@@ -194,7 +194,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
     }
 
     idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
-    vectorScale(-1, *normal, invNormal);
+    invNormal.scaledCopy(-1, *normal);
 
     if ( x1 < (localAverageKd / scatteredPower) ) {
         // Sample diffuse
@@ -249,7 +249,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
     double *probabilityDensityFunctionRR) const
 {
     Vector3D inRev;
-    vectorScale(-1.0, *in, inRev);
+    inRev.scaledCopy(-1.0, *in);
 
     *probabilityDensityFunction = 0;
     *probabilityDensityFunctionRR = 0;
@@ -261,7 +261,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
     if ( cosIn >= 0 ) {
         goodNormal.copy(*normal);
     } else {
-        vectorScale(-1, *normal, goodNormal);
+        goodNormal.scaledCopy(-1, *normal);
     }
 
     double cosTheta = goodNormal.dotProduct(*out);

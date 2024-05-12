@@ -157,7 +157,7 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
                  Y.x, Y.y, Y.z,
                  Z.x, Z.y, Z.z);
 
-    vectorScale(-1.0, eye, s); // Translate eye to origin
+    s.scaledCopy(-1.0, eye); // Translate eye to origin
     Matrix4x4 t = translationMatrix(s);
     return transComposeMatrix(&xf, &t);
 }

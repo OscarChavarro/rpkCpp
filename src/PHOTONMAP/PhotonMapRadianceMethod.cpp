@@ -239,7 +239,7 @@ photonMapDoComputePixelFluxEstimate(
                             CONNECT_EL | CONNECT_LE,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
 
-    vectorScale(-1, bp->m_dirEL, bp->m_dirLE);
+    bp->m_dirLE.scaledCopy(-1, bp->m_dirEL);
 
     // Evaluate radiance and probabilityDensityFunction and weight
     f = bp->EvalRadiance();

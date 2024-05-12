@@ -12,7 +12,7 @@ idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
     double tmp = 2 * normal->dotProduct(*in);
     Vector3D result;
 
-    vectorScale((float)tmp, *normal, result);
+    result.scaledCopy((float) tmp, *normal);
     result.subtraction(*in, result);
     vectorNormalize(result);
 
@@ -47,7 +47,7 @@ idealRefractedDirection(
     float normalScale = refractionIndex * Ci - Ct;
 
     Vector3D result;
-    vectorScale(refractionIndex, *in, result);
+    result.scaledCopy(refractionIndex, *in);
     result.sumScaled(result, normalScale, *normal);
     vectorNormalize(result);
     return result;

@@ -545,7 +545,7 @@ GalerkinElement::midPoint() const {
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c.addition(c, p[i]);
         }
-        vectorScale((1.0f / (float) numberOfVertices), c, c);
+        c.scaledCopy((1.0f / (float) numberOfVertices), c);
     }
 
     return c;

@@ -65,12 +65,12 @@ Sampler::sampleTransfer(
     if ( hit->getFlags() & HIT_BACK ) {
         // Back hit, invert normal (only happens when newNode->m_inBsdf != nullptr
         Vector3D normal;
-        vectorScale(-1, newNode->m_hit.getNormal(), normal);
+        normal.scaledCopy(-1, newNode->m_hit.getNormal());
         newNode->m_hit.setNormal(&normal);
     }
 
     newNode->m_inDirT.copy(ray.dir);
-    vectorScale(-1, newNode->m_inDirT, newNode->m_inDirF);
+    newNode->m_inDirF.scaledCopy(-1, newNode->m_inDirT);
 
     // Check for shading normal vs. geometric normal errors
     if ( newNode->m_hit.getNormal().dotProduct(newNode->m_inDirF) < 0 ) {

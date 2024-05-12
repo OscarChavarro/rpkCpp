@@ -179,7 +179,7 @@ pathNodeConnect(
     dist2 = dirEL.norm2();
     dist = std::sqrt(dist2);
     vectorScaleInverse((float) dist, dirEL, dirEL);
-    vectorScale(-1, dirEL, dirLE);
+    dirLE.scaledCopy(-1, dirEL);
 
     if ( pDirEl ) {
         pDirEl->copy(dirEL);

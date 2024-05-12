@@ -102,7 +102,7 @@ UniformLightSampler::sample(
         newNode->m_hit.init(light, &point, nullptr, light->material);
 
         // Fill in directions
-        vectorScale(-1, dir, newNode->m_inDirT);
+        newNode->m_inDirT.scaledCopy(-1, dir);
         newNode->m_inDirF.copy(dir);
         newNode->m_normal.copy(dir);
 
@@ -213,7 +213,7 @@ ImportantLightSampler::sample(
         if ( thisNode->m_outBsdf == nullptr ) {
             Vector3D invNormal;
 
-            vectorScale(-1, thisNode->m_normal, invNormal);
+            invNormal.scaledCopy(-1, thisNode->m_normal);
 
             Vector3D position = thisNode->m_hit.getPoint();
             light = GLOBAL_lightList->sampleImportant(&position,
@@ -252,7 +252,7 @@ ImportantLightSampler::sample(
         newNode->m_hit.init(light, &point, nullptr, light->material);
 
         // fill in directions
-        vectorScale(-1, dir, newNode->m_inDirT);
+        newNode->m_inDirT.scaledCopy(-1, dir);
         newNode->m_inDirF.copy(dir);
         newNode->m_normal.copy(dir);
 
