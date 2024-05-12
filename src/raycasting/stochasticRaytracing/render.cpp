@@ -6,6 +6,7 @@ Rendering elements
 
 #ifdef RAYTRACING_ENABLED
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

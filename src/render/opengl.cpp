@@ -3,6 +3,7 @@
 #include <GL/glu.h>
 #include <GL/osmesa.h>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
 #include "scene/RadianceMethod.h"

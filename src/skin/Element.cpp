@@ -1,3 +1,4 @@
+#include "java/util/ArrayList.txx"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED

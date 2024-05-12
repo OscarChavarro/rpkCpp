@@ -2,6 +2,7 @@
 #include <cstring>
 #include <GL/gl.h>
 
+#include "java/util/ArrayList.txx"
 #include "io/writevrml.h"
 #include "common/options.h"
 #include "render/canvas.h"

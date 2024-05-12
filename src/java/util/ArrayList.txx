@@ -12,6 +12,30 @@ ArrayList<T>::ArrayList() {
     init();
 };
 
+template <class T>
+ArrayList<T>::ArrayList(long i) {
+    currentSize = 0;
+    increaseChunk = i;
+    maxSize = increaseChunk;
+    init();
+}
+
+template <class T>
+ArrayList<T>::~ArrayList() {
+    if ( Data ) {
+        free(Data);
+        Data = nullptr;
+    }
+    currentSize = 0;
+    maxSize = -1;
+}
+
+template <class T> void
+ArrayList<T>::init() {
+    Data = (T *) malloc(sizeof(T) * maxSize);
+    currentSize = 0;
+}
+
 template <class T> bool
 ArrayList<T>::add(T voxelData)
 {
@@ -25,6 +49,26 @@ ArrayList<T>::add(T voxelData)
     Data[currentSize] = voxelData;
     currentSize++;
     return true;
+}
+
+template <class T> long int
+ArrayList<T>::size() const {
+    return currentSize;
+}
+
+template <class T> T &
+ArrayList<T>::operator[](long int i) {
+    return Data[i];
+}
+
+template <class T> T
+ArrayList<T>::get(long int i) const {
+    return Data[i];
+}
+
+template <class T> T*
+ArrayList<T>::data() {
+    return Data;
 }
 
 template <class T> void
@@ -73,6 +117,11 @@ ArrayList<T>::remove(T data)
     if ( shouldRemove ) {
         remove(i);
     }
+}
+
+template <class T> void
+ArrayList<T>::set(long int pos, T elem) {
+    Data[pos] = elem;
 }
 
 }

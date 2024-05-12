@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "java/util/ArrayList.h"
+#include "java/util/ArrayList.txx"
 #include "common/ColorRgb.h"
 #include "common/error.h"
 #include "skin/Patch.h"

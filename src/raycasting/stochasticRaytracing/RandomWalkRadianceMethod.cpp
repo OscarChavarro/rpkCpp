@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

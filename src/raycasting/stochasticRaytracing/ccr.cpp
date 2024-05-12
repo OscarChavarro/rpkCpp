@@ -6,6 +6,7 @@ Determination of constant control radiosity value
 
 #ifdef RAYTRACING_ENABLED
 
+#include "java/util/ArrayList.txx"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
 
