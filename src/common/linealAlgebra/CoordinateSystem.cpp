@@ -39,7 +39,7 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
         z = -1.0;
     }
 
-    *theta = std::acos(z);
+    *theta = java::Math::acos(z);
 
     Vector3D c;
 
@@ -52,11 +52,13 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
         x = 1.0;
     }
     // Sometimes numerical errors cause this
-    if ( x < -1.0 )
+    if ( x < -1.0 ) {
         x = -1.0;
-    *phi = std::acos(x);
-    if ( y < 0.0 )
+    }
+    *phi = java::Math::acos(x);
+    if ( y < 0.0 ) {
         *phi = 2.0 * M_PI - *phi;
+    }
 }
 
 /**
@@ -65,8 +67,8 @@ Samples the hemisphere according to a cos_theta distribution
 Vector3D
 CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const {
     float phi = 2.0f * (float)M_PI * (float)xi1;
-    float cos_phi = std::cos(phi);
-    float sin_phi = std::sin(phi);
+    float cos_phi = java::Math::cos(phi);
+    float sin_phi = java::Math::sin(phi);
     float cos_theta = (float)java::Math::sqrt(1.0 - xi2);
     float sin_theta = (float)java::Math::sqrt(xi2);
 
@@ -90,15 +92,15 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     double *probabilityDensityFunction) const
 {
     float phi = 2.0f * (float)M_PI * (float)xi1;
-    float cosPhi = std::cos(phi);
-    float sinPhi = std::sin(phi);
-    float cosTheta = (float)std::pow(xi2, 1.0 / (n + 1));
+    float cosPhi = java::Math::cos(phi);
+    float sinPhi = java::Math::sin(phi);
+    float cosTheta = (float)java::Math::pow(xi2, 1.0 / (n + 1));
     float sinTheta = (float)java::Math::sqrt(1.0 - cosTheta * cosTheta);
 
     Vector3D dir;
     dir.combine(cosPhi, X, sinPhi, Y);
     dir.combine(sinTheta, dir, cosTheta, Z);
-    *probabilityDensityFunction = (n + 1.0) * std::pow(cosTheta, n) / (2.0 * M_PI);
+    *probabilityDensityFunction = (n + 1.0) * java::Math::pow((double)cosTheta, n) / (2.0 * M_PI);
 
     return dir;
 }

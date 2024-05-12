@@ -61,7 +61,7 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * std::cos(theta));
+        snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * java::Math::cos(theta));
         rVal = mgfHandle(MGF_ENTITY_VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -71,7 +71,7 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, globalFloatFormat, rad * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, rad * java::Math::sin(theta));
         rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -155,7 +155,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
         }
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
-                                                   0.5 * sign * (maxRad - minRad) * std::cos(theta) * cv->n[j]);
+                                                   0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
         }
         rVal = mgfHandle(MGF_ENTITY_VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
@@ -166,7 +166,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -179,7 +179,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
-                                                   0.5 * sign * (maxRad - minRad) * std::cos(theta) * cv->n[j]);
+                                                   0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
         }
         rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
@@ -194,7 +194,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        snprintf(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * std::sin(theta));
+        snprintf(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -301,8 +301,8 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
             }
             for ( int j = 0; j < 3; j++ ) {
                 snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] +
-                                                       maxRad * u[j] * std::cos(theta) +
-                                                       maxRad * v[j] * std::sin(theta));
+                                                       maxRad * u[j] * java::Math::cos(theta) +
+                                                       maxRad * v[j] * java::Math::sin(theta));
             }
             rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
@@ -342,7 +342,7 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
+                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * d);
                 snprintf(p4[j], 24, globalFloatFormat, vertexContext->p[j] + minRad * d);
             }
@@ -453,11 +453,11 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
     n1off = n2off = (radius2 - radius1) / d;
     if ( globalWarpConeEnds ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
-        d = std::atan(n2off) - (M_PI / 4) / context->numberOfQuarterCircleDivisions;
+        d = java::Math::atan(n2off) - (M_PI / 4) / context->numberOfQuarterCircleDivisions;
         if ( d <= -M_PI / 2 + EPSILON ) {
             n2off = -HUGE_FLOAT;
         } else {
-            n2off = std::tan(d);
+            n2off = java::Math::tan(d);
         }
     }
 
@@ -506,7 +506,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
+                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
                 if ( n2off > -HUGE_FLOAT) {
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
@@ -534,11 +534,11 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
         v1Entity[3] = (char *)"_cv4";
         if ( globalWarpConeEnds ) {
             // Hack for mgfEntitySphere and mgfEntityTorus
-            d = std::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions;
+            d = java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions;
             if ( d >= M_PI / 2 - EPSILON) {
                 n1off = HUGE_FLOAT;
             } else {
-                n1off = std::tan(std::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions);
+                n1off = java::Math::tan(java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions);
             }
         }
         for ( int j = 0; j < 3; j++ ) {
@@ -572,7 +572,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * std::cos(theta) + v[j] * std::sin(theta);
+                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
                 if ( n2off > -HUGE_FLOAT) {
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);

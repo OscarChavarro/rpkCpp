@@ -215,11 +215,11 @@ eyeNodeVisible(
         x = dir.dotProduct(camera->X);
         xz = x / z;
 
-        if ( std::fabs(xz) < camera->pixelWidthTangent ) {
+        if ( java::Math::abs(xz) < camera->pixelWidthTangent ) {
             y = dir.dotProduct(camera->Y);
             yz = y / z;
 
-            if ( std::fabs(yz) < camera->pixelHeightTangent ) {
+            if ( java::Math::abs(yz) < camera->pixelHeightTangent ) {
                 // Point is within view pyramid
 
                 // Check normal directions

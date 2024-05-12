@@ -154,9 +154,9 @@ KDTree::addPoint(void *data, short flags = 0) {
         float dz;
         const float *customNodeData = (float *) (parent->m_data);
 
-        dx = std::fabs(newPoint[0] - customNodeData[0]);
-        dy = std::fabs(newPoint[1] - customNodeData[1]);
-        dz = std::fabs(newPoint[2] - customNodeData[2]);
+        dx = java::Math::abs(newPoint[0] - customNodeData[0]);
+        dy = java::Math::abs(newPoint[1] - customNodeData[1]);
+        dz = java::Math::abs(newPoint[2] - customNodeData[2]);
 
         if ( dx > dy ) {
             if ( dx > dz ) {

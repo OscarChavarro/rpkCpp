@@ -272,8 +272,8 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
 
     a = 10.0;
     b = 10.0; // Values large enough so the result would be false
-    if ( std::fabs(u1) < EPSILON ) {
-        if ( std::fabs(u2) > EPSILON && std::fabs(v1) > EPSILON ) {
+    if ( java::Math::abs(u1) < EPSILON ) {
+        if ( java::Math::abs(u2) > EPSILON && java::Math::abs(v1) > EPSILON ) {
             b = u0 / u2;
             if ( b < EPSILON || b > 1.0 - EPSILON ) {
                 return false;
@@ -283,7 +283,7 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
         }
     } else {
         b = v2 * u1 - u2 * v1;
-        if ( std::fabs(b) > EPSILON ) {
+        if ( java::Math::abs(b) > EPSILON ) {
             b = (v0 * u1 - u0 * v1) / b;
             if ( b < EPSILON || b > 1.0 - EPSILON ) {
                 return false;
@@ -313,8 +313,8 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
     int coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
-    du = std::fabs(p2->u - p1->u);
-    dv = std::fabs(p2->v - p1->v);
+    du = java::Math::abs(p2->u - p1->u);
+    dv = java::Math::abs(p2->v - p1->v);
     if ( du > EPSILON || dv > EPSILON ) {
         if ( dv > du ) {
             a = 1.0;
@@ -329,7 +329,7 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
         r3 = a * p3->u + b * p3->v + c;
         r4 = a * p4->u + b * p4->v + c;
 
-        if ( std::fabs(r3) < EPSILON && std::fabs(r4) < EPSILON ) {
+        if ( java::Math::abs(r3) < EPSILON && java::Math::abs(r4) < EPSILON ) {
             coLinear = true;
         } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON) ) {
             return false;
@@ -337,8 +337,8 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
     }
 
     if ( !coLinear ) {
-        du = std::fabs(p4->u - p3->u);
-        dv = std::fabs(p4->v - p3->v);
+        du = java::Math::abs(p4->u - p3->u);
+        dv = java::Math::abs(p4->v - p3->v);
         if ( du > EPSILON || dv > EPSILON ) {
             if ( dv > du ) {
                 a = 1.0;
@@ -353,7 +353,7 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
             r1 = a * p1->u + b * p1->v + c;
             r2 = a * p2->u + b * p2->v + c;
 
-            if ( std::fabs(r1) < EPSILON && std::fabs(r2) < EPSILON ) {
+            if ( java::Math::abs(r1) < EPSILON && java::Math::abs(r2) < EPSILON ) {
                 coLinear = true;
             } else if ( (r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON) ) {
                 return false;
@@ -479,7 +479,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
             return; // Don't stop parsing the input however
         }
 
-        if ( std::fabs(a) > EPSILON ) {
+        if ( java::Math::abs(a) > EPSILON ) {
             // Avoid degenerate faces
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
             if ( !context->currentMaterial->isSided() && face != nullptr ) {

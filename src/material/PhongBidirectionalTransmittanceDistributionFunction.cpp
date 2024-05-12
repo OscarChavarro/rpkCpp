@@ -118,7 +118,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
         float localDotProduct = idealRefracted.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
-            float tmpFloat = std::pow(localDotProduct, Ns); // cos(a) ^ n
+            float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
@@ -207,7 +207,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         tmpFloat = idealDir.dotProduct(newDir);
 
         if ( tmpFloat > 0 ) {
-            nonDiffPdf = (Ns + 1.0) * std::pow(tmpFloat, Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * java::Math::pow(tmpFloat, Ns) / (2.0 * M_PI);
         } else {
             nonDiffPdf = 0;
         }
@@ -322,7 +322,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
 
         nonDiffPdf = 0.0;
         if ( cosAlpha > 0 ) {
-            nonDiffPdf = (Ns + 1.0) * std::pow(cosAlpha, Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * java::Math::pow(cosAlpha, (double)Ns) / (2.0 * M_PI);
         }
     }
 

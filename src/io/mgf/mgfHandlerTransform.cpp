@@ -236,8 +236,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[1][1] = m4[2][2] = std::cos(tmp);
-                        m4[2][1] = -(m4[1][2] = std::sin(tmp));
+                        m4[1][1] = m4[2][2] = java::Math::cos(tmp);
+                        m4[2][1] = -(m4[1][2] = java::Math::sin(tmp));
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -245,8 +245,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[0][0] = m4[2][2] = std::cos(tmp);
-                        m4[0][2] = -(m4[2][0] = std::sin(tmp));
+                        m4[0][0] = m4[2][2] = java::Math::cos(tmp);
+                        m4[0][2] = -(m4[2][0] = java::Math::sin(tmp));
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -254,8 +254,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[0][0] = m4[1][1] = std::cos(tmp);
-                        m4[1][0] = -(m4[0][1] = std::sin(tmp));
+                        m4[0][0] = m4[1][1] = java::Math::cos(tmp);
+                        m4[1][0] = -(m4[0][1] = java::Math::sin(tmp));
                         break;
                     default: {
                         if ( !checkArgument(2, "ffff", ac, av, i) ) {
@@ -270,8 +270,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                         x /= s;
                         y /= s;
                         z /= s;
-                        float c = std::cos(a);
-                        s = std::sin(a);
+                        float c = java::Math::cos(a);
+                        s = java::Math::sin(a);
                         float t = 1 - c;
                         m4[0][0] = t * x * x + c;
                         m4[1][1] = t * y * y + c;

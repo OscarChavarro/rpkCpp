@@ -25,7 +25,7 @@ static float Lightness(float luminance) {
 
     relative_luminance = luminance / (float)GLOBAL_statistics.referenceLuminance;
     if ( relative_luminance > 0.008856 ) {
-        return (float)(1.16f * (float)std::pow(relative_luminance, 0.33f) - 0.16f);
+        return (float)(1.16f * (float)java::Math::pow(relative_luminance, 0.33f) - 0.16f);
     } else {
         return 9.033f * relative_luminance;
     }

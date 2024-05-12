@@ -265,7 +265,7 @@ randomWalkRadiosityDoShootingIteration(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         numberOfWalks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     } else {
-        numberOfWalks *= (long)std::pow(GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
+        numberOfWalks *= (long)java::Math::pow(GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size, 1. / (1. -
                                                                                                                                                                              GLOBAL_statistics.averageReflectivity.maximumComponent()));
     }
 
@@ -404,7 +404,7 @@ randomWalkRadiosityDoGatheringIteration(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
         numberOfWalks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     } else {
-        numberOfWalks *= (long)std::pow(
+        numberOfWalks *= (long)java::Math::pow(
             GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size,
             1.0 / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()));
     }

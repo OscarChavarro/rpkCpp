@@ -169,7 +169,7 @@ summarize(java::ArrayList<Patch *> *scenePatches) {
               M_PI * patch->area * (topLevelStochasticRadiosityElement(patch)->importance -
                                         topLevelStochasticRadiosityElement(patch)->sourceImportance),
               getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(
                 topLevelStochasticRadiosityElement(patch)->unShotImportance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelStochasticRadiosityElement(patch)->importance;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelStochasticRadiosityElement(patch)->sourceImportance;

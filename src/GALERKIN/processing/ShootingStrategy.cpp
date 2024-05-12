@@ -238,7 +238,7 @@ ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *s
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * std::fabs(galerkinGetUnShotPotential(patch));
+        float imp = patch->area * java::Math::abs(galerkinGetUnShotPotential(patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;

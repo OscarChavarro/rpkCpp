@@ -285,7 +285,7 @@ Patch::computeRandomWalkRadiosityArea() {
 
             // 'b' and 'c' are zero for parallelograms. In that case, the area is equal to
             // 'a', so we don't need to store the coefficients
-            if ( std::fabs(b) / this->area < EPSILON && std::fabs(c) / this->area < EPSILON ) {
+            if ( java::Math::abs(b) / this->area < EPSILON && java::Math::abs(c) / this->area < EPSILON ) {
                 this->jacobian = nullptr;
             } else {
                 this->jacobian = new Jacobian(a, b, c);
@@ -326,7 +326,7 @@ Patch::computeTolerance() const {
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *p = vertex[i]->point;
-        float e = std::fabs(normal.dotProduct(*p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
+        float e = java::Math::abs(normal.dotProduct(*p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -485,7 +485,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     vector2DNegate(AE);
     vector2DSubtract(M, A, AM);
 
-    if ( std::fabs(vector2DDeterminant(AB, CD)) < EPSILON ) {
+    if ( java::Math::abs(vector2DDeterminant(AB, CD)) < EPSILON ) {
         // Case AB // CD
         vector2DSubtract(AB, CD, Vector);
         v = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AD, Vector);
@@ -495,7 +495,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
             u = java::Math::abs(b) < EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
-    } else if ( std::fabs(vector2DDeterminant(BC, AD)) < EPSILON ) {
+    } else if ( java::Math::abs(vector2DDeterminant(BC, AD)) < EPSILON ) {
         // Case AD // BC
         vector2DAdd(AD, BC, Vector);
         u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);

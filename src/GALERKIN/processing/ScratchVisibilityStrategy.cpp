@@ -85,7 +85,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     viewDirection.subtraction(centre, eye);
     viewDirection.normalize(EPSILON_FLOAT);
-    if ( std::fabs(up.dotProduct(viewDirection)) > 1.0 - EPSILON ) {
+    if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
     lookAt = lookAtMatrix(eye, centre, up);

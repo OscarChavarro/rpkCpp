@@ -2,7 +2,7 @@
 Sobol QMC sequence
 */
 
-#include "common/mymath.h"
+#include "java/lang/Math.h"
 #include "QMC/sobol.h"
 
 #define MAX_DIM 5
@@ -71,7 +71,7 @@ initSobol(int iDim) {
 
     nextN = 0;
     dim = iDim;
-    RECIP = 1.0 / std::pow(2.0, V_MAX);
+    RECIP = 1.0 / java::Math::pow(2.0, V_MAX);
 
     // Reading primitive polynomials
     POLY[0] = 3;
@@ -97,7 +97,7 @@ initSobol(int iDim) {
         for ( int j = d[i]; j < V_MAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
             int save = POLY[i];
-            int m = (int)std::pow(2, d[i]);
+            int m = (int)java::Math::pow(2.0f, (float)d[i]);
             for ( int k = d[i]; k > 0; k-- ) {
                 v[i][j] = v[i][j] ^ m * (save % 2) * v[i][j - k];
                 save = save / 2;
@@ -109,7 +109,7 @@ initSobol(int iDim) {
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
     }
-    skip = (int)std::pow(2, 6); // Not deterministic!
+    skip = (int)java::Math::pow(2.0f, 6.0f); // Not deterministic!
     for ( int i = 1; i <= skip; i++ ) {
         // Discard the beginning of the sequence because the initial values are the same
         nextSobol();

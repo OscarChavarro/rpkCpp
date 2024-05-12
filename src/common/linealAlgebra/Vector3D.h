@@ -84,7 +84,7 @@ Tolerance value for e.g. a vertex position
 */
 inline float
 Vector3D::tolerance(float epsilon) const {
-    return epsilon * (std::fabs(x) + std::fabs(y) + std::fabs(z));
+    return epsilon * (java::Math::abs(x) + java::Math::abs(y) + java::Math::abs(z));
 }
 
 /**

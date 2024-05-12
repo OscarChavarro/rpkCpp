@@ -42,8 +42,8 @@ createRotationMatrix(float angle, Vector3D axis) {
     float x = axis.x;
     float y = axis.y;
     float z = axis.z;
-    float c = std::cos(angle);
-    s = std::sin(angle);
+    float c = java::Math::cos(angle);
+    s = java::Math::sin(angle);
     float t = 1 - c;
     set3X3Matrix(xf.m,
                  x * x * t + c, x * y * t - z * s, x * z * t + y * s,
@@ -77,7 +77,7 @@ recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
         }
     } else {
         float r;
-        *angle = std::acos(c);
+        *angle = java::Math::acos(c);
         float s = java::Math::sqrt(1.0f - c * c);
         r = 1.0f / (2.0f * s);
         axis->x = (xf->m[2][1] - xf->m[1][2]) * r;
@@ -167,7 +167,7 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
 Matrix4x4
 perspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
     Matrix4x4 xf = globalIdentityMatrix;
-    float f = 1.0f / std::tan(fieldOfViewInRadians / 2.0f);
+    float f = 1.0f / java::Math::tan(fieldOfViewInRadians / 2.0f);
 
     xf.m[0][0] = f / aspect;
     xf.m[1][1] = f;

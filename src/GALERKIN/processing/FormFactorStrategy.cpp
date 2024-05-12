@@ -361,7 +361,7 @@ FormFactorStrategy::computeInteractionError(
         link->deltaK[0] = 0.0;
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
             deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
-            double delta = std::fabs(deltaRadiance[k].maximumComponent());
+            double delta = java::Math::abs(deltaRadiance[k].maximumComponent());
             if ( delta > link->deltaK[0] ) {
                 link->deltaK[0] = (float)delta;
             }
@@ -599,7 +599,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
                 if ( Gxy[r][s] > maximumKernelValue ) {
                     maximumKernelValue = Gxy[r][s];
                 }
-                if ( std::fabs(Gxy[r][s]) > EPSILON ) {
+                if ( java::Math::abs(Gxy[r][s]) > EPSILON ) {
                     visibilityCount++;
                 }
             }

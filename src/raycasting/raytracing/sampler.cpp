@@ -47,7 +47,7 @@ Sampler::sampleTransfer(
             newNode->m_inDirT = *dir;
             newNode->m_inDirF.set(dir->x, dir->y, dir->z);
             newNode->m_pdfFromPrev = pdfDir;
-            newNode->m_G = std::fabs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
+            newNode->m_G = java::Math::abs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
@@ -82,8 +82,8 @@ Sampler::sampleTransfer(
     double dist2;
     Vector3D tmpVec;
 
-    double cosA = std::fabs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
-    double cosB = std::fabs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
+    double cosA = java::Math::abs(thisNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
+    double cosB = java::Math::abs(newNode->m_hit.getNormal().dotProduct(newNode->m_inDirT));
     tmpVec.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = tmpVec.norm2();
 

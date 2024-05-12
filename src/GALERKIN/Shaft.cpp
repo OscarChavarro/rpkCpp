@@ -158,7 +158,7 @@ Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal
     in = false;
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
         double e = normal->dotProduct(poly->vertex[i]) + d;
-        double tolerance = std::fabs(d) * EPSILON + poly->vertex[i].tolerance(EPSILON_FLOAT);
+        double tolerance = java::Math::abs(d) * EPSILON + poly->vertex[i].tolerance(EPSILON_FLOAT);
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -184,7 +184,7 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = std::fabs(d) * EPSILON + polygon->vertex[i].tolerance(EPSILON_FLOAT);
+        double tolerance = java::Math::abs(d) * EPSILON + polygon->vertex[i].tolerance(EPSILON_FLOAT);
         out |= e > tolerance;
         if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
             return false;
@@ -225,7 +225,7 @@ if the point is on the plane within tolerance distance d*EPSILON
 ShaftPlanePosition
 Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
     double e;
-    double tolerance = std::fabs(d * EPSILON) + p->tolerance(EPSILON_FLOAT);
+    double tolerance = java::Math::abs(d * EPSILON) + p->tolerance(EPSILON_FLOAT);
     e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
@@ -266,7 +266,7 @@ Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
     }
 
     // Compare plane constants
-    tolerance = std::fabs(java::Math::max(plane1->d, plane2->d) * EPSILON);
+    tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * EPSILON);
     if ( plane1->d < plane2->d - tolerance ) {
         return -1;
     } else if ( plane1->d > plane2->d + tolerance ) {
@@ -472,7 +472,7 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[0]] +
              localPlane->n[1] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[1]] +
              localPlane->n[2] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[2]] +
-             localPlane->d > -std::fabs(localPlane->d * EPSILON) ) {
+             localPlane->d > -java::Math::abs(localPlane->d * EPSILON) ) {
             return ShaftPlanePosition::OUTSIDE;
         }
     }
@@ -491,7 +491,7 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[0] + 3) % 6] +
              localPlane->n[1] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[1] + 3) % 6] +
              localPlane->n[2] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[2] + 3) % 6] +
-             localPlane->d > std::fabs(localPlane->d * EPSILON) ) {
+             localPlane->d > java::Math::abs(localPlane->d * EPSILON) ) {
             return ShaftPlanePosition::OVERLAP;
         }
     }
@@ -541,7 +541,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         in = out = false;
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane->d;
-            tolerance = (float)(std::fabs(localPlane->d) * EPSILON + pTol[j]);
+            tolerance = (float)(java::Math::abs(localPlane->d) * EPSILON + pTol[j]);
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = ShaftPlanePosition::OUTSIDE;

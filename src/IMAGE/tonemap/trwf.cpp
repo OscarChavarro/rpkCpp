@@ -10,13 +10,13 @@ Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 /**
 REFERENCES:
 
-J. Tumblin, H.E. Rushmeier. Tone Reproduction for Realistic Images,
+[TUMB1993] J. Tumblin, H.E. Rushmeier. Tone Reproduction for Realistic Images,
 IEEE Computer Graphics and Applications, 13:6, 1993, pp. 42-48.
 
 G. Ward. A Contrast-Based Scale factor for Luminance Display, Graphics
 Gems IV, Academic Press, 1994, pp. 415-421.
 
-J. Tumblin, J.K. Hodgins, B.K. Guenter. Two Methods for Display of High
+[TUMB1999b] J. Tumblin, J.K. Hodgins, B.K. Guenter. Two Methods for Display of High
 Contrast Images, ACM Transactions on Graphics, 18:1, 1999, pp. 56-94.
 
 J.A. Ferwerda, S.N. Pattanaik, P. Shirley, D. Greenberg. A Model of
@@ -63,10 +63,10 @@ photopicOperator(float logLa) {
     } else if ( logLa >= 1.9 ) {
         r = logLa - 1.255f;
     } else {
-        r = std::pow(0.249f * logLa + 0.65f, 2.7f) - 0.72f;
+        r = java::Math::pow(0.249f * logLa + 0.65f, 2.7f) - 0.72f;
     }
 
-    return std::pow(10.0f, r);
+    return java::Math::pow(10.0f, r);
 }
 
 static float
@@ -77,10 +77,10 @@ scotopicOperator(float logLa) {
     } else if ( logLa >= -1.44 ) {
         r = logLa - 0.395f;
     } else {
-        r = std::pow(0.405f * logLa + 1.6f, 2.18f) - 2.86f;
+        r = java::Math::pow(0.405f * logLa + 1.6f, 2.18f) - 2.86f;
     }
 
-    return std::pow(10.0f, r);
+    return java::Math::pow(10.0f, r);
 }
 
 static float
@@ -126,17 +126,17 @@ trwfInit() {
     }
 
     lrwexponent = alpharw / alphad;
-    lrwm_comp = std::pow(10.0f, (betarw - betad) / alphad);
+    lrwm_comp = java::Math::pow(10.0f, (betarw - betad) / alphad);
     lrwm_disp = lrwm_comp / (tmoCandelaLambert(ldmax));
     invcmax = 1.0f / cmax;
 
     // Ward
     _ldaWard = ldmax / 2.0f;
     {
-        float p1 = std::pow(_ldaWard, 0.4f);
-        float p2 = std::pow(lwa, 0.4f);
+        float p1 = java::Math::pow(_ldaWard, 0.4f);
+        float p2 = java::Math::pow(lwa, 0.4f);
         float p3 = (1.219f + p1) / (1.219f + p2);
-        m_comp = std::pow(p3, 2.5f);
+        m_comp = java::Math::pow(p3, 2.5f);
     }
 
     m_disp = m_comp / ldmax;
@@ -153,7 +153,7 @@ trwfInit() {
     // Revised Tumblin & Rushmeier
     g = stevensGamma(lwa) / stevensGamma(_ldaTumb);
     gwd = stevensGamma(lwa) / (1.855f + 0.4f * std::log(_ldaTumb));
-    r_comp = std::pow(java::Math::sqrt(cmax), gwd - 1) * _ldaTumb;
+    r_comp = java::Math::pow(java::Math::sqrt(cmax), gwd - 1) * _ldaTumb;
     r_disp = r_comp / ldmax;
 }
 
@@ -170,7 +170,7 @@ trwfScaleForComputations(ColorRgb radiance) {
 
     if ( rwl > 0.0 ) {
         float m = tmoLambertCandela(
-                (std::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_comp));
+                (java::Math::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_comp));
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;
@@ -192,7 +192,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
     radiance.scale(eff * (float) M_PI);
 
     if ( rwl > 0.0 ) {
-        float m = (std::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_disp - invcmax);
+        float m = (java::Math::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_disp - invcmax);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;
@@ -248,7 +248,7 @@ revisedTRScaleForComputations(ColorRgb radiance) {
     rwl = radiance.luminance();
 
     if ( rwl > 0.0 ) {
-        scale = r_comp * std::pow(rwl / _lwa, g) / rwl;
+        scale = r_comp * java::Math::pow(rwl / _lwa, g) / rwl;
     } else {
         scale = 0.0;
     }
@@ -268,7 +268,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
     radiance.scale(eff * (float)M_PI);
 
     if ( rwl > 0.0 ) {
-        scale = r_disp * std::pow(rwl / _lwa, g) / rwl;
+        scale = r_disp * java::Math::pow(rwl / _lwa, g) / rwl;
     } else {
         scale = 0.0f;
     }

@@ -102,7 +102,7 @@ stochasticJacobiProbability(StochasticRadiosityElement *elem) {
     }
 
     if ( globalGetImportanceCallback && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        double prob2 = elem->area * std::fabs(globalGetImportanceCallback(elem)) *
+        double prob2 = elem->area * java::Math::abs(globalGetImportanceCallback(elem)) *
                 stochasticRadiosityElementScalarReflectance(elem);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
@@ -718,7 +718,7 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
         (float)M_PI * elem->area * (elem->importance - elem->sourceImportance),
         elem->unShotRadiance[0]);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += (elem->area * std::fabs(elem->unShotImportance));
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += (elem->area * java::Math::abs(elem->unShotImportance));
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
 }
 

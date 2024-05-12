@@ -1,6 +1,8 @@
 #ifndef __MGF_COLOR_CONTEXT__
 #define __MGF_COLOR_CONTEXT__
 
+#include "java/lang/Math.h"
+
 #define COLOR_MINIMUM_WAVE_LENGTH 380
 #define COLOR_MAXIMUM_WAVE_LENGTH 780
 #define COLOR_WAVE_LENGTH_DELTA_I ((float)(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) / (float)(NUMBER_OF_SPECTRAL_SAMPLES - 1))
@@ -47,7 +49,7 @@ class MgfColorContext {
 
     inline static double
     bBsp(double l, double t) {
-        return C1 / (l * l * l * l * l * (std::exp(C2 / (t * l)) - 1.0));
+        return C1 / (l * l * l * l * l * (java::Math::exp(C2 / (t * l)) - 1.0));
     }
 
   public:

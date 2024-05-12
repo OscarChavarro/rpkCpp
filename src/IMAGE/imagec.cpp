@@ -51,9 +51,9 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 
 inline void
 gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
-  rgb.r = gamma[0] == 1.0 ? rgb.r : std::pow(rgb.r, 1.0f / gamma[0]);
-  rgb.g = gamma[1] == 1.0 ? rgb.g : std::pow(rgb.g, 1.0f / gamma[1]);
-  rgb.b = gamma[2] == 1.0 ? rgb.b : std::pow(rgb.b, 1.0f / gamma[2]);
+  rgb.r = gamma[0] == 1.0 ? rgb.r : java::Math::pow(rgb.r, 1.0f / gamma[0]);
+  rgb.g = gamma[1] == 1.0 ? rgb.g : java::Math::pow(rgb.g, 1.0f / gamma[1]);
+  rgb.b = gamma[2] == 1.0 ? rgb.b : java::Math::pow(rgb.b, 1.0f / gamma[2]);
 }
 
 int

@@ -772,7 +772,7 @@ doBptAndSubsequentImages(
 
     // Get the highest power of two < number of samples
     nrIterations = (int)(std::log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / std::log(2.0));
-    maxSamples = (int)std::pow(2.0, nrIterations);
+    maxSamples = (int)java::Math::pow(2.0, nrIterations);
 
     nrIterations += 1; // First two are 1 and 1
 
@@ -933,7 +933,7 @@ doBptDensityEstimation(
     config->deStoreHits = false;
 
     int nrIterations = (int)std::floor(log(GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / (log(2)));
-    int maxSamples = (int)std::pow(2.0, nrIterations);
+    int maxSamples = (int)java::Math::pow(2.0, nrIterations);
 
     printf("Doing %i iterations, thus %i samples per pixel\n", nrIterations,
            maxSamples);

@@ -113,16 +113,16 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), java::ArrayList<Pat
         case TMA_NONE:
             break;
         case TMA_AVERAGE: {
-            // Gibson's static adaptation after Tumblin[1993]
+            // Gibson's static adaptation after [TUMB1999b]
             globalLogAreaLum = 0.0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchComputeLogAreaLum(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = (float)std::exp(globalLogAreaLum / GLOBAL_statistics.totalArea + 0.84);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp((float)globalLogAreaLum / GLOBAL_statistics.totalArea + 0.84f);
             break;
         }
         case TMA_MEDIAN: {
-            // Static adaptation inspired by Tumblin[1999]
+            // Static adaptation inspired by [TUMB1999b]
             LuminanceArea *la = (LuminanceArea *)malloc(GLOBAL_statistics.numberOfPatches * sizeof(LuminanceArea));
 
             globalLumArea = la;

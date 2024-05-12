@@ -2,7 +2,7 @@
 Faure's QMC sequences
 */
 
-#include "common/mymath.h"
+#include "java/lang/Math.h"
 #include "QMC/faure.h"
 
 #define MAX_DIM 10
@@ -38,7 +38,7 @@ setFaureC() {
     for ( int i = globalDim - 1; i >= 0; i-- ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
             for ( int k = j; k < globalNDigits; k++ ) {
-                C[i][j][k] = (C[0][j][k] * (int)std::pow(i, k - j)) % globalPR;
+                C[i][j][k] = (C[0][j][k] * (int)java::Math::pow((float)i, (float)(k - j))) % globalPR;
             }
         }
     }
@@ -73,7 +73,7 @@ setGFaureC() {
                 int Q = m < n ? m : n;
                 C[i][m][n] = 0;
                 for ( int q = 0; q <= Q; q++ ) {
-                    C[i][m][n] = (int)(C[i][m][n] + P[m][q] * P[n][q] * (int)std::pow(i, m + n - 2 * q)) % globalPR;
+                    C[i][m][n] = (int)(C[i][m][n] + P[m][q] * P[n][q] * (int)java::Math::pow((float)i, (float)(m + n - 2 * q))) % globalPR;
                 }
             }
         }
@@ -155,7 +155,7 @@ initFaure(int iDim) {
         }
     }
 
-    globalSkip = (int)std::pow(globalPR, 4) - 1;
+    globalSkip = (int)java::Math::pow((float)globalPR, 4.0f) - 1;
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
         nextFaure();
@@ -178,7 +178,7 @@ initGFaure(int iDim) {
         }
     }
 
-    globalSkip = (int)(std::pow(globalPR, 4) - 1);
+    globalSkip = (int)(java::Math::pow((float)globalPR, 4.0f) - 1);
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
         nextFaure();

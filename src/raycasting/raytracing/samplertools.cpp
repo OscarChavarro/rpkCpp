@@ -307,7 +307,7 @@ pathNodeConnect(
     }
 
     double cosA = -dirEL.dotProduct(nodeY->m_normal);
-    geom = std::fabs(cosA * nodeX->m_normal.dotProduct(dirEL) / dist2);
+    geom = java::Math::abs(cosA * nodeX->m_normal.dotProduct(dirEL) / dist2);
 
     // Geom is always positive !  Visibility checking cannot be done
     // by checking cos signs because materials can be refractive.

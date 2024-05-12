@@ -13,11 +13,11 @@ void CPhoton::FindRS(double *r, double *s, CoordinateSystem *coord,
 
     if ( flag == BRDF_DIFFUSE_COMPONENT ) {
         *s = phi / (2 * M_PI);
-        double tmp = std::cos(theta);
+        double tmp = java::Math::cos(theta);
         *r = -tmp * tmp + 1;
     } else if ( flag == BRDF_GLOSSY_COMPONENT ) {
         *s = phi / (2 * M_PI);
-        *r = std::pow(std::cos(theta), n + 1);
+        *r = java::Math::pow(java::Math::cos(theta), (double)n + 1.0);
     } else {
         logError("CPhoton::FindRS", "Component %i not implemented yet", flag);
     }

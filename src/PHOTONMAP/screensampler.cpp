@@ -38,7 +38,7 @@ ScreenSampler::sample(
     double distScreen = java::Math::sqrt(distScreen2);
     dir.inverseScaledCopy((float) distScreen, dir, EPSILON_FLOAT);
 
-    double cosScreen = std::fabs(camera->Z.dotProduct(dir));
+    double cosScreen = java::Math::abs(camera->Z.dotProduct(dir));
 
     double pdfDir = ((1.0 / (camera->pixelWidth * (float)camera->xSize *
                             camera->pixelHeight * (float)camera->ySize)) * // 1 / Area pixel

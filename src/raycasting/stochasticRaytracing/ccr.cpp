@@ -196,7 +196,7 @@ refineControlRadiosity(
         rad[i].addScaled(*minRad, (float) i / (float) NUMBER_OF_INTERVALS, d);
     }
 
-    // Determine value of F(beta) = sum_i (area_i * std::fabs(B_i - beta)) on
+    // Determine value of F(beta) = sum_i (area_i * java::Math::abs(B_i - beta)) on
     // a regular subdivision of the interval
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         refineControlRadiosityRecursive(

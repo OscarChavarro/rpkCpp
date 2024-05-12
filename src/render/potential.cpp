@@ -69,8 +69,8 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    h = 2.0f * std::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    v = 2.0f * std::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
+    h = 2.0f * java::Math::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
+    v = 2.0f * java::Math::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
     pixelArea = h * v;
 
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;

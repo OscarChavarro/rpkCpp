@@ -77,7 +77,7 @@ toneMappingMethodOption(void *value) {
 
 static void
 brightnessAdjustOption(void * /*val*/) {
-    GLOBAL_toneMap_options.pow_bright_adjust = (float)std::pow(2.0, GLOBAL_toneMap_options.brightness_adjust);
+    GLOBAL_toneMap_options.pow_bright_adjust = (float)java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 }
 
 static void
@@ -178,7 +178,7 @@ toneMapDefaults() {
     }
 
     GLOBAL_toneMap_options.brightness_adjust = 0.0;
-    GLOBAL_toneMap_options.pow_bright_adjust = std::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
+    GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
     GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
     GLOBAL_toneMap_options.realWorldAdaptionLuminance = DEFAULT_TM_LWA;
@@ -244,7 +244,7 @@ recomputeGammaTable(int index, double gamma) {
         gamma = 1.0;
     }
     for ( int i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
-        GLOBAL_toneMap_options.gammaTab[index][i] = (float)std::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1. / gamma);
+        GLOBAL_toneMap_options.gammaTab[index][i] = (float)java::Math::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1.0 / gamma);
     }
 }
 

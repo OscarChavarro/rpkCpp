@@ -35,7 +35,7 @@ CPixelSampler::sample(
     double distPixel = java::Math::sqrt(distPixel2);
     dir.inverseScaledCopy((float) distPixel, dir, EPSILON_FLOAT);
 
-    double cosPixel = std::fabs(camera->Z.dotProduct(dir));
+    double cosPixel = java::Math::abs(camera->Z.dotProduct(dir));
 
     double pdfDir = ((1.0 / (camera->pixelWidth * camera->pixelHeight)) * // 1 / Area pixel
                      (distPixel2 / cosPixel));  // Spherical angle measure

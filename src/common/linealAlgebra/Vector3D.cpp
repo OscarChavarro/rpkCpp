@@ -9,9 +9,9 @@ int
 Vector3D::dominantCoordinate() const {
     Vector3D anorm;
 
-    anorm.x = std::fabs(x);
-    anorm.y = std::fabs(y);
-    anorm.z = std::fabs(z);
+    anorm.x = java::Math::abs(x);
+    anorm.y = java::Math::abs(y);
+    anorm.z = java::Math::abs(z);
     double indexValue = java::Math::max(anorm.y, anorm.z);
     indexValue = java::Math::max(anorm.x, (float)indexValue);
 

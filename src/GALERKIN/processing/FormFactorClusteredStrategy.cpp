@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
@@ -141,7 +142,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
-        return std::exp(-kappa * (tMaximum - tMinimum));
+        return java::Math::exp(-kappa * (tMaximum - tMinimum));
     } else {
         if ( geometry->isCompound() ) {
             java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);

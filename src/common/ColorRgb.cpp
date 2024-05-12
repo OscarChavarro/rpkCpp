@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Float.h"
 #include "common/ColorRgb.h"
 
@@ -9,9 +10,9 @@ ColorRgb::ColorRgb(const float inR, const float inG, const float inB) {
 
 void
 ColorRgb::abs() {
-    r = std::fabs(r);
-    g = std::fabs(g);
-    b = std::fabs(b);
+    r = java::Math::abs(r);
+    g = java::Math::abs(g);
+    b = java::Math::abs(b);
 }
 
 void
@@ -87,7 +88,7 @@ ColorRgb::scaleInverse(const float scale, const ColorRgb s) {
 
 float
 ColorRgb::sumAbsComponents() const {
-    return std::fabs(r) + std::fabs(g) + std::fabs(b);
+    return java::Math::abs(r) + java::Math::abs(g) + java::Math::abs(b);
 }
 
 void

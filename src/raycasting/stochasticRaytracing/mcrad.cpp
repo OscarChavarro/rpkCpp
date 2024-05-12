@@ -268,7 +268,7 @@ static void
 monteCarloRadiosityAccumulateImportances(StochasticRadiosityElement *elem) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->sourceImportance;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * std::fabs(elem->unShotImportance);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * java::Math::abs(elem->unShotImportance);
 }
 
 /**
@@ -453,7 +453,7 @@ monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions) {
             M_PI * patch->area *
             (topLevelStochasticRadiosityElement(patch)->importance - topLevelStochasticRadiosityElement(patch)->sourceImportance),
             getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * std::fabs(topLevelStochasticRadiosityElement(patch)->unShotImportance);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(topLevelStochasticRadiosityElement(patch)->unShotImportance);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelStochasticRadiosityElement(patch)->importance;
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelStochasticRadiosityElement(patch)->sourceImportance;
         monteCarloRadiosityPatchComputeNewColor(patch);
