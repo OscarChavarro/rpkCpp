@@ -50,7 +50,7 @@ Element::topTransform(Matrix2x2 *xf) const {
     do {
         window = window->parent;
         if ( window != nullptr && window->transformToParent != nullptr ) {
-            matrix2DPreConcatTransform(*window->transformToParent, *xf, *xf);
+            window->transformToParent->matrix2DPreConcatTransform(*xf, *xf);
         }
     } while ( window != nullptr && window->transformToParent );
 

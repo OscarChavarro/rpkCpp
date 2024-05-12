@@ -122,7 +122,7 @@ FormFactorStrategy::determineNodes(
             node.u = (float)(*cr)->u[k];
             node.v = (float)(*cr)->v[k];
             if ( element->transformToParent != nullptr ) {
-                transformPoint2D(topTransform, node, node);
+                topTransform.transformPoint2D(node, node);
             }
             element->patch->uniformPoint(node.u, node.v, &x[k]);
         }

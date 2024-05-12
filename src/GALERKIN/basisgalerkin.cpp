@@ -180,7 +180,7 @@ basisGalerkinComputeFilterCoefficients(
                 Vector2D up;
                 up.u = (float)cr->u[k];
                 up.v = (float)cr->v[k];
-                transformPoint2D(*upTransform, up, up);
+                upTransform->transformPoint2D(up, up);
                 x += cr->w[k] * parentBasis->function[alpha](up.u, up.v) *
                      childBasis->function[beta](cr->u[k], cr->v[k]);
             }
