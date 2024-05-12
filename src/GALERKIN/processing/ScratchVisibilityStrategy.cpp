@@ -88,12 +88,12 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
-    lookAt = lookAtMatrix(eye, centre, up);
+    lookAt = Matrix4x4::createLookAtMatrix(eye, centre, up);
 
     cluster->geometry->getBoundingBox().transformTo(&lookAt, &bbx);
 
     prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
-    Matrix4x4 o = orthogonalViewMatrix(
+    Matrix4x4 o = Matrix4x4::createOrthogonalViewMatrix(
             bbx.coordinates[MIN_X],
             bbx.coordinates[MAX_X],
             bbx.coordinates[MIN_Y],

@@ -274,7 +274,7 @@ BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBou
     v[7].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
 
     for ( int i = 0; i < 8; i++ ) {
-        transformPoint3D(transform, v[i], v[i]);
+        transform->transformPoint3D(v[i], v[i]);
         transformedBoundingBox->enlargeToIncludePoint(&v[i]);
     }
 

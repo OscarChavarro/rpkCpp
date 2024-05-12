@@ -21,13 +21,13 @@ setupSoftFrameBuffer(const Camera *camera) {
     GLOBAL_sgl_currentContext->sglClipping(true);
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
-    Matrix4x4 p = perspectiveMatrix(
-            camera->fieldOfVision * 2.0f * (float)M_PI / 180.0f,
-            (float) camera->xSize / (float) camera->ySize,
-            camera->near,
-            camera->far);
+    Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
+        camera->fieldOfVision * 2.0f * (float) M_PI / 180.0f,
+        (float) camera->xSize / (float) camera->ySize,
+        camera->near,
+        camera->far);
     GLOBAL_sgl_currentContext->sglLoadMatrix(&p);
-    Matrix4x4 l = lookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
+    Matrix4x4 l = Matrix4x4::createLookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(&l);
 
     return sgl;

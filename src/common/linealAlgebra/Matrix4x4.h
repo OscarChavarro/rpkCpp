@@ -7,11 +7,32 @@
 class Matrix4x4 {
   public:
     float m[4][4];
+
+    void transformPoint3D(const Vector3D src, Vector3D &dst) const;
+    void transformPoint4D(const Vector4D src, Vector4D &dst) const;
+    void recoverRotationParameters(float *angle, Vector3D *axis) const;
+
+    void set3X3Matrix(
+        float a,
+        float b,
+        float c,
+        float d,
+        float e,
+        float f,
+        float g,
+        float h,
+        float i);
+
+    static Matrix4x4 createTransComposeMatrix(const Matrix4x4 *xf2, const Matrix4x4 *xf1);
+    static Matrix4x4 createTranslationMatrix(Vector3D translation);
+    static Matrix4x4 createPerspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far);
+    static Matrix4x4 createRotationMatrix(float angleInRadians, Vector3D axis);
+    static Matrix4x4 createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up);
+    static Matrix4x4 createOrthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far);
 };
 
 inline void
-set3X3Matrix(
-    float m[4][4],
+Matrix4x4::set3X3Matrix(
     const float a,
     const float b,
     const float c,
@@ -28,26 +49,18 @@ set3X3Matrix(
 }
 
 inline void
-transformPoint3D(const Matrix4x4 *trans, const Vector3D src, Vector3D &dst) {
-    dst.x = trans->m[0][0] * src.x + trans->m[0][1] * src.y + trans->m[0][2] * src.z;
-    dst.y = trans->m[1][0] * src.x + trans->m[1][1] * src.y + trans->m[1][2] * src.z;
-    dst.z = trans->m[2][0] * src.x + trans->m[2][1] * src.y + trans->m[2][2] * src.z;
+Matrix4x4::transformPoint3D(const Vector3D src, Vector3D &dst) const {
+    dst.x = m[0][0] * src.x + m[0][1] * src.y + m[0][2] * src.z;
+    dst.y = m[1][0] * src.x + m[1][1] * src.y + m[1][2] * src.z;
+    dst.z = m[2][0] * src.x + m[2][1] * src.y + m[2][2] * src.z;
 }
 
 inline void
-transformPoint4D(const Matrix4x4 *trans, const Vector4D src, Vector4D &dst) {
-    dst.x = trans->m[0][0] * src.x + trans->m[0][1] * src.y + trans->m[0][2] * src.z + trans->m[0][3] * src.w;
-    dst.y = trans->m[1][0] * src.x + trans->m[1][1] * src.y + trans->m[1][2] * src.z + trans->m[1][3] * src.w;
-    dst.z = trans->m[2][0] * src.x + trans->m[2][1] * src.y + trans->m[2][2] * src.z + trans->m[2][3] * src.w;
-    dst.w = trans->m[3][0] * src.x + trans->m[3][1] * src.y + trans->m[3][2] * src.z + trans->m[3][3] * src.w;
+Matrix4x4::transformPoint4D(const Vector4D src, Vector4D &dst) const {
+    dst.x = m[0][0] * src.x + m[0][1] * src.y + m[0][2] * src.z + m[0][3] * src.w;
+    dst.y = m[1][0] * src.x + m[1][1] * src.y + m[1][2] * src.z + m[1][3] * src.w;
+    dst.z = m[2][0] * src.x + m[2][1] * src.y + m[2][2] * src.z + m[2][3] * src.w;
+    dst.w = m[3][0] * src.x + m[3][1] * src.y + m[3][2] * src.z + m[3][3] * src.w;
 }
-
-extern Matrix4x4 transComposeMatrix(const Matrix4x4 *xf2, const Matrix4x4 *xf1);
-extern Matrix4x4 translationMatrix(Vector3D translation);
-extern Matrix4x4 perspectiveMatrix(float fieldOfViewInRadians /*radians*/, float aspect, float near, float far);
-extern Matrix4x4 createRotationMatrix(float angle /* radians */, Vector3D axis);
-extern Matrix4x4 lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up);
-extern Matrix4x4 orthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far);
-extern void recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis);
 
 #endif

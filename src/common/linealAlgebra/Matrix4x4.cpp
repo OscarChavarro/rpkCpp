@@ -13,7 +13,7 @@ static Matrix4x4 globalIdentityMatrix = {
 };
 
 Matrix4x4
-translationMatrix(Vector3D translation) {
+Matrix4x4::createTranslationMatrix(Vector3D translation) {
     Matrix4x4 xf = globalIdentityMatrix;
     xf.m[0][3] = translation.x;
     xf.m[1][3] = translation.y;
@@ -26,7 +26,7 @@ Create scaling, ... transform. The transforms behave identically as the
 corresponding transforms in OpenGL
 */
 Matrix4x4
-createRotationMatrix(float angle, Vector3D axis) {
+Matrix4x4::createRotationMatrix(float angleInRadians, Vector3D axis) {
     Matrix4x4 xf = globalIdentityMatrix;
 
     // Singularity test
@@ -42,13 +42,13 @@ createRotationMatrix(float angle, Vector3D axis) {
     float x = axis.x;
     float y = axis.y;
     float z = axis.z;
-    float c = java::Math::cos(angle);
-    s = java::Math::sin(angle);
+    float c = java::Math::cos(angleInRadians);
+    s = java::Math::sin(angleInRadians);
     float t = 1 - c;
-    set3X3Matrix(xf.m,
-                 x * x * t + c, x * y * t - z * s, x * z * t + y * s,
-                 x * y * t + z * s, y * y * t + c, y * z * t - x * s,
-                 x * z * t - y * s, y * z * t + x * s, z * z * t + c);
+    xf.set3X3Matrix(
+        x * x * t + c, x * y * t - z * s, x * z * t + y * s,
+        x * y * t + z * s, y * y * t + c, y * z * t - x * s,
+        x * z * t - y * s, y * z * t + x * s, z * z * t + c);
     return xf;
 }
 
@@ -57,22 +57,22 @@ Recovers the rotation axis and angle from the given rotation matrix.
 There is no check whether the transform really is a rotation.
 */
 void
-recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
-    float c = (xf->m[0][0] + xf->m[1][1] + xf->m[2][2] - 1.0f) * 0.5f;
+Matrix4x4::recoverRotationParameters(float *angle, Vector3D *axis) const {
+    float c = (m[0][0] + m[1][1] + m[2][2] - 1.0f) * 0.5f;
     if ( c > 1.0f - EPSILON ) {
         *angle = 0.0f;
         axis->set(0.0f, 0.0f, 1.0f);
     } else if ( c < -1.0f + EPSILON ) {
         *angle = (float)M_PI;
-        axis->x = java::Math::sqrt((xf->m[0][0] + 1.0f) * 0.5f);
-        axis->y = java::Math::sqrt((xf->m[1][1] + 1.0f) * 0.5f);
-        axis->z = java::Math::sqrt((xf->m[2][2] + 1.0f) * 0.5f);
+        axis->x = java::Math::sqrt((m[0][0] + 1.0f) * 0.5f);
+        axis->y = java::Math::sqrt((m[1][1] + 1.0f) * 0.5f);
+        axis->z = java::Math::sqrt((m[2][2] + 1.0f) * 0.5f);
 
         // Assume x positive, determine sign of y and z
-        if ( xf->m[1][0] < 0.0f ) {
+        if ( m[1][0] < 0.0f ) {
             axis->y = -axis->y;
         }
-        if ( xf->m[2][0] < 0.0f ) {
+        if ( m[2][0] < 0.0f ) {
             axis->z = -axis->z;
         }
     } else {
@@ -80,9 +80,9 @@ recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
         *angle = java::Math::acos(c);
         float s = java::Math::sqrt(1.0f - c * c);
         r = 1.0f / (2.0f * s);
-        axis->x = (xf->m[2][1] - xf->m[1][2]) * r;
-        axis->y = (xf->m[0][2] - xf->m[2][0]) * r;
-        axis->z = (xf->m[1][0] - xf->m[0][1]) * r;
+        axis->x = (m[2][1] - m[1][2]) * r;
+        axis->y = (m[0][2] - m[2][0]) * r;
+        axis->z = (m[1][0] - m[0][1]) * r;
     }
 }
 
@@ -90,7 +90,7 @@ recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
 xf(p) = xf2(xf1(p))
 */
 Matrix4x4
-transComposeMatrix(const Matrix4x4 *xf2, const Matrix4x4 *xf1) {
+Matrix4x4::createTransComposeMatrix(const Matrix4x4 *xf2, const Matrix4x4 *xf1) {
     Matrix4x4 xf{};
 
     xf.m[0][0] = xf2->m[0][0] * xf1->m[0][0] + xf2->m[0][1] * xf1->m[1][0] + xf2->m[0][2] * xf1->m[2][0] +
@@ -139,7 +139,7 @@ on the positive Y axis (Y axis positions up, X positions right, Z positions
 towards the viewer)
 */
 Matrix4x4
-lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
+Matrix4x4::createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Matrix4x4 xf = globalIdentityMatrix;
     Vector3D s;
     Vector3D X;
@@ -153,19 +153,18 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     X.normalize(EPSILON_FLOAT);
 
     Y.crossProduct(Z, X); // Y positions up
-    set3X3Matrix(
-        xf.m, // View orientation transform
-        X.x, X.y, X.z,
+    xf.set3X3Matrix(
+        X.x, X.y, X.z, // View orientation transform
         Y.x, Y.y, Y.z,
         Z.x, Z.y, Z.z);
 
     s.scaledCopy(-1.0, eye); // Translate eye to origin
-    Matrix4x4 t = translationMatrix(s);
-    return transComposeMatrix(&xf, &t);
+    Matrix4x4 t = Matrix4x4::createTranslationMatrix(s);
+    return Matrix4x4::createTransComposeMatrix(&xf, &t);
 }
 
 Matrix4x4
-perspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
+Matrix4x4::createPerspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
     Matrix4x4 xf = globalIdentityMatrix;
     float f = 1.0f / java::Math::tan(fieldOfViewInRadians / 2.0f);
 
@@ -180,7 +179,7 @@ perspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float fa
 }
 
 Matrix4x4
-orthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
+Matrix4x4::createOrthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
     Matrix4x4 xf = globalIdentityMatrix;
 
     xf.m[0][0] = 2.0f / (right - left);

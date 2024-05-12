@@ -51,7 +51,7 @@ transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *mod
         *modelRotationAngle = (float)java::Math::acos(cosA);
         modelRotationAxis->crossProduct(camera->upDirection, upAxis);
         modelRotationAxis->normalize(EPSILON_FLOAT);
-        return createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
+        return Matrix4x4::createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
         modelRotationAxis->set(0.0, 1.0, 0.0);
         *modelRotationAngle = 0.0;
@@ -77,20 +77,20 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
     Z.scaledCopy(-1.0, camera->Z); // camera->Z positions away, VRML wants Z to point towards viewer
 
     // Apply model transform
-    transformPoint3D(modelTransform, X, X);
-    transformPoint3D(modelTransform, Y, Y);
-    transformPoint3D(modelTransform, Z, Z);
+    modelTransform->transformPoint3D(X, X);
+    modelTransform->transformPoint3D(Y, Y);
+    modelTransform->transformPoint3D(Z, Z);
 
     // Construct view orientation transform and recover axis and angle
     viewTransform = globalIdentityMatrix;
-    set3X3Matrix(viewTransform.m,
-                 X.x, Y.x, Z.x,
-                 X.y, Y.y, Z.y,
-                 X.z, Y.z, Z.z);
-    recoverRotationMatrix(&viewTransform, &viewRotationAngle, &viewRotationAxis);
+    viewTransform.set3X3Matrix(
+        X.x, Y.x, Z.x,
+        X.y, Y.y, Z.y,
+        X.z, Y.z, Z.z);
+    viewTransform.recoverRotationParameters(&viewRotationAngle, &viewRotationAxis);
 
     // Apply model transform to eye point
-    transformPoint3D(modelTransform, camera->eyePosition, eyePosition);
+    modelTransform->transformPoint3D(camera->eyePosition, eyePosition);
 
     fprintf(fp,
             "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",

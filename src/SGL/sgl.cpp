@@ -167,7 +167,7 @@ SGL_CONTEXT::sglLoadMatrix(const Matrix4x4 *xf) const {
 
 void
 SGL_CONTEXT::sglMultiplyMatrix(const Matrix4x4 *xf) const {
-    *currentTransform = transComposeMatrix(currentTransform, xf);
+    *currentTransform = Matrix4x4::createTransComposeMatrix(currentTransform, xf);
 }
 
 void
@@ -209,7 +209,7 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
         v.y = vertices[i].y;
         v.z = vertices[i].z;
         v.w = 1.0;
-        transformPoint4D(currentTransform, v, v);
+        currentTransform->transformPoint4D(v, v);
         if ( v.w > -EPSILON && v.w < EPSILON ) {
             return;
         }
