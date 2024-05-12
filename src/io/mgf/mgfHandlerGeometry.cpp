@@ -362,10 +362,10 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     }
     center.inverseScaledCopy((float) n, center, EPSILON_FLOAT);
 
-    double maxD = vectorDist(center, *(v[0]->point));
+    double maxD = center.distance(*(v[0]->point));
     int max = 0;
     for ( int i = 1; i < n; i++ ) {
-        double d = vectorDist(center, *(v[i]->point));
+        double d = center.distance(*(v[i]->point));
         if ( d > maxD ) {
             maxD = d;
             max = i;
@@ -384,7 +384,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
         p0 = n - 1;
     }
     int p2 = (p1 + 1) % n;
-    vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), *normal);
+    normal->tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
     normal->normalize(EPSILON_FLOAT);
     int index = normal->dominantCoordinate();
 
@@ -423,10 +423,10 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
                 break;
             }
 
-            vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), nn);
+            nn.tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
             a = nn.norm();
             nn.inverseScaledCopy((float) a, nn, EPSILON_FLOAT);
-            d = vectorDist(nn, *normal);
+            d = nn.distance(*normal);
 
             good = true;
             if ( d <= 1.0 ) {

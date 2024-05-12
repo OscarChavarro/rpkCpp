@@ -496,18 +496,18 @@ monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, const Ver
     Vector3D *n;
     Vector3D *t;
 
-    vectorMidPoint(*(v1->point), *(v2->point), coord);
+    coord.midPoint(*(v1->point), *(v2->point));
     p = monteCarloRadiosityInstallCoordinate(&coord);
 
     if ( v1->normal && v2->normal ) {
-        vectorMidPoint(*(v1->normal), *(v2->normal), norm);
+        norm.midPoint(*(v1->normal), *(v2->normal));
         n = monteCarloRadiosityInstallNormal(&norm);
     } else {
         n = &elem->patch->normal;
     }
 
     if ( v1->textureCoordinates && v2->textureCoordinates ) {
-        vectorMidPoint(*(v1->textureCoordinates), *(v2->textureCoordinates), texCoord);
+        texCoord.midPoint(*(v1->textureCoordinates), *(v2->textureCoordinates));
         t = monteCarloRadiosityInstallTexCoord(&texCoord);
     } else {
         t = nullptr;

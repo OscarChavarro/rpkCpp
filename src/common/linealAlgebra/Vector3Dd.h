@@ -5,11 +5,9 @@
 
 // Should be changed to Vector3Dd
 typedef double VECTOR3Dd[3];
-
 typedef double MATRIX4Dd[4][4];
 
-#define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, \
-                {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
+#define MAT4IDENT { {1.0, 0.0, 0.0, 0.0}, {0.0, 1.0, 0.0, 0.0}, {0.0, 0.0, 1.0, 0.0}, {0.0, 0.0, 0.0, 1.0} }
 
 extern double normalize(double *v);
 extern void floatCrossProduct(VECTOR3Dd result, const VECTOR3Dd a, const VECTOR3Dd b);

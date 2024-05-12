@@ -23,6 +23,8 @@ class Vector3D {
     float dotProduct(Vector3D b) const;
     float norm2() const;
     float norm() const;
+    float distance(const Vector3D &p2) const;
+    float distance2(const Vector3D &p2) const;
 
     void set(float xParam, float yParam, float zParam);
     void copy(const Vector3D &v);
@@ -35,6 +37,8 @@ class Vector3D {
     void normalize(float epsilon);
     void crossProduct(const Vector3D &a, const Vector3D &b);
     void combine3(const Vector3D &o, float a, const Vector3D &v, float b, const Vector3D &w);
+    void tripleCrossProduct(const Vector3D &v1, const Vector3D &v2, const Vector3D &v3);
+    void midPoint(const Vector3D &p1, const Vector3D &p2);
 };
 
 inline
@@ -230,26 +234,25 @@ Vector3D::combine3(
 Triple (cross) product: d = (v3 - v2) x (v1 - v2)
 */
 inline void
-vectorTripleCrossProduct(
+Vector3D::tripleCrossProduct(
     const Vector3D &v1,
     const Vector3D &v2,
-    const Vector3D &v3,
-    Vector3D &d)
+    const Vector3D &v3)
 {
     Vector3D d1;
     Vector3D d2;
     d1.subtraction(v3, v2);
     d2.subtraction(v1, v2);
-    d.crossProduct(d1, d2);
+    crossProduct(d1, d2);
 }
 
 /**
-Distance between two positions in 3D space: s = |p2-p1|
+Distance between two positions in 3D space: s = | p2 - p1 |
 */
 inline float
-vectorDist(const Vector3D &p1, const Vector3D &p2) {
+Vector3D::distance(const Vector3D &p2) const {
     Vector3D d;
-    d.subtraction(p2, p1);
+    d.subtraction(p2, *this);
     return d.norm();
 }
 
@@ -257,9 +260,9 @@ vectorDist(const Vector3D &p1, const Vector3D &p2) {
 Squared distance between two positions in 3D space: s = |p2-p1|
 */
 inline float
-vectorDist2(const Vector3D &p1, const Vector3D &p2) {
+Vector3D::distance2(const Vector3D &p2) const {
     Vector3D d;
-    d.subtraction(p2, p1);
+    d.subtraction(p2, *this);
     return d.norm2();
 }
 
@@ -267,48 +270,10 @@ vectorDist2(const Vector3D &p1, const Vector3D &p2) {
 Centre of two positions
 */
 inline void
-vectorMidPoint(const Vector3D &p1, const Vector3D &p2, Vector3D &m) {
-    m.x = 0.5f * (p1.x + p2.x);
-    m.y = 0.5f * (p1.y + p2.y);
-    m.z = 0.5f * (p1.z + p2.z);
-}
-
-/**
-Point IN Triangle: barycentric parametrisation
-*/
-inline void
-vectorPointInTriangle(
-    const Vector3D &v0,
-    const Vector3D &v1,
-    const Vector3D &v2,
-    const float u,
-    const float v,
-    Vector3D &p)
-{
-    p.x = v0.x + u * (v1.x - v0.x) + v * (v2.x - v0.x);
-    p.y = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
-    p.z = v0.z + u * (v1.z - v0.z) + v * (v2.z - v0.z);
-}
-
-/**
-Point IN Quadrilateral: bi-linear parametrisation
-*/
-inline void
-vectorPointInQuadrilateral(
-    const Vector3D &v0,
-    const Vector3D &v1,
-    const Vector3D &v2,
-    const Vector3D &v3,
-    const float u,
-    const float v,
-    Vector3D &p)
-{
-    float c = u * v;
-    float b = u - c;
-    float d = v - c;
-    p.x = v0.x + b * (v1.x - v0.x) + c * (v2.x - v0.x) + d * (v3.x - v0.x);
-    p.y = v0.y + b * (v1.y - v0.y) + c * (v2.y - v0.y) + d * (v3.y - v0.y);
-    p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
+Vector3D::midPoint(const Vector3D &p1, const Vector3D &p2) {
+    x = 0.5f * (p1.x + p2.x);
+    y = 0.5f * (p1.y + p2.y);
+    z = 0.5f * (p1.z + p2.z);
 }
 
 #endif

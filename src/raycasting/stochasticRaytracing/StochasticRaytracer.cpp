@@ -393,7 +393,7 @@ stochasticRaytracerGetRadiance(
                 if ( config->radMode == STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
-                    float dist2 = vectorDist2(thisNode->m_hit.getPoint(), thisNode->previous()->m_hit.getPoint());
+                    float dist2 = thisNode->m_hit.getPoint().distance2(thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
                         radiance = photonMapGetNodeGRadiance(thisNode);

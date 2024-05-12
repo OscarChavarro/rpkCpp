@@ -54,6 +54,44 @@ Patch::allVerticesHaveANormal() const {
     return i >= numberOfVertices;
 }
 
+/**
+Point IN Triangle: barycentric parametrisation
+*/
+inline void
+Patch::pointInTriangle(
+    const Vector3D &v0,
+    const Vector3D &v1,
+    const Vector3D &v2,
+    const float u,
+    const float v,
+    Vector3D &p)
+{
+    p.x = v0.x + u * (v1.x - v0.x) + v * (v2.x - v0.x);
+    p.y = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
+    p.z = v0.z + u * (v1.z - v0.z) + v * (v2.z - v0.z);
+}
+
+/**
+Point IN Quadrilateral: bi-linear parametrisation
+*/
+inline void
+Patch::pointInQuadrilateral(
+    const Vector3D &v0,
+    const Vector3D &v1,
+    const Vector3D &v2,
+    const Vector3D &v3,
+    const float u,
+    const float v,
+    Vector3D &p)
+{
+    float c = u * v;
+    float b = u - c;
+    float d = v - c;
+    p.x = v0.x + b * (v1.x - v0.x) + c * (v2.x - v0.x) + d * (v3.x - v0.x);
+    p.y = v0.y + b * (v1.y - v0.y) + c * (v2.y - v0.y) + d * (v3.y - v0.y);
+    p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
+}
+
 Vector3D
 Patch::getInterpolatedNormalAtUv(double u, double v) const {
     Vector3D localNormal;
@@ -64,11 +102,11 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
 
     switch ( numberOfVertices ) {
         case 3:
-            vectorPointInTriangle(*v1, *v2, *v3, (float) u, (float) v, localNormal);
+            pointInTriangle(*v1, *v2, *v3, (float) u, (float) v, localNormal);
             break;
         case 4:
             v4 = vertex[3]->normal;
-            vectorPointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, localNormal);
+            pointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, localNormal);
             break;
         default:
             logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
@@ -852,7 +890,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
             if ( !t0 || !t1 || !t2 ) {
                 texCoord.set((float) u, (float) v, 0.0f);
             } else {
-                vectorPointInTriangle(*t0, *t1, *t2, (float) u, (float) v, texCoord);
+                pointInTriangle(*t0, *t1, *t2, (float) u, (float) v, texCoord);
             }
             break;
         case 4:
@@ -860,7 +898,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
             if ( !t0 || !t1 || !t2 || !t3 ) {
                 texCoord.set((float) u, (float) v, 0.0f);
             } else {
-                vectorPointInQuadrilateral(*t0, *t1, *t2, *t3, (float) u, (float) v, texCoord);
+                pointInQuadrilateral(*t0, *t1, *t2, *t3, (float) u, (float) v, texCoord);
             }
             break;
         default:
@@ -1020,10 +1058,10 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
             u = 1.0 - u;
             v = 1.0 - v;
         }
-        vectorPointInTriangle(*v1, *v2, *v3, (float) u, (float) v, *point);
+        pointInTriangle(*v1, *v2, *v3, (float) u, (float) v, *point);
     } else if ( numberOfVertices == 4 ) {
         v4 = vertex[3]->point;
-            vectorPointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, *point);
+        pointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, *point);
     } else {
         logFatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }

@@ -13,6 +13,25 @@
 
 class Patch {
   private:
+    static void
+    pointInTriangle(
+        const Vector3D &v0,
+        const Vector3D &v1,
+        const Vector3D &v2,
+        float u,
+        float v,
+        Vector3D &p);
+
+    static void
+    pointInQuadrilateral(
+        const Vector3D &v0,
+        const Vector3D &v1,
+        const Vector3D &v2,
+        const Vector3D &v3,
+        float u,
+        float v,
+        Vector3D &p);
+
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
     static int globalPatchId;

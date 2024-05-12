@@ -365,7 +365,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             other = &polygon2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
-            vectorTripleCrossProduct(*cur, *next, *other, normal);
+            normal.tripleCrossProduct(*cur, *next, *other);
             localNorm = normal.norm();
             if ( localNorm < EPSILON ) {
                 continue;
