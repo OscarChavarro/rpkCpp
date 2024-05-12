@@ -56,12 +56,12 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
     double frac;
     double dzf;
 
-    int lx = (int)std::ceil(l->sx - 0.5);
+    int lx = (int)java::Math::ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
 
-    int rx = (int)std::floor(r->sx - 0.5);
+    int rx = (int)java::Math::floor(r->sx - 0.5);
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -138,7 +138,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
     int li = top; // Left and right vertex indices
     int ri = top;
     int rem = p->n; // Number of vertices remaining
-    int y = (int)std::ceil(yMin - 0.5); // Current scan line
+    int y = (int)java::Math::ceil(yMin - 0.5); // Current scan line
     int ly = y - 1; // Lower end of left & right edges
     int ry = y - 1;
 
@@ -158,7 +158,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = (int)std::floor(p->vertices[i].sy + 0.5);
+            ly = (int)java::Math::floor(p->vertices[i].sy + 0.5);
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -169,7 +169,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = (int)std::floor(p->vertices[i].sy + 0.5);
+            ry = (int)java::Math::floor(p->vertices[i].sy + 0.5);
             ri = i;
         }
 

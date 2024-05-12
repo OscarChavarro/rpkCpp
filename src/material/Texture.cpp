@@ -1,4 +1,4 @@
-#include <cmath>
+#include "java/lang/Math.h"
 #include "material/Texture.h"
 
 inline void
@@ -8,9 +8,9 @@ rgbSetMonochrome(ColorRgb rgb, float val) {
 
 ColorRgb
 Texture::evaluateColor(float u, float v) const {
-    double u1 = u - std::floor(u);
+    double u1 = u - java::Math::floor(u);
     double u0 = 1.0 - u1;
-    double v1 = v - std::floor(v);
+    double v1 = v - java::Math::floor(v);
     double v0 = 1.0 - v1;
     int i = (int)(u1 * width);
     int i1 = i + 1;

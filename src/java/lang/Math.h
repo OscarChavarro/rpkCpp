@@ -6,6 +6,12 @@
 namespace java {
 class Math {
 public:
+    static double floor(double a);
+    static float floor(float a);
+    static double ceil(double a);
+    static float ceil(float a);
+    static long round(double a);
+    static long round(float a);
     static double log(double a);
     static float log(float a);
     static double log10(double a);
@@ -35,6 +41,36 @@ public:
     static float sqrt(float a);
     static double sqrt(double a);
 };
+
+inline float
+Math::ceil(float a) {
+    return std::ceil(a);
+}
+
+inline double
+Math::ceil(double a) {
+    return std::ceil(a);
+}
+
+inline float
+Math::floor(float a) {
+    return std::floor(a);
+}
+
+inline double
+Math::floor(double a) {
+    return std::floor(a);
+}
+
+inline long
+Math::round(float a) {
+    return std::lround(a);
+}
+
+inline long
+Math::round(double a) {
+    return std::lround(a);
+}
 
 inline float
 Math::log(float a) {

@@ -240,12 +240,12 @@ ScreenBuffer::getPixelCenter(int nx, int ny) const {
 
 int
 ScreenBuffer::getNx(float x) const {
-    return (int) std::floor((x - getScreenXMin()) / getPixXSize());
+    return (int) java::Math::floor((x - getScreenXMin()) / getPixXSize());
 }
 
 int
 ScreenBuffer::getNy(float y) const {
-    return (int) std::floor((y - getScreenYMin()) / getPixYSize());
+    return (int) java::Math::floor((y - getScreenYMin()) / getPixYSize());
 }
 
 void

@@ -178,7 +178,7 @@ tracePaths(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         double p = BirthProbability(patch) / globalSumProbabilities;
-        long paths_this_patch = (int) std::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
+        long paths_this_patch = (int)java::Math::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
         for ( int j = 0; j < paths_this_patch; j++ ) {
             tracePath(sceneWorldVoxelGrid, patch, p, SurvivalProbability, &path);
             ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);

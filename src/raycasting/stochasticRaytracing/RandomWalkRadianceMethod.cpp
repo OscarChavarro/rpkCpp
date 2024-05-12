@@ -271,8 +271,8 @@ randomWalkRadiosityDoShootingIteration(
 
     fprintf(stderr, "Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-            numberOfWalks, (long) std::floor((double) numberOfWalks / (1.0 -
-                                                                       GLOBAL_statistics.averageReflectivity.maximumComponent())));
+            numberOfWalks, (long)java::Math::floor((double) numberOfWalks /
+                (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
 
     tracePaths(
         sceneWorldVoxelGrid,

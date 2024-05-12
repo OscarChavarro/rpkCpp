@@ -93,7 +93,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **
     boxPos = 0;
     boxStep = 1;
     if ( wlStep < (double)COLOR_WAVE_LENGTH_DELTA_I ) {
-        imax = (int)std::lround((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - EPSILON));
+        imax = (int)java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - EPSILON));
         boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / COLOR_WAVE_LENGTH_DELTA_I;
         boxStep = wlStep / COLOR_WAVE_LENGTH_DELTA_I;
         wlStep = COLOR_WAVE_LENGTH_DELTA_I;
@@ -136,10 +136,10 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **
                 pos++;
             }
             if ( wl + EPSILON >= wl0 && wl - EPSILON <= wl0 ) {
-                straightSamples[i] = (short)std::lround(scale * va[pos] + 0.5);
+                straightSamples[i] = (short)java::Math::round(scale * va[pos] + 0.5);
             } else {
                 // Interpolate if necessary
-                straightSamples[i] = (short)std::lround(0.5 + scale / wlStep *
+                straightSamples[i] = (short)java::Math::round(0.5 + scale / wlStep *
                                                               (va[pos] * (wl0 + wlStep - wl) +
                                                                va[pos + 1] * (wl - wl0)));
             }
@@ -173,7 +173,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
     spectralStraightSum = 0;
     for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         wl = (COLOR_MINIMUM_WAVE_LENGTH + (float)i * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
-        spectralStraightSum += straightSamples[i] = (short)std::lround(sf * bBsp(wl, tk) + 0.5);
+        spectralStraightSum += straightSamples[i] = (short)java::Math::round(sf * bBsp(wl, tk) + 0.5);
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
@@ -223,7 +223,7 @@ MgfColorContext::fixColorRepresentation(int fl) {
             z = 1.0 - x - y;
             spectralStraightSum = 0;
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-                straightSamples[i] = (short)std::lround(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
+                straightSamples[i] = (short)java::Math::round(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
                                                         + z * cie_zp.straightSamples[i] + 0.5);
                 if ( straightSamples[i] < 0 ) {
                     // Out of gamut!
@@ -282,7 +282,7 @@ MgfColorContext::mixColors(
         scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
         spectralStraightSum = 0;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            spectralStraightSum += straightSamples[i] = (short)std::lround(scale * cMix[i] + 0.5);
+            spectralStraightSum += straightSamples[i] = (short)java::Math::round(scale * cMix[i] + 0.5);
         }
         flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     } else {
