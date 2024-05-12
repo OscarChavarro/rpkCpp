@@ -16,8 +16,8 @@ class Matrix2x2 {
 
     void print(FILE *fp) const;
 
-    void transformPoint2D(const Vector2D src, Vector2D &dst) const;
-    void matrix2DPreConcatTransform(const Matrix2x2 xf1, Matrix2x2 &xf) const;
+    void transformPoint2D(Vector2D src, Vector2D &dst) const;
+    void matrix2DPreConcatTransform(Matrix2x2 xf1, Matrix2x2 &xf) const;
 };
 
 inline void
