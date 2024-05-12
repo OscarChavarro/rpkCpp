@@ -1,4 +1,4 @@
-#include "common/mymath.h"
+#include "java/lang/Math.h"
 #include "common/stratification.h"
 
 StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {
@@ -35,7 +35,7 @@ getNumberOfDivisions(int samples, int *divs1, int *divs2) {
         return;
     }
 
-    *divs1 = (int)std::ceil(std::sqrt((double)samples));
+    *divs1 = (int)std::ceil(java::Math::sqrt((double)samples));
     *divs2 = samples / (*divs1);
     while ( (*divs1) * (*divs2) != samples && (*divs1) > 1 ) {
         (*divs1)--;

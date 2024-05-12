@@ -106,7 +106,7 @@ pathNodesVisible(
     dir.subtraction(node2->m_hit.getPoint(), node1->m_hit.getPoint());
 
     dist2 = dir.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
 
     dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
 
@@ -203,7 +203,7 @@ eyeNodeVisible(
     dir.subtraction(node->m_hit.getPoint(), eyeNode->m_hit.getPoint());
 
     dist2 = dir.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
 
     dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
 

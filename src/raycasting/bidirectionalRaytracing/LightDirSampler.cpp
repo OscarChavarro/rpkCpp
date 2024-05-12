@@ -2,11 +2,9 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cmath>
-
+#include "java/lang/Math.h"
 #include "common/error.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "material/PhongEmittanceDistributionFunction.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 
 /**
@@ -89,7 +87,7 @@ LightDirSampler::evalPDF(
 
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
     outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
 
     // EDF sampling

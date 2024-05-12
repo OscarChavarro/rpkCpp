@@ -106,7 +106,7 @@ CDensityBuffer::reconstruct() {
 
     // Kernel size. Now spread over 3 pixels
     float h = 8.0f * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
-              / std::sqrt((float)baseConfig->samplesPerPixel);
+              / java::Math::sqrt((float)baseConfig->samplesPerPixel);
 
     printf("h = %f\n", h);
 

@@ -1,5 +1,6 @@
 #include <cmath>
 
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Matrix4x4.h"
 
 static Matrix4x4 globalIdentityMatrix = {
@@ -63,9 +64,9 @@ recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
         axis->set(0.0f, 0.0f, 1.0f);
     } else if ( c < -1.0f + EPSILON ) {
         *angle = (float)M_PI;
-        axis->x = std::sqrt((xf->m[0][0] + 1.0f) * 0.5f);
-        axis->y = std::sqrt((xf->m[1][1] + 1.0f) * 0.5f);
-        axis->z = std::sqrt((xf->m[2][2] + 1.0f) * 0.5f);
+        axis->x = java::Math::sqrt((xf->m[0][0] + 1.0f) * 0.5f);
+        axis->y = java::Math::sqrt((xf->m[1][1] + 1.0f) * 0.5f);
+        axis->z = java::Math::sqrt((xf->m[2][2] + 1.0f) * 0.5f);
 
         // Assume x positive, determine sign of y and z
         if ( xf->m[1][0] < 0.0f ) {
@@ -77,7 +78,7 @@ recoverRotationMatrix(const Matrix4x4 *xf, float *angle, Vector3D *axis) {
     } else {
         float r;
         *angle = std::acos(c);
-        float s = std::sqrt(1.0f - c * c);
+        float s = java::Math::sqrt(1.0f - c * c);
         r = 1.0f / (2.0f * s);
         axis->x = (xf->m[2][1] - xf->m[1][2]) * r;
         axis->y = (xf->m[0][2] - xf->m[2][0]) * r;

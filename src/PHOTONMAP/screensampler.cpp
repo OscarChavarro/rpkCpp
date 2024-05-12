@@ -4,6 +4,7 @@
 
 #include <cmath>
 
+#include "java/lang/Math.h"
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
 #include "scene/Camera.h"
@@ -34,7 +35,7 @@ ScreenSampler::sample(
 
     dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distScreen2 = dir.norm2();
-    double distScreen = std::sqrt(distScreen2);
+    double distScreen = java::Math::sqrt(distScreen2);
     dir.inverseScaledCopy((float) distScreen, dir, EPSILON_FLOAT);
 
     double cosScreen = std::fabs(camera->Z.dotProduct(dir));
@@ -87,7 +88,7 @@ ScreenSampler::evalPDF(
     // More efficient with extra params?
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
     outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure

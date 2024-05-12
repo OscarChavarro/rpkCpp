@@ -1,4 +1,4 @@
-#include "common/mymath.h"
+#include "java/lang/Math.h"
 #include "material/RefractionIndex.h"
 
 /**
@@ -12,7 +12,7 @@ RefractionIndex::complexToGeometricRefractionIndex() const {
     float f2 = (nr + 1.0f);
     f2 = f2 * f2 + ni * ni;
 
-    float sqrtF = std::sqrt(f1 / f2);
+    float sqrtF = java::Math::sqrt(f1 / f2);
 
     return (1.0f + sqrtF) / (1.0f - sqrtF);
 }

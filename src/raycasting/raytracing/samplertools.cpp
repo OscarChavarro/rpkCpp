@@ -177,7 +177,7 @@ pathNodeConnect(
 
     dirEL.subtraction(nodeY->m_hit.getPoint(), nodeX->m_hit.getPoint());
     dist2 = dirEL.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
     dirEL.inverseScaledCopy((float) dist, dirEL, EPSILON_FLOAT);
     dirLE.scaledCopy(-1, dirEL);
 

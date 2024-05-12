@@ -2,6 +2,7 @@
 Some general functions regarding edf, brdf, btdf, bsdf
 */
 
+#include "java/lang/Math.h"
 #include "material/xxdf.h"
 
 /**
@@ -43,7 +44,7 @@ idealRefractedDirection(
     }
     *totalInternalReflection = false;
 
-    float Ct = std::sqrt(Ct2);
+    float Ct = java::Math::sqrt(Ct2);
     float normalScale = refractionIndex * Ci - Ct;
 
     Vector3D result;

@@ -1,4 +1,5 @@
 #include "java/lang/Character.h"
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
@@ -179,7 +180,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 {
     patch = parameterPatch;
     minimumArea = area = patch->area;
-    blockerSize = 2.0f * (float)std::sqrt(area / M_PI);
+    blockerSize = 2.0f * (float)java::Math::sqrt(area / M_PI);
     directPotential = patch->directPotential;
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
@@ -354,7 +355,7 @@ GalerkinElement::regularSubDivide() {
             &globalTriangleToParentTransformMatrix[i] :
             &globalQuadToParentTransformMatrix[i];
         child->area = 0.25f * area;  // Uniform mapping is always used
-        child->blockerSize = 2.0f * (float)std::sqrt(child->area / M_PI);
+        child->blockerSize = 2.0f * (float)java::Math::sqrt(child->area / M_PI);
         child->childNumber = (char)i;
         child->reAllocCoefficients();
 

@@ -2,9 +2,9 @@
 Tumblin/Rushmeier/Ward/Ferwerda tone maps (Jan Prikryl)
 */
 
+#include "java/lang/Math.h"
 #include "common/ColorRgb.h"
 #include "common/cie.h"
-#include "common/mymath.h"
 #include "IMAGE/tonemap/trwf.h"
 
 /**
@@ -49,7 +49,7 @@ static float _ldaWard;
 static float
 stevensGamma(float lum) {
     if ( lum > 100.0 ) {
-        return 2.655;
+        return 2.655f;
     } else {
         return 1.855f + 0.4f * std::log10(lum + 2.3e-5f);
     }
@@ -59,7 +59,7 @@ static float
 photopicOperator(float logLa) {
     float r;
     if ( logLa <= -2.6 ) {
-        r = -0.72;
+        r = -0.72f;
     } else if ( logLa >= 1.9 ) {
         r = logLa - 1.255f;
     } else {
@@ -73,7 +73,7 @@ static float
 scotopicOperator(float logLa) {
     float r;
     if ( logLa <= -3.94 ) {
-        r = -2.86;
+        r = -2.86f;
     } else if ( logLa >= -1.44 ) {
         r = logLa - 0.395f;
     } else {
@@ -111,7 +111,7 @@ trwfInit() {
     float gwd;
 
     // Tumblin & Rushmeier
-    _ldaTumb = ldmax / std::sqrt(cmax);
+    _ldaTumb = ldmax / java::Math::sqrt(cmax);
 
     {
         float l10 = std::log10(tmoCandelaLambert(lwa));
@@ -153,7 +153,7 @@ trwfInit() {
     // Revised Tumblin & Rushmeier
     g = stevensGamma(lwa) / stevensGamma(_ldaTumb);
     gwd = stevensGamma(lwa) / (1.855f + 0.4f * std::log(_ldaTumb));
-    r_comp = std::pow(std::sqrt(cmax), gwd - 1) * _ldaTumb;
+    r_comp = std::pow(java::Math::sqrt(cmax), gwd - 1) * _ldaTumb;
     r_disp = r_comp / ldmax;
 }
 
@@ -186,7 +186,7 @@ trwfScaleForDisplay(ColorRgb radiance) {
     float scale;
     float eff;
 
-    rwl = M_PI * radiance.luminance();
+    rwl = (float)M_PI * radiance.luminance();
 
     eff = getLuminousEfficacy();
     radiance.scale(eff * (float) M_PI);
@@ -262,7 +262,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
     float rwl;
     float scale;
 
-    rwl = M_PI * radiance.luminance();
+    rwl = (float)M_PI * radiance.luminance();
 
     float eff = getLuminousEfficacy();
     radiance.scale(eff * (float)M_PI);

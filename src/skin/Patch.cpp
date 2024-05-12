@@ -144,7 +144,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
             return false;
         }
 
-        D = D > TOLERANCE * TOLERANCE ? std::sqrt(D) : 0.0;
+        D = D > TOLERANCE * TOLERANCE ? java::Math::sqrt(D) : 0.0;
         A = 1.0 / (2.0 * A);
         x1 = (-B + D) * A;
         x2 = (-B - D) * A;
@@ -515,7 +515,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
         c *= (a + a);
         SqrtDelta = b * b + c;
         if ( SqrtDelta >= 0.0 ) {
-            SqrtDelta = std::sqrt(SqrtDelta);
+            SqrtDelta = java::Math::sqrt(SqrtDelta);
             u = b - SqrtDelta;
             if ( (u < 0.0) || (u > 1.0) ) {
                 // To choose u between 0 and 1
@@ -859,7 +859,7 @@ Patch::interpolatedFrameAtUv(
     *Z = interpolatedNormalAtUv(u, v);
 
     if ( X && Y ) {
-        double zz = std::sqrt(1 - Z->z * Z->z);
+        double zz = java::Math::sqrt(1 - Z->z * Z->z);
         if ( zz < EPSILON ) {
             X->set(1.0, 0.0, 0.0);
         } else {

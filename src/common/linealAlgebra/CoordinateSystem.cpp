@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Float.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 
@@ -8,7 +9,7 @@ void
 CoordinateSystem::setFromZAxis(const Vector3D *inZ) {
     Z = *inZ;
 
-    float zz = std::sqrt(1.0f - inZ->z * inZ->z);
+    float zz = java::Math::sqrt(1.0f - inZ->z * inZ->z);
 
     if ( zz < EPSILON ) {
         X.x = 1.0;
@@ -66,8 +67,8 @@ CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *proba
     float phi = 2.0f * (float)M_PI * (float)xi1;
     float cos_phi = std::cos(phi);
     float sin_phi = std::sin(phi);
-    float cos_theta = (float)std::sqrt(1.0 - xi2);
-    float sin_theta = (float)std::sqrt(xi2);
+    float cos_theta = (float)java::Math::sqrt(1.0 - xi2);
+    float sin_theta = (float)java::Math::sqrt(xi2);
 
     Vector3D dir;
     dir.combine(cos_phi, X, sin_phi, Y);
@@ -92,7 +93,7 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     float cosPhi = std::cos(phi);
     float sinPhi = std::sin(phi);
     float cosTheta = (float)std::pow(xi2, 1.0 / (n + 1));
-    float sinTheta = (float)std::sqrt(1.0 - cosTheta * cosTheta);
+    float sinTheta = (float)java::Math::sqrt(1.0 - cosTheta * cosTheta);
 
     Vector3D dir;
     dir.combine(cosPhi, X, sinPhi, Y);

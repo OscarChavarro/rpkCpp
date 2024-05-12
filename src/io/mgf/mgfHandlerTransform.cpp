@@ -4,6 +4,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 
 #include <cstring>
 
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
@@ -265,7 +266,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         float y = strtof(av[++i], nullptr);
                         float z = strtof(av[++i], nullptr);
                         float a = (float)d2r(strtod(av[++i], nullptr));
-                        float s = std::sqrt(x * x + y * y + z * z);
+                        float s = java::Math::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
                         z /= s;

@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/mymath.h"
@@ -220,7 +221,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
-            * (float)std::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
+            * (float)java::Math::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }

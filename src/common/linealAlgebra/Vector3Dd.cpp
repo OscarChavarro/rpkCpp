@@ -2,9 +2,9 @@
 Routines for 3-d vectors
 */
 
-#include <cmath>
 #include <cstring>
 
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 
 MATRIX4Dd globalMatrix4Ident = MAT4IDENT;
@@ -29,7 +29,7 @@ normalize(double *v)
         // First order approximation
         len = 0.5 + 0.5 * len;
     } else {
-        len = std::sqrt(len);
+        len = java::Math::sqrt(len);
     }
 
     v[0] /= len;

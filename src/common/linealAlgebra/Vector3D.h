@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 
+#include "java/lang/Math.h"
 #include "common/linealAlgebra/Float.h"
 
 #define X_NORMAL 0
@@ -166,7 +167,7 @@ Norm of a vector: square root of the square norm
 */
 inline float
 Vector3D::norm() const {
-    return std::sqrt(norm2());
+    return java::Math::sqrt(norm2());
 }
 
 /**

@@ -5,7 +5,6 @@ Olivier Ceulemans.
 */
 
 #include "java/lang/Math.h"
-#include "common/mymath.h"
 #include "raycasting/raytracing/densitykernel.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -126,7 +125,7 @@ CKernel2D::varCover(
     float avgG = color.average();
 
     if ( avgFe > EPSILON ) {
-        h = Bn * std::sqrt(avgG / avgFe);
+        h = Bn * java::Math::sqrt(avgG / avgFe);
         // printf("fe %f G %f, h = %f\n", avgFe, avgG, h/screenScale);
     } else {
         const float maxRatio = 20; // ???

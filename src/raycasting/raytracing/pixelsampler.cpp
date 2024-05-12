@@ -3,6 +3,8 @@
 #ifdef RAYTRACING_ENABLED
 
 #include <cmath>
+
+#include "java/lang/Math.h"
 #include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
@@ -30,7 +32,7 @@ CPixelSampler::sample(
 
     dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distPixel2 = dir.norm2();
-    double distPixel = std::sqrt(distPixel2);
+    double distPixel = java::Math::sqrt(distPixel2);
     dir.inverseScaledCopy((float) distPixel, dir, EPSILON_FLOAT);
 
     double cosPixel = std::fabs(camera->Z.dotProduct(dir));
@@ -96,7 +98,7 @@ CPixelSampler::evalPDF(
     // More efficient with extra params?
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
-    dist = std::sqrt(dist2);
+    dist = java::Math::sqrt(dist2);
     outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
 
     // pdf = 1 / A_pixel transformed to area measure
