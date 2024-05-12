@@ -771,7 +771,7 @@ doBptAndSubsequentImages(
     // number of samples per pixel.
 
     // Get the highest power of two < number of samples
-    nrIterations = (int)(std::log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / std::log(2.0));
+    nrIterations = (int)(java::Math::log((double) GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel) / java::Math::log(2.0));
     maxSamples = (int)java::Math::pow(2.0, nrIterations);
 
     nrIterations += 1; // First two are 1 and 1

@@ -6,6 +6,10 @@
 namespace java {
 class Math {
 public:
+    static double log(double a);
+    static float log(float a);
+    static double log10(double a);
+    static float log10(float a);
     static double sin(double a);
     static float sin(float a);
     static double cos(double a);
@@ -31,6 +35,26 @@ public:
     static float sqrt(float a);
     static double sqrt(double a);
 };
+
+inline float
+Math::log(float a) {
+    return std::log(a);
+}
+
+inline double
+Math::log(double a) {
+    return std::log(a);
+}
+
+inline float
+Math::log10(float a) {
+    return std::log(a);
+}
+
+inline double
+Math::log10(double a) {
+    return std::log(a);
+}
 
 inline float
 Math::sin(float a) {

@@ -147,7 +147,7 @@ initFaure(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = (int)(std::log((double) MAX_SEED) / std::log((double) globalPR) + 1);
+    globalNDigits = (int)(java::Math::log((double) MAX_SEED) / java::Math::log((double) globalPR) + 1);
     setFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
@@ -170,7 +170,7 @@ initGFaure(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = (int)(std::log((double) MAX_SEED) / std::log((double) globalPR) + 1);
+    globalNDigits = (int)(java::Math::log((double) MAX_SEED) / java::Math::log((double) globalPR) + 1);
     setGFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {

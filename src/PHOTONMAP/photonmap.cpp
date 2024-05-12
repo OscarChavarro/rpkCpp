@@ -26,8 +26,8 @@ getFalseMonochrome(float val) {
     float max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
-        max = (float)std::log(1.0 + max);
-        val = (float)std::log(1.0 + val);
+        max = (float)java::Math::log(1.0 + max);
+        val = (float)java::Math::log(1.0 + val);
     }
 
     tmp = java::Math::min(val, max);
@@ -54,8 +54,8 @@ getFalseColor(float val) {
     max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
-        max = (float)std::log(1.0 + max);
-        val = (float)std::log(1.0 + val);
+        max = (float)java::Math::log(1.0 + max);
+        val = (float)java::Math::log(1.0 + val);
     }
 
     tmp = java::Math::min(val, max);

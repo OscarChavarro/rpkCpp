@@ -51,7 +51,7 @@ stevensGamma(float lum) {
     if ( lum > 100.0 ) {
         return 2.655f;
     } else {
-        return 1.855f + 0.4f * std::log10(lum + 2.3e-5f);
+        return 1.855f + 0.4f * java::Math::log10(lum + 2.3e-5f);
     }
 }
 
@@ -114,13 +114,13 @@ trwfInit() {
     _ldaTumb = ldmax / java::Math::sqrt(cmax);
 
     {
-        float l10 = std::log10(tmoCandelaLambert(lwa));
+        float l10 = java::Math::log10(tmoCandelaLambert(lwa));
         alpharw = 0.4f * l10 + 2.92f;
         betarw = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
     }
 
     {
-        float l10 = std::log10(tmoCandelaLambert(_ldaTumb));
+        float l10 = java::Math::log10(tmoCandelaLambert(_ldaTumb));
         alphad = 0.4f * l10 + 2.92f;
         betad = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
     }
@@ -142,17 +142,17 @@ trwfInit() {
     m_disp = m_comp / ldmax;
 
     // Ferwerda
-    f_msf = mesopicScaleFactor(std::log10(lwa));
-    f_sm_comp = scotopicOperator(std::log10(_ldaWard)) /
-                scotopicOperator(std::log10(lwa));
-    f_pm_comp = photopicOperator(std::log10(_ldaWard)) /
-                photopicOperator(std::log10(lwa));
+    f_msf = mesopicScaleFactor(java::Math::log10(lwa));
+    f_sm_comp = scotopicOperator(java::Math::log10(_ldaWard)) /
+                scotopicOperator(java::Math::log10(lwa));
+    f_pm_comp = photopicOperator(java::Math::log10(_ldaWard)) /
+                photopicOperator(java::Math::log10(lwa));
     f_sm_disp = f_sm_comp / ldmax;
     f_pm_disp = f_pm_comp / ldmax;
 
     // Revised Tumblin & Rushmeier
     g = stevensGamma(lwa) / stevensGamma(_ldaTumb);
-    gwd = stevensGamma(lwa) / (1.855f + 0.4f * std::log(_ldaTumb));
+    gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(_ldaTumb));
     r_comp = java::Math::pow(java::Math::sqrt(cmax), gwd - 1) * _ldaTumb;
     r_disp = r_comp / ldmax;
 }

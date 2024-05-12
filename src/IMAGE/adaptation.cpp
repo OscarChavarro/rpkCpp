@@ -61,7 +61,7 @@ patchBrightnessEstimate(Patch *patch) {
 static void
 patchComputeLogAreaLum(Patch *patch) {
     float brightness = patchBrightnessEstimate(patch);
-    globalLogAreaLum += patch->area * std::log(brightness);
+    globalLogAreaLum += patch->area * java::Math::log(brightness);
 }
 
 static void

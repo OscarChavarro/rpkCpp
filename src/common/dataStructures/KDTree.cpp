@@ -532,7 +532,7 @@ getBalancedMedian(int low, int high) {
 
     int FL;
     // Add 0.1 because integer powers of 2 sometimes gave a smaller FL (8 -> 2)
-    FL = (int) (std::log(N + 0.1) / M_LN2); // frexp((double)N, &FL);
+    FL = (int) (java::Math::log(N + 0.1) / M_LN2); // frexp((double)N, &FL);
     //FL++; // Filled levels
 
     int P2FL = (1 << FL); // 2^FL
