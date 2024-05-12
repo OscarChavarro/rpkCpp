@@ -385,7 +385,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     }
     int p2 = (p1 + 1) % n;
     vectorTripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point), *normal);
-    vectorNormalize(*normal);
+    normal->normalize(EPSILON_FLOAT);
     int index = normal->dominantCoordinate();
 
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];

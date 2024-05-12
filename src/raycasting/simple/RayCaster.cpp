@@ -74,7 +74,7 @@ RayCaster::getRadianceAtPixel(
         Ray ray;
         ray.pos = camera->eyePosition;
         ray.dir = screenBuffer->getPixelVector(x, y);
-        vectorNormalize(ray.dir);
+        ray.dir.normalize(EPSILON_FLOAT);
 
         // Find intersection point of ray with patch
         Vector3D point;

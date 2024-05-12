@@ -146,10 +146,10 @@ lookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Vector3D Z;
 
     Z.subtraction(eye, centre); // Z positions towards viewer
-    vectorNormalize(Z);
+    Z.normalize(EPSILON_FLOAT);
 
     vectorCrossProduct(up, Z, X); // X positions right
-    vectorNormalize(X);
+    X.normalize(EPSILON_FLOAT);
 
     vectorCrossProduct(Z, X, Y); // Y positions up
     set3X3Matrix(xf.m, // View orientation transform

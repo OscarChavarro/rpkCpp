@@ -74,7 +74,7 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
             logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
     }
 
-    vectorNormalize(localNormal);
+    localNormal.normalize(EPSILON_FLOAT);
     return localNormal;
 }
 

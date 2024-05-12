@@ -37,7 +37,7 @@ cameraComputeClippingPlanes(Camera *camera) {
 
     for ( int i = 0; i < 4; i++ ) {
         vectorTripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i], camera->viewPlanes[i].normal);
-        vectorNormalize(camera->viewPlanes[i].normal);
+        camera->viewPlanes[i].normal.normalize(EPSILON_FLOAT);
         camera->viewPlanes[i].d = -camera->viewPlanes[i].normal.dotProduct(camera->eyePosition);
     }
 }
@@ -73,7 +73,7 @@ cameraComplete(Camera *camera) {
 
     // camera->Y is a direction pointing down in the window
     vectorCrossProduct(camera->Z, camera->X, camera->Y);
-    vectorNormalize(camera->Y);
+    camera->Y.normalize(EPSILON_FLOAT);
 
     // Compute horizontal and vertical field of view angle from the specified one
     if ( camera->xSize < camera->ySize ) {

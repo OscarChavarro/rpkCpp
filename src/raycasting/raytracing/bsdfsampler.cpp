@@ -187,7 +187,7 @@ CBsdfSampler::EvalPDFPrev(
 
     // More efficient with extra params?
     outDir.subtraction(prevNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
-    vectorNormalize(outDir);
+    outDir.normalize(EPSILON_FLOAT);
 
     // Beware : NOT RECIPROCAL!
     pdfDir = 0.0;

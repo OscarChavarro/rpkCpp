@@ -32,6 +32,7 @@ class Vector3D {
     void sumScaled(Vector3D a, double s, Vector3D b);
     void scaledCopy(float s, const Vector3D &v);
     void inverseScaledCopy(float s, const Vector3D &v, float epsilon);
+    void normalize(float epsilon);
 };
 
 inline
@@ -177,9 +178,9 @@ Vector3D::inverseScaledCopy(const float s, const Vector3D &v, const float epsilo
 Normalizes a vector: scale it with the inverse of its norm
 */
 inline void
-vectorNormalize(Vector3D &v) {
-    float n = v.norm();
-    v.inverseScaledCopy(n, v, EPSILON_FLOAT);
+Vector3D::normalize(const float epsilon) {
+    float n = norm();
+    inverseScaledCopy(n, *this, epsilon);
 }
 
 /**

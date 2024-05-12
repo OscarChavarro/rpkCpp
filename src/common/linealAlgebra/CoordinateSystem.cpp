@@ -43,7 +43,7 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
     Vector3D c;
 
     c.sumScaled(*C, -z, Z);
-    vectorNormalize(c);
+    c.normalize(EPSILON_FLOAT);
     double x = c.dotProduct(X);
     double y = c.dotProduct(Y);
 

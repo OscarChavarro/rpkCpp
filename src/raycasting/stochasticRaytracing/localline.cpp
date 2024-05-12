@@ -18,7 +18,7 @@ static void
 patchCoordSys(Patch *patch, CoordinateSystem *coord) {
     coord->Z = patch->normal;
     coord->X.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
-    vectorNormalize(coord->X);
+    coord->X.normalize(EPSILON_FLOAT);
     vectorCrossProduct(coord->Z, coord->X, coord->Y);
 }
 
