@@ -34,12 +34,12 @@ set(MAIN_SRC
     src/common/numericalAnalysis/CubatureRule.cpp
     src/common/dataStructures/CircularList.cpp
     src/common/dataStructures/KDTree.cpp
-    src/QMC/halton.cpp
-    src/QMC/scrambledhalton.cpp
-    src/QMC/nied31.cpp
-    src/QMC/faure.cpp
-    src/QMC/nied63.cpp
-    src/QMC/sobol.cpp
+    src/common/quasiMonteCarlo/Halton.cpp
+    src/common/quasiMonteCarlo/ScrambledHalton.cpp
+    src/common/quasiMonteCarlo/Niederreiter31.cpp
+    src/common/quasiMonteCarlo/Faure.cpp
+    src/common/quasiMonteCarlo/Niederreiter63.cpp
+    src/common/quasiMonteCarlo/Sobol.cpp
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
     src/material/xxdf.cpp

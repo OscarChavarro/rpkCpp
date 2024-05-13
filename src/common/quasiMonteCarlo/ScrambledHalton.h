@@ -1,5 +1,5 @@
 /**
-Scrambled Halton QMC sequence
+Scrambled Halton quasiMonteCarlo sequence
 */
 
 #ifndef __SCRAMBLED_HALTON__

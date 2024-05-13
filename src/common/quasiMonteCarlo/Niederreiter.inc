@@ -1,5 +1,5 @@
 /**
-4D base-2 Niederreiter QMC series,
+4D base-2 Niederreiter quasiMonteCarlo series,
 [CHOW1994] ACM TOMS Algorithm 738, dec 94
 
 See also:

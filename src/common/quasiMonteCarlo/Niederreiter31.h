@@ -1,5 +1,5 @@
 /**
-Niederreiter QMC sample series (dimension 4, base 2, 31 bits, skip 4096)
+Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4096)
 */
 
 #ifndef __NIED_31__

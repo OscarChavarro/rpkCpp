@@ -1,9 +1,9 @@
 /**
-Faure's QMC sequences
+Faure's quasiMonteCarlo sequences
 */
 
 #include "java/lang/Math.h"
-#include "QMC/faure.h"
+#include "common/quasiMonteCarlo/Faure.h"
 
 #define MAX_DIM 10
 #define PR_DIM 30

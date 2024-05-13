@@ -1,5 +1,5 @@
 /**
-Niederreiter QMC sample series (dimension 4, base 2, 31 or 63 bits, skip 4096)
+Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 or 63 bits, skip 4096)
 */
 
 #ifndef __NIEDERREITER__
@@ -7,11 +7,11 @@ Niederreiter QMC sample series (dimension 4, base 2, 31 or 63 bits, skip 4096)
 
 #ifndef NOINT64
 // Use 63bit sequence by default
-#include "QMC/nied63.h"
+#include "common/quasiMonteCarlo/Niederreiter63.h"
 
 #else
 // Use 31bit sequence
-#include "QMC/nied31.h"
+#include "common/quasiMonteCarlo/Niederreiter31.h"
 #endif
 
 /**

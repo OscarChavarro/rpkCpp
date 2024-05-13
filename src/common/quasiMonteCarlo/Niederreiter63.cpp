@@ -1,5 +1,5 @@
 /**
-63bit 4D base-2 Niederreiter QMC (Quasi Monte Carlo) series,
+63bit 4D base-2 Niederreiter quasiMonteCarlo (Quasi Monte Carlo) series,
 [CHOW1994] ACM TOMS Algorithm 738, dec 94.
 
 See also:
@@ -14,7 +14,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 #ifndef NOINT64
 // All this makes no sense if you don't have 64-bit integers
 
-#include "QMC/nied63.h"
+#include "common/quasiMonteCarlo/Niederreiter63.h"
 
 static unsigned long long cj[DIMEN][NBITS] = {
     {
@@ -92,6 +92,6 @@ static unsigned long long cj[DIMEN][NBITS] = {
 };
 
 // The implementation is the same for 31bit and 63bit sequences
-#include "QMC/niederreiter.inc"
+#include "common/quasiMonteCarlo/Niederreiter.inc"
 
 #endif

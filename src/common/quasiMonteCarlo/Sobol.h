@@ -1,5 +1,5 @@
 /**
-Sobol QMC sequence
+Sobol quasiMonteCarlo sequence
 */
 
 #ifndef __SOBOL__

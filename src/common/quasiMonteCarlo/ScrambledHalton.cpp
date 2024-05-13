@@ -1,8 +1,8 @@
 /**
-Scrambled halton QMC sample sequence
+Scrambled halton quasiMonteCarlo sample sequence
 */
 
-#include "QMC/scrambledhalton.h"
+#include "common/quasiMonteCarlo/ScrambledHalton.h"
 
 #define MAX_DIM 10
 

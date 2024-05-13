@@ -7,7 +7,7 @@ Monte Carlo radiosity element type
 
 #include "java/util/ArrayList.h"
 #include "skin/Element.h"
-#include "QMC/niederreiter.h"
+#include "common/quasiMonteCarlo/Niederreiter.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 class StochasticRadiosityElement : public Element {

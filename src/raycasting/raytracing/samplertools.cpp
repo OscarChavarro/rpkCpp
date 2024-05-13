@@ -4,7 +4,7 @@
 
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "QMC/nied31.h"
+#include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/samplertools.h"
 
 void
@@ -96,16 +96,16 @@ CSamplerConfig::traceNode(
         // In the middle of a path
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !surfaceSampler->sample(
-                    camera,
-                    sceneVoxelGrid,
-                    sceneBackground,
-                    lastNode->previous(),
-                    lastNode,
-                    nextNode,
-                    x1,
-                    x2,
-                    lastNode->m_depth >= minDepth,
-                    flags) ) {
+                camera,
+                sceneVoxelGrid,
+                sceneBackground,
+                lastNode->previous(),
+                lastNode,
+                nextNode,
+                x1,
+                x2,
+                lastNode->m_depth >= minDepth,
+                flags) ) {
                 lastNode->m_rayType = STOPS;
                 return nullptr;
             }

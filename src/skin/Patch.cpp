@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "QMC/nied31.h"
+#include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 

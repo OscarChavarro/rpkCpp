@@ -5,11 +5,11 @@
 #include <cstdlib>
 
 #include "common/error.h"
-#include "QMC/halton.h"
-#include "QMC/scrambledhalton.h"
-#include "QMC/sobol.h"
-#include "QMC/faure.h"
-#include "QMC/nied31.h"
+#include "common/quasiMonteCarlo/Halton.h"
+#include "common/quasiMonteCarlo/ScrambledHalton.h"
+#include "common/quasiMonteCarlo/Sobol.h"
+#include "common/quasiMonteCarlo/Faure.h"
+#include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 
 static SEQ4D seq = S4D_RANDOM;

@@ -1,5 +1,5 @@
 /**
-Faure's QMC sequences + generalized Faure sequences
+Faure's quasiMonteCarlo sequences + generalized Faure sequences
 */
 
 #ifndef __FAURE__
