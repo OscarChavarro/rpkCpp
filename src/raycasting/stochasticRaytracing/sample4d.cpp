@@ -12,6 +12,16 @@
 #include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 
+#define SEQ4D_NAME(seq) (\
+    ((seq) == S4D_RANDOM) ? "drand48" : (\
+    ((seq) == S4D_HALTON) ? "Halton" : (\
+    ((seq) == S4D_SCRAMBLED_HALTON) ? "ScramHalton" : (\
+    ((seq) == S4D_SOBOL) ? "sobol" : (\
+    ((seq) == S4D_ORIGINAL_FAURE) ? "faure" : (\
+    ((seq) == S4D_GENERALIZED_FAURE) ? "GFaure" : (\
+    ((seq) == S4D_NIEDERREITER) ? "Nied" : "Unknown"\
+    )))))))
+
 static SEQ4D seq = S4D_RANDOM;
 
 /**
@@ -24,10 +34,10 @@ setSequence4D(SEQ4D sequence) {
         case S4D_SOBOL:
             initSobol(4);
             break;
-        case S4D_FAURE:
+        case S4D_ORIGINAL_FAURE:
             initOriginalFaureSequence(4);
             break;
-        case S4D_GFAURE:
+        case S4D_GENERALIZED_FAURE:
             initGeneralizedFaureSequence(4);
             break;
         default:
@@ -58,7 +68,7 @@ sample4D(unsigned seed) {
             xi[2] = Halton5((int)seed);
             xi[3] = Halton7((int)seed);
             break;
-        case S4D_SCRAMHALTON:
+        case S4D_SCRAMBLED_HALTON:
             xx = scrambledHalton(seed, 4);
             xi[0] = xx[0];
             xi[1] = xx[1];
@@ -72,8 +82,8 @@ sample4D(unsigned seed) {
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
-        case S4D_FAURE:
-        case S4D_GFAURE:
+        case S4D_ORIGINAL_FAURE:
+        case S4D_GENERALIZED_FAURE:
             xx = faure((int) seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
@@ -99,7 +109,7 @@ The following routines are safe with Sample4D(), which calls only
 31-bit sequences (including 31-bit Niederreiter sequence). If
 you are looking for such a routine to use directly in conjunction
 with the routine Nied() or NextNiedInRange(), you should use
-the foldSample() routine in niederreiter.h instead.
+the foldSample() routine in Niederreiter.h instead.
 Nied() and NextNiedInRange() are 63-bit unless compiled without
 'unsigned long long' support
 */
