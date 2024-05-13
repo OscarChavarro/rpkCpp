@@ -40,6 +40,6 @@ tracePaths(
     double (*SurvivalProbability)(Patch *P),
     void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
     void (*Update)(Patch *P, double w),
-    java::ArrayList<Patch *> *scenePatches);
+    const java::ArrayList<Patch *> *scenePatches);
 
 #endif

@@ -53,13 +53,12 @@ FlagChainCompare(const FlagChain *c1,
     // Determine if equal
 
     int nrDifferent = 0;
-    int i;
 
     if ( (c1->length != c2->length) || (c1->subtract != c2->subtract) ) {
         return false;
     }
 
-    for ( i = 0; (i < c1->length) && (nrDifferent == 0); i++ ) {
+    for ( int i = 0; (i < c1->length) && (nrDifferent == 0); i++ ) {
         if ( c1->chain[i] != c2->chain[i] ) {
             nrDifferent++;
         }
@@ -119,7 +118,8 @@ by the chain. Eye and light node ARE INCLUDED
 */
 ColorRgb
 FlagChain::compute(CBiPath *path) const {
-    ColorRgb result, tmpCol;
+    ColorRgb result;
+    ColorRgb tmpCol;
     result.setMonochrome(1.0);
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
@@ -168,7 +168,7 @@ void
 ChainList::add(ChainList *list) {
     // Add all chains in 'list'
     FlagChainIterator iter(*list);
-    FlagChain *tmpChain;
+    const FlagChain *tmpChain;
 
     while ( (tmpChain = iter.nextOnSequence()) != nullptr ) {
         add(*tmpChain);
@@ -204,7 +204,7 @@ ChainList::addDisjoint(const FlagChain &chain) {
     }
 
     FlagChainIterator iter(*this);
-    FlagChain *tmpChain;
+    const FlagChain *tmpChain;
     bool found = false;
 
     while ((tmpChain = iter.nextOnSequence()) && !found ) {
@@ -225,7 +225,7 @@ ChainList::compute(CBiPath *path) {
     result.clear();
 
     FlagChainIterator iter(*this);
-    FlagChain *chain;
+    const FlagChain *chain;
 
     while ( (chain = iter.nextOnSequence()) != nullptr ) {
         tmpCol = chain->compute(path);
@@ -245,9 +245,9 @@ ChainList *
 ChainList::simplify() {
     // Try a simple simplification scheme, just comparing pair wise chains
     ChainList *newList = new ChainList;
-    FlagChain *c1;
-    FlagChain *c2;
-    FlagChain *cCombined;
+    const FlagChain *c1;
+    const FlagChain *c2;
+    const FlagChain *cCombined;
     FlagChainIterator iter(*this);
 
     c1 = iter.nextOnSequence();
@@ -335,7 +335,7 @@ ContribHandler::doSyntaxError(const char *errString) {
 }
 
 bool
-ContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
+ContribHandler::getFlags(const char *regExp, int *pos, char *flags) {
     char c;
     int p = *pos;
 
@@ -346,8 +346,7 @@ ContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
         return false;
     }
 
-    while ((c = regExp[p++]) != ')' ) {
-        //printf("Char '%c'\n", c);
+    while ( (c = regExp[p++]) != ')' ) {
         switch ( c ) {
             case 'S':
                 switch ( regExp[p] ) {
@@ -440,12 +439,10 @@ ContribHandler::getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags) {
 }
 
 bool
-ContribHandler::getToken(char *regExp, int *pos, char *token,
-                         BSDF_FLAGS *flags) {
+ContribHandler::getToken(const char *regExp, int *pos, char *token, char *flags) {
     switch ( regExp[*pos] ) {
         case '\0':
             return false;
-            // break;
         case '+':
             *token = '+';
             (*pos)++;
@@ -457,7 +454,6 @@ ContribHandler::getToken(char *regExp, int *pos, char *token,
         case '(':
             *token = 'F';
             return getFlags(regExp, pos, flags);
-            // break;
         default:
             doSyntaxError("Unknown token");
             return false;
@@ -467,7 +463,7 @@ ContribHandler::getToken(char *regExp, int *pos, char *token,
 }
 
 void
-ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
+ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
     FlagChain c;
 
 
@@ -477,7 +473,9 @@ ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
     BSDF_FLAGS flagArray[MAX_REGEXP_ITEMS];
     char typeArray[MAX_REGEXP_ITEMS];
     int countArray[MAX_REGEXP_ITEMS];
-    int pos = 0, tokenCount = -1, iteratorCount = 0;
+    int pos = 0;
+    int tokenCount = -1;
+    int iteratorCount = 0;
     char token;
     BSDF_FLAGS data;
 
@@ -535,8 +533,12 @@ ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
     // Iterate all possible lengths
     int beginLength = tokenCount - iteratorCount;
     int endLength = maxLength;
-    int iteratorsFound, remember, maxIteration;
-    int iterationsDone, nextIterationsDone, num;
+    int iteratorsFound;
+    int remember;
+    int maxIteration;
+    int iterationsDone;
+    int nextIterationsDone;
+    int num;
     bool done;
 
     if ( iteratorCount == 0 ) {
@@ -550,8 +552,6 @@ ContribHandler::doRegExpGeneral(char *regExp, bool subtract) {
         c.init(length, subtract);
 
         maxIteration = length - tokenCount + iteratorCount;
-
-        //printf("maxIteration %i\n", maxIteration);
 
         done = false;
 

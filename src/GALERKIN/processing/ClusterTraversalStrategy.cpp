@@ -153,7 +153,7 @@ receiver in the link. The source should be a cluster
 ColorRgb
 ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState) {
     GalerkinElement *src = link->sourceElement;
-    GalerkinElement *rcv = link->receiverElement;
+    const GalerkinElement *rcv = link->receiverElement;
 
     if ( !src->isCluster() || src == rcv ) {
         logFatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
@@ -333,7 +333,7 @@ receiver cluster
 */
 void
 ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
-    GalerkinElement *src = link->sourceElement;
+    const GalerkinElement *src = link->sourceElement;
     GalerkinElement *rcv = link->receiverElement;
 
     if ( !rcv->isCluster() || src == rcv ) {

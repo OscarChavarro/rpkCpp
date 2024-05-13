@@ -543,15 +543,13 @@ getBalancedMedian(int low, int high) {
     if ( LASTN < LASTS_2 ) {
         // All in left subtree
         left = LASTN + (LASTS_2 - 1);
-        //right = LASTS_2 - 1;
     } else {
         // Full bottom level in left subtree
         left = LASTS_2 + LASTS_2 - 1;
         // Rest in right subtree
-        //right = LASTN - LASTS_2 + LASTS_2 - 1;
     }
 
-    return low + left; //+1;
+    return low + left;
 }
 
 /**

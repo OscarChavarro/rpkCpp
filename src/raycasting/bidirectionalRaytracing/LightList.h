@@ -21,14 +21,14 @@ public:
 class LightListIterator;
 
 class LightList : private CTSList<LightInfo> {
-private:
+  private:
     // Total flux ( sum(L * A * PI))
     float totalFlux;
     float totalImp;
     bool includeVirtual;
     int lightCount;
 
-public:
+  public:
     // Iteration over lights, not multi-thread!
 
     // Discrete sampling of light sources
@@ -46,9 +46,9 @@ public:
     double evalPdf(Patch *light, const Vector3D *point);
 
     // Importance sampling routines
-    Patch *sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf);
+    Patch *sampleImportant(const Vector3D *point, const Vector3D *normal, double *x1, double *pdf);
 
-    double evalPdfImportant(Patch *light, Vector3D *, Vector3D *litPoint, Vector3D *normal);
+    double evalPdfImportant(const Patch *light, const Vector3D *, const Vector3D *litPoint, const Vector3D *normal);
 
 protected:
     Vector3D lastPoint;

@@ -33,7 +33,7 @@ class CPhoton {
     CPhoton() {};
 
     CPhoton(Vector3D pos, ColorRgb &power, Vector3D &dir)
-            : m_pos(pos), m_power(power), m_dir(dir) { /*m_dcWeight = 1.0;*/ }
+            : m_pos(pos), m_power(power), m_dir(dir) {  }
 
     inline Vector3D
     Pos() {
@@ -54,9 +54,6 @@ class CPhoton {
     Dir() {
         return m_dir;
     }
-
-    //  inline float DCWeight() { return m_dcWeight; }
-    //  inline void SetDCWeight(float w) { m_dcWeight = w; }
 
     // Importance sampling utility functions
 

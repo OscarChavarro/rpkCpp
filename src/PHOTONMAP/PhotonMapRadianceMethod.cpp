@@ -82,7 +82,7 @@ PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
 
 static void
 photonMapChooseSurfaceSampler(CSurfaceSampler **samplerPtr) {
-    if ( *samplerPtr ) {
+    if ( *samplerPtr != nullptr ) {
         delete *samplerPtr;
     }
 
@@ -125,11 +125,9 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
 
     cfg->pointSampler = new CEyeSampler;
 
-    cfg->dirSampler = new ScreenSampler;  // ps;
+    cfg->dirSampler = new ScreenSampler;
 
     photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
-    // cfg->surfaceSampler = new CPhotonMapSampler;
-    // cfg->surfaceSampler = new CBsdfSampler;
     cfg->surfaceSampler->SetComputeFromNextPdf(false);
     cfg->neSampler = nullptr;
 
@@ -182,7 +180,7 @@ static ColorRgb
 photonMapDoComputePixelFluxEstimate(
     Camera *camera,
     PhotonMapConfig *config,
-    RadianceMethod * /*radianceMethod*/)
+    const RadianceMethod * /*radianceMethod*/)
 {
     CBiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
@@ -282,7 +280,7 @@ does not give correct display
 static void
 photonMapDoScreenNEE(
     Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
     RadianceMethod *radianceMethod)
 {
@@ -408,26 +406,20 @@ photonMapHandlePath(
 
         // Store photon, but not emitted light
         if ( config->currentMap == config->globalMap ) {
-            if ( bp->m_lightSize > 1 ) {
-                // Store
-                if ( photonMapDoPhotonStore(camera, currentNode, accPower) ) {
-                    // Screen next event estimation for testing
-
-                    bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
-                }
+            // Store
+            if ( bp->m_lightSize > 1 && photonMapDoPhotonStore(camera, currentNode, accPower) ) {
+                // Screen next event estimation for testing
+                bp->m_lightEndNode = currentNode;
+                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
             }
         } else {
             // Caustic map...
-            if ( bp->m_lightSize > 2 ) {
-                // Store
+            // Store
+            if ( bp->m_lightSize > 2 && photonMapDoPhotonStore(camera, currentNode, accPower) ) {
+                // Screen next event estimation for testing
 
-                if ( photonMapDoPhotonStore(camera, currentNode, accPower) ) {
-                    // Screen next event estimation for testing
-
-                    bp->m_lightEndNode = currentNode;
-                    photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
-                }
+                bp->m_lightEndNode = currentNode;
+                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
             }
         }
 
@@ -457,8 +449,8 @@ photonMapTracePath(
     SimpleRaytracingPathNode *path = config->biPath.m_lightPath;
 
     // First node
-    double x1 = drand48(); //nrs[0] * RECIP;
-    double x2 = drand48(); //nrs[1] * RECIP;
+    double x1 = drand48(); // nrs[0] * RECIP
+    double x2 = drand48(); // nrs[1] * RECIP
 
     path = config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, path, x1, x2, bsdfFlags);
     if ( path == nullptr ) {
@@ -471,8 +463,8 @@ photonMapTracePath(
 
     // Second node
     SimpleRaytracingPathNode *node = path->next();
-    x1 = drand48(); // nrs[2] * RECIP;
-    x2 = drand48(); // nrs[3] * RECIP; // 4D Niederreiter...
+    x1 = drand48(); // nrs[2] * RECIP
+    x2 = drand48(); // nrs[3] * RECIP // 4D Niederreiter...
 
     if ( config->lightConfig.traceNode(camera, sceneVoxelGrid, sceneBackground, node, x1, x2, bsdfFlags) ) {
         // Successful trace

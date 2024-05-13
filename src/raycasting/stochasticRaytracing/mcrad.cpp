@@ -486,7 +486,7 @@ monteCarloRadiosityPreStep(Scene *scene, RenderOptions *renderOptions) {
 Undoes the effect of mainInitApplication() and all side-effects of Step()
 */
 void
-monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches) {
+monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches) {
     elementHierarchyTerminate(scenePatches);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
 }

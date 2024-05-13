@@ -114,7 +114,7 @@ spikeCheck(ColorRgb color) {
 static void
 addWithSpikeCheck(
     BidirectionalPathTracingConfiguration *config,
-    CBiPath * /*path*/,
+    const CBiPath * /*path*/,
     int nx,
     int ny,
     float pix_x,
@@ -123,7 +123,8 @@ addWithSpikeCheck(
     bool radSample = false)
 {
     if ( config->baseConfig->doDensityEstimation ) {
-        ScreenBuffer *rs, *ds;
+        ScreenBuffer *rs;
+        ScreenBuffer *ds;
         CDensityBuffer *db;
         float baseSize;
 
@@ -183,7 +184,7 @@ handlePathX0(
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
 {
-    PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
+    const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     ColorRgb oldBsdfEval;
     ColorRgb f;
     ColorRgb fRad;
@@ -285,7 +286,7 @@ handlePathX0(
             factor = 1.0; // pdf and weight already taken into account
         } else {
             f = path->EvalRadiance();
-            factor = (float)path->EvalPDFAndWeight(config->baseConfig, &pdf, &weight);
+            factor = path->EvalPDFAndWeight(config->baseConfig, &pdf, &weight);
         }
 
         factor *= (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
@@ -516,7 +517,7 @@ handlePathXx(
 static void
 handlePath1X(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
+    const VoxelGrid *sceneVoxelGrid,
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
 {
@@ -717,8 +718,8 @@ bpCalcPixel(
             config->eyePath->m_rayType = STARTS;
 
             Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x1), (int) (x2));
-            config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1);
-            config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2);
+            config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1)
+            config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2)
 
             if ( config->eyeConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, config->eyePath, pixNode, x1, x2) ) {
                 pixNode->assignBsdfAndNormal();
@@ -990,19 +991,15 @@ doBptDensityEstimation(
 
         config->dest->render();
         snprintf(fileName, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
-        //    config->dest->WriteFile(fileName);
 
         if ( config->dest2 ) {
             config->dest2->render();
             snprintf(fileName, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
-            //      config->dest2->WriteFile(fileName);
 
             // Merge two images (just add!) into screen
-
             config->screen->merge(config->dest, config->dest2, camera);
             config->screen->render();
             snprintf(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
-            //      config->screen->WriteFile(fileName);
         } else {
             config->screen->copy(config->dest, camera);
         }
@@ -1078,7 +1075,6 @@ biDirPathTrace(
     config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth;
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
-    // config.maxCombinedLength = biDir.baseCfg.maximumPathDepth;
     config.screen = new ScreenBuffer(nullptr, scene->camera);
     config.screen->setFactor(1.0); // We're storing plain radiance
 

@@ -50,7 +50,8 @@ Returns sampled patch, scales x_1 back to a random in 0..1
 */
 Patch *
 LightList::sample(double *x1, double *pdf) {
-    LightInfo *info, *lastInfo;
+    LightInfo *info;
+    LightInfo *lastInfo;
     CTSList_Iter<LightInfo> iterator(*this);
 
     double rnd = *x1 * totalFlux;
@@ -239,8 +240,8 @@ LightList::computeOneLightImportance(Patch *light,
 
 void
 LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal) {
-    if ((point->equals(lastPoint, EPSILON)) &&
-        (normal->equals(lastNormal, EPSILON)) ) {
+    if ((point->equals(lastPoint, EPSILON_FLOAT)) &&
+        (normal->equals(lastNormal, EPSILON_FLOAT)) ) {
         return; // Still ok !!
     }
 
@@ -272,7 +273,7 @@ LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal)
 }
 
 Patch *
-LightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double *pdf) {
+LightList::sampleImportant(const Vector3D *point, const Vector3D *normal, double *x1, double *pdf) {
     const LightInfo *info;
     const LightInfo *lastInfo;
     CTSList_Iter<LightInfo> iterator(*this);
@@ -329,10 +330,14 @@ LightList::sampleImportant(Vector3D *point, Vector3D *normal, double *x1, double
 }
 
 double
-LightList::evalPdfImportant(Patch *light, Vector3D */*lightPoint*/,
-                            Vector3D *litPoint, Vector3D *normal) {
+LightList::evalPdfImportant(
+    const Patch *light,
+    const Vector3D */*lightPoint*/,
+    const Vector3D *litPoint,
+    const Vector3D *normal)
+{
     double pdf;
-    LightInfo *info;
+    const LightInfo *info;
     CTSList_Iter<LightInfo> iterator(*this);
 
     computeLightImportance(litPoint, normal);

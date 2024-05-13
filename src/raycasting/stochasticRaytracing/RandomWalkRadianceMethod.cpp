@@ -92,7 +92,7 @@ stochasticJacobiProbability proportional to power to be propagated
 static double
 randomWalkRadiosityScalarSourcePower(Patch *P) {
     ColorRgb radiance = topLevelStochasticRadiosityElement(P)->sourceRad;
-    return /* M_PI * */ P->area * radiance.sumAbsComponents();
+    return P->area * radiance.sumAbsComponents();
 }
 
 /**
@@ -116,7 +116,7 @@ randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
 Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 */
 static void
-randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
+randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         ColorRgb newSourceRadiance;
@@ -132,7 +132,7 @@ randomWalkRadiosityReduceSource(java::ArrayList<Patch *> *scenePatches) {
 }
 
 static double
-randomWalkRadiosityScoreWeight(PATH *path, int n) {
+randomWalkRadiosityScoreWeight(const PATH *path, int n) {
     double w = 0.0;
     int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
@@ -155,7 +155,7 @@ randomWalkRadiosityScoreWeight(PATH *path, int n) {
         case RW_LAST_BUT_NTH:
             if ( n == t - 1 ) {
                 int i = path->numberOfNodes - 1;
-                StochasticRaytracingPathNode *node = &path->nodes[i];
+                const StochasticRaytracingPathNode *node = &path->nodes[i];
                 w = 1.0 / (1.0 - node->probability);
                 // Absorption prob of the last node
                 for ( i--, node--; i >= n; i--, node-- ) {
@@ -194,7 +194,6 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
         double vOut = 0.0;
         double r = 1.0;
         double w;
-        int i;
         Patch *P = node->patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumPow.scalarProduct(accumPow, Rd);
@@ -210,7 +209,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
 
         w = randomWalkRadiosityScoreWeight(path, n);
 
-        for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
+        for ( int i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
             getTopLevelPatchReceivedRad(P)[i].addScaled(
                 getTopLevelPatchReceivedRad(P)[i],
@@ -229,13 +228,14 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
 
 static void
 randomWalkRadiosityShootingUpdate(Patch *P, double w) {
-    double k, old_quality;
-    old_quality = topLevelStochasticRadiosityElement(P)->quality;
+    double k;
+    double oldQuality;
+    oldQuality = topLevelStochasticRadiosityElement(P)->quality;
     topLevelStochasticRadiosityElement(P)->quality += (float)w;
     if ( topLevelStochasticRadiosityElement(P)->quality < EPSILON ) {
         return;
     }
-    k = old_quality / topLevelStochasticRadiosityElement(P)->quality;
+    k = oldQuality / topLevelStochasticRadiosityElement(P)->quality;
 
     // Subtract self-emitted rad
     getTopLevelPatchRad(P)[0].subtract(getTopLevelPatchRad(P)[0], topLevelStochasticRadiosityElement(P)->sourceRad);
@@ -287,7 +287,7 @@ randomWalkRadiosityDoShootingIteration(
 Determines control radiosity value for collision gathering estimator
 */
 static ColorRgb
-randomWalkRadiosityDetermineGatheringControlRadiosity(java::ArrayList<Patch *> *scenePatches) {
+randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches) {
     ColorRgb c1;
     ColorRgb c2;
     ColorRgb cr;
@@ -335,7 +335,6 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         double uOut = 0.0;
         double vOut = 0.0;
         double r = 1.0;
-        int i;
         Patch *P = node->patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumRad.selfScalarProduct(Rd);
@@ -349,7 +348,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
             }
         }
 
-        for ( i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
+        for ( int i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
             getTopLevelPatchReceivedRad(P)[i].addScaled(getTopLevelPatchReceivedRad(P)[i], (float) dual, accumRad);
 
@@ -374,7 +373,7 @@ randomWalkRadiosityGatheringUpdate(Patch *P, double /*w*/) {
 
     // Divide by nr of samples
     if ( topLevelStochasticRadiosityElement(P)->ng > 0 )
-        stochasticRadiosityScaleCoefficients((1.0f / (float) topLevelStochasticRadiosityElement(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+        stochasticRadiosityScaleCoefficients((1.0f / topLevelStochasticRadiosityElement(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
 
     // Add source radiance (source term estimation suppression!)
     getTopLevelPatchRad(P)[0].add(getTopLevelPatchRad(P)[0], topLevelStochasticRadiosityElement(P)->sourceRad);
@@ -416,16 +415,17 @@ randomWalkRadiosityDoGatheringIteration(
     }
 
     fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-            numberOfWalks, (long) floor((double) numberOfWalks / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
+        numberOfWalks, (long) floor((double) numberOfWalks / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
 
     tracePaths(
-            sceneWorldVoxelGrid,
-            numberOfWalks,
-            randomWalkRadiosityPatchArea, randomWalkRadiosityScalarReflectance,
-            randomWalkRadiosityCollisionGatheringScore,
-            randomWalkRadiosityGatheringUpdate,
-            scenePatches);
+        sceneWorldVoxelGrid,
+        numberOfWalks,
+        randomWalkRadiosityPatchArea,
+        randomWalkRadiosityScalarReflectance,
+        randomWalkRadiosityCollisionGatheringScore,
+        randomWalkRadiosityGatheringUpdate,
+        scenePatches);
 }
 
 static void
@@ -459,10 +459,9 @@ bool
 RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     monteCarloRadiosityPreStep(scene, renderOptions);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
-        }
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1
+        && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
+        randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
     }
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {

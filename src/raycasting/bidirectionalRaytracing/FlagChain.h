@@ -83,9 +83,9 @@ class ContribHandler {
   protected:
     virtual void doRegExp(char *regExp, bool subtract);
     void doSyntaxError(const char *errString);
-    bool getFlags(const char *regExp, int *pos, BSDF_FLAGS *flags);
-    bool getToken(char *regExp, int *pos, char *token, BSDF_FLAGS *flags);
-    void doRegExpGeneral(char *regExp, bool subtract);
+    bool getFlags(const char *regExp, int *pos, char *flags);
+    bool getToken(const char *regExp, int *pos, char *token, char *flags);
+    void doRegExpGeneral(const char *regExp, bool subtract);
 };
 
 #endif

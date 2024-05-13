@@ -172,7 +172,7 @@ extern void monteCarloRadiosityInit();
 extern void monteCarloRadiosityUpdateViewImportance(Scene *scene, RenderOptions *renderOptions);
 extern void monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions);
 extern void monteCarloRadiosityPreStep(Scene *scene, RenderOptions *renderOptions);
-extern void monteCarloRadiosityTerminate(java::ArrayList<Patch *> *scenePatches);
+extern void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
