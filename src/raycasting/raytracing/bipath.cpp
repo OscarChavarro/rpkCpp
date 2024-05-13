@@ -188,13 +188,9 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
 
         currentPdf = newPdf;
         nextNode = nextNode->previous();
-    } /* while   (to the eye) */
+    }
 
     weight = weight / pdfSum;
-
-    // printf("W %f P %f\n", weight, realPdf);
-
-    PNAN(weight);
 
     if ( pWeight ) {
         *pWeight = (float)weight;

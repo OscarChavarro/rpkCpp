@@ -1,8 +1,8 @@
 #ifndef __FLOAT__
 #define __FLOAT__
 
-#define EPSILON 1e-6
-#define EPSILON_FLOAT 1e-6f
+extern const double EPSILON;
+extern const float EPSILON_FLOAT;
 
 /**
 Tests whether two floating point numbers are equal within the given tolerance

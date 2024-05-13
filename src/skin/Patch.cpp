@@ -352,7 +352,7 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
     // Project to 2D
     int vertexIndex = 0;
     switch ( index ) {
-        case X_NORMAL:
+        case CoordinateAxis::X:
             u0 = vertex[vertexIndex]->point->y;
             v0 = vertex[vertexIndex]->point->z;
             vector2DSet(p0, point->y - u0, point->z - v0);
@@ -362,7 +362,7 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
             vector2DSet(p2, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
-        case Y_NORMAL:
+        case CoordinateAxis::Y:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->z;
             vector2DSet(p0, point->x - u0, point->z - v0);
@@ -372,7 +372,7 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
             vector2DSet(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
-        case Z_NORMAL:
+        case CoordinateAxis::Z:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->y;
             vector2DSet(p0, point->x - u0, point->y - v0);
@@ -440,7 +440,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     // Projection on the plane that is most parallel to the facet
     int vertexIndex = 0;
     switch ( patch->index ) {
-        case X_NORMAL:
+        case X:
             vector2DSet(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
             vector2DSet(B, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
@@ -451,7 +451,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
             vector2DSet(M, point->y, point->z);
             break;
 
-        case Y_NORMAL:
+        case Y:
             vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
             vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
@@ -462,7 +462,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
             vector2DSet(M, point->x, point->z);
             break;
 
-        case Z_NORMAL:
+        case Z:
             vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
             vertexIndex++;
             vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);

@@ -24,9 +24,11 @@ set(MAIN_SRC
     src/common/RenderOptions.cpp
     src/common/stratification.cpp
     src/common/Statistics.cpp
+    src/common/linealAlgebra/Float.cpp
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp
+    src/common/linealAlgebra/Matrix4x4d.cpp
     src/common/linealAlgebra/Vector3Dd.cpp
     src/common/linealAlgebra/CoordinateSystem.cpp
     src/common/numericalAnalysis/CubatureRule.cpp

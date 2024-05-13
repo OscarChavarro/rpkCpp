@@ -1,12 +1,8 @@
-/**
-Sobol QMC sequence
-*/
-
 #include "java/lang/Math.h"
 #include "QMC/sobol.h"
 
-#define MAX_DIM 5
-#define V_MAX 30
+static const int MAX_DIM = 5;
+static const int V_MAX = 30;
 
 static int dim;
 static int nextN;
@@ -15,7 +11,7 @@ static int v[MAX_DIM][V_MAX];
 static int skip;
 static double RECIP;
 
-double *
+static double *
 nextSobol() {
     static double xx[MAX_DIM];
     int c;
@@ -37,7 +33,10 @@ nextSobol() {
 }
 
 // Translate n into Gray code
-#define GRAY(n) ((n) ^ ((n)>>1))
+inline static int
+sobolGray(int n) {
+    return n ^ (n >> 1);
+}
 
 double *
 sobol(int seed) {
@@ -49,7 +48,7 @@ sobol(int seed) {
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
         c = 1;
-        gray = GRAY(seed);
+        gray = sobolGray(seed);
         while ( gray ) {
             if ( gray & 1 ) {
                 x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));

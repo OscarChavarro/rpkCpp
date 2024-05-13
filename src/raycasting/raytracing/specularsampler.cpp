@@ -84,7 +84,6 @@ CSpecularSampler::sample(
             &dummyBoolean);
     }
 
-    PNAN(pdfDir);
     if ( pdfDir < EPSILON ) {
         return false;
     }

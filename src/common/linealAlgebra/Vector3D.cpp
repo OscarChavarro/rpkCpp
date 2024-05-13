@@ -1,11 +1,16 @@
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3D.h"
 
+const int X_GREATER_MASK = 0x01;
+const int Y_GREATER_MASK = 0x02;
+const int Z_GREATER_MASK = 0x04;
+const int XYZ_EQUAL_MASK = 0x08;
+
 /**
 Find the "dominant" part of the vector (eg patch-normal).
 This is used to turn the point-in-polygon test into a 2D problem.
 */
-int
+CoordinateAxis
 Vector3D::dominantCoordinate() const {
     Vector3D anorm;
 
@@ -16,9 +21,9 @@ Vector3D::dominantCoordinate() const {
     indexValue = java::Math::max(anorm.x, (float)indexValue);
 
     if ( indexValue == anorm.x ) {
-        return X_NORMAL;
+        return CoordinateAxis::X;
     } else {
-        return indexValue == anorm.y ? Y_NORMAL : Z_NORMAL;
+        return indexValue == anorm.y ? CoordinateAxis::Y : CoordinateAxis::Z;
     }
 }
 

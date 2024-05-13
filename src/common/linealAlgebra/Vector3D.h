@@ -6,15 +6,12 @@
 
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/CoordinateAxis.h"
 
-#define X_NORMAL 0
-#define Y_NORMAL 1
-#define Z_NORMAL 2
-
-#define X_GREATER_MASK 0x01
-#define Y_GREATER_MASK 0x02
-#define Z_GREATER_MASK 0x04
-#define XYZ_EQUAL_MASK 0x08
+extern const int X_GREATER_MASK;
+extern const int Y_GREATER_MASK;
+extern const int Z_GREATER_MASK;
+extern const int XYZ_EQUAL_MASK;
 
 class Vector3D {
   public:
@@ -28,7 +25,7 @@ class Vector3D {
     Vector3D transform(const Vector3D &X, const Vector3D &Y, const Vector3D &Z) const;
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
-    int dominantCoordinate() const;
+    CoordinateAxis dominantCoordinate() const;
     int compareByDimensions(const Vector3D *v2, float epsilon) const;
     void print(FILE *fp) const;
     float dotProduct(Vector3D b) const;

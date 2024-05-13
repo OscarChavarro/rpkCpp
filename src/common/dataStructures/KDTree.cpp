@@ -4,11 +4,12 @@
 #include "java/lang/Math.h"
 #include "common/error.h"
 #include "common/mymath.h"
-#include "common/linealAlgebra/Float.h"
 #include "common/dataStructures/KDTree.h"
 
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))
 #define E_VAL(index) bkdval(broot, (index), discr)
+
+const double KD_MAX_RADIUS = 1e10;
 
 // KD Tree with one data element per node
 float *KDTree::s_distances = nullptr;

@@ -2,6 +2,7 @@
 #define __MGF_TRANSFORM_CONTEXT__
 
 #include "common/linealAlgebra/Vector3Dd.h"
+#include "common/linealAlgebra/Matrix4x4d.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/MgfReaderFilePosition.h"
 

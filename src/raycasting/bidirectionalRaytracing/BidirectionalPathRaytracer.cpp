@@ -91,13 +91,6 @@ static bool
 spikeCheck(ColorRgb color) {
     double colAvg = color.average();
 
-    if ( ISNAN(colAvg) ) {
-        printf("COL ");
-        color.print(stdout);
-        printf("\n");
-        return true;
-    }
-
     if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
         printf("Spike\n");
         return true;
@@ -216,10 +209,8 @@ handlePathX0(
         oldBsdfEval = eyeEndNode->m_bsdfEval;
         oldBsdfComp = eyeEndNode->m_bsdfComp;
         oldPDFLightEval = eyeEndNode->m_pdfFromNext;
-        PNAN(eyeEndNode->m_pdfFromNext);
 
         oldPDFDirEval = eyePrevNode->m_pdfFromNext;
-        PNAN(eyePrevNode->m_pdfFromNext);
 
         oldRRPDFLightEval = eyeEndNode->m_rrPdfFromNext;
         oldRRPDFDirEval = eyePrevNode->m_rrPdfFromNext;
@@ -244,10 +235,7 @@ handlePathX0(
                                         BRDF_DIFFUSE_COMPONENT);
 
             if ( config->lightConfig.maxDepth > 0 ) {
-                eyeEndNode->m_pdfFromNext =
-                        config->lightConfig.pointSampler->evalPDF(camera, nullptr, eyeEndNode);
-                PNAN(eyeEndNode->m_pdfFromNext);
-
+                eyeEndNode->m_pdfFromNext = config->lightConfig.pointSampler->evalPDF(camera, nullptr, eyeEndNode);
                 eyeEndNode->m_rrPdfFromNext = 1.0; // Light point: no Russian R.
             } else {
                 // Impossible to generate light point with a light sub path
@@ -258,8 +246,6 @@ handlePathX0(
             if ( config->lightConfig.maxDepth > 1 ) {
                 eyePrevNode->m_pdfFromNext =
                         config->lightConfig.dirSampler->evalPDF(camera, eyeEndNode, eyePrevNode);
-                PNAN(eyePrevNode->m_pdfFromNext);
-
                 eyePrevNode->m_rrPdfFromNext = 1.0;
             } else {
                 eyePrevNode->m_pdfFromNext = 0.0;
@@ -267,14 +253,13 @@ handlePathX0(
             }
 
             // Compute
-            if ((config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
+            if ( (config->baseConfig->sampleImportantLights) && (config->lightConfig.maxDepth > 0)
                 && (path->m_eyeSize > 2) ) {
                 pdfLNE = config->eyeConfig.neSampler->evalPDF(camera, eyePrevNode, eyeEndNode);
             } else {
                 pdfLNE = eyeEndNode->m_pdfFromNext; // same sampling as light path
             }
 
-            PNAN(pdfLNE);
             path->m_pdfLNE = pdfLNE;
         }
 
@@ -355,23 +340,19 @@ computeNeFluxEstimate(
     oldBsdfCompE = eyeEndNode->m_bsdfComp;
 
     oldPdfL = lightEndNode->m_pdfFromNext;
-    PNAN(lightEndNode->m_pdfFromNext);
 
     oldRRPdfL = lightEndNode->m_rrPdfFromNext;
 
     if ( lightPrevNode ) {
         oldPdfLP = lightPrevNode->m_pdfFromNext;
-        PNAN(lightPrevNode->m_pdfFromNext);
         oldRRPdfLP = lightPrevNode->m_rrPdfFromNext;
     }
 
     oldPdfE = eyeEndNode->m_pdfFromNext;
-    PNAN(eyeEndNode->m_pdfFromNext);
     oldRRPdfE = eyeEndNode->m_rrPdfFromNext;
 
     if ( eyePrevNode ) {
         oldPdfEP = eyePrevNode->m_pdfFromNext;
-        PNAN(eyePrevNode->m_pdfFromNext);
         oldRRPdfEP = eyePrevNode->m_rrPdfFromNext;
     }
 
@@ -481,11 +462,7 @@ handlePathXx(
         // Compute the normal sampling pdf for the new path/point
         oldPdfLNE = path->m_pdfLNE;
         path->m_pdfLNE = newLightNode.m_pdfFromPrev;
-        newLightNode.m_pdfFromPrev =
-                config->lightConfig.pointSampler->evalPDF(camera, nullptr, &newLightNode);
-
-        PNAN(newLightNode.m_pdfFromPrev);
-        PNAN(path->m_pdfLNE);
+        newLightNode.m_pdfFromPrev = config->lightConfig.pointSampler->evalPDF(camera, nullptr, &newLightNode);
 
         path->m_lightEndNode = &newLightNode;
     }
@@ -785,15 +762,15 @@ doBptAndSubsequentImages(
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
     // are saved.
-    char *last_occ = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
+    const char *lastOcc = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
 
-    if ( last_occ == nullptr ) {
+    if ( lastOcc == nullptr ) {
         snprintf(format1, STRINGS_SIZE, "%s%%i.tif", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
         snprintf(format2, STRINGS_SIZE, "%s%%i.ppm.gz", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
     } else {
-        strncpy(format1, GLOBAL_rayTracing_biDirectionalPath.baseFilename, last_occ - GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+        strncpy(format1, GLOBAL_rayTracing_biDirectionalPath.baseFilename, lastOcc - GLOBAL_rayTracing_biDirectionalPath.baseFilename);
         strcat(format1, "%i");
-        strcat(format1, last_occ);
+        strcat(format1, lastOcc);
         format2[0] = '\0';
     }
 

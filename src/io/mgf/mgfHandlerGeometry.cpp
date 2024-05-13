@@ -187,21 +187,21 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
 }
 
 /**
-Given a vector p in 3D space and an index i, which is X_NORMAL, Y_NORMAL
-or Z_NORMAL, projects the vector on the YZ, XZ or XY plane respectively
+Given a vector p in 3D space and an index i, which is X, Y
+or Z, projects the vector on the YZ, XZ or XY plane respectively
 */
 static void
-vectorProject(Vector2D &r, const Vector3D &p, const int i) {
+vectorProject(Vector2D &r, const Vector3D &p, const CoordinateAxis i) {
     switch ( i ) {
-        case X_NORMAL:
+        case CoordinateAxis::X:
             r.u = p.y;
             r.v = p.z;
             break;
-        case Y_NORMAL:
+        case CoordinateAxis::Y:
             r.u = p.x;
             r.v = p.z;
             break;
-        case Z_NORMAL:
+        case CoordinateAxis::Z:
             r.u = p.x;
             r.v = p.y;
             break;
@@ -226,7 +226,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
 
     index = normal->dominantCoordinate();
     for ( i = 0; i < numberOfVertices; i++ ) {
-        vectorProject(v2d[i], *(v[i]->point), index);
+        vectorProject(v2d[i], *(v[i]->point), (CoordinateAxis)index);
     }
 
     p.u = v2d[3].u - v2d[2].u;
@@ -413,7 +413,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     for ( int i = 0; i < n; i++ ) {
-        vectorProject(q[i], *(v[i]->point), index);
+        vectorProject(q[i], *(v[i]->point), (CoordinateAxis)index);
     }
 
     int good;

@@ -1,5 +1,5 @@
-#ifndef __Vector4D__
-#define __Vector4D__
+#ifndef __VECTOR_4D__
+#define __VECTOR_4D__
 
 class Vector4D {
   public:

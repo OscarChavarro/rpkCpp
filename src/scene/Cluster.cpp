@@ -164,7 +164,7 @@ Cluster::clusterMovePatch(int parentIndex) {
     int selectedChildClusterIndex = boundingBoxCentroid.compareByDimensions(&midPatch, EPSILON_FLOAT);
 
     // If the centroids (almost by EPSILON) coincides, don´t move current patch from parent cluster to sub-cluster
-    if ( selectedChildClusterIndex == 0x08 ) {
+    if ( selectedChildClusterIndex == XYZ_EQUAL_MASK ) {
         return false;
     }
 
