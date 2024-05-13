@@ -1,21 +1,32 @@
 /**
-4D base-2 Niederreiter QMC series, ACM TOMS Algorithm 738, dec 94
+4D base-2 Niederreiter QMC series,
+[CHOW1994] ACM TOMS Algorithm 738, dec 94
 
 See also:
 
-P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
+[BRAT1992] P. Bratley, B. Fox, H. Niederreiter, "Implementation and Tests of
 Low-Discrepancy Sequences", ACM Trans Mod Comp Sim Vol 2 Nr 3,
 July  1992 p195
 
 Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 */
 
-static niedindex nied[DIMEN] = {0, 0, 0, 0}, count = 0;
+#include <cstdlib>
+#include <cstdio>
 
-/* Computes the base-2 31bits 4D Niederreiter sample with index n. */
-niedindex *Nied(niedindex n) {
+static niedindex nied[DIMEN] = {0, 0, 0, 0};
+static niedindex count = 0;
+
+/**
+Computes the base-2 31bits 4D Niederreiter sample with index n
+*/
+niedindex *
+Nied(niedindex n) {
     niedindex diff;
-    niedindex *cj0 = cj[0], *cj1 = cj[1], *cj2 = cj[2], *cj3 = cj[3];
+    niedindex *cj0 = cj[0];
+    niedindex *cj1 = cj[1];
+    niedindex *cj2 = cj[2];
+    niedindex *cj3 = cj[3];
 
     n += SKIP;
     diff = n ^ count; // Contains 1s where bits in n and count differ
@@ -100,12 +111,9 @@ NextNiedInRange(
         i += step;
         if ( i >= NBITS_POW) {
             fprintf(stderr, "\nOverflow in Niederreiter sequence. A %d-bit sequence is not enough???\n", NBITS);
-            /*
-            fprintf(stderr, "i=%u, c=%u, step=%d, nmsb=%d, msb1=%08x, rmsb2=%08x, dir=%d, mask=%08x, rmask=%08x\n", i, c, step, nmsb, msb1, rmsb2, dir, mask, rmask);
-            */
             abort();
         }
-    } while ((nied[1] & rmask) != rmsb2 );
+    } while ( (nied[1] & rmask) != rmsb2 );
 
     cj0 = cj[0];
     cj2 = cj[2];

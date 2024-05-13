@@ -242,17 +242,17 @@ GalerkinElement::~GalerkinElement() {
 Returns the total number of elements in use
 */
 int
-galerkinElementGetNumberOfElements() {
+GalerkinElement::getNumberOfElements() {
     return globalNumberOfElements;
 }
 
 int
-galerkinElementGetNumberOfClusters() {
+GalerkinElement::getNumberOfClusters() {
     return globalNumberOfClusters;
 }
 
 int
-galerkinElementGetNumberOfSurfaceElements() {
+GalerkinElement::getNumberOfSurfaceElements() {
     return globalNumberOfElements - globalNumberOfClusters;
 }
 

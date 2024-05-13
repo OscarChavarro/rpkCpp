@@ -47,8 +47,11 @@ class GalerkinElement final : public Element {
 
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
     explicit GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState);
-
     ~GalerkinElement() final;
+
+    static int getNumberOfElements();
+    static int getNumberOfClusters();
+    static int getNumberOfSurfaceElements();
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
@@ -68,10 +71,6 @@ of the same point on the parent element
 */
 extern Matrix2x2 globalQuadToParentTransformMatrix[4];
 extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
-
-extern int galerkinElementGetNumberOfElements();
-extern int galerkinElementGetNumberOfClusters();
-extern int galerkinElementGetNumberOfSurfaceElements();
 
 inline GalerkinElement*
 galerkinGetElement(const Patch *patch) {

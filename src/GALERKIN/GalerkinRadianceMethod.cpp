@@ -510,11 +510,11 @@ GalerkinRadianceMethod::getStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", galerkinState.iterationNumber, &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", galerkinElementGetNumberOfElements(), &n);
+    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", GalerkinElement::getNumberOfElements(), &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", galerkinElementGetNumberOfClusters(), &n);
+    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", GalerkinElement::getNumberOfClusters(), &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", galerkinElementGetNumberOfSurfaceElements(), &n);
+    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", GalerkinElement::getNumberOfSurfaceElements(), &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Nr. interactions: %d\n%n", Interaction::getNumberOfInteractions(), &n);
     p += n;
