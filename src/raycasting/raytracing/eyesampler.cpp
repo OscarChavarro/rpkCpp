@@ -17,7 +17,7 @@ CEyeSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     if ( prevNode != nullptr || thisNode != nullptr ) {
         logWarning("CEyeSampler::sample", "Not first node in path ?!");
@@ -64,7 +64,8 @@ double
 CEyeSampler::evalPDF(
     Camera * /*camera*/,
     SimpleRaytracingPathNode */*thisNode*/,
-    SimpleRaytracingPathNode */*newNode*/, BSDF_FLAGS /*flags*/,
+    SimpleRaytracingPathNode */*newNode*/,
+    char /*flags*/,
     double * /*probabilityDensityFunction*/,
     double * /*probabilityDensityFunctionRR*/) {
     return 1.0;

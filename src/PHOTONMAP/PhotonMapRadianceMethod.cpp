@@ -442,7 +442,7 @@ photonMapTracePath(
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     PhotonMapConfig *config,
-    BSDF_FLAGS bsdfFlags) {
+    char bsdfFlags) {
     config->biPath.m_eyePath = config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, config->biPath.m_eyePath);
 
     // Use qmc for light sampling
@@ -479,7 +479,7 @@ photonMapTracePaths(
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     int numberOfPaths,
-    BSDF_FLAGS bsdfFlags = BSDF_ALL_COMPONENTS,
+    char bsdfFlags = BSDF_ALL_COMPONENTS,
     RadianceMethod *radianceMethod = nullptr)
 {
     // Fill in config structures

@@ -4,7 +4,7 @@ Scrambled halton quasiMonteCarlo sample sequence
 
 #include "common/quasiMonteCarlo/ScrambledHalton.h"
 
-#define MAX_DIM 10
+static const int MAX_DIM = 10;
 
 double *
 scrambledHalton(unsigned nextN, int dim) {

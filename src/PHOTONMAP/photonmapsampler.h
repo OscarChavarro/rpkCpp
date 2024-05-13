@@ -27,7 +27,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         double x2,
-        BSDF_FLAGS flags);
+        char flags);
 
     bool
     gdSample(
@@ -40,15 +40,15 @@ class CPhotonMapSampler : public CBsdfSampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 
     // Randomly choose between 2 scattering components, using
     // scattered power as probabilities.
     // Returns true a component was chosen, false if absorbed
     static bool
     chooseComponent(
-        BSDF_FLAGS flags1,
-        BSDF_FLAGS flags2,
+        char flags1,
+        char flags2,
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
         bool doRR,
@@ -73,7 +73,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 };
 
 #endif

@@ -17,7 +17,7 @@ A chain list is a set of scattering modes
 
 class FlagChain {
   public:
-    BSDF_FLAGS *chain;
+    char *chain;
     int length;
     bool subtract;
 
@@ -29,7 +29,7 @@ class FlagChain {
     ~FlagChain();
 
     // Array access operator
-    inline BSDF_FLAGS &operator[](const int index) const {
+    inline char &operator[](const int index) const {
         return chain[index];
     }
 
@@ -43,21 +43,20 @@ FlagChainCompare(const FlagChain *c1, const FlagChain *c2);
 
 // try to combine two flag chains into one equivalent chain
 // Only one element in the chain may differ.
-FlagChain *FlagChainCombine(const FlagChain *chain1,
-                            const FlagChain *chain2);
-
+FlagChain *
+FlagChainCombine(const FlagChain *chain1, const FlagChain *chain2);
 
 // A linked list of flag chains.
 // Chains in the list are of fixed length !
 
-class ChainList : private CTSList<FlagChain> {
+class ChainList final : private CTSList<FlagChain> {
   public:
     int length;
     int count;
 
     ChainList();
-    ~ChainList();
-    void add(const FlagChain &chain);
+    ~ChainList() final;
+    void add(const FlagChain &chain) final;
     void add(ChainList *list);
     void addDisjoint(const FlagChain &chain);
     ColorRgb compute(CBiPath *path);

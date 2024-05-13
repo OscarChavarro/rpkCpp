@@ -37,14 +37,14 @@ class UniformLightSampler : public CNextEventSampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 
     virtual double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *pdf,
         double *pdfRR);
 };
@@ -63,14 +63,14 @@ class ImportantLightSampler : public CNextEventSampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 
     virtual double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *pdf,
         double *pdfRR);
 };

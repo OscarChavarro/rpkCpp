@@ -20,7 +20,7 @@ CPixelSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     Vector3D dir;
 
@@ -61,7 +61,7 @@ CPixelSampler::sample(
 
     // Component propagation
     thisNode->m_usedComponents = NO_COMPONENTS; // the eye...
-    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<char>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 
     newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors; // No russian roulette
 
@@ -84,7 +84,7 @@ CPixelSampler::evalPDF(
     Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS /*flags*/,
+    char /*flags*/,
     double * /*pdf*/,
     double * /*pdfRR*/)
 {

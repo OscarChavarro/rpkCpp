@@ -47,14 +47,14 @@ public:
         double x1,
         double x2,
         bool doRR = false,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) = 0;
+        char flags = BSDF_ALL_COMPONENTS) = 0;
 
     virtual double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
+        char flags = BSDF_ALL_COMPONENTS,
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr) = 0;
 };
@@ -114,7 +114,7 @@ class CSurfaceSampler : public Sampler {
         const PhongBidirectionalScatteringDistributionFunction *outBsdf,
         const Vector3D *in,
         const Vector3D *out,
-        BSDF_FLAGS flags,
+        char flags,
         BsdfComp *bsdfComp) const
     {
         if ( m_computeBsdfComponents ) {
@@ -151,7 +151,7 @@ class CSurfaceSampler : public Sampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags) = 0;
+        char flags) = 0;
 
     // EvalPDF : returns probabilityDensityFunction INCLUDING russian roulette. Separate
     // components can be obtained through probabilityDensityFunction and probabilityDensityFunctionRR params
@@ -160,7 +160,7 @@ class CSurfaceSampler : public Sampler {
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr) = 0;
 
@@ -173,7 +173,7 @@ class CSurfaceSampler : public Sampler {
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) = 0;
 

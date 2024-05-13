@@ -64,7 +64,7 @@ CSamplerConfig::traceNode(
     SimpleRaytracingPathNode *nextNode,
     double x1,
     double x2,
-    BSDF_FLAGS flags) const
+    char flags) const
 {
     SimpleRaytracingPathNode *lastNode;
 
@@ -130,7 +130,7 @@ CSamplerConfig::tracePath(
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *nextNode,
-    BSDF_FLAGS flags)
+    char flags)
 {
     double x1;
     double x2;
@@ -161,8 +161,8 @@ pathNodeConnect(
     CSamplerConfig *eyeConfig,
     CSamplerConfig *lightConfig,
     CONNECT_FLAGS flags,
-    BSDF_FLAGS bsdfFlagsE,
-    BSDF_FLAGS bsdfFlagsL,
+    char bsdfFlagsE,
+    char bsdfFlagsL,
     Vector3D *pDirEl)
 {
     SimpleRaytracingPathNode *nodeEP; // previous nodes

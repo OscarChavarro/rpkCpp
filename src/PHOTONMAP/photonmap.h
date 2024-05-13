@@ -9,7 +9,7 @@
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/pmapoptions.h"
 
-bool zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags);
+bool zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
 
 // Convert a value val given a maximum into some nice color
 ColorRgb getFalseColor(float val);
@@ -49,7 +49,6 @@ class CPhotonMap {
     float *m_cosines; // photon dir * reconstruction normal
     bool m_cosinesOk; // indicates if cosines are computed
 
-  protected:
     // nearest photon queries must use these functions!
     int
     doQuery(
@@ -74,7 +73,7 @@ class CPhotonMap {
     }
 
     CIrrPhoton *
-    DoIrradianceQuery(Vector3D *position, Vector3D *normal, float maxR2 = HUGE_FLOAT) {
+    DoIrradianceQuery(Vector3D *position, const Vector3D *normal, float maxR2 = HUGE_FLOAT) {
         return m_kdtree->normalPhotonQuery(position, normal, 0.8f, maxR2);
     }
 
@@ -134,8 +133,8 @@ class CPhotonMap {
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
 
-    double sample(Vector3D position, double *r, double *s, CoordinateSystem *coord,
-                  BSDF_FLAGS flag, float n = 1);
+    double
+    sample(Vector3D position, double *r, double *s, CoordinateSystem *coord, char flag, float n = 1);
 
     // Utility functions
 

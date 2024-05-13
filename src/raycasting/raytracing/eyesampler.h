@@ -25,14 +25,14 @@ public:
         double x1,
         double x2,
         bool doRR = false,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) final;
+        char flags = BSDF_ALL_COMPONENTS) final;
 
     double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS,
+        char flags = BSDF_ALL_COMPONENTS,
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr) final;
 };

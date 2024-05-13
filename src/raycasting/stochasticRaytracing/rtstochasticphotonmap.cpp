@@ -113,10 +113,8 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
 
 
     // Scatter info blocks
-
     // Storage block
-
-    BSDF_FLAGS storeFlags;
+    char storeFlags;
 
     if ((radianceMethod == nullptr) || (radMode == STORED_NONE) ) {
         storeFlags = NO_COMPONENTS;
@@ -155,19 +153,19 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
     // Other blocks, this is non storage with optional
     // separation of specular components
 
-    BSDF_FLAGS remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
+    char remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
     int siIndex = 0;
 
     if ( separateSpecular ) {
-        BSDF_FLAGS flags;
+        char flags;
 
         // spec reflection
 
         if ( reflectionSampling == CLASSICAL_SAMPLING ) {
-            flags = (BSDF_FLAGS)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
+            flags = (char)(remainingFlags & (BRDF_SPECULAR_COMPONENT |
                                                    BRDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = (BSDF_FLAGS)(remainingFlags & BRDF_SPECULAR_COMPONENT);
+            flags = (char)(remainingFlags & BRDF_SPECULAR_COMPONENT);
         }
 
         if ( flags ) {
@@ -175,15 +173,15 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~flags);
+            remainingFlags = static_cast<char>(remainingFlags & ~flags);
         }
 
         // Spec transmission
         if ( reflectionSampling == CLASSICAL_SAMPLING ) {
-            flags = (BSDF_FLAGS)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
+            flags = (char)(remainingFlags & (BTDF_SPECULAR_COMPONENT |
                                                    BTDF_GLOSSY_COMPONENT)); // Glossy == Specular in classic
         } else {
-            flags = (BSDF_FLAGS)(remainingFlags & BTDF_SPECULAR_COMPONENT);
+            flags = (char)(remainingFlags & BTDF_SPECULAR_COMPONENT);
         }
 
         if ( flags ) {
@@ -191,34 +189,34 @@ StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *l
             siOthers[siIndex].nrSamplesBefore = scatterSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~flags);
+            remainingFlags = static_cast<char>(remainingFlags & ~flags);
         }
     }
 
     // Glossy or diffuse with different firstDGSamples
 
     if ((reflectionSampling != CLASSICAL_SAMPLING) && (scatterSamples != firstDGSamples) ) {
-        BSDF_FLAGS gdFlags = (BSDF_FLAGS)(remainingFlags &
+        char gdFlags = (char)(remainingFlags &
                                           (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
             siOthers[siIndex].flags = gdFlags;
             siOthers[siIndex].nrSamplesBefore = firstDGSamples;
             siOthers[siIndex].nrSamplesAfter = scatterSamples;
             siIndex++;
-            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~gdFlags);
+            remainingFlags = static_cast<char>(remainingFlags & ~gdFlags);
         }
     }
 
     if ( reflectionSampling == CLASSICAL_SAMPLING ) {
         // Classical: Diffuse, with no scattering
-        BSDF_FLAGS dFlags = (BSDF_FLAGS)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
+        char dFlags = (char)(remainingFlags & BSDF_DIFFUSE_COMPONENT);
 
         if ( dFlags ) {
             siOthers[siIndex].flags = dFlags;
             siOthers[siIndex].nrSamplesBefore = 0;
             siOthers[siIndex].nrSamplesAfter = 0;
             siIndex++;
-            remainingFlags = static_cast<BSDF_FLAGS>(remainingFlags & ~dFlags);
+            remainingFlags = static_cast<char>(remainingFlags & ~dFlags);
         }
     }
 

@@ -50,7 +50,7 @@ UniformLightSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     double pdfLight;
     double pdfPoint;
@@ -135,7 +135,8 @@ UniformLightSampler::evalPDF(
     Camera *camera,
     SimpleRaytracingPathNode */*thisNode*/,
     SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS /*flags*/, double * /*pdf*/,
+    char /*flags*/,
+    double * /*pdf*/,
     double * /*pdfRR*/)
 {
     double pdf;
@@ -190,9 +191,10 @@ ImportantLightSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
-    double pdfLight, pdfPoint;
+    double pdfLight;
+    double pdfPoint;
     Patch *light;
     Vector3D point;
 
@@ -284,11 +286,12 @@ ImportantLightSampler::evalPDF(
     Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS /*flags*/, double * /*pdf*/,
+    char /*flags*/,
+    double * /*pdf*/,
     double * /*pdfRR*/)
 {
     double pdf;
-    double pdfdir;
+    double pdfDir;
 
     // The light point is in NEW NODE !!
     Vector3D newPosition = newNode->m_hit.getPoint();
@@ -304,16 +307,16 @@ ImportantLightSampler::evalPDF(
         // virtual patch has no area!
         // choosing newPosition point == choosing newPosition dir --> use pdf from evalEdf
         if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
-            pdfdir = 0.0;
+            pdfDir = 0.0;
         } else {
             newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
-                &pdfdir);
+                &pdfDir);
         }
 
-        pdf *= pdfdir;
+        pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
         if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {

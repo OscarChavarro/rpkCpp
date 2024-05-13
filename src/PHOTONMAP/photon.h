@@ -58,7 +58,7 @@ class CPhoton {
     // Importance sampling utility functions
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
-    void FindRS(double *r, double *s, CoordinateSystem *coord, BSDF_FLAGS flag, float n);
+    void FindRS(double *r, double *s, const CoordinateSystem *coord, char flag, float n);
 };
 
 

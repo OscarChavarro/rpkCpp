@@ -58,11 +58,11 @@ class SimpleRaytracingPathNode {
     ColorRgb m_bsdfEval;
     BsdfComp m_bsdfComp;
 
-    BSDF_FLAGS m_usedComponents; // Components used for scattering in this
+    char m_usedComponents; // Components used for scattering in this
     // node. For full bsdf sampling, these are all components, independent
     // of which component is actually used (M.I.S.), but other types
     // of sampling are possible.
-    BSDF_FLAGS m_accUsedComponents; // Accumulated used components. This allows
+    char m_accUsedComponents; // Accumulated used components. This allows
     // one to check immediately if any previous node in the path had a certain
     // scattering component used. accUsed = prev->used | prev->accUsed
 

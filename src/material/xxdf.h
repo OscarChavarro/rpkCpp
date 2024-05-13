@@ -50,8 +50,6 @@ Contributions to outgoing radiance are divided into three components :
 #define GET_BRDF_FLAGS(bsflags) ((bsflags) & ALL_COMPONENTS)
 #define GET_BTDF_FLAGS(bsflags) (((bsflags) >> XXDF_COMPONENTS) & ALL_COMPONENTS)
 
-typedef char BSDF_FLAGS;
-
 extern Vector3D idealReflectedDirection(const Vector3D *in, const Vector3D *normal);
 
 extern Vector3D

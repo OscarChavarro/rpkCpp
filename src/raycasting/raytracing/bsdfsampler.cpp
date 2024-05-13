@@ -2,9 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cmath>
-
-#include "common/error.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
@@ -20,7 +17,7 @@ CBsdfSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     double pdfDir;
 
@@ -78,7 +75,7 @@ CBsdfSampler::sample(
 
     // Accumulate scattering components
     thisNode->m_usedComponents = flags;
-    newNode->m_accUsedComponents = static_cast<BSDF_FLAGS>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
+    newNode->m_accUsedComponents = static_cast<char>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
@@ -113,7 +110,7 @@ CBsdfSampler::evalPDF(
     Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS flags,
+    char flags,
     double *pdf,
     double *pdfRR)
 {
@@ -168,7 +165,7 @@ CBsdfSampler::EvalPDFPrev(
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode */*newNode*/,
-    BSDF_FLAGS flags,
+    char flags,
     double *pdf,
     double *pdfRR)
 {

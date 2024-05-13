@@ -19,7 +19,7 @@ class BsdfComp {
 
     inline operator ColorRgb *() { return comp; }
 
-    void Clear(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
+    void Clear(const char flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {
                 comp[i].clear();
@@ -27,7 +27,7 @@ class BsdfComp {
         }
     }
 
-    void Fill(const ColorRgb col, const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
+    void Fill(const ColorRgb col, const char flags = BSDF_ALL_COMPONENTS) {
         for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
             if ( flags & (BSDF_INDEX_TO_COMP(i)) ) {
                 comp[i] = col;
@@ -35,7 +35,7 @@ class BsdfComp {
         }
     }
 
-    ColorRgb Sum(const BSDF_FLAGS flags = BSDF_ALL_COMPONENTS) {
+    ColorRgb Sum(const char flags = BSDF_ALL_COMPONENTS) {
         ColorRgb result;
 
         result.clear();

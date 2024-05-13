@@ -157,7 +157,7 @@ account potential texturing
 void
 PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     RayHit *hit,
-    BSDF_FLAGS flags,
+    char flags,
     double *inTexture,
     double *reflection,
     double *transmission,

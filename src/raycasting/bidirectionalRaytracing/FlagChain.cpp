@@ -11,7 +11,7 @@ FlagChain::init(const int paramLength, bool const paramSubtract) {
     }
 
     if ( paramLength > 0 ) {
-        chain = new BSDF_FLAGS[paramLength];
+        chain = new char[paramLength];
     } else {
         chain = nullptr;
     }
@@ -104,7 +104,7 @@ FlagChainCombine(const FlagChain *c1,
     if ( nrDifferent == 1 ) {
         // Combinable
         FlagChain *newFlagChain = new FlagChain(*c1);
-        newFlagChain->chain[diffIndex] = static_cast<BSDF_FLAGS>(c1->chain[diffIndex] | c2->chain[diffIndex]);
+        newFlagChain->chain[diffIndex] = static_cast<char>(c1->chain[diffIndex] | c2->chain[diffIndex]);
         return newFlagChain;
     }
 
@@ -470,14 +470,14 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
     // Build iteration arrays (not tree so no nested brackets!)
     const int MAX_REGEXP_ITEMS = 15;
 
-    BSDF_FLAGS flagArray[MAX_REGEXP_ITEMS];
+    char flagArray[MAX_REGEXP_ITEMS];
     char typeArray[MAX_REGEXP_ITEMS];
     int countArray[MAX_REGEXP_ITEMS];
     int pos = 0;
     int tokenCount = -1;
     int iteratorCount = 0;
     char token;
-    BSDF_FLAGS data;
+    char data;
 
     while ( getToken(regExp, &pos, &token, &data) ) {
         if ( token == 'F' ) {

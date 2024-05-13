@@ -27,7 +27,7 @@ class CBsdfSampler : public CSurfaceSampler {
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 
     // Use this for N.E.E. : connecting a light node with an eye node
     virtual double
@@ -35,7 +35,7 @@ class CBsdfSampler : public CSurfaceSampler {
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *pdf = nullptr,
         double *pdfRR = nullptr);
 
@@ -48,7 +48,7 @@ class CBsdfSampler : public CSurfaceSampler {
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *pdf,
         double *pdfRR);
 };

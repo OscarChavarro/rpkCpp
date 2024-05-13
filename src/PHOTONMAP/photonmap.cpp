@@ -9,7 +9,7 @@
 #include "PHOTONMAP/photonmap.h"
 
 bool
-zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, BSDF_FLAGS flags) {
+zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb color;
     if ( bsdf == nullptr ) {
         color.clear();
@@ -481,7 +481,7 @@ CPhotonMap::sample(
     double *r,
     double *s,
     CoordinateSystem *coord,
-    BSDF_FLAGS flag,
+    char flag,
     float n)
 {
     ColorRgb color;

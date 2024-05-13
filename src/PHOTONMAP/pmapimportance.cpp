@@ -94,7 +94,7 @@ tracePotentialPath(
             node,
             x1,
             x2,
-            (BSDF_FLAGS)((indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS))
+            (char)(indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS)
             ) ) {
         // Successful trace
         SimpleRaytracingPathNode *prev = node->previous();

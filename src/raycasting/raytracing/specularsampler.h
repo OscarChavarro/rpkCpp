@@ -42,7 +42,7 @@ public:
         double x1,
         double x2,
         bool doRR,
-        BSDF_FLAGS flags);
+        char flags);
 
     // Use this for N.E.E. : connecting a light node with an eye node
 
@@ -52,7 +52,7 @@ public:
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr);
 
@@ -66,7 +66,7 @@ public:
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        BSDF_FLAGS flags,
+        char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR);
 };

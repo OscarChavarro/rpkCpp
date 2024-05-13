@@ -19,7 +19,7 @@ class CSeed {
     unsigned short *GetSeed() { return m_seed; }
 
     void SetSeed(CSeed seed) {
-        unsigned short *s = seed.GetSeed();
+        const unsigned short *s = seed.GetSeed();
         m_seed[0] = s[0];
         m_seed[1] = s[1];
         m_seed[2] = s[2];
@@ -38,7 +38,7 @@ class CSeed {
     }
 
     void XORSeed(CSeed xOrSeed) {
-        unsigned short *s = xOrSeed.GetSeed();
+        const unsigned short *s = xOrSeed.GetSeed();
         m_seed[0] ^= s[0];
         m_seed[1] ^= s[1];
         m_seed[2] ^= s[2];
@@ -46,13 +46,11 @@ class CSeed {
 };
 
 class CSeedConfig {
-private:
+  private:
     CSeed *m_seeds;
     static CSeed xOrSeed;
 
-public:
-
-    // Constructor
+  public:
     CSeedConfig() {
         xOrSeed.SetSeed(0xF0, 0x65, 0xDE);
         m_seeds = nullptr;
@@ -101,16 +99,14 @@ public:
     }
 };
 
-// CScatterinfo includes information about different
-// scattering properties for different bsdf components
-// This info is used during scattering, but also
-// when weighting or reading storage decisions
-// must be made.
-
+/**
+CScatterinfo includes information about different scattering properties for different bsdf components
+This info is used during scattering, but also when weighting or reading storage decisions must be made
+*/
 class CScatterInfo {
-public:
+  public:
     // The components under consideration
-    BSDF_FLAGS flags;
+    char flags;
     // Spawning factor if no 'flags' bounce was made before
     int nrSamplesBefore;
     // Spawning factor after at least one 'flags' bounce
@@ -126,7 +122,7 @@ public:
 
     // Were 'flags' used at some previous point in the path
     bool
-    DoneSomePreviousBounce(SimpleRaytracingPathNode *node) const {
+    DoneSomePreviousBounce(const SimpleRaytracingPathNode *node) const {
         return ((node->m_accUsedComponents & flags) == flags);
     }
 };

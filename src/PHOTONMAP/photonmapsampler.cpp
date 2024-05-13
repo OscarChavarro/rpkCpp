@@ -22,8 +22,8 @@ Returns true a component was chosen, false if absorbed
 */
 bool
 CPhotonMapSampler::chooseComponent(
-    BSDF_FLAGS flags1,
-    BSDF_FLAGS flags2,
+    char flags1,
+    char flags2,
     const PhongBidirectionalScatteringDistributionFunction *bsdf,
     RayHit *hit,
     bool doRR,
@@ -92,12 +92,12 @@ CPhotonMapSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
-    PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    const PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool sChosen;
     float pdfChoice;
-    BSDF_FLAGS sFlagMask;
+    char sFlagMask;
 
     const char sFLAGS = BSDF_SPECULAR_COMPONENT;
     const char gdFLAGS = BRDF_GLOSSY_COMPONENT | BRDF_DIFFUSE_COMPONENT;
@@ -111,14 +111,14 @@ CPhotonMapSampler::sample(
         sFlagMask = flags;
     }
     if ( !chooseComponent(
-            (BSDF_FLAGS) (sFLAGS & sFlagMask),
-            (BSDF_FLAGS) (gdFLAGS & flags),
-            bsdf,
-            &thisNode->m_hit,
-            doRR,
-            &x2,
-            &pdfChoice,
-            &sChosen) ) {
+        (char)(sFLAGS & sFlagMask),
+        (char)(gdFLAGS & flags),
+        bsdf,
+        &thisNode->m_hit,
+        doRR,
+        &x2,
+        &pdfChoice,
+        &sChosen) ) {
         return false; // Absorbed
     }
 
@@ -128,7 +128,7 @@ CPhotonMapSampler::sample(
     if ( sChosen ) {
         ok = fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
-        flags = (BSDF_FLAGS)(gdFLAGS & flags);
+        flags = (char)(gdFLAGS & flags);
         ok = gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
     }
 
@@ -137,8 +137,7 @@ CPhotonMapSampler::sample(
         newNode->m_pdfFromPrev *= pdfChoice;
 
         // Component propagation
-        newNode->m_accUsedComponents = (BSDF_FLAGS)(thisNode->m_accUsedComponents |
-                                                    thisNode->m_usedComponents);
+        newNode->m_accUsedComponents = (char)(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
     }
 
     return ok;
@@ -177,7 +176,7 @@ bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
 static bool
 chooseFresnelDirection(
     SimpleRaytracingPathNode *thisNode,
-    BSDF_FLAGS flags,
+    char flags,
     double x2,
     Vector3D *dir,
     double *pdfDir,
@@ -330,7 +329,7 @@ CPhotonMapSampler::fresnelSample(
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x2,
-    BSDF_FLAGS flags)
+    char flags)
 {
     Vector3D dir;
     double pdfDir;
@@ -387,7 +386,7 @@ CPhotonMapSampler::gdSample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     bool ok;
 

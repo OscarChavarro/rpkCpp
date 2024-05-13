@@ -25,10 +25,10 @@ setSequence4D(SEQ4D sequence) {
             initSobol(4);
             break;
         case S4D_FAURE:
-            initFaure(4);
+            initOriginalFaureSequence(4);
             break;
         case S4D_GFAURE:
-            initGFaure(4);
+            initGeneralizedFaureSequence(4);
             break;
         default:
             break;
@@ -42,8 +42,8 @@ current sequence is 'random', the index is not used
 double *
 sample4D(unsigned seed) {
     static double xi[4];
-    unsigned *zeta;
-    double *xx;
+    const unsigned *zeta;
+    const double *xx;
 
     switch ( seq ) {
         case S4D_RANDOM:
@@ -105,7 +105,7 @@ Nied() and NextNiedInRange() are 63-bit unless compiled without
 */
 void
 foldSampleU(unsigned *xi1, unsigned *xi2) {
-    foldSample31(xi1, xi2);  /* declared in nied31.h */
+    foldSample31(xi1, xi2);
 }
 
 void

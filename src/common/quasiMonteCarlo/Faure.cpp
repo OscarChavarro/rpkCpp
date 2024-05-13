@@ -143,7 +143,7 @@ faure(int seed) {
 Initialize for Original Faure sequence
 */
 void
-initFaure(int iDim) {
+initOriginalFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
@@ -166,7 +166,7 @@ initFaure(int iDim) {
 Initialize for generalized Faure sequence
 */
 void
-initGFaure(int iDim) {
+initGeneralizedFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];

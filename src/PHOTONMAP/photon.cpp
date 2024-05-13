@@ -1,16 +1,19 @@
 #include "PHOTONMAP/photon.h"
 #include "common/error.h"
 
-void CPhoton::FindRS(double *r, double *s, CoordinateSystem *coord,
-                     BSDF_FLAGS flag, float n) {
+void
+CPhoton::FindRS(
+    double *r,
+    double *s,
+    const CoordinateSystem *coord,
+    char flag, float n)
+{
+    // Determine angles
     double phi;
     double theta;
-
-    // Determine angles
     coord->rectangularToSphericalCoord(&m_dir, &phi, &theta);
 
-    // Compute r,s
-
+    // Compute r, s
     if ( flag == BRDF_DIFFUSE_COMPONENT ) {
         *s = phi / (2 * M_PI);
         double tmp = java::Math::cos(theta);

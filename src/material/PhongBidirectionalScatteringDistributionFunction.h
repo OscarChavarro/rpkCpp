@@ -56,7 +56,7 @@ class PhongBidirectionalScatteringDistributionFunction {
     void
     splitBsdfProbabilities(
         RayHit *hit,
-        BSDF_FLAGS flags,
+        char flags,
         double *texture,
         double *reflection,
         double *transmission,

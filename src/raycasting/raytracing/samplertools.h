@@ -105,7 +105,7 @@ class CSamplerConfig {
         SimpleRaytracingPathNode *nextNode,
         double x1,
         double x2,
-        BSDF_FLAGS flags) const;
+        char flags) const;
 
     // photonMapTracePath : Traces a path using the samplers in the class
     // New nodes are allocated if necessary. TraceNode is used
@@ -118,7 +118,7 @@ class CSamplerConfig {
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
-        BSDF_FLAGS flags = BSDF_ALL_COMPONENTS);
+        char flags = BSDF_ALL_COMPONENTS);
 
     // Generate two random numbers. Depth needed for QMC sampling
     void getRand(int depth, double *x1, double *x2) const;
@@ -161,8 +161,8 @@ pathNodeConnect(
     CSamplerConfig *eyeConfig,
     CSamplerConfig *lightConfig,
     CONNECT_FLAGS flags,
-    BSDF_FLAGS bsdfFlagsE = BSDF_ALL_COMPONENTS,
-    BSDF_FLAGS bsdfFlagsL = BSDF_ALL_COMPONENTS,
+    char bsdfFlagsE = BSDF_ALL_COMPONENTS,
+    char bsdfFlagsL = BSDF_ALL_COMPONENTS,
     Vector3D *pDirEl = nullptr);
 
 #endif

@@ -6,7 +6,7 @@ Faure's quasiMonteCarlo sequences + generalized Faure sequences
 #define __FAURE__
 
 extern double *faure(int seed);
-extern void initFaure(int iDim);
-extern void initGFaure(int iDim);
+extern void initOriginalFaureSequence(int iDim);
+extern void initGeneralizedFaureSequence(int iDim);
 
 #endif

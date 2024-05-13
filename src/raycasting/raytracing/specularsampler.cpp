@@ -18,7 +18,7 @@ CSpecularSampler::sample(
     double x1,
     double x2,
     bool doRR,
-    BSDF_FLAGS flags)
+    char flags)
 {
     Vector3D dir;
     double pdfDir = 1.0;
@@ -135,7 +135,7 @@ CSpecularSampler::evalPDF(
     Camera *camera,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    BSDF_FLAGS flags,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
@@ -155,7 +155,7 @@ CSpecularSampler::EvalPDFPrev(
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode */*newNode*/,
-    BSDF_FLAGS flags,
+    char flags,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
