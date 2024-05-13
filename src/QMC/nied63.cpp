@@ -1,6 +1,6 @@
 /**
 63bit 4D base-2 Niederreiter QMC (Quasi Monte Carlo) series,
-[CHOW1994] ACM TOMS Algorithm 738 (739?), dec 94.
+[CHOW1994] ACM TOMS Algorithm 738, dec 94.
 
 See also:
 
