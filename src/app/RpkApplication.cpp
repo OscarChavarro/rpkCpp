@@ -19,19 +19,29 @@
 
 #define DEFAULT_MONOCHROME false
 
-RpkApplication::RpkApplication() {
+Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
+
+RpkApplication::RpkApplication():
+    imageOutputWidth(),
+    imageOutputHeight(),
+    selectedRadianceMethod()
+{
     scene = new Scene();
+    mgfContext = new MgfContext();
+    renderOptions = new RenderOptions();
 }
 
 RpkApplication::~RpkApplication() {
     delete scene;
+    delete mgfContext;
+    delete renderOptions;
 }
 
 /**
 Global initializations
 */
-static void
-mainInitApplication(Scene *scene) {
+void
+RpkApplication::mainInitApplication() {
     fixCubatureRules();
     toneMapDefaults();
     radianceDefaults(nullptr, scene);
@@ -49,28 +59,19 @@ mainInitApplication(Scene *scene) {
 /**
 Processes command line arguments
 */
-static void
-mainParseOptions(
-    int *argc,
-    char **argv,
-    RadianceMethod **radianceMethod,
-    Camera *camera,
-    MgfContext *mgfContext,
-    int *outputImageWidth,
-    int *outputImageHeight,
-    RenderOptions *renderOptions)
-{
+void
+RpkApplication::mainParseOptions(int *argc, char **argv) {
     commandLineGeneralProgramParseOptions(
         argc,
         argv,
         &mgfContext->singleSided,
         &mgfContext->numberOfQuarterCircleDivisions,
-        outputImageWidth,
-        outputImageHeight);
+        &imageOutputWidth,
+        &imageOutputHeight);
     renderParseOptions(argc, argv, renderOptions);
     toneMapParseOptions(argc, argv);
-    cameraParseOptions(argc, argv, camera, *outputImageWidth, *outputImageHeight);
-    radianceParseOptions(argc, argv, radianceMethod);
+    cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
+    radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
 #ifdef RAYTRACING_ENABLED
     rayTracingParseOptions(argc, argv);
@@ -79,19 +80,13 @@ mainParseOptions(
     batchParseOptions(argc, argv);
 }
 
-static void
-mainCreateOffscreenCanvasWindow(
-    const int outputImageWidth,
-    const int outputImageHeight,
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions)
-{
-    openGlMesaRenderCreateOffscreenWindow(scene->camera, outputImageWidth, outputImageHeight);
+void
+RpkApplication::mainCreateOffscreenCanvasWindow() {
+    openGlMesaRenderCreateOffscreenWindow(scene->camera, imageOutputWidth, imageOutputHeight);
 
     // Set correct outputImageWidth and outputImageHeight for the camera
-    scene->camera->xSize = outputImageWidth;
-    scene->camera->ySize = outputImageHeight;
+    scene->camera->xSize = imageOutputWidth;
+    scene->camera->ySize = imageOutputHeight;
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene
@@ -99,34 +94,28 @@ mainCreateOffscreenCanvasWindow(
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, renderCallback, radianceMethod, renderOptions);
+        openGlRenderScene(scene, renderCallback, selectedRadianceMethod, renderOptions);
     #endif
 }
 
-static void
-mainExecuteRendering(
-    int outputImageWidth,
-    int outputImageHeight,
-    Scene *scene,
-    RadianceMethod *radianceMethod,
-    RenderOptions *renderOptions)
-{
+void
+RpkApplication::executeRendering() {
     // Create the window in which to render (canvas window)
-    mainCreateOffscreenCanvasWindow(outputImageWidth, outputImageHeight, scene, radianceMethod, renderOptions);
+    mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
         int (*renderCallback)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
         }
-        openGlRenderScene(scene, renderCallback, radianceMethod, renderOptions);
+        openGlRenderScene(scene, renderCallback, selectedRadianceMethod, renderOptions);
     #endif
 
-    batchExecuteRadianceSimulation(scene, radianceMethod, renderOptions);
+    batchExecuteRadianceSimulation(scene, selectedRadianceMethod, renderOptions);
 }
 
-static void
-mainFreeMemory(MgfContext *mgfContext) {
+void
+RpkApplication::freeMemory() {
     deleteOptionsMemory();
     mgfFreeMemory(mgfContext);
     galerkinFreeMemory();
@@ -141,40 +130,25 @@ mainFreeMemory(MgfContext *mgfContext) {
 int
 RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
-    mainInitApplication(scene);
+    mainInitApplication();
 
     // 2. Set model elements from command line options
-    int imageOutputWidth;
-    int imageOutputHeight;
-    MgfContext mgfContext;
-    RadianceMethod *selectedRadianceMethod = nullptr;
-    RenderOptions renderOptions;
-
-    mainParseOptions(
-        &argc,
-        argv,
-        &selectedRadianceMethod,
-        scene->camera,
-        &mgfContext,
-        &imageOutputWidth,
-        &imageOutputHeight,
-        &renderOptions);
+    mainParseOptions(&argc, argv);
 
     // 3. Load scene elements from MGF file
-    Material defaultMaterial("(default)", nullptr, nullptr, false);
-    mgfContext.radianceMethod = selectedRadianceMethod;
-    mgfContext.monochrome = DEFAULT_MONOCHROME;
-    mgfContext.currentMaterial = &defaultMaterial;
-    sceneBuilderCreateModel(&argc, argv, &mgfContext, scene);
+    mgfContext->radianceMethod = selectedRadianceMethod;
+    mgfContext->monochrome = DEFAULT_MONOCHROME;
+    mgfContext->currentMaterial = &defaultMaterial;
+    sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
 
     // 4. Run main radiosity simulation and export result
-    mainExecuteRendering(imageOutputWidth, imageOutputHeight, scene, selectedRadianceMethod, &renderOptions);
+    executeRendering();
 
     // X. Interactive visual debug GUI tool
-    //executeGlutGui(argc, argv, scene, mgfContext.radianceMethod, &renderOptions, mainFreeMemory, &mgfContext);
+    //executeGlutGui(argc, argv, scene, mgfContext.radianceMethod, &renderOptions, freeMemory, mgfContext);
 
     // 5. Free used memory
-    mainFreeMemory(&mgfContext);
+    freeMemory();
 
     return 0;
 }
