@@ -6,16 +6,15 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 or 63 bits, 
 #define __NIEDERREITER__
 
 #ifndef NOINT64
-// Use 63bit sequence by default
-#include "common/quasiMonteCarlo/Niederreiter63.h"
-
+    // Use 63bit sequence by default
+    #include "common/quasiMonteCarlo/Niederreiter63.h"
 #else
-// Use 31bit sequence
-#include "common/quasiMonteCarlo/Niederreiter31.h"
+    // Use 31bit sequence
+    #include "common/quasiMonteCarlo/Niederreiter31.h"
 #endif
 
 /**
-The header files above define niedindex as either 'unsigned' or
+The header files above define NiederreiterIndex as either 'unsigned' or
 'unsigned long long', depending on whether you have
 integers on your system or not
 
@@ -38,7 +37,7 @@ samples. An array of four NBITS-bits integers is returned. Multiply
 with RECIP in order to obtain floating point numbers between 0 and 1.
 k * Do not modify the returned ints
 */
-extern niedindex *Nied(niedindex n);
+extern NiederreiterIndex *Nied(NiederreiterIndex n);
 
 /**
 Finds the next Niederreiter sample following or preceeding the
@@ -58,22 +57,22 @@ with msb1 and msb2. This is so because of efficiency reasons (which are
 very important for this routine!).
 Upon exit, *idx will contain the index of the sample that is returned
 */
-extern niedindex *
+extern NiederreiterIndex *
 NextNiedInRange(
-    niedindex *idx,
-    int dir,
-    int nmsb,
-    niedindex msb1,
-    niedindex rmsb2);
+        NiederreiterIndex *idx,
+        int dir,
+        int nmsb,
+        NiederreiterIndex msb1,
+        NiederreiterIndex rmsb2);
 
 /**
 Computes the (NBITS-bits) base-2 radical inverse of the given number
 */
-extern niedindex radicalInverse(niedindex n);
+extern NiederreiterIndex radicalInverse(NiederreiterIndex n);
 
 /**
 "folds" a sample in the unit square to the standard triangle (0, 0), (1, 0), (0, 1)
 */
-extern void foldSample(niedindex *xi1, niedindex *xi2);
+extern void foldSample(NiederreiterIndex *xi1, NiederreiterIndex *xi2);
 
 #endif

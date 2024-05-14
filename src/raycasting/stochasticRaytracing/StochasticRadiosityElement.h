@@ -12,7 +12,7 @@ Monte Carlo radiosity element type
 
 class StochasticRadiosityElement : public Element {
   public:
-    niedindex rayIndex; // Incremented each time a ray is shot from the element
+    NiederreiterIndex rayIndex; // Incremented each time a ray is shot from the element
     float quality; // For merging the result of multiple iterations
     float samplingProbability;
     float ng; // Number of samples gathered on the patch
@@ -25,7 +25,7 @@ class StochasticRadiosityElement : public Element {
     float unShotImportance;
     float receivedImportance;
     float sourceImportance;
-    niedindex importanceRayIndex; // Ray index for importance propagation
+    NiederreiterIndex importanceRayIndex; // Ray index for importance propagation
 
     Vector3D midPoint;
     Vertex *vertices[4]; // Up to 4 vertex pointers for surface elements
@@ -50,10 +50,10 @@ extern void stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosit
 // Standard methods
 extern void
 stochasticRadiosityElementRange(
-    StochasticRadiosityElement *elem,
-    int *numberOfBits,
-    niedindex *mostSignificantBits1,
-    niedindex *rMostSignificantBits2);
+        StochasticRadiosityElement *elem,
+        int *numberOfBits,
+        NiederreiterIndex *mostSignificantBits1,
+        NiederreiterIndex *rMostSignificantBits2);
 
 extern float *
 stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox);

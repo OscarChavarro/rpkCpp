@@ -37,7 +37,7 @@ CSamplerConfig::getRand(int depth, double *x1, double *x2) const {
             *x1 = drand48();
             *x2 = drand48();
         } else if ( depth == 1 ) {
-            const unsigned *nrs = Nied31(m_qmcSeed[1]++);
+            const unsigned *nrs = niederreiter31(m_qmcSeed[1]++);
             *x1 = nrs[0] * RECIP;
             *x2 = nrs[1] * RECIP;
         } else {

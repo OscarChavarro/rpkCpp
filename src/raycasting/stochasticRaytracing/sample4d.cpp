@@ -91,7 +91,7 @@ sample4D(unsigned seed) {
             xi[3] = xx[3];
             break;
         case S4D_NIEDERREITER:
-            zeta = Nied31(seed);
+            zeta = niederreiter31(seed);
             xi[0] = (double) zeta[0] * RECIP;
             xi[1] = (double) zeta[1] * RECIP;
             xi[2] = (double) zeta[2] * RECIP;

@@ -489,17 +489,17 @@ stochasticJacobiRefineAndPropagate(
 
 static double *
 stochasticJacobiNextSample(
-    StochasticRadiosityElement *elem,
-    int nMostSignificantBit,
-    niedindex mostSignificantBit1,
-    niedindex rMostSignificantBit2,
-    double *zeta)
+        StochasticRadiosityElement *elem,
+        int nMostSignificantBit,
+        NiederreiterIndex mostSignificantBit1,
+        NiederreiterIndex rMostSignificantBit2,
+        double *zeta)
 {
-    niedindex *xi;
-    niedindex u;
-    niedindex v;
+    NiederreiterIndex *xi;
+    NiederreiterIndex u;
+    NiederreiterIndex v;
     // Use different ray index for propagating importance and radiance
-    niedindex *ray_index = globalGetRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
+    NiederreiterIndex *ray_index = globalGetRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
 
     xi = NextNiedInRange(ray_index, +1, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2);
 
@@ -554,12 +554,12 @@ hit patch (and back for bidirectional transfers)
 */
 static void
 stochasticJacobiElementShootRay(
-    VoxelGrid * sceneWorldVoxelGrid,
-    StochasticRadiosityElement *src,
-    int nMostSignificantBit,
-    niedindex mostSignificantBit1,
-    niedindex rMostSignificantBit2,
-    RenderOptions *renderOptions)
+        VoxelGrid * sceneWorldVoxelGrid,
+        StochasticRadiosityElement *src,
+        int nMostSignificantBit,
+        NiederreiterIndex mostSignificantBit1,
+        NiederreiterIndex rMostSignificantBit2,
+        RenderOptions *renderOptions)
 {
     if ( globalGetRadianceCallback != nullptr ) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
@@ -610,8 +610,8 @@ stochasticJacobiElementShootRays(
     RenderOptions *renderOptions)
 {
     int sampleRange; // Determines a range in which to generate a sample
-    niedindex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()
-    niedindex rMostSignificantBit2;
+    NiederreiterIndex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()
+    NiederreiterIndex rMostSignificantBit2;
 
     // Sample number range for 4D Niederreiter sequence
     stochasticRadiosityElementRange(element, &sampleRange, &mostSignificantBit1, &rMostSignificantBit2);

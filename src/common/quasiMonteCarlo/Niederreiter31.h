@@ -6,7 +6,7 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4
 #define __NIED_31__
 
 #ifdef __NIED63__
-    #error "nied63.h and nied31.h cannot be included in the same source file"
+    #error "Niederreiter63.h and Niederreiter31.h cannot be included in the same source file"
 #endif
 
 // Number of samples to be skipped from the beginning of the series in order to
@@ -31,13 +31,13 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4
 // 2^(NBITS-1)
 #define NBITS_POW1 (1u << (NBITS - 1))
 
-#define Nied Nied31
+#define Nied niederreiter31
 #define NextNiedInRange NextNiedInRange31
 #define radicalInverse radicalInverse31
 #define foldSample foldSample31
-#define niedindex unsigned
+#define NiederreiterIndex unsigned
 
-extern unsigned *Nied31(unsigned index);
+extern unsigned *niederreiter31(unsigned index);
 
 extern unsigned *
 NextNiedInRange31(

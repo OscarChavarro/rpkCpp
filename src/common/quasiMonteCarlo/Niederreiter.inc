@@ -14,19 +14,19 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 #include <cstdlib>
 #include <cstdio>
 
-static niedindex nied[DIMEN] = {0, 0, 0, 0};
-static niedindex count = 0;
+static NiederreiterIndex nied[DIMEN] = {0, 0, 0, 0};
+static NiederreiterIndex count = 0;
 
 /**
 Computes the base-2 31bits 4D Niederreiter sample with index n
 */
-niedindex *
-Nied(niedindex n) {
-    niedindex diff;
-    niedindex *cj0 = cj[0];
-    niedindex *cj1 = cj[1];
-    niedindex *cj2 = cj[2];
-    niedindex *cj3 = cj[3];
+NiederreiterIndex *
+Nied(NiederreiterIndex n) {
+    NiederreiterIndex diff;
+    NiederreiterIndex *cj0 = cj[0];
+    NiederreiterIndex *cj1 = cj[1];
+    NiederreiterIndex *cj2 = cj[2];
+    NiederreiterIndex *cj3 = cj[3];
 
     n += SKIP;
     diff = n ^ count; // Contains 1s where bits in n and count differ
@@ -53,24 +53,24 @@ Nied(niedindex n) {
 Finds the next Niederreiter sample following or preceeding the
 sample with index *idx in a range defined by nmsb, msb1, rmsb2
 */
-niedindex *
+NiederreiterIndex *
 NextNiedInRange(
-    niedindex *idx,
+    NiederreiterIndex *idx,
     int dir,
     int nmsb,
-    niedindex msb1,
-    niedindex rmsb2)
+    NiederreiterIndex msb1,
+    NiederreiterIndex rmsb2)
 {
-    niedindex mask;
-    niedindex rmask;
-    niedindex diff;
-    niedindex c;
-    niedindex i;
-    niedindex step;
-    niedindex *cj0;
-    niedindex *cj1;
-    niedindex *cj2;
-    niedindex *cj3;
+    NiederreiterIndex mask;
+    NiederreiterIndex rmask;
+    NiederreiterIndex diff;
+    NiederreiterIndex c;
+    NiederreiterIndex i;
+    NiederreiterIndex step;
+    NiederreiterIndex *cj0;
+    NiederreiterIndex *cj1;
+    NiederreiterIndex *cj2;
+    NiederreiterIndex *cj3;
 
     step = 1 << nmsb;
     mask = step - 1;
@@ -139,10 +139,10 @@ NextNiedInRange(
 /**
 Computes the base-2 radical inverse of the given number (31 bits)
 */
-niedindex
-radicalInverse(niedindex n) {
-    niedindex inv = 0;
-    niedindex f = NBITS_POW1;
+NiederreiterIndex
+radicalInverse(NiederreiterIndex n) {
+    NiederreiterIndex inv = 0;
+    NiederreiterIndex f = NBITS_POW1;
     while ( n ) {
         if ( n & 1 ) {
             inv |= f;
@@ -172,11 +172,11 @@ radicalInverse(niedindex n) {
 "folds" a sample in the unit square to the standard triangle (0, 0), (1, 0), (0, 1)
 */
 void
-foldSample(niedindex *xi1, niedindex *xi2) {
-    niedindex u = *xi1;
-    niedindex v = *xi2;
-    niedindex d;
-    niedindex m;
+foldSample(NiederreiterIndex *xi1, NiederreiterIndex *xi2) {
+    NiederreiterIndex u = *xi1;
+    NiederreiterIndex v = *xi2;
+    NiederreiterIndex d;
+    NiederreiterIndex m;
 
     u = (u & ~3) | 1; // Clear last two bits / displace point
     v = (v & ~3) | 1; // So it will not lay on a cell boundary

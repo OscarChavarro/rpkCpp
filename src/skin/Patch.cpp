@@ -757,7 +757,7 @@ Patch::averageNormalAlbedo(char components) {
     albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        const unsigned *xi = Nied31(i);
+        const unsigned *xi = niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         unsigned int newFlags = hit.getFlags() | HIT_UV;
         hit.setFlags(newFlags);
@@ -785,7 +785,7 @@ Patch::averageEmittance(char components) {
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        const unsigned *xi = Nied31(i);
+        const unsigned *xi = niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         unsigned int newFlags = hit.getFlags() | HIT_UV;
         hit.setFlags(newFlags);

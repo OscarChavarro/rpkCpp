@@ -348,22 +348,22 @@ does this
 */
 void
 stochasticRadiosityElementRange(
-    StochasticRadiosityElement *elem,
-    int *numberOfBits,
-    niedindex *mostSignificantBits1,
-    niedindex *rMostSignificantBits2)
+        StochasticRadiosityElement *elem,
+        int *numberOfBits,
+        NiederreiterIndex *mostSignificantBits1,
+        NiederreiterIndex *rMostSignificantBits2)
 {
     int nb;
-    niedindex b1;
-    niedindex b2;
+    NiederreiterIndex b1;
+    NiederreiterIndex b2;
 
     nb = 0;
     b1 = 0;
     b2 = 0;
     while ( elem->childNumber >= 0 ) {
         nb++;
-        b1 = (b1 << 1) | (niedindex) (elem->childNumber & 1);
-        b2 = (b2 >> 1) | ((niedindex) (elem->childNumber & 2) << (NBITS - 2));
+        b1 = (b1 << 1) | (NiederreiterIndex) (elem->childNumber & 1);
+        b2 = (b2 >> 1) | ((NiederreiterIndex) (elem->childNumber & 2) << (NBITS - 2));
         elem = (StochasticRadiosityElement *)elem->parent;
     }
 
@@ -675,9 +675,9 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     int numberOfSamples;
     int isTextured;
     int nbits;
-    niedindex msb1;
-    niedindex rMostSignificantBit2;
-    niedindex n;
+    NiederreiterIndex msb1;
+    NiederreiterIndex rMostSignificantBit2;
+    NiederreiterIndex n;
     ColorRgb albedo;
     ColorRgb emittance;
     RayHit hit;
@@ -692,7 +692,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
     n = 1;
     for ( int i = 0; i < numberOfSamples; i++, n++ ) {
         ColorRgb sample;
-        niedindex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
+        NiederreiterIndex *xi = NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv((double)xi[0] * RECIP, (double)xi[1] * RECIP);
         unsigned int newFlags = hit.getFlags() | HIT_UV;
         hit.setFlags(newFlags);
