@@ -1,6 +1,5 @@
 #include <cstring>
 
-#include "common/mymath.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfGeometry.h"

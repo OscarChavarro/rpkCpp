@@ -5,7 +5,6 @@ Definitions for polygon package
 #ifndef __POLY_HDR__
 #define __POLY_HDR__
 
-#include "common/mymath.h"
 #include "SGL/sgl.h"
 
 // Note that poly_clip, given an n-gon as input, might output an (n+6)gon

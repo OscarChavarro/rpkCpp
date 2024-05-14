@@ -1,7 +1,6 @@
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/mymath.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/ShadowCache.h"
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"

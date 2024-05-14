@@ -1,6 +1,5 @@
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "common/mymath.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
 
 java::ArrayList<GalerkinElement *> *ClusterCreationStrategy::irregularElementsToDelete = nullptr;

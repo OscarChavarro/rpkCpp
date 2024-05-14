@@ -5,7 +5,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/mymath.h"
 #include "scene/RadianceMethod.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "render/canvas.h"

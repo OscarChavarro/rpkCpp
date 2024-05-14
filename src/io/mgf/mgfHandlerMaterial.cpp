@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/mymath.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"

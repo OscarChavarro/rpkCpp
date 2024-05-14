@@ -2,8 +2,9 @@
 Routines for color calculations. 10/10/85
 */
 
+#include <cmath>
 #include <cstdlib>
-#include "common/mymath.h"
+
 #include "IMAGE/dkcolor.h"
 
 #define MINIMUM_SCAN_LINE_LENGTH 8 /* minimum scanline length for encoding */
@@ -143,7 +144,7 @@ dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b)
         return;
     }
 
-    d = frexp(d, &e) * 255.9999 / d;
+    d = std::frexp(d, &e) * 255.9999 / d;
 
     clr[RED] = (unsigned char) (r * d);
     clr[GREEN] = (unsigned char) (g * d);

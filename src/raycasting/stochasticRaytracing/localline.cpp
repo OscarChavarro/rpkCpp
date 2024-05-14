@@ -6,7 +6,6 @@ Generate and trace a local line
 
 #ifdef RAYTRACING_ENABLED
 
-#include "common/mymath.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"

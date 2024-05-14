@@ -3,7 +3,7 @@
 
 #include "java/lang/Math.h"
 #include "common/error.h"
-#include "common/mymath.h"
+#include "common/linealAlgebra/Float.h"
 #include "common/dataStructures/KDTree.h"
 
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))

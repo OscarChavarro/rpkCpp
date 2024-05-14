@@ -5,7 +5,6 @@ Hierarchical refinement
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/mymath.h"
 #include "common/Statistics.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"

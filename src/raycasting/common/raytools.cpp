@@ -2,7 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include "common/mymath.h"
 #include "scene/Camera.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"

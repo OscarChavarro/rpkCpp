@@ -11,7 +11,6 @@ Note that original algorithm is available at
 https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
-#include "common/mymath.h"
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 

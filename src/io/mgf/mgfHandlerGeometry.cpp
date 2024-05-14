@@ -2,7 +2,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/mymath.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/MgfTransformContext.h"
