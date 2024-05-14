@@ -2,9 +2,6 @@
 #include "skin/Patch.h"
 #include "material/RayHit.h"
 
-#define HIT_GEOMETRY 0x01 // Intersected Geometry
-#define HIT_TEXTURE_COORDINATE 0x200 // Texture coordinates
-
 RayHit::RayHit():
     point(),
     patch(),
@@ -25,11 +22,11 @@ initialised and FALSE if not
 */
 bool
 RayHit::hitInitialised() const {
-    return ((flags & HIT_PATCH) || (flags & HIT_GEOMETRY))
-        && (flags & HIT_POINT)
-        && (flags & HIT_GEOMETRIC_NORMAL)
-        && (flags & HIT_MATERIAL)
-        && (flags & HIT_DIST);
+    return ((flags & RayHitFlag::PATCH) || (flags & RayHitFlag::GEOMETRY))
+        && (flags & RayHitFlag::POINT)
+        && (flags & RayHitFlag::GEOMETRIC_NORMAL)
+        && (flags & RayHitFlag::MATERIAL)
+        && (flags & RayHitFlag::DISTANCE);
 }
 
 /**
@@ -48,19 +45,19 @@ RayHit::init(
     flags = 0;
     patch = inPatch;
     if ( inPatch != nullptr ) {
-        flags |= HIT_PATCH;
+        flags |= RayHitFlag::PATCH;
     }
     if ( inPoint != nullptr ) {
         point = *inPoint;
-        flags |= HIT_POINT;
+        flags |= RayHitFlag::POINT;
     }
     if ( inGeometryNormal != nullptr ) {
         geometricNormal = *inGeometryNormal;
-        flags |= HIT_GEOMETRIC_NORMAL;
+        flags |= RayHitFlag::GEOMETRIC_NORMAL;
     }
     material = inMaterial;
-    flags |= HIT_MATERIAL;
-    flags |= HIT_DIST;
+    flags |= RayHitFlag::MATERIAL;
+    flags |= RayHitFlag::DISTANCE;
     Vector3D localNormal;
     localNormal.set(0, 0, 0);
     texCoord = localNormal;
@@ -78,15 +75,15 @@ computed before. Returns FALSE if the (u,v) parameters could not be determined
 */
 bool
 RayHit::computeUv(Vector2Dd *inUv) {
-    if ( flags & HIT_UV ) {
+    if ( flags & RayHitFlag::UV ) {
         *inUv = uv;
         return true;
     }
 
-    if ( (flags & HIT_PATCH) && (flags & HIT_POINT) ) {
+    if ((flags & RayHitFlag::PATCH) && (flags & RayHitFlag::POINT) ) {
         patch->uv(&point, &uv.u, &uv.v);
         *inUv = uv;
-        flags |= HIT_UV;
+        flags |= RayHitFlag::UV;
         return true;
     }
 
@@ -98,7 +95,7 @@ Fills in/computes texture coordinates of hit point
 */
 int
 RayHit::getTexCoord(Vector3D *outTexCoord) {
-    if ( flags & HIT_TEXTURE_COORDINATE ) {
+    if ( flags & RayHitFlag::TEXTURE_COORDINATE ) {
         *outTexCoord = texCoord;
         return true;
     }
@@ -107,10 +104,10 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
         return false;
     }
 
-    if ( flags & HIT_PATCH ) {
+    if ( flags & RayHitFlag::PATCH ) {
         texCoord = patch->textureCoordAtUv(uv.u, uv.v);
         *outTexCoord = texCoord;
-        flags |= HIT_TEXTURE_COORDINATE;
+        flags |= RayHitFlag::TEXTURE_COORDINATE;
         return true;
     }
 
@@ -123,7 +120,7 @@ of shading X and Y axis if possible
 */
 int
 RayHit::shadingNormal(Vector3D *inNormal) {
-    if ( flags & HIT_SHADING_FRAME || flags & HIT_NORMAL ) {
+    if ( flags & RayHitFlag::SHADING_FRAME || flags & RayHitFlag::NORMAL ) {
         *inNormal = shadingFrame.Z;
         return true;
     }
@@ -133,7 +130,7 @@ RayHit::shadingNormal(Vector3D *inNormal) {
         return false;
     }
 
-    flags |= HIT_NORMAL;
+    flags |= RayHitFlag::NORMAL;
     shadingFrame.Z = localNormal;
     *inNormal = shadingFrame.Z;
     return true;
@@ -177,7 +174,7 @@ Fills in shading frame: Z is the shading normal
 */
 bool
 RayHit::setShadingFrame(CoordinateSystem *frame) {
-    if ( flags & HIT_SHADING_FRAME ) {
+    if ( flags & RayHitFlag::SHADING_FRAME ) {
         frame->X = shadingFrame.X;
         frame->Y = shadingFrame.Y;
         frame->Z = shadingFrame.Z;
@@ -188,7 +185,7 @@ RayHit::setShadingFrame(CoordinateSystem *frame) {
         return false;
     }
 
-    flags |= HIT_SHADING_FRAME | HIT_NORMAL;
+    flags |= RayHitFlag::SHADING_FRAME | RayHitFlag::NORMAL;
 
     frame->X = shadingFrame.X;
     frame->Y = shadingFrame.Y;

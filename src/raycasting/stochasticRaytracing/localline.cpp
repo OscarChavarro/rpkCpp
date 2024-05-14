@@ -70,7 +70,7 @@ mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *h
         ray,
         EPSILON_FLOAT < P->tolerance ? EPSILON_FLOAT : P->tolerance,
         &dist,
-        HIT_FRONT | HIT_POINT,
+        RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore);
     Patch::dontIntersect(0);
     someFeedback();

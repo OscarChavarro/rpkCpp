@@ -190,21 +190,23 @@ powerOracle(LINK *link) {
 
 /**
 Constructs a toplevel link for given toplevel surface elements
-rcvtop and srctop: the result is a link between the toplevel
+rcvTop and srcTop: the result is a link between the toplevel
 cluster containing the whole scene and itself if clustering is
 enabled. If clustering is not enabled, a link between the
 given toplevel surface elements is returned
 */
 LINK
-topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) {
-    StochasticRadiosityElement *rcv, *src;
+topLink(StochasticRadiosityElement *rcvTop, StochasticRadiosityElement *srcTop) {
+    StochasticRadiosityElement *rcv;
+    StochasticRadiosityElement *src;
     LINK link{};
 
-    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing && GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
+    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing
+      && GLOBAL_stochasticRaytracing_hierarchy.clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
         src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topCluster;
     } else {
-        src = srctop;
-        rcv = rcvtop;
+        src = srcTop;
+        rcv = rcvTop;
     }
 
     link.rcv = rcv;
@@ -215,13 +217,13 @@ topLink(StochasticRadiosityElement *rcvtop, StochasticRadiosityElement *srctop) 
 
 /**
 Refines a toplevel link (constructed with TopLink() above). The
-returned LINK structure contains pointers the admissable
+returned LINK structure contains pointers the admissible
 elements and corresponding point coordinates for light transport.
-rcvtop and srctop are toplevel surface elements containing the
+rcvTop and srcTop are toplevel surface elements containing the
 endpoint and origin respectively of a line along which light is to
 be transported. (ur,vr) and (us,vs) are the uniform parameters of
 the endpoint and origin on the toplevel surface elements on input.
-They will be replaced by the point parameters on the admissable elements
+They will be replaced by the point parameters on the admissible elements
 after refinement
 (ur,vr) are the coordinates of the point on the receiver patch,
 (us,vs) coordinates of the point on the source patch

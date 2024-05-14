@@ -36,7 +36,7 @@ CEyeSampler::sample(
 
     hit->init(nullptr, &camera->eyePosition, &camera->Z, nullptr);
     hit->setNormal(&camera->Z);
-    unsigned int newFlags = hit->getFlags() | HIT_NORMAL | HIT_SHADING_FRAME;
+    unsigned int newFlags = hit->getFlags() | RayHitFlag::NORMAL | RayHitFlag::SHADING_FRAME;
     hit->setFlags(newFlags);
     hit->setShadingFrame(&camera->X, &camera->Y, &camera->Z);
 

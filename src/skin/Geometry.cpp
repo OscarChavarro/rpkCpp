@@ -282,7 +282,7 @@ geometryListDiscretizationIntersect(
         RayHit *h = geometryList->get(i)->discretizationIntersect(
             ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h != nullptr ) {
-            if ( hitFlags & HIT_ANY ) {
+            if ( hitFlags & RayHitFlag::ANY ) {
                 return h;
             } else {
                 hit = h;
@@ -323,7 +323,7 @@ Geometry::patchListIntersect(
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         RayHit *h = patchList->get(i)->intersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
         if ( h != nullptr ) {
-            if ( hitFlags & HIT_ANY ) {
+            if ( hitFlags & RayHitFlag::ANY ) {
                 return h;
             } else {
                 hit = h;

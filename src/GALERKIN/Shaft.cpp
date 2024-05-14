@@ -642,7 +642,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     ray.pos = center1;
     ray.dir.subtraction(center2, center1);
     dist = 1.0f - EPSILON_FLOAT;
-    if ( patch->intersect(&ray, EPSILON_FLOAT, &dist, HIT_FRONT | HIT_BACK, &hitStore) ) {
+    if ( patch->intersect(&ray, EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
         cut = true;
         return ShaftPlanePosition::OVERLAP;
     }

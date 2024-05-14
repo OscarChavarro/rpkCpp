@@ -350,13 +350,13 @@ stochasticJacobiPropagateRadiance(
         stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);
     } else {
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
-            case NO_CLUSTERING:
+            case HierarchyClusteringMode::NO_CLUSTERING:
                 logFatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
                 break;
-            case ISOTROPIC_CLUSTERING:
+            case HierarchyClusteringMode::ISOTROPIC_CLUSTERING:
                 stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
                 break;
-            case ORIENTED_CLUSTERING:
+            case HierarchyClusteringMode::ORIENTED_CLUSTERING:
                 area = stochasticJacobiReceiverProjectedArea(rcv, ray, dir);
                 if ( area > EPSILON ) {
                     stochasticJacobiPropagateRadianceToClusterOriented(rcv, rayPower, ray, dir, src, area, fraction,
@@ -388,7 +388,8 @@ stochasticJacobiPropagateImportance(
     double w = globalSumOfProbabilities / (src_prob + rcv_prob) / rcv->area / (double) globalNumberOfRays;
     rcv->receivedImportance += (float)(w * stochasticRadiosityElementScalarReflectance(src) * globalGetImportanceCallback(src));
 
-    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing || GLOBAL_stochasticRaytracing_hierarchy.clustering != NO_CLUSTERING ) {
+    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ||
+         GLOBAL_stochasticRaytracing_hierarchy.clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
         logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
@@ -521,7 +522,7 @@ Determines uniform (u,v) parameters of hit point on hit patch
 */
 static void
 stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
-    if ( hit->getFlags() & HIT_UV ) {
+    if ( hit->getFlags() & RayHitFlag::UV ) {
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->getUv().u;
         *vHit = hit->getUv().v;

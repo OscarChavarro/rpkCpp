@@ -47,14 +47,14 @@ FormFactorStrategy::shadowTestDiscretization(
                 ray,
                 EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
-                HIT_FRONT | HIT_ANY,
+                RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore);
         } else {
             hit = voxelGrid->gridIntersect(
                 ray,
                 EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
-                HIT_FRONT | HIT_ANY,
+                RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore);
         }
         if ( hit != nullptr ) {

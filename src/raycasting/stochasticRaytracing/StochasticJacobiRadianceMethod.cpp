@@ -279,7 +279,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     long stepNumber = 0;
     int radiance_driven = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven;
     int do_h_meshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
-    CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
+    HierarchyClusteringMode clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < EPSILON ) {
@@ -289,7 +289,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = false;    /* temporary switch it off */
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
-    GLOBAL_stochasticRaytracing_hierarchy.clustering = NO_CLUSTERING;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = HierarchyClusteringMode::NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
@@ -422,10 +422,10 @@ stochasticRelaxationRadiosityDoRegularImportanceIteration(
 {
     long numberOfRays;
     int doHierarchicMeshing = GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing;
-    CLUSTERING_MODE clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
+    HierarchyClusteringMode clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
-    GLOBAL_stochasticRaytracing_hierarchy.clustering = NO_CLUSTERING;
+    GLOBAL_stochasticRaytracing_hierarchy.clustering = HierarchyClusteringMode::NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;

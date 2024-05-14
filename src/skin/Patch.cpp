@@ -8,7 +8,7 @@
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 
-#define TOLERANCE 1e-5
+static const double TOLERANCE = 1e-5;
 
 int Patch::globalPatchId = 1;
 Patch *Patch::globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
@@ -309,7 +309,7 @@ Computes the mid point of the patch, stores the result in p and
 returns a pointer to p
 */
 void
-Patch::computeMidpoint(Vector3D *p) {
+Patch::computeMidpoint(Vector3D *p) const {
     p->set(0, 0, 0);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         p->addition(*p, *(vertex[i]->point));
@@ -549,7 +549,7 @@ Badouels and Schlicks method from graphics gems: slower, but consumes less stora
 */
 bool
 Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
-    unsigned int newFlags = hit->getFlags() | HIT_UV;
+    unsigned int newFlags = hit->getFlags() | RayHitFlag::UV;
     hit->setFlags(newFlags); // uv parameters computed as a side result
     Vector3D position = hit->getPoint();
     Vector2Dd uv;
@@ -759,7 +759,7 @@ Patch::averageNormalAlbedo(char components) {
         ColorRgb sample;
         const unsigned *xi = niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        unsigned int newFlags = hit.getFlags() | HIT_UV;
+        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
@@ -787,7 +787,7 @@ Patch::averageEmittance(char components) {
         ColorRgb sample;
         const unsigned *xi = niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        unsigned int newFlags = hit.getFlags() | HIT_UV;
+        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
@@ -936,18 +936,18 @@ Patch::intersect(
     dist = normal.dotProduct(ray->dir);
     if ( dist > EPSILON ) {
         // Back facing patch
-        if ( !(hitFlags & HIT_BACK) ) {
+        if ( !(hitFlags & RayHitFlag::BACK) ) {
             return nullptr;
         } else {
-            unsigned int newFlags = hit.getFlags() | HIT_BACK;
+            unsigned int newFlags = hit.getFlags() | RayHitFlag::BACK;
             hit.setFlags(newFlags);
         }
     } else if ( dist < -EPSILON ) {
         // Front facing patch
-        if ( !(hitFlags & HIT_FRONT) ) {
+        if ( !(hitFlags & RayHitFlag::FRONT) ) {
             return nullptr;
         } else {
-            unsigned int newFlags = hit.getFlags() | HIT_FRONT;
+            unsigned int newFlags = hit.getFlags() | RayHitFlag::FRONT;
             hit.setFlags(newFlags);
         }
     } else {
@@ -972,16 +972,21 @@ Patch::intersect(
         hit.setPatch(this);
         hit.setMaterial(material);
         hit.setGeometricNormal(&normal);
-        unsigned int newFlags = hit.getFlags() | HIT_PATCH | HIT_POINT | HIT_MATERIAL | HIT_GEOMETRIC_NORMAL | HIT_DIST;
+        unsigned int newFlags = hit.getFlags()
+            | RayHitFlag::PATCH
+            | RayHitFlag::POINT
+            | RayHitFlag::MATERIAL
+            | RayHitFlag::GEOMETRIC_NORMAL
+            | RayHitFlag::DISTANCE;
         hit.setFlags(newFlags);
-        if ( hitFlags & HIT_UV && !(hit.getFlags() & HIT_UV) ) {
+        if ( hitFlags & RayHitFlag::UV && !(hit.getFlags() & RayHitFlag::UV) ) {
             position = hit.getPoint();
             double u;
             double v;
             hit.getPatch()->uv(&position, &u, &v);
             hit.setUv(u, v);
             hit.setPoint(&position);
-            newFlags = hit.getFlags() & HIT_UV;
+            newFlags = hit.getFlags() & RayHitFlag::UV;
             hit.setFlags(newFlags);
         }
         *hitStore = hit;

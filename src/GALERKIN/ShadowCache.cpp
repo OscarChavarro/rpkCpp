@@ -25,7 +25,7 @@ ShadowCache::cacheHit(const Ray *ray, float *distance, RayHit *hitStore) const {
             ray,
             EPSILON_FLOAT *(*distance),
             distance,
-            HIT_FRONT | HIT_ANY,
+            RayHitFlag::FRONT | RayHitFlag::ANY,
             hitStore);
         if ( hit != nullptr ) {
             return hit;

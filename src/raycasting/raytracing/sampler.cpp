@@ -51,7 +51,7 @@ Sampler::sampleTransfer(
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
             newNode->m_rayType = ENVIRONMENT;
-            unsigned int newFlags = newNode->m_hit.getFlags() | HIT_FRONT;
+            unsigned int newFlags = newNode->m_hit.getFlags() | RayHitFlag::FRONT;
             newNode->m_hit.setFlags(newFlags);
 
             return true;
@@ -61,7 +61,7 @@ Sampler::sampleTransfer(
         }
     }
 
-    if ( hit->getFlags() & HIT_BACK ) {
+    if ( hit->getFlags() & RayHitFlag::BACK ) {
         // Back hit, invert normal (only happens when newNode->m_inBsdf != nullptr
         Vector3D normal;
         normal.scaledCopy(-1, newNode->m_hit.getNormal());
@@ -109,7 +109,7 @@ CSurfaceSampler::DetermineRayType(
 
     if ( cosThisPatch < 0 ) {
         // Refraction !
-        if ( thisNode->m_hit.getFlags() & HIT_BACK ) {
+        if ( thisNode->m_hit.getFlags() & RayHitFlag::BACK ) {
             thisNode->m_rayType = LEAVES;
         } else {
             thisNode->m_rayType = ENTERS;

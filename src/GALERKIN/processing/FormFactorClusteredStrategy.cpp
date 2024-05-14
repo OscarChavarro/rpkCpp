@@ -151,10 +151,10 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             return visibility;
         } else {
             RayHit hitStore;
-            RayHit *hit = Geometry::patchListIntersect(
+            const RayHit *hit = Geometry::patchListIntersect(
                     geomPatchArrayListReference(geometry),
                     ray,
-                    rcvDist * ((float)EPSILON), &rcvDist, HIT_FRONT | HIT_ANY, &hitStore);
+                    rcvDist * ((float)EPSILON), &rcvDist, RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
             if ( hit != nullptr ) {
                 shadowCache->addToShadowCache(hit->getPatch());
                 return 0.0;

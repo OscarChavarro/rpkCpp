@@ -64,7 +64,7 @@ class Patch {
     void connectVertex(Vertex *paramVertex);
     void connectVertices();
     float computeRandomWalkRadiosityArea();
-    void computeMidpoint(Vector3D *p);
+    void computeMidpoint(Vector3D *p) const;
 
   public:
     unsigned id; // Identification number for debugging, ID rendering

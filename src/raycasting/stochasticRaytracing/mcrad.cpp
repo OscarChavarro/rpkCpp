@@ -34,9 +34,9 @@ MakeEnumOptTypeStruct(approxTypeStruct, globalApproximateValues);
 #define Tapprox (&approxTypeStruct)
 
 static ENUMDESC clusteringVals[] = {
-    {NO_CLUSTERING, "none",      2},
-    {ISOTROPIC_CLUSTERING, "isotropic", 2},
-    {ORIENTED_CLUSTERING, "oriented",  2},
+    {HierarchyClusteringMode::NO_CLUSTERING, "none",      2},
+    {HierarchyClusteringMode::ISOTROPIC_CLUSTERING, "isotropic", 2},
+    {HierarchyClusteringMode::ORIENTED_CLUSTERING, "oriented",  2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(clusteringTypeStruct, clusteringVals);
@@ -497,7 +497,7 @@ monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     patch->uniformPoint(u, v, &point);
     hit.init(patch, &point, &patch->normal, patch->material);
     hit.setUv(u, v);
-    unsigned int newFlags = hit.getFlags() | HIT_UV;
+    unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
     hit.setFlags(newFlags);
     ColorRgb result;
     result.clear();

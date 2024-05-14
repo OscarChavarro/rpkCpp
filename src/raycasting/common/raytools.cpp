@@ -6,15 +6,17 @@
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 
-#define PATH_FRONT_HIT_FLAGS (HIT_FRONT|HIT_POINT|HIT_MATERIAL)
-#define PATH_FRONT_BACK_HIT_FLAGS (PATH_FRONT_HIT_FLAGS|HIT_BACK)
+static inline int
+pathFrontHitFlags() {
+    return RayHitFlag::FRONT | RayHitFlag::POINT | RayHitFlag::MATERIAL;
+}
 
 static RayHit *
 traceWorld(
     const VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
-    unsigned int flags = PATH_FRONT_HIT_FLAGS,
+    unsigned int flags,
     Patch *extraPatch = nullptr,
     RayHit *hitStore = nullptr)
 {
@@ -52,9 +54,9 @@ findRayIntersection(
 
     if ( currentBsdf == nullptr ) {
         // Outside everything in vacuum
-        hitFlags = PATH_FRONT_HIT_FLAGS;
+        hitFlags = pathFrontHitFlags();
     } else {
-        hitFlags = PATH_FRONT_BACK_HIT_FLAGS;
+        hitFlags = pathFrontHitFlags() | RayHitFlag::BACK;
     }
 
     // Trace the ray
@@ -64,7 +66,7 @@ findRayIntersection(
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
-    if ( newHit != nullptr && (newHit->getFlags() & HIT_BACK) &&
+    if ( newHit != nullptr && (newHit->getFlags() & RayHitFlag::BACK) &&
          newHit->getPatch()->material->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
         newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->getPatch(), hitStore);
@@ -157,7 +159,7 @@ pathNodesVisible(
             &ray,
             0.0,
             &fDistance,
-            HIT_FRONT | HIT_BACK | HIT_ANY,
+            RayHitFlag::FRONT | RayHitFlag::BACK | RayHitFlag::ANY,
             &hitStore);
         Patch::dontIntersect(0);
         visible = (hit == nullptr);
@@ -236,8 +238,8 @@ eyeNodeVisible(
                         3, node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
                          eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
                     hit = sceneWorldVoxelGrid->gridIntersect(&ray,
-                        0.0, &fDistance,
-                        HIT_FRONT | HIT_ANY, &hitStore);
+                                                             0.0, &fDistance,
+                                                             RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
                     Patch::dontIntersect(0);
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
