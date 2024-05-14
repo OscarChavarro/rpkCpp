@@ -406,8 +406,8 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
          sourceElement->unShotRadiance : sourceElement->radiance;
     ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
-    double gMin = HUGE;
-    double gMax = -HUGE;
+    double gMin = HUGE_DOUBLE_VALUE;
+    double gMax = -HUGE_DOUBLE_VALUE;
 
     computeInteractionFormFactor(
         receiverCubatureRule,

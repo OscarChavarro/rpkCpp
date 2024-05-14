@@ -37,7 +37,7 @@ initRadianceEstimate(Patch *patch) {
 static int globalNumEntries;
 static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
-static float globalLumMin = HUGE;
+static float globalLumMin = HUGE_DOUBLE_VALUE;
 static float globalLumMax = 0.0;
 static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 

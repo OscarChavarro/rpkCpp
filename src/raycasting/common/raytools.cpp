@@ -26,7 +26,7 @@ traceWorld(
         hitStore = &myHitStore;
     }
 
-    dist = HUGE_FLOAT;
+    dist = HUGE_FLOAT_VALUE;
     Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
     result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
@@ -144,7 +144,7 @@ pathNodesVisible(
 
     if ( doTest ) {
         if ( node2->m_hit.getPatch()->hasZeroVertices() ) {
-            fDistance = HUGE_FLOAT;
+            fDistance = HUGE_FLOAT_VALUE;
         } else {
             fDistance = (float) dist;
         }

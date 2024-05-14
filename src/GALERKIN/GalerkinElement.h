@@ -7,6 +7,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 #include "java/util/ArrayList.h"
 #include "scene/Polygon.h"
+#include "GALERKIN/GalerkinElementRenderMode.h"
 #include "GALERKIN/Interaction.h"
 
 class GalerkinState;
@@ -40,7 +41,7 @@ class GalerkinElement final : public Element {
     float blockerSize; // Equivalent blocker size for multi-resolution visibility
     int numberOfPatches; // Number of patches in a cluster
     int tmp; // For occasional use
-    char childNumber; // Rang nr of regular sub-element in parent
+    GalerkinElementRenderMode childNumber; // Rang nr of regular sub-element in parent
     char basisSize; // Number of coefficients to represent radiance
     char basisUsed; // Number of coefficients effectively used (<=basis_size)
     GalerkinState *galerkinState;

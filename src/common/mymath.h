@@ -6,13 +6,8 @@
 
 #define QSORT_CALLBACK_TYPE int (*)(const void *, const void *)
 
-#ifndef HUGE
-    #define HUGE 1e30
-#endif
-
-#ifndef HUGE_FLOAT
-    #define HUGE_FLOAT FLT_MAX
-#endif
+extern double HUGE_DOUBLE_VALUE;
+extern float HUGE_FLOAT_VALUE;
 
 extern int floatCompare(const float *x, const float *y);
 

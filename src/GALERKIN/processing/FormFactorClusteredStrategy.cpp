@@ -21,8 +21,8 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
     const GalerkinElement *sourceElement = link->sourceElement;
     double Gx;
     double G = 0.0;
-    double gMin = HUGE;
-    double gMax = -HUGE;
+    double gMin = HUGE_DOUBLE_VALUE;
+    double gMax = -HUGE_DOUBLE_VALUE;
 
     for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
         Gx = 0.0;
@@ -108,7 +108,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         logFatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    float fSize = HUGE_FLOAT;
+    float fSize = HUGE_FLOAT_VALUE;
     float tMinimum = rcvDist * ((float)EPSILON);
     float tMaximum = rcvDist;
     const BoundingBox *boundingBox = &geometry->boundingBox;

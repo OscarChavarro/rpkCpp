@@ -348,7 +348,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->x = 0.0;
-        tNext->x = HUGE_FLOAT;
+        tNext->x = HUGE_FLOAT_VALUE;
     }
 
     // Setup Y:
@@ -365,7 +365,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->y = 0.0;
-        tNext->y = HUGE_FLOAT;
+        tNext->y = HUGE_FLOAT_VALUE;
     }
 
     // Setup Z:
@@ -382,7 +382,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->z = 0.0;
-        tNext->z = HUGE_FLOAT;
+        tNext->z = HUGE_FLOAT_VALUE;
     }
 }
 

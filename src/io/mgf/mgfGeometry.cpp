@@ -455,7 +455,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = java::Math::atan(n2off) - (M_PI / 4) / context->numberOfQuarterCircleDivisions;
         if ( d <= -M_PI / 2 + EPSILON ) {
-            n2off = -HUGE_FLOAT;
+            n2off = -HUGE_FLOAT_VALUE;
         } else {
             n2off = java::Math::tan(d);
         }
@@ -466,7 +466,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
     mgfMakeAxes(u, v, w);
     for ( int j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * u[j]);
-        if ( n2off <= -HUGE_FLOAT) {
+        if ( n2off <= -HUGE_FLOAT_VALUE) {
             snprintf(n3[j], 24, globalFloatFormat, -w[j]);
         } else {
             snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
@@ -508,7 +508,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
             for ( int j = 0; j < 3; j++ ) {
                 d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
-                if ( n2off > -HUGE_FLOAT) {
+                if ( n2off > -HUGE_FLOAT_VALUE) {
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
             }
@@ -521,7 +521,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3Entity, context);
-            if ( n2off > -HUGE_FLOAT && rv != MGF_OK ) {
+            if ( n2off > -HUGE_FLOAT_VALUE && rv != MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MGF_ENTITY_FACE, 4, faceEntity, context);
@@ -536,14 +536,14 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
             // Hack for mgfEntitySphere and mgfEntityTorus
             d = java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions;
             if ( d >= M_PI / 2 - EPSILON) {
-                n1off = HUGE_FLOAT;
+                n1off = HUGE_FLOAT_VALUE;
             } else {
                 n1off = java::Math::tan(java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions);
             }
         }
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + radius1 * u[j]);
-            if ( n1off >= HUGE_FLOAT) {
+            if ( n1off >= HUGE_FLOAT_VALUE) {
                 snprintf(n4[j], 24, globalFloatFormat, w[j]);
             } else {
                 snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
@@ -574,11 +574,11 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
             for ( int j = 0; j < 3; j++ ) {
                 d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
                 snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
-                if ( n2off > -HUGE_FLOAT) {
+                if ( n2off > -HUGE_FLOAT_VALUE) {
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
                 snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + radius1 * d);
-                if ( n1off < HUGE_FLOAT) {
+                if ( n1off < HUGE_FLOAT_VALUE) {
                     snprintf(n4[j], 24, globalFloatFormat, d + w[j] * n1off);
                 }
             }
@@ -591,7 +591,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3Entity, context);
-            if ( n2off > -HUGE_FLOAT && rv != MGF_OK ) {
+            if ( n2off > -HUGE_FLOAT_VALUE && rv != MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v4Entity, context);
@@ -603,7 +603,7 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 return rv;
             }
             rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4Entity, context);
-            if ( n1off < HUGE_FLOAT &&
+            if ( n1off < HUGE_FLOAT_VALUE &&
                  rv != MGF_OK ) {
                 return rv;
             }

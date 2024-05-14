@@ -1,14 +1,14 @@
 #include "common/RenderOptions.h"
 
-#define DEFAULT_SMOOTH_SHADING true
-#define DEFAULT_BACKFACE_CULLING true
-#define DEFAULT_OUTLINE_DRAWING false
-#define DEFAULT_SURFACE_DRAWING true
-#define DEFAULT_BOUNDING_BOX_DRAWING false
-#define DEFAULT_CLUSTER_DRAWING false
-#define DEFAULT_OUTLINE_COLOR {0.5, 0.0, 0.0}
-#define DEFAULT_BOUNDING_BOX_COLOR {0.5, 0.0, 1.0}
-#define DEFAULT_CLUSTER_COLOR {1.0, 0.5, 0.0}
+static const bool DEFAULT_SMOOTH_SHADING = true;
+static const bool DEFAULT_BACKFACE_CULLING = true;
+static const bool DEFAULT_OUTLINE_DRAWING = false;
+static const bool DEFAULT_SURFACE_DRAWING = true;
+static const bool DEFAULT_BOUNDING_BOX_DRAWING = false;
+static const bool DEFAULT_CLUSTER_DRAWING = false;
+static const ColorRgb DEFAULT_OUTLINE_COLOR = {0.5, 0.0, 0.0};
+static const ColorRgb DEFAULT_BOUNDING_BOX_COLOR = {0.5, 0.0, 1.0};
+static const ColorRgb DEFAULT_CLUSTER_COLOR = {1.0, 0.5, 0.0};
 
 RenderOptions::RenderOptions():
     outlineColor(),

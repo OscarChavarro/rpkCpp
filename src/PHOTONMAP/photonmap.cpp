@@ -100,7 +100,7 @@ CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
     m_totalPhotons = 0;
 
     m_grid = new CSampleGrid2D(2, 4);
-    m_sampleLastPos.set(HUGE_FLOAT, HUGE_FLOAT, HUGE_FLOAT);
+    m_sampleLastPos.set(HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE);
 
     m_photons = new CPhoton *[MAXIMUM_RECON_PHOTONS];
     m_distances = new float[MAXIMUM_RECON_PHOTONS];

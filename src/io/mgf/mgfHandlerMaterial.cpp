@@ -108,7 +108,7 @@ colorMax(ColorRgb col) {
 
     specSamples(col, samples);
 
-    mx = -HUGE_FLOAT;
+    mx = -HUGE_FLOAT_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];

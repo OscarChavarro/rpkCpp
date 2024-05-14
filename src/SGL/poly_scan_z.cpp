@@ -125,7 +125,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
 {
     int i;
 
-    double yMin = HUGE;
+    double yMin = HUGE_DOUBLE_VALUE;
     int top = -1;
     for ( i = 0; i < p->n; i++ ) {
         // Find top vertex (y positions down)

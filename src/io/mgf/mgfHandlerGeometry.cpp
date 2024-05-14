@@ -681,7 +681,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
         // Find the not yet copied vertex that is nearest to the already
         // copied ones
         nearestCopied = nearestOther = 0;
-        minimumDistance = HUGE;
+        minimumDistance = HUGE_DOUBLE_VALUE;
         for ( j = i; j < argc; j++ ) {
             if ( *argv[j] == '-' || copied[j] ) {
                 continue;

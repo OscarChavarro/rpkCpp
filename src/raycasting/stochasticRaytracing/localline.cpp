@@ -62,7 +62,7 @@ Determines nearest intersection point and patch
 */
 RayHit *
 mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
-    float dist = HUGE_FLOAT;
+    float dist = HUGE_FLOAT_VALUE;
     RayHit *hit;
 
     // Reject self-intersections

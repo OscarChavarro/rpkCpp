@@ -73,7 +73,7 @@ class CPhotonMap {
     }
 
     CIrrPhoton *
-    DoIrradianceQuery(Vector3D *position, const Vector3D *normal, float maxR2 = HUGE_FLOAT) {
+    DoIrradianceQuery(Vector3D *position, const Vector3D *normal, float maxR2 = HUGE_FLOAT_VALUE) {
         return m_kdtree->normalPhotonQuery(position, normal, 0.8f, maxR2);
     }
 

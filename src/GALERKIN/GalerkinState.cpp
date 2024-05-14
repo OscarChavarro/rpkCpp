@@ -1,46 +1,46 @@
 #include "GALERKIN/GalerkinState.h"
 
 // -gr-hierarchical -gr-no-hierarchical option
-#define DEFAULT_GAL_HIERARCHICAL true
+static const bool DEFAULT_GAL_HIERARCHICAL = true;
 
 // -gr-iteration-method option
-#define DEFAULT_GAL_ITERATION_METHOD JACOBI
+static const GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod::JACOBI;
 
 // -gr-min-elem-area
-#define DEFAULT_GAL_REL_MIN_ELEM_AREA 1e-6f
+static const float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6f;
 
 // -gr-link-error-threshold option
-#define DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD 1e-5f
+static const float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5f;
 
 // -gr-importance and -gr-no-importance options
-#define DEFAULT_GAL_IMPORTANCE_DRIVEN false
+static const bool DEFAULT_GAL_IMPORTANCE_DRIVEN = false;
 
 // -gr-clustering and -gr-no-clustering options
-#define DEFAULT_GAL_CLUSTERED true
+static const bool DEFAULT_GAL_CLUSTERED = true;
 
 // -gr-lazy-linking and -gr-no-lazy-linking options
-#define DEFAULT_GAL_LAZY_LINKING true
+static const bool DEFAULT_GAL_LAZY_LINKING = true;
 
 // -gr-ambient and -gr-no-ambient options
-#define DEFAULT_GAL_AMBIENT_RADIANCE false
+static const bool DEFAULT_GAL_AMBIENT_RADIANCE = false;
 
 // Hardcoded, not changeable via command line parameters
-#define DEFAULT_GAL_RCV_CUBATURE_DEGREE CubatureDegree::DEGREE_5
-#define DEFAULT_GAL_SRC_CUBATURE_DEGREE CubatureDegree::DEGREE_4
-#define DEFAULT_GAL_CLUSTERING_STRATEGY GalerkinClusteringStrategy::ISOTROPIC
-#define DEFAULT_GAL_SHAFT_CULL_MODE GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT
-#define DEFAULT_GAL_ERROR_NORM GalerkinErrorNorm::POWER_ERROR
-#define DEFAULT_GAL_BASIS_TYPE GalerkinBasisType::LINEAR
-#define DEFAULT_GAL_CONSTANT_RADIANCE false
-#define DEFAULT_GAL_EXACT_VISIBILITY true
-#define DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY false
-#define DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS 200
+static const CubatureDegree DEFAULT_GAL_RCV_CUBATURE_DEGREE = CubatureDegree::DEGREE_5;
+static const CubatureDegree DEFAULT_GAL_SRC_CUBATURE_DEGREE = CubatureDegree::DEGREE_4;
+static const GalerkinClusteringStrategy DEFAULT_GAL_CLUSTERING_STRATEGY = GalerkinClusteringStrategy::ISOTROPIC;
+static const GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT;
+static GalerkinErrorNorm DEFAULT_GAL_ERROR_NORM = GalerkinErrorNorm::POWER_ERROR;
+static const GalerkinBasisType DEFAULT_GAL_BASIS_TYPE = GalerkinBasisType::LINEAR;
+static const bool DEFAULT_GAL_CONSTANT_RADIANCE = false;
+static const bool DEFAULT_GAL_EXACT_VISIBILITY = true;
+static const bool DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY = false;
+static const int DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS = 200;
 
 // Default strategy is "overlap open", which was the most efficient strategy tested
-#define DEFAULT_GAL_SHAFT_CULL_STRATEGY ShaftCullStrategy::OVERLAP_OPEN
+static const ShaftCullStrategy DEFAULT_GAL_SHAFT_CULL_STRATEGY = ShaftCullStrategy::OVERLAP_OPEN;
 
 // Other Constant initial values
-#define DEFAULT_GAL_ITERATION_NOT_INITIALIZED (-1)
+static const int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 
 GalerkinState::GalerkinState():
     constantRadiance(),

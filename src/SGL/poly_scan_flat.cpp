@@ -114,7 +114,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win)
     PolygonVertex dl{};
     PolygonVertex dr{};
 
-    yMin = HUGE;
+    yMin = HUGE_DOUBLE_VALUE;
     top = -1;
     for ( i = 0; i < p->n; i++ ) {
         // Find top vertex (y positions down)

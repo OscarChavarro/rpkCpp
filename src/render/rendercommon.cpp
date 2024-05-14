@@ -78,8 +78,8 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
     b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
     b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
 
-    camera->far = -HUGE_FLOAT;
-    camera->near = HUGE_FLOAT;
+    camera->far = -HUGE_FLOAT_VALUE;
+    camera->near = HUGE_FLOAT_VALUE;
     for ( int i = 0; i <= 1; i++ ) {
         for ( int j = 0; j <= 1; j++ ) {
             for ( int k = 0; k <= 1; k++ ) {

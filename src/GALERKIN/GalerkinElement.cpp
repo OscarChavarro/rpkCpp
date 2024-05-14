@@ -9,12 +9,6 @@
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinElement.h"
 
-// Element render modes, additive
-#define OUTLINE 0x01
-#define FLAT 0x02
-#define GOURAUD 0x04
-#define NOT_A_REGULAR_SUB_ELEMENT (-1)
-
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 
@@ -161,11 +155,11 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     irregularSubElements = nullptr; // New list
     transformToParent = nullptr;
     area = 0.0;
-    childNumber = NOT_A_REGULAR_SUB_ELEMENT;
+    childNumber = GalerkinElementRenderMode::NOT_A_REGULAR_SUB_ELEMENT;
     basisSize = 0;
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
-    minimumArea = HUGE_FLOAT;
+    minimumArea = HUGE_FLOAT_VALUE;
     tmp = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
@@ -328,8 +322,7 @@ GalerkinElement::reAllocCoefficients() {
 }
 
 /**
-Regularly subdivides the given element. A pointer to an array of
-4 pointers to sub-elements is returned.
+Regularly subdivides the given element. A pointer to an array of 4 pointers to sub-elements is returned.
 
 Only applicable to surface elements.
 */
@@ -356,7 +349,7 @@ GalerkinElement::regularSubDivide() {
             &globalQuadToParentTransformMatrix[i];
         child->area = 0.25f * area;  // Uniform mapping is always used
         child->blockerSize = 2.0f * (float)java::Math::sqrt(child->area / M_PI);
-        child->childNumber = (char)i;
+        child->childNumber = (GalerkinElementRenderMode)i;
         child->reAllocCoefficients();
 
         basisGalerkinPush(this, radiance, child, child->radiance);
@@ -597,7 +590,7 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 void
 GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     if ( isCluster() ) {
-        if ( mode & OUTLINE ) {
+        if ( mode & GalerkinElementRenderMode::OUTLINE ) {
             renderBoundingBox(geometry->getBoundingBox());
         }
         return;
@@ -608,7 +601,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
 
     // Draw surfaces
     if ( renderOptions->drawSurfaces ) {
-        if ( mode & FLAT ) {
+        if ( mode & GalerkinElementRenderMode::FLAT ) {
             ColorRgb color{};
             ColorRgb rho = patch->radianceData->Rd;
 
@@ -622,7 +615,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
             }
             openGlRenderSetColor(&color);
             openGlRenderPolygonFlat(numberOfVertices, p);
-        } else if ( mode & GOURAUD ) {
+        } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
             ColorRgb vertRadiosity[4];
 
             if ( numberOfVertices == 3 ) {
@@ -656,7 +649,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     }
 
     // Draw outlines
-    if ( mode & OUTLINE ) {
+    if ( mode & GalerkinElementRenderMode::OUTLINE ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
             openGlRenderSetColor(&renderOptions->outlineColor);
@@ -683,13 +676,13 @@ GalerkinElement::render(const RenderOptions *renderOptions) const {
     int renderCode = 0;
 
     if ( renderOptions->drawOutlines ) {
-        renderCode |= OUTLINE;
+        renderCode |= GalerkinElementRenderMode::OUTLINE;
     }
 
     if ( renderOptions->smoothShading ) {
-        renderCode |= GOURAUD;
+        renderCode |= GalerkinElementRenderMode::GOURAUD;
     } else {
-        renderCode |= FLAT;
+        renderCode |= GalerkinElementRenderMode::FLAT;
     }
 
     draw(renderCode, renderOptions);

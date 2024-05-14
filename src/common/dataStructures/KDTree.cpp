@@ -639,8 +639,8 @@ copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
 
 static int
 bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
-    float bmin[3] = {HUGE_FLOAT, HUGE_FLOAT, HUGE_FLOAT};
-    float bmax[3] = {-HUGE_FLOAT, -HUGE_FLOAT, -HUGE_FLOAT};
+    float bmin[3] = {HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE};
+    float bmax[3] = {-HUGE_FLOAT_VALUE, -HUGE_FLOAT_VALUE, -HUGE_FLOAT_VALUE};
     float tmp;
 
     for ( int i = low; i <= high; i++ ) {

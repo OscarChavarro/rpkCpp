@@ -25,7 +25,7 @@ virtual KDTree void )
 Interrogation :
 
 virtual int query(const float *point, int N, void *results,
-	     float *distances = nullptr, float radius = HUGE)
+	     float *distances = nullptr, float radius = HUGE_DOUBLE_VALUE)
 
  Gives a maximum of N positions that are closest to the query point
  ('point'). An optional radius defines the maximum distance
@@ -51,7 +51,7 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #ifndef __K_D_TREE__
 #define __K_D_TREE__
 
-// Not HUGE, since we need to square it
+// Not HUGE_DOUBLE_VALUE, since we need to square it
 extern const double KD_MAX_RADIUS;
 
 class KDTreeNode {

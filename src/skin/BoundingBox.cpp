@@ -2,12 +2,12 @@
 #include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
-    coordinates[MIN_X] = HUGE_FLOAT;
-    coordinates[MIN_Y] = HUGE_FLOAT;
-    coordinates[MIN_Z] = HUGE_FLOAT;
-    coordinates[MAX_X] = -HUGE_FLOAT;
-    coordinates[MAX_Y] = -HUGE_FLOAT;
-    coordinates[MAX_Z] = -HUGE_FLOAT;
+    coordinates[MIN_X] = HUGE_FLOAT_VALUE;
+    coordinates[MIN_Y] = HUGE_FLOAT_VALUE;
+    coordinates[MIN_Z] = HUGE_FLOAT_VALUE;
+    coordinates[MAX_X] = -HUGE_FLOAT_VALUE;
+    coordinates[MAX_Y] = -HUGE_FLOAT_VALUE;
+    coordinates[MAX_Z] = -HUGE_FLOAT_VALUE;
 }
 
 static void inline
