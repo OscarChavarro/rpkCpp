@@ -100,7 +100,7 @@ trwfDefaults() {
 
 static void
 trwfInit() {
-    float lwa = _lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
+    float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
     float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
     float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
 
@@ -113,17 +113,15 @@ trwfInit() {
     // Tumblin & Rushmeier
     _ldaTumb = ldmax / java::Math::sqrt(cmax);
 
-    {
-        float l10 = java::Math::log10(tmoCandelaLambert(lwa));
-        alpharw = 0.4f * l10 + 2.92f;
-        betarw = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
-    }
+    float l10;
 
-    {
-        float l10 = java::Math::log10(tmoCandelaLambert(_ldaTumb));
-        alphad = 0.4f * l10 + 2.92f;
-        betad = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
-    }
+    l10 = java::Math::log10(tmoCandelaLambert(lwa));
+    alpharw = 0.4f * l10 + 2.92f;
+    betarw = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
+
+    l10 = java::Math::log10(tmoCandelaLambert(_ldaTumb));
+    alphad = 0.4f * l10 + 2.92f;
+    betad = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
 
     lrwexponent = alpharw / alphad;
     lrwm_comp = java::Math::pow(10.0f, (betarw - betad) / alphad);
@@ -132,12 +130,10 @@ trwfInit() {
 
     // Ward
     _ldaWard = ldmax / 2.0f;
-    {
-        float p1 = java::Math::pow(_ldaWard, 0.4f);
-        float p2 = java::Math::pow(lwa, 0.4f);
-        float p3 = (1.219f + p1) / (1.219f + p2);
-        m_comp = java::Math::pow(p3, 2.5f);
-    }
+    float p1 = java::Math::pow(_ldaWard, 0.4f);
+    float p2 = java::Math::pow(lwa, 0.4f);
+    float p3 = (1.219f + p1) / (1.219f + p2);
+    m_comp = java::Math::pow(p3, 2.5f);
 
     m_disp = m_comp / ldmax;
 
@@ -170,7 +166,7 @@ trwfScaleForComputations(ColorRgb radiance) {
 
     if ( rwl > 0.0 ) {
         float m = tmoLambertCandela(
-                (java::Math::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_comp));
+                java::Math::pow(tmoCandelaLambert(rwl), lrwexponent) * lrwm_comp);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;

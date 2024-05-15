@@ -57,9 +57,9 @@ class CTSList : protected CircularListBase {
   public:
     virtual ~CTSList();
     virtual void add(const T &data);
-    void append(const T &data);
+    virtual void append(const T &data);
     void removeAll();
-    void clear();
+    virtual void clear();
 
     friend class CTSList_Iter<T>;
 };

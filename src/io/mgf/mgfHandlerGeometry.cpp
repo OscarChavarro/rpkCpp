@@ -629,7 +629,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     // argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
     // separator)
     for ( i = 1; i < argc; i++ ) {
-        MgfVertexContext *vp;
+        const MgfVertexContext *vp;
 
         if ( *argv[i] == '-' ) {
             // Skip contour separators

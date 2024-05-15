@@ -46,10 +46,10 @@ pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inPoint, Vector3D ou
     if ( path->numberOfNodes >= path->nodesAllocated ) {
         StochasticRaytracingPathNode *newNodes = (StochasticRaytracingPathNode *)malloc((path->nodesAllocated + 20) * sizeof(StochasticRaytracingPathNode));
         if ( path->nodesAllocated > 0 ) {
-            int i;
-            for ( i = 0; i < path->numberOfNodes; i++ ) {
+            for ( int i = 0; i < path->numberOfNodes; i++ ) {
+                // Copy nodes
                 newNodes[i] = path->nodes[i];
-            }    /* copy nodes */
+            }
             free((char *) path->nodes);
         }
         path->nodes = newNodes;
@@ -91,7 +91,7 @@ when no longer needed
 */
 static PATH *
 tracePath(
-    VoxelGrid * sceneWorldVoxelGrid,
+    const VoxelGrid * sceneWorldVoxelGrid,
     Patch *origin,
     double birth_prob,
     double (*SurvivalProbability)(Patch *P),
@@ -102,7 +102,7 @@ tracePath(
     Patch *P = origin;
     double survivalProb;
     Ray ray;
-    RayHit *hit;
+    const RayHit *hit;
     RayHit hitStore;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths++;
@@ -110,7 +110,7 @@ tracePath(
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-        ray = mcrGenerateLocalLine(P, sample4D(topLevelStochasticRadiosityElement(P)->rayIndex++));
+        ray = mcrGenerateLocalLine(P, sample4D((unsigned int)topLevelStochasticRadiosityElement(P)->rayIndex++));
         if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.pos = path->nodes[path->numberOfNodes - 1].inPoint;
@@ -201,11 +201,11 @@ tracePaths(
         Update(patch, (double) numberOfPaths / globalSumProbabilities);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
-            M_PI * patch->area,
+            (float)M_PI * patch->area,
             getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
-            M_PI * patch->area,
+            (float)M_PI * patch->area,
             getTopLevelPatchRad(patch)[0]);
     }
 }

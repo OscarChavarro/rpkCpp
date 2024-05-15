@@ -146,7 +146,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
     // Use memory allocated above
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            TRANSFORM_ARGV(spec)[i++] = "-i";
+            TRANSFORM_ARGV(spec)[i++] = (char *)"-i";
             TRANSFORM_ARGV(spec)[i] = strcpy(
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");

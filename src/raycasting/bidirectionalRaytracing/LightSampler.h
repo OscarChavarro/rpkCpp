@@ -13,7 +13,7 @@ importance sampling
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/sampler.h"
 
-class UniformLightSampler : public CNextEventSampler {
+class UniformLightSampler final : public CNextEventSampler {
   private:
     LightListIterator *iterator;
     Patch *currentPatch;
@@ -21,12 +21,12 @@ class UniformLightSampler : public CNextEventSampler {
   public:
     UniformLightSampler();
 
-    virtual bool ActivateFirstUnit();
+    bool ActivateFirstUnit() final;
 
-    virtual bool ActivateNextUnit();
+    bool ActivateNextUnit() final;
 
     // Sample : newNode gets filled, others may change
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -37,22 +37,22 @@ class UniformLightSampler : public CNextEventSampler {
         double x1,
         double x2,
         bool doRR,
-        char flags);
+        char flags) final;
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags,
         double *pdf,
-        double *pdfRR);
+        double *pdfRR) final;
 };
 
-class ImportantLightSampler : public CNextEventSampler {
+class ImportantLightSampler final : public CNextEventSampler {
   public:
     // Sample : newNode gets filled, others may change
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -63,16 +63,16 @@ class ImportantLightSampler : public CNextEventSampler {
         double x1,
         double x2,
         bool doRR,
-        char flags);
+        char flags) final;
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags,
         double *pdf,
-        double *pdfRR);
+        double *pdfRR) final;
 };
 
 #endif

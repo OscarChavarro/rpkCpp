@@ -52,7 +52,7 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #define __K_D_TREE__
 
 // Not HUGE_DOUBLE_VALUE, since we need to square it
-extern const double KD_MAX_RADIUS;
+extern const float KD_MAX_RADIUS;
 
 class KDTreeNode {
   public:

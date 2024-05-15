@@ -102,11 +102,11 @@ stochasticRadiosityElementPullImportance(
 
 // In render.cpp
 extern ColorRgb
-stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem);
+stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem);
 
 extern ColorRgb
 stochasticRadiosityElementDisplayRadianceAtPoint(
-    StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions);
+        const StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions);
 
 extern void
 stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions);
@@ -118,6 +118,6 @@ extern void
 stochasticRadiosityElementAdjustTVertexColors(Element *element);
 
 extern ColorRgb
-stochasticRadiosityElementColor(StochasticRadiosityElement *element);
+stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
 
 #endif

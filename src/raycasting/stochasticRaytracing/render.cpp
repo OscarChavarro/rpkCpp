@@ -15,7 +15,7 @@ Rendering elements
 #include "render/render.h"
 
 ColorRgb
-stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
+stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     ColorRgb color{};
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
@@ -24,21 +24,30 @@ stochasticRadiosityElementColor(StochasticRadiosityElement *element) {
             radianceToRgb(stochasticRadiosityElementDisplayRadiance(element), &color);
             break;
         case SHOW_IMPORTANCE: {
-            float gray = element->importance > 1.0 ? 1.0f : element->importance < 0.0 ? 0.0f : element->importance;
+            float gray;
+
+            if ( element->importance > 1.0 ) {
+                gray = 1.0f;
+            } else {
+                gray = element->importance < 0.0 ? 0.0f : element->importance;
+            }
+
             color.set(gray, gray, gray);
             break;
         }
         default:
-            logFatal(-1, "stochasticRadiosityElementColor",
-                     "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
-                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
+            logFatal(
+                -1,
+                "stochasticRadiosityElementColor",
+                "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
 
     return color;
 }
 
 static ColorRgb
-vertexRadiance(Vertex *v) {
+vertexRadiance(const Vertex *v) {
     int count = 0;
     ColorRgb radiance;
 
@@ -48,7 +57,7 @@ vertexRadiance(Vertex *v) {
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        StochasticRadiosityElement *elem = (StochasticRadiosityElement *)element;
+        const StochasticRadiosityElement *elem = (StochasticRadiosityElement *)element;
         if ( !elem->regularSubElements ) {
             ColorRgb elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
             radiance.add(radiance, elementRadiosity);
@@ -67,7 +76,7 @@ vertexRadiance(Vertex *v) {
 Same as above but for importance
 */
 static float
-vertexImportance(Vertex *v) {
+vertexImportance(const Vertex *v) {
     int count = 0;
     float imp = 0.0;
 
@@ -76,7 +85,7 @@ vertexImportance(Vertex *v) {
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
+        const StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
         if ( !element->regularSubElements ) {
             imp += element->importance;
             count++;
@@ -122,7 +131,7 @@ Compute new vertex colors
 */
 void
 stochasticRadiosityElementComputeNewVertexColors(Element *element) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    const StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     vertexColor(stochasticRadiosityElement->vertices[0]);
     vertexColor(stochasticRadiosityElement->vertices[1]);
     vertexColor(stochasticRadiosityElement->vertices[2]);
@@ -133,9 +142,10 @@ stochasticRadiosityElementComputeNewVertexColors(Element *element) {
 
 void
 stochasticRadiosityElementAdjustTVertexColors(Element *element) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    const StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
     Vertex *m[4];
-    int i, n;
+    int i;
+    int n;
     for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
         m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
         if ( m[i] ) {
@@ -147,9 +157,9 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
         ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color.r = (float)(m[i]->color.r + color.r) * 0.5f;
-                m[i]->color.g = (float)(m[i]->color.g + color.g) * 0.5f;
-                m[i]->color.b = (float)(m[i]->color.b + color.b) * 0.5f;
+                m[i]->color.r = (m[i]->color.r + color.r) * 0.5f;
+                m[i]->color.g = (m[i]->color.g + color.g) * 0.5f;
+                m[i]->color.b = (m[i]->color.b + color.b) * 0.5f;
             }
         }
     }
@@ -347,7 +357,7 @@ renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, const 
 }
 
 static void
-stochasticRadiosityElementRenderOutline(StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
+stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     openGlRenderSetColor(&renderOptions->outlineColor);
@@ -414,7 +424,7 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
+stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
     ColorRgb radiance;
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
@@ -431,14 +441,13 @@ stochasticRadiosityElementDisplayRadiance(StochasticRadiosityElement *elem) {
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadianceAtPoint(StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
+stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
     ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {
             // Do Gouraud interpolation if required
-            int i;
             ColorRgb rad[4];
-            for ( i = 0; i < elem->numberOfVertices; i++ ) {
+            for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertices[i]);
             }
             switch ( elem->numberOfVertices ) {

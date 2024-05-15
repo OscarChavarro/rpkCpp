@@ -9,7 +9,7 @@
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))
 #define E_VAL(index) bkdval(broot, (index), discr)
 
-const double KD_MAX_RADIUS = 1e10;
+const float KD_MAX_RADIUS = 1e10;
 
 // KD Tree with one data element per node
 float *KDTree::s_distances = nullptr;
@@ -533,8 +533,7 @@ getBalancedMedian(int low, int high) {
 
     int FL;
     // Add 0.1 because integer powers of 2 sometimes gave a smaller FL (8 -> 2)
-    FL = (int) (java::Math::log(N + 0.1) / M_LN2); // frexp((double)N, &FL);
-    //FL++; // Filled levels
+    FL = (int) (java::Math::log(N + 0.1) / M_LN2);
 
     int P2FL = (1 << FL); // 2^FL
     int LASTN = N - (P2FL - 1);  // Number of elements on last level
