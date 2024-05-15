@@ -1,20 +1,28 @@
-/**
-Routines for color calculations. 10/10/85
-*/
-
 #include <cmath>
-#include <cstdlib>
 
 #include "IMAGE/dkcolor.h"
 
-#define MINIMUM_SCAN_LINE_LENGTH 8 /* minimum scanline length for encoding */
-#define MAXIMUM_SCAN_LINE_LENGTH 0x7fff /* maximum scanline length for encoding */
-#define MINIMUM_RUN_LENGTH 4
+static const int RED = 0;
+static const int GREEN = 1;
+static const int BLUE = 2;
+
+// Exponent same for either format
+static const int EXP = 3;
+
+// Excess used for exponent
+static const int COL_XS = 128;
+
+// Minimum scanline length for encoding
+static const int MINIMUM_SCAN_LINE_LENGTH = 8;
+
+// Maximum scanline length for encoding
+static const int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
+static const int MINIMUM_RUN_LENGTH = 4;
 
 /**
 Get a temporary buffer
 */
-char *
+static char *
 dkColorTempBuffer(unsigned int len) {
     static char *tempBuffer = nullptr;
     static unsigned tempBufferLength = 0;
@@ -33,11 +41,8 @@ dkColorTempBuffer(unsigned int len) {
 /**
 Write out a byte color scanline
 */
-int
+static int
 dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
-    int i;
-    int j;
-    int beg;
     int cnt = 0;
     int c2;
 
@@ -53,20 +58,26 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
     putc(len & 255, fp);
 
     // Put components separately
-    for ( i = 0; i < 4; i++ ) {
-        for ( j = 0; j < len; j += cnt ) {    /* find next run */
+    for ( int i = 0; i < 4; i++ ) {
+        for ( int j = 0; j < len; j += cnt ) {
+            // Find next run
+            int beg;
+
             for ( beg = j; beg < len; beg += cnt ) {
                 for ( cnt = 1; cnt < 127 && beg + cnt < len &&
                                scanline[beg + cnt][i] == scanline[beg][i]; cnt++ ) {
                 }
                 if ( cnt >= MINIMUM_RUN_LENGTH ) {
+                    // Long enough
                     break;
-                }                  /* long enough */
+                }
             }
+
             if ( beg - j > 1 && beg - j < MINIMUM_RUN_LENGTH ) {
                 c2 = j + 1;
                 while ( scanline[c2++][i] == scanline[j][i] ) {
-                    if ( c2 == beg ) {        /* short run */
+                    if ( c2 == beg ) {
+                        // Short run
                         putc(128 + beg - j, fp);
                         putc(scanline[j][i], fp);
                         j = beg;
@@ -97,37 +108,9 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
 }
 
 /**
-Write out a scanline
-*/
-int
-dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
-{
-    BYTE_COLOR *colorScan;
-    int n;
-    BYTE_COLOR *sp;
-
-    // Get scanline buffer
-    if ((sp = (BYTE_COLOR *) dkColorTempBuffer(len * sizeof(BYTE_COLOR))) == nullptr) {
-        return (-1);
-    }
-    colorScan = sp;
-
-    // Convert scanline
-    n = len;
-    while ( n-- > 0 ) {
-        dkColorSetByteColors(sp[0], scanline[0][RED],
-                             scanline[0][GREEN],
-                             scanline[0][BLUE]);
-        scanline++;
-        sp++;
-    }
-    return (dkColorWriteByteColors(colorScan, len, fp));
-}
-
-/**
 Assign a short color value
 */
-void
+static void
 dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b)
 {
     double d;
@@ -149,5 +132,30 @@ dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b)
     clr[RED] = (unsigned char) (r * d);
     clr[GREEN] = (unsigned char) (g * d);
     clr[BLUE] = (unsigned char) (b * d);
-    clr[EXP] = e + COL_XS;
+    clr[EXP] = (unsigned char)e + COL_XS;
+}
+
+/**
+Write out a scanline
+*/
+int
+dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
+{
+    BYTE_COLOR *colorScan;
+
+    // Get scanline buffer
+    BYTE_COLOR *sp = (BYTE_COLOR *)dkColorTempBuffer(len * sizeof(BYTE_COLOR));
+    if ( sp == nullptr ) {
+        return (-1);
+    }
+    colorScan = sp;
+
+    // Convert scanline
+    int n = len;
+    while ( n-- > 0 ) {
+        dkColorSetByteColors(sp[0], scanline[0][RED], scanline[0][GREEN], scanline[0][BLUE]);
+        scanline++;
+        sp++;
+    }
+    return dkColorWriteByteColors(colorScan, len, fp);
 }
