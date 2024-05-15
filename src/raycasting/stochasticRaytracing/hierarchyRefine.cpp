@@ -2,8 +2,8 @@
 Hierarchical element refinement.
 
 References:
-Hanrahan, Pat. et al, "A rapid hierarchical radiosity algorithm", SIGGRAPH 1991
-Smits, Brian. et al, "An importance-driven radiosity algorithm", SIGGRAPH 1992
+[HANR1991] Hanrahan, Pat. et al, "A rapid hierarchical radiosity algorithm", SIGGRAPH 1991
+[SMIT1992] Smits, Brian. et al, "An importance-driven radiosity algorithm", SIGGRAPH 1992
 */
 
 #include "common/RenderOptions.h"
@@ -19,7 +19,7 @@ Refinement action 1: do nothing (link is accurate enough)
 Special refinement action used to indicate that a link is admissible
 */
 static LINK *
-dontRefine(
+dontRefineCallBack(
     LINK *link,
     StochasticRadiosityElement * /*rcvtop*/,
     double * /*ur*/,
@@ -27,7 +27,7 @@ dontRefine(
     StochasticRadiosityElement * /*srctop*/,
     double * /*us*/,
     double * /*vs*/,
-    RenderOptions * /*renderOptions*/)
+    const RenderOptions * /*renderOptions*/)
 {
     // Doesn't do anything
     return link;
@@ -37,7 +37,7 @@ dontRefine(
 Refinement action 2: subdivide the receiver using regular quadtree subdivision
 */
 static LINK *
-subdivideReceiver(
+subdivideReceiverCallBack(
     LINK *link,
     StochasticRadiosityElement *rcvtop,
     double *ur,
@@ -45,7 +45,7 @@ subdivideReceiver(
     StochasticRadiosityElement * /*srctop*/,
     double * /*us*/,
     double * /*vs*/,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isCluster() ) {
@@ -64,7 +64,7 @@ subdivideReceiver(
 Refinement action 3: subdivide the source using regular quadtree subdivision
 */
 static LINK *
-subdivideSource(
+subdivideSourceCallBack(
     LINK *link,
     StochasticRadiosityElement * /*rcvtop*/,
     double * /*ur*/,
@@ -72,7 +72,7 @@ subdivideSource(
     StochasticRadiosityElement *srcTop,
     double *us,
     double *vs,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     StochasticRadiosityElement *src = link->src;
     if ( src->isCluster() ) {
@@ -88,23 +88,8 @@ subdivideSource(
 }
 
 static int
-selfLink(LINK *link) {
+selfLink(const LINK *link) {
     return (link->rcv == link->src);
-}
-
-static int
-linkInvolvingClusters(LINK *link) {
-    return link->rcv->isCluster() || link->src->isCluster();
-}
-
-static int
-disjointElements(StochasticRadiosityElement *rcv, StochasticRadiosityElement *src) {
-    BoundingBox receiveBounds{};
-    BoundingBox sourceBounds{};
-
-    stochasticRadiosityElementBounds(rcv, &receiveBounds);
-    stochasticRadiosityElementBounds(src, &sourceBounds);
-    return receiveBounds.disjointToOtherBoundingBox(&sourceBounds);
 }
 
 /**
@@ -131,7 +116,7 @@ formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadios
 }
 
 static int
-LowPowerLink(
+lowPowerLink(
     LINK *link,
     const Statistics *statistics)
 {
@@ -161,28 +146,27 @@ LowPowerLink(
     return (propagatedPower < threshold);
 }
 
-static REFINE_ACTION subDivideLargest(const LINK *link) {
+static REFINE_ACTION
+subDivideLargest(const LINK *link) {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
-        return dontRefine;
+        return (REFINE_ACTION)dontRefineCallBack;
     } else {
-        return (rcv->area > src->area) ? subdivideReceiver : subdivideSource;
+        return (rcv->area > src->area) ? subdivideReceiverCallBack : subdivideSourceCallBack;
     }
 }
 
 /**
-Well known power-based refinement oracle (Hanrahan'91, with importance
-a la Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
+Well known power-based refinement oracle ([HANR1992] Hanrahan'91, with importance
+a la [SMIT1992] Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
 */
 REFINE_ACTION
 powerOracle(LINK *link) {
     if ( selfLink(link) ) {
-        return subdivideReceiver;
-    } else if ( linkInvolvingClusters(link) && !disjointElements(link->rcv, link->src) ) {
-        return subDivideLargest(link);
-    } else if ( LowPowerLink(link, &GLOBAL_statistics) ) {
-        return dontRefine;
+        return (REFINE_ACTION)subdivideReceiverCallBack;
+    } else if ( lowPowerLink(link, &GLOBAL_statistics) ) {
+        return (REFINE_ACTION)dontRefineCallBack;
     } else {
         return subDivideLargest(link);
     }
@@ -238,14 +222,14 @@ hierarchyRefine(
     double *us,
     double *vs,
     ORACLE evaluateLink,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
         link->rcv = rcvTop;
         link->src = srcTop;
     } else {
         REFINE_ACTION action;
-        while ((action = evaluateLink(link)) != dontRefine ) {
+        while ( (action = evaluateLink(link)) != (REFINE_ACTION)dontRefineCallBack ) {
             link = action(link, rcvTop, ur, vr, srcTop, us, vs, renderOptions);
         }
     }

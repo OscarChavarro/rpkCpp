@@ -1,10 +1,10 @@
 #ifndef __MGF_HANDLER_GEOMETRY__
 #define __MGF_HANDLER_GEOMETRY__
 
-extern int handleVertexEntity(int ac, char **av, MgfContext * /*context*/);
-extern int handleFaceEntity(int argc, char **argv, MgfContext *context);
-extern int handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context);
-extern int handleSurfaceEntity(int argc, char **argv, MgfContext *context);
+extern int handleVertexEntity(int ac, const char **av, MgfContext * /*context*/);
+extern int handleFaceEntity(int argc, const char **argv, MgfContext *context);
+extern int handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context);
+extern int handleSurfaceEntity(int argc, const char **argv, MgfContext *context);
 extern void initGeometryContextTables(MgfContext *context);
 
 #endif

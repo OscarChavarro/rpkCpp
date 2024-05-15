@@ -62,7 +62,7 @@ static MgfColorContext cie_zf = {
 Convert a spectrum
 */
 int
-MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **av) {
+MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char **av) {
     double scale;
     float va[NUMBER_OF_SPECTRAL_SAMPLES];
     int i;
@@ -127,7 +127,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, char **
     spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += COLOR_WAVE_LENGTH_DELTA_I) {
+    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += (int)COLOR_WAVE_LENGTH_DELTA_I) {
         if ( wl < wlMinimum || wl > wlMaximum ) {
             straightSamples[i] = 0;
         } else {

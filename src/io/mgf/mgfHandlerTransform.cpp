@@ -52,7 +52,7 @@ d2r(double a) {
 
 static bool
 checkArgument(int a, const char *l, int ac, char **av, int i) {
-    if ( av[i][(a)] || checkForBadArguments(ac - i - 1, av + i + 1, (char *)(l)) ) {
+    if ( av[i][a] || checkForBadArguments(ac - i - 1, av + i + 1, l) ) {
         return false;
     }
     return true;
@@ -64,8 +64,8 @@ Put out name for this instance
 static int
 transformName(const MgfTransformArray *ap, MgfContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
-    static char *oav[3] = {
-            context->entityNames[MgfEntity::OBJECT], oName
+    static const char *oav[3] = {
+        context->entityNames[MgfEntity::OBJECT], oName
     };
     char *cp1;
 
@@ -88,7 +88,7 @@ transformName(const MgfTransformArray *ap, MgfContext *context) {
 Allocate new transform structure
 */
 static MgfTransformContext *
-newTransform(int ac, char **av, MgfContext *context) {
+newTransform(int ac, const char **av, MgfContext *context) {
     MgfTransformContext *spec;
     char *cp;
     int n;
@@ -146,7 +146,7 @@ newTransform(int ac, char **av, MgfContext *context) {
     // Use memory allocated above
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            TRANSFORM_ARGV(spec)[i++] = (char *)"-i";
+            TRANSFORM_ARGV(spec)[i++] = "-i";
             TRANSFORM_ARGV(spec)[i] = strcpy(
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
@@ -164,7 +164,7 @@ newTransform(int ac, char **av, MgfContext *context) {
 Transform a point by the current matrix
 */
 void
-mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context) {
+mgfTransformPoint(VECTOR3Dd v1, const VECTOR3Dd v2, MgfContext *context) {
     if ( context->transformContext == nullptr) {
         mgfVertexCopy(v1, v2);
         return;
@@ -414,7 +414,7 @@ xf(MgfTransform *ret, int ac, char **av) {
 Handle xf entity
 */
 int
-handleTransformationEntity(int ac, char **av, MgfContext *context) {
+handleTransformationEntity(int ac, const char **av, MgfContext *context) {
     MgfTransformContext *spec;
     int n;
     int rv;

@@ -24,15 +24,19 @@ sub-element resulting after refinement
 */
 typedef LINK *(*REFINE_ACTION)(
     LINK *link,
-    StochasticRadiosityElement *rcvtop, double *ur, double *vr,
-    StochasticRadiosityElement *srctop, double *us, double *vs,
-    RenderOptions *renderOptions);
+    StochasticRadiosityElement *rcvtop,
+    double *ur,
+    double *vr,
+    StochasticRadiosityElement *srctop,
+    double *us,
+    double *vs,
+    const RenderOptions *renderOptions);
 
 /**
 A refinement oracle evaluates if the given candidate
 link is admissible for light transport. It returns a refinement action
 that will refine the link if necessary. If the link is admissible, it
-returns the special action 'dontRefine' which does nothing
+returns the special action 'dontRefineCallBack' which does nothing
 */
 typedef REFINE_ACTION (*ORACLE)(LINK *link);
 
@@ -47,7 +51,7 @@ extern LINK *hierarchyRefine(
     double *us,
     double *vs,
     ORACLE evaluateLink,
-    RenderOptions *renderOptions);
+    const RenderOptions *renderOptions);
 
 /**
 Global parameters controlling hierarchical refinement

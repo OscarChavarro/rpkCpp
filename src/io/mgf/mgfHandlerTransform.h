@@ -16,8 +16,8 @@ The routines mgfTransformPoint and mgfTransformVector takes two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, char **av, MgfContext * /*context*/);
-extern void mgfTransformPoint(VECTOR3Dd v1, VECTOR3Dd v2, MgfContext *context); // Transform point
+extern int handleTransformationEntity(int ac, const char **av, MgfContext * /*context*/);
+extern void mgfTransformPoint(VECTOR3Dd v1, const VECTOR3Dd v2, MgfContext *context); // Transform point
 extern void mgfTransformVector(VECTOR3Dd v1, const VECTOR3Dd v2, MgfContext *context); // Transform vector
 extern void mgfTransformFreeMemory();
 

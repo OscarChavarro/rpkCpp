@@ -63,7 +63,7 @@ class MgfColorContext {
 
     int setBlackBodyTemperature(double tk);
     void fixColorRepresentation(int fl);
-    int setSpectrum(double wlMinimum, double wlMaximum, int ac, char **av);
+    int setSpectrum(double wlMinimum, double wlMaximum, int ac, const char **av);
 
     void
     mixColors(

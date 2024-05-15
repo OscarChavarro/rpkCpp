@@ -10,7 +10,7 @@ static LookUpTable globalColorTable = LOOK_UP_INIT(free, free);
 Handle color entity
 */
 int
-handleColorEntity(int ac, char **av, MgfContext *context) {
+handleColorEntity(int ac, const char **av, MgfContext *context) {
     int i;
     double w;
     double wSum;

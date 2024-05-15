@@ -1,10 +1,10 @@
 #ifndef __WORDS__
 #define __WORDS__
 
-extern int isIntDWords(char *s, char *ds);
-extern int isFloatDWords(char *s, char *ds);
-extern int isFloatWords(char *s);
-extern int isIntWords(char *s);
+extern int isIntDWords(const char *s, const char *ds);
+extern int isFloatDWords(const char *s, const char *ds);
+extern int isFloatWords(const char *s);
+extern int isIntWords(const char *s);
 extern int isNameWords(const char *s);
 
 #endif

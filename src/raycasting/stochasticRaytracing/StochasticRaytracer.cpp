@@ -12,7 +12,7 @@
 
 // Heuristic minimum distance threshold for photon map readouts
 // should be tuned and dependent on scene size, ...
-const float PHOTON_MAP_MIN_DIST = 0.02;
+const float PHOTON_MAP_MIN_DIST = 0.02f;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
 StochasticRayTracingState GLOBAL_raytracing_state;
@@ -41,7 +41,7 @@ stochasticRaytracerGetScatteredRadiance(
     RenderOptions *renderOptions)
 {
     int siCurrent; // What scatter block are we handling
-    CScatterInfo *si;
+    const CScatterInfo *si;
 
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
@@ -199,7 +199,6 @@ srGetDirectRadiance(
     if ( (nes != nullptr) &&
         (config->nextEventSamples > 0) &&
         (prevNode->m_depth + 1 < config->samplerConfig.maxDepth) ) {
-        int i;
         SimpleRaytracingPathNode lightNode;
         double x1;
         double x2;
@@ -219,7 +218,7 @@ srGetDirectRadiance(
         while ( lightsToDo ) {
             StratifiedSampling2D stratified(config->nextEventSamples);
 
-            for ( i = 0; i < config->nextEventSamples; i++ ) {
+            for ( int i = 0; i < config->nextEventSamples; i++ ) {
                 // Light sampling
                 stratified.sample(&x1, &x2);
 
@@ -233,90 +232,88 @@ srGetDirectRadiance(
                     x1,
                     x2,
                     true,
-                    BSDF_ALL_COMPONENTS) ) {
-                    if ( pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) {
-                        // Now connect for all applicable scatter-info's
-                        // If no weighting between reflection sampling and
-                        // next event estimation were used, only one connect
-                        // using the union of different scatter info flags
-                        // are necessary (=speedup)
-                        int siCurrent;
-                        CScatterInfo *si;
+                    BSDF_ALL_COMPONENTS)
+                    && ( pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) ) {
+                    // Now connect for all applicable scatter-info's
+                    // If no weighting between reflection sampling and
+                    // next event estimation were used, only one connect
+                    // using the union of different scatter info flags
+                    // are necessary (=speedup)
+                    int siCurrent;
+                    const CScatterInfo *si;
 
-                        if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == SCATTER) ) {
-                            // Do storage components
-                            si = &config->siStorage;
-                            siCurrent = -1;
-                        } else {
-                            // No direct light using storage components
-                            si = &config->siOthers[0];
-                            siCurrent = 0;
+                    if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == SCATTER) ) {
+                        // Do storage components
+                        si = &config->siStorage;
+                        siCurrent = -1;
+                    } else {
+                        // No direct light using storage components
+                        si = &config->siOthers[0];
+                        siCurrent = 0;
+                    }
+
+                    while ( siCurrent < config->siOthersCount ) {
+                        bool doSi = true;
+
+                        if ( ((config->reflectionSampling == PHOTON_MAP_SAMPLING)
+                            || (config->reflectionSampling == CLASSICAL_SAMPLING))
+                            && ( si->flags & BSDF_SPECULAR_COMPONENT ) ) {
+                            // Perfect mirror reflection, no n.e.e.
+                            doSi = false;
                         }
 
-                        while ( siCurrent < config->siOthersCount ) {
-                            bool doSi = true;
+                        if ( doSi ) {
+                            // Connect using correct flags
+                            geom = pathNodeConnect(
+                                camera,
+                            prevNode,
+                            &lightNode,
+                            &config->samplerConfig,
+                            nullptr, // No light config
+                            CONNECT_EL,
+                            si->flags,
+                            BSDF_ALL_COMPONENTS,
+                            &dirEL);
 
-                            if ( (config->reflectionSampling == PHOTON_MAP_SAMPLING)
-                                || (config->reflectionSampling == CLASSICAL_SAMPLING) ) {
-                                if ( si->flags & BSDF_SPECULAR_COMPONENT ) {
-                                    // Perfect mirror reflection, no n.e.e.
-                                    doSi = false;
-                                }
-                            }
+                            // Contribution of this sample (with Multiple Imp. S.)
 
-                            if ( doSi ) {
-                                // Connect using correct flags
-                                geom = pathNodeConnect(
-                                    camera,
-                                prevNode,
-                                &lightNode,
-                                &config->samplerConfig,
-                                nullptr, // No light config
-                                CONNECT_EL,
-                                si->flags,
-                                BSDF_ALL_COMPONENTS,
-                                &dirEL);
+                            if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
+                                weight = 1.0;
+                            } else {
+                                // N direct * pdf  for the n.e.e.
+                                cl = multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
 
-                                // Contribution of this sample (with Multiple Imp. S.)
-
-                                if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
-                                    weight = 1.0;
+                                // N scatter * pdf  for possible scattering
+                                if ( si->DoneSomePreviousBounce(prevNode) ) {
+                                    nrs = si->nrSamplesAfter;
                                 } else {
-                                    // N direct * pdf  for the n.e.e.
-                                    cl = multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
-
-                                    // N scatter * pdf  for possible scattering
-                                    if ( si->DoneSomePreviousBounce(prevNode) ) {
-                                        nrs = si->nrSamplesAfter;
-                                    } else {
-                                        nrs = si->nrSamplesBefore;
-                                    }
-
-                                    cr = multipleImportanceSampling(nrs * lightNode.m_pdfFromNext);
-
-                                    // Are we deep enough to do russian roulette
-                                    if ( lightNode.m_depth >= config->samplerConfig.minDepth ) {
-                                        cr *= multipleImportanceSampling(lightNode.m_rrPdfFromNext);
-                                    }
-
-                                    weight = cl / (cl + cr);
+                                    nrs = si->nrSamplesBefore;
                                 }
 
-                                factor = weight * geom / (lightNode.m_pdfFromPrev *
-                                                          config->nextEventSamples);
-                                radiance.scalarProductScaled(prevNode->m_bsdfEval, (float) factor, lightNode.m_bsdfEval);
+                                cr = multipleImportanceSampling(nrs * lightNode.m_pdfFromNext);
 
-                                // Collect outgoing radiance
-                                result.add(result, radiance);
-                            } // if not photon map or no caustic path
+                                // Are we deep enough to do russian roulette
+                                if ( lightNode.m_depth >= config->samplerConfig.minDepth ) {
+                                    cr *= multipleImportanceSampling(lightNode.m_rrPdfFromNext);
+                                }
 
-                            // Next scatter info block
-                            siCurrent++;
-                            if ( siCurrent < config->siOthersCount ) {
-                                si = &config->siOthers[siCurrent];
+                                weight = cl / (cl + cr);
                             }
 
+                            factor = weight * geom / (lightNode.m_pdfFromPrev *
+                                                      config->nextEventSamples);
+                            radiance.scalarProductScaled(prevNode->m_bsdfEval, (float) factor, lightNode.m_bsdfEval);
+
+                            // Collect outgoing radiance
+                            result.add(result, radiance);
+                        } // if not photon map or no caustic path
+
+                        // Next scatter info block
+                        siCurrent++;
+                        if ( siCurrent < config->siOthersCount ) {
+                            si = &config->siOthers[siCurrent];
                         }
+
                     }
                 }
             }
@@ -459,12 +456,13 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Emitted Light
-        if ( (config->radMode == STORED_PHOTON_MAP) && (radianceMethod->className == PHOTON_MAP) ) {
+        if ( config->radMode == STORED_PHOTON_MAP
+            && radianceMethod->className == PHOTON_MAP
+            && (readout == READ_NOW)
+            && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
             // Check if Le would contribute to a caustic
-            if ( (readout == READ_NOW) && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
-                // Caustic contribution: (E...(D|G)...?L) with ? some specular bounce
-                edfFlags = 0;
-            }
+            // Caustic contribution: (E...(D|G)...?L) with ? some specular bounce
+            edfFlags = 0;
         }
 
         if ( (thisEdf != nullptr) && (edfFlags != 0) ) {
@@ -482,11 +480,11 @@ stochasticRaytracerGetRadiance(
                 doWeight = false;
             }
 
-            if ((config->reflectionSampling == PHOTON_MAP_SAMPLING) && (thisNode->m_depth > 1) ) {
-                if ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) {
-                    // Perfect Specular scatter, no weighting
-                    doWeight = false;
-                }
+            if ( config->reflectionSampling == PHOTON_MAP_SAMPLING
+              && thisNode->m_depth > 1
+              && ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) ) {
+                // Perfect Specular scatter, no weighting
+                doWeight = false;
             }
 
             if ( doWeight ) {
@@ -526,7 +524,6 @@ calcPixel(
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
-    int i;
     SimpleRaytracingPathNode eyeNode;
     SimpleRaytracingPathNode pixelNode;
     double x1;
@@ -556,7 +553,7 @@ calcPixel(
     eyeNode.attach(&pixelNode);
 
     // Stratified sampling of the pixel
-    for ( i = 0; i < config->samplesPerPixel; i++ ) {
+    for ( int i = 0; i < config->samplesPerPixel; i++ ) {
         stratified.sample(&x1, &x2);
 
         if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
@@ -704,9 +701,9 @@ stochasticRayTracerTerminate() {
 Raytracer
 GLOBAL_raytracing_stochasticMethod =
 {
-    (char *)"StochasticRaytracing",
+    "StochasticRaytracing",
     4,
-    (char *)"Stochastic Raytracing & Final Gathers",
+    "Stochastic Raytracing & Final Gathers",
     stochasticRayTracerDefaults,
     stochasticRayTracerInit,
     rtStochasticTrace,

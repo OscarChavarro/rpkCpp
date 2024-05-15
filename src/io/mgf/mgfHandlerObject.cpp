@@ -55,7 +55,7 @@ mgfObjectNewSurface(MgfContext *context) {
 Handle an object entity statement
 */
 static int
-handleObject2Entity(int ac, char **av) {
+handleObject2Entity(int ac, const char **av) {
     if ( ac == 1 ) {
         // Just pop top object
         if ( globalObjectNames < 1 ) {
@@ -138,7 +138,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
 }
 
 int
-handleObjectEntity(int argc, char **argv, MgfContext *context) {
+handleObjectEntity(int argc, const char **argv, MgfContext *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
         if ( context->inSurface ) {

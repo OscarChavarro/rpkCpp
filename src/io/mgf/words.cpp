@@ -10,8 +10,8 @@ Routines for recognizing and moving about words in strings.
 /**
 Skip integer in string
 */
-static char *
-isSkipWords(char *s)
+static const char *
+isSkipWords(const char *s)
 {
     while ( isspace(*s) ) {
         s++;
@@ -31,10 +31,10 @@ isSkipWords(char *s)
 /**
 Skip float in string
 */
-static char *
-fileSkipWords(char *s)
+static const char *
+fileSkipWords(const char *s)
 {
-    char *cp;
+    const char *cp;
 
     while ( isspace(*s) ) {
         s++;
@@ -66,7 +66,7 @@ fileSkipWords(char *s)
 Check integer format
 */
 int
-isIntWords(char *s)
+isIntWords(const char *s)
 {
     const char *cp = isSkipWords(s);
     return cp != nullptr && *cp == '\0';
@@ -76,7 +76,7 @@ isIntWords(char *s)
 Check integer format with delimiter set
 */
 int
-isIntDWords(char *s, char *ds)
+isIntDWords(const char *s, const char *ds)
 {
     const char *cp = isSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;
@@ -86,7 +86,7 @@ isIntDWords(char *s, char *ds)
 Check float format
 */
 int
-isFloatWords(char *s)
+isFloatWords(const char *s)
 {
     const char *cp = fileSkipWords(s);
     return cp != nullptr && *cp == '\0';
@@ -96,7 +96,7 @@ isFloatWords(char *s)
 Check integer format with delimiter set
 */
 int
-isFloatDWords(char *s, char *ds)
+isFloatDWords(const char *s, const char *ds)
 {
     const char *cp = fileSkipWords(s);
     return cp != nullptr && strchr(ds, *cp) != nullptr;

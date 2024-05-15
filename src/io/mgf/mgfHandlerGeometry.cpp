@@ -26,7 +26,7 @@ The parser was changed so we can call them in order not to have to duplicate
 the code
 */
 static int
-doDiscreteConic(int argc, char **argv, MgfContext *context) {
+doDiscreteConic(int argc, const char **argv, MgfContext *context) {
     int en = mgfEntity(argv[0], context);
 
     switch ( en ) {
@@ -72,7 +72,7 @@ installVertex(Vector3D *coord, Vector3D *norm, MgfContext *context) {
 }
 
 static Vertex *
-getVertex(char *name, MgfContext *context) {
+getVertex(const char *name, MgfContext *context) {
     MgfVertexContext *vp;
     Vertex *theVertex;
 
@@ -496,7 +496,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 }
 
 int
-handleFaceEntity(int argc, char **argv, MgfContext *context) {
+handleFaceEntity(int argc, const char **argv, MgfContext *context) {
     Vertex *v[MAXIMUM_FACE_VERTICES + 1];
     Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
     Vector3D normal;
@@ -579,7 +579,7 @@ handleFaceEntity(int argc, char **argv, MgfContext *context) {
 }
 
 int
-handleSurfaceEntity(int argc, char **argv, MgfContext *context) {
+handleSurfaceEntity(int argc, const char **argv, MgfContext *context) {
     int errcode;
 
     if ( context->inComplex ) {
@@ -608,9 +608,9 @@ on another contour. Creates an argument list for the face
 without hole entity handling routine handleFaceEntity() and calls it
 */
 int
-handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
+handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     VECTOR3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
-    char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
+    const char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
                                             // without hole entity handler
     char copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
                                        // the vertex argv[i] has been copied to new contour
@@ -749,7 +749,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
     }
 
     // Build an argument list for the new polygon without holes
-    argumentsToFaceWithoutHoles[0] = (char *) "f";
+    argumentsToFaceWithoutHoles[0] = "f";
     for ( i = 0; i < numberOfVerticesInNewContour; i++ ) {
         argumentsToFaceWithoutHoles[i + 1] = argv[newContour[i]];
     }
@@ -762,7 +762,7 @@ handleFaceWithHolesEntity(int argc, char **argv, MgfContext *context) {
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, char **av, MgfContext *context) {
+handleVertexEntity(int ac, const char **av, MgfContext *context) {
     LookUpEntity *lp;
 
     switch ( mgfEntity(av[0], context) ) {
@@ -865,7 +865,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
 Get a named vertex
 */
 MgfVertexContext *
-getNamedVertex(char *name, MgfContext *context) {
+getNamedVertex(const char *name, MgfContext *context) {
     LookUpEntity *lp = lookUpFind(context->vertexLookUpTable, name);
 
     if ( lp == nullptr ) {

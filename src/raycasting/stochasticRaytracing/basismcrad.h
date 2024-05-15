@@ -70,8 +70,8 @@ extern GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPRO
 extern GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis;
 
 extern void monteCarloRadiosityInitBasis();
-extern ColorRgb colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v);
-extern void filterColorDown(ColorRgb *parent, FILTER *h, ColorRgb *child, int n);
-extern void filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor);
+extern ColorRgb colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v);
+extern void filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n);
+extern void filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor);
 
 #endif

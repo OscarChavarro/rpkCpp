@@ -3,7 +3,7 @@
 
 #include "io/mgf/MgfContext.h"
 
-extern int handleObjectEntity(int argc, char **argv, MgfContext * /*context*/);
+extern int handleObjectEntity(int argc, const char **argv, MgfContext * /*context*/);
 extern void mgfObjectNewSurface(MgfContext *context);
 extern void mgfObjectSurfaceDone(MgfContext *context);
 extern void mgfObjectFreeMemory();

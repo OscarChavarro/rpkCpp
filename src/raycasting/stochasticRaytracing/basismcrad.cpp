@@ -19,7 +19,7 @@ GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
 static int inited = false;
 
 static double
-oneBasis(double u, double v) {
+oneBasis(double /*u*/, double /*v*/) {
     return 1;
 }
 
@@ -84,21 +84,21 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
 static void
 computeFilterCoefficients(
-        GalerkinBasis *parent_basis,
-        int parent_size,
-        GalerkinBasis *child_basis,
-        int child_size,
-        Matrix2x2 *upxfm,
-        CubatureRule *cr,
-        FILTER *filter)
+    const GalerkinBasis *parent_basis,
+    const int parent_size,
+    const GalerkinBasis *child_basis,
+    const int child_size,
+    const Matrix2x2 *upxfm,
+    const CubatureRule *cr,
+    FILTER *filter)
 {
     for ( int a = 0; a < parent_size; a++ ) {
         for ( int b = 0; b < child_size; b++ ) {
             double x = 0.0;
             for ( int k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
-                up.u = cr->u[k];
-                up.v = cr->v[k];
+                up.u = (float)cr->u[k];
+                up.v = (float)cr->v[k];
                 upxfm->transformPoint2D(up, up);
                 x += cr->w[k] * parent_basis->function[a](up.u, up.v) *
                      child_basis->function[b](cr->u[k], cr->v[k]);
@@ -137,9 +137,6 @@ Initialises table of bases
 */
 void
 monteCarloRadiosityInitBasis() {
-    int et;
-    int at;
-
     if ( inited ) {
         return;
     }
@@ -147,8 +144,8 @@ monteCarloRadiosityInitBasis() {
     basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_triBasis, GLOBAL_stochasticRaytracing_triangleUpTransform, &GLOBAL_crt8);
     basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_quadBasis, GLOBAL_stochasticRaytracing_quadUpTransform, &GLOBAL_crq8);
 
-    for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
-        for ( at = 0; at < NR_APPROX_TYPES; at++ )
+    for ( int et = 0; et < NR_ELEMENT_TYPES; et++ ) {
+        for ( int at = 0; at < NR_APPROX_TYPES; at++ )
             GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((ElementType) et, (StochasticRaytracingApproximation) at);
     }
     inited = true;
@@ -158,13 +155,12 @@ monteCarloRadiosityInitBasis() {
 Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
-colorAtUv(GalerkinBasis *basis, ColorRgb *rad, double u, double v) {
-    int i;
+colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
     ColorRgb res;
     res.clear();
-    for ( i = 0; i < basis->size; i++ ) {
+    for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        res.addScaled(res, s, rad[i]);
+        res.addScaled(res, (float)s, rad[i]);
     }
     return res;
 }
@@ -174,20 +170,20 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-filterColorDown(ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
+filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
-            child[i].addScaled(child[i], (*h)[j][i], parent[j]);
+            child[i].addScaled(child[i], (float)(*h)[j][i], parent[j]);
         }
     }
 }
 
 void
-filterColorUp(ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
+filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i].addScaled(parent[i], H, child[j]);
+            parent[i].addScaled(parent[i], (float)H, child[j]);
         }
     }
 }

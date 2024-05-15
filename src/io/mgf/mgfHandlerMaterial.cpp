@@ -135,7 +135,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
-        materialName = (char *)"unnamed";
+        materialName = "unnamed";
     }
 
     // Is it another material than the one used for the previous face ?? If not, the
@@ -261,7 +261,7 @@ int
 mgfMaterialChanged(const Material *material, const MgfContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
-        materialName = (char *)"unnamed";
+        materialName = "unnamed";
     }
 
     // Is it another material than the one used for the previous face? If not, the
@@ -277,7 +277,7 @@ mgfMaterialChanged(const Material *material, const MgfContext *context) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, char **av, MgfContext *context) {
+handleMaterialEntity(int ac, const char **av, MgfContext *context) {
     int i;
     LookUpEntity *lp;
 
@@ -459,9 +459,9 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             }
             i = (int)strtol(av[1], nullptr, 10);
             if ( i == 1 ) {
-                globalMgfCurrentMaterial->sided = 1;
+                globalMgfCurrentMaterial->sided = true;
             } else if ( i == 2 ) {
-                    globalMgfCurrentMaterial->sided = 0;
+                    globalMgfCurrentMaterial->sided = false;
                 } else {
                     return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }

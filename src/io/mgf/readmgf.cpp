@@ -80,10 +80,10 @@ Parse current input line
 static int
 mgfParseCurrentLine(MgfContext *context) {
     char buffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
-    char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
+    const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
     char *cp;
-    char *cp2;
-    char **ap;
+    const char *cp2;
+    const char **ap;
 
     // Copy line, removing escape chars
     cp = buffer;
@@ -154,7 +154,7 @@ mgfSetMonochrome(bool yesno, MgfContext *context) {
 Discard unneeded/unwanted entity
 */
 static int
-mgfDiscardUnNeededEntity(int /*ac*/, char ** /*av*/, MgfContext * /*context*/) {
+mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, MgfContext * /*context*/) {
     return MGF_OK;
 }
 
@@ -166,10 +166,10 @@ mgfPutCSpec(MgfContext *context)
 {
     char wl[2][6];
     char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
-    char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
+    const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
     double sf;
 
-    if ( context->handleCallbacks[MgfEntity::C_SPEC] != handleColorEntity ) {
+    if ( context->handleCallbacks[MgfEntity::C_SPEC] != (HandleCallBack)handleColorEntity ) {
         snprintf(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
         snprintf(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[MgfEntity::C_SPEC];
@@ -196,7 +196,11 @@ static int
 mgfPutCxy(MgfContext *context) {
     static char xBuffer[24];
     static char yBuffer[24];
-    static char *cCom[4] = {context->entityNames[MgfEntity::CXY], xBuffer, yBuffer};
+    static const char *cCom[4] = {
+        context->entityNames[MgfEntity::CXY],
+        xBuffer,
+        yBuffer
+    };
 
     snprintf(xBuffer, 24, "%.4f", context->currentColor->cx);
     snprintf(yBuffer, 24, "%.4f", context->currentColor->cy);
@@ -207,11 +211,11 @@ mgfPutCxy(MgfContext *context) {
 Handle spectral color
 */
 static int
-mgfECSpec(int /*ac*/, char ** /*av*/, MgfContext *context) {
+mgfECSpec(int /*ac*/, const char ** /*av*/, MgfContext *context) {
     // Convert to xy chromaticity
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
-    if ( context->handleCallbacks[MgfEntity::CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -227,13 +231,13 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
-    if ( context->handleCallbacks[MgfEntity::C_SPEC] == mgfECSpec ) {
+mgfECMix(int /*ac*/, const char ** /*av*/, MgfContext *context) {
+    if ( context->handleCallbacks[MgfEntity::C_SPEC] == (HandleCallBack)mgfECSpec ) {
         context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
-    if ( context->handleCallbacks[MgfEntity::CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
@@ -243,24 +247,24 @@ mgfECMix(int /*ac*/, char ** /*av*/, MgfContext *context) {
 Handle color temperature
 */
 static int
-mgfColorTemperature(int /*ac*/, char ** /*av*/, MgfContext *context) {
+mgfColorTemperature(int /*ac*/, const char ** /*av*/, MgfContext *context) {
     // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
-    if ( context->handleCallbacks[MgfEntity::C_SPEC] != mgfECSpec ) {
+    if ( context->handleCallbacks[MgfEntity::C_SPEC] != (HandleCallBack)mgfECSpec ) {
         return mgfPutCSpec(context);
     }
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
-    if ( context->handleCallbacks[MgfEntity::CXY] != handleColorEntity ) {
+    if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
     return MGF_OK;
 }
 
 static int
-handleIncludedFile(int ac, char **av, MgfContext *context) {
-    char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
+handleIncludedFile(int ac, const char **av, MgfContext *context) {
+    const char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
     MgfReaderContext readerContext{};
     const MgfTransformContext *originTransform = context->transformContext;
 
@@ -318,7 +322,7 @@ rayCasterInitialize alternate entity handlers
 */
 static void
 mgfAlternativeInit(
-        int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int, char **, MgfContext *), MgfContext *context)
+    int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int, const char **, MgfContext *), MgfContext *context)
 {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
@@ -328,7 +332,7 @@ mgfAlternativeInit(
     if ( handleCallbacks[IES] == nullptr) {
         handleCallbacks[IES] = mgfDiscardUnNeededEntity;
     }
-    if ( handleCallbacks[INCLUDE] == nullptr) {
+    if ( handleCallbacks[INCLUDE] == nullptr ) {
         handleCallbacks[INCLUDE] = handleIncludedFile;
     }
     if ( handleCallbacks[MgfEntity::SPHERE] == nullptr) {
@@ -412,28 +416,28 @@ mgfAlternativeInit(
     }
 
     // Add support as needed
-    if ( iNeed & 1L << MgfEntity::VERTEX && handleCallbacks[MgfEntity::VERTEX] != handleVertexEntity ) {
+    if ( iNeed & 1L << MgfEntity::VERTEX && handleCallbacks[MgfEntity::VERTEX] != (HandleCallBack)handleVertexEntity ) {
         context->supportCallbacks[MgfEntity::VERTEX] = handleVertexEntity;
     }
-    if ( iNeed & 1L << MgfEntity::MGF_POINT && handleCallbacks[MgfEntity::MGF_POINT] != handleVertexEntity ) {
+    if ( iNeed & 1L << MgfEntity::MGF_POINT && handleCallbacks[MgfEntity::MGF_POINT] != (HandleCallBack)handleVertexEntity ) {
         context->supportCallbacks[MgfEntity::MGF_POINT] = handleVertexEntity;
     }
-    if ( iNeed & 1L << MgfEntity::MGF_NORMAL && handleCallbacks[MgfEntity::MGF_NORMAL] != handleVertexEntity ) {
+    if ( iNeed & 1L << MgfEntity::MGF_NORMAL && handleCallbacks[MgfEntity::MGF_NORMAL] != (HandleCallBack)handleVertexEntity ) {
         context->supportCallbacks[MgfEntity::MGF_NORMAL] = handleVertexEntity;
     }
-    if ( iNeed & 1L << MgfEntity::COLOR && handleCallbacks[MgfEntity::COLOR] != handleColorEntity ) {
+    if ( iNeed & 1L << MgfEntity::COLOR && handleCallbacks[MgfEntity::COLOR] != (HandleCallBack)handleColorEntity ) {
         context->supportCallbacks[MgfEntity::COLOR] = handleColorEntity;
     }
-    if ( iNeed & 1L << MgfEntity::CXY && handleCallbacks[MgfEntity::CXY] != handleColorEntity ) {
+    if ( iNeed & 1L << MgfEntity::CXY && handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         context->supportCallbacks[MgfEntity::CXY] = handleColorEntity;
     }
-    if ( iNeed & 1L << MgfEntity::C_SPEC && handleCallbacks[MgfEntity::C_SPEC] != handleColorEntity ) {
+    if ( iNeed & 1L << MgfEntity::C_SPEC && handleCallbacks[MgfEntity::C_SPEC] != (HandleCallBack)handleColorEntity ) {
         context->supportCallbacks[MgfEntity::C_SPEC] = handleColorEntity;
     }
-    if ( iNeed & 1L << MgfEntity::C_MIX && handleCallbacks[MgfEntity::C_MIX] != handleColorEntity ) {
+    if ( iNeed & 1L << MgfEntity::C_MIX && handleCallbacks[MgfEntity::C_MIX] != (HandleCallBack)handleColorEntity ) {
         context->supportCallbacks[MgfEntity::C_MIX] = handleColorEntity;
     }
-    if ( iNeed & 1L << MgfEntity::CCT && handleCallbacks[MgfEntity::CCT] != handleColorEntity ) {
+    if ( iNeed & 1L << MgfEntity::CCT && handleCallbacks[MgfEntity::CCT] != (HandleCallBack)handleColorEntity ) {
         context->supportCallbacks[MgfEntity::CCT] = handleColorEntity;
     }
 
@@ -491,7 +495,7 @@ context->geometries and context->materials are filled in.
 Note: this is an implementation of MGF file format with major version number 2.
 */
 void
-readMgf(char *filename, MgfContext *context) {
+readMgf(const char *filename, MgfContext *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
 

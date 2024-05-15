@@ -12,8 +12,8 @@ static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
 /**
 Default handler for unknown entities
 */
-int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, char ** /*av*/, const MgfContext * /*context*/) {
+static int
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const MgfContext * /*context*/) {
     // Just ignore line
     return MGF_OK;
 }
@@ -64,7 +64,7 @@ mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
 Get entity number from its name
 */
 int
-mgfEntity(char *name, MgfContext *context) {
+mgfEntity(const char *name, MgfContext *context) {
     char *cp;
 
     if ( !globalLookUpTable.currentTableSize ) {
@@ -91,7 +91,7 @@ mgfEntity(char *name, MgfContext *context) {
 Pass entity to appropriate handler
 */
 int
-mgfHandle(int entityIndex, int argc, char **argv, MgfContext *context) {
+mgfHandle(int entityIndex, int argc, const char **argv, MgfContext *context) {
     entityIndex = mgfEntity(argv[0], context);
     if ( entityIndex < 0 ) {
         // Unknown entity

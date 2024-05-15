@@ -92,14 +92,13 @@ lookUpShuffleHash(char *s) {
 
 int
 lookUpReAlloc(LookUpTable *tbl, int nel) {
-    int i;
-    LookUpEntity *le;
+    const LookUpEntity *le;
     int oldTSize;
     LookUpEntity *oldTable;
 
     oldTable = tbl->table;
     oldTSize = tbl->currentTableSize;
-    i = tbl->numberOfDeletedEntries;
+    int i = tbl->numberOfDeletedEntries;
     if ( !lookUpInit(tbl, nel) ) {
         // No more memory!
         tbl->table = oldTable;
@@ -139,7 +138,7 @@ creating a new entry.  The only case where lookUpFind returns nullptr is when
 the system has run out of memory.
 */
 LookUpEntity *
-lookUpFind(LookUpTable *tbl, char *key) {
+lookUpFind(LookUpTable *tbl, const char *key) {
     long hVal;
     int ndx;
     int i;
@@ -201,7 +200,7 @@ lookUpDone(LookUpTable *l) {
         return;
     }
 
-    for ( LookUpEntity *tp = l->table + l->currentTableSize; tp-- > l->table; ) {
+    for ( const LookUpEntity *tp = l->table + l->currentTableSize; tp-- > l->table; ) {
         if ( tp->key != nullptr) {
             if ( l->freeKeyFunction != nullptr) {
                 (*l->freeKeyFunction)(tp->key);

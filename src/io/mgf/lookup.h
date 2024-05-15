@@ -14,27 +14,27 @@ class LookUpEntity {
 
 class LookUpTable {
   public:
-    long (*keyHashFunction)(char *);
+    long (*keyHashFunction)(const char *);
     int (*keyCompareFunction)(const char *, const char *);
-    void (*freeKeyFunction)(char *);
-    void (*freeDataFunction)(char *);
+    void (*freeKeyFunction)(const char *);
+    void (*freeDataFunction)(const char *);
     int currentTableSize;
     LookUpEntity *table;
     int numberOfDeletedEntries;
 };
 
 #define LOOK_UP_INIT(fk, fd) { \
-    (long (*)(char *))lookUpShuffleHash, \
+    (long (*)(const char *))lookUpShuffleHash, \
     (int (*)(const char *, const char *))strcmp, \
-    (void (*)(char *))(fk), \
-    (void (*)(char *))(fd), \
+    (void (*)(const char *))(fk), \
+    (void (*)(const char *))(fd), \
     0, \
     nullptr, \
     0 \
 }
 
 extern int lookUpInit(LookUpTable *tbl, int nel);
-extern LookUpEntity *lookUpFind(LookUpTable *tbl, char *key);
+extern LookUpEntity *lookUpFind(LookUpTable *tbl, const char *key);
 extern void lookUpDone(LookUpTable *l);
 extern long lookUpShuffleHash(char *s);
 

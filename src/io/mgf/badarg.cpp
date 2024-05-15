@@ -11,7 +11,7 @@ checkForBadArguments(int ac, char **av, const char *fl) {
     // Check argument list
     if ( fl == nullptr ) {
 	    // No arguments?
-        fl = (char *)"";
+        fl = "";
     }
     for ( int i = 1; *fl; i++, av++, fl++ ) {
         if ( i > ac || *av == nullptr ) {
@@ -24,12 +24,12 @@ checkForBadArguments(int ac, char **av, const char *fl) {
                 }
                 break;
             case 'i': // Integer
-                if ( !isIntDWords(*av, (char *) " \t\r\n") ) {
+                if ( !isIntDWords(*av, " \t\r\n") ) {
                     return i;
                 }
                 break;
             case 'f': // Float
-                if ( !isFloatDWords(*av, (char *) " \t\r\n") ) {
+                if ( !isFloatDWords(*av, " \t\r\n") ) {
                     return i;
                 }
                 break;
