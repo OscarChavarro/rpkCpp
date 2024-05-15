@@ -8,14 +8,14 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 #include "common/linealAlgebra/Vector2D.h"
 #include "render/ScreenBuffer.h"
 
-class CKernel2D {
-protected:
+class CKernel2D final {
+  private:
     float m_h; // Kernel size.
     float m_h2; // h2=h*h.
     float m_h2inv; // h2inv=1/h2.
     float m_weight; // The weight of the kernel
 
-public:
+  public:
     CKernel2D();
 
     void Init(float h, float w);
@@ -29,8 +29,8 @@ public:
     void
     varCover(
         const Vector2D &center,
-        ColorRgb &color,
-        ScreenBuffer *ref,
+        const ColorRgb &color,
+        const ScreenBuffer *ref,
         ScreenBuffer *dest,
         int totalSamples,
         int scaleSamples,

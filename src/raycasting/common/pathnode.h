@@ -72,13 +72,12 @@ class SimpleRaytracingPathNode {
     PathRayType m_rayType;
     int m_depth; // First node in a path has depth 0
 
-  protected:
+  private:
     SimpleRaytracingPathNode *m_next;
     SimpleRaytracingPathNode *m_previous;
 
   public:
     SimpleRaytracingPathNode();
-
     ~SimpleRaytracingPathNode();
 
     // Navigation in a path
@@ -104,7 +103,7 @@ class SimpleRaytracingPathNode {
     PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
-    void print(FILE *out);
+    void print(FILE *out) const;
 
     bool ends() const {
         return (m_rayType == STOPS) || (m_rayType == ENVIRONMENT);

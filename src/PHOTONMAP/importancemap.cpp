@@ -36,7 +36,7 @@ CImportanceMap::reconstructImportance(Vector3D /*pos*/, Vector3D &normal /*, IMP
     for ( int i = 0; i < m_nrpFound; i++ ) {
         CImporton *importon = (CImporton *) m_photons[i];
 
-        Vector3D dir = importon->Dir();
+        Vector3D dir = importon->dir();
 
         // No bsdf eval : incoming importance !!!!!!
         importance = importon->Importance();
@@ -153,7 +153,7 @@ CImportanceMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     float imp;
     float pot;
     float diff{};
-    Vector3D pos = photon->Pos();
+    Vector3D pos = photon->pos();
     Vector3D normal = photon->Normal();
 
     ComputeAllRequiredDensities(camera, pos, normal, &imp, &pot, &diff);

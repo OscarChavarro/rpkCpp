@@ -10,7 +10,7 @@ Monte Carlo radiosity element type
 #include "common/quasiMonteCarlo/Niederreiter.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
-class StochasticRadiosityElement : public Element {
+class StochasticRadiosityElement final : public Element {
   public:
     NiederreiterIndex rayIndex; // Incremented each time a ray is shot from the element
     float quality; // For merging the result of multiple iterations
@@ -33,7 +33,7 @@ class StochasticRadiosityElement : public Element {
     char numberOfVertices; // Number of surface element vertices
 
     StochasticRadiosityElement();
-    ~StochasticRadiosityElement();
+    ~StochasticRadiosityElement() final;
 };
 
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4];
@@ -81,7 +81,7 @@ extern void
 stochasticRadiosityElementPushRadiance(
     const StochasticRadiosityElement *parent,
     StochasticRadiosityElement *child,
-    ColorRgb *parentRadiance,
+    const ColorRgb *parentRadiance,
     ColorRgb *childRadiance);
 
 extern void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
@@ -90,8 +90,8 @@ extern void
 stochasticRadiosityElementPullRadiance(
     const StochasticRadiosityElement *parent,
     const StochasticRadiosityElement *child,
-    ColorRgb *parent_rad,
-    ColorRgb *child_rad);
+    ColorRgb *parentRad,
+    const ColorRgb *childRad);
 
 extern void
 stochasticRadiosityElementPullImportance(

@@ -35,7 +35,7 @@ initialControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
-        totalFluxColor->addScaled(*totalFluxColor, /* M_PI* */ weightedArea, rad);
+        totalFluxColor->addScaled(*totalFluxColor, weightedArea, rad);
         *area += weightedArea;
         maxRadColor->maximum(*maxRadColor, rad);
     } else {
@@ -63,7 +63,7 @@ initialControlRadiosity(
     ColorRgb *maxRad,
     ColorRgb *fMin,
     ColorRgb *fMax,
-    java::ArrayList<Patch *> *scenePatches)
+    const java::ArrayList<Patch *> *scenePatches)
 {
     ColorRgb totalFluxColor;
     ColorRgb maxRadColor;
@@ -105,7 +105,8 @@ refineComponent(
 
     // Find sub-interval containing the minimum
     *fMax = f[0];
-    *fMin = f[0], iMin = 0;
+    *fMin = f[0];
+    iMin = 0;
     for ( int i = 1; i <= NUMBER_OF_INTERVALS; i++ ) {
         if ( f[i] < *fMin ) {
             *fMin = f[i];
@@ -180,7 +181,7 @@ refineControlRadiosity(
     ColorRgb *maxRad,
     ColorRgb *fMin,
     ColorRgb *fMax,
-    java::ArrayList<Patch *> *scenePatches)
+    const java::ArrayList<Patch *> *scenePatches)
 {
     ColorRgb colorOne;
     ColorRgb f[NUMBER_OF_INTERVALS + 1];
@@ -225,6 +226,8 @@ refineControlRadiosity(
                     fc[i] = f[i].b;
                     radC[i] = rad[i].b;
                     break;
+                default:
+                    break;
             }
         }
         switch ( s ) {
@@ -254,6 +257,8 @@ refineControlRadiosity(
                     &(fMax->b),
                     fc,
                     radC);
+                break;
+            default:
                 break;
         }
     }

@@ -27,7 +27,7 @@ class RayCaster {
         const RenderOptions *renderOptions) const;
 
   public:
-    explicit RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera);
+    explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera);
     virtual ~RayCaster();
     void render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
     void display();

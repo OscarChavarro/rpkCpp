@@ -3,6 +3,6 @@
 
 extern void logError(const char *routine, const char *text, ...);
 extern void logWarning(const char *routine, const char *text, ...);
-extern void logFatal(int errcode, const char *routine, const char *text, ...);
+__attribute__((noreturn)) extern void logFatal(int errcode, const char *routine, const char *text, ...);
 
 #endif

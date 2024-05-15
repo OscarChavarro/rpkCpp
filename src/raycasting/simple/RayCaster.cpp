@@ -14,7 +14,7 @@ a software frame buffer directly.
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
-RayCaster::RayCaster(ScreenBuffer *inScreen, Camera *defaultCamera) {
+RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera) {
     if ( inScreen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, defaultCamera);
         doDeleteScreen = true;

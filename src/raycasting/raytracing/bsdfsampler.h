@@ -16,7 +16,7 @@ class CBsdfSampler : public CSurfaceSampler {
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path ends.
     //   If path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -27,30 +27,30 @@ class CBsdfSampler : public CSurfaceSampler {
         double x1,
         double x2,
         bool doRR,
-        char flags);
+        char flags) override;
 
     // Use this for N.E.E. : connecting a light node with an eye node
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags,
         double *pdf = nullptr,
-        double *pdfRR = nullptr);
+        double *pdfRR = nullptr) override;
 
     // Use this for calculating f.i. eyeEndNode->Previous pdf(Next).
     // The newNode is calculated, thisNode should be and end node connecting
     // to another sub path end node. prevNode is that other subpath
     // endNode.
-    virtual double
+    double
     EvalPDFPrev(
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags,
         double *pdf,
-        double *pdfRR);
+        double *pdfRR) override;
 };
 
 #endif

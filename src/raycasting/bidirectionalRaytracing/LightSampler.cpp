@@ -236,7 +236,7 @@ ImportantLightSampler::sample(
     }
 
     if ( light == nullptr ) {
-        // Warning("FillLightNode", "No light found");
+        // No light found
         return false;
     }
 

@@ -6,8 +6,8 @@
 
 typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
 
-extern double HUGE_DOUBLE_VALUE;
-extern float HUGE_FLOAT_VALUE;
+extern const double HUGE_DOUBLE_VALUE;
+extern const float HUGE_FLOAT_VALUE;
 
 extern const double EPSILON;
 extern const float EPSILON_FLOAT;

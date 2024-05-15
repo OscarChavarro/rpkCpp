@@ -2,11 +2,11 @@
 #include "common/error.h"
 
 void
-CPhoton::FindRS(
+CPhoton::findRS(
     double *r,
     double *s,
     const CoordinateSystem *coord,
-    char flag, float n)
+    char flag, float n) const
 {
     // Determine angles
     double phi;
@@ -22,6 +22,6 @@ CPhoton::FindRS(
         *s = phi / (2 * M_PI);
         *r = java::Math::pow(java::Math::cos(theta), (double)n + 1.0);
     } else {
-        logError("CPhoton::FindRS", "Component %i not implemented yet", flag);
+        logError("CPhoton::findRS", "Component %i not implemented yet", flag);
     }
 }

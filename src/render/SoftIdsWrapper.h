@@ -5,7 +5,7 @@
 #include "render/softids.h"
 
 class SoftIdsWrapper {
-  protected:
+  private:
     SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
 
     void init(const Scene *scene, const RenderOptions *renderOptions); // Also performs the actual ID rendering
@@ -15,7 +15,7 @@ class SoftIdsWrapper {
     ~SoftIdsWrapper();
 
     inline void
-    getSize(long *width, long *height) {
+    getSize(long *width, long *height) const {
         *width = sgl->width;
         *height = sgl->height;
     }

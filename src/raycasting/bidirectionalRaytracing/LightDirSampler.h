@@ -12,9 +12,9 @@ It's kind of a dual of a pixel sampler.
 
 #include "raycasting/raytracing/sampler.h"
 
-class LightDirSampler : public Sampler {
+class LightDirSampler final : public Sampler {
 public:
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -25,16 +25,16 @@ public:
         double x1,
         double x2,
         bool doRR = false,
-        char flags = BSDF_ALL_COMPONENTS);
+        char flags = BSDF_ALL_COMPONENTS) final;
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags = BSDF_ALL_COMPONENTS,
         double *probabilityDensityFunction = nullptr,
-        double *probabilityDensityFunctionRR = nullptr);
+        double *probabilityDensityFunctionRR = nullptr) final;
 };
 
 #endif

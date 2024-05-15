@@ -5,17 +5,17 @@
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 
 inline void
-stochasticRadiosityClearCoefficients(ColorRgb *c, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityClearCoefficients(ColorRgb *c, const GalerkinBasis *galerkinBasis) {
     for ( int i = 0; i < galerkinBasis->size; i++ ) {
         c[i].clear();
     }
 }
 
 inline void
-stochasticRadiosityCopyCoefficients(ColorRgb *dst, ColorRgb *src, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityCopyCoefficients(ColorRgb *dst, const ColorRgb *src, const GalerkinBasis *galerkinBasis) {
     int i;
     ColorRgb *d;
-    ColorRgb *s;
+    const ColorRgb *s;
 
     for ( i = 0, d = dst, s = src; i < galerkinBasis->size; i++, d++, s++ ) {
         *d = *s;
@@ -23,10 +23,10 @@ stochasticRadiosityCopyCoefficients(ColorRgb *dst, ColorRgb *src, GalerkinBasis 
 }
 
 inline void
-stochasticRadiosityAddCoefficients(ColorRgb *dst, ColorRgb *extra, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityAddCoefficients(ColorRgb *dst, const ColorRgb *extra, const GalerkinBasis *galerkinBasis) {
     int i;
     ColorRgb *d;
-    ColorRgb *s;
+    const ColorRgb *s;
 
     for ( i = 0, d = dst, s = extra; i < galerkinBasis->size; i++, d++, s++ ) {
         d->add(*d, *s);
@@ -34,7 +34,7 @@ stochasticRadiosityAddCoefficients(ColorRgb *dst, ColorRgb *extra, GalerkinBasis
 }
 
 inline void
-stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, GalerkinBasis *galerkinBasis) {
+stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, const GalerkinBasis *galerkinBasis) {
     int i;
     ColorRgb *d;
 
@@ -44,11 +44,11 @@ stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, GalerkinBasis
 }
 
 inline void
-stochasticRadiosityMultiplyCoefficients(ColorRgb &color, ColorRgb *coefficients, GalerkinBasis *galerkinBasis) {
-    int i;
+stochasticRadiosityMultiplyCoefficients(const ColorRgb &color, ColorRgb *coefficients, const GalerkinBasis *galerkinBasis) {
     ColorRgb *d;
     ColorRgb c = color;
 
+    int i;
     for ( i = 0, d = coefficients; i < galerkinBasis->size; i++, d++) {
         d->selfScalarProduct(c);
     }

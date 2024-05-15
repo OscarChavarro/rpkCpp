@@ -4,7 +4,7 @@
 
 LightList *GLOBAL_lightList = nullptr;
 
-LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
+LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     LightInfo info{};
     ColorRgb lightColor;
 
@@ -15,28 +15,27 @@ LightList::LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches)
 
     for ( int i = 0; list != nullptr && i < list->size(); i++ ) {
         Patch *light = list->get(i);
-        if ( !light->hasZeroVertices() || includeVirtual ) {
-            if ( light->material->getEdf() != nullptr ) {
-                info.light = light;
+        if ( (!light->hasZeroVertices() || includeVirtual)
+            && ( light->material->getEdf() != nullptr ) ) {
+            info.light = light;
 
-                // calc emittedFlux
-                if ( light->hasZeroVertices() ) {
-                    ColorRgb e;
-                    if ( light->material->getEdf() == nullptr ) {
-                        e.clear();
-                    } else {
-                        e = light->material->getEdf()->phongEmittance(nullptr, DIFFUSE_COMPONENT);
-                    }
-                    info.emittedFlux = e.average();
+            // calc emittedFlux
+            if ( light->hasZeroVertices() ) {
+                ColorRgb e;
+                if ( light->material->getEdf() == nullptr ) {
+                    e.clear();
                 } else {
-                    lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
-                    info.emittedFlux = lightColor.average() * light->area;
+                    e = light->material->getEdf()->phongEmittance(nullptr, DIFFUSE_COMPONENT);
                 }
-
-                totalFlux += info.emittedFlux;
-                lightCount++;
-                append(info);
+                info.emittedFlux = e.average();
+            } else {
+                lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
+                info.emittedFlux = lightColor.average() * light->area;
             }
+
+            totalFlux += info.emittedFlux;
+            lightCount++;
+            append(info);
         }
     }
 }
@@ -128,7 +127,7 @@ LightList::evalPdfReal(Patch *light, const Vector3D */*point*/) const {
 }
 
 double
-LightList::evalPdf(Patch *light, const Vector3D *point) {
+LightList::evalPdf(Patch *light, const Vector3D *point) const {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -224,10 +223,12 @@ LightList::computeOneLightImportanceReal(
 }
 
 double
-LightList::computeOneLightImportance(Patch *light,
-                                     const Vector3D *point,
-                                     const Vector3D *normal,
-                                     float emittedFlux) {
+LightList::computeOneLightImportance(
+    const Patch *light,
+    const Vector3D *point,
+    const Vector3D *normal,
+    float emittedFlux)
+{
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
@@ -344,8 +345,7 @@ LightList::evalPdfImportant(
 
     // Search the light in the list :-(
 
-    while ((info = iterator.nextOnSequence()) && info->light != light ) {
-    }
+    while ( (info = iterator.nextOnSequence()) && info->light != light );
 
     if ( info == nullptr ) {
         logWarning("CLightList::evalPdfImportant", "Could not find light");

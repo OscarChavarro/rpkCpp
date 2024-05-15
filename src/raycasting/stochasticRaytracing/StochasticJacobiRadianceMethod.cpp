@@ -101,7 +101,7 @@ stochasticRelaxationRadiosityRandomRound(float x) {
 }
 
 static void
-stochasticRelaxationRadiosityRecomputeDisplayColors(java::ArrayList<Patch *> *scenePatches) {
+stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches) {
     StochasticRadiosityElement *topElement = GLOBAL_stochasticRaytracing_hierarchy.topCluster;
     if ( topElement != nullptr ) {
         topElement->traverseClusterLeafElements(stochasticRadiosityElementComputeNewVertexColors);
@@ -124,7 +124,7 @@ iterations properly taking into account the number of rays and importance
 distribution
 */
 static double
-stochasticRelaxationRadiosityQualityFactor(StochasticRadiosityElement *elem, double w) {
+stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *elem, double w) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         return w * elem->importance;
     }
@@ -142,14 +142,12 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
     // solution. The quality factor of the result remains constant
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental ) {
         elem->quality = 0.0;
-        {
-            static bool repeated = false;
-            if ( !repeated ) {
-                logWarning("stochasticRelaxationRadiosityElementIncrementRadiance",
-                           "Solution of incremental Jacobi steps receives zero quality");
-            }
-            repeated = true;
+        static bool repeated = false;
+        if ( !repeated ) {
+            logWarning("stochasticRelaxationRadiosityElementIncrementRadiance",
+                       "Solution of incremental Jacobi steps receives zero quality");
         }
+        repeated = true;
     } else {
         elem->quality = (float)stochasticRelaxationRadiosityQualityFactor(elem, w);
     }
@@ -178,7 +176,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     Scene* scene,
-    RadianceMethod *radianceMethod,
+    const RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
 {
     double refUnShot;
@@ -479,7 +477,7 @@ stochasticRelaxationRadiosityRenderPatch(Patch *patch, const Camera *camera, con
         topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender, renderOptions);
     } else {
         // Not yet initialized
-        openGlRenderPatch(patch, camera, renderOptions);
+        openGlRenderPatchCallBack(patch, camera, renderOptions);
     }
 }
 

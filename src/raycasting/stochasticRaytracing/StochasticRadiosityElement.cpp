@@ -279,7 +279,7 @@ monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement
 Initialises parent cluster radiance/importance/area for child voxelData
 */
 static void
-monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child) {
     parent->area += child->area;
     stochasticRadiosityElementPullRadiance(parent, child, parent->radiance, child->radiance);
     stochasticRadiosityElementPullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
@@ -718,7 +718,7 @@ monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadios
 Initial push operation for surface sub-elements
 */
 static void
-monteCarloRadiosityInitSurfacePush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+monteCarloRadiosityInitSurfacePush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     child->sourceRad = parent->sourceRad;
     stochasticRadiosityElementPushRadiance(parent, child, parent->radiance, child->radiance);
     stochasticRadiosityElementPushRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
@@ -964,7 +964,7 @@ void
 stochasticRadiosityElementPushRadiance(
     const StochasticRadiosityElement *parent,
     StochasticRadiosityElement *child,
-    ColorRgb *parentRadiance,
+    const ColorRgb *parentRadiance,
     ColorRgb *childRadiance)
 {
     if ( parent->isCluster() || child->basis->size == 1 ) {
@@ -984,13 +984,18 @@ stochasticRadiosityElementPushImportance(const float *parentImportance, float *c
 }
 
 void
-stochasticRadiosityElementPullRadiance(const StochasticRadiosityElement *parent, const StochasticRadiosityElement *child, ColorRgb *parent_rad, ColorRgb *child_rad) {
+stochasticRadiosityElementPullRadiance(
+    const StochasticRadiosityElement *parent,
+    const StochasticRadiosityElement *child,
+    ColorRgb *parentRad,
+    const ColorRgb *childRad)
+{
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {
-        parent_rad[0].addScaled(parent_rad[0], areaFactor, child_rad[0]);
+        parentRad[0].addScaled(parentRad[0], areaFactor, childRad[0]);
     } else if ( regularChild(child) && child->basis == parent->basis ) {
-        filterColorUp(child_rad, &(*child->basis->regularFilter)[child->childNumber],
-                      parent_rad, child->basis->size, areaFactor);
+        filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
+                      parentRad, child->basis->size, areaFactor);
     } else {
         logFatal(-1, "stochasticRadiosityElementPullRadiance",
                  "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");

@@ -17,6 +17,6 @@ enum TMA_METHOD {
     TMA_MEDIAN
 };
 
-extern void initSceneAdaptation(java::ArrayList<Patch *> *scenePatches);
+extern void initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches);
 
 #endif

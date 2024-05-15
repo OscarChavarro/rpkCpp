@@ -1,7 +1,7 @@
 #include "common/linealAlgebra/Float.h"
 
-double HUGE_DOUBLE_VALUE = 1e30;
-float HUGE_FLOAT_VALUE = FLT_MAX;
+const double HUGE_DOUBLE_VALUE = 1e30;
+const float HUGE_FLOAT_VALUE = FLT_MAX;
 
 const double EPSILON = 1e-6;
 const float EPSILON_FLOAT = 1e-6f;

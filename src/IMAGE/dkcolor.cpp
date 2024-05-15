@@ -64,9 +64,7 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
             int beg;
 
             for ( beg = j; beg < len; beg += cnt ) {
-                for ( cnt = 1; cnt < 127 && beg + cnt < len &&
-                               scanline[beg + cnt][i] == scanline[beg][i]; cnt++ ) {
-                }
+                for ( cnt = 1; cnt < 127 && beg + cnt < len && scanline[beg + cnt][i] == scanline[beg][i]; cnt++ );
                 if ( cnt >= MINIMUM_RUN_LENGTH ) {
                     // Long enough
                     break;

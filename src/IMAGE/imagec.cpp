@@ -152,7 +152,7 @@ createRadianceImageOutputHandle(
                 return nullptr;
             }
 
-            FILE *fd = freopen("/dev/null", "w", fp);
+            const FILE *fd = freopen("/dev/null", "w", fp);
             if (fd == nullptr) {
                 fprintf(stderr, "Warning: can not reopen /dev/null\n");
             }

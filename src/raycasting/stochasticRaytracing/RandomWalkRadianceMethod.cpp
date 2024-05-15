@@ -256,7 +256,7 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
 static void
 randomWalkRadiosityDoShootingIteration(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches)
+    const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks;
 
@@ -396,7 +396,7 @@ Returns true when converged and false if not
 static void
 randomWalkRadiosityDoGatheringIteration(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches)
+    const java::ArrayList<Patch *> *scenePatches)
 {
     long numberOfWalks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {

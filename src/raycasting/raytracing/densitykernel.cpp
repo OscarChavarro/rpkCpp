@@ -98,8 +98,8 @@ Add one hit/splat with a size dependend on a reference estimate
 void
 CKernel2D::varCover(
     const Vector2D &center,
-    ColorRgb &color,
-    ScreenBuffer *ref,
+    const ColorRgb &color,
+    const ScreenBuffer *ref,
     ScreenBuffer *dest,
     int totalSamples,
     int scaleSamples,

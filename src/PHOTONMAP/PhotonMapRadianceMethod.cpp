@@ -282,14 +282,14 @@ photonMapDoScreenNEE(
     Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
-    RadianceMethod *radianceMethod)
+    const RadianceMethod *radianceMethod)
 {
     int nx;
     int ny;
     float pixX;
     float pixY;
     ColorRgb f;
-    CBiPath *bp = &config->biPath;
+    const CBiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
         return;
@@ -379,7 +379,7 @@ Handle one path : store at all end positions and for testing, connect to the eye
 static void
 photonMapHandlePath(
     Camera *camera,
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
     RadianceMethod *radianceMethod)
 {
@@ -727,7 +727,7 @@ PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *re
         GLOBAL_photonMap_config.screen->render();
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
+            openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
 }

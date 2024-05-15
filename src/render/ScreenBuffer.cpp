@@ -11,7 +11,7 @@
 /**
 Constructor : make an screen buffer from a camera definition
 */
-ScreenBuffer::ScreenBuffer(Camera *camera, Camera *defaultCamera) {
+ScreenBuffer::ScreenBuffer(const Camera *camera, const Camera *defaultCamera) {
     m_Radiance = nullptr;
     m_RGB = nullptr;
     init(camera, defaultCamera);
@@ -39,7 +39,7 @@ ScreenBuffer::isRgbImage() const {
 }
 
 void
-ScreenBuffer::init(Camera *inCamera, Camera *defaultCamera) {
+ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
     if ( inCamera == nullptr ) {
         // Use the current camera
         inCamera = defaultCamera;
@@ -76,7 +76,7 @@ ScreenBuffer::init(Camera *inCamera, Camera *defaultCamera) {
 Copy dimensions and contents (m_Radiance only) from source
 */
 void
-ScreenBuffer::copy(ScreenBuffer *source, Camera *defaultCamera) {
+ScreenBuffer::copy(const ScreenBuffer *source, const Camera *defaultCamera) {
     init(&(source->camera), defaultCamera);
     m_RGBImage = source->isRgbImage();
 
@@ -90,7 +90,7 @@ ScreenBuffer::copy(ScreenBuffer *source, Camera *defaultCamera) {
 Merge (add) two screen buffers (m_Radiance only) from src1 and src2
 */
 void
-ScreenBuffer::merge(ScreenBuffer *src1, ScreenBuffer *src2, Camera *defaultCamera) {
+ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Camera *defaultCamera) {
     init(&(src1->camera), defaultCamera);
     m_RGBImage = src1->isRgbImage();
 
@@ -122,7 +122,7 @@ ScreenBuffer::set(int x, int y, ColorRgb radiance) {
 }
 
 ColorRgb
-ScreenBuffer::get(int x, int y) {
+ScreenBuffer::get(int x, int y) const {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
 
     return m_Radiance[index];
@@ -194,10 +194,9 @@ ScreenBuffer::sync() {
 
 void
 ScreenBuffer::syncLine(int lineNumber) {
-    int i;
     ColorRgb tmpRad{};
 
-    for ( i = 0; i < camera.xSize; i++ ) {
+    for ( int i = 0; i < camera.xSize; i++ ) {
         tmpRad.scaledCopy(m_Factor, m_Radiance[lineNumber * camera.xSize + i]);
         if ( !isRgbImage() ) {
             radianceToRgb(tmpRad, &m_RGB[lineNumber * camera.xSize + i]);
@@ -317,7 +316,7 @@ ScreenBuffer::getScreenYMax() const {
 }
 
 ColorRgb
-ScreenBuffer::getBiLinear(float x, float y) {
+ScreenBuffer::getBiLinear(float x, float y) const {
     int nx0;
     int nx1;
     int ny0;

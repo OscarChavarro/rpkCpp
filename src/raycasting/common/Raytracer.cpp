@@ -12,10 +12,10 @@ and performs raytracing
 */
 void
 rayTrace(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
-    Raytracer *activeRayTracer,
+    const Raytracer *activeRayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)

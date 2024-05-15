@@ -125,7 +125,7 @@ CPhotonMap::computeCosines(const Vector3D normal) {
         m_nrpCosinePos = 0;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            dir = m_photons[i]->Dir();
+            dir = m_photons[i]->dir();
             m_cosines[i] = dir.dotProduct(normal);
             if ( m_cosines[i] > 0 ) {
                 m_nrpCosinePos++;
@@ -281,7 +281,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     irradiance.clear();
 
     // Locate the nearest photons using a max radius limit
-    Vector3D pos = photon->Pos();
+    Vector3D pos = photon->pos();
     m_nrpFound = doQuery(&pos);
 
     if ( m_nrpFound > 3 ) {
@@ -289,7 +289,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
         float maxDistance = m_distances[0];
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            if ( photon->Normal().dotProduct(m_photons[i]->Dir()) > 0 ) {
+            if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
                 power = m_photons[i]->Power();
                 irradiance.add(irradiance, power);
             }
@@ -404,7 +404,7 @@ CPhotonMap::Reconstruct(
     maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
-        Vector3D dir = m_photons[i]->Dir();
+        Vector3D dir = m_photons[i]->dir();
 
         if ( bsdf == nullptr ) {
             eval.clear();
@@ -499,7 +499,7 @@ CPhotonMap::sample(
         double ps;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            m_photons[i]->FindRS(&pr, &ps, coord, flag, n);
+            m_photons[i]->findRS(&pr, &ps, coord, flag, n);
 
             color = m_photons[i]->Power();
 

@@ -133,7 +133,7 @@ class STATE {
 extern STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 inline int
-NR_VERTICES(StochasticRadiosityElement *elem) {
+numberOfVertices(const StochasticRadiosityElement *elem) {
     return elem->patch->numberOfVertices;
 }
 
@@ -174,6 +174,6 @@ extern void monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderO
 extern void monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions);
 extern void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions);
-extern void doNonDiffuseFirstShot(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
+extern void doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
 
 #endif

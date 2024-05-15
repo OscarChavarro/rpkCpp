@@ -75,8 +75,12 @@ double CBiPath::EvalPDFAcc() {
 
 // Evaluate weight/pdf for a bipath, taking into account other pdf's
 // depending on the config (bcfg).
-float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
-                                 float *pWeight) {
+float
+CBiPath::EvalPDFAndWeight(
+    const BP_BASECONFIG *bcfg,
+    float *pPdf,
+    float *pWeight)
+{
     int currentConnect;
     double pdfAcc;
     double pdfSum;
@@ -84,7 +88,9 @@ float CBiPath::EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf,
     double newPdf;
     double c;
     SimpleRaytracingPathNode *nextNode;
-    double realPdf, tmpPdf, weight;
+    double realPdf;
+    double tmpPdf;
+    double weight;
 
     // First we compute the pdf for generating this path
 

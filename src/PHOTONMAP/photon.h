@@ -35,7 +35,7 @@ class CPhoton {
             : m_pos(pos), m_power(power), m_dir(dir) {  }
 
     inline Vector3D
-    Pos() {
+    pos() const {
         return m_pos;
     }
 
@@ -50,14 +50,14 @@ class CPhoton {
     }
 
     inline Vector3D
-    Dir() {
+    dir() const {
         return m_dir;
     }
 
     // Importance sampling utility functions
 
     // Find the r,s values in a [0,1[^2 square corresponding to the photon
-    void FindRS(double *r, double *s, const CoordinateSystem *coord, char flag, float n);
+    void findRS(double *r, double *s, const CoordinateSystem *coord, char flag, float n) const;
 };
 
 

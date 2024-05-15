@@ -29,30 +29,35 @@ initRadianceEstimate(Patch *patch) {
     ColorRgb radiance;
 
     radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
-    radiance.addScaled(radiance, (1.0 / M_PI), E);
+    radiance.addScaled(radiance, (1.0f / (float)M_PI), E);
     return radiance;
 }
 
 static int globalNumEntries;
 static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
-static float globalLumMin = HUGE_DOUBLE_VALUE;
+static float globalLumMin = FLT_MAX; // HUGE_FLOAT_VALUE;
 static float globalLumMax = 0.0;
 static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int
 adaptationLumAreaComp(const void *la1, const void *la2) {
-    float l1 = ((LuminanceArea *) la1)->luminance;
-    float l2 = ((LuminanceArea *) la2)->luminance;
-    return l1 > l2 ? 1 : l1 == l2 ? 0 : -1;
+    float l1 = ((const LuminanceArea *) la1)->luminance;
+    float l2 = ((const LuminanceArea *) la2)->luminance;
+
+    if ( l1 > l2 ) {
+        return 1;
+    }
+
+    return l1 == l2 ? 0 : -1;
 }
 
 static float
 patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = PatchRadianceEstimate(patch);
     float brightness = radiance.luminance();
-    if ( brightness < EPSILON ) {
-        brightness = EPSILON;
+    if ( brightness < EPSILON_FLOAT ) {
+        brightness = EPSILON_FLOAT;
     }
     return brightness;
 }
@@ -105,7 +110,7 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
 static void
-estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), java::ArrayList<Patch *> *scenePatches) {
+estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {
@@ -143,6 +148,6 @@ Same as estimateSceneAdaptation, but uses some a-priori estimate for the radianc
 Used when loading a new scene
 */
 void
-initSceneAdaptation(java::ArrayList<Patch *> *scenePatches) {
+initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches) {
     estimateSceneAdaptation(initRadianceEstimate, scenePatches);
 }

@@ -442,8 +442,8 @@ Returns the radiance emitted from the patch at the point with parameters
 ColorRgb
 monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, const RenderOptions *renderOptions) {
     ColorRgb TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
-    StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
-            topLevelStochasticRadiosityElement(patch), &u, &v);
+    const StochasticRadiosityElement *leaf = stochasticRadiosityElementRegularLeafElementAtPoint(
+        topLevelStochasticRadiosityElement(patch), &u, &v);
     ColorRgb UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgb radianceAtPoint = stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
     ColorRgb sourceRad;

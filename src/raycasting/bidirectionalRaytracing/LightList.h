@@ -20,7 +20,7 @@ public:
 
 class LightListIterator;
 
-class LightList : private CTSList<LightInfo> {
+class LightList final : private CTSList<LightInfo> {
   private:
     // Total flux ( sum(L * A * PI))
     float totalFlux;
@@ -35,22 +35,22 @@ class LightList : private CTSList<LightInfo> {
 
     // A getPatchList must be supplied for building a light list.
     // Non emitting patches (edf == nullptr) are NOT put in the list.
-    explicit LightList(java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
+    explicit LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
 
-    ~LightList();
+    ~LightList() final;
 
     // Normal sampling : uniform over emitted power
     Patch *sample(double *x1, double *pdf);
 
     // Normal PDF evaluation : uniform over emitted power
-    double evalPdf(Patch *light, const Vector3D *point);
+    double evalPdf(Patch *light, const Vector3D *point) const;
 
     // Importance sampling routines
     Patch *sampleImportant(const Vector3D *point, const Vector3D *normal, double *x1, double *pdf);
 
     double evalPdfImportant(const Patch *light, const Vector3D *, const Vector3D *litPoint, const Vector3D *normal);
 
-protected:
+  private:
     Vector3D lastPoint;
     Vector3D lastNormal;
 
@@ -58,7 +58,7 @@ protected:
 
     static double
     computeOneLightImportance(
-        Patch *light,
+        const Patch *light,
         const Vector3D *point,
         const Vector3D *normal,
         float emittedFlux);

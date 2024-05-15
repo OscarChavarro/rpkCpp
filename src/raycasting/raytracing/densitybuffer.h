@@ -36,14 +36,14 @@ public:
 };
 
 class CDensityHitArray {
-protected:
+  protected:
     CDensityHit *hits;
     int maxHits;
     int numHits;
 
     CDensityHitArray *next;
 
-public:
+  public:
     explicit CDensityHitArray(int paramMaxHits) {
         numHits = 0;
         maxHits = paramMaxHits;
@@ -53,7 +53,7 @@ public:
 
     ~CDensityHitArray() { delete[] hits; }
 
-    bool Add(CDensityHit &hit) {
+    bool add(const CDensityHit &hit) {
         if ( numHits < maxHits ) {
             hits[numHits++] = hit;
             return true;
@@ -62,7 +62,9 @@ public:
         }
     }
 
-    CDensityHit operator[](int i) { return hits[i]; }
+    CDensityHit operator[](int i) const {
+        return hits[i];
+    }
 
     friend class CDensityHitList;
 };

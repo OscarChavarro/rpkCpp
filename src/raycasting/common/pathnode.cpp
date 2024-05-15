@@ -27,7 +27,7 @@ SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
 void
-SimpleRaytracingPathNode::print(FILE *out) {
+SimpleRaytracingPathNode::print(FILE *out) const {
     fprintf(out, "Path node at depth %i\n", m_depth);
     fprintf(out, "Pos : ");
     m_hit.getPoint().print(out);
@@ -97,7 +97,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
     }
 
     if ( backHits == 0 ) {
-        return (matchedNode);
+        return matchedNode;
     } else {
         return nullptr;  // No matching node
     }
@@ -109,7 +109,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
 
     if ( !(m_hit.getFlags() & RayHitFlag::BACK) ) {
         logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
-        return (m_inBsdf);  // Should not happen
+        return m_inBsdf;  // Should not happen
     }
 
     if ( m_hit.getPatch()->material->getBsdf() != m_inBsdf ) {
@@ -121,7 +121,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
 
     if ( matchedNode == nullptr ) {
         logWarning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
-        return (m_inBsdf);  // Should not happen
+        return m_inBsdf;  // Should not happen
     }
 
     return matchedNode->m_inBsdf;

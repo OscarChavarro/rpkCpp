@@ -32,17 +32,17 @@ class ScreenBuffer {
     float m_AddFactor;
     bool m_RGBImage; // Indicates an RGB image ( = no radiance conversion!)
 
-    void init(Camera *inCamera, Camera *defaultCamera);
+    void init(const Camera *inCamera, const Camera *defaultCamera);
 
   protected:
     void syncLine(int lineNumber);
 
   public:
-    explicit ScreenBuffer(Camera *camera, Camera *defaultCamera); // Also calls mainInitApplication()
+    explicit ScreenBuffer(const Camera *camera, const Camera *defaultCamera); // Also calls mainInitApplication()
     ~ScreenBuffer();
     bool isRgbImage() const;
-    void copy(ScreenBuffer *source, Camera *defaultCamera);
-    void merge(ScreenBuffer *src1, ScreenBuffer *src2, Camera *defaultCamera);
+    void copy(const ScreenBuffer *source, const Camera *defaultCamera);
+    void merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Camera *defaultCamera);
     float getScreenXMin() const;
     float getScreenYMin() const;
     float getPixXSize() const;
@@ -55,7 +55,7 @@ class ScreenBuffer {
     Vector3D getPixelVector(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
     int getHRes() const;
     int getVRes() const;
-    ColorRgb get(int x, int y);
+    ColorRgb get(int x, int y) const;
     void set(int x, int y, ColorRgb radiance);
     void render();
     void renderScanline(int y);
@@ -66,7 +66,7 @@ class ScreenBuffer {
 #ifdef RAYTRACING_ENABLED
     float getScreenXMax() const;
     float getScreenYMax() const;
-    ColorRgb getBiLinear(float x, float y);
+    ColorRgb getBiLinear(float x, float y) const;
     void scaleRadiance(float factor);
     void setAddScaleFactor(float factor);
     void setFactor(float factor);

@@ -55,10 +55,10 @@ extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
 
 extern void
 rayTrace(
-    char *fileName,
+    const char *fileName,
     FILE *fp,
     int isPipe,
-    Raytracer *activeRayTracer,
+    const Raytracer *activeRayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions);

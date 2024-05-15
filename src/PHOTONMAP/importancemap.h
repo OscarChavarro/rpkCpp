@@ -12,9 +12,10 @@ The real importance map storage
 #include "PHOTONMAP/photonmap.h"
 
 // Importance map, derived from photon map
-class CImportanceMap : public CPhotonMap {
+class CImportanceMap: public CPhotonMap {
   protected:
-    float m_maxImp, m_avgImp;
+    float m_maxImp;
+    float m_avgImp;
     float m_totalMaxDistance;
     int m_preReconPhotons;
     float *m_impScalePtr;
@@ -32,16 +33,15 @@ class CImportanceMap : public CPhotonMap {
     }
 
     // Override some photon map functions
-    virtual bool
-    addPhoton(CPhoton &photon, Vector3D normal, short flags);
+    bool addPhoton(CPhoton &photon, Vector3D normal, short flags) override;
 
-    virtual void PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
-    virtual void PrecomputeIrradiance();
+    void PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) override;
+    void PrecomputeIrradiance() override;
 
     // New functions
-    virtual float reconstructImportance(Vector3D, Vector3D &normal);
-    virtual float GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal);
-    virtual float getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal);
+    float reconstructImportance(Vector3D, Vector3D &normal);
+    float GetImpReqDensity(Camera *camera, Vector3D &pos, Vector3D &normal);
+    float getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal);
 
 protected:
     void

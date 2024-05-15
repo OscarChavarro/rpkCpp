@@ -28,7 +28,7 @@ Fatal error: print message or and exit the program with the specified error code
 First argument is a return code. We use negative return codes for
 "internal" error messages
 */
-void
+__attribute__((noreturn)) void
 logFatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 

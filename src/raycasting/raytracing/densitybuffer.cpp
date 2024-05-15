@@ -46,13 +46,13 @@ CDensityHit CDensityHitList::operator[](int i) {
 }
 
 void CDensityHitList::add(CDensityHit &hit) {
-    if ( !m_last->Add(hit) ) {
+    if ( !m_last->add(hit) ) {
         // New array needed
 
         m_last->next = new CDensityHitArray(DHL_ARRAY_SIZE);
         m_last = m_last->next;
 
-        m_last->Add(hit); // Supposed not to fail
+        m_last->add(hit); // Supposed not to fail
     }
 
     m_numHits++;
@@ -112,9 +112,6 @@ CDensityBuffer::reconstruct() {
 
     screenBuffer->scaleRadiance(0.0); // Hack!
 
-    int i;
-    int j;
-    int k;
     int maxK;
     CDensityHit hit;
     CKernel2D kernel;
@@ -122,11 +119,11 @@ CDensityBuffer::reconstruct() {
 
     kernel.SetH(h);
 
-    for ( i = 0; i < DHA_X_RES; i++ ) {
-        for ( j = 0; j < DHA_Y_RES; j++ ) {
+    for ( int i = 0; i < DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DHA_Y_RES; j++ ) {
             maxK = hitGrid[i][j].storedHits();
 
-            for ( k = 0; k < maxK; k++ ) {
+            for ( int k = 0; k < maxK; k++ ) {
                 hit = (hitGrid[i][j])[k];
 
                 center.u = hit.m_x;
@@ -149,19 +146,16 @@ CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
 
     dest->scaleRadiance(0.0); // Hack!
 
-    int i;
-    int j;
-    int k;
     int maxK;
     CDensityHit hit;
     CKernel2D kernel;
     Vector2D center;
 
-    for ( i = 0; i < DHA_X_RES; i++ ) {
-        for ( j = 0; j < DHA_Y_RES; j++ ) {
+    for ( int i = 0; i < DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DHA_Y_RES; j++ ) {
             maxK = hitGrid[i][j].storedHits();
 
-            for ( k = 0; k < maxK; k++ ) {
+            for ( int k = 0; k < maxK; k++ ) {
                 hit = (hitGrid[i][j])[k];
 
                 center.u = hit.m_x;

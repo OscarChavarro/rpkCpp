@@ -243,7 +243,7 @@ openGlRenderPatchOutline(const Patch *patch) {
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
@@ -397,7 +397,7 @@ openGlRenderWorldOctree(
         return;
     }
     if ( renderPatchCallback == nullptr ) {
-        renderPatchCallback = openGlRenderPatch;
+        renderPatchCallback = openGlRenderPatchCallBack;
     }
     if ( scene->clusteredRootGeometry->isCompound() ) {
         openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
@@ -453,10 +453,10 @@ openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, con
     if ( radianceMethod != nullptr ) {
         radianceMethod->renderScene(scene, renderOptions);
     } else if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctree(scene, openGlRenderPatch, renderOptions);
+        openGlRenderWorldOctree(scene, openGlRenderPatchCallBack, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
+            openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
     glPopMatrix();

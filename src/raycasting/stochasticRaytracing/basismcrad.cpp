@@ -116,9 +116,9 @@ basis->regular_filter table
 */
 static void
 basisGalerkinComputeRegularFilterCoefficients(
-        GalerkinBasis *basis,
-        Matrix2x2 *upxfm,
-        CubatureRule *cr)
+    GalerkinBasis *basis,
+    const Matrix2x2 *upxfm,
+    const CubatureRule *cr)
 {
     for ( int s = 0; s < 4; s++ ) {
         computeFilterCoefficients(

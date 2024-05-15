@@ -23,7 +23,7 @@ ActualBasis(StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         return &GLOBAL_stochasticRadiosity_clusterBasis;
     } else {
-        return &GLOBAL_stochasticRadiosity_basis[NR_VERTICES(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
+        return &GLOBAL_stochasticRadiosity_basis[numberOfVertices(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
     }
 }
 

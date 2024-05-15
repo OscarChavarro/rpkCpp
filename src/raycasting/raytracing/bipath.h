@@ -39,8 +39,11 @@ public:
 
     // Evaluate weight/pdf for a bipath, taking into account other pdf's
     // depending on the config (bcfg).
-    float EvalPDFAndWeight(BP_BASECONFIG *bcfg, float *pPdf = nullptr,
-                            float *pWeight = nullptr);
+    float
+    EvalPDFAndWeight(
+        const BP_BASECONFIG *bcfg,
+        float *pPdf = nullptr,
+        float *pWeight = nullptr);
 
 };
 
