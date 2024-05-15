@@ -27,9 +27,6 @@ class Raytracer {
     // Function for setting default values etc
     void (*Defaults)();
 
-    // Function for parsing method specific command line options
-    void (*ParseOptions)(int *argc, char **argv);
-
     // Initializes the current scene for raytracing computations.
     // Called when a new scene is loaded or when selecting a particular
     // raytracing algorithm

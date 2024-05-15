@@ -232,10 +232,6 @@ rayCasterDefaults() {
 }
 
 static void
-rayCasterParseHWRCastOptions(int * /*argc*/, char ** /*argv*/) {
-}
-
-static void
 rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
@@ -260,7 +256,6 @@ Raytracer GLOBAL_rayCasting_RayCasting = {
     4,
     "Ray Casting",
     rayCasterDefaults,
-    rayCasterParseHWRCastOptions,
     rayCasterInitialize,
     rayCasterExecute,
     rayCasterRedisplay,

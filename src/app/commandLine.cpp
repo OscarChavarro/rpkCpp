@@ -1,12 +1,15 @@
 #include "common/options.h"
+#include "common/RenderOptions.h"
 #include "scene/Camera.h"
+#include "raycasting/simple/RayMatter.h"
+#include "raycasting/raytracing/bidiroptions.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "app/commandLine.h"
-#include "raycasting/simple/RayMatter.h"
 
 // Default scene level configuration
 static const int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
@@ -87,24 +90,24 @@ commandLineGeneralProgramParseOptions(
 
 static void
 cameraSetEyePositionOption(void *val) {
-    Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = (Vector3D *)val;
     globalCamera.setEyePosition(v->x, v->y, v->z);
 }
 
 static void
 cameraSetLookPositionOption(void *val) {
-    Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = (Vector3D *)val;
     globalCamera.setLookPosition(v->x, v->y, v->z);
 }
 
 static void
 cameraSetUpDirectionOption(void *val) {
-    Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = (Vector3D *)val;
     globalCamera.setUpDirection(v->x, v->y, v->z);
 }
 
 static void cameraSetFieldOfViewOption(void *val) {
-    float *v = (float *)val;
+    const float *v = (float *)val;
     globalCamera.setFieldOfView(*v);
 }
 
@@ -128,13 +131,13 @@ cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
     ColorRgb backgroundColor = DEFAULT_BACKGROUND_COLOR;
 
     camera->set(
-            &eyePosition,
-            &lookPosition,
-            &upDirection,
-            DEFAULT_CAMERA_FIELD_OF_VIEW,
-            imageWidth,
-            imageHeight,
-            &backgroundColor);
+        &eyePosition,
+        &lookPosition,
+        &upDirection,
+        DEFAULT_CAMERA_FIELD_OF_VIEW,
+        imageWidth,
+        imageHeight,
+        &backgroundColor);
 }
 
 void
@@ -143,6 +146,8 @@ cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int i
     parseGeneralOptions(globalCameraOptions, argc, argv);
     *camera = globalCamera;
 }
+
+#ifdef RAYTRACING_ENABLED
 
 static ENUMDESC globalApproximateValues[] = {
     {StochasticRaytracingApproximation::CONSTANT, "constant", 2},
@@ -266,11 +271,11 @@ randomWalkRadiosityParseOptions(int *argc, char **argv) {
 }
 
 static ENUMDESC globalRayMatterPixelFilters[] = {
-        {RayMatterFilterType::BOX_FILTER, "box", 2},
-        {RayMatterFilterType::TENT_FILTER, "tent", 2},
-        {RayMatterFilterType::GAUSS_FILTER, "gaussian 1/sqrt2", 2},
-        {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
-        {0, nullptr, 0}
+    {RayMatterFilterType::BOX_FILTER, "box", 2},
+    {RayMatterFilterType::TENT_FILTER, "tent", 2},
+    {RayMatterFilterType::GAUSS_FILTER, "gaussian 1/sqrt2", 2},
+    {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
+    {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
 
@@ -287,3 +292,148 @@ void
 rayMattingParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalRayMatterOptions, argc, argv);
 }
+
+void
+stochasticRayTracerDefaults() {
+    // Normal
+    GLOBAL_raytracing_state.samplesPerPixel = 1;
+    GLOBAL_raytracing_state.progressiveTracing = true;
+
+    GLOBAL_raytracing_state.doFrameCoherent = false;
+    GLOBAL_raytracing_state.doCorrelatedSampling = false;
+    GLOBAL_raytracing_state.baseSeed = 0xFE062134;
+
+    GLOBAL_raytracing_state.radMode = STORED_NONE;
+
+    GLOBAL_raytracing_state.nextEvent = true;
+    GLOBAL_raytracing_state.nextEventSamples = 1;
+    GLOBAL_raytracing_state.lightMode = ALL_LIGHTS;
+
+    GLOBAL_raytracing_state.backgroundDirect = false;
+    GLOBAL_raytracing_state.backgroundIndirect = true;
+    GLOBAL_raytracing_state.backgroundSampling = false;
+
+    GLOBAL_raytracing_state.scatterSamples = 1;
+    GLOBAL_raytracing_state.differentFirstDG = false;
+    GLOBAL_raytracing_state.firstDGSamples = 36;
+    GLOBAL_raytracing_state.separateSpecular = false;
+
+    GLOBAL_raytracing_state.reflectionSampling = BRDF_SAMPLING;
+
+    GLOBAL_raytracing_state.minPathDepth = 5;
+    GLOBAL_raytracing_state.maxPathDepth = 7;
+
+    // Common
+    GLOBAL_raytracing_state.lastScreen = nullptr;
+}
+
+
+/*** Enum Option types ***/
+
+static ENUMDESC globalRadModeValues[] = {
+    {STORED_NONE, "none", 2},
+    {STORED_DIRECT, "direct", 2},
+    {STORED_INDIRECT, "indirect", 2},
+    {STORED_PHOTON_MAP, "photonmap", 2},
+    {0, nullptr, 0}
+};
+
+MakeEnumOptTypeStruct(radModeTypeStruct, globalRadModeValues);
+#define TradMode (&radModeTypeStruct)
+
+static ENUMDESC globalLightModeValues[] = {
+        {POWER_LIGHTS,     "power",     2},
+        {IMPORTANT_LIGHTS, "important", 2},
+        {ALL_LIGHTS,       "all",       2},
+        {0, nullptr,                       0}
+};
+MakeEnumOptTypeStruct(lightModeTypeStruct, globalLightModeValues);
+#define TlightMode (&lightModeTypeStruct)
+
+static ENUMDESC globalSamplingModeValues[] = {
+    {BRDF_SAMPLING, "bsdf", 2},
+    {CLASSICAL_SAMPLING, "classical", 2},
+    {0, nullptr, 0}
+};
+MakeEnumOptTypeStruct(samplingModeTypeStruct, globalSamplingModeValues);
+#define TsamplingMode (&samplingModeTypeStruct)
+
+static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
+    {"-rts-samples-per-pixel", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.samplesPerPixel, DEFAULT_ACTION,
+     "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
+    {"-rts-no-progressive", 9, Tsetfalse, &GLOBAL_raytracing_state.progressiveTracing, DEFAULT_ACTION,
+     "-rts-no-progressive\t: don't do progressive image refinement"},
+    {"-rts-rad-mode", 8, TradMode, &GLOBAL_raytracing_state.radMode, DEFAULT_ACTION,
+     "-rts-rad-mode <type>\t: Stored radiance usage - \"none\", \"direct\", \"indirect\", \"photonmap\""},
+    {"-rts-no-lightsampling", 9, Tsetfalse, &GLOBAL_raytracing_state.nextEvent, DEFAULT_ACTION,
+     "-rts-no-lightsampling\t: don't do explicit light sampling"},
+    {"-rts-l-mode", 8, TlightMode, &GLOBAL_raytracing_state.lightMode, DEFAULT_ACTION,
+     "-rts-l-mode <type>\t: Light sampling mode - \"power\", \"important\", \"all\""},
+    {"-rts-l-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.nextEventSamples, DEFAULT_ACTION,
+     "-rts-l-samples <number>\t: explicit light source samples at each hit"},
+    {"-rts-scatter-samples", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.scatterSamples, DEFAULT_ACTION,
+     "-rts-scatter-samples <number>\t: scattered rays at each bounce"},
+    {"-rts-do-fdg", 0, Tsettrue, &GLOBAL_raytracing_state.differentFirstDG, DEFAULT_ACTION,
+     "-rts-do-fdg\t: use different nr. of scatter samples for first diffuse/glossy bounce"},
+    {"-rts-fdg-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.firstDGSamples, DEFAULT_ACTION,
+     "-rts-fdg-samples <number>\t: scattered rays at first diffuse/glossy bounce"},
+    {"-rts-separate-specular", 8, Tsettrue, &GLOBAL_raytracing_state.separateSpecular, DEFAULT_ACTION,
+     "-rts-separate-specular\t: always shoot separate rays for specular scattering"},
+    {"-rts-s-mode", 9, TsamplingMode, &GLOBAL_raytracing_state.reflectionSampling, DEFAULT_ACTION,
+     "-rts-s-mode <type>\t: Sampling mode - \"bsdf\", \"classical\""},
+    {"-rts-min-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.minPathDepth, DEFAULT_ACTION,
+     "-rts-min-path-length <number>\t: minimum path length before Russian roulette"},
+    {"-rts-max-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.maxPathDepth, DEFAULT_ACTION,
+     "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
+    {"-rts-NOdirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundDirect, DEFAULT_ACTION,
+     "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
+    {"-rts-NOindirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
+     "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+stochasticRayTracerParseOptions(int *argc, char **argv) {
+    parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
+}
+
+MakeNStringTypeStruct(RegExpStringType, MAX_REGEXP_SIZE);
+
+static CommandLineOptionDescription globalBiDirectionalOptions[] = {
+    {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel, DEFAULT_ACTION,
+    "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
+    {"-bidir-no-progressive", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing, DEFAULT_ACTION,
+    "-bidir-no-progressive          \t: don't do progressive image refinement"},
+    {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth, DEFAULT_ACTION,
+    "-bidir-max-eye-path-length <number>: maximum eye path length"},
+    {"-bidir-max-light-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth, DEFAULT_ACTION,
+    "-bidir-max-light-path-length <number>: maximum light path length"},
+    {"-bidir-max-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumPathDepth, DEFAULT_ACTION,
+    "-bidir-max-path-length <number>\t: maximum combined path length"},
+    {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth, DEFAULT_ACTION,
+    "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
+    {"-bidir-no-light-importance", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights, DEFAULT_ACTION,
+    "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
+    {"-bidir-use-regexp", 12, Tsettrue, &GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars, DEFAULT_ACTION,
+    "-bidir-use-regexp\t: use regular expressions for path evaluation"},
+    {"-bidir-use-emitted", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLe, DEFAULT_ACTION,
+    "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
+    {"-bidir-rexp-emitted", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.leRegExp, DEFAULT_ACTION,
+    "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
+    {"-bidir-reg-direct", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLD, DEFAULT_ACTION,
+    "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
+    {"-bidir-rexp-direct", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.ldRegExp, DEFAULT_ACTION,
+    "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
+    {"-bidir-reg-indirect", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLI, DEFAULT_ACTION,
+    "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
+    {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.liRegExp, DEFAULT_ACTION,
+    "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+biDirectionalPathParseOptions(int *argc, char **argv) {
+    parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
+}
+
+#endif

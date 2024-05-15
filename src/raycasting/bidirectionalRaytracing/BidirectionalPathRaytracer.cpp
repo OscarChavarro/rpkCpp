@@ -1181,7 +1181,6 @@ GLOBAL_raytracing_biDirectionalPathMethod = {
     4,
     "Bidirectional Path Tracing",
     biDirectionalPathDefaults,
-    biDirectionalPathParseOptions,
     biDirPathInit,
     biDirPathTrace,
     biDirPathReDisplay,

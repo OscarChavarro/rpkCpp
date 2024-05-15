@@ -181,16 +181,11 @@ rayMattingDefaults() {
     GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
 }
 
-static void
-dummyOptions(int *argc, char **argv) {
-}
-
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
     "Ray Matting",
     rayMattingDefaults,
-    dummyOptions,
     initialize,
     iRayMatte,
     reDisplay,

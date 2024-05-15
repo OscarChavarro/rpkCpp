@@ -15,7 +15,7 @@
 const float PHOTON_MAP_MIN_DIST = 0.02;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
-RayTracingStochasticState GLOBAL_raytracing_state;
+StochasticRayTracingState GLOBAL_raytracing_state;
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
@@ -704,16 +704,15 @@ stochasticRayTracerTerminate() {
 Raytracer
 GLOBAL_raytracing_stochasticMethod =
 {
-        (char *)"StochasticRaytracing",
-        4,
-        (char *)"Stochastic Raytracing & Final Gathers",
-        stochasticRayTracerDefaults,
-        RTStochasticParseOptions,
-        stochasticRayTracerInit,
-        rtStochasticTrace,
-        RTStochastic_Redisplay,
-        RTStochastic_SaveImage,
-        stochasticRayTracerTerminate
+    (char *)"StochasticRaytracing",
+    4,
+    (char *)"Stochastic Raytracing & Final Gathers",
+    stochasticRayTracerDefaults,
+    stochasticRayTracerInit,
+    rtStochasticTrace,
+    RTStochastic_Redisplay,
+    RTStochastic_SaveImage,
+    stochasticRayTracerTerminate
 };
 
 #endif

@@ -100,9 +100,13 @@ radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod)
     selectRadianceMethod(argc, argv, newRadianceMethod);
     parseGeneralOptions(globalRadianceOptions, argc, argv);
 
+#ifdef RAYTRACING_ENABLED
     stochasticRelaxationRadiosityParseOptions(argc, argv);
     randomWalkRadiosityParseOptions(argc, argv);
     rayMattingParseOptions(argc, argv);
+    biDirectionalPathParseOptions(argc, argv);
+    stochasticRayTracerParseOptions(argc, argv);
+#endif
 
     if ( *newRadianceMethod != nullptr ) {
         (*newRadianceMethod)->parseOptions(argc, argv);

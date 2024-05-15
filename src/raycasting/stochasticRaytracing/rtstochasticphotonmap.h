@@ -7,7 +7,7 @@
 
 #include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracerOptions.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 
 /**
 SEED Configuration class
@@ -175,14 +175,14 @@ public:
     StorageReadout initialReadout;
 
 public:
-    void init(Camera *defaultCamera, RayTracingStochasticState &state, java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod);
+    void init(Camera *defaultCamera, StochasticRayTracingState &state, java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod);
 
     // Constructors
     StochasticRaytracingConfiguration(
-        Camera *defaultCamera,
-        RayTracingStochasticState &state,
-        java::ArrayList<Patch *> *lightList,
-        RadianceMethod *radianceMethod):
+            Camera *defaultCamera,
+            StochasticRayTracingState &state,
+            java::ArrayList<Patch *> *lightList,
+            RadianceMethod *radianceMethod):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),

@@ -13,10 +13,10 @@ CSeed CSeedConfig::xOrSeed;
 
 void
 StochasticRaytracingConfiguration::init(
-    Camera *defaultCamera,
-    RayTracingStochasticState &state,
-    java::ArrayList<Patch *> *lightList,
-    RadianceMethod *radianceMethod)
+        Camera *defaultCamera,
+        StochasticRayTracingState &state,
+        java::ArrayList<Patch *> *lightList,
+        RadianceMethod *radianceMethod)
 {
     // Copy state options
 

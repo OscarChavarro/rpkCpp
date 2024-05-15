@@ -69,6 +69,5 @@ class BIDIRPATH_STATE {
 extern BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
 void biDirectionalPathDefaults();
-void biDirectionalPathParseOptions(int *argc, char **argv);
 
 #endif

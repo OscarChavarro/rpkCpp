@@ -28,9 +28,7 @@ enum RayTracingRadMode {
     STORED_PHOTON_MAP
 };
 
-/*** The global state structure ***/
-
-class RayTracingStochasticState {
+class StochasticRayTracingState {
   public:
     // Pixel sampling
     int samplesPerPixel;
@@ -66,9 +64,8 @@ class RayTracingStochasticState {
     ScreenBuffer *lastScreen;
 };
 
-extern RayTracingStochasticState GLOBAL_raytracing_state;
+extern StochasticRayTracingState GLOBAL_raytracing_state;
 
 void stochasticRayTracerDefaults();
-void RTStochasticParseOptions(int *argc, char **argv);
 
 #endif

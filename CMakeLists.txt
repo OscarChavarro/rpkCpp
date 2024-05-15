@@ -161,7 +161,6 @@ set(MAIN_SRC
     src/PHOTONMAP/photonmap.cpp
     src/PHOTONMAP/photonmapsampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
-    src/raycasting/stochasticRaytracing/StochasticRaytracerOptions.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
     src/raycasting/stochasticRaytracing/hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp

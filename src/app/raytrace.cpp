@@ -90,10 +90,6 @@ mainRayTracingDefaults() {
 void
 rayTracingParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalRaytracingOptions, argc, argv);
-    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        const Raytracer *method = *window;
-        method->ParseOptions(argc, argv);
-    }
 }
 
 /**

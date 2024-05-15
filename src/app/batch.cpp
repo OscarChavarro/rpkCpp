@@ -18,11 +18,11 @@
 #endif
 
 static int globalIterations = 1; // Radiance method iterations
-static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
-static int globalTimings = false;
 static const char *globalRadianceImageFileNameFormat = "";
 static const char *globalRadianceModelFileNameFormat = "";
+static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
 static const char *globalRaytracingImageFileName = "";
+static int globalTimings = false;
 
 static CommandLineOptionDescription batchOptions[] = {
     {"-iterations", 3, &GLOBAL_options_intType, &globalIterations, DEFAULT_ACTION,
@@ -43,6 +43,11 @@ static CommandLineOptionDescription batchOptions[] = {
      "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
+
+void
+batchParseOptions(int *argc, char **argv) {
+    parseGeneralOptions(batchOptions, argc, argv);
+}
 
 /**
 Saves a RGB image in the front buffer
@@ -178,11 +183,6 @@ batchSaveRadianceModel(
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
-}
-
-void
-batchParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(batchOptions, argc, argv);
 }
 
 void

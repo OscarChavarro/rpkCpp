@@ -16,5 +16,7 @@ extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 
 void rayMattingParseOptions(int *argc, char **argv);
+void stochasticRayTracerParseOptions(int *argc, char **argv);
+void biDirectionalPathParseOptions(int *argc, char **argv);
 
 #endif
