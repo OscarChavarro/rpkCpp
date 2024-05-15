@@ -283,7 +283,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
 
     switch ( mgfEntity(av[0], context) ) {
 
-        case MGF_ENTITY_MATERIAL:
+        case MgfEntity::MGF_MATERIAL:
             // Get / set material context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -349,7 +349,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock = i + 1;
             return MGF_OK;
 
-        case MGF_ENTITY_IR:
+        case MgfEntity::IR:
             // Set index of refraction
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -365,7 +365,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_RD:
+        case MgfEntity::RD:
             // Set diffuse reflectance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -381,7 +381,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_ED:
+        case MgfEntity::ED:
             // Set diffuse emittance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -397,7 +397,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_TD:
+        case MgfEntity::TD:
             // Set diffuse transmittance
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -413,7 +413,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_RS:
+        case MgfEntity::RS:
             // Set specular reflectance
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -431,7 +431,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_TS:
+        case MgfEntity::TS:
             // Set specular transmittance
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -449,7 +449,7 @@ handleMaterialEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentMaterial->clock++;
             return MGF_OK;
 
-        case MGF_ENTITY_SIDES:
+        case MgfEntity::SIDES:
             // Set number of sides
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;

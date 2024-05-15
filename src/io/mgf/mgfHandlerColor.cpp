@@ -17,7 +17,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
     LookUpEntity *lp;
 
     switch ( mgfEntity(av[0], context) ) {
-        case MGF_ENTITY_COLOR:
+        case MgfEntity::COLOR:
             // Get/set color context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -77,7 +77,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             *context->currentColor = *(MgfColorContext *) lp->data;
             context->currentColor->clock = i + 1;
             return MGF_OK;
-        case MGF_ENTITY_CXY:
+        case MgfEntity::CXY:
             // Assign CIE XY value
             if ( ac != 3 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -94,7 +94,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
             }
             context->currentColor->clock++;
             return MGF_OK;
-        case MGF_ENTITY_C_SPEC:
+        case MgfEntity::C_SPEC:
             // Assign spectral values
             if ( ac < 5 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -107,7 +107,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
                 strtod(av[2], nullptr),
                 ac - 3,
                 av + 3);
-        case MGF_ENTITY_CCT:
+        case MgfEntity::CCT:
             // Assign black body spectrum
             if ( ac != 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -116,7 +116,7 @@ handleColorEntity(int ac, char **av, MgfContext *context) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
             return context->currentColor->setBlackBodyTemperature(strtod(av[1], nullptr));
-        case MGF_ENTITY_C_MIX:
+        case MgfEntity::C_MIX:
             // Mix colors
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;

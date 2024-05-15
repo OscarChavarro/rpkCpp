@@ -18,10 +18,10 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
     char p2z[24];
     char r1[24];
     char r2[24];
-    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
-    char *v2Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_sv2", (char *)"="};
-    char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2x, p2y, p2z};
-    char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
+    char *v1Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_sv1", (char *)"=", (char *)"_sv2"};
+    char *v2Entity[4] = {context->entityNames[MgfEntity::VERTEX], (char *)"_sv2", (char *)"="};
+    char *p2Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p2x, p2y, p2z};
+    char *coneEntity[6] = {context->entityNames[MgfEntity::CONE], (char *)"_sv1", r1, (char *)"_sv2", r2};
     const MgfVertexContext *cv;
     int rVal;
     double rad;
@@ -41,14 +41,14 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
 
     // Initialize
     globalWarpConeEnds = true;
-    rVal = mgfHandle(MGF_ENTITY_VERTEX, 3, v2Entity, context);
+    rVal = mgfHandle(MgfEntity::VERTEX, 3, v2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
     }
     snprintf(p2x, 24, globalFloatFormat, cv->p[0]);
     snprintf(p2y, 24, globalFloatFormat, cv->p[1]);
     snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad);
-    rVal = mgfHandle(MGF_ENTITY_POINT, 4, p2Entity, context);
+    rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
     }
@@ -56,22 +56,22 @@ mgfEntitySphere(int ac, char **av, MgfContext *context) {
     r2[1] = '\0';
     for ( int i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
         snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * java::Math::cos(theta));
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 2, v2Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        rVal = mgfHandle(MGF_ENTITY_POINT, 4, p2Entity, context);
+        rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, rad * java::Math::sin(theta));
-        rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
+        rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
@@ -88,10 +88,10 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
     char p2[3][24];
     char r1[24];
     char r2[24];
-    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
-    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_tv2", (char *)"="};
-    char *p2Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p2[0], p2[1], p2[2]};
-    char *coneEntity[6] = {context->entityNames[MGF_ENTITY_CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
+    char *v1Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_tv1", (char *)"=", (char *)"_tv2"};
+    char *v2Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_tv2", (char *)"="};
+    char *p2Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p2[0], p2[1], p2[2]};
+    char *coneEntity[6] = {context->entityNames[MgfEntity::CONE], (char *)"_tv1", r1, (char *)"_tv2", r2};
     const MgfVertexContext *cv;
     int i;
     int rVal;
@@ -135,11 +135,11 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
     for ( int j = 0; j < 3; j++ ) {
         snprintf(p2[j], 24, globalFloatFormat, cv->p[j] + 0.5 * sign * (maxRad - minRad) * cv->n[j]);
     }
-    rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
+    rVal = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
     }
-    rVal = mgfHandle(MGF_ENTITY_POINT, 4, p2Entity, context);
+    rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
     }
@@ -148,7 +148,7 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
     // Run outer section
     for ( i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
@@ -156,17 +156,17 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                                    0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
         }
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 2, v2Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        rVal = mgfHandle(MGF_ENTITY_POINT, 4, p2Entity, context);
+        rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * java::Math::sin(theta));
-        rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
+        rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
@@ -180,21 +180,21 @@ mgfEntityTorus(int ac, char **av, MgfContext *context) {
             snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
                                                    0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
         }
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        rVal = mgfHandle(MGF_ENTITY_VERTEX, 2, v2Entity, context);
+        rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        rVal = mgfHandle(MGF_ENTITY_POINT, 4, p2Entity, context);
+        rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * java::Math::sin(theta));
-        rVal = mgfHandle(MGF_ENTITY_CONE, 5, coneEntity, context);
+        rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
         }
@@ -208,7 +208,7 @@ Replace a cylinder with equivalent cone
 */
 int
 mgfEntityCylinder(int ac, char **av, MgfContext *context) {
-    char *newArgV[6] = {context->entityNames[MGF_ENTITY_CONE]};
+    char *newArgV[6] = {context->entityNames[MgfEntity::CONE]};
 
     if ( ac != 4 ) {
         return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -217,7 +217,7 @@ mgfEntityCylinder(int ac, char **av, MgfContext *context) {
     newArgV[2] = av[2];
     newArgV[3] = av[3];
     newArgV[4] = av[2];
-    return mgfHandle(MGF_ENTITY_CONE, 5, newArgV, context);
+    return mgfHandle(MgfEntity::CONE, 5, newArgV, context);
 }
 
 /**
@@ -227,14 +227,14 @@ int
 mgfEntityRing(int ac, char **av, MgfContext *context) {
     char p3[3][24];
     char p4[3][24];
-    char *namesEntity[5] = {context->entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
-    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv1", (char *)"="};
-    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
-    char *v3Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv3", (char *)"="};
-    char *p3Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
-    char *v4Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_rv4", (char *)"="};
-    char *p4Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
-    char *faceEntity[6] = {context->entityNames[MGF_ENTITY_FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
+    char *namesEntity[5] = {context->entityNames[MgfEntity::MGF_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    char *v1Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_rv1", (char *)"="};
+    char *v2Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_rv2", (char *)"=", (char *)"_rv3"};
+    char *v3Entity[4] = {context->entityNames[MgfEntity::VERTEX], (char *)"_rv3", (char *)"="};
+    char *p3Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p3[0], p3[1], p3[2]};
+    char *v4Entity[4] = {context->entityNames[MgfEntity::VERTEX], (char *)"_rv4", (char *)"="};
+    char *p4Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p4[0], p4[1], p4[2]};
+    char *faceEntity[6] = {context->entityNames[MgfEntity::FACE], (char *)"_rv1", (char *)"_rv2", (char *)"_rv3", (char *)"_rv4"};
     const MgfVertexContext *vertexContext;
     double minRad;
     double maxRad;
@@ -271,11 +271,11 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
     for ( int j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * u[j]);
     }
-    rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v3Entity, context);
+    rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+    rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -284,17 +284,17 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
         // TODO: Review floating point comparisons vs EPSILON
         // Closed
         v1Entity[3] = av[1];
-        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+        rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, namesEntity, context);
+        rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, namesEntity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -303,40 +303,40 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
                                                        maxRad * u[j] * java::Math::cos(theta) +
                                                        maxRad * v[j] * java::Math::sin(theta));
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_FACE, 4, faceEntity, context);
+            rv = mgfHandle(MgfEntity::FACE, 4, faceEntity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
         }
     } else {
         // Open
-        rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v4Entity, context);
+        rv = mgfHandle(MgfEntity::VERTEX, 3, v4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p4[j], 24, globalFloatFormat, vertexContext->p[j] + minRad * u[j]);
         }
-        rv = mgfHandle(MGF_ENTITY_POINT, 4, p4Entity, context);
+        rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         v1Entity[3] = (char *)"_rv4";
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -345,23 +345,23 @@ mgfEntityRing(int ac, char **av, MgfContext *context) {
                 snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * d);
                 snprintf(p4[j], 24, globalFloatFormat, vertexContext->p[j] + minRad * d);
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v4Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v4Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p4Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_FACE, 5, faceEntity, context);
+            rv = mgfHandle(MgfEntity::FACE, 5, faceEntity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -379,15 +379,15 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
     char p4[3][24];
     char n3[3][24];
     char n4[3][24];
-    char *v1Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv1", (char *)"="};
-    char *v2Entity[5] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
-    char *v3Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv3", (char *)"="};
-    char *p3Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p3[0], p3[1], p3[2]};
-    char *n3Entity[5] = {context->entityNames[MGF_ENTITY_NORMAL], n3[0], n3[1], n3[2]};
-    char *v4Entity[4] = {context->entityNames[MGF_ENTITY_VERTEX], (char *)"_cv4", (char *)"="};
-    char *p4Entity[5] = {context->entityNames[MGF_ENTITY_POINT], p4[0], p4[1], p4[2]};
-    char *n4Entity[5] = {context->entityNames[MGF_ENTITY_NORMAL], n4[0], n4[1], n4[2]};
-    char *faceEntity[6] = {context->entityNames[MGF_ENTITY_FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
+    char *v1Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_cv1", (char *)"="};
+    char *v2Entity[5] = {context->entityNames[MgfEntity::VERTEX], (char *)"_cv2", (char *)"=", (char *)"_cv3"};
+    char *v3Entity[4] = {context->entityNames[MgfEntity::VERTEX], (char *)"_cv3", (char *)"="};
+    char *p3Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p3[0], p3[1], p3[2]};
+    char *n3Entity[5] = {context->entityNames[MgfEntity::MGF_NORMAL], n3[0], n3[1], n3[2]};
+    char *v4Entity[4] = {context->entityNames[MgfEntity::VERTEX], (char *)"_cv4", (char *)"="};
+    char *p4Entity[5] = {context->entityNames[MgfEntity::MGF_POINT], p4[0], p4[1], p4[2]};
+    char *n4Entity[5] = {context->entityNames[MgfEntity::MGF_NORMAL], n4[0], n4[1], n4[2]};
+    char *faceEntity[6] = {context->entityNames[MgfEntity::FACE], (char *)"_cv1", (char *)"_cv2", (char *)"_cv3", (char *)"_cv4"};
     char *v1n;
     MgfVertexContext *cv1;
     MgfVertexContext *cv2;
@@ -471,15 +471,15 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
             snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
         }
     }
-    rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v3Entity, context);
+    rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+    rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
-    rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3Entity, context);
+    rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -487,20 +487,20 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
         // TODO: Review floating point comparisons vs EPSILON
         // Triangles
         v1Entity[3] = v1n;
-        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+        rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int j = 0; j < 3; j++ ) {
             snprintf(n4[j], 24, globalFloatFormat, w[j]);
         }
-        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4Entity, context);
+        rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -511,19 +511,19 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                     snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
                 }
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
             if ( n2off > -HUGE_FLOAT_VALUE && rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_FACE, 4, faceEntity, context);
+            rv = mgfHandle(MgfEntity::FACE, 4, faceEntity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -548,25 +548,25 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                 snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
             }
         }
-        rv = mgfHandle(MGF_ENTITY_VERTEX, 3, v4Entity, context);
+        rv = mgfHandle(MgfEntity::VERTEX, 3, v4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MGF_ENTITY_POINT, 4, p4Entity, context);
+        rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
-        rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4Entity, context);
+        rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v1Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, v2Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -581,32 +581,32 @@ mgfEntityCone(int ac, char **av, MgfContext *context) {
                     snprintf(n4[j], 24, globalFloatFormat, d + w[j] * n1off);
                 }
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v3Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n3Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
             if ( n2off > -HUGE_FLOAT_VALUE && rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, v4Entity, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, v4Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_POINT, 4, p4Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, n4Entity, context);
+            rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
             if ( n1off < HUGE_FLOAT_VALUE &&
                  rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_FACE, 5, faceEntity, context);
+            rv = mgfHandle(MgfEntity::FACE, 5, faceEntity, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -621,9 +621,9 @@ Turn a prism into polygons
 int
 mgfEntityPrism(int ac, char **av, MgfContext *context) {
     char p[3][24];
-    char *vent[5] = {context->entityNames[MGF_ENTITY_VERTEX], nullptr, (char *)"="};
-    char *pent[5] = {context->entityNames[MGF_ENTITY_POINT], p[0], p[1], p[2]};
-    char *zNormal[5] = {context->entityNames[MGF_ENTITY_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
+    char *vent[5] = {context->entityNames[MgfEntity::VERTEX], nullptr, (char *)"="};
+    char *pent[5] = {context->entityNames[MgfEntity::MGF_POINT], p[0], p[1], p[2]};
+    char *zNormal[5] = {context->entityNames[MgfEntity::MGF_NORMAL], (char *)"0", (char *)"0", (char *)"0"};
     char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
     double length;
@@ -691,7 +691,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         snprintf(nvn[i - 1], MGF_MAXIMUM_ARGUMENT_COUNT, "_pv%d", i);
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
-        rv = mgfHandle(MGF_ENTITY_VERTEX, 4, vent, context);
+        rv = mgfHandle(MgfEntity::VERTEX, 4, vent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
@@ -699,14 +699,14 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         for ( int j = 0; j < 3; j++ ) {
             snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
         }
-        rv = mgfHandle(MGF_ENTITY_POINT, 4, pent, context);
+        rv = mgfHandle(MgfEntity::MGF_POINT, 4, pent, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
     }
 
     // Make faces
-    newArgV[0] = context->entityNames[MGF_ENTITY_FACE];
+    newArgV[0] = context->entityNames[MgfEntity::FACE];
     // Do the side faces
     newArgV[5] = nullptr;
     newArgV[3] = av[ac - 2];
@@ -714,7 +714,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
     for ( i = 1; i < ac - 1; i++ ) {
         newArgV[1] = nvn[i - 1];
         newArgV[2] = av[i];
-        rv = mgfHandle(MGF_ENTITY_FACE, 5, newArgV, context);
+        rv = mgfHandle(MgfEntity::FACE, 5, newArgV, context);
         if ( rv != MGF_OK ) {
             return rv;
         }
@@ -727,18 +727,18 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         if ( hasNormal ) {
             // Zero normals
             vent[1] = nvn[i - 1];
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 2, vent, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 2, vent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, zNormal, context);
+            rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, zNormal, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
         }
         newArgV[ac - 1 - i] = nvn[i - 1]; // Reverse
     }
-    rv = mgfHandle(MGF_ENTITY_FACE, ac - 1, newArgV, context);
+    rv = mgfHandle(MgfEntity::FACE, ac - 1, newArgV, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -748,11 +748,11 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         for ( i = 1; i < ac - 1; i++ ) {
             vent[1] = nvn[i - 1];
             vent[3] = av[i];
-            rv = mgfHandle(MGF_ENTITY_VERTEX, 4, vent, context);
+            rv = mgfHandle(MgfEntity::VERTEX, 4, vent, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            rv = mgfHandle(MGF_ENTITY_NORMAL, 4, zNormal, context);
+            rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, zNormal, context);
             if ( rv != MGF_OK ) {
                 return rv;
             }
@@ -764,7 +764,7 @@ mgfEntityPrism(int ac, char **av, MgfContext *context) {
         }
     }
     newArgV[i] = nullptr;
-    rv = mgfHandle(MGF_ENTITY_FACE, i, newArgV, context);
+    rv = mgfHandle(MgfEntity::FACE, i, newArgV, context);
     if ( rv != MGF_OK ) {
         return rv;
     }
@@ -779,7 +779,7 @@ mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context) {
     char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 
-    newArgV[0] = context->entityNames[MGF_ENTITY_FACE];
+    newArgV[0] = context->entityNames[MgfEntity::FACE];
     int i;
     for ( i = 1; i < ac; i++ ) {
         int j;
@@ -809,5 +809,5 @@ mgfEntityFaceWithHoles(int ac, char **av, MgfContext *context) {
         newArgV[i++] = av[lastP];
     }
     newArgV[i] = nullptr;
-    return mgfHandle(MGF_ENTITY_FACE, i, newArgV, context);
+    return mgfHandle(MgfEntity::FACE, i, newArgV, context);
 }

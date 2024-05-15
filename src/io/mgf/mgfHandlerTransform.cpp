@@ -65,12 +65,12 @@ static int
 transformName(const MgfTransformArray *ap, MgfContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static char *oav[3] = {
-            context->entityNames[MGF_ENTITY_OBJECT], oName
+            context->entityNames[MgfEntity::OBJECT], oName
     };
     char *cp1;
 
     if ( ap == nullptr ) {
-        return mgfHandle(MGF_ENTITY_OBJECT, 1, oav, context);
+        return mgfHandle(MgfEntity::OBJECT, 1, oav, context);
     }
     cp1 = oName;
     *cp1 = 'a';
@@ -81,7 +81,7 @@ transformName(const MgfTransformArray *ap, MgfContext *context) {
         *++cp1 = '.';
     }
     *cp1 = '\0';
-    return mgfHandle(MGF_ENTITY_OBJECT, 2, oav, context);
+    return mgfHandle(MgfEntity::OBJECT, 2, oav, context);
 }
 
 /**

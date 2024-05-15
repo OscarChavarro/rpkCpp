@@ -69,12 +69,12 @@ mgfEntity(char *name, MgfContext *context) {
 
     if ( !globalLookUpTable.currentTableSize ) {
         // Initialize hash table
-        if ( !lookUpInit(&globalLookUpTable, MGF_TOTAL_NUMBER_OF_ENTITIES) ) {
+        if ( !lookUpInit(&globalLookUpTable, TOTAL_NUMBER_OF_ENTITIES) ) {
             return -1;
         }
 
         // What to do?
-        for ( cp = context->entityNames[MGF_TOTAL_NUMBER_OF_ENTITIES - 1];
+        for ( cp = context->entityNames[TOTAL_NUMBER_OF_ENTITIES - 1];
               cp >= context->entityNames[0];
               cp -= sizeof(context->entityNames[0]) ) {
             lookUpFind(&globalLookUpTable, cp)->key = cp;

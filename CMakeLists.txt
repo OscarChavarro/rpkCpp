@@ -188,10 +188,7 @@ set(MAIN_SRC
     src/app/batch.cpp
     src/app/commandLine.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp
-        src/common/numericalAnalysis/CubatureDegree.h
-        src/common/numericalAnalysis/QuadCubatureRule.h
-        src/common/numericalAnalysis/TriangleCubatureRule.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

@@ -30,17 +30,17 @@ doDiscreteConic(int argc, char **argv, MgfContext *context) {
     int en = mgfEntity(argv[0], context);
 
     switch ( en ) {
-        case MGF_ENTITY_SPHERE:
+        case MgfEntity::SPHERE:
             return mgfEntitySphere(argc, argv, context);
-        case MGF_ENTITY_TORUS:
+        case MgfEntity::TORUS:
             return mgfEntityTorus(argc, argv, context);
-        case MGF_ENTITY_CYLINDER:
+        case MgfEntity::CYLINDER:
             return mgfEntityCylinder(argc, argv, context);
-        case MGF_ENTITY_RING:
+        case MgfEntity::RING:
             return mgfEntityRing(argc, argv, context);
-        case MGF_ENTITY_CONE:
+        case MgfEntity::CONE:
             return mgfEntityCone(argc, argv, context);
-        case MGF_ENTITY_PRISM:
+        case MgfEntity::PRISM:
             return mgfEntityPrism(argc, argv, context);
         default:
             logFatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
@@ -766,7 +766,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
     LookUpEntity *lp;
 
     switch ( mgfEntity(av[0], context) ) {
-        case MGF_ENTITY_VERTEX:
+        case MgfEntity::VERTEX:
             // get/set vertex context
             if ( ac > 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -828,7 +828,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             *globalMgfCurrentVertex = *(MgfVertexContext *) lp->data;
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
-        case MGF_ENTITY_POINT:
+        case MgfEntity::MGF_POINT:
             // Set point
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -841,7 +841,7 @@ handleVertexEntity(int ac, char **av, MgfContext *context) {
             globalMgfCurrentVertex->p[2] = strtod(av[3], nullptr);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
-        case MGF_ENTITY_NORMAL:
+        case MgfEntity::MGF_NORMAL:
             // Set normal
             if ( ac != 4 ) {
                 return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
