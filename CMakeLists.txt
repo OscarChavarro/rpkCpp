@@ -130,7 +130,6 @@ set(MAIN_SRC
     src/raycasting/common/BoxFilter.cpp
     src/raycasting/common/NormalFilter.cpp
     src/raycasting/common/TentFilter.cpp
-    src/raycasting/simple/RayMatterOptions.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
     src/raycasting/raytracing/bidiroptions.cpp

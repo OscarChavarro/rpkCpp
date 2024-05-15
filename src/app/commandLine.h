@@ -15,4 +15,6 @@ commandLineGeneralProgramParseOptions(
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
 extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
 
+void rayMattingParseOptions(int *argc, char **argv);
+
 #endif

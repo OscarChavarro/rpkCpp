@@ -13,7 +13,6 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/common/BoxFilter.h"
 #include "raycasting/common/TentFilter.h"
 #include "raycasting/common/NormalFilter.h"
-#include "raycasting/simple/RayMatterOptions.h"
 #include "raycasting/simple/RayMatter.h"
 
 static RayMatter *rm = nullptr;
@@ -176,12 +175,22 @@ static void
 initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
+void
+rayMattingDefaults() {
+    GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
+    GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
+}
+
+static void
+dummyOptions(int *argc, char **argv) {
+}
+
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
     "Ray Matting",
     rayMattingDefaults,
-    rayMattingParseOptions,
+    dummyOptions,
     initialize,
     iRayMatte,
     reDisplay,

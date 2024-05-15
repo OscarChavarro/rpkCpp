@@ -162,8 +162,8 @@ optionsPrintEnumValues(const ENUMDESC *tab) {
 }
 
 int
-optionsEnumGet(int *v, ENUMDESC *tab) {
-    ENUMDESC *tabSave = tab;
+optionsEnumGet(int *v, const ENUMDESC *tab) {
+    const ENUMDESC *tabSave = tab;
     while ( tab && tab->name ) {
         if ( strncasecmp(*globalCurrentArgumentValue, tab->name, tab->abbrev) == 0 ) {
             *v = tab->value;
@@ -177,7 +177,7 @@ optionsEnumGet(int *v, ENUMDESC *tab) {
 }
 
 void
-optionsEnumPrint(FILE *fp, const int *v, ENUMDESC *tab) {
+optionsEnumPrint(FILE *fp, const int *v, const ENUMDESC *tab) {
     while ( tab && tab->name ) {
         if ( *v == tab->value ) {
             fprintf(fp, "%s", tab->name);

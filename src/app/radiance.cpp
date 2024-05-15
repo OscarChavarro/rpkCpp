@@ -102,6 +102,8 @@ radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod)
 
     stochasticRelaxationRadiosityParseOptions(argc, argv);
     randomWalkRadiosityParseOptions(argc, argv);
+    rayMattingParseOptions(argc, argv);
+
     if ( *newRadianceMethod != nullptr ) {
         (*newRadianceMethod)->parseOptions(argc, argv);
     }

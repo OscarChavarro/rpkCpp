@@ -6,10 +6,18 @@
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "app/commandLine.h"
+#include "raycasting/simple/RayMatter.h"
 
-#define DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS 4
-#define DEFAULT_FORCE_ONE_SIDED true
+// Default scene level configuration
+static const int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
+static const bool DEFAULT_FORCE_ONE_SIDED = true;
 
+// Default virtual camera
+static const Vector3D DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
+static const Vector3D DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
+static const Vector3D DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
+static const ColorRgb DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
+static const float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
 static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static int globalYes = 1;
@@ -111,13 +119,6 @@ static CommandLineOptionDescription globalCameraOptions[] = {
      "-fov       <float> \t: field of view angle"},
     {nullptr, 0, TYPELESS, nullptr, nullptr, nullptr}
 };
-
-// Default virtual camera
-#define DEFAULT_CAMERA_EYE_POSITION {10.0, 0.0, 0.0}
-#define DEFAULT_CAMERA_LOOK_POSITION { 0.0, 0.0, 0.0}
-#define DEFAULT_CAMERA_UP_DIRECTION { 0.0, 0.0, 1.0}
-#define DEFAULT_CAMERA_FIELD_OF_VIEW 22.5
-#define DEFAULT_BACKGROUND_COLOR {0.0, 0.0, 0.0}
 
 static void
 cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
@@ -262,4 +263,27 @@ stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
 void
 randomWalkRadiosityParseOptions(int *argc, char **argv) {
     parseGeneralOptions(rwrOptions, argc, argv);
+}
+
+static ENUMDESC globalRayMatterPixelFilters[] = {
+        {RayMatterFilterType::BOX_FILTER, "box", 2},
+        {RayMatterFilterType::TENT_FILTER, "tent", 2},
+        {RayMatterFilterType::GAUSS_FILTER, "gaussian 1/sqrt2", 2},
+        {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
+        {0, nullptr, 0}
+};
+MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
+
+static CommandLineOptionDescription globalRayMatterOptions[] =
+{
+    {"-rm-samples-per-pixel", 6, &GLOBAL_options_intType, &GLOBAL_rayCasting_rayMatterState.samplesPerPixel, DEFAULT_ACTION,
+     "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
+    {"-rm-pixel-filter", 7, &rmPixelFilterTypeStruct, &GLOBAL_rayCasting_rayMatterState.filter, DEFAULT_ACTION,
+     "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+rayMattingParseOptions(int *argc, char **argv) {
+    parseGeneralOptions(globalRayMatterOptions, argc, argv);
 }

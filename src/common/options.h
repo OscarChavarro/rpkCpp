@@ -74,8 +74,8 @@ class ENUMDESC {
     int abbrev;
 };
 
-extern int optionsEnumGet(int *, ENUMDESC *);
-extern void optionsEnumPrint(FILE *fp, const int *v, ENUMDESC *tab);
+extern int optionsEnumGet(int *, const ENUMDESC *);
+extern void optionsEnumPrint(FILE *fp, const int *v, const ENUMDESC *tab);
 
 /**
 The following macro declares an enumerated value options type:

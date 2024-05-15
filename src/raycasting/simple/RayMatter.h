@@ -5,6 +5,21 @@
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
 
+enum RayMatterFilterType {
+    BOX_FILTER,
+    TENT_FILTER,
+    GAUSS_FILTER,
+    GAUSS2_FILTER
+};
+
+class RayMatterState {
+public:
+    int samplesPerPixel; // Pixel sampling
+    RayMatterFilterType filter; // Pixel filter
+};
+
+extern RayMatterState GLOBAL_rayCasting_rayMatterState;
+
 class RayMatter {
   private:
     ScreenBuffer *screenBuffer;
