@@ -26,7 +26,6 @@ RandomWalkRadianceMethod::getRadianceMethodName() const {
 
 void
 RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
-    randomWalkRadiosityParseOptions(argc, argv);
 }
 
 ColorRgb

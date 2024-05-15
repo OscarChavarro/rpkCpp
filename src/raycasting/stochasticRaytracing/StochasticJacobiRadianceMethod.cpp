@@ -32,7 +32,6 @@ StochasticJacobiRadianceMethod::getRadianceMethodName() const {
 
 void
 StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
-    stochasticRelaxationRadiosityParseOptions(argc, argv);
 }
 
 void

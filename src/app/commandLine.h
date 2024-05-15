@@ -12,4 +12,7 @@ commandLineGeneralProgramParseOptions(
     int *imageOutputWidth,
     int *imageOutputHeight);
 
+extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
+extern void randomWalkRadiosityParseOptions(int *argc, char **argv);
+
 #endif
