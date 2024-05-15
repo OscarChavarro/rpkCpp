@@ -6,6 +6,12 @@ Some general functions regarding edf, brdf, btdf, bsdf
 #include "material/xxdf.h"
 
 /**
+Phong exponent making the difference between glossy and highly specular reflection/transmission.
+Choice is arbitrary for the moment.
+*/
+const float PHONG_LOWEST_SPECULAR_EXP = 250.0f;
+
+/**
 Calculate the ideal reflected ray direction (independent of the brdf)
 */
 Vector3D

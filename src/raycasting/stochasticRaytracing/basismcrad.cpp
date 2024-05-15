@@ -42,7 +42,7 @@ ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NR_APPROX_TYP
     {"cubic",     10}
 };
 
-static GalerkinBasis MakeBasis(ElementType et, APPROX_TYPE at) {
+static GalerkinBasis MakeBasis(ElementType et, StochasticRaytracingApproximation at) {
     GalerkinBasis basis = GLOBAL_stochasticRadiosity_quadBasis;
     char desc[100];
     const char *elem = nullptr;
@@ -149,7 +149,7 @@ monteCarloRadiosityInitBasis() {
 
     for ( et = 0; et < NR_ELEMENT_TYPES; et++ ) {
         for ( at = 0; at < NR_APPROX_TYPES; at++ )
-            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((ElementType) et, (APPROX_TYPE) at);
+            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((ElementType) et, (StochasticRaytracingApproximation) at);
     }
     inited = true;
 }

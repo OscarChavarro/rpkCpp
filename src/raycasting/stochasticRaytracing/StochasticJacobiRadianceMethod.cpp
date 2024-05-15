@@ -14,7 +14,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 
-#define STRING_SIZE 2000
+#define STRING_LENGTH 2000
 
 #ifdef RAYTRACING_ENABLED
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
@@ -67,24 +67,24 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene) {
 
 char *
 StochasticJacobiRadianceMethod::getStats() {
-    static char stats[STRING_SIZE];
+    static char stats[STRING_LENGTH];
     char *p;
     int n;
 
     p = stats;
-    snprintf(p, STRING_SIZE, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
+    snprintf(p, STRING_LENGTH, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
+    snprintf(p, STRING_LENGTH, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
+    snprintf(p, STRING_LENGTH, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
     p += n;
 
-    snprintf(p, STRING_SIZE, "%ld elements (%ld clusters, %ld surfaces)\n%n",
-            GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, &n);
+    snprintf(p, STRING_LENGTH, "%ld elements (%ld clusters, %ld surfaces)\n%n",
+             GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
+    snprintf(p, STRING_LENGTH, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
+    snprintf(p, STRING_LENGTH, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
 
     return stats;
 }

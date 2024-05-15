@@ -38,6 +38,11 @@ inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
 The different sampling functions are commented separately.
 */
 
+bool
+PhongBidirectionalReflectanceDistributionFunction::isSpecular() const {
+    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+}
+
 PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectanceDistributionFunction(
     const ColorRgb *inKd, const ColorRgb *inKs, double inNs) {
     Kd = *inKd;
@@ -63,7 +68,7 @@ PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags)
         result.add(result, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
             result.add(result, Ks);
         }
@@ -106,7 +111,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
         result.addScaled(result, (float)M_1_PI, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -154,7 +159,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
 
     char nonDiffuseFlag;
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -276,7 +281,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
         localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;

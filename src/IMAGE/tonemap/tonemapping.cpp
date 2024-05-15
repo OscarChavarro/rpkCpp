@@ -28,12 +28,33 @@ ToneMap *GLOBAL_toneMap_availableToneMaps[] = {
 ToneMappingContext GLOBAL_toneMap_options;
 
 // Composes explanation for -tonemapping command line option
-#define STRING_SIZE 1000
-static char globalToneMappingMethodsString[STRING_SIZE];
+#define STRING_LENGTH 1000
+static char globalToneMappingMethodsString[STRING_LENGTH];
 static float globalRxy[2];
 static float globalGxy[2];
 static float globalBxy[2];
 static float globalWxy[2];
+
+ToneMappingContext::ToneMappingContext():
+    brightness_adjust(),
+    pow_bright_adjust(),
+    toneMap(),
+    staticAdaptationMethod(),
+    realWorldAdaptionLuminance(),
+    maximumDisplayLuminance(),
+    maximumDisplayContrast(),
+    xr(),
+    yr(),
+    xg(),
+    yg(),
+    xb(),
+    yb(),
+    xw(),
+    yw(),
+    gamma(),
+    gammaTab()
+{
+}
 
 static void
 makeToneMappingMethodsString() {
@@ -48,11 +69,11 @@ makeToneMappingMethodsString() {
     for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
         const ToneMap *method = *toneMap;
         if ( !first ) {
-            snprintf(str, STRING_SIZE, "\t         %n", &n);
+            snprintf(str, STRING_LENGTH, "\t         %n", &n);
             str += n;
         }
         first = false;
-        snprintf(str, STRING_SIZE, "%-20.20s %s%s\n%n",
+        snprintf(str, STRING_LENGTH, "%-20.20s %s%s\n%n",
                  method->shortName, method->name,
                  GLOBAL_toneMap_options.toneMap == method ? " (default)" : "", &n);
         str += n;
@@ -243,8 +264,8 @@ recomputeGammaTable(int index, double gamma) {
     if ( gamma <= EPSILON ) {
         gamma = 1.0;
     }
-    for ( int i = 0; i <= (1 << GAMMA_TAB_BITS); i++ ) {
-        GLOBAL_toneMap_options.gammaTab[index][i] = (float)java::Math::pow((double) i / (double) (1 << GAMMA_TAB_BITS), 1.0 / gamma);
+    for ( int i = 0; i <= (1 << GAMMA_TABLE_BITS); i++ ) {
+        GLOBAL_toneMap_options.gammaTab[index][i] = (float)java::Math::pow((double) i / (double) (1 << GAMMA_TABLE_BITS), 1.0 / gamma);
     }
 }
 

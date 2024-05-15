@@ -38,12 +38,9 @@ extern ToneMap *GLOBAL_toneMap_availableToneMaps[];
 
 extern void setToneMap(ToneMap *map);
 
-/* gamma correction table */
-#define GAMMA_TAB_BITS  12  /* 12-bit gamma table */
-#define GAMMA_TAB_SIZE  ((1<<GAMMA_TAB_BITS)+1)
-
-/* convert RGB color value between 0 and 1 to entry index in gamma table */
-#define GAMMA_TAB_ENTRY(x)  (int)((x)*(float)(1<<GAMMA_TAB_BITS))
+// Gamma correction table
+#define GAMMA_TABLE_BITS 12
+#define GAMMA_TABLE_SIZE ((1 << GAMMA_TABLE_BITS) + 1)
 
 // Recomputes gamma tables for the given gamma values for red, green and blue
 extern void recomputeGammaTables(ColorRgb gamma);
@@ -73,7 +70,9 @@ class ToneMappingContext {
 
     // Display RGB mapping (corrects display non-linear response)
     ColorRgb gamma; // Gamma factors for red, green, blue
-    float gammaTab[3][GAMMA_TAB_SIZE]; // Gamma correction tables for red, green and blue
+    float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
+
+    ToneMappingContext();
 };
 extern ToneMappingContext GLOBAL_toneMap_options;
 
@@ -81,11 +80,16 @@ extern void toneMapDefaults();
 extern void toneMapParseOptions(int *argc, char **argv);
 extern void initToneMapping(java::ArrayList<Patch *> *scenePatches);
 
+inline int
+gammaTableEntry(float x) {
+    return (int)(x * (float)(1 << GAMMA_TABLE_BITS));
+}
+
 inline void
 toneMappingGammaCorrection(ColorRgb &rgb) {
-  (rgb).r = GLOBAL_toneMap_options.gammaTab[0][GAMMA_TAB_ENTRY((rgb).r)];
-  (rgb).g = GLOBAL_toneMap_options.gammaTab[1][GAMMA_TAB_ENTRY((rgb).g)];
-  (rgb).b = GLOBAL_toneMap_options.gammaTab[2][GAMMA_TAB_ENTRY((rgb).b)];
+    rgb.r = GLOBAL_toneMap_options.gammaTab[0][gammaTableEntry(rgb.r)];
+    rgb.g = GLOBAL_toneMap_options.gammaTab[1][gammaTableEntry(rgb.g)];
+    rgb.b = GLOBAL_toneMap_options.gammaTab[2][gammaTableEntry(rgb.b)];
 }
 
 inline ColorRgb

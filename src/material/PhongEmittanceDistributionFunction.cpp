@@ -4,6 +4,11 @@
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 
+bool
+PhongEmittanceDistributionFunction::isSpecular() const {
+    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+}
+
 /**
 Creates Phong type EDF, BRDF, BTDF data structs:
 Kd = diffuse emittance [W/m^2], reflectance or transmittance (number between 0 and 1)
@@ -40,7 +45,7 @@ PhongEmittanceDistributionFunction::phongEmittance(const RayHit * /*hit*/, const
         result.add(result, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
             result.add(result, Ks);
         }

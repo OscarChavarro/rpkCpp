@@ -19,7 +19,9 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     float Ns;
     RefractionIndex refractionIndex;
 
-  public:
+    bool isSpecular() const;
+
+public:
     explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
     virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
@@ -57,7 +59,6 @@ class PhongBidirectionalTransmittanceDistributionFunction {
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
-
 };
 
 #endif

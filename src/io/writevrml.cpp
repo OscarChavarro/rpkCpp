@@ -6,17 +6,10 @@ Saves the result of a radiosity computation as a VRML file
 #include "common/options.h"
 #include "io/writevrml.h"
 
-static Matrix4x4 globalIdentityMatrix = {
-    {
-        {1.0f, 0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f, 1.0f}
-    }
-};
-
 // Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
 #define MAXIMUM_CAMERA_STACK 20
+
+static const char* RPKHOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 
 // A stack of virtual camera positions, used for temporary saving the camera and
 // later restoring
@@ -55,7 +48,8 @@ transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *mod
     } else {
         modelRotationAxis->set(0.0, 1.0, 0.0);
         *modelRotationAngle = 0.0;
-        return globalIdentityMatrix;
+        Matrix4x4 identity;
+        return identity;
     }
 }
 
@@ -69,7 +63,7 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
     Vector3D Z;
     Vector3D viewRotationAxis;
     Vector3D eyePosition;
-    Matrix4x4 viewTransform{};
+    Matrix4x4 viewTransform;
     float viewRotationAngle;
 
     X.scaledCopy(1.0, camera->X); // camera->X positions right in window
@@ -82,7 +76,8 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
     modelTransform->transformPoint3D(Z, Z);
 
     // Construct view orientation transform and recover axis and angle
-    viewTransform = globalIdentityMatrix;
+    Matrix4x4 identity;
+    viewTransform = identity;
     viewTransform.set3X3Matrix(
         X.x, Y.x, Z.x,
         X.y, Y.y, Z.y,

@@ -14,12 +14,12 @@
 #include "render/canvas.h"
 
 // Raytracing defaults
-#define DEFAULT_RAYTRACING_METHOD "stochastic"
-#define STRING_SIZE 1000
+static const char* DEFAULT_RAYTRACING_METHOD = "stochastic";
+static const int STRING_LENGTH = 1000;
 
 #ifdef RAYTRACING_ENABLED
 
-static char globalRaytracingMethodsString[STRING_SIZE];
+static char globalRaytracingMethodsString[STRING_LENGTH];
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
     &GLOBAL_raytracing_biDirectionalPathMethod,
@@ -67,7 +67,7 @@ mainMakeRaytracingMethodsString() {
 
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         const Raytracer *method = *window;
-        snprintf(str, STRING_SIZE, "\t         %-20.20s %s%s\n%n",
+        snprintf(str, STRING_LENGTH, "\t         %-20.20s %s%s\n%n",
                  method->shortName, method->fullName,
                  GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
         str += n;

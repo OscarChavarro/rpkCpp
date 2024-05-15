@@ -16,6 +16,11 @@ normal : leaving from patch, on the incoming side.
          So in.normal < 0 !!!
 */
 
+bool
+PhongBidirectionalTransmittanceDistributionFunction::isSpecular() const {
+    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+}
+
 PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmittanceDistributionFunction(
     const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
     refractionIndex()
@@ -44,7 +49,7 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
         result.add(result, Kd);
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
             result.add(result, Ks);
         }
@@ -106,7 +111,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
 
     char nonDiffuseFlag;
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -165,7 +170,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         localAverageKd = 0.0;
     }
 
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;
@@ -276,7 +281,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
     }
 
     char nonDiffuseFlag;
-    if ( PHONG_IS_SPECULAR(*this) ) {
+    if ( isSpecular() ) {
         nonDiffuseFlag = SPECULAR_COMPONENT;
     } else {
         nonDiffuseFlag = GLOSSY_COMPONENT;

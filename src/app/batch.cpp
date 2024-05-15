@@ -135,7 +135,7 @@ batchSaveRadianceImage(
     canvasPushMode();
 
     extension = imageFileExtension(fileName);
-    if ( IS_TIFF_LOGLUV_EXT(extension) ) {
+    if ( strncasecmp(extension, "logluv", 6) == 0 ) {
         fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
         fprintf(stdout, "Saving RGB image to file '%s' .......... ", fileName);

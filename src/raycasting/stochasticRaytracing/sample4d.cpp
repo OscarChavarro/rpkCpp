@@ -13,31 +13,31 @@
 #include "raycasting/stochasticRaytracing/sample4d.h"
 
 #define SEQ4D_NAME(seq) (\
-    ((seq) == S4D_RANDOM) ? "drand48" : (\
-    ((seq) == S4D_HALTON) ? "Halton" : (\
-    ((seq) == S4D_SCRAMBLED_HALTON) ? "ScramHalton" : (\
-    ((seq) == S4D_SOBOL) ? "sobol" : (\
-    ((seq) == S4D_ORIGINAL_FAURE) ? "faure" : (\
-    ((seq) == S4D_GENERALIZED_FAURE) ? "GFaure" : (\
-    ((seq) == S4D_NIEDERREITER) ? "Nied" : "Unknown"\
+    ((seq) == Sampler4DSequence::RANDOM) ? "drand48" : (\
+    ((seq) == Sampler4DSequence::HALTON) ? "Halton" : (\
+    ((seq) == Sampler4DSequence::SCRAMBLED_HALTON) ? "ScramHalton" : (\
+    ((seq) == Sampler4DSequence::SOBOL) ? "sobol" : (\
+    ((seq) == Sampler4DSequence::ORIGINAL_FAURE) ? "faure" : (\
+    ((seq) == Sampler4DSequence::GENERALIZED_FAURE) ? "GFaure" : (\
+    ((seq) == Sampler4DSequence::NIEDERREITER) ? "Nied" : "Unknown"\
     )))))))
 
-static SEQ4D seq = S4D_RANDOM;
+static Sampler4DSequence seq = RANDOM;
 
 /**
 Also initialises the sequence
 */
 void
-setSequence4D(SEQ4D sequence) {
+setSequence4D(Sampler4DSequence sequence) {
     seq = sequence;
     switch ( seq ) {
-        case S4D_SOBOL:
+        case Sampler4DSequence::SOBOL:
             initSobol(4);
             break;
-        case S4D_ORIGINAL_FAURE:
+        case Sampler4DSequence::ORIGINAL_FAURE:
             initOriginalFaureSequence(4);
             break;
-        case S4D_GENERALIZED_FAURE:
+        case Sampler4DSequence::GENERALIZED_FAURE:
             initGeneralizedFaureSequence(4);
             break;
         default:
@@ -56,41 +56,41 @@ sample4D(unsigned seed) {
     const double *xx;
 
     switch ( seq ) {
-        case S4D_RANDOM:
+        case Sampler4DSequence::RANDOM:
             xi[0] = drand48();
             xi[1] = drand48();
             xi[2] = drand48();
             xi[3] = drand48();
             break;
-        case S4D_HALTON:
+        case Sampler4DSequence::HALTON:
             xi[0] = Halton2((int)seed);
             xi[1] = Halton3((int)seed);
             xi[2] = Halton5((int)seed);
             xi[3] = Halton7((int)seed);
             break;
-        case S4D_SCRAMBLED_HALTON:
+        case Sampler4DSequence::SCRAMBLED_HALTON:
             xx = scrambledHalton(seed, 4);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
-        case S4D_SOBOL:
+        case Sampler4DSequence::SOBOL:
             xx = sobol((int)seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
-        case S4D_ORIGINAL_FAURE:
-        case S4D_GENERALIZED_FAURE:
+        case Sampler4DSequence::ORIGINAL_FAURE:
+        case Sampler4DSequence::GENERALIZED_FAURE:
             xx = faure((int) seed);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
-        case S4D_NIEDERREITER:
+        case Sampler4DSequence::NIEDERREITER:
             zeta = niederreiter31(seed);
             xi[0] = (double) zeta[0] * RECIP;
             xi[1] = (double) zeta[1] * RECIP;

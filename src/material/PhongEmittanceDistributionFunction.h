@@ -15,7 +15,9 @@ class PhongEmittanceDistributionFunction {
     ColorRgb Ks;
     float Ns;
 
-  public:
+    bool isSpecular() const;
+
+public:
     explicit PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
     virtual ~PhongEmittanceDistributionFunction();
 
@@ -45,7 +47,6 @@ class PhongEmittanceDistributionFunction {
         double xi2,
         ColorRgb *selfEmittedRadiance,
         double *probabilityDensityFunction) const ;
-
 };
 
 #endif

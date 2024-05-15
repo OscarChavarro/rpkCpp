@@ -18,7 +18,7 @@
     #include "app/raytrace.h"
 #endif
 
-#define DEFAULT_MONOCHROME false
+static const bool DEFAULT_MONOCHROME = false;
 
 Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
 

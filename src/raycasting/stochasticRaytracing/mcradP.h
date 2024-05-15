@@ -56,8 +56,8 @@ class STATE {
     int indirectOnly; // If to compute indirect illumination only
     int weightedSampling; // If to do weighted sampling ala Powell and Swann/Spanier
     int setSource; // For copying direct illumination to SOURCE_RAD(..) if computing only indirect illumination
-    SEQ4D sequence; // Random number sequence, see sample4d.h
-    APPROX_TYPE approximationOrderType; // Radiosity approximation order
+    Sampler4DSequence sequence; // Random number sequence, see sample4d.h
+    StochasticRaytracingApproximation approximationOrderType; // Radiosity approximation order
     int importanceDriven; // If to use view-importance
     int radianceDriven; // Radiance-driven importance propagation
     int importanceUpdated; // Direct importance got updated or not?
@@ -169,9 +169,9 @@ extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
 extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
 extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
 extern void monteCarloRadiosityInit();
-extern void monteCarloRadiosityUpdateViewImportance(Scene *scene, RenderOptions *renderOptions);
-extern void monteCarloRadiosityReInit(Scene *scene, RenderOptions *renderOptions);
-extern void monteCarloRadiosityPreStep(Scene *scene, RenderOptions *renderOptions);
+extern void monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions);
+extern void monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions);
+extern void monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions);
 extern void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
 extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions);
 extern void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);

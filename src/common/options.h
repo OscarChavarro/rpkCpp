@@ -46,7 +46,6 @@ field of the CMD_LINE_OPT_DESC structure below
 
 // Default action; no action
 #define DEFAULT_ACTION (void (*)(void *))nullptr
-#define RPKHOME "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/"
 
 class CommandLineOptionDescription {
   public:

@@ -5,17 +5,17 @@
 #ifndef __SAMPLE_4D__
 #define __SAMPLE_4D__
 
-enum SEQ4D {
-    S4D_RANDOM,
-    S4D_HALTON,
-    S4D_SCRAMBLED_HALTON,
-    S4D_SOBOL,
-    S4D_ORIGINAL_FAURE,
-    S4D_GENERALIZED_FAURE,
-    S4D_NIEDERREITER
+enum Sampler4DSequence {
+    RANDOM,
+    HALTON,
+    SCRAMBLED_HALTON,
+    SOBOL,
+    ORIGINAL_FAURE,
+    GENERALIZED_FAURE,
+    NIEDERREITER
 };
 
-extern void setSequence4D(SEQ4D sequence);
+extern void setSequence4D(Sampler4DSequence sequence);
 extern double *sample4D(unsigned index);
 extern void foldSampleU(unsigned *, unsigned *);
 extern void foldSampleF(double *, double *);

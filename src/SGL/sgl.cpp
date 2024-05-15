@@ -15,14 +15,12 @@ PolygonVertex *GLOBAL_sgl_polyDummy;
 // Note this can change between drawing the main frame buffer, drawing Z-based form factors, etc.
 SGL_CONTEXT *GLOBAL_sgl_currentContext{};
 
-static Matrix4x4 globalIdentityMatrix = {
-    {
-        {1.0f, 0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f, 1.0f}
-    }
-};
+static Matrix4x4 globalIdentityMatrix(
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f
+);
 
 /**
 Makes the specified context current, returns the previous current context

@@ -9,7 +9,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "common/error.h"
 #include "scene/VoxelGrid.h"
 
-#define MINIMUM_ELEMENT_COUNT_PER_CELL 10
+static const int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
 
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;

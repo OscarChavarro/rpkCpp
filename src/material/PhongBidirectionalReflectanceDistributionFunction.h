@@ -5,13 +5,6 @@
 #include "common/linealAlgebra/Vector3D.h"
 
 /**
-Phong exponent making the difference between glossy and highly specular reflection/transmission.
-Choice is arbitrary for the moment.
-*/
-#define PHONG_LOWEST_SPECULAR_EXP 250
-#define PHONG_IS_SPECULAR(p) ((p).Ns >= PHONG_LOWEST_SPECULAR_EXP)
-
-/**
 BRDF evaluation functions :
   Vector3D in : incoming ray direction (to patch)
   Vector3D out : reflected ray direction (from patch)
@@ -27,7 +20,9 @@ class PhongBidirectionalReflectanceDistributionFunction {
     float avgKs;
     float Ns;
 
-  public:
+    bool isSpecular() const;
+
+public:
     explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
     virtual ~PhongBidirectionalReflectanceDistributionFunction();
 

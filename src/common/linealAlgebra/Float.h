@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cfloat>
 
-#define QSORT_CALLBACK_TYPE int (*)(const void *, const void *)
+typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
 
 extern double HUGE_DOUBLE_VALUE;
 extern float HUGE_FLOAT_VALUE;

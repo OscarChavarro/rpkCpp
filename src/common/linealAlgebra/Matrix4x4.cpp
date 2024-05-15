@@ -3,18 +3,64 @@
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Matrix4x4.h"
 
-static Matrix4x4 globalIdentityMatrix = {
-    {
-        {1.0f, 0.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 0.0f, 1.0f}
-    }
-};
+Matrix4x4::Matrix4x4(): m() {
+    this->m[0][0] = 1.0f;
+    this->m[0][1] = 0.0f;
+    this->m[0][2] = 0.0f;
+    this->m[0][3] = 0.0f;
+    this->m[1][0] = 0.0f;
+    this->m[1][1] = 1.0f;
+    this->m[1][2] = 0.0f;
+    this->m[1][3] = 0.0f;
+    this->m[2][0] = 0.0f;
+    this->m[2][1] = 0.0f;
+    this->m[2][2] = 1.0f;
+    this->m[2][3] = 0.0f;
+    this->m[3][0] = 0.0f;
+    this->m[3][1] = 0.0f;
+    this->m[3][2] = 0.0f;
+    this->m[3][3] = 1.0f;
+}
+
+Matrix4x4::Matrix4x4(
+        float a,
+        float b,
+        float c,
+        float d,
+        float e,
+        float f,
+        float g,
+        float h,
+        float i,
+        float j,
+        float k,
+        float l,
+        float m,
+        float n,
+        float o,
+        float p
+): m() {
+    this->m[0][0] = a;
+    this->m[0][1] = b;
+    this->m[0][2] = c;
+    this->m[0][3] = d;
+    this->m[1][0] = e;
+    this->m[1][1] = f;
+    this->m[1][2] = g;
+    this->m[1][3] = h;
+    this->m[2][0] = i;
+    this->m[2][1] = j;
+    this->m[2][2] = k;
+    this->m[2][3] = l;
+    this->m[3][0] = m;
+    this->m[3][1] = n;
+    this->m[3][2] = o;
+    this->m[3][3] = p;
+}
 
 Matrix4x4
 Matrix4x4::createTranslationMatrix(Vector3D translation) {
-    Matrix4x4 xf = globalIdentityMatrix;
+    Matrix4x4 xf;
     xf.m[0][3] = translation.x;
     xf.m[1][3] = translation.y;
     xf.m[2][3] = translation.z;
@@ -27,7 +73,7 @@ corresponding transforms in OpenGL
 */
 Matrix4x4
 Matrix4x4::createRotationMatrix(float angleInRadians, Vector3D axis) {
-    Matrix4x4 xf = globalIdentityMatrix;
+    Matrix4x4 xf;
 
     // Singularity test
     float s = axis.norm();
@@ -140,7 +186,7 @@ towards the viewer)
 */
 Matrix4x4
 Matrix4x4::createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
-    Matrix4x4 xf = globalIdentityMatrix;
+    Matrix4x4 xf;
     Vector3D s;
     Vector3D X;
     Vector3D Y;
@@ -165,7 +211,7 @@ Matrix4x4::createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
 
 Matrix4x4
 Matrix4x4::createPerspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
-    Matrix4x4 xf = globalIdentityMatrix;
+    Matrix4x4 xf;
     float f = 1.0f / java::Math::tan(fieldOfViewInRadians / 2.0f);
 
     xf.m[0][0] = f / aspect;
@@ -180,7 +226,7 @@ Matrix4x4::createPerspectiveMatrix(float fieldOfViewInRadians, float aspect, flo
 
 Matrix4x4
 Matrix4x4::createOrthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
-    Matrix4x4 xf = globalIdentityMatrix;
+    Matrix4x4 xf;
 
     xf.m[0][0] = 2.0f / (right - left);
     xf.m[0][3] = -(right + left) / (right - left);

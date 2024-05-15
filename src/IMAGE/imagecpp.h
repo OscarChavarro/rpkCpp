@@ -5,11 +5,8 @@ Interface for writing image data in different file formats
 #ifndef __IMAGE_CPP__
 #define __IMAGE_CPP__
 
-#define IS_TIFF_LOGLUV_EXT(_ext) \
-    (!strncasecmp(_ext,"logluv",6))
-
 class ImageOutputHandle {
-protected:
+  protected:
     int width;
     int height;
 
@@ -22,7 +19,7 @@ protected:
         gamma[2] = 1.0;
     }
 
-public:
+  public:
     ImageOutputHandle();
 
     virtual ~ImageOutputHandle() {};

@@ -17,7 +17,7 @@ Stuff common to all radiance methods
 #endif
 
 // Composes explanation for -radiance command line option
-#define STRING_LENGTH 1000
+static const int  STRING_LENGTH = 1000;
 static char globalRadianceMethodsString[STRING_LENGTH];
 
 static void

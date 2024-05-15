@@ -17,7 +17,7 @@ Reference:
 #include "scene/Cluster.h"
 
 // No clusters are created with less than this number of patches
-#define MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER 3
+static const int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
 
 java::ArrayList<Geometry *> *Cluster::clusterNodeGeometriesToDelete = nullptr;
 

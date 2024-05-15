@@ -8,6 +8,25 @@ class Matrix4x4 {
   public:
     float m[4][4];
 
+    Matrix4x4();
+    explicit Matrix4x4(
+        float a,
+        float b,
+        float c,
+        float d,
+        float e,
+        float f,
+        float g,
+        float h,
+        float i,
+        float j,
+        float k,
+        float l,
+        float m,
+        float n,
+        float o,
+        float p
+    );
     void transformPoint3D(Vector3D src, Vector3D &dst) const;
     void transformPoint4D(Vector4D src, Vector4D &dst) const;
     void recoverRotationParameters(float *angle, Vector3D *axis) const;

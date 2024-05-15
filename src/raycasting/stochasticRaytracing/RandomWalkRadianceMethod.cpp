@@ -483,24 +483,24 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     return false; // Never converged
 }
 
-#define STRING_SIZE 2000
+#define STRING_LENGTH 2000
 
 char *
 RandomWalkRadianceMethod::getStats() {
-    static char stats[STRING_SIZE];
+    static char stats[STRING_LENGTH];
     char *p;
     int n;
 
     p = stats;
-    snprintf(p, STRING_SIZE, "Random Walk Radiosity\nStatistics\n\n%n", &n);
+    snprintf(p, STRING_LENGTH, "Random Walk Radiosity\nStatistics\n\n%n", &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
+    snprintf(p, STRING_LENGTH, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
+    snprintf(p, STRING_LENGTH, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
+    snprintf(p, STRING_LENGTH, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
     p += n;
-    snprintf(p, STRING_SIZE, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
+    snprintf(p, STRING_LENGTH, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
 
     return stats;
 }
