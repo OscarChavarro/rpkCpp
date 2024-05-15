@@ -1,4 +1,5 @@
 #include "common/options.h"
+#include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
 #include "render/render.h"
@@ -42,7 +43,7 @@ Global initializations
 */
 void
 RpkApplication::mainInitApplication() {
-    fixCubatureRules();
+    QuadCubatureRule::fixCubatureRules();
     toneMapDefaults();
     radianceDefaults(nullptr, scene);
 

@@ -65,10 +65,10 @@ class GalerkinState {
     // Cubature rules for computing form factors
     CubatureDegree receiverDegree;
     CubatureDegree sourceDegree;
-    CubatureRule *rcv3rule;
-    CubatureRule *rcv4rule;
-    CubatureRule *src3rule;
-    CubatureRule *src4rule;
+    CubatureRule *receiverTriangleCubatureRule;
+    CubatureRule *receiverQuadCubatureRule;
+    CubatureRule *sourceTriangleCubatureRule;
+    CubatureRule *sourceQuadCubatureRule;
     CubatureRule *clusterRule;
 
     // Global variables concerning clustering

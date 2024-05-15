@@ -73,11 +73,11 @@ relevant for surface elements
 */
 void
 FormFactorStrategy::determineNodes(
-    const GalerkinElement *element,
-    const GalerkinRole role,
-    const GalerkinState *galerkinState,
-    CubatureRule **cr,
-    Vector3D x[CUBATURE_MAXIMUM_NODES])
+        const GalerkinElement *element,
+        const GalerkinRole role,
+        const GalerkinState *galerkinState,
+        CubatureRule **cr,
+        Vector3D x[CUBATURE_MAXIMUM_NODES])
 {
     Matrix2x2 topTransform{};
 
@@ -99,10 +99,10 @@ FormFactorStrategy::determineNodes(
         // What cubature rule should be used over the element
         switch ( element->patch->numberOfVertices ) {
             case 3:
-                *cr = role == GalerkinRole::RECEIVER ? galerkinState->rcv3rule : galerkinState->src3rule;
+                *cr = role == GalerkinRole::RECEIVER ? galerkinState->receiverTriangleCubatureRule : galerkinState->sourceTriangleCubatureRule;
                 break;
             case 4:
-                *cr = role == GalerkinRole::RECEIVER ? galerkinState->rcv4rule : galerkinState->src4rule;
+                *cr = role == GalerkinRole::RECEIVER ? galerkinState->receiverQuadCubatureRule : galerkinState->sourceQuadCubatureRule;
                 break;
             default:
                 logFatal(4, "determineNodes", "Can only handle triangular and quadrilateral patches");

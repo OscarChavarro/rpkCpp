@@ -32,11 +32,11 @@ class FormFactorStrategy {
 
     static void
     determineNodes(
-        const GalerkinElement *element,
-        GalerkinRole role,
-        const GalerkinState *galerkinState,
-        CubatureRule **cr,
-        Vector3D x[CUBATURE_MAXIMUM_NODES]);
+            const GalerkinElement *element,
+            GalerkinRole role,
+            const GalerkinState *galerkinState,
+            CubatureRule **cr,
+            Vector3D x[CUBATURE_MAXIMUM_NODES]);
 
     static double
     evaluatePointsPairKernel(

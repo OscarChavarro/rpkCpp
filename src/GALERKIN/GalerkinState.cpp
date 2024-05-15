@@ -1,3 +1,5 @@
+#include "common/numericalAnalysis/TriangleCubatureRule.h"
+#include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "GALERKIN/GalerkinState.h"
 
 // -gr-hierarchical -gr-no-hierarchical option
@@ -45,10 +47,10 @@ static const int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 GalerkinState::GalerkinState():
     constantRadiance(),
     ambientRadiance(),
-    rcv3rule(),
-    rcv4rule(),
-    src3rule(),
-    src4rule(),
+    receiverTriangleCubatureRule(),
+    receiverQuadCubatureRule(),
+    sourceTriangleCubatureRule(),
+    sourceQuadCubatureRule(),
     topCluster(),
     lastClusterId(),
     lastEye(),
@@ -78,7 +80,9 @@ GalerkinState::GalerkinState():
     iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
     shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
 
-    setCubatureRules(&rcv3rule, &rcv4rule, receiverDegree);
-    setCubatureRules(&src3rule, &src4rule, sourceDegree);
+    TriangleCubatureRule::setTriangleCubatureRules(&receiverTriangleCubatureRule, receiverDegree);
+    TriangleCubatureRule::setTriangleCubatureRules(&sourceTriangleCubatureRule, sourceDegree);
+    QuadCubatureRule::setQuadCubatureRules(&receiverQuadCubatureRule, receiverDegree);
+    QuadCubatureRule::setQuadCubatureRules(&sourceQuadCubatureRule, sourceDegree);
     clusterRule = &GLOBAL_crv1;
 }

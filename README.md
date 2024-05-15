@@ -27,6 +27,9 @@ This is a full rewrite with the following features:
   - Vanilla printf style functions preferred over `<<` streams
   - Avoid the use of iterators and STL library
   - Avoid the use of operator overload in favor of old style plain class methods
+  - Avoid the use of pre-processor based (#define) macros for constants in favor of const typed variables
+  - Avoid the use of pre-processor based (#define) macros for functions in favor of inline methods
+  - Avoid the use of pre-processor based (#define) macros for generic code! (big C issue)
 - Reorganization in to new packages structure for clarity at software architecture level.
 - Memory leak free after valgrind analysis.
 - Use of global variables set to a minimum possible, replaced by parameters.

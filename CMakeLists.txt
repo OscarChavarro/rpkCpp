@@ -30,7 +30,8 @@ set(MAIN_SRC
     src/common/linealAlgebra/Matrix4x4d.cpp
     src/common/linealAlgebra/Vector3Dd.cpp
     src/common/linealAlgebra/CoordinateSystem.cpp
-    src/common/numericalAnalysis/CubatureRule.cpp
+    src/common/numericalAnalysis/TriangleCubatureRule.cpp
+    src/common/numericalAnalysis/QuadCubatureRule.cpp
     src/common/dataStructures/CircularList.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/quasiMonteCarlo/Halton.cpp
@@ -187,7 +188,10 @@ set(MAIN_SRC
     src/app/batch.cpp
     src/app/commandLine.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp)
+    src/app/main.cpp
+        src/common/numericalAnalysis/CubatureDegree.h
+        src/common/numericalAnalysis/QuadCubatureRule.h
+        src/common/numericalAnalysis/TriangleCubatureRule.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

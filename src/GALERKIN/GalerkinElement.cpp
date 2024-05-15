@@ -2,6 +2,7 @@
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "render/render.h"
 #include "render/opengl.h"
 #include "IMAGE/tonemap/tonemapping.h"

@@ -1,3 +1,4 @@
+#include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -83,13 +84,13 @@ standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
 static void
 computeFilterCoefficients(
-    GalerkinBasis *parent_basis,
-    int parent_size,
-    GalerkinBasis *child_basis,
-    int child_size,
-    Matrix2x2 *upxfm,
-    CubatureRule *cr,
-    FILTER *filter)
+        GalerkinBasis *parent_basis,
+        int parent_size,
+        GalerkinBasis *child_basis,
+        int child_size,
+        Matrix2x2 *upxfm,
+        CubatureRule *cr,
+        FILTER *filter)
 {
     for ( int a = 0; a < parent_size; a++ ) {
         for ( int b = 0; b < child_size; b++ ) {
@@ -115,9 +116,9 @@ basis->regular_filter table
 */
 static void
 basisGalerkinComputeRegularFilterCoefficients(
-    GalerkinBasis *basis,
-    Matrix2x2 *upxfm,
-    CubatureRule *cr)
+        GalerkinBasis *basis,
+        Matrix2x2 *upxfm,
+        CubatureRule *cr)
 {
     for ( int s = 0; s < 4; s++ ) {
         computeFilterCoefficients(
