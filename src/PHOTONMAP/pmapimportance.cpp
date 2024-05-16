@@ -97,7 +97,7 @@ tracePotentialPath(
             (char)(indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS)
             ) ) {
         // Successful trace
-        SimpleRaytracingPathNode *prev = node->previous();
+        const SimpleRaytracingPathNode *prev = node->previous();
 
         // Determine scatter type
         bool didDG = BounceDiffuseOrGlossy(prev);

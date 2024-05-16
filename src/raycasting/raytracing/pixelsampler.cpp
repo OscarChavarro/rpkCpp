@@ -69,7 +69,7 @@ CPixelSampler::sample(
 }
 
 void
-CPixelSampler::SetPixel(Camera *defaultCamera, int nx, int ny, const Camera *camera) {
+CPixelSampler::SetPixel(const Camera *defaultCamera, int nx, int ny, const Camera *camera) {
     if ( camera == nullptr ) {
         // Primary camera
         camera = defaultCamera;

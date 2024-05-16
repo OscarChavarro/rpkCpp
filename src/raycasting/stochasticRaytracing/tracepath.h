@@ -34,7 +34,7 @@ class PATH {
 
 extern void
 tracePaths(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
     double (*BirthProbability)(Patch *P),
     double (*SurvivalProbability)(Patch *P),

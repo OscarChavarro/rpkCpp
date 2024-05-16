@@ -9,6 +9,9 @@
 #include "raycasting/raytracing/sampler.h"
 
 class CPixelSampler : public Sampler {
+  private:
+    double m_px;
+    double m_py;
   public:
     // Sample : newNode gets filled, others may change
     virtual bool
@@ -34,11 +37,7 @@ class CPixelSampler : public Sampler {
         double *pdfRR = nullptr);
 
     // Set pixel : sets the current pixel. This pixel will be sampled
-    void SetPixel(Camera *defaultCamera, int nx, int ny, const Camera *camera);
-
-protected:
-    double m_px;
-    double m_py;
+    void SetPixel(const Camera *defaultCamera, int nx, int ny, const Camera *camera);
 };
 
 #endif

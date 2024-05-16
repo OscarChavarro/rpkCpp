@@ -190,8 +190,8 @@ ComputeAcceptProb(float currentD, float requiredD) {
 }
 
 void
-CPhotonMap::Redistribute(CPhoton &photon) const {
-    // Redistribute this photon over the nearest neighbours
+CPhotonMap::redistribute(const CPhoton &photon) const {
+    // redistribute this photon over the nearest neighbours
     // m_distances, m_photons and m_cosines should be filled correctly!
     // only photons are used for which direction * normal > 0
 
@@ -241,9 +241,9 @@ CPhotonMap::DC_AddPhoton(
         m_irradianceComputed = false;
         stored = true;
     } else {
-        // Redistribute power over neighbours or ignore
+        // redistribute power over neighbours or ignore
         stored = false;
-        Redistribute(photon);
+        redistribute(photon);
     }
 
     m_totalPhotons++; // All photons including non stored photons
@@ -275,7 +275,7 @@ CPhotonMap::GetMaxR2() {
 
 // Precompute Irradiance
 void
-CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
+CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     ColorRgb irradiance;
     ColorRgb power;
     irradiance.clear();
@@ -307,12 +307,12 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 
 static void
 PrecomputeIrradianceCallback(Camera *camera, CPhotonMap *map, CIrrPhoton *photon) {
-    map->PhotonPrecomputeIrradiance(camera, photon);
+    map->photonPrecomputeIrradiance(camera, photon);
 }
 
 void
-CPhotonMap::PrecomputeIrradiance() {
-    fprintf(stderr, "CPhotonMap::PrecomputeIrradiance\n");
+CPhotonMap::precomputeIrradiance() {
+    fprintf(stderr, "CPhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
         m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback, this);
         m_irradianceComputed = true;
@@ -320,14 +320,14 @@ CPhotonMap::PrecomputeIrradiance() {
 }
 
 bool
-CPhotonMap::IrradianceReconstruct(
+CPhotonMap::irradianceReconstruct(
     RayHit *hit,
-    const Vector3D & /*outDir*/,
+    const Vector3D &outDir /*outDir*/,
     const ColorRgb &diffuseAlbedo,
     ColorRgb *result)
 {
     if ( !m_irradianceComputed ) {
-        PrecomputeIrradiance();
+        precomputeIrradiance();
     }
 
     Vector3D normal = hit->getNormal();
@@ -345,7 +345,7 @@ CPhotonMap::IrradianceReconstruct(
 }
 
 ColorRgb
-CPhotonMap::Reconstruct(
+CPhotonMap::reconstruct(
     RayHit *hit,
     Vector3D &outDir,
     PhongBidirectionalScatteringDistributionFunction *bsdf,
@@ -381,7 +381,7 @@ CPhotonMap::Reconstruct(
             return result; // No reflectance
         } else {
             if ( m_precomputeIrradiance ) {
-                if ( IrradianceReconstruct(hit, outDir, diffuseAlbedo, &result) ) {
+                if ( irradianceReconstruct(hit, outDir, diffuseAlbedo, &result) ) {
                     return result;
                 } else {
                     // No appropriate irradiance photon -> do normal reconstruction
@@ -464,7 +464,7 @@ CPhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
 Return a color coded density of the photon map
 */
 ColorRgb
-CPhotonMap::GetDensityColor(RayHit &hit) {
+CPhotonMap::getDensityColor(RayHit &hit) {
     float density;
     ColorRgb result;
 
@@ -480,7 +480,7 @@ CPhotonMap::sample(
     Vector3D position,
     double *r,
     double *s,
-    CoordinateSystem *coord,
+    const CoordinateSystem *coord,
     char flag,
     float n)
 {
@@ -490,7 +490,7 @@ CPhotonMap::sample(
     if ( !m_sampleLastPos.equals(position, 0.0001f) ) {
         // Need a new grid
 
-        m_grid->Init();
+        m_grid->init();
 
         // Find the nearest photons
         m_nrpFound = doQuery(&position, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
@@ -503,7 +503,7 @@ CPhotonMap::sample(
 
             color = m_photons[i]->power();
 
-            m_grid->Add(pr, ps, color.average() / (float)m_nrPhotons);
+            m_grid->add(pr, ps, color.average() / (float)m_nrPhotons);
         }
 
         m_grid->EnsureNonZeroEntries();

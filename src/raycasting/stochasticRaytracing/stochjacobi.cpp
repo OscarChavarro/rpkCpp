@@ -188,7 +188,7 @@ Returns radiance to be propagated from the given location of the element
 */
 static ColorRgb
 stochasticJacobiGetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
-    ColorRgb *srcRad = globalGetRadianceCallback(src);
+    const ColorRgb *srcRad = globalGetRadianceCallback(src);
     return colorAtUv(src->basis, srcRad, us, vs);
 }
 
@@ -414,7 +414,7 @@ stochasticJacobiRefineAndPropagateRadiance(
     double rcv_prob,
     Ray *ray,
     float dir,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     LINK link{};
     link = topLink(Q, P);
@@ -456,7 +456,7 @@ stochasticJacobiRefineAndPropagate(
     double uq,
     double vq,
     Ray *ray,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     double src_prob;
     double us = up;
@@ -555,12 +555,12 @@ hit patch (and back for bidirectional transfers)
 */
 static void
 stochasticJacobiElementShootRay(
-        VoxelGrid * sceneWorldVoxelGrid,
-        StochasticRadiosityElement *src,
-        int nMostSignificantBit,
-        NiederreiterIndex mostSignificantBit1,
-        NiederreiterIndex rMostSignificantBit2,
-        RenderOptions *renderOptions)
+    const VoxelGrid * sceneWorldVoxelGrid,
+    StochasticRadiosityElement *src,
+    int nMostSignificantBit,
+    NiederreiterIndex mostSignificantBit1,
+    NiederreiterIndex rMostSignificantBit2,
+    RenderOptions *renderOptions)
 {
     if ( globalGetRadianceCallback != nullptr ) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
@@ -724,7 +724,7 @@ stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
 }
 
 static void
-stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
         ColorRgb Rd;
         Rd.clear();
@@ -745,7 +745,7 @@ stochasticJacobiPush(StochasticRadiosityElement *parent, StochasticRadiosityElem
 }
 
 static void
-stochasticJacobiPull(StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+stochasticJacobiPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child) {
     if ( globalGetRadianceCallback ) {
         stochasticRadiosityElementPullRadiance(parent, child, parent->radiance, child->radiance);
         stochasticRadiosityElementPullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);

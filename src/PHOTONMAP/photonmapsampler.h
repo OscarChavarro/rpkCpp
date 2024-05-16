@@ -15,8 +15,8 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 #include "raycasting/raytracing/bsdfsampler.h"
 #include "PHOTONMAP/photonmap.h"
 
-class CPhotonMapSampler : public CBsdfSampler {
-  protected:
+class CPhotonMapSampler final : public CBsdfSampler {
+  private:
     CPhotonMap *m_photonMap; // To be used for importance sampling
 
     bool
@@ -62,7 +62,7 @@ class CPhotonMapSampler : public CBsdfSampler {
     // Sample : newNode gets filled, others may change
     // Return true if the node was filled in, false if path Ends
     // When path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    virtual bool
+    bool
     sample(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -73,7 +73,7 @@ class CPhotonMapSampler : public CBsdfSampler {
         double x1,
         double x2,
         bool doRR,
-        char flags);
+        char flags) final;
 };
 
 #endif

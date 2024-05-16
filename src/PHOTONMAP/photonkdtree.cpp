@@ -40,7 +40,8 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
     int discr = node.discriminator();
 
     float dist;
-    int nearIndex, farIndex;
+    int nearIndex;
+    int farIndex;
 
     // Recursive call to the child nodes
 

@@ -94,23 +94,23 @@ class CPhotonMap {
     bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
-    void Redistribute(CPhoton &photon) const;
+    void redistribute(const CPhoton &photon) const;
 
     // Get a maximum radius^2 for locating the nearest photons
     virtual double GetMaxR2();
 
     // Precompute irradiance
-    virtual void PrecomputeIrradiance();
+    virtual void precomputeIrradiance();
 
     // For 1 specific photon
-    virtual void PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
+    virtual void photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
 
-    // Reconstruct
-    virtual ColorRgb Reconstruct(RayHit *hit, Vector3D &outDir,
+    // reconstruct
+    virtual ColorRgb reconstruct(RayHit *hit, Vector3D &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool
-    IrradianceReconstruct(
+    irradianceReconstruct(
         RayHit *hit,
         const Vector3D &outDir,
         const ColorRgb &diffuseAlbedo,
@@ -119,8 +119,7 @@ class CPhotonMap {
     virtual float getCurrentDensity(RayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
-    virtual ColorRgb GetDensityColor(RayHit &hit);
-
+    virtual ColorRgb getDensityColor(RayHit &hit);
 
     // Sample values: Random values r,s are transformed into new
     // random values so that importance sampling using the photon
@@ -132,13 +131,12 @@ class CPhotonMap {
     //     n: phong exponent for GR
 
     // OUT: r,s are changed for importance sampling, probabilityDensityFunction is returned
-
     double
-    sample(Vector3D position, double *r, double *s, CoordinateSystem *coord, char flag, float n = 1);
+    sample(Vector3D position, double *r, double *s, const CoordinateSystem *coord, char flag, float n = 1);
 
     // Utility functions
 
-    void PrintStats(FILE *fp) const {
+    void printStats(FILE *fp) const {
         fprintf(fp, "%i stored photons\n", m_nrPhotons);
     }
 
@@ -158,7 +156,7 @@ class CPhotonMap {
         }
     }
 
-    void DoBalancing(bool state) {
+    void doBalancing(bool state) {
         m_doBalancing = state;
     }
 };

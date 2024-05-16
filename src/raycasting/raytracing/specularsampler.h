@@ -22,7 +22,7 @@ I currently use it only in classical raytracing
 #include "raycasting/raytracing/sampler.h"
 
 class CSpecularSampler : public CSurfaceSampler {
-public:
+  public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
@@ -61,14 +61,14 @@ public:
     // to another sub path end node. prevNode is that other sub-path
     // endNode
     // Return value should be multiplied by infinity!
-    virtual double
+    double
     EvalPDFPrev(
         SimpleRaytracingPathNode *prevNode,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags,
         double *probabilityDensityFunction,
-        double *probabilityDensityFunctionRR);
+        double *probabilityDensityFunctionRR) final;
 };
 
 #endif

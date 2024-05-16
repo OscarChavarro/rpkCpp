@@ -26,7 +26,8 @@ MainInit spar with a comma separated list of regular expressions
 */
 void
 Spar::parseAndInit(int group, char *regExp) {
-    int beginPos = 0, endPos = 0;
+    int beginPos = 0;
+    int endPos = 0;
     char tmpChar;
 
     while ( regExp[endPos] != '\0' ) {

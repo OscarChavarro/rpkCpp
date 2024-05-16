@@ -32,7 +32,7 @@ static float Lightness(float luminance) {
 }
 
 static ColorRgb lightnessScaleForComputations(ColorRgb radiance) {
-    logFatal(-1, "ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    logWarning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 

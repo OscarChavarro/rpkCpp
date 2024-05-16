@@ -9,10 +9,10 @@ CSampleGrid2D::CSampleGrid2D(int xSectionsParam, int ySectionsParam): totalSum()
     values = new double[xSections * ySections];
     ySums = new double[xSections];
 
-    Init();
+    init();
 }
 
-void CSampleGrid2D::Init() {
+void CSampleGrid2D::init() {
     int index;
 
     index = 0;
@@ -28,7 +28,7 @@ void CSampleGrid2D::Init() {
 }
 
 void
-CSampleGrid2D::Add(double x, double y, double value) {
+CSampleGrid2D::add(double x, double y, double value) {
     // Precondition: 0 <= x < 1 en 0 <= y < 1
 
     int xIndex;
@@ -44,7 +44,7 @@ CSampleGrid2D::Add(double x, double y, double value) {
         yIndex--;
     }  // x or y seem to be able to be 1
 
-    values[ValIndex(xIndex, yIndex)] += value;
+    values[valIndex(xIndex, yIndex)] += value;
     ySums[xIndex] += value;
     totalSum += value;
 }

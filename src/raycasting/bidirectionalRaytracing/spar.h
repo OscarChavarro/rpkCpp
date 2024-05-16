@@ -49,7 +49,6 @@ class Spar {
     ContribHandler *m_contrib;
     CSparList *m_sparList;
 
-  public:
     Spar();
     virtual ~Spar();
 

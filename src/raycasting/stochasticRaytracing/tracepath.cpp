@@ -17,7 +17,7 @@ Random walk generation
 static double (*globalBirthProbability)(Patch *);
 static double globalSumProbabilities;
 
-StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probability(), inPoint(), outpoint() {};
+StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probability(), inPoint(), outpoint() {}
 
 /**
 Initialises numberOfNodes, nodes allocated to zero and 'nodes' to the nullptr pointer
@@ -110,7 +110,8 @@ tracePath(
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-        ray = mcrGenerateLocalLine(P, sample4D((unsigned int)topLevelStochasticRadiosityElement(P)->rayIndex++));
+        ray = mcrGenerateLocalLine(P, sample4D((unsigned int)topLevelStochasticRadiosityElement(P)->rayIndex));
+        topLevelStochasticRadiosityElement(P)->rayIndex++;
         if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.pos = path->nodes[path->numberOfNodes - 1].inPoint;
@@ -141,7 +142,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
 */
 void
 tracePaths(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
     double (*BirthProbability)(Patch *P),
     double (*SurvivalProbability)(Patch *P),

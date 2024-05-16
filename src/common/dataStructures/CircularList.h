@@ -22,8 +22,9 @@ class CircularListBase {
 
   public:
     CircularListBase();
-    void add(CISLink *data);
-    void append(CISLink *data);
+    virtual ~CircularListBase() {};
+    virtual void add(CISLink *data);
+    virtual void append(CISLink *data);
     CISLink *remove();
     virtual void clear();
 
@@ -36,6 +37,7 @@ class CircularListBaseIterator {
     CircularListBase *currentList;
 
   public:
+    virtual ~CircularListBaseIterator() {};
     explicit CircularListBaseIterator(CircularListBase &list);
     virtual CISLink *next();
     void init(CircularListBase &list);
@@ -55,11 +57,11 @@ CTSLink<T>::CTSLink(const T &data) : data(data) {
 template<class T>
 class CTSList : protected CircularListBase {
   public:
-    virtual ~CTSList();
+    ~CTSList() override;
     virtual void add(const T &data);
     virtual void append(const T &data);
     void removeAll();
-    virtual void clear();
+    void clear() override;
 
     friend class CTSList_Iter<T>;
 };
@@ -97,9 +99,10 @@ inline void CTSList<T>::clear() {
 For the non-intrusive list
 */
 template<class T>
-class CTSList_Iter : private CircularListBaseIterator {
+class CTSList_Iter final : private CircularListBaseIterator {
 public:
     explicit CTSList_Iter(CTSList<T> &list);
+    ~CTSList_Iter() final {};
     T *nextOnSequence();
     void init(CTSList<T> &list);
 };

@@ -7,24 +7,24 @@ Grid values are doubles. Grid domain is [0,1]^dim
 #define __SAMPLE_GRID__
 
 class CSampleGrid2D {
-  protected:
+  private:
     int xSections;
     int ySections;
     double *values;
     double *ySums;  // Sum of y columns for faster sampling
     double totalSum; // Normalisation factor
 
-    inline int ValIndex(int i, int j) const {
+    inline int valIndex(int i, int j) const {
         return i * ySections + j;
     }
 
   public:
     CSampleGrid2D(int xSectionsParam, int ySectionsParam);
 
-    void Init(); // Reinitialise, keeping current number of sections
+    void init(); // Reinitialise, keeping current number of sections
 
     // Add a contribution to a certain grid element
-    void Add(double x, double y, double value);
+    void add(double x, double y, double value);
 
     // Ensure there are no zero value entries.
     // A small percentage of the totalPower is added to empty grid elements

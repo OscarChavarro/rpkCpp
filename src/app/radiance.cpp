@@ -23,11 +23,11 @@ static const int  STRING_LENGTH = 1000;
 static char globalRadianceMethodsString[STRING_LENGTH];
 
 static void
-radianceMethodOption(void * /*value*/) {
+radianceMethodOptionCallBack(void * /*value*/) {
 }
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
-        {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOption,
+        {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOptionCallBack,
                 globalRadianceMethodsString},
         {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };

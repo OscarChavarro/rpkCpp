@@ -351,13 +351,13 @@ optionsGetCieXy(float *c, const void * /*data*/) {
 }
 
 static void
-optionsPrintCieXy(FILE *fp, const float *c, void * /*data*/) {
+optionsPrintCieXyCallBack(FILE *fp, const float *c, void * /*data*/) {
     fprintf(fp, "%g %g", c[0], c[1]);
 }
 
 CommandLineOptions GLOBAL_options_xyType = {
     (int (*)(void *, void *)) optionsGetCieXy,
-    (void (*)(FILE *, void *, void *)) optionsPrintCieXy,
+    (void (*)(FILE *, void *, void *)) optionsPrintCieXyCallBack,
     (void *) &globalDummyCieXy,
     nullptr
 };

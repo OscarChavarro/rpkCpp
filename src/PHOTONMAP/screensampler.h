@@ -12,7 +12,7 @@ Samples a random point on the view screen and traces the viewing ray.
 #include "scene/Camera.h"
 #include "raycasting/raytracing/sampler.h"
 
-class ScreenSampler : public Sampler {
+class ScreenSampler final : public Sampler {
   public:
     bool
     sample(
@@ -25,16 +25,16 @@ class ScreenSampler : public Sampler {
         double x1,
         double x2,
         bool doRR = false,
-        char flags = BSDF_ALL_COMPONENTS);
+        char flags = BSDF_ALL_COMPONENTS) final;
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags = BSDF_ALL_COMPONENTS,
         double *probabilityDensityFunction = nullptr,
-        double *probabilityDensityFunctionRR = nullptr);
+        double *probabilityDensityFunctionRR = nullptr) final;
 };
 
 #endif

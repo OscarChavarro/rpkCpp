@@ -78,7 +78,7 @@ extern ToneMappingContext GLOBAL_toneMap_options;
 
 extern void toneMapDefaults();
 extern void toneMapParseOptions(int *argc, char **argv);
-extern void initToneMapping(java::ArrayList<Patch *> *scenePatches);
+extern void initToneMapping(const java::ArrayList<Patch *> *scenePatches);
 
 inline int
 gammaTableEntry(float x) {

@@ -98,7 +98,7 @@ toneMappingMethodOption(void *value) {
 
 static void
 brightnessAdjustOption(void * /*val*/) {
-    GLOBAL_toneMap_options.pow_bright_adjust = (float)java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
+    GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 }
 
 static void
@@ -120,10 +120,11 @@ chromaOption(void *value) {
         logFatal(-1, "chromaOption", "invalid value pointer");
     }
 
-    computeColorConversionTransforms(GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
-                                     GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
-                                     GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
-                                     GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
+    computeColorConversionTransforms(
+        GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
+        GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
+        GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
+        GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 }
 
 static void
@@ -254,7 +255,7 @@ setToneMap(ToneMap *map) {
 Initialises tone mapping, e.g. for a new scene
 */
 void
-initToneMapping(java::ArrayList<Patch *> *scenePatches) {
+initToneMapping(const java::ArrayList<Patch *> *scenePatches) {
     initSceneAdaptation(scenePatches);
     setToneMap(GLOBAL_toneMap_options.toneMap);
 }

@@ -116,7 +116,7 @@ addWithSpikeCheck(
     bool radSample = false)
 {
     if ( config->baseConfig->doDensityEstimation ) {
-        ScreenBuffer *rs;
+        const ScreenBuffer *rs;
         ScreenBuffer *ds;
         CDensityBuffer *db;
         float baseSize;

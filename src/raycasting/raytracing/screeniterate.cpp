@@ -88,13 +88,12 @@ screenIterateSequential(
     ScreenIterateFinish();
 }
 
-
 /**
 Some utility routines for progressive tracing
 */
 static inline void
 fillRect(
-    Camera *camera,
+    const Camera *camera,
     int x0,
     int y0,
     int x1,
@@ -200,7 +199,7 @@ screenIterateProgressive(
             }
 
             if ( yMax >= height ) {
-                if ( (yMax > yMin) ) {
+                if ( yMax > yMin ) {
                     openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
                 }
                 yMax = -1;

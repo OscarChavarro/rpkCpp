@@ -27,7 +27,7 @@ ScreenSampler::sample(
 {
     Vector3D dir;
 
-    // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
+    // Pre-condition2: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
     // Sample direction
     double xSample = camera->pixelWidth * (double)camera->xSize * (-0.5 + x1);

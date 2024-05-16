@@ -538,7 +538,7 @@ photonMapBRRealIteration(
                 radianceMethod);
 
         fprintf(stderr, "Global map: ");
-        GLOBAL_photonMap_config.globalMap->PrintStats(stderr);
+        GLOBAL_photonMap_config.globalMap->printStats(stderr);
     }
 
     // Caustic map
@@ -559,7 +559,7 @@ photonMapBRRealIteration(
             BSDF_SPECULAR_COMPONENT);
 
         fprintf(stderr, "Caustic map: ");
-        GLOBAL_photonMap_config.causticMap->PrintStats(stderr);
+        GLOBAL_photonMap_config.causticMap->printStats(stderr);
     }
 }
 
@@ -622,8 +622,8 @@ ColorRgb
 photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
     ColorRgb col;
 
-    GLOBAL_photonMap_config.globalMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
-    col = GLOBAL_photonMap_config.globalMap->Reconstruct(&node->m_hit, node->m_inDirF,
+    GLOBAL_photonMap_config.globalMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
+    col = GLOBAL_photonMap_config.globalMap->reconstruct(&node->m_hit, node->m_inDirF,
                                                          node->m_useBsdf,
                                                          node->m_inBsdf, node->m_outBsdf);
     return col;
@@ -636,9 +636,9 @@ ColorRgb
 photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
     ColorRgb col;
 
-    GLOBAL_photonMap_config.causticMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
+    GLOBAL_photonMap_config.causticMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
 
-    col = GLOBAL_photonMap_config.causticMap->Reconstruct(&node->m_hit, node->m_inDirF,
+    col = GLOBAL_photonMap_config.causticMap->reconstruct(&node->m_hit, node->m_inDirF,
                                                           node->m_useBsdf,
                                                           node->m_inBsdf, node->m_outBsdf);
     return col;
@@ -678,21 +678,21 @@ PhotonMapRadianceMethod::getRadiance(
 
     switch ( radiosityReturn ) {
         case GLOBAL_DENSITY:
-            radiance = GLOBAL_photonMap_config.globalMap->GetDensityColor(hit);
+            radiance = GLOBAL_photonMap_config.globalMap->getDensityColor(hit);
             break;
         case CAUSTIC_DENSITY:
-            radiance = GLOBAL_photonMap_config.causticMap->GetDensityColor(hit);
+            radiance = GLOBAL_photonMap_config.causticMap->getDensityColor(hit);
             break;
         case IMPORTANCE_C_DENSITY:
-            radiance = GLOBAL_photonMap_config.importanceCMap->GetDensityColor(hit);
+            radiance = GLOBAL_photonMap_config.importanceCMap->getDensityColor(hit);
             break;
         case IMPORTANCE_G_DENSITY:
-            radiance = GLOBAL_photonMap_config.importanceMap->GetDensityColor(hit);
+            radiance = GLOBAL_photonMap_config.importanceMap->getDensityColor(hit);
             break;
         case REC_C_DENSITY:
             {
                 Vector3D nn = hit.getNormal();
-                GLOBAL_photonMap_config.importanceCMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
+                GLOBAL_photonMap_config.importanceCMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
                 density = GLOBAL_photonMap_config.importanceCMap->getRequiredDensity(
                         camera, hit.getPoint(), nn);
                 hit.setNormal(&nn);
@@ -700,18 +700,18 @@ PhotonMapRadianceMethod::getRadiance(
             }
             break;
         case REC_G_DENSITY:
-            GLOBAL_photonMap_config.importanceMap->DoBalancing(GLOBAL_photonMap_state.balanceKDTree);
+            GLOBAL_photonMap_config.importanceMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->getRequiredDensity(
                     camera, hit.getPoint(), hit.getNormal());
             radiance = getFalseColor(density);
             break;
         case GLOBAL_RADIANCE:
-            radiance = GLOBAL_photonMap_config.globalMap->Reconstruct(
-                &hit, dir, bsdf, nullptr, bsdf);
+            radiance = GLOBAL_photonMap_config.globalMap->reconstruct(
+                    &hit, dir, bsdf, nullptr, bsdf);
             break;
         case CAUSTIC_RADIANCE:
-            radiance = GLOBAL_photonMap_config.causticMap->Reconstruct(
-                &hit, dir, bsdf, nullptr, bsdf);
+            radiance = GLOBAL_photonMap_config.causticMap->reconstruct(
+                    &hit, dir, bsdf, nullptr, bsdf);
             break;
         default:
             radiance.clear();
