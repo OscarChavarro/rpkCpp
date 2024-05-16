@@ -140,14 +140,14 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     if ( (cv = getNamedVertex(av[1], context)) == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(cv->n) ) {
+    if ( is0Vector(cv->n, Numeric::EPSILON ) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
-    round0(minRad);
+    round0(minRad, Numeric::EPSILON);
     maxRad = strtod(av[3], nullptr);
 
     // Check orientation
@@ -256,6 +256,29 @@ mgfEntityCylinder(int ac, const char **av, MgfContext *context) {
 }
 
 /**
+Compute u and v given w (normalized)
+*/
+static void
+mgfMakeAxes(double *u, double *v, const double *w, double epsilon)
+{
+    v[0] = 0.0;
+    v[1] = 0.0;
+    v[2] = 0.0;
+
+    int i;
+    for ( i = 0; i < 3; i++ ) {
+        if ( w[i] > -0.6 && w[i] < 0.6 ) {
+            break;
+        }
+    }
+    v[i] = 1.0;
+
+    floatCrossProduct(u, v, w);
+    normalize(u, epsilon);
+    floatCrossProduct(v, w, u);
+}
+
+/**
 Turn a ring into polygons
 */
 int
@@ -323,14 +346,14 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     if ( vertexContext == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(vertexContext->n) ) {
+    if ( is0Vector(vertexContext->n, Numeric::EPSILON) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
-    round0(minRad);
+    round0(minRad, Numeric::EPSILON);
     maxRad = strtod(av[3], nullptr);
     if ( minRad < 0.0 || maxRad <= minRad ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -340,7 +363,7 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     VECTOR3Dd u;
     VECTOR3Dd v;
 
-    mgfMakeAxes(u, v, vertexContext->n);
+    mgfMakeAxes(u, v, vertexContext->n, Numeric::EPSILON);
     for ( int j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * u[j]);
     }
@@ -519,9 +542,9 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 
     // Set up (radius1, radius2)
     double radius1 = strtod(av[2], nullptr);
-    round0(radius1);
+    round0(radius1, Numeric::EPSILON);
     double radius2 = strtod(av[4], nullptr);
-    round0(radius2);
+    round0(radius2, Numeric::EPSILON);
 
     if ( radius1 == 0.0 ) {
         if ( radius2 == 0.0 ) {
@@ -551,7 +574,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     for ( int j = 0; j < 3; j++ ) {
         w[j] = cv1->p[j] - cv2->p[j];
     }
-    d = normalize(w);
+    d = normalize(w, Numeric::EPSILON);
     if ( d == 0.0 ) {
         // TODO: Review floating point comparisons vs EPSILON
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -569,7 +592,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 
     VECTOR3Dd u;
     VECTOR3Dd v;
-    mgfMakeAxes(u, v, w);
+    mgfMakeAxes(u, v, w, Numeric::EPSILON);
     for ( int j = 0; j < 3; j++ ) {
         snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * u[j]);
         if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
@@ -790,7 +813,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
 
-        if ( !is0Vector(cv->n) ) {
+        if ( !is0Vector(cv->n, Numeric::EPSILON) ) {
             hasNormal++;
         }
 
@@ -806,7 +829,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         norm[2] += v3[2];
         mgfVertexCopy(v1, v2);
     }
-    if ( normalize(norm) == 0.0 ) {
+    if ( normalize(norm, Numeric::EPSILON) == 0.0 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 

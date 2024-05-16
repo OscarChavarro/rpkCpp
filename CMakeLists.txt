@@ -30,6 +30,7 @@ set(MAIN_SRC
     src/common/linealAlgebra/Matrix4x4d.cpp
     src/common/linealAlgebra/Vector3Dd.cpp
     src/common/linealAlgebra/CoordinateSystem.cpp
+    src/common/linealAlgebra/Jacobian.cpp
     src/common/numericalAnalysis/TriangleCubatureRule.cpp
     src/common/numericalAnalysis/QuadCubatureRule.cpp
     src/common/dataStructures/CircularList.cpp
@@ -56,7 +57,6 @@ set(MAIN_SRC
     src/skin/BoundingBox.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
-    src/skin/Jacobian.cpp
     src/skin/Element.cpp
     src/SGL/poly_clip.cpp
     src/SGL/poly_scan_z.cpp

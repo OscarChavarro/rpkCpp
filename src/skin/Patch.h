@@ -4,7 +4,7 @@
 #include "common/RenderOptions.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
-#include "skin/Jacobian.h"
+#include "common/linealAlgebra/Jacobian.h"
 #include "skin/Vertex.h"
 
 #define MAXIMUM_VERTICES_PER_PATCH 4

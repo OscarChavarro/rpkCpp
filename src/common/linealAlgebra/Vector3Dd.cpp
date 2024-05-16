@@ -9,7 +9,7 @@ Routines for 3-d vectors
 Normalize a vector, return old magnitude
 */
 double
-normalize(double *v)
+normalize(double *v, double epsilon)
 {
     static double len;
 
@@ -19,7 +19,7 @@ normalize(double *v)
         return 0.0;
     }
 
-    if ( len <= 1.0 + Numeric::EPSILON && len >= 1.0 - Numeric::EPSILON) {
+    if ( len <= 1.0 + epsilon && len >= 1.0 - epsilon) {
         // First order approximation
         len = 0.5 + 0.5 * len;
     } else {
@@ -43,29 +43,6 @@ floatCrossProduct(VECTOR3Dd result, const VECTOR3Dd a, const VECTOR3Dd b)
     result[0] = a[1] * b[2] - a[2] * b[1];
     result[1] = a[2] * b[0] - a[0] * b[2];
     result[2] = a[0] * b[1] - a[1] * b[0];
-}
-
-/**
-Compute u and v given w (normalized)
-*/
-void
-mgfMakeAxes(double *u, double *v, const double *w)
-{
-    v[0] = 0.0;
-    v[1] = 0.0;
-    v[2] = 0.0;
-
-    int i;
-    for ( i = 0; i < 3; i++ ) {
-        if ( w[i] > -0.6 && w[i] < 0.6 ) {
-            break;
-        }
-    }
-    v[i] = 1.0;
-
-    floatCrossProduct(u, v, w);
-    normalize(u);
-    floatCrossProduct(v, w, u);
 }
 
 /**

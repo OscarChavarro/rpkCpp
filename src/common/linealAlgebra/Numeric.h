@@ -1,9 +1,6 @@
 #ifndef __NUMERIC__
 #define __NUMERIC__
 
-#include <cmath>
-#include <cfloat>
-
 typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
 
 class Numeric {

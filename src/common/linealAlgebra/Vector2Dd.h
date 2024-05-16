@@ -1,8 +1,6 @@
 #ifndef __VECTOR_2DD__
 #define __VECTOR_2DD__
 
-#include "common/linealAlgebra/Numeric.h"
-
 class Vector2Dd {
   public:
     double u;

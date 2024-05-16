@@ -1,14 +1,11 @@
 #ifndef __VECTOR3DD__
 #define __VECTOR3DD__
 
-#include "common/linealAlgebra/Numeric.h"
-
 // Should be changed to Vector3Dd
 typedef double VECTOR3Dd[3];
 
-extern double normalize(double *v);
+extern double normalize(double *v, double epsilon);
 extern void floatCrossProduct(VECTOR3Dd result, const VECTOR3Dd a, const VECTOR3Dd b);
-extern void mgfMakeAxes(double *u, double *v, const double *w);
 extern double distanceSquared(VECTOR3Dd *v1, VECTOR3Dd *v2);
 
 inline void
@@ -24,13 +21,13 @@ dotProduct(const double *a, const double *b) {
 }
 
 extern inline bool
-is0Vector(const double *v) {
-    return dotProduct(v, v) <= Numeric::EPSILON * Numeric::EPSILON;
+is0Vector(const double *v, double epsilon) {
+    return dotProduct(v, v) <= epsilon * epsilon;
 }
 
 extern inline void
-round0(double &x) {
-    if ( x <= Numeric::EPSILON && x >= -Numeric::EPSILON) {
+round0(double &x, double epsilon) {
+    if ( x <= epsilon && x >= -epsilon ) {
         x = 0;
     }
 }

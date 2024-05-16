@@ -82,7 +82,10 @@ getVertex(const char *name, MgfContext *context) {
     }
 
     theVertex = (Vertex *) (vp->clientData);
-    if ( !theVertex || vp->clock >= 1 || vp->xid != TRANSFORM_XID(context->transformContext) || is0Vector(vp->n) ) {
+    if ( !theVertex
+        || vp->clock >= 1
+        || vp->xid != TRANSFORM_XID(context->transformContext)
+        || is0Vector(vp->n, Numeric::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -92,7 +95,7 @@ getVertex(const char *name, MgfContext *context) {
 
         mgfTransformPoint(vert, vp->p, context);
         thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2], context);
-        if ( is0Vector(vp->n) ) {
+        if ( is0Vector(vp->n, Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(norm, vp->n, context);
@@ -852,7 +855,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             globalMgfCurrentVertex->n[0] = strtod(av[1], nullptr);
             globalMgfCurrentVertex->n[1] = strtod(av[2], nullptr);
             globalMgfCurrentVertex->n[2] = strtod(av[3], nullptr);
-            normalize(globalMgfCurrentVertex->n);
+            normalize(globalMgfCurrentVertex->n, Numeric::EPSILON);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
         default:

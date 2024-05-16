@@ -2,6 +2,8 @@
 Estimate static adaptation for tone mapping
 */
 
+#include <cfloat>
+
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -36,7 +38,7 @@ initRadianceEstimate(Patch *patch) {
 static int globalNumEntries;
 static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
-static float globalLumMin = FLT_MAX; // HUGE_FLOAT_VALUE;
+static float globalLumMin = FLT_MAX; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 static float globalLumMax = 0.0;
 static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 

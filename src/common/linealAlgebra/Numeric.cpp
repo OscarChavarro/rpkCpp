@@ -1,5 +1,7 @@
 #include "common/linealAlgebra/Numeric.h"
 
+#include <cfloat>
+
 const double Numeric::HUGE_DOUBLE_VALUE = 1e30;
 const float Numeric::HUGE_FLOAT_VALUE = FLT_MAX;
 const double Numeric::EPSILON = 1e-6;
