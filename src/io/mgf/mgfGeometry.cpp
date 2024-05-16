@@ -5,6 +5,7 @@
 #include "io/mgf/mgfGeometry.h"
 
 // Alternate handler support functions
+static const int MGF_PV_SIZE = 24;
 static const char globalFloatFormat[] = "%.12g";
 static bool globalWarpConeEnds; // Hack for generating good normals
 
@@ -60,9 +61,9 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
     if ( rVal != MGF_OK ) {
         return rVal;
     }
-    snprintf(p2x, 24, globalFloatFormat, cv->p[0]);
-    snprintf(p2y, 24, globalFloatFormat, cv->p[1]);
-    snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad);
+    snprintf(p2x, 24, globalFloatFormat, cv->p.x);
+    snprintf(p2y, 24, globalFloatFormat, cv->p.y);
+    snprintf(p2z, 24, globalFloatFormat, cv->p.z + rad);
     rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
@@ -75,7 +76,7 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        snprintf(p2z, 24, globalFloatFormat, cv->p[2] + rad * java::Math::cos(theta));
+        snprintf(p2z, 24, globalFloatFormat, cv->p.z + rad * java::Math::cos(theta));
         rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -140,7 +141,7 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     if ( (cv = getNamedVertex(av[1], context)) == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(cv->n, Numeric::EPSILON ) ) {
+    if ( is0Vector(&cv->n, Numeric::EPSILON ) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
@@ -166,9 +167,9 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     // Initialize
     globalWarpConeEnds = true;
     v2Entity[3] = av[1];
-    for ( int j = 0; j < 3; j++ ) {
-        snprintf(p2[j], 24, globalFloatFormat, cv->p[j] + 0.5 * sign * (maxRad - minRad) * cv->n[j]);
-    }
+    snprintf(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * cv->n.x);
+    snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * cv->n.y);
+    snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * cv->n.z);
     rVal = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
     if ( rVal != MGF_OK ) {
         return rVal;
@@ -187,10 +188,9 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
         if ( rVal != MGF_OK ) {
             return rVal;
         }
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
-                                                   0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
-        }
+        snprintf(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
+        snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
+        snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -211,10 +211,9 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     snprintf(r2, 24, globalFloatFormat, -0.5 * (minRad + maxRad));
     for ( ; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(p2[j], 24, globalFloatFormat, cv->p[j] +
-                                                   0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n[j]);
-        }
+        snprintf(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
+        snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
+        snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
         if ( rVal != MGF_OK ) {
             return rVal;
@@ -259,19 +258,28 @@ mgfEntityCylinder(int ac, const char **av, MgfContext *context) {
 Compute u and v given w (normalized)
 */
 static void
-mgfMakeAxes(double *u, double *v, const double *w, double epsilon)
+mgfMakeAxes(VECTOR3Dd *u, VECTOR3Dd *v, const VECTOR3Dd *w, double epsilon)
 {
-    v[0] = 0.0;
-    v[1] = 0.0;
-    v[2] = 0.0;
+    v->x = 0.0;
+    v->y = 0.0;
+    v->z = 0.0;
+    double vArr[3] = {v->x, v->y, v->z};
+    double wArr[3] = {w->x, w->y, w->z};
 
     int i;
     for ( i = 0; i < 3; i++ ) {
-        if ( w[i] > -0.6 && w[i] < 0.6 ) {
+        if ( wArr[i] > -0.6 && wArr[i] < 0.6 ) {
             break;
         }
     }
-    v[i] = 1.0;
+
+    if ( i < 3 ) {
+        vArr[i] = 1.0;
+    }
+
+    v->x = vArr[0];
+    v->y = vArr[1];
+    v->z = vArr[2];
 
     floatCrossProduct(u, v, w);
     normalize(u, epsilon);
@@ -346,7 +354,7 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     if ( vertexContext == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(vertexContext->n, Numeric::EPSILON) ) {
+    if ( is0Vector(&vertexContext->n, Numeric::EPSILON) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
@@ -363,10 +371,10 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     VECTOR3Dd u;
     VECTOR3Dd v;
 
-    mgfMakeAxes(u, v, vertexContext->n, Numeric::EPSILON);
-    for ( int j = 0; j < 3; j++ ) {
-        snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * u[j]);
-    }
+    mgfMakeAxes(&u, &v, &vertexContext->n, Numeric::EPSILON);
+    snprintf(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * u.x);
+    snprintf(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * u.y);
+    snprintf(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * u.z);
     rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
@@ -376,8 +384,7 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
         return rv;
     }
 
-    if ( minRad == 0.0 ) {
-        // TODO: Review floating point comparisons vs EPSILON
+    if ( Numeric::doubleEqual(minRad, 0.0, Numeric::EPSILON) ) {
         // Closed
         v1Entity[3] = av[1];
         rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
@@ -394,11 +401,17 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( int j = 0; j < 3; j++ ) {
-                snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] +
-                                                       maxRad * u[j] * java::Math::cos(theta) +
-                                                       maxRad * v[j] * java::Math::sin(theta));
-            }
+
+            snprintf(
+                p3[0], 24, globalFloatFormat,
+                vertexContext->p.x + maxRad * u.x * java::Math::cos(theta) + maxRad * v.x * java::Math::sin(theta));
+            snprintf(
+                p3[1], 24, globalFloatFormat,
+                vertexContext->p.y + maxRad * u.y * java::Math::cos(theta) + maxRad * v.y * java::Math::sin(theta));
+            snprintf(
+                p3[2], 24, globalFloatFormat,
+                vertexContext->p.z + maxRad * u.z * java::Math::cos(theta) + maxRad * v.z * java::Math::sin(theta));
+
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -418,9 +431,11 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(p4[j], 24, globalFloatFormat, vertexContext->p[j] + minRad * u[j]);
-        }
+
+        snprintf(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * u.x);
+        snprintf(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * u.y);
+        snprintf(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * u.z);
+
         rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
@@ -436,11 +451,19 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
-                snprintf(p3[j], 24, globalFloatFormat, vertexContext->p[j] + maxRad * d);
-                snprintf(p4[j], 24, globalFloatFormat, vertexContext->p[j] + minRad * d);
-            }
+
+            d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
+            snprintf(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * d);
+            snprintf(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * d);
+
+            d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
+            snprintf(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * d);
+            snprintf(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * d);
+
+            d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
+            snprintf(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * d);
+            snprintf(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * d);
+
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -551,7 +574,10 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
             return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else if ( radius2 != 0.0 ) {
-        if ( (radius1 < 0.0) ^ (radius2 < 0.0) ) {
+        bool a = radius1 < 0.0;
+        bool b = radius2 < 0.0;
+        bool check = (a && !b) || (!a && b); // Note: this is exclusive or / XOR a ^ b
+        if ( check ) {
             return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else {
@@ -571,10 +597,11 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     // Initialize
     VECTOR3Dd w;
 
-    for ( int j = 0; j < 3; j++ ) {
-        w[j] = cv1->p[j] - cv2->p[j];
-    }
-    d = normalize(w, Numeric::EPSILON);
+    w.x = cv1->p.x - cv2->p.x;
+    w.y = cv1->p.y - cv2->p.y;
+    w.z = cv1->p.z - cv2->p.z;
+
+    d = normalize(&w, Numeric::EPSILON);
     if ( d == 0.0 ) {
         // TODO: Review floating point comparisons vs EPSILON
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -592,15 +619,29 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 
     VECTOR3Dd u;
     VECTOR3Dd v;
-    mgfMakeAxes(u, v, w, Numeric::EPSILON);
-    for ( int j = 0; j < 3; j++ ) {
-        snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * u[j]);
-        if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
-            snprintf(n3[j], 24, globalFloatFormat, -w[j]);
-        } else {
-            snprintf(n3[j], 24, globalFloatFormat, u[j] + w[j] * n2off);
-        }
+    mgfMakeAxes(&u, &v, &w, Numeric::EPSILON);
+
+    snprintf(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * u.x);
+    if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
+        snprintf(n3[0], 24, globalFloatFormat, -w.x);
+    } else {
+        snprintf(n3[0], 24, globalFloatFormat, u.x + w.x * n2off);
     }
+
+    snprintf(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * u.y);
+    if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
+        snprintf(n3[1], 24, globalFloatFormat, -w.y);
+    } else {
+        snprintf(n3[1], 24, globalFloatFormat, u.y + w.y * n2off);
+    }
+
+    snprintf(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * u.z);
+    if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
+        snprintf(n3[2], 24, globalFloatFormat, -w.z);
+    } else {
+        snprintf(n3[2], 24, globalFloatFormat, u.z + w.z * n2off);
+    }
+
     rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
     if ( rv != MGF_OK ) {
         return rv;
@@ -621,9 +662,11 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
         if ( rv != MGF_OK ) {
             return rv;
         }
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(n4[j], 24, globalFloatFormat, w[j]);
-        }
+
+        snprintf(n4[0], 24, globalFloatFormat, w.x);
+        snprintf(n4[1], 24, globalFloatFormat, w.y);
+        snprintf(n4[2], 24, globalFloatFormat, w.z);
+
         rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
@@ -634,13 +677,25 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
-                snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
-                if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                    snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
-                }
+
+            d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
+            snprintf(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[0], 24, globalFloatFormat, d + w.x * n2off);
             }
+
+            d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
+            snprintf(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[1], 24, globalFloatFormat, d + w.y * n2off);
+            }
+
+            d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
+            snprintf(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[2], 24, globalFloatFormat, d + w.z * n2off);
+            }
+
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -670,14 +725,28 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
                 n1off = java::Math::tan(java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions);
             }
         }
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + radius1 * u[j]);
-            if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
-                snprintf(n4[j], 24, globalFloatFormat, w[j]);
-            } else {
-                snprintf(n4[j], 24, globalFloatFormat, u[j] + w[j] * n1off);
-            }
+
+        snprintf(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * u.x);
+        if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
+            snprintf(n4[0], 24, globalFloatFormat, w.x);
+        } else {
+            snprintf(n4[0], 24, globalFloatFormat, u.x + w.x * n1off);
         }
+
+        snprintf(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * u.y);
+        if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
+            snprintf(n4[1], 24, globalFloatFormat, w.y);
+        } else {
+            snprintf(n4[1], 24, globalFloatFormat, u.y + w.y * n1off);
+        }
+
+        snprintf(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * u.z);
+        if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
+            snprintf(n4[2], 24, globalFloatFormat, w.z);
+        } else {
+            snprintf(n4[2], 24, globalFloatFormat, u.z + w.z * n1off);
+        }
+
         rv = mgfHandle(MgfEntity::VERTEX, 3, v4Entity, context);
         if ( rv != MGF_OK ) {
             return rv;
@@ -700,17 +769,37 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
             if ( rv != MGF_OK ) {
                 return rv;
             }
-            for ( int j = 0; j < 3; j++ ) {
-                d = u[j] * java::Math::cos(theta) + v[j] * java::Math::sin(theta);
-                snprintf(p3[j], 24, globalFloatFormat, cv2->p[j] + radius2 * d);
-                if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                    snprintf(n3[j], 24, globalFloatFormat, d + w[j] * n2off);
-                }
-                snprintf(p4[j], 24, globalFloatFormat, cv1->p[j] + radius1 * d);
-                if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
-                    snprintf(n4[j], 24, globalFloatFormat, d + w[j] * n1off);
-                }
+
+            d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
+            snprintf(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[0], 24, globalFloatFormat, d + w.x * n2off);
             }
+            snprintf(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * d);
+            if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n4[0], 24, globalFloatFormat, d + w.x * n1off);
+            }
+
+            d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
+            snprintf(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[1], 24, globalFloatFormat, d + w.y * n2off);
+            }
+            snprintf(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * d);
+            if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n4[1], 24, globalFloatFormat, d + w.y * n1off);
+            }
+
+            d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
+            snprintf(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
+            if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n3[2], 24, globalFloatFormat, d + w.z * n2off);
+            }
+            snprintf(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * d);
+            if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
+                snprintf(n4[2], 24, globalFloatFormat, d + w.z * n1off);
+            }
+
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
             if ( rv != MGF_OK ) {
                 return rv;
@@ -769,7 +858,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         "0"
     };
     const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
-    char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][8];
+    char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][MGF_PV_SIZE];
     double length;
     int hasNormal;
     const MgfVertexContext *cv;
@@ -796,16 +885,8 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
     }
     hasNormal = 0;
 
-    VECTOR3Dd norm;
-
-    norm[0] = 0.0;
-    norm[1] = 0.0;
-    norm[2] = 0.0;
-
-    VECTOR3Dd v1;
-    v1[0] = 0.0;
-    v1[1] = 0.0;
-    v1[2] = 0.0;
+    VECTOR3Dd norm(0.0, 0.0, 0.0);
+    VECTOR3Dd v1(0.0, 0.0, 0.0);
 
     for ( i = 2; i < ac - 1; i++ ) {
         cv = getNamedVertex(av[i], context);
@@ -813,29 +894,29 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
 
-        if ( !is0Vector(cv->n, Numeric::EPSILON) ) {
+        if ( !is0Vector(&cv->n, Numeric::EPSILON) ) {
             hasNormal++;
         }
 
         VECTOR3Dd v2;
         VECTOR3Dd v3;
 
-        v2[0] = cv->p[0] - cv0->p[0];
-        v2[1] = cv->p[1] - cv0->p[1];
-        v2[2] = cv->p[2] - cv0->p[2];
-        floatCrossProduct(v3, v1, v2);
-        norm[0] += v3[0];
-        norm[1] += v3[1];
-        norm[2] += v3[2];
-        mgfVertexCopy(v1, v2);
+        v2.x = cv->p.x - cv0->p.x;
+        v2.y = cv->p.y - cv0->p.y;
+        v2.z = cv->p.z - cv0->p.z;
+        floatCrossProduct(&v3, &v1, &v2);
+        norm.x += v3.x;
+        norm.y += v3.y;
+        norm.z += v3.z;
+        mgfVertexCopy(&v1, &v2);
     }
-    if ( normalize(norm, Numeric::EPSILON) == 0.0 ) {
+    if ( normalize(&norm, Numeric::EPSILON) == 0.0 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Create moved vertices
     for ( i = 1; i < ac - 1; i++ ) {
-        snprintf(nvn[i - 1], MGF_MAXIMUM_ARGUMENT_COUNT, "_pv%d", i);
+        snprintf(nvn[i - 1], MGF_PV_SIZE, "_pv%d", i);
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
         rv = mgfHandle(MgfEntity::VERTEX, 4, vent, context);
@@ -843,9 +924,9 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             return rv;
         }
         cv = getNamedVertex(av[i], context); // Checked above
-        for ( int j = 0; j < 3; j++ ) {
-            snprintf(p[j], 24, globalFloatFormat, cv->p[j] - length * norm[j]);
-        }
+        snprintf(p[0], 24, globalFloatFormat, cv->p.x - length * norm.x);
+        snprintf(p[1], 24, globalFloatFormat, cv->p.y - length * norm.y);
+        snprintf(p[2], 24, globalFloatFormat, cv->p.z - length * norm.z);
         rv = mgfHandle(MgfEntity::MGF_POINT, 4, pent, context);
         if ( rv != MGF_OK ) {
             return rv;

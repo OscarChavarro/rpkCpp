@@ -85,7 +85,7 @@ getVertex(const char *name, MgfContext *context) {
     if ( !theVertex
         || vp->clock >= 1
         || vp->xid != TRANSFORM_XID(context->transformContext)
-        || is0Vector(vp->n, Numeric::EPSILON) ) {
+        || is0Vector(&vp->n, Numeric::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -93,13 +93,13 @@ getVertex(const char *name, MgfContext *context) {
         Vector3D *theNormal;
         Vector3D *thePoint;
 
-        mgfTransformPoint(vert, vp->p, context);
-        thePoint = installPoint((float)vert[0], (float)vert[1], (float)vert[2], context);
-        if ( is0Vector(vp->n, Numeric::EPSILON) ) {
+        mgfTransformPoint(&vert, &vp->p, context);
+        thePoint = installPoint((float)vert.x, (float)vert.y, (float)vert.z, context);
+        if ( is0Vector(&vp->n, Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
-            mgfTransformVector(norm, vp->n, context);
-            theNormal = installNormal((float)norm[0], (float)norm[1], (float)norm[2], context);
+            mgfTransformVector(&norm, &vp->n, context);
+            theNormal = installNormal((float)norm.x, (float)norm.y, (float)norm.z, context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->clientData = (void *) theVertex;
@@ -644,7 +644,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
             // Undefined vertex
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        mgfTransformPoint(v[i], vp->p, context); // Transform with the current transform
+        mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
 
         copied[i] = false; // Vertex not yet copied to argumentsToFaceWithoutHoles
     }
@@ -839,9 +839,9 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentVertex->p[0] = strtod(av[1], nullptr);
-            globalMgfCurrentVertex->p[1] = strtod(av[2], nullptr);
-            globalMgfCurrentVertex->p[2] = strtod(av[3], nullptr);
+            globalMgfCurrentVertex->p.x = strtod(av[1], nullptr);
+            globalMgfCurrentVertex->p.y = strtod(av[2], nullptr);
+            globalMgfCurrentVertex->p.z = strtod(av[3], nullptr);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
         case MgfEntity::MGF_NORMAL:
@@ -852,10 +852,10 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
                 return MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentVertex->n[0] = strtod(av[1], nullptr);
-            globalMgfCurrentVertex->n[1] = strtod(av[2], nullptr);
-            globalMgfCurrentVertex->n[2] = strtod(av[3], nullptr);
-            normalize(globalMgfCurrentVertex->n, Numeric::EPSILON);
+            globalMgfCurrentVertex->n.x = strtod(av[1], nullptr);
+            globalMgfCurrentVertex->n.y = strtod(av[2], nullptr);
+            globalMgfCurrentVertex->n.z = strtod(av[3], nullptr);
+            normalize(&globalMgfCurrentVertex->n, Numeric::EPSILON);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
         default:

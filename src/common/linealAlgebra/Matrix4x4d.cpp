@@ -17,27 +17,27 @@ copyMat4(double (*m4a)[4], MATRIX4Dd m4b) {
 Transform vector v3b by m4 and put into v3a
 */
 void
-multiplyV3(double *v3a, const double *v3b, double (*m4)[4])
+multiplyV3(VECTOR3Dd *v3a, const VECTOR3Dd *v3b, const double (*m4)[4])
 {
-    globalM4Tmp[0][0] = v3b[0] * m4[0][0] + v3b[1] * m4[1][0] + v3b[2] * m4[2][0];
-    globalM4Tmp[0][1] = v3b[0] * m4[0][1] + v3b[1] * m4[1][1] + v3b[2] * m4[2][1];
-    globalM4Tmp[0][2] = v3b[0] * m4[0][2] + v3b[1] * m4[1][2] + v3b[2] * m4[2][2];
+    globalM4Tmp[0][0] = v3b->x * m4[0][0] + v3b->y * m4[1][0] + v3b->z * m4[2][0];
+    globalM4Tmp[0][1] = v3b->x * m4[0][1] + v3b->y * m4[1][1] + v3b->z * m4[2][1];
+    globalM4Tmp[0][2] = v3b->x * m4[0][2] + v3b->y * m4[1][2] + v3b->z * m4[2][2];
 
-    v3a[0] = globalM4Tmp[0][0];
-    v3a[1] = globalM4Tmp[0][1];
-    v3a[2] = globalM4Tmp[0][2];
+    v3a->x = globalM4Tmp[0][0];
+    v3a->y = globalM4Tmp[0][1];
+    v3a->z = globalM4Tmp[0][2];
 }
 
 /**
 Transform p3b by m4 and put into p3a
 */
 void
-multiplyP3(double *p3a, const double *p3b, double (*m4)[4])
+multiplyP3(VECTOR3Dd *p3a, const VECTOR3Dd *p3b, const double (*m4)[4])
 {
     multiplyV3(p3a, p3b, m4); // Transform as vector
-    p3a[0] += m4[3][0]; // Translate
-    p3a[1] += m4[3][1];
-    p3a[2] += m4[3][2];
+    p3a->x += m4[3][0]; // Translate
+    p3a->y += m4[3][1];
+    p3a->z += m4[3][2];
 }
 
 void
