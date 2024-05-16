@@ -23,7 +23,7 @@ set(MAIN_SRC
     src/common/RenderOptions.cpp
     src/common/stratification.cpp
     src/common/Statistics.cpp
-    src/common/linealAlgebra/Float.cpp
+    src/common/linealAlgebra/Numeric.cpp
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
     src/common/linealAlgebra/Matrix4x4.cpp

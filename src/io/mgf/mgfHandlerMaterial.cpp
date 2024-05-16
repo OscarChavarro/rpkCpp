@@ -59,7 +59,7 @@ mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContex
     float rgb[3];
 
     cin->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
-    if ( cin->cy > EPSILON ) {
+    if ( cin->cy > Numeric::EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
         xyz[1] = 1.0f * intensity;
         xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
@@ -107,7 +107,7 @@ colorMax(ColorRgb col) {
 
     specSamples(col, samples);
 
-    mx = -HUGE_FLOAT_VALUE;
+    mx = -Numeric::HUGE_FLOAT_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
@@ -161,18 +161,18 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
     // Check/correct range of reflectances and transmittances
     A.add(Rd, Rs);
     float a = colorMax(A);
-    if ( a > 1.0f - (float)EPSILON ) {
+    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
         doWarning("invalid material specification: total reflectance shall be < 1", context);
-        a = (1.0f - (float)EPSILON) / a;
+        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
         Rd.scale(a);
         Rs.scale(a);
     }
 
     A.add(Td, Ts);
     a = colorMax(A);
-    if ( a > 1.0f - (float)EPSILON ) {
+    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
         doWarning("invalid material specification: total transmittance shall be < 1", context);
-        a = (1.0f - (float)EPSILON) / a;
+        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
         Td.scale(a);
         Ts.scale(a);
     }
@@ -359,7 +359,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             }
             globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->ni = strtof(av[2], nullptr);
-            if ( globalMgfCurrentMaterial->nr <= EPSILON ) {
+            if ( globalMgfCurrentMaterial->nr <= Numeric::EPSILON ) {
                 return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->clock++;

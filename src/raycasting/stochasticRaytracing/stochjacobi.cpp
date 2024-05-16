@@ -176,7 +176,7 @@ stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
     globalSumOfProbabilities = 0.0;
     stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
-    if ( globalSumOfProbabilities < EPSILON * EPSILON ) {
+    if ( globalSumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
         logWarning("Iteration", "No sources");
         return false;
     }
@@ -334,8 +334,8 @@ stochasticJacobiPropagateRadiance(
     double weight = globalSumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
 
-    if ( src_prob < EPSILON * EPSILON /* this should never happen */
-         || fraction < EPSILON ) {
+    if ( src_prob < Numeric::EPSILON * Numeric::EPSILON /* this should never happen */
+         || fraction < Numeric::EPSILON ) {
         // Reverse transfer from a black surface
         return;
     }
@@ -358,7 +358,7 @@ stochasticJacobiPropagateRadiance(
                 break;
             case HierarchyClusteringMode::ORIENTED_CLUSTERING:
                 area = stochasticJacobiReceiverProjectedArea(rcv, ray, dir);
-                if ( area > EPSILON ) {
+                if ( area > Numeric::EPSILON ) {
                     stochasticJacobiPropagateRadianceToClusterOriented(rcv, rayPower, ray, dir, src, area, fraction,
                                                                        weight);
                 }
@@ -535,17 +535,17 @@ stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *v
     }
 
     // Clip uv coordinates to lay strictly inside the hit patch
-    if ( *uHit < EPSILON ) {
-        *uHit = EPSILON;
+    if ( *uHit < Numeric::EPSILON ) {
+        *uHit = Numeric::EPSILON;
     }
-    if ( *vHit < EPSILON ) {
-        *vHit = EPSILON;
+    if ( *vHit < Numeric::EPSILON ) {
+        *vHit = Numeric::EPSILON;
     }
-    if ( *uHit > 1.0 - EPSILON ) {
-        *uHit = 1.0 - EPSILON;
+    if ( *uHit > 1.0 - Numeric::EPSILON ) {
+        *uHit = 1.0 - Numeric::EPSILON;
     }
-    if ( *vHit > 1.0 - EPSILON ) {
-        *vHit = 1.0 - EPSILON;
+    if ( *vHit > 1.0 - Numeric::EPSILON ) {
+        *vHit = 1.0 - Numeric::EPSILON;
     }
 }
 

@@ -175,11 +175,11 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     }
     localNorm = n.norm();
 
-    if ( localNorm < EPSILON ) {
+    if ( localNorm < Numeric::Numeric::EPSILON ) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    n.inverseScaledCopy((float) localNorm, n, EPSILON_FLOAT);
+    n.inverseScaledCopy((float) localNorm, n, Numeric::Numeric::EPSILON_FLOAT);
     *normal = n;
 
     return normal;
@@ -271,10 +271,10 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
 
     a = 10.0;
     b = 10.0; // Values large enough so the result would be false
-    if ( java::Math::abs(u1) < EPSILON ) {
-        if ( java::Math::abs(u2) > EPSILON && java::Math::abs(v1) > EPSILON ) {
+    if ( java::Math::abs(u1) < Numeric::Numeric::EPSILON ) {
+        if ( java::Math::abs(u2) > Numeric::Numeric::EPSILON && java::Math::abs(v1) > Numeric::EPSILON ) {
             b = u0 / u2;
-            if ( b < EPSILON || b > 1.0 - EPSILON ) {
+            if ( b < Numeric::EPSILON || b > 1.0 - Numeric::EPSILON ) {
                 return false;
             } else {
                 a = (v0 - b * v2) / v1;
@@ -282,9 +282,9 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
         }
     } else {
         b = v2 * u1 - u2 * v1;
-        if ( java::Math::abs(b) > EPSILON ) {
+        if ( java::Math::abs(b) > Numeric::EPSILON ) {
             b = (v0 * u1 - u0 * v1) / b;
-            if ( b < EPSILON || b > 1.0 - EPSILON ) {
+            if ( b < Numeric::EPSILON || b > 1.0 - Numeric::EPSILON ) {
                 return false;
             } else {
                 a = (u0 - b * u2) / u1;
@@ -292,7 +292,7 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
         }
     }
 
-    return (a >= EPSILON && a <= 1.0 - EPSILON && (a + b) <= 1.0 - EPSILON);
+    return (a >= Numeric::EPSILON && a <= 1.0 - Numeric::EPSILON && (a + b) <= 1.0 - Numeric::EPSILON);
 }
 
 /**
@@ -314,7 +314,7 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
     du = java::Math::abs(p2->u - p1->u);
     dv = java::Math::abs(p2->v - p1->v);
-    if ( du > EPSILON || dv > EPSILON ) {
+    if ( du > Numeric::EPSILON || dv > Numeric::EPSILON ) {
         if ( dv > du ) {
             a = 1.0;
             b = -(p2->u - p1->u) / (p2->v - p1->v);
@@ -328,9 +328,9 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
         r3 = a * p3->u + b * p3->v + c;
         r4 = a * p4->u + b * p4->v + c;
 
-        if ( java::Math::abs(r3) < EPSILON && java::Math::abs(r4) < EPSILON ) {
+        if ( java::Math::abs(r3) < Numeric::EPSILON && java::Math::abs(r4) < Numeric::EPSILON ) {
             coLinear = true;
-        } else if ((r3 > -EPSILON && r4 > -EPSILON) || (r3 < EPSILON && r4 < EPSILON) ) {
+        } else if ((r3 > -Numeric::EPSILON && r4 > -Numeric::EPSILON) || (r3 < Numeric::EPSILON && r4 < Numeric::EPSILON) ) {
             return false;
         }
     }
@@ -338,7 +338,7 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
     if ( !coLinear ) {
         du = java::Math::abs(p4->u - p3->u);
         dv = java::Math::abs(p4->v - p3->v);
-        if ( du > EPSILON || dv > EPSILON ) {
+        if ( du > Numeric::EPSILON || dv > Numeric::EPSILON ) {
             if ( dv > du ) {
                 a = 1.0;
                 b = -(p4->u - p3->u) / (p4->v - p3->v);
@@ -352,9 +352,9 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
             r1 = a * p1->u + b * p1->v + c;
             r2 = a * p2->u + b * p2->v + c;
 
-            if ( java::Math::abs(r1) < EPSILON && java::Math::abs(r2) < EPSILON ) {
+            if ( java::Math::abs(r1) < Numeric::EPSILON && java::Math::abs(r2) < Numeric::EPSILON ) {
                 coLinear = true;
-            } else if ( (r1 > -EPSILON && r2 > -EPSILON) || (r1 < EPSILON && r2 < EPSILON) ) {
+            } else if ( (r1 > -Numeric::EPSILON && r2 > -Numeric::EPSILON) || (r1 < Numeric::EPSILON && r2 < Numeric::EPSILON) ) {
                 return false;
             }
         }
@@ -382,7 +382,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     for ( int i = 0; i < n; i++ ) {
         center.addition(center, *(v[i]->point));
     }
-    center.inverseScaledCopy((float) n, center, EPSILON_FLOAT);
+    center.inverseScaledCopy((float) n, center, Numeric::EPSILON_FLOAT);
 
     double maxD = center.distance(*(v[0]->point));
     int max = 0;
@@ -407,7 +407,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     }
     int p2 = (p1 + 1) % n;
     normal->tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
-    normal->normalize(EPSILON_FLOAT);
+    normal->normalize(Numeric::EPSILON_FLOAT);
     int index = normal->dominantCoordinate();
 
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
@@ -447,7 +447,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
             nn.tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
             a = nn.norm();
-            nn.inverseScaledCopy((float) a, nn, EPSILON_FLOAT);
+            nn.inverseScaledCopy((float) a, nn, Numeric::EPSILON_FLOAT);
             d = nn.distance(*normal);
 
             good = true;
@@ -478,7 +478,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
             return; // Don't stop parsing the input however
         }
 
-        if ( java::Math::abs(a) > EPSILON ) {
+        if ( java::Math::abs(a) > Numeric::EPSILON ) {
             // Avoid degenerate faces
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
             if ( !context->currentMaterial->isSided() && face != nullptr ) {
@@ -680,7 +680,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
         // Find the not yet copied vertex that is nearest to the already
         // copied ones
         nearestCopied = nearestOther = 0;
-        minimumDistance = HUGE_DOUBLE_VALUE;
+        minimumDistance = Numeric::HUGE_DOUBLE_VALUE;
         for ( j = i; j < argc; j++ ) {
             if ( *argv[j] == '-' || copied[j] ) {
                 continue;

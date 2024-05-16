@@ -131,7 +131,7 @@ LightList::evalPdf(Patch *light, const Vector3D *point) const {
     // TODO!!!  1) patch should become class
     //          2) virtual patch should become child-class
     //          3) this method should be handled by specialisation
-    if ( totalFlux < EPSILON ) {
+    if ( totalFlux < Numeric::EPSILON ) {
         return 0.0;
     }
     if ( light->hasZeroVertices() ) {
@@ -241,8 +241,8 @@ LightList::computeOneLightImportance(
 
 void
 LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal) {
-    if ((point->equals(lastPoint, EPSILON_FLOAT)) &&
-        (normal->equals(lastNormal, EPSILON_FLOAT)) ) {
+    if ((point->equals(lastPoint, Numeric::EPSILON_FLOAT)) &&
+        (normal->equals(lastNormal, Numeric::EPSILON_FLOAT)) ) {
         return; // Still ok !!
     }
 
@@ -353,7 +353,7 @@ LightList::evalPdfImportant(
     }
 
     // Prob for choosing this light
-    if ( totalImp < EPSILON ) {
+    if ( totalImp < Numeric::EPSILON ) {
         pdf = 0.0;
     } else {
         pdf = info->importance / totalImp;

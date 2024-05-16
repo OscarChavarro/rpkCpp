@@ -50,7 +50,7 @@ basisGalerkinPull(
             parent_coefficients[alpha].clear();
             for ( int beta = 0; beta < child->basisSize; beta++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
-                if ( f < -EPSILON || f > EPSILON )
+                if ( f < -Numeric::EPSILON || f > Numeric::EPSILON )
                     parent_coefficients[alpha].addScaled(
                             parent_coefficients[alpha],
                             (float) f,
@@ -268,7 +268,7 @@ basisGalerkinPush(
             childCoefficients[beta].clear();
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
                 double f = basis->regularFilter[sigma][alpha][beta];
-                if ( f < -EPSILON || f > EPSILON )
+                if ( f < -Numeric::EPSILON || f > Numeric::EPSILON )
                     childCoefficients[beta].addScaled(
                         childCoefficients[beta],
                         (float) f,

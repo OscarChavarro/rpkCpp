@@ -65,7 +65,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *cluster, const GalerkinSta
     // the sub-clusters + pull radiance
     cluster->area = 0.0;
     cluster->numberOfPatches = 0;
-    cluster->minimumArea = HUGE_FLOAT_VALUE;
+    cluster->minimumArea = Numeric::HUGE_FLOAT_VALUE;
     colorsArrayClear(cluster->radiance, cluster->basisSize);
     for ( int i = 0; cluster->irregularSubElements != nullptr && i< cluster->irregularSubElements->size(); i++ ) {
         const GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);

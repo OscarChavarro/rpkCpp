@@ -19,7 +19,7 @@ normalize(double *v)
         return 0.0;
     }
 
-    if ( len <= 1.0 + EPSILON && len >= 1.0 - EPSILON) {
+    if ( len <= 1.0 + Numeric::EPSILON && len >= 1.0 - Numeric::EPSILON) {
         // First order approximation
         len = 0.5 + 0.5 * len;
     } else {

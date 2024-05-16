@@ -113,7 +113,7 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
             logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
     }
 
-    localNormal.normalize(EPSILON_FLOAT);
+    localNormal.normalize(Numeric::Numeric::EPSILON_FLOAT);
     return localNormal;
 }
 
@@ -285,7 +285,7 @@ Patch::computeRandomWalkRadiosityArea() {
 
             // 'b' and 'c' are zero for parallelograms. In that case, the area is equal to
             // 'a', so we don't need to store the coefficients
-            if ( java::Math::abs(b) / this->area < EPSILON && java::Math::abs(c) / this->area < EPSILON ) {
+            if ( java::Math::abs(b) / this->area < Numeric::EPSILON && java::Math::abs(c) / this->area < Numeric::EPSILON ) {
                 this->jacobian = nullptr;
             } else {
                 this->jacobian = new Jacobian(a, b, c);
@@ -297,7 +297,7 @@ Patch::computeRandomWalkRadiosityArea() {
             this->area = 0.0;
     }
 
-    if ( this->area < EPSILON * EPSILON ) {
+    if ( this->area < Numeric::EPSILON * Numeric::EPSILON ) {
         fprintf(stderr, "Warning: very small patch id %d area = %g\n", this->id, this->area);
     }
 
@@ -314,7 +314,7 @@ Patch::computeMidpoint(Vector3D *p) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         p->addition(*p, *(vertex[i]->point));
     }
-    p->inverseScaledCopy((float) numberOfVertices, *p, EPSILON_FLOAT);
+    p->inverseScaledCopy((float) numberOfVertices, *p, Numeric::EPSILON_FLOAT);
 }
 
 /**
@@ -326,7 +326,7 @@ Patch::computeTolerance() const {
     float localTolerance = 0.0f;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *p = vertex[i]->point;
-        float e = java::Math::abs(normal.dotProduct(*p) + planeConstant) + p->tolerance(EPSILON_FLOAT);
+        float e = java::Math::abs(normal.dotProduct(*p) + planeConstant) + p->tolerance(Numeric::EPSILON_FLOAT);
         if ( e > localTolerance ) {
             localTolerance = e;
         }
@@ -386,7 +386,7 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
             break;
     }
 
-    if ( p1.u < -EPSILON || p1.u > EPSILON ) {
+    if ( p1.u < -Numeric::EPSILON || p1.u > Numeric::EPSILON ) {
         // p1.u non zero
         beta = (p0.v * p1.u - p0.u * p1.v) / (p2.v * p1.u - p2.u * p1.v);
         if ( beta >= 0.0 && beta <= 1.0 ) {
@@ -485,24 +485,24 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     vector2DNegate(AE);
     vector2DSubtract(M, A, AM);
 
-    if ( java::Math::abs(vector2DDeterminant(AB, CD)) < EPSILON ) {
+    if ( java::Math::abs(vector2DDeterminant(AB, CD)) < Numeric::EPSILON ) {
         // Case AB // CD
         vector2DSubtract(AB, CD, Vector);
         v = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AD, Vector);
         if ( (v >= 0.0) && (v <= 1.0) ) {
             b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
             c = vector2DDeterminant(AM, AD);
-            u = java::Math::abs(b) < EPSILON ? -1 : c / b;
+            u = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
-    } else if ( java::Math::abs(vector2DDeterminant(BC, AD)) < EPSILON ) {
+    } else if ( java::Math::abs(vector2DDeterminant(BC, AD)) < Numeric::EPSILON ) {
         // Case AD // BC
         vector2DAdd(AD, BC, Vector);
         u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
         if ( (u >= 0.0) && (u <= 1.0) ) {
             b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
             c = vector2DDeterminant(AM, AB);
-            v = java::Math::abs(b) < EPSILON ? -1 : c / b;
+            v = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((v >= 0.0) && (v <= 1.0));
         }
     } else {
@@ -523,7 +523,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
             }
             if ( (u >= 0.0) && (u <= 1.0) ) {
                 v = AD.u + u * AE.u;
-                if ( java::Math::abs(v) < EPSILON ) {
+                if ( java::Math::abs(v) < Numeric::EPSILON ) {
                     v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
                 } else {
                     v = (AM.u - u * AB.u) / v;
@@ -580,11 +580,11 @@ patchNormal(const Patch *patch, Vector3D *normal) {
     }
 
     localNorm = normal->norm();
-    if ( localNorm < EPSILON ) {
+    if ( localNorm < Numeric::EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
     }
-    normal->inverseScaledCopy(localNorm, *normal, EPSILON_FLOAT);
+    normal->inverseScaledCopy(localNorm, *normal, Numeric::EPSILON_FLOAT);
 
     return normal;
 }
@@ -860,7 +860,7 @@ Patch::interpolatedFrameAtUv(
 
     if ( X && Y ) {
         double zz = java::Math::sqrt(1 - Z->z * Z->z);
-        if ( zz < EPSILON ) {
+        if ( zz < Numeric::EPSILON ) {
             X->set(1.0, 0.0, 0.0);
         } else {
             X->set((float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
@@ -934,7 +934,7 @@ Patch::intersect(
     }
 
     dist = normal.dotProduct(ray->dir);
-    if ( dist > EPSILON ) {
+    if ( dist > Numeric::EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & RayHitFlag::BACK) ) {
             return nullptr;
@@ -942,7 +942,7 @@ Patch::intersect(
             unsigned int newFlags = hit.getFlags() | RayHitFlag::BACK;
             hit.setFlags(newFlags);
         }
-    } else if ( dist < -EPSILON ) {
+    } else if ( dist < -Numeric::EPSILON ) {
         // Front facing patch
         if ( !(hitFlags & RayHitFlag::FRONT) ) {
             return nullptr;
@@ -1139,7 +1139,7 @@ Patch::isAtLeastPartlyInFront(const Patch *other) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *vp = vertex[i]->point;
         double ep = other->normal.dotProduct(*vp) + other->planeConstant;
-        double localTolerance = other->tolerance + vp->tolerance(EPSILON_FLOAT);
+        double localTolerance = other->tolerance + vp->tolerance(Numeric::EPSILON_FLOAT);
         if ( ep > localTolerance ) {
             // P is at least partly in front of Q
             return true;

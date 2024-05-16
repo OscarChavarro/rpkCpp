@@ -124,7 +124,7 @@ CKernel2D::varCover(
     float avgFe = fe.average();
     float avgG = color.average();
 
-    if ( avgFe > EPSILON ) {
+    if ( avgFe > Numeric::EPSILON ) {
         h = Bn * java::Math::sqrt(avgG / avgFe);
         // printf("fe %f G %f, h = %f\n", avgFe, avgG, h/screenScale);
     } else {

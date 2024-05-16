@@ -387,7 +387,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 
     // Global variables for scratch rendering
     galerkinState.lastClusterId = -1;
-    galerkinState.lastEye.set(HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE);
+    galerkinState.lastEye.set(Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE);
 }
 
 bool

@@ -38,7 +38,7 @@ CBsdfSampler::sample(
             &pdfDir);
     }
 
-    if ( pdfDir <= EPSILON ) {
+    if ( pdfDir <= Numeric::EPSILON ) {
         // No good sample
         return false;
     }
@@ -132,7 +132,7 @@ CBsdfSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float)dist, outDir, EPSILON_FLOAT);
+    outDir.inverseScaledCopy((float)dist, outDir, Numeric::EPSILON_FLOAT);
 
     // Beware : NOT RECIPROKE!
     double pdfDir;
@@ -184,7 +184,7 @@ CBsdfSampler::EvalPDFPrev(
 
     // More efficient with extra params?
     outDir.subtraction(prevNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
-    outDir.normalize(EPSILON_FLOAT);
+    outDir.normalize(Numeric::EPSILON_FLOAT);
 
     // Beware : NOT RECIPROCAL!
     pdfDir = 0.0;

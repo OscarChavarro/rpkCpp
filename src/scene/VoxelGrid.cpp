@@ -334,7 +334,7 @@ VoxelGrid::gridTraceSetup(
     out[0] is -1 or xSize: the first x grid cell index outside the
     grid.
     */
-    if ( java::Math::abs(ray->dir.x) > EPSILON ) {
+    if ( java::Math::abs(ray->dir.x) > Numeric::EPSILON ) {
         if ( ray->dir.x > 0.0 ) {
             tDelta->x = voxelSize.x / ray->dir.x;
             tNext->x = t0 + (voxel2x((float)g[0] + 1) - P->x) / ray->dir.x;
@@ -347,11 +347,11 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->x = 0.0;
-        tNext->x = HUGE_FLOAT_VALUE;
+        tNext->x = Numeric::HUGE_FLOAT_VALUE;
     }
 
     // Setup Y:
-    if ( java::Math::abs(ray->dir.y) > EPSILON ) {
+    if ( java::Math::abs(ray->dir.y) > Numeric::EPSILON ) {
         if ( ray->dir.y > 0.0 ) {
             tDelta->y = voxelSize.y / ray->dir.y;
             tNext->y = t0 + (voxel2y((float)g[1] + 1) - P->y) / ray->dir.y;
@@ -364,11 +364,11 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->y = 0.0;
-        tNext->y = HUGE_FLOAT_VALUE;
+        tNext->y = Numeric::HUGE_FLOAT_VALUE;
     }
 
     // Setup Z:
-    if ( java::Math::abs(ray->dir.z) > EPSILON ) {
+    if ( java::Math::abs(ray->dir.z) > Numeric::EPSILON ) {
         if ( ray->dir.z > 0.0 ) {
             tDelta->z = voxelSize.z / ray->dir.z;
             tNext->z = t0 + (voxel2z((float)g[2] + 1) - P->z) / ray->dir.z;
@@ -381,7 +381,7 @@ VoxelGrid::gridTraceSetup(
         }
     } else {
         tDelta->z = 0.0;
-        tNext->z = HUGE_FLOAT_VALUE;
+        tNext->z = Numeric::HUGE_FLOAT_VALUE;
     }
 }
 

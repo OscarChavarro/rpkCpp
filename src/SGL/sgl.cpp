@@ -5,7 +5,7 @@ of patches needs to be ID rendered very often
 */
 
 #include "common/error.h"
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 
@@ -208,7 +208,7 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
         v.z = vertices[i].z;
         v.w = 1.0;
         currentTransform->transformPoint4D(v, v);
-        if ( v.w > -EPSILON && v.w < EPSILON ) {
+        if ( v.w > -Numeric::EPSILON && v.w < Numeric::EPSILON ) {
             return;
         }
         pv->sx = v.x;

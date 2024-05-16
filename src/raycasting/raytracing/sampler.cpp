@@ -86,7 +86,7 @@ Sampler::sampleTransfer(
     tmpVec.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = tmpVec.norm2();
 
-    if ( dist2 < EPSILON ) {
+    if ( dist2 < Numeric::EPSILON ) {
         // Next node is useless, gives rise to numeric errors (Inf)
         return false;
     }

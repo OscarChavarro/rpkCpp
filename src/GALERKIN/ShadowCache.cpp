@@ -23,7 +23,7 @@ ShadowCache::cacheHit(const Ray *ray, float *distance, RayHit *hitStore) const {
     for ( int i = 0; i < numberOfCachedPatches; i++ ) {
         RayHit *hit = patchCache[i]->intersect(
             ray,
-            EPSILON_FLOAT *(*distance),
+            Numeric::EPSILON_FLOAT *(*distance),
             distance,
             RayHitFlag::FRONT | RayHitFlag::ANY,
             hitStore);

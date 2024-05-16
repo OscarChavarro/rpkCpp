@@ -167,7 +167,7 @@ UniformLightSampler::evalPDF(
         pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->area > Numeric::EPSILON ) {
             pdf = pdf / newNode->m_hit.getPatch()->area;
         } else {
             pdf = 0.0;
@@ -319,7 +319,7 @@ ImportantLightSampler::evalPDF(
         pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= EPSILON && newNode->m_hit.getPatch()->area > EPSILON ) {
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->area > Numeric::EPSILON ) {
             pdf = pdf / newNode->m_hit.getPatch()->area;
         } else {
             pdf = 0.0;

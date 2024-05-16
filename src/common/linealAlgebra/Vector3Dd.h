@@ -1,7 +1,7 @@
 #ifndef __VECTOR3DD__
 #define __VECTOR3DD__
 
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 
 // Should be changed to Vector3Dd
 typedef double VECTOR3Dd[3];
@@ -25,12 +25,12 @@ dotProduct(const double *a, const double *b) {
 
 extern inline bool
 is0Vector(const double *v) {
-    return dotProduct(v, v) <= EPSILON * EPSILON;
+    return dotProduct(v, v) <= Numeric::EPSILON * Numeric::EPSILON;
 }
 
 extern inline void
 round0(double &x) {
-    if ( x <= EPSILON && x >= -EPSILON) {
+    if ( x <= Numeric::EPSILON && x >= -Numeric::EPSILON) {
         x = 0;
     }
 }

@@ -628,7 +628,7 @@ galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         elem->midPoint.addition(elem->midPoint, *elem->vertices[i]->point);
     }
-    elem->midPoint.inverseScaledCopy((float) elem->numberOfVertices, elem->midPoint, EPSILON_FLOAT);
+    elem->midPoint.inverseScaledCopy((float) elem->numberOfVertices, elem->midPoint, Numeric::EPSILON_FLOAT);
 
     return elem->midPoint;
 }
@@ -659,9 +659,9 @@ stochasticRadiosityElementScalarReflectance(const StochasticRadiosityElement *el
     }
 
     rd = elem->Rd.maximumComponent();
-    if ( rd < EPSILON ) {
+    if ( rd < Numeric::EPSILON ) {
         // Avoid divisions by zero
-        rd = (float)EPSILON;
+        rd = Numeric::EPSILON_FLOAT;
     }
     return rd;
 }

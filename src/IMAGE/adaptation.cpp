@@ -56,8 +56,8 @@ static float
 patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = PatchRadianceEstimate(patch);
     float brightness = radiance.luminance();
-    if ( brightness < EPSILON_FLOAT ) {
-        brightness = EPSILON_FLOAT;
+    if ( brightness < Numeric::EPSILON_FLOAT ) {
+        brightness = Numeric::EPSILON_FLOAT;
     }
     return brightness;
 }

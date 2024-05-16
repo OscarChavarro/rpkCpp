@@ -279,12 +279,12 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     HierarchyClusteringMode clustering = GLOBAL_stochasticRaytracing_hierarchy.clustering;
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < EPSILON ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < Numeric::EPSILON ) {
         fprintf(stderr, "No source importance!!\n");
         return;
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = false;    /* temporary switch it off */
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = false; // Temporary switch it off
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = false;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = HierarchyClusteringMode::NO_CLUSTERING;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
@@ -334,13 +334,13 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
 
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging ) {
         double quality = stochasticRelaxationRadiosityQualityFactor(elem, w);
-        if ( elem->quality < EPSILON ) {
+        if ( elem->quality < Numeric::EPSILON ) {
             // Solution of this iteration takes over
             k = 0.0;
-        } else if ( quality < EPSILON ) {
+        } else if ( quality < Numeric::EPSILON ) {
             // Keep result of previous iterations
             k = 1.0;
-        } else if ( elem->quality + quality > EPSILON ) {
+        } else if ( elem->quality + quality > Numeric::EPSILON ) {
             k = elem->quality / (elem->quality + quality);
         } else {
             // Quality of new solution is so high that it must take over

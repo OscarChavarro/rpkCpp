@@ -293,7 +293,7 @@ computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = java::Math::sqrt(distPixel2);
-    dir.inverseScaledCopy((float)distPixel, dir, EPSILON_FLOAT);
+    dir.inverseScaledCopy((float)distPixel, dir, Numeric::EPSILON_FLOAT);
 
     double factor = 1.0 / (h * v);
 

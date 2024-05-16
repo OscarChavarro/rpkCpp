@@ -231,7 +231,7 @@ randomWalkRadiosityShootingUpdate(Patch *P, double w) {
     double oldQuality;
     oldQuality = topLevelStochasticRadiosityElement(P)->quality;
     topLevelStochasticRadiosityElement(P)->quality += (float)w;
-    if ( topLevelStochasticRadiosityElement(P)->quality < EPSILON ) {
+    if ( topLevelStochasticRadiosityElement(P)->quality < Numeric::EPSILON ) {
         return;
     }
     k = oldQuality / topLevelStochasticRadiosityElement(P)->quality;

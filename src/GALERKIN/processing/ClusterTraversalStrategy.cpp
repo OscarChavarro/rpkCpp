@@ -66,7 +66,7 @@ ClusterTraversalStrategy::accumulatePowerToSamplePoint(
 
     dir.subtraction(globalSamplePoint, src->patch->midPoint);
     dist = dir.norm();
-    if ( dist < EPSILON ) {
+    if ( dist < Numeric::EPSILON ) {
         srcOs = 1.0f;
     } else {
         srcOs = dir.dotProduct(src->patch->normal) / dist;
@@ -175,7 +175,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
 
     dir.subtraction(globalSamplePoint, rcv->patch->midPoint);
     dist = dir.norm();
-    if ( dist < EPSILON ) {
+    if ( dist < Numeric::EPSILON ) {
         rcvCos = 1.0;
     } else {
         rcvCos = dir.dotProduct(rcv->patch->normal) / dist;

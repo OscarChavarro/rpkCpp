@@ -40,10 +40,10 @@ transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *mod
 
     upAxis.set(0.0, 1.0, 0.0);
     cosA = camera->upDirection.dotProduct(upAxis);
-    if ( cosA < 1.0 - EPSILON ) {
+    if ( cosA < 1.0 - Numeric::EPSILON ) {
         *modelRotationAngle = (float)java::Math::acos(cosA);
         modelRotationAxis->crossProduct(camera->upDirection, upAxis);
-        modelRotationAxis->normalize(EPSILON_FLOAT);
+        modelRotationAxis->normalize(Numeric::EPSILON_FLOAT);
         return Matrix4x4::createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
     } else {
         modelRotationAxis->set(0.0, 1.0, 0.0);

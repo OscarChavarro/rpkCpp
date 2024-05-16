@@ -52,7 +52,7 @@ CPhotonMapSampler::chooseComponent(
 
     totalPower = power1 + power2;
 
-    if ( totalPower < EPSILON ) {
+    if ( totalPower < Numeric::EPSILON ) {
         // No significant scattering
         return false;
     }
@@ -166,7 +166,7 @@ bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     }
 
     // Convert to geometric IOR if necessary
-    if ( nc.getNi() > EPSILON ) {
+    if ( nc.getNi() > Numeric::EPSILON ) {
         nc.set(nc.complexToGeometricRefractionIndex(), 0.0);
     }
 
@@ -202,8 +202,8 @@ chooseFresnelDirection(
         transmittance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
     }
 
-    bool reflective = (reflectance.average() > EPSILON);
-    bool trans = (transmittance.average() > EPSILON);
+    bool reflective = (reflectance.average() > Numeric::EPSILON);
+    bool trans = (transmittance.average() > Numeric::EPSILON);
 
     if ( reflective && trans ) {
         logError("FresnelFactor",
@@ -288,7 +288,7 @@ chooseFresnelDirection(
         F = 0;
     }
 
-    if ( sum < EPSILON ) {
+    if ( sum < Numeric::EPSILON ) {
         return false;
     }
 

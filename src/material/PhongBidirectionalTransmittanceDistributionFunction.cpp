@@ -184,7 +184,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
 
     scatteredPower = localAverageKd + localAverageKs;
 
-    if ( scatteredPower < EPSILON ) {
+    if ( scatteredPower < Numeric::EPSILON ) {
         return newDir;
     }
 
@@ -296,7 +296,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
 
     double scatteredPower = localAverageKd + localAverageKs;
 
-    if ( scatteredPower < EPSILON ) {
+    if ( scatteredPower < Numeric::EPSILON ) {
         return;
     }
 

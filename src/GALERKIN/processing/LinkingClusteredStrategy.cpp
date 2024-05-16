@@ -43,7 +43,7 @@ LinkingClusteredStrategy::createInitialLinks(
             }
         }
         deltaK = new float[1];
-        deltaK[0] = HUGE_FLOAT_VALUE; // HUGE_DOUBLE_VALUE error on the form factor
+        deltaK[0] = Numeric::HUGE_FLOAT_VALUE; // HUGE_DOUBLE_VALUE error on the form factor
     }
 
     Interaction *newLink = new Interaction(

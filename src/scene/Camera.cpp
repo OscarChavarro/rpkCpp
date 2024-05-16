@@ -37,7 +37,7 @@ cameraComputeClippingPlanes(Camera *camera) {
 
     for ( int i = 0; i < 4; i++ ) {
         camera->viewPlanes[i].normal.tripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i]);
-        camera->viewPlanes[i].normal.normalize(EPSILON_FLOAT);
+        camera->viewPlanes[i].normal.normalize(Numeric::EPSILON_FLOAT);
         camera->viewPlanes[i].d = -camera->viewPlanes[i].normal.dotProduct(camera->eyePosition);
     }
 }
@@ -56,24 +56,24 @@ cameraComplete(Camera *camera) {
 
     // Distance from virtual camera position to focus point
     camera->viewDistance = camera->Z.norm();
-    if ( camera->viewDistance < EPSILON ) {
+    if ( camera->viewDistance < Numeric::EPSILON ) {
         logError("SetCamera", "eye point and look-point coincide");
         return nullptr;
     }
-    camera->Z.inverseScaledCopy(camera->viewDistance, camera->Z, EPSILON_FLOAT);
+    camera->Z.inverseScaledCopy(camera->viewDistance, camera->Z, Numeric::EPSILON_FLOAT);
 
     // camera->X is a direction pointing to the right in the window
     camera->X.crossProduct(camera->Z, camera->upDirection);
     n = camera->X.norm();
-    if ( n < EPSILON ) {
+    if ( n < Numeric::EPSILON ) {
         logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
-    camera->X.inverseScaledCopy(n, camera->X, EPSILON_FLOAT);
+    camera->X.inverseScaledCopy(n, camera->X, Numeric::EPSILON_FLOAT);
 
     // camera->Y is a direction pointing down in the window
     camera->Y.crossProduct(camera->Z, camera->X);
-    camera->Y.normalize(EPSILON_FLOAT);
+    camera->Y.normalize(Numeric::EPSILON_FLOAT);
 
     // Compute horizontal and vertical field of view angle from the specified one
     if ( camera->xSize < camera->ySize ) {
@@ -88,7 +88,7 @@ cameraComplete(Camera *camera) {
 
     // Default near and far clipping plane distance, will be set to a more reasonable
     // value when setting the camera for rendering
-    camera->near = EPSILON_FLOAT;
+    camera->near = Numeric::EPSILON_FLOAT;
     camera->far = 2.0f * camera->viewDistance;
 
     // Compute some extra frequently used quantities

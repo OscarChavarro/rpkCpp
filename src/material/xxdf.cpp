@@ -21,7 +21,7 @@ idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
 
     result.scaledCopy((float) tmp, *normal);
     result.subtraction(*in, result);
-    result.normalize(EPSILON_FLOAT);
+    result.normalize(Numeric::EPSILON_FLOAT);
 
     return result;
 }
@@ -56,6 +56,6 @@ idealRefractedDirection(
     Vector3D result;
     result.scaledCopy(refractionIndex, *in);
     result.sumScaled(result, normalScale, *normal);
-    result.normalize(EPSILON_FLOAT);
+    result.normalize(Numeric::EPSILON_FLOAT);
     return result;
 }

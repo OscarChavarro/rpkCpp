@@ -262,7 +262,7 @@ initToneMapping(const java::ArrayList<Patch *> *scenePatches) {
 
 void
 recomputeGammaTable(int index, double gamma) {
-    if ( gamma <= EPSILON ) {
+    if ( gamma <= Numeric::EPSILON ) {
         gamma = 1.0;
     }
     for ( int i = 0; i <= (1 << GAMMA_TABLE_BITS); i++ ) {

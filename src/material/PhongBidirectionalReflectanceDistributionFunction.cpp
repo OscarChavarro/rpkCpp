@@ -176,7 +176,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
     double scatteredPower = localAverageKd + localAverageKs;
     Vector3D newDir = {0.0, 0.0, 0.0};
 
-    if ( scatteredPower < EPSILON ) {
+    if ( scatteredPower < Numeric::EPSILON ) {
         return newDir;
     }
 
@@ -295,7 +295,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
 
     scatteredPower = localAverageKd + localAverageKs;
 
-    if ( scatteredPower < EPSILON ) {
+    if ( scatteredPower < Numeric::EPSILON ) {
         return;
     }
 

@@ -14,8 +14,7 @@ Stuff common to all radiance methods
     #include "PHOTONMAP/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
-#include "commandLine.h"
-
+    #include "app/commandLine.h"
 #endif
 
 // Composes explanation for -radiance command line option

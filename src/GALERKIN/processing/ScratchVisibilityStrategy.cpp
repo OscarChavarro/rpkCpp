@@ -44,7 +44,7 @@ ScratchVisibilityStrategy::scratchRenderElementPtr(
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point
-    if ( patch->normal.dotProduct(globalEyePoint) + patch->planeConstant < EPSILON ) {
+    if ( patch->normal.dotProduct(globalEyePoint) + patch->planeConstant < Numeric::EPSILON ) {
         return;
     }
 
@@ -74,7 +74,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     SGL_CONTEXT *prev_sgl_context;
     int vp_size;
 
-    if ( cluster->id == galerkinState->lastClusterId && eye.equals(galerkinState->lastEye, EPSILON_FLOAT) ) {
+    if ( cluster->id == galerkinState->lastClusterId && eye.equals(galerkinState->lastEye, Numeric::EPSILON_FLOAT) ) {
         return bbx.coordinates;
     } else {
         // Cache previously rendered cluster and eye point in order to
@@ -84,8 +84,8 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     }
 
     viewDirection.subtraction(centre, eye);
-    viewDirection.normalize(EPSILON_FLOAT);
-    if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - EPSILON ) {
+    viewDirection.normalize(Numeric::EPSILON_FLOAT);
+    if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - Numeric::EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
     lookAt = Matrix4x4::createLookAtMatrix(eye, centre, up);

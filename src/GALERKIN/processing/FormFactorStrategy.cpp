@@ -45,14 +45,14 @@ FormFactorStrategy::shadowTestDiscretization(
             hit = geometryListDiscretizationIntersect(
                 geometrySceneList,
                 ray,
-                EPSILON_FLOAT * minimumDistance,
+                Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore);
         } else {
             hit = voxelGrid->gridIntersect(
                 ray,
-                EPSILON_FLOAT * minimumDistance,
+                Numeric::EPSILON_FLOAT * minimumDistance,
                 &minimumDistance,
                 RayHitFlag::FRONT | RayHitFlag::ANY,
                 hitStore);
@@ -156,10 +156,10 @@ FormFactorStrategy::evaluatePointsPairKernel(
     ray.pos = *y;
     ray.dir.subtraction(*x, *y);
     double distance = ray.dir.norm();
-    ray.dir.inverseScaledCopy((float) distance, ray.dir, EPSILON_FLOAT);
+    ray.dir.inverseScaledCopy((float) distance, ray.dir, Numeric::EPSILON_FLOAT);
 
     // Don't allow too nearby nodes to interact
-    if ( distance < EPSILON ) {
+    if ( distance < Numeric::EPSILON ) {
         logWarning("evaluatePointsPairKernel", "Nodes too close too each other (receiver id %d, source id %d)",
             receiverElement->id, sourceElement->id);
         return 0.0;
@@ -191,7 +191,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Un-occluded kernel value (without reflectivity term) - see equation (1) from [BEKA1996]
     double formFactorKernelTerm = cosThetaX * cosThetaY / (M_PI * distance * distance);
-    float shortenedDistance = (float)(distance * (1.0f - EPSILON));
+    float shortenedDistance = (float)(distance * (1.0f - Numeric::EPSILON));
 
     // Determine transmissivity (visibility)
     RayHit hitStore;
@@ -405,8 +405,8 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
          sourceElement->unShotRadiance : sourceElement->radiance;
     ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
-    double gMin = HUGE_DOUBLE_VALUE;
-    double gMax = -HUGE_DOUBLE_VALUE;
+    double gMin = Numeric::HUGE_DOUBLE_VALUE;
+    double gMax = -Numeric::HUGE_DOUBLE_VALUE;
 
     computeInteractionFormFactor(
         receiverCubatureRule,
@@ -598,7 +598,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
                 if ( Gxy[r][s] > maximumKernelValue ) {
                     maximumKernelValue = Gxy[r][s];
                 }
-                if ( java::Math::abs(Gxy[r][s]) > EPSILON ) {
+                if ( java::Math::abs(Gxy[r][s]) > Numeric::EPSILON ) {
                     visibilityCount++;
                 }
             }

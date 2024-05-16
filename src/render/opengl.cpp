@@ -253,7 +253,7 @@ openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOption
     }
 
     if ( renderOptions->drawOutlines &&
-         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > EPSILON) ) {
+         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > Numeric::EPSILON) ) {
         openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderPatchOutline(patch);
     }
@@ -347,7 +347,7 @@ openGlRenderOctreeNonLeaf(
     for ( i = 0; i < n; i++ ) {
         if ( openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
             octree_children[i].geometry = nullptr; // culled
-            octree_children[i].distance = HUGE_FLOAT_VALUE;
+            octree_children[i].distance = Numeric::HUGE_FLOAT_VALUE;
         } else {
             // Not culled, compute distance from eye to midpoint of child
             octree_children[i].distance = openGlBoundsDistance2(
@@ -375,7 +375,7 @@ openGlRenderOctreeNonLeaf(
 
         // remove it from the list
         octree_children[closest].geometry = nullptr;
-        octree_children[closest].distance = HUGE_FLOAT_VALUE;
+        octree_children[closest].distance = Numeric::HUGE_FLOAT_VALUE;
         remaining--;
     }
     delete children;

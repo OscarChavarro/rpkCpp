@@ -38,17 +38,17 @@ class VoxelGrid {
 
     inline short
     x2voxel(const float px) const {
-        return (short)((voxelSize.x<EPSILON) ? 0 : (px - boundingBox.coordinates[MIN_X]) / voxelSize.x);
+        return (short)((voxelSize.x < Numeric::EPSILON) ? 0 : (px - boundingBox.coordinates[MIN_X]) / voxelSize.x);
     }
 
     inline short
     y2voxel(const float py) const {
-        return (short)((voxelSize.y < EPSILON) ? 0 : (py - boundingBox.coordinates[MIN_Y]) / voxelSize.y);
+        return (short)((voxelSize.y < Numeric::EPSILON) ? 0 : (py - boundingBox.coordinates[MIN_Y]) / voxelSize.y);
     }
 
     inline short
     z2voxel(const float pz) const {
-        return (short)((voxelSize.z < EPSILON) ? 0 : (pz - boundingBox.coordinates[MIN_Z]) / voxelSize.z);
+        return (short)((voxelSize.z < Numeric::EPSILON) ? 0 : (pz - boundingBox.coordinates[MIN_Z]) / voxelSize.z);
     }
 
     inline int

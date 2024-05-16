@@ -33,7 +33,7 @@ CPixelSampler::sample(
     dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = java::Math::sqrt(distPixel2);
-    dir.inverseScaledCopy((float) distPixel, dir, EPSILON_FLOAT);
+    dir.inverseScaledCopy((float) distPixel, dir, Numeric::EPSILON_FLOAT);
 
     double cosPixel = java::Math::abs(camera->Z.dotProduct(dir));
 
@@ -99,7 +99,7 @@ CPixelSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
+    outDir.inverseScaledCopy((float) dist, outDir, Numeric::EPSILON_FLOAT);
 
     // pdf = 1 / A_pixel transformed to area measure
 

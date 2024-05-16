@@ -36,7 +36,7 @@ ScreenSampler::sample(
     dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
     double distScreen2 = dir.norm2();
     double distScreen = java::Math::sqrt(distScreen2);
-    dir.inverseScaledCopy((float) distScreen, dir, EPSILON_FLOAT);
+    dir.inverseScaledCopy((float) distScreen, dir, Numeric::EPSILON_FLOAT);
 
     double cosScreen = java::Math::abs(camera->Z.dotProduct(dir));
 
@@ -89,7 +89,7 @@ ScreenSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
+    outDir.inverseScaledCopy((float) dist, outDir, Numeric::EPSILON_FLOAT);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
     cosA = thisNode->m_normal.dotProduct(outDir);

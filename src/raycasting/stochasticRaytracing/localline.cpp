@@ -17,7 +17,7 @@ static void
 patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     coord->Z = patch->normal;
     coord->X.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
-    coord->X.normalize(EPSILON_FLOAT);
+    coord->X.normalize(Numeric::EPSILON_FLOAT);
     coord->Y.crossProduct(coord->Z, coord->X);
 }
 
@@ -61,15 +61,15 @@ Determines nearest intersection point and patch
 */
 RayHit *
 mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
-    float dist = HUGE_FLOAT_VALUE;
+    float distance = Numeric::HUGE_FLOAT_VALUE;
     RayHit *hit;
 
     // Reject self-intersections
     Patch::dontIntersect(2, P, P->twin);
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
-        EPSILON_FLOAT < P->tolerance ? EPSILON_FLOAT : P->tolerance,
-        &dist,
+        Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
+        &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore);
     Patch::dontIntersect(0);

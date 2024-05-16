@@ -272,7 +272,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
         &btdfFlags);
 
     double scattering = localTexture + reflection + transmission;
-    if ( scattering < EPSILON ) {
+    if ( scattering < Numeric::EPSILON ) {
         return out;
     }
 
@@ -303,7 +303,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
     switch ( mode ) {
         case SplitBSDFSamplingMode::SAMPLE_TEXTURE:
             out = PhongBidirectionalScatteringDistributionFunction::texturedScattererSample(in, &normal, x1, x2, &p);
-            if ( p < EPSILON ) {
+            if ( p < Numeric::EPSILON ) {
                 // Don't care
                 return out;
             }
@@ -315,7 +315,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
             } else {
                 out = brdf->sample(in, &normal, false, brdfFlags, x1, x2, &p);
             }
-            if ( p < EPSILON )
+            if ( p < Numeric::EPSILON )
                 return out;
             *probabilityDensityFunction = reflection * p;
             break;
@@ -328,7 +328,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
             } else {
                 out = btdf->sample(inIndex, outIndex, in, &normal, false, btdfFlags, x1, x2, &p);
             }
-            if ( p < EPSILON ) {
+            if ( p < Numeric::EPSILON ) {
                 return out;
             }
             *probabilityDensityFunction = transmission * p;
@@ -490,7 +490,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
         &brdfFlags,
         &btdfFlags);
     pScattering = pTexture + pReflection + pTransmission;
-    if ( pScattering < EPSILON ) {
+    if ( pScattering < Numeric::EPSILON ) {
         return;
     }
 

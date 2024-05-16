@@ -27,7 +27,7 @@ traceWorld(
         hitStore = &myHitStore;
     }
 
-    dist = HUGE_FLOAT_VALUE;
+    dist = Numeric::HUGE_FLOAT_VALUE;
     Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
     result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
 
@@ -109,9 +109,9 @@ pathNodesVisible(
     dist2 = dir.norm2();
     dist = java::Math::sqrt(dist2);
 
-    dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
+    dir.inverseScaledCopy((float)dist, dir, Numeric::EPSILON_FLOAT);
 
-    dist = dist * (1 - EPSILON);
+    dist = dist * (1 - Numeric::EPSILON);
 
     ray.pos = node1->m_hit.getPoint();
     ray.dir.copy(dir);
@@ -145,7 +145,7 @@ pathNodesVisible(
 
     if ( doTest ) {
         if ( node2->m_hit.getPatch()->hasZeroVertices() ) {
-            fDistance = HUGE_FLOAT_VALUE;
+            fDistance = Numeric::HUGE_FLOAT_VALUE;
         } else {
             fDistance = (float) dist;
         }
@@ -206,7 +206,7 @@ eyeNodeVisible(
     dist2 = dir.norm2();
     dist = java::Math::sqrt(dist2);
 
-    dir.inverseScaledCopy((float)dist, dir, EPSILON_FLOAT);
+    dir.inverseScaledCopy((float)dist, dir, Numeric::EPSILON_FLOAT);
 
     // Determine which pixel is visible
     z = dir.dotProduct(camera->Z);
@@ -224,7 +224,7 @@ eyeNodeVisible(
                 // Point is within view pyramid
 
                 // Check normal directions
-                dist = dist * (1 - EPSILON);
+                dist = dist * (1 - Numeric::EPSILON);
 
                 ray.pos = eyeNode->m_hit.getPoint();
                 ray.dir.copy(dir);

@@ -3,7 +3,7 @@
 
 #include "java/lang/Math.h"
 #include "common/error.h"
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "common/dataStructures/KDTree.h"
 
 #define E_SWAP(a, b) bkdswap(broot, (a), (b))
@@ -638,46 +638,46 @@ copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
 
 static int
 bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
-    float bmin[3] = {HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE, HUGE_FLOAT_VALUE};
-    float bmax[3] = {-HUGE_FLOAT_VALUE, -HUGE_FLOAT_VALUE, -HUGE_FLOAT_VALUE};
+    float bMin[3] = {Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE};
+    float bMax[3] = {-Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE};
     float tmp;
 
     for ( int i = low; i <= high; i++ ) {
         tmp = bkdval(broot, i, 0);
-        if ( bmin[0] > tmp ) {
-            bmin[0] = tmp;
+        if ( bMin[0] > tmp ) {
+            bMin[0] = tmp;
         }
-        if ( bmax[0] < tmp ) {
-            bmax[0] = tmp;
+        if ( bMax[0] < tmp ) {
+            bMax[0] = tmp;
         }
 
         tmp = bkdval(broot, i, 1);
-        if ( bmin[1] > tmp ) {
-            bmin[1] = tmp;
+        if ( bMin[1] > tmp ) {
+            bMin[1] = tmp;
         }
-        if ( bmax[1] < tmp ) {
-            bmax[1] = tmp;
+        if ( bMax[1] < tmp ) {
+            bMax[1] = tmp;
         }
 
         tmp = bkdval(broot, i, 2);
-        if ( bmin[2] > tmp ) {
-            bmin[2] = tmp;
+        if ( bMin[2] > tmp ) {
+            bMin[2] = tmp;
         }
-        if ( bmax[2] < tmp ) {
-            bmax[2] = tmp;
+        if ( bMax[2] < tmp ) {
+            bMax[2] = tmp;
         }
     }
 
     int discr = 0;
-    float spread = bmax[0] - bmin[0]; // X spread
+    float spread = bMax[0] - bMin[0]; // X spread
 
-    tmp = bmax[1] - bmin[1];
+    tmp = bMax[1] - bMin[1];
     if ( tmp > spread ) {
         discr = 1;
         spread = tmp;
     }
 
-    tmp = bmax[2] - bmin[2];
+    tmp = bMax[2] - bMin[2];
     if ( tmp > spread ) {
         discr = 2;
     }

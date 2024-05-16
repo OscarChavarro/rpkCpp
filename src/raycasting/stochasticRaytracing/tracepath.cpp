@@ -166,7 +166,7 @@ tracePaths(
         globalSumProbabilities += BirthProbability(patch);
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
     }
-    if ( globalSumProbabilities < EPSILON ) {
+    if ( globalSumProbabilities < Numeric::EPSILON ) {
         logWarning("tracePaths", "No sources");
         return;
     }

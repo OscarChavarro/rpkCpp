@@ -75,7 +75,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             hasMinMax1[dimension] = true;
         } else {
             extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], EPSILON) ) {
+            if ( !Numeric::doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
                 hasMinMax2[dimension] = true;
             }
         }
@@ -87,7 +87,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             hasMinMax1[dimension] = true;
         } else {
             extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], EPSILON) ) {
+            if ( !Numeric::doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
                 hasMinMax2[dimension] = true;
             }
         }
@@ -147,7 +147,7 @@ Tests a polygon with respect to the plane defined by the given normal and plane
 constant. Returns INSIDE if the polygon is totally on the negative side of
 the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
 if the polygon is cut by the plane and COPLANAR if the polygon lays on the
-plane within tolerance distance d*EPSILON
+plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
 Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, const double d) {
@@ -158,7 +158,7 @@ Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal
     in = false;
     for ( int i = 0; i < poly->numberOfVertices; i++ ) {
         double e = normal->dotProduct(poly->vertex[i]) + d;
-        double tolerance = java::Math::abs(d) * EPSILON + poly->vertex[i].tolerance(EPSILON_FLOAT);
+        double tolerance = java::Math::abs(d) * Numeric::EPSILON + poly->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -184,7 +184,7 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
-        double tolerance = java::Math::abs(d) * EPSILON + polygon->vertex[i].tolerance(EPSILON_FLOAT);
+        double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
         out |= e > tolerance;
         if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
             return false;
@@ -220,12 +220,12 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
 /**
 Tests the position of a point with respect to a plane. Returns OUTSIDE if the point is
 on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
-if the point is on the plane within tolerance distance d*EPSILON
+if the point is on the plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
 Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
     double e;
-    double tolerance = java::Math::abs(d * EPSILON) + p->tolerance(EPSILON_FLOAT);
+    double tolerance = java::Math::abs(d * Numeric::EPSILON) + p->tolerance(Numeric::EPSILON_FLOAT);
     e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
@@ -247,26 +247,26 @@ Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
 
     // Compare components of plane normal (normalized vector, so components
     // are in the range [-1,1]
-    if ( plane1->n[0] < plane2->n[0] - EPSILON ) {
+    if ( plane1->n[0] < plane2->n[0] - Numeric::EPSILON ) {
         return -1;
-    } else if ( plane1->n[0] > plane2->n[0] + EPSILON ) {
+    } else if ( plane1->n[0] > plane2->n[0] + Numeric::EPSILON ) {
         return +1;
     }
 
-    if ( plane1->n[1] < plane2->n[1] - EPSILON ) {
+    if ( plane1->n[1] < plane2->n[1] - Numeric::EPSILON ) {
         return -1;
-    } else if ( plane1->n[1] > plane2->n[1] + EPSILON ) {
+    } else if ( plane1->n[1] > plane2->n[1] + Numeric::EPSILON ) {
         return +1;
     }
 
-    if ( plane1->n[2] < plane2->n[2] - EPSILON ) {
+    if ( plane1->n[2] < plane2->n[2] - Numeric::EPSILON ) {
         return -1;
-    } else if ( plane1->n[2] > plane2->n[2] + EPSILON ) {
+    } else if ( plane1->n[2] > plane2->n[2] + Numeric::EPSILON ) {
         return +1;
     }
 
     // Compare plane constants
-    tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * EPSILON);
+    tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * Numeric::EPSILON);
     if ( plane1->d < plane2->d - tolerance ) {
         return -1;
     } else if ( plane1->d > plane2->d + tolerance ) {
@@ -368,11 +368,11 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             // Compute normal and plane constant of the plane formed by cur, next and other
             normal.tripleCrossProduct(*cur, *next, *other);
             localNorm = normal.norm();
-            if ( localNorm < EPSILON ) {
+            if ( localNorm < Numeric::EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
-            normal.inverseScaledCopy(localNorm, normal, EPSILON_FLOAT);
+            normal.inverseScaledCopy(localNorm, normal, Numeric::EPSILON_FLOAT);
             d = -normal.dotProduct(*cur);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
@@ -440,13 +440,13 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
         center1.addition(center1, polygon1->vertex[i]);
     }
-    center1.inverseScaledCopy((float) polygon1->numberOfVertices, center1, EPSILON_FLOAT);
+    center1.inverseScaledCopy((float) polygon1->numberOfVertices, center1, Numeric::EPSILON_FLOAT);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
         center2.addition(center2, polygon2->vertex[i]);
     }
-    center2.inverseScaledCopy((float) polygon2->numberOfVertices, center2, EPSILON_FLOAT);
+    center2.inverseScaledCopy((float) polygon2->numberOfVertices, center2, Numeric::EPSILON_FLOAT);
 
     // Determine the shaft planes
     numberOfPlanesInSet = 0;
@@ -472,7 +472,7 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[0]] +
              localPlane->n[1] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[1]] +
              localPlane->n[2] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[2]] +
-             localPlane->d > -java::Math::abs(localPlane->d * EPSILON) ) {
+             localPlane->d > -java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
             return ShaftPlanePosition::OUTSIDE;
         }
     }
@@ -491,7 +491,7 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
         if ( localPlane->n[0] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[0] + 3) % 6] +
              localPlane->n[1] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[1] + 3) % 6] +
              localPlane->n[2] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[2] + 3) % 6] +
-             localPlane->d > java::Math::abs(localPlane->d * EPSILON) ) {
+             localPlane->d > java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
             return ShaftPlanePosition::OVERLAP;
         }
     }
@@ -523,7 +523,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = patch->vertex[j]->point->tolerance(EPSILON_FLOAT); // Vertex tolerance
+        pTol[j] = patch->vertex[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
     }
 
     localPlane = &planeSet[0];
@@ -541,7 +541,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         in = out = false;
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane->d;
-            tolerance = (float)(java::Math::abs(localPlane->d) * EPSILON + pTol[j]);
+            tolerance = (float)(java::Math::abs(localPlane->d) * Numeric::EPSILON + pTol[j]);
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = ShaftPlanePosition::OUTSIDE;
@@ -582,7 +582,7 @@ Shaft::shaftPatchTest(Patch *patch) {
                             }
                         } else /* if (side[j] == COPLANAR) */ {
                             // Whole edge lays outside
-                            tMax[j] = -EPSILON;
+                            tMax[j] = -Numeric::EPSILON;
                         }
                     } else if ( side[j] == ShaftPlanePosition::OUTSIDE ) {
                         // increase tMin[j]
@@ -596,12 +596,12 @@ Shaft::shaftPatchTest(Patch *patch) {
                             }
                         } else /* if (side[k] == COPLANAR) */ {
                             // Whole edge lays outside
-                            tMin[j] = 1. + EPSILON;
+                            tMin[j] = 1. + Numeric::EPSILON;
                         }
                     }
                 } else if ( side[j] == ShaftPlanePosition::OUTSIDE ) {
                     // Whole edge lays outside
-                    tMax[j] = -EPSILON;
+                    tMax[j] = -Numeric::EPSILON;
                 }
             }
         }
@@ -629,7 +629,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     // All vertices are outside or on the shaft. Check whether there are edges
     // intersecting the shaft
     for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-        if ( tMin[j] + EPSILON < tMax[j] - EPSILON ) {
+        if ( tMin[j] + Numeric::EPSILON < tMax[j] - Numeric::EPSILON ) {
             return ShaftPlanePosition::OVERLAP;
         }
     }
@@ -641,8 +641,8 @@ Shaft::shaftPatchTest(Patch *patch) {
     // the patch lays fully outside
     ray.pos = center1;
     ray.dir.subtraction(center2, center1);
-    dist = 1.0f - EPSILON_FLOAT;
-    if ( patch->intersect(&ray, EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
+    dist = 1.0f - Numeric::EPSILON_FLOAT;
+    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
         cut = true;
         return ShaftPlanePosition::OVERLAP;
     }

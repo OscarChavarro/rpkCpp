@@ -77,12 +77,12 @@ Matrix4x4::createRotationMatrix(float angleInRadians, Vector3D axis) {
 
     // Singularity test
     float s = axis.norm();
-    if ( s < EPSILON ) {
+    if ( s < Numeric::EPSILON ) {
         // Bad rotation axis
         return xf;
     } else {
         // Normalize
-        axis.inverseScaledCopy(s, axis, EPSILON_FLOAT);
+        axis.inverseScaledCopy(s, axis, Numeric::EPSILON_FLOAT);
     }
 
     float x = axis.x;
@@ -105,10 +105,10 @@ There is no check whether the transform really is a rotation.
 void
 Matrix4x4::recoverRotationParameters(float *angle, Vector3D *axis) const {
     float c = (m[0][0] + m[1][1] + m[2][2] - 1.0f) * 0.5f;
-    if ( c > 1.0f - EPSILON ) {
+    if ( c > 1.0f - Numeric::EPSILON ) {
         *angle = 0.0f;
         axis->set(0.0f, 0.0f, 1.0f);
-    } else if ( c < -1.0f + EPSILON ) {
+    } else if ( c < -1.0f + Numeric::EPSILON ) {
         *angle = (float)M_PI;
         axis->x = java::Math::sqrt((m[0][0] + 1.0f) * 0.5f);
         axis->y = java::Math::sqrt((m[1][1] + 1.0f) * 0.5f);
@@ -193,10 +193,10 @@ Matrix4x4::createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
     Vector3D Z;
 
     Z.subtraction(eye, centre); // Z positions towards viewer
-    Z.normalize(EPSILON_FLOAT);
+    Z.normalize(Numeric::EPSILON_FLOAT);
 
     X.crossProduct(up, Z); // X positions right
-    X.normalize(EPSILON_FLOAT);
+    X.normalize(Numeric::EPSILON_FLOAT);
 
     Y.crossProduct(Z, X); // Y positions up
     xf.set3X3Matrix(

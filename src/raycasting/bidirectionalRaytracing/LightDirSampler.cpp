@@ -36,7 +36,7 @@ LightDirSampler::sample(
         dir = thisNode->m_hit.getMaterial()->getEdf()->phongEdfSample(&thisNode->m_hit, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
     }
 
-    if ( pdfDir < EPSILON ) {
+    if ( pdfDir < Numeric::EPSILON ) {
         return false;
     } // Zero probabilityDensityFunction event, no valid sample
 
@@ -88,7 +88,7 @@ LightDirSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float) dist, outDir, EPSILON_FLOAT);
+    outDir.inverseScaledCopy((float) dist, outDir, Numeric::EPSILON_FLOAT);
 
     // EDF sampling
     if ( thisNode->m_hit.getMaterial()->getEdf() == nullptr ) {

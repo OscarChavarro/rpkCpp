@@ -1,12 +1,12 @@
 #include "skin/BoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
-    coordinates[MIN_X] = HUGE_FLOAT_VALUE;
-    coordinates[MIN_Y] = HUGE_FLOAT_VALUE;
-    coordinates[MIN_Z] = HUGE_FLOAT_VALUE;
-    coordinates[MAX_X] = -HUGE_FLOAT_VALUE;
-    coordinates[MAX_Y] = -HUGE_FLOAT_VALUE;
-    coordinates[MAX_Z] = -HUGE_FLOAT_VALUE;
+    coordinates[MIN_X] = Numeric::HUGE_FLOAT_VALUE;
+    coordinates[MIN_Y] = Numeric::HUGE_FLOAT_VALUE;
+    coordinates[MIN_Z] = Numeric::HUGE_FLOAT_VALUE;
+    coordinates[MAX_X] = -Numeric::HUGE_FLOAT_VALUE;
+    coordinates[MAX_Y] = -Numeric::HUGE_FLOAT_VALUE;
+    coordinates[MAX_Z] = -Numeric::HUGE_FLOAT_VALUE;
 }
 
 static void inline
@@ -94,7 +94,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MAX_X] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -109,7 +109,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MIN_X] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -131,7 +131,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MAX_Y] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -146,7 +146,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MIN_Y] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -168,7 +168,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MAX_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -183,7 +183,7 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         }
         t = (coordinates[MIN_Z] - pos) / dir;
         if ( t >= *tMin ) {
-            if ( t > *tMax * (1.0 + EPSILON) ) {
+            if ( t > *tMax * (1.0 + Numeric::EPSILON) ) {
                 return false;
             }
             *tMin = t;
@@ -278,13 +278,13 @@ BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBou
     }
 
     float d;
-    d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) * (float)EPSILON;
+    d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) * Numeric::EPSILON_FLOAT;
     transformedBoundingBox->coordinates[MIN_X] -= d;
     transformedBoundingBox->coordinates[MAX_X] += d;
-    d = (transformedBoundingBox->coordinates[MAX_Y] - transformedBoundingBox->coordinates[MIN_Y]) * (float)EPSILON;
+    d = (transformedBoundingBox->coordinates[MAX_Y] - transformedBoundingBox->coordinates[MIN_Y]) * Numeric::EPSILON_FLOAT;
     transformedBoundingBox->coordinates[MIN_Y] -= d;
     transformedBoundingBox->coordinates[MAX_Y] += d;
-    d = (transformedBoundingBox->coordinates[MAX_Z] - transformedBoundingBox->coordinates[MIN_Z]) * (float)EPSILON;
+    d = (transformedBoundingBox->coordinates[MAX_Z] - transformedBoundingBox->coordinates[MIN_Z]) * Numeric::EPSILON_FLOAT;
     transformedBoundingBox->coordinates[MIN_Z] -= d;
     transformedBoundingBox->coordinates[MAX_Z] += d;
 }
@@ -294,14 +294,14 @@ BoundingBox::enlargeTinyBit() {
     float Dx = (float)((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
     float Dy = (float)((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
     float Dz = (float)((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
-    if ( Dx < EPSILON_FLOAT ) {
-        Dx = EPSILON_FLOAT;
+    if ( Dx < Numeric::EPSILON_FLOAT ) {
+        Dx = Numeric::EPSILON_FLOAT;
     }
-    if ( Dy < EPSILON_FLOAT ) {
-        Dy = EPSILON_FLOAT;
+    if ( Dy < Numeric::EPSILON_FLOAT ) {
+        Dy = Numeric::EPSILON_FLOAT;
     }
-    if ( Dz < EPSILON_FLOAT ) {
-        Dz = EPSILON_FLOAT;
+    if ( Dz < Numeric::EPSILON_FLOAT ) {
+        Dz = Numeric::EPSILON_FLOAT;
     }
     coordinates[MIN_X] -= Dx;
     coordinates[MAX_X] += Dx;

@@ -1,4 +1,4 @@
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "PHOTONMAP/samplegrid.h"
 #include "PHOTONMAP/discretesampling.h"
 
@@ -76,7 +76,7 @@ CSampleGrid2D::sample(double *x, double *y, double *probabilityDensityFunction) 
     double xPdf;
     double yPdf;
 
-    if ( totalSum < EPSILON ) {
+    if ( totalSum < Numeric::EPSILON ) {
         // No significant data in table, use uniform sampling
         *probabilityDensityFunction = 1.0;
         return;

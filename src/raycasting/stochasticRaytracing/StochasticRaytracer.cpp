@@ -85,7 +85,7 @@ stochasticRaytracerGetScatteredRadiance(
             if ( thisNode->m_useBsdf != nullptr ) {
                 albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, si->flags);
             }
-            if ( albedo.average() < EPSILON ) {
+            if ( albedo.average() < Numeric::EPSILON ) {
                 // Skip, no contribution anyway
                 numberOfSamples = 0;
             }

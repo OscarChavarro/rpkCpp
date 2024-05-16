@@ -44,7 +44,7 @@ CSpecularSampler::sample(
     float avgTransmittance = transmittance.average();
     float avgScattering = avgReflectance + avgTransmittance;
 
-    if ( avgScattering < EPSILON ) {
+    if ( avgScattering < Numeric::EPSILON ) {
         return false;
     }
 
@@ -84,7 +84,7 @@ CSpecularSampler::sample(
             &dummyBoolean);
     }
 
-    if ( pdfDir < EPSILON ) {
+    if ( pdfDir < Numeric::EPSILON ) {
         return false;
     }
 

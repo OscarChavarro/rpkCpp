@@ -20,8 +20,8 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
     const GalerkinElement *sourceElement = link->sourceElement;
     double Gx;
     double G = 0.0;
-    double gMin = HUGE_DOUBLE_VALUE;
-    double gMax = -HUGE_DOUBLE_VALUE;
+    double gMin = Numeric::HUGE_DOUBLE_VALUE;
+    double gMax = -Numeric::HUGE_DOUBLE_VALUE;
 
     for ( int k = 0; k < cubatureRuleRcv->numberOfNodes; k++ ) {
         Gx = 0.0;
@@ -80,7 +80,7 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
     for ( int i = 0; geometryOccluderList != nullptr && i < geometryOccluderList->size(); i++ ) {
         double v = FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             shadowCache, geometryOccluderList->get(i), ray, rcvDist, srcSize, minimumFeatureSize);
-        if ( v < EPSILON ) {
+        if ( v < Numeric::EPSILON ) {
             return 0.0;
         } else {
             vis *= v;
@@ -107,8 +107,8 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         logFatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
-    float fSize = HUGE_FLOAT_VALUE;
-    float tMinimum = rcvDist * ((float)EPSILON);
+    float fSize = Numeric::HUGE_FLOAT_VALUE;
+    float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
     const BoundingBox *boundingBox = &geometry->boundingBox;
 
@@ -135,9 +135,9 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     if ( fSize < minimumFeatureSize ) {
         double kappa = 0.0;
         double vol;
-        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + EPSILON)
-            * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + EPSILON)
-            * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + EPSILON);
+        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + Numeric::EPSILON)
+            * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + Numeric::EPSILON)
+            * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + Numeric::EPSILON);
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
@@ -154,7 +154,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             const RayHit *hit = Geometry::patchListIntersect(
                     geomPatchArrayListReference(geometry),
                     ray,
-                    rcvDist * ((float)EPSILON), &rcvDist, RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
+                    rcvDist * Numeric::EPSILON_FLOAT, &rcvDist, RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
             if ( hit != nullptr ) {
                 shadowCache->addToShadowCache(hit->getPatch());
                 return 0.0;

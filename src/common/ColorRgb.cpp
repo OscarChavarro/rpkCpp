@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "common/ColorRgb.h"
 
 ColorRgb::ColorRgb(const float inR, const float inG, const float inB) {
@@ -38,9 +38,9 @@ colorsArrayClear(ColorRgb *color, const char n) {
 
 bool
 ColorRgb::isBlack() const {
-    return (r > -EPSILON && r < EPSILON &&
-            g > -EPSILON && g < EPSILON &&
-            b > -EPSILON && b < EPSILON);
+    return (r > -Numeric::EPSILON && r < Numeric::EPSILON &&
+            g > -Numeric::EPSILON && g < Numeric::EPSILON &&
+            b > -Numeric::EPSILON && b < Numeric::EPSILON);
 }
 
 void

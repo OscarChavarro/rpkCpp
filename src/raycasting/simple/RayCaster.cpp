@@ -32,24 +32,24 @@ RayCaster::~RayCaster() {
 
 void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
-    if ( *u > 1.0 - EPSILON ) {
-        *u = 1.0 - EPSILON;
+    if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
+        *u = 1.0 - Numeric::EPSILON;
     }
-    if ( *v > 1.0 - EPSILON ) {
-        *v = 1.0 - EPSILON;
+    if ( *v > 1.0 - Numeric::EPSILON ) {
+        *v = 1.0 - Numeric::EPSILON;
     }
-    if ( numberOfVertices == 3 && (*u + *v) > 1.0 - EPSILON ) {
+    if ( numberOfVertices == 3 && (*u + *v) > 1.0 - Numeric::EPSILON ) {
         if ( *u > *v ) {
-            *u = 1.0 - *v - EPSILON;
+            *u = 1.0 - *v - Numeric::EPSILON;
         } else {
-            *v = 1.0 - *u - EPSILON;
+            *v = 1.0 - *u - Numeric::EPSILON;
         }
     }
-    if ( *u < EPSILON ) {
-        *u = EPSILON;
+    if ( *u < Numeric::EPSILON ) {
+        *u = Numeric::EPSILON;
     }
-    if ( *v < EPSILON ) {
-        *v = EPSILON;
+    if ( *v < Numeric::EPSILON ) {
+        *v = Numeric::EPSILON;
     }
 }
 
@@ -74,7 +74,7 @@ RayCaster::getRadianceAtPixel(
         Ray ray;
         ray.pos = camera->eyePosition;
         ray.dir = screenBuffer->getPixelVector(x, y);
-        ray.dir.normalize(EPSILON_FLOAT);
+        ray.dir.normalize(Numeric::EPSILON_FLOAT);
 
         // Find intersection point of ray with patch
         Vector3D point;

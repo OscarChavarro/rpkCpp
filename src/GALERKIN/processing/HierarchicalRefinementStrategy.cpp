@@ -233,8 +233,8 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(Interaction 
     ColorRgb maximumSrcRad;
     ColorRgb error;
 
-    minimumSrcRad.setMonochrome(HUGE_FLOAT_VALUE);
-    maximumSrcRad.setMonochrome(-HUGE_FLOAT_VALUE);
+    minimumSrcRad.setMonochrome(Numeric::HUGE_FLOAT_VALUE);
+    maximumSrcRad.setMonochrome(-Numeric::HUGE_FLOAT_VALUE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
         ColorRgb rad;
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(link->sourceElement, rcVertices[i], galerkinState);

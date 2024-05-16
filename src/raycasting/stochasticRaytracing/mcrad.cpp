@@ -256,7 +256,7 @@ monteCarloRadiosityDetermineAreaFraction(
     qsort((void *) areas,
         numberOfPatchIds,
         sizeof(float),
-        (QSORT_CALLBACK_TYPE) floatCompare);
+        (QSORT_CALLBACK_TYPE) Numeric::floatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
     for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < GLOBAL_statistics.totalArea * 0.1; i-- ) {

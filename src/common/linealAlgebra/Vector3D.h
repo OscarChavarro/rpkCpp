@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "java/lang/Math.h"
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "common/linealAlgebra/CoordinateAxis.h"
 
 extern const int X_GREATER_MASK;
@@ -90,9 +90,9 @@ Two vectors are equal if their components are equal within the given tolerance
 inline bool
 Vector3D::equals(const Vector3D &w, const float epsilon) const {
     return (
-        doubleEqual(x, w.x, epsilon) &&
-        doubleEqual(y, w.y, epsilon) &&
-        doubleEqual(z, w.z, epsilon)
+        Numeric::doubleEqual(x, w.x, epsilon) &&
+        Numeric::doubleEqual(y, w.y, epsilon) &&
+        Numeric::doubleEqual(z, w.z, epsilon)
     );
 }
 

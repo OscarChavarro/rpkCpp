@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "common/linealAlgebra/Float.h"
+#include "common/linealAlgebra/Numeric.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 
 /**
@@ -11,7 +11,7 @@ CoordinateSystem::setFromZAxis(const Vector3D *inZ) {
 
     float zz = java::Math::sqrt(1.0f - inZ->z * inZ->z);
 
-    if ( zz < EPSILON ) {
+    if ( zz < Numeric::EPSILON ) {
         X.x = 1.0;
         X.y = 0.0;
         X.z = 0.0;
@@ -44,7 +44,7 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
     Vector3D c;
 
     c.sumScaled(*C, -z, Z);
-    c.normalize(EPSILON_FLOAT);
+    c.normalize(Numeric::EPSILON_FLOAT);
     double x = c.dotProduct(X);
     double y = c.dotProduct(Y);
 

@@ -41,10 +41,10 @@ class Patch {
 
     static double
     clipToUnitInterval(double x) {
-        if ( x < EPSILON ) {
-            return EPSILON;
+        if ( x < Numeric::EPSILON ) {
+            return Numeric::EPSILON;
         } else {
-            return x > (1.0 - EPSILON) ? 1.0 - EPSILON : x;
+            return x > (1.0 - Numeric::EPSILON) ? 1.0 - Numeric::EPSILON : x;
         }
     }
 

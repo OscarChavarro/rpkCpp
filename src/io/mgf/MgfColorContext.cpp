@@ -93,7 +93,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     boxPos = 0;
     boxStep = 1;
     if ( wlStep < (double)COLOR_WAVE_LENGTH_DELTA_I ) {
-        imax = (int)java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - EPSILON));
+        imax = (int)java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - Numeric::EPSILON));
         boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / COLOR_WAVE_LENGTH_DELTA_I;
         boxStep = wlStep / COLOR_WAVE_LENGTH_DELTA_I;
         wlStep = COLOR_WAVE_LENGTH_DELTA_I;
@@ -120,7 +120,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
                 scale = -va[i];
             }
     }
-    if ( scale <= EPSILON) {
+    if ( scale <= Numeric::EPSILON ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
@@ -131,11 +131,11 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
         if ( wl < wlMinimum || wl > wlMaximum ) {
             straightSamples[i] = 0;
         } else {
-            while ( wl0 + wlStep < wl + EPSILON) {
+            while ( wl0 + wlStep < wl + Numeric::EPSILON ) {
                 wl0 += wlStep;
                 pos++;
             }
-            if ( wl + EPSILON >= wl0 && wl - EPSILON <= wl0 ) {
+            if ( wl + Numeric::EPSILON >= wl0 && wl - Numeric::EPSILON <= wl0 ) {
                 straightSamples[i] = (short)java::Math::round(scale * va[pos] + 0.5);
             } else {
                 // Interpolate if necessary

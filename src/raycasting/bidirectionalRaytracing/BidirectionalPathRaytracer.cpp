@@ -148,7 +148,7 @@ addWithSpikeCheck(
             float factor = rs->getPixXSize() * rs->getPixYSize()
                            * (float) config->baseConfig->totalSamples;
 
-            if ( f.average() > EPSILON ) {
+            if ( f.average() > Numeric::EPSILON ) {
                 g.scaledCopy(factor, f); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,
