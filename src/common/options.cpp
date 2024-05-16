@@ -3,6 +3,7 @@ Command line options and defaults
 */
 
 #include <cstring>
+#include <cerrno>
 
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Vector3D.h"
@@ -70,7 +71,7 @@ Scans the current argument value for a value of given format
 static bool
 optionsGetArgumentIntValue(int *res) {
     *res = (int)strtol(*globalCurrentArgumentValue, nullptr, 10);
-    return *res == 1;
+    return errno == ERANGE;
 }
 
 /**

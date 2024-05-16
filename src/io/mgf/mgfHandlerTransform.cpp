@@ -166,7 +166,7 @@ Transform a point by the current matrix
 void
 mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context) {
     if ( context->transformContext == nullptr) {
-        mgfVertexCopy(v1, v2);
+        v1->copy(v2);
         return;
     }
     multiplyP3(v1, v2, context->transformContext->xf.xfm);
@@ -178,7 +178,7 @@ Transform a vector using current matrix
 void
 mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context) {
     if ( context->transformContext == nullptr) {
-        mgfVertexCopy(v1, v2);
+        v1->copy(v2);
         return;
     }
     multiplyV3(v1, v2, context->transformContext->xf.xfm);

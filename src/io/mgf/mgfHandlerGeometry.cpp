@@ -45,8 +45,6 @@ doDiscreteConic(int argc, const char **argv, MgfContext *context) {
         default:
             logFatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
     }
-
-    return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE; // Definitely illegal when this point is reached
 }
 
 static Vector3D *
@@ -83,9 +81,9 @@ getVertex(const char *name, MgfContext *context) {
 
     theVertex = (Vertex *) (vp->clientData);
     if ( !theVertex
-        || vp->clock >= 1
-        || vp->xid != TRANSFORM_XID(context->transformContext)
-        || is0Vector(&vp->n, Numeric::EPSILON) ) {
+         || vp->clock >= 1
+         || vp->xid != TRANSFORM_XID(context->transformContext)
+         || vp->n.isNull(Numeric::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
         VECTOR3Dd vert;
@@ -95,7 +93,7 @@ getVertex(const char *name, MgfContext *context) {
 
         mgfTransformPoint(&vert, &vp->p, context);
         thePoint = installPoint((float)vert.x, (float)vert.y, (float)vert.z, context);
-        if ( is0Vector(&vp->n, Numeric::EPSILON) ) {
+        if ( vp->n.isNull(Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(&norm, &vp->n, context);
@@ -617,8 +615,8 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
                                             // without hole entity handler
     char copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
                                        // the vertex argv[i] has been copied to new contour
-    int newContour[MAXIMUM_FACE_VERTICES]; // newContour[i] will contain the i-th
-                                           // vertex of the face with eliminated holes
+    int newContour[MAXIMUM_FACE_VERTICES]{}; // newContour[i] will contain the i-th
+                                             // vertex of the face with eliminated holes
     int i;
     int numberOfVerticesInNewContour;
 
@@ -686,12 +684,13 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
         minimumDistance = Numeric::HUGE_DOUBLE_VALUE;
         for ( j = i; j < argc; j++ ) {
             if ( *argv[j] == '-' || copied[j] ) {
+                // Contour separator or already copied vertex
                 continue;
             }
-            // Contour separator or already copied vertex
 
             for ( k = 0; k < numberOfVerticesInNewContour; k++ ) {
-                double d = distanceSquared(&v[j], &v[newContour[k]]);
+                int index = newContour[k];
+                double d = v[j].distanceSquared(&v[index]);
                 if ( d < minimumDistance ) {
                     minimumDistance = d;
                     nearestCopied = k;
@@ -733,7 +732,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
             newContour[k++] = j;
             copied[j] = true;
         }
-        for ( j = first; j <= nearestOther; j++ ) {
+        for ( j = first; j <= nearestOther && j <= MAXIMUM_FACE_VERTICES; j++ ) {
             newContour[k++] = j;
             copied[j] = true;
         }
@@ -855,7 +854,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             globalMgfCurrentVertex->n.x = strtod(av[1], nullptr);
             globalMgfCurrentVertex->n.y = strtod(av[2], nullptr);
             globalMgfCurrentVertex->n.z = strtod(av[3], nullptr);
-            normalize(&globalMgfCurrentVertex->n, Numeric::EPSILON);
+            globalMgfCurrentVertex->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
             globalMgfCurrentVertex->clock++;
             return MGF_OK;
         default:

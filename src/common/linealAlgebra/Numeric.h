@@ -13,12 +13,19 @@ class Numeric {
     /**
     Tests whether two floating point numbers are equal within the given tolerance
     */
-    static inline bool
+    static bool
     doubleEqual(double a, double b, double tolerance) {
         return (a - b) > -tolerance && (a - b) < tolerance;
     }
 
     static int floatCompare(const float *x, const float *y);
+
+    static void
+    roundDeltaToZero(double &x, double epsilon) {
+        if ( x <= epsilon && x >= -epsilon ) {
+            x = 0;
+        }
+    }
 };
 
 #endif

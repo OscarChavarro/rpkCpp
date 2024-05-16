@@ -16,15 +16,17 @@ VECTOR3Dd::VECTOR3Dd(double inX, double inY, double inZ) {
     y = inY;
     z = inZ;
 }
+
+VECTOR3Dd::~VECTOR3Dd() {
+}
+
 /**
 Normalize a vector, return old magnitude
 */
 double
-normalize(VECTOR3Dd *v, double epsilon)
+VECTOR3Dd::normalizeAndGivePreviousNorm(double epsilon)
 {
-    static double len;
-
-    len = dotProduct(v, v);
+    double len = this->dotProduct(this); // Note: this starts being length ^ 2
 
     if ( len <= 0.0 ) {
         return 0.0;
@@ -37,9 +39,9 @@ normalize(VECTOR3Dd *v, double epsilon)
         len = java::Math::sqrt(len);
     }
 
-    v->x /= len;
-    v->y /= len;
-    v->z /= len;
+    x /= len;
+    y /= len;
+    z /= len;
 
     return len;
 }
@@ -49,22 +51,22 @@ Cross product of two vectors
 result = a X b
 */
 void
-floatCrossProduct(VECTOR3Dd *result, const VECTOR3Dd *a, const VECTOR3Dd *b)
+VECTOR3Dd::crossProduct(const VECTOR3Dd *a, const VECTOR3Dd *b)
 {
-    result->x = a->y * b->z - a->z * b->y;
-    result->y = a->z * b->x - a->x * b->z;
-    result->z = a->x * b->y - a->y * b->x;
+    x = a->y * b->z - a->z * b->y;
+    y = a->z * b->x - a->x * b->z;
+    z = a->x * b->y - a->y * b->x;
 }
 
 /**
 Returns squared distance between the two vectors
 */
 double
-distanceSquared(const VECTOR3Dd *v1, const VECTOR3Dd *v2) {
+VECTOR3Dd::distanceSquared(const VECTOR3Dd *v2) const {
     VECTOR3Dd d;
 
-    d.x = (*v2).x - (*v1).x;
-    d.y = (*v2).y - (*v1).y;
-    d.z = (*v2).z - (*v1).z;
+    d.x = v2->x - x;
+    d.y = v2->y - y;
+    d.z = v2->z - z;
     return d.x * d.x + d.y * d.y + d.z * d.z;
 }

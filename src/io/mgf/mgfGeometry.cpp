@@ -141,14 +141,14 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     if ( (cv = getNamedVertex(av[1], context)) == nullptr ) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(&cv->n, Numeric::EPSILON ) ) {
+    if ( cv->n.isNull(Numeric::EPSILON) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
-    round0(minRad, Numeric::EPSILON);
+    Numeric::roundDeltaToZero(minRad, Numeric::EPSILON);
     maxRad = strtod(av[3], nullptr);
 
     // Check orientation
@@ -281,9 +281,9 @@ mgfMakeAxes(VECTOR3Dd *u, VECTOR3Dd *v, const VECTOR3Dd *w, double epsilon)
     v->y = vArr[1];
     v->z = vArr[2];
 
-    floatCrossProduct(u, v, w);
-    normalize(u, epsilon);
-    floatCrossProduct(v, w, u);
+    u->crossProduct(v, w);
+    u->normalizeAndGivePreviousNorm(epsilon);
+    v->crossProduct(w, u);
 }
 
 /**
@@ -354,14 +354,14 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     if ( vertexContext == nullptr) {
         return MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( is0Vector(&vertexContext->n, Numeric::EPSILON) ) {
+    if ( vertexContext->n.isNull(Numeric::EPSILON) ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
         return MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
-    round0(minRad, Numeric::EPSILON);
+    Numeric::roundDeltaToZero(minRad, Numeric::EPSILON);
     maxRad = strtod(av[3], nullptr);
     if ( minRad < 0.0 || maxRad <= minRad ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -565,9 +565,9 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 
     // Set up (radius1, radius2)
     double radius1 = strtod(av[2], nullptr);
-    round0(radius1, Numeric::EPSILON);
+    Numeric::roundDeltaToZero(radius1, Numeric::EPSILON);
     double radius2 = strtod(av[4], nullptr);
-    round0(radius2, Numeric::EPSILON);
+    Numeric::roundDeltaToZero(radius2, Numeric::EPSILON);
 
     if ( radius1 == 0.0 ) {
         if ( radius2 == 0.0 ) {
@@ -601,7 +601,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     w.y = cv1->p.y - cv2->p.y;
     w.z = cv1->p.z - cv2->p.z;
 
-    d = normalize(&w, Numeric::EPSILON);
+    d = w.normalizeAndGivePreviousNorm(Numeric::EPSILON);
     if ( d == 0.0 ) {
         // TODO: Review floating point comparisons vs EPSILON
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
@@ -894,7 +894,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             return MGF_ERROR_UNDEFINED_REFERENCE;
         }
 
-        if ( !is0Vector(&cv->n, Numeric::EPSILON) ) {
+        if ( !cv->n.isNull(Numeric::EPSILON) ) {
             hasNormal++;
         }
 
@@ -904,13 +904,13 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         v2.x = cv->p.x - cv0->p.x;
         v2.y = cv->p.y - cv0->p.y;
         v2.z = cv->p.z - cv0->p.z;
-        floatCrossProduct(&v3, &v1, &v2);
+        v3.crossProduct(&v1, &v2);
         norm.x += v3.x;
         norm.y += v3.y;
         norm.z += v3.z;
-        mgfVertexCopy(&v1, &v2);
+        v1.copy(&v2);
     }
-    if ( normalize(&norm, Numeric::EPSILON) == 0.0 ) {
+    if ( norm.normalizeAndGivePreviousNorm(Numeric::EPSILON) == 0.0 ) {
         return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
