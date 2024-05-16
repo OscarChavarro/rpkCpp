@@ -37,7 +37,7 @@ static bool globalDoingLocalRayCasting = false;
 #define STRING_LENGTH 1000
 
 PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
-    GLOBAL_photonMap_state.defaults();
+    GLOBAL_photonMap_state.setDefaults();
     className = PHOTON_MAP;
 }
 

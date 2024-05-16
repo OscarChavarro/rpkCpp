@@ -145,7 +145,7 @@ CPhotonMap::doAddPhoton(
 {
     if ( m_precomputeIrradiance ) {
         CIrrPhoton irrPhoton;
-        irrPhoton.Copy(photon);
+        irrPhoton.copy(photon);
         irrPhoton.setNormal(normal);
         m_kdtree->addPoint(&irrPhoton, flags);
     } else {
@@ -202,12 +202,12 @@ CPhotonMap::Redistribute(CPhoton &photon) const {
     ColorRgb pow;
     float factor = 1.0f / (float)m_nrpCosinePos;
 
-    pow = photon.Power();
+    pow = photon.power();
     deltaPower.scaledCopy(factor, pow);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         if ( m_cosines[i] > 0.0 ) {
-            m_photons[i]->AddPower(deltaPower);
+            m_photons[i]->addPower(deltaPower);
         }
     }
 }
@@ -290,7 +290,7 @@ CPhotonMap::PhotonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
-                power = m_photons[i]->Power();
+                power = m_photons[i]->power();
                 irradiance.add(irradiance, power);
             }
         }
@@ -412,7 +412,7 @@ CPhotonMap::Reconstruct(
             eval = bsdf->evaluate(
                 hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         }
-        power = m_photons[i]->Power();
+        power = m_photons[i]->power();
 
         col.scalarProduct(eval, power);
         result.add(result, col);
@@ -501,7 +501,7 @@ CPhotonMap::sample(
         for ( int i = 0; i < m_nrpFound; i++ ) {
             m_photons[i]->findRS(&pr, &ps, coord, flag, n);
 
-            color = m_photons[i]->Power();
+            color = m_photons[i]->power();
 
             m_grid->Add(pr, ps, color.average() / (float)m_nrPhotons);
         }
@@ -512,7 +512,7 @@ CPhotonMap::sample(
 
     // Sample
     double probabilityDensityFunction;
-    m_grid->Sample(r, s, &probabilityDensityFunction);
+    m_grid->sample(r, s, &probabilityDensityFunction);
 
     return probabilityDensityFunction;
 }

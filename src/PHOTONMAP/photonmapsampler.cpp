@@ -401,7 +401,7 @@ CPhotonMapSampler::gdSample(
     // -- Currently NEVER reached!
 
     // Choose G or D
-    PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    const PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
     bool dChosen;
     float pdfChoice;
 

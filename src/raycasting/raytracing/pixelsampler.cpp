@@ -24,7 +24,7 @@ CPixelSampler::sample(
 {
     Vector3D dir;
 
-    // Pre-condition: thisNode == eye, prevNode == nullptr, SetPixel called
+    // Pre-conditions: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
     // Sample direction
     double xSample = (m_px + camera->pixelWidth * x1);
@@ -69,7 +69,7 @@ CPixelSampler::sample(
 }
 
 void
-CPixelSampler::SetPixel(Camera *defaultCamera, int nx, int ny, Camera *camera) {
+CPixelSampler::SetPixel(Camera *defaultCamera, int nx, int ny, const Camera *camera) {
     if ( camera == nullptr ) {
         // Primary camera
         camera = defaultCamera;

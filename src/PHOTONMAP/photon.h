@@ -24,14 +24,14 @@ const short NO_IMPSAMP_PHOTON = DIRECT_LIGHT_PHOTON | CAUSTIC_LIGHT_PHOTON;
 class CPhoton {
   protected:
     Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
-    ColorRgb m_power;  // Power represented by this photon
+    ColorRgb m_power;  // power represented by this photon
     //  float m_dcWeight; // Weight for density control
     Vector3D m_dir;  // Direction
 
   public:
     CPhoton() {};
 
-    CPhoton(Vector3D pos, ColorRgb &power, Vector3D &dir)
+    CPhoton(Vector3D pos, const ColorRgb &power, const Vector3D &dir)
             : m_pos(pos), m_power(power), m_dir(dir) {  }
 
     inline Vector3D
@@ -40,12 +40,12 @@ class CPhoton {
     }
 
     inline ColorRgb
-    Power() {
+    power() const {
         return m_power;
     }
 
     inline void
-    AddPower(ColorRgb col) {
+    addPower(ColorRgb col) {
         m_power.add(m_power, col);
     }
 
@@ -67,7 +67,6 @@ class CIrrPhoton : public CPhoton {
     Vector3D m_normal;
     ColorRgb m_irradiance;
 
-  public:
     inline Vector3D Normal() const { return m_normal; }
 
     inline void setNormal(const Vector3D &normal) { m_normal = normal; }
@@ -75,9 +74,9 @@ class CIrrPhoton : public CPhoton {
     inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
 
     inline void
-    Copy(const CPhoton &photon) {
+    copy(const CPhoton &photon) {
         // Dangerous ??
-        memcpy((char *) this, (char *) &photon, sizeof(CPhoton));
+        memcpy((char *) this, &photon, sizeof(CPhoton));
     }
 };
 
@@ -104,7 +103,7 @@ class CImporton : public CIrrPhoton {
         float importance,
         float potential,
         float footprint,
-        Vector3D &dir)
+        const Vector3D &dir)
     {
         m_pos = pos;
         m_dir = dir;
@@ -112,14 +111,13 @@ class CImporton : public CIrrPhoton {
         SetAll(importance, potential, footprint);
     }
 
-  public:
     inline float
-    Importance() {
+    Importance() const {
         return m_power.r;
     }
 
     inline float
-    PImportance() {
+    PImportance() const {
         return m_irradiance.r;
     }
 };

@@ -13,13 +13,13 @@ CSampleGrid2D::CSampleGrid2D(int xSectionsParam, int ySectionsParam): totalSum()
 }
 
 void CSampleGrid2D::Init() {
-    int i, j, index;
+    int index;
 
     index = 0;
 
-    for ( i = 0; i < xSections; i++ ) {
+    for ( int i = 0; i < xSections; i++ ) {
         ySums[i] = 0.0;
-        for ( j = 0; j < ySections; j++ ) {
+        for ( int j = 0; j < ySections; j++ ) {
             values[index++] = 0.0;
         }
     }
@@ -50,15 +50,15 @@ CSampleGrid2D::Add(double x, double y, double value) {
 }
 
 void CSampleGrid2D::EnsureNonZeroEntries() {
-    int index, i, j;
+    int index;
     // Add 3% of the average value to empty grid elements
     double fraction = 0.03 * totalSum / (xSections * ySections);
     double threshold = 1e-10 * totalSum;
 
     index = 0; // ! index is correlated with i,j in for loops
 
-    for ( i = 0; i < xSections; i++ ) {
-        for ( j = 0; j < ySections; j++ ) {
+    for ( int i = 0; i < xSections; i++ ) {
+        for ( int j = 0; j < ySections; j++ ) {
             if ( values[index] < threshold ) {
                 values[index] += fraction;
                 ySums[i] += fraction;
@@ -70,7 +70,7 @@ void CSampleGrid2D::EnsureNonZeroEntries() {
 }
 
 void
-CSampleGrid2D::Sample(double *x, double *y, double *probabilityDensityFunction) {
+CSampleGrid2D::sample(double *x, double *y, double *probabilityDensityFunction) const {
     int xIndex;
     int yIndex;
     double xPdf;

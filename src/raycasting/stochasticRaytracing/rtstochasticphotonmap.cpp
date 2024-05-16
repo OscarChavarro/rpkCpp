@@ -13,10 +13,10 @@ CSeed CSeedConfig::xOrSeed;
 
 void
 StochasticRaytracingConfiguration::init(
-        Camera *defaultCamera,
-        StochasticRayTracingState &state,
-        java::ArrayList<Patch *> *lightList,
-        RadianceMethod *radianceMethod)
+    const Camera *defaultCamera,
+    const StochasticRayTracingState &state,
+    java::ArrayList<Patch *> *lightList,
+    RadianceMethod *radianceMethod)
 {
     // Copy state options
 
@@ -47,12 +47,11 @@ StochasticRaytracingConfiguration::init(
 
     reflectionSampling = state.reflectionSampling;
 
-    if ( reflectionSampling == CLASSICAL_SAMPLING ) {
-        if ( radMode == STORED_INDIRECT || radMode == STORED_PHOTON_MAP ) {
-            logError("Classical raytracing",
-                     "Incompatible with extended final gather, using storage directly");
-            radMode = STORED_DIRECT;
-        }
+    if ( reflectionSampling == CLASSICAL_SAMPLING
+        && ( radMode == STORED_INDIRECT || radMode == STORED_PHOTON_MAP ) ) {
+        logError("Classical raytracing",
+                 "Incompatible with extended final gather, using storage directly");
+        radMode = STORED_DIRECT;
     }
 
     if ( radMode == STORED_PHOTON_MAP ) {
@@ -70,9 +69,7 @@ StochasticRaytracingConfiguration::init(
     separateSpecular = state.separateSpecular;
 
     if ( reflectionSampling == PHOTON_MAP_SAMPLING ) {
-        // radMode == STORED_PHOTON_MAP)
-        logWarning("Fresnel Specular Sampling",
-                   "always uses separate specular");
+        logWarning("Fresnel Specular Sampling", "always uses separate specular");
         separateSpecular = true;  // Always separate specular with photon map
     }
 
@@ -86,7 +83,10 @@ StochasticRaytracingConfiguration::init(
 }
 
 void
-StochasticRaytracingConfiguration::initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod) {
+StochasticRaytracingConfiguration::initDependentVars(
+    const java::ArrayList<Patch *> *lightList,
+    const RadianceMethod *radianceMethod)
+{
     // Sampler configuration
     samplerConfig.pointSampler = new CEyeSampler;
     samplerConfig.dirSampler = new CPixelSampler;

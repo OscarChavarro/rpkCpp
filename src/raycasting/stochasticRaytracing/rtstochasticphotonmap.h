@@ -175,7 +175,12 @@ public:
     StorageReadout initialReadout;
 
 public:
-    void init(Camera *defaultCamera, StochasticRayTracingState &state, java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod);
+    void
+    init(
+        const Camera *defaultCamera,
+        const StochasticRayTracingState &state,
+        java::ArrayList<Patch *> *lightList,
+        RadianceMethod *radianceMethod);
 
     // Constructors
     StochasticRaytracingConfiguration(
@@ -210,7 +215,7 @@ public:
     };
 
 private:
-    void initDependentVars(java::ArrayList<Patch *> *lightList, RadianceMethod *radianceMethod);
+    void initDependentVars(const java::ArrayList<Patch *> *lightList, const RadianceMethod *radianceMethod);
 };
 
 #endif

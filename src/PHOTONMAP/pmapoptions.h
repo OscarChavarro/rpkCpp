@@ -79,7 +79,8 @@ class PhotonMapState
     clock_t lastClock;
 
     PhotonMapState();
-    virtual void defaults();
+    virtual ~PhotonMapState();
+    virtual void setDefaults();
 };
 
 extern PhotonMapState GLOBAL_photonMap_state;

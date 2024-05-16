@@ -125,7 +125,7 @@ batchSaveRaytracingImage(
     t = clock();
 
     ImageOutputHandle *img = createRadianceImageOutputHandle(
-        (char *) fileName,
+        fileName,
         fp,
         isPipe,
         scene->camera->xSize,
@@ -148,7 +148,7 @@ batchSaveRaytracingImage(
 
 void
 batchRayTrace(
-    char *filename,
+    const char *filename,
     FILE *fp,
     int isPipe,
     Scene *scene,

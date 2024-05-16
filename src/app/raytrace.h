@@ -24,7 +24,7 @@
 
     extern void
     batchRayTrace(
-        char *filename,
+        const char *filename,
         FILE *fp,
         int isPipe,
         Scene *scene,

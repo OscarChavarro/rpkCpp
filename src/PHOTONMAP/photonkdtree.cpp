@@ -18,8 +18,9 @@ public:
 static NormalQuery qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
-inline static float sqrDistance3D(float *a, float *b) {
-    float result, tmp;
+inline static float sqrDistance3D(const float *a, const float *b) {
+    float result;
+    float tmp;
 
     tmp = *(a++) - *(b++);
     result = tmp * tmp;
@@ -50,11 +51,11 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 
         if ( dist >= 0.0 )  // qdat_s.point[discr] <= ((float *)node->m_data)[discr]
         {
-            nearIndex = (index << 1) + 1; //node->loson;
-            farIndex = nearIndex + 1; //node->hison;
+            nearIndex = (index << 1) + 1; // node loson
+            farIndex = nearIndex + 1; // node hison
         } else {
-            farIndex = (index << 1) + 1;//node->loson;
-            nearIndex = farIndex + 1;//node->hison;
+            farIndex = (index << 1) + 1; // node loson
+            nearIndex = farIndex + 1;// node hison
         }
 
         // Always call near node recursively

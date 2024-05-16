@@ -44,11 +44,14 @@ PhotonMapState::PhotonMapState():
         cpuSecs(), lastClock()
 {
     // Set other defaults, that can be reset multiple times
-    defaults();
+    setDefaults();
+}
+
+PhotonMapState::~PhotonMapState() {
 }
 
 void
-PhotonMapState::defaults() {
+PhotonMapState::setDefaults() {
     // This is the only place where default values may be given...
     doCausticMap = true;
     cPathsPerIteration = 20000;

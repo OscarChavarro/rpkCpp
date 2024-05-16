@@ -8,16 +8,16 @@ High dynamic range PIC output handle.
 
 Olaf Appeltants, March 2000
 */
-class PicOutputHandle : public ImageOutputHandle {
-  protected:
+class PicOutputHandle final : public ImageOutputHandle {
+  private:
     FILE *pic;
 
     void writeHeader();
 
   public:
     PicOutputHandle(const char *filename, int w, int h);
-    ~PicOutputHandle();
-    int writeRadianceRGB(float *rgbRadiance);
+    ~PicOutputHandle() final;
+    int writeRadianceRGB(float *rgbRadiance) final;
 };
 
 #endif

@@ -27,7 +27,7 @@ HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
 }
 
 static bool
-BounceDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
+BounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node) {
     return node->m_usedComponents & (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
 }
 
@@ -35,7 +35,7 @@ static bool
 DoImportanceStore(CImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
     if ( HasDiffuseOrGlossy(node) ) {
         float importanceF = importance.average();
-        float potentialF = 1.0; // COLOR_AVERAGE(potential) * Ax;
+        float potentialF = 1.0;
 
         // Compute footprint
         float footprintF = 1.0;
@@ -57,7 +57,7 @@ tracePotentialPath(
     PhotonMapConfig *config)
 {
     SimpleRaytracingPathNode *path = config->biPath.m_eyePath;
-    CSamplerConfig &scfg = config->eyeConfig;
+    const CSamplerConfig &scfg = config->eyeConfig;
 
     // Eye node
     path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
@@ -103,10 +103,8 @@ tracePotentialPath(
         bool didDG = BounceDiffuseOrGlossy(prev);
         bool tooClose = (node->m_G > GLOBAL_photonMap_state.gThreshold);
 
-        if ( didDG ) {
-            if ( !tooClose ) {
-                indirectImportance = true;
-            }
+        if ( didDG && !tooClose ) {
+            indirectImportance = true;
         }
 
         // Adjust importance

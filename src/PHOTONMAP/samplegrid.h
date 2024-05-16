@@ -35,7 +35,7 @@ class CSampleGrid2D {
     // so that they sample a uniform point in the selected grid element.
     // Note that their range is not [0,1] anymore, but smaller
     // probabilityDensityFunction for sampling this point is filled in.
-    void Sample(double *x, double *y, double *probabilityDensityFunction);
+    void sample(double *x, double *y, double *probabilityDensityFunction) const;
 };
 
 #endif
