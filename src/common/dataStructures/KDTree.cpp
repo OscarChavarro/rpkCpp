@@ -12,7 +12,7 @@
 const float KD_MAX_RADIUS = 1e10;
 
 // KD Tree with one data element per node
-float *KDTree::s_distances = nullptr;
+float *KDTree::distances = nullptr;
 
 class KDQuery {
   public:
@@ -50,22 +50,22 @@ class KDQuery {
 static KDQuery GLOBAL_qDatS;
 
 KDTree::KDTree(int dataSize, bool CopyData) {
-    m_dataSize = dataSize;
-    m_numNodes = 0;
+    dataSize = dataSize;
+    numberOfNodes = 0;
 
-    m_numUnbalanced = 0;
-    m_root = nullptr;
+    numUnbalanced = 0;
+    root = nullptr;
 
-    m_numBalanced = 0;
-    m_broot = nullptr;
+    numBalanced = 0;
+    balancedRootNode = nullptr;
 
-    m_CopyData = CopyData;
+    copyData = CopyData;
 
-    if ( s_distances == nullptr ) {
-        s_distances = new float[1000];
+    if ( distances == nullptr ) {
+        distances = new float[1000];
     } // max 1000 !!
 
-    m_firstLeaf = 0;
+    firstLeaf = 0;
 }
 
 void
@@ -86,25 +86,25 @@ KDTree::deleteNodes(KDTreeNode *node, bool deleteData) {
 
 void
 KDTree::deleteBNodes(bool deleteData) {
-    if ( m_broot == nullptr ) {
+    if ( balancedRootNode == nullptr ) {
         return;
     }
 
     if ( deleteData ) {
-        for ( int node = 0; node < m_numBalanced; node++ ) {
-            free(m_broot[node].m_data);
+        for ( int node = 0; node < numBalanced; node++ ) {
+            free(balancedRootNode[node].m_data);
         }
     }
 
-    delete[] m_broot;
-    m_broot = nullptr;
+    delete[] balancedRootNode;
+    balancedRootNode = nullptr;
 }
 
 KDTree::~KDTree() {
     // Delete tree
-    deleteNodes(m_root, m_CopyData);
-    m_root = nullptr;
-    deleteBNodes(m_CopyData);
+    deleteNodes(root, copyData);
+    root = nullptr;
+    deleteBNodes(copyData);
 }
 
 /**
@@ -129,10 +129,10 @@ KDTree::addPoint(void *data, short flags = 0) {
     newNode->hison = nullptr;
 
     newPoint = (float *) data;
-    m_numNodes++;
-    m_numUnbalanced++;
+    numberOfNodes++;
+    numUnbalanced++;
 
-    nodePtr = &m_root;
+    nodePtr = &root;
     parent = nullptr;
 
     while ( *nodePtr != nullptr ) {
@@ -189,11 +189,11 @@ KDTree::addPoint(void *data, short flags = 0) {
 
 void *
 KDTree::assignData(void *data) const {
-    if ( m_CopyData ) {
+    if ( copyData ) {
         void *newData;
 
-        newData = malloc(m_dataSize);
-        memcpy((char *) newData, (char *) data, m_dataSize);
+        newData = malloc(dataSize);
+        memcpy((char *) newData, (char *) data, dataSize);
         return newData;
     } else {
         return data;
@@ -205,13 +205,13 @@ Iterate nodes : iterate all nodes (only for balanced trees!)
 */
 void
 KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
-    if ( m_numUnbalanced > 0 ) {
+    if ( numUnbalanced > 0 ) {
         logError(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
 
-    for ( int i = 0; i < m_numBalanced; i++ ) {
-        callBack(data, m_broot[i].m_data);
+    for ( int i = 0; i < numBalanced; i++ ) {
+        callBack(data, balancedRootNode[i].m_data);
     }
 }
 
@@ -236,7 +236,7 @@ KDTree::query(
             logError("KDTree::query", "Too many nodes requested");
             return 0;
         }
-        usedDistances = s_distances;
+        usedDistances = distances;
     } else {
         usedDistances = distances;
     }
@@ -253,14 +253,14 @@ KDTree::query(
     GLOBAL_qDatS.notFilled = true;
 
     // First query balanced part
-    if ( m_broot != nullptr ) {
-        BQuery_rec(0);
+    if ( balancedRootNode != nullptr ) {
+        balancedQueryRec(0);
     }
 
     // Now query unbalanced part using the already found nodes
     // from the balanced part
-    if ( m_root ) {
-        queryRec(m_root);
+    if ( root ) {
+        queryRec(root);
     }
 
     numberFound = GLOBAL_qDatS.foundN;
@@ -440,8 +440,8 @@ KDTree::queryRec(const KDTreeNode *node) {
 Query_rec for the unbalanced kd tree part
 */
 void
-KDTree::BQuery_rec(int index) {
-    const BalancedKDTreeNode &node = m_broot[index];
+KDTree::balancedQueryRec(int index) {
+    const BalancedKDTreeNode &node = balancedRootNode[index];
     int discr = node.discriminator();
     float dist;
     int nearIndex;
@@ -450,7 +450,7 @@ KDTree::BQuery_rec(int index) {
     // Recursive call to the child nodes
 
     // Test discr (reuse distance)
-    if ( index < m_firstLeaf ) {
+    if ( index < firstLeaf ) {
         dist = ((float *) node.m_data)[discr] - GLOBAL_qDatS.point[discr];
 
         if ( dist >= 0.0 ) {
@@ -462,17 +462,17 @@ KDTree::BQuery_rec(int index) {
         }
 
         // Always call near node recursively
-        if ( nearIndex < m_numBalanced ) {
-            BQuery_rec(nearIndex);
+        if ( nearIndex < numBalanced ) {
+            balancedQueryRec(nearIndex);
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < m_numBalanced) && (((GLOBAL_qDatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
+        if ((farIndex < numBalanced) && (((GLOBAL_qDatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
                                             (dist < GLOBAL_qDatS.sqrRadius)) ||
-                                           (dist < GLOBAL_qDatS.maximumDistance)) ) {
+                                         (dist < GLOBAL_qDatS.maximumDistance)) ) {
             // Discriminator line closer than maximumDistance : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
-            BQuery_rec(farIndex);
+            balancedQueryRec(farIndex);
         }
     }
 
@@ -726,48 +726,48 @@ Balance the tree, it is possible that a part is already balanced!
 void
 KDTree::balance() {
     // Make an unsorted BalancedKDTreeNode array pointing to the nodes
-    if ( m_numUnbalanced == 0 ) {
+    if ( numUnbalanced == 0 ) {
         // No balancing needed.
         return;
     }
 
-    fprintf(stderr, "Balancing kd-tree: %i nodes...\n", m_numNodes);
+    fprintf(stderr, "Balancing kd-tree: %i nodes...\n", numberOfNodes);
 
-    BalancedKDTreeNode *broot = new BalancedKDTreeNode[m_numNodes + 1];
+    BalancedKDTreeNode *broot = new BalancedKDTreeNode[numberOfNodes + 1];
 
-    broot[m_numNodes].m_data = nullptr;
-    broot[m_numNodes].m_flags = 128;
+    broot[numberOfNodes].m_data = nullptr;
+    broot[numberOfNodes].m_flags = 128;
 
     int index = 0;
 
     // Copy balanced
-    for ( int i = 0; i < m_numBalanced; i++ ) {
-        broot[index++] = m_broot[i];
+    for ( int i = 0; i < numBalanced; i++ ) {
+        broot[index++] = balancedRootNode[i];
     }
 
     // Copy unbalanced
-    copyUnbalancedRec(m_root, broot, &index);
+    copyUnbalancedRec(root, broot, &index);
 
     // Clear old balanced and unbalanced part (but no data delete)
-    deleteNodes(m_root, false);
-    m_root = nullptr;
-    m_numUnbalanced = 0;
+    deleteNodes(root, false);
+    root = nullptr;
+    numUnbalanced = 0;
 
     deleteBNodes(false);
 
-    m_numBalanced = m_numNodes;
-    BalancedKDTreeNode *dest = new BalancedKDTreeNode[m_numNodes + 1]; // Could we do with just 1 array???
+    numBalanced = numberOfNodes;
+    BalancedKDTreeNode *dest = new BalancedKDTreeNode[numberOfNodes + 1]; // Could we do with just 1 array???
 
-    dest[m_numNodes].m_data = nullptr;
-    dest[m_numNodes].m_flags = 64;
+    dest[numberOfNodes].m_data = nullptr;
+    dest[numberOfNodes].m_flags = 64;
 
     // Now balance the tree recursively
-    balanceRec(broot, dest, 0, 0, m_numNodes - 1);  // High inclusive!
+    balanceRec(broot, dest, 0, 0, numberOfNodes - 1);  // High inclusive!
 
-    m_broot = dest;
+    balancedRootNode = dest;
     delete[] broot;
 
-    m_firstLeaf = (m_numBalanced + 1) / 2;
+    firstLeaf = (numBalanced + 1) / 2;
 
     fprintf(stderr, "done\n");
 }

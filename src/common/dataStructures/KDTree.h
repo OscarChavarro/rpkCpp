@@ -102,29 +102,30 @@ class BalancedKDTreeNode {
 
 class KDTree {
   protected:
-    int m_numNodes;
-    long m_dataSize;
-    int m_numUnbalanced;
-    KDTreeNode *m_root;  // Start of non balanced part of the kd tree
-    int m_numBalanced;
-    int m_firstLeaf; // (numBalanced+1) / 2 : index of first leaf element
-    BalancedKDTreeNode *m_broot; // Start of balanced part of the kd tree
-    bool m_CopyData;
-    static float *s_distances;
+    int numberOfNodes;
+    long dataSize;
+    int numUnbalanced;
+    KDTreeNode *root;  // Start of non balanced part of the kd tree
+    int numBalanced;
+    int firstLeaf; // (numBalanced+1) / 2 : index of first leaf element
+    BalancedKDTreeNode *balancedRootNode; // Start of balanced part of the kd tree
+    bool copyData;
+    static float *distances;
 
   private:
     void *assignData(void *data) const;
-
     void deleteNodes(KDTreeNode *node, bool deleteData);
     void deleteBNodes(bool deleteData);
     void queryRec(const KDTreeNode *node); // Unbalanced part
-    void BQuery_rec(int node); // Balanced part
+    void balancedQueryRec(int node); // Balanced part
 
   public:
     explicit KDTree(int dataSize, bool CopyData = true);
     virtual ~KDTree();
 
     void addPoint(void *data, short flags);
+    void iterateNodes(void (*callBack)(void *, void *), void *data);
+    void balance();
 
     int
     query(
@@ -134,9 +135,6 @@ class KDTree {
         float *distances = nullptr,
         float radius = KD_MAX_RADIUS,
         short excludeFlags = 0);
-
-    void iterateNodes(void (*callBack)(void *, void *), void *data);
-    void balance();
 
     void
     balanceRec(

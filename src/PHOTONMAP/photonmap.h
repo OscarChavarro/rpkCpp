@@ -31,7 +31,7 @@ class CPhotonMap {
     long m_totalPaths; // Number of traced paths, not number of photons!!
     // Stored flux value still has to be divided by the total number of paths.
 
-    CPhotonkdtree *m_kdtree;
+    PhotonKDTree *m_kdtree;
 
     // A grid is permanently allocated for importance sampling
     CSampleGrid2D *m_grid;

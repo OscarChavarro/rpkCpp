@@ -34,9 +34,12 @@ inline static float sqrDistance3D(const float *a, const float *b) {
     return result;
 }
 
+PhotonKDTree::PhotonKDTree(int dataSize, bool copyData) : KDTree(dataSize, copyData) {
+}
+
 void
-CPhotonkdtree::NormalBQuery_rec(const int index) {
-    const BalancedKDTreeNode &node = m_broot[index];
+PhotonKDTree::NormalBQuery_rec(const int index) {
+    const BalancedKDTreeNode &node = balancedRootNode[index];
     int discr = node.discriminator();
 
     float dist;
@@ -47,7 +50,7 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 
     // Test discr (reuse distance)
 
-    if ( index < m_firstLeaf ) {
+    if ( index < firstLeaf ) {
         dist = ((float *) node.m_data)[discr] - (qdat_s.point)[discr];
 
         if ( dist >= 0.0 )  // qdat_s.point[discr] <= ((float *)node->m_data)[discr]
@@ -61,12 +64,12 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
 
         // Always call near node recursively
 
-        if ( nearIndex < m_numBalanced ) {
+        if ( nearIndex < numBalanced ) {
             NormalBQuery_rec(nearIndex);
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < m_numBalanced) && (dist < qdat_s.maximumDistance) ) {
+        if ((farIndex < numBalanced) && (dist < qdat_s.maximumDistance) ) {
             // Discriminator line closer than maxdist : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
             NormalBQuery_rec(farIndex);
@@ -84,8 +87,12 @@ CPhotonkdtree::NormalBQuery_rec(const int index) {
     }
 }
 
+/**
+Find the nearest photon with a similar normal constraint
+returns nullptr is no appropriate photon was found (should barely ever happen)
+*/
 CIrrPhoton *
-CPhotonkdtree::normalPhotonQuery(
+PhotonKDTree::normalPhotonQuery(
     Vector3D *position,
     const Vector3D *normal,
     float threshold,
@@ -98,7 +105,7 @@ CPhotonkdtree::normalPhotonQuery(
     qdat_s.threshold = threshold;
     qdat_s.maximumDistance = maxR2;
 
-    if ( m_broot && (m_numNodes > 0) && (m_numUnbalanced == 0) ) {
+    if ( balancedRootNode && (numberOfNodes > 0) && (numUnbalanced == 0) ) {
         // Find the best photon
         NormalBQuery_rec(0);
     }

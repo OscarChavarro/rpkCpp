@@ -90,9 +90,9 @@ CPhotonMap::CPhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
     m_irradianceComputed = false;
 
     if ( doPrecomputeIrradiance ) {
-        m_kdtree = new CPhotonkdtree(sizeof(CIrrPhoton), true);
+        m_kdtree = new PhotonKDTree(sizeof(CIrrPhoton), true);
     } else {
-        m_kdtree = new CPhotonkdtree(sizeof(CPhoton), true);
+        m_kdtree = new PhotonKDTree(sizeof(CPhoton), true);
     }
 
     m_totalPaths = 0;
