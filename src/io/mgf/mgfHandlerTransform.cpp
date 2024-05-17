@@ -91,11 +91,8 @@ static MgfTransformContext *
 newTransform(int ac, const char **av, MgfContext *context) {
     MgfTransformContext *spec;
     char *cp;
-    int n;
-    int nDim;
-
-    nDim = 0;
-    n = 0;
+    int nDim = 0;
+    int n = 0;
 
     // Compute space required by arguments
     for ( int i = 0; i < ac; i++ ) {
@@ -127,8 +124,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
 
     // And store new xf arguments
     if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
-        char **newAv =
-                (char **) malloc((spec->xac + 1) * sizeof(char *));
+        char **newAv = (char **)malloc((spec->xac + 1) * sizeof(char *));
         if ( newAv == nullptr) {
             return nullptr;
         }
@@ -185,9 +181,9 @@ mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context
 }
 
 static void
-finish(int count, MgfTransform *ret, const MATRIX4Dd transformMatrix, double scaTransform) {
+finish(int count, MgfTransform *ret, const MATRIX4Dd *transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
-        multiplyMatrix4(&ret->xfm, &ret->xfm, &transformMatrix);
+        multiplyMatrix4(&ret->xfm, &ret->xfm, transformMatrix);
         ret->sca *= scaTransform;
     }
 }
@@ -197,29 +193,25 @@ Get transform specification
 */
 static int
 xf(MgfTransform *ret, int ac, char **av) {
-    MATRIX4Dd transformMatrix;
-    MATRIX4Dd m4;
-    double scaTransform;
-    double tmp;
-    int counter;
-
     ret->xfm.identity();
     ret->sca = 1.0;
 
-    counter = 1;
+    int counter = 1;
+    MATRIX4Dd transformMatrix;
     transformMatrix.identity();
-    scaTransform = 1.0;
+    double scaTransform = 1.0;
 
     int i;
+    double tmp;
     for ( i = 0; i < ac && av[i][0] == '-'; i++ ) {
-        m4.identity();
+        MATRIX4Dd m4;
 
         switch ( av[i][1] ) {
 
             case 't':
                 // Translate
                 if ( !checkArgument(2, "fff", ac, av, i) ) {
-                    finish(counter, ret, transformMatrix, scaTransform);
+                    finish(counter, ret, &transformMatrix, scaTransform);
                     return i;
                 }
                 m4.m[3][0] = strtod(av[++i], nullptr);
@@ -232,7 +224,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                 switch ( av[i][2] ) {
                     case 'x':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
@@ -241,7 +233,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
@@ -250,7 +242,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
@@ -259,7 +251,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         break;
                     default: {
                         if ( !checkArgument(2, "ffff", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         float x = strtof(av[++i], nullptr);
@@ -297,48 +289,48 @@ xf(MgfTransform *ret, int ac, char **av) {
                 switch ( av[i][2] ) {
                     case 'x':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = strtod(av[i + 1], nullptr);
                         if ( tmp == 0.0 ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         m4.m[0][0] = tmp;
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = strtod(av[i + 1], nullptr);
                         if ( tmp == 0.0 ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         m4.m[1][1] = tmp;
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = strtod(av[i + 1], nullptr);
                         if ( tmp == 0.0 ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         m4.m[2][2] = tmp;
                         break;
                     default:
                         if ( !checkArgument(2, "f", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         tmp = strtod(av[i + 1], nullptr);
                         if ( tmp == 0.0 ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         scaTransform *=
@@ -355,7 +347,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                 switch ( av[i][2] ) {
                     case 'x':
                         if ( !checkArgument(3, "", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         scaTransform *=
@@ -363,7 +355,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         break;
                     case 'y':
                         if ( !checkArgument(3, "", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         scaTransform *=
@@ -371,14 +363,14 @@ xf(MgfTransform *ret, int ac, char **av) {
                         break;
                     case 'z':
                         if ( !checkArgument(3, "", ac, av, i) ) {
-                            finish(counter, ret, transformMatrix, scaTransform);
+                            finish(counter, ret, &transformMatrix, scaTransform);
                             return i;
                         }
                         scaTransform *=
                         m4.m[2][2] = -1.0;
                         break;
                     default:
-                        finish(counter, ret, transformMatrix, scaTransform);
+                        finish(counter, ret, &transformMatrix, scaTransform);
                         return i;
                 }
                 break;
@@ -386,7 +378,7 @@ xf(MgfTransform *ret, int ac, char **av) {
             case 'i':
                 // Iterate
                 if ( !checkArgument(2, "i", ac, av, i) ) {
-                    finish(counter, ret, transformMatrix, scaTransform);
+                    finish(counter, ret, &transformMatrix, scaTransform);
                     return i;
                 }
                 while ( counter-- > 0 ) {
@@ -399,14 +391,14 @@ xf(MgfTransform *ret, int ac, char **av) {
                 continue;
 
             default:
-                finish(counter, ret, transformMatrix, scaTransform);
+                finish(counter, ret, &transformMatrix, scaTransform);
                 return i;
 
         }
         multiplyMatrix4(&transformMatrix, &transformMatrix, &m4);
     }
 
-    finish(counter, ret, transformMatrix, scaTransform);
+    finish(counter, ret, &transformMatrix, scaTransform);
     return i;
 }
 

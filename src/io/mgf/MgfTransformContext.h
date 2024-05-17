@@ -15,7 +15,12 @@ class MgfTransform {
   public:
     MATRIX4Dd xfm; // Transform matrix
     double sca; // Scale factor
+
+    MgfTransform();
 };
+
+MgfTransform::MgfTransform(): xfm(), sca() {
+}
 
 // Maximum array dimensions
 #define TRANSFORM_MAXIMUM_DIMENSIONS 8
@@ -42,6 +47,8 @@ class MgfTransformContext {
     MgfTransform xf; // Cumulative transformation
     MgfTransformArray *transformationArray;
     MgfTransformContext *prev; // Previous transformation context
+
+    MgfTransformContext() : xid(), xac(), rev(), xf(), transformationArray(), prev() {};
 }; // Followed by argument buffer
 
 #endif
