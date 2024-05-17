@@ -17,9 +17,11 @@ disposeCoefficients(StochasticRadiosityElement *elem) {
     initCoefficients(elem);
 }
 
-/* determines basis based on element type and currently desired approximation */
+/**
+Determines basis based on element type and currently desired approximation
+*/
 static GalerkinBasis *
-ActualBasis(StochasticRadiosityElement *elem) {
+actualBasis(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         return &GLOBAL_stochasticRadiosity_clusterBasis;
     } else {
@@ -33,7 +35,7 @@ Allocates memory for radiance coefficients
 void
 allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
-    elem->basis = ActualBasis(elem);
+    elem->basis = actualBasis(elem);
     elem->radiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
     elem->unShotRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
     elem->receivedRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
@@ -47,7 +49,7 @@ been initialised before
 */
 void
 reAllocCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem != nullptr && elem->basis != ActualBasis(elem) ) {
+    if ( elem != nullptr && elem->basis != actualBasis(elem) ) {
         allocCoefficients(elem);
     }
 }

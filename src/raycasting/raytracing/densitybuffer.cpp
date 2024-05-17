@@ -45,7 +45,8 @@ CDensityHit CDensityHitList::operator[](int i) {
     return ((*m_cacheCurrent)[i - m_cacheLowerLimit]);
 }
 
-void CDensityHitList::add(CDensityHit &hit) {
+void
+CDensityHitList::add(const CDensityHit &hit) {
     if ( !m_last->add(hit) ) {
         // New array needed
 

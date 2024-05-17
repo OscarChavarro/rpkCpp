@@ -565,7 +565,8 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
 
             for ( int i = 0; i < tokenCount; i++ ) {
                 if ( typeArray[i] == ' ' ) {
-                    c[pos++] = flagArray[i];
+                    c[pos] = flagArray[i];
+                    pos++;
                 } else {
                     // typeArray[i] == '*' !  Choose a number
 
@@ -610,7 +611,8 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
 
                     // Set num flags
                     for ( int j = 0; j < num; j++ ) {
-                        c[pos++] = flagArray[i];
+                        c[pos] = flagArray[i];
+                        pos++;
                     }
                 }
             }

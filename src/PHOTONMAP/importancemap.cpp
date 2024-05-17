@@ -74,7 +74,7 @@ CImportanceMap::getImpReqDensity(const Camera *camera, const Vector3D &pos, cons
 }
 
 float
-CImportanceMap::getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal) {
+CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D normal) {
     if ( m_nrPhotons == 0 ) {
         return GLOBAL_photonMap_state.constantRD;
     }  // Safety, if no importance map was constructed
@@ -129,9 +129,9 @@ CImportanceMap::getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal
 
 void
 CImportanceMap::ComputeAllRequiredDensities(
-    Camera *camera,
+    const Camera *camera,
     Vector3D &pos,
-    Vector3D &normal,
+    const Vector3D &normal,
     float *imp,
     float *pot,
     float *diff)

@@ -562,10 +562,19 @@ stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *e
         // 'from'. This midpoint is a vertex of a regular sub-element of 'neighbour'.
         // Which regular sub-element and which vertex is determined from the diagrams
         // above
-        int index = (to == neighbour->vertices[0] ? 0 :
-                     (to == neighbour->vertices[1] ? 1 :
-                      (to == neighbour->vertices[2] ? 2 :
-                       (to == neighbour->vertices[3] ? 3 : -1))));
+        int index;
+
+        if ( to == neighbour->vertices[0] ) {
+            index = 0;
+        } else if ( to == neighbour->vertices[1] ) {
+            index = 1;
+        } else if ( to == neighbour->vertices[2] ) {
+            index = 2;
+        } else if ( to == neighbour->vertices[3] ) {
+            index = 3;
+        } else {
+            index = -1;
+        }
 
         switch ( neighbour->numberOfVertices ) {
             case 3:

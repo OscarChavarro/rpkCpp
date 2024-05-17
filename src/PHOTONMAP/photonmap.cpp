@@ -322,7 +322,7 @@ CPhotonMap::precomputeIrradiance() {
 bool
 CPhotonMap::irradianceReconstruct(
     RayHit *hit,
-    const Vector3D &outDir /*outDir*/,
+    const Vector3D &/*outDir*/,
     const ColorRgb &diffuseAlbedo,
     ColorRgb *result)
 {

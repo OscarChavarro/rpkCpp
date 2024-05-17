@@ -41,14 +41,14 @@ class CImportanceMap: public CPhotonMap {
     // New functions
     float reconstructImportance(Vector3D, const Vector3D &normal) const;
     float getImpReqDensity(const Camera *camera, const Vector3D &pos, const Vector3D &normal) const;
-    float getRequiredDensity(Camera *camera, Vector3D pos, Vector3D normal);
+    float getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D normal);
 
 protected:
     void
     ComputeAllRequiredDensities(
-        Camera *camera,
+        const Camera *camera,
         Vector3D &pos,
-        Vector3D &normal,
+        const Vector3D &normal,
         float *imp,
         float *pot,
         float *diff);

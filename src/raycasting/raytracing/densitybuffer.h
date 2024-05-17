@@ -81,7 +81,7 @@ class CDensityHitList {
   public:
     CDensityHitList();
     ~CDensityHitList();
-    void add(CDensityHit &hit);
+    void add(const CDensityHit &hit);
     int storedHits() const { return m_numHits; }
     CDensityHit operator[](int i);
 };

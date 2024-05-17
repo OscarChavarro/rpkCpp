@@ -11,6 +11,6 @@ extern ColorRgb
 determineControlRadiosity(
     ColorRgb *(*getRadiance)(StochasticRadiosityElement *),
     ColorRgb (*getScaling)(StochasticRadiosityElement *),
-    java::ArrayList<Patch *> *scenePatches);
+    const java::ArrayList<Patch *> *scenePatches);
 
 #endif

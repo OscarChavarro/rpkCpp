@@ -560,7 +560,7 @@ stochasticJacobiElementShootRay(
     int nMostSignificantBit,
     NiederreiterIndex mostSignificantBit1,
     NiederreiterIndex rMostSignificantBit2,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     if ( globalGetRadianceCallback != nullptr ) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
@@ -605,7 +605,7 @@ Determines nr of rays to shoot from element and shoots this number of rays
 */
 static void
 stochasticJacobiElementShootRays(
-    VoxelGrid *sceneWorldVoxelGrid,
+    const VoxelGrid *sceneWorldVoxelGrid,
     StochasticRadiosityElement *element,
     int raysThisElem,
     RenderOptions *renderOptions)
