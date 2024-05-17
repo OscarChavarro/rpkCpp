@@ -49,8 +49,8 @@ class KDQuery {
 
 static KDQuery GLOBAL_qDatS;
 
-KDTree::KDTree(int dataSize, bool CopyData) {
-    dataSize = dataSize;
+KDTree::KDTree(int inDataSize, bool CopyData) {
+    dataSize = inDataSize;
     numberOfNodes = 0;
 
     numUnbalanced = 0;
@@ -62,9 +62,9 @@ KDTree::KDTree(int dataSize, bool CopyData) {
     copyData = CopyData;
 
     if ( distances == nullptr ) {
+        // Maximum 1000!
         distances = new float[1000];
-    } // max 1000 !!
-
+    }
     firstLeaf = 0;
 }
 
@@ -221,28 +221,28 @@ account ! (The balanced part is searched first)
 */
 int
 KDTree::query(
-    const float *point,
+    float *point,
     int N,
     void *results,
-    float *distances,
+    float *inDistances,
     float radius,
     short excludeFlags)
 {
     int numberFound;
     float *usedDistances;
 
-    if ( distances == nullptr ) {
+    if ( inDistances == nullptr ) {
         if ( N > 1000 ) {
             logError("KDTree::query", "Too many nodes requested");
             return 0;
         }
-        usedDistances = distances;
+        usedDistances = inDistances;
     } else {
-        usedDistances = distances;
+        usedDistances = inDistances;
     }
 
     // Fill in static class data
-    GLOBAL_qDatS.point = (float *)point;
+    GLOBAL_qDatS.point = point;
     GLOBAL_qDatS.wantedN = N;
     GLOBAL_qDatS.foundN = 0;
     GLOBAL_qDatS.results = (float **) results;

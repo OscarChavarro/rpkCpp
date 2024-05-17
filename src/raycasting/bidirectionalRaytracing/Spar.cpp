@@ -1,11 +1,11 @@
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "scene/RadianceMethod.h"
-#include "raycasting/bidirectionalRaytracing/spar.h"
+#include "raycasting/bidirectionalRaytracing/Spar.h"
 
 Spar::Spar() {
     m_contrib = new ContribHandler[MAX_PATH_GROUPS];
-    m_sparList = new CSparList[MAX_PATH_GROUPS];
+    m_sparList = new SparList[MAX_PATH_GROUPS];
 }
 
 Spar::~Spar() {
@@ -104,7 +104,7 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *radianceMethod) {
 }
 
 void
-CSparList::handlePath(
+SparList::handlePath(
     SparConfig *config,
     CBiPath *path,
     ColorRgb *fRad,
@@ -126,4 +126,7 @@ CSparList::handlePath(
             fRad->add(col, *fRad);
         }
     }
+}
+
+SparList::~SparList() {
 }

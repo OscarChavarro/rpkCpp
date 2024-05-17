@@ -129,10 +129,10 @@ class KDTree {
 
     int
     query(
-        const float *point,
+        float *point,
         int N,
         void *results,
-        float *distances = nullptr,
+        float *inDistances = nullptr,
         float radius = KD_MAX_RADIUS,
         short excludeFlags = 0);
 

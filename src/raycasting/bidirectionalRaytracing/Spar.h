@@ -14,7 +14,6 @@ Specification of the Stored Partial Radiance class
 #define MAX_PATH_GROUPS 2
 
 // Some global path groups
-
 #define DISJOINT_GROUP 0
 #define LD_GROUP 1
 
@@ -22,7 +21,7 @@ class Spar;
 
 // Spar Config stores handy config params
 class SparConfig {
-public:
+  public:
     BP_BASECONFIG *baseConfig;
 
     // Needed in weighted multi-pass methods
@@ -30,16 +29,15 @@ public:
     Spar *ldSpar;
 };
 
-class CSparList : public CircularList<Spar *> {
-public:
-    virtual void
+class SparList final : public CircularList<Spar *> {
+  public:
+    void
     handlePath(
         SparConfig *config,
         CBiPath *path,
         ColorRgb *fRad,
         ColorRgb *fBpt);
-    virtual ~CSparList() {
-    };
+    ~SparList() final;
 };
 
 typedef CircularListIterator<Spar *> CSparListIter;
@@ -47,7 +45,7 @@ typedef CircularListIterator<Spar *> CSparListIter;
 class Spar {
   public:
     ContribHandler *m_contrib;
-    CSparList *m_sparList;
+    SparList *m_sparList;
 
     Spar();
     virtual ~Spar();
@@ -61,18 +59,18 @@ class Spar {
 Le Spar : Uses emission ase stored radiance. Allows sampling of
 all bidirectional paths
 */
-class LeSpar : public Spar {
+class LeSpar final : public Spar {
   public:
-    virtual void init(SparConfig *sparConfig, RadianceMethod *radianceMethod);
+    void init(SparConfig *sparConfig, RadianceMethod *radianceMethod) final;
 };
 
 /**
 LD Spar : Uses direct diffuse as stored radiance. Allows sampling of
 of eye paths. GetDirectRadiance is used as a readout function
 */
-class LDSpar : public Spar {
+class LDSpar final : public Spar {
   public:
-    virtual void init(SparConfig *sparConfig, RadianceMethod *radianceMethod);
+    void init(SparConfig *sparConfig, RadianceMethod *radianceMethod) final;
 };
 
 #endif

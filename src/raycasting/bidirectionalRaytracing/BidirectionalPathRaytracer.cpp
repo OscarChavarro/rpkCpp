@@ -15,7 +15,7 @@
 #include "raycasting/raytracing/screeniterate.h"
 #include "raycasting/raytracing/densitybuffer.h"
 #include "raycasting/raytracing/densitykernel.h"
-#include "raycasting/bidirectionalRaytracing/spar.h"
+#include "raycasting/bidirectionalRaytracing/Spar.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
 // Persistent biDirPath state, contains actual GUI state and some other stuff
@@ -49,7 +49,7 @@ class BidirectionalPathTracingConfiguration {
 
     // SPaR configuration
     SparConfig sparConfig;
-    CSparList *sparList;
+    SparList *sparList;
     bool deStoreHits;
     ScreenBuffer *ref;
     ScreenBuffer *dest;
@@ -1068,7 +1068,7 @@ biDirPathTrace(
 
         sc->baseConfig = config.baseConfig; // Share base config options
 
-        config.sparList = new CSparList;
+        config.sparList = new SparList;
 
         leSpar = new LeSpar;
         ldSpar = new LDSpar;

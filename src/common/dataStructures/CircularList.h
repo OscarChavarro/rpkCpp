@@ -9,8 +9,6 @@ Implementation is based on Stroustrup 'The C++ Programming Language' Section 8.3
 #include "common/dataStructures/CircularListNode.h"
 #include "common/dataStructures/CircularListIterator.h"
 
-template<class T> class CircularListIterator;
-
 template<class T>
 class CircularList : protected CircularListBase {
   public:

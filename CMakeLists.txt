@@ -149,7 +149,7 @@ set(MAIN_SRC
     src/raycasting/bidirectionalRaytracing/LightSampler.cpp
     src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp
     src/raycasting/bidirectionalRaytracing/FlagChain.cpp
-    src/raycasting/bidirectionalRaytracing/spar.cpp
+    src/raycasting/bidirectionalRaytracing/Spar.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
     src/PHOTONMAP/samplegrid.cpp
     src/PHOTONMAP/discretesampling.cpp
