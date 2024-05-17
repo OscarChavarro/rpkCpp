@@ -2,6 +2,7 @@
 
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerColor.h"
+#include "io/mgf/mgfDefinitions.h"
 
 // Color lookup table
 static LookUpTable globalColorTable = LOOK_UP_INIT(free, free);

@@ -9,10 +9,12 @@
 #include "io/mgf/words.h"
 #include "io/mgf/mgfGeometry.h"
 #include "io/mgf/mgfHandlerMaterial.h"
+#include "io/mgf/mgfDefinitions.h"
 
 // No face can have more than this vertices
 #define MAXIMUM_FACE_VERTICES 100
 #define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, nullptr}
+#define TRANSFORM_XID(xf) ( (xf) == nullptr ? 0 : (xf)->xid )
 
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
@@ -146,7 +148,7 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
     }
 
     // If we are doing radiance computations, create radiance data for the patch
-    if ( context != nullptr && theFace->material != nullptr ) {
+    if ( theFace->material != nullptr ) {
         context->radianceMethod->createPatchData(theFace);
     }
 
@@ -498,14 +500,6 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
 int
 handleFaceEntity(int argc, const char **argv, MgfContext *context) {
-    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
-    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
-    Vector3D normal;
-    Vector3D backNormal;
-    Patch *face;
-    Patch *twin;
-    int errcode;
-
     if ( argc < 4 ) {
         doError("too few vertices in face", context);
         return MGF_OK; // Don't stop parsing the input
@@ -513,7 +507,8 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
-                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
+            "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf",
+            context);
         return MGF_OK; // No reason to stop parsing the input
     }
 
@@ -524,6 +519,9 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
         mgfObjectNewSurface(context);
         mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
     }
+
+    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
+    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
 
     for ( int i = 0; i < argc - 1; i++ ) {
         v[i] = getVertex(argv[i + 1], context);
@@ -536,6 +534,9 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
             backV[i] = getBackFaceVertex(v[i], context);
     }
 
+    Vector3D normal;
+    Vector3D backNormal;
+
     if ( !faceNormal(argc - 1, v, &normal) ) {
         doWarning("degenerate face", context);
         return MGF_OK; // Just ignore the generated face
@@ -544,7 +545,11 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
         backNormal.scaledCopy(-1.0, normal);
     }
 
-    errcode = MGF_OK;
+    int errorCode = MGF_OK;
+
+    Patch *face;
+    Patch *twin;
+
     if ( argc == 4 ) {
         // Triangles
         face = newFace(v[0], v[1], v[2], nullptr, context);
@@ -556,27 +561,27 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
             }
         }
     } else if ( argc == 5 ) {
-            // Quadrilaterals
-            if ( context->inComplex || faceIsConvex(argc - 1, v, &normal) ) {
-                face = newFace(v[0], v[1], v[2], v[3], context);
-                if ( !context->currentMaterial->isSided() && face != nullptr ) {
-                    twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
-                    face->twin = twin;
-                    if ( twin != nullptr ) {
-                        twin->twin = face;
-                    }
+        // Quadrilaterals
+        if ( context->inComplex || faceIsConvex(argc - 1, v, &normal) ) {
+            face = newFace(v[0], v[1], v[2], v[3], context);
+            if ( !context->currentMaterial->isSided() && face != nullptr ) {
+                twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
+                face->twin = twin;
+                if ( twin != nullptr ) {
+                    twin->twin = face;
                 }
-            } else {
-                doComplexFace(argc - 1, v, &normal, backV, context);
-                errcode = MGF_OK;
             }
         } else {
-            // More than 4 vertices
             doComplexFace(argc - 1, v, &normal, backV, context);
-            errcode = MGF_OK;
+            errorCode = MGF_OK;
         }
+    } else {
+        // More than 4 vertices
+        doComplexFace(argc - 1, v, &normal, backV, context);
+        errorCode = MGF_OK;
+    }
 
-    return errcode;
+    return errorCode;
 }
 
 int

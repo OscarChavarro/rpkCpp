@@ -8,25 +8,32 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/mgf/MgfTransformContext.h"
+#include "io/mgf/MgfContext.h"
+#include "io/mgf/mgfDefinitions.h"
 
 static char **globalTransformArgumentListBeginning;
 static char **globalLastTransform; // End of transform argument list (last transform argument)
+
+#define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
+#define TRANSFORM_ARGV(xf) (globalLastTransform - (xf)->xac)
 
 /**
 Compute unique ID from matrix
 */
 static long
 computeUniqueId(MATRIX4Dd *xfm) {
-    static char shiftTab[64] = {15, 5, 11, 5, 6, 3,
-                                9, 15, 13, 2, 13, 5, 2, 12, 14, 11,
-                                11, 12, 12, 3, 2, 11, 8, 12, 1, 12,
-                                5, 4, 15, 9, 14, 5, 13, 14, 2, 10,
-                                10, 14, 12, 3, 5, 5, 14, 6, 12, 11,
-                                13, 9, 12, 8, 1, 6, 5, 12, 7, 13,
-                                15, 8, 9, 2, 6, 11, 9, 11};
-    long xid;
+    static char shiftTab[64] = {
+        15, 5, 11, 5, 6, 3, 9, 15,
+        13, 2, 13, 5, 2, 12, 14, 11,
+        11, 12, 12, 3, 2, 11, 8, 12,
+        1, 12, 5, 4, 15, 9, 14, 5,
+        13, 14, 2, 10, 10, 14, 12, 3,
+        5, 5, 14, 6, 12, 11, 13, 9,
+        12, 8, 1, 6, 5, 12, 7, 13,
+        15, 8, 9, 2, 6, 11, 9, 11
+    };
+    long xid = 0;
 
-    xid = 0;
     // Compute unique transform id
     for ( long unsigned int i = 0; i < sizeof(MATRIX4Dd) / sizeof(unsigned short); i++ ) {
         xid ^= (long) (((unsigned short *) xfm->m)[i]) << shiftTab[i & 63];
@@ -142,7 +149,8 @@ newTransform(int ac, const char **av, MgfContext *context) {
     // Use memory allocated above
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            TRANSFORM_ARGV(spec)[i++] = (char *)"-i";
+            TRANSFORM_ARGV(spec)[i] = (char *)"-i";
+            i++;
             TRANSFORM_ARGV(spec)[i] = strcpy(
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
@@ -165,7 +173,7 @@ mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context)
         v1->copy(v2);
         return;
     }
-    context->transformContext->xf.xfm.multiplyWithTranslation(v1, v2);
+    context->transformContext->xf.transformMatrix.multiplyWithTranslation(v1, v2);
 }
 
 /**
@@ -177,14 +185,14 @@ mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context
         v1->copy(v2);
         return;
     }
-    context->transformContext->xf.xfm.multiply(v1, v2);
+    context->transformContext->xf.transformMatrix.multiply(v1, v2);
 }
 
 static void
 finish(int count, MgfTransform *ret, const MATRIX4Dd *transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
-        multiplyMatrix4(&ret->xfm, &ret->xfm, transformMatrix);
-        ret->sca *= scaTransform;
+        multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, transformMatrix);
+        ret->scaleFactor *= scaTransform;
     }
 }
 
@@ -193,8 +201,8 @@ Get transform specification
 */
 static int
 xf(MgfTransform *ret, int ac, char **av) {
-    ret->xfm.identity();
-    ret->sca = 1.0;
+    ret->transformMatrix.identity();
+    ret->scaleFactor = 1.0;
 
     int counter = 1;
     MATRIX4Dd transformMatrix;
@@ -382,8 +390,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                     return i;
                 }
                 while ( counter-- > 0 ) {
-                    multiplyMatrix4(&ret->xfm, &ret->xfm, &transformMatrix);
-                    ret->sca *= scaTransform;
+                    multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, &transformMatrix);
+                    ret->scaleFactor *= scaTransform;
                 }
                 counter = (int)strtol(av[++i], nullptr, 10);
                 transformMatrix.identity();
@@ -467,17 +475,17 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
     }
 
     // Check for vertex reversal
-    if ( (spec->rev = (spec->xf.sca < 0.0)) ) {
-        spec->xf.sca = -spec->xf.sca;
+    if ( (spec->rev = (spec->xf.scaleFactor < 0.0)) ) {
+        spec->xf.scaleFactor = -spec->xf.scaleFactor;
     }
 
     // Compute total transformation
     if ( spec->prev != nullptr) {
-        multiplyMatrix4(&spec->xf.xfm, &spec->xf.xfm, &spec->prev->xf.xfm);
-        spec->xf.sca *= spec->prev->xf.sca;
+        multiplyMatrix4(&spec->xf.transformMatrix, &spec->xf.transformMatrix, &spec->prev->xf.transformMatrix);
+        spec->xf.scaleFactor *= spec->prev->xf.scaleFactor;
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
-    spec->xid = computeUniqueId(&spec->xf.xfm); // Compute unique ID
+    spec->xid = computeUniqueId(&spec->xf.transformMatrix); // Compute unique ID
     return MGF_OK;
 }
 

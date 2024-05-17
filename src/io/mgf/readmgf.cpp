@@ -13,6 +13,7 @@
 #include "io/mgf/mgfHandlerColor.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 #include "io/mgf/readmgf.h"
+#include "io/mgf/mgfDefinitions.h"
 
 static VectorOctreeNode *globalPointsOctree = nullptr;
 static VectorOctreeNode *globalNormalsOctree = nullptr;
@@ -322,7 +323,8 @@ rayCasterInitialize alternate entity handlers
 */
 static void
 mgfAlternativeInit(
-    int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int, const char **, MgfContext *), MgfContext *context)
+    int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int, const char **, MgfContext *),
+    MgfContext *context)
 {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
