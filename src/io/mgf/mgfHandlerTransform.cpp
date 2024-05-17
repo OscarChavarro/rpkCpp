@@ -16,7 +16,7 @@ static char **globalLastTransform; // End of transform argument list (last trans
 Compute unique ID from matrix
 */
 static long
-computeUniqueId(double (*xfm)[4]) {
+computeUniqueId(MATRIX4Dd *xfm) {
     static char shiftTab[64] = {15, 5, 11, 5, 6, 3,
                                 9, 15, 13, 2, 13, 5, 2, 12, 14, 11,
                                 11, 12, 12, 3, 2, 11, 8, 12, 1, 12,
@@ -29,7 +29,7 @@ computeUniqueId(double (*xfm)[4]) {
     xid = 0;
     // Compute unique transform id
     for ( long unsigned int i = 0; i < sizeof(MATRIX4Dd) / sizeof(unsigned short); i++ ) {
-        xid ^= (long) (((unsigned short *) xfm)[i]) << shiftTab[i & 63];
+        xid ^= (long) (((unsigned short *) xfm->m)[i]) << shiftTab[i & 63];
     }
     return xid;
 }
@@ -169,7 +169,7 @@ mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context)
         v1->copy(v2);
         return;
     }
-    multiplyP3(v1, v2, context->transformContext->xf.xfm);
+    context->transformContext->xf.xfm.multiplyWithTranslation(v1, v2);
 }
 
 /**
@@ -181,13 +181,13 @@ mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context
         v1->copy(v2);
         return;
     }
-    multiplyV3(v1, v2, context->transformContext->xf.xfm);
+    context->transformContext->xf.xfm.multiply(v1, v2);
 }
 
 static void
-finish(int count, MgfTransform *ret, MATRIX4Dd transformMatrix, double scaTransform) {
+finish(int count, MgfTransform *ret, const MATRIX4Dd transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
-        multiplyMatrix4(ret->xfm, ret->xfm, transformMatrix);
+        multiplyMatrix4(&ret->xfm, &ret->xfm, &transformMatrix);
         ret->sca *= scaTransform;
     }
 }
@@ -203,16 +203,16 @@ xf(MgfTransform *ret, int ac, char **av) {
     double tmp;
     int counter;
 
-    setIdent4(ret->xfm);
+    ret->xfm.identity();
     ret->sca = 1.0;
 
     counter = 1;
-    setIdent4(transformMatrix);
+    transformMatrix.identity();
     scaTransform = 1.0;
 
     int i;
     for ( i = 0; i < ac && av[i][0] == '-'; i++ ) {
-        setIdent4(m4);
+        m4.identity();
 
         switch ( av[i][1] ) {
 
@@ -222,9 +222,9 @@ xf(MgfTransform *ret, int ac, char **av) {
                     finish(counter, ret, transformMatrix, scaTransform);
                     return i;
                 }
-                m4[3][0] = strtod(av[++i], nullptr);
-                m4[3][1] = strtod(av[++i], nullptr);
-                m4[3][2] = strtod(av[++i], nullptr);
+                m4.m[3][0] = strtod(av[++i], nullptr);
+                m4.m[3][1] = strtod(av[++i], nullptr);
+                m4.m[3][2] = strtod(av[++i], nullptr);
                 break;
 
             case 'r':
@@ -236,8 +236,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[1][1] = m4[2][2] = java::Math::cos(tmp);
-                        m4[2][1] = -(m4[1][2] = java::Math::sin(tmp));
+                        m4.m[1][1] = m4.m[2][2] = java::Math::cos(tmp);
+                        m4.m[2][1] = -(m4.m[1][2] = java::Math::sin(tmp));
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -245,8 +245,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[0][0] = m4[2][2] = java::Math::cos(tmp);
-                        m4[0][2] = -(m4[2][0] = java::Math::sin(tmp));
+                        m4.m[0][0] = m4.m[2][2] = java::Math::cos(tmp);
+                        m4.m[0][2] = -(m4.m[2][0] = java::Math::sin(tmp));
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -254,8 +254,8 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         tmp = d2r(strtod(av[++i], nullptr));
-                        m4[0][0] = m4[1][1] = java::Math::cos(tmp);
-                        m4[1][0] = -(m4[0][1] = java::Math::sin(tmp));
+                        m4.m[0][0] = m4.m[1][1] = java::Math::cos(tmp);
+                        m4.m[1][0] = -(m4.m[0][1] = java::Math::sin(tmp));
                         break;
                     default: {
                         if ( !checkArgument(2, "ffff", ac, av, i) ) {
@@ -273,21 +273,21 @@ xf(MgfTransform *ret, int ac, char **av) {
                         float c = java::Math::cos(a);
                         s = java::Math::sin(a);
                         float t = 1 - c;
-                        m4[0][0] = t * x * x + c;
-                        m4[1][1] = t * y * y + c;
-                        m4[2][2] = t * z * z + c;
+                        m4.m[0][0] = t * x * x + c;
+                        m4.m[1][1] = t * y * y + c;
+                        m4.m[2][2] = t * z * z + c;
                         float A = t * x * y;
                         float B = s * z;
-                        m4[0][1] = A + B;
-                        m4[1][0] = A - B;
+                        m4.m[0][1] = A + B;
+                        m4.m[1][0] = A - B;
                         A = t * x * z;
                         B = s * y;
-                        m4[0][2] = A - B;
-                        m4[2][0] = A + B;
+                        m4.m[0][2] = A - B;
+                        m4.m[2][0] = A + B;
                         A = t * y * z;
                         B = s * x;
-                        m4[1][2] = A + B;
-                        m4[2][1] = A - B;
+                        m4.m[1][2] = A + B;
+                        m4.m[2][1] = A - B;
                     }
                 }
                 break;
@@ -305,7 +305,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             finish(counter, ret, transformMatrix, scaTransform);
                             return i;
                         }
-                        m4[0][0] = tmp;
+                        m4.m[0][0] = tmp;
                         break;
                     case 'y':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -317,7 +317,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             finish(counter, ret, transformMatrix, scaTransform);
                             return i;
                         }
-                        m4[1][1] = tmp;
+                        m4.m[1][1] = tmp;
                         break;
                     case 'z':
                         if ( !checkArgument(3, "f", ac, av, i) ) {
@@ -329,7 +329,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             finish(counter, ret, transformMatrix, scaTransform);
                             return i;
                         }
-                        m4[2][2] = tmp;
+                        m4.m[2][2] = tmp;
                         break;
                     default:
                         if ( !checkArgument(2, "f", ac, av, i) ) {
@@ -342,9 +342,9 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4[0][0] =
-                        m4[1][1] =
-                        m4[2][2] = tmp;
+                        m4.m[0][0] =
+                        m4.m[1][1] =
+                        m4.m[2][2] = tmp;
                         break;
                 }
                 i++;
@@ -359,7 +359,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4[0][0] = -1.0;
+                        m4.m[0][0] = -1.0;
                         break;
                     case 'y':
                         if ( !checkArgument(3, "", ac, av, i) ) {
@@ -367,7 +367,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4[1][1] = -1.0;
+                        m4.m[1][1] = -1.0;
                         break;
                     case 'z':
                         if ( !checkArgument(3, "", ac, av, i) ) {
@@ -375,7 +375,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                             return i;
                         }
                         scaTransform *=
-                        m4[2][2] = -1.0;
+                        m4.m[2][2] = -1.0;
                         break;
                     default:
                         finish(counter, ret, transformMatrix, scaTransform);
@@ -390,11 +390,11 @@ xf(MgfTransform *ret, int ac, char **av) {
                     return i;
                 }
                 while ( counter-- > 0 ) {
-                    multiplyMatrix4(ret->xfm, ret->xfm, transformMatrix);
+                    multiplyMatrix4(&ret->xfm, &ret->xfm, &transformMatrix);
                     ret->sca *= scaTransform;
                 }
                 counter = (int)strtol(av[++i], nullptr, 10);
-                setIdent4(transformMatrix);
+                transformMatrix.identity();
                 scaTransform = 1.0;
                 continue;
 
@@ -403,7 +403,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                 return i;
 
         }
-        multiplyMatrix4(transformMatrix, transformMatrix, m4);
+        multiplyMatrix4(&transformMatrix, &transformMatrix, &m4);
     }
 
     finish(counter, ret, transformMatrix, scaTransform);
@@ -481,11 +481,11 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
 
     // Compute total transformation
     if ( spec->prev != nullptr) {
-        multiplyMatrix4(spec->xf.xfm, spec->xf.xfm, spec->prev->xf.xfm);
+        multiplyMatrix4(&spec->xf.xfm, &spec->xf.xfm, &spec->prev->xf.xfm);
         spec->xf.sca *= spec->prev->xf.sca;
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
-    spec->xid = computeUniqueId(spec->xf.xfm); // Compute unique ID
+    spec->xid = computeUniqueId(&spec->xf.xfm); // Compute unique ID
     return MGF_OK;
 }
 

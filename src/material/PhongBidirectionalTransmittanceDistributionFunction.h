@@ -1,6 +1,7 @@
 #ifndef __PHONG_BIDIRECTIONAL_TRANSMITTANCE_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_TRANSMITTANCE_DISTRIBUTION_FUNCTION__
 
+#include "common/RenderOptions.h"
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "material/RefractionIndex.h"
@@ -21,12 +22,11 @@ class PhongBidirectionalTransmittanceDistributionFunction {
 
     bool isSpecular() const;
 
-public:
+  public:
     explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
     virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
     ColorRgb transmittance(char flags) const;
-    void setIndexOfRefraction(RefractionIndex *index) const;
 
     ColorRgb
     evaluate(
@@ -59,6 +59,10 @@ public:
         char flags,
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
+
+#ifdef RAYTRACING_ENABLED
+    void setIndexOfRefraction(RefractionIndex *index) const;
+#endif
 };
 
 #endif

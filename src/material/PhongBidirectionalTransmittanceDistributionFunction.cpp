@@ -67,14 +67,6 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
 }
 
 /**
-Refraction index
-*/
-void
-PhongBidirectionalTransmittanceDistributionFunction::setIndexOfRefraction(RefractionIndex *index) const {
-    index->set(refractionIndex.getNr(), refractionIndex.getNi());
-}
-
-/**
 Btdf evaluations
 */
 ColorRgb
@@ -335,3 +327,13 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
     *probabilityDensityFunction = (localAverageKd * diffPdf + localAverageKs * nonDiffPdf) / scatteredPower;
     *probabilityDensityFunctionRR = scatteredPower;
 }
+
+#ifdef RAYTRACING_ENABLED
+/**
+Refraction index
+*/
+void
+PhongBidirectionalTransmittanceDistributionFunction::setIndexOfRefraction(RefractionIndex *index) const {
+    index->set(refractionIndex.getNr(), refractionIndex.getNi());
+}
+#endif

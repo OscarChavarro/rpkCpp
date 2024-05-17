@@ -1,14 +1,16 @@
 #include "common/options.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
-#include "raycasting/simple/RayMatter.h"
-#include "raycasting/raytracing/bidiroptions.h"
-#include "raycasting/stochasticRaytracing/basismcrad.h"
-#include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
-#include "raycasting/stochasticRaytracing/sample4d.h"
-#include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/simple/RayMatter.h"
+    #include "raycasting/raytracing/bidiroptions.h"
+    #include "raycasting/stochasticRaytracing/basismcrad.h"
+    #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
+    #include "raycasting/stochasticRaytracing/sample4d.h"
+    #include "raycasting/stochasticRaytracing/mcradP.h"
+    #include "raycasting/stochasticRaytracing/hierarchy.h"
+    #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#endif
 #include "app/commandLine.h"
 
 // Default scene level configuration

@@ -13,11 +13,11 @@
 #include "common/RenderOptions.h"
 #include "render/canvas.h"
 
+#ifdef RAYTRACING_ENABLED
+
 // Raytracing defaults
 static const char* DEFAULT_RAYTRACING_METHOD = "stochastic";
 static const int STRING_LENGTH = 1000;
-
-#ifdef RAYTRACING_ENABLED
 
 static char globalRaytracingMethodsString[STRING_LENGTH];
 static Raytracer *globalRayTracingMethods[] = {
