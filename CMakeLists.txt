@@ -33,7 +33,9 @@ set(MAIN_SRC
     src/common/linealAlgebra/Jacobian.cpp
     src/common/numericalAnalysis/TriangleCubatureRule.cpp
     src/common/numericalAnalysis/QuadCubatureRule.cpp
-    src/common/dataStructures/CircularList.cpp
+    src/common/dataStructures/CircularListBase.cpp
+    src/common/dataStructures/CircularListLink.cpp
+    src/common/dataStructures/CircularListBaseIterator.cpp
     src/common/dataStructures/KDTree.cpp
     src/common/quasiMonteCarlo/Halton.cpp
     src/common/quasiMonteCarlo/ScrambledHalton.cpp

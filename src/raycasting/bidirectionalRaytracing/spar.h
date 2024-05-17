@@ -30,7 +30,7 @@ public:
     Spar *ldSpar;
 };
 
-class CSparList : public CTSList<Spar *> {
+class CSparList : public CircularList<Spar *> {
 public:
     virtual void
     handlePath(
@@ -42,7 +42,7 @@ public:
     };
 };
 
-typedef CTSList_Iter<Spar *> CSparListIter;
+typedef CircularListIterator<Spar *> CSparListIter;
 
 class Spar {
   public:

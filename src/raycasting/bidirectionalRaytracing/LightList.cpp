@@ -51,7 +51,7 @@ Patch *
 LightList::sample(double *x1, double *pdf) {
     LightInfo *info;
     LightInfo *lastInfo;
-    CTSList_Iter<LightInfo> iterator(*this);
+    CircularListIterator<LightInfo> iterator(*this);
 
     double rnd = *x1 * totalFlux;
     double currentSum;
@@ -248,7 +248,7 @@ LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal)
 
 
     LightInfo *info;
-    CTSList_Iter<LightInfo> iterator(*this);
+    CircularListIterator<LightInfo> iterator(*this);
     double imp;
 
     totalImp = 0.0;
@@ -277,7 +277,7 @@ Patch *
 LightList::sampleImportant(const Vector3D *point, const Vector3D *normal, double *x1, double *pdf) {
     const LightInfo *info;
     const LightInfo *lastInfo;
-    CTSList_Iter<LightInfo> iterator(*this);
+    CircularListIterator<LightInfo> iterator(*this);
     double rnd;
     double currentSum;
 
@@ -339,7 +339,7 @@ LightList::evalPdfImportant(
 {
     double pdf;
     const LightInfo *info;
-    CTSList_Iter<LightInfo> iterator(*this);
+    CircularListIterator<LightInfo> iterator(*this);
 
     computeLightImportance(litPoint, normal);
 

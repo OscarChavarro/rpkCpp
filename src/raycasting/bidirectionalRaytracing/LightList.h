@@ -20,7 +20,7 @@ public:
 
 class LightListIterator;
 
-class LightList final : private CTSList<LightInfo> {
+class LightList final : private CircularList<LightInfo> {
   private:
     // Total flux ( sum(L * A * PI))
     float totalFlux;
@@ -88,7 +88,7 @@ class LightList final : private CTSList<LightInfo> {
 
 class LightListIterator {
   private:
-    CTSList_Iter<LightInfo> iterator;
+    CircularListIterator<LightInfo> iterator;
   public:
     explicit LightListIterator(LightList &list) : iterator(list) {}
 
