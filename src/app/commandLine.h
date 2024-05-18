@@ -28,4 +28,7 @@ rayTracingParseOptions(
     Raytracer *rayTracingMethods[],
     char raytracingMethodsString[]);
 
+extern void
+galerkinParseOptions(int *argc, char **argv);
+
 #endif

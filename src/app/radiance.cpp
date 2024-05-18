@@ -26,9 +26,9 @@ radianceMethodOptionCallBack(void * /*value*/) {
 }
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
-        {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOptionCallBack,
-                globalRadianceMethodsString},
-        {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOptionCallBack,
+     globalRadianceMethodsString},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 /**
@@ -108,7 +108,13 @@ radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod)
     photonMapParseOptions(argc, argv);
 #endif
 
+    galerkinParseOptions(argc, argv);
+
     if ( *newRadianceMethod != nullptr ) {
+        if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {
+            GalerkinRadianceMethod *galerkinRadianceMethod = (GalerkinRadianceMethod *)(*newRadianceMethod);
+            galerkinRadianceMethod->setStrategy();
+        }
         (*newRadianceMethod)->parseOptions(argc, argv);
     }
 }

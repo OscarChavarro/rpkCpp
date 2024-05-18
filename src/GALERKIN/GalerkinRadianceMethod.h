@@ -59,6 +59,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     char *getStats() final;
     void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
     void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const final;
+    void setStrategy();
 };
 
 extern void galerkinFreeMemory();

@@ -263,16 +263,16 @@ GalerkinElement::reAllocCoefficients() {
         localBasisSize = 1;
     } else {
         switch ( galerkinState->basisType ) {
-            case GalerkinBasisType::CONSTANT:
+            case GalerkinBasisType::GALERKIN_CONSTANT:
                 localBasisSize = 1;
                 break;
-            case GalerkinBasisType::LINEAR:
+            case GalerkinBasisType::GALERKIN_LINEAR:
                 localBasisSize = 3;
                 break;
-            case GalerkinBasisType::QUADRATIC:
+            case GalerkinBasisType::GALERKIN_QUADRATIC:
                 localBasisSize = 6;
                 break;
-            case GalerkinBasisType::CUBIC:
+            case GalerkinBasisType::GALERKIN_CUBIC:
                 localBasisSize = 10;
                 break;
             default:

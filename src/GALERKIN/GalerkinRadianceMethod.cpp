@@ -29,89 +29,10 @@ Galerkin radiosity, with the following variants:
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
 
-// Used for option management
-static int globalTrue = true;
-static int globalFalse = false;
-
 // Used for VRML export
 static FILE *globalVrmlFileDescriptor;
 static int globalNumberOfWrites;
 static int globalVertexId;
-
-static void
-iterationMethodOption(void *value) {
-    char *name = *(char **)value;
-
-    if ( strncasecmp(name, "jacobi", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = JACOBI;
-    } else if ( strncasecmp(name, "gaussseidel", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GAUSS_SEIDEL;
-    } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = SOUTH_WELL;
-    } else {
-        logError(nullptr, "Invalid iteration method '%s'", name);
-    }
-}
-
-static void
-hierarchicalOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.hierarchical = yesno;
-}
-
-static void
-lazyOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
-}
-
-static void
-clusteringOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.clustered = yesno;
-}
-
-static void
-importanceOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
-}
-
-static void
-ambientOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
-}
-
-static CommandLineOptionDescription galerkinOptions[] = {
-    {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
-    "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-    {"-gr-hierarchical", 6, TYPELESS, (void *)&globalTrue, hierarchicalOption,
-    "-gr-hierarchical    \t: do hierarchical refinement"},
-    {"-gr-not-hierarchical", 10, TYPELESS, (void *)&globalFalse, hierarchicalOption,
-    "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-    {"-gr-lazy-linking", 6, TYPELESS, (void *)&globalTrue, lazyOption,
-    "-gr-lazy-linking    \t: do lazy linking"},
-    {"-gr-no-lazy-linking", 10, TYPELESS, (void *)&globalFalse, lazyOption,
-    "-gr-no-lazy-linking \t: don't do lazy linking"},
-    {"-gr-clustering", 6, TYPELESS, (void *)&globalTrue, clusteringOption,
-    "-gr-clustering      \t: do clustering"},
-    {"-gr-no-clustering", 10, TYPELESS, (void *)&globalFalse, clusteringOption,
-    "-gr-no-clustering   \t: don't do clustering"},
-    {"-gr-importance", 6, TYPELESS, (void *)&globalTrue, importanceOption,
-    "-gr-importance      \t: do view-potential driven computations"},
-    {"-gr-no-importance", 10, TYPELESS, (void *)&globalFalse, importanceOption,
-    "-gr-no-importance   \t: don't use view-potential"},
-    {"-gr-ambient", 6, TYPELESS, (void *)&globalTrue, ambientOption,
-    "-gr-ambient         \t: do visualisation with ambient term"},
-    {"-gr-no-ambient", 10, TYPELESS, (void *)&globalFalse, ambientOption,
-    "-gr-no-ambient      \t: do visualisation without ambient term"},
-    {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
-    "-gr-link-error-threshold <float>: Relative link error threshold"},
-    {"-gr-min-elem-area", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
-    "-gr-min-elem-area <float> \t: Relative element area threshold"},
-    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
-};
 
 static void
 galerkinWriteVertexCoord(const Vector3D *p) {
@@ -349,14 +270,16 @@ GalerkinRadianceMethod::getRadianceMethodName() const  {
 }
 
 void
-GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
-    parseGeneralOptions(galerkinOptions, argc, argv);
-
+GalerkinRadianceMethod::setStrategy() {
     if ( galerkinState.clustered ) {
         gatheringStrategy = new GatheringClusteredStrategy();
     } else {
         gatheringStrategy = new GatheringSimpleStrategy();
     }
+}
+
+void
+GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
 }
 
 void

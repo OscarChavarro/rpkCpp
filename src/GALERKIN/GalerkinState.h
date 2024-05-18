@@ -32,10 +32,10 @@ enum GalerkinErrorNorm {
 };
 
 enum GalerkinBasisType {
-    CONSTANT,
-    LINEAR,
-    QUADRATIC,
-    CUBIC
+    GALERKIN_CONSTANT,
+    GALERKIN_LINEAR,
+    GALERKIN_QUADRATIC,
+    GALERKIN_CUBIC
 };
 
 // Determines how source radiance of a source cluster is determined and
