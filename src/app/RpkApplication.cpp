@@ -75,7 +75,7 @@ RpkApplication::mainParseOptions(int *argc, char **argv) {
     radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
 #ifdef RAYTRACING_ENABLED
-    rayTracingParseOptions(argc, argv);
+    rayTraceParseOptions(argc, argv);
 #endif
 
     batchParseOptions(argc, argv);

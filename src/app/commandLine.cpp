@@ -1,3 +1,4 @@
+#include <cstring>
 #include "common/options.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
@@ -12,6 +13,9 @@
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #endif
 #include "app/commandLine.h"
+#include "common/error.h"
+#include "raytrace.h"
+#include "PHOTONMAP/pmapoptions.h"
 
 // Default scene level configuration
 static const int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
@@ -30,6 +34,8 @@ static int globalNo = 0;
 static int globalOutputImageWidth = 1920;
 static int globalOutputImageHeight = 1080;
 static Camera globalCamera;
+
+static java::ArrayList<Patch *> *globalLightSourcePatches;
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -436,6 +442,70 @@ static CommandLineOptionDescription globalBiDirectionalOptions[] = {
 void
 biDirectionalPathParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
+}
+
+static Raytracer **globalRayTracingMethods;
+static char *globalRaytracingMethodsString;
+
+static void
+mainRayTracingOption(void *value) {
+    char *name = *(char **) value;
+
+    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
+        Raytracer *method = *window;
+        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
+            mainSetRayTracingMethod(method, globalLightSourcePatches);
+            return;
+        }
+    }
+
+    if ( strncasecmp(name, "none", 4) == 0 ) {
+        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
+    } else {
+        logError(nullptr, "Invalid raytracing method name '%s'", name);
+    }
+}
+
+static CommandLineOptionDescription globalRaytracingOptions[] = {
+    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+rayTracingParseOptions(int *argc, char **argv, Raytracer *rayTracingMethods[], char raytracingMethodsString[]) {
+    globalRayTracingMethods = rayTracingMethods;
+    globalRaytracingMethodsString = raytracingMethodsString;
+    parseGeneralOptions(globalRaytracingOptions, argc, argv);
+}
+
+// Command line options
+static CommandLineOptionDescription globalPhotonMapOptions[] = {
+    {"-pmap-do-global", 9, Tbool, &GLOBAL_photonMap_state.doGlobalMap, DEFAULT_ACTION,
+     "-pmap-do-global <true|false> : Trace photons for the global map"},
+    {"-pmap-global-paths", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.gPathsPerIteration, DEFAULT_ACTION,
+     "-pmap-global-paths <number> : Number of paths per iteration for the global map"},
+    {"-pmap-g-preirradiance", 11, Tbool, &GLOBAL_photonMap_state.precomputeGIrradiance, DEFAULT_ACTION,
+     "-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
+    {"-pmap-do-caustic", 9, Tbool, &GLOBAL_photonMap_state.doCausticMap, DEFAULT_ACTION,
+     "-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
+    {"-pmap-caustic-paths", 9,  &GLOBAL_options_intType, &GLOBAL_photonMap_state.cPathsPerIteration, DEFAULT_ACTION,
+     "-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
+    {"-pmap-render-hits", 9, Tsettrue, &GLOBAL_photonMap_state.renderImage, DEFAULT_ACTION,
+     "-pmap-render-hits: Show photon hits on screen"},
+    {"-pmap-recon-gphotons", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.reconGPhotons, DEFAULT_ACTION,
+     "-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map)"},
+    {"-pmap-recon-iphotons", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.reconCPhotons, DEFAULT_ACTION,
+     "-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map)"},
+    {"-pmap-recon-photons", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.reconIPhotons, DEFAULT_ACTION,
+     "-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
+    {"-pmap-balancing", 9, Tbool, &GLOBAL_photonMap_state.balanceKDTree, DEFAULT_ACTION,
+     "-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
+    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+photonMapParseOptions(int *argc, char **argv) {
+    parseGeneralOptions(globalPhotonMapOptions, argc, argv);
 }
 
 #endif

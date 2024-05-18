@@ -10,7 +10,6 @@
 
 #ifdef RAYTRACING_ENABLED
     extern void mainRayTracingDefaults();
-    extern void rayTracingParseOptions(int *argc, char **argv);
     extern void mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
 
     extern void
@@ -31,6 +30,7 @@
         RadianceMethod *radianceMethod,
         RenderOptions *renderOptions);
 
+    extern void rayTraceParseOptions(int *argc, char **argv);
 #endif
 
 #endif

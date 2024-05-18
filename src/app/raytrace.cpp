@@ -2,16 +2,16 @@
 #include <cstring>
 #include <ctime>
 
-#include "common/options.h"
 #include "common/error.h"
+#include "common/Statistics.h"
+#include "common/RenderOptions.h"
+#include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/raytrace.h"
-#include "common/Statistics.h"
-#include "common/RenderOptions.h"
-#include "render/canvas.h"
+#include "app/commandLine.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -28,38 +28,12 @@ static Raytracer *globalRayTracingMethods[] = {
     nullptr
 };
 
-static java::ArrayList<Patch *> *globalLightSourcePatches;
-
-static void
-mainRayTracingOption(void *value) {
-    char *name = *(char **) value;
-
-    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        Raytracer *method = *window;
-        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method, globalLightSourcePatches);
-            return;
-        }
-    }
-
-    if ( strncasecmp(name, "none", 4) == 0 ) {
-        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
-    } else {
-        logError(nullptr, "Invalid raytracing method name '%s'", name);
-    }
-}
-
-static CommandLineOptionDescription globalRaytracingOptions[] = {
-    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 static void
 mainMakeRaytracingMethodsString() {
     char *str = globalRaytracingMethodsString;
-    int n;
+    int n = 0;
     snprintf(str, 80, "-raytracing-method <method>: set pixel-based radiance computation method\n%n", &n);
-    str += n;
+    str = &str[n];
     snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
              "none", "no pixel-based radiance computation",
              !GLOBAL_raytracer_activeRaytracer ? " (default)" : "", &n);
@@ -85,11 +59,6 @@ mainRayTracingDefaults() {
         }
     }
     mainMakeRaytracingMethodsString(); // Comes last
-}
-
-void
-rayTracingParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalRaytracingOptions, argc, argv);
 }
 
 /**
@@ -144,6 +113,11 @@ batchSaveRaytracingImage(
     deleteImageOutputHandle(img);
 
     fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+}
+
+void
+rayTraceParseOptions(int *argc, char **argv) {
+    rayTracingParseOptions(argc, argv, globalRayTracingMethods, globalRaytracingMethodsString);
 }
 
 void

@@ -105,6 +105,7 @@ radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod)
     rayMattingParseOptions(argc, argv);
     biDirectionalPathParseOptions(argc, argv);
     stochasticRayTracerParseOptions(argc, argv);
+    photonMapParseOptions(argc, argv);
 #endif
 
     if ( *newRadianceMethod != nullptr ) {

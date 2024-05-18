@@ -85,6 +85,4 @@ class PhotonMapState
 
 extern PhotonMapState GLOBAL_photonMap_state;
 
-extern void photonMapParseOptions(int *argc, char **argv);
-
 #endif
