@@ -20,6 +20,8 @@ extern void rayMattingParseOptions(int *argc, char **argv);
 extern void stochasticRayTracerParseOptions(int *argc, char **argv);
 extern void biDirectionalPathParseOptions(int *argc, char **argv);
 extern void photonMapParseOptions(int *argc, char **argv);
+extern void toneMapParseOptions(int *argc, char **argv);
+extern void radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString);
 
 extern void
 rayTracingParseOptions(

@@ -21,16 +21,6 @@ Stuff common to all radiance methods
 static const int  STRING_LENGTH = 1000;
 static char globalRadianceMethodsString[STRING_LENGTH];
 
-static void
-radianceMethodOptionCallBack(void * /*value*/) {
-}
-
-static CommandLineOptionDescription globalRadianceOptions[] = {
-    {"-radiance-method", 4, Tstring,  nullptr, radianceMethodOptionCallBack,
-     globalRadianceMethodsString},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 /**
 This routine sets the current radiance method to be used + initializes
 */
@@ -97,7 +87,7 @@ computation
 void
 radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     selectRadianceMethod(argc, argv, newRadianceMethod);
-    parseGeneralOptions(globalRadianceOptions, argc, argv);
+    radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
 
 #ifdef RAYTRACING_ENABLED
     stochasticRelaxationRadiosityParseOptions(argc, argv);
