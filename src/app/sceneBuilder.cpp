@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "common/options.h"
+#include "options.h"
 #include "common/Statistics.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "scene/Scene.h"

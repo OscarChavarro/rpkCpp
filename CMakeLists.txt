@@ -18,7 +18,6 @@ include_directories(src)
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/ColorRgb.cpp
-    src/common/options.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
     src/common/stratification.cpp
@@ -182,12 +181,14 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
+    src/app/options.cpp
     src/app/glutDebugTools.cpp
     src/app/radiance.cpp
     src/app/raytrace.cpp
     src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
+    src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})

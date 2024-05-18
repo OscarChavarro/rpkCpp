@@ -3,58 +3,8 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/options.h"
 #include "render/opengl.h"
 #include "render/render.h"
-
-static RenderOptions globalRenderOptions;
-static ColorRgb globalOutlineColor;
-
-static void
-flatOption(void * /*value*/) {
-    globalRenderOptions.smoothShading = false;
-}
-
-static void
-noCullingOption(void * /*value*/) {
-    globalRenderOptions.backfaceCulling = false;
-}
-
-static void
-outlinesOption(void * /*value*/) {
-    globalRenderOptions.drawOutlines = true;
-}
-
-static void
-traceOption(void * /*value*/) {
-    globalRenderOptions.trace = true;
-}
-
-static CommandLineOptionDescription renderingOptions[] = {
-    {"-flat-shading", 5, TYPELESS, nullptr, flatOption,
-     "-flat-shading\t\t: render without Gouraud (color) interpolation"},
-    {"-raycast", 5, TYPELESS, nullptr, traceOption,
-     "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
-    {"-no-culling", 5, TYPELESS, nullptr, noCullingOption,
-     "-no-culling\t\t: don't use backface culling"},
-    {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
-     "-outlines\t\t: draw polygon outlines"},
-    {"-outline-color", 10, TRGB, &globalOutlineColor, DEFAULT_ACTION,
-     "-outline-color <rgb> \t: color for polygon outlines"},
-    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
-};
-
-void
-renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
-    globalRenderOptions = *renderOptions;
-
-    parseGeneralOptions(renderingOptions, argc, argv);
-
-    *renderOptions = globalRenderOptions;
-    renderOptions->outlineColor.r = globalOutlineColor.r;
-    renderOptions->outlineColor.g = globalOutlineColor.g;
-    renderOptions->outlineColor.b = globalOutlineColor.b;
-}
 
 /**
 Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and

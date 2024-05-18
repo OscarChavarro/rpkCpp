@@ -5,7 +5,7 @@ Stuff common to all radiance methods
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/options.h"
+#include "options.h"
 #include "common/RenderOptions.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/radiance.h"

@@ -3,7 +3,7 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/options.h"
+#include "app/options.h"
 #include "io/writevrml.h"
 
 // Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK

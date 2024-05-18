@@ -1,4 +1,4 @@
-#include "common/options.h"
+#include "options.h"
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
@@ -78,7 +78,7 @@ RpkApplication::mainParseOptions(int *argc, char **argv) {
     rayTraceParseOptions(argc, argv);
 #endif
 
-    batchParseOptions(argc, argv);
+    generalParseOptions(argc, argv);
 }
 
 void

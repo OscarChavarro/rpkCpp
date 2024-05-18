@@ -4,12 +4,14 @@
 
 #include "java/util/ArrayList.txx"
 #include "io/writevrml.h"
-#include "common/options.h"
+#include "options.h"
 #include "render/canvas.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 #include "IMAGE/imagec.h"
+#include "app/commandLine.h"
+#include "app/BatchOptions.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -17,36 +19,11 @@
     #include "app/raytrace.h"
 #endif
 
-static int globalIterations = 1; // Radiance method iterations
-static const char *globalRadianceImageFileNameFormat = "";
-static const char *globalRadianceModelFileNameFormat = "";
-static int globalSaveModulo = 10; // Every 10th iteration, surface model and image will be saved
-static const char *globalRaytracingImageFileName = "";
-static int globalTimings = false;
-
-static CommandLineOptionDescription batchOptions[] = {
-    {"-iterations", 3, &GLOBAL_options_intType, &globalIterations, DEFAULT_ACTION,
-     "-iterations <integer>\t: world-space radiance iterations"},
-    {"-radiance-image-savefile", 12, Tstring,
-     &globalRadianceImageFileNameFormat, DEFAULT_ACTION,
-     "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,"
-     "\n\tfirst '%%d' will be substituted by iteration number"},
-    {"-radiance-model-savefile", 12, Tstring,
-     &globalRadianceModelFileNameFormat, DEFAULT_ACTION,
-     "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
-     "\n\tfirst '%%d' will be substituted by iteration number"},
-    {"-save-modulo", 8, &GLOBAL_options_intType, &globalSaveModulo, DEFAULT_ACTION,
-     "-save-modulo <integer>\t: save every n-th iteration"},
-    {"-raytracing-image-savefile", 14, Tstring, &globalRaytracingImageFileName, DEFAULT_ACTION,
-     "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
-    {"-timings", 3, Tsettrue, &globalTimings, DEFAULT_ACTION,
-     "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
-    {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
-};
+static BatchOptions globalBatchOptions;
 
 void
-batchParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(batchOptions, argc, argv);
+generalParseOptions(int *argc, char **argv) {
+    batchParseOptions(argc, argv, &globalBatchOptions);
 }
 
 /**
@@ -233,10 +210,10 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
 
             wasted_start = clock();
 
-            if ( (!(iterationNumber % globalSaveModulo)) && *globalRadianceImageFileNameFormat ) {
-                int n = (int)strlen(globalRadianceImageFileNameFormat) + 1;
+            if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
+                int n = (int)strlen(globalBatchOptions.radianceImageFileNameFormat) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalRadianceImageFileNameFormat, iterationNumber);
+                snprintf(fileName, n, globalBatchOptions.radianceImageFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
                     "w",
@@ -247,10 +224,10 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                 delete[] fileName;
             }
 
-            if ( *globalRadianceModelFileNameFormat ) {
-                int n = (int)strlen(globalRadianceModelFileNameFormat) + 1;
+            if ( *globalBatchOptions.radianceModelFileNameFormat ) {
+                int n = (int)strlen(globalBatchOptions.radianceModelFileNameFormat) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalRadianceModelFileNameFormat, iterationNumber);
+                snprintf(fileName, n, globalBatchOptions.radianceModelFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
                     "w",
@@ -266,7 +243,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             fflush(stdout);
             fflush(stderr);
 
-            if ( globalIterations > 0 && iterationNumber >= globalIterations ) {
+            if ( globalBatchOptions.iterations > 0 && iterationNumber >= globalBatchOptions.iterations ) {
                 done = true;
             }
         }
@@ -274,7 +251,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
         printf("(No world-space radiance computations are being done)\n");
     }
 
-    if ( globalTimings ) {
+    if ( globalBatchOptions.timings ) {
         fprintf(stdout, "Radiance total time %g secs.\n",
                 ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wastedSecs);
     }
@@ -292,13 +269,13 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
                 radianceMethod,
                 renderOptions);
 
-            if ( globalTimings ) {
+            if ( globalBatchOptions.timings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
                         (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
             }
 
             batchProcessFile(
-                globalRaytracingImageFileName,
+                globalBatchOptions.raytracingImageFileName,
                 "w",
                 batchSaveRaytracingImage,
                 scene,

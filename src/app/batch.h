@@ -5,7 +5,7 @@
 #include "skin/Patch.h"
 #include "scene/Scene.h"
 
-extern void batchParseOptions(int *argc, char **argv);
 extern void batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
+extern void generalParseOptions(int *argc, char **argv);
 
 #endif

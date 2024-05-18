@@ -1,7 +1,10 @@
 #include <cstring>
-#include "common/options.h"
+#include "common/error.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
+#include "IMAGE/tonemap/tonemapping.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
+
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatter.h"
     #include "raycasting/raytracing/bidiroptions.h"
@@ -11,13 +14,13 @@
     #include "raycasting/stochasticRaytracing/mcradP.h"
     #include "raycasting/stochasticRaytracing/hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+    #include "PHOTONMAP/pmapoptions.h"
 #endif
+
+#include "app/options.h"
+#include "app/raytrace.h"
+#include "app/BatchOptions.h"
 #include "app/commandLine.h"
-#include "common/error.h"
-#include "raytrace.h"
-#include "PHOTONMAP/pmapoptions.h"
-#include "GALERKIN/GalerkinRadianceMethod.h"
-#include "IMAGE/tonemap/tonemapping.h"
 
 // Default scene level configuration
 static const int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
@@ -402,6 +405,81 @@ void
 radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString) {
     globalRadianceMethodsString = radianceMethodsString;
     parseGeneralOptions(globalRadianceOptions, argc, argv);
+}
+
+static RenderOptions globalRenderOptions;
+static ColorRgb globalOutlineColor;
+
+static void
+flatOption(void * /*value*/) {
+    globalRenderOptions.smoothShading = false;
+}
+
+static void
+noCullingOption(void * /*value*/) {
+    globalRenderOptions.backfaceCulling = false;
+}
+
+static void
+outlinesOption(void * /*value*/) {
+    globalRenderOptions.drawOutlines = true;
+}
+
+static void
+traceOption(void * /*value*/) {
+    globalRenderOptions.trace = true;
+}
+
+static CommandLineOptionDescription renderingOptions[] = {
+    {"-flat-shading", 5, TYPELESS, nullptr, flatOption,
+    "-flat-shading\t\t: render without Gouraud (color) interpolation"},
+    {"-raycast", 5, TYPELESS, nullptr, traceOption,
+    "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
+    {"-no-culling", 5, TYPELESS, nullptr, noCullingOption,
+    "-no-culling\t\t: don't use backface culling"},
+    {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
+    "-outlines\t\t: draw polygon outlines"},
+    {"-outline-color", 10, TRGB, &globalOutlineColor, DEFAULT_ACTION,
+    "-outline-color <rgb> \t: color for polygon outlines"},
+    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
+};
+
+void
+renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
+    globalRenderOptions = *renderOptions;
+
+    parseGeneralOptions(renderingOptions, argc, argv);
+
+    *renderOptions = globalRenderOptions;
+    renderOptions->outlineColor.r = globalOutlineColor.r;
+    renderOptions->outlineColor.g = globalOutlineColor.g;
+    renderOptions->outlineColor.b = globalOutlineColor.b;
+}
+
+static BatchOptions globalBatchOptions;
+
+static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
+    {"-iterations", 3, &GLOBAL_options_intType, &globalBatchOptions.iterations, DEFAULT_ACTION,
+    "-iterations <integer>\t: world-space radiance iterations"},
+    {"-radiance-image-savefile", 12, Tstring, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
+     "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,\n\tfirst '%%d' will be substituted by iteration number"},
+    {"-radiance-model-savefile", 12, Tstring, &globalBatchOptions.radianceModelFileNameFormat, DEFAULT_ACTION,
+     "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
+     "\n\tfirst '%%d' will be substituted by iteration number"},
+    {"-save-modulo", 8, &GLOBAL_options_intType, &globalBatchOptions.saveModulo, DEFAULT_ACTION,
+     "-save-modulo <integer>\t: save every n-th iteration"},
+    {"-raytracing-image-savefile", 14, Tstring, &globalBatchOptions.raytracingImageFileName, DEFAULT_ACTION,
+     "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
+    {"-timings", 3, Tsettrue, &globalBatchOptions.timings, DEFAULT_ACTION,
+     "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
+    {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+};
+
+void
+batchParseOptions(int *argc, char **argv, BatchOptions *options) {
+    globalBatchOptions = *options;
+    parseGeneralOptions(globalCommandLineBatchOptions, argc, argv);
+    *options = globalBatchOptions;
 }
 
 #ifdef RAYTRACING_ENABLED
