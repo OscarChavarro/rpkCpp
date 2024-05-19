@@ -96,7 +96,6 @@ Allocate new transform structure
 */
 static MgfTransformContext *
 newTransform(int ac, const char **av, MgfContext *context) {
-    MgfTransformContext *spec;
     char *cp;
     int nDim = 0;
     int n = 0;
@@ -113,11 +112,12 @@ newTransform(int ac, const char **av, MgfContext *context) {
     if ( nDim > TRANSFORM_MAXIMUM_DIMENSIONS ) {
         return nullptr;
     }
-    spec = (MgfTransformContext *) malloc(sizeof(MgfTransformContext) + n);
+
+    MgfTransformContext *spec = (MgfTransformContext *) malloc(sizeof(MgfTransformContext) + n);
     if ( spec == nullptr) {
         return nullptr;
     }
-    if ( nDim ) {
+    if ( nDim != 0 ) {
         spec->transformationArray = (MgfTransformArray *) malloc(sizeof(MgfTransformArray));
         if ( spec->transformationArray == nullptr) {
             return nullptr;

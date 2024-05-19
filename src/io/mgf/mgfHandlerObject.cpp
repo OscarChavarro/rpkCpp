@@ -74,7 +74,7 @@ handleObject2Entity(int ac, const char **av) {
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
         // Enlarge array
         if ( !globalObjectMaxName ) {
-            globalObjectNamesList = (char **) malloc(
+            globalObjectNamesList = (char **)malloc(
                     (globalObjectMaxName = ALLOC_INC) * sizeof(char *));
         } else {
             globalObjectNamesList = (char **)realloc((void *) globalObjectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));

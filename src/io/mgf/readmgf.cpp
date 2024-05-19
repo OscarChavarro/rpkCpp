@@ -15,9 +15,6 @@
 #include "io/mgf/readmgf.h"
 #include "io/mgf/mgfDefinitions.h"
 
-static VectorOctreeNode *globalPointsOctree = nullptr;
-static VectorOctreeNode *globalNormalsOctree = nullptr;
-
 /**
 The parser follows the following process:
 1. Fills in the handleCallbacks array with handlers for each entity
@@ -503,8 +500,6 @@ readMgf(const char *filename, MgfContext *context) {
 
     initMgf(context);
 
-    globalPointsOctree = nullptr;
-    globalNormalsOctree = nullptr;
     context->currentGeometryList = new java::ArrayList<Geometry *>();
 
     if ( context->materials == nullptr ) {
@@ -542,13 +537,6 @@ readMgf(const char *filename, MgfContext *context) {
         mgfObjectSurfaceDone(context);
     }
     context->geometries = context->currentGeometryList;
-
-    if ( globalPointsOctree != nullptr ) {
-        free(globalPointsOctree);
-    }
-    if ( globalNormalsOctree != nullptr ) {
-        free(globalNormalsOctree);
-    }
 }
 
 void

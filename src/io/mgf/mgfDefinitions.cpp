@@ -166,7 +166,7 @@ mgfClose(MgfContext *context) {
 void
 mgfLookUpFreeMemory() {
     if ( globalLookUpTable.table != nullptr ) {
-        free(globalLookUpTable.table);
+        delete[] globalLookUpTable.table;
         globalLookUpTable.table = nullptr;
     }
 }

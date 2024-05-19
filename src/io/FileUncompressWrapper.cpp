@@ -23,50 +23,50 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
 
     if ( fileName[0] != '\0' && fileName[strlen(fileName) - 1] != '/' ) {
         int n = (int)strlen(fileName) + 20;
-        char *cmd = (char *)malloc(n);
+        char *command = new char[n];
         const char *ext = strrchr(fileName, '.');
         if ( fileName[0] == '|' ) {
-            snprintf(cmd, n, "%s", fileName + 1);
-            fp = popen(cmd, open_mode);
+            snprintf(command, n, "%s", fileName + 1);
+            fp = popen(command, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".gz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "gunzip < %s", fileName);
+                snprintf(command, n, "gunzip < %s", fileName);
             } else {
-                snprintf(cmd, n, "gzip > %s", fileName);
+                snprintf(command, n, "gzip > %s", fileName);
             }
-            fp = popen(cmd, open_mode);
+            fp = popen(command, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".Z") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "uncompress < %s", fileName);
+                snprintf(command, n, "uncompress < %s", fileName);
             } else {
-                snprintf(cmd, n, "compress > %s", fileName);
+                snprintf(command, n, "compress > %s", fileName);
             }
-            fp = popen(cmd, open_mode);
+            fp = popen(command, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".bz") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "bunzip < %s", fileName);
+                snprintf(command, n, "bunzip < %s", fileName);
             } else {
-                snprintf(cmd, n, "bzip > %s", fileName);
+                snprintf(command, n, "bzip > %s", fileName);
             }
-            fp = popen(cmd, open_mode);
+            fp = popen(command, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".bz2") == 0 ) {
             if ( *open_mode == 'r' ) {
-                snprintf(cmd, n, "bunzip2 < %s", fileName);
+                snprintf(command, n, "bunzip2 < %s", fileName);
             } else {
-                snprintf(cmd, n, "bzip2 > %s", fileName);
+                snprintf(command, n, "bzip2 > %s", fileName);
             }
-            fp = popen(cmd, open_mode);
+            fp = popen(command, open_mode);
             *isPipe = true;
         } else {
             fp = fopen(fileName, open_mode);
             *isPipe = false;
         }
 
-        free(cmd);
+        delete[] command;
 
         if ( !fp ) {
             logError(nullptr, "Can't open file '%s' for %s",
