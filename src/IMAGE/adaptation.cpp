@@ -129,7 +129,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
         }
         case TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
-            LuminanceArea *la = (LuminanceArea *)malloc(GLOBAL_statistics.numberOfPatches * sizeof(LuminanceArea));
+            LuminanceArea *la = new LuminanceArea[GLOBAL_statistics.numberOfPatches];
 
             globalLumArea = la;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -137,7 +137,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             }
             GLOBAL_toneMap_options.realWorldAdaptionLuminance = meanAreaWeightedLuminance(la, GLOBAL_statistics.numberOfPatches);
 
-            free(la);
+            delete[] la;
             break;
         }
         default:

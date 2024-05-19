@@ -23,14 +23,14 @@ and an associated RGB framebuffer
 
 class ScreenBuffer {
   private:
-    ColorRgb *m_Radiance;
-    ColorRgb *m_RGB;
+    ColorRgb *radiance;
+    ColorRgb *rgbColor;
     Camera camera;
 
-    bool m_Synced;
-    float m_Factor;
-    float m_AddFactor;
-    bool m_RGBImage; // Indicates an RGB image ( = no radiance conversion!)
+    bool synced;
+    float factor;
+    float addFactor;
+    bool rgbImage; // Indicates an RGB image ( = no radiance conversion!)
 
     void init(const Camera *inCamera, const Camera *defaultCamera);
 
@@ -56,11 +56,11 @@ class ScreenBuffer {
     int getHRes() const;
     int getVRes() const;
     ColorRgb get(int x, int y) const;
-    void set(int x, int y, ColorRgb radiance);
+    void set(int x, int y, ColorRgb inRadiance);
     void render();
     void renderScanline(int y);
     void writeFile(ImageOutputHandle *ip);
-    void add(int x, int y, ColorRgb radiance);
+    void add(int x, int y, ColorRgb inRadiance);
     void sync();
 
 #ifdef RAYTRACING_ENABLED

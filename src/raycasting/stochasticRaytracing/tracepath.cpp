@@ -44,13 +44,13 @@ pathAddNode(PATH *path, Patch *patch, double prob, Vector3D inPoint, Vector3D ou
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
-        StochasticRaytracingPathNode *newNodes = (StochasticRaytracingPathNode *)malloc((path->nodesAllocated + 20) * sizeof(StochasticRaytracingPathNode));
+        StochasticRaytracingPathNode *newNodes = new StochasticRaytracingPathNode[path->nodesAllocated + 20];
         if ( path->nodesAllocated > 0 ) {
             for ( int i = 0; i < path->numberOfNodes; i++ ) {
                 // Copy nodes
                 newNodes[i] = path->nodes[i];
             }
-            free((char *) path->nodes);
+            delete[] path->nodes;
         }
         path->nodes = newNodes;
         path->nodesAllocated += 20;
@@ -69,11 +69,11 @@ Disposes of the memory for storing path nodes
 */
 static void
 freePathNodes(PATH *path) {
-    if ( path->nodes ) {
-        free((char *) path->nodes);
+    if ( path->nodes != nullptr ) {
+        delete[] path->nodes;
+        path->nodes = nullptr;
     }
     path->nodesAllocated = 0;
-    path->nodes = nullptr;
 }
 
 /**

@@ -48,7 +48,6 @@ mgfObjectNewSurface(MgfContext *context) {
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
     context->currentFaceList = new java::ArrayList<Patch *>();
-
     context->inSurface = true;
 }
 

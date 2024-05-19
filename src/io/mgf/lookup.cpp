@@ -54,8 +54,13 @@ lookUpInit(LookUpTable *tbl, int nel) {
         // Not always prime
         tbl->currentTableSize = nel * 2 + 1;
     }
-    tbl->table = (LookUpEntity *) calloc(tbl->currentTableSize, sizeof(LookUpEntity));
-    if ( tbl->table == nullptr) {
+    tbl->table = new LookUpEntity[tbl->currentTableSize];
+    for ( int i = 0; i < tbl->currentTableSize; i++ ) {
+        tbl->table[i].key = nullptr;
+        tbl->table[i].data = nullptr;
+        tbl->table[i].value = 0;
+    }
+    if ( tbl->table == nullptr ) {
         tbl->currentTableSize = 0;
     }
     tbl->numberOfDeletedEntries = 0;
@@ -121,7 +126,7 @@ lookUpReAlloc(LookUpTable *tbl, int nel) {
             }
         }
     }
-    free(oldTable);
+    delete[] oldTable;
 
     return tbl->currentTableSize;
 }
@@ -210,7 +215,7 @@ lookUpDone(LookUpTable *l) {
             }
         }
     }
-    free(l->table);
+    delete[] l->table;
     l->table = nullptr;
     l->currentTableSize = 0;
     l->numberOfDeletedEntries = 0;

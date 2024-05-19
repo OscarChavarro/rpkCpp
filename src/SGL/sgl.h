@@ -10,7 +10,6 @@ Small Graphics Library
 
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
-typedef int SGL_BOOLEAN;
 
 #define SGL_MAXIMUM_Z 4294967295U
 #define SGL_TRANSFORM_STACK_SIZE 4
@@ -26,7 +25,7 @@ class SGL_CONTEXT {
 public:
     Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack
     Matrix4x4 *currentTransform;
-    SGL_BOOLEAN clipping; // Whether to do clipping or not
+    bool clipping; // Whether to do clipping or not
     int vp_x; // Viewport
     int vp_y;
     double near; // Depth range
@@ -54,8 +53,8 @@ public:
 
     void sglClearZBuffer(SGL_Z_VALUE defZVal) const;
     void sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal);
-    void sglDepthTesting(SGL_BOOLEAN on);
-    void sglClipping(SGL_BOOLEAN on);
+    void sglDepthTesting(bool on);
+    void sglClipping(bool on);
     void sglLoadMatrix(const Matrix4x4 *xf) const;
     void sglMultiplyMatrix(const Matrix4x4 *xf) const;
     void sglSetColor(SGL_PIXEL col);

@@ -22,37 +22,24 @@ Updates directly received potential for all patches
 */
 void
 updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
-    Patch **id2patch;
-    unsigned long *ids;
-    const unsigned long *id;
-    long j;
-    long x;
-    long y;
-    unsigned long maximumPatchId;
-    long lostPixels;
-    Vector3D pixDir;
-    float v;
-    float h;
-    float ySample;
-    float *newDirectImportance;
-    float deltaImportance;
-    float pixelArea;
-
     canvasPushMode();
 
     // Get the patch IDs for each pixel
-    ids = sglRenderIds(&x, &y, scene, renderOptions);
+    long x;
+    long y;
+    unsigned long *ids = sglRenderIds(&x, &y, scene, renderOptions);
 
     canvasPullMode();
 
-    if ( !ids ) {
+    if ( ids == nullptr ) {
         return;
     }
-    lostPixels = 0;
+
+    long lostPixels = 0;
 
     // Build a table to convert a patch ID to the corresponding Patch
-    maximumPatchId = Patch::getNextId() - 1;
-    id2patch = (Patch **)malloc((int) (maximumPatchId + 1) * sizeof(Patch *));
+    unsigned long maximumPatchId = Patch::getNextId() - 1;
+    Patch **id2patch = new Patch *[maximumPatchId + 1];
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = nullptr;
     }
@@ -62,34 +49,39 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
-    newDirectImportance = (float *)malloc((int) (maximumPatchId + 1) * sizeof(float));
+    float *newDirectImportance = new float[maximumPatchId + 1];
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         newDirectImportance[i] = 0.0;
     }
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    h = 2.0f * java::Math::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    v = 2.0f * java::Math::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
-    pixelArea = h * v;
+    float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
+    float v = 2.0f * java::Math::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
+    float pixelArea = h * v;
 
+    float ySample;
+    long j;
     for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
           j >= 0;
           j--, ySample += v ) {
+        const unsigned long *id;
+
         id = ids + j * x;
         for ( long i = 0, xSample = (long)(-h * (float) (x - 1) / 2.0f); i < x; i++, id++, xSample += (long)h ) {
             unsigned long the_id = (*id) & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
+                Vector3D pixDir;
+
                 // Compute direction to center of pixel
                 pixDir.combine3(scene->camera->Z, (float) xSample, scene->camera->X, ySample, scene->camera->Y);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
                 // eye point to the pixel) squared, times area of the pixel
-                deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
+                float deltaImportance = scene->camera->Z.dotProduct(pixDir) / pixDir.dotProduct(pixDir);
                 deltaImportance *= deltaImportance * pixelArea;
-
                 newDirectImportance[the_id] += deltaImportance;
             } else if ( the_id > maximumPatchId ) {
                 lostPixels++;
@@ -122,9 +114,9 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     }
     GLOBAL_statistics.averageDirectPotential /= GLOBAL_statistics.totalArea;
 
-    free((char *) newDirectImportance);
-    free((char *) id2patch);
-    free((char *) ids);
+    delete[] newDirectImportance;
+    delete[] id2patch;
+    delete[] ids;
 }
 
 static void

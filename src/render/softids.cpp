@@ -83,8 +83,8 @@ softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderO
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;
-    ids = (unsigned long *)malloc((int) (*x) * (int) (*y) * sizeof(unsigned long));
-    memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(long));
+    ids = new unsigned long[currentSglContext->width * currentSglContext->height];
+    memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
 
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);

@@ -12,30 +12,30 @@
 Constructor : make an screen buffer from a camera definition
 */
 ScreenBuffer::ScreenBuffer(const Camera *camera, const Camera *defaultCamera) {
-    m_Radiance = nullptr;
-    m_RGB = nullptr;
+    radiance = nullptr;
+    rgbColor = nullptr;
     init(camera, defaultCamera);
-    m_Synced = false;
-    m_Factor = 1.0;
-    m_AddFactor = 1.0;
-    m_RGBImage = false;
+    synced = false;
+    factor = 1.0;
+    addFactor = 1.0;
+    rgbImage = false;
 }
 
 ScreenBuffer::~ScreenBuffer() {
-    if ( m_Radiance != nullptr ) {
-        free((char *)m_Radiance);
-        m_Radiance = nullptr;
+    if ( radiance != nullptr ) {
+        delete[] radiance;
+        radiance = nullptr;
     }
 
-    if ( m_RGB != nullptr ) {
-        free((char *)m_RGB);
-        m_RGB = nullptr;
+    if ( rgbColor != nullptr ) {
+        delete[] rgbColor;
+        rgbColor = nullptr;
     }
 }
 
 bool
 ScreenBuffer::isRgbImage() const {
-    return m_RGBImage;
+    return rgbImage;
 }
 
 void
@@ -45,54 +45,53 @@ ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
         inCamera = defaultCamera;
     }
 
-    if ( (m_Radiance != nullptr) &&
-        ((inCamera->xSize != camera.xSize) || (inCamera->ySize != camera.ySize)) ) {
-        free((char *) m_RGB);
-        free((char *) m_Radiance);
-        m_Radiance = nullptr;
+    if ( (radiance != nullptr) && (inCamera->xSize != camera.xSize || inCamera->ySize != camera.ySize) ) {
+        delete[] rgbColor;
+        delete[] radiance;
+        radiance = nullptr;
     }
 
     camera = *inCamera;
 
-    if ( m_Radiance == nullptr ) {
-        m_Radiance = (ColorRgb *)malloc(camera.xSize * camera.ySize * sizeof(ColorRgb));
-        m_RGB = (ColorRgb *)malloc(camera.xSize * camera.ySize * sizeof(ColorRgb));
+    if ( radiance == nullptr ) {
+        radiance = new ColorRgb[camera.xSize * camera.ySize];
+        rgbColor = new ColorRgb[camera.xSize * camera.ySize];
     }
 
     // Clear
     ColorRgb black = {0.0, 0.0, 0.0};
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        m_Radiance[i].setMonochrome(0.0);
-        m_RGB[i] = black;
+        radiance[i].setMonochrome(0.0);
+        rgbColor[i] = black;
     }
 
-    m_Factor = 1.0;
-    m_AddFactor = 1.0;
-    m_Synced = true;
-    m_RGBImage = false;
+    factor = 1.0;
+    addFactor = 1.0;
+    synced = true;
+    rgbImage = false;
 }
 
 /**
-Copy dimensions and contents (m_Radiance only) from source
+Copy dimensions and contents (radiance only) from source
 */
 void
 ScreenBuffer::copy(const ScreenBuffer *source, const Camera *defaultCamera) {
     init(&(source->camera), defaultCamera);
-    m_RGBImage = source->isRgbImage();
+    rgbImage = source->isRgbImage();
 
     // Now the resolution is ok.
 
-    memcpy(m_Radiance, source->m_Radiance, camera.xSize * camera.ySize * sizeof(ColorRgb));
-    m_Synced = false;
+    memcpy(radiance, source->radiance, camera.xSize * camera.ySize * sizeof(ColorRgb));
+    synced = false;
 }
 
 /**
-Merge (add) two screen buffers (m_Radiance only) from src1 and src2
+Merge (add) two screen buffers (radiance only) from src1 and src2
 */
 void
 ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Camera *defaultCamera) {
     init(&(src1->camera), defaultCamera);
-    m_RGBImage = src1->isRgbImage();
+    rgbImage = src1->isRgbImage();
 
     if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {
         logError("ScreenBuffer::merge", "Incompatible screen buffer sources");
@@ -102,39 +101,39 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
     int N = getVRes() * getHRes();
 
     for ( int i = 0; i < N; i++ ) {
-        m_Radiance[i].add(src1->m_Radiance[i], src2->m_Radiance[i]);
+        radiance[i].add(src1->radiance[i], src2->radiance[i]);
     }
 }
 
 void
-ScreenBuffer::add(int x, int y, ColorRgb radiance) {
+ScreenBuffer::add(int x, int y, ColorRgb inRadiance) {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
 
-    m_Radiance[index].addScaled(m_Radiance[index], m_AddFactor, radiance);
-    m_Synced = false;
+    radiance[index].addScaled(radiance[index], addFactor, inRadiance);
+    synced = false;
 }
 
 void
-ScreenBuffer::set(int x, int y, ColorRgb radiance) {
+ScreenBuffer::set(int x, int y, ColorRgb inRadiance) {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
-    m_Radiance[index].scaledCopy(m_AddFactor, radiance);
-    m_Synced = false;
+    radiance[index].scaledCopy(addFactor, inRadiance);
+    synced = false;
 }
 
 ColorRgb
 ScreenBuffer::get(int x, int y) const {
     int index = x + (camera.ySize - y - 1) * camera.xSize;
 
-    return m_Radiance[index];
+    return radiance[index];
 }
 
 void
 ScreenBuffer::render() {
-    if ( !m_Synced ) {
+    if ( !synced ) {
         sync();
     }
 
-    openGlRenderPixels(&camera, 0, 0, camera.xSize, camera.ySize, m_RGB);
+    openGlRenderPixels(&camera, 0, 0, camera.xSize, camera.ySize, rgbColor);
 }
 
 void
@@ -143,7 +142,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         return;
     }
 
-    if ( !m_Synced ) {
+    if ( !synced ) {
         sync();
     }
 
@@ -155,9 +154,9 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
-            ip->writeRadianceRGB((float *) &m_Radiance[i * camera.xSize]);
+            ip->writeRadianceRGB((float *) &radiance[i * camera.xSize]);
         } else {
-            ip->writeDisplayRGB((float *) &m_Radiance[i * camera.xSize]);
+            ip->writeDisplayRGB((float *) &radiance[i * camera.xSize]);
         }
     }
 
@@ -168,11 +167,11 @@ void
 ScreenBuffer::renderScanline(int y) {
     y = camera.ySize - y - 1;
 
-    if ( !m_Synced ) {
+    if ( !synced ) {
         syncLine(y);
     }
 
-    openGlRenderPixels(&camera, 0, y, camera.xSize, 1, &m_RGB[y * camera.xSize]);
+    openGlRenderPixels(&camera, 0, y, camera.xSize, 1, &rgbColor[y * camera.xSize]);
 }
 
 void
@@ -180,15 +179,15 @@ ScreenBuffer::sync() {
     ColorRgb tmpRad{};
 
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        tmpRad.scaledCopy(m_Factor, m_Radiance[i]);
+        tmpRad.scaledCopy(factor, radiance[i]);
         if ( !isRgbImage() ) {
-            radianceToRgb(tmpRad, &m_RGB[i]);
+            radianceToRgb(tmpRad, &rgbColor[i]);
         } else {
-            tmpRad.set(m_RGB[i].r, m_RGB[i].g, m_RGB[i].b);
+            tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
         }
     }
 
-    m_Synced = true;
+    synced = true;
 }
 
 
@@ -197,11 +196,11 @@ ScreenBuffer::syncLine(int lineNumber) {
     ColorRgb tmpRad{};
 
     for ( int i = 0; i < camera.xSize; i++ ) {
-        tmpRad.scaledCopy(m_Factor, m_Radiance[lineNumber * camera.xSize + i]);
+        tmpRad.scaledCopy(factor, radiance[lineNumber * camera.xSize + i]);
         if ( !isRgbImage() ) {
-            radianceToRgb(tmpRad, &m_RGB[lineNumber * camera.xSize + i]);
+            radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i]);
         } else {
-            tmpRad = m_RGB[lineNumber * camera.xSize + i];
+            tmpRad = rgbColor[lineNumber * camera.xSize + i];
         }
     }
 }
@@ -361,25 +360,25 @@ ScreenBuffer::getBiLinear(float x, float y) const {
 void
 ScreenBuffer::scaleRadiance(float factor) {
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        m_Radiance[i].scale(factor);
+        radiance[i].scale(factor);
     }
 
-    m_Synced = false;
+    synced = false;
 }
 
 void
 ScreenBuffer::setAddScaleFactor(float factor) {
-    m_AddFactor = factor;
+    addFactor = factor;
 }
 
 void
 ScreenBuffer::setFactor(float factor) {
-    m_Factor = factor;
+    factor = factor;
 }
 
 void
 ScreenBuffer::setRgbImage(bool isRGB) {
-    m_RGBImage = isRGB;
+    rgbImage = isRGB;
 }
 
 void

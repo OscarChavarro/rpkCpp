@@ -38,43 +38,39 @@ openGlSaveScreen(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
-    ImageOutputHandle *img;
-    long x = scene->camera->xSize;
-    long y = scene->camera->ySize;
-    GLubyte *screen;
-    unsigned char *buf;
-
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderOptions->trace ) {
         rayCast(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
         return;
     }
 
-    if ( !(img = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y)) ) {
+    long x = scene->camera->xSize;
+    long y = scene->camera->ySize;
+    ImageOutputHandle *image = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y);
+    if ( image == nullptr ) {
         return;
     }
 
-    screen = (GLubyte *)malloc((int) (x * y) * sizeof(GLubyte) * 4);
-    buf = (unsigned char *)malloc(3 * x);
+    GLubyte *screen = new GLubyte[x * y * 4];
+    unsigned char *buffer = new unsigned char[3 * x];
 
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, (int)x, (int)y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
 
     for ( long j = y - 1; j >= 0; j-- ) {
-        unsigned char *bufferPosition = buf;
+        unsigned char *bufferPosition = buffer;
         const GLubyte *pixel = &screen[j * x * 4];
         for ( long i = 0; i < x; i++, pixel += 4 ) {
             *bufferPosition++ = pixel[0];
             *bufferPosition++ = pixel[1];
             *bufferPosition++ = pixel[2];
         }
-        writeDisplayRGB(img, buf);
+        writeDisplayRGB(image, buffer);
     }
 
-    free(buf);
-    free(screen);
-
-    deleteImageOutputHandle(img);
+    delete[] buffer;
+    delete[] screen;
+    delete image;
 }
 
 /**

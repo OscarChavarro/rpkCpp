@@ -10,9 +10,9 @@ Disposes previously allocated coefficients
 void
 disposeCoefficients(StochasticRadiosityElement *elem) {
     if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosity_dummyBasis && elem->radiance ) {
-        free(elem->radiance);
-        free(elem->unShotRadiance);
-        free(elem->receivedRadiance);
+        delete[] elem->radiance;
+        delete[] elem->unShotRadiance;
+        delete[] elem->receivedRadiance;
     }
     initCoefficients(elem);
 }
@@ -36,9 +36,9 @@ void
 allocCoefficients(StochasticRadiosityElement *elem) {
     disposeCoefficients(elem);
     elem->basis = actualBasis(elem);
-    elem->radiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
-    elem->unShotRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
-    elem->receivedRadiance = (ColorRgb *)malloc(elem->basis->size * sizeof(ColorRgb));
+    elem->radiance = new ColorRgb[elem->basis->size];
+    elem->unShotRadiance = new ColorRgb[elem->basis->size];
+    elem->receivedRadiance = new ColorRgb[elem->basis->size];
 }
 
 /**

@@ -136,16 +136,16 @@ SGL_CONTEXT::sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal) {
 }
 
 void
-SGL_CONTEXT::sglDepthTesting(SGL_BOOLEAN on) {
+SGL_CONTEXT::sglDepthTesting(bool on) {
     if ( on ) {
-        if ( depthBuffer ) {
+        if ( depthBuffer != nullptr ) {
             return;
         } else {
             depthBuffer = new SGL_Z_VALUE[width * height];
         }
     } else {
-        if ( depthBuffer ) {
-            free(depthBuffer);
+        if ( depthBuffer != nullptr ) {
+            delete[] depthBuffer;
             depthBuffer = nullptr;
         } else {
             return;
@@ -154,7 +154,7 @@ SGL_CONTEXT::sglDepthTesting(SGL_BOOLEAN on) {
 }
 
 void
-SGL_CONTEXT::sglClipping(SGL_BOOLEAN on) {
+SGL_CONTEXT::sglClipping(bool on) {
     clipping = on;
 }
 

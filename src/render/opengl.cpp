@@ -87,7 +87,7 @@ Creates an offscreen window for rendering
 */
 void
 openGlMesaRenderCreateOffscreenWindow(const Camera *camera, const int width, const int height) {
-    GLubyte *imageBuffer = (GLubyte *)malloc(width * height * sizeof(GLubyte) * 4);
+    GLubyte *imageBuffer = new GLubyte[width * height * 4];
 
     OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
     if ( !osMesaContext ) {
@@ -100,7 +100,7 @@ openGlMesaRenderCreateOffscreenWindow(const Camera *camera, const int width, con
 
     openGlInitState(camera);
     OSMesaDestroyContext(osMesaContext);
-    free(imageBuffer);
+    delete[] imageBuffer;
 }
 
 /**
