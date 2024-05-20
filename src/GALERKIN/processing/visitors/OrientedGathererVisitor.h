@@ -1,5 +1,5 @@
-#ifndef RPK_ORIENTEDGATHERERVISITOR_H
-#define RPK_ORIENTEDGATHERERVISITOR_H
+#ifndef __ORIENTED_GATHERER_VISITOR__
+#define __ORIENTED_GATHERER_VISITOR__
 
 #include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 

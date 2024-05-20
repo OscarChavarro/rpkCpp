@@ -18,6 +18,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
 #include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
 #include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
+#include "GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;
@@ -182,7 +183,6 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
 
         case GalerkinClusteringStrategy::ORIENTED: {
             globalSamplePoint = src->midPoint();
-            globalProjectedArea = 0.0;
             ProjectedAreaAccumulatorVisitor *leafVisitor = new ProjectedAreaAccumulatorVisitor();
             ClusterTraversalStrategy::traverseAllLeafElements(
                 leafVisitor,
@@ -214,8 +214,6 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             logFatal(-1, "receiverArea", "Invalid clustering strategy %d",
                      galerkinState->clusteringStrategy);
     }
-
-    return 0.0; // This point is never reached and if it is it's your fault
 }
 
 /**
@@ -285,7 +283,6 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
 
     if ( !rcv->isCluster() || src == rcv ) {
         logFatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
-        return;
     }
 
     globalPSourceRad = srcRad;
@@ -326,18 +323,21 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero
                 // for those elements
+                DepthVisibilityGathererVisitor *depthVisibilityLeafVisitor;
                 ClusterTraversalStrategy::traverseAllLeafElements(
                     nullptr,
                     rcv,
                     ClusterTraversalStrategy::zVisSurfaceGatherRadiance,
                     galerkinState,
                     &globalSourceRadiance);
+                delete depthVisibilityLeafVisitor;
             }
             break;
         default:
             logFatal(-1, "gatherRadiance", "Invalid clustering strategy %d",
                      galerkinState->clusteringStrategy);
     }
+    delete leafVisitor;
 }
 
 ColorRgb
