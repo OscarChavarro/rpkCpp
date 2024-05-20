@@ -17,6 +17,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
 #include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
+#include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;
@@ -252,29 +253,6 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
 }
 
 /**
-Requires global variables globalPSourceRad (globalSourceRadiance pointer), globalTheLink (interaction
-over which is being gathered) and globalSamplePoint (midpoint of source
-element). rcv is a surface element belonging to the receiver cluster
-in the interaction. This routines gathers radiance to this receiver
-surface, taking into account the projected area of the receiver
-towards the midpoint of the source, ignoring visibility in the receiver
-cluster
-*/
-void
-ClusterTraversalStrategy::orientedSurfaceGatherRadiance(
-    GalerkinElement *rcv,
-    const GalerkinState */*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/)
-{
-    // globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
-    // was used to compute link->K
-    double areaFactor = ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv) /
-        (0.25 * globalTheLink->receiverElement->area);
-
-    ClusterTraversalStrategy::isotropicGatherRadiance(rcv, areaFactor, globalTheLink, globalPSourceRad);
-}
-
-/**
 Same as above, except that the number of pixels in the scratch frame buffer
 times the area corresponding one such pixel is used as the visible area
 of the element. Uses global variables globalPixelArea, globalTheLink, globalPSourceRad
@@ -313,6 +291,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
     globalPSourceRad = srcRad;
     globalTheLink = link;
     globalSamplePoint = src->midPoint();
+    OrientedGathererVisitor *leafVisitor = new OrientedGathererVisitor(link, srcRad);
 
     switch ( galerkinState->clusteringStrategy ) {
         case GalerkinClusteringStrategy::ISOTROPIC:
@@ -320,18 +299,18 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
             break;
         case GalerkinClusteringStrategy::ORIENTED:
             ClusterTraversalStrategy::traverseAllLeafElements(
-                nullptr,
+                leafVisitor,
                 rcv,
-                ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
+                nullptr,
                 galerkinState,
                 &globalSourceRadiance);
             break;
         case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
                 ClusterTraversalStrategy::traverseAllLeafElements(
-                    nullptr,
+                    leafVisitor,
                     rcv,
-                    ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
+                    nullptr,
                     galerkinState,
                     &globalSourceRadiance);
             } else {

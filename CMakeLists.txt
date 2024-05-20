@@ -195,7 +195,7 @@ set(MAIN_SRC
     src/app/RpkApplication.cpp
     src/app/main.cpp
         src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
-        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h)
+        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h src/GALERKIN/processing/visitors/OrientedGathererVisitor.cpp src/GALERKIN/processing/visitors/OrientedGathererVisitor.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)
