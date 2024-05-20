@@ -16,6 +16,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
+#include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;
@@ -31,10 +32,9 @@ Executes func for every surface element in the cluster
 */
 void
 ClusterTraversalStrategy::traverseAllLeafElements(
-    const ClusterLeafVisitor *leafVisitor,
+    ClusterLeafVisitor *leafVisitor,
     GalerkinElement *parentElement,
     void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
-
     GalerkinState *galerkinState,
     ColorRgb *accumulatedRadiance)
 {
@@ -162,15 +162,6 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
     return rcvCos * rcv->area;
 }
 
-void
-ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint(
-    GalerkinElement *rcv,
-    const GalerkinState * /*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/)
-{
-    globalProjectedArea += ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(rcv);
-}
-
 /**
 Computes projected area of receiver cluster as seen from the midpoint of the source,
 ignoring intra-receiver visibility
@@ -191,12 +182,15 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
         case GalerkinClusteringStrategy::ORIENTED: {
             globalSamplePoint = src->midPoint();
             globalProjectedArea = 0.0;
+            ProjectedAreaAccumulatorVisitor *leafVisitor = new ProjectedAreaAccumulatorVisitor();
             ClusterTraversalStrategy::traverseAllLeafElements(
-                nullptr,
+                leafVisitor,
                 rcv,
-                ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint,
+                nullptr,
                 galerkinState,
                 &globalSourceRadiance);
+            globalProjectedArea = leafVisitor->getTotalProjectedArea();
+            delete leafVisitor;
             return globalProjectedArea;
         }
 

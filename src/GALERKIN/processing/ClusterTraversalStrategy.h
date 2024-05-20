@@ -7,14 +7,8 @@
 
 class ClusterTraversalStrategy {
   private:
-    static double
-    surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
-
     static void
     isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
-
-    static void
-    accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, const GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
     static void
     orientedSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
@@ -23,9 +17,11 @@ class ClusterTraversalStrategy {
     zVisSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
 public:
+    static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
+
     static void
     traverseAllLeafElements(
-        const ClusterLeafVisitor *leafVisitor,
+        ClusterLeafVisitor *leafVisitor,
         GalerkinElement *parentElement,
         void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
         GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);

@@ -15,7 +15,7 @@ class PowerAccumulatorVisitor final : public ClusterLeafVisitor {
         Vector3D inSamplePoint);
 
     ~PowerAccumulatorVisitor() final;
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) const final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
 };
 
 #endif

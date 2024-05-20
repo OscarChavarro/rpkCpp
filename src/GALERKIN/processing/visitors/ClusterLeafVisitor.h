@@ -5,7 +5,7 @@
 
 class ClusterLeafVisitor {
   public:
-    virtual void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) const = 0;
+    virtual void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) = 0;
     virtual ~ClusterLeafVisitor() {}
 };
 

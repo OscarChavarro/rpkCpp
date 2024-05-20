@@ -7,7 +7,7 @@ class MaximumRadianceVisitor final : public ClusterLeafVisitor {
   public:
     MaximumRadianceVisitor();
     ~MaximumRadianceVisitor() final;
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) const final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
 };
 
 #endif

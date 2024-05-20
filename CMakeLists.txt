@@ -193,7 +193,9 @@ set(MAIN_SRC
     src/app/commandLine.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp)
+    src/app/main.cpp
+        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
+        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

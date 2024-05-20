@@ -21,7 +21,7 @@ void
 PowerAccumulatorVisitor::visit(
     GalerkinElement *galerkinElement,
     const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance) const
+    ColorRgb *accumulatedRadiance)
 {
     float srcOs;
     float dist;

@@ -10,7 +10,7 @@ void
 MaximumRadianceVisitor::visit(
     GalerkinElement *galerkinElement,
     const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance) const
+    ColorRgb *accumulatedRadiance)
 {
     ColorRgb rad;
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
