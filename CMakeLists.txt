@@ -127,6 +127,7 @@ set(MAIN_SRC
     src/GALERKIN/processing/ShootingStrategy.cpp
     src/GALERKIN/processing/visitors/ScratchRendererVisitor.cpp
     src/GALERKIN/processing/visitors/MaximumRadianceVisitor.cpp
+    src/GALERKIN/processing/visitors/PowerAccumulatorVisitor.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp

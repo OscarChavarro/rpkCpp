@@ -15,6 +15,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
 
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;
@@ -56,84 +57,50 @@ ClusterTraversalStrategy::traverseAllLeafElements(
 }
 
 /**
-Uses global variables globalSourceRadiance and globalSamplePoint: accumulates the
-power emitted by the element towards the globalSamplePoint in globalSourceRadiance
-only taking into account the surface orientation w.r.t. the
-sample point, (ignores intra cluster visibility)
-*/
-void
-ClusterTraversalStrategy::accumulatePowerToSamplePoint(
-    GalerkinElement *src,
-    const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance)
-{
-    float srcOs;
-    float dist;
-    Vector3D dir;
-    ColorRgb rad;
-
-    dir.subtraction(globalSamplePoint, src->patch->midPoint);
-    dist = dir.norm();
-    if ( dist < Numeric::EPSILON ) {
-        srcOs = 1.0f;
-    } else {
-        srcOs = dir.dotProduct(src->patch->normal) / dist;
-    }
-    if ( srcOs <= 0.0f ) {
-        // Receiver point is behind the src
-        return;
-    }
-
-    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
-         galerkinState->galerkinIterationMethod == JACOBI ) {
-        rad = src->radiance[0];
-    } else {
-        rad = src->unShotRadiance[0];
-    }
-
-    accumulatedRadiance->addScaled(globalSourceRadiance, srcOs * src->area, rad);
-}
-
-/**
 Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
-towards the sample point
+towards the samplePoint point
 */
 ColorRgb
-ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::clusterRadianceToSamplePoint(
+    GalerkinElement *sourceElement,
+    Vector3D samplePoint,
+    GalerkinState *galerkinState)
+{
     switch ( galerkinState->clusteringStrategy ) {
         case GalerkinClusteringStrategy::ISOTROPIC:
-            return src->radiance[0];
+            return sourceElement->radiance[0];
 
         case GalerkinClusteringStrategy::ORIENTED: {
-            globalSamplePoint = sample;
-
             // Accumulate the power emitted by the patches in the source cluster
-            // towards the sample point
+            // towards the samplePoint point
             ColorRgb sourceRadiance;
             sourceRadiance.clear();
+
+            PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceElement, sourceRadiance, samplePoint);
             ClusterTraversalStrategy::traverseAllLeafElements(
+                leafVisitor,
+                sourceElement,
                 nullptr,
-                src,
-                ClusterTraversalStrategy::accumulatePowerToSamplePoint,
                 galerkinState,
                 &sourceRadiance);
+            delete leafVisitor;
 
             // Divide by the source area used for computing the form factor:
-            // src->area / 4.0 (average projected area)
-            sourceRadiance.scale(4.0f / src->area);
+            // sourceElement->area / 4.0 (average projected area)
+            sourceRadiance.scale(4.0f / sourceElement->area);
             return sourceRadiance;
         }
 
         case GalerkinClusteringStrategy::Z_VISIBILITY:
-            if ( !src->isCluster() || !src->geometry->boundingBox.outOfBounds(&sample) ) {
-                return src->radiance[0];
+            if ( !sourceElement->isCluster() || !sourceElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
+                return sourceElement->radiance[0];
             } else {
                 double areaFactor;
 
                 // Render pointers to the elements in the source cluster into the scratch frame
-                // buffer, seen from the sample point
-                const float *bbx = ScratchVisibilityStrategy::scratchRenderElements(src, sample, galerkinState);
+                // buffer, seen from the samplePoint point
+                const float *bbx = ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
                 globalSourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
@@ -141,7 +108,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vec
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
                 areaFactor = ((bbx[MAX_X] - bbx[MIN_X]) * (bbx[MAX_Y] - bbx[MIN_Y])) /
-                             (0.25 * src->area);
+                             (0.25 * sourceElement->area);
                 globalSourceRadiance.scale((float) areaFactor);
                 return globalSourceRadiance;
             }
@@ -150,8 +117,6 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vec
             logFatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
                      galerkinState->clusteringStrategy);
     }
-
-    return globalSourceRadiance; // This point is never reached
 }
 
 /**

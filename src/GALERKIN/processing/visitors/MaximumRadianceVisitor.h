@@ -3,7 +3,7 @@
 
 #include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 
-class MaximumRadianceVisitor final : public ClusterLeafVisitor{
+class MaximumRadianceVisitor final : public ClusterLeafVisitor {
   public:
     MaximumRadianceVisitor();
     ~MaximumRadianceVisitor() final;

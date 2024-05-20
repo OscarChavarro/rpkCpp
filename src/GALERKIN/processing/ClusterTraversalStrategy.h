@@ -14,9 +14,6 @@ class ClusterTraversalStrategy {
     isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
 
     static void
-    accumulatePowerToSamplePoint(GalerkinElement *src, const GalerkinState *galerkinState, ColorRgb * /*accumulatedRadiance*/);
-
-    static void
     accumulateProjectedAreaToSamplePoint(GalerkinElement *rcv, const GalerkinState * /*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
     static void
@@ -37,7 +34,7 @@ public:
     static double receiverArea(Interaction *link, GalerkinState *galerkinState);
     static void gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState);
     static ColorRgb maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
-    static ColorRgb clusterRadianceToSamplePoint(GalerkinElement *src, Vector3D sample, GalerkinState *galerkinState);
+    static ColorRgb clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3D samplePoint, GalerkinState *galerkinState);
 };
 
 #endif
