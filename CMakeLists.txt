@@ -125,6 +125,7 @@ set(MAIN_SRC
     src/GALERKIN/processing/GatheringSimpleStrategy.cpp
     src/GALERKIN/processing/GatheringClusteredStrategy.cpp
     src/GALERKIN/processing/ShootingStrategy.cpp
+    src/GALERKIN/processing/visitors/ScratchRendererVisitor.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp

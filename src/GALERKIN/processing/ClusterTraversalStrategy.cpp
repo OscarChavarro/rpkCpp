@@ -49,7 +49,7 @@ ClusterTraversalStrategy::traverseAllLeafElements(
             i++ ) {
             GalerkinElement *childCluster = (GalerkinElement *)parentElement->irregularSubElements->get(i);
             ClusterTraversalStrategy::traverseAllLeafElements(
-                nullptr, childCluster, leafElementVisitCallBack, galerkinState, accumulatedRadiance);
+                leafVisitor, childCluster, leafElementVisitCallBack, galerkinState, accumulatedRadiance);
         }
     }
 }

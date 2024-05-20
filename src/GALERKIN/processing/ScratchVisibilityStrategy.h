@@ -9,13 +9,6 @@ with a Z-buffer visibility algorithm in software
 #include "GALERKIN/GalerkinState.h"
 
 class ScratchVisibilityStrategy {
-  private:
-    static void
-    scratchRenderElementPtr(
-        GalerkinElement *elem,
-        const GalerkinState * /*galerkinState*/,
-        ColorRgb * /*accumulatedRadiance*/);
-
   public:
     static void scratchInit(GalerkinState *galerkinState);
     static void scratchTerminate(GalerkinState *galerkinState);

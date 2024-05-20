@@ -3,7 +3,7 @@
 
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
-#include "GALERKIN/processing/ClusterLeafVisitor.h"
+#include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 
 class ClusterTraversalStrategy {
   private:

@@ -5,6 +5,7 @@ with a Z-buffer visibility algorithm in software
 
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
+#include "GALERKIN/processing/visitors/ScratchRendererVisitor.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch
@@ -31,30 +32,6 @@ ScratchVisibilityStrategy::scratchTerminate(GalerkinState *galerkinState) {
         delete galerkinState->scratch;
         galerkinState->scratch = nullptr;
     }
-}
-
-void
-ScratchVisibilityStrategy::scratchRenderElementPtr(
-    GalerkinElement *elem,
-    const GalerkinState * /*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/)
-{
-    const Patch *patch = elem->patch;
-    Vector3D v[4];
-
-    // Backface culling test: only render the element if it is turned towards
-    // the current eye point
-    if ( patch->normal.dotProduct(globalEyePoint) + patch->planeConstant < Numeric::EPSILON ) {
-        return;
-    }
-
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        v[i] = *patch->vertex[i]->point;
-    }
-
-    // TODO: Extend SGL_CONTEXT to support Element*
-    GLOBAL_sgl_currentContext->sglSetColor((SGL_PIXEL)elem);
-    GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, v);
 }
 
 /**
@@ -121,7 +98,10 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     ColorRgb radiance;
     radiance.clear();
-    ClusterTraversalStrategy::traverseAllLeafElements(nullptr, cluster, scratchRenderElementPtr, galerkinState, &radiance);
+
+    ScratchRendererVisitor *leafVisitor = new ScratchRendererVisitor(globalEyePoint);
+    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, nullptr, galerkinState, &radiance);
+    delete leafVisitor;
 
     sglMakeCurrent(prev_sgl_context);
     return bbx.coordinates;
