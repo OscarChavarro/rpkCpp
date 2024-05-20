@@ -24,13 +24,13 @@ DepthVisibilityGathererVisitor::visit(
     GalerkinElement *galerkinElement,
     const GalerkinState *galerkinState)
 {
-    if ( galerkinElement->tmp <= 0 ) {
+    if ( galerkinElement->scratchVisibilityUsageCounter <= 0 ) {
         // Element occupies no pixels in the scratch frame buffer
         return;
     }
 
-    double areaFactor = pixelArea * (double) (galerkinElement->tmp) / (0.25 * link->receiverElement->area);
+    double areaFactor = pixelArea * (double) (galerkinElement->scratchVisibilityUsageCounter) / (0.25 * link->receiverElement->area);
     ClusterTraversalStrategy::isotropicGatherRadiance(galerkinElement, areaFactor, link, sourceRadiance);
 
-    galerkinElement->tmp = 0; // Set it to zero for future re-use
+    galerkinElement->scratchVisibilityUsageCounter = 0; // Set it to zero for future re-use
 }

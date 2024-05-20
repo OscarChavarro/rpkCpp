@@ -160,7 +160,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     basisUsed = 0;
     numberOfPatches = 1; // Correct for surface elements, it will be computed later for clusters
     minimumArea = Numeric::HUGE_FLOAT_VALUE;
-    tmp = 0;
+    scratchVisibilityUsageCounter = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
     globalNumberOfElements++;

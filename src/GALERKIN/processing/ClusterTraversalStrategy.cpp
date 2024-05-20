@@ -222,10 +222,8 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
         rcvRad[0].addScaled(rcvRad[0], (float) (areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
-        int a;
-        int b;
-        a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
-        b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
+        int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
+        int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
         for ( int alpha = 0; alpha < a; alpha++ ) {
             for ( int beta = 0; beta < b; beta++ ) {
                 rcvRad[alpha].addScaled(

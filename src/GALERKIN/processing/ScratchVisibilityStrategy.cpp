@@ -169,7 +169,7 @@ ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkin
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
             GalerkinElement *elem = (GalerkinElement *)(*pix);
             if ( elem != nullptr ) {
-                elem->tmp++;
+                elem->scratchVisibilityUsageCounter++;
             }
         }
     }
