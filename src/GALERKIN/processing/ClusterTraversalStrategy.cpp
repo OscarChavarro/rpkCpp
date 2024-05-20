@@ -23,11 +23,6 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 static ColorRgb globalSourceRadiance;
 static Vector3D globalSamplePoint;
 static double globalProjectedArea;
-static ColorRgb *globalPSourceRad;
-static Interaction *globalTheLink;
-
-// Area corresponding to one pixel in the scratch frame buffer
-static double globalPixelArea;
 
 /**
 Executes func for every surface element in the cluster
@@ -251,28 +246,6 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
 }
 
 /**
-Same as above, except that the number of pixels in the scratch frame buffer
-times the area corresponding one such pixel is used as the visible area
-of the element. Uses global variables globalPixelArea, globalTheLink, globalPSourceRad
-*/
-void
-ClusterTraversalStrategy::zVisSurfaceGatherRadiance(
-    GalerkinElement *rcv,
-    const GalerkinState */*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/)
-{
-    if ( rcv->tmp <= 0 ) {
-        // Element occupies no pixels in the scratch frame buffer
-        return;
-    }
-
-    double areaFactor = globalPixelArea * (double) (rcv->tmp) / (0.25 * globalTheLink->receiverElement->area);
-    ClusterTraversalStrategy::isotropicGatherRadiance(rcv, areaFactor, globalTheLink, globalPSourceRad);
-
-    rcv->tmp = 0; // Set it to zero for future re-use
-}
-
-/**
 Distributes the source radiance to the surface elements in the
 receiver cluster
 */
@@ -285,8 +258,6 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
         logFatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
-    globalPSourceRad = srcRad;
-    globalTheLink = link;
     globalSamplePoint = src->midPoint();
     OrientedGathererVisitor *leafVisitor = new OrientedGathererVisitor(link, srcRad);
 
@@ -316,18 +287,18 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                 // Count how many pixels each element occupies in the scratch frame buffer
                 ScratchVisibilityStrategy::scratchPixelsPerElement(galerkinState);
 
-                // Area corresponding to one pixel on the virtual screen
-                globalPixelArea = (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /
+                // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
+                double pixelArea = (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /
                                   (double) (galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
 
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero
                 // for those elements
-                DepthVisibilityGathererVisitor *depthVisibilityLeafVisitor;
+                DepthVisibilityGathererVisitor *depthVisibilityLeafVisitor = new DepthVisibilityGathererVisitor(link, srcRad, pixelArea);
                 ClusterTraversalStrategy::traverseAllLeafElements(
-                    nullptr,
+                    depthVisibilityLeafVisitor,
                     rcv,
-                    ClusterTraversalStrategy::zVisSurfaceGatherRadiance,
+                    nullptr,
                     galerkinState,
                     &globalSourceRadiance);
                 delete depthVisibilityLeafVisitor;

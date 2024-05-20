@@ -10,9 +10,7 @@ OrientedGathererVisitor::~OrientedGathererVisitor() {
 }
 
 /**
-Requires global variables globalPSourceRad (globalSourceRadiance pointer), globalTheLink (interaction
-over which is being gathered) and globalSamplePoint (midpoint of source
-element). rcv is a surface element belonging to the receiver cluster
+Element is a surface element belonging to the receiver cluster
 in the interaction. This routines gathers radiance to this receiver
 surface, taking into account the projected area of the receiver
 towards the midpoint of the source, ignoring visibility in the receiver

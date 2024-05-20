@@ -6,11 +6,7 @@
 #include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 
 class ClusterTraversalStrategy {
-  private:
-    static void
-    zVisSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
-
-public:
+  public:
     static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
     static void
     isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
