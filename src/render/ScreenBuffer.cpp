@@ -372,8 +372,8 @@ ScreenBuffer::setAddScaleFactor(float factor) {
 }
 
 void
-ScreenBuffer::setFactor(float factor) {
-    factor = factor;
+ScreenBuffer::setFactor(float inFactor) {
+    factor = inFactor;
 }
 
 void
