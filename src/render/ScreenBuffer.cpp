@@ -358,17 +358,17 @@ ScreenBuffer::getBiLinear(float x, float y) const {
 }
 
 void
-ScreenBuffer::scaleRadiance(float factor) {
+ScreenBuffer::scaleRadiance(float inFactor) {
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        radiance[i].scale(factor);
+        radiance[i].scale(inFactor);
     }
 
     synced = false;
 }
 
 void
-ScreenBuffer::setAddScaleFactor(float factor) {
-    addFactor = factor;
+ScreenBuffer::setAddScaleFactor(float inFactor) {
+    addFactor = inFactor;
 }
 
 void

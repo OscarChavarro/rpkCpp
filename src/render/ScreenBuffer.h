@@ -67,8 +67,8 @@ class ScreenBuffer {
     float getScreenXMax() const;
     float getScreenYMax() const;
     ColorRgb getBiLinear(float x, float y) const;
-    void scaleRadiance(float factor);
-    void setAddScaleFactor(float factor);
+    void scaleRadiance(float inFactor);
+    void setAddScaleFactor(float inFactor);
     void setFactor(float inFactor);
     void setRgbImage(bool isRGB);
     void writeFile(const char *fileName);
