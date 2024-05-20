@@ -77,7 +77,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
             ColorRgb sourceRadiance;
             sourceRadiance.clear();
 
-            PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceElement, sourceRadiance, samplePoint);
+            PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
             ClusterTraversalStrategy::traverseAllLeafElements(
                 leafVisitor,
                 sourceElement,

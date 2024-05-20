@@ -5,14 +5,12 @@
 
 class PowerAccumulatorVisitor final : public ClusterLeafVisitor {
   private:
-    GalerkinElement *sourceElement;
     ColorRgb sourceRadiance;
     Vector3D samplePoint;
 
   public:
     explicit
     PowerAccumulatorVisitor(
-        GalerkinElement *inSourceElement,
         ColorRgb inSourceRadiance,
         Vector3D inSamplePoint);
 
