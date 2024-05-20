@@ -100,7 +100,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     radiance.clear();
 
     ScratchRendererVisitor *leafVisitor = new ScratchRendererVisitor(globalEyePoint);
-    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, nullptr, galerkinState, &radiance);
+    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState, &radiance);
     delete leafVisitor;
 
     sglMakeCurrent(prev_sgl_context);
