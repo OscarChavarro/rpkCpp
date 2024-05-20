@@ -121,7 +121,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
     ColorRgb radiance;
     radiance.clear();
-    ClusterTraversalStrategy::traverseAllLeafElements(cluster, scratchRenderElementPtr, galerkinState, &radiance);
+    ClusterTraversalStrategy::traverseAllLeafElements(nullptr, cluster, scratchRenderElementPtr, galerkinState, &radiance);
 
     sglMakeCurrent(prev_sgl_context);
     return bbx.coordinates;

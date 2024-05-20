@@ -3,6 +3,7 @@
 
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/processing/ClusterLeafVisitor.h"
 
 class ClusterTraversalStrategy {
   private:
@@ -30,6 +31,7 @@ class ClusterTraversalStrategy {
 public:
     static void
     traverseAllLeafElements(
+        const ClusterLeafVisitor *leafVisitor,
         GalerkinElement *parentElement,
         void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
         GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);

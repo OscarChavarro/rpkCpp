@@ -29,20 +29,27 @@ Executes func for every surface element in the cluster
 */
 void
 ClusterTraversalStrategy::traverseAllLeafElements(
+    const ClusterLeafVisitor *leafVisitor,
     GalerkinElement *parentElement,
     void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
+
     GalerkinState *galerkinState,
     ColorRgb *accumulatedRadiance)
 {
     if ( !parentElement->isCluster() ) {
-        leafElementVisitCallBack(parentElement, galerkinState, accumulatedRadiance);
+        if ( leafElementVisitCallBack != nullptr ) {
+            leafElementVisitCallBack(parentElement, galerkinState, accumulatedRadiance);
+        }
+        if ( leafVisitor != nullptr ) {
+            leafVisitor->visit(parentElement, galerkinState, accumulatedRadiance);
+        }
     } else {
         for ( int i = 0;
             parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size();
             i++ ) {
             GalerkinElement *childCluster = (GalerkinElement *)parentElement->irregularSubElements->get(i);
             ClusterTraversalStrategy::traverseAllLeafElements(
-                childCluster, leafElementVisitCallBack, galerkinState, accumulatedRadiance);
+                nullptr, childCluster, leafElementVisitCallBack, galerkinState, accumulatedRadiance);
         }
     }
 }
@@ -105,6 +112,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(GalerkinElement *src, Vec
             ColorRgb sourceRadiance;
             sourceRadiance.clear();
             ClusterTraversalStrategy::traverseAllLeafElements(
+                nullptr,
                 src,
                 ClusterTraversalStrategy::accumulatePowerToSamplePoint,
                 galerkinState,
@@ -218,6 +226,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             globalSamplePoint = src->midPoint();
             globalProjectedArea = 0.0;
             ClusterTraversalStrategy::traverseAllLeafElements(
+                nullptr,
                 rcv,
                 ClusterTraversalStrategy::accumulateProjectedAreaToSamplePoint,
                 galerkinState,
@@ -350,15 +359,21 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
             ClusterTraversalStrategy::isotropicGatherRadiance(rcv, 1.0, link, srcRad);
             break;
         case GalerkinClusteringStrategy::ORIENTED:
-            ClusterTraversalStrategy::traverseAllLeafElements(rcv,
-                                                              ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
-                                                              galerkinState, &globalSourceRadiance);
+            ClusterTraversalStrategy::traverseAllLeafElements(
+                nullptr,
+                rcv,
+                ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
+                galerkinState,
+                &globalSourceRadiance);
             break;
         case GalerkinClusteringStrategy::Z_VISIBILITY:
             if ( !rcv->geometry->boundingBox.outOfBounds(&globalSamplePoint) ) {
-                ClusterTraversalStrategy::traverseAllLeafElements(rcv,
-                                                                  ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
-                                                                  galerkinState, &globalSourceRadiance);
+                ClusterTraversalStrategy::traverseAllLeafElements(
+                    nullptr,
+                    rcv,
+                    ClusterTraversalStrategy::orientedSurfaceGatherRadiance,
+                    galerkinState,
+                    &globalSourceRadiance);
             } else {
                 const float *boundingBox = ScratchVisibilityStrategy::scratchRenderElements(rcv, globalSamplePoint, galerkinState);
 
@@ -372,10 +387,12 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero
                 // for those elements
-                ClusterTraversalStrategy::traverseAllLeafElements(rcv,
-                                                                  ClusterTraversalStrategy::zVisSurfaceGatherRadiance,
-                                                                  galerkinState,
-                                                                  &globalSourceRadiance);
+                ClusterTraversalStrategy::traverseAllLeafElements(
+                    nullptr,
+                    rcv,
+                    ClusterTraversalStrategy::zVisSurfaceGatherRadiance,
+                    galerkinState,
+                    &globalSourceRadiance);
             }
             break;
         default:
@@ -404,6 +421,6 @@ ColorRgb
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
     ColorRgb radiance;
     radiance.clear();
-    ClusterTraversalStrategy::traverseAllLeafElements(cluster, leafMaxRadiance, galerkinState, &radiance);
+    ClusterTraversalStrategy::traverseAllLeafElements(nullptr, cluster, leafMaxRadiance, galerkinState, &radiance);
     return radiance;
 }
