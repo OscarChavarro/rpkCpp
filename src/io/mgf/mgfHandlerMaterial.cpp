@@ -317,7 +317,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             }
             if ( globalMgfCurrentMaterial == nullptr ) {
                 // Create new material
-                lp->key = new char[strlen(av[1]) + 1];
+                lp->key = (char *)malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MGF_ERROR_OUT_OF_MEMORY;
                 }

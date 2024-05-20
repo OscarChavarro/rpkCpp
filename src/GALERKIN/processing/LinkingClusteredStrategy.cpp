@@ -28,23 +28,25 @@ LinkingClusteredStrategy::createInitialLinks(
             logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
     }
 
-    // Assume no light transport (overlapping receiver and source)
-    float *K = nullptr;
-    float *deltaK = nullptr;
-
-    if ( receiverElement != nullptr && sourceElement != nullptr ) {
-        if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
-            K = new float[1];
-            K[0] = 0.0;
-        } else {
-            K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
-            for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
-                K[i] = 0.0;
-            }
-        }
-        deltaK = new float[1];
-        deltaK[0] = Numeric::HUGE_FLOAT_VALUE; // HUGE_DOUBLE_VALUE error on the form factor
+    if ( receiverElement == nullptr || sourceElement == nullptr ) {
+        return;
     }
+
+    // Assume no light transport (overlapping receiver and source)
+    float *K;
+    float *deltaK;
+
+    if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
+        K = new float[1];
+        K[0] = 0.0;
+    } else {
+        K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
+            K[i] = 0.0;
+        }
+    }
+    deltaK = new float[1];
+    deltaK[0] = Numeric::HUGE_FLOAT_VALUE; // Huge value error on the form factor
 
     Interaction *newLink = new Interaction(
         receiverElement,
@@ -57,25 +59,14 @@ LinkingClusteredStrategy::createInitialLinks(
         128
     );
 
-    if ( K != nullptr ) {
-        delete[] K;
-    }
-    if ( deltaK != nullptr ) {
-        delete[] deltaK;
-    }
+    delete[] K;
+    delete[] deltaK;
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods
-    bool used = false;
-    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL && sourceElement != nullptr ) {
+    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         sourceElement->interactions->add(newLink);
-        used = true;
-    } else if ( receiverElement != nullptr ) {
+    } else {
         receiverElement->interactions->add(newLink);
-        used = true;
-    }
-
-    if ( !used ) {
-        delete newLink;
     }
 }
