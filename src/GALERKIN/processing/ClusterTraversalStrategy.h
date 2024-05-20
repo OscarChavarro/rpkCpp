@@ -7,7 +7,7 @@
 
 class ClusterTraversalStrategy {
   public:
-    static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *rcv);
+    static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *receiverElement);
     static void
     isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
 
