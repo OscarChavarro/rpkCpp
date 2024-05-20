@@ -95,12 +95,9 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
-    GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0x00, SGL_MAXIMUM_Z);
-    ColorRgb radiance;
-    radiance.clear();
-
+    GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL)0x00, SGL_MAXIMUM_Z);
     ScratchRendererVisitor *leafVisitor = new ScratchRendererVisitor(globalEyePoint);
-    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState, &radiance);
+    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState);
     delete leafVisitor;
 
     sglMakeCurrent(prev_sgl_context);

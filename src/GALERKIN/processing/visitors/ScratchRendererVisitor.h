@@ -11,7 +11,7 @@ class ScratchRendererVisitor final: public ClusterLeafVisitor {
   public:
     explicit ScratchRendererVisitor(Vector3D inEyePoint);
     ~ScratchRendererVisitor() final;
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
 };
 
 #endif

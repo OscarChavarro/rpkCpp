@@ -12,7 +12,7 @@ class OrientedGathererVisitor final : public ClusterLeafVisitor {
     OrientedGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance);
     ~OrientedGathererVisitor() final;
 
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
 };
 
 #endif

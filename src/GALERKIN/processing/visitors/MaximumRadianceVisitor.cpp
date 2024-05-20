@@ -1,16 +1,21 @@
 #include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
 
 MaximumRadianceVisitor::MaximumRadianceVisitor() {
+    accumulatedRadiance.clear();
 }
 
 MaximumRadianceVisitor::~MaximumRadianceVisitor() {
 }
 
+ColorRgb
+MaximumRadianceVisitor::getAccumulatedRadiance() const {
+    return accumulatedRadiance;
+}
+
 void
 MaximumRadianceVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance)
+    const GalerkinState *galerkinState)
 {
     ColorRgb rad;
     if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
@@ -19,5 +24,5 @@ MaximumRadianceVisitor::visit(
     } else {
         rad = galerkinElement->unShotRadiance[0];
     }
-    accumulatedRadiance->maximum(*accumulatedRadiance, rad);
+    accumulatedRadiance.maximum(accumulatedRadiance, rad);
 }

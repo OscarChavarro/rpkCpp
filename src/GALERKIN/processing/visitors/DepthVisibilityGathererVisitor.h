@@ -12,7 +12,7 @@ class DepthVisibilityGathererVisitor final : public ClusterLeafVisitor {
 public:
     DepthVisibilityGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance, double inPixelArea);
     ~DepthVisibilityGathererVisitor() final;
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
 };
 
 #endif

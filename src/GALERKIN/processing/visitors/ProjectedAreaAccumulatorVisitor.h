@@ -11,7 +11,7 @@ private:
     ProjectedAreaAccumulatorVisitor();
     ~ProjectedAreaAccumulatorVisitor() final;
 
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
     double getTotalProjectedArea() const;
 };
 

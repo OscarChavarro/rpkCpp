@@ -19,8 +19,7 @@ cluster
 void
 OrientedGathererVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance)
+    const GalerkinState *galerkinState)
 {
     // globalTheLink->rcv is a cluster, so it's total area divided by 4 (average projected area)
     // was used to compute link->K

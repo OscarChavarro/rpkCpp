@@ -6,9 +6,15 @@ PowerAccumulatorVisitor::PowerAccumulatorVisitor(
 {
     sourceRadiance = inSourceRadiance;
     samplePoint = inSamplePoint;
+    accumulatedRadiance.clear();
 }
 
 PowerAccumulatorVisitor::~PowerAccumulatorVisitor() {
+}
+
+ColorRgb
+PowerAccumulatorVisitor::getAccumulatedRadiance() const {
+    return accumulatedRadiance;
 }
 
 /**
@@ -20,8 +26,7 @@ sample point, (ignores intra cluster visibility)
 void
 PowerAccumulatorVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance)
+    const GalerkinState *galerkinState)
 {
     float srcOs;
     float dist;
@@ -47,5 +52,5 @@ PowerAccumulatorVisitor::visit(
         rad = galerkinElement->unShotRadiance[0];
     }
 
-    accumulatedRadiance->addScaled(sourceRadiance, srcOs * galerkinElement->area, rad);
+    accumulatedRadiance.addScaled(sourceRadiance, srcOs * galerkinElement->area, rad);
 }

@@ -11,8 +11,7 @@ ProjectedAreaAccumulatorVisitor::~ProjectedAreaAccumulatorVisitor() {
 void
 ProjectedAreaAccumulatorVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState * /*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/) {
+    const GalerkinState * /*galerkinState*/) {
     totalProjectedArea += ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(galerkinElement);
 }
 

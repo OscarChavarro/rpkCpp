@@ -10,8 +10,7 @@ ScratchRendererVisitor::~ScratchRendererVisitor() {
 void
 ScratchRendererVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState * /*galerkinState*/,
-    ColorRgb * /*accumulatedRadiance*/)
+    const GalerkinState * /*galerkinState*/)
 {
     const Patch *patch = galerkinElement->patch;
     Vector3D v[4];

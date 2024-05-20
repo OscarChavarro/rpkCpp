@@ -4,10 +4,13 @@
 #include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 
 class MaximumRadianceVisitor final : public ClusterLeafVisitor {
+  private:
+    ColorRgb accumulatedRadiance;
   public:
     MaximumRadianceVisitor();
     ~MaximumRadianceVisitor() final;
-    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
+    ColorRgb getAccumulatedRadiance() const;
 };
 
 #endif
