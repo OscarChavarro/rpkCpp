@@ -15,7 +15,6 @@ class ClusterTraversalStrategy {
     traverseAllLeafElements(
         ClusterLeafVisitor *leafVisitor,
         GalerkinElement *parentElement,
-        void (*leafElementVisitCallBack)(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance),
         GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);
 
     static ColorRgb sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);
