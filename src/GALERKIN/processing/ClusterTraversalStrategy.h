@@ -25,9 +25,6 @@ class ClusterTraversalStrategy {
     static void
     zVisSurfaceGatherRadiance(GalerkinElement *rcv, const GalerkinState */*galerkinState*/, ColorRgb * /*accumulatedRadiance*/);
 
-    static void
-    leafMaxRadiance(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance);
-
 public:
     static void
     traverseAllLeafElements(

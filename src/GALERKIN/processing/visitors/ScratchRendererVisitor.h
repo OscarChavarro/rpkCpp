@@ -1,8 +1,8 @@
 #ifndef __SCRATCH_RENDERER_VISITOR__
 #define __SCRATCH_RENDERER_VISITOR__
 
-#include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 #include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/processing/visitors/ClusterLeafVisitor.h"
 
 class ScratchRendererVisitor final: public ClusterLeafVisitor {
   private:
@@ -11,7 +11,7 @@ class ScratchRendererVisitor final: public ClusterLeafVisitor {
   public:
     explicit ScratchRendererVisitor(Vector3D inEyePoint);
     ~ScratchRendererVisitor() final;
-    void visit(GalerkinElement *elem, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) const final;
+    void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState, ColorRgb *accumulatedRadiance) const final;
 };
 
 #endif

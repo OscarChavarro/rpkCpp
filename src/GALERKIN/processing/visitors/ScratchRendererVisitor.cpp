@@ -9,11 +9,11 @@ ScratchRendererVisitor::~ScratchRendererVisitor() {
 
 void
 ScratchRendererVisitor::visit(
-    GalerkinElement *elem,
+    GalerkinElement *galerkinElement,
     const GalerkinState * /*galerkinState*/,
     ColorRgb * /*accumulatedRadiance*/) const
 {
-    const Patch *patch = elem->patch;
+    const Patch *patch = galerkinElement->patch;
     Vector3D v[4];
 
     // Backface culling test: only render the element if it is turned towards
@@ -27,6 +27,6 @@ ScratchRendererVisitor::visit(
     }
 
     // TODO: Extend SGL_CONTEXT to support Element*
-    GLOBAL_sgl_currentContext->sglSetColor((SGL_PIXEL)elem);
+    GLOBAL_sgl_currentContext->sglSetColor((SGL_PIXEL)galerkinElement);
     GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, v);
 }

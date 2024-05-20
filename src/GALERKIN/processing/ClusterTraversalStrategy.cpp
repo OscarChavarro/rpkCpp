@@ -13,6 +13,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "skin/Geometry.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/GalerkinState.h"
+#include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 
 static ColorRgb globalSourceRadiance;
@@ -401,26 +402,12 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
     }
 }
 
-void
-ClusterTraversalStrategy::leafMaxRadiance(
-    GalerkinElement *galerkinElement,
-    const GalerkinState *galerkinState,
-    ColorRgb *accumulatedRadiance)
-{
-    ColorRgb rad;
-    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
-         galerkinState->galerkinIterationMethod == JACOBI ) {
-        rad = galerkinElement->radiance[0];
-    } else {
-        rad = galerkinElement->unShotRadiance[0];
-    }
-    accumulatedRadiance->maximum(*accumulatedRadiance, rad);
-}
-
 ColorRgb
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
     ColorRgb radiance;
     radiance.clear();
-    ClusterTraversalStrategy::traverseAllLeafElements(nullptr, cluster, leafMaxRadiance, galerkinState, &radiance);
+    MaximumRadianceVisitor *leafVisitor = new MaximumRadianceVisitor();
+    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, nullptr, galerkinState, &radiance);
+    delete leafVisitor;
     return radiance;
 }
