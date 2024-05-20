@@ -41,7 +41,7 @@ class MgfContext {
 
     // Internal variables on the MGF reader context
     char entityNames[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
-    const char *errorCodeMessages[MGF_NUMBER_OF_ERRORS];
+    const char *errorCodeMessages[MgfErrorCode::MGF_NUMBER_OF_ERRORS];
     MgfReaderContext *readerContext;
     int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int argc, const char **argv, MgfContext *context);
     int (*supportCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int argc, const char **argv, MgfContext *context);

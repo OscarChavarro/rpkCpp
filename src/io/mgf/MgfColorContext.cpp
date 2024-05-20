@@ -4,58 +4,58 @@
 
 // Derived CIE 1931 Primaries (imaginary)
 static MgfColorContext cie_xp = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
-        {-174, -198, -195, -197, -202, -213, -235, -272, -333,
-         -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
-         -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
-         7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
-         8336, 8336, 8336, 8336, 8336, 8336},
-        127424L, 1.0, 0.0
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+    {-174, -198, -195, -197, -202, -213, -235, -272, -333,
+     -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
+     -3100, -815, 1320, 3200, 4782, 5998, 6861, 7408, 7754,
+     7980, 8120, 8199, 8240, 8271, 8292, 8309, 8283, 8469,
+     8336, 8336, 8336, 8336, 8336, 8336},
+    127424L, 1.0, 0.0
 };
 
 static MgfColorContext cie_yp = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
-        {-451, -431, -431, -430, -427, -417, -399, -366, -312,
-         -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
-         3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
-         -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
-         -4066, -4066, -4066, -4066, -4066, -4066},
-        -23035L, 0.0, 1.0
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+    {-451, -431, -431, -430, -427, -417, -399, -366, -312,
+     -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
+     3023, 1123, -473, -1704, -2572, -3127, -3474, -3704,
+     -3846, -3927, -3968, -3999, -4021, -4038, -4012, -4201,
+     -4066, -4066, -4066, -4066, -4066, -4066},
+    -23035L, 0.0, 1.0
 };
 
 static MgfColorContext cie_zp = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
-        {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
-         4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
-         -904, -918, -898, -884, -869, -863, -855, -855, -851,
-         -848, -847, -846, -846, -846, -845, -846, -843, -845,
-         -845, -845, -845, -845, -845},
-        36057L, 0.0, 0.0,
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
+    {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
+     4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
+     -904, -918, -898, -884, -869, -863, -855, -855, -851,
+     -848, -847, -846, -846, -846, -845, -846, -843, -845,
+     -845, -845, -845, -845, -845},
+    36057L, 0.0, 0.0,
 };
 
 // CIE 1931 Standard Observer curves
 static MgfColorContext cie_xf = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
-        {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
-         320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
-         10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
-         114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, 0.467f, 0.368f, 362.230f
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+    {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
+     320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
+     10622, 10026, 8544, 6424, 4479, 2835, 1649, 874, 468, 227,
+     114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, 0.467f, 0.368f, 362.230f
 };
 
 static MgfColorContext cie_yf = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
-        {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
-         5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
-         5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
-         5, 2, 1, 1, 0, 0}, 106856L, 0.398f, 0.542f, 493.525f
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+    {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
+     5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
+     5030, 3810, 2650, 1750, 1070, 610, 320, 170, 82, 41, 21, 10,
+     5, 2, 1, 1, 0, 0}, 106856L, 0.398f, 0.542f, 493.525f
 };
 
 static MgfColorContext cie_zf = {
-        1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
-        {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
-         12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
-         11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-        106770L, 0.147f, 0.077f, 54.363f
+    1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+    {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
+     12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
+     11, 8, 3, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    106770L, 0.147f, 0.077f, 54.363f
 };
 
 /**
@@ -77,7 +77,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
 
     // Check getBoundingBox
     if ( wlMaximum <= COLOR_MINIMUM_WAVE_LENGTH || wlMaximum <= wlMinimum || wlMinimum >= COLOR_MAXIMUM_WAVE_LENGTH ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wlStep = (wlMaximum - wlMinimum) / (ac - 1);
     while ( wlMinimum < COLOR_MINIMUM_WAVE_LENGTH ) {
@@ -105,7 +105,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
         n = 0;
         while ( boxPos < i + 0.5 && pos < ac ) {
             if ( !isFloatWords(av[pos]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += strtof(av[pos++], nullptr);
             n++;
@@ -121,7 +121,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
             }
     }
     if ( scale <= Numeric::EPSILON ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
     spectralStraightSum = 0; // Convert to our spacing
@@ -148,7 +148,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -160,7 +160,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
     double wl;
 
     if ( tk < 1000 ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wl = bBlm(tk);
     // Scale factor based on peak
@@ -177,7 +177,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**

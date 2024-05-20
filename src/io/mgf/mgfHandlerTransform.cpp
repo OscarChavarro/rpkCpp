@@ -423,7 +423,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
         // Something with existing transform
         spec = context->transformContext;
         if ( spec == nullptr ) {
-            return MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
+            return MgfErrorCode::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         n = -1;
         if ( spec->transformationArray != nullptr) {
@@ -441,7 +441,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
             }
             if ( n >= 0 ) {
                 rv = mgfGoToFilePosition(&ap->startingPosition, context);
-                if ( rv != MGF_OK ) {
+                if ( rv != MgfErrorCode::MGF_OK ) {
                     return rv;
                 }
                 snprintf(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
@@ -452,13 +452,13 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
             // Pop transform
             context->transformContext = spec->prev;
             free_xf(spec);
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
         }
     } else {
         // Allocate transform
         spec = newTransform(ac - 1, av + 1, context);
         if ( spec == nullptr ) {
-            return MGF_ERROR_OUT_OF_MEMORY;
+            return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
         }
         if ( spec->transformationArray != nullptr) {
             transformName(spec->transformationArray, context);
@@ -471,7 +471,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
     n = TRANSFORM_ARGC(spec);
     n -= TRANSFORM_ARGC(spec->prev); // Incremental comp. is more eff.
     if ( xf(&spec->xf, n, TRANSFORM_ARGV(spec)) != n ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
 
     // Check for vertex reversal
@@ -486,7 +486,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
     spec->xid = computeUniqueId(&spec->xf.transformMatrix); // Compute unique ID
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 void

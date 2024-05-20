@@ -101,14 +101,14 @@ mgfParseCurrentLine(MgfContext *context) {
             break;
         }
         if ( ap - argv >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
-            return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         *ap++ = cp;
         while ( *++cp && !isspace(*cp) );
     }
     if ( ap == argv ) {
         // No words in line
-        return MGF_OK;
+        return MgfErrorCode::MGF_OK;
     }
     *ap = nullptr;
     // Else handle it
@@ -153,7 +153,7 @@ Discard unneeded/unwanted entity
 */
 static int
 mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, MgfContext * /*context*/) {
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -180,11 +180,11 @@ mgfPutCSpec(MgfContext *context)
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
         int status = mgfHandle(MgfEntity::C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
-        if ( status != MGF_OK ) {
+        if ( status != MgfErrorCode::MGF_OK ) {
             return status;
         }
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -216,7 +216,7 @@ mgfECSpec(int /*ac*/, const char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -238,7 +238,7 @@ mgfECMix(int /*ac*/, const char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -257,7 +257,7 @@ mgfColorTemperature(int /*ac*/, const char ** /*av*/, MgfContext *context) {
     if ( context->handleCallbacks[MgfEntity::CXY] != (HandleCallBack)handleColorEntity ) {
         return mgfPutCxy(context);
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 static int
@@ -267,11 +267,11 @@ handleIncludedFile(int ac, const char **av, MgfContext *context) {
     const MgfTransformContext *originTransform = context->transformContext;
 
     if ( ac < 2 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
     int rv = mgfOpen(&readerContext, av[1], context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
     if ( ac > 2 ) {
@@ -281,7 +281,7 @@ handleIncludedFile(int ac, const char **av, MgfContext *context) {
         }
         transformArgument[ac - 1] = nullptr;
         rv = mgfHandle(MgfEntity::TRANSFORM, ac - 1, transformArgument, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             mgfClose(context);
             return rv;
         }
@@ -290,29 +290,29 @@ handleIncludedFile(int ac, const char **av, MgfContext *context) {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 fprintf(stderr, "%s: %d: %s\n", readerContext.fileName,
-                        readerContext.lineNumber, context->errorCodeMessages[MGF_ERROR_LINE_TOO_LONG]);
+                    readerContext.lineNumber, context->errorCodeMessages[MgfErrorCode::MGF_ERROR_LINE_TOO_LONG]);
                 mgfClose(context);
-                return MGF_ERROR_IN_INCLUDED_FILE;
+                return MgfErrorCode::MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 fprintf(stderr, "%s: %d: %s:\n%s", readerContext.fileName,
                         readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
                 mgfClose(context);
-                return MGF_ERROR_IN_INCLUDED_FILE;
+                return MgfErrorCode::MGF_ERROR_IN_INCLUDED_FILE;
             }
         }
         if ( ac > 2 ) {
             rv = mgfHandle(MgfEntity::TRANSFORM, 1, transformArgument, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 mgfClose(context);
                 return rv;
             }
         }
     } while ( context->transformContext != originTransform );
     mgfClose(context);
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -550,11 +550,11 @@ mgfFreeMemory(MgfContext *context) {
     long unknowns = 0;
     for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
         const Geometry *geometry = context->currentGeometryList->get(i);
-        if ( geometry->className == SURFACE_MESH ) {
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             surfaces++;
-        } else if ( geometry->className == PATCH_SET ) {
+        } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
             patchSets++;
-        } else if ( geometry->className == COMPOUND ) {
+        } else if ( geometry->className == GeometryClassId::COMPOUND ) {
             // Note that this creation is being done as a Geometry parent type!
             if ( geometry->compoundData->children != nullptr ) {
                 compoundChildren += geometry->compoundData->children->size();

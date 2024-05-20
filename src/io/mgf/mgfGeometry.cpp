@@ -44,28 +44,28 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
     double theta;
 
     if ( ac != 3 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     cv = getNamedVertex(av[1], context);
     if ( cv == nullptr) {
-        return MGF_ERROR_UNDEFINED_REFERENCE;
+        return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( !isFloatWords(av[2]) ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     rad = strtod(av[2], nullptr);
 
     // Initialize
     globalWarpConeEnds = true;
     rVal = mgfHandle(MgfEntity::VERTEX, 3, v2Entity, context);
-    if ( rVal != MGF_OK ) {
+    if ( rVal != MgfErrorCode::MGF_OK ) {
         return rVal;
     }
     snprintf(p2x, 24, globalFloatFormat, cv->p.x);
     snprintf(p2y, 24, globalFloatFormat, cv->p.y);
     snprintf(p2z, 24, globalFloatFormat, cv->p.z + rad);
     rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
-    if ( rVal != MGF_OK ) {
+    if ( rVal != MgfErrorCode::MGF_OK ) {
         return rVal;
     }
     r2[0] = '0';
@@ -73,27 +73,27 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
     for ( int i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         snprintf(p2z, 24, globalFloatFormat, cv->p.z + rad * java::Math::cos(theta));
         rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, rad * java::Math::sin(theta));
         rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
     }
     globalWarpConeEnds = false;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -136,16 +136,16 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     double theta;
 
     if ( ac != 4 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     if ( (cv = getNamedVertex(av[1], context)) == nullptr ) {
-        return MGF_ERROR_UNDEFINED_REFERENCE;
+        return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( cv->n.isNull(Numeric::EPSILON) ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
     Numeric::roundDeltaToZero(minRad, Numeric::EPSILON);
@@ -158,10 +158,10 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     } else if ( minRad < 0.0 ) {
         sign = -1;
     } else {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( sign * (maxRad - minRad) <= 0.0 ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Initialize
@@ -171,11 +171,11 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * cv->n.y);
     snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * cv->n.z);
     rVal = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
-    if ( rVal != MGF_OK ) {
+    if ( rVal != MgfErrorCode::MGF_OK ) {
         return rVal;
     }
     rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
-    if ( rVal != MGF_OK ) {
+    if ( rVal != MgfErrorCode::MGF_OK ) {
         return rVal;
     }
     snprintf(r2, 24, globalFloatFormat, avgRad = 0.5 * (minRad + maxRad));
@@ -185,24 +185,24 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     for ( i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
         rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         snprintf(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
         snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
         snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
     }
@@ -215,26 +215,26 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
         snprintf(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
         snprintf(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         rVal = mgfHandle(MgfEntity::VERTEX, 2, v2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         rVal = mgfHandle(MgfEntity::MGF_POINT, 4, p2Entity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
         strcpy(r1, r2);
         snprintf(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(MgfEntity::CONE, 5, coneEntity, context);
-        if ( rVal != MGF_OK ) {
+        if ( rVal != MgfErrorCode::MGF_OK ) {
             return rVal;
         }
     }
     globalWarpConeEnds = false;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -245,7 +245,7 @@ mgfEntityCylinder(int ac, const char **av, MgfContext *context) {
     const char *newArgV[6] = {context->entityNames[MgfEntity::CONE]};
 
     if ( ac != 4 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     newArgV[1] = av[1];
     newArgV[2] = av[2];
@@ -347,24 +347,24 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     double d;
 
     if ( ac != 4 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
     vertexContext = getNamedVertex(av[1], context);
     if ( vertexContext == nullptr) {
-        return MGF_ERROR_UNDEFINED_REFERENCE;
+        return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( vertexContext->n.isNull(Numeric::EPSILON) ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     minRad = strtod(av[2], nullptr);
     Numeric::roundDeltaToZero(minRad, Numeric::EPSILON);
     maxRad = strtod(av[3], nullptr);
     if ( minRad < 0.0 || maxRad <= minRad ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Initialize
@@ -376,11 +376,11 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     snprintf(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * u.y);
     snprintf(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * u.z);
     rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
     rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
 
@@ -388,17 +388,17 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
         // Closed
         v1Entity[3] = av[1];
         rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, namesEntity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
 
@@ -413,22 +413,22 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
                 vertexContext->p.z + maxRad * u.z * java::Math::cos(theta) + maxRad * v.z * java::Math::sin(theta));
 
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::FACE, 4, faceEntity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
         }
     } else {
         // Open
         rv = mgfHandle(MgfEntity::VERTEX, 3, v4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
 
@@ -437,18 +437,18 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
         snprintf(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * u.z);
 
         rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         v1Entity[3] = "_rv4";
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
 
@@ -465,28 +465,28 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
             snprintf(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * d);
 
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::VERTEX, 2, v4Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::FACE, 5, faceEntity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
         }
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -551,16 +551,16 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     double theta;
 
     if ( ac != 5 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     cv1 = getNamedVertex(av[1], context);
     cv2 = getNamedVertex(av[3], context);
     if ( cv1 == nullptr || cv2 == nullptr) {
-        return MGF_ERROR_UNDEFINED_REFERENCE;
+        return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     v1n = av[1];
     if ( !isFloatWords(av[2]) || !isFloatWords(av[4]) ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
 
     // Set up (radius1, radius2)
@@ -571,14 +571,14 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 
     if ( radius1 == 0.0 ) {
         if ( radius2 == 0.0 ) {
-            return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+            return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else if ( radius2 != 0.0 ) {
         bool a = radius1 < 0.0;
         bool b = radius2 < 0.0;
         bool check = (a && !b) || (!a && b); // Note: this is exclusive or / XOR a ^ b
         if ( check ) {
-            return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+            return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
         }
     } else {
         // Swap
@@ -602,9 +602,8 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     w.z = cv1->p.z - cv2->p.z;
 
     d = w.normalizeAndGivePreviousNorm(Numeric::EPSILON);
-    if ( d == 0.0 ) {
-        // TODO: Review floating point comparisons vs EPSILON
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+    if ( Numeric::doubleEqual(d, 0.0, Numeric::EPSILON) ) {
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     n1off = n2off = (radius2 - radius1) / d;
     if ( globalWarpConeEnds ) {
@@ -643,15 +642,15 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
     }
 
     rv = mgfHandle(MgfEntity::VERTEX, 3, v3Entity, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
     rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
     rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
     if ( radius1 == 0.0 ) {
@@ -659,7 +658,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
         // Triangles
         v1Entity[3] = v1n;
         rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
 
@@ -668,13 +667,13 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
         snprintf(n4[2], 24, globalFloatFormat, w.z);
 
         rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
 
@@ -697,11 +696,11 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
             }
 
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
@@ -709,7 +708,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::FACE, 4, faceEntity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
         }
@@ -748,25 +747,25 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
         }
 
         rv = mgfHandle(MgfEntity::VERTEX, 3, v4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         for ( int i = 1; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
             theta = sign * i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
             rv = mgfHandle(MgfEntity::VERTEX, 4, v1Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::VERTEX, 4, v2Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
 
@@ -801,11 +800,11 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
             }
 
             rv = mgfHandle(MgfEntity::VERTEX, 2, v3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p3Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n3Entity, context);
@@ -813,25 +812,25 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::VERTEX, 2, v4Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_POINT, 4, p4Entity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, n4Entity, context);
             if ( n1off < Numeric::HUGE_FLOAT_VALUE &&
-                 rv != MGF_OK ) {
+                 rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::FACE, 5, faceEntity, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
         }
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -868,20 +867,20 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
 
     // Check arguments
     if ( ac < 5 ) {
-        return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     if ( !isFloatWords(av[ac - 1]) ) {
-        return MGF_ERROR_ARGUMENT_TYPE;
+        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     length = strtod(av[ac - 1], nullptr);
     if ( length <= Numeric::EPSILON && length >= -Numeric::EPSILON ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Compute face normal
     cv0 = getNamedVertex(av[1], context);
     if ( cv0 == nullptr ) {
-        return MGF_ERROR_UNDEFINED_REFERENCE;
+        return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     hasNormal = 0;
 
@@ -891,7 +890,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
     for ( i = 2; i < ac - 1; i++ ) {
         cv = getNamedVertex(av[i], context);
         if ( cv == nullptr) {
-            return MGF_ERROR_UNDEFINED_REFERENCE;
+            return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
         }
 
         if ( !cv->n.isNull(Numeric::EPSILON) ) {
@@ -911,7 +910,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         v1.copy(&v2);
     }
     if ( norm.normalizeAndGivePreviousNorm(Numeric::EPSILON) == 0.0 ) {
-        return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
 
     // Create moved vertices
@@ -920,7 +919,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
         rv = mgfHandle(MgfEntity::VERTEX, 4, vent, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         cv = getNamedVertex(av[i], context); // Checked above
@@ -928,7 +927,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         snprintf(p[1], 24, globalFloatFormat, cv->p.y - length * norm.y);
         snprintf(p[2], 24, globalFloatFormat, cv->p.z - length * norm.z);
         rv = mgfHandle(MgfEntity::MGF_POINT, 4, pent, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
     }
@@ -943,7 +942,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
         newArgV[1] = nvn[i - 1];
         newArgV[2] = av[i];
         rv = mgfHandle(MgfEntity::FACE, 5, newArgV, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
         newArgV[3] = newArgV[2];
@@ -956,18 +955,18 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             // Zero normals
             vent[1] = nvn[i - 1];
             rv = mgfHandle(MgfEntity::VERTEX, 2, vent, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, zNormal, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
         }
         newArgV[ac - 1 - i] = nvn[i - 1]; // Reverse
     }
     rv = mgfHandle(MgfEntity::FACE, ac - 1, newArgV, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
 
@@ -977,11 +976,11 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
             vent[1] = nvn[i - 1];
             vent[3] = av[i];
             rv = mgfHandle(MgfEntity::VERTEX, 4, vent, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             rv = mgfHandle(MgfEntity::MGF_NORMAL, 4, zNormal, context);
-            if ( rv != MGF_OK ) {
+            if ( rv != MgfErrorCode::MGF_OK ) {
                 return rv;
             }
             newArgV[i] = nvn[i - 1];
@@ -993,10 +992,10 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
     }
     newArgV[i] = nullptr;
     rv = mgfHandle(MgfEntity::FACE, i, newArgV, context);
-    if ( rv != MGF_OK ) {
+    if ( rv != MgfErrorCode::MGF_OK ) {
         return rv;
     }
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -1014,7 +1013,7 @@ mgfEntityFaceWithHoles(int ac, const char **av, MgfContext *context) {
 
         if ( av[i][0] == '-' ) {
             if ( i < 4 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( i >= ac - 1 ) {
                 break;
@@ -1024,7 +1023,7 @@ mgfEntityFaceWithHoles(int ac, const char **av, MgfContext *context) {
             }
             for ( j = i + 1; j < ac - 1 && av[j + 1][0] != '-'; j++ );
             if ( j - i < 3 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             newArgV[i] = av[j]; // Connect hole loop
         } else {

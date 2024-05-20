@@ -286,45 +286,45 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
         case MgfEntity::MGF_MATERIAL:
             // Get / set material context
             if ( ac > 4 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {
                 // Set unnamed material context
                 globalUnNamedMaterialContext = globalDefaultMgfMaterial;
                 globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
                 context->currentMaterialName = nullptr;
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             if ( !isNameWords(av[1]) ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(&globalMaterialLookUpTable, av[1]);
             // Lookup context
             if ( lp == nullptr ) {
-                return MGF_ERROR_OUT_OF_MEMORY;
+                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
             globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( globalMgfCurrentMaterial == nullptr) {
-                    return MGF_ERROR_UNDEFINED_REFERENCE;
+                    return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( globalMgfCurrentMaterial == nullptr ) {
                 // Create new material
                 lp->key = (char *)malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
-                    return MGF_ERROR_OUT_OF_MEMORY;
+                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
                 lp->data = (char *) malloc(sizeof(MgfMaterialContext));
                 if ( lp->data == nullptr) {
-                    return MGF_ERROR_OUT_OF_MEMORY;
+                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
                 globalMgfCurrentMaterial = (MgfMaterialContext *)lp->data;
@@ -335,127 +335,127 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                 // Use default template
                 *globalMgfCurrentMaterial = globalDefaultMgfMaterial;
                 globalMgfCurrentMaterial->clock = i + 1;
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             lp = lookUpFind(&globalMaterialLookUpTable, av[3]);
             // Lookup template
             if ( lp == nullptr ) {
-                return MGF_ERROR_OUT_OF_MEMORY;
+                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr ) {
-                return MGF_ERROR_UNDEFINED_REFERENCE;
+                return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *globalMgfCurrentMaterial = *(MgfMaterialContext *) lp->data;
             globalMgfCurrentMaterial->clock = i + 1;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::IR:
             // Set index of refraction
             if ( ac != 3 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->ni = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->nr <= Numeric::EPSILON ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::RD:
             // Set diffuse reflectance
             if ( ac != 2 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->rd < 0. || globalMgfCurrentMaterial->rd > 1.0 ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->rd_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::ED:
             // Set diffuse emittance
             if ( ac != 2 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->ed < 0.0 ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->ed_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::TD:
             // Set diffuse transmittance
             if ( ac != 2 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->td = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->td < 0.0 || globalMgfCurrentMaterial->td > 1.0 ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->td_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::RS:
             // Set specular reflectance
             if ( ac != 3 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->rs_a = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->rs < 0.0 || globalMgfCurrentMaterial->rs > 1.0 ||
                  globalMgfCurrentMaterial->rs_a < 0.0 ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->rs_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::TS:
             // Set specular transmittance
             if ( ac != 3 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->ts_a = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->ts < 0.0 || globalMgfCurrentMaterial->ts > 1.0 ||
                  globalMgfCurrentMaterial->ts_a < 0.0 ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->ts_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         case MgfEntity::SIDES:
             // Set number of sides
             if ( ac != 2 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isIntWords(av[1]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             i = (int)strtol(av[1], nullptr, 10);
             if ( i == 1 ) {
@@ -463,13 +463,13 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             } else if ( i == 2 ) {
                     globalMgfCurrentMaterial->sided = false;
                 } else {
-                    return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                    return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
             globalMgfCurrentMaterial->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
 
         default:
             break;
     }
-    return MGF_ERROR_UNKNOWN_ENTITY;
+    return MgfErrorCode::MGF_ERROR_UNKNOWN_ENTITY;
 }

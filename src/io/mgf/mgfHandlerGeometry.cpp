@@ -502,14 +502,14 @@ int
 handleFaceEntity(int argc, const char **argv, MgfContext *context) {
     if ( argc < 4 ) {
         doError("too few vertices in face", context);
-        return MGF_OK; // Don't stop parsing the input
+        return MgfErrorCode::MGF_OK; // Don't stop parsing the input
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
             "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf",
             context);
-        return MGF_OK; // No reason to stop parsing the input
+        return MgfErrorCode::MGF_OK; // No reason to stop parsing the input
     }
 
     if ( !context->inComplex && mgfMaterialChanged(context->currentMaterial, context) ) {
@@ -527,7 +527,7 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
         v[i] = getVertex(argv[i + 1], context);
         if ( v[i] == nullptr ) {
             // This is however a reason to stop parsing the input
-            return MGF_ERROR_UNDEFINED_REFERENCE;
+            return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
         }
         backV[i] = nullptr;
         if ( !context->currentMaterial->isSided() )
@@ -539,13 +539,13 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
 
     if ( !faceNormal(argc - 1, v, &normal) ) {
         doWarning("degenerate face", context);
-        return MGF_OK; // Just ignore the generated face
+        return MgfErrorCode::MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
         backNormal.scaledCopy(-1.0, normal);
     }
 
-    int errorCode = MGF_OK;
+    int errorCode = MgfErrorCode::MGF_OK;
 
     Patch *face;
     Patch *twin;
@@ -573,12 +573,12 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
             }
         } else {
             doComplexFace(argc - 1, v, &normal, backV, context);
-            errorCode = MGF_OK;
+            errorCode = MgfErrorCode::MGF_OK;
         }
     } else {
         // More than 4 vertices
         doComplexFace(argc - 1, v, &normal, backV, context);
-        errorCode = MGF_OK;
+        errorCode = MgfErrorCode::MGF_OK;
     }
 
     return errorCode;
@@ -628,7 +628,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
-        return MGF_OK; // No reason to stop parsing the input
+        return MgfErrorCode::MGF_OK; // No reason to stop parsing the input
     }
 
     // Get the location of the vertices: the location of the vertex
@@ -645,7 +645,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
         vp = getNamedVertex(argv[i], context);
         if ( !vp ) {
             // Undefined vertex
-            return MGF_ERROR_UNDEFINED_REFERENCE;
+            return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
         }
         mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
 
@@ -719,7 +719,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
             doWarning(
                     "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
-            return MGF_OK; // No reason to stop parsing the input
+            return MgfErrorCode::MGF_OK; // No reason to stop parsing the input
         }
 
         // Shift the elements in new contour starting at position nearestCopied
@@ -776,96 +776,96 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
         case MgfEntity::VERTEX:
             // get/set vertex context
             if ( ac > 4 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {
                 // Set unnamed vertex context
                 globalMgfVertexContext = globalMgfDefaultVertexContext;
                 globalMgfCurrentVertex = &globalMgfVertexContext;
                 context->currentVertexName = nullptr;
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             if ( !isNameWords(av[1]) ) {
-                return MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = lookUpFind(context->vertexLookUpTable, av[1]);
             // Lookup context
             if ( lp == nullptr ) {
-                return MGF_ERROR_OUT_OF_MEMORY;
+                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentVertexName = lp->key;
             globalMgfCurrentVertex = (MgfVertexContext *) lp->data;
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( globalMgfCurrentVertex == nullptr) {
-                    return MGF_ERROR_UNDEFINED_REFERENCE;
+                    return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( globalMgfCurrentVertex == nullptr  ) {
                 // Create new vertex context
                 context->currentVertexName = (char *) malloc(strlen(av[1]) + 1);
                 if ( context->currentVertexName == nullptr ) {
-                    return MGF_ERROR_OUT_OF_MEMORY;
+                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
                 globalMgfCurrentVertex = (MgfVertexContext *) malloc(sizeof(MgfVertexContext));
                 if ( !globalMgfCurrentVertex ) {
-                    return MGF_ERROR_OUT_OF_MEMORY;
+                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 lp->data = (char *) globalMgfCurrentVertex;
             }
             if ( ac == 3 ) {
                 // Use default template
                 *globalMgfCurrentVertex = globalMgfDefaultVertexContext;
-                return MGF_OK;
+                return MgfErrorCode::MGF_OK;
             }
             lp = lookUpFind(context->vertexLookUpTable, av[3]);
             // Lookup template
             if ( lp == nullptr) {
-                return MGF_ERROR_OUT_OF_MEMORY;
+                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return MGF_ERROR_UNDEFINED_REFERENCE;
+                return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *globalMgfCurrentVertex = *(MgfVertexContext *) lp->data;
             globalMgfCurrentVertex->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
         case MgfEntity::MGF_POINT:
             // Set point
             if ( ac != 4 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentVertex->p.x = strtod(av[1], nullptr);
             globalMgfCurrentVertex->p.y = strtod(av[2], nullptr);
             globalMgfCurrentVertex->p.z = strtod(av[3], nullptr);
             globalMgfCurrentVertex->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
         case MgfEntity::MGF_NORMAL:
             // Set normal
             if ( ac != 4 ) {
-                return MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
-                return MGF_ERROR_ARGUMENT_TYPE;
+                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentVertex->n.x = strtod(av[1], nullptr);
             globalMgfCurrentVertex->n.y = strtod(av[2], nullptr);
             globalMgfCurrentVertex->n.z = strtod(av[3], nullptr);
             globalMgfCurrentVertex->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
             globalMgfCurrentVertex->clock++;
-            return MGF_OK;
+            return MgfErrorCode::MGF_OK;
         default:
             break;
     }
-    return MGF_ERROR_UNKNOWN_ENTITY;
+    return MgfErrorCode::MGF_ERROR_UNKNOWN_ENTITY;
 }
 
 /**

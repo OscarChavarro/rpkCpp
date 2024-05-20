@@ -15,7 +15,7 @@ Default handler for unknown entities
 static int
 mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const MgfContext * /*context*/) {
     // Just ignore line
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 void
@@ -44,20 +44,20 @@ Reposition input file pointer
 int
 mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
     if ( pos->fid != context->readerContext->fileContextId ) {
-        return MGF_ERROR_FILE_SEEK_ERROR;
+        return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
     if ( pos->lineno == context->readerContext->lineNumber ) {
-        return MGF_OK;
+        return MgfErrorCode::MGF_OK;
     }
     if ( context->readerContext->fp == stdin || context->readerContext->isPipe ) {
         // Cannot seek on standard input
-        return MGF_ERROR_FILE_SEEK_ERROR;
+        return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
     if ( fseek(context->readerContext->fp, pos->offset, 0) == EOF) {
-        return MGF_ERROR_FILE_SEEK_ERROR;
+        return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
     context->readerContext->lineNumber = pos->lineno;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
@@ -100,7 +100,7 @@ mgfHandle(int entityIndex, int argc, const char **argv, MgfContext *context) {
     if ( context->supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
         int rv = (*context->supportCallbacks[entityIndex])(argc, argv, context);
-        if ( rv != MGF_OK ) {
+        if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
     }
@@ -122,7 +122,7 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
         readerContext->fp = stdin;
         readerContext->prev = context->readerContext;
         context->readerContext = readerContext;
-        return MGF_OK;
+        return MgfErrorCode::MGF_OK;
     }
 
     // Get name relative to this context
@@ -141,12 +141,12 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
     readerContext->isPipe = (char)isPipe;
 
     if ( readerContext->fp == nullptr ) {
-        return MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
+        return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
 
     readerContext->prev = context->readerContext; // Establish new context
     context->readerContext = readerContext;
-    return MGF_OK;
+    return MgfErrorCode::MGF_OK;
 }
 
 /**
