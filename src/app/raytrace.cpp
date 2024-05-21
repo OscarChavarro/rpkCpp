@@ -17,9 +17,7 @@
 
 // Raytracing defaults
 static const char* DEFAULT_RAYTRACING_METHOD = "stochastic";
-static const int STRING_LENGTH = 1000;
 
-static char globalRaytracingMethodsString[STRING_LENGTH];
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
     &GLOBAL_raytracing_biDirectionalPathMethod,
@@ -29,43 +27,34 @@ static Raytracer *globalRayTracingMethods[] = {
 };
 
 static void
-mainMakeRaytracingMethodsString() {
-    char *str = globalRaytracingMethodsString;
-    int n = 0;
-    snprintf(str, 80, "-raytracing-method <method>: set pixel-based radiance computation method\n%n", &n);
-    str = &str[n];
-    snprintf(str, 80, "\tmethods: %-20.20s %s%s\n%n",
-             "none", "no pixel-based radiance computation",
-             !GLOBAL_raytracer_activeRaytracer ? " (default)" : "", &n);
-    str += n;
-
-    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        const Raytracer *method = *window;
-        snprintf(str, STRING_LENGTH, "\t         %-20.20s %s%s\n%n",
-                 method->shortName, method->fullName,
-                 GLOBAL_raytracer_activeRaytracer == method ? " (default)" : "", &n);
-        str += n;
-    }
-    *(str - 1) = '\0'; // Discard last newline character
+rayTraceMakeMethodsHelpMessage(char *str, int n) {
+    snprintf(str, n,
+         "-raytracing-method <method>: set pixel-based radiance computation method\n"
+         "\tmethods: none                 no pixel-based radiance computation\n"
+         "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"
+         "\t         BidirectionalPathTra Bidirectional Path Tracing\n"
+         "\t         RayCasting           Ray Casting\n"
+         "\t         RayMatting           Ray Matting");
 }
 
 void
-mainRayTracingDefaults() {
+rayTraceDefaults() {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
-        method->Defaults();
-        if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method, nullptr);
+        if ( method->Defaults != nullptr ) {
+            method->Defaults();
+            if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
+                rayTraceSetMethod(method, nullptr);
+            }
         }
     }
-    mainMakeRaytracingMethodsString(); // Comes last
 }
 
 /**
 This routine sets the current raytracing method to be used
 */
 void
-mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
+rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
     if ( GLOBAL_raytracer_activeRaytracer ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
@@ -77,7 +66,7 @@ mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSou
 }
 
 void
-batchSaveRaytracingImage(
+rayTraceSaveRaytracedImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
@@ -117,11 +106,15 @@ batchSaveRaytracingImage(
 
 void
 rayTraceParseOptions(int *argc, char **argv) {
-    rayTracingParseOptions(argc, argv, globalRayTracingMethods, globalRaytracingMethodsString);
+    const int n = 1000;
+    char helpMessage[n];
+
+    rayTraceMakeMethodsHelpMessage(helpMessage, n);
+    rayTracingParseOptions(argc, argv, globalRayTracingMethods, helpMessage);
 }
 
 void
-batchRayTrace(
+rayTraceExecute(
     const char *filename,
     FILE *fp,
     int isPipe,
@@ -134,13 +127,13 @@ batchRayTrace(
 
     canvasPushMode();
     rayTrace(
-            filename,
-            fp,
-            isPipe,
-            GLOBAL_raytracer_activeRaytracer,
-            scene,
-            radianceMethod,
-            renderOptions);
+        filename,
+        fp,
+        isPipe,
+        GLOBAL_raytracer_activeRaytracer,
+        scene,
+        radianceMethod,
+        renderOptions);
     canvasPullMode();
 }
 

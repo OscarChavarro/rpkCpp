@@ -9,6 +9,7 @@
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/screeniterate.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 
 // Heuristic minimum distance threshold for photon map readouts
 // should be tuned and dependent on scene size, ...
@@ -16,6 +17,10 @@ const float PHOTON_MAP_MIN_DIST = 0.02f;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
 StochasticRayTracingState GLOBAL_raytracing_state;
+
+void
+StochasticRaytracer::defaults() {
+}
 
 static ColorRgb
 stochasticRaytracerGetRadiance(
@@ -698,8 +703,7 @@ stochasticRayTracerTerminate() {
     }
 }
 
-Raytracer
-GLOBAL_raytracing_stochasticMethod =
+Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",
     4,

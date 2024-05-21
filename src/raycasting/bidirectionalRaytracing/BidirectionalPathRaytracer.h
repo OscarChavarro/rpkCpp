@@ -3,6 +3,11 @@
 
 #include "raycasting/common/Raytracer.h"
 
+class BidirectionalPathRaytracer final : public RayTracer {
+  public:
+    void defaults() final;
+};
+
 extern Raytracer GLOBAL_raytracing_biDirectionalPathMethod;
 
 #endif

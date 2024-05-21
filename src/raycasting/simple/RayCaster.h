@@ -10,7 +10,7 @@
     #include "raycasting/common/Raytracer.h"
 #endif
 
-class RayCaster {
+class RayCaster final : public RayTracer {
   private:
     ScreenBuffer *screenBuffer;
     bool doDeleteScreen;
@@ -32,6 +32,8 @@ class RayCaster {
     void render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);
+
+    void defaults() final;
 };
 
 #ifdef RAYTRACING_ENABLED

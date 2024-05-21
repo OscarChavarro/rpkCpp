@@ -12,6 +12,11 @@ TODO: This should be converted on to the Raytracer interface for inheriting the 
 ray-tracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRaytracer.
 */
 
+class RayTracer {
+  public:
+    virtual void defaults() = 0;
+};
+
 class Raytracer {
   public:
     // Short name for the raytracing method, for use as argument of

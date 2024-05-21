@@ -781,13 +781,13 @@ mainRayTracingOption(void *value) {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            mainSetRayTracingMethod(method, globalLightSourcePatches);
+            rayTraceSetMethod(method, globalLightSourcePatches);
             return;
         }
     }
 
     if ( strncasecmp(name, "none", 4) == 0 ) {
-        mainSetRayTracingMethod(nullptr, globalLightSourcePatches);
+        rayTraceSetMethod(nullptr, globalLightSourcePatches);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", name);
     }

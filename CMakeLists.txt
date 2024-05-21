@@ -128,6 +128,9 @@ set(MAIN_SRC
     src/GALERKIN/processing/visitors/ScratchRendererVisitor.cpp
     src/GALERKIN/processing/visitors/MaximumRadianceVisitor.cpp
     src/GALERKIN/processing/visitors/PowerAccumulatorVisitor.cpp
+    src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
+    src/GALERKIN/processing/visitors/OrientedGathererVisitor.cpp
+    src/GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/raycasting/common/Raytracer.cpp
     src/raycasting/common/pathnode.cpp
     src/raycasting/common/raytools.cpp
@@ -153,6 +156,7 @@ set(MAIN_SRC
     src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp
     src/raycasting/bidirectionalRaytracing/FlagChain.cpp
     src/raycasting/bidirectionalRaytracing/Spar.cpp
+    src/raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
     src/PHOTONMAP/samplegrid.cpp
     src/PHOTONMAP/discretesampling.cpp
@@ -193,9 +197,7 @@ set(MAIN_SRC
     src/app/commandLine.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp
-        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
-        src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h src/GALERKIN/processing/visitors/OrientedGathererVisitor.cpp src/GALERKIN/processing/visitors/OrientedGathererVisitor.h src/GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.cpp src/GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL OSMesa glut)

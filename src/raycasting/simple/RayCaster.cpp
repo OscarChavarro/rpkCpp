@@ -31,6 +31,10 @@ RayCaster::~RayCaster() {
 }
 
 void
+RayCaster::defaults() {
+}
+
+void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
         *u = 1.0 - Numeric::EPSILON;

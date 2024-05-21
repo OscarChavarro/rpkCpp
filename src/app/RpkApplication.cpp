@@ -48,7 +48,7 @@ RpkApplication::mainInitApplication() {
     radianceDefaults(nullptr, scene);
 
 #ifdef RAYTRACING_ENABLED
-    mainRayTracingDefaults();
+    rayTraceDefaults();
 #endif
 
     // Default vertex compare flags: both location and normal is relevant. Two

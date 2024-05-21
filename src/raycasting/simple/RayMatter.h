@@ -20,20 +20,22 @@ public:
 
 extern RayMatterState GLOBAL_rayCasting_rayMatterState;
 
-class RayMatter {
+class RayMatter final : public RayTracer {
   private:
     ScreenBuffer *screenBuffer;
     PixelFilter *pixelFilter;
     bool doDeleteScreen;
 
   public:
-    explicit RayMatter(ScreenBuffer *screen, Camera *camera);
-    virtual ~RayMatter();
+    explicit RayMatter(ScreenBuffer *screen, const Camera *camera);
+    ~RayMatter();
 
     void createFilter();
     void doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid);
     void display();
     void save(ImageOutputHandle *ip);
+
+    void defaults() final;
 };
 
 extern Raytracer GLOBAL_rayCasting_RayMatting;

@@ -15,10 +15,10 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/common/NormalFilter.h"
 #include "raycasting/simple/RayMatter.h"
 
-static RayMatter *rm = nullptr;
+static RayMatter *globalRayMatter = nullptr;
 RayMatterState GLOBAL_rayCasting_rayMatterState;
 
-RayMatter::RayMatter(ScreenBuffer *screen, Camera *camera) {
+RayMatter::RayMatter(ScreenBuffer *screen, const Camera *camera) {
     if ( screen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, camera);
         doDeleteScreen = false;
@@ -38,6 +38,10 @@ RayMatter::~RayMatter() {
     if ( pixelFilter != nullptr ) {
         delete pixelFilter;
     }
+}
+
+void
+RayMatter::defaults() {
 }
 
 void
@@ -130,13 +134,13 @@ iRayMatte(
     RadianceMethod * /*radianceMethod*/,
     RenderOptions * /*renderOptions*/)
 {
-    if ( rm != nullptr ) {
-        delete rm;
+    if ( globalRayMatter != nullptr ) {
+        delete globalRayMatter;
     }
-    rm = new RayMatter(nullptr, scene->camera);
-    rm->doMatting(scene->camera, scene->voxelGrid);
-    if ( ip && rm != nullptr ) {
-        rm->save(ip);
+    globalRayMatter = new RayMatter(nullptr, scene->camera);
+    globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
+    if ( ip && globalRayMatter != nullptr ) {
+        globalRayMatter->save(ip);
     }
 }
 
@@ -145,30 +149,30 @@ Returns false if there is no previous image and true if there is
 */
 static int
 reDisplay() {
-    if ( !rm ) {
+    if ( !globalRayMatter ) {
         return false;
     }
 
-    rm->display();
+    globalRayMatter->display();
     return true;
 }
 
 static int
 saveImage(ImageOutputHandle *imageOutputHandle) {
-    if ( !rm ) {
+    if ( !globalRayMatter ) {
         return false;
     }
 
-    rm->save(imageOutputHandle);
+    globalRayMatter->save(imageOutputHandle);
     return true;
 }
 
 static void
 terminate() {
-    if ( rm ) {
-        delete rm;
+    if ( globalRayMatter ) {
+        delete globalRayMatter;
     }
-    rm = nullptr;
+    globalRayMatter = nullptr;
 }
 
 static void

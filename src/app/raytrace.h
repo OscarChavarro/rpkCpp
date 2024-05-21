@@ -9,20 +9,20 @@
 #include "raycasting/common/Raytracer.h"
 
 #ifdef RAYTRACING_ENABLED
-    extern void mainRayTracingDefaults();
-    extern void mainSetRayTracingMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
+    extern void rayTraceDefaults();
+    extern void rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
 
     extern void
-    batchSaveRaytracingImage(
+    rayTraceSaveRaytracedImage(
         const char *fileName,
         FILE *fp,
         int isPipe,
         const Scene *scene,
-        const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
+        const RadianceMethod *,
+        const RenderOptions *);
 
     extern void
-    batchRayTrace(
+    rayTraceExecute(
         const char *filename,
         FILE *fp,
         int isPipe,

@@ -257,13 +257,13 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
 
             start_time = clock();
-            batchRayTrace(
-                nullptr,
-                nullptr,
-                false,
-                scene,
-                radianceMethod,
-                renderOptions);
+            rayTraceExecute(
+                    nullptr,
+                    nullptr,
+                    false,
+                    scene,
+                    radianceMethod,
+                    renderOptions);
 
             if ( globalBatchOptions.timings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
@@ -271,12 +271,12 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             }
 
             batchProcessFile(
-                globalBatchOptions.raytracingImageFileName,
-                "w",
-                batchSaveRaytracingImage,
-                scene,
-                radianceMethod,
-                renderOptions);
+                    globalBatchOptions.raytracingImageFileName,
+                    "w",
+                    rayTraceSaveRaytracedImage,
+                    scene,
+                    radianceMethod,
+                    renderOptions);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }

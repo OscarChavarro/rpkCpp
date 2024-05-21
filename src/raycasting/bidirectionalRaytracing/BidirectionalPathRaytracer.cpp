@@ -4,86 +4,22 @@
 
 #include <cstring>
 
-#include "common/error.h"
 #include "common/stratification.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "raycasting/raytracing/bsdfsampler.h"
-#include "raycasting/raytracing/samplertools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/raytracing/densitybuffer.h"
-#include "raycasting/raytracing/densitykernel.h"
-#include "raycasting/bidirectionalRaytracing/Spar.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
 // Persistent biDirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
-/**
-Bidirectional path tracing configuration structure.
-non persistently used each time an image is rendered
-*/
-class BidirectionalPathTracingConfiguration {
-  public:
-    BP_BASECONFIG *baseConfig;
-
-    // Configuration for tracing the paths
-    CSamplerConfig eyeConfig;
-    CSamplerConfig lightConfig;
-
-    // Internal vars
-    ScreenBuffer *screen;
-    double fluxToRadFactor;
-    int nx;
-    int ny;
-    double pdfLNE; // pdf for sampling light point separately
-
-    CDensityBuffer *dBuffer;
-    CDensityBuffer *dBuffer2;
-    float xSample;
-    float ySample;
-    SimpleRaytracingPathNode *eyePath;
-    SimpleRaytracingPathNode *lightPath;
-
-    // SPaR configuration
-    SparConfig sparConfig;
-    SparList *sparList;
-    bool deStoreHits;
-    ScreenBuffer *ref;
-    ScreenBuffer *dest;
-    ScreenBuffer *ref2;
-    ScreenBuffer *dest2;
-    CKernel2D kernel;
-    int scaleSamples;
-
-    BidirectionalPathTracingConfiguration():
-        baseConfig(),
-        eyeConfig(),
-        lightConfig(),
-        screen(),
-        fluxToRadFactor(),
-        nx(),
-        ny(),
-        pdfLNE(),
-        dBuffer(),
-        dBuffer2(),
-        xSample(),
-        ySample(),
-        eyePath(),
-        lightPath(),
-        sparConfig(),
-        sparList(),
-        deStoreHits(),
-        ref(),
-        dest(),
-        ref2(),
-        dest2(),
-        kernel(),
-        scaleSamples()
-    {}
-};
+void
+BidirectionalPathRaytracer::defaults() {
+}
 
 #define STRINGS_SIZE 300
 
@@ -1175,8 +1111,7 @@ biDirPathTerminate() {
     GLOBAL_rayTracing_biDirectionalPath.lastscreen = nullptr;
 }
 
-Raytracer
-GLOBAL_raytracing_biDirectionalPathMethod = {
+Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
     "Bidirectional Path Tracing",

@@ -229,7 +229,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
 
 #ifdef RAYTRACING_ENABLED
     Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
-    mainSetRayTracingMethod(nullptr, nullptr);
+    rayTraceSetMethod(nullptr, nullptr);
 #endif
 
     // Prepare if errors occur when reading the new scene will abort
@@ -368,7 +368,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     if ( currentRaytracer != nullptr ) {
         fprintf(stderr, "Initializing raytracing method ... \n");
 
-        mainSetRayTracingMethod(currentRaytracer, scene->lightSourcePatchList);
+        rayTraceSetMethod(currentRaytracer, scene->lightSourcePatchList);
 
         t = clock();
         fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
