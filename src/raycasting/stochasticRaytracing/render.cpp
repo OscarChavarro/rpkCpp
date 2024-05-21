@@ -166,7 +166,7 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
 }
 
 static void
-renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, const RenderOptions *renderOptions) {
+renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const RenderOptions *renderOptions) {
     ColorRgb col[3];
     Vector3D vert[3];
 
@@ -187,7 +187,7 @@ renderTriangle(Vertex *v1, Vertex *v2, Vertex *v3, const RenderOptions *renderOp
 }
 
 static void
-renderQuadrilateral(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const RenderOptions *renderOptions) {
+renderQuadrilateral(const Vertex *v1, const Vertex *v2, const Vertex *v3, const Vertex *v4, const RenderOptions *renderOptions) {
     ColorRgb col[4];
     Vector3D vert[4];
 
@@ -219,7 +219,7 @@ triangleTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, const RenderOptions *),
+    void (*doTriangleCallback)(const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
     int a;
@@ -269,8 +269,8 @@ quadrilateralTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
-    void (*doTriangleCallback)(Vertex *, Vertex *, Vertex *, const RenderOptions *),
-    void (*doQuadrilateralCallback)(Vertex *, Vertex *, Vertex *, Vertex *, const RenderOptions *),
+    void (*doTriangleCallback)(const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
+    void (*doQuadrilateralCallback)(const Vertex *, const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
     int a;
@@ -377,10 +377,9 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
     Vector3D vertices[4];
 
     if ( renderOptions->smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
-        Vertex *m[4];
-        int i;
-        int n;
-        for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
+        Vertex *m[4]{};
+        int n = 0;
+        for ( int i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
             if ( m[i] ) {
                 n++;
@@ -460,7 +459,6 @@ stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElemen
                 default:
                     logFatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
                              "can only handle triangular or quadrilateral elements");
-                    radiance.clear();
             }
         } else {
             // Flat shading
