@@ -4,40 +4,17 @@
 #include "raycasting/common/pathnode.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
-void
-FlagChain::init(const int paramLength, bool const paramSubtract) {
-    if ( chain ) {
-        delete[] chain;
-    }
-
-    if ( paramLength > 0 ) {
-        chain = new char[paramLength];
-    } else {
-        chain = nullptr;
-    }
-
-    this->length = paramLength;
-    this->subtract = paramSubtract;
-
-    for ( int i = 0; i < paramLength; i++ ) {
-        if ( chain != nullptr ) {
-            chain[i] = 0;
-        }
-    }
-}
-
 FlagChain::FlagChain(const int paramLength, const bool paramSubtract): length(), subtract() {
     chain = nullptr;
 
     init(paramLength, paramSubtract);
 }
 
-FlagChain::FlagChain(const FlagChain &c): length(), subtract() {
-    chain = nullptr;
+FlagChain::FlagChain(const FlagChain &c): chain(), length(), subtract() {
     init(c.length, c.subtract);
 
-    for ( int i = 0; i < length; i++ ) {
-        if ( chain != nullptr ) {
+    if ( c.chain != nullptr && chain != nullptr ) {
+        for ( int i = 0; i < length; i++ ) {
             chain[i] = c.chain[i];
         }
     }
@@ -45,6 +22,24 @@ FlagChain::FlagChain(const FlagChain &c): length(), subtract() {
 
 FlagChain::~FlagChain() {
     delete[] chain;
+}
+
+void
+FlagChain::init(const int inLength, bool const inSubtract) {
+    if ( chain != nullptr ) {
+        delete[] chain;
+    }
+
+    length = inLength;
+    subtract = inSubtract;
+    if ( inLength > 0 ) {
+        chain = new char[inLength];
+        for ( int i = 0; i < inLength; i++ ) {
+            chain[i] = 0;
+        }
+    } else {
+        chain = nullptr;
+    }
 }
 
 bool
@@ -77,8 +72,7 @@ FlagChainCompare(const FlagChain *c1,
 }
 
 FlagChain *
-FlagChainCombine(const FlagChain *c1,
-                             const FlagChain *c2) {
+FlagChainCombine(const FlagChain *c1, const FlagChain *c2) {
     // Determine if combinable
     int nrDifferent = 0;
     int diffIndex = 0;
@@ -565,7 +559,9 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
 
             for ( int i = 0; i < tokenCount; i++ ) {
                 if ( typeArray[i] == ' ' ) {
-                    c[pos] = flagArray[i];
+                    if ( c.chain != nullptr ) {
+                        c.chain[pos] = flagArray[i];
+                    }
                     pos++;
                 } else {
                     // typeArray[i] == '*' !  Choose a number
@@ -611,7 +607,7 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
 
                     // Set num flags
                     for ( int j = 0; j < num; j++ ) {
-                        c[pos] = flagArray[i];
+                        c.chain[pos] = flagArray[i];
                         pos++;
                     }
                 }

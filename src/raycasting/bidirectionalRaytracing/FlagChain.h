@@ -21,17 +21,12 @@ class FlagChain {
     int length;
     bool subtract;
 
-    void init(int paramLength, bool paramSubtract = false);
+    void init(int inLength, bool inSubtract = false);
 
     explicit FlagChain(int paramLength = 0, bool paramSubtract = false);
 
     FlagChain(const FlagChain &c); // Copy constructor
     ~FlagChain();
-
-    // Array access operator
-    inline char &operator[](const int index) const {
-        return chain[index];
-    }
 
     ColorRgb compute(CBiPath *path) const;
 };
