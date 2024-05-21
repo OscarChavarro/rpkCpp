@@ -273,7 +273,7 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             batchProcessFile(
                     globalBatchOptions.raytracingImageFileName,
                     "w",
-                    rayTraceSaveRaytracedImage,
+                    rayTraceSaveImage,
                     scene,
                     radianceMethod,
                     renderOptions);

@@ -15,6 +15,8 @@ ray-tracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRayt
 class RayTracer {
   public:
     virtual void defaults() = 0;
+
+    virtual ~RayTracer() {}
 };
 
 class Raytracer {

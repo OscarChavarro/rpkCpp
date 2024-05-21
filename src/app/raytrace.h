@@ -13,7 +13,7 @@
     extern void rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
 
     extern void
-    rayTraceSaveRaytracedImage(
+    rayTraceSaveImage(
         const char *fileName,
         FILE *fp,
         int isPipe,

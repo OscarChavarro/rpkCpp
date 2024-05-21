@@ -27,8 +27,8 @@ static Raytracer *globalRayTracingMethods[] = {
 };
 
 static void
-rayTraceMakeMethodsHelpMessage(char *str, int n) {
-    snprintf(str, n,
+rayTraceMakeMethodsHelpMessage(char *str) {
+    sprintf(str,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
          "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"
@@ -66,7 +66,7 @@ rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePat
 }
 
 void
-rayTraceSaveRaytracedImage(
+rayTraceSaveImage(
     const char *fileName,
     FILE *fp,
     int isPipe,
@@ -106,10 +106,9 @@ rayTraceSaveRaytracedImage(
 
 void
 rayTraceParseOptions(int *argc, char **argv) {
-    const int n = 1000;
-    char helpMessage[n];
+    char helpMessage[1000];
 
-    rayTraceMakeMethodsHelpMessage(helpMessage, n);
+    rayTraceMakeMethodsHelpMessage(helpMessage);
     rayTracingParseOptions(argc, argv, globalRayTracingMethods, helpMessage);
 }
 
