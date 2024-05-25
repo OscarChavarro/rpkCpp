@@ -9,8 +9,7 @@
 #include "raycasting/common/Raytracer.h"
 
 #ifdef RAYTRACING_ENABLED
-    extern void rayTraceDefaults(const Scene *scene);
-    extern void rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
+    extern RayTracer * rayTraceCreate(const Scene *scene, const char *rayTracerName);
 
     extern void
     rayTraceSaveImage(
@@ -30,7 +29,7 @@
         RadianceMethod *radianceMethod,
         RenderOptions *renderOptions);
 
-    extern void rayTraceParseOptions(int *argc, char **argv);
+    extern void rayTraceParseOptions(int *argc, char **argv, char *rayTracerName);
 #endif
 
 #endif

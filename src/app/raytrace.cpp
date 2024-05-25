@@ -15,9 +15,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-// Raytracing defaults
-static char globalRayTracerName[1000];
-
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
     &GLOBAL_raytracing_biDirectionalPathMethod,
@@ -37,13 +34,41 @@ rayTraceMakeMethodsHelpMessage(char *str) {
          "\t         RayMatting           Ray Matting");
 }
 
+/**
+This routine sets the current raytracing method to be used
+*/
 static void
-rayTracePrepareRayTracer(const char *rayTracerName, const Scene *scene) {
+rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
+    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+        GLOBAL_raytracer_activeRaytracer->Terminate();
+    }
+
+    GLOBAL_raytracer_activeRaytracer = newMethod;
+    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
+        GLOBAL_raytracer_activeRaytracer->Initialize(lightSourcePatches);
+    }
+}
+
+static RayTracer *
+rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
+    RayTracer *newRaytracer;
+    if ( strcmp(rayTracerName, "RayMatting") == 0 ) {
+        newRaytracer = new RayMatter(nullptr, scene->camera);
+    } else if ( strcmp(rayTracerName, "RayCasting") == 0 ) {
+        newRaytracer = new RayCaster(nullptr, scene->camera);
+    } else if ( strcmp(rayTracerName, "BidirectionalPathTracing") == 0 ) {
+        newRaytracer = new BidirectionalPathRaytracer();
+    } else if ( strcmp(rayTracerName, "StochasticRaytracing") == 0 ) {
+        newRaytracer = new StochasticRaytracer();
+    } else {
+        newRaytracer = nullptr;
+    }
+
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         if ( strncasecmp(rayTracerName, method->shortName, method->nameAbbrev) == 0 ) {
             rayTraceSetMethod(method, scene->lightSourcePatchList);
-            return;
+            return newRaytracer;
         }
     }
 
@@ -52,31 +77,22 @@ rayTracePrepareRayTracer(const char *rayTracerName, const Scene *scene) {
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
     }
+
+    return newRaytracer;
 }
 
-void
-rayTraceDefaults(const Scene *scene) {
-    rayTracePrepareRayTracer(globalRayTracerName, scene);
+RayTracer *
+rayTraceCreate(const Scene *scene, const char *rayTracerName) {
+    RayTracer *rayTracer = rayTraceCreateRayTracerFromName(rayTracerName, scene);
 
-    Raytracer *method = GLOBAL_raytracer_activeRaytracer;
+    const Raytracer *method = GLOBAL_raytracer_activeRaytracer;
     if ( method != nullptr && method->Defaults != nullptr ) {
         method->Defaults();
     }
-}
-
-/**
-This routine sets the current raytracing method to be used
-*/
-void
-rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Terminate();
+    if ( rayTracer != nullptr ) {
+        rayTracer->defaults();
     }
-
-    GLOBAL_raytracer_activeRaytracer = newMethod;
-    if ( GLOBAL_raytracer_activeRaytracer ) {
-        GLOBAL_raytracer_activeRaytracer->Initialize(lightSourcePatches);
-    }
+    return rayTracer;
 }
 
 void
@@ -119,12 +135,12 @@ rayTraceSaveImage(
 }
 
 void
-rayTraceParseOptions(int *argc, char **argv) {
+rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
     char helpMessage[1000];
 
     rayTraceMakeMethodsHelpMessage(helpMessage);
-    strcpy(globalRayTracerName, "none");
-    rayTracingParseOptions(argc, argv, helpMessage, globalRayTracerName);
+    strcpy(rayTracerName, "none");
+    rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
 }
 
 void

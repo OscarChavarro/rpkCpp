@@ -24,7 +24,8 @@ Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
 RpkApplication::RpkApplication():
     imageOutputWidth(),
     imageOutputHeight(),
-    selectedRadianceMethod()
+    selectedRadianceMethod(),
+    rayTracer()
 {
     scene = new Scene();
     mgfContext = new MgfContext();
@@ -35,6 +36,9 @@ RpkApplication::~RpkApplication() {
     delete scene;
     delete mgfContext;
     delete renderOptions;
+    if ( rayTracer != nullptr ) {
+        delete rayTracer;
+    }
 }
 
 /**
@@ -56,7 +60,7 @@ RpkApplication::mainInitApplication() {
 Processes command line arguments
 */
 void
-RpkApplication::mainParseOptions(int *argc, char **argv) {
+RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName) {
     commandLineGeneralProgramParseOptions(
         argc,
         argv,
@@ -70,7 +74,7 @@ RpkApplication::mainParseOptions(int *argc, char **argv) {
     radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
 #ifdef RAYTRACING_ENABLED
-    rayTraceParseOptions(argc, argv);
+    rayTraceParseOptions(argc, argv, rayTracerName);
 #endif
 
     generalParseOptions(argc, argv);
@@ -95,12 +99,12 @@ RpkApplication::mainCreateOffscreenCanvasWindow() {
 }
 
 void
-RpkApplication::executeRendering() {
+RpkApplication::executeRendering(char *rayTracerName) {
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
-        rayTraceDefaults(scene);
+        rayTracer = rayTraceCreate(scene, rayTracerName);
 
         int (*renderCallback)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
@@ -131,7 +135,8 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mainInitApplication();
 
     // 2. Set model elements from command line options
-    mainParseOptions(&argc, argv);
+    char rayTracerName[256];
+    mainParseOptions(&argc, argv, rayTracerName);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;
@@ -140,7 +145,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
 
     // 4. Run main radiosity simulation and export result
-    executeRendering();
+    executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
     //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);

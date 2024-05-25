@@ -2,6 +2,7 @@
 #define __RPK_APPLICATION__
 
 #include "io/mgf/MgfContext.h"
+#include "raycasting/common/Raytracer.h"
 #include "scene/Scene.h"
 
 class RpkApplication {
@@ -13,11 +14,12 @@ class RpkApplication {
     MgfContext *mgfContext;
     RadianceMethod *selectedRadianceMethod;
     RenderOptions *renderOptions;
+    RayTracer *rayTracer;
 
     void mainInitApplication();
-    void mainParseOptions(int *argc, char **argv);
+    void mainParseOptions(int *argc, char **argv, char *rayTracerName);
     void mainCreateOffscreenCanvasWindow();
-    void executeRendering();
+    void executeRendering(char *rayTracerName);
     static void freeMemory(MgfContext *mgfContext);
 
   public:
