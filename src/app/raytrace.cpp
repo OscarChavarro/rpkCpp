@@ -16,7 +16,6 @@
 #ifdef RAYTRACING_ENABLED
 
 // Raytracing defaults
-static const char* DEFAULT_RAYTRACING_METHOD = "stochastic";
 static char globalRayTracerName[1000];
 
 static Raytracer *globalRayTracingMethods[] = {
@@ -60,13 +59,8 @@ rayTraceDefaults(const Scene *scene) {
     rayTracePrepareRayTracer(globalRayTracerName, scene);
 
     Raytracer *method = GLOBAL_raytracer_activeRaytracer;
-    if ( method != nullptr ) {
-        if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-            rayTraceSetMethod(method, nullptr);
-        }
-        if ( method->Defaults != nullptr ) {
-            method->Defaults();
-        }
+    if ( method != nullptr && method->Defaults != nullptr ) {
+        method->Defaults();
     }
 }
 
@@ -129,6 +123,7 @@ rayTraceParseOptions(int *argc, char **argv) {
     char helpMessage[1000];
 
     rayTraceMakeMethodsHelpMessage(helpMessage);
+    strcpy(globalRayTracerName, "none");
     rayTracingParseOptions(argc, argv, helpMessage, globalRayTracerName);
 }
 

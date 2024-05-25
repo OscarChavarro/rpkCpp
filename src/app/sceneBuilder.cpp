@@ -357,19 +357,6 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-    last = t;
-
-#ifdef RAYTRACING_ENABLED
-    Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
-    if ( currentRaytracer != nullptr ) {
-        fprintf(stderr, "Initializing raytracing method ... \n");
-
-        rayTraceSetMethod(currentRaytracer, scene->lightSourcePatchList);
-
-        t = clock();
-        fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
-    }
-#endif
 
     // Remove possible render hooks
     removeAllRenderHooks();
