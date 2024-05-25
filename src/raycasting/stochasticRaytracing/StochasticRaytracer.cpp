@@ -706,7 +706,9 @@ stochasticRayTracerTerminate() {
 static void
 stochasticRayTracerDefaults() {
     // Normal
-    GLOBAL_raytracing_state.samplesPerPixel = 1;
+    if ( GLOBAL_raytracing_state.samplesPerPixel == 0 ) {
+        GLOBAL_raytracing_state.samplesPerPixel = 1;
+    }
     GLOBAL_raytracing_state.progressiveTracing = true;
 
     GLOBAL_raytracing_state.doFrameCoherent = false;

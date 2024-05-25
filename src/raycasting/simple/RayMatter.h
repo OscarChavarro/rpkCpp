@@ -28,7 +28,7 @@ class RayMatter final : public RayTracer {
 
   public:
     explicit RayMatter(ScreenBuffer *screen, const Camera *camera);
-    ~RayMatter();
+    ~RayMatter() final;
 
     void createFilter();
     void doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid);

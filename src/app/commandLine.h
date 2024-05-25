@@ -30,8 +30,8 @@ extern void
 rayTracingParseOptions(
     int *argc,
     char **argv,
-    Raytracer *rayTracingMethods[],
-    char raytracingMethodsString[]);
+    char raytracingMethodsString[],
+    char *rayTracerName);
 
 extern void
 galerkinParseOptions(int *argc, char **argv);

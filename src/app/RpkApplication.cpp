@@ -46,10 +46,6 @@ RpkApplication::mainInitApplication() {
     toneMapDefaults();
     radianceDefaults(nullptr, scene);
 
-#ifdef RAYTRACING_ENABLED
-    rayTraceDefaults();
-#endif
-
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
     // different
@@ -104,6 +100,8 @@ RpkApplication::executeRendering() {
     mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
+        rayTraceDefaults(scene);
+
         int (*renderCallback)() = nullptr;
         if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
             renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;

@@ -9,7 +9,7 @@
 #include "raycasting/common/Raytracer.h"
 
 #ifdef RAYTRACING_ENABLED
-    extern void rayTraceDefaults();
+    extern void rayTraceDefaults(const Scene *scene);
     extern void rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches);
 
     extern void

@@ -17,6 +17,7 @@
 
 // Raytracing defaults
 static const char* DEFAULT_RAYTRACING_METHOD = "stochastic";
+static char globalRayTracerName[1000];
 
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
@@ -37,10 +38,29 @@ rayTraceMakeMethodsHelpMessage(char *str) {
          "\t         RayMatting           Ray Matting");
 }
 
-void
-rayTraceDefaults() {
+static void
+rayTracePrepareRayTracer(const char *rayTracerName, const Scene *scene) {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
+        if ( strncasecmp(rayTracerName, method->shortName, method->nameAbbrev) == 0 ) {
+            rayTraceSetMethod(method, scene->lightSourcePatchList);
+            return;
+        }
+    }
+
+    if ( strncasecmp(rayTracerName, "none", 4) == 0 ) {
+        rayTraceSetMethod(nullptr, scene->lightSourcePatchList);
+    } else {
+        logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
+    }
+}
+
+void
+rayTraceDefaults(const Scene *scene) {
+    rayTracePrepareRayTracer(globalRayTracerName, scene);
+
+    Raytracer *method = GLOBAL_raytracer_activeRaytracer;
+    if ( method != nullptr ) {
         if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
             rayTraceSetMethod(method, nullptr);
         }
@@ -109,7 +129,7 @@ rayTraceParseOptions(int *argc, char **argv) {
     char helpMessage[1000];
 
     rayTraceMakeMethodsHelpMessage(helpMessage);
-    rayTracingParseOptions(argc, argv, globalRayTracingMethods, helpMessage);
+    rayTracingParseOptions(argc, argv, helpMessage, globalRayTracerName);
 }
 
 void

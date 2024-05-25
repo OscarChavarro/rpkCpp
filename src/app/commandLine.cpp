@@ -40,8 +40,6 @@ static int globalOutputImageWidth = 1920;
 static int globalOutputImageHeight = 1080;
 static Camera globalCamera;
 
-static java::ArrayList<Patch *> *globalLightSourcePatches;
-
 static void
 mainForceOneSidedOption(void *value) {
     globalFileOptionsForceOneSidedSurfaces = *((int *) value);
@@ -736,26 +734,13 @@ biDirectionalPathParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
 }
 
-static Raytracer **globalRayTracingMethods;
 static char *globalRaytracingMethodsString;
+static char *globalRayTracerName;
 
 static void
 mainRayTracingOption(void *value) {
-    char *name = *(char **) value;
-
-    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        Raytracer *method = *window;
-        if ( strncasecmp(name, method->shortName, method->nameAbbrev) == 0 ) {
-            rayTraceSetMethod(method, globalLightSourcePatches);
-            return;
-        }
-    }
-
-    if ( strncasecmp(name, "none", 4) == 0 ) {
-        rayTraceSetMethod(nullptr, globalLightSourcePatches);
-    } else {
-        logError(nullptr, "Invalid raytracing method name '%s'", name);
-    }
+    const char *name = *(char **) value;
+    strcpy(globalRayTracerName, name);
 }
 
 static CommandLineOptionDescription globalRaytracingOptions[] = {
@@ -764,8 +749,12 @@ static CommandLineOptionDescription globalRaytracingOptions[] = {
 };
 
 void
-rayTracingParseOptions(int *argc, char **argv, Raytracer *rayTracingMethods[], char raytracingMethodsString[]) {
-    globalRayTracingMethods = rayTracingMethods;
+rayTracingParseOptions(
+    int *argc,
+    char **argv,
+    char raytracingMethodsString[],
+    char *rayTracerName) {
+    globalRayTracerName = rayTracerName;
     globalRaytracingMethodsString = raytracingMethodsString;
     parseGeneralOptions(globalRaytracingOptions, argc, argv);
 }
