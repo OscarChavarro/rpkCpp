@@ -66,6 +66,4 @@ class StochasticRayTracingState {
 
 extern StochasticRayTracingState GLOBAL_raytracing_state;
 
-void stochasticRayTracerDefaults();
-
 #endif

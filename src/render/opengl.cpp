@@ -1,5 +1,3 @@
-#include <cstdlib>
-
 #include <GL/glu.h>
 #include <GL/osmesa.h>
 

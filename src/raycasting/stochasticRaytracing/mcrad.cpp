@@ -11,7 +11,6 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "app/options.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 #include "skin/Vertex.h"

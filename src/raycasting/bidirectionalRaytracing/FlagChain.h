@@ -13,7 +13,7 @@ A chain list is a set of scattering modes
 #include "common/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/pathnode.h"
-#include "raycasting/raytracing/bipath.h"
+#include "raycasting/bidirectionalRaytracing/bipath.h"
 
 class FlagChain {
   public:

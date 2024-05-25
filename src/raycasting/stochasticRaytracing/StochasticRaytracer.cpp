@@ -703,6 +703,40 @@ stochasticRayTracerTerminate() {
     }
 }
 
+static void
+stochasticRayTracerDefaults() {
+    // Normal
+    GLOBAL_raytracing_state.samplesPerPixel = 1;
+    GLOBAL_raytracing_state.progressiveTracing = true;
+
+    GLOBAL_raytracing_state.doFrameCoherent = false;
+    GLOBAL_raytracing_state.doCorrelatedSampling = false;
+    GLOBAL_raytracing_state.baseSeed = 0xFE062134;
+
+    GLOBAL_raytracing_state.radMode = STORED_NONE;
+
+    GLOBAL_raytracing_state.nextEvent = true;
+    GLOBAL_raytracing_state.nextEventSamples = 1;
+    GLOBAL_raytracing_state.lightMode = ALL_LIGHTS;
+
+    GLOBAL_raytracing_state.backgroundDirect = false;
+    GLOBAL_raytracing_state.backgroundIndirect = true;
+    GLOBAL_raytracing_state.backgroundSampling = false;
+
+    GLOBAL_raytracing_state.scatterSamples = 1;
+    GLOBAL_raytracing_state.differentFirstDG = false;
+    GLOBAL_raytracing_state.firstDGSamples = 36;
+    GLOBAL_raytracing_state.separateSpecular = false;
+
+    GLOBAL_raytracing_state.reflectionSampling = BRDF_SAMPLING;
+
+    GLOBAL_raytracing_state.minPathDepth = 5;
+    GLOBAL_raytracing_state.maxPathDepth = 7;
+
+    // Common
+    GLOBAL_raytracing_state.lastScreen = nullptr;
+}
+
 Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",

@@ -41,11 +41,11 @@ void
 rayTraceDefaults() {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
+        if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
+            rayTraceSetMethod(method, nullptr);
+        }
         if ( method->Defaults != nullptr ) {
             method->Defaults();
-            if ( strncasecmp(DEFAULT_RAYTRACING_METHOD, method->shortName, method->nameAbbrev) == 0 ) {
-                rayTraceSetMethod(method, nullptr);
-            }
         }
     }
 }

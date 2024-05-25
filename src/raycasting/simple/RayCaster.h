@@ -28,7 +28,7 @@ class RayCaster final : public RayTracer {
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera);
-    virtual ~RayCaster();
+    ~RayCaster() final;
     void render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);

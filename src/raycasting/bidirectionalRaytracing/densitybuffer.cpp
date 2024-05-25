@@ -1,7 +1,7 @@
 #include "java/lang/Math.h"
 #include "common/error.h"
-#include "raycasting/raytracing/densitybuffer.h"
-#include "raycasting/raytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/densitybuffer.h"
+#include "raycasting/bidirectionalRaytracing/densitykernel.h"
 
 #ifdef RAYTRACING_ENABLED
 const int DHL_ARRAY_SIZE = 20;

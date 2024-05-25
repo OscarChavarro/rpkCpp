@@ -6,13 +6,11 @@ Galerkin radiosity, with the following variants:
 - With potential-driven or not
 */
 
-#include <cstring>
 #include <ctime>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "app/options.h"
 #include "io/writevrml.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"

@@ -7,9 +7,9 @@
 
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/samplertools.h"
-#include "raycasting/raytracing/bidiroptions.h"
-#include "raycasting/raytracing/densitybuffer.h"
-#include "raycasting/raytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/densitybuffer.h"
+#include "raycasting/bidirectionalRaytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/bidiroptions.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
 /**

@@ -140,17 +140,16 @@ set(MAIN_SRC
     src/raycasting/common/TentFilter.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/raytracing/bidiroptions.cpp
     src/raycasting/raytracing/screeniterate.cpp
     src/raycasting/raytracing/specularsampler.cpp
     src/raycasting/raytracing/sampler.cpp
     src/raycasting/raytracing/eyesampler.cpp
-    src/raycasting/raytracing/densitybuffer.cpp
-    src/raycasting/raytracing/bipath.cpp
     src/raycasting/raytracing/bsdfsampler.cpp
     src/raycasting/raytracing/samplertools.cpp
-    src/raycasting/raytracing/densitykernel.cpp
     src/raycasting/raytracing/pixelsampler.cpp
+    src/raycasting/bidirectionalRaytracing/densitybuffer.cpp
+    src/raycasting/bidirectionalRaytracing/densitykernel.cpp
+    src/raycasting/bidirectionalRaytracing/bipath.cpp
     src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/bidirectionalRaytracing/LightSampler.cpp
     src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp

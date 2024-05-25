@@ -18,7 +18,7 @@ class RpkApplication {
     void mainParseOptions(int *argc, char **argv);
     void mainCreateOffscreenCanvasWindow();
     void executeRendering();
-    void freeMemory();
+    static void freeMemory(MgfContext *mgfContext);
 
   public:
     RpkApplication();

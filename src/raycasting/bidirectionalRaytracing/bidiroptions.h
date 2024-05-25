@@ -68,6 +68,4 @@ class BIDIRPATH_STATE {
 // Global state of bidirectional path tracing
 extern BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
-void biDirectionalPathDefaults();
-
 #endif

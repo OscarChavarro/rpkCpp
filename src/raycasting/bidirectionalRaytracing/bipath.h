@@ -5,11 +5,11 @@ Stores eyePath and lightPath, lengths and end nodes
 #ifndef __BI_PATH__
 #define __BI_PATH__
 
-#include "raycasting/raytracing/bidiroptions.h"
 #include "raycasting/common/pathnode.h"
+#include "raycasting/bidirectionalRaytracing/bidiroptions.h"
 
 class CBiPath {
-public:
+  public:
     SimpleRaytracingPathNode *m_eyePath;
     SimpleRaytracingPathNode *m_eyeEndNode;
     int m_eyeSize;
@@ -28,23 +28,22 @@ public:
     // Constructor
     CBiPath();
 
-    void Init();
+    void init();
 
     // Some interesting methods, only to be called for
     // valid bidirectional paths
-    ColorRgb EvalRadiance();
+    ColorRgb evalRadiance() const;
 
     // Evaluate accumulated PDF of a bipath (no weighting)
-    double EvalPDFAcc();
+    double evalPdfAcc() const;
 
     // Evaluate weight/pdf for a bipath, taking into account other pdf's
-    // depending on the config (bcfg).
+    // depending on the config (baseConfig).
     float
-    EvalPDFAndWeight(
-        const BP_BASECONFIG *bcfg,
+    evalPdfAndWeight(
+        const BP_BASECONFIG *baseConfig,
         float *pPdf = nullptr,
-        float *pWeight = nullptr);
-
+        float *pWeight = nullptr) const;
 };
 
 #endif

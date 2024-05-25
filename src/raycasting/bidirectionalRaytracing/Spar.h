@@ -8,7 +8,7 @@ Specification of the Stored Partial Radiance class
 #include "common/ColorRgb.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/common/pathnode.h"
-#include "raycasting/raytracing/bipath.h"
+#include "raycasting/bidirectionalRaytracing/bipath.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
 #define MAX_PATH_GROUPS 2

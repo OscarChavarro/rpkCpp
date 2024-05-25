@@ -1,13 +1,12 @@
-#include "options.h"
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "io/mgf/readmgf.h"
-#include "render/render.h"
 #include "render/opengl.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
 #include "scene/Cluster.h"
+#include "app/options.h"
 #include "app/commandLine.h"
 #include "app/sceneBuilder.h"
 #include "app/radiance.h"
@@ -116,7 +115,7 @@ RpkApplication::executeRendering() {
 }
 
 void
-RpkApplication::freeMemory() {
+RpkApplication::freeMemory(MgfContext *mgfContext) {
     deleteOptionsMemory();
     mgfFreeMemory(mgfContext);
     galerkinFreeMemory();
@@ -146,10 +145,10 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering();
 
     // X. Interactive visual debug GUI tool
-    //executeGlutGui(argc, argv, scene, mgfContext.radianceMethod, &renderOptions, freeMemory, mgfContext);
+    //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
 
     // 5. Free used memory
-    freeMemory();
+    freeMemory(mgfContext);
 
     return 0;
 }

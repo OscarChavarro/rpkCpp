@@ -1,25 +1,38 @@
-/*
- * bipath.C: CBiPath method implementation
- */
+/**
+CBiPath method implementation
+*/
 
-#include "common/error.h"
-#include "raycasting/raytracing/bipath.h"
+#include "raycasting/bidirectionalRaytracing/bipath.h"
 
-// Constructor
-CBiPath::CBiPath() {
-    Init();
+CBiPath::CBiPath():
+    m_eyePath(),
+    m_eyeEndNode(),
+    m_eyeSize(),
+    m_lightPath(),
+    m_lightEndNode(),
+    m_lightSize(),
+    m_pdfLNE(),
+    m_dirEL(),
+    m_dirLE(),
+    m_geomConnect()
+{
+    init();
 }
 
-void CBiPath::Init() {
+void
+CBiPath::init() {
     // Empty path, no allocated nodes.
     m_lightPath = m_lightEndNode = nullptr;
     m_eyePath = m_eyeEndNode = nullptr;
     m_eyeSize = m_lightSize = 0;
 }
 
-// Evaluate the radiance contribution of a bipath. Only Function
-// evaluation, no pdf involved
-ColorRgb CBiPath::EvalRadiance() {
+/**
+Evaluate the radiance contribution of a bipath. Only Function
+evaluation, no pdf involved
+*/
+ColorRgb
+CBiPath::evalRadiance() const {
     ColorRgb col;
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
@@ -50,8 +63,11 @@ ColorRgb CBiPath::EvalRadiance() {
     return col;
 }
 
-// Evaluate accumulated PDF of a bipath (no weighting)
-double CBiPath::EvalPDFAcc() {
+/**
+Evaluate accumulated PDF of a bipath (no weighting)
+*/
+double
+CBiPath::evalPdfAcc() const {
     SimpleRaytracingPathNode *node;
     double pdfAcc = 1.0;
     int i;
@@ -74,12 +90,12 @@ double CBiPath::EvalPDFAcc() {
 }
 
 // Evaluate weight/pdf for a bipath, taking into account other pdf's
-// depending on the config (bcfg).
+// depending on the config (baseConfig).
 float
-CBiPath::EvalPDFAndWeight(
-    const BP_BASECONFIG *bcfg,
+CBiPath::evalPdfAndWeight(
+    const BP_BASECONFIG *baseConfig,
     float *pPdf,
-    float *pWeight)
+    float *pWeight) const
 {
     int currentConnect;
     double pdfAcc;
@@ -94,7 +110,7 @@ CBiPath::EvalPDFAndWeight(
 
     // First we compute the pdf for generating this path
 
-    pdfAcc = EvalPDFAcc();
+    pdfAcc = evalPdfAcc();
 
     // now we compute the weight using the recurrence relation (see Veach PhD)
 
@@ -106,9 +122,9 @@ CBiPath::EvalPDFAndWeight(
     currentPdf = pdfAcc; // Basis for subsequent pdf computations
 
     if ( m_eyeSize == 1 ) {
-        c = (double)bcfg->totalSamples; // N.E. to the eye
+        c = (double)baseConfig->totalSamples; // N.E. to the eye
     } else {
-        c = bcfg->samplesPerPixel;
+        c = baseConfig->samplesPerPixel;
     }
 
     if ( m_lightSize == 1 ) {
@@ -133,15 +149,15 @@ CBiPath::EvalPDFAndWeight(
         newPdf = currentPdf * nextNode->m_pdfFromNext / nextNode->m_pdfFromPrev;
 
         if ( currentConnect - 1 >=
-             bcfg->minimumPathDepth ) {
+             baseConfig->minimumPathDepth ) {
             // At this light depth, RR is applied
             newPdf *= nextNode->m_rrPdfFromNext;
         }
 
         if ( currentConnect == 1 ) {
-            c = (double)bcfg->totalSamples; // N.E. to the eye
+            c = (double)baseConfig->totalSamples; // N.E. to the eye
         } else {
-            c = bcfg->samplesPerPixel;
+            c = baseConfig->samplesPerPixel;
         }
 
         if ( currentConnect == m_eyeSize + m_lightSize - 1 ) {
@@ -170,15 +186,15 @@ CBiPath::EvalPDFAndWeight(
         newPdf = currentPdf * nextNode->m_pdfFromNext / nextNode->m_pdfFromPrev;
 
         if ( m_eyeSize + m_lightSize - 2 - currentConnect >=
-             bcfg->minimumPathDepth ) {
+             baseConfig->minimumPathDepth ) {
             // At this light depth, RR is applied
             newPdf *= nextNode->m_rrPdfFromNext;
         }
 
         if ( currentConnect == 1 ) {
-            c = (double)bcfg->totalSamples; // N.E. to the eye
+            c = (double)baseConfig->totalSamples; // N.E. to the eye
         } else {
-            c = bcfg->samplesPerPixel;
+            c = baseConfig->samplesPerPixel;
         }
 
         if ( currentConnect == m_eyeSize + m_lightSize - 1 ) {

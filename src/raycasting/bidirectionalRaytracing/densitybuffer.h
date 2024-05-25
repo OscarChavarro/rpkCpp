@@ -9,7 +9,7 @@ Density estimation on screen
 #include "common/linealAlgebra/Vector2D.h"
 #include "common/ColorRgb.h"
 #include "render/ScreenBuffer.h"
-#include "raycasting/raytracing/bidiroptions.h"
+#include "raycasting/bidirectionalRaytracing/bidiroptions.h"
 
 /**
 Class CDensityBuffer : class for storing sample hits on screen

@@ -5,7 +5,7 @@ Olivier Ceulemans.
 */
 
 #include "java/lang/Math.h"
-#include "raycasting/raytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/densitykernel.h"
 
 #ifdef RAYTRACING_ENABLED
 CKernel2D::CKernel2D() {

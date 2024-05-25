@@ -14,7 +14,7 @@
 #include "raycasting/common/raytools.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/pathnode.h"
-#include "raycasting/raytracing/bipath.h"
+#include "raycasting/bidirectionalRaytracing/bipath.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
@@ -239,9 +239,9 @@ photonMapDoComputePixelFluxEstimate(
     bp->m_dirLE.scaledCopy(-1, bp->m_dirEL);
 
     // Evaluate radiance and probabilityDensityFunction and weight
-    f = bp->EvalRadiance();
+    f = bp->evalRadiance();
 
-    float factor = 1.0f / (float)bp->EvalPDFAcc();
+    float factor = 1.0f / (float) bp->evalPdfAcc();
 
     f.scale(factor); // Flux estimate
 

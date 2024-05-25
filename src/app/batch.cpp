@@ -4,12 +4,12 @@
 
 #include "java/util/ArrayList.txx"
 #include "io/writevrml.h"
-#include "options.h"
 #include "render/canvas.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 #include "IMAGE/imagec.h"
+#include "app/options.h"
 #include "app/commandLine.h"
 #include "app/BatchOptions.h"
 #include "app/batch.h"
@@ -179,7 +179,9 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
         fflush(stderr);
 
         bool done = false;
-        for ( int iterationNumber = 0; !done; iterationNumber++ ) {
+        for ( int iterationNumber = 0;
+              iterationNumber < globalBatchOptions.iterations && !done;
+              iterationNumber++ ) {
             printf("-----------------------------------\n"
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
                    "-----------------------------------\n\n", iterationNumber);
@@ -238,10 +240,6 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
 
             fflush(stdout);
             fflush(stderr);
-
-            if ( globalBatchOptions.iterations > 0 && iterationNumber >= globalBatchOptions.iterations ) {
-                done = true;
-            }
         }
     } else {
         printf("(No world-space radiance computations are being done)\n");

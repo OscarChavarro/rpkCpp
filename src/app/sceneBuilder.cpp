@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "options.h"
 #include "common/Statistics.h"
 #include "IMAGE/tonemap/tonemapping.h"
 #include "scene/Scene.h"
@@ -11,6 +10,7 @@
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
 #include "scene/Cluster.h"
+#include "app/options.h"
 #include "app/radiance.h"
 #include "app/sceneBuilder.h"
 
@@ -227,11 +227,6 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     // init compute method
     setRadianceMethod(nullptr, scene);
 
-#ifdef RAYTRACING_ENABLED
-    Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
-    rayTraceSetMethod(nullptr, nullptr);
-#endif
-
     // Prepare if errors occur when reading the new scene will abort
     scene->geometryList = nullptr;
 
@@ -365,6 +360,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     last = t;
 
 #ifdef RAYTRACING_ENABLED
+    Raytracer *currentRaytracer = GLOBAL_raytracer_activeRaytracer;
     if ( currentRaytracer != nullptr ) {
         fprintf(stderr, "Initializing raytracing method ... \n");
 
