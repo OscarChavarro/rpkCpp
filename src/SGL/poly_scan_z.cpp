@@ -70,7 +70,7 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
 
     int offset = y * sglContext->width + lx;
     SGL_PIXEL *pix = sglContext->frameBuffer + offset;
-    Patch **patch = sglContext->patchBuffer + offset;
+    const Patch **patch = (const Patch **)(sglContext->patchBuffer + offset);
 
     SGL_Z_VALUE *zValue = sglContext->depthBuffer + offset;
     for ( int x = lx; x <= rx; x++ ) {

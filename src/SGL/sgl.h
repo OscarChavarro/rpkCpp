@@ -38,7 +38,7 @@ public:
     Element **elementBuffer;
 
     SGL_PIXEL currentPixel;
-    Patch *currentPatch;
+    const Patch *currentPatch;
     Element *currentElement;
 
     SGL_Z_VALUE *depthBuffer; // Z buffer

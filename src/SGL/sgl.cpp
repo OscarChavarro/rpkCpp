@@ -176,7 +176,7 @@ SGL_CONTEXT::sglSetColor(SGL_PIXEL col) {
 void
 SGL_CONTEXT::sglSetPatch(const Patch *patch) {
     pixelData = PixelContent::PATCH_POINTER;
-    currentPatch = (Patch *)patch;
+    currentPatch = patch;
 }
 
 void
