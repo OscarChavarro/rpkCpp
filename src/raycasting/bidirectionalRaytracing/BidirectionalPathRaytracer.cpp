@@ -21,6 +21,12 @@ char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
 // Persistent biDirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
+BidirectionalPathRaytracer::BidirectionalPathRaytracer() {
+}
+
+BidirectionalPathRaytracer::~BidirectionalPathRaytracer() {
+}
+
 void
 BidirectionalPathRaytracer::defaults() {
     GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel = 1;
@@ -63,6 +69,145 @@ BidirectionalPathRaytracer::initialize(const java::ArrayList<Patch *> *lightPatc
         delete GLOBAL_lightList;
     }
     GLOBAL_lightList = new LightList(lightPatches);
+}
+
+/**
+Raytrace the current scene as seen with the current camera. If fp
+is not a nullptr pointer, write the ray traced image to the file
+pointed to by 'fp'
+*/
+void
+BidirectionalPathRaytracer::execute(
+    ImageOutputHandle *ip,
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) const
+{
+    // Install the samplers to be used in the state
+    BidirectionalPathTracingConfiguration config;
+
+    // Copy base config (so that rendering is independent of GUI)
+    config.baseConfig = new BP_BASECONFIG;
+    *(config.baseConfig) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
+    config.baseConfig->totalSamples =
+        GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel * scene->camera->xSize * scene->camera->ySize;
+
+    config.dBuffer = nullptr;
+
+    // Eye and light path sampling config
+    config.eyeConfig.pointSampler = new CEyeSampler;
+    config.eyeConfig.dirSampler = new CPixelSampler;
+    config.eyeConfig.surfaceSampler = new CBsdfSampler;
+    config.eyeConfig.surfaceSampler->SetComputeFromNextPdf(true);
+    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights ) {
+        config.eyeConfig.neSampler = new ImportantLightSampler;
+    } else {
+        config.eyeConfig.neSampler = new UniformLightSampler;
+    }
+
+    config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth < 1 ) {
+        fprintf(stderr, "Maximum Eye Path Length too small (<1), using 1\n");
+        config.eyeConfig.maxDepth = 1;
+    } else {
+        config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth;
+    }
+
+    config.lightConfig.pointSampler = new UniformLightSampler;
+    config.lightConfig.dirSampler = new LightDirSampler;
+    config.lightConfig.surfaceSampler = new CBsdfSampler;
+    config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
+    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
+
+    config.lightConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
+    config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth;
+    config.lightConfig.neSampler = nullptr; // eyeSampler ?
+
+    config.screen = new ScreenBuffer(nullptr, scene->camera);
+    config.screen->setFactor(1.0); // We're storing plain radiance
+
+    config.eyePath = nullptr;
+    config.lightPath = nullptr;
+
+    // SPaR configuration
+
+    LeSpar *leSpar = nullptr;
+    LDSpar *ldSpar = nullptr;
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
+        SparConfig *sc = &config.sparConfig;
+
+        sc->baseConfig = config.baseConfig; // Share base config options
+
+        config.sparList = new SparList;
+
+        leSpar = new LeSpar;
+        ldSpar = new LDSpar;
+
+        sc->leSpar = leSpar;
+        sc->ldSpar = ldSpar;
+
+        leSpar->init(sc, radianceMethod);
+        ldSpar->init(sc, radianceMethod);
+
+        config.sparList->add(leSpar);
+        config.sparList->add(ldSpar);
+    }
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
+        doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->background, &config);
+    } else if ( config.baseConfig->doDensityEstimation ) {
+        doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
+    } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
+        screenIterateSequential(
+                scene->camera,
+                scene->voxelGrid,
+                scene->background,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+                &config);
+    } else {
+        screenIterateProgressive(
+                scene->camera,
+                scene->voxelGrid,
+                scene->background,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+                &config);
+    }
+
+    config.screen->render();
+
+    if ( ip ) {
+        config.screen->writeFile(ip);
+    }
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
+    }
+    GLOBAL_rayTracing_biDirectionalPath.lastscreen = config.screen;
+
+    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
+        delete config.sparList;
+        delete leSpar;
+        delete ldSpar;
+    }
+
+    delete config.eyeConfig.pointSampler;
+    delete config.eyeConfig.dirSampler;
+    delete config.eyeConfig.surfaceSampler;
+    delete config.eyeConfig.neSampler;
+    delete config.lightConfig.pointSampler;
+    delete config.lightConfig.dirSampler;
+    delete config.lightConfig.surfaceSampler;
+
+    if ( config.dBuffer ) {
+        delete config.dBuffer;
+        config.dBuffer = nullptr;
+    }
+
+    delete config.baseConfig;
 }
 
 static bool
@@ -621,8 +766,8 @@ bpCombinePaths(
     }
 }
 
-static ColorRgb
-bpCalcPixel(
+ColorRgb
+BidirectionalPathRaytracer::bpCalcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -710,8 +855,8 @@ bpCalcPixel(
     return result;
 }
 
-static void
-doBptAndSubsequentImages(
+void
+BidirectionalPathRaytracer::doBptAndSubsequentImages(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -776,7 +921,7 @@ doBptAndSubsequentImages(
             camera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
             config);
 
         config->screen->render();
@@ -803,8 +948,8 @@ doBptAndSubsequentImages(
     delete[] filename;
 }
 
-static void
-doBptDensityEstimation(
+void
+BidirectionalPathRaytracer::doBptDensityEstimation(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -847,7 +992,7 @@ doBptDensityEstimation(
         camera,
         sceneVoxelGrid,
         sceneBackground,
-        (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+        (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
         config);
 
     // Now we have a noisy screen in dest and hits in double buffer
@@ -939,7 +1084,7 @@ doBptDensityEstimation(
             camera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(Camera* , VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
+            (ColorRgb(*)(Camera* , VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
             config);
 
         // Render screen & write
@@ -975,146 +1120,6 @@ doBptDensityEstimation(
     }
 }
 
-/**
-Raytrace the current scene as seen with the current camera. If fp
-is not a nullptr pointer, write the ray traced image to the file
-pointed to by 'fp'
-*/
-static void
-biDirPathTrace(
-    ImageOutputHandle *ip,
-    Scene *scene,
-    RadianceMethod *radianceMethod,
-    RenderOptions * /*renderOptions*/) {
-    // Install the samplers to be used in the state
-
-    BidirectionalPathTracingConfiguration config;
-
-    // Copy base config (so that rendering is independent of GUI)
-    config.baseConfig = new BP_BASECONFIG;
-    *(config.baseConfig) = GLOBAL_rayTracing_biDirectionalPath.basecfg;
-    config.baseConfig->totalSamples = GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel
-        * scene->camera->xSize * scene->camera->ySize;
-
-    config.dBuffer = nullptr;
-
-    // Eye and light path sampling config
-    config.eyeConfig.pointSampler = new CEyeSampler;
-    config.eyeConfig.dirSampler = new CPixelSampler;
-    config.eyeConfig.surfaceSampler = new CBsdfSampler;
-    config.eyeConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights ) {
-        config.eyeConfig.neSampler = new ImportantLightSampler;
-    } else {
-        config.eyeConfig.neSampler = new UniformLightSampler;
-    }
-
-    config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth < 1 ) {
-        fprintf(stderr, "Maximum Eye Path Length too small (<1), using 1\n");
-        config.eyeConfig.maxDepth = 1;
-    } else {
-        config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth;
-    }
-
-    config.lightConfig.pointSampler = new UniformLightSampler;
-    config.lightConfig.dirSampler = new LightDirSampler;
-    config.lightConfig.surfaceSampler = new CBsdfSampler;
-    config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars);
-
-    config.lightConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth;
-    config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth;
-    config.lightConfig.neSampler = nullptr; // eyeSampler ?
-
-    config.screen = new ScreenBuffer(nullptr, scene->camera);
-    config.screen->setFactor(1.0); // We're storing plain radiance
-
-    config.eyePath = nullptr;
-    config.lightPath = nullptr;
-
-    // SPaR configuration
-
-    LeSpar *leSpar = nullptr;
-    LDSpar *ldSpar = nullptr;
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
-        SparConfig *sc = &config.sparConfig;
-
-        sc->baseConfig = config.baseConfig; // Share base config options
-
-        config.sparList = new SparList;
-
-        leSpar = new LeSpar;
-        ldSpar = new LDSpar;
-
-        sc->leSpar = leSpar;
-        sc->ldSpar = ldSpar;
-
-        leSpar->init(sc, radianceMethod);
-        ldSpar->init(sc, radianceMethod);
-
-        config.sparList->add(leSpar);
-        config.sparList->add(ldSpar);
-    }
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
-        doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->background, &config);
-    } else if ( config.baseConfig->doDensityEstimation ) {
-        doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
-    } else if ( !GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing ) {
-        screenIterateSequential(
-            scene->camera,
-            scene->voxelGrid,
-            scene->background,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
-            &config);
-    } else {
-        screenIterateProgressive(
-            scene->camera,
-            scene->voxelGrid,
-            scene->background,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))bpCalcPixel,
-            &config);
-    }
-
-    config.screen->render();
-
-    if ( ip ) {
-        config.screen->writeFile(ip);
-    }
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
-    }
-    GLOBAL_rayTracing_biDirectionalPath.lastscreen = config.screen;
-
-
-    if ( GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars ) {
-        delete config.sparList;
-        delete leSpar;
-        delete ldSpar;
-    }
-
-    delete config.eyeConfig.pointSampler;
-    delete config.eyeConfig.dirSampler;
-    delete config.eyeConfig.surfaceSampler;
-    delete config.eyeConfig.neSampler;
-    delete config.lightConfig.pointSampler;
-    delete config.lightConfig.dirSampler;
-    delete config.lightConfig.surfaceSampler;
-
-    if ( config.dBuffer ) {
-        delete config.dBuffer;
-        config.dBuffer = nullptr;
-    }
-
-    delete config.baseConfig;
-}
-
 static int
 biDirPathReDisplay() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
@@ -1147,7 +1152,6 @@ biDirPathTerminate() {
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
-    biDirPathTrace,
     biDirPathReDisplay,
     biDirPathSaveImage,
     biDirPathTerminate

@@ -267,6 +267,7 @@ batchExecuteRadianceSimulation(
                 false,
                 scene,
                 radianceMethod,
+                rayTracer,
                 renderOptions);
 
             if ( globalBatchOptions.timings ) {

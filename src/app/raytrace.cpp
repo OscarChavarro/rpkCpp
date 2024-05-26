@@ -147,6 +147,7 @@ rayTraceExecute(
     int isPipe,
     Scene *scene,
     RadianceMethod *radianceMethod,
+    const RayTracer *rayTracer,
     RenderOptions *renderOptions)
 {
     renderOptions->renderRayTracedImage = true;
@@ -157,7 +158,7 @@ rayTraceExecute(
         filename,
         fp,
         isPipe,
-        GLOBAL_raytracer_activeRaytracer,
+        rayTracer,
         scene,
         radianceMethod,
         renderOptions);

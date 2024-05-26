@@ -28,6 +28,7 @@
         int isPipe,
         Scene *scene,
         RadianceMethod *radianceMethod,
+        const RayTracer *rayTracer,
         RenderOptions *renderOptions);
 
     extern void rayTraceParseOptions(int *argc, char **argv, char *rayTracerName);

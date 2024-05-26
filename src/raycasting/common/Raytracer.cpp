@@ -15,7 +15,7 @@ rayTrace(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    const Raytracer *activeRayTracer,
+    const RayTracer *rayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions)
@@ -35,8 +35,8 @@ rayTrace(
         }
     }
 
-    if ( activeRayTracer != nullptr ) {
-        activeRayTracer->Raytrace(img, scene, radianceMethod, renderOptions);
+    if ( rayTracer != nullptr ) {
+        rayTracer->execute(img, scene, radianceMethod, renderOptions);
     }
 
     if ( img ) {

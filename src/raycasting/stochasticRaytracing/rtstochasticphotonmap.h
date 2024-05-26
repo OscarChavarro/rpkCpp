@@ -134,9 +134,7 @@ enum StorageReadout {
 };
 
 class StochasticRaytracingConfiguration {
-public:
-    // *** user options
-
+  public:
     int samplesPerPixel;
 
     int nextEventSamples;
@@ -149,15 +147,15 @@ public:
     RayTracingSamplingMode reflectionSampling;
     bool separateSpecular;
 
-    bool backgroundIndirect;      // use background in reflections (indirect)
-    bool backgroundDirect;        // use background when no surface is hit (direct)
-    bool backgroundSampling;      // use light sampling
+    bool backgroundIndirect; // Use background in reflections (indirect)
+    bool backgroundDirect; // Use background when no surface is hit (direct)
+    bool backgroundSampling; // Use light sampling
 
-    // *** independent variables
+    // Independent variables
     ScreenBuffer *screen;
 
-    // *** variables derived from user options
-    // *** all variables must not change during raytracing...
+    // Variables derived from user options
+    // All variables must not change during raytracing...
     CSamplerConfig samplerConfig;
     CSeedConfig seedConfig;
 

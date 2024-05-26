@@ -16,6 +16,10 @@ a software frame buffer directly.
 
 char RayCaster::name[12] = "Ray Casting";
 
+#ifdef RAYTRACING_ENABLED
+static RayCaster *globalRayCaster = nullptr;
+#endif
+
 RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera) {
     if ( inScreen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, defaultCamera);
@@ -43,6 +47,23 @@ RayCaster::getName() const {
 
 void
 RayCaster::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+}
+
+void
+RayCaster::execute(
+    ImageOutputHandle *ip,
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) const
+{
+    if ( globalRayCaster != nullptr ) {
+        delete globalRayCaster;
+    }
+    globalRayCaster = new RayCaster(nullptr, scene->camera);
+    globalRayCaster->render(scene, radianceMethod, renderOptions);
+    if ( globalRayCaster != nullptr && ip != nullptr ) {
+        globalRayCaster->save(ip);
+    }
 }
 
 void
@@ -165,10 +186,6 @@ RayCaster::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
-#ifdef RAYTRACING_ENABLED
-static RayCaster *globalRayCaster = nullptr;
-#endif
-
 /**
 Ray-Casts the current Radiance solution. Output is displayed on the screen
 and saved into the file with given name and file pointer. 'isPipe'
@@ -242,26 +259,9 @@ rayCasterTerminate() {
     globalRayCaster = nullptr;
 }
 
-static void
-rayCasterExecute(
-    ImageOutputHandle *ip,
-    Scene *scene,
-    RadianceMethod *radianceMethod,
-    RenderOptions *renderOptions) {
-    if ( globalRayCaster != nullptr ) {
-        delete globalRayCaster;
-    }
-    globalRayCaster = new RayCaster(nullptr, scene->camera);
-    globalRayCaster->render(scene, radianceMethod, renderOptions);
-    if ( globalRayCaster != nullptr && ip != nullptr ) {
-        globalRayCaster->save(ip);
-    }
-}
-
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
-    rayCasterExecute,
     rayCasterRedisplay,
     rayCasterSaveImage,
     rayCasterTerminate

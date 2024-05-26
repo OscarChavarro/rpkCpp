@@ -58,6 +58,23 @@ RayMatter::initialize(const java::ArrayList<Patch *> *lightPatches) const {
 }
 
 void
+RayMatter::execute(
+    ImageOutputHandle *ip,
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) const
+{
+    if ( globalRayMatter != nullptr ) {
+        delete globalRayMatter;
+    }
+    globalRayMatter = new RayMatter(nullptr, scene->camera);
+    globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
+    if ( ip && globalRayMatter != nullptr ) {
+        globalRayMatter->save(ip);
+    }
+}
+
+void
 RayMatter::createFilter() {
     if ( pixelFilter != nullptr ) {
         delete pixelFilter;
@@ -140,23 +157,6 @@ RayMatter::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
-static void
-iRayMatte(
-    ImageOutputHandle *ip,
-    Scene *scene,
-    RadianceMethod * /*radianceMethod*/,
-    RenderOptions * /*renderOptions*/)
-{
-    if ( globalRayMatter != nullptr ) {
-        delete globalRayMatter;
-    }
-    globalRayMatter = new RayMatter(nullptr, scene->camera);
-    globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
-    if ( ip && globalRayMatter != nullptr ) {
-        globalRayMatter->save(ip);
-    }
-}
-
 /**
 Returns false if there is no previous image and true if there is
 */
@@ -191,7 +191,6 @@ terminate() {
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
-    iRayMatte,
     reDisplay,
     saveImage,
     terminate

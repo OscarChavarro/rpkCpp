@@ -39,6 +39,13 @@ class RayMatter final : public RayTracer {
     void defaults() final;
     const char *getName() const final;
     void initialize(const java::ArrayList<Patch *> *lightPatches) const final;
+
+    void
+    execute(
+        ImageOutputHandle *ip,
+        Scene *scene,
+        RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions) const final;
 };
 
 extern Raytracer GLOBAL_rayCasting_RayMatting;

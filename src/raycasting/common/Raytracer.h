@@ -14,6 +14,8 @@ ray-tracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRayt
 
 class RayTracer {
   public:
+    virtual ~RayTracer() {}
+
     virtual void defaults() = 0;
     virtual const char *getName() const = 0;
 
@@ -22,7 +24,15 @@ class RayTracer {
     // raytracing algorithm
     virtual void initialize(const java::ArrayList<Patch *> *lightPatches) const = 0;
 
-    virtual ~RayTracer() {}
+    // Raytrace the current scene as seen with the current camera. If 'ip'
+    // is not a nullptr pointer, write the ray-traced image using the image output
+    // handle pointed by 'ip'
+    virtual void
+    execute(
+        ImageOutputHandle *ip,
+        Scene *scene,
+        RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions) const = 0;
 };
 
 class Raytracer {
@@ -33,11 +43,6 @@ class Raytracer {
 
     // How short can the short name be abbreviated?
     int nameAbbrev;
-
-    // Raytrace the current scene as seen with the current camera. If 'ip'
-    // is not a nullptr pointer, write the ray-traced image using the image output
-    // handle pointed by 'ip'
-    void (*Raytrace)(ImageOutputHandle *ip, Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions);
 
     // Re-displays last ray-traced image. Returns FALSE if there is no
     // previous ray-traced image and TRUE there is
@@ -60,7 +65,7 @@ rayTrace(
     const char *fileName,
     FILE *fp,
     int isPipe,
-    const Raytracer *activeRayTracer,
+    const RayTracer *rayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions);

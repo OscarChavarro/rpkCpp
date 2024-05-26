@@ -20,6 +20,12 @@ const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; //
 
 StochasticRayTracingState GLOBAL_raytracing_state;
 
+StochasticRaytracer::StochasticRaytracer() {
+}
+
+StochasticRaytracer::~StochasticRaytracer() {
+}
+
 void
 StochasticRaytracer::defaults() {
     // Normal
@@ -68,6 +74,54 @@ StochasticRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) co
         delete GLOBAL_lightList;
     }
     GLOBAL_lightList = new LightList(lightPatches);
+}
+
+/**
+Raytrace the current scene as seen with the current camera. If fp
+is not a nullptr pointer, write the ray-traced image to the file
+pointed to by 'fp'
+*/
+void
+StochasticRaytracer::execute(
+    ImageOutputHandle *ip,
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions) const
+{
+    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, radianceMethod); // config filled in by constructor
+
+    // Frame Coherent sampling : init fixed seed
+    if ( GLOBAL_raytracing_state.doFrameCoherent ) {
+        srand48(GLOBAL_raytracing_state.baseSeed);
+    }
+
+    if ( !GLOBAL_raytracing_state.progressiveTracing ) {
+        screenIterateSequential(
+                scene->camera,
+                scene->voxelGrid,
+                scene->background,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
+                &config);
+    } else {
+        screenIterateProgressive(
+                scene->camera,
+                scene->voxelGrid,
+                scene->background,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
+                &config);
+    }
+
+    config.screen->render();
+
+    if ( ip ) {
+        config.screen->writeFile(ip);
+    }
+
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        delete GLOBAL_raytracing_state.lastScreen;
+    }
+    GLOBAL_raytracing_state.lastScreen = config.screen;
+    config.screen = nullptr;
 }
 
 static ColorRgb
@@ -566,8 +620,8 @@ stochasticRaytracerGetRadiance(
     return result;
 }
 
-static ColorRgb
-calcPixel(
+ColorRgb
+StochasticRaytracer::calcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -660,54 +714,6 @@ calcPixel(
     return result;
 }
 
-/**
-Raytrace the current scene as seen with the current camera. If fp
-is not a nullptr pointer, write the ray-traced image to the file
-pointed to by 'fp'
-*/
-void
-rtStochasticTrace(
-    ImageOutputHandle *ip,
-    Scene *scene,
-    RadianceMethod *radianceMethod,
-    RenderOptions * /*renderOptions*/)
-{
-    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, radianceMethod); // config filled in by constructor
-
-    // Frame Coherent sampling : init fixed seed
-    if ( GLOBAL_raytracing_state.doFrameCoherent ) {
-        srand48(GLOBAL_raytracing_state.baseSeed);
-    }
-
-    if ( !GLOBAL_raytracing_state.progressiveTracing ) {
-        screenIterateSequential(
-            scene->camera,
-            scene->voxelGrid,
-            scene->background,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *)) calcPixel,
-            &config);
-    } else {
-        screenIterateProgressive(
-            scene->camera,
-            scene->voxelGrid,
-            scene->background,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
-            &config);
-    }
-
-    config.screen->render();
-
-    if ( ip ) {
-        config.screen->writeFile(ip);
-    }
-
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        delete GLOBAL_raytracing_state.lastScreen;
-    }
-    GLOBAL_raytracing_state.lastScreen = config.screen;
-    config.screen = nullptr;
-}
-
 int
 RTStochastic_Redisplay() {
     if ( GLOBAL_raytracing_state.lastScreen ) {
@@ -745,7 +751,6 @@ Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",
     4,
-    rtStochasticTrace,
     RTStochastic_Redisplay,
     RTStochastic_SaveImage,
     stochasticRayTracerTerminate
