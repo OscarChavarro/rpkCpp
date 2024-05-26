@@ -58,7 +58,7 @@ public:
     void sglLoadMatrix(const Matrix4x4 *xf) const;
     void sglMultiplyMatrix(const Matrix4x4 *xf) const;
     void sglSetColor(SGL_PIXEL col);
-    void sglSetPatch(Patch *col);
+    void sglSetPatch(const Patch *col);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
     void sglPolygon(int numberOfVertices, const Vector3D *vertices);
 };

@@ -466,7 +466,7 @@ stochasticRelaxationRadiosityDiscardIncremental() {
 }
 
 static void
-stochasticRelaxationRadiosityRenderPatch(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+stochasticRelaxationRadiosityRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender, renderOptions);
     } else {

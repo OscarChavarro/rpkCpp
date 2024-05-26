@@ -191,7 +191,7 @@ GalerkinRadianceMethod::renderElementHierarchy(const GalerkinElement *element, c
 }
 
 void
-GalerkinRadianceMethod::galerkinRenderPatch(Patch *patch, const Camera * /*camera*/, const RenderOptions *renderOptions) {
+GalerkinRadianceMethod::galerkinRenderPatch(const Patch *patch, const Camera * /*camera*/, const RenderOptions *renderOptions) {
     renderElementHierarchy(galerkinGetElement(patch), renderOptions);
 }
 

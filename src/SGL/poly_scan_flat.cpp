@@ -67,7 +67,8 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
         if ( sglContext->pixelData == PixelContent::PATCH_POINTER ) {
-            *patch++ = sglContext->currentPatch;
+            *patch = sglContext->currentPatch;
+            patch++;
         } else {
             *pix++ = sglContext->currentPixel;
         }

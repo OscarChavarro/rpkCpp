@@ -20,14 +20,11 @@ p1 and p2 in p, put change with respect to y in dp
 */
 static void
 incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
-    double dy;
-    double frac;
-
-    dy = ((const PolygonVertex *) p2)->sy - ((const PolygonVertex *) p1)->sy;
+    double dy = ((const PolygonVertex *) p2)->sy - ((const PolygonVertex *) p1)->sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
     }
-    frac = y + 0.5 - ((const PolygonVertex *) p1)->sy;
+    double frac = y + 0.5 - ((const PolygonVertex *) p1)->sy;
 
     // Interpolate only sx and sz (first and third field)
     dp[0] = (p2[0] - p1[0]) / dy;
@@ -48,13 +45,6 @@ Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
 scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
-    int dz;
-    SGL_Z_VALUE *zValue;
-    SGL_Z_VALUE z;
-    double dx;
-    double frac;
-    double dzf;
-
     int lx = (int)java::Math::ceil(l->sx - 0.5);
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -68,20 +58,21 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
         return;
     }
 
-    dx = r->sx - l->sx;
+    double dx = r->sx - l->sx;
     if ( dx == 0.0 ) {
         dx = 1.0;
     }
-    frac = lx + 0.5 - l->sx;
-    dzf = (r->sz - l->sz) / dx;
-    z = (SGL_Z_VALUE) (l->sz + dzf * frac);
-    dz = (int) dzf;
+
+    double frac = lx + 0.5 - l->sx;
+    double dzf = (r->sz - l->sz) / dx;
+    SGL_Z_VALUE z = (SGL_Z_VALUE) (l->sz + dzf * frac);
+    int dz = (int) dzf;
 
     int offset = y * sglContext->width + lx;
     SGL_PIXEL *pix = sglContext->frameBuffer + offset;
     Patch **patch = sglContext->patchBuffer + offset;
 
-    zValue = sglContext->depthBuffer + offset;
+    SGL_Z_VALUE *zValue = sglContext->depthBuffer + offset;
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
         if ( z <= *zValue ) {

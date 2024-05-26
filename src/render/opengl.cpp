@@ -194,7 +194,7 @@ static void
 openGlReallyRenderOctreeLeaf(
     const Camera *camera,
     Geometry *geometry,
-    void (*renderPatch)(Patch *, const Camera *, const RenderOptions *),
+    void (*renderPatch)(const Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
     const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
@@ -207,7 +207,7 @@ static void
 openGlRenderOctreeLeaf(
     const Camera *camera,
     Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
+    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
     openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
@@ -248,7 +248,7 @@ static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
     const Geometry *geometry,
-    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *renderOptions),
+    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *renderOptions),
     const RenderOptions *renderOptions)
 {
     int i;
@@ -321,7 +321,7 @@ renderPatchCallback is called
 void
 openGlRenderWorldOctree(
     const Scene *scene,
-    void (*renderPatchCallback)(Patch *, const Camera *, const RenderOptions *),
+    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
     if ( scene->clusteredRootGeometry == nullptr ) {
@@ -406,7 +406,7 @@ sglRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOp
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
