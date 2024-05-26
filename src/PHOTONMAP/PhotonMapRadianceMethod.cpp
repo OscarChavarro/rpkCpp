@@ -328,9 +328,9 @@ photonMapDoScreenNEE(
 /**
 Store a photon. Some acceptance tests are performed first
 */
-bool
+static bool
 photonMapDoPhotonStore(
-    Camera *camera,
+    const Camera *camera,
     SimpleRaytracingPathNode *node,
     ColorRgb power)
 {
@@ -380,7 +380,7 @@ photonMapHandlePath(
     Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
-    RadianceMethod *radianceMethod)
+    const RadianceMethod *radianceMethod)
 {
     bool lDone;
     CBiPath *bp = &config->biPath;

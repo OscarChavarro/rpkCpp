@@ -138,27 +138,27 @@ numberOfVertices(const StochasticRadiosityElement *elem) {
 }
 
 inline StochasticRadiosityElement*
-topLevelStochasticRadiosityElement(Patch *patch) {
+topLevelStochasticRadiosityElement(const Patch *patch) {
     return (StochasticRadiosityElement *)patch->radianceData;
 }
 
 inline ColorRgb *
-getTopLevelPatchRad(Patch *patch) {
+getTopLevelPatchRad(const Patch *patch) {
     return topLevelStochasticRadiosityElement(patch)->radiance;
 }
 
 inline ColorRgb *
-getTopLevelPatchUnShotRad(Patch *patch) {
+getTopLevelPatchUnShotRad(const Patch *patch) {
     return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
 }
 
 inline ColorRgb*
-getTopLevelPatchReceivedRad(Patch *patch) {
+getTopLevelPatchReceivedRad(const Patch *patch) {
     return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
 }
 
 inline GalerkinBasis *
-getTopLevelPatchBasis(Patch *patch) {
+getTopLevelPatchBasis(const Patch *patch) {
     return topLevelStochasticRadiosityElement(patch)->basis;
 }
 

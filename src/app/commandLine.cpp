@@ -18,7 +18,6 @@
 #endif
 
 #include "app/options.h"
-#include "app/raytrace.h"
 #include "app/BatchOptions.h"
 #include "app/commandLine.h"
 

@@ -21,7 +21,7 @@ class SoftIdsWrapper {
     }
 
     inline Patch *
-    getPatchAtPixel(int x, int y) {
+    getPatchAtPixel(int x, int y) const {
         int index = (sgl->height - 1 - y) * sgl->width + x;
         return sgl->patchBuffer[index];
     }

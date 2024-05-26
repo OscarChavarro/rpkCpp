@@ -166,7 +166,7 @@ stochasticJacobiElementSetup(Element *element) {
 Returns true if success, that is: sum of sampling probabilities is nonzero
 */
 static int
-stochasticJacobiSetup(java::ArrayList<Patch *> *scenePatches) {
+stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
     if ( globalDoControlVariate ) {
@@ -608,7 +608,7 @@ stochasticJacobiElementShootRays(
     const VoxelGrid *sceneWorldVoxelGrid,
     StochasticRadiosityElement *element,
     int raysThisElem,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     int sampleRange; // Determines a range in which to generate a sample
     NiederreiterIndex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()

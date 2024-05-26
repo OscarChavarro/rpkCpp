@@ -27,14 +27,14 @@ class CPixelSampler : public Sampler {
         bool doRR = false,
         char flags = BSDF_ALL_COMPONENTS);
 
-    virtual double
+    double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
         char flags = BSDF_ALL_COMPONENTS,
         double *pdf = nullptr,
-        double *pdfRR = nullptr);
+        double *pdfRR = nullptr) final;
 
     // Set pixel : sets the current pixel. This pixel will be sampled
     void SetPixel(const Camera *defaultCamera, int nx, int ny, const Camera *camera);

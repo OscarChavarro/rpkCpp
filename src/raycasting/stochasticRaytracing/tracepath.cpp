@@ -144,26 +144,25 @@ void
 tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
-    double (*BirthProbability)(Patch *P),
-    double (*SurvivalProbability)(Patch *P),
-    void (*ScorePath)(PATH *, long nr_paths,
-    double (*birth_prob)(Patch *)),
-    void (*Update)(Patch *P, double w),
+    double (*BirthProbabilityCallBack)(Patch *P),
+    double (*SurvivalProbabilityCallBack)(Patch *P),
+    void (*scorePathCallBack)(PATH *, long numberOfPaths, double (*birthProb)(Patch *)),
+    void (*updateCallBack)(Patch *P, double w),
     const java::ArrayList<Patch *> *scenePatches)
 {
     double rnd;
     double pCumulative;
-    long path_count;
+    long pathCount;
     PATH path{};
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
-    globalBirthProbability = BirthProbability;
+    globalBirthProbability = BirthProbabilityCallBack;
 
     // Compute sampling probability normalisation factor
     globalSumProbabilities = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        globalSumProbabilities += BirthProbability(patch);
+        globalSumProbabilities += BirthProbabilityCallBack(patch);
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
     }
     if ( globalSumProbabilities < Numeric::EPSILON ) {
@@ -174,24 +173,24 @@ tracePaths(
     // Fire off paths from the patches, propagate radiance
     initPath(&path);
     rnd = drand48();
-    path_count = 0;
+    pathCount = 0;
     pCumulative = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        double p = BirthProbability(patch) / globalSumProbabilities;
-        long paths_this_patch = (int)java::Math::floor((pCumulative + p) * (double) numberOfPaths + rnd) - path_count;
+        double p = BirthProbabilityCallBack(patch) / globalSumProbabilities;
+        long paths_this_patch = (int)java::Math::floor((pCumulative + p) * (double) numberOfPaths + rnd) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(sceneWorldVoxelGrid, patch, p, SurvivalProbability, &path);
-            ScorePath(&path, numberOfPaths, patchNormalisedBirthProbability);
+            tracePath(sceneWorldVoxelGrid, patch, p, SurvivalProbabilityCallBack, &path);
+            scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;
-        path_count += paths_this_patch;
+        pathCount += paths_this_patch;
     }
 
     fprintf(stderr, "\n");
     freePathNodes(&path);
 
-    // Update radiance, compute new total and un-shot flux
+    // updateCallBack radiance, compute new total and un-shot flux
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
@@ -199,7 +198,7 @@ tracePaths(
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        Update(patch, (double) numberOfPaths / globalSumProbabilities);
+        updateCallBack(patch, (double) numberOfPaths / globalSumProbabilities);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
             (float)M_PI * patch->area,

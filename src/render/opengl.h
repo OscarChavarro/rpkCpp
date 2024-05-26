@@ -25,7 +25,7 @@ extern void openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const 
 extern void openGlRenderClearWindow(const Camera *camera);
 
 #ifdef RAYTRACING_ENABLED
-extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions);
+    extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions);
 #endif
 
 #endif

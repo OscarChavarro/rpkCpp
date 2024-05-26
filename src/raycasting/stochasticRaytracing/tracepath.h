@@ -36,10 +36,10 @@ extern void
 tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
-    double (*BirthProbability)(Patch *P),
-    double (*SurvivalProbability)(Patch *P),
-    void (*ScorePath)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
-    void (*Update)(Patch *P, double w),
+    double (*BirthProbabilityCallBack)(Patch *P),
+    double (*SurvivalProbabilityCallBack)(Patch *P),
+    void (*scorePathCallBack)(PATH *, long nr_paths, double (*birth_prob)(Patch *)),
+    void (*updateCallBack)(Patch *P, double w),
     const java::ArrayList<Patch *> *scenePatches);
 
 #endif
