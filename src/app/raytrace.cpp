@@ -1,10 +1,12 @@
+#include "common/RenderOptions.h"
+#ifdef RAYTRACING_ENABLED
+
 #include <cstdio>
 #include <cstring>
 #include <ctime>
 
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "common/RenderOptions.h"
 #include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
@@ -12,8 +14,6 @@
 #include "raycasting/simple/RayMatter.h"
 #include "app/raytrace.h"
 #include "app/commandLine.h"
-
-#ifdef RAYTRACING_ENABLED
 
 static Raytracer *globalRayTracingMethods[] = {
     &GLOBAL_raytracing_stochasticMethod,
@@ -38,7 +38,7 @@ rayTraceMakeMethodsHelpMessage(char *str) {
 This routine sets the current raytracing method to be used
 */
 static void
-rayTraceSetMethod(Raytracer *newMethod, RayTracer *rayTracer, java::ArrayList<Patch *> *lightSourcePatches) {
+rayTraceSetMethod(Raytracer *newMethod, const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
     if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }

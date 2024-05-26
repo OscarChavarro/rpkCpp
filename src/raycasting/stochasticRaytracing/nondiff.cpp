@@ -55,7 +55,8 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
 
 static void
 nextLightSample(Patch *patch, double *zeta) {
-    const double *xi = sample4D((unsigned int)topLevelStochasticRadiosityElement(patch)->rayIndex++);
+    const double *xi = sample4D((unsigned int)topLevelStochasticRadiosityElement(patch)->rayIndex);
+    topLevelStochasticRadiosityElement(patch)->rayIndex++;
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0];
         double v = xi[1];

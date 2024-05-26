@@ -6,9 +6,7 @@
 #include "scene/RadianceMethod.h"
 #include "render/ScreenBuffer.h"
 
-#ifdef RAYTRACING_ENABLED
-    #include "raycasting/common/Raytracer.h"
-#endif
+#include "raycasting/common/Raytracer.h"
 
 class RayCaster final : public RayTracer {
   private:

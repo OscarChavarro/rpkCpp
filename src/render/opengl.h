@@ -7,7 +7,6 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
-extern void openGlRenderSetLineWidth(float width);
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(const ColorRgb *rgb);
 
@@ -30,6 +29,9 @@ extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
 extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors);
 extern void openGlRenderPixels(const Camera *camera, int x, int y, int width, int height, const ColorRgb *rgb);
 extern void openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
+
+#ifdef RAYTRACING_ENABLED
 extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions);
+#endif
 
 #endif

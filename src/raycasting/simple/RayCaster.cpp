@@ -5,7 +5,9 @@ a software frame buffer directly.
 
 #include "common/RenderOptions.h"
 
-#include <ctime>
+#ifdef RAYTRACING_ENABLED
+    #include <ctime>
+#endif
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -16,9 +18,7 @@ a software frame buffer directly.
 
 char RayCaster::name[12] = "Ray Casting";
 
-#ifdef RAYTRACING_ENABLED
 static RayCaster *globalRayCaster = nullptr;
-#endif
 
 RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera) {
     if ( inScreen == nullptr ) {

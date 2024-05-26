@@ -100,14 +100,14 @@ StochasticRaytracer::execute(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))StochasticRaytracer::calcPixel,
                 &config);
     } else {
         screenIterateProgressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))calcPixel,
+                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))StochasticRaytracer::calcPixel,
                 &config);
     }
 

@@ -1,6 +1,11 @@
 #ifndef __STOCHASTIC_RAYTRACER__
 #define __STOCHASTIC_RAYTRACER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
+
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 
@@ -37,4 +42,5 @@ class StochasticRaytracer final : public RayTracer {
 
 extern Raytracer GLOBAL_raytracing_stochasticMethod;
 
+#endif
 #endif

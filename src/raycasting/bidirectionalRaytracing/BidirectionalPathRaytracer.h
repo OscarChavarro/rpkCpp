@@ -1,6 +1,10 @@
 #ifndef __BI_DIRECTIONAL_PATH__
 #define __BI_DIRECTIONAL_PATH__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 
@@ -50,4 +54,5 @@ class BidirectionalPathRaytracer final : public RayTracer {
 
 extern Raytracer GLOBAL_raytracing_biDirectionalPathMethod;
 
+#endif
 #endif

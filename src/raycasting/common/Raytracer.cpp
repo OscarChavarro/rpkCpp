@@ -18,7 +18,7 @@ rayTrace(
     const RayTracer *rayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
-    RenderOptions *renderOptions)
+    const RenderOptions *renderOptions)
 {
     ImageOutputHandle *img = nullptr;
 

@@ -132,7 +132,7 @@ openGlRenderSetColor(const ColorRgb *rgb) {
 /**
 Sets line width for outlines, etc
 */
-void
+static void
 openGlRenderSetLineWidth(float width) {
     glLineWidth(width);
 }
@@ -235,26 +235,6 @@ openGlRenderPatchOutline(const Patch *patch) {
         glVertex3fv((GLfloat *) &patch->vertex[i]->point);
     }
     glEnd();
-}
-
-/**
-Renders the all the patches using default colors
-*/
-void
-openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
-    if ( !renderOptions->noShading ) {
-        if ( renderOptions->smoothShading ) {
-            openGlRenderPatchSmooth(patch);
-        } else {
-            openGlRenderPatchFlat(patch);
-        }
-    }
-
-    if ( renderOptions->drawOutlines &&
-         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > Numeric::EPSILON) ) {
-        openGlRenderSetColor(&renderOptions->outlineColor);
-        openGlRenderPatchOutline(patch);
-    }
 }
 
 static void
@@ -405,46 +385,6 @@ openGlRenderWorldOctree(
 }
 
 static void
-openGlGeometryDeleteDLists(Geometry *geometry, Geometry *clusteredWorldGeometry) {
-    if ( geometry->displayListId >= 0 ) {
-        glDeleteLists(geometry->displayListId, 1);
-    }
-    geometry->displayListId = -1;
-
-    if ( clusteredWorldGeometry->isCompound() ) {
-        java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
-        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
-            openGlGeometryDeleteDLists(children->get(i), clusteredWorldGeometry);
-        }
-        delete children;
-    }
-}
-
-
-static void
-openGlRenderNewOctreeDisplayLists(Geometry *clusteredWorldGeometry) {
-    if ( clusteredWorldGeometry ) {
-        openGlGeometryDeleteDLists(clusteredWorldGeometry, clusteredWorldGeometry);
-    }
-}
-
-/**
-Indicates that the scene has modified, so a new display list should be
-compiled and rendered from now on. Only relevant when using display lists
-*/
-void
-openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions) {
-    if ( globalDisplayListId >= 0 ) {
-        glDeleteLists(globalDisplayListId, 1);
-    }
-    globalDisplayListId = -1;
-
-    if ( renderOptions->frustumCulling ) {
-        openGlRenderNewOctreeDisplayLists(clusteredWorldGeometry);
-    }
-}
-
-static void
 openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
@@ -579,3 +519,64 @@ unsigned long *
 sglRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
     return softRenderIds(x, y, scene, renderOptions);
 }
+
+/**
+Renders the all the patches using default colors
+*/
+void
+openGlRenderPatchCallBack(Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+    if ( !renderOptions->noShading ) {
+        if ( renderOptions->smoothShading ) {
+            openGlRenderPatchSmooth(patch);
+        } else {
+            openGlRenderPatchFlat(patch);
+        }
+    }
+
+    if ( renderOptions->drawOutlines &&
+         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > Numeric::EPSILON) ) {
+        openGlRenderSetColor(&renderOptions->outlineColor);
+        openGlRenderPatchOutline(patch);
+    }
+}
+
+#ifdef RAYTRACING_ENABLED
+static void
+openGlGeometryDeleteDLists(Geometry *geometry, Geometry *clusteredWorldGeometry) {
+    if ( geometry->displayListId >= 0 ) {
+        glDeleteLists(geometry->displayListId, 1);
+    }
+    geometry->displayListId = -1;
+
+    if ( clusteredWorldGeometry->isCompound() ) {
+        java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
+        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
+            openGlGeometryDeleteDLists(children->get(i), clusteredWorldGeometry);
+        }
+        delete children;
+    }
+}
+
+static void
+openGlRenderNewOctreeDisplayLists(Geometry *clusteredWorldGeometry) {
+    if ( clusteredWorldGeometry ) {
+        openGlGeometryDeleteDLists(clusteredWorldGeometry, clusteredWorldGeometry);
+    }
+}
+
+/**
+Indicates that the scene has modified, so a new display list should be
+compiled and rendered from now on. Only relevant when using display lists
+*/
+void
+openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions) {
+    if ( globalDisplayListId >= 0 ) {
+        glDeleteLists(globalDisplayListId, 1);
+    }
+    globalDisplayListId = -1;
+
+    if ( renderOptions->frustumCulling ) {
+        openGlRenderNewOctreeDisplayLists(clusteredWorldGeometry);
+    }
+}
+#endif

@@ -1,6 +1,10 @@
 #ifndef __RAY_MATTER__
 #define __RAY_MATTER__
 
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
 #include "raycasting/common/PixelFilter.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
@@ -50,4 +54,5 @@ class RayMatter final : public RayTracer {
 
 extern Raytracer GLOBAL_rayCasting_RayMatting;
 
+#endif
 #endif
