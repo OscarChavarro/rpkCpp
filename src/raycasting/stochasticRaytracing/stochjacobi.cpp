@@ -21,9 +21,9 @@ TODO: global lines and global line bundles.
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 // Returns radiance or importance to be propagated
-static ColorRgb *(*globalGetRadianceCallback)(StochasticRadiosityElement *);
+static ColorRgb *(*globalGetRadianceCallback)(const StochasticRadiosityElement *);
 
-static float (*globalGetImportanceCallback)(StochasticRadiosityElement *);
+static float (*globalGetImportanceCallback)(const StochasticRadiosityElement *);
 
 // Converts received radiance or importance into a new approximation for
 // total and un-shot radiance or importance
@@ -36,8 +36,8 @@ static double globalSumOfProbabilities = 0.0; // Sum of un-normalised sampling "
 static void
 stochasticJacobiInitGlobals(
     int numberOfRays,
-    ColorRgb *(*getRadianceCallBack)(StochasticRadiosityElement *),
-    float (*GetImportance)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
+    float (*GetImportance)(const StochasticRadiosityElement *),
     void (*Update)(StochasticRadiosityElement *P, double w))
 {
     globalNumberOfRays = numberOfRays;
@@ -862,8 +862,8 @@ void
 doStochasticJacobiIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     long numberOfRays,
-    ColorRgb *(*getRadianceCallBack)(StochasticRadiosityElement *),
-    float (*getImportanceCallBack)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
+    float (*getImportanceCallBack)(const StochasticRadiosityElement *),
     void (*updateCallBack)(StochasticRadiosityElement *P, double w),
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)

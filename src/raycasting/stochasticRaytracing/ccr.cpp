@@ -12,7 +12,7 @@ Determination of constant control radiosity value
 
 #define NUMBER_OF_INTERVALS 10
 
-static ColorRgb *(*globalGetRadiance)(StochasticRadiosityElement *);
+static ColorRgb *(*globalGetRadiance)(const StochasticRadiosityElement *);
 static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);
 
 static void
@@ -279,7 +279,7 @@ random walk radiosity
 */
 ColorRgb
 determineControlRadiosity(
-    ColorRgb *(*getRadiance)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadiance)(const StochasticRadiosityElement *),
     ColorRgb (*getScaling)(StochasticRadiosityElement *),
     const java::ArrayList<Patch *> *scenePatches)
 {

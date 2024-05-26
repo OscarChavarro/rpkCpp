@@ -81,7 +81,7 @@ randomWalkRadiosityPrintStats() {
 Used as un-normalised stochasticJacobiProbability for mimicking global lines
 */
 static double
-randomWalkRadiosityPatchArea(Patch *P) {
+randomWalkRadiosityPatchArea(const Patch *P) {
     return P->area;
 }
 
@@ -89,7 +89,7 @@ randomWalkRadiosityPatchArea(Patch *P) {
 stochasticJacobiProbability proportional to power to be propagated
 */
 static double
-randomWalkRadiosityScalarSourcePower(Patch *P) {
+randomWalkRadiosityScalarSourcePower(const Patch *P) {
     ColorRgb radiance = topLevelStochasticRadiosityElement(P)->sourceRad;
     return P->area * radiance.sumAbsComponents();
 }
@@ -99,12 +99,12 @@ Returns a double instead of a float in order to make it useful as
 a survival stochasticJacobiProbability function
 */
 static double
-randomWalkRadiosityScalarReflectance(Patch *P) {
+randomWalkRadiosityScalarReflectance(const Patch *P) {
     return monteCarloRadiosityScalarReflectance(P);
 }
 
 static ColorRgb *
-randomWalkRadiosityGetSelfEmittedRadiance(StochasticRadiosityElement *elem) {
+randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem) {
     static ColorRgb Ed[MAX_BASIS_SIZE];
     stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = topLevelStochasticRadiosityElement(elem->patch)->Ed; // Emittance
@@ -179,7 +179,7 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
 }
 
 static void
-randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthProb*/)(Patch *)) {
+randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumPow;
     int n;
     const StochasticRaytracingPathNode *node = &path->nodes[0];
@@ -276,7 +276,8 @@ randomWalkRadiosityDoShootingIteration(
     tracePaths(
         sceneWorldVoxelGrid,
         numberOfWalks,
-        randomWalkRadiosityScalarSourcePower, randomWalkRadiosityScalarReflectance,
+        randomWalkRadiosityScalarSourcePower,
+        randomWalkRadiosityScalarReflectance,
         randomWalkRadiosityShootingScore,
         randomWalkRadiosityShootingUpdate,
         scenePatches);
@@ -323,7 +324,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
 }
 
 static void
-randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(Patch *)) {
+randomWalkRadiosityCollisionGatheringScore(const PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumRad;
     int n;
     const StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
@@ -438,7 +439,7 @@ randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, do
 static void
 randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *

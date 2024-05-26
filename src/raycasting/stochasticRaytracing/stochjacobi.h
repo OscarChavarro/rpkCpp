@@ -29,8 +29,8 @@ extern void
 doStochasticJacobiIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     long numberOfRays,
-    ColorRgb *(*getRadianceCallBack)(StochasticRadiosityElement *),
-    float (*getImportanceCallBack)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
+    float (*getImportanceCallBack)(const StochasticRadiosityElement *),
     void updateCallBack(StochasticRadiosityElement *elem, double w),
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions);

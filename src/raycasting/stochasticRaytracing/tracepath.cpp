@@ -14,7 +14,7 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 
-static double (*globalBirthProbability)(Patch *);
+static double (*globalBirthProbability)(const Patch *);
 static double globalSumProbabilities;
 
 StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probability(), inPoint(), outpoint() {}
@@ -83,7 +83,7 @@ Traces a random walk originating at 'origin', with birth stochasticJacobiProbabi
 'globalBirthProbability' (filled in as stochasticJacobiProbability of the origin node: source term
 estimation is being suppressed --- survival stochasticJacobiProbability at the origin is
 1). Survival stochasticJacobiProbability at other nodes than the origin is calculated by
-'SurvivalProbability()', results are stored in 'path', which should be an
+'survivalProbabilityCallBack()', results are stored in 'path', which should be an
 PATH, previously initialised by initPath(). If required, photonMapTracePath()
 allocates extra space for storing nodes calls to pathAddNode().
 freePathNodes() should be called in order to dispose of this memory
@@ -94,7 +94,7 @@ tracePath(
     const VoxelGrid * sceneWorldVoxelGrid,
     Patch *origin,
     double birth_prob,
-    double (*SurvivalProbability)(Patch *P),
+    double (*survivalProbabilityCallBack)(const Patch *P),
     PATH *path)
 {
     Vector3D inPoint = {0.0, 0.0, 0.0};
@@ -125,7 +125,7 @@ tracePath(
         }
 
         P = hit->getPatch();
-        survivalProb = SurvivalProbability(P);
+        survivalProb = survivalProbabilityCallBack(P);
         pathAddNode(path, P, survivalProb, hit->getPoint(), outpoint);
     } while ( drand48() < survivalProb ); // Repeat until absorption
 
@@ -133,7 +133,7 @@ tracePath(
 }
 
 static double
-patchNormalisedBirthProbability(Patch *P) {
+patchNormalisedBirthProbability(const Patch *P) {
     return globalBirthProbability(P) / globalSumProbabilities;
 }
 
@@ -144,9 +144,9 @@ void
 tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
-    double (*BirthProbabilityCallBack)(Patch *P),
-    double (*SurvivalProbabilityCallBack)(Patch *P),
-    void (*scorePathCallBack)(PATH *, long numberOfPaths, double (*birthProb)(Patch *)),
+    double (*birthProbabilityCallBack)(const Patch *P),
+    double (*survivalProbabilityCallBack)(const Patch *P),
+    void (*scorePathCallBack)(const PATH *, long numberOfPaths, double (*birthProb)(const Patch *)),
     void (*updateCallBack)(Patch *P, double w),
     const java::ArrayList<Patch *> *scenePatches)
 {
@@ -156,13 +156,13 @@ tracePaths(
     PATH path{};
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
-    globalBirthProbability = BirthProbabilityCallBack;
+    globalBirthProbability = birthProbabilityCallBack;
 
     // Compute sampling probability normalisation factor
     globalSumProbabilities = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
-        globalSumProbabilities += BirthProbabilityCallBack(patch);
+        const Patch *patch = scenePatches->get(i);
+        globalSumProbabilities += birthProbabilityCallBack(patch);
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
     }
     if ( globalSumProbabilities < Numeric::EPSILON ) {
@@ -177,10 +177,10 @@ tracePaths(
     pCumulative = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        double p = BirthProbabilityCallBack(patch) / globalSumProbabilities;
+        double p = birthProbabilityCallBack(patch) / globalSumProbabilities;
         long paths_this_patch = (int)java::Math::floor((pCumulative + p) * (double) numberOfPaths + rnd) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
-            tracePath(sceneWorldVoxelGrid, patch, p, SurvivalProbabilityCallBack, &path);
+            tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, &path);
             scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
         }
         pCumulative += p;

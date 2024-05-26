@@ -493,7 +493,7 @@ photonMapBRRealIteration(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
-    RadianceMethod *radianceMethod)
+    const RadianceMethod *radianceMethod)
 {
     GLOBAL_photonMap_state.iterationNumber++;
 

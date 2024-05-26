@@ -9,7 +9,7 @@ Constant Control Radiosity
 
 extern ColorRgb
 determineControlRadiosity(
-    ColorRgb *(*getRadiance)(StochasticRadiosityElement *),
+    ColorRgb *(*getRadiance)(const StochasticRadiosityElement *),
     ColorRgb (*getScaling)(StochasticRadiosityElement *),
     const java::ArrayList<Patch *> *scenePatches);
 

@@ -133,7 +133,7 @@ stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *ele
 }
 
 static ColorRgb *
-stochasticRelaxationRadiosityElementUnShotRadiance(StochasticRadiosityElement *elem) {
+stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem) {
     return elem->unShotRadiance;
 }
 
@@ -220,7 +220,8 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
         doStochasticJacobiIteration(
             scene->voxelGrid,
             numberOfRays,
-            stochasticRelaxationRadiosityElementUnShotRadiance, nullptr,
+            stochasticRelaxationRadiosityElementUnShotRadiance,
+            nullptr,
             stochasticRelaxationRadiosityElementIncrementRadiance,
             scene->patchList,
             renderOptions);
@@ -244,7 +245,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
 }
 
 static float
-stochasticRelaxationRadiosityElementUnShotImportance(StochasticRadiosityElement *elem) {
+stochasticRelaxationRadiosityElementUnShotImportance(const StochasticRadiosityElement *elem) {
     return elem->unShotImportance;
 }
 
@@ -318,7 +319,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
 }
 
 static ColorRgb *
-stochasticRelaxationRadiosityElementRadiance(StochasticRadiosityElement *elem) {
+stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem) {
     return elem->radiance;
 }
 
@@ -393,7 +394,7 @@ stochasticRelaxationRadiosityDoRegularRadianceIteration(
 }
 
 static float
-stochasticRelaxationRadiosityElementImportance(StochasticRadiosityElement *elem) {
+stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement *elem) {
     return elem->importance;
 }
 
