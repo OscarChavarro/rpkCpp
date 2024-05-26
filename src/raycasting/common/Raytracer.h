@@ -31,9 +31,6 @@ class Raytracer {
     // Full name of the raytracing method
     const char *fullName;
 
-    // Function for setting default values etc
-    void (*Defaults)();
-
     // Initializes the current scene for raytracing computations.
     // Called when a new scene is loaded or when selecting a particular
     // raytracing algorithm

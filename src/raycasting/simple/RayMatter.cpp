@@ -42,6 +42,8 @@ RayMatter::~RayMatter() {
 
 void
 RayMatter::defaults() {
+    GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
+    GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
 }
 
 void
@@ -179,17 +181,10 @@ static void
 initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
-void
-rayMattingDefaults() {
-    GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
-    GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
-}
-
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
     "Ray Matting",
-    rayMattingDefaults,
     initialize,
     iRayMatte,
     reDisplay,

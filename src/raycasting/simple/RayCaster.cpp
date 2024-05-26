@@ -232,10 +232,6 @@ rayCasterTerminate() {
 }
 
 static void
-rayCasterDefaults() {
-}
-
-static void
 rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 }
 
@@ -259,7 +255,6 @@ Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
     "Ray Casting",
-    rayCasterDefaults,
     rayCasterInitialize,
     rayCasterExecute,
     rayCasterRedisplay,

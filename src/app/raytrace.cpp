@@ -85,10 +85,6 @@ RayTracer *
 rayTraceCreate(const Scene *scene, const char *rayTracerName) {
     RayTracer *rayTracer = rayTraceCreateRayTracerFromName(rayTracerName, scene);
 
-    const Raytracer *method = GLOBAL_raytracer_activeRaytracer;
-    if ( method != nullptr && method->Defaults != nullptr ) {
-        method->Defaults();
-    }
     if ( rayTracer != nullptr ) {
         rayTracer->defaults();
     }
