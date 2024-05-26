@@ -10,6 +10,7 @@
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinElement.h"
+#include "raycasting/render/RayTracingRenderer.h"
 
 static int globalWidth = 1920;
 static int globalHeight = 1200;

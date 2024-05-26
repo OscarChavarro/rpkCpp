@@ -210,6 +210,16 @@ BidirectionalPathRaytracer::execute(
     delete config.baseConfig;
 }
 
+bool
+BidirectionalPathRaytracer::reDisplay() const {
+    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->render();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 static bool
 spikeCheck(ColorRgb color) {
     double colAvg = color.average();
@@ -1121,16 +1131,6 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
 }
 
 static int
-biDirPathReDisplay() {
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->render();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-static int
 biDirPathSaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
         GLOBAL_rayTracing_biDirectionalPath.lastscreen->sync();
@@ -1152,7 +1152,6 @@ biDirPathTerminate() {
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
-    biDirPathReDisplay,
     biDirPathSaveImage,
     biDirPathTerminate
 };

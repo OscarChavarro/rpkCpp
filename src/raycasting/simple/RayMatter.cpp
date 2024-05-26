@@ -74,6 +74,19 @@ RayMatter::execute(
     }
 }
 
+/**
+Returns false if there is no previous image and true if there is
+*/
+bool
+RayMatter::reDisplay() const {
+    if ( !globalRayMatter ) {
+        return false;
+    }
+
+    globalRayMatter->display();
+    return true;
+}
+
 void
 RayMatter::createFilter() {
     if ( pixelFilter != nullptr ) {
@@ -157,19 +170,6 @@ RayMatter::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
-/**
-Returns false if there is no previous image and true if there is
-*/
-static int
-reDisplay() {
-    if ( !globalRayMatter ) {
-        return false;
-    }
-
-    globalRayMatter->display();
-    return true;
-}
-
 static int
 saveImage(ImageOutputHandle *imageOutputHandle) {
     if ( !globalRayMatter ) {
@@ -191,7 +191,6 @@ terminate() {
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
-    reDisplay,
     saveImage,
     terminate
 };

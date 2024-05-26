@@ -13,6 +13,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+#include "raycasting/render/RayTracingRenderer.h"
 
 #define STRING_LENGTH 2000
 
@@ -232,16 +233,9 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
             openGlRenderNewDisplayList(scene->clusteredRootGeometry, renderOptions);
 
-            int (*f)() = nullptr;
-            if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-                f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+            if ( GLOBAL_rayTracer != nullptr ) {
+                openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
             }
-
-            openGlRenderScene(
-                    scene,
-                    f,
-                    radianceMethod,
-                    renderOptions);
         }
     }
 

@@ -124,6 +124,16 @@ StochasticRaytracer::execute(
     config.screen = nullptr;
 }
 
+bool
+StochasticRaytracer::reDisplay() const {
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        GLOBAL_raytracing_state.lastScreen->render();
+        return true;
+    } else {
+        return false;
+    }
+}
+
 static ColorRgb
 stochasticRaytracerGetRadiance(
     Camera *camera,
@@ -715,16 +725,6 @@ StochasticRaytracer::calcPixel(
 }
 
 int
-RTStochastic_Redisplay() {
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        GLOBAL_raytracing_state.lastScreen->render();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-int
 RTStochastic_SaveImage(ImageOutputHandle *ip) {
     if ( ip && GLOBAL_raytracing_state.lastScreen ) {
         GLOBAL_raytracing_state.lastScreen->sync();
@@ -751,7 +751,6 @@ Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",
     4,
-    RTStochastic_Redisplay,
     RTStochastic_SaveImage,
     stochasticRayTracerTerminate
 };

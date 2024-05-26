@@ -7,7 +7,6 @@
 #include "render/canvas.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
-#include "render/opengl.h"
 #include "IMAGE/imagec.h"
 #include "app/commandLine.h"
 #include "app/BatchOptions.h"
@@ -15,6 +14,7 @@
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/common/Raytracer.h"
+    #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
 #endif
 
@@ -201,13 +201,7 @@ batchExecuteRadianceSimulation(
 
             printf("%s", radianceMethod->getStats());
 
-            int (*f)() = nullptr;
-            #ifdef RAYTRACING_ENABLED
-                if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-                    f = GLOBAL_raytracer_activeRaytracer->Redisplay;
-                }
-            #endif
-            openGlRenderScene(scene, f, radianceMethod, renderOptions);
+            openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
 
             fflush(stdout);
             fflush(stderr);

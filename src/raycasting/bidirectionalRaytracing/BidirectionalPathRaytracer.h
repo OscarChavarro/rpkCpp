@@ -50,6 +50,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const final;
 
+    bool reDisplay() const final;
 };
 
 extern Raytracer GLOBAL_raytracing_biDirectionalPathMethod;

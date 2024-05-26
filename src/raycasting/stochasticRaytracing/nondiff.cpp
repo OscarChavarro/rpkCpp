@@ -8,10 +8,10 @@ Non diffuse first shot
 
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
-#include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
+#include "raycasting/render/RayTracingRenderer.h"
 
 class LightSourceTable {
   public:
@@ -189,15 +189,13 @@ doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, 
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scene->patchList);
 
-    int (*f)() = nullptr;
-    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-        f = GLOBAL_raytracer_activeRaytracer->Redisplay;
+    if ( GLOBAL_rayTracer != nullptr ) {
+        openGlRenderScene(
+            scene,
+            GLOBAL_rayTracer,
+            radianceMethod,
+            renderOptions);
     }
-    openGlRenderScene(
-        scene,
-        f,
-        radianceMethod,
-        renderOptions);
 }
 
 #endif

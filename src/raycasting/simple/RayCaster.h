@@ -42,6 +42,8 @@ class RayCaster final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const final;
+
+    bool reDisplay() const final;
 };
 
 #ifdef RAYTRACING_ENABLED

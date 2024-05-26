@@ -14,6 +14,7 @@
 #include "app/RpkApplication.h"
 
 #ifdef RAYTRACING_ENABLED
+    #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
 #endif
 
@@ -90,11 +91,9 @@ RpkApplication::mainCreateOffscreenCanvasWindow() {
 
     #ifdef RAYTRACING_ENABLED
         // Render the scene
-        int (*renderCallback)() = nullptr;
-        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-            renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
+        if ( GLOBAL_rayTracer != nullptr ) {
+            openGlRenderScene(scene, GLOBAL_rayTracer, selectedRadianceMethod, renderOptions);
         }
-        openGlRenderScene(scene, renderCallback, selectedRadianceMethod, renderOptions);
     #endif
 }
 
@@ -105,12 +104,11 @@ RpkApplication::executeRendering(const char *rayTracerName) {
 
     #ifdef RAYTRACING_ENABLED
         rayTracer = rayTraceCreate(scene, rayTracerName);
+        GLOBAL_rayTracer = rayTracer;
 
-        int (*renderCallback)() = nullptr;
-        if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-            renderCallback = GLOBAL_raytracer_activeRaytracer->Redisplay;
+        if ( GLOBAL_rayTracer != nullptr ) {
+            openGlRenderScene(scene, GLOBAL_rayTracer, selectedRadianceMethod, renderOptions);
         }
-        openGlRenderScene(scene, renderCallback, selectedRadianceMethod, renderOptions);
     #endif
 
     batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);

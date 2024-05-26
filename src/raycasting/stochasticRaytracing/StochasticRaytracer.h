@@ -38,6 +38,8 @@ class StochasticRaytracer final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const final;
+
+    bool reDisplay() const final;
 };
 
 extern Raytracer GLOBAL_raytracing_stochasticMethod;

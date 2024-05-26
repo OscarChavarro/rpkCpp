@@ -33,6 +33,10 @@ class RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const = 0;
+
+    // Re-displays last ray-traced image. Returns FALSE if there is no
+    // previous ray-traced image and TRUE there is
+    virtual bool reDisplay() const = 0;
 };
 
 class Raytracer {
@@ -44,10 +48,6 @@ class Raytracer {
     // How short can the short name be abbreviated?
     int nameAbbrev;
 
-    // Re-displays last ray-traced image. Returns FALSE if there is no
-    // previous ray-traced image and TRUE there is
-    int (*Redisplay)();
-
     // Saves last ray-traced image in the file describe dby the image output handle
     int (*SaveImage)(ImageOutputHandle *ip);
 
@@ -56,6 +56,7 @@ class Raytracer {
 };
 
 extern Raytracer *GLOBAL_raytracer_activeRaytracer;
+extern RayTracer *GLOBAL_rayTracer;
 extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn

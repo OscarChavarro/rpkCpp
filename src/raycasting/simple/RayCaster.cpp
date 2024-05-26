@@ -66,6 +66,19 @@ RayCaster::execute(
     }
 }
 
+/**
+Returns false if there is no previous image and true if there is
+*/
+bool
+RayCaster::reDisplay() const {
+    if ( !globalRayCaster ) {
+        return false;
+    }
+
+    globalRayCaster->display();
+    return true;
+}
+
 void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
@@ -102,8 +115,8 @@ RayCaster::getRadianceAtPixel(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) const
 {
-    ColorRgb rad{};
-    rad.clear();
+    ColorRgb radiance{};
+    radiance.clear();
 
     if ( radianceMethod != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
@@ -130,9 +143,9 @@ RayCaster::getRadianceAtPixel(
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
-        rad = radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions);
+        radiance = radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions);
     }
-    return rad;
+    return radiance;
 }
 
 void
@@ -228,19 +241,6 @@ rayCast(
 }
 
 #ifdef RAYTRACING_ENABLED
-/**
-Returns false if there is no previous image and true if there is
-*/
-static int
-rayCasterRedisplay() {
-    if ( !globalRayCaster ) {
-        return false;
-    }
-
-    globalRayCaster->display();
-    return true;
-}
-
 static int
 rayCasterSaveImage(ImageOutputHandle *ip) {
     if ( !globalRayCaster ) {
@@ -262,7 +262,6 @@ rayCasterTerminate() {
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
-    rayCasterRedisplay,
     rayCasterSaveImage,
     rayCasterTerminate
 };
