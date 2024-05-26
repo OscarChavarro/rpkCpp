@@ -45,11 +45,8 @@ class RayCaster final : public RayTracer {
 
     bool reDisplay() const final;
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
+    void terminate() const;
 };
-
-#ifdef RAYTRACING_ENABLED
-    extern Raytracer GLOBAL_rayCasting_RayCasting;
-#endif
 
 extern void
 rayCast(

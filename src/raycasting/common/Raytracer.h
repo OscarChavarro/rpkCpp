@@ -40,22 +40,11 @@ class RayTracer {
 
     // Saves last ray-traced image in the file describe dby the image output handle
     virtual bool saveImage(ImageOutputHandle *imageOutputHandle) const = 0;
-};
-
-class Raytracer {
-  public:
-    // Short name for the raytracing method, for use as argument of
-    // -raytracing command line option
-    const char *shortName;
-
-    // How short can the short name be abbreviated?
-    int nameAbbrev;
 
     // Terminate raytracing computations
-    void (*Terminate)();
+    virtual void terminate() const = 0;
 };
 
-extern Raytracer *GLOBAL_raytracer_activeRaytracer;
 extern RayTracer *GLOBAL_rayTracer;
 extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced

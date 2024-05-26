@@ -15,14 +15,6 @@
 #include "app/raytrace.h"
 #include "app/commandLine.h"
 
-static Raytracer *globalRayTracingMethods[] = {
-    &GLOBAL_raytracing_stochasticMethod,
-    &GLOBAL_raytracing_biDirectionalPathMethod,
-    &GLOBAL_rayCasting_RayCasting,
-    &GLOBAL_rayCasting_RayMatting,
-    nullptr
-};
-
 static void
 rayTraceMakeMethodsHelpMessage(char *str) {
     snprintf(str, 1000,
@@ -38,12 +30,7 @@ rayTraceMakeMethodsHelpMessage(char *str) {
 This routine sets the current raytracing method to be used
 */
 static void
-rayTraceSetMethod(Raytracer *newMethod, const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
-    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-        GLOBAL_raytracer_activeRaytracer->Terminate();
-    }
-
-    GLOBAL_raytracer_activeRaytracer = newMethod;
+rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
     if ( rayTracer != nullptr ) {
         rayTracer->initialize(lightSourcePatches);
     }
@@ -64,16 +51,8 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
         newRaytracer = nullptr;
     }
 
-    for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
-        Raytracer *method = *window;
-        if ( strncasecmp(rayTracerName, method->shortName, method->nameAbbrev) == 0 ) {
-            rayTraceSetMethod(method, newRaytracer, scene->lightSourcePatchList);
-            return newRaytracer;
-        }
-    }
-
     if ( strncasecmp(rayTracerName, "none", 4) == 0 ) {
-        rayTraceSetMethod(nullptr, newRaytracer, scene->lightSourcePatchList);
+        rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
     }

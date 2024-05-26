@@ -53,9 +53,8 @@ class RayMatter final : public RayTracer {
 
     bool reDisplay() const final;
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
+    void terminate() const;
 };
-
-extern Raytracer GLOBAL_rayCasting_RayMatting;
 
 #endif
 #endif

@@ -167,7 +167,7 @@ batchExecuteRadianceSimulation(
     const RayTracer *rayTracer,
     RenderOptions *renderOptions)
 {
-    clock_t start_time;
+    clock_t startTime;
     clock_t wasted_start;
     float wastedSecs;
 
@@ -176,7 +176,7 @@ batchExecuteRadianceSimulation(
         return;
     }
 
-    start_time = clock();
+    startTime = clock();
     wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
@@ -250,14 +250,14 @@ batchExecuteRadianceSimulation(
 
     if ( globalBatchOptions.timings ) {
         fprintf(stdout, "Radiance total time %g secs.\n",
-                ((float) (clock() - start_time) / (float) CLOCKS_PER_SEC) - wastedSecs);
+                ((float) (clock() - startTime) / (float) CLOCKS_PER_SEC) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
-        if ( GLOBAL_raytracer_activeRaytracer ) {
+        if ( GLOBAL_rayTracer != nullptr ) {
             printf("Doing %s ...\n", rayTracer->getName());
 
-            start_time = clock();
+            startTime = clock();
             rayTraceExecute(
                 nullptr,
                 nullptr,
@@ -269,7 +269,7 @@ batchExecuteRadianceSimulation(
 
             if ( globalBatchOptions.timings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
-                        (float) (clock() - start_time) / (float) CLOCKS_PER_SEC);
+                        (float) (clock() - startTime) / (float) CLOCKS_PER_SEC);
             }
 
             batchProcessFile(

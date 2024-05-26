@@ -98,6 +98,14 @@ RayMatter::saveImage(ImageOutputHandle *imageOutputHandle) const {
 }
 
 void
+RayMatter::terminate() const {
+    if ( globalRayMatter != nullptr ) {
+        delete globalRayMatter;
+    }
+    globalRayMatter = nullptr;
+}
+
+void
 RayMatter::createFilter() {
     if ( pixelFilter != nullptr ) {
         delete pixelFilter;
@@ -179,19 +187,5 @@ void
 RayMatter::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
-
-static void
-terminate() {
-    if ( globalRayMatter ) {
-        delete globalRayMatter;
-    }
-    globalRayMatter = nullptr;
-}
-
-Raytracer GLOBAL_rayCasting_RayMatting = {
-    "RayMatting",
-    4,
-    terminate
-};
 
 #endif

@@ -145,6 +145,18 @@ StochasticRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
     }
 }
 
+void
+StochasticRaytracer::terminate() const {
+    if ( GLOBAL_raytracing_state.lastScreen ) {
+        delete GLOBAL_raytracing_state.lastScreen;
+    }
+    GLOBAL_raytracing_state.lastScreen = nullptr;
+    if ( GLOBAL_lightList != nullptr ) {
+        delete GLOBAL_lightList;
+        GLOBAL_lightList = nullptr;
+    }
+}
+
 static ColorRgb
 stochasticRaytracerGetRadiance(
     Camera *camera,
@@ -734,24 +746,5 @@ StochasticRaytracer::calcPixel(
 
     return result;
 }
-
-void
-stochasticRayTracerTerminate() {
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        delete GLOBAL_raytracing_state.lastScreen;
-    }
-    GLOBAL_raytracing_state.lastScreen = nullptr;
-    if ( GLOBAL_lightList != nullptr ) {
-        delete GLOBAL_lightList;
-        GLOBAL_lightList = nullptr;
-    }
-}
-
-Raytracer GLOBAL_raytracing_stochasticMethod =
-{
-    "StochasticRaytracing",
-    4,
-    stochasticRayTracerTerminate
-};
 
 #endif

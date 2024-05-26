@@ -38,6 +38,7 @@ RpkApplication::~RpkApplication() {
     delete mgfContext;
     delete renderOptions;
     if ( rayTracer != nullptr ) {
+        rayTracer->terminate();
         delete rayTracer;
     }
 }

@@ -90,6 +90,14 @@ RayCaster::saveImage(ImageOutputHandle *imageOutputHandle) const {
 }
 
 void
+RayCaster::terminate() const {
+    if ( globalRayCaster ) {
+        delete globalRayCaster;
+    }
+    globalRayCaster = nullptr;
+}
+
+void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
         *u = 1.0 - Numeric::EPSILON;
@@ -249,19 +257,3 @@ rayCast(
         deleteImageOutputHandle(img);
     }
 }
-
-#ifdef RAYTRACING_ENABLED
-static void
-rayCasterTerminate() {
-    if ( globalRayCaster ) {
-        delete globalRayCaster;
-    }
-    globalRayCaster = nullptr;
-}
-
-Raytracer GLOBAL_rayCasting_RayCasting = {
-    "RayCasting",
-    4,
-    rayCasterTerminate
-};
-#endif

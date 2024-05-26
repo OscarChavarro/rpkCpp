@@ -41,9 +41,8 @@ class StochasticRaytracer final : public RayTracer {
 
     bool reDisplay() const final;
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
+    void terminate() const final;
 };
-
-extern Raytracer GLOBAL_raytracing_stochasticMethod;
 
 #endif
 #endif
