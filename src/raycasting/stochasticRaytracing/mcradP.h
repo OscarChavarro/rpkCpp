@@ -162,7 +162,7 @@ getTopLevelPatchBasis(const Patch *patch) {
     return topLevelStochasticRadiosityElement(patch)->basis;
 }
 
-extern float monteCarloRadiosityScalarReflectance(Patch *P);
+extern float monteCarloRadiosityScalarReflectance(const Patch *P);
 extern void monteCarloRadiosityDefaults();
 extern void monteCarloRadiosityUpdateCpuSecs();
 extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);

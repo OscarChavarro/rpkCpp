@@ -103,7 +103,7 @@ monteCarloRadiosityInit() {
 Initialises patch data
 */
 static void
-monteCarloRadiosityInitPatch(Patch *patch) {
+monteCarloRadiosityInitPatch(const Patch *patch) {
     ColorRgb Ed = topLevelStochasticRadiosityElement(patch)->Ed;
 
     reAllocCoefficients(topLevelStochasticRadiosityElement(patch));
@@ -475,7 +475,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
 Returns scalar reflectance, for importance propagation
 */
 float
-monteCarloRadiosityScalarReflectance(Patch *P) {
+monteCarloRadiosityScalarReflectance(const Patch *P) {
     return stochasticRadiosityElementScalarReflectance(topLevelStochasticRadiosityElement(P));
 }
 

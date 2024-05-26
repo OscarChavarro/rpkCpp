@@ -479,7 +479,7 @@ photonMapTracePaths(
     Background *sceneBackground,
     int numberOfPaths,
     char bsdfFlags = BSDF_ALL_COMPONENTS,
-    RadianceMethod *radianceMethod = nullptr)
+    const RadianceMethod *radianceMethod = nullptr)
 {
     // Fill in config structures
     for ( int i = 0; i < numberOfPaths; i++ ) {

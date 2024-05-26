@@ -6,11 +6,11 @@
 /**
 Generic routine for Stochastic Jacobi iterations:
 - nr_rays: nr of rays to use
-- GetRadiance: routine returning radiance (total or un-shot) to be
+- getRadianceCallBack: routine returning radiance (total or un-shot) to be
 propagated for a given element, or nullptr if not radiance propagation is
 required.
-- GetImportance: same, but for importance.
-- Update: routine updating total, un-shot and source radiance and/or
+- getImportanceCallBack: same, but for importance.
+- updateCallBack: routine updating total, un-shot and source radiance and/or
 importance based on result received during the iteration.
 
 The operation of this routine is further controlled by global parameters
@@ -29,10 +29,10 @@ extern void
 doStochasticJacobiIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     long numberOfRays,
-    ColorRgb *(*GetRadiance)(StochasticRadiosityElement *),
-    float (*GetImportance)(StochasticRadiosityElement *),
-    void Update(StochasticRadiosityElement *elem, double w),
-    java::ArrayList<Patch *> *scenePatches,
+    ColorRgb *(*getRadianceCallBack)(StochasticRadiosityElement *),
+    float (*getImportanceCallBack)(StochasticRadiosityElement *),
+    void updateCallBack(StochasticRadiosityElement *elem, double w),
+    const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions);
 
 #endif

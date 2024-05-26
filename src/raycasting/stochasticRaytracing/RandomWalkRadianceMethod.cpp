@@ -117,7 +117,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 static void
 randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
+        const Patch *patch = scenePatches->get(i);
         ColorRgb newSourceRadiance;
         ColorRgb rho;
 
@@ -182,7 +182,7 @@ static void
 randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthProb*/)(Patch *)) {
     ColorRgb accumPow;
     int n;
-    StochasticRaytracingPathNode *node = &path->nodes[0];
+    const StochasticRaytracingPathNode *node = &path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
     accumPow.scaledCopy((float) (node->patch->area / node->probability), topLevelStochasticRadiosityElement(node->patch)->sourceRad);
@@ -193,7 +193,7 @@ randomWalkRadiosityShootingScore(PATH *path, long nr_paths, double (* /*birthPro
         double vOut = 0.0;
         double r = 1.0;
         double w;
-        Patch *P = node->patch;
+        const Patch *P = node->patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumPow.scalarProduct(accumPow, Rd);
 
@@ -300,7 +300,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
         ColorRgb Ed;
         ColorRgb num;
         ColorRgb denominator;
-        Patch *patch = scenePatches->get(i);
+        const Patch *patch = scenePatches->get(i);
 
         absorb.setMonochrome(1.0);
         rho = topLevelStochasticRadiosityElement(patch)->Rd;
@@ -326,7 +326,7 @@ static void
 randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(Patch *)) {
     ColorRgb accumRad;
     int n;
-    StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
+    const StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
     accumRad = topLevelStochasticRadiosityElement(node->patch)->sourceRad;
     for ( n = path->numberOfNodes - 2, node--; n >= 0; n--, node-- ) {
         double uin = 0.0;
@@ -334,7 +334,7 @@ randomWalkRadiosityCollisionGatheringScore(PATH *path, long /*nr_paths*/, double
         double uOut = 0.0;
         double vOut = 0.0;
         double r = 1.0;
-        Patch *P = node->patch;
+        const Patch *P = node->patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumRad.selfScalarProduct(Rd);
 

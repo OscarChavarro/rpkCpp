@@ -45,7 +45,7 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
+        const Patch *patch = scenePatches->get(i);
         stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
@@ -54,7 +54,7 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
 }
 
 static void
-nextLightSample(Patch *patch, double *zeta) {
+nextLightSample(const Patch *patch, double *zeta) {
     const double *xi = sample4D((unsigned int)topLevelStochasticRadiosityElement(patch)->rayIndex);
     topLevelStochasticRadiosityElement(patch)->rayIndex++;
     if ( patch->numberOfVertices == 3 ) {

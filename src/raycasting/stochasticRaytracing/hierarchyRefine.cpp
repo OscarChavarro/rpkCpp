@@ -117,10 +117,10 @@ formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadios
 
 static int
 lowPowerLink(
-    LINK *link,
+    const LINK *link,
     const Statistics *statistics)
 {
-    StochasticRadiosityElement *rcv = link->rcv;
+    const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
     ColorRgb rhoSrcRad;
     float ff = formFactorEstimate(rcv, src);
