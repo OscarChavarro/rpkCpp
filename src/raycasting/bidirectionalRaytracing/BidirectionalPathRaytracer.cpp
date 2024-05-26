@@ -233,10 +233,10 @@ BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) cons
 
 void
 BidirectionalPathRaytracer::terminate() const {
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
-    }
-    GLOBAL_rayTracing_biDirectionalPath.lastscreen = nullptr;
+    //if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+    //    delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
+    //}
+    //GLOBAL_rayTracing_biDirectionalPath.lastscreen = nullptr;
 }
 
 static bool
