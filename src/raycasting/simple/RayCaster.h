@@ -44,6 +44,7 @@ class RayCaster final : public RayTracer {
         const RenderOptions *renderOptions) const final;
 
     bool reDisplay() const final;
+    bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
 };
 
 #ifdef RAYTRACING_ENABLED

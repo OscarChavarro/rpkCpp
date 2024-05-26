@@ -79,6 +79,16 @@ RayCaster::reDisplay() const {
     return true;
 }
 
+bool
+RayCaster::saveImage(ImageOutputHandle *imageOutputHandle) const {
+    if ( !globalRayCaster ) {
+        return false;
+    }
+
+    globalRayCaster->save(imageOutputHandle);
+    return true;
+}
+
 void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
@@ -241,16 +251,6 @@ rayCast(
 }
 
 #ifdef RAYTRACING_ENABLED
-static int
-rayCasterSaveImage(ImageOutputHandle *ip) {
-    if ( !globalRayCaster ) {
-        return false;
-    }
-
-    globalRayCaster->save(ip);
-    return true;
-}
-
 static void
 rayCasterTerminate() {
     if ( globalRayCaster ) {
@@ -262,7 +262,6 @@ rayCasterTerminate() {
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
-    rayCasterSaveImage,
     rayCasterTerminate
 };
 #endif

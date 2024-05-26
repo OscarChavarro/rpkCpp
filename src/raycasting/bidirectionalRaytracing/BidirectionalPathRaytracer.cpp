@@ -220,6 +220,17 @@ BidirectionalPathRaytracer::reDisplay() const {
     }
 }
 
+bool
+BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
+    if ( imageOutputHandle && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->sync();
+        GLOBAL_rayTracing_biDirectionalPath.lastscreen->writeFile(imageOutputHandle);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 static bool
 spikeCheck(ColorRgb color) {
     double colAvg = color.average();
@@ -1130,17 +1141,6 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     }
 }
 
-static int
-biDirPathSaveImage(ImageOutputHandle *ip) {
-    if ( ip && GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->sync();
-        GLOBAL_rayTracing_biDirectionalPath.lastscreen->writeFile(ip);
-        return true;
-    } else {
-        return false;
-    }
-}
-
 static void
 biDirPathTerminate() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
@@ -1152,7 +1152,6 @@ biDirPathTerminate() {
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
-    biDirPathSaveImage,
     biDirPathTerminate
 };
 

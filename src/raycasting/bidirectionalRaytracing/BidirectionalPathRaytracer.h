@@ -51,6 +51,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         const RenderOptions *renderOptions) const final;
 
     bool reDisplay() const final;
+    bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
 };
 
 extern Raytracer GLOBAL_raytracing_biDirectionalPathMethod;

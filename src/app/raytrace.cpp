@@ -120,9 +120,9 @@ rayTraceSaveImage(
         return;
     }
 
-    if ( !GLOBAL_raytracer_activeRaytracer ) {
+    if ( rayTracer == nullptr ) {
         logWarning(nullptr, "No ray tracing method active");
-    } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img) ) {
+    } else if ( !rayTracer->saveImage(img) ) {
         logWarning(nullptr, "No previous %s image available", rayTracer->getName());
     }
 

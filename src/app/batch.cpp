@@ -82,13 +82,14 @@ batchProcessFile(
     void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    const RayTracer *rayTracer,
     const RenderOptions *renderOptions)
 {
     int isPipe;
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, nullptr, renderOptions);
+    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, rayTracer, renderOptions);
 
     closeFile(fp, isPipe);
 }
@@ -218,6 +219,7 @@ batchExecuteRadianceSimulation(
                     batchSaveRadianceImage,
                     scene,
                     radianceMethod,
+                    rayTracer,
                     renderOptions);
                 delete[] fileName;
             }
@@ -232,6 +234,7 @@ batchExecuteRadianceSimulation(
                     batchSaveRadianceModel,
                     scene,
                     radianceMethod,
+                    rayTracer,
                     renderOptions);
                 delete[] fileName;
             }
@@ -275,6 +278,7 @@ batchExecuteRadianceSimulation(
                 rayTraceSaveImage,
                 scene,
                 radianceMethod,
+                rayTracer,
                 renderOptions);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");

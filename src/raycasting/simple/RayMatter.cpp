@@ -87,6 +87,16 @@ RayMatter::reDisplay() const {
     return true;
 }
 
+bool
+RayMatter::saveImage(ImageOutputHandle *imageOutputHandle) const {
+    if ( globalRayMatter == nullptr ) {
+        return false;
+    }
+
+    globalRayMatter->save(imageOutputHandle);
+    return true;
+}
+
 void
 RayMatter::createFilter() {
     if ( pixelFilter != nullptr ) {
@@ -170,16 +180,6 @@ RayMatter::save(ImageOutputHandle *ip) {
     screenBuffer->writeFile(ip);
 }
 
-static int
-saveImage(ImageOutputHandle *imageOutputHandle) {
-    if ( !globalRayMatter ) {
-        return false;
-    }
-
-    globalRayMatter->save(imageOutputHandle);
-    return true;
-}
-
 static void
 terminate() {
     if ( globalRayMatter ) {
@@ -191,7 +191,6 @@ terminate() {
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
-    saveImage,
     terminate
 };
 

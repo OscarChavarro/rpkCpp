@@ -7,8 +7,6 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
-#include "raycasting/common/Raytracer.h"
-
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(const ColorRgb *rgb);
 
