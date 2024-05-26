@@ -56,6 +56,15 @@ BidirectionalPathRaytracer::getName() const {
     return name;
 }
 
+void
+BidirectionalPathRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+    // mainInitApplication the light list
+    if ( GLOBAL_lightList ) {
+        delete GLOBAL_lightList;
+    }
+    GLOBAL_lightList = new LightList(lightPatches);
+}
+
 static bool
 spikeCheck(ColorRgb color) {
     double colAvg = color.average();
@@ -1128,15 +1137,6 @@ biDirPathSaveImage(ImageOutputHandle *ip) {
 }
 
 static void
-biDirPathInit(java::ArrayList<Patch *> *lightPatches) {
-    // mainInitApplication the light list
-    if ( GLOBAL_lightList ) {
-        delete GLOBAL_lightList;
-    }
-    GLOBAL_lightList = new LightList(lightPatches);
-}
-
-static void
 biDirPathTerminate() {
     if ( GLOBAL_rayTracing_biDirectionalPath.lastscreen ) {
         delete GLOBAL_rayTracing_biDirectionalPath.lastscreen;
@@ -1147,7 +1147,6 @@ biDirPathTerminate() {
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
-    biDirPathInit,
     biDirPathTrace,
     biDirPathReDisplay,
     biDirPathSaveImage,

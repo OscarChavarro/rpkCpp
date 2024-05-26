@@ -54,6 +54,10 @@ RayMatter::getName() const {
 }
 
 void
+RayMatter::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+}
+
+void
 RayMatter::createFilter() {
     if ( pixelFilter != nullptr ) {
         delete pixelFilter;
@@ -184,14 +188,9 @@ terminate() {
     globalRayMatter = nullptr;
 }
 
-static void
-initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
-}
-
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
-    initialize,
     iRayMatte,
     reDisplay,
     saveImage,

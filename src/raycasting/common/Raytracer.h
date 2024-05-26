@@ -17,6 +17,11 @@ class RayTracer {
     virtual void defaults() = 0;
     virtual const char *getName() const = 0;
 
+    // Initializes the current scene for raytracing computations.
+    // Called when a new scene is loaded or when selecting a particular
+    // raytracing algorithm
+    virtual void initialize(const java::ArrayList<Patch *> *lightPatches) const = 0;
+
     virtual ~RayTracer() {}
 };
 
@@ -28,11 +33,6 @@ class Raytracer {
 
     // How short can the short name be abbreviated?
     int nameAbbrev;
-
-    // Initializes the current scene for raytracing computations.
-    // Called when a new scene is loaded or when selecting a particular
-    // raytracing algorithm
-    void (*Initialize)(java::ArrayList<Patch *> *lightPatches);
 
     // Raytrace the current scene as seen with the current camera. If 'ip'
     // is not a nullptr pointer, write the ray-traced image using the image output

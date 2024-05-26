@@ -42,6 +42,10 @@ RayCaster::getName() const {
 }
 
 void
+RayCaster::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+}
+
+void
 RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
     if ( *u > 1.0 - Numeric::Numeric::EPSILON ) {
         *u = 1.0 - Numeric::EPSILON;
@@ -239,10 +243,6 @@ rayCasterTerminate() {
 }
 
 static void
-rayCasterInitialize(java::ArrayList<Patch *> * /*lightPatches*/) {
-}
-
-static void
 rayCasterExecute(
     ImageOutputHandle *ip,
     Scene *scene,
@@ -261,7 +261,6 @@ rayCasterExecute(
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
-    rayCasterInitialize,
     rayCasterExecute,
     rayCasterRedisplay,
     rayCasterSaveImage,

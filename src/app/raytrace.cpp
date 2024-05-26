@@ -38,14 +38,14 @@ rayTraceMakeMethodsHelpMessage(char *str) {
 This routine sets the current raytracing method to be used
 */
 static void
-rayTraceSetMethod(Raytracer *newMethod, java::ArrayList<Patch *> *lightSourcePatches) {
+rayTraceSetMethod(Raytracer *newMethod, RayTracer *rayTracer, java::ArrayList<Patch *> *lightSourcePatches) {
     if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
         GLOBAL_raytracer_activeRaytracer->Terminate();
     }
 
     GLOBAL_raytracer_activeRaytracer = newMethod;
-    if ( GLOBAL_raytracer_activeRaytracer != nullptr ) {
-        GLOBAL_raytracer_activeRaytracer->Initialize(lightSourcePatches);
+    if ( rayTracer != nullptr ) {
+        rayTracer->initialize(lightSourcePatches);
     }
 }
 
@@ -67,13 +67,13 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     for ( Raytracer **window = globalRayTracingMethods; *window; window++ ) {
         Raytracer *method = *window;
         if ( strncasecmp(rayTracerName, method->shortName, method->nameAbbrev) == 0 ) {
-            rayTraceSetMethod(method, scene->lightSourcePatchList);
+            rayTraceSetMethod(method, newRaytracer, scene->lightSourcePatchList);
             return newRaytracer;
         }
     }
 
     if ( strncasecmp(rayTracerName, "none", 4) == 0 ) {
-        rayTraceSetMethod(nullptr, scene->lightSourcePatchList);
+        rayTraceSetMethod(nullptr, newRaytracer, scene->lightSourcePatchList);
     } else {
         logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
     }

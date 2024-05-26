@@ -36,6 +36,7 @@ class RayCaster final : public RayTracer {
 
     void defaults() final;
     const char *getName() const final;
+    void initialize(const java::ArrayList<Patch *> *lightPatches) const final;
 };
 
 #ifdef RAYTRACING_ENABLED

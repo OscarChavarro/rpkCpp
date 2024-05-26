@@ -61,6 +61,15 @@ StochasticRaytracer::getName() const {
     return name;
 }
 
+void
+StochasticRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+    // mainInitApplication the light list
+    if ( GLOBAL_lightList ) {
+        delete GLOBAL_lightList;
+    }
+    GLOBAL_lightList = new LightList(lightPatches);
+}
+
 static ColorRgb
 stochasticRaytracerGetRadiance(
     Camera *camera,
@@ -638,8 +647,7 @@ calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (computeFluxToRadFactor(camera, nx, ny) /
-            (float)config->samplesPerPixel);
+    double factor = (computeFluxToRadFactor(camera, nx, ny) / (float)config->samplesPerPixel);
 
     result.scale((float)factor);
     config->screen->add(nx, ny, result);
@@ -721,15 +729,6 @@ RTStochastic_SaveImage(ImageOutputHandle *ip) {
     }
 }
 
-static void
-stochasticRayTracerInit(java::ArrayList<Patch *> *lightPatches) {
-    // mainInitApplication the light list
-    if ( GLOBAL_lightList ) {
-        delete GLOBAL_lightList;
-    }
-    GLOBAL_lightList = new LightList(lightPatches);
-}
-
 void
 stochasticRayTracerTerminate() {
     if ( GLOBAL_raytracing_state.lastScreen ) {
@@ -746,7 +745,6 @@ Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",
     4,
-    stochasticRayTracerInit,
     rtStochasticTrace,
     RTStochastic_Redisplay,
     RTStochastic_SaveImage,
