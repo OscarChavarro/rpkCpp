@@ -11,6 +11,8 @@
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 
+char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";
+
 // Heuristic minimum distance threshold for photon map readouts
 // should be tuned and dependent on scene size, ...
 const float PHOTON_MAP_MIN_DIST = 0.02f;
@@ -52,6 +54,11 @@ StochasticRaytracer::defaults() {
 
     // Common
     GLOBAL_raytracing_state.lastScreen = nullptr;
+}
+
+const char *
+StochasticRaytracer::getName() const {
+    return name;
 }
 
 static ColorRgb
@@ -739,7 +746,6 @@ Raytracer GLOBAL_raytracing_stochasticMethod =
 {
     "StochasticRaytracing",
     4,
-    "Stochastic Raytracing & Final Gathers",
     stochasticRayTracerInit,
     rtStochasticTrace,
     RTStochastic_Redisplay,

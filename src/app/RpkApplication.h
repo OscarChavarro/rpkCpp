@@ -19,7 +19,7 @@ class RpkApplication {
     void mainInitApplication();
     void mainParseOptions(int *argc, char **argv, char *rayTracerName);
     void mainCreateOffscreenCanvasWindow();
-    void executeRendering(char *rayTracerName);
+    void executeRendering(const char *rayTracerName);
     static void freeMemory(MgfContext *mgfContext);
 
   public:

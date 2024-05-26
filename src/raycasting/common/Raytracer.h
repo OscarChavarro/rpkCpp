@@ -15,6 +15,7 @@ ray-tracers: RayMatter, RayCaster, BidirectionalPathRaytracer and StochasticRayt
 class RayTracer {
   public:
     virtual void defaults() = 0;
+    virtual const char *getName() const = 0;
 
     virtual ~RayTracer() {}
 };
@@ -27,9 +28,6 @@ class Raytracer {
 
     // How short can the short name be abbreviated?
     int nameAbbrev;
-
-    // Full name of the raytracing method
-    const char *fullName;
 
     // Initializes the current scene for raytracing computations.
     // Called when a new scene is loaded or when selecting a particular

@@ -14,6 +14,8 @@ a software frame buffer directly.
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
+char RayCaster::name[12] = "Ray Casting";
+
 RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera) {
     if ( inScreen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, defaultCamera);
@@ -32,6 +34,11 @@ RayCaster::~RayCaster() {
 
 void
 RayCaster::defaults() {
+}
+
+const char *
+RayCaster::getName() const {
+    return name;
 }
 
 void
@@ -254,7 +261,6 @@ rayCasterExecute(
 Raytracer GLOBAL_rayCasting_RayCasting = {
     "RayCasting",
     4,
-    "Ray Casting",
     rayCasterInitialize,
     rayCasterExecute,
     rayCasterRedisplay,

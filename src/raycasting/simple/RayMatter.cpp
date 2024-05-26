@@ -18,6 +18,8 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 static RayMatter *globalRayMatter = nullptr;
 RayMatterState GLOBAL_rayCasting_rayMatterState;
 
+char RayMatter::name[12] = "Ray Matting";
+
 RayMatter::RayMatter(ScreenBuffer *screen, const Camera *camera) {
     if ( screen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, camera);
@@ -44,6 +46,11 @@ void
 RayMatter::defaults() {
     GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
     GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
+}
+
+const char *
+RayMatter::getName() const {
+    return name;
 }
 
 void
@@ -184,7 +191,6 @@ initialize(java::ArrayList<Patch *> * /*lightPatches*/) {
 Raytracer GLOBAL_rayCasting_RayMatting = {
     "RayMatting",
     4,
-    "Ray Matting",
     initialize,
     iRayMatte,
     reDisplay,

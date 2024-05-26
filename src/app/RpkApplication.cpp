@@ -99,7 +99,7 @@ RpkApplication::mainCreateOffscreenCanvasWindow() {
 }
 
 void
-RpkApplication::executeRendering(char *rayTracerName) {
+RpkApplication::executeRendering(const char *rayTracerName) {
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow();
 
@@ -113,7 +113,7 @@ RpkApplication::executeRendering(char *rayTracerName) {
         openGlRenderScene(scene, renderCallback, selectedRadianceMethod, renderOptions);
     #endif
 
-    batchExecuteRadianceSimulation(scene, selectedRadianceMethod, renderOptions);
+    batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
 }
 
 void

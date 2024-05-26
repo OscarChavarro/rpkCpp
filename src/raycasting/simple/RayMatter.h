@@ -22,6 +22,7 @@ extern RayMatterState GLOBAL_rayCasting_rayMatterState;
 
 class RayMatter final : public RayTracer {
   private:
+    static char name[];
     ScreenBuffer *screenBuffer;
     PixelFilter *pixelFilter;
     bool doDeleteScreen;
@@ -36,6 +37,7 @@ class RayMatter final : public RayTracer {
     void save(ImageOutputHandle *ip);
 
     void defaults() final;
+    const char *getName() const final;
 };
 
 extern Raytracer GLOBAL_rayCasting_RayMatting;

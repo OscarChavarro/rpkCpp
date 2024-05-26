@@ -9,7 +9,6 @@
 #include "raycasting/simple/RayCaster.h"
 #include "render/opengl.h"
 #include "IMAGE/imagec.h"
-#include "app/options.h"
 #include "app/commandLine.h"
 #include "app/BatchOptions.h"
 #include "app/batch.h"
@@ -80,7 +79,7 @@ static void
 batchProcessFile(
     const char *fileName,
     const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions),
+    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
@@ -89,7 +88,7 @@ batchProcessFile(
     FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
+    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, nullptr, renderOptions);
 
     closeFile(fp, isPipe);
 }
@@ -101,6 +100,7 @@ batchSaveRadianceImage(
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    const RayTracer * /*rayTracer*/,
     const RenderOptions *renderOptions)
 {
     clock_t t;
@@ -135,6 +135,7 @@ batchSaveRadianceModel(
     int /*isPipe*/,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    const RayTracer */*rayTracer*/,
     const RenderOptions *renderOptions)
 {
     clock_t t;
@@ -159,7 +160,12 @@ batchSaveRadianceModel(
 }
 
 void
-batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, RenderOptions *renderOptions) {
+batchExecuteRadianceSimulation(
+    Scene *scene,
+    RadianceMethod *radianceMethod,
+    const RayTracer *rayTracer,
+    RenderOptions *renderOptions)
+{
     clock_t start_time;
     clock_t wasted_start;
     float wastedSecs;
@@ -252,16 +258,16 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
 
     #ifdef RAYTRACING_ENABLED
         if ( GLOBAL_raytracer_activeRaytracer ) {
-            printf("Doing %s ...\n", GLOBAL_raytracer_activeRaytracer->fullName);
+            printf("Doing %s ...\n", rayTracer->getName());
 
             start_time = clock();
             rayTraceExecute(
-                    nullptr,
-                    nullptr,
-                    false,
-                    scene,
-                    radianceMethod,
-                    renderOptions);
+                nullptr,
+                nullptr,
+                false,
+                scene,
+                radianceMethod,
+                renderOptions);
 
             if ( globalBatchOptions.timings ) {
                 fprintf(stdout, "Raytracing total time %g secs.\n",
@@ -269,12 +275,12 @@ batchExecuteRadianceSimulation(Scene *scene, RadianceMethod *radianceMethod, Ren
             }
 
             batchProcessFile(
-                    globalBatchOptions.raytracingImageFileName,
-                    "w",
-                    rayTraceSaveImage,
-                    scene,
-                    radianceMethod,
-                    renderOptions);
+                globalBatchOptions.raytracingImageFileName,
+                "w",
+                rayTraceSaveImage,
+                scene,
+                radianceMethod,
+                renderOptions);
         } else {
             printf("(No pixel-based radiance computations are being done)\n");
         }

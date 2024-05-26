@@ -14,6 +14,10 @@
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
+#define STRINGS_SIZE 300
+
+char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
+
 // Persistent biDirPath state, contains actual GUI state and some other stuff
 BIDIRPATH_STATE GLOBAL_rayTracing_biDirectionalPath;
 
@@ -47,7 +51,10 @@ BidirectionalPathRaytracer::defaults() {
     GLOBAL_rayTracing_biDirectionalPath.baseFilename[0] = '\0';
 }
 
-#define STRINGS_SIZE 300
+const char *
+BidirectionalPathRaytracer::getName() const {
+    return name;
+}
 
 static bool
 spikeCheck(ColorRgb color) {
@@ -1140,7 +1147,6 @@ biDirPathTerminate() {
 Raytracer GLOBAL_raytracing_biDirectionalPathMethod = {
     "BidirectionalPathTracing",
     4,
-    "Bidirectional Path Tracing",
     biDirPathInit,
     biDirPathTrace,
     biDirPathReDisplay,

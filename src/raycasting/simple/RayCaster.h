@@ -12,6 +12,7 @@
 
 class RayCaster final : public RayTracer {
   private:
+    static char name[];
     ScreenBuffer *screenBuffer;
     bool doDeleteScreen;
 
@@ -34,6 +35,7 @@ class RayCaster final : public RayTracer {
     void save(ImageOutputHandle *ip);
 
     void defaults() final;
+    const char *getName() const final;
 };
 
 #ifdef RAYTRACING_ENABLED

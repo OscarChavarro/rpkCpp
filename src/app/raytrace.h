@@ -18,6 +18,7 @@
         int isPipe,
         const Scene *scene,
         const RadianceMethod *,
+        const RayTracer *rayTracer,
         const RenderOptions *);
 
     extern void

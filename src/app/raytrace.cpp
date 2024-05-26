@@ -98,6 +98,7 @@ rayTraceSaveImage(
     int isPipe,
     const Scene *scene,
     const RadianceMethod * /*radianceMethod*/,
+    const RayTracer *rayTracer,
     const RenderOptions * /*renderOptions*/)
 {
     clock_t t;
@@ -122,7 +123,7 @@ rayTraceSaveImage(
     if ( !GLOBAL_raytracer_activeRaytracer ) {
         logWarning(nullptr, "No ray tracing method active");
     } else if ( !GLOBAL_raytracer_activeRaytracer->SaveImage || !GLOBAL_raytracer_activeRaytracer->SaveImage(img) ) {
-        logWarning(nullptr, "No previous %s image available", GLOBAL_raytracer_activeRaytracer->fullName);
+        logWarning(nullptr, "No previous %s image available", rayTracer->getName());
     }
 
     deleteImageOutputHandle(img);
