@@ -9,14 +9,21 @@ Most of the functions have similar meaning as for a radiance or ray-tracing meth
 */
 class ToneMap {
   public:
-    const char *name; // Full name
-    const char *shortName; // Short name usable as option argument
-    int abbrev; // Minimal abbreviation of short name in option argument
+    ToneMap();
+    virtual ~ToneMap();
+    virtual void defaults() = 0;
+};
 
-    void (*Defaults)(); // Sets defaults
-    void (*ParseOptions)(int *argc, char **argv); // Optional
-    void (*Init)(); // Initialises
-    void (*Terminate)(); // Terminates
+class OldToneMap {
+  public:
+    const char *name;
+    const char *shortName;
+    int abbrev;
+
+    void (*Defaults)();
+    void (*ParseOptions)(int *argc, char **argv);
+    void (*Init)();
+    void (*Terminate)();
 
     /**
     Knowing the display luminance "dl" this function determines the
@@ -34,9 +41,9 @@ class ToneMap {
 };
 
 // Available tone mapping operators (nullptr terminated array)
-extern ToneMap *GLOBAL_toneMap_availableToneMaps[];
+extern OldToneMap *GLOBAL_toneMap_availableToneMaps[];
 
-extern void setToneMap(ToneMap *map);
+extern void setToneMap(OldToneMap *map);
 
 // Recomputes gamma tables for the given gamma values for red, green and blue
 extern void recomputeGammaTables(ColorRgb gamma);

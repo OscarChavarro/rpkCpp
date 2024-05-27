@@ -1,5 +1,15 @@
 #include "tonemap/IdentityToneMap.h"
 
+IdentityToneMap::IdentityToneMap() {
+}
+
+IdentityToneMap::~IdentityToneMap() {
+}
+
+void
+IdentityToneMap::defaults() {
+}
+
 static void identityDefaults() {
 }
 
@@ -17,7 +27,7 @@ static ColorRgb identityScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-ToneMap GLOBAL_toneMap_dummy = {
+OldToneMap GLOBAL_toneMap_dummy = {
     "Dummy",
     "Dummy",
     3,

@@ -3,6 +3,13 @@
 
 #include "tonemap/ToneMap.h"
 
-extern ToneMap GLOBAL_toneMap_dummy;
+class IdentityToneMap final : public ToneMap {
+  public:
+    IdentityToneMap();
+    ~IdentityToneMap() final;
+    void defaults() final;
+};
+
+extern OldToneMap GLOBAL_toneMap_dummy;
 
 #endif

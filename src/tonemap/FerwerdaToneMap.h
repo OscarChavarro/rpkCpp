@@ -3,6 +3,13 @@
 
 #include "tonemap/ToneMap.h"
 
-extern ToneMap GLOBAL_toneMap_ferwerda;
+class FerwerdaToneMap final : public ToneMap {
+  public:
+    FerwerdaToneMap();
+    ~FerwerdaToneMap() final;
+    void defaults() final;
+};
+
+extern OldToneMap GLOBAL_toneMap_ferwerda;
 
 #endif

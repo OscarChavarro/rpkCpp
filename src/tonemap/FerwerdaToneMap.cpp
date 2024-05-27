@@ -17,6 +17,16 @@ static float globalSmComp;
 static float globalSmDisp;
 static float globalLda;
 
+FerwerdaToneMap::FerwerdaToneMap() {
+}
+
+FerwerdaToneMap::~FerwerdaToneMap() {
+}
+
+void
+FerwerdaToneMap::defaults() {
+}
+
 static void
 ferwerdaDefaults() {
 }
@@ -127,7 +137,7 @@ ferwerdaScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-ToneMap GLOBAL_toneMap_ferwerda = {
+OldToneMap GLOBAL_toneMap_ferwerda = {
     "Partial Ferwerda's Mapping",
     "Ferwerda",
     3,

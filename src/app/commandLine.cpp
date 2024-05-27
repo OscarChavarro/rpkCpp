@@ -268,8 +268,8 @@ makeToneMappingMethodsString() {
     snprintf(str, 1000, "\tmethods: %n", &n);
     str += n;
 
-    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        const ToneMap *method = *toneMap;
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        const OldToneMap *method = *toneMap;
         if ( !first ) {
             snprintf(str, STRING_LENGTH, "\t         %n", &n);
             str += n;
@@ -287,8 +287,8 @@ static void
 toneMappingMethodOption(void *value) {
     char *name = *(char **) value;
 
-    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        ToneMap *method = *toneMap;
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        OldToneMap *method = *toneMap;
         if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
             setToneMap(method);
             return;
@@ -381,8 +381,8 @@ toneMapParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalToneMappingOptions, argc, argv);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 
-    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        const ToneMap *map = *toneMap;
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        const OldToneMap *map = *toneMap;
         if ( map->ParseOptions ) {
             map->ParseOptions(argc, argv);
         }

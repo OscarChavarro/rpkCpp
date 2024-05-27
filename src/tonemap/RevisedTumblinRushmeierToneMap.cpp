@@ -14,6 +14,16 @@ static float globalDisp;
 static float globalLwa;
 static float globalLdaTumb;
 
+RevisedTumblinRushmeierToneMap::RevisedTumblinRushmeierToneMap() {
+}
+
+RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
+}
+
+void
+RevisedTumblinRushmeierToneMap::defaults() {
+}
+
 static void
 revisedTumblinRushmeierDefaults() {
 }
@@ -81,7 +91,7 @@ revisedTRScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-ToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
+OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
     3,

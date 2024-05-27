@@ -3,6 +3,13 @@
 
 #include "tonemap/ToneMap.h"
 
-extern ToneMap GLOBAL_toneMap_revisedTumblinRushmeier;
+class RevisedTumblinRushmeierToneMap final : public ToneMap {
+  public:
+    RevisedTumblinRushmeierToneMap();
+    ~RevisedTumblinRushmeierToneMap() final;
+    void defaults() final;
+};
+
+extern OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier;
 
 #endif

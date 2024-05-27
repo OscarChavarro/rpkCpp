@@ -11,6 +11,16 @@ static float globalComp;
 static float globalDisp;
 static float globalLda;
 
+WardToneMap::WardToneMap() {
+}
+
+WardToneMap::~WardToneMap() {
+}
+
+void
+WardToneMap::defaults() {
+}
+
 static void
 wardDefaults() {
 }
@@ -46,7 +56,7 @@ wardScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-ToneMap GLOBAL_toneMap_ward = {
+OldToneMap GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
     3,

@@ -3,6 +3,13 @@
 
 #include "tonemap/ToneMappingContext.h"
 
-extern ToneMap GLOBAL_toneMap_ward;
+class WardToneMap final : public ToneMap {
+  public:
+    WardToneMap();
+    ~WardToneMap() final;
+    void defaults() final;
+};
+
+extern OldToneMap GLOBAL_toneMap_ward;
 
 #endif

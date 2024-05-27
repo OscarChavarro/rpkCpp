@@ -4,6 +4,16 @@
 #include "common/Statistics.h"
 #include "tonemap/LightnessToneMap.h"
 
+LightnessToneMap::LightnessToneMap() {
+}
+
+LightnessToneMap::~LightnessToneMap() {
+}
+
+void
+LightnessToneMap::defaults() {
+}
+
 static void lightnessDefaults() {
 }
 
@@ -54,7 +64,7 @@ lightnessScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-ToneMap GLOBAL_toneMap_lightness = {
+OldToneMap GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
     3,

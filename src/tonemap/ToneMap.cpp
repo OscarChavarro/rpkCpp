@@ -15,7 +15,7 @@
 #define DEFAULT_TM_LDMAX 100.0
 #define DEFAULT_TM_CMAX 50.0
 
-ToneMap *GLOBAL_toneMap_availableToneMaps[] = {
+OldToneMap *GLOBAL_toneMap_availableToneMaps[] = {
     &GLOBAL_toneMap_lightness,
     &GLOBAL_toneMap_tumblinRushmeier,
     &GLOBAL_toneMap_ward,
@@ -24,13 +24,19 @@ ToneMap *GLOBAL_toneMap_availableToneMaps[] = {
     nullptr
 };
 
+ToneMap::ToneMap() {
+}
+
+ToneMap::~ToneMap() {
+}
+
 /**
 rayCasterDefaults and option handling
 */
 void
 toneMapDefaults() {
-    for ( ToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        const ToneMap *map = *toneMap;
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        const OldToneMap *map = *toneMap;
         map->Defaults();
     }
 
@@ -65,7 +71,7 @@ toneMapDefaults() {
 Makes map the current tone mapping operator + initialises
 */
 void
-setToneMap(ToneMap *map) {
+setToneMap(OldToneMap *map) {
     GLOBAL_toneMap_options.toneMap->Terminate();
     GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_dummy;
     GLOBAL_toneMap_options.toneMap->Init();

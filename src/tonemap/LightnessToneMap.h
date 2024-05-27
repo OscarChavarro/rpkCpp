@@ -3,6 +3,13 @@
 
 #include "tonemap/ToneMap.h"
 
-extern ToneMap GLOBAL_toneMap_lightness;
+class LightnessToneMap final : public ToneMap {
+  public:
+    LightnessToneMap();
+    ~LightnessToneMap() final;
+    void defaults() final;
+};
+
+extern OldToneMap GLOBAL_toneMap_lightness;
 
 #endif
