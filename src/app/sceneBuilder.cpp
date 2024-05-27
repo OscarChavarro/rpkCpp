@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
 #include "render/renderhook.h"

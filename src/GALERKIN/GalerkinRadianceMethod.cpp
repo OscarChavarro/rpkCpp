@@ -14,7 +14,7 @@ Galerkin radiosity, with the following variants:
 #include "io/writevrml.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/ShootingStrategy.h"

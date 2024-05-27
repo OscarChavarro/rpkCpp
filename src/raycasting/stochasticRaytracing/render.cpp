@@ -8,7 +8,7 @@ Rendering elements
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "render/opengl.h"

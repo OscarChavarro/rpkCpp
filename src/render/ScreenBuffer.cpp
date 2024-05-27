@@ -5,7 +5,7 @@
 #include "common/Statistics.h"
 #include "render/opengl.h"
 #include "io/FileUncompressWrapper.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "render/ScreenBuffer.h"
 
 /**

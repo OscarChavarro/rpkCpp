@@ -28,7 +28,7 @@ HISTORY:
 #include <cstring>
 
 #include "common/error.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "IMAGE/imagecpp.h"
 #include "IMAGE/ppm.h"
 #include "IMAGE/pic.h"

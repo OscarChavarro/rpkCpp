@@ -1,5 +1,5 @@
 #include "common/numericalAnalysis/QuadCubatureRule.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "io/mgf/readmgf.h"
 #include "render/opengl.h"
 //#include "render/glutDebugTools.h"

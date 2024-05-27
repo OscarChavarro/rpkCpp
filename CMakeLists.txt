@@ -75,10 +75,14 @@ set(MAIN_SRC
     src/IMAGE/dkcolor.cpp
     src/IMAGE/imagec.cpp
     src/IMAGE/ppm.cpp
-    src/IMAGE/tonemap/lightness.cpp
-    src/IMAGE/tonemap/dummy.cpp
-    src/IMAGE/tonemap/tonemapping.cpp
-    src/IMAGE/tonemap/trwf.cpp
+    src/IMAGE/tonemap/ToneMappingContext.cpp
+    src/IMAGE/tonemap/ToneMap.cpp
+    src/IMAGE/tonemap/DummyToneMap.cpp
+    src/IMAGE/tonemap/LightnessToneMap.cpp
+    src/IMAGE/tonemap/WardToneMap.cpp
+    src/IMAGE/tonemap/TumblinRushmeierToneMap.cpp
+    src/IMAGE/tonemap/RevisedTumblinRushmeierToneMap.cpp
+    src/IMAGE/tonemap/FerwerdaToneMap.cpp
     src/IMAGE/adaptation.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp

@@ -38,7 +38,7 @@ Tone mapping options:
 -adapt <method>  	: adaptation estimation method
 	methods: "average", "median" 
 -lwa <float>		: real world adaptation luminance (default = 10)
--ldmax <float>		: maximum diaply luminance (default = 100)
+-ldmax <float>		: maximum display luminance (default = 100)
 -cmax <float>		: maximum displayable contrast (default = 50)
 -gamma <float>       	: gamma correction factor (same for red, green. blue) 
 -rgbgamma <r> <g> <b>	: gamma correction factor (separate for red, green, blue) (default = 1.7 1.7 1.7)

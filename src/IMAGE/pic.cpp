@@ -27,7 +27,7 @@ int
 PicOutputHandle::writeRadianceRGB(float *rgbRadiance) {
     int result = 0;
 
-    if ( pic ) {
+    if ( pic != nullptr ) {
         result = dkColorWriteScan((COLOR *) rgbRadiance, width, pic);
     }
 

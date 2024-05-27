@@ -3,7 +3,7 @@
 #include "java/lang/Math.h"
 #include "common/ColorRgb.h"
 #include "scene/Camera.h"
-#include "IMAGE/tonemap/tonemapping.h"
+#include "IMAGE/tonemap/ToneMap.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/raytracing/screeniterate.h"
