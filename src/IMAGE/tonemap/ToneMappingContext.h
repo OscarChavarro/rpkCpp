@@ -2,7 +2,7 @@
 #define __TONE_MAPPING_CONTEXT_H
 
 #include "common/ColorRgb.h"
-#include "IMAGE/adaptation.h"
+#include "IMAGE/tonemap/adaptation.h"
 
 class ToneMap;
 

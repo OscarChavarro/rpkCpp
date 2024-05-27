@@ -6,7 +6,7 @@
 
 #include "common/RenderOptions.h"
 #include "common/linealAlgebra/Vector2D.h"
-#include "IMAGE/imagecpp.h"
+#include "IMAGE/ImageOutputHandle.h"
 #include "common/ColorRgb.h"
 #include "scene/Camera.h"
 

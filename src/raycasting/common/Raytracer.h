@@ -2,10 +2,10 @@
 #define __RAYTRACER__
 
 #include "java/util/ArrayList.h"
-#include "IMAGE/imagec.h"
 #include "skin/Patch.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
+#include "IMAGE/ImageOutputHandle.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four

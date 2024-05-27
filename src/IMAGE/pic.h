@@ -1,7 +1,7 @@
 #ifndef __PIC_CPP__
 #define __PIC_CPP__
 
-#include "IMAGE/imagecpp.h"
+#include "IMAGE/ImageOutputHandle.h"
 
 /**
 High dynamic range PIC output handle.

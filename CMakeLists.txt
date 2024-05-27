@@ -73,7 +73,7 @@ set(MAIN_SRC
     src/scene/Scene.cpp
     src/IMAGE/pic.cpp
     src/IMAGE/dkcolor.cpp
-    src/IMAGE/imagec.cpp
+        src/IMAGE/ImageOutputHandle.cpp
     src/IMAGE/ppm.cpp
     src/IMAGE/tonemap/ToneMappingContext.cpp
     src/IMAGE/tonemap/ToneMap.cpp
@@ -83,7 +83,7 @@ set(MAIN_SRC
     src/IMAGE/tonemap/TumblinRushmeierToneMap.cpp
     src/IMAGE/tonemap/RevisedTumblinRushmeierToneMap.cpp
     src/IMAGE/tonemap/FerwerdaToneMap.cpp
-    src/IMAGE/adaptation.cpp
+        src/IMAGE/tonemap/adaptation.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
     src/io/mgf/MgfColorContext.cpp

@@ -2,8 +2,10 @@
 Interface for writing image data in different file formats
 */
 
-#ifndef __IMAGE_CPP__
-#define __IMAGE_CPP__
+#ifndef __IMAGE_OUTPUT_HANDLE__
+#define __IMAGE_OUTPUT_HANDLE__
+
+#include <cstdio>
 
 class ImageOutputHandle {
   protected:
@@ -41,8 +43,6 @@ class ImageOutputHandle {
     virtual int writeRadianceRGB(float *rgbRadiance); // RGB radiance data
 };
 
-#include <cstdio>
-
 extern ImageOutputHandle *
 createRadianceImageOutputHandle(
     const char *fileName,
@@ -59,5 +59,14 @@ createImageOutputHandle(
     int isPipe,
     int width,
     int height);
+
+/**
+The following ImageOutputHandle constructors are only needed if you want to specify
+yourself what format to use
+*/
+
+extern const char *imageFileExtension(const char *fileName);
+extern int writeDisplayRGB(ImageOutputHandle *img, unsigned char *data);
+extern void deleteImageOutputHandle(ImageOutputHandle *img);
 
 #endif

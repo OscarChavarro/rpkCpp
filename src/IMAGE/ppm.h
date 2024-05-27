@@ -1,7 +1,7 @@
 #ifndef __PPM__
 #define __PPM__
 
-#include "IMAGE/imagecpp.h"
+#include "IMAGE/ImageOutputHandle.h"
 
 class PPMOutputHandle final : public ImageOutputHandle {
   private:
