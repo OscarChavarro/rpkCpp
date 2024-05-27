@@ -1,11 +1,7 @@
-/**
-Lightness tone map
-*/
-
 #include "common/error.h"
 #include "common/cie.h"
 #include "common/Statistics.h"
-#include "IMAGE/tonemap/LightnessToneMap.h"
+#include "tonemap/LightnessToneMap.h"
 
 static void lightnessDefaults() {
 }

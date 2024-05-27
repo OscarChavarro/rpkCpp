@@ -71,19 +71,15 @@ set(MAIN_SRC
     src/scene/VoxelGrid.cpp
     src/scene/RadianceMethod.cpp
     src/scene/Scene.cpp
-    src/IMAGE/pic.cpp
-    src/IMAGE/dkcolor.cpp
-        src/IMAGE/ImageOutputHandle.cpp
-    src/IMAGE/ppm.cpp
-    src/IMAGE/tonemap/ToneMappingContext.cpp
-    src/IMAGE/tonemap/ToneMap.cpp
-    src/IMAGE/tonemap/DummyToneMap.cpp
-    src/IMAGE/tonemap/LightnessToneMap.cpp
-    src/IMAGE/tonemap/WardToneMap.cpp
-    src/IMAGE/tonemap/TumblinRushmeierToneMap.cpp
-    src/IMAGE/tonemap/RevisedTumblinRushmeierToneMap.cpp
-    src/IMAGE/tonemap/FerwerdaToneMap.cpp
-        src/IMAGE/tonemap/adaptation.cpp
+    src/tonemap/ToneMappingContext.cpp
+    src/tonemap/ToneMap.cpp
+    src/tonemap/IdentityToneMap.cpp
+    src/tonemap/LightnessToneMap.cpp
+    src/tonemap/WardToneMap.cpp
+    src/tonemap/TumblinRushmeierToneMap.cpp
+    src/tonemap/RevisedTumblinRushmeierToneMap.cpp
+    src/tonemap/FerwerdaToneMap.cpp
+    src/tonemap/adaptation.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
     src/io/mgf/MgfColorContext.cpp
@@ -100,6 +96,10 @@ set(MAIN_SRC
     src/io/mgf/readmgf.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
+    src/io/image/pic.cpp
+    src/io/image/dkcolor.cpp
+    src/io/image/ImageOutputHandle.cpp
+    src/io/image/ppm.cpp
     src/render/potential.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/softids.cpp

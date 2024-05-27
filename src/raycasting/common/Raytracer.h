@@ -5,7 +5,7 @@
 #include "skin/Patch.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "IMAGE/ImageOutputHandle.h"
+#include "io/image/ImageOutputHandle.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four

@@ -2,7 +2,7 @@
 #define __TONE_MAPPING_CONTEXT_H
 
 #include "common/ColorRgb.h"
-#include "IMAGE/tonemap/adaptation.h"
+#include "tonemap/adaptation.h"
 
 class ToneMap;
 
@@ -41,6 +41,6 @@ class ToneMappingContext {
 };
 extern ToneMappingContext GLOBAL_toneMap_options;
 
-#include "IMAGE/tonemap/ToneMap.h"
+#include "tonemap/ToneMap.h"
 
 #endif

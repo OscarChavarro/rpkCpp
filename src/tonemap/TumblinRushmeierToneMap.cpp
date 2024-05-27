@@ -1,7 +1,7 @@
 #include "java/lang/Math.h"
 #include "common/ColorRgb.h"
 #include "common/cie.h"
-#include "IMAGE/tonemap/TumblinRushmeierToneMap.h"
+#include "tonemap/TumblinRushmeierToneMap.h"
 
 /**
 References:

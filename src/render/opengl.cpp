@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "scene/RadianceMethod.h"
-#include "IMAGE/tonemap/ToneMap.h"
+#include "tonemap/ToneMap.h"
 #include "render/canvas.h"
 #include "render/softids.h"
 #include "render/opengl.h"

@@ -1,4 +1,4 @@
-#include "IMAGE/tonemap/WardToneMap.h"
+#include "tonemap/WardToneMap.h"
 
 /**
 References:

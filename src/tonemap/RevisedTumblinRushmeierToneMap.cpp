@@ -1,4 +1,4 @@
-#include "IMAGE/tonemap/RevisedTumblinRushmeierToneMap.h"
+#include "tonemap/RevisedTumblinRushmeierToneMap.h"
 
 /**
 References:

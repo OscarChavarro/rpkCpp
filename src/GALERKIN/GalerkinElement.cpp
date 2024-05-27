@@ -5,7 +5,7 @@
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "render/render.h"
 #include "render/opengl.h"
-#include "IMAGE/tonemap/ToneMap.h"
+#include "tonemap/ToneMap.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinElement.h"
 

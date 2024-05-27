@@ -1,4 +1,4 @@
-#include "IMAGE/ppm.h"
+#include "io/image/ppm.h"
 
 PPMOutputHandle::PPMOutputHandle(FILE *_fp, int w, int h) {
     ImageOutputHandle::init("PPM", w, h);

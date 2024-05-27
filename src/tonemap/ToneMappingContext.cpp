@@ -1,4 +1,4 @@
-#include "IMAGE/tonemap/ToneMappingContext.h"
+#include "tonemap/ToneMappingContext.h"
 
 // Tone mapping context
 ToneMappingContext GLOBAL_toneMap_options;

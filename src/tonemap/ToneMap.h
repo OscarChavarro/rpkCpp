@@ -2,7 +2,7 @@
 #define __TONE_MAP__
 
 #include "java/util/ArrayList.h"
-#include "IMAGE/tonemap/ToneMappingContext.h"
+#include "tonemap/ToneMappingContext.h"
 
 /**
 Most of the functions have similar meaning as for a radiance or ray-tracing method

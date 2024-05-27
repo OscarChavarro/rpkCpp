@@ -4,10 +4,10 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 #include <cstring>
 
 #include "common/error.h"
-#include "IMAGE/tonemap/ToneMap.h"
-#include "IMAGE/ppm.h"
-#include "IMAGE/pic.h"
-#include "IMAGE/ImageOutputHandle.h"
+#include "tonemap/ToneMap.h"
+#include "io/image/ppm.h"
+#include "io/image/pic.h"
+#include "io/image/ImageOutputHandle.h"
 
 ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma() {
 }

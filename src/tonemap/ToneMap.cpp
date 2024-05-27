@@ -1,10 +1,10 @@
 #include "java/util/ArrayList.txx"
-#include "IMAGE/tonemap/DummyToneMap.h"
-#include "IMAGE/tonemap/LightnessToneMap.h"
-#include "IMAGE/tonemap/WardToneMap.h"
-#include "IMAGE/tonemap/TumblinRushmeierToneMap.h"
-#include "IMAGE/tonemap/RevisedTumblinRushmeierToneMap.h"
-#include "IMAGE/tonemap/FerwerdaToneMap.h"
+#include "tonemap/IdentityToneMap.h"
+#include "tonemap/LightnessToneMap.h"
+#include "tonemap/WardToneMap.h"
+#include "tonemap/TumblinRushmeierToneMap.h"
+#include "tonemap/RevisedTumblinRushmeierToneMap.h"
+#include "tonemap/FerwerdaToneMap.h"
 
 #define DEFAULT_GAMMA 1.7
 

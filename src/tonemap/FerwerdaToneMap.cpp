@@ -1,5 +1,5 @@
 #include "common/ColorRgb.h"
-#include "IMAGE/tonemap/FerwerdaToneMap.h"
+#include "tonemap/FerwerdaToneMap.h"
 
 /**
 References:

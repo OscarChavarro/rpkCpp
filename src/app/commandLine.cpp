@@ -2,7 +2,7 @@
 #include "common/error.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
-#include "IMAGE/tonemap/ToneMap.h"
+#include "tonemap/ToneMap.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED

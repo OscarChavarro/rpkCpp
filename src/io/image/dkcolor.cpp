@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "IMAGE/dkcolor.h"
+#include "io/image/dkcolor.h"
 
 static const int RED = 0;
 static const int GREEN = 1;

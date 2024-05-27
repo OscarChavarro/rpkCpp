@@ -1,5 +1,5 @@
-#include "IMAGE/pic.h"
-#include "IMAGE/dkcolor.h"
+#include "io/image/dkcolor.h"
+#include "io/image/pic.h"
 
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
