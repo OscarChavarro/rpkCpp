@@ -1,17 +1,13 @@
+/**
+Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
+*/
 #include <cstring>
 
 #include "common/error.h"
 #include "IMAGE/tonemap/ToneMap.h"
-#include "IMAGE/ImageOutputHandle.h"
 #include "IMAGE/ppm.h"
 #include "IMAGE/pic.h"
-
-/**
-RGB x LOG LUV TIFF MACROS
-*/
-
-#define PRE_TIFF_GENERAL_HANDLE(_func) \
-    logError(_func, "TIFF support has not been compiled in")
+#include "IMAGE/ImageOutputHandle.h"
 
 ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma() {
 }
@@ -128,9 +124,9 @@ createRadianceImageOutputHandle(
 
             return new PicOutputHandle(fileName, width, height);
         } else {
-            PRE_TIFF_GENERAL_HANDLE("createRadianceImageOutputHandle");
             logError("createRadianceImageOutputHandle",
-                     "Can't save high dynamic range images to a '%s' file.", fileExtension);
+                     "Can't save high dynamic range image to a '%s' file, format not supported.",
+                     fileExtension);
             return nullptr;
         }
     }
@@ -154,9 +150,9 @@ createImageOutputHandle(
         if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(fileDescriptor, width, height);
         } else {
-            PRE_TIFF_GENERAL_HANDLE("createImageOutputHandle");
             logError("createImageOutputHandle",
-                     "Can't save display-RGB images to a '%s' file.\n", fileExtension);
+                     "Can't save display-RGB images to a '%s' file, format not supported.\n",
+                     fileExtension);
             return nullptr;
         }
     }
