@@ -10,17 +10,14 @@ Estimate static adaptation for tone mapping
 #include "common/Statistics.h"
 #include "tonemap/ToneMap.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
+#include "app/LuminanceArea.h"
 #include "app/adaptation.h"
 
-/**
-Stores luminance-area pairs for median area-weighted luminance
-selection.
-*/
-class LuminanceArea {
-  public:
-    float luminance;
-    float area;
-};
+static int globalNumEntries;
+static double globalLogAreaLum;
+static LuminanceArea *globalLumArea;
+static float globalLumMin = FLT_MAX; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+static float globalLumMax = 0.0;
 
 /**
 A-priori estimate of a patch's radiance
@@ -36,11 +33,6 @@ initRadianceEstimate(Patch *patch) {
     return radiance;
 }
 
-static int globalNumEntries;
-static double globalLogAreaLum;
-static LuminanceArea *globalLumArea;
-static float globalLumMin = FLT_MAX; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
-static float globalLumMax = 0.0;
 static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int

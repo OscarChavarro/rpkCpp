@@ -149,17 +149,17 @@ FlagChain::compute(CBiPath *path) const {
     return result;
 }
 
-ChainList::ChainList() {
+FlagChainList::FlagChainList() {
     count = 0;
     length = 0;
 }
 
-ChainList::~ChainList() {
+FlagChainList::~FlagChainList() {
     removeAll();
 }
 
 void
-ChainList::add(ChainList *list) {
+FlagChainList::add(FlagChainList *list) {
     // Add all chains in 'list'
     FlagChainIterator iter(*list);
     const FlagChain *tmpChain;
@@ -170,7 +170,7 @@ ChainList::add(ChainList *list) {
 }
 
 void
-ChainList::add(const FlagChain &chain) {
+FlagChainList::add(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
             logError("CChainList::add", "Wrong length flag chain inserted!");
@@ -186,7 +186,7 @@ ChainList::add(const FlagChain &chain) {
 }
 
 void
-ChainList::addDisjoint(const FlagChain &chain) {
+FlagChainList::addDisjoint(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
             logError("CChainList::add", "Wrong length flag chain inserted!");
@@ -212,7 +212,7 @@ ChainList::addDisjoint(const FlagChain &chain) {
 }
 
 ColorRgb
-ChainList::compute(CBiPath *path) {
+FlagChainList::compute(CBiPath *path) {
     ColorRgb result;
     ColorRgb tmpCol;
 
@@ -235,10 +235,10 @@ simplify the chain list returning the equivalent
 simplified chain list. Equal entries MAY be reduced to a
 single entry! (So in fact no equal entries is advisable)
 */
-ChainList *
-ChainList::simplify() {
+FlagChainList *
+FlagChainList::simplify() {
     // Try a simple simplification scheme, just comparing pair wise chains
-    ChainList *newList = new ChainList;
+    FlagChainList *newList = new FlagChainList;
     const FlagChain *c1;
     const FlagChain *c2;
     const FlagChain *cCombined;
@@ -278,7 +278,7 @@ ContribHandler::init(int paramMaxLength) {
     }
 
     // For each length we need a chain list
-    array = new ChainList[paramMaxLength + 1]; // 0 <= length <= maxlength !!
+    array = new FlagChainList[paramMaxLength + 1]; // 0 <= length <= maxlength !!
 }
 
 ContribHandler::~ContribHandler() {
@@ -542,7 +542,7 @@ ContribHandler::doRegExpGeneral(const char *regExp, bool subtract) {
     }
 
     for ( int length = beginLength; length <= endLength; length++ ) {
-        ChainList tmpList;
+        FlagChainList tmpList;
         c.init(length, subtract);
 
         maxIteration = length - tokenCount + iteratorCount;

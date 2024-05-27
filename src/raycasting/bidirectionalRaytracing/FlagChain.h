@@ -44,18 +44,18 @@ FlagChainCombine(const FlagChain *chain1, const FlagChain *chain2);
 // A linked list of flag chains.
 // Chains in the list are of fixed length !
 
-class ChainList final : private CircularList<FlagChain> {
+class FlagChainList final : private CircularList<FlagChain> {
   public:
     int length;
     int count;
 
-    ChainList();
-    ~ChainList() final;
+    FlagChainList();
+    ~FlagChainList() final;
     void add(const FlagChain &chain) final;
-    void add(ChainList *list);
+    void add(FlagChainList *list);
     void addDisjoint(const FlagChain &chain);
     ColorRgb compute(CBiPath *path);
-    ChainList *simplify();
+    FlagChainList *simplify();
 };
 
 typedef CircularListIterator<FlagChain> FlagChainIterator;
@@ -65,7 +65,7 @@ An array of chain lists indexed by length
 */
 class ContribHandler {
   public:
-    ChainList *array;
+    FlagChainList *array;
     int maxLength;
 
     ContribHandler();
