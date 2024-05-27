@@ -226,7 +226,7 @@ randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*bi
 }
 
 static void
-randomWalkRadiosityShootingUpdate(Patch *P, double w) {
+randomWalkRadiosityShootingUpdate(const Patch *P, double w) {
     double k;
     double oldQuality;
     oldQuality = topLevelStochasticRadiosityElement(P)->quality;
@@ -365,7 +365,7 @@ randomWalkRadiosityCollisionGatheringScore(const PATH *path, long /*nr_paths*/, 
 }
 
 static void
-randomWalkRadiosityGatheringUpdate(Patch *P, double /*w*/) {
+randomWalkRadiosityGatheringUpdate(const Patch *P, double /*w*/) {
     // Use un-shot rad for accumulating sum of contributions
     stochasticRadiosityAddCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchReceivedRad(P),
                                        getTopLevelPatchBasis(P));

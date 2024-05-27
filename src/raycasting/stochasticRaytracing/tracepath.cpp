@@ -147,7 +147,7 @@ tracePaths(
     double (*birthProbabilityCallBack)(const Patch *P),
     double (*survivalProbabilityCallBack)(const Patch *P),
     void (*scorePathCallBack)(const PATH *, long numberOfPaths, double (*birthProb)(const Patch *)),
-    void (*updateCallBack)(Patch *P, double w),
+    void (*updateCallBack)(const Patch *P, double w),
     const java::ArrayList<Patch *> *scenePatches)
 {
     double rnd;

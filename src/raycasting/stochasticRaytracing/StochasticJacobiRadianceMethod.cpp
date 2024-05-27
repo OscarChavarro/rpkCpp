@@ -265,7 +265,7 @@ stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
 static void
 stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     long stepNumber = 0;
@@ -376,7 +376,7 @@ stochasticRelaxationRadiosityPrintRegularStats() {
 static void
 stochasticRelaxationRadiosityDoRegularRadianceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
@@ -409,7 +409,7 @@ stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement 
 static void
 stochasticRelaxationRadiosityDoRegularImportanceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
-    java::ArrayList<Patch *> *scenePatches,
+    const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
     long numberOfRays;

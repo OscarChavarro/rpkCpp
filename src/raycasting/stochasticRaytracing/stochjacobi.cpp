@@ -317,7 +317,7 @@ the receiver is a cluster
 */
 static void
 stochasticJacobiPropagateRadiance(
-    StochasticRadiosityElement *src,
+    const StochasticRadiosityElement *src,
     double us,
     double vs,
     StochasticRadiosityElement *rcv,
@@ -352,7 +352,7 @@ stochasticJacobiPropagateRadiance(
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
             case HierarchyClusteringMode::NO_CLUSTERING:
                 logFatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
-                break;
+
             case HierarchyClusteringMode::ISOTROPIC_CLUSTERING:
                 stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
                 break;
@@ -401,7 +401,7 @@ is from P to Q
 */
 static void
 stochasticJacobiRefineAndPropagateRadiance(
-    StochasticRadiosityElement *src,
+    const StochasticRadiosityElement *src,
     double us,
     double vs,
     StochasticRadiosityElement *P,
@@ -425,7 +425,7 @@ stochasticJacobiRefineAndPropagateRadiance(
 
 static void
 stochasticJacobiRefineAndPropagateImportance(
-    StochasticRadiosityElement *P,
+    const StochasticRadiosityElement *P,
     double up,
     double vp,
     StochasticRadiosityElement *Q,
