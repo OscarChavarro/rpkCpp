@@ -14,7 +14,7 @@ PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
 }
 
 PicOutputHandle::~PicOutputHandle() {
-    if ( pic ) {
+    if ( pic != nullptr ) {
         fclose(pic);
     }
     pic = nullptr;
@@ -24,11 +24,11 @@ PicOutputHandle::~PicOutputHandle() {
 Writes scanline of high-dynamic range radiance data in RGB format
 */
 int
-PicOutputHandle::writeRadianceRGB(float *rgbRadiance) {
+PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( pic != nullptr ) {
-        result = dkColorWriteScan((COLOR *) rgbRadiance, width, pic);
+        result = dkColorWriteScan((COLOR *)rgbRadiance, width, pic);
     }
 
     if ( result ) {

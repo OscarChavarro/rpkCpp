@@ -6,6 +6,7 @@ Interface for writing image data in different file formats
 #define __IMAGE_OUTPUT_HANDLE__
 
 #include <cstdio>
+#include "common/ColorRgb.h"
 
 class ImageOutputHandle {
   protected:
@@ -38,9 +39,7 @@ class ImageOutputHandle {
 
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
-    // Writes a scanline of raw radiance data
-    // returns the number of pixels written
-    virtual int writeRadianceRGB(float *rgbRadiance); // RGB radiance data
+    virtual int writeRadianceRGB(ColorRgb *rgbRadiance);
 };
 
 extern ImageOutputHandle *

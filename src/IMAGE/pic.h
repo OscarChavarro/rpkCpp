@@ -17,7 +17,7 @@ class PicOutputHandle final : public ImageOutputHandle {
   public:
     PicOutputHandle(const char *filename, int w, int h);
     ~PicOutputHandle() final;
-    int writeRadianceRGB(float *rgbRadiance) final;
+    int writeRadianceRGB(ColorRgb *rgbRadiance) final;
 };
 
 #endif

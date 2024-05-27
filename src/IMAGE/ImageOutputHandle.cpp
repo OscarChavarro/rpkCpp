@@ -46,13 +46,17 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     return pixelsWriten;
 }
 
+/**
+Writes a scanline of raw radiance data
+returns the number of pixels written
+*/
 int
-ImageOutputHandle::writeRadianceRGB(float *rgbRadiance) {
+ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         ColorRgb displayRgb{};
-        radianceToRgb(*(ColorRgb *)&rgbRadiance[3 * i], &displayRgb);
+        radianceToRgb(rgbRadiance[i], &displayRgb);
 
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
