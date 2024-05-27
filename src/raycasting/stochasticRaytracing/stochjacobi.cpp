@@ -461,13 +461,13 @@ stochasticJacobiRefineAndPropagate(
     double src_prob;
     double us = up;
     double vs = vp;
-    StochasticRadiosityElement *src = stochasticRadiosityElementRegularLeafElementAtPoint(P, &us, &vs);
+    const StochasticRadiosityElement *src = stochasticRadiosityElementRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = (double) src->samplingProbability / (double) src->area;
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq;
         double vr = vq;
-        StochasticRadiosityElement *rcv = stochasticRadiosityElementRegularLeafElementAtPoint(Q, &ur, &vr);
+        const StochasticRadiosityElement *rcv = stochasticRadiosityElementRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = (double) rcv->samplingProbability / (double) rcv->area;
 
         if ( globalGetRadianceCallback ) {

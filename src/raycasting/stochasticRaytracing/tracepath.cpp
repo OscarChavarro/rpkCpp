@@ -197,7 +197,7 @@ tracePaths(
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        Patch *patch = scenePatches->get(i);
+        const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, (double) numberOfPaths / globalSumProbabilities);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
