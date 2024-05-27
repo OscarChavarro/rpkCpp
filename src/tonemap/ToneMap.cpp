@@ -58,17 +58,17 @@ toneMapDefaults() {
 
     GLOBAL_toneMap_options.gamma.set((float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-    GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness;
-    GLOBAL_toneMap_options.toneMap->Init();
+    GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness; // Default value...
 }
 
 /**
 Makes map the current tone mapping operator + initialises
 */
 void
-setToneMap(OldToneMap *map) {
-    GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_dummy;
+setToneMap(OldToneMap *map, ToneMap *toneMap) {
+    GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_identity;
     GLOBAL_toneMap_options.toneMap->Init();
+    GLOBAL_toneMap_options.selectedToneMap = toneMap;
 }
 
 void
@@ -77,7 +77,8 @@ recomputeGammaTable(int index, double gamma) {
         gamma = 1.0;
     }
     for ( int i = 0; i <= (1 << GAMMA_TABLE_BITS); i++ ) {
-        GLOBAL_toneMap_options.gammaTab[index][i] = (float)java::Math::pow((double) i / (double) (1 << GAMMA_TABLE_BITS), 1.0 / gamma);
+        GLOBAL_toneMap_options.gammaTab[index][i] =
+            (float)java::Math::pow((double) i / (double) (1 << GAMMA_TABLE_BITS), 1.0 / gamma);
     }
 }
 

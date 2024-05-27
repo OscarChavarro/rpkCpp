@@ -41,7 +41,7 @@ class OldToneMap {
 // Available tone mapping operators (nullptr terminated array)
 extern OldToneMap *GLOBAL_toneMap_availableToneMaps[];
 
-extern void setToneMap(OldToneMap *map);
+extern void setToneMap(OldToneMap *map, ToneMap *toneMap);
 
 // Recomputes gamma tables for the given gamma values for red, green and blue
 extern void recomputeGammaTables(ColorRgb gamma);

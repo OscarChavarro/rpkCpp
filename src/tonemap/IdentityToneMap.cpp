@@ -21,7 +21,7 @@ static ColorRgb identityScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 
-OldToneMap GLOBAL_toneMap_dummy = {
+OldToneMap GLOBAL_toneMap_identity = {
     "Dummy",
     "Dummy",
     3,

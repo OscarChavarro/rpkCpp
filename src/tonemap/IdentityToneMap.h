@@ -10,6 +10,6 @@ class IdentityToneMap final : public ToneMap {
     void init() final;
 };
 
-extern OldToneMap GLOBAL_toneMap_dummy;
+extern OldToneMap GLOBAL_toneMap_identity;
 
 #endif

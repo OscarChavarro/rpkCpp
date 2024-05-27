@@ -7,6 +7,7 @@ ToneMappingContext::ToneMappingContext():
     brightness_adjust(),
     pow_bright_adjust(),
     toneMap(),
+    selectedToneMap(),
     staticAdaptationMethod(),
     realWorldAdaptionLuminance(),
     maximumDisplayLuminance(),

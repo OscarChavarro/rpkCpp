@@ -1,3 +1,4 @@
+#include <cstring>
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "tonemap/ToneMap.h"
 #include "io/mgf/readmgf.h"
@@ -16,6 +17,8 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
+#include "common/error.h"
+
 #endif
 
 static const bool DEFAULT_MONOCHROME = false;
@@ -58,11 +61,26 @@ RpkApplication::mainInitApplication() {
     Vertex::setCompareFlags(VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL);
 }
 
+void
+RpkApplication::selectToneMapByName(char *name) {
+    ToneMap *newMap = nullptr;
+
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        OldToneMap *method = *toneMap;
+        if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
+            setToneMap(method, newMap);
+            return;
+        }
+    }
+
+    logError(nullptr, "Invalid tone mapping method name '%s'", name);
+}
+
 /**
 Processes command line arguments
 */
 void
-RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName) {
+RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName) {
     commandLineGeneralProgramParseOptions(
         argc,
         argv,
@@ -71,7 +89,8 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName) {
         &imageOutputWidth,
         &imageOutputHeight);
     renderParseOptions(argc, argv, renderOptions);
-    toneMapParseOptions(argc, argv);
+    toneMapParseOptions(argc, argv, toneMapName);
+    selectToneMapByName(toneMapName);
     cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
     radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
@@ -135,7 +154,8 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
 
     // 2. Set model elements from command line options
     char rayTracerName[256];
-    mainParseOptions(&argc, argv, rayTracerName);
+    char toneMapName[256];
+    mainParseOptions(&argc, argv, rayTracerName, toneMapName);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;

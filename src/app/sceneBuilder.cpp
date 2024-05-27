@@ -329,7 +329,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     fflush(stderr);
 
     initSceneAdaptation(scene->patchList);
-    setToneMap(GLOBAL_toneMap_options.toneMap);
+    setToneMap(GLOBAL_toneMap_options.toneMap, nullptr);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

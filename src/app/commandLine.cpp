@@ -283,19 +283,13 @@ makeToneMappingMethodsString() {
     *(str - 1) = '\0'; // Discard last newline character
 }
 
+static char *globalToneMapName;
+
 static void
 toneMappingMethodOption(void *value) {
-    char *name = *(char **) value;
+    char *name = *(char **)value;
 
-    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        OldToneMap *method = *toneMap;
-        if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
-            setToneMap(method);
-            return;
-        }
-    }
-
-    logError(nullptr, "Invalid tone mapping method name '%s'", name);
+    strcpy(globalToneMapName, name);
 }
 
 static void
@@ -376,7 +370,8 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
 };
 
 void
-toneMapParseOptions(int *argc, char **argv) {
+toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
+    globalToneMapName = toneMapName;
     makeToneMappingMethodsString();
     parseGeneralOptions(globalToneMappingOptions, argc, argv);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);

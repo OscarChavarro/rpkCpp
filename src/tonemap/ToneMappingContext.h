@@ -5,6 +5,7 @@
 #include "tonemap/ToneMapAdaptationMethod.h"
 
 class OldToneMap;
+class ToneMap;
 
 // Gamma correction table
 #define GAMMA_TABLE_BITS 12
@@ -18,6 +19,7 @@ class ToneMappingContext {
 
     // Variable / non-linear radiance rescaling
     OldToneMap *toneMap; // Current tone mapping operator
+    ToneMap *selectedToneMap;
     ToneMapAdaptationMethod staticAdaptationMethod;
     float realWorldAdaptionLuminance;
     float maximumDisplayLuminance;
