@@ -7,7 +7,7 @@ class LightnessToneMap final : public ToneMap {
   public:
     LightnessToneMap();
     ~LightnessToneMap() final;
-    void defaults() final;
+    void init() final;
 };
 
 extern OldToneMap GLOBAL_toneMap_lightness;

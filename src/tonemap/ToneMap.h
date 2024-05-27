@@ -11,7 +11,7 @@ class ToneMap {
   public:
     ToneMap();
     virtual ~ToneMap();
-    virtual void defaults() = 0;
+    virtual void init() = 0;
 };
 
 class OldToneMap {
@@ -20,10 +20,8 @@ class OldToneMap {
     const char *shortName;
     int abbrev;
 
-    void (*Defaults)();
     void (*ParseOptions)(int *argc, char **argv);
     void (*Init)();
-    void (*Terminate)();
 
     /**
     Knowing the display luminance "dl" this function determines the

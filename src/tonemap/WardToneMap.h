@@ -7,7 +7,7 @@ class WardToneMap final : public ToneMap {
   public:
     WardToneMap();
     ~WardToneMap() final;
-    void defaults() final;
+    void init() final;
 };
 
 extern OldToneMap GLOBAL_toneMap_ward;

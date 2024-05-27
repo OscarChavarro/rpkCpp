@@ -21,15 +21,7 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 }
 
 void
-RevisedTumblinRushmeierToneMap::defaults() {
-}
-
-static void
-revisedTumblinRushmeierDefaults() {
-}
-
-static void
-revisedTumblinRushmeierTerminate() {
+RevisedTumblinRushmeierToneMap::init() {
 }
 
 static float
@@ -95,10 +87,8 @@ OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
     3,
-    revisedTumblinRushmeierDefaults,
     nullptr,
     revisedTumblinRushmeierInit,
-    revisedTumblinRushmeierTerminate,
     revisedTRScaleForComputations,
     revisedTRScaleForDisplay
 };

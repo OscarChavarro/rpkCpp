@@ -23,15 +23,7 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 }
 
 void
-TumblinRushmeierToneMap::defaults() {
-}
-
-static void
-emptyDefaults() {
-}
-
-static void
-emptyTerminate() {
+TumblinRushmeierToneMap::init() {
 }
 
 static void
@@ -100,10 +92,8 @@ OldToneMap GLOBAL_toneMap_tumblinRushmeier = {
     "Tumblin/Rushmeier's Mapping",
     "TumblinRushmeier",
     3,
-    emptyDefaults,
     nullptr,
     tumblinRushmeierInit,
-    emptyTerminate,
     trwfScaleForComputations,
     trwfScaleForDisplay
 };

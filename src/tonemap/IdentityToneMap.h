@@ -7,7 +7,7 @@ class IdentityToneMap final : public ToneMap {
   public:
     IdentityToneMap();
     ~IdentityToneMap() final;
-    void defaults() final;
+    void init() final;
 };
 
 extern OldToneMap GLOBAL_toneMap_dummy;

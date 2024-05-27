@@ -35,11 +35,6 @@ rayCasterDefaults and option handling
 */
 void
 toneMapDefaults() {
-    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        const OldToneMap *map = *toneMap;
-        map->Defaults();
-    }
-
     GLOBAL_toneMap_options.brightness_adjust = 0.0;
     GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
@@ -72,7 +67,6 @@ Makes map the current tone mapping operator + initialises
 */
 void
 setToneMap(OldToneMap *map) {
-    GLOBAL_toneMap_options.toneMap->Terminate();
     GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_dummy;
     GLOBAL_toneMap_options.toneMap->Init();
 }

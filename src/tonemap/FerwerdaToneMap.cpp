@@ -24,15 +24,7 @@ FerwerdaToneMap::~FerwerdaToneMap() {
 }
 
 void
-FerwerdaToneMap::defaults() {
-}
-
-static void
-ferwerdaDefaults() {
-}
-
-static void
-ferwerdaTerminate() {
+FerwerdaToneMap::init() {
 }
 
 static float
@@ -141,10 +133,8 @@ OldToneMap GLOBAL_toneMap_ferwerda = {
     "Partial Ferwerda's Mapping",
     "Ferwerda",
     3,
-    ferwerdaDefaults,
     nullptr,
     ferwerdaInit,
-    ferwerdaTerminate,
     ferwerdaScaleForComputations,
     ferwerdaScaleForDisplay
 };

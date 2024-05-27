@@ -7,7 +7,7 @@ class TumblinRushmeierToneMap final : public ToneMap {
   public:
     TumblinRushmeierToneMap();
     ~TumblinRushmeierToneMap() final;
-    void defaults() final;
+    void init() final;
 };
 
 extern OldToneMap GLOBAL_toneMap_tumblinRushmeier;

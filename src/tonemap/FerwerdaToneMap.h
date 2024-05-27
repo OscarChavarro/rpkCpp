@@ -7,7 +7,7 @@ class FerwerdaToneMap final : public ToneMap {
   public:
     FerwerdaToneMap();
     ~FerwerdaToneMap() final;
-    void defaults() final;
+    void init() final;
 };
 
 extern OldToneMap GLOBAL_toneMap_ferwerda;

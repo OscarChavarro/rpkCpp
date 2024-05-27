@@ -11,16 +11,10 @@ LightnessToneMap::~LightnessToneMap() {
 }
 
 void
-LightnessToneMap::defaults() {
-}
-
-static void lightnessDefaults() {
+LightnessToneMap::init() {
 }
 
 static void lightnessInit() {
-}
-
-static void lightnessTerminate() {
 }
 
 static float Lightness(float luminance) {
@@ -68,10 +62,8 @@ OldToneMap GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
     3,
-    lightnessDefaults,
     nullptr,
     lightnessInit,
-    lightnessTerminate,
     lightnessScaleForComputations,
     lightnessScaleForDisplay
 };

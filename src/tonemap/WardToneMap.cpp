@@ -18,15 +18,7 @@ WardToneMap::~WardToneMap() {
 }
 
 void
-WardToneMap::defaults() {
-}
-
-static void
-wardDefaults() {
-}
-
-static void
-wardTerminate() {
+WardToneMap::init() {
 }
 
 static void
@@ -60,10 +52,8 @@ OldToneMap GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
     3,
-    wardDefaults,
     nullptr,
     wardInit,
-    wardTerminate,
     wardScaleForComputations,
     wardScaleForDisplay
 };
