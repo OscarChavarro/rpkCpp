@@ -162,7 +162,7 @@ Well known power-based refinement oracle ([HANR1992] Hanrahan'91, with importanc
 a la [SMIT1992] Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
 */
 REFINE_ACTION
-powerOracle(LINK *link) {
+powerOracle(const LINK *link) {
     if ( selfLink(link) ) {
         return (REFINE_ACTION)subdivideReceiverCallBack;
     } else if ( lowPowerLink(link, &GLOBAL_statistics) ) {

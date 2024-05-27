@@ -39,7 +39,6 @@ class CPhotonMapSampler final : public CBsdfSampler {
         SimpleRaytracingPathNode *newNode,
         double x1,
         double x2,
-        bool doRR,
         char flags);
 
     // Randomly choose between 2 scattering components, using

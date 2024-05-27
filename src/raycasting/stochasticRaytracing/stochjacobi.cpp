@@ -84,7 +84,7 @@ stochasticJacobiPrintMessage(long nr_rays) {
 Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 */
 static double
-stochasticJacobiProbability(StochasticRadiosityElement *elem) {
+stochasticJacobiProbability(const StochasticRadiosityElement *elem) {
     double prob = 0.0;
 
     if ( globalGetRadianceCallback ) {
@@ -187,7 +187,7 @@ stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
 Returns radiance to be propagated from the given location of the element
 */
 static ColorRgb
-stochasticJacobiGetSourceRadiance(StochasticRadiosityElement *src, double us, double vs) {
+stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs) {
     const ColorRgb *srcRad = globalGetRadianceCallback(src);
     return colorAtUv(src->basis, srcRad, us, vs);
 }
@@ -374,7 +374,7 @@ Idem but for importance
 */
 static void
 stochasticJacobiPropagateImportance(
-    StochasticRadiosityElement *src,
+    const StochasticRadiosityElement *src,
     double /*us*/,
     double /*vs*/,
     StochasticRadiosityElement *rcv,

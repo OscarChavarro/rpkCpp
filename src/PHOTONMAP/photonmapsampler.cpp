@@ -6,8 +6,6 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cmath>
-
 #include "PHOTONMAP/photonmapsampler.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "common/error.h"
@@ -129,7 +127,7 @@ CPhotonMapSampler::sample(
         ok = fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
         flags = (char)(gdFLAGS & flags);
-        ok = gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
+        ok = gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, flags);
     }
 
     if ( ok ) {
@@ -154,7 +152,6 @@ CPhotonMapSampler::sample(
 6. fresnel reflection/refraction multiplied by appropriate scattering powers
 7. node filled in.
 */
-
 static RefractionIndex
 bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
@@ -385,7 +382,6 @@ CPhotonMapSampler::gdSample(
     SimpleRaytracingPathNode *newNode,
     double x1,
     double x2,
-    bool doRR,
     char flags)
 {
     bool ok;
@@ -393,7 +389,8 @@ CPhotonMapSampler::gdSample(
     // Sample G|D and use m_photonMap for importance sampling if possible.
     if ( m_photonMap == nullptr ) {
         // We can just use standard bsdf sampling
-        ok = CBsdfSampler::sample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, doRR, flags);
+        ok = CBsdfSampler::sample(
+            camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, false, flags);
         thisNode->m_usedComponents = flags;
         return ok;
     }
@@ -408,8 +405,12 @@ CPhotonMapSampler::gdSample(
     // Choose between D or G scattering
     if ( !chooseComponent(BRDF_DIFFUSE_COMPONENT & flags,
                           BRDF_GLOSSY_COMPONENT & flags,
-                          bsdf, &thisNode->m_hit,
-                          doRR, &x1, &pdfChoice, &dChosen) ) {
+                          bsdf,
+                          &thisNode->m_hit,
+                          false,
+                          &x1,
+                          &pdfChoice,
+                          &dChosen) ) {
         return false;
     }
 
@@ -429,8 +430,7 @@ CPhotonMapSampler::gdSample(
         return false;
     }
 
-    double photonMapPdf = m_photonMap->sample(thisNode->m_hit.getPoint(), &x1, &x2, &coord, flags,
-                                              glossy_exponent);
+    double photonMapPdf = m_photonMap->sample(thisNode->m_hit.getPoint(), &x1, &x2, &coord, flags, glossy_exponent);
 
     // Do real sampling
     ok = CBsdfSampler::sample(

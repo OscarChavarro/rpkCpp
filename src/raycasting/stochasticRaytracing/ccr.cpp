@@ -17,7 +17,7 @@ static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);
 
 static void
 initialControlRadiosityRecursive(
-    StochasticRadiosityElement *element,
+    const StochasticRadiosityElement *element,
     ColorRgb *minRad,
     ColorRgb *maxRad,
     ColorRgb *fMin,

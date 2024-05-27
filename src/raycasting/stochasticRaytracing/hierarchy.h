@@ -38,9 +38,9 @@ link is admissible for light transport. It returns a refinement action
 that will refine the link if necessary. If the link is admissible, it
 returns the special action 'dontRefineCallBack' which does nothing
 */
-typedef REFINE_ACTION (*ORACLE)(LINK *link);
+typedef REFINE_ACTION (*ORACLE)(const LINK *link);
 
-extern REFINE_ACTION powerOracle(LINK *link);
+extern REFINE_ACTION powerOracle(const LINK *link);
 extern LINK topLink(StochasticRadiosityElement *rcvTop, StochasticRadiosityElement *srcTop);
 extern LINK *hierarchyRefine(
     LINK *link,
