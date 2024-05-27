@@ -79,7 +79,6 @@ set(MAIN_SRC
     src/tonemap/TumblinRushmeierToneMap.cpp
     src/tonemap/RevisedTumblinRushmeierToneMap.cpp
     src/tonemap/FerwerdaToneMap.cpp
-    src/tonemap/adaptation.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
     src/io/mgf/MgfColorContext.cpp
@@ -192,6 +191,7 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
     src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
+    src/app/adaptation.cpp
     src/app/options.cpp
     src/app/glutDebugTools.cpp
     src/app/radiance.cpp

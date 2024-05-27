@@ -8,15 +8,6 @@ Estimate static adaptation luminance in the current scene
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-/**
-Static adaptation estimation methods
-*/
-enum TMA_METHOD {
-    TMA_NONE,
-    TMA_AVERAGE,
-    TMA_MEDIAN
-};
-
 extern void initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches);
 
 #endif

@@ -10,6 +10,7 @@
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
 #include "scene/Cluster.h"
+#include "app/adaptation.h"
 #include "app/options.h"
 #include "app/radiance.h"
 #include "app/sceneBuilder.h"
@@ -327,7 +328,8 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     fprintf(stderr, "Initializing tone mapping ... ");
     fflush(stderr);
 
-    initToneMapping(scene->patchList);
+    initSceneAdaptation(scene->patchList);
+    setToneMap(GLOBAL_toneMap_options.toneMap);
 
     t = clock();
     fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);

@@ -3,6 +3,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 */
 #include <cstring>
 
+#include "java/lang/Math.h"
 #include "common/error.h"
 #include "tonemap/ToneMap.h"
 #include "io/image/ppm.h"

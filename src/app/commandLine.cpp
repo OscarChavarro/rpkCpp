@@ -334,13 +334,11 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     char *name = *(char **) value;
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
-        GLOBAL_toneMap_options.staticAdaptationMethod = TMA_AVERAGE;
+        GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
+        GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     } else {
-        logError(nullptr,
-                 "Invalid adaptation estimate method '%s'",
-                 name);
+        logError(nullptr, "Invalid adaptation estimate method '%s'", name);
     }
 }
 

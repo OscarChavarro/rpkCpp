@@ -2,7 +2,7 @@
 #define __TONE_MAPPING_CONTEXT_H
 
 #include "common/ColorRgb.h"
-#include "tonemap/adaptation.h"
+#include "tonemap/ToneMapAdaptationMethod.h"
 
 class ToneMap;
 
@@ -18,7 +18,7 @@ class ToneMappingContext {
 
     // Variable / non-linear radiance rescaling
     ToneMap *toneMap; // Current tone mapping operator
-    TMA_METHOD staticAdaptationMethod;
+    ToneMapAdaptationMethod staticAdaptationMethod;
     float realWorldAdaptionLuminance;
     float maximumDisplayLuminance;
     float maximumDisplayContrast;

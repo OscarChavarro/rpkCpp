@@ -8,8 +8,9 @@ Estimate static adaptation for tone mapping
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "tonemap/adaptation.h"
 #include "tonemap/ToneMap.h"
+#include "tonemap/ToneMapAdaptationMethod.h"
+#include "app/adaptation.h"
 
 /**
 Stores luminance-area pairs for median area-weighted luminance
@@ -116,9 +117,9 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {
-        case TMA_NONE:
+        case ToneMapAdaptationMethod::TMA_NONE:
             break;
-        case TMA_AVERAGE: {
+        case ToneMapAdaptationMethod::TMA_AVERAGE: {
             // Gibson's static adaptation after [TUMB1999b]
             globalLogAreaLum = 0.0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -127,7 +128,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp((float)globalLogAreaLum / GLOBAL_statistics.totalArea + 0.84f);
             break;
         }
-        case TMA_MEDIAN: {
+        case ToneMapAdaptationMethod::TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
             LuminanceArea *la = new LuminanceArea[GLOBAL_statistics.numberOfPatches];
 

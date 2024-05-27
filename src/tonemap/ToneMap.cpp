@@ -1,4 +1,6 @@
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
+#include "common/linealAlgebra/Numeric.h"
 #include "tonemap/IdentityToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/WardToneMap.h"
@@ -35,7 +37,7 @@ toneMapDefaults() {
     GLOBAL_toneMap_options.brightness_adjust = 0.0;
     GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 
-    GLOBAL_toneMap_options.staticAdaptationMethod = TMA_MEDIAN;
+    GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     GLOBAL_toneMap_options.realWorldAdaptionLuminance = DEFAULT_TM_LWA;
     GLOBAL_toneMap_options.maximumDisplayLuminance = DEFAULT_TM_LDMAX;
     GLOBAL_toneMap_options.maximumDisplayContrast = DEFAULT_TM_CMAX;
@@ -67,15 +69,6 @@ setToneMap(ToneMap *map) {
     GLOBAL_toneMap_options.toneMap->Terminate();
     GLOBAL_toneMap_options.toneMap = map ? map : &GLOBAL_toneMap_dummy;
     GLOBAL_toneMap_options.toneMap->Init();
-}
-
-/**
-Initialises tone mapping, e.g. for a new scene
-*/
-void
-initToneMapping(const java::ArrayList<Patch *> *scenePatches) {
-    initSceneAdaptation(scenePatches);
-    setToneMap(GLOBAL_toneMap_options.toneMap);
 }
 
 void

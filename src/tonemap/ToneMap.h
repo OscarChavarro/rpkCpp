@@ -42,7 +42,6 @@ extern void setToneMap(ToneMap *map);
 extern void recomputeGammaTables(ColorRgb gamma);
 
 extern void toneMapDefaults();
-extern void initToneMapping(const java::ArrayList<Patch *> *scenePatches);
 
 inline int
 gammaTableEntry(float x) {

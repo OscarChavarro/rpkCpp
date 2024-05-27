@@ -1,3 +1,4 @@
+#include "java/lang/Math.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 
 /**
