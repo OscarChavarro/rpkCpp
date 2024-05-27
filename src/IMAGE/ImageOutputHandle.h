@@ -46,16 +46,15 @@ class ImageOutputHandle {
 extern ImageOutputHandle *
 createRadianceImageOutputHandle(
     const char *fileName,
-    FILE *fp,
+    FILE *fileDescriptor,
     int isPipe,
     int width,
-    int height,
-    float referenceLuminance);
+    int height);
 
 extern ImageOutputHandle *
 createImageOutputHandle(
     const char *fileName,
-    FILE *fp,
+    FILE *fileDescriptor,
     int isPipe,
     int width,
     int height);

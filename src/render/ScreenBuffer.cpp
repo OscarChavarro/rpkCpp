@@ -154,9 +154,9 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
-            ip->writeRadianceRGB((float *) &radiance[i * camera.xSize]);
+            ip->writeRadianceRGB((float *)&radiance[i * camera.xSize]);
         } else {
-            ip->writeDisplayRGB((float *) &radiance[i * camera.xSize]);
+            ip->writeDisplayRGB((float *)&radiance[i * camera.xSize]);
         }
     }
 
@@ -394,8 +394,7 @@ ScreenBuffer::writeFile(const char *fileName) {
         fp,
         isPipe,
         camera.xSize,
-        camera.ySize,
-        (float) GLOBAL_statistics.referenceLuminance / 179.0f);
+        camera.ySize);
 
     writeFile(ip);
     closeFile(fp, isPipe);

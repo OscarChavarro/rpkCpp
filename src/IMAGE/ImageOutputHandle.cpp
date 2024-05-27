@@ -1,30 +1,3 @@
-/**
-Copyright (c) 1994-2000 K.U.Leuven
-
-This software is provided AS IS, without any express or implied
-warranty.  In no event will the authors or the K.U.Leuven be held
-liable for any damages or loss of profit arising from the use or
-non-fitness for a particular purpose of this software.
-
-See file 0README in the home directory of RenderPark for details about
-copyrights and licensing.
-===========================================================================
-NAME:       image
-TYPE:       c++ code
-PROJECT:    Render park - Image output
-CONTENT:    ANSI-C interface to the image output library
-===========================================================================
-AUTHORS:    pb      Philippe Bekaert
-            jp      Jan Prikryl
-===========================================================================
-HISTORY:
-
-06-Mar-00 11:23:34  jp      last modification
-06-Mar-00 11:22:51  jp      typo in NEW_TIFF_GENERAL_HANDLE for no TIFF
-20-Sep-99 21:51:43  jp      changes for lib tiff autoconf
-03-Oct-98 15:26:04  pb      released
-*/
-
 #include <cstring>
 
 #include "common/error.h"
@@ -83,9 +56,11 @@ ImageOutputHandle::writeRadianceRGB(float *rgbRadiance) {
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         ColorRgb displayRgb{};
-        radianceToRgb(*(ColorRgb *) &rgbRadiance[3 * i], &displayRgb);
+        radianceToRgb(*(ColorRgb *)&rgbRadiance[3 * i], &displayRgb);
+
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
+
         // Convert float to byte representation
         rgb[3 * i] = (unsigned char) (displayRgb.r * 255.0);
         rgb[3 * i + 1] = (unsigned char) (displayRgb.g * 255.0);
@@ -105,24 +80,24 @@ Returns file name extension. Understands extra suffixes ".Z", ".gz",
 */
 const char *
 imageFileExtension(const char *fileName) {
-    const char *ext = fileName + strlen(fileName) - 1; // Find filename extension
+    const char *fileExtension = fileName + strlen(fileName) - 1; // Find filename extension
 
-    while ( ext >= fileName && *ext != '.' ) {
-        ext--;
+    while ( fileExtension >= fileName && *fileExtension != '.' ) {
+        fileExtension--;
     }
 
-    if ( !strcmp(ext, ".Z") ||
-         !strcmp(ext, ".gz") ||
-         !strcmp(ext, ".bz") ||
-         !strcmp(ext, ".bz2") ) {
-        ext--; // Before '.'
-        while ( ext >= fileName && *ext != '.' ) {
-            ext--;
+    if ( !strcmp(fileExtension, ".Z") ||
+         !strcmp(fileExtension, ".gz") ||
+         !strcmp(fileExtension, ".bz") ||
+         !strcmp(fileExtension, ".bz2") ) {
+        fileExtension--; // Before '.'
+        while ( fileExtension >= fileName && *fileExtension != '.' ) {
+            fileExtension--;
         }
         // Find extension before .gz or .Z
     }
 
-    return ext + 1; // After '.'
+    return fileExtension + 1; // After '.'
 }
 
 /**
@@ -132,36 +107,30 @@ use to write radiance image
 ImageOutputHandle *
 createRadianceImageOutputHandle(
     const char *fileName,
-    FILE *fp,
+    FILE *fileDescriptor,
     int isPipe,
     int width,
-    int height,
-    float /*referenceLuminance*/)
+    int height)
 {
-    if ( fp ) {
-        const char *ext = isPipe ? "ppm" : imageFileExtension(fileName);
+    if ( fileDescriptor ) {
+        const char *fileExtension = isPipe ? "ppm" : imageFileExtension(fileName);
         // Assume PPM format if pipe
-        if ( strncasecmp(ext, "ppm", 3) == 0 ) {
-            return new PPMOutputHandle(fp, width, height);
+        if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
+            return new PPMOutputHandle(fileDescriptor, width, height);
         }
         // Olaf: HDR PIC output
-        else if ( strncasecmp(ext, "pic", 3) == 0 ) {
+        else if ( strncasecmp(fileExtension, "pic", 3) == 0 ) {
             if ( isPipe ) {
                 logError("createRadianceImageOutputHandle",
                          "Can't write PIC output to a pipe.\n");
                 return nullptr;
             }
 
-            const FILE *fd = freopen("/dev/null", "w", fp);
-            if (fd == nullptr) {
-                fprintf(stderr, "Warning: can not reopen /dev/null\n");
-            }
-
             return new PicOutputHandle(fileName, width, height);
         } else {
             PRE_TIFF_GENERAL_HANDLE("createRadianceImageOutputHandle");
             logError("createRadianceImageOutputHandle",
-                     "Can't save high dynamic range images to a '%s' file.", ext);
+                     "Can't save high dynamic range images to a '%s' file.", fileExtension);
             return nullptr;
         }
     }
@@ -174,20 +143,20 @@ Same, but for writing "normal" display RGB images instead radiance image
 ImageOutputHandle *
 createImageOutputHandle(
     const char *fileName,
-    FILE *fp,
+    FILE *fileDescriptor,
     const int isPipe,
     const int width,
     const int height)
 {
-    if ( fp ) {
-        const char *ext = isPipe ? "ppm" : imageFileExtension(fileName);
+    if ( fileDescriptor ) {
+        const char *fileExtension = isPipe ? "ppm" : imageFileExtension(fileName);
 
-        if ( strncasecmp(ext, "ppm", 3) == 0 ) {
-            return new PPMOutputHandle(fp, width, height);
+        if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
+            return new PPMOutputHandle(fileDescriptor, width, height);
         } else {
             PRE_TIFF_GENERAL_HANDLE("createImageOutputHandle");
             logError("createImageOutputHandle",
-                     "Can't save display-RGB images to a '%s' file.\n", ext);
+                     "Can't save display-RGB images to a '%s' file.\n", fileExtension);
             return nullptr;
         }
     }

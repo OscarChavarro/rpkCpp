@@ -28,8 +28,7 @@ rayTrace(
             fp,
             isPipe,
             scene->camera->xSize,
-            scene->camera->ySize,
-            (float) (GLOBAL_statistics.referenceLuminance / 179.0));
+            scene->camera->ySize);
         if ( img == nullptr ) {
             return;
         }

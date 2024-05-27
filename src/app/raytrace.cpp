@@ -92,8 +92,7 @@ rayTraceSaveImage(
         fp,
         isPipe,
         scene->camera->xSize,
-        scene->camera->ySize,
-        (float)GLOBAL_statistics.referenceLuminance / 179.0f);
+        scene->camera->ySize);
     if ( !img ) {
         return;
     }
