@@ -67,12 +67,10 @@ RpkApplication::mainInitApplication() {
 }
 
 void
-RpkApplication::selectToneMapByName(char *name) {
+RpkApplication::selectToneMapByName(const char *name) {
     ToneMap *newMap;
 
-    if ( strcmp(name, "Lightness") == 0 ) {
-        newMap = new LightnessToneMap();
-    } else if ( strcmp(name, "TumblinRushmeier") == 0 ) {
+    if ( strcmp(name, "TumblinRushmeier") == 0 ) {
         newMap = new TumblinRushmeierToneMap();
     } else if ( strcmp(name, "Ward") == 0 ) {
         newMap = new WardToneMap();
@@ -81,7 +79,7 @@ RpkApplication::selectToneMapByName(char *name) {
     } else if ( strcmp(name, "Ferwerda") == 0 ) {
         newMap = new FerwerdaToneMap();
     } else {
-        newMap = new IdentityToneMap();
+        newMap = new LightnessToneMap();
     }
 
     for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
@@ -179,6 +177,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->radianceMethod = selectedRadianceMethod;
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
+    selectToneMapByName("Lightness"); // Note this is used for basic Galerkin model initialization
     sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
     selectToneMapByName(toneMapName);
 
