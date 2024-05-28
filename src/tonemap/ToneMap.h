@@ -14,31 +14,21 @@ class ToneMap {
     virtual void init() = 0;
 
     /**
-        Knowing the display luminance "dl" this function determines the
-        correct scaling value that transforms display luminance back into
-        the real world luminance.
-        */
+    Knowing the display luminance "dl" this function determines the
+    correct scaling value that transforms display luminance back into
+    the real world luminance.
+    */
     virtual ColorRgb scaleForComputations(ColorRgb radiance) const = 0;
-};
-
-class OldToneMap {
-  public:
-    const char *name;
-    const char *shortName;
-    int abbrev;
 
     /**
     Full tone mapping to display values. Transforms real world luminance of
     colour specified by "radiance" into corresponding display input
     values. The result has to be clipped to <0,1> afterwards.
     */
-    ColorRgb (*scaleForDisplay)(ColorRgb radiance);
+    virtual ColorRgb scaleForDisplay(ColorRgb radiance) const = 0;
 };
 
-// Available tone mapping operators (nullptr terminated array)
-extern OldToneMap *GLOBAL_toneMap_availableToneMaps[];
-
-extern void setToneMap(OldToneMap *map, ToneMap *toneMap);
+extern void setToneMap(ToneMap *toneMap);
 
 // Recomputes gamma tables for the given gamma values for red, green and blue
 extern void recomputeGammaTables(ColorRgb gamma);
@@ -59,7 +49,7 @@ toneMappingGammaCorrection(ColorRgb &rgb) {
 
 inline ColorRgb
 toneMapScaleForDisplay(const ColorRgb &radiance) {
-    return GLOBAL_toneMap_options.toneMap->scaleForDisplay(radiance);
+    return GLOBAL_toneMap_options.selectedToneMap->scaleForDisplay(radiance);
 }
 
 /**

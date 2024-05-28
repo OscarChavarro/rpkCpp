@@ -18,7 +18,6 @@ class ToneMappingContext {
     float pow_bright_adjust; // pow(2, brightness_adjust)
 
     // Variable / non-linear radiance rescaling
-    OldToneMap *toneMap; // Current tone mapping operator
     ToneMap *selectedToneMap;
     ToneMapAdaptationMethod staticAdaptationMethod;
     float realWorldAdaptionLuminance;

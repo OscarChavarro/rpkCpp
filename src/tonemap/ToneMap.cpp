@@ -3,10 +3,6 @@
 #include "common/linealAlgebra/Numeric.h"
 #include "tonemap/IdentityToneMap.h"
 #include "tonemap/LightnessToneMap.h"
-#include "tonemap/WardToneMap.h"
-#include "tonemap/TumblinRushmeierToneMap.h"
-#include "tonemap/RevisedTumblinRushmeierToneMap.h"
-#include "tonemap/FerwerdaToneMap.h"
 
 #define DEFAULT_GAMMA 1.7
 
@@ -14,15 +10,6 @@
 #define DEFAULT_TM_LWA 10.0
 #define DEFAULT_TM_LDMAX 100.0
 #define DEFAULT_TM_CMAX 50.0
-
-OldToneMap *GLOBAL_toneMap_availableToneMaps[] = {
-    &GLOBAL_toneMap_lightness,
-    &GLOBAL_toneMap_tumblinRushmeier,
-    &GLOBAL_toneMap_ward,
-    &GLOBAL_toneMap_revisedTumblinRushmeier,
-    &GLOBAL_toneMap_ferwerda,
-    nullptr
-};
 
 ToneMap::ToneMap() {
 }
@@ -58,15 +45,13 @@ toneMapDefaults() {
 
     GLOBAL_toneMap_options.gamma.set((float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA, (float)DEFAULT_GAMMA);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-    GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness; // Default value...
 }
 
 /**
 Makes map the current tone mapping operator + initialises
 */
 void
-setToneMap(OldToneMap *map, ToneMap *toneMap) {
-    GLOBAL_toneMap_options.toneMap = map != nullptr ? map : &GLOBAL_toneMap_identity;
+setToneMap(ToneMap *toneMap) {
     GLOBAL_toneMap_options.selectedToneMap = toneMap;
     toneMap->init();
 }

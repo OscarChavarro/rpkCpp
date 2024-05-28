@@ -8,7 +8,7 @@ G. Ward. A Contrast-Based Scale factor for Luminance Display, Graphics
 Gems IV, Academic Press, 1994, pp. 415-421.
 */
 static float globalComp;
-static float globalDisp;
+static float globalDisplay;
 static float globalLda;
 
 WardToneMap::WardToneMap() {
@@ -27,7 +27,7 @@ WardToneMap::init() {
     float p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4f);
     float p3 = (1.219f + p1) / (1.219f + p2);
     globalComp = java::Math::pow(p3, 2.5f);
-    globalDisp = globalComp / maximumDisplayLuminance;
+    globalDisplay = globalComp / maximumDisplayLuminance;
 }
 
 ColorRgb
@@ -36,17 +36,10 @@ WardToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-static ColorRgb
-wardScaleForDisplay(ColorRgb radiance) {
+ColorRgb
+WardToneMap::scaleForDisplay(ColorRgb radiance) const {
     float eff = getLuminousEfficacy();
 
-    radiance.scale(eff * globalDisp);
+    radiance.scale(eff * globalDisplay);
     return radiance;
 }
-
-OldToneMap GLOBAL_toneMap_ward = {
-    "Ward's Mapping",
-    "Ward",
-    3,
-    wardScaleForDisplay
-};
