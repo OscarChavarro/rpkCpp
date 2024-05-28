@@ -1,6 +1,13 @@
 #include <cstring>
+#include "common/error.h"
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "tonemap/ToneMap.h"
+#include "tonemap/IdentityToneMap.h"
+#include "tonemap/LightnessToneMap.h"
+#include "tonemap/RevisedTumblinRushmeierToneMap.h"
+#include "tonemap/TumblinRushmeierToneMap.h"
+#include "tonemap/WardToneMap.h"
+#include "tonemap/FerwerdaToneMap.h"
 #include "io/mgf/readmgf.h"
 #include "render/opengl.h"
 //#include "render/glutDebugTools.h"
@@ -17,8 +24,6 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
-#include "common/error.h"
-
 #endif
 
 static const bool DEFAULT_MONOCHROME = false;
@@ -63,7 +68,21 @@ RpkApplication::mainInitApplication() {
 
 void
 RpkApplication::selectToneMapByName(char *name) {
-    ToneMap *newMap = nullptr;
+    ToneMap *newMap;
+
+    if ( strcmp(name, "Lightness") == 0 ) {
+        newMap = new LightnessToneMap();
+    } else if ( strcmp(name, "TumblinRushmeier") == 0 ) {
+        newMap = new TumblinRushmeierToneMap();
+    } else if ( strcmp(name, "Ward") == 0 ) {
+        newMap = new WardToneMap();
+    } else if ( strcmp(name, "RevisedTR") == 0 ) {
+        newMap = new RevisedTumblinRushmeierToneMap();
+    } else if ( strcmp(name, "Ferwerda") == 0 ) {
+        newMap = new FerwerdaToneMap();
+    } else {
+        newMap = new IdentityToneMap();
+    }
 
     for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
         OldToneMap *method = *toneMap;

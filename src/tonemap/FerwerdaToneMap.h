@@ -4,6 +4,11 @@
 #include "tonemap/ToneMap.h"
 
 class FerwerdaToneMap final : public ToneMap {
+  private:
+    static float photopicOperator(float logLa);
+    static float scotopicOperator(float logLa);
+    static float mesopicScaleFactor(float logLwa);
+
   public:
     FerwerdaToneMap();
     ~FerwerdaToneMap() final;

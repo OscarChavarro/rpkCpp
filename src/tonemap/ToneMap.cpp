@@ -67,8 +67,8 @@ Makes map the current tone mapping operator + initialises
 void
 setToneMap(OldToneMap *map, ToneMap *toneMap) {
     GLOBAL_toneMap_options.toneMap = map != nullptr ? map : &GLOBAL_toneMap_identity;
-    GLOBAL_toneMap_options.toneMap->Init();
     GLOBAL_toneMap_options.selectedToneMap = toneMap;
+    toneMap->init();
 }
 
 void

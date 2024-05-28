@@ -14,10 +14,6 @@ void
 LightnessToneMap::init() {
 }
 
-static void
-lightnessInit() {
-}
-
 static float
 Lightness(float luminance) {
     if ( GLOBAL_statistics.referenceLuminance == 0.0 ) {
@@ -61,7 +57,6 @@ OldToneMap GLOBAL_toneMap_lightness = {
     "Lightness",
     3,
     nullptr,
-    lightnessInit,
     lightnessScaleForComputations,
     lightnessScaleForDisplay
 };

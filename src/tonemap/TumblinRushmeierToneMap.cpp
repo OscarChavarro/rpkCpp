@@ -24,10 +24,6 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 
 void
 TumblinRushmeierToneMap::init() {
-}
-
-static void
-tumblinRushmeierInit() {
     float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
     float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
     float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
@@ -87,7 +83,6 @@ OldToneMap GLOBAL_toneMap_tumblinRushmeier = {
     "TumblinRushmeier",
     3,
     nullptr,
-    tumblinRushmeierInit,
     trwfScaleForComputations,
     trwfScaleForDisplay
 };

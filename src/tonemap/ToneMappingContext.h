@@ -40,6 +40,7 @@ class ToneMappingContext {
     float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
 
     ToneMappingContext();
+    ~ToneMappingContext();
 };
 extern ToneMappingContext GLOBAL_toneMap_options;
 

@@ -21,7 +21,6 @@ class OldToneMap {
     int abbrev;
 
     void (*ParseOptions)(int *argc, char **argv);
-    void (*Init)();
 
     /**
     Knowing the display luminance "dl" this function determines the

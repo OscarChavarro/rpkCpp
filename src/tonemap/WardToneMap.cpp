@@ -19,10 +19,6 @@ WardToneMap::~WardToneMap() {
 
 void
 WardToneMap::init() {
-}
-
-static void
-wardInit() {
     float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
     float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
     globalLda = maximumDisplayLuminance / 2.0f;
@@ -53,7 +49,6 @@ OldToneMap GLOBAL_toneMap_ward = {
     "Ward",
     3,
     nullptr,
-    wardInit,
     wardScaleForComputations,
     wardScaleForDisplay
 };

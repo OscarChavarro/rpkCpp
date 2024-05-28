@@ -4,6 +4,8 @@
 #include "tonemap/ToneMap.h"
 
 class RevisedTumblinRushmeierToneMap final : public ToneMap {
+  private:
+    static float stevensGamma(float lum);
   public:
     RevisedTumblinRushmeierToneMap();
     ~RevisedTumblinRushmeierToneMap() final;

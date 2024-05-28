@@ -10,10 +10,6 @@ void
 IdentityToneMap::init() {
 }
 
-static void
-identityInit() {
-}
-
 static ColorRgb
 identityScaleForComputations(ColorRgb radiance) {
     return radiance;
@@ -29,7 +25,6 @@ OldToneMap GLOBAL_toneMap_identity = {
     "Dummy",
     3,
     nullptr,
-    identityInit,
     identityScaleForComputations,
     identityScaleForDisplay
 };

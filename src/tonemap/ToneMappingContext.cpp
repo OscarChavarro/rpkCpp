@@ -24,3 +24,9 @@ ToneMappingContext::ToneMappingContext():
     gammaTab()
 {
 }
+
+ToneMappingContext::~ToneMappingContext() {
+    if ( selectedToneMap != nullptr ) {
+        delete selectedToneMap;
+    }
+}
