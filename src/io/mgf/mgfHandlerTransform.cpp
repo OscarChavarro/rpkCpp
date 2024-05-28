@@ -49,7 +49,7 @@ free_xf(MgfTransformContext *spec) {
     if ( spec->transformationArray != nullptr ) {
         free(spec->transformationArray);
     }
-    free(spec);
+    delete[] spec;
 }
 
 static double
@@ -113,12 +113,9 @@ newTransform(int ac, const char **av, MgfContext *context) {
         return nullptr;
     }
 
-    MgfTransformContext *spec = (MgfTransformContext *) malloc(sizeof(MgfTransformContext) + n);
-    if ( spec == nullptr) {
-        return nullptr;
-    }
+    MgfTransformContext *spec = new MgfTransformContext[2]; // TODO: Check why 2 works here but 1 does not
     if ( nDim != 0 ) {
-        spec->transformationArray = (MgfTransformArray *) malloc(sizeof(MgfTransformArray));
+        spec->transformationArray = (MgfTransformArray *)malloc(sizeof(MgfTransformArray));
         if ( spec->transformationArray == nullptr) {
             return nullptr;
         }
