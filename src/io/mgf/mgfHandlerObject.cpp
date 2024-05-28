@@ -5,6 +5,7 @@ Hierarchical object names tracking
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+#include "common/CppReAlloc.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfDefinitions.h"
@@ -73,17 +74,19 @@ handleObject2Entity(int ac, const char **av) {
     }
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
         // Enlarge array
-        if ( !globalObjectMaxName ) {
-            globalObjectNamesList = (char **)malloc(
-                    (globalObjectMaxName = ALLOC_INC) * sizeof(char *));
+        if ( globalObjectMaxName == 0 ) {
+            globalObjectMaxName = ALLOC_INC;
+            globalObjectNamesList = new char *[globalObjectMaxName];
         } else {
-            globalObjectNamesList = (char **)realloc((void *) globalObjectNamesList, (globalObjectMaxName += ALLOC_INC) * sizeof(char *));
+            CppReAlloc<char *> memoryManager;
+            globalObjectMaxName += ALLOC_INC;
+            globalObjectNamesList = memoryManager.reAlloc(globalObjectNamesList, globalObjectMaxName);
             if ( globalObjectNamesList == nullptr ) {
                 fprintf(stderr, "Memory error\n");
                 exit(1);
             }
         }
-        if ( globalObjectNamesList == nullptr) {
+        if ( globalObjectNamesList == nullptr ) {
             return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
         }
     }
@@ -181,5 +184,5 @@ handleObjectEntity(int argc, const char **argv, MgfContext *context) {
 
 void
 mgfObjectFreeMemory() {
-    free(globalObjectNamesList);
+    delete[] globalObjectNamesList;
 }
