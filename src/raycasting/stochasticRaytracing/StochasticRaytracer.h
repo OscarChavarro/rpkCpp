@@ -39,7 +39,6 @@ class StochasticRaytracer final : public RayTracer {
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const final;
 
-    bool reDisplay() const final;
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const final;
 };

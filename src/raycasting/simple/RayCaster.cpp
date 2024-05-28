@@ -65,19 +65,6 @@ RayCaster::execute(
     }
 }
 
-/**
-Returns false if there is no previous image and true if there is
-*/
-bool
-RayCaster::reDisplay() const {
-    if ( !globalRayCaster ) {
-        return false;
-    }
-
-    globalRayCaster->display();
-    return true;
-}
-
 bool
 RayCaster::saveImage(ImageOutputHandle *imageOutputHandle) const {
     if ( !globalRayCaster ) {

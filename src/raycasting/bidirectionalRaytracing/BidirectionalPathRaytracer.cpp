@@ -211,16 +211,6 @@ BidirectionalPathRaytracer::execute(
 }
 
 bool
-BidirectionalPathRaytracer::reDisplay() const {
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastScreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastScreen->render();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool
 BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
     if ( imageOutputHandle && GLOBAL_rayTracing_biDirectionalPath.lastScreen ) {
         GLOBAL_rayTracing_biDirectionalPath.lastScreen->sync();

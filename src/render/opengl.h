@@ -24,8 +24,4 @@ extern void openGlRenderPixels(const Camera *camera, int x, int y, int width, in
 extern void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
 extern void openGlRenderClearWindow(const Camera *camera);
 
-#ifdef RAYTRACING_ENABLED
-    extern void openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions);
-#endif
-
 #endif

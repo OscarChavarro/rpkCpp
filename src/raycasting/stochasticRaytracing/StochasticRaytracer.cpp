@@ -125,16 +125,6 @@ StochasticRaytracer::execute(
 }
 
 bool
-StochasticRaytracer::reDisplay() const {
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        GLOBAL_raytracing_state.lastScreen->render();
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool
 StochasticRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
     if ( imageOutputHandle && GLOBAL_raytracing_state.lastScreen ) {
         GLOBAL_raytracing_state.lastScreen->sync();

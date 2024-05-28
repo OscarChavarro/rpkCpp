@@ -16,19 +16,6 @@ openGlRenderSetLineWidth(float width) {
     glLineWidth(width);
 }
 
-/**
-Re-renders last ray-traced image if any, Returns TRUE if there is one,
-and FALSE if not
-*/
-static bool
-openGlRenderRayTraced(const RayTracer *rayTracer) {
-    if ( rayTracer == nullptr ) {
-        return false;
-    } else {
-        return rayTracer->reDisplay();
-    }
-}
-
 static void
 openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderClearWindow(camera);
@@ -110,7 +97,7 @@ openGlRenderScene(
 
     canvasPushMode();
 
-    if ( !renderOptions->renderRayTracedImage || !openGlRenderRayTraced(rayTracer) ) {
+    if ( !renderOptions->renderRayTracedImage || rayTracer == nullptr ) {
         openGlRenderRadiance(scene, radianceMethod, renderOptions);
     }
 

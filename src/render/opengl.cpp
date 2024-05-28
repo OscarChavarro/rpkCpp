@@ -16,8 +16,6 @@ class OctreeChild {
     float distance;
 };
 
-static int globalDisplayListId = -1;
-
 void
 openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
@@ -34,8 +32,6 @@ openGlInitState(const Camera *camera) {
 
     openGlRenderClearWindow(camera);
     glFinish();
-
-    globalDisplayListId = -1;
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
@@ -421,44 +417,3 @@ openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const Render
         openGlRenderPatchOutline(patch);
     }
 }
-
-#ifdef RAYTRACING_ENABLED
-static void
-openGlGeometryDeleteDLists(Geometry *geometry, Geometry *clusteredWorldGeometry) {
-    if ( geometry->displayListId >= 0 ) {
-        glDeleteLists(geometry->displayListId, 1);
-    }
-    geometry->displayListId = -1;
-
-    if ( clusteredWorldGeometry->isCompound() ) {
-        java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
-        for ( int i = 0; children != nullptr && i < children->size(); i++ ) {
-            openGlGeometryDeleteDLists(children->get(i), clusteredWorldGeometry);
-        }
-        delete children;
-    }
-}
-
-static void
-openGlRenderNewOctreeDisplayLists(Geometry *clusteredWorldGeometry) {
-    if ( clusteredWorldGeometry ) {
-        openGlGeometryDeleteDLists(clusteredWorldGeometry, clusteredWorldGeometry);
-    }
-}
-
-/**
-Indicates that the scene has modified, so a new display list should be
-compiled and rendered from now on. Only relevant when using display lists
-*/
-void
-openGlRenderNewDisplayList(Geometry *clusteredWorldGeometry, const RenderOptions *renderOptions) {
-    if ( globalDisplayListId >= 0 ) {
-        glDeleteLists(globalDisplayListId, 1);
-    }
-    globalDisplayListId = -1;
-
-    if ( renderOptions->frustumCulling ) {
-        openGlRenderNewOctreeDisplayLists(clusteredWorldGeometry);
-    }
-}
-#endif

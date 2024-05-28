@@ -74,19 +74,6 @@ RayMatter::execute(
     }
 }
 
-/**
-Returns false if there is no previous image and true if there is
-*/
-bool
-RayMatter::reDisplay() const {
-    if ( !globalRayMatter ) {
-        return false;
-    }
-
-    globalRayMatter->display();
-    return true;
-}
-
 bool
 RayMatter::saveImage(ImageOutputHandle *imageOutputHandle) const {
     if ( globalRayMatter == nullptr ) {

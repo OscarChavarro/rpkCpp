@@ -7,7 +7,7 @@
 #include "tonemap/WardToneMap.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "io/mgf/readmgf.h"
-#include "render/opengl.h"
+//#include "render/opengl.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
@@ -20,7 +20,6 @@
 #include "app/RpkApplication.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
 #endif
 
@@ -109,18 +108,9 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
 
 void
 RpkApplication::mainCreateOffscreenCanvasWindow() {
-    openGlMesaRenderCreateOffscreenWindow(scene->camera, imageOutputWidth, imageOutputHeight);
-
     // Set correct outputImageWidth and outputImageHeight for the camera
     scene->camera->xSize = imageOutputWidth;
     scene->camera->ySize = imageOutputHeight;
-
-    #ifdef RAYTRACING_ENABLED
-        // Render the scene
-        if ( GLOBAL_rayTracer != nullptr ) {
-            openGlRenderScene(scene, GLOBAL_rayTracer, selectedRadianceMethod, renderOptions);
-        }
-    #endif
 }
 
 void
@@ -131,10 +121,6 @@ RpkApplication::executeRendering(const char *rayTracerName) {
     #ifdef RAYTRACING_ENABLED
         rayTracer = rayTraceCreate(scene, rayTracerName);
         GLOBAL_rayTracer = rayTracer;
-
-        if ( GLOBAL_rayTracer != nullptr ) {
-            openGlRenderScene(scene, GLOBAL_rayTracer, selectedRadianceMethod, renderOptions);
-        }
     #endif
 
     batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
@@ -176,6 +162,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
+    //openGlMesaRenderCreateOffscreenWindow(scene->camera, imageOutputWidth, imageOutputHeight);
     //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
 
     // 5. Free used memory

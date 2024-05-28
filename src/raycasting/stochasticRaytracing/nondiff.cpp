@@ -11,7 +11,6 @@ Non diffuse first shot
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/render/RayTracingRenderer.h"
 
 class LightSourceTable {
   public:
@@ -190,11 +189,8 @@ doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, 
     summarize(scene->patchList);
 
     if ( GLOBAL_rayTracer != nullptr ) {
-        openGlRenderScene(
-            scene,
-            GLOBAL_rayTracer,
-            radianceMethod,
-            renderOptions);
+        // TODO: Verify this is not needed, has been disabled flow on May 29 2024
+        //openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
     }
     delete[] globalLights;
 }

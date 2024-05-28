@@ -14,7 +14,6 @@
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/common/Raytracer.h"
-    #include "raycasting/render/RayTracingRenderer.h"
     #include "app/raytrace.h"
 #endif
 
@@ -123,6 +122,7 @@ batchSaveRadianceImage(
 
     t = clock();
 
+    // No OpenGL really if renderOptions->trace is true
     openGlSaveScreen(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
@@ -202,6 +202,7 @@ batchExecuteRadianceSimulation(
 
             printf("%s", radianceMethod->getStats());
 
+            // Should not be called here
             openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
 
             fflush(stdout);

@@ -113,7 +113,7 @@ createRadianceImageOutputHandle(
     int width,
     int height)
 {
-    if ( fileDescriptor ) {
+    if ( fileDescriptor != nullptr ) {
         const char *fileExtension = isPipe ? "ppm" : imageFileExtension(fileName);
         // Assume PPM format if pipe
         if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {

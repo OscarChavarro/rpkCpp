@@ -34,10 +34,6 @@ class RayTracer {
         RadianceMethod *radianceMethod,
         const RenderOptions *renderOptions) const = 0;
 
-    // Re-displays last ray-traced image. Returns FALSE if there is no
-    // previous ray-traced image and TRUE there is
-    virtual bool reDisplay() const = 0;
-
     // Saves last ray-traced image in the file describe dby the image output handle
     virtual bool saveImage(ImageOutputHandle *imageOutputHandle) const = 0;
 
