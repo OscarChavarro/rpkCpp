@@ -29,6 +29,7 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
 
     if ( pic != nullptr ) {
         result = dkColorWriteScan((COLOR *)rgbRadiance, width, pic);
+        dkColorFreeBuffer();
     }
 
     if ( result ) {

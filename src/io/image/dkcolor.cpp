@@ -1,5 +1,6 @@
 #include <cmath>
 
+#include "common/CppReAlloc.h"
 #include "io/image/dkcolor.h"
 
 static const int RED = 0;
@@ -18,24 +19,25 @@ static const int MINIMUM_SCAN_LINE_LENGTH = 8;
 // Maximum scanline length for encoding
 static const int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
 static const int MINIMUM_RUN_LENGTH = 4;
+static BYTE *globalTempBuffer = nullptr;
 
 /**
 Get a temporary buffer
 */
-static char *
-dkColorTempBuffer(unsigned int len) {
-    static char *tempBuffer = nullptr;
+static BYTE *
+dkColorTempBuffer(unsigned int length) {
     static unsigned tempBufferLength = 0;
 
-    if ( len > tempBufferLength ) {
+    if ( length > tempBufferLength ) {
         if ( tempBufferLength > 0 ) {
-            tempBuffer = (char *)realloc(tempBuffer, len);
+            CppReAlloc<BYTE> memoryManager;
+            globalTempBuffer = memoryManager.reAlloc(globalTempBuffer, length);
         } else {
-            tempBuffer = (char *)malloc(len);
+            globalTempBuffer = new BYTE[length];
         }
-        tempBufferLength = tempBuffer == nullptr ? 0 : len;
+        tempBufferLength = globalTempBuffer == nullptr ? 0 : length;
     }
-    return tempBuffer;
+    return globalTempBuffer;
 }
 
 /**
@@ -139,14 +141,13 @@ Write out a scanline
 int
 dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
 {
-    BYTE_COLOR *colorScan;
-
     // Get scanline buffer
-    BYTE_COLOR *sp = (BYTE_COLOR *)dkColorTempBuffer(len * sizeof(BYTE_COLOR));
+    BYTE *byteArray = dkColorTempBuffer(len * sizeof(BYTE_COLOR));
+    BYTE_COLOR *sp = (BYTE_COLOR *)byteArray;
     if ( sp == nullptr ) {
-        return (-1);
+        return -1;
     }
-    colorScan = sp;
+    BYTE_COLOR *colorScan = sp;
 
     // Convert scanline
     int n = len;
@@ -156,4 +157,12 @@ dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
         sp++;
     }
     return dkColorWriteByteColors(colorScan, len, fp);
+}
+
+void
+dkColorFreeBuffer() {
+    if ( globalTempBuffer != nullptr ) {
+        delete[] globalTempBuffer;
+        globalTempBuffer = nullptr;
+    }
 }
