@@ -5,6 +5,14 @@
 
 class FerwerdaToneMap final : public ToneMap {
   private:
+    ColorRgb sf;
+    float msf;
+    float pmComp;
+    float pmDisplay;
+    float smComp;
+    float smDisplay;
+    float lda;
+
     static float photopicOperator(float logLa);
     static float scotopicOperator(float logLa);
     static float mesopicScaleFactor(float logLwa);

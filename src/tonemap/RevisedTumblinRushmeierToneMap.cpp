@@ -8,13 +8,13 @@ References:
 Contrast Images, ACM Transactions on Graphics, 18:1, 1999, pp. 56-94.
 */
 
-static float globalG;
-static float globalComp;
-static float globalDisp;
-static float globalLwa;
-static float globalLdaTumb;
-
-RevisedTumblinRushmeierToneMap::RevisedTumblinRushmeierToneMap() {
+RevisedTumblinRushmeierToneMap::RevisedTumblinRushmeierToneMap():
+    g(),
+    comp(),
+    display(),
+    lwaRTR(),
+    ldaRTR()
+{
 }
 
 RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
@@ -23,14 +23,14 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 void
 RevisedTumblinRushmeierToneMap::init() {
     float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
-    globalLdaTumb = ldmax / java::Math::sqrt(cmax);
+    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
+    ldaRTR = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
-    globalG = stevensGamma(lwa) / stevensGamma(globalLdaTumb);
-    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(globalLdaTumb));
-    globalComp = java::Math::pow(java::Math::sqrt(cmax), gwd - 1) * globalLdaTumb;
-    globalDisp = globalComp / ldmax;
+    g = stevensGamma(lwa) / stevensGamma(ldaRTR);
+    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(ldaRTR));
+    comp = java::Math::pow(java::Math::sqrt(maximumDisplayContrast), gwd - 1) * ldaRTR;
+    display = comp / maximumDisplayLuminance;
 }
 
 ColorRgb
@@ -39,7 +39,7 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     float scale;
 
     if ( rwl > 0.0 ) {
-        scale = globalComp * java::Math::pow(rwl / globalLwa, globalG) / rwl;
+        scale = comp * java::Math::pow(rwl / lwaRTR, g) / rwl;
     } else {
         scale = 0.0;
     }
@@ -56,7 +56,7 @@ RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     float scale;
     if ( rwl > 0.0 ) {
-        scale = globalDisp * java::Math::pow(rwl / globalLwa, globalG) / rwl;
+        scale = display * java::Math::pow(rwl / lwaRTR, g) / rwl;
     } else {
         scale = 0.0f;
     }

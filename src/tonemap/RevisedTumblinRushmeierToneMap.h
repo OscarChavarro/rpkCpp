@@ -5,6 +5,12 @@
 
 class RevisedTumblinRushmeierToneMap final : public ToneMap {
   private:
+    float g;
+    float comp;
+    float display;
+    float lwaRTR;
+    float ldaRTR;
+
     static float stevensGamma(float lum);
 
   public:

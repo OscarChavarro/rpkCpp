@@ -10,13 +10,13 @@ References:
 IEEE Computer Graphics and Applications, 13:6, 1993, pp. 42-48.
 */
 
-static float globalInvcmax;
-static float globalLrwmComp;
-static float globalLrwmDisp;
-static float globalLrwExponent;
-static float globalLdaTumb;
-
-TumblinRushmeierToneMap::TumblinRushmeierToneMap() {
+TumblinRushmeierToneMap::TumblinRushmeierToneMap():
+    invCMaximum(),
+    lrwmComp(),
+    lrwmDisplay(),
+    lrwExponent(),
+    lda()
+{
 }
 
 TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
@@ -25,22 +25,22 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 void
 TumblinRushmeierToneMap::init() {
     float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
-    globalLdaTumb = ldmax / java::Math::sqrt(cmax);
+    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
+    lda = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     float l10 = java::Math::log10(tmoCandelaLambert(lwa));
-    float alpharw = 0.4f * l10 + 2.92f;
-    float betarw = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
+    float alpha = 0.4f * l10 + 2.92f;
+    float beta = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
 
-    l10 = java::Math::log10(tmoCandelaLambert(globalLdaTumb));
-    float alphad = 0.4f * l10 + 2.92f;
-    float betad = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
+    l10 = java::Math::log10(tmoCandelaLambert(lda));
+    float alphaD = 0.4f * l10 + 2.92f;
+    float betaD = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
 
-    globalLrwExponent = alpharw / alphad;
-    globalLrwmComp = java::Math::pow(10.0f, (betarw - betad) / alphad);
-    globalLrwmDisp = globalLrwmComp / (tmoCandelaLambert(ldmax));
-    globalInvcmax = 1.0f / cmax;
+    lrwExponent = alpha / alphaD;
+    lrwmComp = java::Math::pow(10.0f, (beta - betaD) / alphaD);
+    lrwmDisplay = lrwmComp / (tmoCandelaLambert(maximumDisplayLuminance));
+    invCMaximum = 1.0f / maximumDisplayContrast;
 }
 
 ColorRgb
@@ -50,7 +50,7 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     float scale;
     if ( rwl > 0.0 ) {
         float m = tmoLambertCandela(
-                java::Math::pow(tmoCandelaLambert(rwl), globalLrwExponent) * globalLrwmComp);
+                java::Math::pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmComp);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;
@@ -68,7 +68,7 @@ TumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     float scale;
     if ( rwl > 0.0 ) {
-        float m = (java::Math::pow(tmoCandelaLambert(rwl), globalLrwExponent) * globalLrwmDisp - globalInvcmax);
+        float m = (java::Math::pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmDisplay - invCMaximum);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;

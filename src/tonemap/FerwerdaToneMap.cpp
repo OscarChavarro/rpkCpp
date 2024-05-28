@@ -9,15 +9,15 @@ Visual Adaptation for Realistic Image Synthesis, SIGGRAPH 1996,
 pp. 249-258.
 */
 
-static ColorRgb globalSf(0.062f, 0.608f, 0.330f);
-static float globalMsf;
-static float globalPmComp;
-static float globalPmDisp;
-static float globalSmComp;
-static float globalSmDisp;
-static float globalLda;
-
-FerwerdaToneMap::FerwerdaToneMap() {
+FerwerdaToneMap::FerwerdaToneMap():
+    sf(0.062f, 0.608f, 0.330f),
+    msf(),
+    pmComp(),
+    pmDisplay(),
+    smComp(),
+    smDisplay(),
+    lda()
+{
 }
 
 FerwerdaToneMap::~FerwerdaToneMap() {
@@ -27,15 +27,15 @@ void
 FerwerdaToneMap::init() {
     float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
     float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    globalLda = maximumDisplayLuminance / 2.0f;
+    lda = maximumDisplayLuminance / 2.0f;
 
-    globalMsf = FerwerdaToneMap::mesopicScaleFactor(java::Math::log10(realWorldAdaptionLuminance));
-    globalSmComp = FerwerdaToneMap::scotopicOperator(java::Math::log10(globalLda)) /
-        FerwerdaToneMap::scotopicOperator(java::Math::log10(realWorldAdaptionLuminance));
-    globalPmComp = FerwerdaToneMap::photopicOperator(java::Math::log10(globalLda)) /
-        FerwerdaToneMap::photopicOperator(java::Math::log10(realWorldAdaptionLuminance));
-    globalSmDisp = globalSmComp / maximumDisplayLuminance;
-    globalPmDisp = globalPmComp / maximumDisplayLuminance;
+    msf = FerwerdaToneMap::mesopicScaleFactor(java::Math::log10(realWorldAdaptionLuminance));
+    smComp = FerwerdaToneMap::scotopicOperator(java::Math::log10(lda)) /
+             FerwerdaToneMap::scotopicOperator(java::Math::log10(realWorldAdaptionLuminance));
+    pmComp = FerwerdaToneMap::photopicOperator(java::Math::log10(lda)) /
+             FerwerdaToneMap::photopicOperator(java::Math::log10(realWorldAdaptionLuminance));
+    smDisplay = smComp / maximumDisplayLuminance;
+    pmDisplay = pmComp / maximumDisplayLuminance;
 }
 
 ColorRgb
@@ -49,10 +49,10 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
 
     // Compute the scotopic grayscale shift
     p.set(radiance.r, radiance.g, radiance.b);
-    sl = globalSmComp * globalMsf * (p.r * globalSf.r + p.g * globalSf.g + p.b * globalSf.b);
+    sl = smComp * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
 
     // Scale the photopic luminance
-    radiance.scale(globalPmComp);
+    radiance.scale(pmComp);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {
@@ -73,10 +73,10 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     // Compute the scotopic grayscale shift
     radiance.set(p.r, p.g, p.b);
-    sl = globalSmDisp * globalMsf * (p.r * globalSf.r + p.g * globalSf.g + p.b * globalSf.b);
+    sl = smDisplay * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
 
     // Scale the photopic luminance
-    radiance.scale(globalPmDisp);
+    radiance.scale(pmDisplay);
 
     // Eventually, offset by the scotopic luminance
     if ( sl > 0.0 ) {

@@ -4,6 +4,13 @@
 #include "tonemap/ToneMap.h"
 
 class TumblinRushmeierToneMap final : public ToneMap {
+  private:
+    float invCMaximum;
+    float lrwmComp;
+    float lrwmDisplay;
+    float lrwExponent;
+    float lda;
+
   public:
     TumblinRushmeierToneMap();
     ~TumblinRushmeierToneMap() final;

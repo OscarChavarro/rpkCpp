@@ -4,6 +4,11 @@
 #include "tonemap/ToneMappingContext.h"
 
 class WardToneMap final : public ToneMap {
+  private:
+    float comp;
+    float display;
+    float lda;
+
   public:
     WardToneMap();
     ~WardToneMap() final;
