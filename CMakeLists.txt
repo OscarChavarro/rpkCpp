@@ -150,7 +150,8 @@ set(MAIN_SRC
     src/raycasting/raytracing/bsdfsampler.cpp
     src/raycasting/raytracing/samplertools.cpp
     src/raycasting/raytracing/pixelsampler.cpp
-    src/raycasting/bidirectionalRaytracing/densitybuffer.cpp
+    src/raycasting/bidirectionalRaytracing/DensityHitList.cpp
+    src/raycasting/bidirectionalRaytracing/DensityBuffer.cpp
     src/raycasting/bidirectionalRaytracing/densitykernel.cpp
     src/raycasting/bidirectionalRaytracing/bipath.cpp
     src/raycasting/bidirectionalRaytracing/LightList.cpp

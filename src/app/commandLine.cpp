@@ -7,7 +7,7 @@
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatter.h"
-    #include "raycasting/bidirectionalRaytracing/bidiroptions.h"
+    #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
     #include "raycasting/stochasticRaytracing/basismcrad.h"
     #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
     #include "raycasting/stochasticRaytracing/sample4d.h"
@@ -660,33 +660,33 @@ stochasticRayTracerParseOptions(int *argc, char **argv) {
 MakeNStringTypeStruct(RegExpStringType, MAX_REGEXP_SIZE);
 
 static CommandLineOptionDescription globalBiDirectionalOptions[] = {
-    {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.samplesPerPixel, DEFAULT_ACTION,
+    {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel, DEFAULT_ACTION,
     "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
-    {"-bidir-no-progressive", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.basecfg.progressiveTracing, DEFAULT_ACTION,
+    {"-bidir-no-progressive", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing, DEFAULT_ACTION,
     "-bidir-no-progressive          \t: don't do progressive image refinement"},
-    {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumEyePathDepth, DEFAULT_ACTION,
+    {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth, DEFAULT_ACTION,
     "-bidir-max-eye-path-length <number>: maximum eye path length"},
-    {"-bidir-max-light-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumLightPathDepth, DEFAULT_ACTION,
+    {"-bidir-max-light-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumLightPathDepth, DEFAULT_ACTION,
     "-bidir-max-light-path-length <number>: maximum light path length"},
-    {"-bidir-max-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.maximumPathDepth, DEFAULT_ACTION,
+    {"-bidir-max-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumPathDepth, DEFAULT_ACTION,
     "-bidir-max-path-length <number>\t: maximum combined path length"},
-    {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.basecfg.minimumPathDepth, DEFAULT_ACTION,
+    {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth, DEFAULT_ACTION,
     "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
-    {"-bidir-no-light-importance", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.basecfg.sampleImportantLights, DEFAULT_ACTION,
+    {"-bidir-no-light-importance", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights, DEFAULT_ACTION,
     "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
-    {"-bidir-use-regexp", 12, Tsettrue, &GLOBAL_rayTracing_biDirectionalPath.basecfg.useSpars, DEFAULT_ACTION,
+    {"-bidir-use-regexp", 12, Tsettrue, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars, DEFAULT_ACTION,
     "-bidir-use-regexp\t: use regular expressions for path evaluation"},
-    {"-bidir-use-emitted", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLe, DEFAULT_ACTION,
+    {"-bidir-use-emitted", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLe, DEFAULT_ACTION,
     "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
-    {"-bidir-rexp-emitted", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.leRegExp, DEFAULT_ACTION,
+    {"-bidir-rexp-emitted", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp, DEFAULT_ACTION,
     "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
-    {"-bidir-reg-direct", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLD, DEFAULT_ACTION,
+    {"-bidir-reg-direct", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLD, DEFAULT_ACTION,
     "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
-    {"-bidir-rexp-direct", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.ldRegExp, DEFAULT_ACTION,
+    {"-bidir-rexp-direct", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp, DEFAULT_ACTION,
     "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
-    {"-bidir-reg-indirect", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.basecfg.doLI, DEFAULT_ACTION,
+    {"-bidir-reg-indirect", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLI, DEFAULT_ACTION,
     "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
-    {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.basecfg.liRegExp, DEFAULT_ACTION,
+    {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp, DEFAULT_ACTION,
     "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
     {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
 };

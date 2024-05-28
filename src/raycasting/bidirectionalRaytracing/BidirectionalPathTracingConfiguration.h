@@ -7,9 +7,9 @@
 
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/samplertools.h"
-#include "raycasting/bidirectionalRaytracing/densitybuffer.h"
+#include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
 #include "raycasting/bidirectionalRaytracing/densitykernel.h"
-#include "raycasting/bidirectionalRaytracing/bidiroptions.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
 /**
@@ -18,7 +18,7 @@ non persistently used each time an image is rendered
 */
 class BidirectionalPathTracingConfiguration {
   public:
-    BP_BASECONFIG *baseConfig;
+    BidirectionalPathRaytracerConfig *baseConfig;
 
     // Configuration for tracing the paths
     CSamplerConfig eyeConfig;
@@ -31,8 +31,8 @@ class BidirectionalPathTracingConfiguration {
     int ny;
     double pdfLNE; // pdf for sampling light point separately
 
-    CDensityBuffer *dBuffer;
-    CDensityBuffer *dBuffer2;
+    DensityBuffer *dBuffer;
+    DensityBuffer *dBuffer2;
     float xSample;
     float ySample;
     SimpleRaytracingPathNode *eyePath;

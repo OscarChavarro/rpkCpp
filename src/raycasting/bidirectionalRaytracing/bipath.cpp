@@ -93,7 +93,7 @@ CBiPath::evalPdfAcc() const {
 // depending on the config (baseConfig).
 float
 CBiPath::evalPdfAndWeight(
-    const BP_BASECONFIG *baseConfig,
+    const BidirectionalPathRaytracerConfig *baseConfig,
     float *pPdf,
     float *pWeight) const
 {

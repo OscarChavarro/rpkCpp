@@ -6,7 +6,7 @@ Stores eyePath and lightPath, lengths and end nodes
 #define __BI_PATH__
 
 #include "raycasting/common/pathnode.h"
-#include "raycasting/bidirectionalRaytracing/bidiroptions.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 
 class CBiPath {
   public:
@@ -41,7 +41,7 @@ class CBiPath {
     // depending on the config (baseConfig).
     float
     evalPdfAndWeight(
-        const BP_BASECONFIG *baseConfig,
+        const BidirectionalPathRaytracerConfig *baseConfig,
         float *pPdf = nullptr,
         float *pWeight = nullptr) const;
 };

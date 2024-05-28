@@ -1,69 +1,26 @@
-#include "java/lang/Math.h"
-#include "common/error.h"
-#include "raycasting/bidirectionalRaytracing/densitybuffer.h"
-#include "raycasting/bidirectionalRaytracing/densitykernel.h"
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
-const int DHL_ARRAY_SIZE = 20;
 
-CDensityHitList::CDensityHitList(): m_cacheLowerLimit() {
-    m_first = new CDensityHitArray(DHL_ARRAY_SIZE);
-    m_last = m_first;
-    m_cacheCurrent = nullptr;
+#include "java/lang/Math.h"
+#include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
+#include "raycasting/bidirectionalRaytracing/densitykernel.h"
 
-    m_numHits = 0;
+inline int
+DensityBuffer::xIndex(float x) const {
+    return java::Math::min(
+        (int)(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
+        DHA_X_RES - 1);
 }
 
-CDensityHitList::~CDensityHitList() {
-    CDensityHitArray *tmpDA;
-
-    while ( m_first ) {
-        tmpDA = m_first;
-        m_first = m_first->next;
-        delete tmpDA;
-    }
+inline int
+DensityBuffer::yIndex(float y) const {
+    return java::Math::min(
+            (int)(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
+            DHA_Y_RES - 1);
 }
 
-CDensityHit CDensityHitList::operator[](int i) {
-    if ( i >= m_numHits ) {
-        logFatal(-1, __FILE__ ":CDensityHitList::operator[]", "Index 'i' out of getBoundingBox");
-    }
-
-    if ( !m_cacheCurrent || (i < m_cacheLowerLimit) ) {
-        m_cacheCurrent = m_first;
-        m_cacheLowerLimit = 0;
-    }
-
-    // Wanted point is beyond m_cacheCurrent
-    while ( i >= m_cacheLowerLimit + DHL_ARRAY_SIZE ) {
-        m_cacheCurrent = m_cacheCurrent->next;
-        m_cacheLowerLimit += DHL_ARRAY_SIZE;
-    }
-
-    // Wanted point is in current cache block
-
-    return ((*m_cacheCurrent)[i - m_cacheLowerLimit]);
-}
-
-void
-CDensityHitList::add(const CDensityHit &hit) {
-    if ( !m_last->add(hit) ) {
-        // New array needed
-
-        m_last->next = new CDensityHitArray(DHL_ARRAY_SIZE);
-        m_last = m_last->next;
-
-        m_last->add(hit); // Supposed not to fail
-    }
-
-    m_numHits++;
-}
-
-
-
-// CDensityBuffer implementation
-
-CDensityBuffer::CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseConfig) {
+DensityBuffer::DensityBuffer(ScreenBuffer *screen, BidirectionalPathRaytracerConfig *paramBaseConfig) {
     screenBuffer = screen;
     baseConfig = paramBaseConfig;
 
@@ -77,14 +34,14 @@ CDensityBuffer::CDensityBuffer(ScreenBuffer *screen, BP_BASECONFIG *paramBaseCon
 
 }
 
-CDensityBuffer::~CDensityBuffer() {
+DensityBuffer::~DensityBuffer() {
 }
 
 /**
 Add a hit
 */
 void
-CDensityBuffer::add(float x, float y, ColorRgb color) {
+DensityBuffer::add(float x, float y, ColorRgb color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * (float) baseConfig->totalSamples;
     ColorRgb tmpCol;
@@ -92,7 +49,7 @@ CDensityBuffer::add(float x, float y, ColorRgb color) {
     if ( color.average() > Numeric::EPSILON ) {
         tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
 
-        CDensityHit hit(x, y, tmpCol);
+        DensityHit hit(x, y, tmpCol);
 
         hitGrid[xIndex(x)][yIndex(y)].add(hit);
     }
@@ -102,7 +59,7 @@ CDensityBuffer::add(float x, float y, ColorRgb color) {
 Reconstruct the internal screen buffer using constant kernel width
 */
 ScreenBuffer *
-CDensityBuffer::reconstruct() {
+DensityBuffer::reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
@@ -114,7 +71,7 @@ CDensityBuffer::reconstruct() {
     screenBuffer->scaleRadiance(0.0); // Hack!
 
     int maxK;
-    CDensityHit hit;
+    DensityHit hit;
     CKernel2D kernel;
     Vector2D center;
 
@@ -140,7 +97,7 @@ CDensityBuffer::reconstruct() {
 
 
 ScreenBuffer *
-CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
+DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
     // For all samples -> compute pixel coverage
 
     // Base Kernel size. Now spread over a number of pixels
@@ -148,7 +105,7 @@ CDensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
     dest->scaleRadiance(0.0); // Hack!
 
     int maxK;
-    CDensityHit hit;
+    DensityHit hit;
     CKernel2D kernel;
     Vector2D center;
 

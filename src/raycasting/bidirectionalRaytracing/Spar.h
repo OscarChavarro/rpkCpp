@@ -22,7 +22,7 @@ class Spar;
 // Spar Config stores handy config params
 class SparConfig {
   public:
-    BP_BASECONFIG *baseConfig;
+    BidirectionalPathRaytracerConfig *baseConfig;
 
     // Needed in weighted multi-pass methods
     Spar *leSpar;
