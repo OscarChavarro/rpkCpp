@@ -52,7 +52,7 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     }
     rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
 
-    if ( strncasecmp(rayTracerName, "none", 4) != 0 ) {
+    if ( newRaytracer == nullptr && strncasecmp(rayTracerName, "none", 4) != 0 ) {
         logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
     }
 

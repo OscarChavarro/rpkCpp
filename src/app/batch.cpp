@@ -172,7 +172,7 @@ batchExecuteRadianceSimulation(
     float wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
-        printf("Empty world??\n");
+        printf("Empty world? Missing argument to some command line parameter option?\n");
         return;
     }
 

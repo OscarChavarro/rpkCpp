@@ -541,43 +541,47 @@ readMgf(const char *filename, MgfContext *context) {
 
 void
 mgfFreeMemory(MgfContext *context) {
-    printf("Freeing %ld geometries\n", context->currentGeometryList->size());
-    long surfaces = 0;
-    long patchSets = 0;
-    long compounds = 0;
-    long compoundChildren = 0;
-    long innerCompoundChildren = 0;
-    long unknowns = 0;
-    for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
-        const Geometry *geometry = context->currentGeometryList->get(i);
-        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
-            surfaces++;
-        } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-            patchSets++;
-        } else if ( geometry->className == GeometryClassId::COMPOUND ) {
-            // Note that this creation is being done as a Geometry parent type!
-            if ( geometry->compoundData->children != nullptr ) {
-                compoundChildren += geometry->compoundData->children->size();
+    if ( context->currentGeometryList != nullptr ) {
+        printf("Freeing %ld geometries\n", context->currentGeometryList->size());
+        long surfaces = 0;
+        long patchSets = 0;
+        long compounds = 0;
+        long compoundChildren = 0;
+        long innerCompoundChildren = 0;
+        long unknowns = 0;
+        for ( int i = 0; i < context->currentGeometryList->size(); i++ ) {
+            const Geometry *geometry = context->currentGeometryList->get(i);
+            if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+                surfaces++;
+            } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
+                patchSets++;
+            } else if ( geometry->className == GeometryClassId::COMPOUND ) {
+                // Note that this creation is being done as a Geometry parent type!
+                if ( geometry->compoundData->children != nullptr ) {
+                    compoundChildren += geometry->compoundData->children->size();
+                }
+                compounds++;
+            } else {
+                unknowns++;
             }
-            compounds++;
-        } else {
-            unknowns++;
         }
+        printf("  - MeshSurfaces: %ld\n", surfaces);
+        printf("  - Patch sets: %ld\n", patchSets);
+        printf("  - Compounds: %ld\n", compounds);
+        printf("    . Children: %ld\n", compoundChildren);
+        printf("    . Inner children: %ld\n", innerCompoundChildren);
+        printf("  - Unknowns: %ld\n", unknowns);
+        fflush(stdout);
     }
-    printf("  - MeshSurfaces: %ld\n", surfaces);
-    printf("  - Patch sets: %ld\n", patchSets);
-    printf("  - Compounds: %ld\n", compounds);
-    printf("    . Children: %ld\n", compoundChildren);
-    printf("    . Inner children: %ld\n", innerCompoundChildren);
-    printf("  - Unknowns: %ld\n", unknowns);
-    fflush(stdout);
 
     for ( int i = 0; i < context->allGeometries->size(); i++ ) {
         delete context->allGeometries->get(i);
     }
 
-    delete context->currentGeometryList;
-    context->currentGeometryList = nullptr;
+    if ( context->currentGeometryList != nullptr ) {
+        delete context->currentGeometryList;
+        context->currentGeometryList = nullptr;
+    }
 
     if ( context->materials != nullptr ) {
         for ( int i = 0; i < context->materials->size(); i++ ) {

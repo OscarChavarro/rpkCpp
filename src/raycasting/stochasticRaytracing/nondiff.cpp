@@ -34,7 +34,7 @@ static void
 makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics.numberOfLightSources;
-    globalLights = (LightSourceTable *)malloc(globalNumberOfLights * sizeof(LightSourceTable));
+    globalLights = new LightSourceTable[globalNumberOfLights];
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
@@ -196,6 +196,7 @@ doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, 
             radianceMethod,
             renderOptions);
     }
+    delete[] globalLights;
 }
 
 #endif

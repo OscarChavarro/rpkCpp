@@ -160,16 +160,17 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
 
     // 2. Set model elements from command line options
     char rayTracerName[256];
-    char toneMapName[256];
-    mainParseOptions(&argc, argv, rayTracerName, toneMapName);
+    char initializationToneMapName[256] = "Lightness";
+    char renderToneMapName[256] = "Lightness";
+    mainParseOptions(&argc, argv, rayTracerName, renderToneMapName);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
-    selectToneMapByName("Lightness"); // Note this is used for basic Galerkin model initialization
+    selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
     sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
-    selectToneMapByName(toneMapName);
+    selectToneMapByName(renderToneMapName);
 
     // 4. Run main radiosity simulation and export result
     executeRendering(rayTracerName);
