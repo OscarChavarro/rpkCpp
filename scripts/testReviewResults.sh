@@ -5,11 +5,11 @@ PATTERN=`pwd -P`/
 
 N=`awk -v pattern="$PATTERN" '{gsub(pattern, ""); print}' /tmp/x | wc -l`
 
-if [ "$N" -eq 13 ]; then
+if [ "$N" -eq 15 ]; then
     echo "TEST PASS"
 else
     echo "*** TEST ERROR! ***"
-    echo "$N found, expected 13:"
+    echo "$N found, expected 15:"
     rm -f /tmp/y
     while IFS= read -r line; do
 	underscore_position=$(awk -F'_' '{print length($0) - length($NF)}' <<< "$line")
