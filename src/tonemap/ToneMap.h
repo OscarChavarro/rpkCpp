@@ -28,14 +28,6 @@ class ToneMap {
     virtual ColorRgb scaleForDisplay(ColorRgb radiance) const = 0;
 };
 
-// Available tone mapping operators (nullptr terminated array)
-extern OldToneMap *GLOBAL_toneMap_availableToneMaps[];
-
-extern void setToneMap(ToneMap *toneMap);
-
-// Recomputes gamma tables for the given gamma values for red, green and blue
-extern void recomputeGammaTables(ColorRgb gamma);
-
 inline int
 gammaTableEntry(float x) {
     return (int)(x * (float)(1 << GAMMA_TABLE_BITS));
@@ -52,16 +44,6 @@ inline ColorRgb
 toneMapScaleForDisplay(const ColorRgb &radiance) {
     return GLOBAL_toneMap_options.selectedToneMap->scaleForDisplay(radiance);
 }
-
-/**
-Does most to convert radiance to display RGB color
-1) radiance compression: from the high dynamic range in reality to
-   the limited range of the computer screen.
-2) colormodel conversion from the color model used for the computations to
-   an RGB triplet for display on the screen
-3) clipping of RGB values to the range [0,1].
-*/
-extern ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb);
 
 /**
 Transforms luminance from cd/m^2 to lamberts. Luminance in lamberts
@@ -82,5 +64,8 @@ inline float
 tmoLambertCandela(float a) {
     return a / ((float)M_PI * 1e-4f);
 }
+
+extern void recomputeGammaTables(ColorRgb gamma);
+extern ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb);
 
 #endif

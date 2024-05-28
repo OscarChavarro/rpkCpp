@@ -4,7 +4,6 @@
 #include "common/ColorRgb.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
 
-class OldToneMap;
 class ToneMap;
 
 // Gamma correction table

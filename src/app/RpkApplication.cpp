@@ -79,7 +79,8 @@ RpkApplication::selectToneMapByName(const char *name) {
         newMap = new LightnessToneMap();
     }
 
-    setToneMap(newMap);
+    GLOBAL_toneMap_options.selectedToneMap = newMap;
+    newMap->init();
 }
 
 /**

@@ -9,16 +9,7 @@ ToneMap::ToneMap() {
 ToneMap::~ToneMap() {
 }
 
-/**
-Makes map the current tone mapping operator + initialises
-*/
-void
-setToneMap(ToneMap *toneMap) {
-    GLOBAL_toneMap_options.selectedToneMap = toneMap;
-    toneMap->init();
-}
-
-void
+static void
 recomputeGammaTable(int index, double gamma) {
     if ( gamma <= Numeric::EPSILON ) {
         gamma = 1.0;
@@ -49,6 +40,14 @@ rescaleRadiance(ColorRgb in, ColorRgb *out) {
     return out;
 }
 
+/**
+Does most to convert radiance to display RGB color
+1) radiance compression: from the high dynamic range in reality to
+   the limited range of the computer screen.
+2) colormodel conversion from the color model used for the computations to
+   an RGB triplet for display on the screen
+3) clipping of RGB values to the range [0,1].
+*/
 ColorRgb *
 radianceToRgb(ColorRgb color, ColorRgb *rgb) {
     rescaleRadiance(color, &color);
