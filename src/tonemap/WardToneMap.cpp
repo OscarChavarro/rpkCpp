@@ -30,8 +30,8 @@ WardToneMap::init() {
     globalDisp = globalComp / maximumDisplayLuminance;
 }
 
-static ColorRgb
-wardScaleForComputations(ColorRgb radiance) {
+ColorRgb
+WardToneMap::scaleForComputations(ColorRgb radiance) const {
     radiance.scale(globalComp);
     return radiance;
 }
@@ -48,7 +48,5 @@ OldToneMap GLOBAL_toneMap_ward = {
     "Ward's Mapping",
     "Ward",
     3,
-    nullptr,
-    wardScaleForComputations,
     wardScaleForDisplay
 };

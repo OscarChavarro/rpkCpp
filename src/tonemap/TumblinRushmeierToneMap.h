@@ -7,7 +7,9 @@ class TumblinRushmeierToneMap final : public ToneMap {
   public:
     TumblinRushmeierToneMap();
     ~TumblinRushmeierToneMap() final;
+
     void init() final;
+    ColorRgb scaleForComputations(ColorRgb radiance) const final;
 };
 
 extern OldToneMap GLOBAL_toneMap_tumblinRushmeier;

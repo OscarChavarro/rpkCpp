@@ -6,10 +6,13 @@
 class RevisedTumblinRushmeierToneMap final : public ToneMap {
   private:
     static float stevensGamma(float lum);
+
   public:
     RevisedTumblinRushmeierToneMap();
     ~RevisedTumblinRushmeierToneMap() final;
+
     void init() final;
+    ColorRgb scaleForComputations(ColorRgb radiance) const final;
 };
 
 extern OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier;

@@ -7,7 +7,9 @@ class IdentityToneMap final : public ToneMap {
   public:
     IdentityToneMap();
     ~IdentityToneMap() final;
+
     void init() final;
+    ColorRgb scaleForComputations(ColorRgb radiance) const final;
 };
 
 extern OldToneMap GLOBAL_toneMap_identity;

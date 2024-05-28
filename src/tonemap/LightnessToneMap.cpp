@@ -14,6 +14,12 @@ void
 LightnessToneMap::init() {
 }
 
+ColorRgb
+LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
+    logWarning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    return radiance;
+}
+
 static float
 Lightness(float luminance) {
     if ( GLOBAL_statistics.referenceLuminance == 0.0 ) {
@@ -26,12 +32,6 @@ Lightness(float luminance) {
     } else {
         return 9.033f * relativeLuminance;
     }
-}
-
-static ColorRgb
-lightnessScaleForComputations(ColorRgb radiance) {
-    logWarning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
-    return radiance;
 }
 
 static ColorRgb
@@ -56,7 +56,5 @@ OldToneMap GLOBAL_toneMap_lightness = {
     "Lightness Mapping",
     "Lightness",
     3,
-    nullptr,
-    lightnessScaleForComputations,
     lightnessScaleForDisplay
 };

@@ -12,7 +12,9 @@ class FerwerdaToneMap final : public ToneMap {
   public:
     FerwerdaToneMap();
     ~FerwerdaToneMap() final;
+
     void init() final;
+    ColorRgb scaleForComputations(ColorRgb radiance) const final;
 };
 
 extern OldToneMap GLOBAL_toneMap_ferwerda;

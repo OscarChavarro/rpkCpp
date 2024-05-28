@@ -375,13 +375,6 @@ toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
     makeToneMappingMethodsString();
     parseGeneralOptions(globalToneMappingOptions, argc, argv);
     recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-
-    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        const OldToneMap *map = *toneMap;
-        if ( map->ParseOptions ) {
-            map->ParseOptions(argc, argv);
-        }
-    }
 }
 
 static char *globalRadianceMethodsString;

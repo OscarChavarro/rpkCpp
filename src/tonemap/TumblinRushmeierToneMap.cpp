@@ -43,8 +43,8 @@ TumblinRushmeierToneMap::init() {
     globalInvcmax = 1.0f / cmax;
 }
 
-static ColorRgb
-trwfScaleForComputations(ColorRgb radiance) {
+ColorRgb
+TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     float rwl = radiance.luminance();
 
     float scale;
@@ -82,7 +82,5 @@ OldToneMap GLOBAL_toneMap_tumblinRushmeier = {
     "Tumblin/Rushmeier's Mapping",
     "TumblinRushmeier",
     3,
-    nullptr,
-    trwfScaleForComputations,
     trwfScaleForDisplay
 };

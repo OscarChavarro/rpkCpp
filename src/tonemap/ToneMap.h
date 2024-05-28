@@ -12,6 +12,13 @@ class ToneMap {
     ToneMap();
     virtual ~ToneMap();
     virtual void init() = 0;
+
+    /**
+        Knowing the display luminance "dl" this function determines the
+        correct scaling value that transforms display luminance back into
+        the real world luminance.
+        */
+    virtual ColorRgb scaleForComputations(ColorRgb radiance) const = 0;
 };
 
 class OldToneMap {
@@ -19,15 +26,6 @@ class OldToneMap {
     const char *name;
     const char *shortName;
     int abbrev;
-
-    void (*ParseOptions)(int *argc, char **argv);
-
-    /**
-    Knowing the display luminance "dl" this function determines the
-    correct scaling value that transforms display luminance back into
-    the real world luminance.
-    */
-    ColorRgb (*scaleForComputations)(ColorRgb radiance);
 
     /**
     Full tone mapping to display values. Transforms real world luminance of

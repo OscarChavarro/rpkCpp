@@ -33,21 +33,10 @@ RevisedTumblinRushmeierToneMap::init() {
     globalDisp = globalComp / ldmax;
 }
 
-float
-RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
-    if ( lum > 100.0 ) {
-        return 2.655f;
-    } else {
-        return 1.855f + 0.4f * java::Math::log10(lum + 2.3e-5f);
-    }
-}
-
-static ColorRgb
-revisedTRScaleForComputations(ColorRgb radiance) {
-    float rwl;
+ColorRgb
+RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
+    float rwl = radiance.luminance();
     float scale;
-
-    rwl = radiance.luminance();
 
     if ( rwl > 0.0 ) {
         scale = globalComp * java::Math::pow(rwl / globalLwa, globalG) / rwl;
@@ -57,6 +46,15 @@ revisedTRScaleForComputations(ColorRgb radiance) {
 
     radiance.scale(scale);
     return radiance;
+}
+
+float
+RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
+    if ( lum > 100.0 ) {
+        return 2.655f;
+    } else {
+        return 1.855f + 0.4f * java::Math::log10(lum + 2.3e-5f);
+    }
 }
 
 static ColorRgb
@@ -80,7 +78,5 @@ OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
     "Revised Tumblin/Rushmeier's Mapping",
     "RevisedTR",
     3,
-    nullptr,
-    revisedTRScaleForComputations,
     revisedTRScaleForDisplay
 };

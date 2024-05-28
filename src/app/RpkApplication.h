@@ -26,6 +26,7 @@ class RpkApplication {
   public:
     RpkApplication();
     ~RpkApplication();
+
     int entryPoint(int argc, char *argv[]);
 };
 

@@ -10,8 +10,8 @@ void
 IdentityToneMap::init() {
 }
 
-static ColorRgb
-identityScaleForComputations(ColorRgb radiance) {
+ColorRgb
+IdentityToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
@@ -24,7 +24,5 @@ OldToneMap GLOBAL_toneMap_identity = {
     "Dummy",
     "Dummy",
     3,
-    nullptr,
-    identityScaleForComputations,
     identityScaleForDisplay
 };
