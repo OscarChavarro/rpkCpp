@@ -62,30 +62,6 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-ColorRgb
-FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
-    ColorRgb p{};
-    float sl;
-
-    // Convert to photometric values
-    float eff = getLuminousEfficacy();
-    radiance.scale(eff);
-
-    // Compute the scotopic grayscale shift
-    radiance.set(p.r, p.g, p.b);
-    sl = globalSmDisp * globalMsf * (p.r * globalSf.r + p.g * globalSf.g + p.b * globalSf.b);
-
-    // Scale the photopic luminance
-    radiance.scale(globalPmDisp);
-
-    // Eventually, offset by the scotopic luminance
-    if ( sl > 0.0 ) {
-        radiance.addConstant(radiance, sl);
-    }
-
-    return radiance;
-}
-
 float
 FerwerdaToneMap::photopicOperator(float logLa) {
     float r;
@@ -124,3 +100,34 @@ FerwerdaToneMap::mesopicScaleFactor(float logLwa) {
             return (0.8f - logLwa) / 3.3f;
         }
 }
+
+static ColorRgb
+ferwerdaScaleForDisplay(ColorRgb radiance) {
+    ColorRgb p{};
+    float sl;
+
+    // Convert to photometric values
+    float eff = getLuminousEfficacy();
+    radiance.scale(eff);
+
+    // Compute the scotopic grayscale shift
+    radiance.set(p.r, p.g, p.b);
+    sl = globalSmDisp * globalMsf * (p.r * globalSf.r + p.g * globalSf.g + p.b * globalSf.b);
+
+    // Scale the photopic luminance
+    radiance.scale(globalPmDisp);
+
+    // Eventually, offset by the scotopic luminance
+    if ( sl > 0.0 ) {
+        radiance.addConstant(radiance, sl);
+    }
+
+    return radiance;
+}
+
+OldToneMap GLOBAL_toneMap_ferwerda = {
+    "Partial Ferwerda's Mapping",
+    "Ferwerda",
+    3,
+    ferwerdaScaleForDisplay
+};

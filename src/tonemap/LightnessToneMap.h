@@ -4,16 +4,14 @@
 #include "tonemap/ToneMap.h"
 
 class LightnessToneMap final : public ToneMap {
-  private:
-    static float lightness(float luminance);
-
   public:
     LightnessToneMap();
     ~LightnessToneMap() final;
 
     void init() final;
     ColorRgb scaleForComputations(ColorRgb radiance) const final;
-    ColorRgb scaleForDisplay(ColorRgb radiance) const final;
 };
+
+extern OldToneMap GLOBAL_toneMap_lightness;
 
 #endif

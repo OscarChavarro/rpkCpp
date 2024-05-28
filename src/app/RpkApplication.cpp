@@ -81,10 +81,16 @@ RpkApplication::selectToneMapByName(char *name) {
     } else if ( strcmp(name, "Ferwerda") == 0 ) {
         newMap = new FerwerdaToneMap();
     } else {
-        newMap = new LightnessToneMap();
+        newMap = new IdentityToneMap();
     }
 
-    setToneMap(newMap);
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        OldToneMap *method = *toneMap;
+        if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
+            setToneMap(method, newMap);
+            return;
+        }
+    }
 
     logError(nullptr, "Invalid tone mapping method name '%s'", name);
 }
@@ -168,13 +174,13 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     char rayTracerName[256];
     char toneMapName[256];
     mainParseOptions(&argc, argv, rayTracerName, toneMapName);
-    selectToneMapByName(toneMapName);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
     sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
+    selectToneMapByName(toneMapName);
 
     // 4. Run main radiosity simulation and export result
     executeRendering(rayTracerName);

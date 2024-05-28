@@ -10,9 +10,9 @@ Contrast Images, ACM Transactions on Graphics, 18:1, 1999, pp. 56-94.
 
 static float globalG;
 static float globalComp;
-static float globalDisplay;
+static float globalDisp;
 static float globalLwa;
-static float globalLdaTumblin;
+static float globalLdaTumb;
 
 RevisedTumblinRushmeierToneMap::RevisedTumblinRushmeierToneMap() {
 }
@@ -23,14 +23,14 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 void
 RevisedTumblinRushmeierToneMap::init() {
     float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float ldMax = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
-    globalLdaTumblin = ldMax / java::Math::sqrt(maximumDisplayContrast);
+    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    float cmax = GLOBAL_toneMap_options.maximumDisplayContrast;
+    globalLdaTumb = ldmax / java::Math::sqrt(cmax);
 
-    globalG = stevensGamma(lwa) / stevensGamma(globalLdaTumblin);
-    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(globalLdaTumblin));
-    globalComp = java::Math::pow(java::Math::sqrt(maximumDisplayContrast), gwd - 1) * globalLdaTumblin;
-    globalDisplay = globalComp / ldMax;
+    globalG = stevensGamma(lwa) / stevensGamma(globalLdaTumb);
+    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(globalLdaTumb));
+    globalComp = java::Math::pow(java::Math::sqrt(cmax), gwd - 1) * globalLdaTumb;
+    globalDisp = globalComp / ldmax;
 }
 
 ColorRgb
@@ -48,23 +48,6 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-ColorRgb
-RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = (float)M_PI * radiance.luminance();
-    float eff = getLuminousEfficacy();
-    radiance.scale(eff * (float)M_PI);
-
-    float scale;
-    if ( rwl > 0.0 ) {
-        scale = globalDisplay * java::Math::pow(rwl / globalLwa, globalG) / rwl;
-    } else {
-        scale = 0.0f;
-    }
-
-    radiance.scale(scale);
-    return radiance;
-}
-
 float
 RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
     if ( lum > 100.0 ) {
@@ -73,3 +56,27 @@ RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
         return 1.855f + 0.4f * java::Math::log10(lum + 2.3e-5f);
     }
 }
+
+static ColorRgb
+revisedTRScaleForDisplay(ColorRgb radiance) {
+    float rwl = (float)M_PI * radiance.luminance();
+    float eff = getLuminousEfficacy();
+    radiance.scale(eff * (float)M_PI);
+
+    float scale;
+    if ( rwl > 0.0 ) {
+        scale = globalDisp * java::Math::pow(rwl / globalLwa, globalG) / rwl;
+    } else {
+        scale = 0.0f;
+    }
+
+    radiance.scale(scale);
+    return radiance;
+}
+
+OldToneMap GLOBAL_toneMap_revisedTumblinRushmeier = {
+    "Revised Tumblin/Rushmeier's Mapping",
+    "RevisedTR",
+    3,
+    revisedTRScaleForDisplay
+};

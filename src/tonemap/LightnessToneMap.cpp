@@ -20,26 +20,8 @@ LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-ColorRgb
-LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float max = radiance.maximumComponent();
-    if ( max < 1e-32 ) {
-        return radiance;
-    }
-
-    // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
-    // (reference luminance is also in nits)
-    float scaleFactor = lightness(WHITE_EFFICACY * max);
-    if ( scaleFactor == 0.0 ) {
-        return radiance;
-    }
-
-    radiance.scale(scaleFactor / max);
-    return radiance;
-}
-
-float
-LightnessToneMap::lightness(float luminance) {
+static float
+Lightness(float luminance) {
     if ( GLOBAL_statistics.referenceLuminance == 0.0 ) {
         return 0.0f;
     }
@@ -51,3 +33,28 @@ LightnessToneMap::lightness(float luminance) {
         return 9.033f * relativeLuminance;
     }
 }
+
+static ColorRgb
+lightnessScaleForDisplay(ColorRgb radiance) {
+    float max = radiance.maximumComponent();
+    if ( max < 1e-32 ) {
+        return radiance;
+    }
+
+    // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
+    // (reference luminance is also in nits)
+    float scaleFactor = Lightness(WHITE_EFFICACY * max);
+    if ( scaleFactor == 0.0 ) {
+        return radiance;
+    }
+
+    radiance.scale(scaleFactor / max);
+    return radiance;
+}
+
+OldToneMap GLOBAL_toneMap_lightness = {
+    "Lightness Mapping",
+    "Lightness",
+    3,
+    lightnessScaleForDisplay
+};

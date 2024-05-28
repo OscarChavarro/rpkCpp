@@ -251,13 +251,36 @@ static float globalWxy[2];
 
 static void
 makeToneMappingMethodsString() {
-    snprintf(globalToneMappingMethodsString, STRING_LENGTH,
-         "-tonemapping <method>: set tone mapping method\n"
-         "\tmethods: Lightness            Lightness Mapping (default)\n"
-         "\t         TumblinRushmeier     Tumblin/Rushmeier's Mapping\n"
-         "\t         Ward                 Ward's Mapping\n"
-         "\t         RevisedTR            Revised Tumblin/Rushmeier's Mapping\n"
-         "\t         Ferwerda             Partial Ferwerda's Mapping");
+    globalRxy[0] = GLOBAL_toneMap_options.xr = 0.640f;
+    globalRxy[1] = GLOBAL_toneMap_options.yr = 0.330f;
+    globalGxy[0] = GLOBAL_toneMap_options.xg = 0.290f;
+    globalGxy[1] = GLOBAL_toneMap_options.yg = 0.600f;
+    globalBxy[0] = GLOBAL_toneMap_options.xb = 0.150f;
+    globalBxy[1] = GLOBAL_toneMap_options.yb = 0.060f;
+    globalWxy[0] = GLOBAL_toneMap_options.xw = 0.333333333333f;
+    globalWxy[1] = GLOBAL_toneMap_options.yw = 0.333333333333f;
+
+    char *str = globalToneMappingMethodsString;
+    int n;
+    int first = true;
+    snprintf(str, 1000, "-tonemapping <method>: set tone mapping method\n%n", &n);
+    str += n;
+    snprintf(str, 1000, "\tmethods: %n", &n);
+    str += n;
+
+    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
+        const OldToneMap *method = *toneMap;
+        if ( !first ) {
+            snprintf(str, STRING_LENGTH, "\t         %n", &n);
+            str += n;
+        }
+        first = false;
+        snprintf(str, STRING_LENGTH, "%-20.20s %s%s\n%n",
+                 method->shortName, method->name,
+                 GLOBAL_toneMap_options.toneMap == method ? " (default)" : "", &n);
+        str += n;
+    }
+    *(str - 1) = '\0'; // Discard last newline character
 }
 
 static char *globalToneMapName;
