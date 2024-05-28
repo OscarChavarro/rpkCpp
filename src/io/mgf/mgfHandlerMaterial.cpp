@@ -322,7 +322,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
-                lp->data = (char *) malloc(sizeof(MgfMaterialContext));
+                lp->data = (char *)malloc(sizeof(MgfMaterialContext));
                 if ( lp->data == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }

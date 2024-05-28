@@ -62,7 +62,7 @@ handleObject2Entity(int ac, const char **av) {
         if ( globalObjectNames < 1 ) {
             return MgfErrorCode::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
-        free(globalObjectNamesList[--globalObjectNames]);
+        delete[] globalObjectNamesList[--globalObjectNames];
         globalObjectNamesList[globalObjectNames] = nullptr;
         return MgfErrorCode::MGF_OK;
     }
@@ -92,7 +92,7 @@ handleObject2Entity(int ac, const char **av) {
     }
 
     // Allocate new entry
-    globalObjectNamesList[globalObjectNames] = (char *)malloc(strlen(av[1]) + 1);
+    globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
     if ( globalObjectNamesList[globalObjectNames] == nullptr) {
         return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
     }

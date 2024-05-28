@@ -48,7 +48,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( context->currentColor == nullptr) {    /* create new color context */
-                lp->key = (char *) malloc(strlen(av[1]) + 1);
+                lp->key = (char *)malloc(strlen(av[1]) + 1);
                 if ( lp->key == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }

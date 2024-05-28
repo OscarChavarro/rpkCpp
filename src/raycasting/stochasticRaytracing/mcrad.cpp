@@ -242,7 +242,7 @@ monteCarloRadiosityDetermineAreaFraction(
     }
 
     // Build a table of patch areas
-    areas = (float *)malloc(numberOfPatchIds * sizeof(float));
+    areas = new float[numberOfPatchIds];
     for ( i = 0; i < numberOfPatchIds; i++ ) {
         areas[i] = 0.0;
     }
@@ -263,7 +263,7 @@ monteCarloRadiosityDetermineAreaFraction(
     }
     areaFrac = (i >= 0 && areas[i] > 0.0) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics.numberOfPatches;
 
-    free(areas);
+    delete[] areas;
 
     return areaFrac;
 }
