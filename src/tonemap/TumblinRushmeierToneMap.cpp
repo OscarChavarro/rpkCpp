@@ -60,8 +60,8 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-static ColorRgb
-trwfScaleForDisplay(ColorRgb radiance) {
+ColorRgb
+TumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
     float rwl = (float)M_PI * radiance.luminance();
     float eff = getLuminousEfficacy();
     radiance.scale(eff * (float) M_PI);
@@ -77,10 +77,3 @@ trwfScaleForDisplay(ColorRgb radiance) {
     radiance.scale(scale);
     return radiance;
 }
-
-OldToneMap GLOBAL_toneMap_tumblinRushmeier = {
-    "Tumblin/Rushmeier's Mapping",
-    "TumblinRushmeier",
-    3,
-    trwfScaleForDisplay
-};

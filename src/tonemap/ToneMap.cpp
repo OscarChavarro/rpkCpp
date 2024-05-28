@@ -2,26 +2,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Numeric.h"
 #include "tonemap/IdentityToneMap.h"
-#include "tonemap/LightnessToneMap.h"
-#include "tonemap/WardToneMap.h"
-#include "tonemap/TumblinRushmeierToneMap.h"
-#include "tonemap/RevisedTumblinRushmeierToneMap.h"
-#include "tonemap/FerwerdaToneMap.h"
-
-// Tone mapping defaults
-static const float DEFAULT_GAMMA = 1.7f;
-static const float  DEFAULT_TM_LWA = 10.0f;
-static const float  DEFAULT_TM_LD_MAXIMUM = 100.0f;
-static const float  DEFAULT_TM_C_MAXIMUM = 50.0f;
-
-OldToneMap *GLOBAL_toneMap_availableToneMaps[] = {
-    &GLOBAL_toneMap_lightness,
-    &GLOBAL_toneMap_tumblinRushmeier,
-    &GLOBAL_toneMap_ward,
-    &GLOBAL_toneMap_revisedTumblinRushmeier,
-    &GLOBAL_toneMap_ferwerda,
-    nullptr
-};
 
 ToneMap::ToneMap() {
 }
@@ -30,42 +10,10 @@ ToneMap::~ToneMap() {
 }
 
 /**
-rayCasterDefaults and option handling
-*/
-void
-toneMapDefaults() {
-    GLOBAL_toneMap_options.brightness_adjust = 0.0;
-    GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
-
-    GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
-    GLOBAL_toneMap_options.realWorldAdaptionLuminance = DEFAULT_TM_LWA;
-    GLOBAL_toneMap_options.maximumDisplayLuminance = DEFAULT_TM_LD_MAXIMUM;
-    GLOBAL_toneMap_options.maximumDisplayContrast = DEFAULT_TM_C_MAXIMUM;
-
-    GLOBAL_toneMap_options.xr = 0.640f;
-    GLOBAL_toneMap_options.yr = 0.330f;
-    GLOBAL_toneMap_options.xg = 0.290f;
-    GLOBAL_toneMap_options.yg = 0.600f;
-    GLOBAL_toneMap_options.xb = 0.150f;
-    GLOBAL_toneMap_options.yb = 0.060f;
-    GLOBAL_toneMap_options.xw = 0.333333333333f;
-    GLOBAL_toneMap_options.yw = 0.333333333333f;
-    computeColorConversionTransforms(GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
-                                     GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
-                                     GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
-                                     GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
-
-    GLOBAL_toneMap_options.gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
-    recomputeGammaTables(GLOBAL_toneMap_options.gamma);
-    GLOBAL_toneMap_options.toneMap = &GLOBAL_toneMap_lightness; // Default value...
-}
-
-/**
 Makes map the current tone mapping operator + initialises
 */
 void
-setToneMap(OldToneMap *map, ToneMap *toneMap) {
-    GLOBAL_toneMap_options.toneMap = map != nullptr ? map : &GLOBAL_toneMap_identity;
+setToneMap(ToneMap *toneMap) {
     GLOBAL_toneMap_options.selectedToneMap = toneMap;
     toneMap->init();
 }

@@ -1,8 +1,6 @@
 #include <cstring>
-#include "common/error.h"
 #include "common/numericalAnalysis/QuadCubatureRule.h"
 #include "tonemap/ToneMap.h"
-#include "tonemap/IdentityToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
@@ -57,7 +55,6 @@ Global initializations
 void
 RpkApplication::mainInitApplication() {
     QuadCubatureRule::fixCubatureRules();
-    toneMapDefaults();
     radianceDefaults(nullptr, scene);
 
     // Default vertex compare flags: both location and normal is relevant. Two
@@ -82,15 +79,7 @@ RpkApplication::selectToneMapByName(const char *name) {
         newMap = new LightnessToneMap();
     }
 
-    for ( OldToneMap **toneMap = GLOBAL_toneMap_availableToneMaps; *toneMap != nullptr; toneMap++) {
-        OldToneMap *method = *toneMap;
-        if ( strncasecmp(name, method->shortName, method->abbrev) == 0 ) {
-            setToneMap(method, newMap);
-            return;
-        }
-    }
-
-    logError(nullptr, "Invalid tone mapping method name '%s'", name);
+    setToneMap(newMap);
 }
 
 /**

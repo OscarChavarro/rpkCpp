@@ -36,17 +36,10 @@ WardToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-static ColorRgb
-wardScaleForDisplay(ColorRgb radiance) {
+ColorRgb
+WardToneMap::scaleForDisplay(ColorRgb radiance) const {
     float eff = getLuminousEfficacy();
 
     radiance.scale(eff * globalDisp);
     return radiance;
 }
-
-OldToneMap GLOBAL_toneMap_ward = {
-    "Ward's Mapping",
-    "Ward",
-    3,
-    wardScaleForDisplay
-};
