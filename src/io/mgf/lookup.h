@@ -33,6 +33,7 @@ class LookUpTable {
     0 \
 }
 
+extern void lookUpRemove(const char *data);
 extern int lookUpInit(LookUpTable *tbl, int nel);
 extern LookUpEntity *lookUpFind(LookUpTable *tbl, const char *key);
 extern void lookUpDone(LookUpTable *l);

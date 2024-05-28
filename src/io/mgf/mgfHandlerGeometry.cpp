@@ -807,17 +807,17 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             }
             if ( globalMgfCurrentVertex == nullptr  ) {
                 // Create new vertex context
-                context->currentVertexName = (char *)malloc(strlen(av[1]) + 1);
+                context->currentVertexName = new char[strlen(av[1]) + 1];
                 if ( context->currentVertexName == nullptr ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
-                globalMgfCurrentVertex = (MgfVertexContext *)malloc(sizeof(MgfVertexContext));
+                globalMgfCurrentVertex = (MgfVertexContext *)new char[sizeof(MgfVertexContext)];
                 if ( !globalMgfCurrentVertex ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
-                lp->data = (char *) globalMgfCurrentVertex;
+                lp->data = (char *)globalMgfCurrentVertex;
             }
             if ( ac == 3 ) {
                 // Use default template

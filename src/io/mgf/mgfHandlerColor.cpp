@@ -5,7 +5,7 @@
 #include "io/mgf/mgfDefinitions.h"
 
 // Color lookup table
-static LookUpTable globalColorTable = LOOK_UP_INIT(free, free);
+static LookUpTable globalColorTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
 
 /**
 Handle color entity
@@ -48,12 +48,12 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( context->currentColor == nullptr) {    /* create new color context */
-                lp->key = (char *)malloc(strlen(av[1]) + 1);
+                lp->key = new char [strlen(av[1]) + 1];
                 if ( lp->key == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
-                lp->data = (char *) malloc(sizeof(MgfColorContext));
+                lp->data = new char[sizeof(MgfColorContext)];
                 if ( lp->data == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }

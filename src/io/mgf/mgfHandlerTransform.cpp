@@ -47,7 +47,7 @@ Free a transform
 static void
 free_xf(MgfTransformContext *spec) {
     if ( spec->transformationArray != nullptr ) {
-        free(spec->transformationArray);
+        delete spec->transformationArray;
     }
     delete[] spec;
 }
@@ -98,15 +98,12 @@ static MgfTransformContext *
 newTransform(int ac, const char **av, MgfContext *context) {
     char *cp;
     int nDim = 0;
-    int n = 0;
 
     // Compute space required by arguments
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
             nDim++;
             i++;
-        } else {
-            n += (int)strlen(av[i]) + 1;
         }
     }
     if ( nDim > TRANSFORM_MAXIMUM_DIMENSIONS ) {
@@ -115,7 +112,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
 
     MgfTransformContext *spec = new MgfTransformContext[2]; // TODO: Check why 2 works here but 1 does not
     if ( nDim != 0 ) {
-        spec->transformationArray = (MgfTransformArray *)malloc(sizeof(MgfTransformArray));
+        spec->transformationArray = new MgfTransformArray;
         if ( spec->transformationArray == nullptr) {
             return nullptr;
         }
@@ -128,7 +125,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
 
     // And store new xf arguments
     if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
-        char **newAv = (char **)malloc((spec->xac + 1) * sizeof(char *));
+        char **newAv = new char *[spec->xac + 1];
         if ( newAv == nullptr) {
             return nullptr;
         }
@@ -488,5 +485,5 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
 
 void
 mgfTransformFreeMemory() {
-    free(globalTransformArgumentListBeginning);
+    delete[] globalTransformArgumentListBeginning;
 }

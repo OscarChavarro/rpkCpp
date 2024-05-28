@@ -33,7 +33,7 @@
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(free, free);
+static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
 
 /**
 Looks up a material with given name in the given material list. Returns
@@ -317,12 +317,12 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             }
             if ( globalMgfCurrentMaterial == nullptr ) {
                 // Create new material
-                lp->key = (char *)malloc(strlen(av[1]) + 1);
+                lp->key = new char[strlen(av[1]) + 1];
                 if ( lp->key == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
-                lp->data = (char *)malloc(sizeof(MgfMaterialContext));
+                lp->data = new char[sizeof(MgfMaterialContext)];
                 if ( lp->data == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }

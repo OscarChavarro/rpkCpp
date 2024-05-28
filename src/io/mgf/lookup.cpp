@@ -25,6 +25,11 @@ static unsigned char globalShuffle[256] = {
     48, 205, 106, 7, 164, 65, 222, 123, 24, 181, 82, 239, 140, 41, 198, 99
 };
 
+extern void
+lookUpRemove(const char *data) {
+    delete[] data;
+}
+
 /**
 Initialize tbl for at least nel elements
 
