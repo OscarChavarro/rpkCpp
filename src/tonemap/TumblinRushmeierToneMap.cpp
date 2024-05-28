@@ -49,11 +49,9 @@ tumblinRushmeierInit() {
 
 static ColorRgb
 trwfScaleForComputations(ColorRgb radiance) {
-    float rwl;
+    float rwl = radiance.luminance();
+
     float scale;
-
-    rwl = radiance.luminance();
-
     if ( rwl > 0.0 ) {
         float m = tmoLambertCandela(
                 java::Math::pow(tmoCandelaLambert(rwl), globalLrwExponent) * globalLrwmComp);
@@ -68,15 +66,11 @@ trwfScaleForComputations(ColorRgb radiance) {
 
 static ColorRgb
 trwfScaleForDisplay(ColorRgb radiance) {
-    float rwl;
-    float scale;
-    float eff;
-
-    rwl = (float)M_PI * radiance.luminance();
-
-    eff = getLuminousEfficacy();
+    float rwl = (float)M_PI * radiance.luminance();
+    float eff = getLuminousEfficacy();
     radiance.scale(eff * (float) M_PI);
 
+    float scale;
     if ( rwl > 0.0 ) {
         float m = (java::Math::pow(tmoCandelaLambert(rwl), globalLrwExponent) * globalLrwmDisp - globalInvcmax);
         scale = m > 0.0f ? m / rwl : 0.0f;

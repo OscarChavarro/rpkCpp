@@ -68,17 +68,17 @@ ferwerdaMesopicScaleFactor(float logLwa) {
 
 static void
 ferwerdaInit() {
-    float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    globalLda = ldmax / 2.0f;
+    float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    globalLda = maximumDisplayLuminance / 2.0f;
 
-    globalMsf = ferwerdaMesopicScaleFactor(java::Math::log10(lwa));
+    globalMsf = ferwerdaMesopicScaleFactor(java::Math::log10(realWorldAdaptionLuminance));
     globalSmComp = ferwerdaScotopicOperator(java::Math::log10(globalLda)) /
-                   ferwerdaScotopicOperator(java::Math::log10(lwa));
+                   ferwerdaScotopicOperator(java::Math::log10(realWorldAdaptionLuminance));
     globalPmComp = ferwerdaPhotopicOperator(java::Math::log10(globalLda)) /
-                   ferwerdaPhotopicOperator(java::Math::log10(lwa));
-    globalSmDisp = globalSmComp / ldmax;
-    globalPmDisp = globalPmComp / ldmax;
+                   ferwerdaPhotopicOperator(java::Math::log10(realWorldAdaptionLuminance));
+    globalSmDisp = globalSmComp / maximumDisplayLuminance;
+    globalPmDisp = globalPmComp / maximumDisplayLuminance;
 }
 
 static ColorRgb

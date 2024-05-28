@@ -65,14 +65,11 @@ revisedTRScaleForComputations(ColorRgb radiance) {
 
 static ColorRgb
 revisedTRScaleForDisplay(ColorRgb radiance) {
-    float rwl;
-    float scale;
-
-    rwl = (float)M_PI * radiance.luminance();
-
+    float rwl = (float)M_PI * radiance.luminance();
     float eff = getLuminousEfficacy();
     radiance.scale(eff * (float)M_PI);
 
+    float scale;
     if ( rwl > 0.0 ) {
         scale = globalDisp * java::Math::pow(rwl / globalLwa, globalG) / rwl;
     } else {

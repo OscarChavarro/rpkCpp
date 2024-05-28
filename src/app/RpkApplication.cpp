@@ -90,7 +90,6 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
         &imageOutputHeight);
     renderParseOptions(argc, argv, renderOptions);
     toneMapParseOptions(argc, argv, toneMapName);
-    selectToneMapByName(toneMapName);
     cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
     radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
@@ -162,6 +161,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
     sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
+    selectToneMapByName(toneMapName);
 
     // 4. Run main radiosity simulation and export result
     executeRendering(rayTracerName);

@@ -10,14 +10,17 @@ void
 IdentityToneMap::init() {
 }
 
-static void identityInit() {
+static void
+identityInit() {
 }
 
-static ColorRgb identityScaleForComputations(ColorRgb radiance) {
+static ColorRgb
+identityScaleForComputations(ColorRgb radiance) {
     return radiance;
 }
 
-static ColorRgb identityScaleForDisplay(ColorRgb radiance) {
+static ColorRgb
+identityScaleForDisplay(ColorRgb radiance) {
     return radiance;
 }
 

@@ -23,15 +23,15 @@ WardToneMap::init() {
 
 static void
 wardInit() {
-    float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float ldmax = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    globalLda = ldmax / 2.0f;
+    float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+    globalLda = maximumDisplayLuminance / 2.0f;
 
     float p1 = java::Math::pow(globalLda, 0.4f);
-    float p2 = java::Math::pow(lwa, 0.4f);
+    float p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4f);
     float p3 = (1.219f + p1) / (1.219f + p2);
     globalComp = java::Math::pow(p3, 2.5f);
-    globalDisp = globalComp / ldmax;
+    globalDisp = globalComp / maximumDisplayLuminance;
 }
 
 static ColorRgb
