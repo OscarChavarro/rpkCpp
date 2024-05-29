@@ -4,8 +4,8 @@
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
-    pic = fopen(filename, "wb");
-    if ( pic == nullptr ) {
+    fileDescriptor = fopen(filename, "wb");
+    if ( fileDescriptor == nullptr ) {
         fprintf(stderr, "Can't open PIC output");
         return;
     }
@@ -14,10 +14,10 @@ PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
 }
 
 PicOutputHandle::~PicOutputHandle() {
-    if ( pic != nullptr ) {
-        fclose(pic);
+    if ( fileDescriptor != nullptr ) {
+        fclose(fileDescriptor);
     }
-    pic = nullptr;
+    fileDescriptor = nullptr;
 }
 
 /**
@@ -27,9 +27,8 @@ int
 PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     int result = 0;
 
-    if ( pic != nullptr ) {
-        result = dkColorWriteScan((COLOR *)rgbRadiance, width, pic);
-        dkColorFreeBuffer();
+    if ( fileDescriptor != nullptr ) {
+        result = dkColorWriteScan((DK_COLOR *)rgbRadiance, width, fileDescriptor);
     }
 
     if ( result ) {
@@ -43,9 +42,9 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
 void
 PicOutputHandle::writeHeader() {
     // Simple RADIANCE header
-    fprintf(pic, "#?RADIANCE\n");
-    fprintf(pic, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
-    fprintf(pic, "FORMAT=32-bit_rle_rgbe\n");
-    fprintf(pic, "\n");
-    fprintf(pic, "-Y %d +X %d\n", height, width);
+    fprintf(fileDescriptor, "#?RADIANCE\n");
+    fprintf(fileDescriptor, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
+    fprintf(fileDescriptor, "FORMAT=32-bit_rle_rgbe\n");
+    fprintf(fileDescriptor, "\n");
+    fprintf(fileDescriptor, "-Y %d +X %d\n", height, width);
 }

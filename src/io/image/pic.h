@@ -10,7 +10,7 @@ Olaf Appeltants, March 2000
 */
 class PicOutputHandle final : public ImageOutputHandle {
   private:
-    FILE *pic;
+    FILE *fileDescriptor;
 
     void writeHeader();
 

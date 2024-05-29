@@ -7,6 +7,7 @@
 #include "tonemap/WardToneMap.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "io/mgf/readmgf.h"
+#include "io/image/dkcolor.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
@@ -137,6 +138,7 @@ RpkApplication::freeMemory(MgfContext *mgfContext) {
     if ( mgfContext->radianceMethod != nullptr ) {
         delete mgfContext->radianceMethod;
     }
+    dkColorFreeBuffer();
 #ifdef RAYTRACING_ENABLED
     if ( GLOBAL_lightList != nullptr ) {
         delete GLOBAL_lightList;

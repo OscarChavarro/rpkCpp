@@ -139,7 +139,7 @@ dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
 Write out a scanline
 */
 int
-dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
+dkColorWriteScan(DK_COLOR *scanline, int len, FILE *fileDescriptor)
 {
     // Get scanline buffer
     BYTE *byteArray = dkColorTempBuffer(len * sizeof(BYTE_COLOR));
@@ -155,7 +155,7 @@ dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
         scanline++;
         sp++;
     }
-    return dkColorWriteByteColors(colorScan, len, fp);
+    return dkColorWriteByteColors(colorScan, len, fileDescriptor);
 }
 
 void
