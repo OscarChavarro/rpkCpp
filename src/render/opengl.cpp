@@ -1,12 +1,10 @@
 #include <GL/glu.h>
-#include <GL/osmesa.h>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMap.h"
 #include "render/canvas.h"
-#include "render/softids.h"
 #include "render/opengl.h"
 #include "render/render.h"
 
@@ -21,41 +19,6 @@ openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
-
-static void
-openGlInitState(const Camera *camera) {
-    glDepthFunc(GL_LEQUAL);
-    glEnable(GL_DEPTH_TEST);
-
-    glDrawBuffer(GL_FRONT_AND_BACK);
-
-    openGlRenderClearWindow(camera);
-    glFinish();
-
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0f, 1.0f);
-}
-
-/**
-Creates an offscreen window for rendering
-*/
-void
-openGlMesaRenderCreateOffscreenWindow(const Camera *camera, const int width, const int height) {
-    GLubyte *imageBuffer = new GLubyte[width * height * 4];
-
-    OSMesaContext osMesaContext = OSMesaCreateContext(OSMESA_RGBA, nullptr);
-    if ( !osMesaContext ) {
-        logFatal(1, nullptr, "Couldn't create Mesa offscreen rendering context");
-    }
-
-    if ( !OSMesaMakeCurrent(osMesaContext, imageBuffer, GL_UNSIGNED_BYTE, width, height) ) {
-        logFatal(1, nullptr, "Couldn't bind Mesa offscreen rendering context to image buffer of size %d x %d", width, height);
-    }
-
-    openGlInitState(camera);
-    OSMesaDestroyContext(osMesaContext);
-    delete[] imageBuffer;
 }
 
 /**
@@ -331,71 +294,6 @@ openGlRenderWorldOctree(
     } else {
         openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     }
-}
-
-/**
-Renders an image of m lines of n pixels at column x on row y (= lower
-left corner of image, relative to the lower left corner of the window)
-*/
-void
-openGlRenderPixels(const Camera *camera, int x, int y, int width, int height, const ColorRgb *rgb) {
-    int rowLength;
-
-    // Length of one row of RGBA image data rounded up to a multiple of 8
-    rowLength = (int)((4 * width * sizeof(GLubyte) + 7) & ~7);
-    GLubyte *c = new GLubyte[height * rowLength + 8];
-
-    for ( int j = 0; j < height; j++ ) {
-        const ColorRgb *rgbP = &rgb[j * width];
-
-        GLubyte *p = c + j * rowLength; // Let each line start on an 8-byte boundary
-        for ( int i = 0; i < width; i++, rgbP++ ) {
-            ColorRgb corrected_rgb = *rgbP;
-            toneMappingGammaCorrection(corrected_rgb);
-            *p++ = (GLubyte) (corrected_rgb.r * 255.0);
-            *p++ = (GLubyte) (corrected_rgb.g * 255.0);
-            *p++ = (GLubyte) (corrected_rgb.b * 255.0);
-            *p++ = 255; // alpha = 1.0
-        }
-    }
-
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho(0, camera->xSize, 0, camera->ySize, -1.0, 1.0);
-
-    glDisable(GL_DEPTH_TEST);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-    glRasterPos2i(x, y);
-    glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE, c);
-
-    glFlush();
-    glFinish();
-
-    glEnable(GL_DEPTH_TEST);
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
-
-    delete[] c;
-}
-
-/**
-Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
-the patches visible through each pixel or 0 if the background is visible through
-the pixel. x is normally the width and y the height of the canvas window
-*/
-unsigned long *
-sglRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    return softRenderIds(x, y, scene, renderOptions);
 }
 
 /**

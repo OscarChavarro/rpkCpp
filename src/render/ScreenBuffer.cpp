@@ -133,7 +133,7 @@ ScreenBuffer::render() {
         sync();
     }
 
-    openGlRenderPixels(&camera, 0, 0, camera.xSize, camera.ySize, rgbColor);
+    softRenderPixels(camera.xSize, camera.ySize, rgbColor);
 }
 
 void
@@ -171,7 +171,7 @@ ScreenBuffer::renderScanline(int y) {
         syncLine(y);
     }
 
-    openGlRenderPixels(&camera, 0, y, camera.xSize, 1, &rgbColor[y * camera.xSize]);
+    softRenderPixels(camera.xSize, 1, &rgbColor[y * camera.xSize]);
 }
 
 void

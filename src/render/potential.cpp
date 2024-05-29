@@ -27,7 +27,7 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     // Get the patch IDs for each pixel
     long x;
     long y;
-    unsigned long *ids = sglRenderIds(&x, &y, scene, renderOptions);
+    unsigned long *ids = softRenderIds(&x, &y, scene, renderOptions);
 
     canvasPullMode();
 

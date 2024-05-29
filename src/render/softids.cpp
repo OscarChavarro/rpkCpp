@@ -9,6 +9,7 @@ formats, etc.
 #include "render/opengl.h"
 #include "render/render.h"
 #include "render/softids.h"
+#include "tonemap/ToneMap.h"
 
 /**
 Sets up a software rendering context and initialises transforms and
@@ -70,6 +71,10 @@ softRenderPatches(const Scene *scene, const RenderOptions *renderOptions) {
 
 /**
 Software ID rendering
+
+Patch ID rendering. Returns an array of size (*x)*(*y) containing the IDs of
+the patches visible through each pixel or 0 if the background is visible through
+the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
@@ -90,4 +95,33 @@ softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderO
     sglMakeCurrent(oldSglContext);
 
     return ids;
+}
+
+/**
+Renders in memory an image of m lines of n pixels at column x on row y (= lower
+left corner of image, relative to the lower left corner of the window)
+*/
+void
+softRenderPixels(int width, int height, const ColorRgb *rgb) {
+    int rowLength;
+
+    // Length of one row of RGBA image data rounded up to a multiple of 8
+    rowLength = (int)((4 * width * sizeof(unsigned char) + 7) & ~7);
+    unsigned char *c = new unsigned char[height * rowLength + 8];
+
+    for ( int j = 0; j < height; j++ ) {
+        const ColorRgb *rgbP = &rgb[j * width];
+
+        unsigned char *p = c + j * rowLength; // Let each line start on an 8-byte boundary
+        for ( int i = 0; i < width; i++, rgbP++ ) {
+            ColorRgb corrected_rgb = *rgbP;
+            toneMappingGammaCorrection(corrected_rgb);
+            *p++ = (unsigned char) (corrected_rgb.r * 255.0);
+            *p++ = (unsigned char) (corrected_rgb.g * 255.0);
+            *p++ = (unsigned char) (corrected_rgb.b * 255.0);
+            *p++ = 255; // alpha = 1.0
+        }
+    }
+
+    delete[] c;
 }

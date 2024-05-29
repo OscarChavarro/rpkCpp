@@ -205,4 +205,4 @@ set(MAIN_SRC
     src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
-target_link_libraries(rpk GLU GL OSMesa glut)
+target_link_libraries(rpk GLU GL glut)

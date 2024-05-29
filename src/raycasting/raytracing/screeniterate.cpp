@@ -80,7 +80,7 @@ screenIterateSequential(
             GLOBAL_raytracer_pixelCount++;
         }
 
-        openGlRenderPixels(camera, 0, height - i - 1, width, 1, rgb);
+        softRenderPixels(width, 1, rgb);
     }
 
     delete[] rgb;
@@ -188,7 +188,7 @@ screenIterateProgressive(
                     if ( iState.wakeUp & WAKE_UP_RENDER) {
                         iState.wakeUp &= ~WAKE_UP_RENDER;
                         if ( (yMax > 0) && (yMax > yMin) ) {
-                            openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
+                            softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                         }
                         yMin = java::Math::max(0, yMax - stepSize);
                     }
@@ -200,7 +200,7 @@ screenIterateProgressive(
 
             if ( yMax >= height ) {
                 if ( yMax > yMin ) {
-                    openGlRenderPixels(camera, 0, yMin, width, yMax - yMin, rgb + yMin * width);
+                    softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                 }
                 yMax = -1;
             }

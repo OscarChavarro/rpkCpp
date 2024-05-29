@@ -202,7 +202,6 @@ batchExecuteRadianceSimulation(
 
             printf("%s", radianceMethod->getStats());
 
-            // Should not be called here
             openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
 
             fflush(stdout);

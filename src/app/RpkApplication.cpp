@@ -7,7 +7,6 @@
 #include "tonemap/WardToneMap.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "io/mgf/readmgf.h"
-//#include "render/opengl.h"
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
@@ -162,7 +161,6 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
-    //openGlMesaRenderCreateOffscreenWindow(scene->camera, imageOutputWidth, imageOutputHeight);
     //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
 
     // 5. Free used memory
