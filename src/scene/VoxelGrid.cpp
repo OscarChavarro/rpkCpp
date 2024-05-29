@@ -29,10 +29,6 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
     static int level = 0; // TODO warning: this makes this class non re-entrant
     short gridSize;
 
-    if ( level == 0 ) {
-        geometry->geomCountItems();
-    }
-
     double p = java::Math::pow((double) geometry->itemCount, 0.33333) + 1;
     gridSize = (short)java::Math::floor(p);
     fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);

@@ -20,7 +20,7 @@ GalerkinElement *FormFactorStrategy::formFactorLastReceived;
 GalerkinElement *FormFactorStrategy::formFactorLastSource;
 
 /**
-Tests whether the ray intersects the a geometry in the geometrySceneList. Returns
+Tests whether the ray intersects a geometry in the geometrySceneList. Returns
 nullptr if the ray hits no geometries. Returns an arbitrary hit
 patch if the ray does intersect one or more geometries. Intersections
 further away than minimumDistance are ignored.

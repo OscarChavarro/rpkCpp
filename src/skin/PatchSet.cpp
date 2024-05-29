@@ -47,3 +47,8 @@ PatchSet::discretizationIntersect(
 {
     return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
+
+java::ArrayList<Patch *> *
+PatchSet::getPatchList() const {
+    return patchSetData->patchList;
+}

@@ -20,9 +20,7 @@ class PatchSet final : public Geometry {
         int hitFlags,
         RayHit *hitStore) const final;
 
-    java::ArrayList<Patch *> *getPatchList() const {
-        return patchSetData->patchList;
-    }
+    java::ArrayList<Patch *> *getPatchList() const;
 };
 
 extern BoundingBox *

@@ -43,9 +43,9 @@ class Geometry {
     static Geometry *excludedGeometry2;
 
     Geometry(
-        PatchSet *patchSetData,
-        Compound *compoundData,
-        GeometryClassId className);
+        PatchSet *inPatchSetData,
+        Compound *inCompoundData,
+        GeometryClassId inClassName);
 
     bool
     discretizationIntersectPreTest(
@@ -58,7 +58,6 @@ class Geometry {
     int id; // Unique ID number
     BoundingBox boundingBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
-    int displayListId; // Display list ID for faster hardware rendering - initialised to -1
     int itemCount;
     char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
     char shaftCullGeometry; // Generated during shaft culling
@@ -73,7 +72,6 @@ class Geometry {
     Geometry();
     virtual ~Geometry();
 
-    int geomCountItems();
     bool isCompound() const;
 
     virtual RayHit *
@@ -95,7 +93,7 @@ class Geometry {
 
     bool isExcluded() const;
     BoundingBox getBoundingBox() const;
-    Geometry *duplicateIfPatchSet() const;
+    virtual Geometry *duplicateIfPatchSet() const;
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);

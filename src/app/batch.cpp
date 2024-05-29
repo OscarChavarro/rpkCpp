@@ -156,8 +156,6 @@ batchSaveRadianceModel(
 
     if ( radianceMethod != nullptr ) {
         radianceMethod->writeVRML(scene->camera, fp, renderOptions);
-    } else {
-        writeVRML(scene->camera, fp, scene->patchList);
     }
 
     fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);

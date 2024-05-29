@@ -74,7 +74,6 @@ MeshSurface::MeshSurface(
     this->radianceData = nullptr;
     this->itemCount = 0;
     this->omit = false;
-    this->displayListId = -1;
 }
 
 MeshSurface::~MeshSurface() {

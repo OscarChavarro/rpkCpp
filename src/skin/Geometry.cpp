@@ -12,7 +12,6 @@ Geometry::Geometry():
     id(),
     boundingBox(),
     radianceData(),
-    displayListId(),
     itemCount(),
     bounded(),
     omit(),
@@ -31,33 +30,32 @@ methods. A pointer to the new geometry is returned
 Note: currently containing the super() method.
 */
 Geometry::Geometry(
-    PatchSet *patchSetData,
-    Compound *compoundData,
-    GeometryClassId className)
+    PatchSet *inPatchSetData,
+    Compound *inCompoundData,
+    GeometryClassId inClassName)
 {
     GLOBAL_statistics.numberOfGeometries++;
-    this->id = nextGeometryId++;
-    this->compoundData = compoundData;
-    this->patchSetData = patchSetData;
-    this->className = className;
-    this->isDuplicate = false;
-    this->bounded = false;
-    this->shaftCullGeometry = false;
-    this->radianceData = nullptr;
-    this->itemCount = 0;
-    this->omit = false;
-    this->displayListId = -1;
+    id = nextGeometryId++;
+    compoundData = inCompoundData;
+    patchSetData = inPatchSetData;
+    className = inClassName;
+    isDuplicate = false;
+    bounded = false;
+    shaftCullGeometry = false;
+    radianceData = nullptr;
+    itemCount = 0;
+    omit = false;
 
-    if ( className == GeometryClassId::COMPOUND ) {
-        const Compound *compound = compoundData;
-        geometryListBounds(compound->children, &this->boundingBox);
-        this->boundingBox.enlargeTinyBit();
-        this->bounded = true;
-    } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
+    if ( inClassName == GeometryClassId::COMPOUND ) {
+        const Compound *compound = inCompoundData;
+        geometryListBounds(compound->children, &boundingBox);
+        boundingBox.enlargeTinyBit();
+        bounded = true;
+    } else if ( inClassName == GeometryClassId::PATCH_SET && inPatchSetData != nullptr ) {
         const PatchSet *patchSet = (const PatchSet *)this;
-        patchListBounds(patchSet->getPatchList(), &this->boundingBox);
-        this->boundingBox.enlargeTinyBit();
-        this->bounded = true;
+        patchListBounds(patchSet->getPatchList(), &boundingBox);
+        boundingBox.enlargeTinyBit();
+        bounded = true;
     }
 }
 
@@ -244,28 +242,6 @@ Geometry::discretizationIntersect(
         return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
-}
-
-int
-Geometry::geomCountItems() {
-    int count = 0;
-
-    if ( isCompound() ) {
-        const Compound *compound = this->compoundData;
-        if ( compound == nullptr ) {
-            return 0;
-        }
-        for ( int i = 0; compound->children != nullptr && i < compound->children->size(); i++ ) {
-            count += compound->children->get(i)->geomCountItems();
-        }
-    } else {
-        const java::ArrayList<Patch *> * list = geomPatchArrayListReference(this);
-        if ( list != nullptr ) {
-            count = (int)list->size();
-        }
-    }
-
-    return this->itemCount = count;
 }
 
 RayHit *
