@@ -34,6 +34,9 @@ enum GeometryClassId {
 };
 
 class Geometry {
+  protected:
+    PatchSet *patchSetData;
+
   public: // Will become protected
     static int nextGeometryId;
     static Geometry *excludedGeometry1;
@@ -66,7 +69,6 @@ class Geometry {
 
     GeometryClassId className;
     Compound *compoundData;
-    PatchSet *patchSetData;
 
     Geometry();
     virtual ~Geometry();
@@ -93,6 +95,7 @@ class Geometry {
 
     bool isExcluded() const;
     BoundingBox getBoundingBox() const;
+    Geometry *duplicateIfPatchSet() const;
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);

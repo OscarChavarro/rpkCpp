@@ -11,6 +11,10 @@ class Scene {
     static void printSurfaceMesh(const MeshSurface *mesh, int level);
     static void printCompound(const Compound *geometry);
     static void printPatchSet(const PatchSet *patchSet);
+    void printGeometries() const;
+    void printClusteredGeometries() const;
+    void printPatches() const;
+    static void printClusterHierarchy(const Geometry *node, int level, int *elementCount);
 
 public:
     Background *background;

@@ -719,7 +719,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
-        Geometry *newGeometry = geomDuplicateIfPatchSet(geometry);
+        Geometry *newGeometry = geometry->duplicateIfPatchSet();
         newGeometry->shaftCullGeometry = true;
         candidateList->add(newGeometry);
     } else {

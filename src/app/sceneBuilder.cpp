@@ -195,8 +195,7 @@ removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geo
 
 /**
 Tries to read the scene in the given file. Returns false if not successful.
-Returns true if successful. There's nothing GUI specific in this function.
-When a file cannot be read, the current scene is restored
+Returns true if successful
 */
 static bool
 sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {

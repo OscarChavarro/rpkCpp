@@ -66,8 +66,8 @@ Scene::printGeometryType(GeometryClassId id) {
 
 void
 Scene::printPatchSet(const PatchSet *patchSet) {
-    if ( patchSet->patchList != nullptr ) {
-        printf("  - Patches: %ld\n", patchSet->patchList->size());
+    if ( patchSet->getPatchList() != nullptr ) {
+        printf("  - Patches: %ld\n", patchSet->getPatchList()->size());
     } else {
         printf("  - Patches: null list!\n");
     }
@@ -109,7 +109,8 @@ Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
     delete[] spaces;
 }
 
-void Scene::print() const {
+void
+Scene::printGeometries() const {
     printf("= geometryList ================================================================\n");
     printf("Geometries on list: %ld\n", geometryList->size());
     for ( int i = 0; i < geometryList->size(); i++ ) {
@@ -127,4 +128,100 @@ void Scene::print() const {
             printPatchSet((PatchSet *)geometry);
         }
     }
+}
+
+void
+Scene::printClusteredGeometries() const {
+    printf("= clusteredGeometryList ================================================================\n");
+    printf("Geometry clusters on list: %ld\n", clusteredGeometryList->size());
+    for ( int i = 0; i < clusteredGeometryList->size(); i++ ) {
+        Geometry *geometry = clusteredGeometryList->get(i);
+        printf("  - Index: [%d of %ld] / [%s]\n", i + 1, clusteredGeometryList->size(), printGeometryType(geometry->className));
+        printf("    . Id: %d\n", geometry->id);
+        printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
+
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            // Note that empty meshes are being removed, this case will usually not show on Galerkin
+            printSurfaceMesh((MeshSurface *)geometry, 0);
+        } else if ( geometry->className == GeometryClassId::COMPOUND ) {
+            printCompound((Compound *)geometry);
+        } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
+            printPatchSet((PatchSet *)geometry);
+        }
+    }
+}
+
+void
+Scene::printPatches() const {
+    printf("= patchList ================================================================\n");
+    if ( patchList == nullptr ) {
+        printf("Patches on top level scene list: NULL\n");
+        return;
+    }
+    printf("Patches on top level scene list: %ld\n", patchList->size());
+    for ( int i = 0; i < patchList->size(); i++ ) {
+        const Patch *patch = patchList->get(i);
+        printf("  - patch[%d]: vertices: %d, area: %03f\n",
+           i, patch->numberOfVertices, patch->area);
+    }
+}
+
+void
+Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount) {
+    if ( level == 0 ) {
+        printf("= clusteredRootGeometry ================================================================\n");
+    }
+    switch ( level ) {
+        case 0:
+            break;
+        case 1:
+            printf("* ");
+            break;
+        case 2:
+            printf("  - ");
+            break;
+        case 3:
+            printf("    . ");
+            break;
+        default:
+            printf("   ");
+            for ( int j = 0; j < level; j++ ) {
+                printf(" ");
+            }
+            printf("[%d] ", level);
+            break;
+    }
+    if ( node->className == GeometryClassId::SURFACE_MESH ) {
+        // Note that empty meshes are being removed, this case will usually not show on Galerkin
+        printf("Mesh (%d)\n", *elementCount);
+        (*elementCount)++;
+    } else if ( node->className == GeometryClassId::COMPOUND ) {
+        printf("Compound (%d)\n", *elementCount);
+        (*elementCount)++;
+        const Compound *compound = (const Compound *)node;
+        for ( int i = 0;
+              compound->compoundData->children != nullptr && i < compound->compoundData->children->size();
+              i++ ) {
+            printClusterHierarchy(compound->compoundData->children->get(i), level + 1, elementCount);
+        }
+
+    } else if ( node->className == GeometryClassId::PATCH_SET ) {
+        const PatchSet *patchSet = (const PatchSet *)node;
+        if ( patchSet->getPatchList() == nullptr ) {
+            printf("empty PatchSet (%d)\n", *elementCount);
+        } else {
+            printf("PatchSet with %ld patches (%d)\n", patchSet->getPatchList()->size(), *elementCount);
+        }
+        (*elementCount)++;
+    }
+}
+
+void
+Scene::print() const {
+    printGeometries();
+    printClusteredGeometries();
+    printPatches();
+    int elementCount = 0;
+    printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
+    printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
 }

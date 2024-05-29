@@ -5,8 +5,10 @@
 #include "skin/Geometry.h"
 
 class PatchSet final : public Geometry {
-  public:
+  private:
     java::ArrayList<Patch *> *patchList;
+
+  public:
     explicit PatchSet(const java::ArrayList<Patch *> *input);
     ~PatchSet() final;
 
@@ -17,6 +19,10 @@ class PatchSet final : public Geometry {
         float *maximumDistance,
         int hitFlags,
         RayHit *hitStore) const final;
+
+    java::ArrayList<Patch *> *getPatchList() const {
+        return patchSetData->patchList;
+    }
 };
 
 extern BoundingBox *

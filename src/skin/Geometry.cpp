@@ -8,6 +8,7 @@ Geometry *Geometry::excludedGeometry2 = nullptr;
 int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():
+    patchSetData(),
     id(),
     boundingBox(),
     radianceData(),
@@ -17,8 +18,7 @@ Geometry::Geometry():
     omit(),
     isDuplicate(),
     className(),
-    compoundData(),
-    patchSetData()
+    compoundData()
 {
     className = GeometryClassId::UNDEFINED;
     shaftCullGeometry = false;
@@ -54,7 +54,8 @@ Geometry::Geometry(
         this->boundingBox.enlargeTinyBit();
         this->bounded = true;
     } else if ( className == GeometryClassId::PATCH_SET && patchSetData != nullptr ) {
-        patchListBounds(patchSetData->patchList, &this->boundingBox);
+        const PatchSet *patchSet = (const PatchSet *)this;
+        patchListBounds(patchSet->getPatchList(), &this->boundingBox);
         this->boundingBox.enlargeTinyBit();
         this->bounded = true;
     }
@@ -148,7 +149,7 @@ geomPatchArrayListReference(Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return ((MeshSurface *)geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return geometry->patchSetData->patchList;
+        return ((PatchSet *)geometry)->getPatchList();
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }
@@ -160,17 +161,17 @@ This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
 Geometry *
-geomDuplicateIfPatchSet(Geometry *geometry) {
-    if ( geometry->className != GeometryClassId::PATCH_SET ) {
-        logError("geomDuplicateIfPatchSet", "geometry has no duplicate method");
+Geometry::duplicateIfPatchSet() const {
+    if ( className != GeometryClassId::PATCH_SET ) {
+        logError("duplicateIfPatchSet", "geometry has no duplicate method");
         return nullptr;
     }
 
     Geometry *newGeometry = new Geometry();
     GLOBAL_statistics.numberOfGeometries++;
-    *newGeometry = *geometry;
-    newGeometry->compoundData = geometry->compoundData;
-    newGeometry->patchSetData = geometry->patchSetData;
+    *newGeometry = *this;
+    newGeometry->compoundData = compoundData;
+    newGeometry->patchSetData = patchSetData;
     newGeometry->isDuplicate = true;
 
     return newGeometry;
