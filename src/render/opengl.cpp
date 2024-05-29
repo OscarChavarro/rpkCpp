@@ -310,10 +310,10 @@ openGlRenderWorldOctree(
     if ( scene->clusteredRootGeometry == nullptr ) {
         return;
     }
+#ifdef OPEN_GL_ENABLED
     if ( renderPatchCallback == nullptr ) {
         renderPatchCallback = openGlRenderPatchCallBack;
     }
-#ifdef OPEN_GL_ENABLED
     if ( scene->clusteredRootGeometry->isCompound() ) {
         openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     } else {

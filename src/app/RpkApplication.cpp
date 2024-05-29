@@ -19,6 +19,7 @@
 #include "app/RpkApplication.h"
 
 #ifdef RAYTRACING_ENABLED
+#include "raycasting/bidirectionalRaytracing/LightList.h"
     #include "app/raytrace.h"
 #endif
 
@@ -136,6 +137,11 @@ RpkApplication::freeMemory(MgfContext *mgfContext) {
     if ( mgfContext->radianceMethod != nullptr ) {
         delete mgfContext->radianceMethod;
     }
+#ifdef RAYTRACING_ENABLED
+    if ( GLOBAL_lightList != nullptr ) {
+        delete GLOBAL_lightList;
+    }
+#endif
 }
 
 int

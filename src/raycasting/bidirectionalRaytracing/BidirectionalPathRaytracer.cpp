@@ -1017,7 +1017,6 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     // Now we have a noisy screen in dest and hits in double buffer
 
     // Density estimation
-
     config->dBuffer->reconstruct(); // Estimates ref with fixed kernel width
     config->ref->render();
 
@@ -1044,28 +1043,23 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         config->dBuffer2 = nullptr;
     }
 
-    // We have a better approximation in dest based
-    // on some samples per pixel BPT.
-
-    // We will now do subsequent BPT passes, adding the
-    // hits directly to dest.
-
+    // We have a better approximation in dest based on some samples per pixel BPT
+    // We will now do subsequent BPT passes, adding the hits directly to dest
     config->deStoreHits = false;
 
-    int nrIterations = (int)java::Math::floor(log(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / (log(2)));
-    int maxSamples = (int)java::Math::pow(2.0, nrIterations);
+    int numberOfIterations =
+        (int)java::Math::floor(log(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / (log(2)));
+    int maxSamples = (int)java::Math::pow(2.0, numberOfIterations);
 
-    printf("Doing %i iterations, thus %i samples per pixel\n", nrIterations,
-           maxSamples);
+    printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
 
     int oldSPP = config->baseConfig->samplesPerPixel; // These were stored
     int newSPP = oldSPP;
     int oldTotalSPP = oldSPP;
     int newTotalSPP = oldTotalSPP + newSPP;
 
-    for ( int i = 1; i <= nrIterations; i++ ) {
-        printf("Doing run with %i samples, %i samples already done\n", newSPP,
-               oldTotalSPP);
+    for ( int i = 1; i <= numberOfIterations; i++ ) {
+        printf("Doing run with %i samples, %i samples already done\n", newSPP, oldTotalSPP);
 
         // copy dest to ref
 
@@ -1074,7 +1068,6 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         if ( config->ref2 ) {
             config->ref2->copy(config->dest2, camera);
         }
-
 
         // Rescale dest: nOld / nNew
         config->dest->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
@@ -1137,6 +1130,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     if ( config->dest2 ) {
         delete config->dest2;
     }
+    delete[] fileName;
 }
 
 #endif

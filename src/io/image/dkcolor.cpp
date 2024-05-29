@@ -111,28 +111,28 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
 Assign a short color value
 */
 static void
-dkColorSetByteColors(BYTE_COLOR clr, double r, double g, double b)
+dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
 {
-    double d;
-    int e;
-
-    d = r > g ? r : g;
+    double d = r > g ? r : g;
     if ( b > d ) {
         d = b;
     }
 
-    if ( d <= 1e-32 ) {
-        clr[RED] = clr[GREEN] = clr[BLUE] = 0;
-        clr[EXP] = 0;
+    if ( d < 0 ) {
+        color[RED] = 0;
+        color[GREEN] = 0;
+        color[BLUE] = 0;
+        color[EXP] = 0;
         return;
     }
 
+    int e;
     d = std::frexp(d, &e) * 255.9999 / d;
 
-    clr[RED] = (unsigned char) (r * d);
-    clr[GREEN] = (unsigned char) (g * d);
-    clr[BLUE] = (unsigned char) (b * d);
-    clr[EXP] = (unsigned char)e + COL_XS;
+    color[RED] = (unsigned char)(r * d);
+    color[GREEN] = (unsigned char)(g * d);
+    color[BLUE] = (unsigned char)(b * d);
+    color[EXP] = (unsigned char)e + COL_XS;
 }
 
 /**
@@ -150,8 +150,7 @@ dkColorWriteScan(COLOR *scanline, int len, FILE *fp)
     BYTE_COLOR *colorScan = sp;
 
     // Convert scanline
-    int n = len;
-    while ( n-- > 0 ) {
+    for ( int n = len - 1; n >= 0; n-- ) {
         dkColorSetByteColors(sp[0], scanline[0][RED], scanline[0][GREEN], scanline[0][BLUE]);
         scanline++;
         sp++;

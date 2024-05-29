@@ -57,10 +57,10 @@ class VoxelGrid {
     }
 
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
-
     int isSmall(const float *boundsArr) const;
-
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
+    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds);
+    void putPatchInsideVoxelGrid(Patch *patch);
 
     void
     gridTraceSetup(
@@ -81,10 +81,6 @@ class VoxelGrid {
         /*OUT*/ float *t0,
         Vector3D *position) const;
 
-    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds);
-
-    void putPatchInsideVoxelGrid(Patch *patch);
-
     static RayHit *
     voxelIntersect(
         const java::ArrayList<VoxelData *> *items,
@@ -95,7 +91,7 @@ class VoxelGrid {
         int hitFlags,
         RayHit *hitStore);
 
-    static int
+    static bool
     nextVoxel(float *t0, int *g, Vector3D *tNext, const Vector3D *tDelta, const int *step, const int *out);
 
     static int randomRayId();

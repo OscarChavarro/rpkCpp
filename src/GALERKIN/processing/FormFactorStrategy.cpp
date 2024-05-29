@@ -263,7 +263,12 @@ FormFactorStrategy::computeInteractionFormFactor(
     }
 
     // 2. Start with clean deltaRadiance
-    double sourcePhi[CUBATURE_MAXIMUM_NODES];
+    double sourcePhi[CUBATURE_MAXIMUM_NODES]{};
+
+    for ( int i = 0; i < CUBATURE_MAXIMUM_NODES; i++ ) {
+        sourcePhi[i] = 0.0;
+    }
+
     for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
         deltaRadiance[k].clear();
     }

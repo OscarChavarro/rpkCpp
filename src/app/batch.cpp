@@ -6,6 +6,7 @@
 #include "java/util/ArrayList.txx"
 #include "io/writevrml.h"
 #include "render/canvas.h"
+#include "render/render.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "app/commandLine.h"
@@ -16,7 +17,6 @@
     #include "raycasting/common/Raytracer.h"
     #include "app/raytrace.h"
     #include "render/opengl.h"
-    #include "render/render.h"
 #endif
 
 static BatchOptions globalBatchOptions;

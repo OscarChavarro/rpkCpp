@@ -56,6 +56,10 @@ ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
     if ( radiance == nullptr ) {
         radiance = new ColorRgb[camera.xSize * camera.ySize];
         rgbColor = new ColorRgb[camera.xSize * camera.ySize];
+        for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
+            radiance[i].clear();
+            rgbColor[i].clear();
+        }
     }
 
     // Clear

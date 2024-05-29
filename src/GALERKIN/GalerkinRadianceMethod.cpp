@@ -322,7 +322,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     galerkinState.lastClock = clock();
 
     // And now the real work
-    int done = false;
+    int done;
 
     switch ( galerkinState.galerkinIterationMethod ) {
         case JACOBI:
@@ -421,11 +421,15 @@ GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
 
 char *
 GalerkinRadianceMethod::getStats() {
-    static char stats[STRING_LENGTH];
-    char *p;
+    static char stats[STRING_LENGTH]{};
+
+    for ( int i = 0 ; i < STRING_LENGTH; i++ ) {
+        stats[i] = '\0';
+    }
+
     int n;
 
-    p = stats;
+    char *p = stats;
     snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", galerkinState.iterationNumber, &n);

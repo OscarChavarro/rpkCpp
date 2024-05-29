@@ -386,11 +386,10 @@ VoxelGrid::gridTraceSetup(
 }
 
 /**
-Advances to the next grid cell. Assumes setup with gridTraceSetup().
-returns false if the current voxel was the last voxel in the grid intersected
-by the ray
+Advances to the next grid cell. Pre-condition: gridTraceSetup was called.
+Returns false if the current voxel was the last voxel in the grid intersected by the ray
 */
-int
+bool
 VoxelGrid::nextVoxel(float *t0, int *g, Vector3D *tNext, const Vector3D *tDelta, const int *step, const int *out) {
     int inGrid;
 
@@ -471,8 +470,8 @@ VoxelGrid::gridIntersect(
     Vector3D tNext;
     Vector3D tDelta;
     Vector3D P;
-    int step[3];
-    int out[3];
+    int step[3]{0, 0, 0};
+    int out[3]{};
     int g[3]{0, 0, 0};
     RayHit *hit = nullptr;
     float t0;

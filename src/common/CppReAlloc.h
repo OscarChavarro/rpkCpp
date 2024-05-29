@@ -1,7 +1,6 @@
 #ifndef __CPP_RE_ALLOC__
 #define __CPP_RE_ALLOC__
 
-#include <iostream>
 #include <cstring>
 
 template<typename T>
