@@ -14,6 +14,7 @@ class Scene {
     void printGeometries() const;
     void printClusteredGeometries() const;
     void printPatches() const;
+    void printVoxelGrid() const;
     static void printClusterHierarchy(const Geometry *node, int level, int *elementCount);
 
 public:

@@ -108,6 +108,8 @@ public:
         int hitFlags,
         RayHit *hitStore) const;
 
+    void print() const;
+
     static void freeVoxelGridElements();
 };
 

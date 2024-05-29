@@ -217,11 +217,18 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
 }
 
 void
+Scene::printVoxelGrid() const {
+    printf("= voxelGrid ================================================================\n");
+    voxelGrid->print();
+}
+
+void
 Scene::print() const {
     printGeometries();
     printClusteredGeometries();
     printPatches();
     int elementCount = 0;
     printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
+    printVoxelGrid();
     printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
 }

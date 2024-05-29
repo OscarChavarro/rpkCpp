@@ -498,3 +498,26 @@ VoxelGrid::gridIntersect(
 
     return hit;
 }
+
+void
+VoxelGrid::print() const {
+    printf("DX: %d, DY: %d, DZ: %d\n", xSize, ySize, zSize);
+
+    for ( short z = 0; z < zSize; z++ ) {
+        printf("Z level %d of %d\n", z + 1, zSize);
+
+        for ( short y = 0; y < ySize; y++ ) {
+            printf("  | ");
+            for ( short x = 0; x < xSize; x++ ) {
+                const java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(z, y, x)];
+                if ( list == nullptr ) {
+                    printf("[  ]");
+                } else {
+                    printf("(%2ld)", list->size());
+                }
+                printf(" ");
+            }
+            printf(" |\n");
+        }
+    }
+}
