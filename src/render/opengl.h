@@ -18,14 +18,14 @@ extern void openGlRenderClearWindow(const Camera *camera);
 
 extern void
 openGlRenderWorldOctree(
-        const Scene *scene,
-        void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
-        const RenderOptions *renderOptions);
+    const Scene *scene,
+    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
+    const RenderOptions *renderOptions);
 
 extern void
 openGlRenderScene(
-        const Scene *scene,
-        const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions);
 
 #endif

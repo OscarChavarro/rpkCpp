@@ -1,14 +1,19 @@
-#include <GL/glu.h>
+#include "common/RenderOptions.h"
+
+#ifdef OPEN_GL_ENABLED
+    #include <GL/glu.h>
+
+    #include "common/error.h"
+    #include "render/renderhook.h"
+    #include "render/glutDebugTools.h"
+#endif
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMap.h"
 #include "render/canvas.h"
 #include "render/opengl.h"
 #include "render/render.h"
-#include "render/renderhook.h"
-#include "render/glutDebugTools.h"
 
 class OctreeChild {
   public:
@@ -16,18 +21,21 @@ class OctreeChild {
     float distance;
 };
 
+#ifdef OPEN_GL_ENABLED
 void
 openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+#endif
 
 /**
 Renders a line from point p to point q, for eg debugging
 */
 void
 openGlRenderLine(Vector3D *x, Vector3D *y) {
+#ifdef OPEN_GL_ENABLED
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     glBegin(GL_LINES);
@@ -37,6 +45,7 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(1.0f, 1.0f);
+#endif
 }
 
 /**
@@ -48,7 +57,9 @@ openGlRenderSetColor(const ColorRgb *rgb) {
 
     correctedRgb = *rgb;
     toneMappingGammaCorrection(correctedRgb);
+#ifdef OPEN_GL_ENABLED
     glColor3fv((GLfloat *) &correctedRgb);
+#endif
 }
 
 /**
@@ -56,11 +67,13 @@ Renders a convex polygon flat shaded in the current color
 */
 void
 openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
+#ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         glVertex3fv((GLfloat *)&vertices[i]);
     }
     glEnd();
+#endif
 }
 
 /**
@@ -68,13 +81,17 @@ Renders a convex polygon with Gouraud shading
 */
 void
 openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors) {
+#ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         openGlRenderSetColor(&verticesColors[i]);
         glVertex3fv((GLfloat *)&vertices[i]);
     }
     glEnd();
+#endif
 }
+
+#ifdef OPEN_GL_ENABLED
 
 static void
 openGlRenderPatchFlat(const Patch *patch) {
@@ -138,19 +155,23 @@ openGlRenderPatchSmooth(const Patch *patch) {
             glEnd();
     }
 }
+#endif
 
 /**
 Renders the patch outline in the current color
 */
 void
 openGlRenderPatchOutline(const Patch *patch) {
+#ifdef OPEN_GL_ENABLED
     glBegin(GL_LINE_LOOP);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
         glVertex3fv((GLfloat *) &patch->vertex[i]->point);
     }
     glEnd();
+#endif
 }
 
+#ifdef OPEN_GL_ENABLED
 static void
 openGlReallyRenderOctreeLeaf(
     const Camera *camera,
@@ -272,6 +293,7 @@ openGlRenderOctreeNonLeaf(
     }
     delete children;
 }
+#endif
 
 /**
 Traverses the patches in the scene in such a way to obtain
@@ -291,11 +313,13 @@ openGlRenderWorldOctree(
     if ( renderPatchCallback == nullptr ) {
         renderPatchCallback = openGlRenderPatchCallBack;
     }
+#ifdef OPEN_GL_ENABLED
     if ( scene->clusteredRootGeometry->isCompound() ) {
         openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     } else {
         openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
     }
+#endif
 }
 
 /**
@@ -303,6 +327,7 @@ Renders the all the patches using default colors
 */
 void
 openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+#ifdef OPEN_GL_ENABLED
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
             openGlRenderPatchSmooth(patch);
@@ -316,8 +341,10 @@ openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const Render
         openGlRenderSetColor(&renderOptions->outlineColor);
         openGlRenderPatchOutline(patch);
     }
+#endif
 }
 
+#ifdef OPEN_GL_ENABLED
 /**
 Sets line width for outlines, etc
 */
@@ -392,16 +419,18 @@ openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, c
         renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
     }
 }
+#endif
 
 /**
 Renders the whole scene
 */
 void
 openGlRenderScene(
-        const Scene *scene,
-        const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions)
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions)
 {
+#ifdef OPEN_GL_ENABLED
     openGlRenderSetLineWidth(renderOptions->lineWidth);
 
     canvasPushMode();
@@ -418,4 +447,5 @@ openGlRenderScene(
     glDrawBuffer(GL_FRONT_AND_BACK);
 
     canvasPullMode();
+#endif
 }

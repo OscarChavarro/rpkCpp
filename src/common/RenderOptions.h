@@ -10,6 +10,8 @@ If this is undefined, the raytracing code can be trimmed as follows:
 */
 #define RAYTRACING_ENABLED
 
+#define OPEN_GL_ENABLED
+
 class RenderOptions {
   public:
     ColorRgb outlineColor; // Color in which to draw outlines

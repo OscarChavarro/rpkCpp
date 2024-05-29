@@ -2,6 +2,7 @@
 #include <cstring>
 #include <GL/gl.h>
 
+#include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
 #include "io/writevrml.h"
 #include "render/canvas.h"
@@ -14,9 +15,8 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/common/Raytracer.h"
     #include "app/raytrace.h"
-#include "render/opengl.h"
-#include "render/render.h"
-
+    #include "render/opengl.h"
+    #include "render/render.h"
 #endif
 
 static BatchOptions globalBatchOptions;
@@ -54,8 +54,10 @@ openGlSaveScreen(
     GLubyte *screen = new GLubyte[x * y * 4];
     unsigned char *buffer = new unsigned char[3 * x];
 
+#ifdef OPEN_GL_ENABLED
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, (int)x, (int)y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
+#endif
 
     for ( long j = y - 1; j >= 0; j-- ) {
         unsigned char *bufferPosition = buffer;

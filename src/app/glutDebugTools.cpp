@@ -1,3 +1,15 @@
+#include "render/glutDebugTools.h"
+
+GlutDebugState GLOBAL_render_glutDebugState;
+
+GlutDebugState::GlutDebugState(){
+    showSelectedPathOnly = false;
+    selectedPatch = 0;
+    angle = 0;
+}
+
+#ifdef OPEN_GL_ENABLED
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -8,7 +20,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/RenderOptions.h"
 #include "render/opengl.h"
-#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinElement.h"
 
 static int globalWidth = 1920;
@@ -18,14 +29,6 @@ static RadianceMethod *globalRadianceMethod;
 static RenderOptions *globalRenderOptions;
 static void (*globalMemoryFreeCallBack)(MgfContext *mgfContext);
 static MgfContext *globalMgfContext;
-
-GlutDebugState GLOBAL_render_glutDebugState;
-
-GlutDebugState::GlutDebugState(){
-    showSelectedPathOnly = false;
-    selectedPatch = 0;
-    angle = 0;
-}
 
 static void
 resizeCallback(int newWidth, int newHeight) {
@@ -219,3 +222,5 @@ executeGlutGui(
     glutDisplayFunc(drawCallback);
     glutMainLoop();
 }
+
+#endif
