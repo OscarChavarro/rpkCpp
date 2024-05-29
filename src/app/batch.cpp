@@ -15,6 +15,9 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/common/Raytracer.h"
     #include "app/raytrace.h"
+#include "render/opengl.h"
+#include "render/render.h"
+
 #endif
 
 static BatchOptions globalBatchOptions;
@@ -202,7 +205,7 @@ batchExecuteRadianceSimulation(
 
             printf("%s", radianceMethod->getStats());
 
-            openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
+            renderGetNearFar(scene->camera, scene->geometryList);
 
             fflush(stdout);
             fflush(stderr);

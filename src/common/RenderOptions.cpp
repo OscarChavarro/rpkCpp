@@ -34,7 +34,7 @@ RenderOptions::RenderOptions():
     outlineColor = DEFAULT_OUTLINE_COLOR;
     boundingBoxColor = DEFAULT_BOUNDING_BOX_COLOR;
     clusterColor = DEFAULT_CLUSTER_COLOR;
-    frustumCulling = true;
+    frustumCulling = false;
     noShading = false;
     lineWidth = 1.0;
     renderRayTracedImage = false;
