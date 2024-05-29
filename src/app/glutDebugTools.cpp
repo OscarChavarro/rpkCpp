@@ -10,7 +10,6 @@
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinElement.h"
-#include "raycasting/render/RayTracingRenderer.h"
 
 static int globalWidth = 1920;
 static int globalHeight = 1200;
@@ -182,7 +181,7 @@ drawCallback() {
 
     glViewport(0, 0, globalWidth, globalHeight);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-    openGlRenderScene(globalScene, nullptr, globalRadianceMethod, globalRenderOptions);
+    openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
     glutSwapBuffers();
 }
 

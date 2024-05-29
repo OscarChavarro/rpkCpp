@@ -7,7 +7,6 @@
 #include "render/canvas.h"
 #include "io/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
-#include "raycasting/render/RayTracingRenderer.h"
 #include "app/commandLine.h"
 #include "app/BatchOptions.h"
 #include "app/batch.h"
