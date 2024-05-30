@@ -85,9 +85,6 @@ Scene::printCompound(const Compound *compound) {
             }
         }
     }
-    if ( compound->children != nullptr ) {
-        printf("    . Inner children: %ld\n", compound->children->size());
-    }
 }
 
 void

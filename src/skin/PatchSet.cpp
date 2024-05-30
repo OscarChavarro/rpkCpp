@@ -9,8 +9,10 @@ PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(nullptr, nul
 }
 
 PatchSet::~PatchSet() {
-    delete patchList;
-    patchList = nullptr;
+    if ( !isDuplicate && patchList != nullptr ) {
+        delete patchList;
+        patchList = nullptr;
+    }
 }
 
 /**

@@ -7,15 +7,11 @@
 
 /**
 Currently, there are three types of geometries:
-- the Compound: an aggregate geometry which is basically a list of other
+- Compound: an aggregate geometry which is basically a list of other
   geometries, useful for representing the scene in a hierarchical manner
-  see compound.
-- the MeshSurface: a primitive geometry which is basically a list of
-  PATCHES representing some simple object with given Material properties
-  etc. see surface.
-- the PatchSet: a primitive geometry consisting of a list of patches
-  without material properties and such. Used during shaft culling only,
-  see shaft culling.
+- MeshSurface: a primitive geometry which is a list of patches representing
+  an object with given Material properties
+- PatchSet: a primitive geometry consisting of a list of patches
 
 Each of these primitives has certain specific data. The geometry class
 contains data that is independent of geometry type.
@@ -34,9 +30,6 @@ enum GeometryClassId {
 };
 
 class Geometry {
-  protected:
-    PatchSet *patchSetData;
-
   public: // Will become protected
     static int nextGeometryId;
     static Geometry *excludedGeometry1;
@@ -67,6 +60,7 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
+    PatchSet *patchSetData;
     Compound *compoundData;
 
     Geometry();
@@ -97,12 +91,10 @@ class Geometry {
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
-
 extern void geomDestroy(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
-java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
+extern java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
-extern Geometry *geomDuplicateIfPatchSet(Geometry *geometry);
 extern void geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
 extern RayHit *

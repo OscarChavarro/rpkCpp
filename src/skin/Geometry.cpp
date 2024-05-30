@@ -8,7 +8,6 @@ Geometry *Geometry::excludedGeometry2 = nullptr;
 int Geometry::nextGeometryId = 0;
 
 Geometry::Geometry():
-    patchSetData(),
     id(),
     boundingBox(),
     radianceData(),
@@ -17,6 +16,7 @@ Geometry::Geometry():
     omit(),
     isDuplicate(),
     className(),
+    patchSetData(),
     compoundData()
 {
     className = GeometryClassId::UNDEFINED;
@@ -25,9 +25,7 @@ Geometry::Geometry():
 
 /**
 This function is used to create a new geometry with given specific data and
-methods. A pointer to the new geometry is returned
-
-Note: currently containing the super() method.
+methods
 */
 Geometry::Geometry(
     PatchSet *inPatchSetData,
@@ -35,7 +33,8 @@ Geometry::Geometry(
     GeometryClassId inClassName)
 {
     GLOBAL_statistics.numberOfGeometries++;
-    id = nextGeometryId++;
+    id = nextGeometryId;
+    nextGeometryId++;
     compoundData = inCompoundData;
     patchSetData = inPatchSetData;
     className = inClassName;
@@ -161,16 +160,24 @@ shaft culling.
 Geometry *
 Geometry::duplicateIfPatchSet() const {
     if ( className != GeometryClassId::PATCH_SET ) {
-        logError("duplicateIfPatchSet", "geometry has no duplicate method");
-        return nullptr;
+        logFatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
     Geometry *newGeometry = new Geometry();
-    GLOBAL_statistics.numberOfGeometries++;
-    *newGeometry = *this;
-    newGeometry->compoundData = compoundData;
     newGeometry->patchSetData = patchSetData;
+    newGeometry->id = GLOBAL_statistics.numberOfGeometries;
+    newGeometry->boundingBox = boundingBox;
+    newGeometry->radianceData = radianceData;
+    newGeometry->itemCount = itemCount;
+    newGeometry->bounded = bounded;
+    newGeometry->shaftCullGeometry = shaftCullGeometry;
+    newGeometry->omit = omit;
+    newGeometry->isDuplicate = isDuplicate;
+    newGeometry->className = className;
+    newGeometry->compoundData = compoundData;
     newGeometry->isDuplicate = true;
+
+    GLOBAL_statistics.numberOfGeometries++;
 
     return newGeometry;
 }
