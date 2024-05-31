@@ -9,25 +9,24 @@ class ClusterCreationStrategy {
     static java::ArrayList<GalerkinElement *> *hierarchyElements;
 
     static void
-    patchAddClusterChild(Patch *patch, GalerkinElement *cluster);
+    patchAddClusterChild(Patch *patch, GalerkinElement *galerkinElement);
 
     static void
-    clusterInit(GalerkinElement *cluster, const GalerkinState *galerkinState);
+    clusterInit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState);
 
     static void
-    addElementToIrregularChildrenDeletionCache(GalerkinElement *element);
+    addElementToIrregularChildrenDeletionCache(GalerkinElement *galerkinElement);
 
     static void
-    addElementToHierarchiesDeletionCache(GalerkinElement *element);
+    addElementToHierarchiesDeletionCache(GalerkinElement *galerkinElement);
 
     static void
-    geomAddClusterChild(Geometry *geometry, GalerkinElement *parentCluster, GalerkinState *galerkinState);
+    geomAddClusterChild(Geometry *geometry, GalerkinElement *galerkinElement, GalerkinState *galerkinState);
 
-    static GalerkinElement *
-    galerkinDoCreateClusterHierarchy(Geometry *parentGeometry, GalerkinState *galerkinState);
   public:
     static GalerkinElement *createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState);
     static void freeClusterElements();
+    static void printGalerkinElementHierarchy(const GalerkinElement *galerkinElement, int level);
 };
 
 #endif
