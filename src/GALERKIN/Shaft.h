@@ -10,30 +10,15 @@ References:
 
 #include "java/util/ArrayList.h"
 #include "scene/Polygon.h"
+#include "GALERKIN/ShaftPlanePosition.h"
+#include "GALERKIN/ShaftPlane.h"
 #include "GALERKIN/ShaftCullStrategy.h"
-
-class ShaftPlane {
-  public:
-    float n[3];
-    float d;
-    int coordinateOffset[3]; // Coordinate offset for nearest corner in box-plane tests
-};
 
 #define MAX_SKIP_ELEMENTS 2
 
 // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
 // maximum 2 times the total number of vertices for a patch-to-patch shaft
 #define SHAFT_MAX_PLANES 16
-
-/**
-Positions of item with respect to a plane or a shaft
-*/
-enum ShaftPlanePosition {
-    INSIDE,
-    OVERLAP,
-    OUTSIDE,
-    COPLANAR
-};
 
 /**
 The shaft is the region bounded by extent and referenceItem1 and referenceItem2 (if defined)
@@ -49,10 +34,12 @@ class Shaft {
     BoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
     int numberOfPlanesInSet;  // Number of planes in plane-set
-    Patch *omit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
+
+    int patchIdsToOmit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
-    Geometry *dontOpen[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
-    int numberOfGeometriesToNotOpen;
+    int geometryIdsToAvoidOpening[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
+    int numberOfGeometriesToAvoidOpen;
+
     Vector3D center1; // The line segment from center1 to center2 is guaranteed
     // to lay within the shaft
     Vector3D center2;
@@ -64,7 +51,7 @@ class Shaft {
     // occluder in question is the first patch in the returned candidate list.
     // The candidate list does not contain all occluder!
 
-    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, double d);
+    static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
 
     static bool
@@ -84,7 +71,7 @@ class Shaft {
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
     java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
-    int patchIsOnOmitSet(const Patch *geometry) const;
+    int patchIsOnOmitSet(const Patch *patch) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
 
   public:

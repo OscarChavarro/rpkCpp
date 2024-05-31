@@ -2,7 +2,8 @@
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 
-#define MIN_MAX_DIMENSIONS 6
+static const int MIN_MAX_DIMENSIONS = 6;
+static const int NONE = -1;
 
 Shaft::Shaft():
     referenceItem1(),
@@ -10,10 +11,10 @@ Shaft::Shaft():
     extentBoundingBox(),
     planeSet(),
     numberOfPlanesInSet(),
-    omit(),
+    patchIdsToOmit(),
     numberOfGeometriesToOmit(),
-    dontOpen(),
-    numberOfGeometriesToNotOpen(),
+    geometryIdsToAvoidOpening(),
+    numberOfGeometriesToAvoidOpen(),
     center1(),
     center2(),
     cut()
@@ -31,7 +32,7 @@ candidate list, even if the geometry overlaps or is inside the shaft
 */
 void
 Shaft::setShaftOmit(Patch *patch) {
-    omit[numberOfGeometriesToOmit++] = patch;
+    patchIdsToOmit[numberOfGeometriesToOmit++] = patch->id;
 }
 
 /**
@@ -39,7 +40,7 @@ Marks a geometry as one not to be opened during shaft culling
 */
 void
 Shaft::setShaftDontOpen(Geometry *geometry) {
-    dontOpen[numberOfGeometriesToNotOpen++] = geometry;
+    geometryIdsToAvoidOpening[numberOfGeometriesToAvoidOpen++] = geometry->id;
 }
 
 /**
@@ -48,7 +49,7 @@ Constructs a shaft for two given bounding boxes
 void
 Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
     numberOfGeometriesToOmit = 0;
-    numberOfGeometriesToNotOpen = 0;
+    numberOfGeometriesToAvoidOpen = 0;
     cut = false;
 
     // 1. Obtain the bounding boxes for the reference items [HAIN1991]
@@ -156,15 +157,15 @@ if the polygon is cut by the plane and COPLANAR if the polygon lays on the
 plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
-Shaft::testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, const double d) {
+Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, const double d) {
     bool out; // out = there are positions on the positive side of the plane
     bool in; // in  = there are positions on the negative side of the plane
 
     out = false;
     in = false;
-    for ( int i = 0; i < poly->numberOfVertices; i++ ) {
-        double e = normal->dotProduct(poly->vertex[i]) + d;
-        double tolerance = java::Math::abs(d) * Numeric::EPSILON + poly->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
+    for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
+        double e = normal->dotProduct(polygon->vertex[i]) + d;
+        double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
         out |= (e > tolerance);
         in |= (e < -tolerance);
         if ( out && in ) {
@@ -442,12 +443,12 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     extentBoundingBox.enlarge(&polygon2->bounds);
 
     // Nothing (yet) to omit
-    omit[0] = nullptr;
-    omit[1] = nullptr;
-    dontOpen[0] = nullptr;
-    dontOpen[1] = nullptr;
+    patchIdsToOmit[0] = NONE;
+    patchIdsToOmit[1] = NONE;
+    geometryIdsToAvoidOpening[0] = NONE;
+    geometryIdsToAvoidOpening[1] = NONE;
     numberOfGeometriesToOmit = 0;
-    numberOfGeometriesToNotOpen = 0;
+    numberOfGeometriesToAvoidOpen = 0;
     cut = false;
 
     // Center positions of polygons define a line that is guaranteed to lay inside the shaft
@@ -670,9 +671,9 @@ Shaft::shaftPatchTest(Patch *patch) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 int
-Shaft::patchIsOnOmitSet(const Patch *geometry) const {
+Shaft::patchIsOnOmitSet(const Patch *patch) const {
     for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
-        if ( omit[i] == geometry ) {
+        if ( patchIdsToOmit[i] == patch->id ) {
             return true;
         }
     }
@@ -684,8 +685,8 @@ Returns true if the geometry is not to be opened during shaft culling
 */
 bool
 Shaft::closedGeometry(const Geometry *geometry) const {
-    for ( int i = 0; i < numberOfGeometriesToNotOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
-        if ( dontOpen[i] == geometry ) {
+    for ( int i = 0; i < numberOfGeometriesToAvoidOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
+        if ( geometryIdsToAvoidOpening[i] == geometry->id ) {
             return true;
         }
     }
@@ -819,7 +820,8 @@ void
 Shaft::doCulling(
     const java::ArrayList<Geometry *> *world,
     java::ArrayList<Geometry *> *candidateList,
-    ShaftCullStrategy strategy) {
+    ShaftCullStrategy strategy)
+{
     for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
         cullGeometry(world->get(i), candidateList, strategy);
     }
