@@ -215,23 +215,23 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         // '95, Dublin, Ireland, June 1995, p 336-344
         galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
         galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
-        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
+        if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
         }
     } else {
         galerkinSetRadiance(patch, selfEmittanceRadiance);
-        if ( galerkinState.galerkinIterationMethod == SOUTH_WELL ) {
+        if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
         }
     }
 
     if ( galerkinState.importanceDriven ) {
         switch ( galerkinState.galerkinIterationMethod ) {
-            case GAUSS_SEIDEL:
-            case JACOBI:
+            case GalerkinIterationMethod::GAUSS_SEIDEL:
+            case GalerkinIterationMethod::JACOBI:
                 galerkinSetPotential(patch, patch->directPotential);
                 break;
-            case SOUTH_WELL:
+            case GalerkinIterationMethod::SOUTH_WELL:
                 galerkinSetPotential(patch, patch->directPotential);
                 galerkinSetUnShotPotential(patch, patch->directPotential);
                 break;
@@ -325,11 +325,11 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     int done;
 
     switch ( galerkinState.galerkinIterationMethod ) {
-        case JACOBI:
-        case GAUSS_SEIDEL:
+        case GalerkinIterationMethod::JACOBI:
+        case GalerkinIterationMethod::GAUSS_SEIDEL:
             done = gatheringStrategy->doGatheringIteration(scene, &galerkinState, renderOptions);
             break;
-        case SOUTH_WELL:
+        case GalerkinIterationMethod::SOUTH_WELL:
             done = ShootingStrategy::doShootingStep(scene, &galerkinState, renderOptions);
             break;
         default:

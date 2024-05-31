@@ -178,8 +178,13 @@ iterationMethodOption(void *value) {
 
 static void
 hierarchicalOption(void *value) {
-    int yesno = *(int *) value;
-    GalerkinRadianceMethod::galerkinState.hierarchical = yesno;
+    int yesno = *(int *)value;
+
+    if ( yesno != 0 ) {
+        GalerkinRadianceMethod::galerkinState.hierarchical = true;
+    } else {
+        GalerkinRadianceMethod::galerkinState.hierarchical = false;
+    }
 }
 
 static void

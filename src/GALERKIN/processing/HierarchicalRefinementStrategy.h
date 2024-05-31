@@ -14,7 +14,7 @@ which is so crucial for efficient hierarchical refinement.
 
 See DOC/galerkin.text
 */
-enum INTERACTION_EVALUATION_CODE {
+enum InteractionEvaluationCode {
     ACCURATE_ENOUGH,
     REGULAR_SUBDIVIDE_SOURCE,
     REGULAR_SUBDIVIDE_RECEIVER,
@@ -60,10 +60,10 @@ class HierarchicalRefinementStrategy {
     sourceClusterRadianceVariationError(
         Interaction *link,
         ColorRgb rcvRho,
-        double rcv_area,
+        double receiverArea,
         GalerkinState *galerkinState);
 
-    static INTERACTION_EVALUATION_CODE
+    static InteractionEvaluationCode
     hierarchicRefinementEvaluateInteraction(
         Interaction *link,
         GalerkinState *galerkinState);

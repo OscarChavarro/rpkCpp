@@ -46,7 +46,14 @@ class Shaft {
   private:
     static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
-    static bool verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, double d, int side);
+
+    static bool
+    verifyPolygonWithRespectToPlane(
+        const Polygon *polygon,
+        const Vector3D *normal,
+        double d,
+        ShaftPlanePosition side);
+
     static ShaftPlanePosition testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);

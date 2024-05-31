@@ -49,7 +49,7 @@ enum GalerkinClusteringStrategy {
 class GalerkinState {
   public:
     int iterationNumber;
-    int hierarchical; // Set true for hierarchical refinement
+    bool hierarchical; // Set true for hierarchical refinement
     int importanceDriven; // Set true for potential-driven comp
     int clustered; // Set true for clustering
     GalerkinIterationMethod galerkinIterationMethod; // How to solve the resulting linear set

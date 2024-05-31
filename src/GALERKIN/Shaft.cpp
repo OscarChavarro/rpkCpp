@@ -75,7 +75,8 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             hasMinMax1[dimension] = true;
         } else {
             extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !Numeric::doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
+            if ( !Numeric::doubleEqual(
+                  referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
                 hasMinMax2[dimension] = true;
             }
         }
@@ -87,7 +88,8 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             hasMinMax1[dimension] = true;
         } else {
             extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !Numeric::doubleEqual(referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
+            if ( !Numeric::doubleEqual(
+                referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
                 hasMinMax2[dimension] = true;
             }
         }
@@ -178,7 +180,12 @@ Verifies whether the polygon is on the given side of the plane. Returns true if
 so, and false if not
 */
 bool
-Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, const double d, const int side) {
+Shaft::verifyPolygonWithRespectToPlane(
+    const Polygon *polygon,
+    const Vector3D *normal,
+    const double d,
+    const ShaftPlanePosition side)
+{
     bool out = false;
     bool in = false;
 
@@ -190,7 +197,9 @@ Shaft::verifyPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *n
             return false;
         }
         in |= e < -tolerance;
-        if ( in && (side == ShaftPlanePosition::OUTSIDE || side == ShaftPlanePosition::COPLANAR || (out && side != ShaftPlanePosition::OVERLAP)) ) {
+        if ( in && (side == ShaftPlanePosition::OUTSIDE
+          || side == ShaftPlanePosition::COPLANAR
+          || (out && side != ShaftPlanePosition::OVERLAP)) ) {
             return false;
         }
     }
@@ -319,7 +328,8 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
         case ShaftPlanePosition::INSIDE:
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
             // a shaft plane and there will be at most one shaft plane per edge of p1
-            fillInPlane(localPlane, polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
+            fillInPlane(
+                localPlane, polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
             if ( uniqueShaftPlane(localPlane) ) {
                 localPlane++;
             }
@@ -328,7 +338,8 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
         case ShaftPlanePosition::OUTSIDE:
             // Like above, except that p2 is on the positive side of the plane of p1, so
             // we have to invert normal and plane constant
-            fillInPlane(localPlane, -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
+            fillInPlane(
+                localPlane, -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
             if ( uniqueShaftPlane(localPlane) ) {
                 localPlane++;
             }
@@ -501,7 +512,8 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
 
 /**
 Tests the patch against the shaft: returns INSIDE, OVERLAP or OUTSIDE according
-to whether the patch is fully inside the shaft, overlapping it, or fully outside. If it is detected that the patch fully occludes the shaft, shaft->cut is
+to whether the patch is fully inside the shaft, overlapping it, or fully outside.
+If it is detected that the patch fully occludes the shaft, shaft->cut is
 set to true, indicating that there is full occlusion due to one patch and
 that as such no further shaft culling is necessary
 */
@@ -701,7 +713,8 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
         // overlaps, do a more expensive, but definitive, test to see whether
         // the patch itself is inside, outside or overlapping the shaft
         if ( boundingBoxSide != ShaftPlanePosition::OUTSIDE &&
-             ( boundingBoxSide == ShaftPlanePosition::INSIDE || shaftPatchTest(patch) != ShaftPlanePosition::OUTSIDE ) ) {
+             ( boundingBoxSide == ShaftPlanePosition::INSIDE
+             || shaftPatchTest(patch) != ShaftPlanePosition::OUTSIDE ) ) {
             culledPatchList->add(patch);
         }
     }
