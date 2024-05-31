@@ -35,7 +35,7 @@ class Shaft {
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
     int numberOfPlanesInSet;  // Number of planes in plane-set
 
-    int patchIdsToOmit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
+    unsigned patchIdsToOmit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
     int geometryIdsToAvoidOpening[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
     int numberOfGeometriesToAvoidOpen;
