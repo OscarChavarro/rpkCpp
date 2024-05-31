@@ -18,8 +18,8 @@ LinkingSimpleStrategy::createInitialLink(
         return;
     }
 
-    GalerkinElement *rcv = nullptr;
-    GalerkinElement *src = nullptr;
+    GalerkinElement *rcv;
+    GalerkinElement *src;
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
     switch ( role ) {
         case GalerkinRole::SOURCE:
@@ -59,9 +59,9 @@ LinkingSimpleStrategy::createInitialLink(
         shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
         *candidateList = arr;
 
-        if ( shaft.cut == true ) {
+        if ( shaft.isCut() ) {
             // One patch causes full occlusion
-            freeCandidateList(*candidateList);
+            Shaft::freeCandidateList(*candidateList);
             *candidateList = oldCandidateList;
             return;
         }
@@ -93,7 +93,7 @@ LinkingSimpleStrategy::createInitialLink(
 
     if ( galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
         if ( oldCandidateList != *candidateList ) {
-            freeCandidateList(*candidateList);
+            Shaft::freeCandidateList(*candidateList);
         }
         *candidateList = oldCandidateList;
     }
@@ -176,7 +176,7 @@ LinkingSimpleStrategy::geometryLink(
     }
 
     if ( geometry->bounded && oldCandidateList ) {
-        freeCandidateList(*candidateList);
+        Shaft::freeCandidateList(*candidateList);
     }
     *candidateList = oldCandidateList;
 }

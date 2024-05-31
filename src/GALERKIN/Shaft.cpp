@@ -20,6 +20,11 @@ Shaft::Shaft():
 {
 }
 
+bool
+Shaft::isCut() const {
+    return cut;
+}
+
 /**
 Marks a geometry as to be omitted during shaft culling: it will not be added to the
 candidate list, even if the geometry overlaps or is inside the shaft
@@ -96,7 +101,6 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
     }
 
     // 3. Create the plane set between the two reference items' boxes [HAIN1991]
-    numberOfPlanesInSet = 0;
     ShaftPlane *localPlane = &planeSet[0];
     for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
         if ( !hasMinMax1[i] ) {
@@ -825,8 +829,8 @@ Shaft::doCulling(
 Frees the memory occupied by a candidate list produced by doCulling
 */
 void
-freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
-    // Only destroy geoms that were generated for shaft culling
+Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
+    // Only destroy geometries that were generated for shaft culling
     for ( int i = 0; candidateList != nullptr && i < candidateList->size(); i++ ) {
         Geometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {

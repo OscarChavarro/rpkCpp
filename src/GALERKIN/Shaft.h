@@ -44,6 +44,26 @@ a kind of convex envelope.
 */
 class Shaft {
   private:
+    BoundingBox *referenceItem1; // Bounding boxes of the reference items
+    BoundingBox *referenceItem2;
+    BoundingBox extentBoundingBox;
+    ShaftPlane planeSet[SHAFT_MAX_PLANES];
+    int numberOfPlanesInSet;  // Number of planes in plane-set
+    Patch *omit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
+    int numberOfGeometriesToOmit;
+    Geometry *dontOpen[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
+    int numberOfGeometriesToNotOpen;
+    Vector3D center1; // The line segment from center1 to center2 is guaranteed
+    // to lay within the shaft
+    Vector3D center2;
+    bool cut; // A boolean initialized to FALSE when the shaft is created and set
+    // to TRUE during shaft culling if there are patches that cut the shaft. If
+    // after shaft culling, this flag is TRUE, there is full occlusion due to
+    // one occluder.
+    // As soon as such a situation is detected, shaft culling ends and the
+    // occluder in question is the first patch in the returned candidate list.
+    // The candidate list does not contain all occluder!
+
     static ShaftPlanePosition testPolygonWithRespectToPlane(const Polygon *poly, const Vector3D *normal, double d);
     static void fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d);
 
@@ -63,35 +83,18 @@ class Shaft {
     bool closedGeometry(const Geometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
-
-  public:
-    BoundingBox *referenceItem1; // Bounding boxes of the reference items
-    BoundingBox *referenceItem2;
-    BoundingBox extentBoundingBox;
-    ShaftPlane planeSet[SHAFT_MAX_PLANES];
-    int numberOfPlanesInSet;  // Number of planes in plane-set
-    Patch *omit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
-    int numberOfGeometriesToOmit;
-    Geometry *dontOpen[MAX_SKIP_ELEMENTS]; // Geometries not to be opened during shaft culling, maximum 2
-    int numberOfGeometriesToNotOpen;
-    Vector3D center1; // The line segment from center1 to center2 is guaranteed
-                      // to lay within the shaft
-    Vector3D center2;
-    bool cut; // A boolean initialized to FALSE when the shaft is created and set
-              // to TRUE during shaft culling if there are patches that cut the shaft. If
-              // after shaft culling, this flag is TRUE, there is full occlusion due to
-              // one occluder.
-              // As soon as such a situation is detected, shaft culling ends and the
-              // occluder in question is the first patch in the returned candidate list.
-              // The candidate list does not contain all occluder!
-
-    Shaft();
-    void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
-    void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
-
     java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
     int patchIsOnOmitSet(const Patch *geometry) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
+
+  public:
+    Shaft();
+
+    static void freeCandidateList(java::ArrayList<Geometry *> *candidateList);
+
+    bool isCut() const;
+    void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+    void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);
 
@@ -107,7 +110,5 @@ class Shaft {
         java::ArrayList<Geometry *> *candidateList,
         ShaftCullStrategy strategy);
 };
-
-extern void freeCandidateList(java::ArrayList<Geometry *> *candidateList);
 
 #endif

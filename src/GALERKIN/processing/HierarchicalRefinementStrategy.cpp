@@ -82,7 +82,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementUnCull(
 {
     if ( galerkinState->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
          galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
-        freeCandidateList(*candidatesList);
+        Shaft::freeCandidateList(*candidatesList);
     }
 }
 
