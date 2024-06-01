@@ -3,7 +3,6 @@
 
 #include "scene/RadianceMethod.h"
 
-extern void radianceDefaults(RadianceMethod *radianceMethod, Scene *scene);
 extern void radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod);
 extern void setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene);
 

@@ -193,9 +193,9 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
         printf("Mesh (%d)\n", *elementCount);
         (*elementCount)++;
     } else if ( node->className == GeometryClassId::COMPOUND ) {
-        printf("Compound (%d)\n", *elementCount);
-        (*elementCount)++;
         const Compound *compound = (const Compound *)node;
+        printf("Compound %d (%d)\n", compound->id, *elementCount);
+        (*elementCount)++;
         for ( int i = 0;
               compound->compoundData->children != nullptr && i < compound->compoundData->children->size();
               i++ ) {
@@ -207,7 +207,7 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
         if ( patchSet->getPatchList() == nullptr ) {
             printf("empty PatchSet (%d)\n", *elementCount);
         } else {
-            printf("PatchSet with %ld patches (%d)\n", patchSet->getPatchList()->size(), *elementCount);
+            printf("PatchSet %d with %ld patches (%d)\n", patchSet->id, patchSet->getPatchList()->size(), *elementCount);
         }
         (*elementCount)++;
     }

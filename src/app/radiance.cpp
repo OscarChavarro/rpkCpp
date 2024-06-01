@@ -39,11 +39,6 @@ setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
     }
 }
 
-void
-radianceDefaults(RadianceMethod *radianceMethod, Scene *scene) {
-    setRadianceMethod(radianceMethod, scene);
-}
-
 static void
 selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     bool getNext = false;

@@ -28,23 +28,23 @@ Vector3D::dominantCoordinate() const {
 }
 
 int
-Vector3D::compareByDimensions(const Vector3D *v2, float epsilon) const {
+Vector3D::compareByDimensions(const Vector3D *other, float epsilon) const {
     int code = 0;
 
-    if ( x > v2->x + epsilon ) {
+    if ( x > other->x + epsilon ) {
         code += X_GREATER_MASK;
     }
-    if ( y > v2->y + epsilon ) {
+    if ( y > other->y + epsilon ) {
         code += Y_GREATER_MASK;
     }
-    if ( z > v2->z + epsilon ) {
+    if ( z > other->z + epsilon ) {
         code += Z_GREATER_MASK;
     }
     if ( code != 0 ) {
         return code;
     }
 
-    if ( x < v2->x - epsilon || y < v2->y - epsilon || z < v2->z - epsilon ) {
+    if ( x < other->x - epsilon || y < other->y - epsilon || z < other->z - epsilon ) {
         // Not the same coordinates
         return code;
     }

@@ -12,36 +12,36 @@ a new surface
 MaterialColorFlags MeshSurface::colorFlags = NO_COLORS;
 
 /**
-This routine creates a MeshSurface with given material, positions
+This routine creates a MeshSurface with given inMaterial, positions
 */
 MeshSurface::MeshSurface(
     char *inObjectName,
-    Material *material,
-    java::ArrayList<Vector3D *> *points,
-    java::ArrayList<Vector3D *> *normals,
+    Material *inMaterial,
+    java::ArrayList<Vector3D *> *inPoints,
+    java::ArrayList<Vector3D *> *inNormals,
     const java::ArrayList<Vector3D *> * /*texCoords*/,
     java::ArrayList<Vertex *> *inVertices,
-    java::ArrayList<Patch *> *faces,
-    enum MaterialColorFlags flags)
+    java::ArrayList<Patch *> *inFaces,
+    enum MaterialColorFlags inFlags)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
-    this->id = nextGeometryId++;
-    this->objectName = inObjectName;
-    this->meshId = nextSurfaceId++;
-    this->compoundData = nullptr;
-    this->patchSetData = nullptr;
-    this->className = GeometryClassId::SURFACE_MESH;
-    this->isDuplicate = false;
+    id = nextGeometryId;
+    nextGeometryId++;
+    objectName = inObjectName;
+    meshId = nextSurfaceId++;
+    compoundData = nullptr;
+    patchSetData = nullptr;
+    className = GeometryClassId::SURFACE_MESH;
+    isDuplicate = false;
 
-    this->material = material;
-    this->positions = points;
-    this->normals = normals;
-    this->vertices = inVertices;
-    this->faces = faces;
-    this->className = GeometryClassId::SURFACE_MESH;
+    material = inMaterial;
+    positions = inPoints;
+    normals = inNormals;
+    vertices = inVertices;
+    faces = inFaces;
 
-    colorFlags = flags;
+    colorFlags = inFlags;
 
     // If colorFlags == VERTEX_COLORS< the inVertices are assumed to contain
     // the sum of the colors as used in each patch sharing the vertex
@@ -52,8 +52,8 @@ MeshSurface::MeshSurface(
     }
 
     // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
-    for ( int i = 0; this->faces != nullptr && i < this->faces->size(); i++ ) {
-        this->surfaceConnectFace(this->faces->get(i));
+    for ( int i = 0; faces != nullptr && i < faces->size(); i++ ) {
+        surfaceConnectFace(faces->get(i));
     }
 
     // Compute vertex colors
@@ -65,20 +65,20 @@ MeshSurface::MeshSurface(
 
     colorFlags = NO_COLORS;
 
-    patchListBounds(this->faces, &boundingBox);
+    patchListBounds(faces, &boundingBox);
 
     // Enlarge bounding box a tiny bit for more conservative bounding box culling
-    this->boundingBox.enlargeTinyBit();
-    this->bounded = true;
-    this->shaftCullGeometry = false;
-    this->radianceData = nullptr;
-    this->itemCount = 0;
-    this->omit = false;
+    boundingBox.enlargeTinyBit();
+    bounded = true;
+    shaftCullGeometry = false;
+    radianceData = nullptr;
+    itemCount = 0;
+    omit = false;
 }
 
 MeshSurface::~MeshSurface() {
-    if ( this->objectName ) {
-        delete[] this->objectName;
+    if ( objectName ) {
+        delete[] objectName;
     }
 
     if ( positions != nullptr) {

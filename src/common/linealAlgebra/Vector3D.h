@@ -26,7 +26,7 @@ class Vector3D {
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
     CoordinateAxis dominantCoordinate() const;
-    int compareByDimensions(const Vector3D *v2, float epsilon) const;
+    int compareByDimensions(const Vector3D *other, float epsilon) const;
     void print(FILE *fp) const;
     float dotProduct(Vector3D b) const;
     float norm2() const;

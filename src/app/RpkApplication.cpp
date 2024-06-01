@@ -11,7 +11,7 @@
 //#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
-#include "scene/Cluster.h"
+#include "scene/PatchClusterOctreeNode.h"
 #include "app/options.h"
 #include "app/commandLine.h"
 #include "app/sceneBuilder.h"
@@ -55,7 +55,6 @@ Global initializations
 void
 RpkApplication::mainInitApplication() {
     QuadCubatureRule::fixCubatureRules();
-    radianceDefaults(nullptr, scene);
 
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
@@ -132,7 +131,7 @@ RpkApplication::freeMemory(MgfContext *mgfContext) {
     deleteOptionsMemory();
     mgfFreeMemory(mgfContext);
     galerkinFreeMemory();
-    Cluster::deleteCachedGeometries();
+    PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();
     VoxelGrid::freeVoxelGridElements();
     if ( mgfContext->radianceMethod != nullptr ) {

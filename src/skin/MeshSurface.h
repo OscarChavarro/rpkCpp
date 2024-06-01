@@ -59,13 +59,13 @@ class MeshSurface final : public Geometry {
 
     MeshSurface(
         char *inObjectName,
-        Material *material,
-        java::ArrayList<Vector3D *> *points,
-        java::ArrayList<Vector3D *> *normals,
+        Material *inMaterial,
+        java::ArrayList<Vector3D *> *inPoints,
+        java::ArrayList<Vector3D *> *inNormals,
         const java::ArrayList<Vector3D *> * /*texCoords*/,
         java::ArrayList<Vertex *> *inVertices,
-        java::ArrayList<Patch *> *faces,
-        enum MaterialColorFlags flags);
+        java::ArrayList<Patch *> *inFaces,
+        enum MaterialColorFlags inFlags);
     ~MeshSurface() final;
 
     RayHit *

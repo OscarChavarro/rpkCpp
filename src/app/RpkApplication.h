@@ -17,7 +17,7 @@ class RpkApplication {
     RayTracer *rayTracer;
 
     static void selectToneMapByName(const char *name);
-    void mainInitApplication();
+    static void mainInitApplication();
     void mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName);
     void mainCreateOffscreenCanvasWindow();
     void executeRendering(const char *rayTracerName);

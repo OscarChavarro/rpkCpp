@@ -298,9 +298,10 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
         patchInit(scene->patchList->get(i));
     }
 
+    //scene->print();
     galerkinState.topCluster = ClusterCreationStrategy::createClusterHierarchy(
         scene->clusteredRootGeometry, &galerkinState);
-    ClusterCreationStrategy::printGalerkinElementHierarchy(galerkinState.topCluster, 0);
+    //ClusterCreationStrategy::printGalerkinElementHierarchy(galerkinState.topCluster, 0);
 
     // Create a scratch software renderer for various operations on clusters
     if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {

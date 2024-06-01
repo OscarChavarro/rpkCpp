@@ -66,7 +66,7 @@ set(MAIN_SRC
     src/scene/Background.cpp
     src/scene/Plane.cpp
     src/scene/Camera.cpp
-    src/scene/Cluster.cpp
+    src/scene/PatchClusterOctreeNode.cpp
     src/scene/VoxelData.cpp
     src/scene/VoxelGrid.cpp
     src/scene/RadianceMethod.cpp

@@ -14,26 +14,34 @@ Reference:
 
 #include "java/util/ArrayList.txx"
 #include "skin/Compound.h"
-#include "scene/Cluster.h"
+#include "scene/PatchClusterOctreeNode.h"
 
 // No clusters are created with less than this number of patches
 static const int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
 
-java::ArrayList<Geometry *> *Cluster::clusterNodeGeometriesToDelete = nullptr;
+java::ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
 
 /**
 Creates an empty cluster with initialized bounding box
 */
-Cluster::Cluster(): patches() {
-    commonBuild();
+PatchClusterOctreeNode::PatchClusterOctreeNode() {
+    boundingBoxCentroid.set(0.0, 0.0, 0.0);
+    patches = new java::ArrayList<Patch *>();
+
+    for ( int i = 0; i < 8; i++ ) {
+        children[i] = nullptr;
+    }
 }
 
 /**
 Creates a toplevel cluster. The patch list of the cluster contains all inPatches.
 */
-Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
-    patches = inPatches;
-    commonBuild();
+PatchClusterOctreeNode::PatchClusterOctreeNode(const java::ArrayList<Patch *> *inPatches) {
+    boundingBoxCentroid.set(0.0, 0.0, 0.0);
+
+    for ( int i = 0; i < 8; i++ ) {
+        children[i] = nullptr;
+    }
 
     patches = new java::ArrayList<Patch *>();
     for ( int i = 0; inPatches != nullptr && i < inPatches->size(); i++ ) {
@@ -46,7 +54,7 @@ Cluster::Cluster(java::ArrayList<Patch *> *inPatches) {
         (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
 }
 
-Cluster::~Cluster() {
+PatchClusterOctreeNode::~PatchClusterOctreeNode() {
     // Can not delete the list since it is being transferred to geometry...
     for ( int i = 0; i < 8; i++ ) {
         if ( children[i] != nullptr ) {
@@ -60,7 +68,7 @@ Cluster::~Cluster() {
 }
 
 void
-Cluster::addToDeletionCache(Geometry *geometry) {
+PatchClusterOctreeNode::addToDeletionCache(Geometry *geometry) {
     if ( clusterNodeGeometriesToDelete == nullptr ) {
         clusterNodeGeometriesToDelete = new java::ArrayList<Geometry *>();
     }
@@ -68,7 +76,7 @@ Cluster::addToDeletionCache(Geometry *geometry) {
 }
 
 void
-Cluster::deleteCachedGeometries() {
+PatchClusterOctreeNode::deleteCachedGeometries() {
     if ( clusterNodeGeometriesToDelete == nullptr ) {
         return;
     }
@@ -84,19 +92,6 @@ Cluster::deleteCachedGeometries() {
     clusterNodeGeometriesToDelete = nullptr;
 }
 
-void
-Cluster::commonBuild() {
-    boundingBoxCentroid.set(0.0, 0.0, 0.0);
-
-    if ( patches == nullptr ) {
-        patches = new java::ArrayList<Patch *>();
-    }
-
-    for ( int i = 0; i < 8; i++ ) {
-        children[i] = nullptr;
-    }
-}
-
 /**
 Adds a patch to a cluster. The bounding box is enlarged if necessary, but
 the midpoint is not updated (it's more efficient to do that once, after all
@@ -104,11 +99,12 @@ patches have been added to the cluster and the bounding box is fully
 determined)
 */
 void
-Cluster::clusterAddPatch(Patch *patch) {
-    BoundingBox patchBoundingBox{};
-
+PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
     if ( patch != nullptr ) {
         patches->add(patch);
+
+        BoundingBox patchBoundingBox{};
+
         if ( patch->boundingBox != nullptr ) {
             patchBoundingBox = *patch->boundingBox;
         } else {
@@ -119,24 +115,23 @@ Cluster::clusterAddPatch(Patch *patch) {
 }
 
 /**
-- Checks the size of parentClusterNode->patch with reference to the bounding box of the cluster cluster.
-- If the size of the patch is more than half the size of the cluster, the routine
-  returns.
+- Checks the size of patches[patchIndexOnParent] patch with reference to the bounding box of the cluster
+- If the size of the patch is more than half the size of the cluster, the method returns
 - If the patch is smaller than half the size of the cluster, the position of
-  its centroid is tested with reference to the centroid of the cluster.
-- If the centroids coincide, the routine returns.
-- If not, parentClusterNode is moved to the patch list of a sub-cluster of cluster. Which sub-cluster
-  depends on the position of the patch with reference to the centroid of cluster.
-- Returns true if the patch was moved to the sub-cluster.
-- Returns false if the patch was not moved.
-- previousClusterNode is the patch list element previous parentClusterNode (chasing pointers!), needed to be
-  able to efficiently remove parentClusterNode from the patch list of cluster
+  its centroid is tested with reference to the centroid of the cluster
+- If the centroids coincide, the routine returns
+- If not, patches[patchIndexOnParent] is moved to the patch list of a sub-cluster of cluster. Which sub-cluster
+  depends on the position of the patch with reference to the centroid of cluster
+- Returns true if the patch was moved to the sub-cluster
+- Returns false if the patch was not moved
+- previousClusterNode is the patch list element previous patches[patchIndexOnParent] (chasing pointers!), needed to be
+  able to efficiently remove patches[patchIndexOnParent] from the patch list of cluster
 */
 bool
-Cluster::clusterMovePatch(int parentIndex) {
+PatchClusterOctreeNode::movePatchToSubOctantCluster(int patchIndexOnParent) {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
-    Patch *patch = patches->get(parentIndex);
+    Patch *patch = patches->get(patchIndexOnParent);
     const BoundingBox *patchBoundingBox = patch->boundingBox;
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
@@ -145,9 +140,9 @@ Cluster::clusterMovePatch(int parentIndex) {
     float dy = patchBoundingBox->coordinates[MAX_Y] - patchBoundingBox->coordinates[MIN_Y];
     float dz = patchBoundingBox->coordinates[MAX_Z] - patchBoundingBox->coordinates[MIN_Z];
 
-    if ((dx > smallestBoxDimension && dx > (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 0.5) ||
-        (dy > smallestBoxDimension && dy > (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 0.5) ||
-        (dz > smallestBoxDimension && dz > (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 0.5) ) {
+    if ( (dx > smallestBoxDimension && dx > (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 0.5) ||
+         (dy > smallestBoxDimension && dy > (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 0.5) ||
+         (dz > smallestBoxDimension && dz > (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 0.5) ) {
         return false;
     }
 
@@ -161,17 +156,17 @@ Cluster::clusterMovePatch(int parentIndex) {
         (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
     // Note: comparator values assumed: X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK, combined will give
     // an integer number from 0 to 7, or 8 if all are equal
-    int selectedChildClusterIndex = boundingBoxCentroid.compareByDimensions(&midPatch, Numeric::EPSILON_FLOAT);
+    int selectedChildOctantIndex = boundingBoxCentroid.compareByDimensions(&midPatch, Numeric::EPSILON_FLOAT);
 
     // If the centroids (almost by EPSILON) coincides, don´t move current patch from parent cluster to sub-cluster
-    if ( selectedChildClusterIndex == XYZ_EQUAL_MASK ) {
+    if ( selectedChildOctantIndex == XYZ_EQUAL_MASK ) {
         return false;
     }
 
-    // Otherwise, move the patch to the sub cluster with index selectedChildClusterIndex
-    Cluster *selectedChildCluster = children[selectedChildClusterIndex];
+    // Otherwise, move the patch to the sub cluster with index selectedChildOctantIndex
+    PatchClusterOctreeNode *selectedChildCluster = children[selectedChildOctantIndex];
 
-    patches->remove(parentIndex);
+    patches->remove(patchIndexOnParent);
     selectedChildCluster->patches->add(patch);
 
     // Enlarge the bounding box the of sub-cluster
@@ -192,7 +187,7 @@ sub-clusters with zero patches are disposed off and the procedure recursively re
 for each sub-cluster
 */
 void
-Cluster::splitCluster() {
+PatchClusterOctreeNode::splitCluster() {
     // Don't split the cluster if it contains too few patches
     if ( patches != nullptr && patches->size() <= MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER ) {
         return;
@@ -200,12 +195,12 @@ Cluster::splitCluster() {
 
     // Create eight sub-clusters for the cluster with initialized bounding box
     for ( int i = 0; i < 8; i++ ) {
-        children[i] = new Cluster();
+        children[i] = new PatchClusterOctreeNode();
     }
 
     // Check and possibly move each of the patches in the cluster to a sub-cluster
     for ( int i = 0; patches != nullptr && i < patches->size(); i++ ) {
-        if ( clusterMovePatch(i) ) {
+        if ( movePatchToSubOctantCluster(i) ) {
             i--;
         }
     }
@@ -220,9 +215,7 @@ Cluster::splitCluster() {
                 (children[i]->boundingBox.coordinates[MIN_X] + children[i]->boundingBox.coordinates[MAX_X]) * 0.5f,
                 (children[i]->boundingBox.coordinates[MIN_Y] + children[i]->boundingBox.coordinates[MAX_Y]) * 0.5f,
                 (children[i]->boundingBox.coordinates[MIN_Z] + children[i]->boundingBox.coordinates[MAX_Z]) * 0.5f);
-            if ( children[i] != nullptr ) {
-                children[i]->splitCluster();
-            }
+            children[i]->splitCluster();
         }
     }
 }
@@ -234,7 +227,7 @@ GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on 
 without extra code and such
 */
 Geometry *
-Cluster::convertClusterToGeometry() {
+PatchClusterOctreeNode::convertClusterToGeometry() {
     Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
         parentPatchesGeometry = geomCreatePatchSet(patches);
@@ -263,4 +256,36 @@ Cluster::convertClusterToGeometry() {
     Geometry *newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
     addToDeletionCache(newGeometry);
     return newGeometry;
+}
+
+void
+PatchClusterOctreeNode::print(int level) const {
+    switch ( level ) {
+        case 0:
+            printf("= PatchClusterOctreeNode ================================================================\n");
+            break;
+        case 1:
+            printf("  - ");
+            break;
+        case 2:
+            printf("    . ");
+            break;
+        default:
+            printf("      (%d) ", level);
+            for ( int i = 3; i < level; i++ ) {
+                printf(" ");
+            }
+            printf("-> ");
+            break;
+    }
+    printf("%ld patches: ", patches->size());
+    for ( int i = 0; i < patches->size(); i++ ) {
+        printf("[%d]", patches->get(i)->id);
+    }
+    printf("\n");
+    for ( int i = 0; i < 8; i++ ) {
+        if ( children[i] != nullptr ) {
+            children[i]->print(level + 1);
+        }
+    }
 }

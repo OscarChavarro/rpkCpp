@@ -9,7 +9,7 @@
 #include "io/mgf/readmgf.h"
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
-#include "scene/Cluster.h"
+#include "scene/PatchClusterOctreeNode.h"
 #include "app/adaptation.h"
 #include "app/options.h"
 #include "app/radiance.h"
@@ -128,15 +128,16 @@ This hierarchy is often much more efficient for tracing rays and clustering radi
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
 static Geometry *
-sceneBuilderCreateClusterHierarchy(java::ArrayList<Patch *> *patches) {
-    Cluster *rootCluster;
+sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
+    PatchClusterOctreeNode *rootCluster;
     Geometry *rootGeometry;
 
-    // Create a toplevel cluster containing (references to) all the patches in the solid
-    rootCluster = new Cluster(patches);
+    // Create a toplevel cluster containing (references to) all the patches in the scene
+    rootCluster = new PatchClusterOctreeNode(patches);
 
     // Split the toplevel cluster recursively into sub-clusters
     rootCluster->splitCluster();
+    //rootCluster->print(0);
 
     // Convert to a Geometry GLOBAL_stochasticRaytracing_hierarchy, disposing of the clusters
     rootGeometry = rootCluster->convertClusterToGeometry();
@@ -223,9 +224,6 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     } else {
         *currentDirectory = '\0';
     }
-
-    // init compute method
-    setRadianceMethod(nullptr, scene);
 
     // Prepare if errors occur when reading the new scene will abort
     scene->geometryList = nullptr;
