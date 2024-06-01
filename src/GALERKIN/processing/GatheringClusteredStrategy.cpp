@@ -35,7 +35,7 @@ potential of the contained patches
 */
 float
 GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
-    if ( cluster->flags & IS_CLUSTER_MASK ) {
+    if ( cluster->flags & ElementFlags::IS_CLUSTER_MASK ) {
         cluster->potential = 0.0;
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);

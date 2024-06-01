@@ -194,7 +194,7 @@ LinkingSimpleStrategy::createInitialLinks(
     const GalerkinRole role,
     GalerkinElement *topElement)
 {
-    if ( topElement->flags & IS_CLUSTER_MASK ) {
+    if ( topElement->flags & ElementFlags::IS_CLUSTER_MASK ) {
         logFatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 

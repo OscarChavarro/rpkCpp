@@ -179,7 +179,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
     if ( patch->material != nullptr && patch->material->getEdf() != nullptr ) {
-        flags |= IS_LIGHT_SOURCE_MASK;
+        flags |= ElementFlags::IS_LIGHT_SOURCE_MASK;
         Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
         Ed.scaleInverse((float)M_PI, Ed);
     }
@@ -192,10 +192,10 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement::GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState): GalerkinElement(inGalerkinState) {
-    geometry = parameterGeometry;
+GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState): GalerkinElement(inGalerkinState) {
+    geometry = inGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
-    flags |= IS_CLUSTER_MASK;
+    flags |= ElementFlags::IS_CLUSTER_MASK;
     reAllocCoefficients();
 
     Rd.setMonochrome(1.0);
@@ -256,7 +256,7 @@ and un-shot radiance on the element
 */
 void
 GalerkinElement::reAllocCoefficients() {
-    char localBasisSize = 0;
+    char localBasisSize;
 
     if ( isCluster() ) {
         // We always use a constant basis on cluster elements
@@ -282,7 +282,7 @@ GalerkinElement::reAllocCoefficients() {
 
     ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
     colorsArrayClear(defaultRadiance, localBasisSize);
-    if ( radiance ) {
+    if ( radiance != nullptr ) {
         colorsArrayCopy(defaultRadiance, radiance, java::Character::min(basisSize, localBasisSize));
         delete radiance;
     }
@@ -290,13 +290,13 @@ GalerkinElement::reAllocCoefficients() {
 
     ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
     colorsArrayClear(defaultReceivedRadiance, localBasisSize);
-    if ( receivedRadiance ) {
+    if ( receivedRadiance != nullptr ) {
         colorsArrayCopy(defaultReceivedRadiance, receivedRadiance, java::Character::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
-    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
         colorsArrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
@@ -330,7 +330,6 @@ void
 GalerkinElement::regularSubDivide() {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
-        return;
     }
 
     if ( regularSubElements != nullptr ) {
@@ -362,7 +361,7 @@ GalerkinElement::regularSubDivide() {
             child->unShotPotential = unShotPotential;
         }
 
-        child->flags |= (flags & IS_LIGHT_SOURCE_MASK);
+        child->flags |= (flags & ElementFlags::IS_LIGHT_SOURCE_MASK);
 
         child->Rd = Rd;
         child->Ed = Ed;
@@ -380,15 +379,14 @@ The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
 GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
-    Element *childElement = nullptr;
-    double _u = *u;
-    double _v = *v;
-
     if ( isCluster() || !regularSubElements ) {
         return this;
     }
 
     // Have a look at the drawings above to understand what is done exactly
+    Element *childElement;
+    double _u = *u;
+    double _v = *v;
     switch ( patch->numberOfVertices ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
@@ -574,7 +572,6 @@ void
 GalerkinElement::initPolygon(Polygon *polygon) const {
     if ( isCluster() ) {
         logFatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
-        return;
     }
 
     polygon->normal = patch->normal;

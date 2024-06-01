@@ -166,11 +166,11 @@ iterationMethodOption(void *value) {
     char *name = *(char **)value;
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = JACOBI;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::JACOBI;
     } else if ( strncasecmp(name, "gaussseidel", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GAUSS_SEIDEL;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::GAUSS_SEIDEL;
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = SOUTH_WELL;
+        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
     } else {
         logError(nullptr, "Invalid iteration method '%s'", name);
     }

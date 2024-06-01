@@ -228,7 +228,7 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     const float *bounds = geometry->boundingBox.coordinates;
 
     elem->geometry = geometry;
-    elem->flags = IS_CLUSTER_MASK;
+    elem->flags = ElementFlags::IS_CLUSTER_MASK;
 
     elem->Rd.setMonochrome(1.0);
     elem->Ed.clear();

@@ -24,13 +24,14 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
-    if ( !topLevelElement->radiance[0].isBlack() && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
+    if ( !topLevelElement->radiance[0].isBlack()
+      && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
             scene,
             galerkinState,
             GalerkinRole::SOURCE,
             topLevelElement);
-        topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
+        topLevelElement->flags |= ElementFlags::INTERACTIONS_CREATED_MASK;
     }
 }
 
@@ -75,14 +76,15 @@ GatheringSimpleStrategy::patchGather(
     // The form factors have been computed and stored with the source patch
     // already before when doing non-importance-driven Jacobi iterations with lazy
     // linking
-    if ( (galerkinState->galerkinIterationMethod == GAUSS_SEIDEL || !galerkinState->lazyLinking || galerkinState->importanceDriven)
-        && !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
+    if ( (galerkinState->galerkinIterationMethod == GAUSS_SEIDEL
+      || !galerkinState->lazyLinking || galerkinState->importanceDriven)
+        && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
             scene,
             galerkinState,
             GalerkinRole::RECEIVER,
             topLevelElement);
-        topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
+        topLevelElement->flags |= ElementFlags::INTERACTIONS_CREATED_MASK;
     }
 
     // Refine the interactions and compute light transport at the leaves
@@ -119,8 +121,9 @@ GatheringSimpleStrategy::doGatheringIteration(
     }
 
     // Not importance-driven Jacobi iterations with lazy linking
-    if ( galerkinState->galerkinIterationMethod != GAUSS_SEIDEL && galerkinState->lazyLinking &&
-         !galerkinState->importanceDriven ) {
+    if ( galerkinState->galerkinIterationMethod != GalerkinIterationMethod::GAUSS_SEIDEL
+         && galerkinState->lazyLinking
+         && !galerkinState->importanceDriven ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             GatheringSimpleStrategy::patchLazyCreateInteractions(
                 scene,
@@ -140,7 +143,7 @@ GatheringSimpleStrategy::doGatheringIteration(
     // Update the radiosity after gathering to all patches with Jacobi, immediately
     // update with Gauss-Seidel so the new radiosity are already used for the
     // still-to-be-processed patches in the same iteration
-    if ( galerkinState->galerkinIterationMethod == JACOBI ) {
+    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             GatheringSimpleStrategy::patchUpdateRadiance(scene->patchList->get(i), galerkinState);
         }

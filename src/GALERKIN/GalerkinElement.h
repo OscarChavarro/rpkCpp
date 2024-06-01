@@ -47,7 +47,7 @@ class GalerkinElement final : public Element {
     GalerkinState *galerkinState;
 
     explicit GalerkinElement(Patch *patch, GalerkinState *inGalerkinState);
-    explicit GalerkinElement(Geometry *parameterGeometry, GalerkinState *inGalerkinState);
+    explicit GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState);
     ~GalerkinElement() final;
 
     static int getNumberOfElements();

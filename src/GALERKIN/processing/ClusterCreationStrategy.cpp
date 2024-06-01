@@ -75,7 +75,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         if ( subCluster->minimumArea < galerkinElement->minimumArea ) {
             galerkinElement->minimumArea = subCluster->minimumArea;
         }
-        galerkinElement->flags |= (subCluster->flags & IS_LIGHT_SOURCE_MASK);
+        galerkinElement->flags |= (subCluster->flags & ElementFlags::IS_LIGHT_SOURCE_MASK);
         galerkinElement->Ed.addScaled(galerkinElement->Ed, subCluster->area, subCluster->Ed);
     }
     galerkinElement->radiance[0].scale(1.0f / galerkinElement->area);
@@ -104,13 +104,11 @@ returns the created cluster.
 */
 GalerkinElement *
 ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState) {
-    // Geom will be nullptr if e.g. no scene is loaded when selecting
-    // Galerkin radiosity for radiance computations
     if ( geometry == nullptr ) {
         return nullptr;
     }
 
-    // Create a cluster for the parentGeometry
+    // Parent element
     GalerkinElement *cluster = new GalerkinElement(geometry, galerkinState);
     ClusterCreationStrategy::addElementToHierarchiesDeletionCache(cluster);
 

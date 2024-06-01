@@ -6,24 +6,8 @@
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "skin/Patch.h"
 #include "skin/Geometry.h"
-#include "common/RenderOptions.h"
-
-enum ElementTypes {
-    ELEMENT_GALERKIN
-#ifdef RAYTRACING_ENABLED
-    ,
-    ELEMENT_STOCHASTIC_RADIOSITY
-#endif
-};
-
-// If set, indicates that the element is a cluster element. If not set, the element is a surface element
-#define IS_CLUSTER_MASK 0x01
-
-// If the element is or contains surfaces emitting light spontaneously
-#define IS_LIGHT_SOURCE_MASK 0x02
-
-// Set when all interactions have been created for a toplevel element
-#define INTERACTIONS_CREATED_MASK 0x04
+#include "skin/ElementFlags.h"
+#include "skin/ElementTypes.h"
 
 class Element {
   public:

@@ -130,8 +130,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
     // obtained in the visible parts of the scene if importance is used
     // instead of weighting the error, we weight the threshold with the inverse
     if ( galerkinState->importanceDriven &&
-         (galerkinState->galerkinIterationMethod == JACOBI ||
-          galerkinState->galerkinIterationMethod == GAUSS_SEIDEL) ) {
+         (galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ||
+          galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL) ) {
         threshold /= 2.0 * link->receiverElement->potential / GLOBAL_statistics.maxDirectPotential;
     }
 
@@ -309,7 +309,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     if ( error > threshold ) {
         // A very simple but robust subdivision strategy: subdivide the
         // largest of the two elements in order to reduce the error
-        if ((!(link->sourceElement->isCluster() && (link->sourceElement->flags & IS_LIGHT_SOURCE_MASK)) ) &&
+        if ((!(link->sourceElement->isCluster() && (link->sourceElement->flags & ElementFlags::IS_LIGHT_SOURCE_MASK)) ) &&
             (receiveArea > link->sourceElement->area) ) {
             if ( receiveArea > minimumArea ) {
                 if ( link->receiverElement->isCluster() ) {

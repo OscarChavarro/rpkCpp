@@ -18,8 +18,8 @@ MaximumRadianceVisitor::visit(
     const GalerkinState *galerkinState)
 {
     ColorRgb rad;
-    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ||
-         galerkinState->galerkinIterationMethod == JACOBI ) {
+    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
+         galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
         rad = galerkinElement->radiance[0];
     } else {
         rad = galerkinElement->unShotRadiance[0];

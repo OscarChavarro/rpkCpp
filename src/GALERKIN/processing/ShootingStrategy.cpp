@@ -85,7 +85,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
 {
     GalerkinElement *topLevelElement = galerkinGetElement(patch);
 
-    if ( !(topLevelElement->flags & INTERACTIONS_CREATED_MASK) ) {
+    if ( !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
             LinkingClusteredStrategy::createInitialLinks(topLevelElement, GalerkinRole::SOURCE, galerkinState);
         } else {
@@ -95,7 +95,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
                 GalerkinRole::SOURCE,
                 topLevelElement);
         }
-        topLevelElement->flags |= INTERACTIONS_CREATED_MASK;
+        topLevelElement->flags |= ElementFlags::INTERACTIONS_CREATED_MASK;
     }
 
     // Recursively refines the interactions of the shooting patch
