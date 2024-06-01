@@ -76,7 +76,7 @@ GatheringSimpleStrategy::patchGather(
     // The form factors have been computed and stored with the source patch
     // already before when doing non-importance-driven Jacobi iterations with lazy
     // linking
-    if ( (galerkinState->galerkinIterationMethod == GAUSS_SEIDEL
+    if ( (galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL
       || !galerkinState->lazyLinking || galerkinState->importanceDriven)
         && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         LinkingSimpleStrategy::createInitialLinks(
@@ -94,7 +94,7 @@ GatheringSimpleStrategy::patchGather(
     // consistent and recompute the color of the patch when doing Gauss-Seidel.
     // The new radiance values are immediately used in subsequent steps of
     // the current iteration
-    if ( galerkinState->galerkinIterationMethod == GAUSS_SEIDEL ) {
+    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
         GatheringSimpleStrategy::patchUpdateRadiance(patch, galerkinState);
     }
 }

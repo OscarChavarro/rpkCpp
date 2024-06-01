@@ -80,8 +80,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementUnCull(
     java::ArrayList<Geometry *> **candidatesList,
     const GalerkinState *galerkinState)
 {
-    if ( galerkinState->shaftCullMode == DO_SHAFT_CULLING_FOR_REFINEMENT ||
-         galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING ) {
+    if ( galerkinState->shaftCullMode == GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT ||
+         galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING ) {
         Shaft::freeCandidateList(*candidatesList);
     }
 }

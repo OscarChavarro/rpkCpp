@@ -82,7 +82,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     galerkinElement->Ed.scale(1.0f / galerkinElement->area);
 
     // Also pull un-shot radiance for the "shooting" methods
-    if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
+    if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
         colorsArrayClear(galerkinElement->unShotRadiance, galerkinElement->basisSize);
         for ( int i = 0; galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size(); i++ ) {
             const GalerkinElement *subCluster = (GalerkinElement *)galerkinElement->irregularSubElements->get(i);

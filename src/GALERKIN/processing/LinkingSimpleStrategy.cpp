@@ -36,7 +36,9 @@ LinkingSimpleStrategy::createInitialLink(
 
     java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
 
-    if ( (galerkinState->exactVisibility || galerkinState->shaftCullMode == ALWAYS_DO_SHAFT_CULLING) && oldCandidateList ) {
+    if ( (galerkinState->exactVisibility
+       || galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING)
+       && oldCandidateList ) {
         Shaft shaft;
 
         if ( galerkinState->exactVisibility ) {

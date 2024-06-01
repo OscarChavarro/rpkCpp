@@ -7,44 +7,11 @@
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/ShaftCullStrategy.h"
-
-/**
-Reference:
-[COHE1993] Cohen, M. Wallace, J. "Radiosity and Realistic Image Synthesis",
-     Academic Press Professional, 1993.
-*/
-
-// See [COHE1993] section 5.3.
-enum GalerkinIterationMethod {
-    JACOBI,
-    GAUSS_SEIDEL,
-    SOUTH_WELL
-};
-
-enum GalerkinShaftCullMode {
-    ALWAYS_DO_SHAFT_CULLING,
-    DO_SHAFT_CULLING_FOR_REFINEMENT
-};
-
-enum GalerkinErrorNorm {
-    RADIANCE_ERROR,
-    POWER_ERROR
-};
-
-enum GalerkinBasisType {
-    GALERKIN_CONSTANT,
-    GALERKIN_LINEAR,
-    GALERKIN_QUADRATIC,
-    GALERKIN_CUBIC
-};
-
-// Determines how source radiance of a source cluster is determined and
-// how irradiance is distributed over the patches in a receiver cluster
-enum GalerkinClusteringStrategy {
-    ISOTROPIC,
-    ORIENTED,
-    Z_VISIBILITY
-};
+#include "GALERKIN/GalerkinClusteringStrategy.h"
+#include "GALERKIN/GalerkinBasisType.h"
+#include "GALERKIN/GalerkinErrorNorm.h"
+#include "GALERKIN/GalerkinIterationMethod.h"
+#include "GALERKIN/GalerkinShaftCullMode.h"
 
 class GalerkinState {
   public:
