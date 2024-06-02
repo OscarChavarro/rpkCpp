@@ -192,7 +192,9 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 Creates a cluster element for the given geometry
 The average projected area still needs to be determined
 */
-GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState): GalerkinElement(inGalerkinState) {
+GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkinState):
+    GalerkinElement(inGalerkinState)
+{
     geometry = inGeometry;
     area = 0.0; // Needs to be computed after the whole cluster hierarchy has been constructed
     flags |= ElementFlags::IS_CLUSTER_MASK;

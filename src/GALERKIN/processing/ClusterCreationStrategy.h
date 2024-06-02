@@ -26,7 +26,6 @@ class ClusterCreationStrategy {
   public:
     static GalerkinElement *createClusterHierarchy(Geometry *geometry, GalerkinState *galerkinState);
     static void freeClusterElements();
-    static void printGalerkinElementHierarchy(const GalerkinElement *galerkinElement, int level);
 };
 
 #endif

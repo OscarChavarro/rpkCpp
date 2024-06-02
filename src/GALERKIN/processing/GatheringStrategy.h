@@ -23,7 +23,6 @@ class GatheringStrategy {
     virtual ~GatheringStrategy();
 
     virtual bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) = 0;
-    static void recomputePatchColor(Patch *patch, GalerkinState *galerkinState);
 };
 
 #endif

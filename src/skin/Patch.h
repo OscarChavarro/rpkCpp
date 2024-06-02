@@ -89,7 +89,7 @@ class Patch {
 			   // after you changed it!
     ColorRgb color; // Color used to flat render the patch
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
-    Material *material; // Pointer to surface data (contains vertex list, material properties)
+    Material *material;
 
     static void dontIntersect(int n, ...);
     static int getNextId();

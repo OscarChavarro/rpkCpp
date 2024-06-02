@@ -346,6 +346,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
            GLOBAL_statistics.maxSelfEmittedPower.gray(),
            GLOBAL_toneMap_options.realWorldAdaptionLuminance,
            GLOBAL_statistics.totalArea);
+    //scene->print();
 
     // Initialize radiance for the freshly loaded scene
     fprintf(stderr, "Initializing radiance method ... ");

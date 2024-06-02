@@ -99,6 +99,7 @@ Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
 
     printf("%s  - Object name: %s\n", spaces, mesh->objectName);
     printf("%s  - Type: SurfaceMesh\n", spaces);
+    printf("%s    . Id: %d\n", spaces, mesh->id);
     printf("%s    . Inner id: %d\n", spaces, mesh->meshId);
     printf("%s    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
        spaces, mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
