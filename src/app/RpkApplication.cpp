@@ -8,7 +8,7 @@
 #include "tonemap/FerwerdaToneMap.h"
 #include "io/mgf/readmgf.h"
 #include "io/image/dkcolor.h"
-#include "render/glutDebugTools.h"
+//#include "render/glutDebugTools.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
 #include "scene/PatchClusterOctreeNode.h"
@@ -168,7 +168,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
-    executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
+    //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
 
     // 5. Free used memory
     freeMemory(mgfContext);
