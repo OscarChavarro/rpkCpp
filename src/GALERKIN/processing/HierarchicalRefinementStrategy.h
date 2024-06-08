@@ -31,7 +31,7 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementCull(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState);
 
@@ -41,36 +41,36 @@ class HierarchicalRefinementStrategy {
         const GalerkinState *galerkinState);
 
     static double
-    hierarchicRefinementColorToError(ColorRgb rad);
+    hierarchicRefinementColorToError(ColorRgb radiance);
 
     static double
     hierarchicRefinementLinkErrorThreshold(
-        const Interaction *link,
+        const Interaction *interaction,
         double receiverArea,
         const GalerkinState *galerkinState);
 
     static double
     hierarchicRefinementApproximationError(
-        Interaction *link,
+        Interaction *interaction,
         ColorRgb srcRho,
         ColorRgb rcvRho,
         GalerkinState *galerkinState);
 
     static double
     sourceClusterRadianceVariationError(
-        Interaction *link,
+        Interaction *interaction,
         ColorRgb rcvRho,
         double receiverArea,
         GalerkinState *galerkinState);
 
     static InteractionEvaluationCode
     hierarchicRefinementEvaluateInteraction(
-        Interaction *link,
+        Interaction *interaction,
         GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementComputeLightTransport(
-        Interaction *link,
+        Interaction *interaction,
         GalerkinState *galerkinState);
 
     static int
@@ -79,17 +79,17 @@ class HierarchicalRefinementStrategy {
         const java::ArrayList<Geometry *> *candidatesList,
         GalerkinElement *rcv,
         GalerkinElement *src,
-        Interaction *link,
+        Interaction *interaction,
         const GalerkinState *galerkinState);
 
     static void
-    hierarchicRefinementStoreInteraction(Interaction *link, const GalerkinState *galerkinState);
+    hierarchicRefinementStoreInteraction(Interaction *interaction, const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementRegularSubdivideSource(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
 
@@ -105,7 +105,7 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementSubdivideSourceCluster(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
 
@@ -113,7 +113,7 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementSubdivideReceiverCluster(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
 
@@ -121,10 +121,10 @@ class HierarchicalRefinementStrategy {
     refineRecursive(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         GalerkinState *galerkinState);
 
-    static bool refineInteraction(const Scene *scene, Interaction *link, GalerkinState *galerkinState);
+    static bool refineInteraction(const Scene *scene, Interaction *interaction, GalerkinState *galerkinState);
 
     static void
     removeRefinedInteractions(const GalerkinState *galerkinState, const java::ArrayList<Interaction *> *interactionsToRemove);
