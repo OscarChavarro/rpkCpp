@@ -1,4 +1,5 @@
 #include "render/glutDebugTools.h"
+#include "app/GalerkinDebugRenderer.h"
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -22,6 +23,9 @@ GlutDebugState::GlutDebugState(){
 #include "render/opengl.h"
 #include "GALERKIN/GalerkinElement.h"
 
+static const int TOTAL_DEBUG_OPERATION_MODES = 2;
+static int globalMode = 0
+        ;
 static int globalWidth = 1920;
 static int globalHeight = 1200;
 static Scene *globalScene;
@@ -124,6 +128,13 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
                 GLOBAL_render_glutDebugState.selectedPatch = (int)globalScene->patchList->size() - 1;
             }
             break;
+        case 'm':
+            globalMode++;
+            if ( globalMode >= TOTAL_DEBUG_OPERATION_MODES ) {
+                globalMode = 0;
+            }
+            printf("MODE: %d\n", globalMode);
+            break;
         case ' ':
             globalRadianceMethod->doStep(globalScene, globalRenderOptions);
             break;
@@ -176,15 +187,25 @@ extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
 
 static void
 drawCallback() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
-    glEnable(GL_DEPTH_TEST);
-
     globalScene->camera->xSize = globalWidth;
     globalScene->camera->ySize = globalHeight;
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
+    glEnable(GL_DEPTH_TEST);
+
     glViewport(0, 0, globalWidth, globalHeight);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-    openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
+
+    if ( globalMode == 0 ) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
+        openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
+    } else if ( globalMode == 1 ) {
+        openGlRenderSetCamera(globalScene->camera, globalScene->geometryList);
+        glPushMatrix();
+        glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
+        GalerkinDebugRenderer::renderGalerkinElementHierarchy(globalScene, globalRenderOptions);
+        glPopMatrix();
+    }
+
     glutSwapBuffers();
 }
 

@@ -116,6 +116,7 @@ set(MAIN_SRC
     src/GALERKIN/Interaction.cpp
     src/GALERKIN/basisquadgalerkin.cpp
     src/GALERKIN/ShadowCache.cpp
+    src/GALERKIN/processing/GalerkingElementDebug.cpp
     src/GALERKIN/processing/ScratchVisibilityStrategy.cpp
     src/GALERKIN/processing/ClusterTraversalStrategy.cpp
     src/GALERKIN/processing/ClusterCreationStrategy.cpp
@@ -199,11 +200,10 @@ set(MAIN_SRC
     src/app/sceneBuilder.cpp
     src/app/batch.cpp
     src/app/commandLine.cpp
+    src/app/GalerkinDebugRenderer.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp
-        src/GALERKIN/processing/GalerkingElementDebug.cpp
-        src/GALERKIN/processing/GalerkingElementDebug.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL glut)

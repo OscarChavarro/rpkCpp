@@ -15,6 +15,7 @@ extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices,
 extern void softRenderPixels(int width, int height, const ColorRgb *rgb);
 extern void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
 extern void openGlRenderClearWindow(const Camera *camera);
+extern void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
 
 extern void
 openGlRenderWorldOctree(

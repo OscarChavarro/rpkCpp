@@ -353,7 +353,7 @@ openGlRenderSetLineWidth(float width) {
     glLineWidth(width);
 }
 
-static void
+void
 openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     openGlRenderClearWindow(camera);
 
@@ -443,8 +443,6 @@ openGlRenderScene(
     renderHooks();
 
     glFinish();
-
-    glDrawBuffer(GL_FRONT_AND_BACK);
 
     canvasPullMode();
 #endif

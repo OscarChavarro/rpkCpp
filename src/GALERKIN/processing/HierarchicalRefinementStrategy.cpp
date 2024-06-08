@@ -429,36 +429,36 @@ int
 HierarchicalRefinementStrategy::hierarchicRefinementCreateSubdivisionLink(
     const Scene *scene,
     const java::ArrayList<Geometry *> *candidatesList,
-    GalerkinElement *rcv,
-    GalerkinElement *src,
+    GalerkinElement *receiverElement,
+    GalerkinElement *sourceElement,
     Interaction *interaction,
     const GalerkinState *galerkinState)
 {
-    interaction->receiverElement = rcv;
-    interaction->sourceElement = src;
+    interaction->receiverElement = receiverElement;
+    interaction->sourceElement = sourceElement;
 
     // Always a constant approximation on cluster elements
     if ( interaction->receiverElement->isCluster() ) {
         interaction->numberOfBasisFunctionsOnReceiver = 1;
     } else {
-        interaction->numberOfBasisFunctionsOnReceiver = rcv->basisSize;
+        interaction->numberOfBasisFunctionsOnReceiver = receiverElement->basisSize;
     }
 
     if ( interaction->sourceElement->isCluster() ) {
         interaction->numberOfBasisFunctionsOnSource = 1;
     } else {
-        interaction->numberOfBasisFunctionsOnSource = src->basisSize;
+        interaction->numberOfBasisFunctionsOnSource = sourceElement->basisSize;
     }
 
     const bool isSceneGeometry = (candidatesList == scene->geometryList);
     const bool isClusteredGeometry = (candidatesList == scene->clusteredGeometryList);
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
-            (const VoxelGrid *)scene->voxelGrid,
-            candidatesList,
-            isSceneGeometry,
-            isClusteredGeometry,
-            interaction,
-            galerkinState);
+        (const VoxelGrid *)scene->voxelGrid,
+        candidatesList,
+        isSceneGeometry,
+        isClusteredGeometry,
+        interaction,
+        galerkinState);
 
     return interaction->visibility != 0;
 }
@@ -534,14 +534,14 @@ void
 HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     const Scene *scene,
     java::ArrayList<Geometry *> **candidatesList,
-    Interaction *link,
+    Interaction *interaction,
     bool isClusteredGeometry,
     GalerkinState *galerkinState)
 {
     java::ArrayList<Geometry *> *backup = *candidatesList;
-    hierarchicRefinementCull(scene, candidatesList, link, isClusteredGeometry, galerkinState);
-    GalerkinElement *sourceElement = link->sourceElement;
-    GalerkinElement *receiverElement = link->receiverElement;
+    hierarchicRefinementCull(scene, candidatesList, interaction, isClusteredGeometry, galerkinState);
+    GalerkinElement *sourceElement = interaction->sourceElement;
+    GalerkinElement *receiverElement = interaction->receiverElement;
 
     receiverElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {

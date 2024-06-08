@@ -5,22 +5,7 @@
 #include "scene/Scene.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
-
-/**
-Evaluates the interaction and returns a code telling whether it is accurate enough
-for computing light transport, or what to do in order to reduce the
-(estimated) error in the most efficient way. This is the famous oracle function
-which is so crucial for efficient hierarchical refinement.
-
-See DOC/galerkin.text
-*/
-enum InteractionEvaluationCode {
-    ACCURATE_ENOUGH,
-    REGULAR_SUBDIVIDE_SOURCE,
-    REGULAR_SUBDIVIDE_RECEIVER,
-    SUBDIVIDE_SOURCE_CLUSTER,
-    SUBDIVIDE_RECEIVER_CLUSTER
-};
+#include "GALERKIN/processing/InteractionEvaluationCode.h"
 
 /**
 Shaft culling stuff for hierarchical refinement
@@ -77,8 +62,8 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementCreateSubdivisionLink(
         const Scene *scene,
         const java::ArrayList<Geometry *> *candidatesList,
-        GalerkinElement *rcv,
-        GalerkinElement *src,
+        GalerkinElement *receiverElement,
+        GalerkinElement *sourceElement,
         Interaction *interaction,
         const GalerkinState *galerkinState);
 
@@ -97,7 +82,7 @@ class HierarchicalRefinementStrategy {
     hierarchicRefinementRegularSubdivideReceiver(
         const Scene *scene,
         java::ArrayList<Geometry *> **candidatesList,
-        Interaction *link,
+        Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
 

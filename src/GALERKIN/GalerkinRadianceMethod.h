@@ -38,13 +38,13 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     }
 
     static void renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions);
-    static void galerkinRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 
   public:
     static GalerkinState galerkinState;
 
     static void recomputePatchColor(Patch *patch);
+    static void galerkinRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
 
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod() final;

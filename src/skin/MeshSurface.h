@@ -10,14 +10,9 @@ Surfaces are basically a list of patches representing a simple object with given
 #include "java/util/ArrayList.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
+#include "skin/MaterialColorFlags.h"
 
 class Vertex;
-
-enum MaterialColorFlags {
-    NO_COLORS,
-    VERTEX_COLORS,
-    FACE_COLORS
-};
 
 class MeshSurface final : public Geometry {
   private:
