@@ -834,7 +834,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
             // Generate an eye path
             stratifiedSampling2D.sample(&x1, &x2);
 
-            config->eyePath->m_rayType = STARTS;
+            config->eyePath->m_rayType = PathRayType::STARTS;
 
             Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x1), (int) (x2));
             config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1)
@@ -845,7 +845,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
                 config->eyeConfig.tracePath(camera, sceneVoxelGrid, sceneBackground, nextNode);
             }
         } else {
-            config->eyePath->m_rayType = STOPS;
+            config->eyePath->m_rayType = PathRayType::STOPS;
         }
 
         // Generate a light path

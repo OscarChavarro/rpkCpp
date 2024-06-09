@@ -59,7 +59,7 @@ PhotonMapState::setDefaults() {
     falseColLog = false;
     falseColMono = false;
 
-    radianceReturn = GLOBAL_RADIANCE;
+    radianceReturn = RadiosityReturnOption::GLOBAL_RADIANCE;
 
     minimumLightPathDepth = 0;
     maximumLightPathDepth = 7;

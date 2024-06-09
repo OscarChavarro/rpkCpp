@@ -12,6 +12,7 @@ and contain necessary information for raytracing-like algorithms
 
 // -- For evaluation of bi paths, should change!
 #include "raycasting/common/bsdfcomp.h"
+#include "raycasting/common/PathRayType.h"
 
 /**
 Heuristic for multiple Importance sampling / weighting
@@ -22,19 +23,6 @@ multipleImportanceSampling(double a) {
 }
 
 // Type definitions used in CPathNode
-
-// PathRayType indicates what the ray does further in the path
-// F.i. it can be reflected, it can enter a material, leave it
-// or the path can end with this ray.
-
-enum PathRayType {
-    STARTS,
-    ENTERS,
-    LEAVES,
-    REFLECTS,
-    STOPS,
-    ENVIRONMENT
-};
 
 // -- TODO clean up, additional functions that are now duplicated
 // -- in the samplers, accessor methods, splitting in a
@@ -106,7 +94,7 @@ class SimpleRaytracingPathNode {
     void print(FILE *out) const;
 
     bool ends() const {
-        return (m_rayType == STOPS) || (m_rayType == ENVIRONMENT);
+        return (m_rayType == PathRayType::STOPS) || (m_rayType == PathRayType::ENVIRONMENT);
     }
 
   protected:

@@ -99,7 +99,7 @@ CSpecularSampler::sample(
             newNode,
             &dir,
             pdfDir) ) {
-        thisNode->m_rayType = STOPS;
+        thisNode->m_rayType = PathRayType::STOPS;
         return false;
     }
 

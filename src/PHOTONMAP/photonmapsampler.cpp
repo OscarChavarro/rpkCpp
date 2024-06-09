@@ -343,7 +343,7 @@ CPhotonMapSampler::fresnelSample(
 
     // Transfer
     if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
-        thisNode->m_rayType = STOPS;
+        thisNode->m_rayType = PathRayType::STOPS;
         return false;
     }
 
@@ -363,7 +363,7 @@ CPhotonMapSampler::fresnelSample(
     }
 
     // Component propagation
-    if ( thisNode->m_rayType == REFLECTS ) {
+    if ( thisNode->m_rayType == PathRayType::REFLECTS ) {
         thisNode->m_usedComponents = BRDF_SPECULAR_COMPONENT;
     } else {
         thisNode->m_usedComponents = BTDF_SPECULAR_COMPONENT;

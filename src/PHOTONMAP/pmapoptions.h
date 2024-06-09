@@ -4,19 +4,9 @@
 #include <ctime>
 
 #include "render/ScreenBuffer.h"
+#include "PHOTONMAP/RadiosityReturnOption.h"
 
 const int MAXIMUM_RECON_PHOTONS = 400;
-
-enum RAD_RETURN_OPTION {
-    GLOBAL_DENSITY,
-    CAUSTIC_DENSITY,
-    REC_C_DENSITY,
-    REC_G_DENSITY,
-    IMPORTANCE_C_DENSITY,
-    IMPORTANCE_G_DENSITY,
-    GLOBAL_RADIANCE,
-    CAUSTIC_RADIANCE
-};
 
 enum DENSITY_CONTROL_OPTION {
     NO_DENSITY_CONTROL,
@@ -62,7 +52,7 @@ class PhotonMapState
     float falseColMax;
     int falseColLog;
     int falseColMono;
-    RAD_RETURN_OPTION radianceReturn;
+    RadiosityReturnOption radianceReturn;
     int minimumLightPathDepth;
     int maximumLightPathDepth;
     int iterationNumber;

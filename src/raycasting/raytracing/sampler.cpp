@@ -24,23 +24,21 @@ Sampler::sampleTransfer(
     double pdfDir)
 {
     Ray ray;
-    const RayHit *hit;
-
     ray.pos = thisNode->m_hit.getPoint();
     ray.dir = *dir;
 
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
-    newNode->m_rayType = STOPS;
-    hit = findRayIntersection(
+    newNode->m_rayType = PathRayType::STOPS;
+    const RayHit *hit = findRayIntersection(
         sceneVoxelGrid,
         &ray,
         thisNode->m_hit.getPatch(),
         newNode->m_inBsdf,
         &newNode->m_hit);
 
-    if ( !hit ) {
-        if ( sceneBackground ) {
+    if ( hit == nullptr ) {
+        if ( sceneBackground != nullptr ) {
             // Fill in path node for background
             newNode->m_hit.init(sceneBackground->bkgPatch, nullptr, dir, nullptr);
             newNode->m_inDirT = *dir;
@@ -50,7 +48,7 @@ Sampler::sampleTransfer(
             newNode->m_inBsdf = thisNode->m_outBsdf;
             newNode->m_useBsdf = nullptr;
             newNode->m_outBsdf = nullptr;
-            newNode->m_rayType = ENVIRONMENT;
+            newNode->m_rayType = PathRayType::ENVIRONMENT;
             unsigned int newFlags = newNode->m_hit.getFlags() | RayHitFlag::FRONT;
             newNode->m_hit.setFlags(newFlags);
 
@@ -110,15 +108,15 @@ CSurfaceSampler::DetermineRayType(
     if ( cosThisPatch < 0 ) {
         // Refraction !
         if ( thisNode->m_hit.getFlags() & RayHitFlag::BACK ) {
-            thisNode->m_rayType = LEAVES;
+            thisNode->m_rayType = PathRayType::LEAVES;
         } else {
-            thisNode->m_rayType = ENTERS;
+            thisNode->m_rayType = PathRayType::ENTERS;
         }
 
         newNode->m_inBsdf = thisNode->m_outBsdf;
     } else {
         // Reflection
-        thisNode->m_rayType = REFLECTS;
+        thisNode->m_rayType = PathRayType::REFLECTS;
         newNode->m_inBsdf = thisNode->m_inBsdf; // staying in same medium
     }
 }

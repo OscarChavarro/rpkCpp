@@ -85,11 +85,11 @@ CSamplerConfig::traceNode(
         if ( (lastNode->m_depth + 1) < maxDepth ) {
             if ( !dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, lastNode, nextNode, x1, x2) ) {
                 // No point !
-                lastNode->m_rayType = STOPS;
+                lastNode->m_rayType = PathRayType::STOPS;
                 return nullptr;
             }
         } else {
-            lastNode->m_rayType = STOPS;
+            lastNode->m_rayType = PathRayType::STOPS;
             return nullptr;
         }
     } else {
@@ -106,11 +106,11 @@ CSamplerConfig::traceNode(
                 x2,
                 lastNode->m_depth >= minDepth,
                 flags) ) {
-                lastNode->m_rayType = STOPS;
+                lastNode->m_rayType = PathRayType::STOPS;
                 return nullptr;
             }
         } else {
-            lastNode->m_rayType = STOPS;
+            lastNode->m_rayType = PathRayType::STOPS;
             return nullptr;
         }
     }

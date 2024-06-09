@@ -45,12 +45,12 @@ ScreenSampler::sample(
                      (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
-    thisNode->m_rayType = STARTS;
+    thisNode->m_rayType = PathRayType::STARTS;
     newNode->m_inBsdf = thisNode->m_outBsdf; // Camera can be placed in a medium
 
     // Transfer
     if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
-        thisNode->m_rayType = STOPS;
+        thisNode->m_rayType = PathRayType::STOPS;
         return false;
     }
 

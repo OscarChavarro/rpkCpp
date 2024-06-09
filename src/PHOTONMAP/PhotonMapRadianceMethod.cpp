@@ -669,26 +669,26 @@ PhotonMapRadianceMethod::getRadiance(
         return radiance;
     }
 
-    RAD_RETURN_OPTION radiosityReturn = GLOBAL_RADIANCE;
+    RadiosityReturnOption radiosityReturn = RadiosityReturnOption::GLOBAL_RADIANCE;
 
     if ( globalDoingLocalRayCasting ) {
         radiosityReturn = GLOBAL_photonMap_state.radianceReturn;
     }
 
     switch ( radiosityReturn ) {
-        case GLOBAL_DENSITY:
+        case RadiosityReturnOption::GLOBAL_DENSITY:
             radiance = GLOBAL_photonMap_config.globalMap->getDensityColor(hit);
             break;
-        case CAUSTIC_DENSITY:
+        case RadiosityReturnOption::CAUSTIC_DENSITY:
             radiance = GLOBAL_photonMap_config.causticMap->getDensityColor(hit);
             break;
-        case IMPORTANCE_C_DENSITY:
+        case RadiosityReturnOption::IMPORTANCE_C_DENSITY:
             radiance = GLOBAL_photonMap_config.importanceCMap->getDensityColor(hit);
             break;
-        case IMPORTANCE_G_DENSITY:
+        case RadiosityReturnOption::IMPORTANCE_G_DENSITY:
             radiance = GLOBAL_photonMap_config.importanceMap->getDensityColor(hit);
             break;
-        case REC_C_DENSITY:
+        case RadiosityReturnOption::REC_C_DENSITY:
             {
                 Vector3D nn = hit.getNormal();
                 GLOBAL_photonMap_config.importanceCMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
@@ -698,17 +698,17 @@ PhotonMapRadianceMethod::getRadiance(
                 radiance = getFalseColor(density);
             }
             break;
-        case REC_G_DENSITY:
+        case RadiosityReturnOption::REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->getRequiredDensity(
                     camera, hit.getPoint(), hit.getNormal());
             radiance = getFalseColor(density);
             break;
-        case GLOBAL_RADIANCE:
+        case RadiosityReturnOption::GLOBAL_RADIANCE:
             radiance = GLOBAL_photonMap_config.globalMap->reconstruct(
                     &hit, dir, bsdf, nullptr, bsdf);
             break;
-        case CAUSTIC_RADIANCE:
+        case RadiosityReturnOption::CAUSTIC_RADIANCE:
             radiance = GLOBAL_photonMap_config.causticMap->reconstruct(
                     &hit, dir, bsdf, nullptr, bsdf);
             break;

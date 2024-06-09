@@ -243,8 +243,8 @@ stochasticRaytracerGetScatteredRadiance(
                         &newNode, x1, x2,
                         doRR,
                         si->flags)
-                     && ((newNode.m_rayType != ENVIRONMENT) || (config->backgroundIndirect)) ) {
-                    if ( newNode.m_rayType != ENVIRONMENT ) {
+                     && ((newNode.m_rayType != PathRayType::ENVIRONMENT) || (config->backgroundIndirect)) ) {
+                    if ( newNode.m_rayType != PathRayType::ENVIRONMENT ) {
                         newNode.assignBsdfAndNormal();
                     }
 
@@ -476,7 +476,7 @@ stochasticRaytracerGetRadiance(
     char edfFlags = ALL_COMPONENTS;
 
     // Handle background
-    if ( thisNode->m_rayType == ENVIRONMENT ) {
+    if ( thisNode->m_rayType == PathRayType::ENVIRONMENT ) {
         // Check for  weighting
         double weight = 1;
         double cr;
@@ -688,7 +688,7 @@ StochasticRaytracer::calcPixel(
         stratified.sample(&x1, &x2);
 
         if ( config->samplerConfig.dirSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, &eyeNode, &pixelNode, x1, x2)
-             && ((pixelNode.m_rayType != ENVIRONMENT) || (config->backgroundDirect)) ) {
+             && ((pixelNode.m_rayType != PathRayType::ENVIRONMENT) || (config->backgroundDirect)) ) {
             pixelNode.assignBsdfAndNormal();
 
             // Frame coherent & correlated sampling

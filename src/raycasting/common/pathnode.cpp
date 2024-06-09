@@ -76,17 +76,17 @@ SimpleRaytracingPathNode::GetMatchingNode() {
 
     while ( tmpNode && backHits > 0 ) {
         switch ( tmpNode->m_rayType ) {
-            case ENTERS:
+            case PathRayType::ENTERS:
                 if ( tmpNode->m_hit.getPatch()->material->getBsdf() == thisBsdf ) {
                     backHits--; // Entering point in this material
                 }
                 break;
-            case LEAVES:
+            case PathRayType::LEAVES:
                 if ( tmpNode->m_inBsdf == thisBsdf ) {
                     backHits++; // Leaves the same material more than one time
                 }
                 break;
-            case REFLECTS:
+            case PathRayType::REFLECTS:
                 break;
             default:
                 logError("CPathNode::GetMatchingNode", "Wrong ray type in path");

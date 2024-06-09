@@ -41,12 +41,12 @@ LightDirSampler::sample(
     } // Zero probabilityDensityFunction event, no valid sample
 
     // Determine ray type
-    thisNode->m_rayType = STARTS;
+    thisNode->m_rayType = PathRayType::STARTS;
     newNode->m_inBsdf = thisNode->m_outBsdf; // Light can be placed in a medium
 
     // Transfer
     if ( !sampleTransfer(sceneVoxelGrid, sceneBackground, thisNode, newNode, &dir, pdfDir) ) {
-        thisNode->m_rayType = STOPS;
+        thisNode->m_rayType = PathRayType::STOPS;
         return false;
     }
 

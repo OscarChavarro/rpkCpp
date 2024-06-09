@@ -63,7 +63,7 @@ UniformLightSampler::sample(
     // Visibility is NOT determined here!
 
     newNode->m_depth = 0;
-    newNode->m_rayType = STOPS;
+    newNode->m_rayType = PathRayType::STOPS;
 
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
@@ -203,7 +203,7 @@ ImportantLightSampler::sample(
     // sampler. Otherwise, pdf's cannot be calculated
     // Visibility is NOT determined here!
     newNode->m_depth = 0;
-    newNode->m_rayType = STOPS;
+    newNode->m_rayType = PathRayType::STOPS;
     newNode->m_useBsdf = nullptr;
     newNode->m_inBsdf = nullptr;
     newNode->m_outBsdf = nullptr;

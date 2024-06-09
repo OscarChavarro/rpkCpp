@@ -26,7 +26,7 @@ CEyeSampler::sample(
     // Just fill in newNode with camera data. Appropriate pdf fields are set to 1
 
     newNode->m_depth = 0; // We expect this to be the first node in an eye path
-    newNode->m_rayType = STOPS;
+    newNode->m_rayType = PathRayType::STOPS;
 
     // Choose eye : N/A
     // Choose point on eye : N/A
