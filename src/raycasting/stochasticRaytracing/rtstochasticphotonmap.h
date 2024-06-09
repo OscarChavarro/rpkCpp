@@ -8,6 +8,7 @@
 #include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/stochasticRaytracing/StorageReadout.h"
 
 /**
 SEED Configuration class
@@ -16,7 +17,9 @@ class CSeed {
   private:
     unsigned short m_seed[3];
   public:
-    unsigned short *GetSeed() { return m_seed; }
+    unsigned short *GetSeed() {
+        return m_seed;
+    }
 
     void SetSeed(CSeed seed) {
         const unsigned short *s = seed.GetSeed();
@@ -125,12 +128,6 @@ class CScatterInfo {
     DoneSomePreviousBounce(const SimpleRaytracingPathNode *node) const {
         return ((node->m_accUsedComponents & flags) == flags);
     }
-};
-
-// Next enum is needed to track readout of storage.
-enum StorageReadout {
-    SCATTER,
-    READ_NOW
 };
 
 class StochasticRaytracingConfiguration {

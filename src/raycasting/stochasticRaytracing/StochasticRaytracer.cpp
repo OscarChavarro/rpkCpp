@@ -38,11 +38,11 @@ StochasticRaytracer::defaults() {
     GLOBAL_raytracing_state.doCorrelatedSampling = false;
     GLOBAL_raytracing_state.baseSeed = 0xFE062134;
 
-    GLOBAL_raytracing_state.radMode = STORED_NONE;
+    GLOBAL_raytracing_state.radMode = RayTracingRadMode::STORED_NONE;
 
     GLOBAL_raytracing_state.nextEvent = true;
     GLOBAL_raytracing_state.nextEventSamples = 1;
-    GLOBAL_raytracing_state.lightMode = ALL_LIGHTS;
+    GLOBAL_raytracing_state.lightMode = RayTracingLightMode::ALL_LIGHTS;
 
     GLOBAL_raytracing_state.backgroundDirect = false;
     GLOBAL_raytracing_state.backgroundIndirect = true;
@@ -53,7 +53,7 @@ StochasticRaytracer::defaults() {
     GLOBAL_raytracing_state.firstDGSamples = 36;
     GLOBAL_raytracing_state.separateSpecular = false;
 
-    GLOBAL_raytracing_state.reflectionSampling = BRDF_SAMPLING;
+    GLOBAL_raytracing_state.reflectionSampling = RayTracingSamplingMode::BRDF_SAMPLING;
 
     GLOBAL_raytracing_state.minPathDepth = 5;
     GLOBAL_raytracing_state.maxPathDepth = 7;
@@ -186,7 +186,7 @@ stochasticRaytracerGetScatteredRadiance(
     }
 
     if ( (config->siStorage.flags != NO_COMPONENTS) &&
-        (readout == SCATTER) ) {
+        (readout == StorageReadout::SCATTER) ) {
         // Do storage components
         si = &config->siStorage;
         siCurrent = -1;
@@ -262,7 +262,7 @@ stochasticRaytracerGetScatteredRadiance(
                                 sceneBackground,
                                 &newNode,
                                 config,
-                                READ_NOW,
+                                StorageReadout::READ_NOW,
                                 numberOfSamples,
                                 radianceMethod,
                                 renderOptions);
@@ -318,9 +318,10 @@ srGetDirectRadiance(
     result.clear();
     Vector3D dirEL;
 
-    if ( (readout == READ_NOW) && (config->radMode == STORED_PHOTON_MAP) ) {
+    if ( readout == StorageReadout::READ_NOW && config->radMode == RayTracingRadMode::STORED_PHOTON_MAP ) {
+        // We're reading out D|G, specular not with direct light
         return result;
-    } // We're reading out D|G, specular not with direct light
+    }
 
     CNextEventSampler *nes = config->samplerConfig.neSampler;
 
@@ -340,7 +341,7 @@ srGetDirectRadiance(
         double nrs;
         bool lightsToDo = true;
 
-        if ( config->lightMode == ALL_LIGHTS ) {
+        if ( config->lightMode == RayTracingLightMode::ALL_LIGHTS ) {
             lightsToDo = nes->ActivateFirstUnit();
         }
 
@@ -372,7 +373,7 @@ srGetDirectRadiance(
                     int siCurrent;
                     const CScatterInfo *si;
 
-                    if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == SCATTER) ) {
+                    if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == StorageReadout::SCATTER) ) {
                         // Do storage components
                         si = &config->siStorage;
                         siCurrent = -1;
@@ -385,8 +386,8 @@ srGetDirectRadiance(
                     while ( siCurrent < config->siOthersCount ) {
                         bool doSi = true;
 
-                        if ( ((config->reflectionSampling == PHOTON_MAP_SAMPLING)
-                            || (config->reflectionSampling == CLASSICAL_SAMPLING))
+                        if ( ((config->reflectionSampling == RayTracingSamplingMode::PHOTON_MAP_SAMPLING)
+                            || (config->reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING))
                             && ( si->flags & BSDF_SPECULAR_COMPONENT ) ) {
                             // Perfect mirror reflection, no n.e.e.
                             doSi = false;
@@ -407,7 +408,7 @@ srGetDirectRadiance(
 
                             // Contribution of this sample (with Multiple Imp. S.)
 
-                            if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
+                            if ( config->reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING ) {
                                 weight = 1.0;
                             } else {
                                 // N direct * pdf  for the n.e.e.
@@ -448,7 +449,7 @@ srGetDirectRadiance(
                 }
             }
 
-            if ( config->lightMode == ALL_LIGHTS ) {
+            if ( config->lightMode == RayTracingLightMode::ALL_LIGHTS ) {
                 lightsToDo = nes->ActivateNextUnit();
             } else {
                 lightsToDo = false;
@@ -486,7 +487,7 @@ stochasticRaytracerGetRadiance(
             doWeight = false;
         }
 
-        if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
+        if ( config->reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING ) {
             doWeight = false;
         }
 
@@ -514,10 +515,10 @@ stochasticRaytracerGetRadiance(
         result.clear();
 
         // Stored radiance
-        if ( (readout == READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
+        if ( (readout == StorageReadout::READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
             if ( radianceMethod->className == PHOTON_MAP ) {
-                if ( config->radMode == STORED_PHOTON_MAP ) {
+                if ( config->radMode == RayTracingRadMode::STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
                     float dist2 = thisNode->m_hit.getPoint().distance2(thisNode->previous()->m_hit.getPoint());
@@ -527,7 +528,7 @@ stochasticRaytracerGetRadiance(
                         // This does not include Le (self emitted light)
                     } else {
                         radiance.clear();
-                        readout = SCATTER; // This ensures extra scattering, direct light and c-map
+                        readout = StorageReadout::SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
                     radiance = photonMapGetNodeGRadiance(thisNode);
@@ -565,7 +566,7 @@ stochasticRaytracerGetRadiance(
         } // Done: Stored radiance, no self emitted light included!
 
         // Stored caustic maps
-        if ( (config->radMode == STORED_PHOTON_MAP) && readout == SCATTER ) {
+        if ( (config->radMode == RayTracingRadMode::STORED_PHOTON_MAP) && readout == StorageReadout::SCATTER ) {
             radiance = photonMapGetNodeCRadiance(thisNode);
             result.add(result, radiance);
         }
@@ -586,9 +587,9 @@ stochasticRaytracerGetRadiance(
         result.add(result, radiance);
 
         // Emitted Light
-        if ( config->radMode == STORED_PHOTON_MAP
+        if ( config->radMode == RayTracingRadMode::STORED_PHOTON_MAP
             && radianceMethod->className == PHOTON_MAP
-            && (readout == READ_NOW)
+            && (readout == StorageReadout::READ_NOW)
             && !(config->siStorage.DoneThisBounce(thisNode->previous())) ) {
             // Check if Le would contribute to a caustic
             // Caustic contribution: (E...(D|G)...?L) with ? some specular bounce
@@ -606,11 +607,11 @@ stochasticRaytracerGetRadiance(
                 doWeight = false;
             }
 
-            if ( config->reflectionSampling == CLASSICAL_SAMPLING ) {
+            if ( config->reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING ) {
                 doWeight = false;
             }
 
-            if ( config->reflectionSampling == PHOTON_MAP_SAMPLING
+            if ( config->reflectionSampling == RayTracingSamplingMode::PHOTON_MAP_SAMPLING
               && thisNode->m_depth > 1
               && ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) ) {
                 // Perfect Specular scatter, no weighting

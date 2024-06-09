@@ -60,7 +60,7 @@ class MeshSurface final : public Geometry {
         const java::ArrayList<Vector3D *> * /*texCoords*/,
         java::ArrayList<Vertex *> *inVertices,
         java::ArrayList<Patch *> *inFaces,
-        enum MaterialColorFlags inFlags);
+        MaterialColorFlags inFlags);
     ~MeshSurface() final;
 
     RayHit *

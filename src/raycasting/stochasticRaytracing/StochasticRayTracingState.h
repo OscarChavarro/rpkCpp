@@ -6,27 +6,9 @@ Options and global state vars for stochastic raytracing
 #define __STOCHASTIC_RAYTRACER_OPTIONS__
 
 #include "render/ScreenBuffer.h"
-
-/*** Typedefs & enums ***/
-
-enum RayTracingSamplingMode {
-    BRDF_SAMPLING,
-    CLASSICAL_SAMPLING,
-    PHOTON_MAP_SAMPLING
-};
-
-enum RayTracingLightMode {
-    POWER_LIGHTS,
-    IMPORTANT_LIGHTS,
-    ALL_LIGHTS
-};
-
-enum RayTracingRadMode {
-    STORED_NONE,
-    STORED_DIRECT,
-    STORED_INDIRECT,
-    STORED_PHOTON_MAP
-};
+#include "raycasting/stochasticRaytracing/RayTracingSamplingMode.h"
+#include "raycasting/stochasticRaytracing/RayTracingLightMode.h"
+#include "raycasting/stochasticRaytracing/RayTracingRadMode.h"
 
 class StochasticRayTracingState {
   public:

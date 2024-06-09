@@ -8,6 +8,7 @@
 #include "raycasting/stochasticRaytracing/sample4d.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
 /**
 Global variables: same set for stochastic relaxation and for random walk radiosity

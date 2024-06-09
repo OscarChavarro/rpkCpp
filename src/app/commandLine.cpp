@@ -596,10 +596,10 @@ rayMattingParseOptions(int *argc, char **argv) {
 /*** Enum Option types ***/
 
 static ENUMDESC globalRadModeValues[] = {
-    {STORED_NONE, "none", 2},
-    {STORED_DIRECT, "direct", 2},
-    {STORED_INDIRECT, "indirect", 2},
-    {STORED_PHOTON_MAP, "photonmap", 2},
+    {RayTracingRadMode::STORED_NONE, "none", 2},
+    {RayTracingRadMode::STORED_DIRECT, "direct", 2},
+    {RayTracingRadMode::STORED_INDIRECT, "indirect", 2},
+    {RayTracingRadMode::STORED_PHOTON_MAP, "photonmap", 2},
     {0, nullptr, 0}
 };
 
@@ -607,17 +607,18 @@ MakeEnumOptTypeStruct(radModeTypeStruct, globalRadModeValues);
 #define TradMode (&radModeTypeStruct)
 
 static ENUMDESC globalLightModeValues[] = {
-        {POWER_LIGHTS,     "power",     2},
-        {IMPORTANT_LIGHTS, "important", 2},
-        {ALL_LIGHTS,       "all",       2},
-        {0, nullptr,                       0}
+    {RayTracingLightMode::POWER_LIGHTS, "power", 2},
+    {RayTracingLightMode::IMPORTANT_LIGHTS, "important", 2},
+    {RayTracingLightMode::ALL_LIGHTS, "all", 2},
+    {0, nullptr, 0}
 };
+
 MakeEnumOptTypeStruct(lightModeTypeStruct, globalLightModeValues);
 #define TlightMode (&lightModeTypeStruct)
 
 static ENUMDESC globalSamplingModeValues[] = {
-    {BRDF_SAMPLING, "bsdf", 2},
-    {CLASSICAL_SAMPLING, "classical", 2},
+    {RayTracingSamplingMode::BRDF_SAMPLING, "bsdf", 2},
+    {RayTracingSamplingMode::CLASSICAL_SAMPLING, "classical", 2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(samplingModeTypeStruct, globalSamplingModeValues);

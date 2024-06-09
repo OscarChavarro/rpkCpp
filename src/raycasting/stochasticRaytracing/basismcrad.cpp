@@ -9,6 +9,7 @@
 #include "common/numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
 GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
 GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {

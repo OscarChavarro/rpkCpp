@@ -22,7 +22,7 @@ MeshSurface::MeshSurface(
     const java::ArrayList<Vector3D *> * /*texCoords*/,
     java::ArrayList<Vertex *> *inVertices,
     java::ArrayList<Patch *> *inFaces,
-    enum MaterialColorFlags inFlags)
+    MaterialColorFlags inFlags)
 {
     GLOBAL_statistics.numberOfSurfaces++;
 
