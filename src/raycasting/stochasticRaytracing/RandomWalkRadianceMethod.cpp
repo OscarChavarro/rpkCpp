@@ -3,11 +3,12 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
+#include "scene/Background.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
-#include "scene/Background.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -60,7 +61,7 @@ RandomWalkRadianceMethod::writeVRML(const Camera * /*camera*/, FILE * /*fp*/, co
 
 void
 RandomWalkRadianceMethod::initialize(Scene * /*scene*/) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = RANDOM_WALK_RADIOSITY_METHOD;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 
@@ -136,22 +137,22 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
     int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind ) {
-        case RW_COLLISION:
+        case RandomWalkEstimatorKind::RW_COLLISION:
             w = 1.0;
             break;
-        case RW_ABSORPTION:
+        case RandomWalkEstimatorKind::RW_ABSORPTION:
             if ( n == path->numberOfNodes - 1 ) {
                 // Last node
                 w = 1.0 / (1.0 - path->nodes[n].probability);
             }
             break;
-        case RW_SURVIVAL:
+        case RandomWalkEstimatorKind::RW_SURVIVAL:
             if ( n < path->numberOfNodes - 1 ) {
                 // Not last node
                 w = 1.0 / path->nodes[n].probability;
             }
             break;
-        case RW_LAST_BUT_NTH:
+        case RandomWalkEstimatorKind::RW_LAST_BUT_NTH:
             if ( n == t - 1 ) {
                 int i = path->numberOfNodes - 1;
                 const StochasticRaytracingPathNode *node = &path->nodes[i];
@@ -163,9 +164,9 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
                 }
             }
             break;
-        case RW_N_LAST:
+        case RandomWalkEstimatorKind::RW_N_LAST:
             if ( n == t ) {
-                // 1/absorption probability of the last path node
+                // 1 / absorption probability of the last path node
                 w = 1.0 / (1.0 - path->nodes[path->numberOfNodes - 1].probability);
             } else if ( n > t ) {
                 w = 1.0;
@@ -465,10 +466,10 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     }
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {
-        case RW_SHOOTING:
+        case RandomWalkEstimatorType::RW_SHOOTING:
             randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->patchList);
             break;
-        case RW_GATHERING:
+        case RandomWalkEstimatorType::RW_GATHERING:
             randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->patchList);
             break;
         default:
@@ -488,10 +489,9 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 char *
 RandomWalkRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
-    char *p;
-    int n;
+    char *p = stats;
+    int n = 0;
 
-    p = stats;
     snprintf(p, STRING_LENGTH, "Random Walk Radiosity\nStatistics\n\n%n", &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);

@@ -13,6 +13,7 @@ References:
 #include "common/Statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 /**
 Refinement action 1: do nothing (link is accurate enough)

@@ -8,12 +8,11 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatter.h"
     #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-    #include "raycasting/stochasticRaytracing/basismcrad.h"
     #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
     #include "raycasting/stochasticRaytracing/sample4d.h"
-    #include "raycasting/stochasticRaytracing/mcradP.h"
     #include "raycasting/stochasticRaytracing/hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
     #include "PHOTONMAP/pmapoptions.h"
 #endif
 
@@ -476,26 +475,26 @@ static ENUMDESC sequenceVals[] = {
 MakeEnumOptTypeStruct(sequenceTypeStruct, sequenceVals);
 
 static ENUMDESC estTypeVals[] = {
-    {RW_SHOOTING, "Shooting", 2},
-    {RW_GATHERING, "Gathering", 2},
+    {RandomWalkEstimatorType::RW_SHOOTING, "Shooting", 2},
+    {RandomWalkEstimatorType::RW_GATHERING, "Gathering", 2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(estTypeTypeStruct, estTypeVals);
 
 static ENUMDESC globalEstKindValues[] = {
-    {RW_COLLISION, "Collision", 2},
-    {RW_ABSORPTION, "Absorption", 2},
-    {RW_SURVIVAL, "Survival", 2},
-    {RW_LAST_BUT_NTH, "Last-but-N", 2},
-    {RW_N_LAST, "Last-N", 2},
+    {RandomWalkEstimatorKind::RW_COLLISION, "Collision", 2},
+    {RandomWalkEstimatorKind::RW_ABSORPTION, "Absorption", 2},
+    {RandomWalkEstimatorKind::RW_SURVIVAL, "Survival", 2},
+    {RandomWalkEstimatorKind::RW_LAST_BUT_NTH, "Last-but-N", 2},
+    {RandomWalkEstimatorKind::RW_N_LAST, "Last-N", 2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(estKindTypeStruct, globalEstKindValues);
 
 static ENUMDESC showWhatVals[] = {
-    {SHOW_TOTAL_RADIANCE, "total-radiance", 2},
-    {SHOW_INDIRECT_RADIANCE, "indirect-radiance", 2},
-    {SHOW_IMPORTANCE, "importance", 2},
+    {WhatToShow::SHOW_TOTAL_RADIANCE, "total-radiance", 2},
+    {WhatToShow::SHOW_INDIRECT_RADIANCE, "indirect-radiance", 2},
+    {WhatToShow::SHOW_IMPORTANCE, "importance", 2},
     {0, nullptr, 0}
 };
 MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);

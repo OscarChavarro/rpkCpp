@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "raycasting/stochasticRaytracing/mcradP.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 /**
 Disposes previously allocated coefficients

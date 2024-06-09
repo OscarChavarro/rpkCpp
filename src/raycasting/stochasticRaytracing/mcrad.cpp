@@ -18,8 +18,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "scene/Camera.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
-
-STATE GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 /**
 Common routines for stochastic relaxation and random walks
@@ -39,14 +38,14 @@ monteCarloRadiosityDefaults() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType = RW_SHOOTING;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind = RW_COLLISION;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType = RandomWalkEstimatorType::RW_SHOOTING;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind = RandomWalkEstimatorKind::RW_COLLISION;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast = 1;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = SHOW_TOTAL_RADIANCE;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = WhatToShow::SHOW_TOTAL_RADIANCE;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples = 1000;
 
@@ -449,7 +448,7 @@ monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*
     sourceRad.clear();
 
     // Subtract source radiance
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
         // source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {

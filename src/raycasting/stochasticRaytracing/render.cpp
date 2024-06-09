@@ -9,21 +9,22 @@ Rendering elements
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "tonemap/ToneMap.h"
-#include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "render/opengl.h"
 #include "render/render.h"
+#include "raycasting/stochasticRaytracing/mcradP.h"
+#include "raycasting/stochasticRaytracing/hierarchy.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 ColorRgb
 stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     ColorRgb color{};
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
-        case SHOW_TOTAL_RADIANCE:
-        case SHOW_INDIRECT_RADIANCE:
+        case WhatToShow::SHOW_TOTAL_RADIANCE:
+        case WhatToShow::SHOW_INDIRECT_RADIANCE:
             radianceToRgb(stochasticRadiosityElementDisplayRadiance(element), &color);
             break;
-        case SHOW_IMPORTANCE: {
+        case WhatToShow::SHOW_IMPORTANCE: {
             float gray;
 
             if ( element->importance > 1.0 ) {
@@ -102,11 +103,11 @@ vertexImportance(const Vertex *v) {
 ColorRgb
 vertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
-        case SHOW_TOTAL_RADIANCE:
-        case SHOW_INDIRECT_RADIANCE:
+        case WhatToShow::SHOW_TOTAL_RADIANCE:
+        case WhatToShow::SHOW_INDIRECT_RADIANCE:
             radianceToRgb(vertexRadiance(v), &v->color);
             break;
-        case SHOW_IMPORTANCE: {
+        case WhatToShow::SHOW_IMPORTANCE: {
             float gray = vertexImportance(v);
             if ( gray > 1.0 ) {
                 gray = 1.0;
@@ -427,7 +428,7 @@ stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem
     ColorRgb radiance;
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != SHOW_INDIRECT_RADIANCE ) {
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
         // Source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
         // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
         radiance.add(radiance, elem->sourceRad);
@@ -467,7 +468,7 @@ stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElemen
     } else {
         // Higher order approximations
         radiance = colorAtUv(elem->basis, elem->radiance, u, v);
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == SHOW_INDIRECT_RADIANCE ) {
+        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == WhatToShow::SHOW_INDIRECT_RADIANCE ) {
             radiance.subtract(radiance, elem->sourceRad);
         }
     }

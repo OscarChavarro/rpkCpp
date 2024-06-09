@@ -13,6 +13,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 #define STRING_LENGTH 2000
 
@@ -60,7 +61,7 @@ StochasticJacobiRadianceMethod::writeVRML(const Camera * /*camera*/, FILE *fp, c
 
 void
 StochasticJacobiRadianceMethod::initialize(Scene *scene) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
 

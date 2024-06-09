@@ -9,6 +9,7 @@ Determination of constant control radiosity value
 #include "java/util/ArrayList.txx"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
 
 #define NUMBER_OF_INTERVALS 10
 
@@ -31,7 +32,7 @@ initialControlRadiosityRecursive(
         ColorRgb rad = globalGetRadiance(element)[0];
         float weightedArea = element->area;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != RANDOM_WALK_RADIOSITY_METHOD ) {
+             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
@@ -152,7 +153,7 @@ refineControlRadiosityRecursive(
         float weightedArea = element->area;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
-             RANDOM_WALK_RADIOSITY_METHOD ) {
+             StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
