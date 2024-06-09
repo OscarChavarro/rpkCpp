@@ -53,7 +53,7 @@ SGL_CONTEXT::SGL_CONTEXT(int width, int height):
         patchBuffer[i] = nullptr;
     }
 
-    pixelData = PixelContent::PIXEL;
+    pixelData = SglPixelContent::PIXEL;
 
     // No Z buffer
     depthBuffer = nullptr;
@@ -175,7 +175,7 @@ SGL_CONTEXT::sglSetColor(SGL_PIXEL col) {
 
 void
 SGL_CONTEXT::sglSetPatch(const Patch *patch) {
-    pixelData = PixelContent::PATCH_POINTER;
+    pixelData = SglPixelContent::PATCH_POINTER;
     currentPatch = patch;
 }
 

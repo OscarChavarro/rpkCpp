@@ -7,19 +7,13 @@ Small Graphics Library
 
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "skin/Patch.h"
+#include "SGL/SglPixelContent.h"
 
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
 
 #define SGL_MAXIMUM_Z 4294967295U
 #define SGL_TRANSFORM_STACK_SIZE 4
-
-// TODO: Extend SGL_CONTEXT to support Element*
-enum PixelContent {
-    PIXEL,
-    PATCH_POINTER,
-    GALERKIN_ELEMENT_POINTER
-};
 
 class SGL_CONTEXT {
 public:
@@ -32,7 +26,7 @@ public:
     double far;
 
 //public:
-    PixelContent pixelData;
+    SglPixelContent pixelData;
     SGL_PIXEL *frameBuffer;
     Patch **patchBuffer;
     Element **elementBuffer;

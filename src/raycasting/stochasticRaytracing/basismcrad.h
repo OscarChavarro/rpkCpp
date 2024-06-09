@@ -7,6 +7,7 @@ Higher order approximations for Galerkin radiosity
 
 #include "common/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/mcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElementType.h"
 
 // No basis consists of more than this number of basis functions
 #define MAX_BASIS_SIZE 10
@@ -28,11 +29,11 @@ class GalerkinBasis {
     // Same, but evaluated dual basis function (on standard domain)
     double (**dualFunction)(double u, double v);
 
-    /* push-pull filter coefficients for regular quadtree subdivision.
-     * regular_filter[sigma][alpha][beta] is the filter coefficient
-     * relating basis function alpha on the parent element with
-     * basis function beta on the regular sub-element with index
-     * sigma. See PushRadiance() and PullRadiance() in basis.c. */
+    // Push-pull filter coefficients for regular quadtree subdivision.
+    // regular_filter[sigma][alpha][beta] is the filter coefficient
+    // relating basis function alpha on the parent element with
+    // basis function beta on the regular sub-element with index
+    // sigma. See pushRadiance() and pullRadiance()
     FILTER_TABLE *regularFilter;
 };
 
@@ -41,7 +42,7 @@ extern GalerkinBasis GLOBAL_stochasticRadiosity_triBasis;
 extern GalerkinBasis GLOBAL_stochasticRadiosity_quadBasis;
 extern GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis;
 
-#define NR_APPROX_TYPES 5
+#define NUMBER_OF_APPROXIMATION_TYPES 5
 
 // Description of the approximation types
 class ApproximationTypeDescription {
@@ -50,16 +51,10 @@ class ApproximationTypeDescription {
     int basis_size;
 };
 
-extern ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NR_APPROX_TYPES];
-
-#define NR_ELEMENT_TYPES 2
-enum ElementType {
-    ET_TRIANGLE = 0,
-    ET_QUAD = 1
-};
+extern ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APPROXIMATION_TYPES];
 
 // Orthonormal canonical basis of given order for given type of elements
-extern GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
+extern GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
 extern GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis;
 
 extern void monteCarloRadiosityInitBasis();

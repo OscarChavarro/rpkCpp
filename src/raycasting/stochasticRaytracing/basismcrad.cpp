@@ -11,7 +11,7 @@
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
-GalerkinBasis GLOBAL_stochasticRadiosity_basis[NR_ELEMENT_TYPES][NR_APPROX_TYPES];
+GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
 GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
         "dummy basis",
         0, nullptr, nullptr
@@ -35,7 +35,7 @@ GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis = {
     f
 };
 
-ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NR_APPROX_TYPES] = {
+ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APPROXIMATION_TYPES] = {
     {"constant",  1},
     {"linear",    3},
     {"bilinear",  4},
@@ -43,10 +43,10 @@ ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NR_APPROX_TYP
     {"cubic",     10}
 };
 
-static GalerkinBasis MakeBasis(ElementType et, StochasticRaytracingApproximation at) {
+static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
     GalerkinBasis basis = GLOBAL_stochasticRadiosity_quadBasis;
     char desc[100];
-    const char *elem = nullptr;
+    const char *elem;
 
     switch ( et ) {
         case ET_TRIANGLE:
@@ -145,9 +145,9 @@ monteCarloRadiosityInitBasis() {
     basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_triBasis, GLOBAL_stochasticRaytracing_triangleUpTransform, &GLOBAL_crt8);
     basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_quadBasis, GLOBAL_stochasticRaytracing_quadUpTransform, &GLOBAL_crq8);
 
-    for ( int et = 0; et < NR_ELEMENT_TYPES; et++ ) {
-        for ( int at = 0; at < NR_APPROX_TYPES; at++ )
-            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((ElementType) et, (StochasticRaytracingApproximation) at);
+    for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
+        for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )
+            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((StochasticRadiosityElementType)et, (StochasticRaytracingApproximation) at);
     }
     inited = true;
 }

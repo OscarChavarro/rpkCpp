@@ -8,16 +8,7 @@
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
-
-enum RadianceMethodAlgorithm {
-    GALERKIN
-#ifdef RAYTRACING_ENABLED
-    ,
-    STOCHASTIC_JACOBI,
-    RANDOM_WALK,
-    PHOTON_MAP
-#endif
-};
+#include "scene/RadianceMethodAlgorithm.h"
 
 class RadianceMethod {
   public:

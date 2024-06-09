@@ -4,6 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "material/RayHit.h"
 #include "skin/BoundingBox.h"
+#include "skin/GeometryClassId.h"
 
 /**
 Currently, there are three types of geometries:
@@ -21,13 +22,6 @@ class PatchSet;
 class MeshSurface;
 class Compound;
 class Element;
-
-enum GeometryClassId {
-    PATCH_SET,
-    SURFACE_MESH,
-    COMPOUND,
-    UNDEFINED
-};
 
 class Geometry {
   public: // Will become protected

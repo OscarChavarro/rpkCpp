@@ -7,7 +7,7 @@
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"
-#include "GalerkingElementDebug.h"
+#include "GALERKIN/processing/GalerkingElementDebug.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
 }
