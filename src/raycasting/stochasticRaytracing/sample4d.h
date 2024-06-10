@@ -5,15 +5,8 @@
 #ifndef __SAMPLE_4D__
 #define __SAMPLE_4D__
 
-enum Sampler4DSequence {
-    RANDOM,
-    HALTON,
-    SCRAMBLED_HALTON,
-    SOBOL,
-    ORIGINAL_FAURE,
-    GENERALIZED_FAURE,
-    NIEDERREITER
-};
+
+#include "raycasting/stochasticRaytracing/Sampler4DSequence.h"
 
 extern void setSequence4D(Sampler4DSequence sequence);
 extern double *sample4D(unsigned index);

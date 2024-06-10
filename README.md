@@ -23,6 +23,7 @@ This is a full rewrite with the following features:
   - Variable names refactor to be self-explanatory.
   - Removing redundant comments from code that is self-explanatory.
   - Const parameter and methods used when possible to reinforce read-only / immutable elements.
+  - Enums and classes organized on its own header modules, avoiding the inclussion of several structures on single module.
 - Exotic C++ specific features unused (makes it easy to port code to other languages)
   - Vanilla printf style functions preferred over `<<` streams
   - Avoid the use of iterators and STL library

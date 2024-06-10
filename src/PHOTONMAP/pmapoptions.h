@@ -5,23 +5,11 @@
 
 #include "render/ScreenBuffer.h"
 #include "PHOTONMAP/RadiosityReturnOption.h"
+#include "PHOTONMAP/PhotonMapDensityControlOption.h"
+#include "PHOTONMAP/PhotonMapImportanceOption.h"
+#include "PHOTONMAP/PhotonMapDCAcceptPDFType.h"
 
 const int MAXIMUM_RECON_PHOTONS = 400;
-
-enum DENSITY_CONTROL_OPTION {
-    NO_DENSITY_CONTROL,
-    CONSTANT_RD,
-    IMPORTANCE_RD
-};
-
-enum IMPORTANCE_OPTION {
-    USE_IMPORTANCE = 0
-};
-
-enum DC_ACCEPT_PDF_TYPE {
-    STEP,
-    TRANS_COSINE
-};
 
 // Photon map options
 class PhotonMapState
@@ -39,9 +27,9 @@ class PhotonMapState
     int distribPhotons;
     int balanceKDTree;
     int usePhotonMapSampler;
-    DENSITY_CONTROL_OPTION densityControl;
-    IMPORTANCE_OPTION importanceOption;
-    DC_ACCEPT_PDF_TYPE acceptPdfType;
+    PhotonMapDensityControlOption densityControl;
+    PhotonMapImportanceOption importanceOption;
+    PhotonMapDCAcceptPDFType acceptPdfType;
     float constantRD;
     float minimumImpRD;
     int doImportanceMap;

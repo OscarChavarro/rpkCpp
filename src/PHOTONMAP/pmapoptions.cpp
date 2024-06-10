@@ -39,8 +39,8 @@ PhotonMapState::setDefaults() {
     balanceKDTree = true;
     usePhotonMapSampler = false;
 
-    densityControl = NO_DENSITY_CONTROL;
-    acceptPdfType = STEP;
+    densityControl = PhotonMapDensityControlOption::NO_DENSITY_CONTROL;
+    acceptPdfType = PhotonMapDCAcceptPDFType::STEP;
 
     constantRD = 10000;
 
@@ -48,7 +48,7 @@ PhotonMapState::setDefaults() {
     doImportanceMap = true;
     iPathsPerIteration = 10000;
 
-    importanceOption = USE_IMPORTANCE;
+    importanceOption = PhotonMapImportanceOption::USE_IMPORTANCE;
 
     cImpScale = 25.0;
     gImpScale = 1.0;

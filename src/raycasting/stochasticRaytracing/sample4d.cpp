@@ -12,17 +12,38 @@
 #include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 
-#define SEQ4D_NAME(seq) (\
-    ((seq) == Sampler4DSequence::RANDOM) ? "drand48" : (\
-    ((seq) == Sampler4DSequence::HALTON) ? "Halton" : (\
-    ((seq) == Sampler4DSequence::SCRAMBLED_HALTON) ? "ScramHalton" : (\
-    ((seq) == Sampler4DSequence::SOBOL) ? "sobol" : (\
-    ((seq) == Sampler4DSequence::ORIGINAL_FAURE) ? "faure" : (\
-    ((seq) == Sampler4DSequence::GENERALIZED_FAURE) ? "GFaure" : (\
-    ((seq) == Sampler4DSequence::NIEDERREITER) ? "Nied" : "Unknown"\
-    )))))))
+static Sampler4DSequence seq = Sampler4DSequence::RANDOM;
 
-static Sampler4DSequence seq = RANDOM;
+static const char RANDOM_NAME[8] = "drand48";
+static const char HALTON_NAME[7] = "Halton";
+static const char SCRAMBLED_HALTON_NAME[12] = "ScramHalton";
+static const char SOBOL_NAME[6] = "sobol";
+static const char ORIGINAL_FAURE_NAME[6] = "faure";
+static const char GENERALIZED_FAURE_NAME[7] = "GFaure";
+static const char NIEDERREITER_NAME[5] = "Nied";
+static const char UNKNOWN_NAME[8] = "Unknown";
+
+static inline const char *
+SEQ4D_NAME(Sampler4DSequence sequence) {
+    switch ( sequence ) {
+        case Sampler4DSequence::RANDOM:
+            return RANDOM_NAME;
+        case Sampler4DSequence::HALTON:
+            return HALTON_NAME;
+        case Sampler4DSequence::SCRAMBLED_HALTON:
+            return SCRAMBLED_HALTON_NAME;
+        case Sampler4DSequence::SOBOL:
+            return SOBOL_NAME;
+        case Sampler4DSequence::ORIGINAL_FAURE:
+            return ORIGINAL_FAURE_NAME;
+        case Sampler4DSequence::GENERALIZED_FAURE:
+            return GENERALIZED_FAURE_NAME;
+        case Sampler4DSequence::NIEDERREITER:
+            return NIEDERREITER_NAME;
+        default:
+            return UNKNOWN_NAME;
+    }
+}
 
 /**
 Also initialises the sequence

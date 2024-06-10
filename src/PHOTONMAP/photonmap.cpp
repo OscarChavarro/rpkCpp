@@ -172,13 +172,13 @@ CPhotonMap::addPhoton(CPhoton &photon, Vector3D normal, short flags) {
 double
 ComputeAcceptProb(float currentD, float requiredD) {
     // Step function
-    if ( GLOBAL_photonMap_state.acceptPdfType == STEP ) {
+    if ( GLOBAL_photonMap_state.acceptPdfType == PhotonMapDCAcceptPDFType::STEP ) {
         if ( currentD > requiredD ) {
             return 0.0;
         } else {
             return 1.0;
         }
-    } else if ( GLOBAL_photonMap_state.acceptPdfType == TRANS_COSINE ) {
+    } else if ( GLOBAL_photonMap_state.acceptPdfType == PhotonMapDCAcceptPDFType::TRANS_COSINE ) {
         // Translated cosine
         double ratio = java::Math::min(1.0, currentD / requiredD); // in [0,1]
 

@@ -3,24 +3,8 @@
 
 #include "scene/RadianceMethod.h"
 #include "io/mgf/MgfEntity.h"
+#include "io/mgf/MgfErrorCode.h"
 #include "io/mgf/MgfReaderContext.h"
-
-// Error codes
-enum MgfErrorCode {
-    MGF_OK = 0, // normal return value
-    MGF_ERROR_UNKNOWN_ENTITY = 1,
-    MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS = 2,
-    MGF_ERROR_ARGUMENT_TYPE = 3,
-    MGF_ERROR_ILLEGAL_ARGUMENT_VALUE = 4,
-    MGF_ERROR_UNDEFINED_REFERENCE = 5,
-    MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE = 6,
-    MGF_ERROR_IN_INCLUDED_FILE = 7,
-    MGF_ERROR_OUT_OF_MEMORY = 8,
-    MGF_ERROR_FILE_SEEK_ERROR = 9,
-    MGF_ERROR_LINE_TOO_LONG = 11,
-    MGF_ERROR_UNMATCHED_CONTEXT_CLOSE = 12,
-    MGF_NUMBER_OF_ERRORS = 13
-};
 
 // Objects 'o' contexts can be nested this deep
 #define MAXIMUM_GEOMETRY_STACK_DEPTH 100

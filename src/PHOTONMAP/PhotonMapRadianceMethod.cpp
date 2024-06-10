@@ -352,11 +352,11 @@ photonMapDoPhotonStore(
                 flags |= DIRECT_LIGHT_PHOTON;
             }
 
-            if ( GLOBAL_photonMap_state.densityControl == NO_DENSITY_CONTROL ) {
+            if ( GLOBAL_photonMap_state.densityControl == PhotonMapDensityControlOption::NO_DENSITY_CONTROL ) {
                 return GLOBAL_photonMap_config.currentMap->addPhoton(photon, node->m_hit.getNormal(), flags);
             } else {
                 float reqDensity;
-                if ( GLOBAL_photonMap_state.densityControl == CONSTANT_RD ) {
+                if ( GLOBAL_photonMap_state.densityControl == PhotonMapDensityControlOption::CONSTANT_RD ) {
                     reqDensity = GLOBAL_photonMap_state.constantRD;
                 } else {
                     reqDensity = GLOBAL_photonMap_config.currentImpMap->getRequiredDensity(
@@ -504,7 +504,8 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.screen->scaleRadiance(scaleFactor);
     }
 
-    if ( (GLOBAL_photonMap_state.densityControl == IMPORTANCE_RD) && GLOBAL_photonMap_state.doImportanceMap ) {
+    if ( GLOBAL_photonMap_state.densityControl == PhotonMapDensityControlOption::IMPORTANCE_RD
+      && GLOBAL_photonMap_state.doImportanceMap ) {
         GLOBAL_photonMap_state.i_iteration_nr++;
         GLOBAL_photonMap_config.currentMap = GLOBAL_photonMap_config.importanceMap;
         GLOBAL_photonMap_state.totalIPaths = GLOBAL_photonMap_state.i_iteration_nr * GLOBAL_photonMap_state.iPathsPerIteration;

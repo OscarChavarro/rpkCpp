@@ -1,0 +1,10 @@
+#ifndef __PHOTON_MAP_DENSITY_CONTROL_OPTION__
+#define __PHOTON_MAP_DENSITY_CONTROL_OPTION__
+
+enum PhotonMapDensityControlOption {
+    NO_DENSITY_CONTROL,
+    CONSTANT_RD,
+    IMPORTANCE_RD
+};
+
+#endif

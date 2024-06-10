@@ -8,16 +8,10 @@
 #include "raycasting/common/PixelFilter.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
-
-enum RayMatterFilterType {
-    BOX_FILTER,
-    TENT_FILTER,
-    GAUSS_FILTER,
-    GAUSS2_FILTER
-};
+#include "raycasting/simple/RayMatterFilterType.h"
 
 class RayMatterState {
-public:
+  public:
     int samplesPerPixel; // Pixel sampling
     RayMatterFilterType filter; // Pixel filter
 };

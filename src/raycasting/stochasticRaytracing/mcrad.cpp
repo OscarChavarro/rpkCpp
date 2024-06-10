@@ -31,7 +31,7 @@ monteCarloRadiosityDefaults() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence = NIEDERREITER;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence = Sampler4DSequence::NIEDERREITER;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType = StochasticRaytracingApproximation::CONSTANT;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = false;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = true;
