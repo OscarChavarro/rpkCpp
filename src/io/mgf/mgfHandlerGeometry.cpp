@@ -12,9 +12,17 @@
 #include "io/mgf/mgfDefinitions.h"
 
 // No face can have more than this vertices
-#define MAXIMUM_FACE_VERTICES 100
-#define DEFAULT_VERTEX {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, 0, 1, nullptr}
-#define TRANSFORM_XID(xf) ( (xf) == nullptr ? 0 : (xf)->xid )
+static const int MAXIMUM_FACE_VERTICES = 100;
+
+static long
+TRANSFORM_XID(const MgfTransformContext *xf) {
+    return xf == nullptr ? 0L : xf->xid;
+}
+
+static const VECTOR3Dd ZERO_VECTOR(0.0, 0.0, 0.0);
+static const MgfVertexContext DEFAULT_VERTEX(
+    ZERO_VECTOR, ZERO_VECTOR, 0, 1, nullptr
+);
 
 static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
 static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
@@ -81,7 +89,7 @@ getVertex(const char *name, MgfContext *context) {
         return nullptr;
     }
 
-    theVertex = (Vertex *) (vp->clientData);
+    theVertex = vp->vertex;
     if ( !theVertex
          || vp->clock >= 1
          || vp->xid != TRANSFORM_XID(context->transformContext)
@@ -102,7 +110,7 @@ getVertex(const char *name, MgfContext *context) {
             theNormal = installNormal((float)norm.x, (float)norm.y, (float)norm.z, context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
-        vp->clientData = (void *) theVertex;
+        vp->vertex = theVertex;
         vp->xid = TRANSFORM_XID(context->transformContext);
     }
     vp->clock = 0;
@@ -814,7 +822,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
                 globalMgfCurrentVertex = (MgfVertexContext *)new char[sizeof(MgfVertexContext)];
-                if ( !globalMgfCurrentVertex ) {
+                if ( globalMgfCurrentVertex == nullptr ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 lp->data = (char *)globalMgfCurrentVertex;

@@ -18,7 +18,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "scene/Camera.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 /**
 Common routines for stochastic relaxation and random walks

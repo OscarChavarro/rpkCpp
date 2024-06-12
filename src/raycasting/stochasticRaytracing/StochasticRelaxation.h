@@ -14,8 +14,8 @@
 /**
 Used for stochastic relaxation and for random walk radiosity
 */
-class StochasticRaytracingState {
-public:
+class StochasticRelaxation {
+  public:
     StochasticRaytracingMethod method; // Stochastic relaxation or random walks
     WhatToShow show; // What to show and how to display the result
     int inited; // Flag indicating whether initialised or not
@@ -60,9 +60,9 @@ public:
     clock_t lastClock; // For computation timings
     float cpuSeconds; // CPU time spent in calculations
 
-    StochasticRaytracingState();
+    StochasticRelaxation();
 };
 
-extern StochasticRaytracingState GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
+extern StochasticRelaxation GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 #endif

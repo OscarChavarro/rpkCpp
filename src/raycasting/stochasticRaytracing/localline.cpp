@@ -9,7 +9,7 @@ Generate and trace a local line
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 /**
 Creates a coordinate system on the patch P with Z direction along the normal

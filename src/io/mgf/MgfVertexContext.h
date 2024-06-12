@@ -9,7 +9,20 @@ class MgfVertexContext {
     VECTOR3Dd n; // Normal
     long xid; // Transform id of transform last time the vertex was modified (or created)
     int clock; // Incremented each change -- resettable
-    void *clientData; // Client data -- initialized to nullptr by the parser
+    Vertex *vertex;
+
+    MgfVertexContext():
+        p(), n(), xid(), clock(), vertex() {
+    }
+
+    MgfVertexContext(const VECTOR3Dd &inP, const VECTOR3Dd &inN, long inXid, int inClock, Vertex *inVertex):
+        p(), n(), xid(), clock(), vertex() {
+        p = inP;
+        n = inN;
+        xid = inXid;
+        clock = inClock;
+        vertex = inVertex;
+    };
 };
 
 extern MgfVertexContext *getNamedVertex(const char *name, MgfContext *context);

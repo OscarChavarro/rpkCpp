@@ -9,7 +9,7 @@ Determination of constant control radiosity value
 #include "java/util/ArrayList.txx"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #define NUMBER_OF_INTERVALS 10
 

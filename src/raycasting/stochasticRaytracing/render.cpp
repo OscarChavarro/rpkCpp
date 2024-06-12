@@ -13,7 +13,7 @@ Rendering elements
 #include "render/render.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 ColorRgb
 stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {

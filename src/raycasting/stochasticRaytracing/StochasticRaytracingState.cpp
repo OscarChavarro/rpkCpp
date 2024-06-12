@@ -1,8 +1,8 @@
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-StochasticRaytracingState GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
+StochasticRelaxation GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
-StochasticRaytracingState::StochasticRaytracingState():
+StochasticRelaxation::StochasticRelaxation():
     method(),
     show(),
     inited(),

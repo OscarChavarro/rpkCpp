@@ -8,7 +8,7 @@
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
 

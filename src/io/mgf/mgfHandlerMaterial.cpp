@@ -9,9 +9,9 @@
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 
-#define NUMBER_OF_SAMPLES 3
+static const int NUMBER_OF_SAMPLES = 3;
 
-#define DEFAULT_MATERIAL { \
+#define DEFAULT_MGF_MATERIAL_CONTEXT { \
     1, \
     0, \
     1.0f, \
@@ -30,8 +30,8 @@
     0.0f \
 }
 
-static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MATERIAL;
-static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MATERIAL;
+static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MGF_MATERIAL_CONTEXT;
+static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
 static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
 

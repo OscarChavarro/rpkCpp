@@ -12,7 +12,7 @@
     #include "raycasting/stochasticRaytracing/sample4d.h"
     #include "raycasting/stochasticRaytracing/hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-    #include "raycasting/stochasticRaytracing/StochasticRaytracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
     #include "PHOTONMAP/pmapoptions.h"
 #endif
 
