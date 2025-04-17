@@ -15,7 +15,7 @@ This is a full rewrite with the following features:
   - Pools library for memory allocator replaced by standard Ansi C malloc (intermediate step).
   - Ansi C malloc/free operators replaced by C++ new/delete (final step).
   - New java-style basic datastructures.
-- Motif GUI removed in favor of basic command line only basic algorithms.
+- Motif GUI removed in favor of command line only basic algorithms.
 - Code syntax and format modernized.
 - Code compiling without warnings on modern C++ compilers.
 - Some clean code ideas applied
@@ -23,7 +23,7 @@ This is a full rewrite with the following features:
   - Variable names refactor to be self-explanatory.
   - Removing redundant comments from code that is self-explanatory.
   - Const parameter and methods used when possible to reinforce read-only / immutable elements.
-  - Enums and classes organized on its own header modules, avoiding the inclussion of several structures on single module.
+  - Enums and classes organized on its own header modules, avoiding the inclusion of several structures on single module.
 - Exotic C++ specific features unused (makes it easy to port code to other languages)
   - Vanilla printf style functions preferred over `<<` streams
   - Avoid the use of iterators and STL library
@@ -47,15 +47,28 @@ This is a full rewrite with the following features:
 
 ### On linux
 
-```
+```bash
 apt-get install cmake build-essential libosmesa6-dev findimagedupes
 ```
 
 ### On MacOS
 
-```
+```bash
 brew install mesa cmake
 ```
+
+## Build program
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+cd ..
+./scripts/runAll.sh
+```
+
+Generated images will be written at `./output` folder, reading models from `./etc`.
 
 ## Running RPK program from the command line
 
