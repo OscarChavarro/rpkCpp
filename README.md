@@ -48,7 +48,7 @@ This is a full rewrite with the following features:
 ### On linux
 
 ```bash
-apt-get install cmake build-essential libosmesa6-dev findimagedupes
+apt-get install cmake build-essential freeglut3-dev libglu1-mesa-dev libosmesa6-dev findimagedupes
 ```
 
 ### On MacOS
@@ -65,7 +65,6 @@ cd build
 cmake ..
 make
 cd ..
-./scripts/runAll.sh
 ```
 
 Generated images will be written at `./output` folder, reading models from `./etc`.
@@ -84,6 +83,16 @@ For checking if last run is successful, try
 
 ```
 ./scripts/testReviewResults.sh
+```
+
+## Running program on old hardware
+
+Newer compilers uses specific machine instructions that are available only on newest hardware
+(i.e. AVX512). If running the `rpk` executable is giving error, disable the generation of
+such optimizations by removing the following line on `CMakeLists.txt`:
+
+```
+add_compile_options(-ffast-math -O3)
 ```
 
 ## What RPK program does
