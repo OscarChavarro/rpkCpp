@@ -142,7 +142,7 @@ geomPrimListCopy(const Geometry *geometry) {
 }
 
 java::ArrayList<Patch *> *
-geomPatchArrayListReference(Geometry *geometry) {
+geomPatchArrayListReference(const Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return ((MeshSurface *)geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
@@ -158,28 +158,27 @@ This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
 Geometry *
-Geometry::duplicateIfPatchSet() const {
+Geometry::clone() const {
     if ( className != GeometryClassId::PATCH_SET ) {
         logFatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
-    Geometry *newGeometry = new Geometry();
-    newGeometry->patchSetData = patchSetData;
-    newGeometry->id = GLOBAL_statistics.numberOfGeometries;
-    newGeometry->boundingBox = boundingBox;
-    newGeometry->radianceData = radianceData;
-    newGeometry->itemCount = itemCount;
-    newGeometry->bounded = bounded;
-    newGeometry->shaftCullGeometry = shaftCullGeometry;
-    newGeometry->omit = omit;
-    newGeometry->isDuplicate = isDuplicate;
-    newGeometry->className = className;
-    newGeometry->compoundData = compoundData;
-    newGeometry->isDuplicate = true;
+    PatchSet *newPatchSet = new PatchSet(geomPatchArrayListReference(this));
+    newPatchSet->patchSetData = patchSetData;
+    newPatchSet->id = GLOBAL_statistics.numberOfGeometries;
+    newPatchSet->boundingBox = boundingBox;
+    newPatchSet->radianceData = radianceData;
+    newPatchSet->itemCount = itemCount;
+    newPatchSet->bounded = bounded;
+    newPatchSet->shaftCullGeometry = shaftCullGeometry;
+    newPatchSet->omit = omit;
+    newPatchSet->className = className;
+    newPatchSet->compoundData = compoundData;
+    newPatchSet->isDuplicate = true;
 
     GLOBAL_statistics.numberOfGeometries++;
 
-    return newGeometry;
+    return newPatchSet;
 }
 
 /**

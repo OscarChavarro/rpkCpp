@@ -81,13 +81,13 @@ class Geometry {
 
     bool isExcluded() const;
     BoundingBox getBoundingBox() const;
-    virtual Geometry *duplicateIfPatchSet() const;
+    Geometry *clone() const;
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
 extern void geomDestroy(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
-extern java::ArrayList<Patch *> *geomPatchArrayListReference(Geometry *geometry);
+extern java::ArrayList<Patch *> *geomPatchArrayListReference(const Geometry *geometry);
 extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
 extern void geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
 
