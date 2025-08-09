@@ -146,7 +146,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             localPlane++;
         }
     }
-    numberOfPlanesInSet = (int)(localPlane - &planeSet[0]);
+    numberOfPlanesInSet = static_cast<int>(localPlane - &planeSet[0]);
 }
 
 /**
@@ -158,11 +158,9 @@ plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
 Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, const double d) {
-    bool out; // out = there are positions on the positive side of the plane
-    bool in; // in  = there are positions on the negative side of the plane
+    bool out = false; // out = there are positions on the positive side of the plane
+    bool in = false; // in  = there are positions on the negative side of the plane
 
-    out = false;
-    in = false;
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         double e = normal->dotProduct(polygon->vertex[i]) + d;
         double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
@@ -238,9 +236,8 @@ if the point is on the plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
 Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
-    double e;
     double tolerance = java::Math::abs(d * Numeric::EPSILON) + p->tolerance(Numeric::EPSILON_FLOAT);
-    e = normal->dotProduct(*p) + d;
+    double e = normal->dotProduct(*p) + d;
     if ( e < -tolerance ) {
         return ShaftPlanePosition::INSIDE;
     }
@@ -251,16 +248,14 @@ Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, do
 }
 
 /**
-Compare to shaft planes. Returns 0 if they are the same and -1 or +1
-if not (can be used for sorting the planes. It is assumed that the plane normals
+Compare to shaft planes. Returns 0 if they are the same and -1 or +1 if not
+(can be used for sorting the planes). It is assumed that the plane normals
 are normalized!
 */
 int
 Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
-    double tolerance;
-
     // Compare components of plane normal (normalized vector, so components
-    // are in the range [-1,1]
+    // are in the range [-1, 1]
     if ( plane1->n[0] < plane2->n[0] - Numeric::EPSILON ) {
         return -1;
     } else if ( plane1->n[0] > plane2->n[0] + Numeric::EPSILON ) {
@@ -280,7 +275,7 @@ Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
     }
 
     // Compare plane constants
-    tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * Numeric::EPSILON);
+    const double tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * Numeric::EPSILON);
     if ( plane1->d < plane2->d - tolerance ) {
         return -1;
     } else if ( plane1->d > plane2->d + tolerance ) {
@@ -363,37 +358,29 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             return;
     }
 
-    const Vector3D *cur;
-    const Vector3D *next;
-    const Vector3D *other;
-    float d;
-    float localNorm;
-    ShaftPlanePosition side;
-    int planesFoundForEdge;
-
     for ( int i = 0; i < polygon1->numberOfVertices; i++ ) {
         // For each edge of p1
-        cur = &polygon1->vertex[i];
-        next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        const Vector3D *cur = &polygon1->vertex[i];
+        const Vector3D *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        int planesFoundForEdge = 0;
 
-        planesFoundForEdge = 0;
         for ( int j = 0; j < polygon2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
             // For each vertex of p2
-            other = &polygon2->vertex[j];
+            const Vector3D *other = &polygon2->vertex[j];
 
             // Compute normal and plane constant of the plane formed by cur, next and other
             normal.tripleCrossProduct(*cur, *next, *other);
-            localNorm = normal.norm();
+            float localNorm = normal.norm();
             if ( localNorm < Numeric::EPSILON ) {
                 continue;
             }
             // Co-linear vertices, try next vertex on p2
             normal.inverseScaledCopy(localNorm, normal, Numeric::EPSILON_FLOAT);
-            d = -normal.dotProduct(*cur);
+            float d = -normal.dotProduct(*cur);
 
             // Test position of p1 with respect to the constructed plane. Skip the vertices
             // that were used to construct the plane
-            side = testPointWithRespectToPlane(&polygon1->vertex[(i + 2) % polygon1->numberOfVertices], &normal, d);
+            ShaftPlanePosition side = testPointWithRespectToPlane(&polygon1->vertex[(i + 2) % polygon1->numberOfVertices], &normal, d);
             for ( int k = (i + 3) % polygon1->numberOfVertices; k != i; k = (k + 1) % polygon1->numberOfVertices ) {
                 ShaftPlanePosition nSide = testPointWithRespectToPlane(&polygon1->vertex[k], &normal, d);
                 if ( side == ShaftPlanePosition::COPLANAR ) {
@@ -426,7 +413,7 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
         }
     }
 
-    numberOfPlanesInSet = (int)(localPlane - &planeSet[0]);
+    numberOfPlanesInSet = static_cast<int>(localPlane - &planeSet[0]);
 }
 
 /**
@@ -456,13 +443,13 @@ Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *pol
     for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
         center1.addition(center1, polygon1->vertex[i]);
     }
-    center1.inverseScaledCopy((float) polygon1->numberOfVertices, center1, Numeric::EPSILON_FLOAT);
+    center1.inverseScaledCopy(static_cast<float>(polygon1->numberOfVertices), center1, Numeric::EPSILON_FLOAT);
 
     center2 = polygon2->vertex[0];
     for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
         center2.addition(center2, polygon2->vertex[i]);
     }
-    center2.inverseScaledCopy((float) polygon2->numberOfVertices, center2, Numeric::EPSILON_FLOAT);
+    center2.inverseScaledCopy(static_cast<float>(polygon2->numberOfVertices), center2, Numeric::EPSILON_FLOAT);
 
     // Determine the shaft planes
     numberOfPlanesInSet = 0;
@@ -524,9 +511,7 @@ that as such no further shaft culling is necessary
 */
 ShaftPlanePosition
 Shaft::shaftPatchTest(Patch *patch) {
-    int someOut;
     int inAll[MAXIMUM_VERTICES_PER_PATCH];
-    const ShaftPlane *localPlane;
     double tMin[MAXIMUM_VERTICES_PER_PATCH];
     double tMax[MAXIMUM_VERTICES_PER_PATCH];
     double pTol[MAXIMUM_VERTICES_PER_PATCH];
@@ -535,7 +520,7 @@ Shaft::shaftPatchTest(Patch *patch) {
     RayHit hitStore;
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
-    someOut = false;
+    int someOut = false;
     for ( int j = 0; j < patch->numberOfVertices; j++ ) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
@@ -543,22 +528,20 @@ Shaft::shaftPatchTest(Patch *patch) {
         pTol[j] = patch->vertex[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
     }
 
-    localPlane = &planeSet[0];
+    const ShaftPlane *localPlane = &planeSet[0];
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         // Test patch against i-th plane of the shaft
         Vector3D planeNormal;
         double e[MAXIMUM_VERTICES_PER_PATCH];
-        double tolerance;
-        int in;
-        int out;
         int side[MAXIMUM_VERTICES_PER_PATCH];
 
         planeNormal.set(localPlane->n[0], localPlane->n[1], localPlane->n[2]);
 
-        in = out = false;
+        int in = false;
+        int out = false;
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
             e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane->d;
-            tolerance = (float)(java::Math::abs(localPlane->d) * Numeric::EPSILON + pTol[j]);
+            double tolerance = static_cast<float>(java::Math::abs(localPlane->d) * Numeric::EPSILON + pTol[j]);
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = ShaftPlanePosition::OUTSIDE;
@@ -671,9 +654,9 @@ Shaft::shaftPatchTest(Patch *patch) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 int
-Shaft::patchIsOnOmitSet(const Patch *patch) const {
+Shaft::patchIsOnOmitSet(unsigned patchId) const {
     for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
-        if ( patchIdsToOmit[i] == patch->id ) {
+        if ( patchIdsToOmit[i] == patchId ) {
             return true;
         }
     }
@@ -705,7 +688,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
 
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
-        if ( patch->omit || patchIsOnOmitSet(patch) ) {
+        if ( patch->omit || patchIsOnOmitSet(patch->id) ) {
             continue;
         }
 
@@ -737,7 +720,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
-        Geometry *newGeometry = geometry->clone();
+        PatchSet *newGeometry = geometry->clone();
         newGeometry->shaftCullGeometry = true;
         candidateList->add(newGeometry);
     } else {
@@ -749,7 +732,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
 Breaks the geometry into it's components and does shaft culling on the components
 */
 void
-Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
+Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, const ShaftCullStrategy strategy) {
     if ( geometry->omit ) {
         return;
     }
@@ -764,7 +747,6 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry = geomCreatePatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
-            newGeometry->isDuplicate = false;
             candidateList->add(newGeometry);
         }
         delete culledPatches;
@@ -783,7 +765,7 @@ Shaft::cullGeometry(
     const ShaftCullStrategy strategy)
 {
     if ( geometry->className == GeometryClassId::PATCH_SET
-        && (geometry->omit || patchIsOnOmitSet((Patch *)geometry)) ) {
+        && (geometry->omit || patchIsOnOmitSet(geometry->id)) ) {
         return;
     }
 

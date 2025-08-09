@@ -81,7 +81,7 @@ class Geometry {
 
     bool isExcluded() const;
     BoundingBox getBoundingBox() const;
-    Geometry *clone() const;
+    PatchSet *clone() const;
 };
 
 extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
