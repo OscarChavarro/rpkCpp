@@ -157,7 +157,7 @@ geomPatchArrayListReference(const Geometry *geometry) {
 This routine creates and returns a duplicate of the given geometry. Needed for
 shaft culling.
 */
-PatchSet *
+Geometry *
 Geometry::clone() const {
     if ( className != GeometryClassId::PATCH_SET ) {
         logFatal(666, "duplicateIfPatchSet", "this should not happen");
