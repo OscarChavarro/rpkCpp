@@ -33,7 +33,7 @@ class Shaft {
     BoundingBox *referenceItem2;
     BoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
-    int numberOfPlanesInSet;  // Number of planes in plane-set
+    long numberOfPlanesInSet;  // Number of planes in plane-set
 
     unsigned patchIdsToOmit[MAX_SKIP_ELEMENTS]; // Geometries to be ignored during shaft culling, maximum 2
     int numberOfGeometriesToOmit;
