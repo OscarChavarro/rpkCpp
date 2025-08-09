@@ -654,9 +654,9 @@ Shaft::shaftPatchTest(Patch *patch) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 int
-Shaft::patchIsOnOmitSet(const Patch *patch) const {
+Shaft::patchIsOnOmitSet(unsigned id) const {
     for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
-        if ( patchIdsToOmit[i] == patch->id ) {
+        if ( patchIdsToOmit[i] == id ) {
             return true;
         }
     }
@@ -688,7 +688,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
 
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
-        if ( patch->omit || patchIsOnOmitSet(patch) ) {
+        if ( patch->omit || patchIsOnOmitSet(patch->id) ) {
             continue;
         }
 
@@ -766,7 +766,7 @@ Shaft::cullGeometry(
     const ShaftCullStrategy strategy)
 {
     if ( geometry->className == GeometryClassId::PATCH_SET
-        && (geometry->omit || patchIsOnOmitSet((Patch *)geometry)) ) { // Patch is not a Geometry!
+        && (geometry->omit || patchIsOnOmitSet(((Patch *)geometry)->id)) ) { // Patch is not a Geometry!
         return;
     }
 
