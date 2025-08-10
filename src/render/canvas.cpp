@@ -7,7 +7,7 @@ react to mouse events and what shape of cursor is displayed in the canvas
 window, eg spray can when rendering. When the mode changes, the old mode
 is pushed on a stack and restored afterwards
 */
-static const int CANVAS_MODE_STACK_SIZE = 5;
+static constexpr int CANVAS_MODE_STACK_SIZE = 5;
 static int globalModeStackIndex;
 
 /**

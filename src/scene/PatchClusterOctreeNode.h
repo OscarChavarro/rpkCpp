@@ -14,7 +14,7 @@ class PatchClusterOctreeNode {
     static void addToDeletionCache(Geometry *geometry);
 
     PatchClusterOctreeNode();
-    bool movePatchToSubOctantCluster(int patchIndexOnParent);
+    bool movePatchToSubOctantCluster(int patchIndexOnParent) const;
     void clusterAddPatch(Patch *patch);
 
   public:
@@ -22,7 +22,7 @@ class PatchClusterOctreeNode {
     virtual ~PatchClusterOctreeNode();
 
     void splitCluster();
-    Geometry *convertClusterToGeometry();
+    Geometry *convertClusterToGeometry() const;
     static void deleteCachedGeometries();
     void print(int level) const;
 };

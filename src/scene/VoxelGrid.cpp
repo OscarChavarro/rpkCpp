@@ -9,7 +9,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "common/error.h"
 #include "scene/VoxelGrid.h"
 
-static const int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
+static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
 
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
@@ -27,10 +27,9 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
     gridItemPool = nullptr;
 
     static int level = 0; // TODO warning: this makes this class non re-entrant
-    short gridSize;
 
-    double p = java::Math::pow((double) geometry->itemCount, 0.33333) + 1;
-    gridSize = (short)java::Math::floor(p);
+    const double p = java::Math::pow((double) geometry->itemCount, 0.33333) + 1;
+    const short gridSize = static_cast<short>(java::Math::floor(p));
     fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
     level++;
 
@@ -101,7 +100,7 @@ VoxelGrid::isSmall(const float *boundsArr) const {
 }
 
 void
-VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) {
+VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const {
     // Enlarge the boundaries by a small amount in all directions
     BoundingBox boundaries;
     float xExtent = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 1e-4f;
@@ -117,7 +116,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short minA = x2voxel(boundaries.coordinates[MIN_X]);
     if ( minA >= xSize ) {
-        minA = (short)(xSize - 1);
+        minA = static_cast<short>(xSize - 1);
     }
     if ( minA < 0 ) {
         minA = 0;
@@ -125,7 +124,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short maxA = x2voxel(boundaries.coordinates[MAX_X]);
     if ( maxA >= xSize ) {
-        maxA = (short)(xSize - 1);
+        maxA = static_cast<short>(xSize - 1);
     }
     if ( maxA < 0 ) {
         maxA = 0;
@@ -133,7 +132,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short minB = y2voxel(boundaries.coordinates[MIN_Y]);
     if ( minB >= ySize ) {
-        minB = (short)(ySize - 1);
+        minB = static_cast<short>(ySize - 1);
     }
     if ( minB < 0 ) {
         minB = 0;
@@ -141,7 +140,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short maxB = y2voxel(boundaries.coordinates[MAX_Y]);
     if ( maxB >= ySize ) {
-        maxB = (short)(ySize - 1);
+        maxB = static_cast<short>(ySize - 1);
     }
     if ( maxB < 0 ) {
         maxB = 0;
@@ -149,7 +148,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short minC = z2voxel(boundaries.coordinates[MIN_Z]);
     if ( minC >= zSize ) {
-        minC = (short)(zSize - 1);
+        minC = static_cast<short>(zSize - 1);
     }
     if ( minC < 0 ) {
         minC = 0;
@@ -157,7 +156,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
     short maxC = z2voxel(boundaries.coordinates[MAX_Z]);
     if ( maxC >= zSize ) {
-        maxC = (short)(zSize - 1);
+        maxC = static_cast<short>(zSize - 1);
     }
     if ( maxC < 0 ) {
         maxC = 0;
@@ -180,7 +179,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 }
 
 void
-VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) {
+VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
     BoundingBox localBounds;
     if ( patch->boundingBox != nullptr ) {
         localBounds = *patch->boundingBox;
@@ -224,19 +223,15 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
 
 void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
-    float xExtension;
-    float yExtension;
-    float zExtension;
-
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
         logError("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         exit(1);
     }
 
     // Enlarge the getBoundingBox by a small amount
-    xExtension = (geometry->boundingBox.coordinates[MAX_X] - geometry->boundingBox.coordinates[MIN_X]) * 1e-4f;
-    yExtension = (geometry->boundingBox.coordinates[MAX_Y] - geometry->boundingBox.coordinates[MIN_Y]) * 1e-4f;
-    zExtension = (geometry->boundingBox.coordinates[MAX_Z] - geometry->boundingBox.coordinates[MIN_Z]) * 1e-4f;
+    const float xExtension = (geometry->boundingBox.coordinates[MAX_X] - geometry->boundingBox.coordinates[MIN_X]) * 1e-4f;
+    const float yExtension = (geometry->boundingBox.coordinates[MAX_Y] - geometry->boundingBox.coordinates[MIN_Y]) * 1e-4f;
+    const float zExtension = (geometry->boundingBox.coordinates[MAX_Z] - geometry->boundingBox.coordinates[MIN_Z]) * 1e-4f;
     boundingBox.copyFrom(&geometry->boundingBox);
     boundingBox.coordinates[MIN_X] -= xExtension;
     boundingBox.coordinates[MAX_X] += xExtension;
@@ -248,9 +243,9 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     xSize = na;
     ySize = nb;
     zSize = nc;
-    voxelSize.x = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) / (float) na;
-    voxelSize.y = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) / (float) nb;
-    voxelSize.z = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) / (float) nc;
+    voxelSize.x = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) / static_cast<float>(na);
+    voxelSize.y = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) / static_cast<float>(nb);
+    voxelSize.z = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) / static_cast<float>(nc);
     volumeListsOfItems = new java::ArrayList<VoxelData *> *[na * nb * nc]();
     gridItemPool = nullptr;
     for ( int i = 0; i < na * nb * nc; i++ ) {
@@ -333,12 +328,12 @@ VoxelGrid::gridTraceSetup(
     if ( java::Math::abs(ray->dir.x) > Numeric::EPSILON ) {
         if ( ray->dir.x > 0.0 ) {
             tDelta->x = voxelSize.x / ray->dir.x;
-            tNext->x = t0 + (voxel2x((float)g[0] + 1) - P->x) / ray->dir.x;
+            tNext->x = t0 + (voxel2x(static_cast<float>(g[0]) + 1) - P->x) / ray->dir.x;
             step[0] = 1;
             out[0] = xSize;
         } else {
             tDelta->x = voxelSize.x / -ray->dir.x;
-            tNext->x = t0 + (voxel2x((float)g[0]) - P->x) / ray->dir.x;
+            tNext->x = t0 + (voxel2x(static_cast<float>(g[0])) - P->x) / ray->dir.x;
             step[0] = out[0] = -1;
         }
     } else {
@@ -350,12 +345,12 @@ VoxelGrid::gridTraceSetup(
     if ( java::Math::abs(ray->dir.y) > Numeric::EPSILON ) {
         if ( ray->dir.y > 0.0 ) {
             tDelta->y = voxelSize.y / ray->dir.y;
-            tNext->y = t0 + (voxel2y((float)g[1] + 1) - P->y) / ray->dir.y;
+            tNext->y = t0 + (voxel2y(static_cast<float>(g[1]) + 1) - P->y) / ray->dir.y;
             step[1] = 1;
             out[1] = ySize;
         } else {
             tDelta->y = voxelSize.y / -ray->dir.y;
-            tNext->y = t0 + (voxel2y((float)g[1]) - P->y) / ray->dir.y;
+            tNext->y = t0 + (voxel2y(static_cast<float>(g[1])) - P->y) / ray->dir.y;
             step[1] = out[1] = -1;
         }
     } else {
@@ -367,12 +362,12 @@ VoxelGrid::gridTraceSetup(
     if ( java::Math::abs(ray->dir.z) > Numeric::EPSILON ) {
         if ( ray->dir.z > 0.0 ) {
             tDelta->z = voxelSize.z / ray->dir.z;
-            tNext->z = t0 + (voxel2z((float)g[2] + 1) - P->z) / ray->dir.z;
+            tNext->z = t0 + (voxel2z(static_cast<float>(g[2]) + 1) - P->z) / ray->dir.z;
             step[2] = 1;
             out[2] = zSize;
         } else {
             tDelta->z = voxelSize.z / -ray->dir.z;
-            tNext->z = t0 + (voxel2z((float)g[2]) - P->z) / ray->dir.z;
+            tNext->z = t0 + (voxel2z(static_cast<float>(g[2])) - P->z) / ray->dir.z;
             step[2] = out[2] = -1;
         }
     } else {
@@ -471,7 +466,6 @@ VoxelGrid::gridIntersect(
     int g[3]{0, 0, 0};
     RayHit *hit = nullptr;
     float t0;
-    int counter;
 
     if ( !gridBoundsIntersect(ray, minimumDistance, *maximumDistance, &t0, &P) ) {
         return nullptr;
@@ -480,7 +474,7 @@ VoxelGrid::gridIntersect(
     gridTraceSetup(ray, t0, &P, g, &tDelta, &tNext, step, out);
 
     // Ray counter in order to avoid testing objects spanning several voxel grid cells multiple times
-    counter = randomRayId();
+    const int counter = randomRayId();
 
     do {
         const java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(g[0], g[1], g[2])];

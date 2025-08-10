@@ -59,8 +59,8 @@ class VoxelGrid {
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
     int isSmall(const float *boundsArr) const;
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
-    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds);
-    void putPatchInsideVoxelGrid(Patch *patch);
+    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const;
+    void putPatchInsideVoxelGrid(Patch *patch) const;
 
     void
     gridTraceSetup(

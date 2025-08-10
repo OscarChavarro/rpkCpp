@@ -8,7 +8,7 @@ Saves the result of a radiosity computation as a VRML file
 // Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
 #define MAXIMUM_CAMERA_STACK 20
 
-static const char* RPKHOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
+static constexpr char RPK_HOME[] = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 
 // A stack of virtual camera positions, used for temporary saving the camera and
 // later restoring
@@ -35,12 +35,11 @@ Y-axis positions up in VRML2.0
 Matrix4x4
 transformModelVRML(const Camera *camera, Vector3D *modelRotationAxis, float *modelRotationAngle) {
     Vector3D upAxis;
-    double cosA;
 
     upAxis.set(0.0, 1.0, 0.0);
-    cosA = camera->upDirection.dotProduct(upAxis);
+    double cosA = camera->upDirection.dotProduct(upAxis);
     if ( cosA < 1.0 - Numeric::EPSILON ) {
-        *modelRotationAngle = (float)java::Math::acos(cosA);
+        *modelRotationAngle = static_cast<float>(java::Math::acos(cosA));
         modelRotationAxis->crossProduct(camera->upDirection, upAxis);
         modelRotationAxis->normalize(Numeric::EPSILON_FLOAT);
         return Matrix4x4::createRotationMatrix(*modelRotationAngle, *modelRotationAxis);
@@ -62,7 +61,6 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
     Vector3D Z;
     Vector3D viewRotationAxis;
     Vector3D eyePosition;
-    Matrix4x4 viewTransform;
     float viewRotationAngle;
 
     X.scaledCopy(1.0, camera->X); // camera->X positions right in window
@@ -76,7 +74,7 @@ writeVRMLViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *came
 
     // Construct view orientation transform and recover axis and angle
     Matrix4x4 identity;
-    viewTransform = identity;
+    Matrix4x4 viewTransform = identity;
     viewTransform.set3X3Matrix(
         X.x, Y.x, Z.x,
         X.y, Y.y, Z.y,
@@ -120,7 +118,7 @@ writeVrmlHeader(const Camera *camera, FILE *fp, const RenderOptions *renderOptio
 
     fprintf(fp, "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
             "Some nice model",
-            RPKHOME);
+            RPK_HOME);
 
     fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 

@@ -8,7 +8,7 @@
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 
-static const double TOLERANCE = 1e-5;
+static constexpr double TOLERANCE = 1e-5;
 
 int Patch::globalPatchId = 1;
 Patch *Patch::globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
@@ -103,11 +103,11 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
 
     switch ( numberOfVertices ) {
         case 3:
-            pointInTriangle(*v1, *v2, *v3, (float) u, (float) v, localNormal);
+            pointInTriangle(*v1, *v2, *v3, static_cast<float>(u), static_cast<float>(v), localNormal);
             break;
         case 4:
             v4 = vertex[3]->normal;
-            pointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, localNormal);
+            pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), localNormal);
             break;
         default:
             logFatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
@@ -430,10 +430,9 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     Vector2Dd AE;
     double u = -1.0; // Parametric coordinates
     double v = -1.0;
-    double a; // For the quadratic equation
+    double a; // Quadratic equation
     double b;
     double c;
-    double SqrtDelta;
     Vector2Dd Vector; // Temporary 2D-vector
     int isInside = false;
 
@@ -513,7 +512,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
         a = -0.5 / a;
         b *= a;
         c *= (a + a);
-        SqrtDelta = b * b + c;
+        double SqrtDelta = b * b + c;
         if ( SqrtDelta >= 0.0 ) {
             SqrtDelta = java::Math::sqrt(SqrtDelta);
             u = b - SqrtDelta;
@@ -565,21 +564,19 @@ Returns a pointer to the normal vector if everything is OK. nullptr pointer if d
 */
 static Vector3D *
 patchNormal(const Patch *patch, Vector3D *normal) {
-    float localNorm;
-    Vector3D previous;
     Vector3D current;
 
     normal->set(0, 0, 0);
     current.subtraction(*patch->vertex[patch->numberOfVertices - 1]->point, *patch->vertex[0]->point);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        previous = current;
+        Vector3D previous = current;
         current.subtraction(*patch->vertex[i]->point, *patch->vertex[0]->point);
         normal->x += (previous.y - current.y) * (previous.z + current.z);
         normal->y += (previous.z - current.z) * (previous.x + current.x);
         normal->z += (previous.x - current.x) * (previous.y + current.y);
     }
 
-    localNorm = normal->norm();
+    const float localNorm = normal->norm();
     if ( localNorm < Numeric::EPSILON ) {
         logWarning("patchNormal", "degenerate patch (id %d)", patch->id);
         return nullptr;
@@ -647,7 +644,7 @@ Patch::Patch(
         vertex[i] = nullptr;
     }
 
-    numberOfVertices = (char)inNumberOfVertices;
+    numberOfVertices = static_cast<char>(inNumberOfVertices);
     vertex[0] = v1;
     vertex[1] = v2;
     vertex[2] = v3;
@@ -676,7 +673,7 @@ Patch::Patch(
     tolerance = computeTolerance();
 
     // Dominant part of normal
-    index = (char)normal.dominantCoordinate();
+    index = static_cast<char>(normal.dominantCoordinate());
 
     // Tell the vertices that there's a new Patch using them
     connectVertices();
@@ -747,13 +744,12 @@ Computes average scattered power and emittance of the Patch
 */
 ColorRgb
 Patch::averageNormalAlbedo(char components) {
-    int numberOfSamples;
     ColorRgb albedo;
     RayHit hit;
 
     hit.init(this, &midPoint, &normal, material);
 
-    numberOfSamples = getNumberOfSamples();
+    const int numberOfSamples = getNumberOfSamples();
     albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
@@ -769,19 +765,18 @@ Patch::averageNormalAlbedo(char components) {
         }
         albedo.add(albedo, sample);
     }
-    albedo.scaleInverse((float) numberOfSamples, albedo);
+    albedo.scaleInverse(static_cast<float>(numberOfSamples), albedo);
 
     return albedo;
 }
 
 ColorRgb
 Patch::averageEmittance(char components) {
-    int numberOfSamples;
     ColorRgb emittance;
     RayHit hit;
     hit.init(this, &midPoint, &normal, material);
 
-    numberOfSamples = getNumberOfSamples();
+    const int numberOfSamples = getNumberOfSamples();
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
@@ -799,7 +794,7 @@ Patch::averageEmittance(char components) {
         }
         emittance.add(emittance, sample);
     }
-    emittance.scaleInverse((float) numberOfSamples, emittance);
+    emittance.scaleInverse(static_cast<float>(numberOfSamples), emittance);
 
     return emittance;
 }
@@ -863,7 +858,7 @@ Patch::interpolatedFrameAtUv(
         if ( zz < Numeric::EPSILON ) {
             X->set(1.0, 0.0, 0.0);
         } else {
-            X->set((float) (Z->y / zz), (float) (-Z->x / zz), 0.0f);
+            X->set(static_cast<float>(Z->y / zz), static_cast<float>(-Z->x / zz), 0.0f);
         }
 
         Y->crossProduct(*Z, *X); // *Y = (*Z) ^ (*X)
@@ -876,30 +871,27 @@ given u and v bi-linear of barycentric coordinates on the patch
 */
 Vector3D
 Patch::textureCoordAtUv(const double u, const double v) const {
-    const Vector3D *t0;
-    const Vector3D *t1;
-    const Vector3D *t2;
-    const Vector3D *t3;
     Vector3D texCoord;
     texCoord.set(0.0, 0.0, 0.0);
 
-    t0 = vertex[0]->textureCoordinates;
-    t1 = vertex[1]->textureCoordinates;
-    t2 = vertex[2]->textureCoordinates;
+    const Vector3D *t0 = vertex[0]->textureCoordinates;
+    const Vector3D *t1 = vertex[1]->textureCoordinates;
+    const Vector3D *t2 = vertex[2]->textureCoordinates;
+    const Vector3D *t3;
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
-                texCoord.set((float) u, (float) v, 0.0f);
+                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0f);
             } else {
-                pointInTriangle(*t0, *t1, *t2, (float) u, (float) v, texCoord);
+                pointInTriangle(*t0, *t1, *t2, static_cast<float>(u), static_cast<float>(v), texCoord);
             }
             break;
         case 4:
             t3 = vertex[3]->textureCoordinates;
             if ( !t0 || !t1 || !t2 || !t3 ) {
-                texCoord.set((float) u, (float) v, 0.0f);
+                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0f);
             } else {
-                pointInQuadrilateral(*t0, *t1, *t2, *t3, (float) u, (float) v, texCoord);
+                pointInQuadrilateral(*t0, *t1, *t2, *t3, static_cast<float>(u), static_cast<float>(v), texCoord);
             }
             break;
         default:
@@ -915,7 +907,7 @@ images ... Returns nullptr if the Ray doesn't hit the patch. Fills in the
 Fills in the distance to the patch in maximumDistance if the patch
 is hit. Intersections closer than minimumDistance or further than *maximumDistance are
 ignored. The hitFlags determine what information to return about an
-intersection and whether or not front/back facing patches are to be 
+intersection and whether front/back facing patches are to be
 considered and are described in ray.h.
 */
 RayHit *
@@ -927,14 +919,13 @@ Patch::intersect(
     RayHit *hitStore)
 {
     RayHit hit;
-    float dist;
 
     if ( isExcluded() ) {
         return nullptr;
     }
 
-    dist = normal.dotProduct(ray->dir);
-    if ( dist > Numeric::EPSILON ) {
+    float distance = normal.dotProduct(ray->dir);
+    if ( distance > Numeric::EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & RayHitFlag::BACK) ) {
             return nullptr;
@@ -942,7 +933,7 @@ Patch::intersect(
             unsigned int newFlags = hit.getFlags() | RayHitFlag::BACK;
             hit.setFlags(newFlags);
         }
-    } else if ( dist < -Numeric::EPSILON ) {
+    } else if ( distance < -Numeric::EPSILON ) {
         // Front facing patch
         if ( !(hitFlags & RayHitFlag::FRONT) ) {
             return nullptr;
@@ -955,16 +946,16 @@ Patch::intersect(
         return nullptr;
     }
 
-    dist = -(normal.dotProduct(ray->pos) + planeConstant) / dist;
+    distance = -(normal.dotProduct(ray->pos) + planeConstant) / distance;
 
-    if ( dist > *maximumDistance || dist < minimumDistance ) {
+    if ( distance > *maximumDistance || distance < minimumDistance ) {
         // Intersection too far or too close
         return nullptr;
     }
 
     // Intersection point of ray with plane of patch
     Vector3D position;
-    position.sumScaled(ray->pos, dist, ray->dir);
+    position.sumScaled(ray->pos, distance, ray->dir);
     hit.setPoint(&position);
 
     // Test whether it lays inside or outside the patch
@@ -990,7 +981,7 @@ Patch::intersect(
             hit.setFlags(newFlags);
         }
         *hitStore = hit;
-        *maximumDistance = dist;
+        *maximumDistance = distance;
 
         return hitStore;
     }
@@ -1057,17 +1048,16 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
     const Vector3D *v1 = vertex[0]->point;
     const Vector3D *v2 = vertex[1]->point;
     const Vector3D *v3 = vertex[2]->point;
-    const Vector3D *v4;
 
     if ( numberOfVertices == 3 ) {
         if ( u + v > 1.0 ) {
             u = 1.0 - u;
             v = 1.0 - v;
         }
-        pointInTriangle(*v1, *v2, *v3, (float) u, (float) v, *point);
+        pointInTriangle(*v1, *v2, *v3, static_cast<float>(u), static_cast<float>(v), *point);
     } else if ( numberOfVertices == 4 ) {
-        v4 = vertex[3]->point;
-        pointInQuadrilateral(*v1, *v2, *v3, *v4, (float) u, (float) v, *point);
+        const Vector3D *v4 = vertex[3]->point;
+        pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), *point);
     } else {
         logFatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }

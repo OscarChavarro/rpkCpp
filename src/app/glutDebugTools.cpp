@@ -12,7 +12,6 @@ GlutDebugState::GlutDebugState(){
 #ifdef OPEN_GL_ENABLED
 
 #include <cstdio>
-#include <cstdlib>
 
 #define GL_SILENCE_DEPRECATION
 
@@ -23,7 +22,7 @@ GlutDebugState::GlutDebugState(){
 #include "render/opengl.h"
 #include "GALERKIN/GalerkinElement.h"
 
-static const int TOTAL_DEBUG_OPERATION_MODES = 2;
+static constexpr int TOTAL_DEBUG_OPERATION_MODES = 2;
 static int globalMode = 0
         ;
 static int globalWidth = 1920;
@@ -125,7 +124,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
         case '2':
             GLOBAL_render_glutDebugState.selectedPatch++;
             if ( GLOBAL_render_glutDebugState.selectedPatch >= globalScene->patchList->size() ) {
-                GLOBAL_render_glutDebugState.selectedPatch = (int)globalScene->patchList->size() - 1;
+                GLOBAL_render_glutDebugState.selectedPatch = static_cast<int>(globalScene->patchList->size() - 1);
             }
             break;
         case 'm':

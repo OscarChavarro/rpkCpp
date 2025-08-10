@@ -20,10 +20,10 @@ static CubatureRule globalCrq1 = {
 /**
 Degree 2, 3 positions Stroud '71
 */
-static const double D_2_3_W  = 4.0 / 3.0;
-static const double D_2_3_U = 0.81649658092772603272; // sqrt(2 / 3)
-static const double D_2_3_C = -0.5; // cos(2 * M_PI / 3)
-static const double D_2_3_S = 0.86602540378443864676; // sin(2 * M_PI / 3)
+static constexpr double D_2_3_W  = 4.0 / 3.0;
+static constexpr double D_2_3_U = 0.81649658092772603272; // sqrt(2 / 3)
+static constexpr double D_2_3_C = -0.5; // cos(2 * M_PI / 3)
+static constexpr double D_2_3_S = 0.86602540378443864676; // sin(2 * M_PI / 3)
 static CubatureRule globalCrq2 = {
     "quads degree 2, 3 positions",
     3,
@@ -37,7 +37,7 @@ static CubatureRule globalCrq2 = {
 Degree 3, 4 positions, Davis & Rabinowitz, Methods of Numerical Integration,
 2nd edition 1984, p 367
 */
-static const double D_3_4_U = 0.81649658092772603272; // sqrt(2 / 3)
+static constexpr double D_3_4_U = 0.81649658092772603272; // sqrt(2 / 3)
 static CubatureRule globalCrq3 = {
     "quads degree 3, 4 positions",
     4,
@@ -49,7 +49,7 @@ static CubatureRule globalCrq3 = {
 
 // Degree 3, 4 positions, product Gauss-Legendre formula
 // sqrt(1/3)
-static const double D_3_4_G_U = 0.57735026918962576450;
+static constexpr double D_3_4_G_U = 0.57735026918962576450;
 static CubatureRule globalCrq3Pg = {
     "quads degree 3, 4 positions, product Gauss formula",
     4,
@@ -78,12 +78,12 @@ static CubatureRule globalCrq4 = {
 };
 
 // Degree 5, 7 positions, Radon's rule see e.g. Stroud '71
-static const double D_5_7_W1 = 8.0 / 7.0;
-static const double D_5_7_W2 = 5.0 / 9.0;
-static const double D_5_7_W3 = 20.0 / 63.0;
-static const double D_5_7_R = 0.96609178307929588492; // sqrt(14/15)
-static const double D_5_7_S = 0.57735026918962573106; // sqrt(1/3)
-static const double D_5_7_T = 0.77459666924148340428; // sqrt(3/5)
+static constexpr double D_5_7_W1 = 8.0 / 7.0;
+static constexpr double D_5_7_W2 = 5.0 / 9.0;
+static constexpr double D_5_7_W3 = 20.0 / 63.0;
+static constexpr double D_5_7_R = 0.96609178307929588492; // sqrt(14/15)
+static constexpr double D_5_7_S = 0.57735026918962573106; // sqrt(1/3)
+static constexpr double D_5_7_T = 0.77459666924148340428; // sqrt(3/5)
 static CubatureRule globalCrq5 = {
     "quads degree 5, 7 positions, Radon's rule",
     7,
@@ -95,10 +95,10 @@ static CubatureRule globalCrq5 = {
 
 // Degree 5, 9 positions product Gauss-Legendre rule
 // abscissa and weights computed using Stuff/gauleg.c
-static const double D_5_9_X0 = 0.0;
-static const double D_5_9_W0 = 8.0 / 9.0;
-static const double D_5_9_X1 = 0.7745966692414834;
-static const double D_5_9_W1 = 5.0 / 9.0;
+static constexpr double D_5_9_X0 = 0.0;
+static constexpr double D_5_9_W0 = 8.0 / 9.0;
+static constexpr double D_5_9_X1 = 0.7745966692414834;
+static constexpr double D_5_9_W1 = 5.0 / 9.0;
 static CubatureRule globalCrq5Pg = {
     "quads degree 5, 9 positions product Gauss rule",
     9,
@@ -147,12 +147,12 @@ I don't think the other rules will be better than this one (Haegemans & Piessens
 SIAM J. Numer Anal 14 (1977) p 492 is maybe a nice alternative? Other formulas have
 less symmetry.
 */
-static const double D_7_12_R = 0.92582009977255141919; // sqrt(6.0 / 7.0)
-static const double D_7_12_S = 0.38055443320831561227; // sqrt((114.0 - 3.0 * sqrt(583.0)) / 287.0)
-static const double D_7_12_T = 0.80597978291859884159; // sqrt((114.0 + 3.0 * sqrt(583.0)) / 287.0)
-static const double D_7_12_W1 = 0.24197530864197530631; // 49.0 / 810.0 * 4.0
-static const double D_7_12_W2 = 0.52059291666739448967; // (178981.0 + 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
-static const double D_7_12_W3 = 0.23743177469063023177; // (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
+static constexpr double D_7_12_R = 0.92582009977255141919; // sqrt(6.0 / 7.0)
+static constexpr double D_7_12_S = 0.38055443320831561227; // sqrt((114.0 - 3.0 * sqrt(583.0)) / 287.0)
+static constexpr double D_7_12_T = 0.80597978291859884159; // sqrt((114.0 + 3.0 * sqrt(583.0)) / 287.0)
+static constexpr double D_7_12_W1 = 0.24197530864197530631; // 49.0 / 810.0 * 4.0
+static constexpr double D_7_12_W2 = 0.52059291666739448967; // (178981.0 + 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
+static constexpr double D_7_12_W3 = 0.23743177469063023177; // (178981.0 - 2769.0 * sqrt(583.0)) / 1888920.0 * 4.0
 static CubatureRule globalCrq7 = {
     "quads degree 7, 12 positions",
     12,
@@ -165,10 +165,10 @@ static CubatureRule globalCrq7 = {
 };
 
 // Degree 7, 16 positions product Gauss rule
-static const double D_7_16_X1 = 0.86113631159405257522;
-static const double D_7_16_X2 = 0.33998104358485626480;
-static const double D_7_16_W1 = 0.34785484513745385737;
-static const double D_7_16_W2 = 0.65214515486254614263;
+static constexpr double D_7_16_X1 = 0.86113631159405257522;
+static constexpr double D_7_16_X2 = 0.33998104358485626480;
+static constexpr double D_7_16_W1 = 0.34785484513745385737;
+static constexpr double D_7_16_W2 = 0.65214515486254614263;
 static CubatureRule globalCrq7Pg = {
     "quads degree 7, 16 positions product Gauss rule",
     16,
@@ -218,19 +218,19 @@ CubatureRule GLOBAL_crq8 = {
 /**
 Degree 9, 17 positions, Moeller, "Kubaturformeln mit minimaler Knotenzahl, Numer. Math. 25, 185 (1976)
 */
-static const double D_9_17_B1 = 0.96884996636197772072;
-static const double D_9_17_B2 = 0.75027709997890053354;
-static const double D_9_17_B3 = 0.52373582021442933604;
-static const double D_9_17_B4 = 0.07620832819261717318;
-static const double D_9_17_C1 = 0.63068011973166885417;
-static const double D_9_17_C2 = 0.92796164595956966740;
-static const double D_9_17_C3 = 0.45333982113564719076;
-static const double D_9_17_C4 = 0.85261572933366230775;
-static const double D_9_17_W0 = 0.52674897119341563786;
-static const double D_9_17_W1 = 0.08887937817019870697;
-static const double D_9_17_W2 = 0.11209960212959648528;
-static const double D_9_17_W3 = 0.39828243926207009528;
-static const double D_9_17_W4 = 0.26905133763978080301;
+static constexpr double D_9_17_B1 = 0.96884996636197772072;
+static constexpr double D_9_17_B2 = 0.75027709997890053354;
+static constexpr double D_9_17_B3 = 0.52373582021442933604;
+static constexpr double D_9_17_B4 = 0.07620832819261717318;
+static constexpr double D_9_17_C1 = 0.63068011973166885417;
+static constexpr double D_9_17_C2 = 0.92796164595956966740;
+static constexpr double D_9_17_C3 = 0.45333982113564719076;
+static constexpr double D_9_17_C4 = 0.85261572933366230775;
+static constexpr double D_9_17_W0 = 0.52674897119341563786;
+static constexpr double D_9_17_W1 = 0.08887937817019870697;
+static constexpr double D_9_17_W2 = 0.11209960212959648528;
+static constexpr double D_9_17_W3 = 0.39828243926207009528;
+static constexpr double D_9_17_W4 = 0.26905133763978080301;
 static CubatureRule globalCrq9 = {
     "quads degree 9, 17 positions",
     17,
@@ -261,8 +261,8 @@ Boxes: [-1, 1] ^ 3
 */
 
 // Degree 1, 9 positions
-static const double D_1_9_U = 1.0;
-static const double D_1_9_W = 8.0 / 9.0;
+static constexpr double D_1_9_U = 1.0;
+static constexpr double D_1_9_W = 8.0 / 9.0;
 CubatureRule GLOBAL_crv1 = {
     "boxes degree 1, 9 positions (the corners + center)",
     9,
@@ -273,7 +273,7 @@ CubatureRule GLOBAL_crv1 = {
 };
 
 // Degree 3, 8 positions, product Gauss-Legendre formula
-static const double D_3_8_U = 0.57735026918962576450; // sqrt(1.0 / 3.0)
+static constexpr double D_3_8_U = 0.57735026918962576450; // sqrt(1.0 / 3.0)
 static CubatureRule globalCrv3Pg = {
     "boxes degree 3, 8 positions, product Gauss formula",
     8,

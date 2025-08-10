@@ -13,7 +13,6 @@ Handle color entity
 int
 handleColorEntity(int ac, const char **av, MgfContext *context) {
     int i;
-    double w;
     double wSum;
     LookUpEntity *lp;
 
@@ -138,7 +137,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 if ( !isFloatWords(av[i]) ) {
                     return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
                 }
-                w = strtod(av[i], nullptr);
+                const double w = strtod(av[i], nullptr);
                 lp = lookUpFind(&globalColorTable, av[i + 1]);
                 if ( lp == nullptr ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;

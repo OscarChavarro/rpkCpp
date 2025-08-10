@@ -54,7 +54,7 @@ parallel support handlers to assist in this effort.
 Read next line from file
 */
 static int
-mgfReadNextLine(MgfContext *context) {
+mgfReadNextLine(const MgfContext *context) {
     int len = 0;
 
     do {
@@ -62,7 +62,7 @@ mgfReadNextLine(MgfContext *context) {
                    MGF_MAXIMUM_INPUT_LINE_LENGTH - len, context->readerContext->fp) == nullptr) {
             return len;
         }
-        len += (int)strlen(context->readerContext->inputLine + len);
+        len += static_cast<int>(strlen(context->readerContext->inputLine + len));
         if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
             return len;
         }
@@ -79,20 +79,17 @@ static int
 mgfParseCurrentLine(MgfContext *context) {
     char buffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
-    char *cp;
-    const char *cp2;
-    const char **ap;
 
     // Copy line, removing escape chars
-    cp = buffer;
-    cp2 = context->readerContext->inputLine;
+    char *cp = buffer;
+    const char *cp2 = context->readerContext->inputLine;
     while ( (*cp++ = *cp2++) ) {
         if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
             cp--;
         }
     }
     cp = buffer;
-    ap = argv; // Break into words
+    const char **ap = argv; // Break into words
     for ( ;; ) {
         while ( isspace(*cp) ) {
             *cp++ = '\0';
@@ -112,7 +109,7 @@ mgfParseCurrentLine(MgfContext *context) {
     }
     *ap = nullptr;
     // Else handle it
-    return mgfHandle(-1, (int)(ap - argv), argv, context);
+    return mgfHandle(-1, static_cast<int>(ap - argv), argv, context);
 }
 
 /**
@@ -165,7 +162,6 @@ mgfPutCSpec(MgfContext *context)
     char wl[2][6];
     char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
     const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
-    double sf;
 
     if ( context->handleCallbacks[MgfEntity::C_SPEC] != (HandleCallBack)handleColorEntity ) {
         snprintf(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
@@ -173,7 +169,7 @@ mgfPutCSpec(MgfContext *context)
         newAv[0] = context->entityNames[MgfEntity::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
-        sf = (double)NUMBER_OF_SPECTRAL_SAMPLES / (double)(context->currentColor->spectralStraightSum);
+        const double sf = static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
         for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             snprintf(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];

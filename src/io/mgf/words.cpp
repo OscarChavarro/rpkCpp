@@ -34,15 +34,13 @@ Skip float in string
 static const char *
 fileSkipWords(const char *s)
 {
-    const char *cp;
-
     while ( isspace(*s) ) {
         s++;
     }
     if ( *s == '-' || *s == '+' ) {
         s++;
     }
-    cp = s;
+    const char *cp = s;
     while ( isdigit(*cp) ) {
         cp++;
     }

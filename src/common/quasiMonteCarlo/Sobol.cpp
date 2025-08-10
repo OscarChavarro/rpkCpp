@@ -1,8 +1,8 @@
 #include "java/lang/Math.h"
 #include "common/quasiMonteCarlo/Sobol.h"
 
-static const int MAX_DIM = 5;
-static const int V_MAX = 30;
+static constexpr int MAX_DIM = 5;
+static constexpr int V_MAX = 30;
 
 static int dim;
 static int nextN;
@@ -14,11 +14,9 @@ static double RECIP;
 static double *
 nextSobol() {
     static double xx[MAX_DIM];
-    int c;
-    int save;
 
-    c = 1;
-    save = nextN;
+    int c = 1;
+    int save = nextN;
     while ( (save % 2) == 1 ) {
         c += 1;
         save = save / 2;
@@ -41,14 +39,12 @@ sobolGray(int n) {
 double *
 sobol(int seed) {
     static double xx[MAX_DIM];
-    int c;
-    int gray;
 
     seed += skip + 1;
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
-        c = 1;
-        gray = sobolGray(seed);
+        int c = 1;
+        int gray = sobolGray(seed);
         while ( gray ) {
             if ( gray & 1 ) {
                 x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
@@ -96,7 +92,7 @@ initSobol(int iDim) {
         for ( int j = d[i]; j < V_MAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
             int save = POLY[i];
-            int m = (int)java::Math::pow(2.0f, (float)d[i]);
+            int m = static_cast<int>(java::Math::pow(2.0f, static_cast<float>(d[i])));
             for ( int k = d[i]; k > 0; k-- ) {
                 v[i][j] = v[i][j] ^ m * (save % 2) * v[i][j - k];
                 save = save / 2;
@@ -108,7 +104,7 @@ initSobol(int iDim) {
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
     }
-    skip = (int)java::Math::pow(2.0f, 6.0f); // Not deterministic!
+    skip = static_cast<int>(java::Math::pow(2.0f, 6.0f)); // Not deterministic!
     for ( int i = 1; i <= skip; i++ ) {
         // Discard the beginning of the sequence because the initial values are the same
         nextSobol();

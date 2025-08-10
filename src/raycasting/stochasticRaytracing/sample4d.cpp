@@ -14,14 +14,14 @@
 
 static Sampler4DSequence seq = Sampler4DSequence::RANDOM;
 
-static const char RANDOM_NAME[8] = "drand48";
-static const char HALTON_NAME[7] = "Halton";
-static const char SCRAMBLED_HALTON_NAME[12] = "ScramHalton";
-static const char SOBOL_NAME[6] = "sobol";
-static const char ORIGINAL_FAURE_NAME[6] = "faure";
-static const char GENERALIZED_FAURE_NAME[7] = "GFaure";
-static const char NIEDERREITER_NAME[5] = "Nied";
-static const char UNKNOWN_NAME[8] = "Unknown";
+static constexpr char RANDOM_NAME[8] = "drand48";
+static constexpr char HALTON_NAME[7] = "Halton";
+static constexpr char SCRAMBLED_HALTON_NAME[12] = "ScramHalton";
+static constexpr char SOBOL_NAME[6] = "sobol";
+static constexpr char ORIGINAL_FAURE_NAME[6] = "faure";
+static constexpr char GENERALIZED_FAURE_NAME[7] = "GFaure";
+static constexpr char NIEDERREITER_NAME[5] = "Nied";
+static constexpr char UNKNOWN_NAME[8] = "Unknown";
 
 static inline const char *
 SEQ4D_NAME(Sampler4DSequence sequence) {
@@ -84,10 +84,10 @@ sample4D(unsigned seed) {
             xi[3] = drand48();
             break;
         case Sampler4DSequence::HALTON:
-            xi[0] = Halton2((int)seed);
-            xi[1] = Halton3((int)seed);
-            xi[2] = Halton5((int)seed);
-            xi[3] = Halton7((int)seed);
+            xi[0] = Halton2(static_cast<int>(seed));
+            xi[1] = Halton3(static_cast<int>(seed));
+            xi[2] = Halton5(static_cast<int>(seed));
+            xi[3] = Halton7(static_cast<int>(seed));
             break;
         case Sampler4DSequence::SCRAMBLED_HALTON:
             xx = scrambledHalton(seed, 4);
@@ -97,7 +97,7 @@ sample4D(unsigned seed) {
             xi[3] = xx[3];
             break;
         case Sampler4DSequence::SOBOL:
-            xx = sobol((int)seed);
+            xx = sobol(static_cast<int>(seed));
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
@@ -105,7 +105,7 @@ sample4D(unsigned seed) {
             break;
         case Sampler4DSequence::ORIGINAL_FAURE:
         case Sampler4DSequence::GENERALIZED_FAURE:
-            xx = faure((int) seed);
+            xx = faure(static_cast<int>(seed));
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
@@ -113,10 +113,10 @@ sample4D(unsigned seed) {
             break;
         case Sampler4DSequence::NIEDERREITER:
             zeta = niederreiter31(seed);
-            xi[0] = (double) zeta[0] * RECIP;
-            xi[1] = (double) zeta[1] * RECIP;
-            xi[2] = (double) zeta[2] * RECIP;
-            xi[3] = (double) zeta[3] * RECIP;
+            xi[0] = zeta[0] * RECIP;
+            xi[1] = zeta[1] * RECIP;
+            xi[2] = zeta[2] * RECIP;
+            xi[3] = zeta[3] * RECIP;
             break;
         default:
             logFatal(-1, "sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
@@ -141,9 +141,9 @@ foldSampleU(unsigned *xi1, unsigned *xi2) {
 
 void
 foldSampleF(double *xi1, double *xi2) {
-    unsigned zeta1 = (unsigned)(*xi1 * RECIP1);
-    unsigned zeta2 = (unsigned)(*xi2 * RECIP1);
+    unsigned zeta1 = static_cast<unsigned>(*xi1 * RECIP1);
+    unsigned zeta2 = static_cast<unsigned>(*xi2 * RECIP1);
     foldSampleU(&zeta1, &zeta2);
-    *xi1 = (double) zeta1 * RECIP;
-    *xi2 = (double) zeta2 * RECIP;
+    *xi1 = zeta1 * RECIP;
+    *xi2 = zeta2 * RECIP;
 }

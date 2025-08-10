@@ -4,7 +4,7 @@ Scrambled halton quasiMonteCarlo sample sequence
 
 #include "common/quasiMonteCarlo/ScrambledHalton.h"
 
-static const int MAX_DIM = 10;
+static constexpr int MAX_DIM = 10;
 
 double *
 scrambledHalton(unsigned nextN, int dim) {
@@ -18,7 +18,7 @@ scrambledHalton(unsigned nextN, int dim) {
         double bp = 1;
         int m = 0;
 
-        for ( int j = (int)nextN; j > 0; j /= b ) {
+        for ( int j = static_cast<int>(nextN); j > 0; j /= b ) {
             bp = bp * bi;
             int a = j % b; // Variable "a" is m-th digit from b-ary representation of nextN
             a = (a + m) % b; // Permutation of variable "a", Warnock's method

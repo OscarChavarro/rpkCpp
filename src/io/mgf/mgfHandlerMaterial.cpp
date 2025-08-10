@@ -9,7 +9,7 @@
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 
-static const int NUMBER_OF_SAMPLES = 3;
+static constexpr int NUMBER_OF_SAMPLES = 3;
 
 #define DEFAULT_MGF_MATERIAL_CONTEXT { \
     1, \
@@ -103,11 +103,10 @@ colorMax(ColorRgb col) {
     // as a first approximation, only the three RGB primary colors
     // are checked
     float samples[NUMBER_OF_SAMPLES];
-    float mx;
 
     specSamples(col, samples);
 
-    mx = -Numeric::HUGE_FLOAT_VALUE;
+    float mx = -Numeric::HUGE_FLOAT_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
@@ -182,7 +181,6 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     Es.clear();
 
-    float Ne = 0.0;
     float Nr;
     float Nt;
 
@@ -212,6 +210,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 
     PhongEmittanceDistributionFunction* edf = nullptr;
     if ( !Ed.isBlack() || !Es.isBlack() ) {
+        constexpr float Ne = 0.0;
         edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
     }
 
@@ -457,7 +456,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( !isIntWords(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
-            i = (int)strtol(av[1], nullptr, 10);
+            i = static_cast<int>(strtol(av[1], nullptr, 10));
             if ( i == 1 ) {
                 globalMgfCurrentMaterial->sided = true;
             } else if ( i == 2 ) {

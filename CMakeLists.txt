@@ -15,6 +15,9 @@ add_compile_options(-ffast-math -O3)
 
 include_directories(src)
 
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 set(MAIN_SRC
     src/common/errorshared.cpp
     src/common/ColorRgb.cpp

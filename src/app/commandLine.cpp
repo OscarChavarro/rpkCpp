@@ -21,15 +21,15 @@
 #include "app/commandLine.h"
 
 // Default scene level configuration
-static const int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
-static const bool DEFAULT_FORCE_ONE_SIDED = true;
+static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
+static constexpr bool DEFAULT_FORCE_ONE_SIDED = true;
 
 // Default virtual camera
 static const Vector3D DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
 static const Vector3D DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
 static const Vector3D DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
 static const ColorRgb DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
-static const float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
+static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
 static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
 static int globalFileOptionsForceOneSidedSurfaces = 0;
 static int globalYes = 1;

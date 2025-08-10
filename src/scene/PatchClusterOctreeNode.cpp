@@ -17,7 +17,7 @@ Reference:
 #include "scene/PatchClusterOctreeNode.h"
 
 // No clusters are created with less than this number of patches
-static const int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
+static constexpr int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
 
 java::ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
 
@@ -128,7 +128,7 @@ PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
   able to efficiently remove patches[patchIndexOnParent] from the patch list of cluster
 */
 bool
-PatchClusterOctreeNode::movePatchToSubOctantCluster(int patchIndexOnParent) {
+PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent) const {
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(patchIndexOnParent);
@@ -227,7 +227,7 @@ GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on 
 without extra code and such
 */
 Geometry *
-PatchClusterOctreeNode::convertClusterToGeometry() {
+PatchClusterOctreeNode::convertClusterToGeometry() const {
     Geometry *parentPatchesGeometry = nullptr;
     if ( patches != nullptr ) {
         parentPatchesGeometry = geomCreatePatchSet(patches);
@@ -259,7 +259,7 @@ PatchClusterOctreeNode::convertClusterToGeometry() {
 }
 
 void
-PatchClusterOctreeNode::print(int level) const {
+PatchClusterOctreeNode::print(const int level) const {
     switch ( level ) {
         case 0:
             printf("= PatchClusterOctreeNode ================================================================\n");

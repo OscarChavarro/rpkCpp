@@ -2,10 +2,10 @@
 #include "tonemap/ToneMappingContext.h"
 
 // Tone mapping defaults
-static const float DEFAULT_GAMMA = 1.7f;
-static const float  DEFAULT_TM_LWA = 10.0f;
-static const float  DEFAULT_TM_LD_MAXIMUM = 100.0f;
-static const float  DEFAULT_TM_C_MAXIMUM = 50.0f;
+static constexpr float DEFAULT_GAMMA = 1.7f;
+static constexpr float DEFAULT_TM_LWA = 10.0f;
+static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0f;
+static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0f;
 
 // Tone mapping context
 ToneMappingContext GLOBAL_toneMap_options;

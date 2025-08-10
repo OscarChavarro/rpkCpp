@@ -21,7 +21,7 @@ static char **globalLastTransform; // End of transform argument list (last trans
 Compute unique ID from matrix
 */
 static long
-computeUniqueId(MATRIX4Dd *xfm) {
+computeUniqueId(const MATRIX4Dd *xfm) {
     static char shiftTab[64] = {
         15, 5, 11, 5, 6, 3, 9, 15,
         13, 2, 13, 5, 2, 12, 14, 11,
@@ -36,7 +36,7 @@ computeUniqueId(MATRIX4Dd *xfm) {
 
     // Compute unique transform id
     for ( long unsigned int i = 0; i < sizeof(MATRIX4Dd) / sizeof(unsigned short); i++ ) {
-        xid ^= (long) (((unsigned short *) xfm->m)[i]) << shiftTab[i & 63];
+        xid ^= static_cast<long>(((unsigned short *)xfm->m)[i] << shiftTab[i & 63]);
     }
     return xid;
 }
@@ -45,7 +45,7 @@ computeUniqueId(MATRIX4Dd *xfm) {
 Free a transform
 */
 static void
-free_xf(MgfTransformContext *spec) {
+free_xf(const MgfTransformContext *spec) {
     if ( spec->transformationArray != nullptr ) {
         delete spec->transformationArray;
     }
@@ -74,12 +74,10 @@ transformName(const MgfTransformArray *ap, MgfContext *context) {
     static const char *oav[3] = {
         context->entityNames[MgfEntity::OBJECT], oName
     };
-    char *cp1;
-
     if ( ap == nullptr ) {
         return mgfHandle(MgfEntity::OBJECT, 1, oav, context);
     }
-    cp1 = oName;
+    char *cp1 = oName;
     *cp1 = 'a';
     for ( int i = 0; i < ap->numberOfDimensions; i++ ) {
         for ( const char *cp2 = ap->transformArguments[i].arg; *cp2; ) {
@@ -96,7 +94,6 @@ Allocate new transform structure
 */
 static MgfTransformContext *
 newTransform(int ac, const char **av, MgfContext *context) {
-    char *cp;
     int nDim = 0;
 
     // Compute space required by arguments
@@ -138,7 +135,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
         }
         globalTransformArgumentListBeginning = newAv;
     }
-    cp = (char *)(spec + 1);
+    char *cp = (char *)(spec + 1);
 
     // Use memory allocated above
     for ( int i = 0; i < ac; i++ ) {
@@ -149,7 +146,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
             spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].i = 0;
-            spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions++].n = (short)strtol(av[i], nullptr, 10);
+            spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions++].n = static_cast<short>(strtol(av[i], nullptr, 10));
         } else {
             TRANSFORM_ARGV(spec)[i] = strcpy(cp, av[i]);
             cp += strlen(av[i]) + 1;
@@ -259,7 +256,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                         float x = strtof(av[++i], nullptr);
                         float y = strtof(av[++i], nullptr);
                         float z = strtof(av[++i], nullptr);
-                        float a = (float)d2r(strtod(av[++i], nullptr));
+                        float a = static_cast<float>(d2r(strtod(av[++i], nullptr)));
                         float s = java::Math::sqrt(x * x + y * y + z * z);
                         x /= s;
                         y /= s;
@@ -387,7 +384,7 @@ xf(MgfTransform *ret, int ac, char **av) {
                     multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, &transformMatrix);
                     ret->scaleFactor *= scaTransform;
                 }
-                counter = (int)strtol(av[++i], nullptr, 10);
+                counter = static_cast<int>(strtol(av[++i], nullptr, 10));
                 transformMatrix.identity();
                 scaTransform = 1.0;
                 continue;
@@ -411,7 +408,6 @@ int
 handleTransformationEntity(int ac, const char **av, MgfContext *context) {
     MgfTransformContext *spec;
     int n;
-    int rv;
 
     if ( ac == 1 ) {
         // Something with existing transform
@@ -434,7 +430,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
                 ap->transformArguments[n].i = 0;
             }
             if ( n >= 0 ) {
-                rv = mgfGoToFilePosition(&ap->startingPosition, context);
+                int rv = mgfGoToFilePosition(&ap->startingPosition, context);
                 if ( rv != MgfErrorCode::MGF_OK ) {
                     return rv;
                 }

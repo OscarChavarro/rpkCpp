@@ -12,7 +12,7 @@
 #include "io/mgf/mgfDefinitions.h"
 
 // No face can have more than this vertices
-static const int MAXIMUM_FACE_VERTICES = 100;
+static constexpr int MAXIMUM_FACE_VERTICES = 100;
 
 static long
 TRANSFORM_XID(const MgfTransformContext *xf) {
@@ -58,21 +58,21 @@ doDiscreteConic(int argc, const char **argv, MgfContext *context) {
 }
 
 static Vector3D *
-installPoint(float x, float y, float z, MgfContext *context) {
+installPoint(float x, float y, float z, const MgfContext *context) {
     Vector3D *coord = new Vector3D(x, y, z);
     context->currentPointList->add(coord);
     return coord;
 }
 
 static Vector3D *
-installNormal(float x, float y, float z, MgfContext *context) {
+installNormal(float x, float y, float z, const MgfContext *context) {
     Vector3D *norm = new Vector3D(x, y, z);
     context->currentNormalList->add(norm);
     return norm;
 }
 
 static Vertex *
-installVertex(Vector3D *coord, Vector3D *norm, MgfContext *context) {
+installVertex(Vector3D *coord, Vector3D *norm, const MgfContext *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
@@ -81,15 +81,12 @@ installVertex(Vector3D *coord, Vector3D *norm, MgfContext *context) {
 
 static Vertex *
 getVertex(const char *name, MgfContext *context) {
-    MgfVertexContext *vp;
-    Vertex *theVertex;
-
-    vp = getNamedVertex(name, context);
+    MgfVertexContext *vp = getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
     }
 
-    theVertex = vp->vertex;
+    Vertex *theVertex = vp->vertex;
     if ( !theVertex
          || vp->clock >= 1
          || vp->xid != TRANSFORM_XID(context->transformContext)
@@ -99,15 +96,14 @@ getVertex(const char *name, MgfContext *context) {
         VECTOR3Dd vert;
         VECTOR3Dd norm;
         Vector3D *theNormal;
-        Vector3D *thePoint;
 
         mgfTransformPoint(&vert, &vp->p, context);
-        thePoint = installPoint((float)vert.x, (float)vert.y, (float)vert.z, context);
+        Vector3D *thePoint = installPoint(static_cast<float>(vert.x), static_cast<float>(vert.y), static_cast<float>(vert.z), context);
         if ( vp->n.isNull(Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
             mgfTransformVector(&norm, &vp->n, context);
-            theNormal = installNormal((float)norm.x, (float)norm.y, (float)norm.z, context);
+            theNormal = installNormal(static_cast<float>(norm.x), static_cast<float>(norm.y), static_cast<float>(norm.z), context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->vertex = theVertex;
@@ -123,7 +119,7 @@ Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
 static Vertex *
-getBackFaceVertex(Vertex *v, MgfContext * context) {
+getBackFaceVertex(Vertex *v, const MgfContext *context) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -141,7 +137,7 @@ getBackFaceVertex(Vertex *v, MgfContext * context) {
 }
 
 static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, MgfContext *context) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const MgfContext *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -170,27 +166,25 @@ Computes the normal to the patch plane
 */
 static Vector3D *
 faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
-    double localNorm;
-    Vector3D prev;
     Vector3D cur;
     Vector3D n;
 
     n.set(0, 0, 0);
     cur.subtraction(*(v[numberOfVertices - 1]->point), *(v[0]->point));
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        prev = cur;
+        Vector3D prev = cur;
         cur.subtraction(*(v[i]->point), *(v[0]->point));
         n.x += (prev.y - cur.y) * (prev.z + cur.z);
         n.y += (prev.z - cur.z) * (prev.x + cur.x);
         n.z += (prev.x - cur.x) * (prev.y + cur.y);
     }
-    localNorm = n.norm();
+    double localNorm = n.norm();
 
     if ( localNorm < Numeric::Numeric::EPSILON ) {
         // Degenerate normal --> degenerate polygon
         return nullptr;
     }
-    n.inverseScaledCopy((float) localNorm, n, Numeric::Numeric::EPSILON_FLOAT);
+    n.inverseScaledCopy(static_cast<float>(localNorm), n, Numeric::Numeric::EPSILON_FLOAT);
     *normal = n;
 
     return normal;
@@ -231,10 +225,8 @@ faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
     Vector2D p;
     Vector2D c;
     int i;
-    int index;
-    int sign;
 
-    index = normal->dominantCoordinate();
+    int index = normal->dominantCoordinate();
     for ( i = 0; i < numberOfVertices; i++ ) {
         vectorProject(v2d[i], *(v[i]->point), (CoordinateAxis)index);
     }
@@ -243,7 +235,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
     p.v = v2d[3].v - v2d[2].v;
     c.u = v2d[0].u - v2d[3].u;
     c.v = v2d[0].v - v2d[3].v;
-    sign = (p.u * c.v > c.u * p.v) ? 1 : -1;
+    int sign = (p.u * c.v > c.u * p.v) ? 1 : -1;
 
     for ( i = 1; i < numberOfVertices; i++ ) {
         p.u = c.u;
@@ -263,25 +255,16 @@ Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
 static int
 pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
-    double u0;
-    double v0;
-    double u1;
-    double v1;
-    double u2;
-    double v2;
-    double a;
-    double b;
-
     // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
-    u0 = p->u - p1->u;
-    v0 = p->v - p1->v;
-    u1 = p2->u - p1->u;
-    v1 = p2->v - p1->v;
-    u2 = p3->u - p1->u;
-    v2 = p3->v - p1->v;
+    double u0 = p->u - p1->u;
+    double v0 = p->v - p1->v;
+    double u1 = p2->u - p1->u;
+    double v1 = p2->v - p1->v;
+    double u2 = p3->u - p1->u;
+    double v2 = p3->v - p1->v;
 
-    a = 10.0;
-    b = 10.0; // Values large enough so the result would be false
+    double a = 10.0;
+    double b = 10.0; // Values large enough so the result would be false
     if ( java::Math::abs(u1) < Numeric::Numeric::EPSILON ) {
         if ( java::Math::abs(u2) > Numeric::Numeric::EPSILON && java::Math::abs(v1) > Numeric::EPSILON ) {
             b = u0 / u2;
@@ -314,17 +297,11 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
     double a;
     double b;
     double c;
-    double du;
-    double dv;
-    double r1;
-    double r2;
-    double r3;
-    double r4;
     int coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
-    du = java::Math::abs(p2->u - p1->u);
-    dv = java::Math::abs(p2->v - p1->v);
+    double du = java::Math::abs(p2->u - p1->u);
+    double dv = java::Math::abs(p2->v - p1->v);
     if ( du > Numeric::EPSILON || dv > Numeric::EPSILON ) {
         if ( dv > du ) {
             a = 1.0;
@@ -336,8 +313,8 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
             c = -(a * p1->u + p1->v);
         }
 
-        r3 = a * p3->u + b * p3->v + c;
-        r4 = a * p4->u + b * p4->v + c;
+        double r3 = a * p3->u + b * p3->v + c;
+        double r4 = a * p4->u + b * p4->v + c;
 
         if ( java::Math::abs(r3) < Numeric::EPSILON && java::Math::abs(r4) < Numeric::EPSILON ) {
             coLinear = true;
@@ -360,8 +337,8 @@ segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, 
                 c = -(a * p3->u + p3->v);
             }
 
-            r1 = a * p1->u + b * p1->v + c;
-            r2 = a * p2->u + b * p2->v + c;
+            double r1 = a * p1->u + b * p1->v + c;
+            double r2 = a * p2->u + b * p2->v + c;
 
             if ( java::Math::abs(r1) < Numeric::EPSILON && java::Math::abs(r2) < Numeric::EPSILON ) {
                 coLinear = true;
@@ -393,7 +370,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
     for ( int i = 0; i < n; i++ ) {
         center.addition(center, *(v[i]->point));
     }
-    center.inverseScaledCopy((float) n, center, Numeric::EPSILON_FLOAT);
+    center.inverseScaledCopy(static_cast<float>(n), center, Numeric::EPSILON_FLOAT);
 
     double maxD = center.distance(*(v[0]->point));
     int max = 0;
@@ -458,7 +435,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
             nn.tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
             a = nn.norm();
-            nn.inverseScaledCopy((float) a, nn, Numeric::EPSILON_FLOAT);
+            nn.inverseScaledCopy(static_cast<float>(a), nn, Numeric::EPSILON_FLOAT);
             d = nn.distance(*normal);
 
             good = true;
@@ -594,8 +571,6 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
 
 int
 handleSurfaceEntity(int argc, const char **argv, MgfContext *context) {
-    int errcode;
-
     if ( context->inComplex ) {
         // mgfEntitySphere calls mgfEntityCone
         return doDiscreteConic(argc, argv, context);
@@ -607,7 +582,7 @@ handleSurfaceEntity(int argc, const char **argv, MgfContext *context) {
         mgfObjectNewSurface(context);
         mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
 
-        errcode = doDiscreteConic(argc, argv, context);
+        int errcode = doDiscreteConic(argc, argv, context);
 
         mgfObjectSurfaceDone(context);
         context->inComplex = false;
@@ -631,7 +606,6 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     int newContour[MAXIMUM_FACE_VERTICES]{}; // newContour[i] will contain the i-th
                                              // vertex of the face with eliminated holes
     int i;
-    int numberOfVerticesInNewContour;
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         doWarning(
@@ -643,14 +617,12 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     // argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
     // separator)
     for ( i = 1; i < argc; i++ ) {
-        const MgfVertexContext *vp;
-
         if ( *argv[i] == '-' ) {
             // Skip contour separators
             continue;
         }
 
-        vp = getNamedVertex(argv[i], context);
+        const MgfVertexContext *vp = getNamedVertex(argv[i], context);
         if ( !vp ) {
             // Undefined vertex
             return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
@@ -661,7 +633,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
     }
 
     // Copy the outer contour
-    numberOfVerticesInNewContour = 0;
+    int numberOfVerticesInNewContour = 0;
     for ( i = 1; i < argc && *argv[i] != '-'; i++ ) {
         newContour[numberOfVerticesInNewContour++] = i;
         copied[i] = true;
@@ -682,19 +654,16 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
 
     while ( i < argc ) {
         // First i vertex of a hole that is not yet eliminated
-        int nearestCopied;
         int nearestOther;
         int first;
         int last;
-        int num;
         int j;
         int k;
-        double minimumDistance;
 
         // Find the not yet copied vertex that is nearest to the already
         // copied ones
-        nearestCopied = nearestOther = 0;
-        minimumDistance = Numeric::HUGE_DOUBLE_VALUE;
+        int nearestCopied = nearestOther = 0;
+        double minimumDistance = Numeric::HUGE_DOUBLE_VALUE;
         for ( j = i; j < argc; j++ ) {
             if ( *argv[j] == '-' || copied[j] ) {
                 // Contour separator or already copied vertex
@@ -713,15 +682,15 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfContext *context) {
         }
 
         // Find first vertex of this nearest contour
-        for ( first = nearestOther; *argv[first] != '-'; first-- );
+        for ( first = nearestOther; *argv[first] != '-'; first-- ) {}
         first++;
 
         // Find last vertex in this nearest contour
-        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ );
+        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ ) {}
         last--;
 
         // Number of vertices in the nearest contour
-        num = last - first + 1;
+        int num = last - first + 1;
 
         // Create num+2 extra vertices in new contour
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {

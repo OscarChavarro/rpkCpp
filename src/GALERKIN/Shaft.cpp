@@ -2,8 +2,8 @@
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 
-static const int MIN_MAX_DIMENSIONS = 6;
-static const int NONE = -1;
+static constexpr int MIN_MAX_DIMENSIONS = 6;
+static constexpr int NONE = -1;
 
 Shaft::Shaft():
     referenceItem1(),
@@ -654,7 +654,7 @@ Shaft::shaftPatchTest(Patch *patch) {
 Returns true if the geometry is not to be enclosed in the shaft
 */
 int
-Shaft::patchIsOnOmitSet(unsigned id) const {
+Shaft::patchIsOnOmitSet(const unsigned id) const {
     for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( patchIdsToOmit[i] == id ) {
             return true;
