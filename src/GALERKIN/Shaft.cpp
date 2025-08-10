@@ -570,7 +570,7 @@ Shaft::shaftPatchTest(Patch *patch) {
                                     tMax[j] = t;
                                 }
                             }
-                        } else /* if (side[j] == COPLANAR) */ {
+                        } else { // side[j] == COPLANAR
                             // Whole edge lays outside
                             tMax[j] = -Numeric::EPSILON;
                         }
@@ -584,7 +584,7 @@ Shaft::shaftPatchTest(Patch *patch) {
                                     tMin[j] = t;
                                 }
                             }
-                        } else /* if (side[k] == COPLANAR) */ {
+                        } else { // side[k] == COPLANAR
                             // Whole edge lays outside
                             tMin[j] = 1. + Numeric::EPSILON;
                         }
@@ -756,15 +756,21 @@ Shaft::cullGeometry(
     const ShaftCullStrategy strategy)
 {
     if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        const Patch* patch = reinterpret_cast<Patch *>(geometry); // TODO: Review this, Patch is not a Geometry!
-        const unsigned patchId = patch->id;
+        // TODO: Review this, Patch is not a Geometry! Probably here we are getting non-sense int numbers,
+        // not related to any Geometry/PatchSet neither Patch id.
+        //const Patch* patch = reinterpret_cast<Patch *>(geometry);
+        //const unsigned patchId = patch->id;
 
         // TODO: Check why the following alternatives does not work for test scene 05
         // const unsigned geometryId = geometry->id;
         // const PatchSet* patchSet = (PatchSet *)geometry;
         // const unsigned patchSetId = patchSet->radianceData->id;
 
-        if ( geometry->omit || patchIsOnOmitSet(patchId) ) {
+        if ( geometry->omit /*|| patchIsOnOmitSet(patchId)*/ ) { // Cull by cache algorithm not being used
+            // TODO: Looks like original authors wanted to implement an efficiency improvement by
+            // implementing a omitted patches cache. Nevertheless, this was damaged on the transformation
+            // process from C to C++, or the algorithm never worked. Now we are just having this disabled.
+            // It is pending to double check if this can be enabled.
             return;
         }
     }
