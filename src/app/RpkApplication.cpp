@@ -24,7 +24,7 @@
     #include "app/raytrace.h"
 #endif
 
-static const bool DEFAULT_MONOCHROME = false;
+static constexpr bool DEFAULT_MONOCHROME = false;
 
 Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
 
@@ -107,7 +107,7 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
 }
 
 void
-RpkApplication::mainCreateOffscreenCanvasWindow() {
+RpkApplication::mainCreateOffscreenCanvasWindow() const {
     // Set correct outputImageWidth and outputImageHeight for the camera
     scene->camera->xSize = imageOutputWidth;
     scene->camera->ySize = imageOutputHeight;

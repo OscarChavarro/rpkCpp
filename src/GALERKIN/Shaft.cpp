@@ -153,7 +153,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
 Tests a polygon with respect to the plane defined by the given normal and plane
 constant. Returns INSIDE if the polygon is totally on the negative side of
 the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
-if the polygon is cut by the plane and COPLANAR if the polygon lays on the
+if the polygon is cut by the plane and COPLANAR if the polygon lay on the
 plane within tolerance distance d*Numeric::EPSILON
 */
 ShaftPlanePosition
@@ -196,32 +196,22 @@ Shaft::verifyPolygonWithRespectToPlane(
         double e = normal->dotProduct(polygon->vertex[i]) + d;
         double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
         out |= e > tolerance;
-        if ( out && (side == ShaftPlanePosition::INSIDE || side == ShaftPlanePosition::COPLANAR) ) {
+        if ( out && (side == ShaftPlanePosition::INSIDE) ) {
             return false;
         }
         in |= e < -tolerance;
-        if ( in && (side == ShaftPlanePosition::OUTSIDE
-          || side == ShaftPlanePosition::COPLANAR
-          || (out && side != ShaftPlanePosition::OVERLAP)) ) {
+        if ( in && (side == ShaftPlanePosition::OUTSIDE) ) {
             return false;
         }
     }
 
     if ( in ) {
-        if ( out && side == ShaftPlanePosition::OVERLAP ) {
+        if ( side == ShaftPlanePosition::INSIDE ) {
             return true;
-        } else {
-            if ( side == ShaftPlanePosition::INSIDE ) {
-                return true;
-            }
         }
     } else {
         if ( out ) {
             if ( side == ShaftPlanePosition::OUTSIDE ) {
-                return true;
-            }
-        } else {
-            if ( side == ShaftPlanePosition::COPLANAR ) {
                 return true;
             }
         }
@@ -249,7 +239,7 @@ Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, do
 
 /**
 Compare to shaft planes. Returns 0 if they are the same and -1 or +1
-if not (can be used for sorting the planes. It is assumed that the plane normals
+if not (can be used for sorting the planes). It is assumed that the plane normals
 are normalized!
 */
 int
@@ -299,7 +289,7 @@ Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
 }
 
 /**
-Fills in normal and plane constant, as will as the coord_offset parameters
+Fills in normal and plane constant, as well as the coord_offset parameters
 */
 void
 Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
@@ -742,7 +732,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         doCulling(compound->children, candidateList, strategy);
     } else {
         const java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);
-        java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
+        const java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
 
         if ( culledPatches->size() > 0 ) {
             Geometry *newGeometry = geomCreatePatchSet(culledPatches);
@@ -765,9 +755,18 @@ Shaft::cullGeometry(
     java::ArrayList<Geometry *> *candidateList,
     const ShaftCullStrategy strategy)
 {
-    if ( geometry->className == GeometryClassId::PATCH_SET
-        && (geometry->omit || patchIsOnOmitSet(((Patch *)geometry)->id)) ) { // Patch is not a Geometry!
-        return;
+    if ( geometry->className == GeometryClassId::PATCH_SET ) {
+        const Patch* patch = reinterpret_cast<Patch *>(geometry); // TODO: Review this, Patch is not a Geometry!
+        const unsigned patchId = patch->id;
+
+        // TODO: Check why the following alternatives does not work for test scene 05
+        // const unsigned geometryId = geometry->id;
+        // const PatchSet* patchSet = (PatchSet *)geometry;
+        // const unsigned patchSetId = patchSet->radianceData->id;
+
+        if ( geometry->omit || patchIsOnOmitSet(patchId) ) {
+            return;
+        }
     }
 
     // Unbounded geoms always overlap the shaft
@@ -803,7 +802,7 @@ void
 Shaft::doCulling(
     const java::ArrayList<Geometry *> *world,
     java::ArrayList<Geometry *> *candidateList,
-    ShaftCullStrategy strategy)
+    const ShaftCullStrategy strategy)
 {
     for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
         cullGeometry(world->get(i), candidateList, strategy);
