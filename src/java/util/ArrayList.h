@@ -20,6 +20,8 @@ namespace java {
         explicit ArrayList(long i);
         ~ArrayList();
 
+        void dispose();
+
         long int size() const;
         T get(long int i) const;
 

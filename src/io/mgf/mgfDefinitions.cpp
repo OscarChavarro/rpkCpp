@@ -186,6 +186,7 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
         strcpy(readerContext->fileName, "<stdin>");
         java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
         if ( !fileInputStream->openStandardInput() ) {
+            fileInputStream->dispose();
             delete fileInputStream;
             return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
         }
@@ -207,7 +208,11 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
     }
 
     java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
-    if ( !fileInputStream->open(java::io::File(readerContext->fileName)) ) {
+    java::io::File inputFile(readerContext->fileName);
+    const bool opened = fileInputStream->open(inputFile);
+    inputFile.dispose();
+    if ( !opened ) {
+        fileInputStream->dispose();
         delete fileInputStream;
         return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
@@ -224,12 +229,15 @@ Close input file
 */
 void
 mgfClose(MgfContext *context) {
+    if ( context == nullptr || context->readerContext == nullptr ) {
+        return;
+    }
     MgfReaderContext *ctx = context->readerContext;
 
     context->readerContext = ctx->prev; // Restore enclosing context
     if ( ctx->inputStream != nullptr ) {
         // Close file if it's a file
-        ctx->inputStream->close();
+        ctx->inputStream->dispose();
         delete ctx->inputStream;
         ctx->inputStream = nullptr;
     }

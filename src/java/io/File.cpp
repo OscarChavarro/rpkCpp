@@ -18,6 +18,15 @@ File::File(const java::lang::String &path):
 {
 }
 
+File::~File() {
+    dispose();
+}
+
+void
+File::dispose() {
+    path.dispose();
+}
+
 const java::lang::String &
 File::getPath() const {
     return path;

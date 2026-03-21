@@ -21,6 +21,11 @@ StringTokenizer::StringTokenizer(const java::lang::String &text, const char *del
 }
 
 StringTokenizer::~StringTokenizer() {
+    dispose();
+}
+
+void
+StringTokenizer::dispose() {
     if ( text != nullptr ) {
         delete[] text;
         text = nullptr;

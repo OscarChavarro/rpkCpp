@@ -58,6 +58,9 @@ class FileInputStream : public InputStream {
 
     bool
     close() override;
+
+    void
+    dispose() override;
 };
 
 }

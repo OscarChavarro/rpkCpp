@@ -60,6 +60,11 @@ StringBuilder::StringBuilder(const String &text):
 }
 
 StringBuilder::~StringBuilder() {
+    dispose();
+}
+
+void
+StringBuilder::dispose() {
     if ( value != nullptr ) {
         delete[] value;
         value = nullptr;

@@ -25,6 +25,9 @@ class StringTokenizer {
     StringTokenizer(const java::lang::String &text, const char *delimiters = " \t\n\r\f");
     ~StringTokenizer();
 
+    void
+    dispose();
+
     bool
     hasMoreTokens() const;
 

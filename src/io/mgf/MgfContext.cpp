@@ -84,7 +84,21 @@ MgfContext::MgfContext():
 }
 
 MgfContext::~MgfContext() {
-    delete unNamedColorContext;
-    delete vertexLookUpTable;
-    delete allGeometries;
+    if ( currentObjectName != nullptr ) {
+        delete[] currentObjectName;
+        currentObjectName = nullptr;
+    }
+    if ( unNamedColorContext != nullptr ) {
+        delete unNamedColorContext;
+        unNamedColorContext = nullptr;
+    }
+    if ( vertexLookUpTable != nullptr ) {
+        delete vertexLookUpTable;
+        vertexLookUpTable = nullptr;
+    }
+    if ( allGeometries != nullptr ) {
+        allGeometries->dispose();
+        delete allGeometries;
+        allGeometries = nullptr;
+    }
 }

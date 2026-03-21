@@ -23,7 +23,7 @@ FileInputStream::FileInputStream(const File &file):
 }
 
 FileInputStream::~FileInputStream() {
-    close();
+    dispose();
 }
 
 bool
@@ -125,6 +125,11 @@ FileInputStream::close() {
     isPipe = false;
     standardInput = false;
     return true;
+}
+
+void
+FileInputStream::dispose() {
+    close();
 }
 
 }

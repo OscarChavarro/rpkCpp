@@ -17,6 +17,9 @@ class String {
     String(const char *text);
     ~String();
 
+    void
+    dispose();
+
     String &
     operator=(const String &other);
 

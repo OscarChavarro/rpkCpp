@@ -24,6 +24,9 @@ class StringBuilder {
     explicit StringBuilder(const String &text);
     ~StringBuilder();
 
+    void
+    dispose();
+
     StringBuilder &
     operator=(const StringBuilder &other);
 

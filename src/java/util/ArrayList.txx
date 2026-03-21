@@ -22,12 +22,18 @@ ArrayList<T>::ArrayList(long i) {
 
 template <class T>
 ArrayList<T>::~ArrayList() {
+    dispose();
+}
+
+template <class T>
+void
+ArrayList<T>::dispose() {
     if ( Data ) {
         free(Data);
         Data = nullptr;
     }
     currentSize = 0;
-    maxSize = -1;
+    maxSize = 0;
 }
 
 template <class T> void

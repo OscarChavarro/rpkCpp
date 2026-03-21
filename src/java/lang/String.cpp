@@ -36,6 +36,11 @@ String::String(const char *text):
 }
 
 String::~String() {
+    dispose();
+}
+
+void
+String::dispose() {
     if ( value != nullptr ) {
         delete[] value;
         value = nullptr;

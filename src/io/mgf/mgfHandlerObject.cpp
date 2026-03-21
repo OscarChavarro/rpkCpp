@@ -20,6 +20,42 @@ static int globalObjectNames; // Depth of name hierarchy
 #define ALLOC_INC 16
 
 static void
+disposeCurrentSurfaceLists(MgfContext *context) {
+    if ( context->currentPointList != nullptr ) {
+        for ( int i = 0; i < context->currentPointList->size(); i++ ) {
+            delete context->currentPointList->get(i);
+        }
+        context->currentPointList->dispose();
+        delete context->currentPointList;
+        context->currentPointList = nullptr;
+    }
+    if ( context->currentNormalList != nullptr ) {
+        for ( int i = 0; i < context->currentNormalList->size(); i++ ) {
+            delete context->currentNormalList->get(i);
+        }
+        context->currentNormalList->dispose();
+        delete context->currentNormalList;
+        context->currentNormalList = nullptr;
+    }
+    if ( context->currentVertexList != nullptr ) {
+        for ( int i = 0; i < context->currentVertexList->size(); i++ ) {
+            delete context->currentVertexList->get(i);
+        }
+        context->currentVertexList->dispose();
+        delete context->currentVertexList;
+        context->currentVertexList = nullptr;
+    }
+    if ( context->currentFaceList != nullptr ) {
+        for ( int i = 0; i < context->currentFaceList->size(); i++ ) {
+            delete context->currentFaceList->get(i);
+        }
+        context->currentFaceList->dispose();
+        delete context->currentFaceList;
+        context->currentFaceList = nullptr;
+    }
+}
+
+static void
 pushCurrentGeometryList(MgfContext *context) {
     if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
@@ -138,6 +174,12 @@ mgfObjectSurfaceDone(MgfContext *context) {
         context->currentGeometryList->add(newGeometry);
         context->allGeometries->add(newGeometry);
         context->currentObjectName = nullptr;
+        context->currentPointList = nullptr;
+        context->currentNormalList = nullptr;
+        context->currentVertexList = nullptr;
+        context->currentFaceList = nullptr;
+    } else {
+        disposeCurrentSurfaceLists(context);
     }
     context->inSurface = false;
 }
@@ -185,5 +227,11 @@ handleObjectEntity(int argc, const char **argv, MgfContext *context) {
 
 void
 mgfObjectFreeMemory() {
+    for ( int i = 0; i < globalObjectNames; i++ ) {
+        delete[] globalObjectNamesList[i];
+    }
     delete[] globalObjectNamesList;
+    globalObjectNamesList = nullptr;
+    globalObjectMaxName = 0;
+    globalObjectNames = 0;
 }

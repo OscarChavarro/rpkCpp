@@ -10,7 +10,7 @@ BufferedInputStream::BufferedInputStream(FileInputStream *inputStream, bool ownI
 }
 
 BufferedInputStream::~BufferedInputStream() {
-    close();
+    dispose();
 }
 
 bool
@@ -105,15 +105,20 @@ BufferedInputStream::nativeHandle() const {
 
 bool
 BufferedInputStream::close() {
+    dispose();
+    return true;
+}
+
+void
+BufferedInputStream::dispose() {
     if ( inputStream == nullptr ) {
-        return true;
+        return;
     }
-    inputStream->close();
+    inputStream->dispose();
     if ( ownInputStream ) {
         delete inputStream;
     }
     inputStream = nullptr;
-    return true;
 }
 
 }

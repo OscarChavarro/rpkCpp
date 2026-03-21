@@ -14,6 +14,10 @@ class File {
     File();
     explicit File(const char *path);
     explicit File(const java::lang::String &path);
+    ~File();
+
+    void
+    dispose();
 
     const java::lang::String &
     getPath() const;

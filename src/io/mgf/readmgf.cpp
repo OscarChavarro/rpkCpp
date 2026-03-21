@@ -71,6 +71,7 @@ mgfReadNextLine(const MgfContext *context) {
     do {
         const int maxLength = MGF_MAXIMUM_INPUT_LINE_LENGTH - len;
         if ( maxLength <= 0 ) {
+            lineBuilder.dispose();
             return len;
         }
         const int readLength = context->readerContext->inputStream->readLine(readBuffer, maxLength);
@@ -78,6 +79,8 @@ mgfReadNextLine(const MgfContext *context) {
             java::lang::String line = lineBuilder.toString();
             strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
             context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+            line.dispose();
+            lineBuilder.dispose();
             return len;
         }
 
@@ -87,6 +90,8 @@ mgfReadNextLine(const MgfContext *context) {
             java::lang::String line = lineBuilder.toString();
             strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
             context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+            line.dispose();
+            lineBuilder.dispose();
             return len;
         }
         context->readerContext->lineNumber++;
@@ -95,6 +100,8 @@ mgfReadNextLine(const MgfContext *context) {
     java::lang::String line = lineBuilder.toString();
     strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
     context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+    line.dispose();
+    lineBuilder.dispose();
 
     return len;
 }
@@ -110,7 +117,7 @@ mgfParseCurrentLine(MgfContext *context) {
 
     // Copy line, removing escape chars
     java::lang::StringBuilder buffer;
-    const java::lang::String inputLine(context->readerContext->inputLine);
+    java::lang::String inputLine(context->readerContext->inputLine);
     for ( int i = 0; i < inputLine.length(); i++ ) {
         const char current = inputLine.charAt(i);
         const char next = inputLine.charAt(i + 1);
@@ -123,6 +130,12 @@ mgfParseCurrentLine(MgfContext *context) {
     java::util::StringTokenizer tokenizer(buffer.toString(), " \t\r\n\f\v");
     while ( tokenizer.hasMoreTokens() ) {
         if ( argc >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
+            for ( int i = 0; i < argc; i++ ) {
+                tokens[i].dispose();
+            }
+            tokenizer.dispose();
+            buffer.dispose();
+            inputLine.dispose();
             return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         tokens[argc] = tokenizer.nextToken();
@@ -131,11 +144,24 @@ mgfParseCurrentLine(MgfContext *context) {
     }
     if ( argc == 0 ) {
         // No words in line
+        for ( int i = 0; i < argc; i++ ) {
+            tokens[i].dispose();
+        }
+        tokenizer.dispose();
+        buffer.dispose();
+        inputLine.dispose();
         return MgfErrorCode::MGF_OK;
     }
     argv[argc] = nullptr;
+    tokenizer.dispose();
+    buffer.dispose();
+    inputLine.dispose();
     // Else handle it
-    return mgfHandle(-1, argc, argv, context);
+    const int status = mgfHandle(-1, argc, argv, context);
+    for ( int i = 0; i < argc; i++ ) {
+        tokens[i].dispose();
+    }
+    return status;
 }
 
 /**
@@ -596,20 +622,32 @@ mgfFreeMemory(MgfContext *context) {
         java::lang::System::out.flush();
     }
 
-    for ( int i = 0; i < context->allGeometries->size(); i++ ) {
-        delete context->allGeometries->get(i);
+    if ( context->allGeometries != nullptr ) {
+        for ( int i = 0; i < context->allGeometries->size(); i++ ) {
+            delete context->allGeometries->get(i);
+        }
+        context->allGeometries->dispose();
     }
 
     if ( context->currentGeometryList != nullptr ) {
+        context->currentGeometryList->dispose();
         delete context->currentGeometryList;
         context->currentGeometryList = nullptr;
+        context->geometries = nullptr;
     }
 
     if ( context->materials != nullptr ) {
         for ( int i = 0; i < context->materials->size(); i++ ) {
             delete context->materials->get(i);
         }
+        context->materials->dispose();
         delete context->materials;
+        context->materials = nullptr;
+    }
+
+    if ( context->currentObjectName != nullptr ) {
+        delete[] context->currentObjectName;
+        context->currentObjectName = nullptr;
     }
 
     mgfObjectFreeMemory();

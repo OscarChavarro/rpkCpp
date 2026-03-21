@@ -57,6 +57,9 @@ class BufferedInputStream : public InputStream {
 
     bool
     close() override;
+
+    void
+    dispose() override;
 };
 
 }
