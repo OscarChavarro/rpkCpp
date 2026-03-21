@@ -1,7 +1,12 @@
-#include <cctype>
+#include <cstdlib>
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+#include "java/util/StringTokenizer.h"
+#include "java/lang/String.h"
+#include "java/lang/StringBuilder.h"
+#include "java/io/BufferedInputStream.h"
+#include "java/io/PrintStream.h"
 #include "common/error.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/MgfColorContext.h"
@@ -55,19 +60,41 @@ Read next line from file
 */
 static int
 mgfReadNextLine(const MgfContext *context) {
+    if ( context->readerContext->inputStream == nullptr ) {
+        return 0;
+    }
+
     int len = 0;
+    java::lang::StringBuilder lineBuilder;
+    char readBuffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
 
     do {
-        if ( fgets(context->readerContext->inputLine + len,
-                   MGF_MAXIMUM_INPUT_LINE_LENGTH - len, context->readerContext->fp) == nullptr) {
+        const int maxLength = MGF_MAXIMUM_INPUT_LINE_LENGTH - len;
+        if ( maxLength <= 0 ) {
             return len;
         }
-        len += static_cast<int>(strlen(context->readerContext->inputLine + len));
+        const int readLength = context->readerContext->inputStream->readLine(readBuffer, maxLength);
+        if ( readLength <= 0 ) {
+            java::lang::String line = lineBuilder.toString();
+            strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+            context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+            return len;
+        }
+
+        lineBuilder.append(readBuffer, readLength);
+        len = lineBuilder.length();
         if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
+            java::lang::String line = lineBuilder.toString();
+            strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+            context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             return len;
         }
         context->readerContext->lineNumber++;
-    } while ( len > 1 && context->readerContext->inputLine[len - 2] == '\\' );
+    } while ( len > 1 && lineBuilder.charAt(len - 2) == '\\' );
+
+    java::lang::String line = lineBuilder.toString();
+    strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+    context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
 
     return len;
 }
@@ -77,39 +104,38 @@ Parse current input line
 */
 static int
 mgfParseCurrentLine(MgfContext *context) {
-    char buffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
+    java::lang::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
+    int argc = 0;
 
     // Copy line, removing escape chars
-    char *cp = buffer;
-    const char *cp2 = context->readerContext->inputLine;
-    while ( (*cp++ = *cp2++) ) {
-        if ( cp2[0] == '\n' && cp2[-1] == '\\' ) {
-            cp--;
+    java::lang::StringBuilder buffer;
+    const java::lang::String inputLine(context->readerContext->inputLine);
+    for ( int i = 0; i < inputLine.length(); i++ ) {
+        const char current = inputLine.charAt(i);
+        const char next = inputLine.charAt(i + 1);
+        if ( current == '\\' && next == '\n' ) {
+            continue;
         }
+        buffer.append(current);
     }
-    cp = buffer;
-    const char **ap = argv; // Break into words
-    for ( ;; ) {
-        while ( isspace(*cp) ) {
-            *cp++ = '\0';
-        }
-        if ( !*cp ) {
-            break;
-        }
-        if ( ap - argv >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
+
+    java::util::StringTokenizer tokenizer(buffer.toString(), " \t\r\n\f\v");
+    while ( tokenizer.hasMoreTokens() ) {
+        if ( argc >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
             return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
-        *ap++ = cp;
-        while ( *++cp && !isspace(*cp) );
+        tokens[argc] = tokenizer.nextToken();
+        argv[argc] = tokens[argc].toCString();
+        argc++;
     }
-    if ( ap == argv ) {
+    if ( argc == 0 ) {
         // No words in line
         return MgfErrorCode::MGF_OK;
     }
-    *ap = nullptr;
+    argv[argc] = nullptr;
     // Else handle it
-    return mgfHandle(-1, static_cast<int>(ap - argv), argv, context);
+    return mgfHandle(-1, argc, argv, context);
 }
 
 /**
@@ -285,14 +311,14 @@ handleIncludedFile(int ac, const char **av, MgfContext *context) {
     do {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-                fprintf(stderr, "%s: %d: %s\n", readerContext.fileName,
+                java::io::PrintStream::err().printf("%s: %d: %s\n", readerContext.fileName,
                     readerContext.lineNumber, context->errorCodeMessages[MgfErrorCode::MGF_ERROR_LINE_TOO_LONG]);
                 mgfClose(context);
                 return MgfErrorCode::MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
             if ( rv != MgfErrorCode::MGF_OK ) {
-                fprintf(stderr, "%s: %d: %s:\n%s", readerContext.fileName,
+                java::io::PrintStream::err().printf("%s: %d: %s:\n%s", readerContext.fileName,
                         readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
                 mgfClose(context);
@@ -404,7 +430,7 @@ mgfAlternativeInit(
     }
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
-            fprintf(stderr, "Missing support for \"%s\" entity\n",
+            java::io::PrintStream::err().printf("Missing support for \"%s\" entity\n",
                 context->entityNames[i]);
             exit(1);
         }
@@ -538,7 +564,7 @@ readMgf(const char *filename, MgfContext *context) {
 void
 mgfFreeMemory(MgfContext *context) {
     if ( context->currentGeometryList != nullptr ) {
-        printf("Freeing %ld geometries\n", context->currentGeometryList->size());
+        java::io::PrintStream::out().printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;
         long patchSets = 0;
         long compounds = 0;
@@ -561,13 +587,13 @@ mgfFreeMemory(MgfContext *context) {
                 unknowns++;
             }
         }
-        printf("  - MeshSurfaces: %ld\n", surfaces);
-        printf("  - Patch sets: %ld\n", patchSets);
-        printf("  - Compounds: %ld\n", compounds);
-        printf("    . Children: %ld\n", compoundChildren);
-        printf("    . Inner children: %ld\n", innerCompoundChildren);
-        printf("  - Unknowns: %ld\n", unknowns);
-        fflush(stdout);
+        java::io::PrintStream::out().printf("  - MeshSurfaces: %ld\n", surfaces);
+        java::io::PrintStream::out().printf("  - Patch sets: %ld\n", patchSets);
+        java::io::PrintStream::out().printf("  - Compounds: %ld\n", compounds);
+        java::io::PrintStream::out().printf("    . Children: %ld\n", compoundChildren);
+        java::io::PrintStream::out().printf("    . Inner children: %ld\n", innerCompoundChildren);
+        java::io::PrintStream::out().printf("  - Unknowns: %ld\n", unknowns);
+        java::io::PrintStream::out().flush();
     }
 
     for ( int i = 0; i < context->allGeometries->size(); i++ ) {

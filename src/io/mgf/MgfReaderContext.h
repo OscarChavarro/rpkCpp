@@ -4,10 +4,16 @@
 #define MGF_MAXIMUM_INPUT_LINE_LENGTH 4096
 #define MGF_MAXIMUM_ARGUMENT_COUNT (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4)
 
+namespace java {
+namespace io {
+class BufferedInputStream;
+}
+}
+
 class MgfReaderContext {
   public:
     char fileName[96];
-    FILE *fp; // stream pointer
+    java::io::BufferedInputStream *inputStream; // stream pointer
     int fileContextId;
     char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     int lineNumber;

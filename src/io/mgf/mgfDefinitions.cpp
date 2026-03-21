@@ -1,7 +1,9 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "io/FileUncompressWrapper.h"
+#include "java/io/File.h"
+#include "java/io/FileInputStream.h"
+#include "java/io/BufferedInputStream.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/MgfReaderFilePosition.h"
 #include "io/mgf/mgfDefinitions.h"
@@ -90,7 +92,11 @@ void
 mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
     pos->fid = context->readerContext->fileContextId;
     pos->lineno = context->readerContext->lineNumber;
-    pos->offset = ftell(context->readerContext->fp);
+    if ( context->readerContext->inputStream == nullptr ) {
+        pos->offset = -1;
+    } else {
+        pos->offset = context->readerContext->inputStream->tell();
+    }
 }
 
 /**
@@ -104,11 +110,14 @@ mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
     if ( pos->lineno == context->readerContext->lineNumber ) {
         return MgfErrorCode::MGF_OK;
     }
-    if ( context->readerContext->fp == stdin || context->readerContext->isPipe ) {
+    if ( context->readerContext->inputStream == nullptr ) {
+        return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
+    }
+    if ( context->readerContext->inputStream->isStandardInput() || context->readerContext->isPipe ) {
         // Cannot seek on standard input
         return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( fseek(context->readerContext->fp, pos->offset, 0) == EOF) {
+    if ( !context->readerContext->inputStream->seek(pos->offset) ) {
         return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
     context->readerContext->lineNumber = pos->lineno;
@@ -172,9 +181,15 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
     readerContext->fileContextId = ++numberOfFileIds;
     readerContext->lineNumber = 0;
     readerContext->isPipe = 0;
+    readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        readerContext->fp = stdin;
+        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
+        if ( !fileInputStream->openStandardInput() ) {
+            delete fileInputStream;
+            return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
+        }
+        readerContext->inputStream = new java::io::BufferedInputStream(fileInputStream);
         readerContext->prev = context->readerContext;
         context->readerContext = readerContext;
         return MgfErrorCode::MGF_OK;
@@ -191,13 +206,13 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
         strcpy(readerContext->fileName, functionCallback);
     }
 
-    int isPipe;
-    readerContext->fp = openFileCompressWrapper(readerContext->fileName, "r", &isPipe);
-    readerContext->isPipe = (char)isPipe;
-
-    if ( readerContext->fp == nullptr ) {
+    java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
+    if ( !fileInputStream->open(java::io::File(readerContext->fileName)) ) {
+        delete fileInputStream;
         return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
+    readerContext->isPipe = static_cast<char>(fileInputStream->isPipeInput());
+    readerContext->inputStream = new java::io::BufferedInputStream(fileInputStream);
 
     readerContext->prev = context->readerContext; // Establish new context
     context->readerContext = readerContext;
@@ -212,9 +227,11 @@ mgfClose(MgfContext *context) {
     MgfReaderContext *ctx = context->readerContext;
 
     context->readerContext = ctx->prev; // Restore enclosing context
-    if ( ctx->fp != stdin ) {
+    if ( ctx->inputStream != nullptr ) {
         // Close file if it's a file
-        closeFile(ctx->fp, ctx->isPipe);
+        ctx->inputStream->close();
+        delete ctx->inputStream;
+        ctx->inputStream = nullptr;
     }
 }
 
