@@ -252,8 +252,7 @@ PatchClusterOctreeNode::convertClusterToGeometry() const {
         }
     }
 
-    Compound *newCompound = new Compound(patchesGeometryList);
-    Geometry *newGeometry = new Geometry(newCompound, GeometryClassId::COMPOUND);
+    Geometry *newGeometry = new Compound(patchesGeometryList);
     addToDeletionCache(newGeometry);
     return newGeometry;
 }

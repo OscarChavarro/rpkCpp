@@ -9,9 +9,12 @@ Creates a Compound from a list of geometries
 Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
-Compound::Compound(java::ArrayList<Geometry *> *geometryList) {
+Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(GeometryClassId::COMPOUND) {
     GLOBAL_statistics.numberOfCompounds++;
     children = geometryList;
+    geometryListBounds(children, &boundingBox);
+    boundingBox.enlargeTinyBit();
+    bounded = true;
 }
 
 Compound::~Compound() {
@@ -35,7 +38,10 @@ Compound::discretizationIntersect(
     int hitFlags,
     RayHit *hitStore) const
 {
-    RayHit * result = geometryListDiscretizationIntersect(
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+        return nullptr;
+    }
+
+    return geometryListDiscretizationIntersect(
             children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
-    return result;
 }

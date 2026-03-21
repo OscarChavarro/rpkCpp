@@ -75,10 +75,10 @@ Scene::printPatchSet(const PatchSet *patchSet) {
 
 void
 Scene::printCompound(const Compound *compound) {
-    if ( compound->compoundData->children != nullptr ) {
-        printf("    . Outer children: %ld\n", compound->compoundData->children->size());
-        for ( int i = 0; i < compound->compoundData->children->size(); i++ ) {
-            const Geometry *child = compound->compoundData->children->get(i);
+    if ( compound->children != nullptr ) {
+        printf("    . Outer children: %ld\n", compound->children->size());
+        for ( int i = 0; i < compound->children->size(); i++ ) {
+            const Geometry *child = compound->children->get(i);
             printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == GeometryClassId::SURFACE_MESH ) {
                 printSurfaceMesh((const MeshSurface *)child, 6);
@@ -198,9 +198,9 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
         printf("Compound %d (%d)\n", compound->id, *elementCount);
         (*elementCount)++;
         for ( int i = 0;
-              compound->compoundData->children != nullptr && i < compound->compoundData->children->size();
+              compound->children != nullptr && i < compound->children->size();
               i++ ) {
-            printClusterHierarchy(compound->compoundData->children->get(i), level + 1, elementCount);
+            printClusterHierarchy(compound->children->get(i), level + 1, elementCount);
         }
 
     } else if ( node->className == GeometryClassId::PATCH_SET ) {

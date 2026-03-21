@@ -208,7 +208,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
         }
     } else {
         if ( geometry->isCompound() ) {
-            const java::ArrayList<Geometry *> *geometryList = geometry->compoundData->children;
+            const java::ArrayList<Geometry *> *geometryList = ((const Compound *)geometry)->children;
             for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
                 putSubGeometryInsideVoxelGrid(geometryList->get(i));
             }

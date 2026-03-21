@@ -30,7 +30,6 @@ class Geometry {
     static Geometry *excludedGeometry2;
 
     Geometry(
-        Compound *inCompoundData,
         GeometryClassId inClassName);
 
     bool
@@ -53,7 +52,6 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
-    Compound *compoundData;
 
     Geometry();
     virtual ~Geometry();

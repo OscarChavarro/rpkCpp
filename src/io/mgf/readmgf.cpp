@@ -552,9 +552,9 @@ mgfFreeMemory(MgfContext *context) {
             } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
                 patchSets++;
             } else if ( geometry->className == GeometryClassId::COMPOUND ) {
-                // Note that this creation is being done as a Geometry parent type!
-                if ( geometry->compoundData->children != nullptr ) {
-                    compoundChildren += geometry->compoundData->children->size();
+                const Compound *compound = (const Compound *)geometry;
+                if ( compound->children != nullptr ) {
+                    compoundChildren += compound->children->size();
                 }
                 compounds++;
             } else {

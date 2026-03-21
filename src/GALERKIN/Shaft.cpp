@@ -728,7 +728,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
     }
 
     if ( geometry->isCompound() ) {
-        const Compound *compound = geometry->compoundData;
+        const Compound *compound = (const Compound *)geometry;
         doCulling(compound->children, candidateList, strategy);
     } else {
         const java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);

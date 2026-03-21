@@ -30,7 +30,6 @@ MeshSurface::MeshSurface(
     nextGeometryId++;
     objectName = inObjectName;
     meshId = nextSurfaceId++;
-    compoundData = nullptr;
     className = GeometryClassId::SURFACE_MESH;
     isDuplicate = false;
 

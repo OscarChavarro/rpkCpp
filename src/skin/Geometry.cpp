@@ -15,8 +15,7 @@ Geometry::Geometry():
     bounded(),
     omit(),
     isDuplicate(),
-    className(),
-    compoundData()
+    className()
 {
     className = GeometryClassId::UNDEFINED;
     shaftCullGeometry = false;
@@ -27,13 +26,11 @@ This function is used to create a new geometry with given specific data and
 methods
 */
 Geometry::Geometry(
-    Compound *inCompoundData,
     GeometryClassId inClassName)
 {
     GLOBAL_statistics.numberOfGeometries++;
     id = nextGeometryId;
     nextGeometryId++;
-    compoundData = inCompoundData;
     className = inClassName;
     isDuplicate = false;
     bounded = false;
@@ -41,24 +38,12 @@ Geometry::Geometry(
     radianceData = nullptr;
     itemCount = 0;
     omit = false;
-
-    if ( inClassName == GeometryClassId::COMPOUND ) {
-        const Compound *compound = inCompoundData;
-        geometryListBounds(compound->children, &boundingBox);
-        boundingBox.enlargeTinyBit();
-        bounded = true;
-    }
 }
 
 Geometry::~Geometry() {
     if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
         radianceData = nullptr;
-    }
-
-    if ( compoundData != nullptr && !isDuplicate ) {
-        delete compoundData;
-        compoundData = nullptr;
     }
 }
 
@@ -111,8 +96,8 @@ A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
 geomPrimListCopy(const Geometry *geometry) {
-    if ( geometry->isCompound() && geometry->compoundData != nullptr ) {
-        return cloneGeometryList(geometry->compoundData->children);
+    if ( geometry->isCompound() ) {
+        return cloneGeometryList(((const Compound *)geometry)->children);
     } else {
         return nullptr;
     }
@@ -149,7 +134,6 @@ Geometry::clone() const {
     newPatchSet->shaftCullGeometry = shaftCullGeometry;
     newPatchSet->omit = omit;
     newPatchSet->className = className;
-    newPatchSet->compoundData = compoundData;
     newPatchSet->isDuplicate = true;
 
     GLOBAL_statistics.numberOfGeometries++;
@@ -219,7 +203,7 @@ Geometry::discretizationIntersect(
     if ( className == GeometryClassId::SURFACE_MESH ) {
         return ((const MeshSurface *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const Compound *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
         return ((const PatchSet *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }

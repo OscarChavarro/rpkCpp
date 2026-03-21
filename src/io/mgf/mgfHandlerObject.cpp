@@ -165,8 +165,7 @@ handleObjectEntity(int argc, const char **argv, MgfContext *context) {
         }
 
         if ( listSize > 0 ) {
-            Compound *newCompound = new Compound(context->currentGeometryList);
-            newGeometry = new Geometry(newCompound, GeometryClassId::COMPOUND);
+            newGeometry = new Compound(context->currentGeometryList);
         }
 
         popCurrentGeometryList(context);
