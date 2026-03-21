@@ -9,6 +9,16 @@ class MgfReaderFilePosition;
 
 typedef int (*HandleCallBack)(int, const char **, MgfContext *);
 
+class MgfEntityHandler {
+  public:
+    virtual int handle(int argc, const char **argv, MgfContext *context) const = 0;
+    virtual bool matches(HandleCallBack callback) const = 0;
+    virtual ~MgfEntityHandler() {}
+};
+
+extern MgfEntityHandler *mgfHandlerFromCallback(HandleCallBack callback);
+extern bool mgfHandlerMatches(const MgfEntityHandler *handler, HandleCallBack callback);
+
 extern int mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContext *context);
 extern void mgfClose(MgfContext *context);
 extern void doError(const char *errmsg, MgfContext *context);

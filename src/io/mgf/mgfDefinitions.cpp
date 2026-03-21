@@ -8,6 +8,61 @@
 
 static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
 
+class MgfCallbackHandler final : public MgfEntityHandler {
+  public:
+    MgfCallbackHandler():
+        callback(nullptr)
+    {
+    }
+
+    explicit MgfCallbackHandler(const HandleCallBack callback):
+        callback(callback)
+    {
+    }
+
+    int
+    handle(int argc, const char **argv, MgfContext *context) const override {
+        return callback(argc, argv, context);
+    }
+
+    bool
+    matches(const HandleCallBack candidate) const override {
+        return callback == candidate;
+    }
+
+  private:
+    HandleCallBack callback;
+};
+
+static constexpr int MGF_MAXIMUM_CALLBACK_HANDLERS = 128;
+static HandleCallBack globalMgfHandlerCallbacks[MGF_MAXIMUM_CALLBACK_HANDLERS];
+static MgfCallbackHandler globalMgfHandlers[MGF_MAXIMUM_CALLBACK_HANDLERS];
+static int globalMgfHandlerCount = 0;
+
+MgfEntityHandler *
+mgfHandlerFromCallback(HandleCallBack callback) {
+    if ( callback == nullptr ) {
+        return nullptr;
+    }
+    for ( int i = 0; i < globalMgfHandlerCount; i++ ) {
+        if ( globalMgfHandlerCallbacks[i] == callback ) {
+            return &globalMgfHandlers[i];
+        }
+    }
+    if ( globalMgfHandlerCount >= MGF_MAXIMUM_CALLBACK_HANDLERS ) {
+        logFatal(-1, "mgfHandlerFromCallback", "Too many handler callbacks");
+    }
+    globalMgfHandlerCallbacks[globalMgfHandlerCount] = callback;
+    globalMgfHandlers[globalMgfHandlerCount] = MgfCallbackHandler(callback);
+    globalMgfHandlerCount++;
+    return &globalMgfHandlers[globalMgfHandlerCount - 1];
+}
+
+bool
+mgfHandlerMatches(const MgfEntityHandler *handler, HandleCallBack callback) {
+    return handler != nullptr && handler->matches(callback);
+}
+
 
 /**
 Default handler for unknown entities
@@ -99,12 +154,12 @@ mgfHandle(int entityIndex, int argc, const char **argv, MgfContext *context) {
     }
     if ( context->supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
-        int rv = (*context->supportCallbacks[entityIndex])(argc, argv, context);
+        int rv = context->supportCallbacks[entityIndex]->handle(argc, argv, context);
         if ( rv != MgfErrorCode::MGF_OK ) {
             return rv;
         }
     }
-    return (*context->handleCallbacks[entityIndex])(argc, argv, context); // Assigned handler
+    return context->handleCallbacks[entityIndex]->handle(argc, argv, context); // Assigned handler
 }
 
 /**

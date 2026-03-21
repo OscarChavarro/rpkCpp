@@ -12,6 +12,7 @@
 class MgfTransformContext;
 class MgfColorContext;
 class LookUpTable;
+class MgfEntityHandler;
 
 class MgfContext {
   public:
@@ -27,8 +28,8 @@ class MgfContext {
     char entityNames[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[MgfErrorCode::MGF_NUMBER_OF_ERRORS];
     MgfReaderContext *readerContext;
-    int (*handleCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int argc, const char **argv, MgfContext *context);
-    int (*supportCallbacks[TOTAL_NUMBER_OF_ENTITIES])(int argc, const char **argv, MgfContext *context);
+    MgfEntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES];
+    MgfEntityHandler *supportCallbacks[TOTAL_NUMBER_OF_ENTITIES];
     char *currentMaterialName;
     int geometryStackHeadIndex;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];
