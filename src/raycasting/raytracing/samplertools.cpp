@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "common/error.h"
+#include "java/lang/System.h"
 #include "skin/Patch.h"
 #include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/samplertools.h"
@@ -17,7 +18,7 @@ CSamplerConfig::init(bool useQMC, int qmcDepth) {
 
         for ( int i = 0; i < m_qmcDepth; i++ ) {
             m_qmcSeed[i] = (unsigned int)lrand48();
-            printf("Seed %i\n", m_qmcSeed[i]);
+            java::lang::System::out.printf("Seed %i\n", m_qmcSeed[i]);
 
             // Every possible path depth gets its own qmc seed to prevent correlation
         }
@@ -41,7 +42,7 @@ CSamplerConfig::getRand(int depth, double *x1, double *x2) const {
             *x1 = nrs[0] * RECIP;
             *x2 = nrs[1] * RECIP;
         } else {
-            printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
+            java::lang::System::out.printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
             *x1 = drand48();
             *x2 = drand48();
         }

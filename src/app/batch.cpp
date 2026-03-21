@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstring>
+#include "java/lang/System.h"
 #include <GL/gl.h>
 
 #include "common/RenderOptions.h"
@@ -118,18 +119,18 @@ batchSaveRadianceImage(
 
     extension = imageFileExtension(fileName);
     if ( strncasecmp(extension, "logluv", 6) == 0 ) {
-        fprintf(stdout, "Saving LOGLUV image to file '%s' ....... ", fileName);
+        java::lang::System::out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
-        fprintf(stdout, "Saving RGB image to file '%s' .......... ", fileName);
+        java::lang::System::out.printf("Saving RGB image to file '%s' .......... ", fileName);
     }
-    fflush(stdout);
+    java::lang::System::out.flush();
 
     t = clock();
 
     // No OpenGL really if renderOptions->trace is true
     openGlSaveScreen(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
 
-    fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
 }
 
@@ -150,15 +151,15 @@ batchSaveRadianceModel(
     }
 
     canvasPushMode();
-    fprintf(stdout, "Saving VRML model to file '%s' ... ", fileName);
-    fflush(stdout);
+    java::lang::System::out.printf("Saving VRML model to file '%s' ... ", fileName);
+    java::lang::System::out.flush();
     t = clock();
 
     if ( radianceMethod != nullptr ) {
         radianceMethod->writeVRML(scene->camera, fp, renderOptions);
     }
 
-    fprintf(stdout, "%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
     canvasPullMode();
 }
 
@@ -174,7 +175,7 @@ batchExecuteRadianceSimulation(
     float wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
-        printf("Empty world? Missing argument to some command line parameter option?\n");
+        java::lang::System::out.printf("Empty world? Missing argument to some command line parameter option?\n");
         return;
     }
 
@@ -182,16 +183,16 @@ batchExecuteRadianceSimulation(
     wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
-        printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
+        java::lang::System::out.printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
 
-        fflush(stdout);
-        fflush(stderr);
+        java::lang::System::out.flush();
+        java::lang::System::err.flush();
 
         bool done = false;
         for ( int iterationNumber = 0;
               iterationNumber < globalBatchOptions.iterations && !done;
               iterationNumber++ ) {
-            printf("-----------------------------------\n"
+            java::lang::System::out.printf("-----------------------------------\n"
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
                    "-----------------------------------\n\n", iterationNumber);
 
@@ -199,15 +200,15 @@ batchExecuteRadianceSimulation(
             done = radianceMethod->doStep(scene, renderOptions);
             canvasPullMode();
 
-            fflush(stdout);
-            fflush(stderr);
+            java::lang::System::out.flush();
+            java::lang::System::err.flush();
 
-            printf("%s", radianceMethod->getStats());
+            java::lang::System::out.printf("%s", radianceMethod->getStats());
 
             renderGetNearFar(scene->camera, scene->geometryList);
 
-            fflush(stdout);
-            fflush(stderr);
+            java::lang::System::out.flush();
+            java::lang::System::err.flush();
 
             wasted_start = clock();
 
@@ -243,21 +244,21 @@ batchExecuteRadianceSimulation(
 
             wastedSecs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;
 
-            fflush(stdout);
-            fflush(stderr);
+            java::lang::System::out.flush();
+            java::lang::System::err.flush();
         }
     } else {
-        printf("(No world-space radiance computations are being done)\n");
+        java::lang::System::out.printf("(No world-space radiance computations are being done)\n");
     }
 
     if ( globalBatchOptions.timings ) {
-        fprintf(stdout, "Radiance total time %g secs.\n",
+        java::lang::System::out.printf("Radiance total time %g secs.\n",
                 ((float) (clock() - startTime) / (float) CLOCKS_PER_SEC) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
         if ( GLOBAL_rayTracer != nullptr ) {
-            printf("Doing %s ...\n", rayTracer->getName());
+            java::lang::System::out.printf("Doing %s ...\n", rayTracer->getName());
 
             startTime = clock();
             rayTraceExecute(
@@ -270,7 +271,7 @@ batchExecuteRadianceSimulation(
                 renderOptions);
 
             if ( globalBatchOptions.timings ) {
-                fprintf(stdout, "Raytracing total time %g secs.\n",
+                java::lang::System::out.printf("Raytracing total time %g secs.\n",
                         (float) (clock() - startTime) / (float) CLOCKS_PER_SEC);
             }
 
@@ -283,9 +284,9 @@ batchExecuteRadianceSimulation(
                 rayTracer,
                 renderOptions);
         } else {
-            printf("(No pixel-based radiance computations are being done)\n");
+            java::lang::System::out.printf("(No pixel-based radiance computations are being done)\n");
         }
     #endif
 
-    printf("Computations finished.\n");
+    java::lang::System::out.printf("Computations finished.\n");
 }

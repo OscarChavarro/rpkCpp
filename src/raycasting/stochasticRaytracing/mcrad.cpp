@@ -3,6 +3,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -192,7 +193,7 @@ monteCarloRadiosityReInitImportance(Element *element) {
 
 void
 monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions) {
-    fprintf(stderr, "Updating direct visibility ... \n");
+    java::lang::System::err.printf("Updating direct visibility ... \n");
 
     updateDirectVisibility(scene, renderOptions);
 
@@ -202,10 +203,10 @@ monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *rende
     monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
-        fprintf(stderr, "Importance will be recomputed incrementally.\n");
+        java::lang::System::err.printf("Importance will be recomputed incrementally.\n");
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
     } else {
-        fprintf(stderr, "Importance will be recomputed from scratch.\n");
+        java::lang::System::err.printf("Importance will be recomputed from scratch.\n");
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
 
         // Re-compute from scratch
@@ -288,7 +289,7 @@ monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions) {
         return;
     }
 
-    fprintf(stderr, "Initialising Monte Carlo radiosity ...\n");
+    java::lang::System::err.printf("Initialising Monte Carlo radiosity ...\n");
 
     setSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
 

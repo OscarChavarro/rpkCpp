@@ -3,6 +3,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 */
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "render/render.h"
@@ -164,14 +165,14 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
 
 static void
 stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
-    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
+    java::lang::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.print(stderr);
-    fprintf(stderr, ", total flux = ");
+    java::lang::System::err.printf(", total flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
-    fprintf(stderr, ", indirect importance weighted un-shot flux = ");
+    java::lang::System::err.printf(", indirect importance weighted un-shot flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.print(stderr);
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf("\n");
 }
 
 static void
@@ -214,7 +215,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
                         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
 
         stepNumber++;
-        fprintf(stderr, "Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
+        java::lang::System::err.printf("Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
         doStochasticJacobiIteration(
@@ -259,7 +260,7 @@ stochasticRelaxationRadiosityElementIncrementImportance(StochasticRadiosityEleme
 
 static void
 stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
-    fprintf(stderr, "%g secs., importance rays = %ld, un-shot importance = %g, total importance = %g, total area = %g\n",
+    java::lang::System::err.printf("%g secs., importance rays = %ld, un-shot importance = %g, total importance = %g, total area = %g\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
 }
 
@@ -276,7 +277,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     int weighted_sampling = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling;
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp < Numeric::EPSILON ) {
-        fprintf(stderr, "No source importance!!\n");
+        java::lang::System::err.printf("No source importance!!\n");
         return;
     }
 
@@ -297,7 +298,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
         }
 
         stepNumber++;
-        fprintf(stderr, "Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
+        java::lang::System::err.printf("Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
                 stepNumber, 100.0 * unShotFraction);
 
         doStochasticJacobiIteration(
@@ -363,15 +364,15 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
 
 static void
 stochasticRelaxationRadiosityPrintRegularStats() {
-    fprintf(stderr, "%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
+    java::lang::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
-    fprintf(stderr, ", total flux = ");
+    java::lang::System::err.printf(", total flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
+        java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
     }
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf("\n");
 }
 
 static void
@@ -380,7 +381,7 @@ stochasticRelaxationRadiosityDoRegularRadianceIteration(
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
-    fprintf(stderr, "Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+    java::lang::System::err.printf("Regular radiance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
     doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.raysPerIteration,
@@ -422,7 +423,7 @@ stochasticRelaxationRadiosityDoRegularImportanceIteration(
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
 
     numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceRaysPerIteration;
-    fprintf(stderr, "Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+    java::lang::System::err.printf("Regular importance iteration %d:\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
 
     doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
@@ -543,7 +544,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
 
     stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
 
-    fprintf(stderr, "%s\n", getStats());
+    java::lang::System::err.printf("%s\n", getStats());
 
     return false; // Always continue computing (never fully converged)
 }

@@ -3,6 +3,7 @@ Command line options and defaults
 */
 
 #include <cstring>
+#include "java/lang/System.h"
 #include <cerrno>
 
 #include "java/util/ArrayList.txx"
@@ -88,7 +89,7 @@ Integer option values
 static int
 optionsGetInt(int *n, const void * /*data*/) {
     if ( !optionsGetArgumentIntValue(n) ) {
-        fprintf(stderr, "'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
+        java::lang::System::err.printf("'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
     }
     return true;
@@ -157,7 +158,7 @@ Enumerated type option values
 static void
 optionsPrintEnumValues(const ENUMDESC *tab) {
     while ( tab && tab->name ) {
-        fprintf(stderr, "\t%s\n", tab->name);
+        java::lang::System::err.printf("\t%s\n", tab->name);
         tab++;
     }
 }
@@ -172,7 +173,7 @@ optionsEnumGet(int *v, const ENUMDESC *tab) {
         }
         tab++;
     }
-    fprintf(stderr, "Invalid option argument '%s'. Should be one of:\n", *globalCurrentArgumentValue);
+    java::lang::System::err.printf("Invalid option argument '%s'. Should be one of:\n", *globalCurrentArgumentValue);
     optionsPrintEnumValues(tabSave);
     return false;
 }
@@ -249,7 +250,7 @@ CommandLineOptions GLOBAL_options_setFalseType = {
 static int
 optionsGetfloat(float *x, const void * /*data*/) {
     if ( !optionsGetArgumentFloatValue("%f", x) ) {
-        fprintf(stderr, "'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
+        java::lang::System::err.printf("'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
         return false;
     }
     return true;
@@ -282,7 +283,7 @@ optionsGetVector(Vector3D *v, const void * /*data*/) {
         ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &v->z);
     }
     if ( !ok ) {
-        fprintf(stderr, "invalid vector argument value");
+        java::lang::System::err.printf("invalid vector argument value");
     }
 
     return ok;
@@ -315,7 +316,7 @@ optionsGetRgb(ColorRgb *c, const void * /*data*/) {
         ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c->b);
     }
     if ( !ok ) {
-        fprintf(stderr, "invalid RGB color argument value");
+        java::lang::System::err.printf("invalid RGB color argument value");
     }
 
     return ok;
@@ -345,7 +346,7 @@ optionsGetCieXy(float *c, const void * /*data*/) {
         ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c[1]);
     }
     if ( !ok ) {
-        fprintf(stderr, "invalid CIE xy color argument value");
+        java::lang::System::err.printf("invalid CIE xy color argument value");
     }
 
     return ok;
@@ -407,7 +408,7 @@ optionsProcessArguments(CommandLineOptionDescription *options) {
                         ok = false;
                     }
                 } else {
-                    fprintf(stderr, "Option argument missing.\n");
+                    java::lang::System::err.printf("Option argument missing.\n");
                     ok = false;
                 }
             }

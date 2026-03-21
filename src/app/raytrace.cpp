@@ -2,6 +2,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include <cstdio>
+#include "java/lang/System.h"
 #include <cstring>
 #include <ctime>
 
@@ -105,7 +106,7 @@ rayTraceSaveImage(
 
     deleteImageOutputHandle(img);
 
-    fprintf(stdout, "Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
 }
 
 void

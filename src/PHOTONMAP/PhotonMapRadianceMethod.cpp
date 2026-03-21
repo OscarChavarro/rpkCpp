@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include <cstdlib>
+#include "java/lang/System.h"
 #include <ctime>
 
 #include "java/util/ArrayList.txx"
@@ -97,7 +98,7 @@ Initializes the computations for the current scene (if any)
 */
 void
 PhotonMapRadianceMethod::initialize(Scene *scene) {
-    fprintf(stderr, "Photon map activated\n");
+    java::lang::System::err.printf("Photon map activated\n");
 
     GLOBAL_photonMap_state.lastClock = clock();
     GLOBAL_photonMap_state.cpuSecs = 0.0;
@@ -497,7 +498,7 @@ photonMapBRRealIteration(
 {
     GLOBAL_photonMap_state.iterationNumber++;
 
-    fprintf(stderr, "GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
+    java::lang::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
 
     if ( (GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap) ) {
         float scaleFactor = ((float)GLOBAL_photonMap_state.iterationNumber - 1.0f) / (float) GLOBAL_photonMap_state.iterationNumber;
@@ -514,7 +515,7 @@ photonMapBRRealIteration(
 
         tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
 
-        fprintf(stderr, "Total potential paths : %li, Total rays %li\n",
+        java::lang::System::err.printf("Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
                 GLOBAL_raytracer_rayCount);
     }
@@ -537,7 +538,7 @@ photonMapBRRealIteration(
                 BSDF_ALL_COMPONENTS,
                 radianceMethod);
 
-        fprintf(stderr, "Global map: ");
+        java::lang::System::err.printf("Global map: ");
         GLOBAL_photonMap_config.globalMap->printStats(stderr);
     }
 
@@ -558,7 +559,7 @@ photonMapBRRealIteration(
             (int)GLOBAL_photonMap_state.cPathsPerIteration,
             BSDF_SPECULAR_COMPONENT);
 
-        fprintf(stderr, "Caustic map: ");
+        java::lang::System::err.printf("Caustic map: ");
         GLOBAL_photonMap_config.causticMap->printStats(stderr);
     }
 }

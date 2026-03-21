@@ -1,12 +1,12 @@
 #include <cstdlib>
 #include <cstring>
+#include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
 #include "java/util/StringTokenizer.h"
 #include "java/lang/String.h"
 #include "java/lang/StringBuilder.h"
 #include "java/io/BufferedInputStream.h"
-#include "java/io/PrintStream.h"
 #include "common/error.h"
 #include "io/mgf/vectoroctree.h"
 #include "io/mgf/MgfColorContext.h"
@@ -311,14 +311,14 @@ handleIncludedFile(int ac, const char **av, MgfContext *context) {
     do {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-                java::io::PrintStream::err().printf("%s: %d: %s\n", readerContext.fileName,
+                java::lang::System::err.printf("%s: %d: %s\n", readerContext.fileName,
                     readerContext.lineNumber, context->errorCodeMessages[MgfErrorCode::MGF_ERROR_LINE_TOO_LONG]);
                 mgfClose(context);
                 return MgfErrorCode::MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
             if ( rv != MgfErrorCode::MGF_OK ) {
-                java::io::PrintStream::err().printf("%s: %d: %s:\n%s", readerContext.fileName,
+                java::lang::System::err.printf("%s: %d: %s:\n%s", readerContext.fileName,
                         readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
                 mgfClose(context);
@@ -430,7 +430,7 @@ mgfAlternativeInit(
     }
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
-            java::io::PrintStream::err().printf("Missing support for \"%s\" entity\n",
+            java::lang::System::err.printf("Missing support for \"%s\" entity\n",
                 context->entityNames[i]);
             exit(1);
         }
@@ -564,7 +564,7 @@ readMgf(const char *filename, MgfContext *context) {
 void
 mgfFreeMemory(MgfContext *context) {
     if ( context->currentGeometryList != nullptr ) {
-        java::io::PrintStream::out().printf("Freeing %ld geometries\n", context->currentGeometryList->size());
+        java::lang::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;
         long patchSets = 0;
         long compounds = 0;
@@ -587,13 +587,13 @@ mgfFreeMemory(MgfContext *context) {
                 unknowns++;
             }
         }
-        java::io::PrintStream::out().printf("  - MeshSurfaces: %ld\n", surfaces);
-        java::io::PrintStream::out().printf("  - Patch sets: %ld\n", patchSets);
-        java::io::PrintStream::out().printf("  - Compounds: %ld\n", compounds);
-        java::io::PrintStream::out().printf("    . Children: %ld\n", compoundChildren);
-        java::io::PrintStream::out().printf("    . Inner children: %ld\n", innerCompoundChildren);
-        java::io::PrintStream::out().printf("  - Unknowns: %ld\n", unknowns);
-        java::io::PrintStream::out().flush();
+        java::lang::System::out.printf("  - MeshSurfaces: %ld\n", surfaces);
+        java::lang::System::out.printf("  - Patch sets: %ld\n", patchSets);
+        java::lang::System::out.printf("  - Compounds: %ld\n", compounds);
+        java::lang::System::out.printf("    . Children: %ld\n", compoundChildren);
+        java::lang::System::out.printf("    . Inner children: %ld\n", innerCompoundChildren);
+        java::lang::System::out.printf("  - Unknowns: %ld\n", unknowns);
+        java::lang::System::out.flush();
     }
 
     for ( int i = 0; i < context->allGeometries->size(); i++ ) {

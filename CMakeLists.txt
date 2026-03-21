@@ -20,6 +20,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(MAIN_SRC
     src/java/lang/String.cpp
+    src/java/lang/System.cpp
     src/java/lang/StringBuilder.cpp
     src/java/util/StringTokenizer.cpp
     src/java/io/File.cpp

@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "render/opengl.h"
@@ -150,7 +151,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         sync();
     }
 
-    fprintf(stderr, "Writing %s file ... ", ip->driverName);
+    java::lang::System::err.printf("Writing %s file ... ", ip->driverName);
 
     ip->gamma[0] = GLOBAL_toneMap_options.gamma.r; // For default radiance -> display RGB
     ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;
@@ -164,7 +165,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         }
     }
 
-    fprintf(stderr, "done.\n");
+    java::lang::System::err.printf("done.\n");
 }
 
 void

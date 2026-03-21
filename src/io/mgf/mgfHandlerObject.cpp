@@ -3,10 +3,10 @@ Hierarchical object names tracking
 */
 
 #include <cstdlib>
+#include "java/lang/System.h"
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "java/io/PrintStream.h"
 #include "common/CppReAlloc.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
@@ -84,7 +84,7 @@ handleObject2Entity(int ac, const char **av) {
             globalObjectMaxName += ALLOC_INC;
             globalObjectNamesList = memoryManager.reAlloc(globalObjectNamesList, globalObjectMaxName);
             if ( globalObjectNamesList == nullptr ) {
-                java::io::PrintStream::err().println("Memory error");
+                java::lang::System::err.println("Memory error");
                 exit(1);
             }
         }

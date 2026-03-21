@@ -13,6 +13,7 @@ Reference:
 */
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "skin/Compound.h"
 #include "scene/PatchClusterOctreeNode.h"
 
@@ -261,27 +262,27 @@ void
 PatchClusterOctreeNode::print(const int level) const {
     switch ( level ) {
         case 0:
-            printf("= PatchClusterOctreeNode ================================================================\n");
+            java::lang::System::out.printf("= PatchClusterOctreeNode ================================================================\n");
             break;
         case 1:
-            printf("  - ");
+            java::lang::System::out.printf("  - ");
             break;
         case 2:
-            printf("    . ");
+            java::lang::System::out.printf("    . ");
             break;
         default:
-            printf("      (%d) ", level);
+            java::lang::System::out.printf("      (%d) ", level);
             for ( int i = 3; i < level; i++ ) {
-                printf(" ");
+                java::lang::System::out.printf(" ");
             }
-            printf("-> ");
+            java::lang::System::out.printf("-> ");
             break;
     }
-    printf("%ld patches: ", patches->size());
+    java::lang::System::out.printf("%ld patches: ", patches->size());
     for ( int i = 0; i < patches->size(); i++ ) {
-        printf("[%d]", patches->get(i)->id);
+        java::lang::System::out.printf("[%d]", patches->get(i)->id);
     }
-    printf("\n");
+    java::lang::System::out.printf("\n");
     for ( int i = 0; i < 8; i++ ) {
         if ( children[i] != nullptr ) {
             children[i]->print(level + 1);

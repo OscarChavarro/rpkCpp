@@ -3,6 +3,7 @@ Routines dealing with view potential
 */
 
 #include <ctime>
+#include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -147,7 +148,7 @@ softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOption
     delete currentSglContext;
     sglMakeCurrent(oldSglContext);
 
-    fprintf(stderr, "Determining visible patches in software took %g sec\n",
+    java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
         (float) (clock() - t) / (float) CLOCKS_PER_SEC);
 }
 

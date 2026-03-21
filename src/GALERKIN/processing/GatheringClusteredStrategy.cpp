@@ -1,5 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Camera.h"
+#include "java/lang/System.h"
 #include "render/potential.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
 #include "GALERKIN/GalerkinRole.h"
@@ -64,7 +65,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         scene->camera->changed = false;
     }
 
-    printf("Galerkin (clustered) iteration %i\n", galerkinState->iterationNumber);
+    java::lang::System::out.printf("Galerkin (clustered) iteration %i\n", galerkinState->iterationNumber);
 
     // Initial linking stage is replaced by the creation of a self-link between
     // the whole scene and itself

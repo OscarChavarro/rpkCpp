@@ -1,6 +1,7 @@
 #include <cstdio>
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "scene/Background.h"
@@ -67,15 +68,15 @@ RandomWalkRadianceMethod::initialize(Scene * /*scene*/) {
 
 static void
 randomWalkRadiosityPrintStats() {
-    fprintf(stderr, "%g secs., total radiance rays = %ld",
+    java::lang::System::err.printf("%g secs., total radiance rays = %ld",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
-    fprintf(stderr, ", total flux = ");
+    java::lang::System::err.printf(", total flux = ");
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        fprintf(stderr, "\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
+        java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
     }
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf("\n");
 }
 
 /**
@@ -269,7 +270,7 @@ randomWalkRadiosityDoShootingIteration(
                                                                                                                                                                              GLOBAL_statistics.averageReflectivity.maximumComponent()));
     }
 
-    fprintf(stderr, "Shooting iteration %d (%ld paths, approximately %ld rays)\n",
+    java::lang::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
             numberOfWalks, (long)java::Math::floor((double) numberOfWalks /
                 (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
@@ -317,9 +318,9 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
     }
 
     cr.divide(c1, c2);
-    fprintf(stderr, "Control radiosity value = ");
+    java::lang::System::err.printf("Control radiosity value = ");
     cr.print(stderr);
-    fprintf(stderr, ", luminosity = %g\n", cr.luminance());
+    java::lang::System::err.printf(", luminosity = %g\n", cr.luminance());
 
     return cr;
 }
@@ -415,7 +416,7 @@ randomWalkRadiosityDoGatheringIteration(
         randomWalkRadiosityReduceSource(scenePatches); // Do this only once!
     }
 
-    fprintf(stderr, "Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
+    java::lang::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
         numberOfWalks, (long) floor((double) numberOfWalks / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
 
@@ -445,7 +446,7 @@ randomWalkRadiosityDoFirstShot(
 {
     long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
-    fprintf(stderr, "First shot (%ld rays):\n", numberOfRays);
+    java::lang::System::err.printf("First shot (%ld rays):\n", numberOfRays);
     doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();

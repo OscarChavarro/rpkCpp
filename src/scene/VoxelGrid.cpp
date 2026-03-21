@@ -6,6 +6,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 */
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "common/error.h"
 #include "scene/VoxelGrid.h"
 
@@ -30,7 +31,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
 
     const double p = java::Math::pow((double) geometry->itemCount, 0.33333) + 1;
     const short gridSize = static_cast<short>(java::Math::floor(p));
-    fprintf(stderr, "Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
+    java::lang::System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
     level++;
 
     putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
@@ -491,23 +492,23 @@ VoxelGrid::gridIntersect(
 
 void
 VoxelGrid::print() const {
-    printf("DX: %d, DY: %d, DZ: %d\n", xSize, ySize, zSize);
+    java::lang::System::out.printf("DX: %d, DY: %d, DZ: %d\n", xSize, ySize, zSize);
 
     for ( short z = 0; z < zSize; z++ ) {
-        printf("Z level %d of %d\n", z + 1, zSize);
+        java::lang::System::out.printf("Z level %d of %d\n", z + 1, zSize);
 
         for ( short y = 0; y < ySize; y++ ) {
-            printf("  | ");
+            java::lang::System::out.printf("  | ");
             for ( short x = 0; x < xSize; x++ ) {
                 const java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(z, y, x)];
                 if ( list == nullptr ) {
-                    printf("[  ]");
+                    java::lang::System::out.printf("[  ]");
                 } else {
-                    printf("(%2ld)", list->size());
+                    java::lang::System::out.printf("(%2ld)", list->size());
                 }
-                printf(" ");
+                java::lang::System::out.printf(" ");
             }
-            printf(" |\n");
+            java::lang::System::out.printf(" |\n");
         }
     }
 }

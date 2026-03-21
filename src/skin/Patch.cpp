@@ -1,6 +1,7 @@
 #include <cstdarg>
 
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -298,7 +299,7 @@ Patch::computeRandomWalkRadiosityArea() {
     }
 
     if ( this->area < Numeric::EPSILON * Numeric::EPSILON ) {
-        fprintf(stderr, "Warning: very small patch id %d area = %g\n", this->id, this->area);
+        java::lang::System::err.printf("Warning: very small patch id %d area = %g\n", this->id, this->area);
     }
 
     return this->area;

@@ -3,6 +3,7 @@ Implementation of the special importance map functions
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -170,7 +171,7 @@ CImportanceMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 
 void
 CImportanceMap::precomputeIrradiance() {
-    fprintf(stderr, "CImportanceMap::precomputeIrradiance\n");
+    java::lang::System::err.printf("CImportanceMap::precomputeIrradiance\n");
     m_maxImp = 0;
     m_avgImp = 0;
     m_preReconPhotons = *m_estimate_nrp;

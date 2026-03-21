@@ -3,6 +3,7 @@ Random walk generation
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -188,7 +189,7 @@ tracePaths(
         pathCount += paths_this_patch;
     }
 
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf("\n");
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux

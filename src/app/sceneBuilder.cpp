@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cstring>
+#include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -233,7 +234,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
 
     // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
     const char *extension;
-    fprintf(stderr, "Reading the scene from file '%s' ... \n", fileName);
+    java::lang::System::err.printf("Reading the scene from file '%s' ... \n", fileName);
     clock_t last = clock();
 
     const char *dot = strrchr(fileName, '.');
@@ -249,7 +250,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     }
 
     clock_t t = clock();
-    fprintf(stderr, "Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     delete[] currentDirectory;
@@ -262,29 +263,29 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     // Build the new patch list, this is duplicating already available
     // information and as such potentially dangerous, but we need it
     // so many times
-    fprintf(stderr, "Building patch list ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Building patch list ... ");
+    java::lang::System::err.flush();
 
     scene->patchList = new java::ArrayList<Patch *>();
     sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Build the list of patches on light sources from the patch list
-    fprintf(stderr, "Building light source patch list ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Building light source patch list ... ");
+    java::lang::System::err.flush();
 
     sceneBuilderFillLightSourcePatchList(scene);
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Build a cluster hierarchy for the new scene
-    fprintf(stderr, "Building cluster hierarchy ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Building cluster hierarchy ... ");
+    java::lang::System::err.flush();
 
     scene->clusteredRootGeometry = sceneBuilderCreateClusterHierarchy(scene->patchList);
 
@@ -293,19 +294,19 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     }
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Create the scene level voxel grid
     scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
 
     t = clock();
-    fprintf(stderr, "Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
-    fprintf(stderr, "Computing some scene statistics ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Computing some scene statistics ... ");
+    java::lang::System::err.flush();
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
     sceneBuilderComputeStats(scene);
@@ -313,21 +314,21 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
                                                    GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Initialize tone mapping
-    fprintf(stderr, "Initializing tone mapping ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Initializing tone mapping ... ");
+    java::lang::System::err.flush();
 
     initSceneAdaptation(scene->patchList);
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
     last = t;
 
     // Print statistics report
-    printf("\nStats: GLOBAL_statistics.totalEmittedPower ................: %f W\n"
+    java::lang::System::out.printf("\nStats: GLOBAL_statistics.totalEmittedPower ................: %f W\n"
            "         GLOBAL_statistics.estimatedAverageRadiance .........: %f W / sr\n"
            "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
            "         GLOBAL_statistics.maxSelfEmittedRadiance ...........: %f W / sr\n"
@@ -344,20 +345,20 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     //scene->print();
 
     // Initialize radiance for the freshly loaded scene
-    fprintf(stderr, "Initializing radiance method ... ");
-    fflush(stderr);
+    java::lang::System::err.printf("Initializing radiance method ... ");
+    java::lang::System::err.flush();
 
     setRadianceMethod(mgfContext->radianceMethod, scene);
 
     t = clock();
-    fprintf(stderr, "%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
 
     // Remove possible render hooks
     removeAllRenderHooks();
 
     removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
 
-    fprintf(stderr, "Initialisations done.\n");
+    java::lang::System::err.printf("Initialisations done.\n");
 
     return true;
 }

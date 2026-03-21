@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include <cstring>
+#include "java/lang/System.h"
 
 #include "common/stratification.h"
 #include "raycasting/common/raytools.h"
@@ -110,7 +111,7 @@ BidirectionalPathRaytracer::execute(
     config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth;
 
     if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth < 1 ) {
-        fprintf(stderr, "Maximum Eye Path Length too small (<1), using 1\n");
+        java::lang::System::err.printf("Maximum Eye Path Length too small (<1), using 1\n");
         config.eyeConfig.maxDepth = 1;
     } else {
         config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth;
@@ -234,12 +235,12 @@ spikeCheck(ColorRgb color) {
     double colAvg = color.average();
 
     if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
-        printf("Spike\n");
+        java::lang::System::out.printf("Spike\n");
         return true;
     }
 
     if ( colAvg < 0 ) {
-        printf("Negative");
+        java::lang::System::out.printf("Negative");
         return true;
     }
 
@@ -896,10 +897,10 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
 
     nrIterations += 1; // First two are 1 and 1
 
-    printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
+    java::lang::System::out.printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
            maxSamples, GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel);
 
-    printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+    java::lang::System::out.printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
 
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
@@ -916,8 +917,8 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
         format2[0] = '\0';
     }
 
-    printf("Format 1 '%s'\n", format1);
-    printf("Format 2 '%s'\n", format2);
+    java::lang::System::out.printf("Format 1 '%s'\n", format1);
+    java::lang::System::out.printf("Format 2 '%s'\n", format2);
 
     // Now trace the screen several times, each time
     // with twice the number of samples as the previous
@@ -1051,7 +1052,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         (int)java::Math::floor(log(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / (log(2)));
     int maxSamples = (int)java::Math::pow(2.0, numberOfIterations);
 
-    printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
+    java::lang::System::out.printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
 
     int oldSPP = config->baseConfig->samplesPerPixel; // These were stored
     int newSPP = oldSPP;
@@ -1059,7 +1060,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     int newTotalSPP = oldTotalSPP + newSPP;
 
     for ( int i = 1; i <= numberOfIterations; i++ ) {
-        printf("Doing run with %i samples, %i samples already done\n", newSPP, oldTotalSPP);
+        java::lang::System::out.printf("Doing run with %i samples, %i samples already done\n", newSPP, oldTotalSPP);
 
         // copy dest to ref
 

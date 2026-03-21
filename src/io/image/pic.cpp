@@ -1,12 +1,13 @@
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
+#include "java/lang/System.h"
 
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
     fileDescriptor = fopen(filename, "wb");
     if ( fileDescriptor == nullptr ) {
-        fprintf(stderr, "Can't open PIC output");
+        java::lang::System::err.printf("Can't open PIC output");
         return;
     }
 

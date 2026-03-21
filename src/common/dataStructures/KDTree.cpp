@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstring>
+#include "java/lang/System.h"
 
 #include "java/lang/Math.h"
 #include "common/error.h"
@@ -39,11 +40,11 @@ class KDQuery {
     {}
 
     void print() const {
-        printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
-        printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
-        printf("maximumDistance %g\n", maximumDistance);
-        printf("sqrRadius %g\n", sqrRadius);
-        printf("excludeFlags %x\n", (int) excludeFlags);
+        java::lang::System::out.printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
+        java::lang::System::out.printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
+        java::lang::System::out.printf("maximumDistance %g\n", maximumDistance);
+        java::lang::System::out.printf("sqrRadius %g\n", sqrRadius);
+        java::lang::System::out.printf("excludeFlags %x\n", (int) excludeFlags);
     }
 };
 
@@ -731,7 +732,7 @@ KDTree::balance() {
         return;
     }
 
-    fprintf(stderr, "Balancing kd-tree: %i nodes...\n", numberOfNodes);
+    java::lang::System::err.printf("Balancing kd-tree: %i nodes...\n", numberOfNodes);
 
     BalancedKDTreeNode *broot = new BalancedKDTreeNode[numberOfNodes + 1];
 
@@ -769,5 +770,5 @@ KDTree::balance() {
 
     firstLeaf = (numBalanced + 1) / 2;
 
-    fprintf(stderr, "done\n");
+    java::lang::System::err.printf("done\n");
 }

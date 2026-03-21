@@ -3,6 +3,7 @@ Non diffuse first shot
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -130,8 +131,8 @@ sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     int count = 0;
     double pCumulative = 0.0;
     globalNumberOfSamples = numberOfSamples;
-    fprintf(stderr, "Shooting %d light rays ", globalNumberOfSamples);
-    fflush(stderr);
+    java::lang::System::err.printf("Shooting %d light rays ", globalNumberOfSamples);
+    java::lang::System::err.flush();
     for ( int i = 0; i < globalNumberOfLights; i++ ) {
         double p = globalLights[i].flux / globalTotalFlux;
         int samples_this_light =

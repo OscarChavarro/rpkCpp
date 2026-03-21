@@ -9,6 +9,7 @@ TODO: global lines and global line bundles.
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -58,27 +59,27 @@ stochasticJacobiInitGlobals(
 
 static void
 stochasticJacobiPrintMessage(long nr_rays) {
-    fprintf(stderr, "%s-directional ",
+    java::lang::System::err.printf("%s-directional ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ? "Bi" : "Uni");
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
-        fprintf(stderr, "combined ");
+        java::lang::System::err.printf("combined ");
     }
     if ( globalGetRadianceCallback ) {
-        fprintf(stderr, "%s radiance ",
+        java::lang::System::err.printf("%s radiance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ? "importance-driven " : "");
     }
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
-        fprintf(stderr, "and ");
+        java::lang::System::err.printf("and ");
     }
     if ( globalGetImportanceCallback ) {
-        fprintf(stderr, "%s importance ",
+        java::lang::System::err.printf("%s importance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ? "radiance-driven " : "");
     }
-    fprintf(stderr, "propagation");
+    java::lang::System::err.printf("propagation");
     if ( globalDoControlVariate ) {
-        fprintf(stderr, "using a constant control variate ");
+        java::lang::System::err.printf("using a constant control variate ");
     }
-    fprintf(stderr, "(%ld rays):\n", nr_rays);
+    java::lang::System::err.printf("(%ld rays):\n", nr_rays);
 }
 
 /**
@@ -687,7 +688,7 @@ stochasticJacobiShootRays(
             renderOptions);
     }
 
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf("\n");
 }
 
 /**

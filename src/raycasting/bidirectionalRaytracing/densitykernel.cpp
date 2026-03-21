@@ -5,6 +5,7 @@ Olivier Ceulemans.
 */
 
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/densitykernel.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -131,7 +132,7 @@ CKernel2D::varCover(
         const float maxRatio = 20; // ???
         h = Bn * maxRatio * screenScale;
 
-        printf("MaxRatio... h = %f\n", h / screenScale);
+        java::lang::System::out.printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
     h = java::Math::max(1.0f * screenScale, h); // We want to cover at least one pixel...

@@ -2,6 +2,7 @@
 Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 */
 #include <cstring>
+#include "java/lang/System.h"
 
 #include "java/lang/Math.h"
 #include "common/error.h"
@@ -15,7 +16,7 @@ ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma()
 
 int
 ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
-    fprintf(stderr, "%s does not support display RGB output.\n", driverName);
+    java::lang::System::err.printf("%s does not support display RGB output.\n", driverName);
     return 0;
 }
 

@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -312,7 +313,7 @@ PrecomputeIrradianceCallback(Camera *camera, CPhotonMap *map, CIrrPhoton *photon
 
 void
 CPhotonMap::precomputeIrradiance() {
-    fprintf(stderr, "CPhotonMap::precomputeIrradiance\n");
+    java::lang::System::err.printf("CPhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
         m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback, this);
         m_irradianceComputed = true;

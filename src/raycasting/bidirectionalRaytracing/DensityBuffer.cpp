@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
 #include "raycasting/bidirectionalRaytracing/densitykernel.h"
 
@@ -29,7 +30,7 @@ DensityBuffer::DensityBuffer(ScreenBuffer *screen, BidirectionalPathRaytracerCon
     yMinimum = screenBuffer->getScreenYMin();
     yMaximum = screenBuffer->getScreenYMax();
 
-    printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
+    java::lang::System::out.printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
            xMinimum, yMinimum, xMaximum, yMaximum);
 
 }
@@ -66,7 +67,7 @@ DensityBuffer::reconstruct() {
     float h = 8.0f * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
               / java::Math::sqrt((float)baseConfig->samplesPerPixel);
 
-    printf("h = %f\n", h);
+    java::lang::System::out.printf("h = %f\n", h);
 
     screenBuffer->scaleRadiance(0.0); // Hack!
 

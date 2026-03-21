@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstdio>
+#include "java/lang/System.h"
 #include <cstdarg>
 #include "common/error.h"
 
@@ -10,17 +11,17 @@ name of the routine in which the error occurs (optional - can be nullptr)
 void logError(const char *routine, const char *text, ...) {
     va_list variableList;
 
-    fprintf(stderr, "Error: ");
+    java::lang::System::err.printf("Error: ");
     if ( routine ) {
-        fprintf(stderr, "%s(): ", routine);
+        java::lang::System::err.printf("%s(): ", routine);
     }
 
     va_start(variableList, text);
     vfprintf(stderr, text, variableList);
     va_end(variableList);
 
-    fprintf(stderr, ".\n");
-    fflush(stderr);
+    java::lang::System::err.printf(".\n");
+    java::lang::System::err.flush();
 }
 
 /**
@@ -32,17 +33,17 @@ __attribute__((noreturn)) void
 logFatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 
-    fprintf(stderr, "logFatal error: ");
+    java::lang::System::err.printf("logFatal error: ");
     if ( routine ) {
-        fprintf(stderr, "%s(): ", routine);
+        java::lang::System::err.printf("%s(): ", routine);
     }
 
     va_start(pvar, text);
     vfprintf(stderr, text, pvar);
     va_end(pvar);
 
-    fprintf(stderr, ".\n");
-    fflush(stderr);
+    java::lang::System::err.printf(".\n");
+    java::lang::System::err.flush();
 
     exit(errcode);
 }
@@ -54,16 +55,16 @@ void
 logWarning(const char *routine, const char *text, ...) {
     va_list pvar;
 
-    fprintf(stderr, "Warning: ");
+    java::lang::System::err.printf("Warning: ");
     if ( routine ) {
-        fprintf(stderr, "%s(): ", routine);
+        java::lang::System::err.printf("%s(): ", routine);
     }
 
     va_start(pvar, text);
     vfprintf(stderr, text, pvar);
     va_end(pvar);
 
-    fprintf(stderr, ".\n");
-    fflush(stderr);
+    java::lang::System::err.printf(".\n");
+    java::lang::System::err.flush();
 }
 

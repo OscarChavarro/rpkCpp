@@ -9,6 +9,7 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
 #include <cstdio>
+#include "java/lang/System.h"
 #include <cstdlib>
 #include <cstring>
 
@@ -112,7 +113,7 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     Polygon *q;
 
     if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
-        fprintf(stderr, "polyClipToBox: too many vertices: %d (max=%d-6)\n",
+        java::lang::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
                 p1->n, MAXIMUM_SIDES_PER_POLYGON);
         exit(1);
     }

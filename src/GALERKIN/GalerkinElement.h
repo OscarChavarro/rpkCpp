@@ -6,6 +6,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #define __GALERKIN_ELEMENT__
 
 #include "java/util/ArrayList.h"
+#include "java/lang/System.h"
 #include "scene/Polygon.h"
 #include "GALERKIN/GalerkinElementRenderMode.h"
 #include "GALERKIN/Interaction.h"
@@ -76,15 +77,15 @@ extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
 inline GalerkinElement*
 galerkinGetElement(const Patch *patch) {
     if ( patch == nullptr ) {
-        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a null Patch\n");
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
         exit(1);
     }
     if ( patch->radianceData == nullptr ) {
-        fprintf(stderr, "Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
         exit(1);
     }
     if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
-        fprintf(stderr, "Fatal: Trying to access as GalerkinElement a different type of element\n");
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
         exit(1);
     }
     return (GalerkinElement *)patch->radianceData;

@@ -3,6 +3,7 @@ Determination of constant control radiosity value
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -300,7 +301,7 @@ determineControlRadiosity(
         return beta;
     }
 
-    fprintf(stderr, "Determining optimal control radiosity value ... ");
+    java::lang::System::err.printf("Determining optimal control radiosity value ... ");
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
     delta.subtract(fMax, fMin);
@@ -315,8 +316,8 @@ determineControlRadiosity(
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(stderr);
-    fprintf(stderr, " (%g lux)", M_PI * beta.luminance());
-    fprintf(stderr, "\n");
+    java::lang::System::err.printf(" (%g lux)", M_PI * beta.luminance());
+    java::lang::System::err.printf("\n");
     return beta;
 }
 

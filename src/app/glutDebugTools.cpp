@@ -1,5 +1,6 @@
 #include "render/glutDebugTools.h"
 #include "app/GalerkinDebugRenderer.h"
+#include "java/lang/System.h"
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -45,17 +46,17 @@ printElementHierarchy(const GalerkinElement *element, int level) {
         case 0:
             break;
         case 1:
-            printf("  - ");
+            java::lang::System::out.printf("  - ");
             break;
         case 2:
-            printf("    . ");
+            java::lang::System::out.printf("    . ");
             break;
         default:
-            printf("      (%d) ", level);
+            java::lang::System::out.printf("      (%d) ", level);
             for ( int i = 3; i < level; i++ ) {
-                printf(" ");
+                java::lang::System::out.printf(" ");
             }
-            printf("-> ");
+            java::lang::System::out.printf("-> ");
             break;
     }
     const ColorRgb *c = element->radiance;
@@ -66,16 +67,16 @@ printElementHierarchy(const GalerkinElement *element, int level) {
 
     if ( element->regularSubElements == nullptr ) {
         if ( c == nullptr ) {
-            printf("Child element no radiance\n");
+            java::lang::System::out.printf("Child element no radiance\n");
         } else {
-            printf("Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::lang::System::out.printf("Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
     } else {
         if ( c == nullptr ) {
-            printf("Container element no radiance\n");
+            java::lang::System::out.printf("Container element no radiance\n");
         } else {
-            printf("Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::lang::System::out.printf("Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
         for ( int i = 0; i < 4; i++ ) {
@@ -89,7 +90,7 @@ printElementHierarchy(const GalerkinElement *element, int level) {
 
 static void
 printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
-    printf("================================================================================\n");
+    java::lang::System::out.printf("================================================================================\n");
     if ( scene->patchList == nullptr || patchIndex >= scene->patchList->size() ) {
         return;
     }
@@ -98,7 +99,7 @@ printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
         return;
     }
     const GalerkinElement *element = galerkinGetElement(patch);
-    printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
+    java::lang::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
     printElementHierarchy(element, 0);
 }
 
@@ -132,7 +133,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             if ( globalMode >= TOTAL_DEBUG_OPERATION_MODES ) {
                 globalMode = 0;
             }
-            printf("MODE: %d\n", globalMode);
+            java::lang::System::out.printf("MODE: %d\n", globalMode);
             break;
         case ' ':
             globalRadianceMethod->doStep(globalScene, globalRenderOptions);
@@ -148,9 +149,9 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     }
 
     if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-        printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.selectedPatch);
+        java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.selectedPatch);
     } else {
-        printf("Selected patch: ALL\n");
+        java::lang::System::out.printf("Selected patch: ALL\n");
     }
 
     glutPostRedisplay();
@@ -230,7 +231,7 @@ executeGlutGui(
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
     int windowHandle = glutCreateWindow("RPK");
     if ( windowHandle == GL_FALSE ) {
-        printf("ERROR: Can not open GLUT window, check X11 setup!\n");
+        java::lang::System::out.printf("ERROR: Can not open GLUT window, check X11 setup!\n");
         exit(1);
     }
 

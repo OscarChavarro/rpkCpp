@@ -3,6 +3,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "common/Statistics.h"
 #include "render/potential.h"
 #include "render/opengl.h"
@@ -261,7 +262,7 @@ ShootingStrategy::propagatePotential(const Scene *scene, GalerkinState *galerkin
         openGlRenderPatchOutline(shootingPatch);
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
-        fprintf(stderr, "No patches with un-shot potential??\n");
+        java::lang::System::err.printf("No patches with un-shot potential??\n");
     }
 }
 

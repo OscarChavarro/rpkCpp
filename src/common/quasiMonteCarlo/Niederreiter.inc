@@ -12,6 +12,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 */
 
 #include <cstdlib>
+#include "java/lang/System.h"
 #include <cstdio>
 
 static NiederreiterIndex nied[DIMEN] = {0, 0, 0, 0};
@@ -110,7 +111,7 @@ NextNiedInRange(
         c = i;
         i += step;
         if ( i >= NBITS_POW) {
-            fprintf(stderr, "\nOverflow in Niederreiter sequence. A %d-bit sequence is not enough???\n", NBITS);
+            java::lang::System::err.printf("\nOverflow in Niederreiter sequence. A %d-bit sequence is not enough???\n", NBITS);
             abort();
         }
     } while ( (nied[1] & rmask) != rmsb2 );
