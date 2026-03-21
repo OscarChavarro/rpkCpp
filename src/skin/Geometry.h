@@ -30,7 +30,6 @@ class Geometry {
     static Geometry *excludedGeometry2;
 
     Geometry(
-        PatchSet *inPatchSetData,
         Compound *inCompoundData,
         GeometryClassId inClassName);
 
@@ -54,7 +53,6 @@ class Geometry {
     bool isDuplicate;
 
     GeometryClassId className;
-    PatchSet *patchSetData;
     Compound *compoundData;
 
     Geometry();
@@ -84,7 +82,6 @@ class Geometry {
     Geometry *clone() const;
 };
 
-extern Geometry *geomCreatePatchSet(const java::ArrayList<Patch *> *patchList);
 extern void geomDestroy(Geometry *geometry);
 extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
 extern java::ArrayList<Patch *> *geomPatchArrayListReference(const Geometry *geometry);

@@ -229,8 +229,8 @@ without extra code and such
 Geometry *
 PatchClusterOctreeNode::convertClusterToGeometry() const {
     Geometry *parentPatchesGeometry = nullptr;
-    if ( patches != nullptr ) {
-        parentPatchesGeometry = geomCreatePatchSet(patches);
+    if ( patches != nullptr && patches->size() > 0) {
+        parentPatchesGeometry = new PatchSet(patches);
         addToDeletionCache(parentPatchesGeometry);
     }
 
@@ -253,7 +253,7 @@ PatchClusterOctreeNode::convertClusterToGeometry() const {
     }
 
     Compound *newCompound = new Compound(patchesGeometryList);
-    Geometry *newGeometry = new Geometry(nullptr, newCompound, GeometryClassId::COMPOUND);
+    Geometry *newGeometry = new Geometry(newCompound, GeometryClassId::COMPOUND);
     addToDeletionCache(newGeometry);
     return newGeometry;
 }

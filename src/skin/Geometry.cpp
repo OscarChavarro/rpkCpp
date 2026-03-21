@@ -16,7 +16,6 @@ Geometry::Geometry():
     omit(),
     isDuplicate(),
     className(),
-    patchSetData(),
     compoundData()
 {
     className = GeometryClassId::UNDEFINED;
@@ -28,7 +27,6 @@ This function is used to create a new geometry with given specific data and
 methods
 */
 Geometry::Geometry(
-    PatchSet *inPatchSetData,
     Compound *inCompoundData,
     GeometryClassId inClassName)
 {
@@ -36,7 +34,6 @@ Geometry::Geometry(
     id = nextGeometryId;
     nextGeometryId++;
     compoundData = inCompoundData;
-    patchSetData = inPatchSetData;
     className = inClassName;
     isDuplicate = false;
     bounded = false;
@@ -48,11 +45,6 @@ Geometry::Geometry(
     if ( inClassName == GeometryClassId::COMPOUND ) {
         const Compound *compound = inCompoundData;
         geometryListBounds(compound->children, &boundingBox);
-        boundingBox.enlargeTinyBit();
-        bounded = true;
-    } else if ( inClassName == GeometryClassId::PATCH_SET && inPatchSetData != nullptr ) {
-        const PatchSet *patchSet = (const PatchSet *)this;
-        patchListBounds(patchSet->getPatchList(), &boundingBox);
         boundingBox.enlargeTinyBit();
         bounded = true;
     }
@@ -68,21 +60,6 @@ Geometry::~Geometry() {
         delete compoundData;
         compoundData = nullptr;
     }
-
-    if ( patchSetData != nullptr && !isDuplicate ) {
-        delete patchSetData;
-        patchSetData = nullptr;
-    }
-}
-
-Geometry *
-geomCreatePatchSet(const java::ArrayList<Patch *> *geometryList) {
-    if ( geometryList != nullptr && geometryList->size() > 0 ) {
-        PatchSet *patchSet = new PatchSet(geometryList);
-        return new Geometry(patchSet, nullptr, GeometryClassId::PATCH_SET);
-    }
-
-    return nullptr;
 }
 
 /**
@@ -164,7 +141,6 @@ Geometry::clone() const {
     }
 
     PatchSet *newPatchSet = new PatchSet(geomPatchArrayListReference(this));
-    newPatchSet->patchSetData = patchSetData;
     newPatchSet->id = GLOBAL_statistics.numberOfGeometries;
     newPatchSet->boundingBox = boundingBox;
     newPatchSet->radianceData = radianceData;
@@ -245,7 +221,7 @@ Geometry::discretizationIntersect(
     } else if ( className == GeometryClassId::COMPOUND ) {
         return compoundData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
-        return patchSetData->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return ((const PatchSet *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }

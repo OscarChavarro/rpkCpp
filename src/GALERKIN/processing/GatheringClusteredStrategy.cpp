@@ -7,7 +7,6 @@
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"
-#include "GALERKIN/processing/GalerkingElementDebug.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
 }
@@ -72,8 +71,6 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     if ( galerkinState->iterationNumber <= 1 ) {
         LinkingClusteredStrategy::createInitialLinks(galerkinState->topCluster, GalerkinRole::RECEIVER, galerkinState);
     }
-    GalerkingElementDebug::printGalerkinElementHierarchy(galerkinState->topCluster, 0);
-    printf("**** Total Interactions so far: %d\n", Interaction::getNumberOfInteractions());
 
     double userErrorThreshold = galerkinState->relLinkErrorThreshold;
 

@@ -31,7 +31,6 @@ MeshSurface::MeshSurface(
     objectName = inObjectName;
     meshId = nextSurfaceId++;
     compoundData = nullptr;
-    patchSetData = nullptr;
     className = GeometryClassId::SURFACE_MESH;
     isDuplicate = false;
 

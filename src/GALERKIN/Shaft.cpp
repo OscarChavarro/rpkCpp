@@ -710,7 +710,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
-        Geometry *newGeometry = geometry->clone();
+        Geometry *newGeometry = ((PatchSet *)geometry)->clone();
         newGeometry->shaftCullGeometry = true;
         candidateList->add(newGeometry);
     } else {
@@ -735,7 +735,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         const java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
 
         if ( culledPatches->size() > 0 ) {
-            Geometry *newGeometry = geomCreatePatchSet(culledPatches);
+            PatchSet *newGeometry = new PatchSet(culledPatches);
             newGeometry->shaftCullGeometry = true;
             newGeometry->isDuplicate = false;
             candidateList->add(newGeometry);

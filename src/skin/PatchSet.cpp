@@ -1,14 +1,17 @@
+#include <common/Statistics.h>
+
 #include "java/util/ArrayList.txx"
 #include "skin/PatchSet.h"
 
-#include <common/error.h>
-#include <common/Statistics.h>
-
-PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(nullptr, nullptr, GeometryClassId::PATCH_SET) {
+PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(nullptr, GeometryClassId::PATCH_SET) {
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
     }
+
+    patchListBounds(getPatchList(), &boundingBox);
+    boundingBox.enlargeTinyBit();
+    bounded = true;
 }
 
 PatchSet::~PatchSet() {
@@ -50,10 +53,14 @@ PatchSet::discretizationIntersect(
     int hitFlags,
     RayHit *hitStore) const
 {
+    if ( !discretizationIntersectPreTest(ray, minimumDistance, maximumDistance) ) {
+        return nullptr;
+    }
+
     return Geometry::patchListIntersect(patchList, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }
 
 java::ArrayList<Patch *> *
 PatchSet::getPatchList() const {
-    return patchSetData->patchList;
+    return patchList;
 }
