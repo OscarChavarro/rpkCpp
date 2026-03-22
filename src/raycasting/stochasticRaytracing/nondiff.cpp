@@ -80,15 +80,15 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
         RayHit hit;
         nextLightSample(patch, zeta);
 
-        patch->uniformPoint(zeta[0], zeta[1], &ray.pos);
+        patch->uniformPoint(zeta[0], zeta[1], &ray.position);
 
-        hit.init(patch, &ray.pos, &patch->normal, patch->material);
+        hit.init(patch, &ray.position, &patch->normal, patch->material);
         *dirSelectionPdf = 0.0;
-        ray.dir.x = 0.0;
-        ray.dir.y = 0.0;
-        ray.dir.z = 0.0;
+        ray.direction.x = 0.0;
+        ray.direction.y = 0.0;
+        ray.direction.z = 0.0;
         if ( patch->material->getEdf() != nullptr ) {
-            ray.dir = patch->material->getEdf()->phongEdfSample(
+            ray.direction = patch->material->getEdf()->phongEdfSample(
                 &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
         }
     } while ( *dirSelectionPdf == 0.0 );
@@ -113,7 +113,7 @@ sampleLight(const VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, doub
     hit = mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
-        double outCos = ray.dir.dotProduct(light->patch->normal);
+        double outCos = ray.direction.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgb Rd = topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);

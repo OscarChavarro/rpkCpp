@@ -153,10 +153,10 @@ FormFactorStrategy::evaluatePointsPairKernel(
 {
     // Trace the ray from source to receiver (y to x) to handle one-sided surfaces correctly
     Ray ray;
-    ray.pos = *y;
-    ray.dir.subtraction(*x, *y);
-    double distance = ray.dir.norm();
-    ray.dir.inverseScaledCopy((float) distance, ray.dir, Numeric::EPSILON_FLOAT);
+    ray.position = *y;
+    ray.direction.subtraction(*x, *y);
+    double distance = ray.direction.norm();
+    ray.direction.inverseScaledCopy((float) distance, ray.direction, Numeric::EPSILON_FLOAT);
 
     // Don't allow too nearby nodes to interact
     if ( distance < Numeric::EPSILON ) {
@@ -170,7 +170,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( sourceElement->isCluster() ) {
         cosThetaY = 0.25;
     } else {
-        cosThetaY = ray.dir.dotProduct(sourceElement->patch->normal);
+        cosThetaY = ray.direction.dotProduct(sourceElement->patch->normal);
         if ( cosThetaY <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
@@ -182,7 +182,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( receiverElement->isCluster() ) {
         cosThetaX = 0.25;
     } else {
-        cosThetaX = -ray.dir.dotProduct(receiverElement->patch->normal);
+        cosThetaX = -ray.direction.dotProduct(receiverElement->patch->normal);
         if ( cosThetaX <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;

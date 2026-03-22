@@ -21,6 +21,17 @@ A bounding box is represented as an array of 6 floating point numbers.
 The meaning of the numbers is given by the constants MIN_X
 */
 class BoundingBox {
+  private:
+    void inline
+    setIfLess(float &a, const float &b) {
+        a = a < b ? a : b;
+    }
+
+    void inline
+    setIfGreater(float &a, const float &b) {
+        a = a > b ? a : b;
+    }
+
   public:
     float coordinates[6];
     BoundingBox();
@@ -45,7 +56,7 @@ class BoundingBox {
 
     bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
     bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
-    bool behindPlane(const Vector3D *norm, float d) const;
+    bool behindPlane(const Vector3D *normal, float distance) const;
     void copyFrom(const BoundingBox *other);
     void enlarge(const BoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);

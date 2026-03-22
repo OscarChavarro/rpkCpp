@@ -5,8 +5,8 @@
 
 class Ray {
   public:
-    Vector3D pos;
-    Vector3D dir; // Direction is supposed to be normalized
+    Vector3D position;
+    Vector3D direction; // Direction should be normalized
 };
 
 #endif

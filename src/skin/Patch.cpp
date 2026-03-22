@@ -925,7 +925,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    float distance = normal.dotProduct(ray->dir);
+    float distance = normal.dotProduct(ray->direction);
     if ( distance > Numeric::EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & RayHitFlag::BACK) ) {
@@ -947,7 +947,7 @@ Patch::intersect(
         return nullptr;
     }
 
-    distance = -(normal.dotProduct(ray->pos) + planeConstant) / distance;
+    distance = -(normal.dotProduct(ray->position) + planeConstant) / distance;
 
     if ( distance > *maximumDistance || distance < minimumDistance ) {
         // Intersection too far or too close
@@ -956,7 +956,7 @@ Patch::intersect(
 
     // Intersection point of ray with plane of patch
     Vector3D position;
-    position.sumScaled(ray->pos, distance, ray->dir);
+    position.sumScaled(ray->position, distance, ray->direction);
     hit.setPoint(&position);
 
     // Test whether it lays inside or outside the patch

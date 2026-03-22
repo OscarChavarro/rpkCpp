@@ -125,15 +125,15 @@ RayCaster::getRadianceAtPixel(
     if ( radianceMethod != nullptr ) {
         // Ray pointing from the eye through the center of the pixel.
         Ray ray;
-        ray.pos = camera->eyePosition;
-        ray.dir = screenBuffer->getPixelVector(x, y);
-        ray.dir.normalize(Numeric::EPSILON_FLOAT);
+        ray.position = camera->eyePosition;
+        ray.direction = screenBuffer->getPixelVector(x, y);
+        ray.direction.normalize(Numeric::EPSILON_FLOAT);
 
         // Find intersection point of ray with patch
         Vector3D point;
-        float dist = patch->normal.dotProduct(ray.dir);
-        dist = -(patch->normal.dotProduct(ray.pos) + patch->planeConstant) / dist;
-        point.sumScaled(ray.pos, dist, ray.dir);
+        float dist = patch->normal.dotProduct(ray.direction);
+        dist = -(patch->normal.dotProduct(ray.position) + patch->planeConstant) / dist;
+        point.sumScaled(ray.position, dist, ray.direction);
 
         // Find surface coordinates of hit point on patch
         double u;
@@ -146,7 +146,7 @@ RayCaster::getRadianceAtPixel(
         clipUv(patch->numberOfVertices, &u, &v);
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
-        Vector3D dir(-ray.dir.x, -ray.dir.y, -ray.dir.z);
+        Vector3D dir(-ray.direction.x, -ray.direction.y, -ray.direction.z);
         radiance = radianceMethod->getRadiance(camera, patch, u, v, dir, renderOptions);
     }
     return radiance;

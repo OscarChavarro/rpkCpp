@@ -9,16 +9,6 @@ BoundingBox::BoundingBox(): coordinates() {
     coordinates[MAX_Z] = -Numeric::HUGE_FLOAT_VALUE;
 }
 
-static void inline
-setIfLess(float &a, const float &b) {
-    a = a < b ? a : b;
-}
-
-static void inline
-setIfGreater(float &a, const float &b) {
-    a = a > b ? a : b;
-}
-
 /**
 Enlarge BoundingBox with other
 */
@@ -81,8 +71,8 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
     float minimumDistance = *tMin;
     float maximumDistance = *tMax;
 
-    float dir = ray->dir.x;
-    float pos = ray->pos.x;
+    float dir = ray->direction.x;
+    float pos = ray->position.x;
 
     if ( dir < 0 ) {
         t = (coordinates[MIN_X] - pos) / dir;
@@ -118,8 +108,8 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         return false;
     }
 
-    dir = ray->dir.y;
-    pos = ray->pos.y;
+    dir = ray->direction.y;
+    pos = ray->position.y;
 
     if ( dir < 0 ) {
         t = (coordinates[MIN_Y] - pos) / dir;
@@ -155,8 +145,8 @@ BoundingBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const
         return false;
     }
 
-    dir = ray->dir.z;
-    pos = ray->pos.z;
+    dir = ray->direction.z;
+    pos = ray->position.z;
 
     if ( dir < 0 ) {
         t = (coordinates[MIN_Z] - pos) / dir;
@@ -228,31 +218,31 @@ BoundingBox::intersect(const Ray *ray, float minimumDistance, float *maximumDist
 
 /**
 Returns true if the bounding box is behind the plane defined by norm and d
-see F. Tampieri, "Faster Vertex Radiosity Update", Graphics Gems II, p 303
+see F. Tampieri, "Fast Vertex Radiosity Update", Graphics Gems II, p 303
 */
 bool
-BoundingBox::behindPlane(const Vector3D *norm, float d) const {
+BoundingBox::behindPlane(const Vector3D *normal, float distance) const {
     Vector3D P;
 
-    if ( norm->x > 0.0f ) {
+    if ( normal->x > 0.0f ) {
         P.x = coordinates[MAX_X];
     } else {
         P.x = coordinates[MIN_X];
     }
 
-    if ( norm->y > 0.0f ) {
+    if ( normal->y > 0.0f ) {
         P.y = coordinates[MAX_Y];
     } else {
         P.y = coordinates[MIN_Y];
     }
 
-    if ( norm->z > 0.0f ) {
+    if ( normal->z > 0.0f ) {
         P.z = coordinates[MAX_Z];
     } else {
         P.z = coordinates[MIN_Z];
     }
 
-    return norm->dotProduct(P) + d <= 0.0;
+    return normal->dotProduct(P) + distance <= 0.0;
 }
 
 /**

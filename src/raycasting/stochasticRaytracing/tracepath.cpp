@@ -116,9 +116,9 @@ tracePath(
         topLevelStochasticRadiosityElement(P)->rayIndex++;
         if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
-            ray.pos = path->nodes[path->numberOfNodes - 1].inPoint;
+            ray.position = path->nodes[path->numberOfNodes - 1].inPoint;
         }
-        path->nodes[path->numberOfNodes - 1].outpoint = ray.pos;
+        path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
 
         hit = mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
         if ( !hit ) {

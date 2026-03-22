@@ -629,8 +629,8 @@ Shaft::shaftPatchTest(Patch *patch) {
     // If the line segment connecting the midpoints of the polygons defining
     // the shaft intersects the patch, the patch cuts the shaft. If not,
     // the patch lays fully outside
-    ray.pos = center1;
-    ray.dir.subtraction(center2, center1);
+    ray.position = center1;
+    ray.direction.subtraction(center2, center1);
     dist = 1.0f - Numeric::EPSILON_FLOAT;
     if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
         cut = true;

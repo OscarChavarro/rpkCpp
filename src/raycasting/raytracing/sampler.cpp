@@ -24,8 +24,8 @@ Sampler::sampleTransfer(
     double pdfDir)
 {
     Ray ray;
-    ray.pos = thisNode->m_hit.getPoint();
-    ray.dir = *dir;
+    ray.position = thisNode->m_hit.getPoint();
+    ray.direction = *dir;
 
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
@@ -66,7 +66,7 @@ Sampler::sampleTransfer(
         newNode->m_hit.setNormal(&normal);
     }
 
-    newNode->m_inDirT.copy(ray.dir);
+    newNode->m_inDirT.copy(ray.direction);
     newNode->m_inDirF.scaledCopy(-1, newNode->m_inDirT);
 
     // Check for shading normal vs. geometric normal errors

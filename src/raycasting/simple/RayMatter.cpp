@@ -136,9 +136,9 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
 
                 // Generate ray
                 Ray ray;
-                ray.pos = camera->eyePosition;
-                ray.dir = screenBuffer->getPixelVector(x, y, (float)dx, (float)dy);
-                ray.dir.normalize(Numeric::EPSILON_FLOAT);
+                ray.position = camera->eyePosition;
+                ray.direction = screenBuffer->getPixelVector(x, y, (float)dx, (float)dy);
+                ray.direction.normalize(Numeric::EPSILON_FLOAT);
 
                 // Check if hit
                 if ( findRayIntersection(sceneWorldVoxelGrid, &ray, nullptr, nullptr, nullptr) != nullptr ) {

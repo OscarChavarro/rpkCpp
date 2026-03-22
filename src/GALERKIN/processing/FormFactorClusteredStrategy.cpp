@@ -116,7 +116,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     Vector3D vectorTmp;
     const GalerkinElement *cluster = (GalerkinElement *)geometry->radianceData;
 
-    vectorTmp.sumScaled(ray->pos, tMinimum, ray->dir);
+    vectorTmp.sumScaled(ray->position, tMinimum, ray->direction);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
         if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within

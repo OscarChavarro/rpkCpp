@@ -276,13 +276,13 @@ VoxelGrid::gridBoundsIntersect(
     Vector3D *position) const
 {
     *t0 = minimumDistance;
-    position->sumScaled(ray->pos, *t0, ray->dir);
+    position->sumScaled(ray->position, *t0, ray->direction);
     if ( boundingBox.outOfBounds(position) ) {
         *t0 = maximumDistance;
         if ( !boundingBox.intersect(ray, minimumDistance, t0) ) {
             return false;
         }
-        position->sumScaled(ray->pos, *t0, ray->dir);
+        position->sumScaled(ray->position, *t0, ray->direction);
     }
 
     return true;
@@ -326,15 +326,15 @@ VoxelGrid::gridTraceSetup(
     out[0] is -1 or xSize: the first x grid cell index outside the
     grid.
     */
-    if ( java::Math::abs(ray->dir.x) > Numeric::EPSILON ) {
-        if ( ray->dir.x > 0.0 ) {
-            tDelta->x = voxelSize.x / ray->dir.x;
-            tNext->x = t0 + (voxel2x(static_cast<float>(g[0]) + 1) - P->x) / ray->dir.x;
+    if ( java::Math::abs(ray->direction.x) > Numeric::EPSILON ) {
+        if ( ray->direction.x > 0.0 ) {
+            tDelta->x = voxelSize.x / ray->direction.x;
+            tNext->x = t0 + (voxel2x(static_cast<float>(g[0]) + 1) - P->x) / ray->direction.x;
             step[0] = 1;
             out[0] = xSize;
         } else {
-            tDelta->x = voxelSize.x / -ray->dir.x;
-            tNext->x = t0 + (voxel2x(static_cast<float>(g[0])) - P->x) / ray->dir.x;
+            tDelta->x = voxelSize.x / -ray->direction.x;
+            tNext->x = t0 + (voxel2x(static_cast<float>(g[0])) - P->x) / ray->direction.x;
             step[0] = out[0] = -1;
         }
     } else {
@@ -343,15 +343,15 @@ VoxelGrid::gridTraceSetup(
     }
 
     // Setup Y:
-    if ( java::Math::abs(ray->dir.y) > Numeric::EPSILON ) {
-        if ( ray->dir.y > 0.0 ) {
-            tDelta->y = voxelSize.y / ray->dir.y;
-            tNext->y = t0 + (voxel2y(static_cast<float>(g[1]) + 1) - P->y) / ray->dir.y;
+    if ( java::Math::abs(ray->direction.y) > Numeric::EPSILON ) {
+        if ( ray->direction.y > 0.0 ) {
+            tDelta->y = voxelSize.y / ray->direction.y;
+            tNext->y = t0 + (voxel2y(static_cast<float>(g[1]) + 1) - P->y) / ray->direction.y;
             step[1] = 1;
             out[1] = ySize;
         } else {
-            tDelta->y = voxelSize.y / -ray->dir.y;
-            tNext->y = t0 + (voxel2y(static_cast<float>(g[1])) - P->y) / ray->dir.y;
+            tDelta->y = voxelSize.y / -ray->direction.y;
+            tNext->y = t0 + (voxel2y(static_cast<float>(g[1])) - P->y) / ray->direction.y;
             step[1] = out[1] = -1;
         }
     } else {
@@ -360,15 +360,15 @@ VoxelGrid::gridTraceSetup(
     }
 
     // Setup Z:
-    if ( java::Math::abs(ray->dir.z) > Numeric::EPSILON ) {
-        if ( ray->dir.z > 0.0 ) {
-            tDelta->z = voxelSize.z / ray->dir.z;
-            tNext->z = t0 + (voxel2z(static_cast<float>(g[2]) + 1) - P->z) / ray->dir.z;
+    if ( java::Math::abs(ray->direction.z) > Numeric::EPSILON ) {
+        if ( ray->direction.z > 0.0 ) {
+            tDelta->z = voxelSize.z / ray->direction.z;
+            tNext->z = t0 + (voxel2z(static_cast<float>(g[2]) + 1) - P->z) / ray->direction.z;
             step[2] = 1;
             out[2] = zSize;
         } else {
-            tDelta->z = voxelSize.z / -ray->dir.z;
-            tNext->z = t0 + (voxel2z(static_cast<float>(g[2])) - P->z) / ray->dir.z;
+            tDelta->z = voxelSize.z / -ray->direction.z;
+            tNext->z = t0 + (voxel2z(static_cast<float>(g[2])) - P->z) / ray->direction.z;
             step[2] = out[2] = -1;
         }
     } else {

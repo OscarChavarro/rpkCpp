@@ -41,8 +41,8 @@ mcrGenerateLocalLine(const Patch *patch, const double *xi) {
         previousPatch = patch;
     }
 
-    patch->uniformPoint(xi[0], xi[1], &ray.pos);
-    ray.dir = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf);
+    patch->uniformPoint(xi[0], xi[1], &ray.position);
+    ray.direction = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf);
 
     return ray;
 }

@@ -165,7 +165,7 @@ Geometry::discretizationIntersectPreTest(
         Vector3D vTmp;
 
         // Check ray/bounding volume intersection
-        vTmp.sumScaled(ray->pos, minimumDistance, ray->dir);
+        vTmp.sumScaled(ray->position, minimumDistance, ray->direction);
         if ( boundingBox.outOfBounds(&vTmp) ) {
             float nMaximumDistance = *maximumDistance;
             if ( !boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
