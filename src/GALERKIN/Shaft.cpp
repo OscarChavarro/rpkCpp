@@ -58,13 +58,8 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
 
     // Midpoints of the reference boxes define a line that is guaranteed
     // to lay within the shaft
-    center1.x = 0.5f * (boundingBox1->coordinates[MIN_X] + boundingBox1->coordinates[MAX_X]);
-    center1.y = 0.5f * (boundingBox1->coordinates[MIN_Y] + boundingBox1->coordinates[MAX_Y]);
-    center1.z = 0.5f * (boundingBox1->coordinates[MIN_Z] + boundingBox1->coordinates[MAX_Z]);
-
-    center2.x = 0.5f * (boundingBox2->coordinates[MIN_X] + boundingBox2->coordinates[MAX_X]);
-    center2.y = 0.5f * (boundingBox2->coordinates[MIN_Y] + boundingBox2->coordinates[MAX_Y]);
-    center2.z = 0.5f * (boundingBox2->coordinates[MIN_Z] + boundingBox2->coordinates[MAX_Z]);
+    center1 = boundingBox1->center();
+    center2 = boundingBox2->center();
 
     // 2. Compute the extent bounding box containing both reference items [HAIN1991]
     bool hasMinMax1[MIN_MAX_DIMENSIONS]; // Representation of culled edges for the extent bounding box
@@ -75,31 +70,8 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
         hasMinMax2[i] = false;
     }
 
-    for ( int dimension = MIN_X; dimension <= MIN_Z; dimension++ ) {
-        if ( referenceItem1->coordinates[dimension] < referenceItem2->coordinates[dimension] ) {
-            extentBoundingBox.coordinates[dimension] = referenceItem1->coordinates[dimension];
-            hasMinMax1[dimension] = true;
-        } else {
-            extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !Numeric::doubleEqual(
-                  referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
-                hasMinMax2[dimension] = true;
-            }
-        }
-    }
-
-    for ( int dimension = MAX_X; dimension <= MAX_Z; dimension++ ) {
-        if ( referenceItem1->coordinates[dimension] > referenceItem2->coordinates[dimension] ) {
-            extentBoundingBox.coordinates[dimension] = referenceItem1->coordinates[dimension];
-            hasMinMax1[dimension] = true;
-        } else {
-            extentBoundingBox.coordinates[dimension] = referenceItem2->coordinates[dimension];
-            if ( !Numeric::doubleEqual(
-                referenceItem1->coordinates[dimension], referenceItem2->coordinates[dimension], Numeric::EPSILON) ) {
-                hasMinMax2[dimension] = true;
-            }
-        }
-    }
+    extentBoundingBox.setAsUnion(referenceItem1, referenceItem2);
+    referenceItem1->computeContributionFlags(referenceItem2, hasMinMax1, hasMinMax2);
 
     // 3. Create the plane set between the two reference items' boxes [HAIN1991]
     ShaftPlane *localPlane = &planeSet[0];

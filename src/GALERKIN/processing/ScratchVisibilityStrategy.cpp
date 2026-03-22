@@ -70,13 +70,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     cluster->geometry->getBoundingBox().transformTo(&lookAt, &bbx);
 
     prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
-    Matrix4x4 o = Matrix4x4::createOrthogonalViewMatrix(
-            bbx.coordinates[MIN_X],
-            bbx.coordinates[MAX_X],
-            bbx.coordinates[MIN_Y],
-            bbx.coordinates[MAX_Y],
-            -bbx.coordinates[MAX_Z],
-            -bbx.coordinates[MIN_Z]);
+    Matrix4x4 o = bbx.createOrthographicProjectionMatrix();
     GLOBAL_sgl_currentContext->sglLoadMatrix(&o);
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(&lookAt);
 

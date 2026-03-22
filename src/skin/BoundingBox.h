@@ -34,13 +34,60 @@ class BoundingBox {
 
   public:
     float coordinates[6];
+
     BoundingBox();
+
+    inline float
+    maxExtent() const {
+        const float dx = coordinates[MAX_X] - coordinates[MIN_X];
+        const float dy = coordinates[MAX_Y] - coordinates[MIN_Y];
+        const float dz = coordinates[MAX_Z] - coordinates[MIN_Z];
+        return dx > dy
+           ? (dx > dz ? dx : dz)
+           : (dy > dz ? dy : dz);
+    }
+
+    inline Matrix4x4
+    createOrthographicProjectionMatrix() const {
+        return Matrix4x4::createOrthogonalViewMatrix(
+                coordinates[MIN_X],
+                coordinates[MAX_X],
+                coordinates[MIN_Y],
+                coordinates[MAX_Y],
+                -coordinates[MAX_Z],
+                -coordinates[MIN_Z]
+        );
+    }
 
     inline bool
     outOfBounds(const Vector3D *p) const {
         return p->x < coordinates[MIN_X] || p->x > coordinates[MAX_X] ||
                p->y < coordinates[MIN_Y] || p->y > coordinates[MAX_Y] ||
                p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
+    }
+
+    inline Vector3D
+    center() const {
+        return Vector3D(
+          0.5f * (coordinates[MIN_X] + coordinates[MAX_X]),
+          0.5f * (coordinates[MIN_Y] + coordinates[MAX_Y]),
+          0.5f * (coordinates[MIN_Z] + coordinates[MAX_Z])
+        );
+    }
+
+    inline void
+    setAsUnion(const BoundingBox *a, const BoundingBox *b) {
+        for (int i = MIN_X; i <= MIN_Z; i++) {
+            coordinates[i] = a->coordinates[i] < b->coordinates[i]
+                             ? a->coordinates[i]
+                             : b->coordinates[i];
+        }
+
+        for (int i = MAX_X; i <= MAX_Z; i++) {
+            coordinates[i] = a->coordinates[i] > b->coordinates[i]
+                             ? a->coordinates[i]
+                             : b->coordinates[i];
+        }
     }
 
     /**
@@ -62,6 +109,39 @@ class BoundingBox {
     void enlargeToIncludePoint(const Vector3D *point);
     void transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const;
     void enlargeTinyBit();
+
+    inline void
+    computeContributionFlags(
+        const BoundingBox *other,
+        bool *hasMinMax1,
+        bool *hasMinMax2
+    ) {
+        for (int i = MIN_X; i <= MIN_Z; i++) {
+            if ( coordinates[i] < other->coordinates[i]) {
+                hasMinMax1[i] = true;
+            } else {
+                if (!Numeric::doubleEqual(
+                        coordinates[i],
+                        other->coordinates[i],
+                        Numeric::EPSILON)) {
+                    hasMinMax2[i] = true;
+                }
+            }
+        }
+
+        for (int i = MAX_X; i <= MAX_Z; i++) {
+            if ( coordinates[i] > other->coordinates[i]) {
+                hasMinMax1[i] = true;
+            } else {
+                if (!Numeric::doubleEqual(
+                        coordinates[i],
+                        other->coordinates[i],
+                        Numeric::EPSILON)) {
+                    hasMinMax2[i] = true;
+                }
+            }
+        }
+    }
 };
 
 #endif

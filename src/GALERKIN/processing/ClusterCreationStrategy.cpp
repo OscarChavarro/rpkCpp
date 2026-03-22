@@ -96,9 +96,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility
-    const float *box = galerkinElement->geometry->boundingBox.coordinates;
-    galerkinElement->blockerSize = java::Math::max((box[MAX_X] - box[MIN_X]), (box[MAX_Y] - box[MIN_Y]));
-    galerkinElement->blockerSize = java::Math::max(galerkinElement->blockerSize, (box[MAX_Z] - box[MIN_Z]));
+    galerkinElement->blockerSize = galerkinElement->geometry->boundingBox.maxExtent();
 }
 
 /**

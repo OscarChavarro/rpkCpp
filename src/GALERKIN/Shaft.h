@@ -74,7 +74,7 @@ class Shaft {
     int patchIsOnOmitSet(unsigned id) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
 
-  public:
+public:
     Shaft();
 
     static void freeCandidateList(java::ArrayList<Geometry *> *candidateList);

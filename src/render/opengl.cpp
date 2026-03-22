@@ -209,14 +209,9 @@ openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
 Squared distance to midpoint (avoid taking square root)
 */
 static float
-openGlBoundsDistance2(Vector3D p, const float *bounds) {
-    Vector3D mid;
+openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox) {
+    Vector3D mid = boundingBox->center();
     Vector3D d;
-
-    mid.set(
-        0.5f * (bounds[MIN_X] + bounds[MAX_X]),
-        0.5f * (bounds[MIN_Y] + bounds[MAX_Y]),
-        0.5f * (bounds[MIN_Z] + bounds[MAX_Z]));
     d.subtraction(mid, p);
 
     return d.norm2();
@@ -264,7 +259,7 @@ openGlRenderOctreeNonLeaf(
         } else {
             // Not culled, compute distance from eye to midpoint of child
             octree_children[i].distance = openGlBoundsDistance2(
-                camera->eyePosition, octree_children[i].geometry->boundingBox.coordinates);
+                camera->eyePosition, &octree_children[i].geometry->boundingBox);
         }
     }
 
