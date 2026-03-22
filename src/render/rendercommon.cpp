@@ -13,7 +13,8 @@ camera
 void
 renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
-    Vector3D b[2];
+    Vector3D minimum;
+    Vector3D maximum;
     Vector3D d;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
@@ -24,15 +25,18 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
 
     geometryListBounds(sceneGeometries, &bounds);
 
-    b[0].set(bounds.coordinates[MIN_X], bounds.coordinates[MIN_Y], bounds.coordinates[MIN_Z]);
-    b[1].set(bounds.coordinates[MAX_X], bounds.coordinates[MAX_Y], bounds.coordinates[MAX_Z]);
+    minimum.set(bounds.minX(), bounds.minY(), bounds.minZ());
+    maximum.set(bounds.maxX(), bounds.maxY(), bounds.maxZ());
 
     camera->far = -Numeric::HUGE_FLOAT_VALUE;
     camera->near = Numeric::HUGE_FLOAT_VALUE;
     for ( int i = 0; i <= 1; i++ ) {
         for ( int j = 0; j <= 1; j++ ) {
             for ( int k = 0; k <= 1; k++ ) {
-                d.set(b[i].x, b[j].y, b[k].z);
+                d.set(i ? maximum.x : minimum.x,
+                      j ? maximum.y : minimum.y,
+                      k ? maximum.z : minimum.z);
+
                 d.subtraction(d, camera->eyePosition);
                 float z = d.dotProduct(camera->Z);
 
@@ -64,14 +68,21 @@ void
 renderBoundingBox(BoundingBox boundingBox) {
     Vector3D p[8];
 
-    p[0].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
-    p[1].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
-    p[2].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MIN_Z]);
-    p[3].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MIN_Z]);
-    p[4].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MAX_Z]);
-    p[5].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MAX_Z]);
-    p[6].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MAX_Z]);
-    p[7].set(boundingBox.coordinates[MAX_X], boundingBox.coordinates[MAX_Y], boundingBox.coordinates[MAX_Z]);
+    const float minX = boundingBox.minX();
+    const float minY = boundingBox.minY();
+    const float minZ = boundingBox.minZ();
+    const float maxX = boundingBox.maxX();
+    const float maxY = boundingBox.maxY();
+    const float maxZ = boundingBox.maxZ();
+
+    p[0].set(minX, minY, minZ);
+    p[1].set(maxX, minY, minZ);
+    p[2].set(minX, maxY, minZ);
+    p[3].set(maxX, maxY, minZ);
+    p[4].set(minX, minY, maxZ);
+    p[5].set(maxX, minY, maxZ);
+    p[6].set(minX, maxY, maxZ);
+    p[7].set(maxX, maxY, maxZ);
 
     openGlRenderLine(&p[0], &p[1]);
     openGlRenderLine(&p[1], &p[3]);

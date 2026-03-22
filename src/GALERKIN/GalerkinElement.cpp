@@ -460,12 +460,9 @@ int
 GalerkinElement::vertices(Vector3D *p, int n) const {
     if ( isCluster() ) {
         BoundingBox boundingBox;
-
         bounds(&boundingBox);
 
-        for ( int i = 0; i < n; i++ ) {
-            p[i].set(boundingBox.coordinates[MIN_X], boundingBox.coordinates[MIN_Y], boundingBox.coordinates[MIN_Z]);
-        }
+        boundingBox.corners(p);
 
         return 8;
     } else {
@@ -476,43 +473,36 @@ GalerkinElement::vertices(Vector3D *p, int n) const {
             topTransform(&topTrans);
         }
 
-        uv.u = 0.0;
-        uv.v = 0.0;
+        uv.u = 0.0f;
+        uv.v = 0.0f;
         if ( transformToParent != nullptr ) {
             topTrans.transformPoint2D(uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[0]);
 
-        uv.u = 1.0;
-        uv.v = 0.0;
+        uv.u = 1.0f;
+        uv.v = 0.0f;
         if ( transformToParent != nullptr ) {
             topTrans.transformPoint2D(uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        if ( patch->numberOfVertices == 4 ) {
-            uv.u = 1.0;
-            uv.v = 1.0;
-            if ( transformToParent != nullptr ) {
-                topTrans.transformPoint2D(uv, uv);
-            }
-            patch->uniformPoint(uv.u, uv.v, &p[2]);
+        uv.u = 0.0f;
+        uv.v = 1.0f;
+        if ( transformToParent != nullptr ) {
+            topTrans.transformPoint2D(uv, uv);
+        }
+        patch->uniformPoint(uv.u, uv.v, &p[2]);
 
-            uv.u = 0.0;
-            uv.v = 1.0;
+        if ( patch->numberOfVertices == 4 ) {
+            uv.u = 1.0f;
+            uv.v = 1.0f;
             if ( transformToParent != nullptr ) {
                 topTrans.transformPoint2D(uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
-            uv.u = 0.0;
-            uv.v = 1.0;
-            if ( transformToParent != nullptr ) {
-                topTrans.transformPoint2D(uv, uv);
-            }
-            patch->uniformPoint(uv.u, uv.v, &p[2]);
-
-            p[3].set(0.0, 0.0, 0.0);
+            p[3].set(0.0f, 0.0f, 0.0f);
         }
 
         return patch->numberOfVertices;
@@ -524,24 +514,21 @@ Computes the midpoint of the element
 */
 Vector3D
 GalerkinElement::midPoint() const {
-    Vector3D c;
-
     if ( isCluster() ) {
-        c.set((geometry->getBoundingBox().coordinates[MIN_X] + geometry->getBoundingBox().coordinates[MAX_X]) / 2.0f,
-              (geometry->getBoundingBox().coordinates[MIN_Y] + geometry->getBoundingBox().coordinates[MAX_Y]) / 2.0f,
-              (geometry->getBoundingBox().coordinates[MIN_Z] + geometry->getBoundingBox().coordinates[MAX_Z]) / 2.0f);
+        return geometry->getBoundingBox().center();
     } else {
         Vector3D p[8];
         int numberOfVertices = vertices(p, 4);
 
-        c.set(0.0, 0.0, 0.0);
+        Vector3D c(0.0f, 0.0f, 0.0f);
+
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c.addition(c, p[i]);
         }
-        c.scaledCopy((1.0f / (float) numberOfVertices), c);
-    }
 
-    return c;
+        c.scaledCopy(1.0f / (float)numberOfVertices, c);
+        return c;
+    }
 }
 
 /**

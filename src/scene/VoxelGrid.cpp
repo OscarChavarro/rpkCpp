@@ -11,6 +11,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "scene/VoxelGrid.h"
 
 static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
+static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
 
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
@@ -93,84 +94,43 @@ VoxelGrid::freeVoxelGridElements() {
     }
 }
 
-int
-VoxelGrid::isSmall(const float *boundsArr) const {
-    return (boundsArr[MAX_X] - boundsArr[MIN_X]) <= voxelSize.x &&
-           (boundsArr[MAX_Y] - boundsArr[MIN_Y]) <= voxelSize.y &&
-           (boundsArr[MAX_Z] - boundsArr[MIN_Z]) <= voxelSize.z;
+bool
+VoxelGrid::isSmall(const BoundingBox *bb) const {
+    return bb->dx() <= voxelSize.x &&
+           bb->dy() <= voxelSize.y &&
+           bb->dz() <= voxelSize.z;
 }
 
 void
 VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const {
-    // Enlarge the boundaries by a small amount in all directions
+
     BoundingBox boundaries;
-    float xExtent = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 1e-4f;
-    float yExtent = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 1e-4f;
-    float zExtent = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 1e-4f;
     boundaries.copyFrom(itemBounds);
-    boundaries.coordinates[MIN_X] -= xExtent;
-    boundaries.coordinates[MAX_X] += xExtent;
-    boundaries.coordinates[MIN_Y] -= yExtent;
-    boundaries.coordinates[MAX_Y] += yExtent;
-    boundaries.coordinates[MIN_Z] -= zExtent;
-    boundaries.coordinates[MAX_Z] += zExtent;
+    boundaries.enlargeByFactor(DELTA_BOUND_FACTOR);
 
-    short minA = x2voxel(boundaries.coordinates[MIN_X]);
-    if ( minA >= xSize ) {
-        minA = static_cast<short>(xSize - 1);
-    }
-    if ( minA < 0 ) {
-        minA = 0;
-    }
+    Vector3D minVoxel = toVoxelClamped(boundaries.minPoint());
+    Vector3D maxVoxel = toVoxelClamped(boundaries.maxPoint());
 
-    short maxA = x2voxel(boundaries.coordinates[MAX_X]);
-    if ( maxA >= xSize ) {
-        maxA = static_cast<short>(xSize - 1);
-    }
-    if ( maxA < 0 ) {
-        maxA = 0;
-    }
+    short minA = static_cast<short>(minVoxel.x);
+    short minB = static_cast<short>(minVoxel.y);
+    short minC = static_cast<short>(minVoxel.z);
 
-    short minB = y2voxel(boundaries.coordinates[MIN_Y]);
-    if ( minB >= ySize ) {
-        minB = static_cast<short>(ySize - 1);
-    }
-    if ( minB < 0 ) {
-        minB = 0;
-    }
-
-    short maxB = y2voxel(boundaries.coordinates[MAX_Y]);
-    if ( maxB >= ySize ) {
-        maxB = static_cast<short>(ySize - 1);
-    }
-    if ( maxB < 0 ) {
-        maxB = 0;
-    }
-
-    short minC = z2voxel(boundaries.coordinates[MIN_Z]);
-    if ( minC >= zSize ) {
-        minC = static_cast<short>(zSize - 1);
-    }
-    if ( minC < 0 ) {
-        minC = 0;
-    }
-
-    short maxC = z2voxel(boundaries.coordinates[MAX_Z]);
-    if ( maxC >= zSize ) {
-        maxC = static_cast<short>(zSize - 1);
-    }
-    if ( maxC < 0 ) {
-        maxC = 0;
-    }
+    short maxA = static_cast<short>(maxVoxel.x);
+    short maxB = static_cast<short>(maxVoxel.y);
+    short maxC = static_cast<short>(maxVoxel.z);
 
     // Insert the current item in to all voxels that intersects with bounding box
     for ( short a = minA; a <= maxA; a++ ) {
         for ( short b = minB; b <= maxB; b++ ) {
             for ( short c = minC; c <= maxC; c++ ) {
-                java::ArrayList<VoxelData *> **voxelList = &volumeListsOfItems[cellIndexAddress(a, b, c)];
+
+                java::ArrayList<VoxelData *> **voxelList =
+                        &volumeListsOfItems[cellIndexAddress(a, b, c)];
+
                 if ( (*voxelList) == nullptr ) {
                     (*voxelList) = new java::ArrayList<VoxelData *>(1);
                 }
+
                 if ( item != nullptr ) {
                     (*voxelList)->add(item);
                 }
@@ -193,33 +153,81 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
     addToCellsDeletionCache(voxelData);
 }
 
+short
+VoxelGrid::clampVoxel(short v, short max) const {
+    if (v < 0) return 0;
+    if (v >= max) return static_cast<short>(max - 1);
+    return v;
+}
+
+Vector3D
+VoxelGrid::toVoxelClamped(const Vector3D &p) const {
+    return Vector3D(
+            clampVoxel(x2voxel(p.x), xSize),
+            clampVoxel(y2voxel(p.y), ySize),
+            clampVoxel(z2voxel(p.z), zSize)
+    );
+}
+
+bool
+VoxelGrid::shouldSubdivide(const Geometry *geometry) const {
+    return geometry->itemCount >= MINIMUM_ELEMENT_COUNT_PER_CELL;
+}
+
+void
+VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) {
+    VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK);
+    putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
+    addToCellsDeletionCache(voxelData);
+}
+
+void
+VoxelGrid::insertSubGrid(Geometry *geometry) {
+    VoxelGrid *subGrid = new VoxelGrid(geometry);
+    VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK);
+
+    putItemInsideVoxelGrid(voxelData, &subGrid->boundingBox);
+
+    addToSubGridsDeletionCache(subGrid);
+    addToCellsDeletionCache(voxelData);
+}
+
+void
+VoxelGrid::processCompoundGeometry(Geometry *geometry) {
+    const java::ArrayList<Geometry *> *geometryList =
+            ((const Compound *)geometry)->children;
+
+    for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        putSubGeometryInsideVoxelGrid(geometryList->get(i));
+    }
+}
+
+void
+VoxelGrid::processPatches(Geometry *geometry) {
+    const java::ArrayList<Patch *> *patches =
+            geomPatchArrayListReference(geometry);
+
+    for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
+        putPatchInsideVoxelGrid(patches->get(i));
+    }
+}
+
 void
 VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
-    if ( isSmall(geometry->boundingBox.coordinates) ) {
-        if ( geometry->itemCount < MINIMUM_ELEMENT_COUNT_PER_CELL ) {
-            VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK);
-            putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
-            addToCellsDeletionCache(voxelData);
+    if ( isSmall(&geometry->boundingBox) ) {
+        if ( shouldSubdivide(geometry) ) {
+            insertSubGrid(geometry);
         } else {
-            VoxelGrid *subGrid = new VoxelGrid(geometry);
-            VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK);
-            putItemInsideVoxelGrid(voxelData, &subGrid->boundingBox);
-            addToSubGridsDeletionCache(subGrid);
-            addToCellsDeletionCache(voxelData);
+            insertGeometryAsVoxelData(geometry);
         }
-    } else {
-        if ( geometry->isCompound() ) {
-            const java::ArrayList<Geometry *> *geometryList = ((const Compound *)geometry)->children;
-            for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-                putSubGeometryInsideVoxelGrid(geometryList->get(i));
-            }
-        } else {
-            const java::ArrayList<Patch *> *patches = geomPatchArrayListReference(geometry);
-            for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
-                putPatchInsideVoxelGrid(patches->get(i));
-            }
-        }
+        return;
     }
+
+    if ( geometry->isCompound() ) {
+        processCompoundGeometry(geometry);
+        return;
+    }
+    processPatches(geometry);
 }
 
 void
@@ -230,23 +238,14 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     }
 
     // Enlarge the getBoundingBox by a small amount
-    const float xExtension = (geometry->boundingBox.coordinates[MAX_X] - geometry->boundingBox.coordinates[MIN_X]) * 1e-4f;
-    const float yExtension = (geometry->boundingBox.coordinates[MAX_Y] - geometry->boundingBox.coordinates[MIN_Y]) * 1e-4f;
-    const float zExtension = (geometry->boundingBox.coordinates[MAX_Z] - geometry->boundingBox.coordinates[MIN_Z]) * 1e-4f;
     boundingBox.copyFrom(&geometry->boundingBox);
-    boundingBox.coordinates[MIN_X] -= xExtension;
-    boundingBox.coordinates[MAX_X] += xExtension;
-    boundingBox.coordinates[MIN_Y] -= yExtension;
-    boundingBox.coordinates[MAX_Y] += yExtension;
-    boundingBox.coordinates[MIN_Z] -= zExtension;
-    boundingBox.coordinates[MAX_Z] += zExtension;
-
+    boundingBox.enlargeByFactor(DELTA_BOUND_FACTOR);
     xSize = na;
     ySize = nb;
     zSize = nc;
-    voxelSize.x = (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) / static_cast<float>(na);
-    voxelSize.y = (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) / static_cast<float>(nb);
-    voxelSize.z = (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) / static_cast<float>(nc);
+
+    voxelSize = boundingBox.voxelSize(na, nb, nc);
+
     volumeListsOfItems = new java::ArrayList<VoxelData *> *[na * nb * nc]();
     gridItemPool = nullptr;
     for ( int i = 0; i < na * nb * nc; i++ ) {

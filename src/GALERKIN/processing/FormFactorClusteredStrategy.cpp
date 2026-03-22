@@ -126,18 +126,19 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
         if ( cluster ) {
             // Compute feature size using equivalent blocker size of the occluder
-            float t;
-            t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
+            float t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
             fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
         }
     }
 
     if ( fSize < minimumFeatureSize ) {
         double kappa = 0.0;
-        double vol;
-        vol = (boundingBox->coordinates[MAX_X] - boundingBox->coordinates[MIN_X] + Numeric::EPSILON)
-            * (boundingBox->coordinates[MAX_Y] - boundingBox->coordinates[MIN_Y] + Numeric::EPSILON)
-            * (boundingBox->coordinates[MAX_Z] - boundingBox->coordinates[MIN_Z] + Numeric::EPSILON);
+
+        double vol =
+                (boundingBox->dx() + Numeric::EPSILON) *
+                (boundingBox->dy() + Numeric::EPSILON) *
+                (boundingBox->dz() + Numeric::EPSILON);
+
         if ( cluster != nullptr ) {
             kappa = cluster->area / (4.0 * vol);
         }
@@ -154,7 +155,11 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
             const RayHit *hit = Geometry::patchListIntersect(
                     geomPatchArrayListReference(geometry),
                     ray,
-                    rcvDist * Numeric::EPSILON_FLOAT, &rcvDist, RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
+                    rcvDist * Numeric::EPSILON_FLOAT,
+                    &rcvDist,
+                    RayHitFlag::FRONT | RayHitFlag::ANY,
+                    &hitStore);
+
             if ( hit != nullptr ) {
                 shadowCache->addToShadowCache(hit->getPatch());
                 return 0.0;

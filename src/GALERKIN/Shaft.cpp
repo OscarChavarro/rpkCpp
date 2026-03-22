@@ -90,10 +90,11 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
                 continue;
             }
 
-            float u1 = referenceItem1->coordinates[i]; // Coordinates defining the plane
-            float v1 = referenceItem1->coordinates[j];
-            float u2 = referenceItem2->coordinates[i];
-            float v2 = referenceItem2->coordinates[j];
+            float u1 = referenceItem1->valueAt(i);
+            float v1 = referenceItem1->valueAt(j);
+            float u2 = referenceItem2->valueAt(i);
+            float v2 = referenceItem2->valueAt(j);
+
             float du;
             float dv;
 
@@ -111,9 +112,10 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             localPlane->n[b] = dv;
             localPlane->n[3 - a - b] = 0.0;
             localPlane->d = -(du * u1 + dv * v1);
-            localPlane->coordinateOffset[0] = localPlane->n[0] > 0.0 ? MIN_X : MAX_X;
-            localPlane->coordinateOffset[1] = localPlane->n[1] > 0.0 ? MIN_Y : MAX_Y;
-            localPlane->coordinateOffset[2] = localPlane->n[2] > 0.0 ? MIN_Z : MAX_Z;
+
+            localPlane->coordinateOffset[0] = localPlane->n[0] > 0.0f ? MIN_X : MAX_X;
+            localPlane->coordinateOffset[1] = localPlane->n[1] > 0.0f ? MIN_Y : MAX_Y;
+            localPlane->coordinateOffset[2] = localPlane->n[2] > 0.0f ? MIN_Z : MAX_Z;
 
             localPlane++; // Should avoid using pointer arithmetic
         }
@@ -434,9 +436,10 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
     // outside any shaft plane, the object is outside the shaft
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         const ShaftPlane *localPlane = &planeSet[i];
-        if ( localPlane->n[0] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[0]] +
-             localPlane->n[1] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[1]] +
-             localPlane->n[2] * parameterBoundingBox->coordinates[localPlane->coordinateOffset[2]] +
+
+        if ( localPlane->n[0] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[0]) +
+             localPlane->n[1] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[1]) +
+             localPlane->n[2] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[2]) +
              localPlane->d > -java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
             return ShaftPlanePosition::OUTSIDE;
         }
@@ -453,9 +456,9 @@ Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
     // overlaps the shaft, otherwise it is inside the shaft
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         const ShaftPlane *localPlane = &planeSet[i];
-        if ( localPlane->n[0] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[0] + 3) % 6] +
-             localPlane->n[1] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[1] + 3) % 6] +
-             localPlane->n[2] * parameterBoundingBox->coordinates[(localPlane->coordinateOffset[2] + 3) % 6] +
+        if ( localPlane->n[0] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[0] + 3) % 6) +
+             localPlane->n[1] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[1] + 3) % 6) +
+             localPlane->n[2] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[2] + 3) % 6) +
              localPlane->d > java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
             return ShaftPlanePosition::OVERLAP;
         }

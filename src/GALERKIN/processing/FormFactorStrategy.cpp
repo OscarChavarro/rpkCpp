@@ -86,14 +86,20 @@ FormFactorStrategy::determineNodes(
 
         BoundingBox boundingBox;
         element->bounds(&boundingBox);
-        double dx = boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X];
-        double dy = boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y];
-        double dz = boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z];
+
+        double dx = boundingBox.dx();
+        double dy = boundingBox.dy();
+        double dz = boundingBox.dz();
+
+        const float minX = boundingBox.minX();
+        const float minY = boundingBox.minY();
+        const float minZ = boundingBox.minZ();
+
         for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
             x[k].set(
-                (float)(boundingBox.coordinates[MIN_X] + (*cr)->u[k] * dx),
-                (float)(boundingBox.coordinates[MIN_Y] + (*cr)->v[k] * dy),
-                (float)(boundingBox.coordinates[MIN_Z] + (*cr)->t[k] * dz));
+                    (float)(minX + (*cr)->u[k] * dx),
+                    (float)(minY + (*cr)->v[k] * dy),
+                    (float)(minZ + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element

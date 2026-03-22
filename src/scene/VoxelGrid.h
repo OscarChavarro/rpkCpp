@@ -23,32 +23,38 @@ class VoxelGrid {
 
     inline float
     voxel2x(const float px) const {
-        return px * voxelSize.x + boundingBox.coordinates[MIN_X];
+        return px * voxelSize.x + boundingBox.minX();
     }
 
     inline float
     voxel2y(const float py) const {
-        return py * voxelSize.y + boundingBox.coordinates[MIN_Y];
+        return py * voxelSize.y + boundingBox.minY();
     }
 
     inline float
     voxel2z(const float pz) const {
-        return pz * voxelSize.z + boundingBox.coordinates[MIN_Z];
+        return pz * voxelSize.z + boundingBox.minZ();
     }
 
     inline short
     x2voxel(const float px) const {
-        return (short)((voxelSize.x < Numeric::EPSILON) ? 0 : (px - boundingBox.coordinates[MIN_X]) / voxelSize.x);
+        return (short)((voxelSize.x < Numeric::EPSILON)
+                       ? 0
+                       : (px - boundingBox.minX()) / voxelSize.x);
     }
 
     inline short
     y2voxel(const float py) const {
-        return (short)((voxelSize.y < Numeric::EPSILON) ? 0 : (py - boundingBox.coordinates[MIN_Y]) / voxelSize.y);
+        return (short)((voxelSize.y < Numeric::EPSILON)
+                       ? 0
+                       : (py - boundingBox.minY()) / voxelSize.y);
     }
 
     inline short
     z2voxel(const float pz) const {
-        return (short)((voxelSize.z < Numeric::EPSILON) ? 0 : (pz - boundingBox.coordinates[MIN_Z]) / voxelSize.z);
+        return (short)((voxelSize.z < Numeric::EPSILON)
+                       ? 0
+                       : (pz - boundingBox.minZ()) / voxelSize.z);
     }
 
     inline int
@@ -57,10 +63,17 @@ class VoxelGrid {
     }
 
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
-    int isSmall(const float *boundsArr) const;
+    bool isSmall(const BoundingBox *bb) const;
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
     void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const;
     void putPatchInsideVoxelGrid(Patch *patch) const;
+    short clampVoxel(short v, short max) const;
+    Vector3D toVoxelClamped(const Vector3D &p) const;
+    bool shouldSubdivide(const Geometry *geometry) const;
+    void insertGeometryAsVoxelData(Geometry *geometry);
+    void processCompoundGeometry(Geometry *geometry);
+    void processPatches(Geometry *geometry);
+    void insertSubGrid(Geometry *geometry);
 
     void
     gridTraceSetup(

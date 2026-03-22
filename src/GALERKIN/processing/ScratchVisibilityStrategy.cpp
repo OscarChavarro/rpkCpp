@@ -43,42 +43,42 @@ into the virtual screen
 */
 float *
 ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState) {
+    static BoundingBox boundingBox;
+
+    if ( cluster->id == galerkinState->lastClusterId &&
+         eye.equals(galerkinState->lastEye, Numeric::EPSILON_FLOAT) ) {
+        return boundingBox.coordinates;
+    }
+
+    // Cache previously rendered cluster and eye point in order to
+    // avoid re-rendering the same situation next time
+    galerkinState->lastClusterId = cluster->id;
+    galerkinState->lastEye = eye;
+
     Vector3D centre = cluster->midPoint();
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
-    static BoundingBox bbx;
-    Matrix4x4 lookAt{};
-    SGL_CONTEXT *prev_sgl_context;
-    int vp_size;
-
-    if ( cluster->id == galerkinState->lastClusterId && eye.equals(galerkinState->lastEye, Numeric::EPSILON_FLOAT) ) {
-        return bbx.coordinates;
-    } else {
-        // Cache previously rendered cluster and eye point in order to
-        // avoid re-rendering the same situation next time
-        galerkinState->lastClusterId = cluster->id;
-        galerkinState->lastEye = eye;
-    }
 
     viewDirection.subtraction(centre, eye);
     viewDirection.normalize(Numeric::EPSILON_FLOAT);
     if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - Numeric::EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
-    lookAt = Matrix4x4::createLookAtMatrix(eye, centre, up);
 
-    cluster->geometry->getBoundingBox().transformTo(&lookAt, &bbx);
+    Matrix4x4 lookAt = Matrix4x4::createLookAtMatrix(eye, centre, up);
 
-    prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
-    Matrix4x4 o = bbx.createOrthographicProjectionMatrix();
+    cluster->geometry->getBoundingBox().transformTo(&lookAt, &boundingBox);
+
+    SGL_CONTEXT *prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
+
+    Matrix4x4 o = boundingBox.createOrthographicProjectionMatrix();
     GLOBAL_sgl_currentContext->sglLoadMatrix(&o);
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(&lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
-    vp_size = (int)(
-        (bbx.coordinates[MAX_X] - bbx.coordinates[MIN_X]) * (bbx.coordinates[MAX_Y] - bbx.coordinates[MIN_Y]
-    ) / cluster->minimumArea);
+    int vp_size = (int)((boundingBox.dx() * boundingBox.dy()) / cluster->minimumArea);
+
     if ( vp_size > galerkinState->scratch->width ) {
         vp_size = galerkinState->scratch->width;
     }
@@ -90,12 +90,12 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     // Render element pointers in the scratch frame buffer
     globalEyePoint = eye; // Needed for backface culling test
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL)0x00, SGL_MAXIMUM_Z);
-    ScratchRendererVisitor *leafVisitor = new ScratchRendererVisitor(globalEyePoint);
-    ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState);
-    delete leafVisitor;
+
+    ScratchRendererVisitor leafVisitor(globalEyePoint);
+    ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
 
     sglMakeCurrent(prev_sgl_context);
-    return bbx.coordinates;
+    return boundingBox.coordinates;
 }
 
 /**

@@ -55,9 +55,6 @@ stochasticRadiosityElementRange(
         NiederreiterIndex *mostSignificantBits1,
         NiederreiterIndex *rMostSignificantBits2);
 
-extern float *
-stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox);
-
 extern StochasticRadiosityElement **
 stochasticRadiosityElementRegularSubdivideElement(
     StochasticRadiosityElement *element, const RenderOptions *renderOptions);

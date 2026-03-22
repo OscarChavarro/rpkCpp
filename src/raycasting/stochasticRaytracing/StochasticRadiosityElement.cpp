@@ -225,7 +225,6 @@ StochasticRadiosityElement::~StochasticRadiosityElement() {
 static StochasticRadiosityElement *
 monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
-    const float *bounds = geometry->boundingBox.coordinates;
 
     elem->geometry = geometry;
     elem->flags = ElementFlags::IS_CLUSTER_MASK;
@@ -234,10 +233,7 @@ monteCarloRadiosityCreateCluster(Geometry *geometry) {
     elem->Ed.clear();
 
     // elem->area will be computed from the sub-elements in the cluster later
-    elem->midPoint.set(
-        (bounds[MIN_X] + bounds[MAX_X]) / 2.0f,
-        (bounds[MIN_Y] + bounds[MAX_Y]) / 2.0f,
-        (bounds[MIN_Z] + bounds[MAX_Z]) / 2.0f);
+    elem->midPoint = geometry->boundingBox.center();
 
     allocCoefficients(elem); // Always constant approx. so no need to delay allocating the coefficients
     stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
@@ -944,24 +940,6 @@ stochasticRadiosityElementDestroyClusterHierarchy(StochasticRadiosityElement *to
         }
     }
     monteCarloRadiosityDestroyElement(top);
-}
-
-/**
-Computes and fills in a bounding box for the element
-*/
-float *
-stochasticRadiosityElementBounds(StochasticRadiosityElement *elem, BoundingBox *boundingBox) {
-    if ( elem->isCluster() ) {
-        boundingBox->copyFrom(&elem->geometry->boundingBox);
-    } else if ( !elem->transformToParent ) {
-        elem->patch->computeAndGetBoundingBox(boundingBox);
-        } else {
-            for ( int i = 0; i < elem->numberOfVertices; i++ ) {
-                const Vertex *v = elem->vertices[i];
-                boundingBox->enlargeToIncludePoint(v->point);
-            }
-        }
-    return boundingBox->coordinates;
 }
 
 static inline bool

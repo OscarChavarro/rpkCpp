@@ -22,12 +22,12 @@ The meaning of the numbers is given by the constants MIN_X
 */
 class BoundingBox {
   private:
-    void inline
+    static void inline
     setIfLess(float &a, const float &b) {
         a = a < b ? a : b;
     }
 
-    void inline
+    static void inline
     setIfGreater(float &a, const float &b) {
         a = a > b ? a : b;
     }
@@ -141,6 +141,124 @@ class BoundingBox {
                 }
             }
         }
+    }
+
+    inline float dx() const {
+        return coordinates[MAX_X] - coordinates[MIN_X];
+    }
+
+    inline float dy() const {
+        return coordinates[MAX_Y] - coordinates[MIN_Y];
+    }
+
+    inline float dz() const {
+        return coordinates[MAX_Z] - coordinates[MIN_Z];
+    }
+
+    inline Vector3D
+    voxelSize(const short nx, const short ny, const short nz) const {
+        return Vector3D(
+            dx() / static_cast<float>(nx),
+            dy() / static_cast<float>(ny),
+            dz() / static_cast<float>(nz)
+        );
+    }
+
+    inline void
+    enlargeByFactor(float factor) {
+        float fdx = dx() * factor;
+        float fdy = dy() * factor;
+        float fdz = dz() * factor;
+
+        if (fdx < Numeric::EPSILON_FLOAT) {
+            fdx = Numeric::EPSILON_FLOAT;
+        }
+        if (fdy < Numeric::EPSILON_FLOAT) {
+            fdy = Numeric::EPSILON_FLOAT;
+        }
+        if (fdz < Numeric::EPSILON_FLOAT) {
+            fdz = Numeric::EPSILON_FLOAT;
+        }
+
+        coordinates[MIN_X] -= fdx;
+        coordinates[MAX_X] += fdx;
+        coordinates[MIN_Y] -= fdy;
+        coordinates[MAX_Y] += fdy;
+        coordinates[MIN_Z] -= fdz;
+        coordinates[MAX_Z] += fdz;
+    }
+
+    inline Vector3D
+    minPoint() const {
+        return Vector3D(
+            coordinates[MIN_X],
+            coordinates[MIN_Y],
+            coordinates[MIN_Z]
+        );
+    }
+
+    inline Vector3D
+    maxPoint() const {
+        return Vector3D(
+            coordinates[MAX_X],
+            coordinates[MAX_Y],
+            coordinates[MAX_Z]
+        );
+    }
+
+    inline float minX() const {
+        return coordinates[MIN_X];
+    }
+
+    inline float minY() const {
+        return coordinates[MIN_Y];
+    }
+
+    inline float minZ() const {
+        return coordinates[MIN_Z];
+    }
+
+    inline float maxX() const {
+        return coordinates[MAX_X];
+    }
+
+    inline float maxY() const {
+        return coordinates[MAX_Y];
+    }
+
+    inline float maxZ() const {
+        return coordinates[MAX_Z];
+    }
+
+    inline float valueAt(int idx) const {
+        switch (idx) {
+            case MIN_X: return minX();
+            case MIN_Y: return minY();
+            case MIN_Z: return minZ();
+            case MAX_X: return maxX();
+            case MAX_Y: return maxY();
+            case MAX_Z: return maxZ();
+            default: return 0.0f;
+        }
+    }
+
+    inline void
+    corners(Vector3D out[8]) const {
+        const float minX = coordinates[MIN_X];
+        const float minY = coordinates[MIN_Y];
+        const float minZ = coordinates[MIN_Z];
+        const float maxX = coordinates[MAX_X];
+        const float maxY = coordinates[MAX_Y];
+        const float maxZ = coordinates[MAX_Z];
+
+        out[0].set(minX, minY, minZ);
+        out[1].set(maxX, minY, minZ);
+        out[2].set(minX, maxY, minZ);
+        out[3].set(maxX, maxY, minZ);
+        out[4].set(minX, minY, maxZ);
+        out[5].set(maxX, minY, maxZ);
+        out[6].set(minX, maxY, maxZ);
+        out[7].set(maxX, maxY, maxZ);
     }
 };
 

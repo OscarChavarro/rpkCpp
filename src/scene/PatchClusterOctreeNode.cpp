@@ -49,10 +49,7 @@ PatchClusterOctreeNode::PatchClusterOctreeNode(const java::ArrayList<Patch *> *i
         clusterAddPatch(inPatches->get(i));
     }
 
-    boundingBoxCentroid.set(
-        (boundingBox.coordinates[MIN_X] + boundingBox.coordinates[MAX_X]) * 0.5f,
-        (boundingBox.coordinates[MIN_Y] + boundingBox.coordinates[MAX_Y]) * 0.5f,
-        (boundingBox.coordinates[MIN_Z] + boundingBox.coordinates[MAX_Z]) * 0.5f);
+    boundingBoxCentroid = boundingBox.center();
 }
 
 PatchClusterOctreeNode::~PatchClusterOctreeNode() {
@@ -137,27 +134,18 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10.0f * Numeric::EPSILON_FLOAT;
-    float dx = patchBoundingBox->coordinates[MAX_X] - patchBoundingBox->coordinates[MIN_X];
-    float dy = patchBoundingBox->coordinates[MAX_Y] - patchBoundingBox->coordinates[MIN_Y];
-    float dz = patchBoundingBox->coordinates[MAX_Z] - patchBoundingBox->coordinates[MIN_Z];
 
-    if ( (dx > smallestBoxDimension && dx > (boundingBox.coordinates[MAX_X] - boundingBox.coordinates[MIN_X]) * 0.5) ||
-         (dy > smallestBoxDimension && dy > (boundingBox.coordinates[MAX_Y] - boundingBox.coordinates[MIN_Y]) * 0.5) ||
-         (dz > smallestBoxDimension && dz > (boundingBox.coordinates[MAX_Z] - boundingBox.coordinates[MIN_Z]) * 0.5) ) {
+    if ( (patchBoundingBox->dx() > smallestBoxDimension && patchBoundingBox->dx() > boundingBox.dx() * 0.5f) ||
+         (patchBoundingBox->dy() > smallestBoxDimension && patchBoundingBox->dy() > boundingBox.dy() * 0.5f) ||
+         (patchBoundingBox->dz() > smallestBoxDimension && patchBoundingBox->dz() > boundingBox.dz() * 0.5f) ) {
         return false;
     }
 
     // Check the position of the centroid of the bounding box of the patch with reference to the
     // centroid of the cluster
-    Vector3D midPatch;
+    Vector3D midPatch = patchBoundingBox->center();
 
-    midPatch.set(
-        (patchBoundingBox->coordinates[MIN_X] + patchBoundingBox->coordinates[MAX_X]) / 2.0f,
-        (patchBoundingBox->coordinates[MIN_Y] + patchBoundingBox->coordinates[MAX_Y]) / 2.0f,
-        (patchBoundingBox->coordinates[MIN_Z] + patchBoundingBox->coordinates[MAX_Z]) / 2.0f);
-    // Note: comparator values assumed: X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK, combined will give
-    // an integer number from 0 to 7, or 8 if all are equal
-    int selectedChildOctantIndex = boundingBoxCentroid.compareByDimensions(&midPatch, Numeric::EPSILON_FLOAT);
+    int selectedChildOctantIndex = octantIndex(midPatch);
 
     // If the centroids (almost by EPSILON) coincides, don´t move current patch from parent cluster to sub-cluster
     if ( selectedChildOctantIndex == XYZ_EQUAL_MASK ) {
@@ -212,10 +200,7 @@ PatchClusterOctreeNode::splitCluster() {
             delete children[i];
             children[i] = nullptr;
         } else {
-            children[i]->boundingBoxCentroid.set(
-                (children[i]->boundingBox.coordinates[MIN_X] + children[i]->boundingBox.coordinates[MAX_X]) * 0.5f,
-                (children[i]->boundingBox.coordinates[MIN_Y] + children[i]->boundingBox.coordinates[MAX_Y]) * 0.5f,
-                (children[i]->boundingBox.coordinates[MIN_Z] + children[i]->boundingBox.coordinates[MAX_Z]) * 0.5f);
+            children[i]->boundingBoxCentroid = children[i]->boundingBox.center();
             children[i]->splitCluster();
         }
     }
