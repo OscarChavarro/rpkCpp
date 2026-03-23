@@ -686,7 +686,7 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
         // TODO: Should be PatchSet, or implement clone in all Geometry sub-classes
-        Geometry *newGeometry = ((PatchSet *)geometry)->clone();
+        Geometry *newGeometry = geometry->clone();
         newGeometry->shaftCullGeometry = true;
         candidateList->add(newGeometry);
     } else {
@@ -707,6 +707,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         const Compound *compound = dynamic_cast<const Compound *>(geometry);
         doCulling(compound->children, candidateList, strategy);
     } else {
+        // TODO: Check if this logic branch evers gets called
         const java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);
         const java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
 
