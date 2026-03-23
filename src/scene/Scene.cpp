@@ -82,7 +82,7 @@ Scene::printCompound(const Compound *compound) {
             const Geometry *child = compound->children->get(i);
             java::lang::System::out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == GeometryClassId::SURFACE_MESH ) {
-                printSurfaceMesh((const MeshSurface *)child, 6);
+                printSurfaceMesh(static_cast<const MeshSurface *>(child), 6);
             }
         }
     }
@@ -120,11 +120,11 @@ Scene::printGeometries() const {
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             // Note that empty meshes are being removed, this case will usually not show on Galerkin
-            printSurfaceMesh((MeshSurface *)geometry, 0);
+            printSurfaceMesh(static_cast<MeshSurface *>(geometry), 0);
         } else if ( geometry->className == GeometryClassId::COMPOUND ) {
-            printCompound((Compound *)geometry);
+            printCompound(static_cast<Compound *>(geometry));
         } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-            printPatchSet((PatchSet *)geometry);
+            printPatchSet(static_cast<PatchSet *>(geometry));
         }
     }
 }
@@ -141,11 +141,11 @@ Scene::printClusteredGeometries() const {
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             // Note that empty meshes are being removed, this case will usually not show on Galerkin
-            printSurfaceMesh((MeshSurface *)geometry, 0);
+            printSurfaceMesh(static_cast<MeshSurface *>(geometry), 0);
         } else if ( geometry->className == GeometryClassId::COMPOUND ) {
-            printCompound((Compound *)geometry);
+            printCompound(static_cast<Compound *>(geometry));
         } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-            printPatchSet((PatchSet *)geometry);
+            printPatchSet(static_cast<PatchSet *>(geometry));
         }
     }
 }
@@ -195,7 +195,7 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
         java::lang::System::out.printf("Mesh (%d)\n", *elementCount);
         (*elementCount)++;
     } else if ( node->className == GeometryClassId::COMPOUND ) {
-        const Compound *compound = (const Compound *)node;
+        const Compound *compound = static_cast<const Compound *>(node);
         java::lang::System::out.printf("Compound %d (%d)\n", compound->id, *elementCount);
         (*elementCount)++;
         for ( int i = 0;
@@ -205,7 +205,7 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
         }
 
     } else if ( node->className == GeometryClassId::PATCH_SET ) {
-        const PatchSet *patchSet = (const PatchSet *)node;
+        const PatchSet *patchSet = static_cast<const PatchSet *>(node);
         if ( patchSet->getPatchList() == nullptr ) {
             java::lang::System::out.printf("empty PatchSet (%d)\n", *elementCount);
         } else {

@@ -56,7 +56,7 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
 
 static void
 nextLightSample(const Patch *patch, double *zeta) {
-    const double *xi = sample4D((unsigned int)topLevelStochasticRadiosityElement(patch)->rayIndex);
+    const double *xi = sample4D(static_cast<unsigned int>(topLevelStochasticRadiosityElement(patch)->rayIndex));
     topLevelStochasticRadiosityElement(patch)->rayIndex++;
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0];
@@ -116,7 +116,7 @@ sampleLight(const VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, doub
         double outCos = ray.direction.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgb Rd = topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
-        receivedRadiosity.scaledCopy((float) (outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);
+        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
         getTopLevelPatchRad(hit->getPatch())[0].add(getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
         getTopLevelPatchUnShotRad(hit->getPatch())[0].add(getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
@@ -136,7 +136,7 @@ sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     for ( int i = 0; i < globalNumberOfLights; i++ ) {
         double p = globalLights[i].flux / globalTotalFlux;
         int samples_this_light =
-                (int) floor((pCumulative + p) * (double) globalNumberOfSamples + rnd) - count;
+                static_cast<int>(floor((pCumulative + p) * (double) globalNumberOfSamples + rnd)) - count;
 
         for ( int j = 0; j < samples_this_light; j++ ) {
             sampleLight(sceneWorldVoxelGrid, &globalLights[i], p);
@@ -160,16 +160,16 @@ summarize(const java::ArrayList<Patch *> *scenePatches) {
         Patch *patch = scenePatches->get(i);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
-            (float)M_PI * patch->area,
+            static_cast<float>(M_PI) * patch->area,
             getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
-            (float)M_PI * patch->area,
+            static_cast<float>(M_PI) * patch->area,
             getTopLevelPatchRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
-            (float)M_PI * patch->area * (topLevelStochasticRadiosityElement(patch)->importance -
-                                        topLevelStochasticRadiosityElement(patch)->sourceImportance),
+            static_cast<float>(M_PI) * patch->area * (topLevelStochasticRadiosityElement(patch)->importance -
+                                                      topLevelStochasticRadiosityElement(patch)->sourceImportance),
               getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(
                 topLevelStochasticRadiosityElement(patch)->unShotImportance);

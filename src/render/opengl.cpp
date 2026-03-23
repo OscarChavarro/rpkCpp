@@ -361,7 +361,7 @@ openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGe
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(camera->verticalFov * 2.0,
-                   (float)camera->xSize / (float)camera->ySize,
+                   static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
                    camera->near / 10,
                    camera->far * 10);
 

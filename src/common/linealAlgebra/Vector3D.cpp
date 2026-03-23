@@ -18,7 +18,7 @@ Vector3D::dominantCoordinate() const {
     anorm.y = java::Math::abs(y);
     anorm.z = java::Math::abs(z);
     double indexValue = java::Math::max(anorm.y, anorm.z);
-    indexValue = java::Math::max(anorm.x, (float)indexValue);
+    indexValue = java::Math::max(anorm.x, static_cast<float>(indexValue));
 
     if ( indexValue == anorm.x ) {
         return CoordinateAxis::X;

@@ -11,5 +11,5 @@ PPMOutputHandle::PPMOutputHandle(FILE *_fp, int w, int h) {
 
 int
 PPMOutputHandle::writeDisplayRGB(unsigned char *rgb) {
-    return fp ? (int)fwrite(rgb, 3, width, fp) : 0;
+    return fp ? static_cast<int>(fwrite(rgb, 3, width, fp)) : 0;
 }

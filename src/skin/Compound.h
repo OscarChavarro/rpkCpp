@@ -9,7 +9,7 @@ class Compound final : public Geometry {
     java::ArrayList<Geometry *> *children;
 
     explicit Compound(java::ArrayList<Geometry *> *geometryList);
-    ~Compound() final;
+    ~Compound() override;
 
     RayHit *
     discretizationIntersect(
@@ -17,7 +17,7 @@ class Compound final : public Geometry {
         float minimumDistance,
         float *maximumDistance,
         int hitFlags,
-        RayHit *hitStore) const final;
+        RayHit *hitStore) const override;
 };
 
 #endif

@@ -9,7 +9,7 @@ GalerkinDebugRenderer::recursiveDrawElement(const GalerkinElement *element, Gale
     if ( element->regularSubElements == nullptr ) {
     } else {
         for ( int i = 0; i < 4; i++ ) {
-            recursiveDrawElement((GalerkinElement *)element->regularSubElements[i], mode, renderOptions);
+            recursiveDrawElement(static_cast<GalerkinElement *>(element->regularSubElements[i]), mode, renderOptions);
         }
     }
 }
@@ -27,7 +27,7 @@ GalerkinDebugRenderer::renderGalerkinElementHierarchy(
         glVertex3d(0.0, 1.0, 0.0);
     glEnd();
 
-    const GalerkinElement *root = ((GalerkinElement *)scene->clusteredRootGeometry->radianceData);
+    const GalerkinElement *root = static_cast<GalerkinElement *>(scene->clusteredRootGeometry->radianceData);
 
     recursiveDrawElement(root, GalerkinElementRenderMode::GOURAUD, renderOptions);
 }

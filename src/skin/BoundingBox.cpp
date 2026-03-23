@@ -267,8 +267,8 @@ BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBou
         transformedBoundingBox->enlargeToIncludePoint(&v[i]);
     }
 
-    float d;
-    d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) * Numeric::EPSILON_FLOAT;
+    float d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) *
+              Numeric::EPSILON_FLOAT;
     transformedBoundingBox->coordinates[MIN_X] -= d;
     transformedBoundingBox->coordinates[MAX_X] += d;
     d = (transformedBoundingBox->coordinates[MAX_Y] - transformedBoundingBox->coordinates[MIN_Y]) * Numeric::EPSILON_FLOAT;
@@ -281,9 +281,9 @@ BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBou
 
 void
 BoundingBox::enlargeTinyBit() {
-    float Dx = (float)((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
-    float Dy = (float)((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
-    float Dz = (float)((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
+    float Dx = static_cast<float>((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
+    float Dy = static_cast<float>((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
+    float Dz = static_cast<float>((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);
     if ( Dx < Numeric::EPSILON_FLOAT ) {
         Dx = Numeric::EPSILON_FLOAT;
     }

@@ -58,7 +58,7 @@ CBiPath::evalRadiance() const {
 
     factor *= m_geomConnect; // Next event ray geometry factor
 
-    col.scale((float)factor);
+    col.scale(static_cast<float>(factor));
 
     return col;
 }
@@ -122,7 +122,7 @@ CBiPath::evalPdfAndWeight(
     currentPdf = pdfAcc; // Basis for subsequent pdf computations
 
     if ( m_eyeSize == 1 ) {
-        c = (double)baseConfig->totalSamples; // N.E. to the eye
+        c = static_cast<double>(baseConfig->totalSamples); // N.E. to the eye
     } else {
         c = baseConfig->samplesPerPixel;
     }
@@ -155,7 +155,7 @@ CBiPath::evalPdfAndWeight(
         }
 
         if ( currentConnect == 1 ) {
-            c = (double)baseConfig->totalSamples; // N.E. to the eye
+            c = static_cast<double>(baseConfig->totalSamples); // N.E. to the eye
         } else {
             c = baseConfig->samplesPerPixel;
         }
@@ -192,7 +192,7 @@ CBiPath::evalPdfAndWeight(
         }
 
         if ( currentConnect == 1 ) {
-            c = (double)baseConfig->totalSamples; // N.E. to the eye
+            c = static_cast<double>(baseConfig->totalSamples); // N.E. to the eye
         } else {
             c = baseConfig->samplesPerPixel;
         }
@@ -215,12 +215,12 @@ CBiPath::evalPdfAndWeight(
     weight = weight / pdfSum;
 
     if ( pWeight ) {
-        *pWeight = (float)weight;
+        *pWeight = static_cast<float>(weight);
     }
 
     if ( pPdf ) {
-        *pPdf = (float)realPdf;
+        *pPdf = static_cast<float>(realPdf);
     }
 
-    return (float)(weight / realPdf);
+    return static_cast<float>(weight / realPdf);
 }

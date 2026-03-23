@@ -44,7 +44,7 @@ class KDQuery {
         java::lang::System::out.printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
         java::lang::System::out.printf("maximumDistance %g\n", maximumDistance);
         java::lang::System::out.printf("sqrRadius %g\n", sqrRadius);
-        java::lang::System::out.printf("excludeFlags %x\n", (int) excludeFlags);
+        java::lang::System::out.printf("excludeFlags %x\n", static_cast<int>(excludeFlags));
     }
 };
 
@@ -129,7 +129,7 @@ KDTree::addPoint(void *data, short flags = 0) {
     newNode->loson = nullptr;
     newNode->hison = nullptr;
 
-    newPoint = (float *) data;
+    newPoint = static_cast<float *>(data);
     numberOfNodes++;
     numUnbalanced++;
 
@@ -142,7 +142,7 @@ KDTree::addPoint(void *data, short flags = 0) {
         discriminator = parent->discriminator();
 
         // Test discriminator
-        if ( newPoint[discriminator] <= ((float *) (parent->m_data))[discriminator] ) {
+        if ( newPoint[discriminator] <= static_cast<float *>(parent->m_data)[discriminator] ) {
             nodePtr = &(parent->loson);
         } else {
             nodePtr = &(parent->hison);
@@ -154,7 +154,7 @@ KDTree::addPoint(void *data, short flags = 0) {
         float dx;
         float dy;
         float dz;
-        const float *customNodeData = (float *) (parent->m_data);
+        const float *customNodeData = static_cast<float *>(parent->m_data);
 
         dx = java::Math::abs(newPoint[0] - customNodeData[0]);
         dy = java::Math::abs(newPoint[1] - customNodeData[1]);
@@ -246,7 +246,7 @@ KDTree::query(
     GLOBAL_qDatS.point = point;
     GLOBAL_qDatS.wantedN = N;
     GLOBAL_qDatS.foundN = 0;
-    GLOBAL_qDatS.results = (float **) results;
+    GLOBAL_qDatS.results = static_cast<float **>(results);
     GLOBAL_qDatS.distances = usedDistances;
     GLOBAL_qDatS.maximumDistance = radius;
     GLOBAL_qDatS.sqrRadius = radius;
@@ -397,22 +397,22 @@ KDTree::queryRec(const KDTreeNode *node) {
     const KDTreeNode *nearNode;
     const KDTreeNode *farNode;
 
-    dist = sqrDistance3D((float *) node->m_data, GLOBAL_qDatS.point);
+    dist = sqrDistance3D(static_cast<float *>(node->m_data), GLOBAL_qDatS.point);
 
     if ( dist < GLOBAL_qDatS.maximumDistance ) {
         if ( GLOBAL_qDatS.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert((float *) node->m_data, dist);
+            mhInsert(static_cast<float *>(node->m_data), dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax((float *) node->m_data, dist);
+            mhReplaceMax(static_cast<float *>(node->m_data), dist);
         }
     }
 
     // Reuse distance
-    dist = ((float *) node->m_data)[discriminator] - GLOBAL_qDatS.point[discriminator];
+    dist = static_cast<float *>(node->m_data)[discriminator] - GLOBAL_qDatS.point[discriminator];
 
     if ( dist >= 0.0 ) {
         nearNode = node->loson;
@@ -452,7 +452,7 @@ KDTree::balancedQueryRec(int index) {
 
     // Test discr (reuse distance)
     if ( index < firstLeaf ) {
-        dist = ((float *) node.m_data)[discr] - GLOBAL_qDatS.point[discr];
+        dist = static_cast<float *>(node.m_data)[discr] - GLOBAL_qDatS.point[discr];
 
         if ( dist >= 0.0 ) {
             nearIndex = (index << 1) + 1; // node loson
@@ -477,17 +477,17 @@ KDTree::balancedQueryRec(int index) {
         }
     }
 
-    dist = sqrDistance3D((float *)node.m_data, GLOBAL_qDatS.point);
+    dist = sqrDistance3D(static_cast<float *>(node.m_data), GLOBAL_qDatS.point);
 
     if ( dist < GLOBAL_qDatS.maximumDistance ) {
         if ( GLOBAL_qDatS.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert((float *) node.m_data, dist);
+            mhInsert(static_cast<float *>(node.m_data), dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax((float *) node.m_data, dist);
+            mhReplaceMax(static_cast<float *>(node.m_data), dist);
         }
     }
 }
@@ -521,7 +521,7 @@ bkdswap(BalancedKDTreeNode root[], int a, int b) {
 
 static inline float
 bkdval(BalancedKDTreeNode root[], int index, int discr) {
-    return ((float *)root[index].m_data)[discr];
+    return static_cast<float *>(root[index].m_data)[discr];
 }
 
 int
@@ -534,7 +534,7 @@ getBalancedMedian(int low, int high) {
 
     int FL;
     // Add 0.1 because integer powers of 2 sometimes gave a smaller FL (8 -> 2)
-    FL = (int) (java::Math::log(N + 0.1) / M_LN2);
+    FL = static_cast<int>(java::Math::log(N + 0.1) / M_LN2);
 
     int P2FL = (1 << FL); // 2^FL
     int LASTN = N - (P2FL - 1);  // Number of elements on last level

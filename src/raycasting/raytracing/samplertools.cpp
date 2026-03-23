@@ -17,7 +17,7 @@ CSamplerConfig::init(bool useQMC, int qmcDepth) {
         m_qmcSeed = new unsigned[m_qmcDepth];
 
         for ( int i = 0; i < m_qmcDepth; i++ ) {
-            m_qmcSeed[i] = (unsigned int)lrand48();
+            m_qmcSeed[i] = static_cast<unsigned int>(lrand48());
             java::lang::System::out.printf("Seed %i\n", m_qmcSeed[i]);
 
             // Every possible path depth gets its own qmc seed to prevent correlation
@@ -179,7 +179,7 @@ pathNodeConnect(
     dirEL.subtraction(nodeY->m_hit.getPoint(), nodeX->m_hit.getPoint());
     dist2 = dirEL.norm2();
     dist = java::Math::sqrt(dist2);
-    dirEL.inverseScaledCopy((float) dist, dirEL, Numeric::EPSILON_FLOAT);
+    dirEL.inverseScaledCopy(static_cast<float>(dist), dirEL, Numeric::EPSILON_FLOAT);
     dirLE.scaledCopy(-1, dirEL);
 
     if ( pDirEl ) {

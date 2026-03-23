@@ -29,12 +29,12 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
     static inline void
     galerkinSetPotential(Patch *patch, float value) {
-        ((GalerkinElement *)(patch->radianceData))->potential = value;
+        static_cast<GalerkinElement *>(patch->radianceData)->potential = value;
     }
 
     static inline void
     galerkinSetUnShotPotential(Patch *patch, float value) {
-        ((GalerkinElement *)(patch->radianceData))->unShotPotential = value;
+        static_cast<GalerkinElement *>(patch->radianceData)->unShotPotential = value;
     }
 
     static void renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions);

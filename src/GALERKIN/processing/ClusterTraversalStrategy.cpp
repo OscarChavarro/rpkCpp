@@ -35,7 +35,7 @@ ClusterTraversalStrategy::traverseAllLeafElements(
         for ( int i = 0;
             parentElement->irregularSubElements != nullptr && i < parentElement->irregularSubElements->size();
             i++ ) {
-            GalerkinElement *childCluster = (GalerkinElement *)parentElement->irregularSubElements->get(i);
+            GalerkinElement *childCluster = static_cast<GalerkinElement *>(parentElement->irregularSubElements->get(i));
             ClusterTraversalStrategy::traverseAllLeafElements(
                 leafVisitor, childCluster, galerkinState);
         }
@@ -94,7 +94,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
                 areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
-                sourceRadiance.scale((float) areaFactor);
+                sourceRadiance.scale(static_cast<float>(areaFactor));
                 return sourceRadiance;
             }
 
@@ -191,9 +191,9 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
                 // Projected area is the number of non-background pixels over
                 // the total number of pixels * area of the virtual screen
                 projectedArea =
-                    (double)ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState) *
+                    static_cast<double>(ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState)) *
                     boundingBox->dx() * boundingBox->dy() /
-                    (double)(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
+                    static_cast<double>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
                 return projectedArea;
             }
 
@@ -219,7 +219,7 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     ColorRgb *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-        rcvRad[0].addScaled(rcvRad[0], (float) (areaFactor * link->K[0]), sourceRadiance[0]);
+        rcvRad[0].addScaled(rcvRad[0], static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
     } else {
         int a = java::Math::min(link->numberOfBasisFunctionsOnReceiver, rcv->basisSize);
         int b = java::Math::min(link->numberOfBasisFunctionsOnSource, link->sourceElement->basisSize);
@@ -227,7 +227,7 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
             for ( int beta = 0; beta < b; beta++ ) {
                 rcvRad[alpha].addScaled(
                     rcvRad[alpha],
-                    (float)(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
+                    static_cast<float>(areaFactor * link->K[alpha * link->numberOfBasisFunctionsOnSource + beta]),
                     sourceRadiance[beta]);
             }
         }
@@ -275,7 +275,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
 
                 // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
                 double pixelArea = boundingBox->dx() * boundingBox->dy() /
-                    (double)(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
+                    static_cast<double>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
 
                 // Gathers the radiance to each element that occupies at least one
                 // pixel in the scratch frame buffer and sets elem->tmp back to zero

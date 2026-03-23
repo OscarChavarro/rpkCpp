@@ -254,7 +254,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     }
     error.subtract(maximumSrcRad, minimumSrcRad);
 
-    error.scalarProductScaled(rcvRho, (float)(K / receiverArea), error);
+    error.scalarProductScaled(rcvRho, static_cast<float>(K / receiverArea), error);
     error.abs();
     return hierarchicRefinementColorToError(error);
 }
@@ -349,10 +349,10 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
     int a = java::Math::min(interaction->numberOfBasisFunctionsOnReceiver, interaction->receiverElement->basisSize);
     int b = java::Math::min(interaction->numberOfBasisFunctionsOnSource, interaction->sourceElement->basisSize);
     if ( a > interaction->receiverElement->basisUsed ) {
-        interaction->receiverElement->basisUsed = (char)a;
+        interaction->receiverElement->basisUsed = static_cast<char>(a);
     }
     if ( b > interaction->sourceElement->basisUsed ) {
-        interaction->sourceElement->basisUsed = (char)b;
+        interaction->sourceElement->basisUsed = static_cast<char>(b);
     }
 
     ColorRgb *srcRad;
@@ -400,7 +400,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
                 rcvRho = interaction->receiverElement->patch->radianceData->Rd;
             }
             interaction->sourceElement->receivedPotential +=
-                (float)(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
+                static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
         } else if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             if ( interaction->sourceElement->isCluster() ) {
                 srcRho.setMonochrome(1.0f);
@@ -408,7 +408,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
                 srcRho = interaction->sourceElement->patch->radianceData->Rd;
             }
             interaction->receiverElement->receivedPotential +=
-                (float)(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
+                static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
         } else {
             logFatal(
                 -1, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
@@ -503,7 +503,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
 
     sourceElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
-        GalerkinElement *child = (GalerkinElement *)sourceElement->regularSubElements[i];
+        GalerkinElement *child = static_cast<GalerkinElement *>(sourceElement->regularSubElements[i]);
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
@@ -546,7 +546,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     receiverElement->regularSubDivide();
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
-        GalerkinElement *child = (GalerkinElement *)receiverElement->regularSubElements[i];
+        GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->regularSubElements[i]);
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
         if ( hierarchicRefinementCreateSubdivisionLink(
@@ -588,7 +588,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
     for ( int i = 0;
           sourceElement->irregularSubElements != nullptr && i < sourceElement->irregularSubElements->size();
           i++ ) {
-        GalerkinElement *childElement = (GalerkinElement *)sourceElement->irregularSubElements->get(i);
+        GalerkinElement *childElement = static_cast<GalerkinElement *>(sourceElement->irregularSubElements->get(i));
         Interaction subInteraction{};
         subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
@@ -641,7 +641,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
     for ( int i = 0;
           receiverElement->irregularSubElements != nullptr && i < receiverElement->irregularSubElements->size();
           i++ ) {
-        GalerkinElement *child = (GalerkinElement *)receiverElement->irregularSubElements->get(i);
+        GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->irregularSubElements->get(i));
         Interaction subInteraction{};
         subInteraction.K = new float [MAX_BASIS_SIZE * MAX_BASIS_SIZE];
 
@@ -776,7 +776,7 @@ HierarchicalRefinementStrategy::refineInteractions(
           i++ ) {
         refineInteractions(
             scene,
-            (GalerkinElement *)parentElement->irregularSubElements->get(i),
+            static_cast<GalerkinElement *>(parentElement->irregularSubElements->get(i)),
             galerkinState);
     }
 
@@ -784,7 +784,7 @@ HierarchicalRefinementStrategy::refineInteractions(
         for ( int i = 0; i < 4; i++ ) {
             refineInteractions(
                 scene,
-                (GalerkinElement *)parentElement->regularSubElements[i],
+                static_cast<GalerkinElement *>(parentElement->regularSubElements[i]),
                 galerkinState);
         }
     }

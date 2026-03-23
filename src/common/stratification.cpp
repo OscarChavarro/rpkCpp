@@ -10,8 +10,8 @@ StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxSt
 void
 StratifiedSampling2D::sample(double *x1, double *x2) {
     if ( yStratum < yMaxStratum ) {
-        *x1 = ((xStratum + drand48()) / (double) xMaxStratum);
-        *x2 = ((yStratum + drand48()) / (double) yMaxStratum);
+        *x1 = ((xStratum + drand48()) / static_cast<double>(xMaxStratum));
+        *x2 = ((yStratum + drand48()) / static_cast<double>(yMaxStratum));
 
         if ( (++xStratum) == xMaxStratum ) {
             xStratum = 0;
@@ -35,7 +35,7 @@ getNumberOfDivisions(int samples, int *divs1, int *divs2) {
         return;
     }
 
-    *divs1 = (int)java::Math::ceil(java::Math::sqrt((double)samples));
+    *divs1 = static_cast<int>(java::Math::ceil(java::Math::sqrt((double) samples)));
     *divs2 = samples / (*divs1);
     while ( (*divs1) * (*divs2) != samples && (*divs1) > 1 ) {
         (*divs1)--;

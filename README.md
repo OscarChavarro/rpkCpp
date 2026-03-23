@@ -42,7 +42,8 @@ This is a full rewrite with the following features:
   algorithm study process.
 - Ported to several architectures, including MacOSX, Windows, Linux on Intel/x86, ARM, RiscV, etc.
 - Proper class hierarchies introduced where their application is evident.
-- Object oriented programming implementated using C++ features
+- Object-oriented programming implemented using C++ features
+  - Using static_cast and reinterpret_cast instead of simple old C++-style casts
   - Replacing pointer to callback functions with class hierarchies using inheritance overloaded methods
 
 ## Install prerequisites

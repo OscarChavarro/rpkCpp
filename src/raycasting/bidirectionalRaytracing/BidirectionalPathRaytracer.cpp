@@ -289,13 +289,13 @@ addWithSpikeCheck(
 
             // Convert f into DE quantities
             float factor = rs->getPixXSize() * rs->getPixYSize()
-                           * (float) config->baseConfig->totalSamples;
+                           * static_cast<float>(config->baseConfig->totalSamples);
 
             if ( f.average() > Numeric::EPSILON ) {
                 g.scaledCopy(factor, f); // Undo part of flux to rad factor
 
                 config->kernel.varCover(center, g, rs, ds,
-                                        (int) config->baseConfig->totalSamples, config->scaleSamples,
+                                        static_cast<int>(config->baseConfig->totalSamples), config->scaleSamples,
                                         baseSize);
             }
             return;
@@ -417,7 +417,7 @@ handlePathX0(
             factor = path->evalPdfAndWeight(config->baseConfig, &pdf, &weight);
         }
 
-        factor *= (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
+        factor *= static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
 
         if ( config->baseConfig->useSpars ) {
             fRad.scale(factor);
@@ -613,7 +613,7 @@ handlePathXx(
     if ( pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
-        float factor = (float)config->fluxToRadFactor / (float)config->baseConfig->samplesPerPixel;
+        float factor = static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
         f.scale(factor);
         addWithSpikeCheck(config, path, config->nx, config->ny,
                           config->xSample, config->ySample, f);
@@ -674,7 +674,7 @@ handlePath1X(
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor = (computeFluxToRadFactor(camera, nx, ny) / (float) config->baseConfig->totalSamples);
+        float factor = (computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->baseConfig->totalSamples));
         f.scale(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
@@ -810,7 +810,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
     }
 
     config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
-    ((CPixelSampler *) config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
+    static_cast<CPixelSampler *>(config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
 
     // Provide a node for the pixel sampling
     pixNode = config->eyePath->next();
@@ -837,7 +837,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
 
             config->eyePath->m_rayType = PathRayType::STARTS;
 
-            Vector2D tmpVec2D = config->screen->getPixelCenter((int) (x1), (int) (x2));
+            Vector2D tmpVec2D = config->screen->getPixelCenter(static_cast<int>(x1), static_cast<int>(x2));
             config->xSample = tmpVec2D.u; // pix_x + (camera.pixelWidth * x1)
             config->ySample = tmpVec2D.v; // pix_y + (camera.pixelHeight * x2)
 
@@ -892,8 +892,9 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     // number of samples per pixel.
 
     // Get the highest power of two < number of samples
-    nrIterations = (int)(java::Math::log((double) GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / java::Math::log(2.0));
-    maxSamples = (int)java::Math::pow(2.0, nrIterations);
+    nrIterations = static_cast<int>(java::Math::log((double) GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) /
+                                    java::Math::log(2.0));
+    maxSamples = static_cast<int>(java::Math::pow(2.0, nrIterations));
 
     nrIterations += 1; // First two are 1 and 1
 
@@ -1049,8 +1050,8 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     config->deStoreHits = false;
 
     int numberOfIterations =
-        (int)java::Math::floor(log(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / (log(2)));
-    int maxSamples = (int)java::Math::pow(2.0, numberOfIterations);
+        static_cast<int>(java::Math::floor(log(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) / (log(2))));
+    int maxSamples = static_cast<int>(java::Math::pow(2.0, numberOfIterations));
 
     java::lang::System::out.printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
 
@@ -1071,17 +1072,17 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         }
 
         // Rescale dest: nOld / nNew
-        config->dest->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
+        config->dest->scaleRadiance(static_cast<float>(oldTotalSPP) / static_cast<float>(newTotalSPP));
 
         // Set scale factor for added radiance in this run
-        config->dest->setAddScaleFactor((float) newSPP / (float) newTotalSPP);
+        config->dest->setAddScaleFactor(static_cast<float>(newSPP) / static_cast<float>(newTotalSPP));
 
         if ( config->dest2 ) {
             // Rescale dest: nOld / nNew
-            config->dest2->scaleRadiance((float) oldTotalSPP / (float) newTotalSPP);
+            config->dest2->scaleRadiance(static_cast<float>(oldTotalSPP) / static_cast<float>(newTotalSPP));
 
             // Set scale factor for added radiance in this run
-            config->dest2->setAddScaleFactor((float) newSPP / (float) newTotalSPP);
+            config->dest2->setAddScaleFactor(static_cast<float>(newSPP) / static_cast<float>(newTotalSPP));
         }
 
         // Set current vars

@@ -78,12 +78,12 @@ cameraComplete(Camera *camera) {
     // Compute horizontal and vertical field of view angle from the specified one
     if ( camera->xSize < camera->ySize ) {
         camera->horizontalFov = camera->fieldOfVision;
-        camera->verticalFov = (float)java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                               (float)camera->ySize / (float) camera->xSize) * 180.0f / (float)M_PI;
+        camera->verticalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
+                                                                  (float) camera->ySize / (float) camera->xSize)) * 180.0f / static_cast<float>(M_PI);
     } else {
         camera->verticalFov = camera->fieldOfVision;
-        camera->horizontalFov = (float)java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                                 (float)camera->xSize / (float)camera->ySize) * 180.0f / (float)M_PI;
+        camera->horizontalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
+                                                                    (float) camera->xSize / (float) camera->ySize)) * 180.0f / static_cast<float>(M_PI);
     }
 
     // Default near and far clipping plane distance, will be set to a more reasonable
@@ -92,11 +92,11 @@ cameraComplete(Camera *camera) {
     camera->far = 2.0f * camera->viewDistance;
 
     // Compute some extra frequently used quantities
-    camera->pixelWidthTangent = (float)java::Math::tan(camera->horizontalFov * M_PI / 180.0);
-    camera->pixelHeightTangent = (float)java::Math::tan(camera->verticalFov * M_PI / 180.0);
+    camera->pixelWidthTangent = static_cast<float>(java::Math::tan(camera->horizontalFov * M_PI / 180.0));
+    camera->pixelHeightTangent = static_cast<float>(java::Math::tan(camera->verticalFov * M_PI / 180.0));
 
-    camera->pixelWidth = 2.0f * camera->pixelWidthTangent / (float) (camera->xSize);
-    camera->pixelHeight = 2.0f * camera->pixelHeightTangent / (float) (camera->ySize);
+    camera->pixelWidth = 2.0f * camera->pixelWidthTangent / static_cast<float>(camera->xSize);
+    camera->pixelHeight = 2.0f * camera->pixelHeightTangent / static_cast<float>(camera->ySize);
 
     cameraComputeClippingPlanes(camera);
 

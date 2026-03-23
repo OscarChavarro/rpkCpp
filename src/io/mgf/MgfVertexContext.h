@@ -2,6 +2,8 @@
 #define __MGF_VERTEX_CONTEXT__
 
 #include "common/linealAlgebra/Vector3Dd.h"
+#include "skin/Vertex.h"
+#include "io/mgf/MgfContext.h"
 
 class MgfVertexContext {
   public:

@@ -44,7 +44,7 @@ initialControlRadiosityRecursive(
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
             initialControlRadiosityRecursive(
-                (StochasticRadiosityElement *)element->regularSubElements[i],
+                static_cast<StochasticRadiosityElement *>(element->regularSubElements[i]),
                 minRad,
                 maxRad,
                 fMin,
@@ -90,7 +90,7 @@ initialControlRadiosity(
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
-    fMax->scaledCopy((float) area, maxRadColor);
+    fMax->scaledCopy(static_cast<float>(area), maxRadColor);
     fMax->subtract(*fMax, totalFluxColor);
 }
 
@@ -167,7 +167,7 @@ refineControlRadiosityRecursive(
     } else {
         // Recursive case
         for ( int i = 0; i < 4; i++ ) {
-            refineControlRadiosityRecursive((StochasticRadiosityElement *)element->regularSubElements[i], colorOne, rad, f);
+            refineControlRadiosityRecursive(static_cast<StochasticRadiosityElement *>(element->regularSubElements[i]), colorOne, rad, f);
         }
     }
 }
@@ -196,7 +196,7 @@ refineControlRadiosity(
     d.subtract(*maxRad, *minRad);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         f[i].clear();
-        rad[i].addScaled(*minRad, (float) i / (float) NUMBER_OF_INTERVALS, d);
+        rad[i].addScaled(*minRad, static_cast<float>(i) / static_cast<float>(NUMBER_OF_INTERVALS), d);
     }
 
     // Determine value of F(beta) = sum_i (area_i * java::Math::abs(B_i - beta)) on

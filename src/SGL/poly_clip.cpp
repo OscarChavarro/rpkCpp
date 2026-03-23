@@ -183,7 +183,7 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        int n = (int)(sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
+        int n = static_cast<int>(sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
         memcpy(p1, &p2, n);
     }
     return POLY_CLIP_PARTIAL;

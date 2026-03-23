@@ -39,12 +39,12 @@ FormFactorClusteredStrategy::doConstantAreaToAreaFormFactor(
             gMin = Gx;
         }
     }
-    link->K[0] = (float)(receiverElement->area * G);
+    link->K[0] = static_cast<float>(receiverElement->area * G);
 
     link->deltaK = new float[1];
-    link->deltaK[0] = (float)(G - gMin);
+    link->deltaK[0] = static_cast<float>(G - gMin);
     if ( gMax - G > link->deltaK[0] ) {
-        link->deltaK[0] = (float)(gMax - G);
+        link->deltaK[0] = static_cast<float>(gMax - G);
     }
 
     link->numberOfReceiverCubaturePositions = 1;
@@ -114,7 +114,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
-    const GalerkinElement *cluster = (GalerkinElement *)geometry->radianceData;
+    const GalerkinElement *cluster = static_cast<GalerkinElement *>(geometry->radianceData);
 
     vectorTmp.sumScaled(ray->position, tMinimum, ray->direction);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {

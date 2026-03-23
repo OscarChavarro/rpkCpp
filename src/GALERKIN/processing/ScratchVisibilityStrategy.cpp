@@ -55,17 +55,17 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     galerkinState->lastClusterId = cluster->id;
     galerkinState->lastEye = eye;
 
-    Vector3D centre = cluster->midPoint();
+    const Vector3D center = cluster->midPoint();
     Vector3D up = {0.0, 0.0, 1.0};
     Vector3D viewDirection;
 
-    viewDirection.subtraction(centre, eye);
+    viewDirection.subtraction(center, eye);
     viewDirection.normalize(Numeric::EPSILON_FLOAT);
     if ( java::Math::abs(up.dotProduct(viewDirection)) > 1.0 - Numeric::EPSILON ) {
         up.set(0.0, 1.0, 0.0);
     }
 
-    Matrix4x4 lookAt = Matrix4x4::createLookAtMatrix(eye, centre, up);
+    const Matrix4x4 lookAt = Matrix4x4::createLookAtMatrix(eye, center, up);
 
     cluster->geometry->getBoundingBox().transformTo(&lookAt, &boundingBox);
 
@@ -77,7 +77,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
-    int vp_size = (int)((boundingBox.dx() * boundingBox.dy()) / cluster->minimumArea);
+    int vp_size = static_cast<int>((boundingBox.dx() * boundingBox.dy()) / cluster->minimumArea);
 
     if ( vp_size > galerkinState->scratch->width ) {
         vp_size = galerkinState->scratch->width;
@@ -105,16 +105,14 @@ computes the average radiance of the virtual screen
 */
 ColorRgb
 ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
-    int nonBackGround;
-    const SGL_PIXEL *pix;
     ColorRgb rad;
 
     rad.clear();
-    nonBackGround = 0;
+    int nonBackGround = 0;
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
-        pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
+        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            const GalerkinElement *element = (GalerkinElement *) (*pix);
+            const GalerkinElement *element = reinterpret_cast<GalerkinElement *>(*pix);
             if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
                      galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
@@ -127,7 +125,7 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
         }
     }
     if ( nonBackGround > 0 ) {
-        rad.scale(1.0f / (float) (galerkinState->scratch->vp_width * galerkinState->scratch->vp_height));
+        rad.scale(1.0f / static_cast<float>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height));
     }
     return rad;
 }
@@ -137,13 +135,12 @@ Computes the number of non background pixels
 */
 int
 ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galerkinState) {
-    const SGL_PIXEL *pix;
     int nonBackGround = 0;
 
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
-        pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
+        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            const GalerkinElement *elem = (GalerkinElement *) (*pix);
+            const GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(*pix);
             if ( elem ) {
                 nonBackGround++;
             }
@@ -162,7 +159,7 @@ ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkin
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
         const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
-            GalerkinElement *elem = (GalerkinElement *)(*pix);
+            GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(*pix);
             if ( elem != nullptr ) {
                 elem->scratchVisibilityUsageCounter++;
             }

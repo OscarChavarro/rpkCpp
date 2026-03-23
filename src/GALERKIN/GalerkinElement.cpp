@@ -174,7 +174,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 {
     patch = parameterPatch;
     minimumArea = area = patch->area;
-    blockerSize = 2.0f * (float)java::Math::sqrt(area / M_PI);
+    blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(area / M_PI));
     directPotential = patch->directPotential;
 
     Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
@@ -349,8 +349,8 @@ GalerkinElement::regularSubDivide() {
             &globalTriangleToParentTransformMatrix[i] :
             &globalQuadToParentTransformMatrix[i];
         child->area = 0.25f * area;  // Uniform mapping is always used
-        child->blockerSize = 2.0f * (float)java::Math::sqrt(child->area / M_PI);
-        child->childNumber = (GalerkinElementRenderMode)i;
+        child->blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(child->area / M_PI));
+        child->childNumber = static_cast<GalerkinElementRenderMode>(i);
         child->reAllocCoefficients();
 
         basisGalerkinPush(this, radiance, child, child->radiance);
@@ -371,12 +371,12 @@ GalerkinElement::regularSubDivide() {
         new4ChildrenSet[i] = child;
     }
 
-    regularSubElements = (Element **)new4ChildrenSet;
+    regularSubElements = reinterpret_cast<Element **>(new4ChildrenSet);
 }
 
 /**
-Determines the regular sub-element at point (u,v) of the given element
-element. Returns the element element itself if there are no regular sub-elements.
+Determines the regular sub-element at point (u,v) of the given element.
+Returns the element itself if there are no regular sub-elements.
 The point is transformed to the corresponding point on the sub-element
 */
 GalerkinElement *
@@ -434,7 +434,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
             logFatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
-    return (GalerkinElement *)childElement;
+    return dynamic_cast<GalerkinElement *>(childElement);
 }
 
 /**
@@ -526,7 +526,7 @@ GalerkinElement::midPoint() const {
             c.addition(c, p[i]);
         }
 
-        c.scaledCopy(1.0f / (float)numberOfVertices, c);
+        c.scaledCopy(1.0f / static_cast<float>(numberOfVertices), c);
         return c;
     }
 }
@@ -541,9 +541,8 @@ GalerkinElement::bounds(BoundingBox *boundingBox) const {
         boundingBox->copyFrom(&copy);
     } else {
         Vector3D p[4];
-        int numberOfVertices;
 
-        numberOfVertices = vertices(p, 4);
+        const int numberOfVertices = vertices(p, 4);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
             boundingBox->enlargeToIncludePoint(&p[i]);

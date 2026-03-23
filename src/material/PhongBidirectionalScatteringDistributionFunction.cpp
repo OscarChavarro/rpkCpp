@@ -408,7 +408,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
         double textureBsdf = PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
                 in, out, &normal);
         ColorRgb textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, hit);
-        result.addScaled(result, (float) textureBsdf, textureCol);
+        result.addScaled(result, static_cast<float>(textureBsdf), textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
 
@@ -554,7 +554,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
     result.clear();
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = (char)BSDF_INDEX_TO_COMP(i);
+        thisFlag = static_cast<char>(BSDF_INDEX_TO_COMP(i));
 
         if ( flags & thisFlag ) {
             colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(

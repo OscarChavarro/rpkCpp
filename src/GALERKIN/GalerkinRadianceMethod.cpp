@@ -47,7 +47,7 @@ galerkinWriteVertexCoord(const Vector3D *p) {
 
 static void
 galerkinWriteVertexCoords(Element *element) {
-    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     Vector3D v[8];
     int numberOfVertices = galerkinElement->vertices(v, 8);
     for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -79,7 +79,7 @@ galerkinWriteVertexColor(const ColorRgb *color) {
 
 static void
 galerkinWriteVertexColors(Element *element) {
-    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     ColorRgb vertexRadiosity[4];
     int i;
 
@@ -140,7 +140,7 @@ galerkinWriteCoordIndex(int index) {
 
 static void
 galerkinWriteCoordIndices(Element *element) {
-    const GalerkinElement *galerkinElement = (GalerkinElement *)element;
+    const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         galerkinWriteCoordIndex(globalVertexId);
         globalVertexId++;
@@ -185,7 +185,7 @@ GalerkinRadianceMethod::renderElementHierarchy(const GalerkinElement *element, c
         element->render(renderOptions);
     } else {
         for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy((GalerkinElement *)element->regularSubElements[i], renderOptions);
+            renderElementHierarchy(static_cast<GalerkinElement *>(element->regularSubElements[i]), renderOptions);
         }
     }
 }
@@ -201,7 +201,7 @@ For counting how much CPU time was used for the computations
 void
 GalerkinRadianceMethod::updateCpuSecs() {
     clock_t t = clock();
-    galerkinState.cpuSeconds += (float) (t - galerkinState.lastClock) / (float) CLOCKS_PER_SEC;
+    galerkinState.cpuSeconds += static_cast<float>(t - galerkinState.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
     galerkinState.lastClock = t;
 }
 
@@ -351,7 +351,7 @@ GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(GalerkinElement *cluster
     }
 
     for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
-        GalerkinRadianceMethod::galerkinDestroyClusterHierarchy((GalerkinElement *)clusterElement->irregularSubElements->get(i));
+        GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(static_cast<GalerkinElement *>(clusterElement->irregularSubElements->get(i)));
     }
     delete clusterElement;
 }
@@ -414,7 +414,7 @@ GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
         return;
     }
     if ( patch->radianceData != nullptr ) {
-        delete ((GalerkinElement *)patch->radianceData);
+        delete static_cast<GalerkinElement *>(patch->radianceData);
         patch->radianceData = nullptr;
     }
 }
@@ -456,7 +456,7 @@ GalerkinRadianceMethod::getStats() {
     p += n;
     snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", galerkinState.cpuSeconds, &n);
     p += n;
-    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * (double) galerkinState.relMinElemArea, &n);
+    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * static_cast<double>(galerkinState.relMinElemArea), &n);
     p += n;
     snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?

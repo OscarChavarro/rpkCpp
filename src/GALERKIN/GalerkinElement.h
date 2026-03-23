@@ -88,7 +88,7 @@ galerkinGetElement(const Patch *patch) {
         java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
         exit(1);
     }
-    return (GalerkinElement *)patch->radianceData;
+    return static_cast<GalerkinElement *>(patch->radianceData);
 }
 
 extern void basisGalerkinInitBasis();

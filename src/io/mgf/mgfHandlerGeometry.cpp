@@ -228,7 +228,7 @@ faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
 
     int index = normal->dominantCoordinate();
     for ( i = 0; i < numberOfVertices; i++ ) {
-        vectorProject(v2d[i], *(v[i]->point), (CoordinateAxis)index);
+        vectorProject(v2d[i], *(v[i]->point), static_cast<CoordinateAxis>(index));
     }
 
     p.u = v2d[3].u - v2d[2].u;
@@ -400,7 +400,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfConte
 
     Vector2D q[MAXIMUM_FACE_VERTICES + 1];
     for ( int i = 0; i < n; i++ ) {
-        vectorProject(q[i], *(v[i]->point), (CoordinateAxis)index);
+        vectorProject(q[i], *(v[i]->point), static_cast<CoordinateAxis>(index));
     }
 
     int good;
@@ -520,13 +520,13 @@ handleFaceEntity(int argc, const char **argv, MgfContext *context) {
     }
 
     Vector3D normal;
-    Vector3D backNormal;
 
     if ( !faceNormal(argc - 1, v, &normal) ) {
         doWarning("degenerate face", context);
         return MgfErrorCode::MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
+        Vector3D backNormal;
         backNormal.scaledCopy(-1.0, normal);
     }
 
@@ -771,7 +771,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentVertexName = lp->key;
-            globalMgfCurrentVertex = (MgfVertexContext *) lp->data;
+            globalMgfCurrentVertex = reinterpret_cast<MgfVertexContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( globalMgfCurrentVertex == nullptr) {
@@ -790,11 +790,11 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
-                globalMgfCurrentVertex = (MgfVertexContext *)new char[sizeof(MgfVertexContext)];
+                globalMgfCurrentVertex = reinterpret_cast<MgfVertexContext *>(new char[sizeof(MgfVertexContext)]);
                 if ( globalMgfCurrentVertex == nullptr ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
-                lp->data = (char *)globalMgfCurrentVertex;
+                lp->data = reinterpret_cast<char *>(globalMgfCurrentVertex);
             }
             if ( ac == 3 ) {
                 // Use default template
@@ -809,7 +809,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *globalMgfCurrentVertex = *(MgfVertexContext *) lp->data;
+            *globalMgfCurrentVertex = *reinterpret_cast<MgfVertexContext *>(lp->data);
             globalMgfCurrentVertex->clock++;
             return MgfErrorCode::MGF_OK;
         case MgfEntity::MGF_POINT:
@@ -855,7 +855,7 @@ getNamedVertex(const char *name, MgfContext *context) {
     if ( lp == nullptr ) {
         return nullptr;
     }
-    return (MgfVertexContext *)lp->data;
+    return reinterpret_cast<MgfVertexContext *>(lp->data);
 }
 
 void

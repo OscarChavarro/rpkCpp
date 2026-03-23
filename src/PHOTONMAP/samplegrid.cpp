@@ -34,8 +34,8 @@ CSampleGrid2D::add(double x, double y, double value) {
     int xIndex;
     int yIndex;
 
-    xIndex = (int) (x * xSections);
-    yIndex = (int) (y * ySections);
+    xIndex = static_cast<int>(x * xSections);
+    yIndex = static_cast<int>(y * ySections);
 
     if ( xIndex == xSections ) {
         xIndex--;

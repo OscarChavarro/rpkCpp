@@ -70,7 +70,7 @@ tracePotentialPath(
     accImportance.setMonochrome(1.0);
 
     // Adjust importance for eye ray
-    float factor = (float)(path->m_G / path->m_pdfFromPrev);
+    float factor = static_cast<float>(path->m_G / path->m_pdfFromPrev);
     accImportance.scale(factor);
 
     bool indirectImportance = false; // Can we store in the indirect importance map
@@ -94,7 +94,7 @@ tracePotentialPath(
             node,
             x1,
             x2,
-            (char)(indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS)
+            static_cast<char>(indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS)
             ) ) {
         // Successful trace
         const SimpleRaytracingPathNode *prev = node->previous();
@@ -109,7 +109,7 @@ tracePotentialPath(
 
         // Adjust importance
         accImportance.selfScalarProduct(prev->m_bsdfEval);
-        factor = (float)(node->m_G / node->m_pdfFromPrev);
+        factor = static_cast<float>(node->m_G / node->m_pdfFromPrev);
         accImportance.scale(factor);
 
         // Store in map

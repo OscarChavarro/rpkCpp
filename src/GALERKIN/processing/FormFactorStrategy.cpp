@@ -97,9 +97,9 @@ FormFactorStrategy::determineNodes(
 
         for ( int k = 0; k < (*cr)->numberOfNodes; k++ ) {
             x[k].set(
-                    (float)(minX + (*cr)->u[k] * dx),
-                    (float)(minY + (*cr)->v[k] * dy),
-                    (float)(minZ + (*cr)->t[k] * dz));
+                    static_cast<float>(minX + (*cr)->u[k] * dx),
+                    static_cast<float>(minY + (*cr)->v[k] * dy),
+                    static_cast<float>(minZ + (*cr)->t[k] * dz));
         }
     } else {
         // What cubature rule should be used over the element
@@ -124,8 +124,8 @@ FormFactorStrategy::determineNodes(
         // in the unit square or triangle used to parametrise the element
         for ( int k = 0; *cr != nullptr && k < (*cr)->numberOfNodes; k++ ) {
             Vector2D node;
-            node.u = (float)(*cr)->u[k];
-            node.v = (float)(*cr)->v[k];
+            node.u = static_cast<float>((*cr)->u[k]);
+            node.v = static_cast<float>((*cr)->v[k]);
             if ( element->transformToParent != nullptr ) {
                 topTransform.transformPoint2D(node, node);
             }
@@ -162,7 +162,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     ray.position = *y;
     ray.direction.subtraction(*x, *y);
     double distance = ray.direction.norm();
-    ray.direction.inverseScaledCopy((float) distance, ray.direction, Numeric::EPSILON_FLOAT);
+    ray.direction.inverseScaledCopy(static_cast<float>(distance), ray.direction, Numeric::EPSILON_FLOAT);
 
     // Don't allow too nearby nodes to interact
     if ( distance < Numeric::EPSILON ) {
@@ -197,7 +197,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Un-occluded kernel value (without reflectivity term) - see equation (1) from [BEKA1996]
     double formFactorKernelTerm = cosThetaX * cosThetaY / (M_PI * distance * distance);
-    float shortenedDistance = (float)(distance * (1.0f - Numeric::EPSILON));
+    float shortenedDistance = static_cast<float>(distance * (1.0f - Numeric::EPSILON));
 
     // Determine transmissivity (visibility)
     RayHit hitStore;
@@ -226,7 +226,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
-            * (float)java::Math::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI);
+            * static_cast<float>(java::Math::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }
@@ -319,7 +319,7 @@ FormFactorStrategy::computeInteractionFormFactor(
             for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
                 gAlphaBeta += receiverCubatureRule->w[k] * receiverPhi[alpha][k] * gBeta[k];
             }
-            twoPatchesInteraction->K[alpha * twoPatchesInteraction->numberOfBasisFunctionsOnSource + beta] = (float)(receiverElement->area * gAlphaBeta);
+            twoPatchesInteraction->K[alpha * twoPatchesInteraction->numberOfBasisFunctionsOnSource + beta] = static_cast<float>(receiverElement->area * gAlphaBeta);
 
             // Second part of error estimate at receiver node x_k
             for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
@@ -328,7 +328,7 @@ FormFactorStrategy::computeInteractionFormFactor(
         }
 
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
-            deltaRadiance[k].addScaled(deltaRadiance[k], (float) deltaBeta[k], sourceRadiance[beta]);
+            deltaRadiance[k].addScaled(deltaRadiance[k], static_cast<float>(deltaBeta[k]), sourceRadiance[beta]);
         }
 
         if ( beta == 0 ) {
@@ -363,9 +363,9 @@ FormFactorStrategy::computeInteractionError(
     if ( sourceRadiance[0].isBlack() ) {
         // No source radiance: use constant radiance error approximation
         double gav = link->K[0] / receiverElement->area;
-        link->deltaK[0] = (float)(gMax - gav);
+        link->deltaK[0] = static_cast<float>(gMax - gav);
         if ( gav - gMin > link->deltaK[0] ) {
-            link->deltaK[0] = (float)(gav - gMin);
+            link->deltaK[0] = static_cast<float>(gav - gMin);
         }
     } else {
         link->deltaK[0] = 0.0;
@@ -373,7 +373,7 @@ FormFactorStrategy::computeInteractionError(
             deltaRadiance[k].divide(deltaRadiance[k], sourceRadiance[0]);
             double delta = java::Math::abs(deltaRadiance[k].maximumComponent());
             if ( delta > link->deltaK[0] ) {
-                link->deltaK[0] = (float)delta;
+                link->deltaK[0] = static_cast<float>(delta);
             }
         }
     }
@@ -641,13 +641,14 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             delete[] link->deltaK;
         }
         link->deltaK = new float[1];
-        link->deltaK[0] = (float)(maximumKernelValue * sourceElement->area);
+        link->deltaK[0] = static_cast<float>(maximumKernelValue * sourceElement->area);
     }
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
     if ( sourceCubatureRule != nullptr && receiveCubatureRule != nullptr ) {
-        link->visibility = (unsigned char) ((unsigned) (255.0 * (double) visibilityCount /
-            (double) (receiveCubatureRule->numberOfNodes * sourceCubatureRule->numberOfNodes)));
+        link->visibility = static_cast<unsigned char>((unsigned) (255.0 * (double) visibilityCount /
+                                                                  (double) (receiveCubatureRule->numberOfNodes * sourceCubatureRule->
+                                                                            numberOfNodes)));
     }
 
     if ( galerkinState->exactVisibility && geometryShadowList != nullptr && link->visibility == 255 ) {

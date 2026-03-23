@@ -51,7 +51,7 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
     // Test discr (reuse distance)
 
     if ( index < firstLeaf ) {
-        dist = ((float *) node.m_data)[discr] - (qdat_s.point)[discr];
+        dist = static_cast<float *>(node.m_data)[discr] - (qdat_s.point)[discr];
 
         if ( dist >= 0.0 )  // qdat_s.point[discr] <= ((float *)node->m_data)[discr]
         {
@@ -76,14 +76,14 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
         }
     }
 
-    dist = sqrDistance3D((float *) node.m_data, qdat_s.point);
+    dist = sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
 
     // Normal constraint
     if ( dist < qdat_s.maximumDistance &&
-         (((CIrrPhoton *) node.m_data)->Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
+         (static_cast<CIrrPhoton *>(node.m_data)->Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
         // Replace point if distance < maxdist AND normal is similar
         qdat_s.maximumDistance = dist;
-        qdat_s.photon = (CIrrPhoton *) node.m_data;
+        qdat_s.photon = static_cast<CIrrPhoton *>(node.m_data);
     }
 }
 

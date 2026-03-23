@@ -35,7 +35,7 @@ CImportanceMap::reconstructImportance(Vector3D /*pos*/, const Vector3D &normal) 
     maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
-        const CImporton *importon = (CImporton *) m_photons[i];
+        const CImporton *importon = static_cast<CImporton *>(m_photons[i]);
 
         Vector3D dir = importon->dir();
 
@@ -55,7 +55,7 @@ CImportanceMap::reconstructImportance(Vector3D /*pos*/, const Vector3D &normal) 
         return 0;
     }
 
-    factor = 1.0f / ((float)M_PI * maxDistance * (float)m_totalPaths);
+    factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
     result *= factor;
 
     return result;
@@ -88,7 +88,7 @@ CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D 
         if ( !m_irradianceComputed || (m_preReconPhotons != *m_estimate_nrp))
             precomputeIrradiance();
 
-        const CImporton *photon = (CImporton *) DoIrradianceQuery(&pos, &normal, m_totalMaxDistance);
+        const CImporton *photon = static_cast<CImporton *>(DoIrradianceQuery(&pos, &normal, m_totalMaxDistance));
 
         if ( photon ) {
             switch ( GLOBAL_photonMap_state.importanceOption ) {
@@ -161,7 +161,7 @@ CImportanceMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree
     m_totalMaxDistance = java::Math::max(pot, m_totalMaxDistance);
 
-    ((CImporton *) photon)->PSetAll(imp, pot, diff);
+    static_cast<CImporton *>(photon)->PSetAll(imp, pot, diff);
     if ( imp > m_maxImp ) {
         m_maxImp = imp;
     }
@@ -180,8 +180,8 @@ CImportanceMap::precomputeIrradiance() {
 
     CPhotonMap::precomputeIrradiance();
 
-    m_avgImp /= (float)m_nrPhotons;
-    m_totalMaxDistance *= 20.0f / (float)*m_estimate_nrp;
+    m_avgImp /= static_cast<float>(m_nrPhotons);
+    m_totalMaxDistance *= 20.0f / static_cast<float>(*m_estimate_nrp);
 }
 
 #endif

@@ -85,7 +85,7 @@ static float globalRgb2XyzMat[3][3];
 
 static float
 gray(const float r, const float g, const float b) {
-    return (float)CIE_rf * r + (float)CIE_gf * g + (float)CIE_bf * b;
+    return static_cast<float>(CIE_rf) * r + static_cast<float>(CIE_gf) * g + static_cast<float>(CIE_bf) * b;
 }
 
 static float
@@ -169,27 +169,27 @@ computeColorConversionTransforms(
 
     setColorTransform(
             globalXyz2RgbMat, // XYZ to RGB
-          (float)((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD),
-            (float)((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD),
-            (float)((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD),
-            (float)((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD),
-            (float)((CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / CIE_C_gD),
-            (float)((CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / CIE_C_gD),
-            (float)((CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / CIE_C_bD),
-            (float)((CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD),
-            (float)((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD));
+          static_cast<float>((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD),
+            static_cast<float>((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD),
+            static_cast<float>((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD),
+            static_cast<float>((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD),
+            static_cast<float>((CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / CIE_C_gD),
+            static_cast<float>((CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / CIE_C_gD),
+            static_cast<float>((CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / CIE_C_bD),
+            static_cast<float>((CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD),
+            static_cast<float>((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD));
 
     setColorTransform(
             globalRgb2XyzMat, // RGB to XYZ
-          (float)(CIE_x_r * CIE_C_rD / CIE_D),
-            (float)(CIE_x_g * CIE_C_gD / CIE_D),
-            (float)(CIE_x_b * CIE_C_bD / CIE_D),
-            (float)(CIE_y_r * CIE_C_rD / CIE_D),
-            (float)(CIE_y_g * CIE_C_gD / CIE_D),
-            (float)(CIE_y_b * CIE_C_bD / CIE_D),
-            (float)((1.0 - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D),
-            (float)((1.0 - CIE_x_g - CIE_y_g) * CIE_C_gD / CIE_D),
-            (float)((1.0 - CIE_x_b - CIE_y_b) * CIE_C_bD / CIE_D));
+          static_cast<float>(CIE_x_r * CIE_C_rD / CIE_D),
+            static_cast<float>(CIE_x_g * CIE_C_gD / CIE_D),
+            static_cast<float>(CIE_x_b * CIE_C_bD / CIE_D),
+            static_cast<float>(CIE_y_r * CIE_C_rD / CIE_D),
+            static_cast<float>(CIE_y_g * CIE_C_gD / CIE_D),
+            static_cast<float>(CIE_y_b * CIE_C_bD / CIE_D),
+            static_cast<float>((1.0 - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D),
+            static_cast<float>((1.0 - CIE_x_g - CIE_y_g) * CIE_C_gD / CIE_D),
+            static_cast<float>((1.0 - CIE_x_b - CIE_y_b) * CIE_C_bD / CIE_D));
 }
 
 /**

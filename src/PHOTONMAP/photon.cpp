@@ -20,7 +20,7 @@ CPhoton::findRS(
         *r = -tmp * tmp + 1;
     } else if ( flag == BRDF_GLOSSY_COMPONENT ) {
         *s = phi / (2 * M_PI);
-        *r = java::Math::pow(java::Math::cos(theta), (double)n + 1.0);
+        *r = java::Math::pow(java::Math::cos(theta), static_cast<double>(n) + 1.0);
     } else {
         logError("CPhoton::findRS", "Component %i not implemented yet", flag);
     }

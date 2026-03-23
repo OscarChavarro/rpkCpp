@@ -50,7 +50,7 @@ subdivideReceiverCallBack(
 {
     StochasticRadiosityElement *rcv = link->rcv;
     if ( rcv->isCluster() ) {
-        rcv = (StochasticRadiosityElement *)rcv->childContainingElement(rcvtop);
+        rcv = static_cast<StochasticRadiosityElement *>(rcv->childContainingElement(rcvtop));
     } else {
         if ( !rcv->regularSubElements ) {
             stochasticRadiosityElementRegularSubdivideElement(rcv, renderOptions);
@@ -77,7 +77,7 @@ subdivideSourceCallBack(
 {
     StochasticRadiosityElement *src = link->src;
     if ( src->isCluster() ) {
-        src = (StochasticRadiosityElement *)src->childContainingElement(srcTop);
+        src = static_cast<StochasticRadiosityElement *>(src->childContainingElement(srcTop));
     } else {
         if ( !src->regularSubElements ) {
             stochasticRadiosityElementRegularSubdivideElement(src, renderOptions);
@@ -113,7 +113,7 @@ formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadios
     if ( c2 < f2 ) {
         c2 = f2;
     }
-    return (float)(f * c1 * c2);
+    return static_cast<float>(f * c1 * c2);
 }
 
 static int
@@ -230,7 +230,7 @@ hierarchyRefine(
         link->src = srcTop;
     } else {
         REFINE_ACTION action;
-        while ( (action = evaluateLink(link)) != (REFINE_ACTION)dontRefineCallBack ) {
+        while ( (action = evaluateLink(link)) != static_cast<REFINE_ACTION>(dontRefineCallBack) ) {
             link = action(link, rcvTop, ur, vr, srcTop, us, vs, renderOptions);
         }
     }

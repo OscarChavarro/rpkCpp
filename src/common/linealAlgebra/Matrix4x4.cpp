@@ -109,7 +109,7 @@ Matrix4x4::recoverRotationParameters(float *angle, Vector3D *axis) const {
         *angle = 0.0f;
         axis->set(0.0f, 0.0f, 1.0f);
     } else if ( c < -1.0f + Numeric::EPSILON ) {
-        *angle = (float)M_PI;
+        *angle = static_cast<float>(M_PI);
         axis->x = java::Math::sqrt((m[0][0] + 1.0f) * 0.5f);
         axis->y = java::Math::sqrt((m[1][1] + 1.0f) * 0.5f);
         axis->z = java::Math::sqrt((m[2][2] + 1.0f) * 0.5f);

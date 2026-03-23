@@ -98,8 +98,8 @@ computeFilterCoefficients(
             double x = 0.0;
             for ( int k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
-                up.u = (float)cr->u[k];
-                up.v = (float)cr->v[k];
+                up.u = static_cast<float>(cr->u[k]);
+                up.v = static_cast<float>(cr->v[k]);
                 upxfm->transformPoint2D(up, up);
                 x += cr->w[k] * parent_basis->function[a](up.u, up.v) *
                      child_basis->function[b](cr->u[k], cr->v[k]);
@@ -147,7 +147,7 @@ monteCarloRadiosityInitBasis() {
 
     for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
         for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )
-            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis((StochasticRadiosityElementType)et, (StochasticRaytracingApproximation) at);
+            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
     }
     inited = true;
 }
@@ -161,7 +161,7 @@ colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
     res.clear();
     for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
-        res.addScaled(res, (float)s, rad[i]);
+        res.addScaled(res, static_cast<float>(s), rad[i]);
     }
     return res;
 }
@@ -174,7 +174,7 @@ void
 filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
-            child[i].addScaled(child[i], (float)(*h)[j][i], parent[j]);
+            child[i].addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
         }
     }
 }
@@ -184,7 +184,7 @@ filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double 
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;
-            parent[i].addScaled(parent[i], (float)H, child[j]);
+            parent[i].addScaled(parent[i], static_cast<float>(H), child[j]);
         }
     }
 }

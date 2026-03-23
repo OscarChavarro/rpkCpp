@@ -30,18 +30,18 @@ ScreenSampler::sample(
     // Pre-condition2: 1. thisNode == eye 2. prevNode == nullptr 3. SetPixel called
 
     // Sample direction
-    double xSample = camera->pixelWidth * (double)camera->xSize * (-0.5 + x1);
-    double ySample = camera->pixelHeight * (double)camera->ySize * (-0.5 + x2);
+    double xSample = camera->pixelWidth * static_cast<double>(camera->xSize) * (-0.5 + x1);
+    double ySample = camera->pixelHeight * static_cast<double>(camera->ySize) * (-0.5 + x2);
 
-    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
+    dir.combine3(camera->Z, static_cast<float>(xSample), camera->X, static_cast<float>(ySample), camera->Y);
     double distScreen2 = dir.norm2();
     double distScreen = java::Math::sqrt(distScreen2);
-    dir.inverseScaledCopy((float) distScreen, dir, Numeric::EPSILON_FLOAT);
+    dir.inverseScaledCopy(static_cast<float>(distScreen), dir, Numeric::EPSILON_FLOAT);
 
     double cosScreen = java::Math::abs(camera->Z.dotProduct(dir));
 
-    double pdfDir = ((1.0 / (camera->pixelWidth * (float)camera->xSize *
-                            camera->pixelHeight * (float)camera->ySize)) * // 1 / Area pixel
+    double pdfDir = ((1.0 / (camera->pixelWidth * static_cast<float>(camera->xSize) *
+                            camera->pixelHeight * static_cast<float>(camera->ySize))) * // 1 / Area pixel
                      (distScreen2 / cosScreen));  // Spherical angle measure
 
     // Determine ray type
@@ -89,7 +89,7 @@ ScreenSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float) dist, outDir, Numeric::EPSILON_FLOAT);
+    outDir.inverseScaledCopy(static_cast<float>(dist), outDir, Numeric::EPSILON_FLOAT);
 
     // probabilityDensityFunction = 1 / A_screen transformed to area measure
     cosA = thisNode->m_normal.dotProduct(outDir);
@@ -100,7 +100,7 @@ ScreenSampler::evalPDF(
     // Three cosines : r^2 / cos = 1 / cos^3 since r is length
     // of viewing ray to the screen.
     probabilityDensityFunction = 1.0 /
-        (camera->pixelHeight * (float)camera->ySize * camera->pixelWidth * (float)camera->xSize * cosA * cosA * cosA);
+        (camera->pixelHeight * static_cast<float>(camera->ySize) * camera->pixelWidth * static_cast<float>(camera->xSize) * cosA * cosA * cosA);
 
     cosB = -newNode->m_normal.dotProduct(outDir);
     probabilityDensityFunction = probabilityDensityFunction * cosB / dist2;

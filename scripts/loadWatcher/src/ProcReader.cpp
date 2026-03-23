@@ -18,7 +18,7 @@ bool isNumericName(const char *name) {
     }
 
     for ( const char *cursor = name; *cursor != '\0'; cursor++ ) {
-        if ( !isdigit((unsigned char)*cursor) ) {
+        if ( !isdigit(static_cast<unsigned char>(*cursor)) ) {
             return false;
         }
     }
@@ -176,7 +176,7 @@ bool readUserSeconds(pid_t pid, double *userSeconds) {
     while ( token != nullptr ) {
         if ( fieldIndex == 14 ) {
             unsigned long long utimeTicks = strtoull(token, nullptr, 10);
-            *userSeconds = (double)utimeTicks / (double)ticksPerSecond;
+            *userSeconds = static_cast<double>(utimeTicks) / static_cast<double>(ticksPerSecond);
             return true;
         }
 

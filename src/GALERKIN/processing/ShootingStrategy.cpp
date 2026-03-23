@@ -34,7 +34,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = (float)M_PI * patch->area * patch->radianceData->unShotRadiance[0].sumAbsComponents();
+        power = static_cast<float>(M_PI) * patch->area * patch->radianceData->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -61,12 +61,12 @@ void
 ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     if ( elem->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++) {
-            clearUnShotRadianceAndPotential((GalerkinElement *)elem->regularSubElements[i]);
+            clearUnShotRadianceAndPotential(static_cast<GalerkinElement *>(elem->regularSubElements[i]));
         }
     }
 
     for ( int i = 0; elem->irregularSubElements != nullptr && i < elem->irregularSubElements->size(); i++ ) {
-        clearUnShotRadianceAndPotential((GalerkinElement *)elem->irregularSubElements->get(i));
+        clearUnShotRadianceAndPotential(static_cast<GalerkinElement *>(elem->irregularSubElements->get(i)));
     }
 
     colorsArrayClear(elem->unShotRadiance, elem->basisSize);
@@ -127,13 +127,13 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down
 
     if ( element->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * shootingPushPullPotential((GalerkinElement *)element->regularSubElements[i], down);
+            up += 0.25f * shootingPushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
         }
     }
 
     if ( element->irregularSubElements ) {
         for ( int j = 0; element->irregularSubElements != nullptr && j < element->irregularSubElements->size(); j++ ) {
-            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(j);
+            GalerkinElement *subElement = static_cast<GalerkinElement *>(element->irregularSubElements->get(j));
             if ( !element->isCluster() ) {
                 down = 0.0;
             }
@@ -218,7 +218,7 @@ ShootingStrategy::clusterUpdatePotential(GalerkinElement *clusterElement) {
         clusterElement->potential = 0.0f;
         clusterElement->unShotPotential = 0.0f;
         for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = (GalerkinElement *)clusterElement->irregularSubElements->get(i);
+            GalerkinElement *subCluster = static_cast<GalerkinElement *>(clusterElement->irregularSubElements->get(i));
             clusterUpdatePotential(subCluster);
             clusterElement->potential += subCluster->area * subCluster->potential;
             clusterElement->unShotPotential += subCluster->area * subCluster->unShotPotential;
@@ -274,7 +274,7 @@ void
 ShootingStrategy::shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement) {
     if ( galerkinElement->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
-            shootingUpdateDirectPotential((GalerkinElement *)galerkinElement->regularSubElements[i], potentialIncrement);
+            shootingUpdateDirectPotential(static_cast<GalerkinElement *>(galerkinElement->regularSubElements[i]), potentialIncrement);
         }
     }
     galerkinElement->directPotential += potentialIncrement;

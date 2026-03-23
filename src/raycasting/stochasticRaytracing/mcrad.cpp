@@ -62,7 +62,7 @@ monteCarloRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += (float) (t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / (float) CLOCKS_PER_SEC;
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += static_cast<float>(t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
@@ -128,8 +128,8 @@ Routines below update/re-initialise importance after a viewing change
 */
 static void
 monteCarloRadiosityPullImportances(Element *element) {
-    StochasticRadiosityElement *child = (StochasticRadiosityElement *)element;
-    StochasticRadiosityElement *parent = (StochasticRadiosityElement *)child->parent;
+    StochasticRadiosityElement *child = static_cast<StochasticRadiosityElement *>(element);
+    StochasticRadiosityElement *parent = static_cast<StochasticRadiosityElement *>(child->parent);
     stochasticRadiosityElementPullImportance(parent, child, &parent->importance, &child->importance);
     stochasticRadiosityElementPullImportance(parent, child, &parent->sourceImportance, &child->sourceImportance);
     stochasticRadiosityElementPullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
@@ -147,7 +147,7 @@ Update importance in the element hierarchy starting with the top cluster
 */
 static void
 monteCarloRadiosityUpdateImportance(Element *element) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
         return;
@@ -155,7 +155,7 @@ monteCarloRadiosityUpdateImportance(Element *element) {
 
     if ( !stochasticRadiosityElement->traverseAllChildren(monteCarloRadiosityUpdateImportance) ) {
         // Leaf element
-        float delta_imp = (float)(stochasticRadiosityElement->patch->isVisible() ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
+        float delta_imp = static_cast<float>(stochasticRadiosityElement->patch->isVisible() ? 1.0 : 0.0) - stochasticRadiosityElement->sourceImportance;
         stochasticRadiosityElement->importance += delta_imp;
         stochasticRadiosityElement->sourceImportance += delta_imp;
         stochasticRadiosityElement->unShotImportance += delta_imp;
@@ -172,7 +172,7 @@ Re-init importance in the element hierarchy starting with the top cluster
 */
 static void
 monteCarloRadiosityReInitImportance(Element *element) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
         return;
@@ -261,7 +261,7 @@ monteCarloRadiosityDetermineAreaFraction(
     for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < GLOBAL_statistics.totalArea * 0.1; i-- ) {
         cumulative += areas[i];
     }
-    areaFrac = (i >= 0 && areas[i] > 0.0) ? GLOBAL_statistics.totalArea / areas[i] : (float)GLOBAL_statistics.numberOfPatches;
+    areaFrac = (i >= 0 && areas[i] > 0.0) ? GLOBAL_statistics.totalArea / areas[i] : static_cast<float>(GLOBAL_statistics.numberOfPatches);
 
     delete[] areas;
 
@@ -277,7 +277,7 @@ monteCarloRadiosityDetermineInitialNrRays(
     const java::ArrayList<Geometry *> *sceneGeometries)
 {
     double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = (long) ((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areaFrac);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = static_cast<long>((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areaFrac);
 }
 
 /**
@@ -313,15 +313,15 @@ monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions) {
         monteCarloRadiosityInitPatch(patch);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
-            (float)M_PI * patch->area,
+            static_cast<float>(M_PI) * patch->area,
             getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
-            (float)M_PI * patch->area,
+            static_cast<float>(M_PI) * patch->area,
             getTopLevelPatchRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
-            (float)M_PI * patch->area *
+            static_cast<float>(M_PI) * patch->area *
             (topLevelStochasticRadiosityElement(patch)->importance - topLevelStochasticRadiosityElement(patch)->sourceImportance),
             getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(topLevelStochasticRadiosityElement(patch)->unShotImportance);
@@ -390,7 +390,7 @@ vertexReflectance(const Vertex *v) {
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        const StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
+        const StochasticRadiosityElement *element = static_cast<StochasticRadiosityElement *>(genericElement);
         if ( !element->regularSubElements ) {
             rd.add(rd, element->Rd);
             count++;
@@ -398,7 +398,7 @@ vertexReflectance(const Vertex *v) {
     }
 
     if ( count > 0 ) {
-        rd.scaleInverse((float) count, rd);
+        rd.scaleInverse(static_cast<float>(count), rd);
     }
 
     return rd;
@@ -421,10 +421,10 @@ monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosityEleme
         rd.clear();
         switch ( leaf->numberOfVertices ) {
             case 3:
-                rd.interpolateBarycentric(vrd[0], vrd[1], vrd[2], (float) u, (float) v);
+                rd.interpolateBarycentric(vrd[0], vrd[1], vrd[2], static_cast<float>(u), static_cast<float>(v));
                 break;
             case 4:
-                rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], (float) u, (float) v);
+                rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], static_cast<float>(u), static_cast<float>(v));
                 break;
             default:
                 logFatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",

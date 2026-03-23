@@ -24,13 +24,13 @@ GatheringStrategy::pushPullPotential(GalerkinElement *element, float down) {
 
     if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * GatheringStrategy::pushPullPotential((GalerkinElement *) element->regularSubElements[i], down);
+            up += 0.25f * GatheringStrategy::pushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
         }
     }
 
     if ( element->irregularSubElements != nullptr ) {
         for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(i);
+            GalerkinElement *subElement = static_cast<GalerkinElement *>(element->irregularSubElements->get(i));
             if ( !element->isCluster() ) {
                 // Don't push to irregular surface sub-elements
                 down = 0.0;

@@ -23,7 +23,7 @@ void
 GatheringClusteredStrategy::updateClusterDirectPotential(GalerkinElement *element, float potential_increment) {
     if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            GatheringClusteredStrategy::updateClusterDirectPotential((GalerkinElement *)element->regularSubElements[i], potential_increment);
+            GatheringClusteredStrategy::updateClusterDirectPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), potential_increment);
         }
     }
     element->directPotential += potential_increment;
@@ -39,7 +39,7 @@ GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
     if ( cluster->flags & ElementFlags::IS_CLUSTER_MASK ) {
         cluster->potential = 0.0;
         for ( int i = 0; cluster->irregularSubElements != nullptr && i < cluster->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subCluster = (GalerkinElement *)cluster->irregularSubElements->get(i);
+            GalerkinElement *subCluster = static_cast<GalerkinElement *>(cluster->irregularSubElements->get(i));
             cluster->potential += subCluster->area * GatheringClusteredStrategy::updatePotential(subCluster);
         }
         cluster->potential /= cluster->area;
@@ -57,7 +57,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         updateDirectPotential(scene, renderOptions);
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
-            GalerkinElement *top = (GalerkinElement *)patch->radianceData;
+            GalerkinElement *top = static_cast<GalerkinElement *>(patch->radianceData);
             float potentialIncrement = patch->directPotential - top->directPotential;
             GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
@@ -79,7 +79,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     HierarchicalRefinementStrategy::refineInteractions(scene, galerkinState->topCluster, galerkinState);
 
     // TODO: This makes galerkinState non const. Check if this can be changed
-    galerkinState->relLinkErrorThreshold = (float)userErrorThreshold;
+    galerkinState->relLinkErrorThreshold = static_cast<float>(userErrorThreshold);
 
     // Push received radiance down the hierarchy to the leaf elements, where
     // it is multiplied with the reflectivity and the self-emitted radiance added,

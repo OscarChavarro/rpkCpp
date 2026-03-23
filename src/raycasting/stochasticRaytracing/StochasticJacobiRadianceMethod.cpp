@@ -96,7 +96,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 static long
 stochasticRelaxationRadiosityRandomRound(float x) {
     long l = (long)java::Math::floor(x);
-    if ( drand48() < (x - (float) l) ) {
+    if ( drand48() < (x - static_cast<float>(l)) ) {
         l++;
     }
     return l;
@@ -151,7 +151,7 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
         }
         repeated = true;
     } else {
-        elem->quality = (float)stochasticRelaxationRadiosityQualityFactor(elem, w);
+        elem->quality = static_cast<float>(stochasticRelaxationRadiosityQualityFactor(elem, w));
     }
 
     stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
@@ -211,8 +211,9 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             break;
         }
         numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                (float)(unShotFraction * (double)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
-                        GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size));
+                static_cast<float>(unShotFraction * (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
+                                   GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.
+                                       approximationOrderType].basis_size));
 
         stepNumber++;
         java::lang::System::err.printf("Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
@@ -292,7 +293,7 @@ stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
         // proportional to the number of basis functions in the rad. approx. */
         double unShotFraction = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp / GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp;
         long numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                (float)unShotFraction * (float) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays);
+                static_cast<float>(unShotFraction) * static_cast<float>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays));
         if ( unShotFraction < 0.01 ) {
             break;
         }
@@ -327,7 +328,9 @@ stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *e
 
 static void
 stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *elem, double w) {
-    double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays / (double) (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays > 0 ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays : 1);
+    double k = static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays) / static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays > 0
+                   ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays
+                   : 1);
 
     if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging ) {
         double quality = stochasticRelaxationRadiosityQualityFactor(elem, w);
@@ -343,15 +346,15 @@ stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *e
             // Quality of new solution is so high that it must take over
             k = 0.0;
         }
-        elem->quality += (float)quality; // Add quality
+        elem->quality += static_cast<float>(quality); // Add quality
     }
 
     // Subtract source radiosity
     elem->radiance[0].subtract(elem->radiance[0], elem->sourceRad);
 
     // Combine with previous results
-    stochasticRadiosityScaleCoefficients((float)k, elem->radiance, elem->basis);
-    stochasticRadiosityScaleCoefficients((1.0f - (float)k), elem->receivedRadiance, elem->basis);
+    stochasticRadiosityScaleCoefficients(static_cast<float>(k), elem->radiance, elem->basis);
+    stochasticRadiosityScaleCoefficients((1.0f - static_cast<float>(k)), elem->receivedRadiance, elem->basis);
     stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
 
     // Re-add source radiosity
@@ -402,9 +405,10 @@ stochasticRelaxationRadiosityElementImportance(const StochasticRadiosityElement 
 
 static void
 stochasticRelaxationRadiosityElementUpdateImportance(StochasticRadiosityElement *elem, double /*w*/) {
-    double k = (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays / (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
+    double k = static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays) / static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays);
 
-    elem->importance = (float)(k * (elem->importance - elem->sourceImportance) + (1.0 - k) * elem->receivedImportance + elem->sourceImportance);
+    elem->importance = static_cast<float>(k * (elem->importance - elem->sourceImportance) + (1.0 - k) * elem->receivedImportance + elem->
+                                          sourceImportance);
     elem->unShotImportance = elem->receivedImportance = 0.0;
 }
 
@@ -451,7 +455,7 @@ required for some of the experimental stuff to work
 */
 static void
 stochasticRelaxationRadiosityElementDiscardIncremental(Element *element) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
         return;
@@ -501,7 +505,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
             doNonDiffuseFirstShot(scene, this, renderOptions);
         }
-        int initial_nr_of_rays = (int)GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
+        int initial_nr_of_rays = static_cast<int>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {

@@ -91,10 +91,10 @@ long
 lookUpShuffleHash(char *s) {
     int i = 0;
     long h = 0;
-    const unsigned char *t = (unsigned char *)s;
+    const unsigned char *t = reinterpret_cast<unsigned char *>(s);
 
     while ( *t ) {
-        h ^= (long)globalShuffle[*t++] << ((i += 11) & 0xf);
+        h ^= static_cast<long>(globalShuffle[*t++]) << ((i += 11) & 0xf);
     }
 
     return h;
@@ -103,11 +103,9 @@ lookUpShuffleHash(char *s) {
 int
 lookUpReAlloc(LookUpTable *tbl, int nel) {
     const LookUpEntity *le;
-    int oldTSize;
-    LookUpEntity *oldTable;
 
-    oldTable = tbl->table;
-    oldTSize = tbl->currentTableSize;
+    LookUpEntity *oldTable = tbl->table;
+    int oldTSize = tbl->currentTableSize;
     int i = tbl->numberOfDeletedEntries;
     if ( !lookUpInit(tbl, nel) ) {
         // No more memory!
@@ -149,24 +147,18 @@ the system has run out of memory.
 */
 LookUpEntity *
 lookUpFind(LookUpTable *tbl, const char *key) {
-    long hVal;
-    int ndx;
-    int i;
-    int n;
-    LookUpEntity *le;
-
     // Look up object
     if ( tbl->currentTableSize <= 0 ) {
         lookUpInit(tbl, 1);
     }
 
-    hVal = (*tbl->keyHashFunction)(key);
+    long hVal = (*tbl->keyHashFunction)(key);
 
     do {
-        ndx = (int)(hVal % tbl->currentTableSize);
-        le = &tbl->table[ndx];
-        i = 0;
-        n = -1;
+        int ndx = static_cast<int>(hVal % tbl->currentTableSize);
+        LookUpEntity *le = &tbl->table[ndx];
+        int i = 0;
+        int n = -1;
         do {
             if ( le->key == nullptr ) {
                 le->value = hVal;

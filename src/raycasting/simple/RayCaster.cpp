@@ -187,7 +187,7 @@ RayCaster::render(
     delete idRenderer;
 
 #ifdef RAYTRACING_ENABLED
-    GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
+    GLOBAL_raytracer_totalTime = static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC);
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
 #endif

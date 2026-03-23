@@ -29,7 +29,7 @@ traceWorld(
 
     dist = Numeric::HUGE_FLOAT_VALUE;
     Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
-    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, (int)flags, hitStore);
+    result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore);
 
     if ( result ) {
         // Compute shading frame (Z-axis = shading normal) at intersection point
@@ -109,7 +109,7 @@ pathNodesVisible(
     dist2 = dir.norm2();
     dist = java::Math::sqrt(dist2);
 
-    dir.inverseScaledCopy((float)dist, dir, Numeric::EPSILON_FLOAT);
+    dir.inverseScaledCopy(static_cast<float>(dist), dir, Numeric::EPSILON_FLOAT);
 
     dist = dist * (1 - Numeric::EPSILON);
 
@@ -147,7 +147,7 @@ pathNodesVisible(
         if ( node2->m_hit.getPatch()->hasZeroVertices() ) {
             fDistance = Numeric::HUGE_FLOAT_VALUE;
         } else {
-            fDistance = (float) dist;
+            fDistance = static_cast<float>(dist);
         }
 
         Patch::dontIntersect(
@@ -206,7 +206,7 @@ eyeNodeVisible(
     dist2 = dir.norm2();
     dist = java::Math::sqrt(dist2);
 
-    dir.inverseScaledCopy((float)dist, dir, Numeric::EPSILON_FLOAT);
+    dir.inverseScaledCopy(static_cast<float>(dist), dir, Numeric::EPSILON_FLOAT);
 
     // Determine which pixel is visible
     z = dir.dotProduct(camera->Z);
@@ -233,7 +233,7 @@ eyeNodeVisible(
                 cosRayLight = -dir.dotProduct(node->m_normal);
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
-                    fDistance = (float) dist;
+                    fDistance = static_cast<float>(dist);
                     Patch::dontIntersect(
                         3, node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
                          eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
@@ -246,8 +246,8 @@ eyeNodeVisible(
 
                     // Geometry factor
                     if ( visible ) {
-                        *pixX = (float)xz;
-                        *pixY = (float)yz;
+                        *pixX = static_cast<float>(xz);
+                        *pixY = static_cast<float>(yz);
                     }
                 }
             }

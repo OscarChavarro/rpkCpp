@@ -29,7 +29,7 @@ initRadianceEstimate(Patch *patch) {
     ColorRgb radiance;
 
     radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
-    radiance.addScaled(radiance, (1.0f / (float)M_PI), E);
+    radiance.addScaled(radiance, (1.0f / static_cast<float>(M_PI)), E);
     return radiance;
 }
 
@@ -37,8 +37,8 @@ static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
 
 static int
 adaptationLumAreaComp(const void *la1, const void *la2) {
-    float l1 = ((const LuminanceArea *) la1)->luminance;
-    float l2 = ((const LuminanceArea *) la2)->luminance;
+    float l1 = static_cast<const LuminanceArea *>(la1)->luminance;
+    float l2 = static_cast<const LuminanceArea *>(la2)->luminance;
 
     if ( l1 > l2 ) {
         return 1;
@@ -117,7 +117,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchComputeLogAreaLum(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp((float)globalLogAreaLum / GLOBAL_statistics.totalArea + 0.84f);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / GLOBAL_statistics.totalArea + 0.84f);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {

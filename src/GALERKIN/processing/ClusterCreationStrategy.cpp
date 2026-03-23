@@ -45,7 +45,7 @@ sub-elements of the galerkinElement
 */
 void
 ClusterCreationStrategy::patchAddClusterChild(Patch *patch, GalerkinElement *galerkinElement) {
-    GalerkinElement *surfaceElement = (GalerkinElement *)patch->radianceData;
+    GalerkinElement *surfaceElement = static_cast<GalerkinElement *>(patch->radianceData);
 
     if ( galerkinElement->irregularSubElements == nullptr ) {
         galerkinElement->irregularSubElements = new java::ArrayList<Element *>();
@@ -69,7 +69,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     for ( int i = 0;
           galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
           i++ ) {
-        const GalerkinElement *subCluster = (GalerkinElement *)galerkinElement->irregularSubElements->get(i);
+        const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
         galerkinElement->area += subCluster->area;
         galerkinElement->numberOfPatches += subCluster->numberOfPatches;
         galerkinElement->radiance[0].addScaled(galerkinElement->radiance[0], subCluster->area, subCluster->radiance[0]);
@@ -88,7 +88,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         for ( int i = 0;
               galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
               i++ ) {
-            const GalerkinElement *subCluster = (GalerkinElement *)galerkinElement->irregularSubElements->get(i);
+            const GalerkinElement *subCluster = static_cast<GalerkinElement *>(galerkinElement->irregularSubElements->get(i));
             galerkinElement->unShotRadiance[0].addScaled(
                 galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }

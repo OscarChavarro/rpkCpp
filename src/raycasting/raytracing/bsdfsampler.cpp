@@ -132,7 +132,7 @@ CBsdfSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float)dist, outDir, Numeric::EPSILON_FLOAT);
+    outDir.inverseScaledCopy(static_cast<float>(dist), outDir, Numeric::EPSILON_FLOAT);
 
     // Beware : NOT RECIPROKE!
     double pdfDir;

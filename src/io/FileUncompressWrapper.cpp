@@ -22,7 +22,7 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
     }
 
     if ( fileName[0] != '\0' && fileName[strlen(fileName) - 1] != '/' ) {
-        int n = (int)strlen(fileName) + 20;
+        int n = static_cast<int>(strlen(fileName)) + 20;
         char *command = new char[n];
         const char *ext = strrchr(fileName, '.');
         if ( fileName[0] == '|' ) {

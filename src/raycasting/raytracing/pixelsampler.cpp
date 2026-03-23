@@ -30,10 +30,10 @@ CPixelSampler::sample(
     double xSample = (m_px + camera->pixelWidth * x1);
     double ySample = (m_py + camera->pixelHeight * x2);
 
-    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
+    dir.combine3(camera->Z, static_cast<float>(xSample), camera->X, static_cast<float>(ySample), camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = java::Math::sqrt(distPixel2);
-    dir.inverseScaledCopy((float) distPixel, dir, Numeric::EPSILON_FLOAT);
+    dir.inverseScaledCopy(static_cast<float>(distPixel), dir, Numeric::EPSILON_FLOAT);
 
     double cosPixel = java::Math::abs(camera->Z.dotProduct(dir));
 
@@ -75,8 +75,8 @@ CPixelSampler::SetPixel(const Camera *defaultCamera, int nx, int ny, const Camer
         camera = defaultCamera;
     }
 
-    m_px = -camera->pixelWidth * (double)camera->xSize / 2.0 + (double)nx * camera->pixelWidth;
-    m_py = -camera->pixelHeight * (double)camera->ySize / 2.0 + (double)ny * camera->pixelHeight;
+    m_px = -camera->pixelWidth * static_cast<double>(camera->xSize) / 2.0 + static_cast<double>(nx) * camera->pixelWidth;
+    m_py = -camera->pixelHeight * static_cast<double>(camera->ySize) / 2.0 + static_cast<double>(ny) * camera->pixelHeight;
 }
 
 double
@@ -99,7 +99,7 @@ CPixelSampler::evalPDF(
     outDir.subtraction(newNode->m_hit.getPoint(), thisNode->m_hit.getPoint());
     dist2 = outDir.norm2();
     dist = java::Math::sqrt(dist2);
-    outDir.inverseScaledCopy((float) dist, outDir, Numeric::EPSILON_FLOAT);
+    outDir.inverseScaledCopy(static_cast<float>(dist), outDir, Numeric::EPSILON_FLOAT);
 
     // pdf = 1 / A_pixel transformed to area measure
 

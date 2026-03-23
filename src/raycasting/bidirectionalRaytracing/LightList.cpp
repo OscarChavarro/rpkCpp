@@ -262,8 +262,8 @@ LightList::computeLightImportance(const Vector3D *point, const Vector3D *normal)
     while ( info ) {
         imp = computeOneLightImportance(info->light, point, normal,
                                         info->emittedFlux);
-        totalImp += (float)imp;
-        info->importance = (float)imp;
+        totalImp += static_cast<float>(imp);
+        info->importance = static_cast<float>(imp);
 
         // next
         info = iterator.nextOnSequence();

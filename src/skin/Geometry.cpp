@@ -97,7 +97,7 @@ A nullptr pointer is returned if the geometry is a primitive
 java::ArrayList<Geometry *> *
 geomPrimListCopy(const Geometry *geometry) {
     if ( geometry->isCompound() ) {
-        return cloneGeometryList(((const Compound *)geometry)->children);
+        return cloneGeometryList(dynamic_cast<const Compound *>(geometry)->children);
     } else {
         return nullptr;
     }
@@ -201,11 +201,11 @@ Geometry::discretizationIntersect(
     }
 
     if ( className == GeometryClassId::SURFACE_MESH ) {
-        return ((const MeshSurface *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return dynamic_cast<const MeshSurface *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::COMPOUND ) {
-        return ((const Compound *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return dynamic_cast<const Compound *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     } else if ( className == GeometryClassId::PATCH_SET ) {
-        return ((const PatchSet *)this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
+        return dynamic_cast<const PatchSet *>(this)->discretizationIntersect(ray, minimumDistance, maximumDistance, hitFlags, hitStore);
     }
     return nullptr;
 }

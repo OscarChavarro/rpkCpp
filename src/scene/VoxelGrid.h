@@ -38,23 +38,23 @@ class VoxelGrid {
 
     inline short
     x2voxel(const float px) const {
-        return (short)((voxelSize.x < Numeric::EPSILON)
-                       ? 0
-                       : (px - boundingBox.minX()) / voxelSize.x);
+        return static_cast<short>((voxelSize.x < Numeric::EPSILON)
+                                      ? 0
+                                      : (px - boundingBox.minX()) / voxelSize.x);
     }
 
     inline short
     y2voxel(const float py) const {
-        return (short)((voxelSize.y < Numeric::EPSILON)
-                       ? 0
-                       : (py - boundingBox.minY()) / voxelSize.y);
+        return static_cast<short>((voxelSize.y < Numeric::EPSILON)
+                                      ? 0
+                                      : (py - boundingBox.minY()) / voxelSize.y);
     }
 
     inline short
     z2voxel(const float pz) const {
-        return (short)((voxelSize.z < Numeric::EPSILON)
-                       ? 0
-                       : (pz - boundingBox.minZ()) / voxelSize.z);
+        return static_cast<short>((voxelSize.z < Numeric::EPSILON)
+                                      ? 0
+                                      : (pz - boundingBox.minZ()) / voxelSize.z);
     }
 
     inline int

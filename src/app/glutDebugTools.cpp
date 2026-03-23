@@ -80,7 +80,7 @@ printElementHierarchy(const GalerkinElement *element, int level) {
                c->r, c->g, c->b, numberOfInteractions);
         }
         for ( int i = 0; i < 4; i++ ) {
-            const GalerkinElement *child = (GalerkinElement *)element->regularSubElements[i];
+            const GalerkinElement *child = static_cast<GalerkinElement *>(element->regularSubElements[i]);
             if ( child != nullptr ) {
                 printElementHierarchy(child, level + 1);
             }

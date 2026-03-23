@@ -14,7 +14,7 @@ numberOfVertices(const StochasticRadiosityElement *elem) {
 
 inline StochasticRadiosityElement*
 topLevelStochasticRadiosityElement(const Patch *patch) {
-    return (StochasticRadiosityElement *)patch->radianceData;
+    return static_cast<StochasticRadiosityElement *>(patch->radianceData);
 }
 
 inline ColorRgb *

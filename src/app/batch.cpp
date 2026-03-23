@@ -47,7 +47,7 @@ openGlSaveScreen(
 
     long x = scene->camera->xSize;
     long y = scene->camera->ySize;
-    ImageOutputHandle *image = createImageOutputHandle(fileName, fp, isPipe, (int)x, (int)y);
+    ImageOutputHandle *image = createImageOutputHandle(fileName, fp, isPipe, static_cast<int>(x), static_cast<int>(y));
     if ( image == nullptr ) {
         return;
     }
@@ -57,7 +57,7 @@ openGlSaveScreen(
 
 #ifdef OPEN_GL_ENABLED
     glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0, (int)x, (int)y, GL_RGBA, GL_UNSIGNED_BYTE, screen);
+    glReadPixels(0, 0, static_cast<int>(x), static_cast<int>(y), GL_RGBA, GL_UNSIGNED_BYTE, screen);
 #endif
 
     for ( long j = y - 1; j >= 0; j-- ) {
@@ -130,7 +130,7 @@ batchSaveRadianceImage(
     // No OpenGL really if renderOptions->trace is true
     openGlSaveScreen(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
 
-    java::lang::System::out.printf("%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
     canvasPullMode();
 }
 
@@ -159,7 +159,7 @@ batchSaveRadianceModel(
         radianceMethod->writeVRML(scene->camera, fp, renderOptions);
     }
 
-    java::lang::System::out.printf("%g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
     canvasPullMode();
 }
 
@@ -213,7 +213,7 @@ batchExecuteRadianceSimulation(
             wasted_start = clock();
 
             if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
-                int n = (int)strlen(globalBatchOptions.radianceImageFileNameFormat) + 1;
+                int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalBatchOptions.radianceImageFileNameFormat, iterationNumber);
                 batchProcessFile(
@@ -228,7 +228,7 @@ batchExecuteRadianceSimulation(
             }
 
             if ( *globalBatchOptions.radianceModelFileNameFormat ) {
-                int n = (int)strlen(globalBatchOptions.radianceModelFileNameFormat) + 1;
+                int n = static_cast<int>(strlen(globalBatchOptions.radianceModelFileNameFormat)) + 1;
                 char *fileName = new char[n];
                 snprintf(fileName, n, globalBatchOptions.radianceModelFileNameFormat, iterationNumber);
                 batchProcessFile(
@@ -242,7 +242,7 @@ batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            wastedSecs += (float) (wasted_start - clock()) / (float) CLOCKS_PER_SEC;
+            wastedSecs += static_cast<float>(wasted_start - clock()) / static_cast<float>(CLOCKS_PER_SEC);
 
             java::lang::System::out.flush();
             java::lang::System::err.flush();
@@ -253,7 +253,7 @@ batchExecuteRadianceSimulation(
 
     if ( globalBatchOptions.timings ) {
         java::lang::System::out.printf("Radiance total time %g secs.\n",
-                ((float) (clock() - startTime) / (float) CLOCKS_PER_SEC) - wastedSecs);
+                (static_cast<float>(clock() - startTime) / static_cast<float>(CLOCKS_PER_SEC)) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
@@ -272,7 +272,7 @@ batchExecuteRadianceSimulation(
 
             if ( globalBatchOptions.timings ) {
                 java::lang::System::out.printf("Raytracing total time %g secs.\n",
-                        (float) (clock() - startTime) / (float) CLOCKS_PER_SEC);
+                        static_cast<float>(clock() - startTime) / static_cast<float>(CLOCKS_PER_SEC));
             }
 
             batchProcessFile(

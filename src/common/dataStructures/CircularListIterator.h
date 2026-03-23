@@ -22,7 +22,7 @@ CircularListIterator<T>::~CircularListIterator() {
 
 template<class T>
 inline T *CircularListIterator<T>::nextOnSequence() {
-    CircularListNode<T> *link = (CircularListNode<T> *) CircularListBaseIterator::next();
+    CircularListNode<T> *link = static_cast<CircularListNode<T> *>(CircularListBaseIterator::next());
     return (link ? &link->data : nullptr);
 }
 

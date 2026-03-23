@@ -58,7 +58,7 @@ vertexRadiance(const Vertex *v) {
         if ( element->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        const StochasticRadiosityElement *elem = (StochasticRadiosityElement *)element;
+        const StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(element);
         if ( !elem->regularSubElements ) {
             ColorRgb elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
             radiance.add(radiance, elementRadiosity);
@@ -67,7 +67,7 @@ vertexRadiance(const Vertex *v) {
     }
 
     if ( count > 0 ) {
-        radiance.scaleInverse((float) count, radiance);
+        radiance.scaleInverse(static_cast<float>(count), radiance);
     }
 
     return radiance;
@@ -86,7 +86,7 @@ vertexImportance(const Vertex *v) {
         if ( genericElement->className != ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY ) {
             continue;
         }
-        const StochasticRadiosityElement *element = (StochasticRadiosityElement *)genericElement;
+        const StochasticRadiosityElement *element = static_cast<StochasticRadiosityElement *>(genericElement);
         if ( !element->regularSubElements ) {
             imp += element->importance;
             count++;
@@ -94,7 +94,7 @@ vertexImportance(const Vertex *v) {
     }
 
     if ( count > 0 ) {
-        imp /= (float) count;
+        imp /= static_cast<float>(count);
     }
 
     return imp;
@@ -132,7 +132,7 @@ Compute new vertex colors
 */
 void
 stochasticRadiosityElementComputeNewVertexColors(Element *element) {
-    const StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    const StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     vertexColor(stochasticRadiosityElement->vertices[0]);
     vertexColor(stochasticRadiosityElement->vertices[1]);
     vertexColor(stochasticRadiosityElement->vertices[2]);
@@ -143,7 +143,7 @@ stochasticRadiosityElementComputeNewVertexColors(Element *element) {
 
 void
 stochasticRadiosityElementAdjustTVertexColors(Element *element) {
-    const StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    const StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     Vertex *m[4];
     int i;
     int n;
@@ -374,7 +374,7 @@ stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, 
 
 void
 stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions) {
-    StochasticRadiosityElement *stochasticRadiosityElement = (StochasticRadiosityElement *)element;
+    StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     Vector3D vertices[4];
 
     if ( renderOptions->smoothShading && GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination ) {
@@ -452,10 +452,10 @@ stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElemen
             }
             switch ( elem->numberOfVertices ) {
                 case 3:
-                    radiance.interpolateBarycentric(rad[0], rad[1], rad[2], (float) u, (float) v);
+                    radiance.interpolateBarycentric(rad[0], rad[1], rad[2], static_cast<float>(u), static_cast<float>(v));
                     break;
                 case 4:
-                    radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float) u, (float) v);
+                    radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], static_cast<float>(u), static_cast<float>(v));
                     break;
                 default:
                     logFatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",

@@ -109,8 +109,8 @@ CPhotonMapSampler::sample(
         sFlagMask = flags;
     }
     if ( !chooseComponent(
-        (char)(sFLAGS & sFlagMask),
-        (char)(gdFLAGS & flags),
+        static_cast<char>(sFLAGS & sFlagMask),
+        static_cast<char>(gdFLAGS & flags),
         bsdf,
         &thisNode->m_hit,
         doRR,
@@ -126,7 +126,7 @@ CPhotonMapSampler::sample(
     if ( sChosen ) {
         ok = fresnelSample(sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x2, flags);
     } else {
-        flags = (char)(gdFLAGS & flags);
+        flags = static_cast<char>(gdFLAGS & flags);
         ok = gdSample(camera, sceneVoxelGrid, sceneBackground, prevNode, thisNode, newNode, x1, x2, flags);
     }
 
@@ -135,7 +135,7 @@ CPhotonMapSampler::sample(
         newNode->m_pdfFromPrev *= pdfChoice;
 
         // Component propagation
-        newNode->m_accUsedComponents = (char)(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
+        newNode->m_accUsedComponents = static_cast<char>(thisNode->m_accUsedComponents | thisNode->m_usedComponents);
     }
 
     return ok;

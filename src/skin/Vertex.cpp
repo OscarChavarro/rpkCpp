@@ -24,7 +24,7 @@ Vertex::Vertex(
     patches = inPatches;
     color.set(0.0f, 0.0f, 0.0f);
     radianceData = nullptr;
-    back = (Vertex *)nullptr;
+    back = static_cast<Vertex *>(nullptr);
 }
 
 /**
@@ -58,9 +58,9 @@ Vertex::computeColor() {
     }
 
     if ( numberOfPatches > 0 ) {
-        color.r /= (float) numberOfPatches;
-        color.g /= (float) numberOfPatches;
-        color.b /= (float) numberOfPatches;
+        color.r /= static_cast<float>(numberOfPatches);
+        color.g /= static_cast<float>(numberOfPatches);
+        color.b /= static_cast<float>(numberOfPatches);
     }
 }
 

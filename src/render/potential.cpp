@@ -57,26 +57,26 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * (float)M_PI / 180.0f) / (float)x;
-    float v = 2.0f * java::Math::tan(scene->camera->verticalFov * (float)M_PI / 180.0f) / (float)y;
+    float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(x);
+    float v = 2.0f * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(y);
     float pixelArea = h * v;
 
     float ySample;
     long j;
-    for ( j = y - 1, ySample = -v * (float) (y - 1) / 2.0f;
+    for ( j = y - 1, ySample = -v * static_cast<float>(y - 1) / 2.0f;
           j >= 0;
           j--, ySample += v ) {
         const unsigned long *id;
 
         id = ids + j * x;
-        for ( long i = 0, xSample = (long)(-h * (float) (x - 1) / 2.0f); i < x; i++, id++, xSample += (long)h ) {
+        for ( long i = 0, xSample = (long)(-h * static_cast<float>(x - 1) / 2.0f); i < x; i++, id++, xSample += static_cast<long>(h) ) {
             unsigned long the_id = (*id) & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 Vector3D pixDir;
 
                 // Compute direction to center of pixel
-                pixDir.combine3(scene->camera->Z, (float) xSample, scene->camera->X, ySample, scene->camera->Y);
+                pixDir.combine3(scene->camera->Z, static_cast<float>(xSample), scene->camera->X, ySample, scene->camera->Y);
 
                 // Delta_importance = (cosine of the angle between the direction to
                 // the pixel and the viewing direction, over the distance from the
@@ -149,7 +149,7 @@ softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOption
     sglMakeCurrent(oldSglContext);
 
     java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
-        (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+        static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
 }
 
 /**

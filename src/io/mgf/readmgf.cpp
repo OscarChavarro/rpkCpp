@@ -536,7 +536,7 @@ initMgf(MgfContext *context) {
 }
 
 /**
-Reads in an mgf file. The result is that the global variables
+Reads in a mgf file. The result is that the global variables
 context->geometries and context->materials are filled in.
 
 Note: this is an implementation of MGF file format with major version number 2.
@@ -604,7 +604,7 @@ mgfFreeMemory(MgfContext *context) {
             } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
                 patchSets++;
             } else if ( geometry->className == GeometryClassId::COMPOUND ) {
-                const Compound *compound = (const Compound *)geometry;
+                const Compound *compound = dynamic_cast<const Compound *>(geometry);
                 if ( compound->children != nullptr ) {
                     compoundChildren += compound->children->size();
                 }

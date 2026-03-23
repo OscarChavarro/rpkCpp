@@ -30,7 +30,7 @@ sceneBuilderPatchAccumulateStats(Patch *patch) {
     power.scaledCopy(patch->area, E);
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, power);
     GLOBAL_statistics.averageReflectivity.addScaled(GLOBAL_statistics.averageReflectivity, patch->area, R);
-    E.scale(1.0f / (float) M_PI);
+    E.scale(1.0f / static_cast<float>(M_PI));
     GLOBAL_statistics.maxSelfEmittedRadiance.maximum(E, GLOBAL_statistics.maxSelfEmittedRadiance);
     GLOBAL_statistics.maxSelfEmittedPower.maximum(power, GLOBAL_statistics.maxSelfEmittedPower);
 }
@@ -63,12 +63,12 @@ sceneBuilderComputeStats(Scene *scene) {
             GLOBAL_statistics.averageReflectivity);
     averageAbsorption.subtract(one, GLOBAL_statistics.averageReflectivity);
     GLOBAL_statistics.estimatedAverageRadiance.scaleInverse(
-            (float)M_PI * GLOBAL_statistics.totalArea,
+            static_cast<float>(M_PI) * GLOBAL_statistics.totalArea,
             GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
     BP = backgroundPower(scene->background, &zero);
-    BP.scale(1.0f / (4.0f * (float)M_PI));
+    BP.scale(1.0f / (4.0f * static_cast<float>(M_PI)));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);
     GLOBAL_statistics.estimatedAverageRadiance.divide(GLOBAL_statistics.estimatedAverageRadiance, averageAbsorption);
@@ -157,7 +157,7 @@ sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::Arr
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
-            const Compound *compound = (const Compound *)geometry;
+            const Compound *compound = static_cast<const Compound *>(geometry);
             sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
@@ -178,7 +178,7 @@ removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geo
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
-            const MeshSurface *mesh = (const MeshSurface *)geometry;
+            const MeshSurface *mesh = static_cast<const MeshSurface *>(geometry);
             if ( mesh->vertices->size() == 0 ) {
                 for ( int j = 0; j < mgfContext->allGeometries->size(); j++ ) {
                     const Geometry *deletionCandidate = mgfContext->allGeometries->get(j);
@@ -250,7 +250,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     }
 
     clock_t t = clock();
-    java::lang::System::err.printf("Reading took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("Reading took %g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     delete[] currentDirectory;
@@ -270,7 +270,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Build the list of patches on light sources from the patch list
@@ -280,7 +280,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     sceneBuilderFillLightSourcePatchList(scene);
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Build a cluster hierarchy for the new scene
@@ -294,14 +294,14 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     }
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Create the scene level voxel grid
     scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
 
     t = clock();
-    java::lang::System::err.printf("Voxel grid creation took %g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("Voxel grid creation took %g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -314,7 +314,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
                                                    GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Initialize tone mapping
@@ -324,7 +324,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     initSceneAdaptation(scene->patchList);
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
     last = t;
 
     // Print statistics report
@@ -351,7 +351,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     setRadianceMethod(mgfContext->radianceMethod, scene);
 
     t = clock();
-    java::lang::System::err.printf("%g secs.\n", (float) (t - last) / (float) CLOCKS_PER_SEC);
+    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
 
     // Remove possible render hooks
     removeAllRenderHooks();

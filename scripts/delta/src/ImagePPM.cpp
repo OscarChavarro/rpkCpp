@@ -17,7 +17,7 @@ ImagePPM::~ImagePPM() {
 int ImagePPM::allocate(int w, int h) {
     width = w;
     height = h;
-    data = (PixelRGB*)malloc(sizeof(PixelRGB) * w * h);
+    data = static_cast<PixelRGB *>(malloc(sizeof(PixelRGB) * w * h));
     if (data == NULL) {
         return 0;
     }

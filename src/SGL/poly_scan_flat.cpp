@@ -49,12 +49,12 @@ static void
 scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     SGL_PIXEL *pix;
 
-    int lx = (int)java::Math::ceil(l->sx - 0.5);
+    int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
 
-    int rx = (int)java::Math::floor(r->sx - 0.5);
+    int rx = static_cast<int>(java::Math::floor(r->sx - 0.5));
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -127,7 +127,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win)
 
     li = ri = top; // Left and right vertex indices
     rem = p->n; // Number of vertices remaining
-    y = (int)java::Math::ceil(yMin - 0.5); // Current scan line
+    y = static_cast<int>(java::Math::ceil(yMin - 0.5)); // Current scan line
     ly = ry = y - 1; // Lower end of left & right edges
 
     while ( rem > 0 ) {
@@ -142,7 +142,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win)
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = (int)java::Math::floor(p->vertices[i].sy + 0.5);
+            ly = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -153,7 +153,7 @@ polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = (int)java::Math::floor(p->vertices[i].sy + .5);
+            ry = static_cast<int>(java::Math::floor(p->vertices[i].sy + .5));
             ri = i;
         }
 

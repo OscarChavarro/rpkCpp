@@ -55,7 +55,7 @@ int PPMReader::read(const char* filename, ImagePPM& img) {
     size_t readBytes = fread(img.data, sizeof(PixelRGB), width * height, f);
     fclose(f);
 
-    if (readBytes != (size_t)(width * height)) {
+    if (readBytes != static_cast<size_t>(width * height)) {
         return 0;
     }
 

@@ -50,9 +50,9 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = (float)M_PI * radiance.luminance();
+    float rwl = static_cast<float>(M_PI) * radiance.luminance();
     float eff = getLuminousEfficacy();
-    radiance.scale(eff * (float)M_PI);
+    radiance.scale(eff * static_cast<float>(M_PI));
 
     float scale;
     if ( rwl > 0.0 ) {

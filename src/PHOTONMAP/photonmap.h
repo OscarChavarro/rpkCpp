@@ -69,7 +69,7 @@ class CPhotonMap {
     int doQuery(Vector3D *pos) {
         m_cosinesOk = false;
         return m_kdtree->query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
-                               m_photons, m_distances, (float) GetMaxR2());
+                               m_photons, m_distances, static_cast<float>(GetMaxR2()));
     }
 
     CIrrPhoton *

@@ -45,12 +45,12 @@ Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
 scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
-    int lx = (int)java::Math::ceil(l->sx - 0.5);
+    int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
     }
 
-    int rx = (int)java::Math::floor(r->sx - 0.5);
+    int rx = static_cast<int>(java::Math::floor(r->sx - 0.5));
     if ( rx > win->x1 ) {
         rx = win->x1;
     }
@@ -65,8 +65,8 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
 
     double frac = lx + 0.5 - l->sx;
     double dzf = (r->sz - l->sz) / dx;
-    SGL_Z_VALUE z = (SGL_Z_VALUE) (l->sz + dzf * frac);
-    int dz = (int) dzf;
+    SGL_Z_VALUE z = static_cast<SGL_Z_VALUE>(l->sz + dzf * frac);
+    int dz = static_cast<int>(dzf);
 
     int offset = y * sglContext->width + lx;
     SGL_PIXEL *pix = sglContext->frameBuffer + offset;
@@ -128,7 +128,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
     int li = top; // Left and right vertex indices
     int ri = top;
     int rem = p->n; // Number of vertices remaining
-    int y = (int)java::Math::ceil(yMin - 0.5); // Current scan line
+    int y = static_cast<int>(java::Math::ceil(yMin - 0.5)); // Current scan line
     int ly = y - 1; // Lower end of left & right edges
     int ry = y - 1;
 
@@ -148,7 +148,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 i = p->n - 1;
             }
             incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
-            ly = (int)java::Math::floor(p->vertices[i].sy + 0.5);
+            ly = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             li = i;
         }
         while ( ry <= y && rem > 0 ) {
@@ -159,7 +159,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 i = 0;
             }
             incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
-            ry = (int)java::Math::floor(p->vertices[i].sy + 0.5);
+            ry = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             ri = i;
         }
 

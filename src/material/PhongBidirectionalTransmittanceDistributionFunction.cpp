@@ -117,7 +117,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
 
         if ( localDotProduct > 0 ) {
             float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
-            tmpFloat *= (Ns + 2.0f) / (2.0f * (float)M_PI); // Ks -> ks
+            tmpFloat *= (Ns + 2.0f) / (2.0f * static_cast<float>(M_PI)); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
     }
@@ -320,7 +320,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
 
         nonDiffPdf = 0.0;
         if ( cosAlpha > 0 ) {
-            nonDiffPdf = (Ns + 1.0) * java::Math::pow(cosAlpha, (double)Ns) / (2.0 * M_PI);
+            nonDiffPdf = (Ns + 1.0) * java::Math::pow(cosAlpha, static_cast<double>(Ns)) / (2.0 * M_PI);
         }
     }
 

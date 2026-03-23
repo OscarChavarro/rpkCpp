@@ -66,11 +66,11 @@ Samples the hemisphere according to a cos_theta distribution
 */
 Vector3D
 CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const {
-    float phi = 2.0f * (float)M_PI * (float)xi1;
+    float phi = 2.0f * static_cast<float>(M_PI) * static_cast<float>(xi1);
     float cos_phi = java::Math::cos(phi);
     float sin_phi = java::Math::sin(phi);
-    float cos_theta = (float)java::Math::sqrt(1.0 - xi2);
-    float sin_theta = (float)java::Math::sqrt(xi2);
+    float cos_theta = static_cast<float>(java::Math::sqrt(1.0 - xi2));
+    float sin_theta = static_cast<float>(java::Math::sqrt(xi2));
 
     Vector3D dir;
     dir.combine(cos_phi, X, sin_phi, Y);
@@ -91,16 +91,16 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     double xi2,
     double *probabilityDensityFunction) const
 {
-    float phi = 2.0f * (float)M_PI * (float)xi1;
+    float phi = 2.0f * static_cast<float>(M_PI) * static_cast<float>(xi1);
     float cosPhi = java::Math::cos(phi);
     float sinPhi = java::Math::sin(phi);
-    float cosTheta = (float)java::Math::pow(xi2, 1.0 / (n + 1));
-    float sinTheta = (float)java::Math::sqrt(1.0 - cosTheta * cosTheta);
+    float cosTheta = static_cast<float>(java::Math::pow(xi2, 1.0 / (n + 1)));
+    float sinTheta = static_cast<float>(java::Math::sqrt(1.0 - cosTheta * cosTheta));
 
     Vector3D dir;
     dir.combine(cosPhi, X, sinPhi, Y);
     dir.combine(sinTheta, dir, cosTheta, Z);
-    *probabilityDensityFunction = (n + 1.0) * java::Math::pow((double)cosTheta, n) / (2.0 * M_PI);
+    *probabilityDensityFunction = (n + 1.0) * java::Math::pow(static_cast<double>(cosTheta), n) / (2.0 * M_PI);
 
     return dir;
 }

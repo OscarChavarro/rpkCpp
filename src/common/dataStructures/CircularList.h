@@ -37,11 +37,11 @@ inline void CircularList<T>::append(const T &data) {
 
 template<class T>
 inline void CircularList<T>::removeAll() {
-    CircularListNode<T> *link = (CircularListNode<T> *) CircularListBase::remove();
+    CircularListNode<T> *link = static_cast<CircularListNode<T> *>(CircularListBase::remove());
 
     while ( link != nullptr ) {
         delete link;
-        link = (CircularListNode<T> *) CircularListBase::remove();
+        link = static_cast<CircularListNode<T> *>(CircularListBase::remove());
     }
 }
 

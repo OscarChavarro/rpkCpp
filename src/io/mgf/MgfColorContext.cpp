@@ -92,8 +92,8 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     imax = ac; // Box filter if necessary
     boxPos = 0;
     boxStep = 1;
-    if ( wlStep < (double)COLOR_WAVE_LENGTH_DELTA_I ) {
-        imax = (int)java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - Numeric::EPSILON));
+    if ( wlStep < static_cast<double>(COLOR_WAVE_LENGTH_DELTA_I) ) {
+        imax = static_cast<int>(java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - Numeric::EPSILON)));
         boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / COLOR_WAVE_LENGTH_DELTA_I;
         boxStep = wlStep / COLOR_WAVE_LENGTH_DELTA_I;
         wlStep = COLOR_WAVE_LENGTH_DELTA_I;
@@ -112,7 +112,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
             boxPos += boxStep;
         }
         if ( n > 1 ) {
-            va[i] /= (float)n;
+            va[i] /= static_cast<float>(n);
         }
         if ( va[i] > scale ) {
             scale = va[i];
@@ -127,7 +127,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += (int)COLOR_WAVE_LENGTH_DELTA_I) {
+    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += static_cast<int>(COLOR_WAVE_LENGTH_DELTA_I)) {
         if ( wl < wlMinimum || wl > wlMaximum ) {
             straightSamples[i] = 0;
         } else {
@@ -136,12 +136,12 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
                 pos++;
             }
             if ( wl + Numeric::EPSILON >= wl0 && wl - Numeric::EPSILON <= wl0 ) {
-                straightSamples[i] = (short)java::Math::round(scale * va[pos] + 0.5);
+                straightSamples[i] = static_cast<short>(java::Math::round(scale * va[pos] + 0.5));
             } else {
                 // Interpolate if necessary
-                straightSamples[i] = (short)java::Math::round(0.5 + scale / wlStep *
-                                                              (va[pos] * (wl0 + wlStep - wl) +
-                                                               va[pos + 1] * (wl - wl0)));
+                straightSamples[i] = static_cast<short>(java::Math::round(0.5 + scale / wlStep *
+                                                                          (va[pos] * (wl0 + wlStep - wl) +
+                                                                           va[pos + 1] * (wl - wl0))));
             }
             spectralStraightSum += straightSamples[i];
         }
@@ -172,8 +172,8 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
     sf = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
     spectralStraightSum = 0;
     for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-        wl = (COLOR_MINIMUM_WAVE_LENGTH + (float)i * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
-        spectralStraightSum += straightSamples[i] = (short)java::Math::round(sf * bBsp(wl, tk) + 0.5);
+        wl = (COLOR_MINIMUM_WAVE_LENGTH + static_cast<float>(i) * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
+        spectralStraightSum += straightSamples[i] = static_cast<short>(java::Math::round(sf * bBsp(wl, tk) + 0.5));
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
@@ -209,12 +209,12 @@ MgfColorContext::fixColorRepresentation(int fl) {
             y += cie_yf.straightSamples[i] * straightSamples[i];
             z += cie_zf.straightSamples[i] * straightSamples[i];
         }
-        x /= (double) cie_xf.spectralStraightSum;
-        y /= (double) cie_yf.spectralStraightSum;
-        z /= (double) cie_zf.spectralStraightSum;
+        x /= static_cast<double>(cie_xf.spectralStraightSum);
+        y /= static_cast<double>(cie_yf.spectralStraightSum);
+        z /= static_cast<double>(cie_zf.spectralStraightSum);
         z += x + y;
-        cx = (float)(x / z);
-        cy = (float)(y / z);
+        cx = static_cast<float>(x / z);
+        cy = static_cast<float>(y / z);
         flags |= COLOR_XY_IS_SET_FLAG;
     } else if ( fl & COLOR_SPECTRUM_IS_SET_FLAG ) {
             // cxy -> spec
@@ -223,8 +223,8 @@ MgfColorContext::fixColorRepresentation(int fl) {
             z = 1.0 - x - y;
             spectralStraightSum = 0;
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-                straightSamples[i] = (short)java::Math::round(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
-                                                        + z * cie_zp.straightSamples[i] + 0.5);
+                straightSamples[i] = static_cast<short>(java::Math::round(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
+                                                                          + z * cie_zp.straightSamples[i] + 0.5));
                 if ( straightSamples[i] < 0 ) {
                     // Out of gamut!
                     straightSamples[i] = 0;
@@ -242,11 +242,11 @@ MgfColorContext::fixColorRepresentation(int fl) {
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * straightSamples[i];
             }
-            eff = (float)(COLOR_PEAK_LUMENS_PER_WATT * y / (double)spectralStraightSum);
+            eff = static_cast<float>((COLOR_PEAK_LUMENS_PER_WATT * y / (double) spectralStraightSum));
         } else {
             // flags & C_CS_XY from (x,y)
-            eff = (float)(cx * cie_xf.eff + cy * cie_yf.eff +
-                          (1.0 - cx - cy) * cie_zf.eff);
+            eff = static_cast<float>(cx * cie_xf.eff + cy * cie_yf.eff +
+                                     (1.0 - cx - cy) * cie_zf.eff);
         }
         flags |= COLOR_EFFICACY_FLAG;
     }
@@ -264,17 +264,17 @@ MgfColorContext::mixColors(
 {
     double scale;
     float cMix[NUMBER_OF_SPECTRAL_SAMPLES];
-    int i;
 
     if ( (c1->flags | c2->flags) & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
+        int i;
         // Spectral mixing
         c1->fixColorRepresentation(COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
         c2->fixColorRepresentation(COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG);
-        w1 /= c1->eff * (float) c1->spectralStraightSum;
-        w2 /= c2->eff * (float) c2->spectralStraightSum;
+        w1 /= c1->eff * static_cast<float>(c1->spectralStraightSum);
+        w2 /= c2->eff * static_cast<float>(c2->spectralStraightSum);
         scale = 0.0;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            cMix[i] = (float)(w1 * c1->straightSamples[i] + w2 * c2->straightSamples[i]);
+            cMix[i] = static_cast<float>(w1 * c1->straightSamples[i] + w2 * c2->straightSamples[i]);
             if ( cMix[i] > scale ) {
                 scale = cMix[i];
             }
@@ -282,7 +282,7 @@ MgfColorContext::mixColors(
         scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
         spectralStraightSum = 0;
         for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            spectralStraightSum += straightSamples[i] = (short)java::Math::round(scale * cMix[i] + 0.5);
+            spectralStraightSum += straightSamples[i] = static_cast<short>(java::Math::round(scale * cMix[i] + 0.5));
         }
         flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     } else {
@@ -294,8 +294,8 @@ MgfColorContext::mixColors(
             return;
         }
         scale = 1.0 / scale;
-        cx = (float)((c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale);
-        cy = (float)((w1 + w2) * scale);
+        cx = static_cast<float>((c1->cx * w1 / c1->cy + c2->cx * w2 / c2->cy) * scale);
+        cy = static_cast<float>((w1 + w2) * scale);
         flags = COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG;
     }
 }

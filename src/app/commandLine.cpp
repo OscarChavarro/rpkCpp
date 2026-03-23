@@ -40,22 +40,22 @@ static Camera globalCamera;
 
 static void
 mainForceOneSidedOption(void *value) {
-    globalFileOptionsForceOneSidedSurfaces = *((int *) value);
+    globalFileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
 }
 
 static void
 mainMonochromeOption(void *value) {
-    globalNumberOfQuarterCircleDivisions = *(int *)value;
+    globalNumberOfQuarterCircleDivisions = *static_cast<int *>(value);
 }
 
 static void
 commandLineImageWidthOption(void *value) {
-    globalOutputImageWidth = *(int *)value;
+    globalOutputImageWidth = *static_cast<int *>(value);
 }
 
 static void
 commandLineImageHeightOption(void *value) {
-    globalOutputImageHeight = *(int *)value;
+    globalOutputImageHeight = *static_cast<int *>(value);
 }
 
 static CommandLineOptionDescription globalOptions[] = {
@@ -99,24 +99,24 @@ commandLineGeneralProgramParseOptions(
 
 static void
 cameraSetEyePositionOption(void *val) {
-    const Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setEyePosition(v->x, v->y, v->z);
 }
 
 static void
 cameraSetLookPositionOption(void *val) {
-    const Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setLookPosition(v->x, v->y, v->z);
 }
 
 static void
 cameraSetUpDirectionOption(void *val) {
-    const Vector3D *v = (Vector3D *)val;
+    const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setUpDirection(v->x, v->y, v->z);
 }
 
 static void cameraSetFieldOfViewOption(void *val) {
-    const float *v = (float *)val;
+    const float *v = static_cast<float *>(val);
     globalCamera.setFieldOfView(*v);
 }
 
@@ -162,7 +162,7 @@ static int globalFalse = false;
 
 static void
 iterationMethodOption(void *value) {
-    char *name = *(char **)value;
+    char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::JACOBI;
@@ -177,7 +177,7 @@ iterationMethodOption(void *value) {
 
 static void
 hierarchicalOption(void *value) {
-    int yesno = *(int *)value;
+    int yesno = *static_cast<int *>(value);
 
     if ( yesno != 0 ) {
         GalerkinRadianceMethod::galerkinState.hierarchical = true;
@@ -188,50 +188,50 @@ hierarchicalOption(void *value) {
 
 static void
 lazyOption(void *value) {
-    int yesno = *(int *) value;
+    int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
 }
 
 static void
 clusteringOption(void *value) {
-    int yesno = *(int *) value;
+    int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.clustered = yesno;
 }
 
 static void
 importanceOption(void *value) {
-    int yesno = *(int *) value;
+    int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
 }
 
 static void
 ambientOption(void *value) {
-    int yesno = *(int *) value;
+    int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
         {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
                                                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical", 6, TYPELESS, (void *)&globalTrue, hierarchicalOption,
+        {"-gr-hierarchical", 6, TYPELESS, static_cast<void *>(&globalTrue), hierarchicalOption,
                                                 "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical", 10, TYPELESS, (void *)&globalFalse, hierarchicalOption,
+        {"-gr-not-hierarchical", 10, TYPELESS, static_cast<void *>(&globalFalse), hierarchicalOption,
                                                 "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking", 6, TYPELESS, (void *)&globalTrue, lazyOption,
+        {"-gr-lazy-linking", 6, TYPELESS, static_cast<void *>(&globalTrue), lazyOption,
                                                 "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking", 10, TYPELESS, (void *)&globalFalse, lazyOption,
+        {"-gr-no-lazy-linking", 10, TYPELESS, static_cast<void *>(&globalFalse), lazyOption,
                                                 "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering", 6, TYPELESS, (void *)&globalTrue, clusteringOption,
+        {"-gr-clustering", 6, TYPELESS, static_cast<void *>(&globalTrue), clusteringOption,
                                                 "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering", 10, TYPELESS, (void *)&globalFalse, clusteringOption,
+        {"-gr-no-clustering", 10, TYPELESS, static_cast<void *>(&globalFalse), clusteringOption,
                                                 "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance", 6, TYPELESS, (void *)&globalTrue, importanceOption,
+        {"-gr-importance", 6, TYPELESS, static_cast<void *>(&globalTrue), importanceOption,
                                                 "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance", 10, TYPELESS, (void *)&globalFalse, importanceOption,
+        {"-gr-no-importance", 10, TYPELESS, static_cast<void *>(&globalFalse), importanceOption,
                                                 "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient", 6, TYPELESS, (void *)&globalTrue, ambientOption,
+        {"-gr-ambient", 6, TYPELESS, static_cast<void *>(&globalTrue), ambientOption,
                                                 "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient", 10, TYPELESS, (void *)&globalFalse, ambientOption,
+        {"-gr-no-ambient", 10, TYPELESS, static_cast<void *>(&globalFalse), ambientOption,
                                                 "-gr-no-ambient      \t: do visualisation without ambient term"},
         {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
                                                 "-gr-link-error-threshold <float>: Relative link error threshold"},
@@ -268,7 +268,7 @@ static char *globalToneMapName;
 
 static void
 toneMappingMethodOption(void *value) {
-    char *name = *(char **)value;
+    char *name = *static_cast<char **>(value);
 
     strcpy(globalToneMapName, name);
 }
@@ -280,7 +280,7 @@ brightnessAdjustOption(void * /*val*/) {
 
 static void
 chromaOption(void *value) {
-    const float *chroma = (float *)value;
+    const float *chroma = static_cast<float *>(value);
     if ( chroma == globalRxy ) {
         GLOBAL_toneMap_options.xr = chroma[0];
         GLOBAL_toneMap_options.yr = chroma[1];
@@ -306,7 +306,7 @@ chromaOption(void *value) {
 
 static void
 toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
-    char *name = *(char **) value;
+    char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
         GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
@@ -319,7 +319,7 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 
 static void
 gammaOption(void *value) {
-    float gam = *(float *) value;
+    float gam = *static_cast<float *>(value);
     GLOBAL_toneMap_options.gamma.set(gam, gam, gam);
 }
 
@@ -706,7 +706,7 @@ static char *globalRayTracerName;
 
 static void
 mainRayTracingOption(void *value) {
-    const char *name = *(char **) value;
+    const char *name = *static_cast<char **>(value);
     strcpy(globalRayTracerName, name);
 }
 

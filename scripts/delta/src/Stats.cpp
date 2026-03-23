@@ -55,8 +55,8 @@ void Stats::printReport() const {
     }
 
     printf("Stats report: min unsigned char = %u, max unsigned char = %u\n",
-           (unsigned int)minValue,
-           (unsigned int)maxValue);
+           static_cast<unsigned int>(minValue),
+           static_cast<unsigned int>(maxValue));
 
     if (!hasDifferences) {
         printf("Stats report: no pixel differences processed\n");

@@ -21,9 +21,9 @@ double ImageComparator::sqrt_approx(double x) {
 }
 
 double ImageComparator::distance(PixelRGB a, PixelRGB b) {
-    double dr = (double)a.r - (double)b.r;
-    double dg = (double)a.g - (double)b.g;
-    double db = (double)a.b - (double)b.b;
+    double dr = static_cast<double>(a.r) - static_cast<double>(b.r);
+    double dg = static_cast<double>(a.g) - static_cast<double>(b.g);
+    double db = static_cast<double>(a.b) - static_cast<double>(b.b);
     return sqrt_approx(dr * dr + dg * dg + db * db);
 }
 

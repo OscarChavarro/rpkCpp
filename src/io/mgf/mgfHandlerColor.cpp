@@ -35,7 +35,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( lp == nullptr) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
-            context->currentColor = (MgfColorContext *) lp->data;
+            context->currentColor = reinterpret_cast<MgfColorContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( context->currentColor == nullptr) {
@@ -56,7 +56,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 if ( lp->data == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
-                context->currentColor = (MgfColorContext *) lp->data;
+                context->currentColor = reinterpret_cast<MgfColorContext *>(lp->data);
                 context->currentColor->clock = 0;
             }
             i = context->currentColor->clock;
@@ -74,7 +74,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *context->currentColor = *(MgfColorContext *) lp->data;
+            *context->currentColor = *reinterpret_cast<MgfColorContext *>(lp->data);
             context->currentColor->clock = i + 1;
             return MgfErrorCode::MGF_OK;
         case MgfEntity::CXY:
@@ -132,7 +132,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *context->currentColor = *(MgfColorContext *) lp->data;
+            *context->currentColor = *reinterpret_cast<MgfColorContext *>(lp->data);
             for ( i = 3; i < ac; i += 2 ) {
                 if ( !isFloatWords(av[i]) ) {
                     return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
@@ -149,7 +149,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                     wSum,
                     context->currentColor,
                     w,
-                    (MgfColorContext *) lp->data);
+                    reinterpret_cast<MgfColorContext *>(lp->data));
                 wSum += w;
             }
             if ( wSum <= 0.0 ) {

@@ -13,7 +13,7 @@ int PPMWriter::write(const char* filename, ImagePPM& img) {
     size_t written = fwrite(img.data, sizeof(PixelRGB), img.width * img.height, f);
     fclose(f);
 
-    if (written != (size_t)(img.width * img.height)) {
+    if (written != static_cast<size_t>(img.width * img.height)) {
         return 0;
     }
 

@@ -27,8 +27,8 @@ getFalseMonochrome(float val) {
     float max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
-        max = (float)java::Math::log(1.0 + max);
-        val = (float)java::Math::log(1.0 + val);
+        max = static_cast<float>(java::Math::log(1.0 + max));
+        val = static_cast<float>(java::Math::log(1.0 + val));
     }
 
     tmp = java::Math::min(val, max);
@@ -55,8 +55,8 @@ getFalseColor(float val) {
     max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
-        max = (float)java::Math::log(1.0 + max);
-        val = (float)java::Math::log(1.0 + val);
+        max = static_cast<float>(java::Math::log(1.0 + max));
+        val = static_cast<float>(java::Math::log(1.0 + val));
     }
 
     tmp = java::Math::min(val, max);
@@ -201,7 +201,7 @@ CPhotonMap::redistribute(const CPhoton &photon) const {
 
     ColorRgb deltaPower;
     ColorRgb pow;
-    float factor = 1.0f / (float)m_nrpCosinePos;
+    float factor = 1.0f / static_cast<float>(m_nrpCosinePos);
 
     pow = photon.power();
     deltaPower.scaledCopy(factor, pow);
@@ -268,8 +268,8 @@ CPhotonMap::GetMaxR2() {
      */
     const double radFraction = 0.03;
 
-    double maxr2 = ((double)*m_estimate_nrp * GLOBAL_statistics.totalArea /
-                    (M_PI * (double)m_totalPaths * radFraction));
+    double maxr2 = (static_cast<double>(*m_estimate_nrp) * GLOBAL_statistics.totalArea /
+                    (M_PI * static_cast<double>(m_totalPaths) * radFraction));
 
     return maxr2;
 }
@@ -299,7 +299,7 @@ CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
         // Now we have incoming radiance integrated over area estimate,
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-        float factor = (1.0f / ((float)M_PI * (float)M_PI * maxDistance * (float)m_totalPaths));
+        float factor = (1.0f / (static_cast<float>(M_PI) * static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths)));
         irradiance.scale(factor);
     }
 
@@ -422,7 +422,7 @@ CPhotonMap::reconstruct(
     // Now we have a radiance integrated over area estimate,
     // so we convert it to radiance, maxDistance is already squared
 
-    factor = 1.0f / ((float)M_PI * maxDistance * (float)m_totalPaths);
+    factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
 
     result.scale(factor);
 
@@ -443,7 +443,7 @@ CPhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
     }
 
     Vector3D position = hit.getPoint();
-    m_nrpFound = doQuery(&position, nrPhotons, (float) GetMaxR2());
+    m_nrpFound = doQuery(&position, nrPhotons, static_cast<float>(GetMaxR2()));
 
     if ( m_nrpFound < 3 ) {
         return 0.0;
@@ -458,7 +458,7 @@ CPhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
         return 0.0;
     }
 
-    return (float)(m_nrpCosinePos / (M_PI * maxDistance));
+    return static_cast<float>(m_nrpCosinePos / (M_PI * maxDistance));
 }
 
 /**
@@ -504,7 +504,7 @@ CPhotonMap::sample(
 
             color = m_photons[i]->power();
 
-            m_grid->add(pr, ps, color.average() / (float)m_nrPhotons);
+            m_grid->add(pr, ps, color.average() / static_cast<float>(m_nrPhotons));
         }
 
         m_grid->EnsureNonZeroEntries();

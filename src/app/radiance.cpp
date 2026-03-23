@@ -96,7 +96,7 @@ radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod)
 
     if ( *newRadianceMethod != nullptr ) {
         if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {
-            GalerkinRadianceMethod *galerkinRadianceMethod = (GalerkinRadianceMethod *)(*newRadianceMethod);
+            GalerkinRadianceMethod *galerkinRadianceMethod = static_cast<GalerkinRadianceMethod *>(*newRadianceMethod);
             galerkinRadianceMethod->setStrategy();
         }
         (*newRadianceMethod)->parseOptions(argc, argv);

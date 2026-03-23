@@ -137,7 +137,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
                 // Generate ray
                 Ray ray;
                 ray.position = camera->eyePosition;
-                ray.direction = screenBuffer->getPixelVector(x, y, (float)dx, (float)dy);
+                ray.direction = screenBuffer->getPixelVector(x, y, static_cast<float>(dx), static_cast<float>(dy));
                 ray.direction.normalize(Numeric::EPSILON_FLOAT);
 
                 // Check if hit
@@ -147,7 +147,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
             }
 
             // Add matte value to screen buffer
-            float value = (hits / (float)GLOBAL_rayCasting_rayMatterState.samplesPerPixel);
+            float value = (hits / static_cast<float>(GLOBAL_rayCasting_rayMatterState.samplesPerPixel));
             if ( value > 1.0 ) {
                 value = 1.0;
             }
@@ -160,7 +160,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
         screenBuffer->renderScanline(y);
     }
 
-    GLOBAL_raytracer_totalTime = (float) (clock() - t) / (float) CLOCKS_PER_SEC;
+    GLOBAL_raytracer_totalTime = static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC);
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
 }

@@ -19,7 +19,7 @@ idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
     double tmp = 2 * normal->dotProduct(*in);
     Vector3D result;
 
-    result.scaledCopy((float) tmp, *normal);
+    result.scaledCopy(static_cast<float>(tmp), *normal);
     result.subtraction(*in, result);
     result.normalize(Numeric::EPSILON_FLOAT);
 

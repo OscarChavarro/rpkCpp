@@ -29,7 +29,7 @@ DepthVisibilityGathererVisitor::visit(
         return;
     }
 
-    double areaFactor = pixelArea * (double) (galerkinElement->scratchVisibilityUsageCounter) / (0.25 * link->receiverElement->area);
+    double areaFactor = pixelArea * static_cast<double>(galerkinElement->scratchVisibilityUsageCounter) / (0.25 * link->receiverElement->area);
     ClusterTraversalStrategy::isotropicGatherRadiance(galerkinElement, areaFactor, link, sourceRadiance);
 
     galerkinElement->scratchVisibilityUsageCounter = 0; // Set it to zero for future re-use

@@ -29,7 +29,7 @@ basisGalerkinPull(
     const ColorRgb *childCoefficients)
 {
     const GalerkinBasis *basis;
-    int sigma = (unsigned char)child->childNumber;
+    int sigma = static_cast<unsigned char>(child->childNumber);
 
     if ( parent->isCluster() ) {
         // Clusters only have irregular sub-elements and a constant
@@ -53,7 +53,7 @@ basisGalerkinPull(
                 if ( f < -Numeric::EPSILON || f > Numeric::EPSILON )
                     parent_coefficients[alpha].addScaled(
                             parent_coefficients[alpha],
-                            (float) f,
+                            static_cast<float>(f),
                             childCoefficients[beta]);
             }
             parent_coefficients[alpha].scale(0.25f);
@@ -98,13 +98,13 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             ColorRgb Bup2[MAX_BASIS_SIZE];
 
             // 1. Push B-down to the i-th sub-element
-            basisGalerkinPush(element, Bdown, (GalerkinElement *)element->regularSubElements[i], Bdown2);
+            basisGalerkinPush(element, Bdown, static_cast<GalerkinElement *>(element->regularSubElements[i]), Bdown2);
 
             // 2. Recursive call the push-pull for the sub-element
-            basisGalerkinPushPullRadianceRecursive((GalerkinElement *)element->regularSubElements[i], Bdown2, Btmp, galerkinState);
+            basisGalerkinPushPullRadianceRecursive(static_cast<GalerkinElement *>(element->regularSubElements[i]), Bdown2, Btmp, galerkinState);
 
             // 3. Pull the radiance of the sub-element up to this level again
-            basisGalerkinPull(element, Bup2, (GalerkinElement *)element->regularSubElements[i], Btmp);
+            basisGalerkinPull(element, Bup2, static_cast<GalerkinElement *>(element->regularSubElements[i]), Btmp);
 
             // 4. Add to Bup
             colorsArrayAdd(Bup, Bup2, element->basisSize);
@@ -114,7 +114,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
     if ( element->irregularSubElements ) {
         // A cluster or irregularly subdivided surface element
         for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
-            GalerkinElement *subElement = (GalerkinElement *)element->irregularSubElements->get(i);
+            GalerkinElement *subElement = static_cast<GalerkinElement *>(element->irregularSubElements->get(i));
             ColorRgb Btmp[MAX_BASIS_SIZE];
             ColorRgb Bdown2[MAX_BASIS_SIZE];
             ColorRgb Bup2[MAX_BASIS_SIZE];
@@ -180,8 +180,8 @@ basisGalerkinComputeFilterCoefficients(
             x = 0.0;
             for ( int k = 0; k < cr->numberOfNodes; k++ ) {
                 Vector2D up;
-                up.u = (float)cr->u[k];
-                up.v = (float)cr->v[k];
+                up.u = static_cast<float>(cr->u[k]);
+                up.v = static_cast<float>(cr->v[k]);
                 upTransform->transformPoint2D(up, up);
                 x += cr->w[k] * parentBasis->function[alpha](up.u, up.v) *
                      childBasis->function[beta](cr->u[k], cr->v[k]);
@@ -248,7 +248,7 @@ basisGalerkinPush(
     const GalerkinElement *child,
     ColorRgb *childCoefficients)
 {
-    int sigma = (unsigned char)child->childNumber;
+    int sigma = static_cast<unsigned char>(child->childNumber);
 
     if ( element->isCluster() ) {
         // Clusters have only irregular sub-elements and a constant
@@ -273,7 +273,7 @@ basisGalerkinPush(
                 if ( f < -Numeric::EPSILON || f > Numeric::EPSILON )
                     childCoefficients[beta].addScaled(
                         childCoefficients[beta],
-                        (float) f,
+                        static_cast<float>(f),
                         parentCoefficients[alpha]);
             }
         }
@@ -316,7 +316,7 @@ basisGalerkinRadianceAtPoint(
     }
 
     for ( int i = 0; i < element->basisSize; i++ ) {
-        float evaluatedTerm = (float)basis->function[i](u, v);
+        float evaluatedTerm = static_cast<float>(basis->function[i](u, v));
         rad.addScaled(rad, evaluatedTerm, coefficients[i]);
     }
 

@@ -212,12 +212,12 @@ ScreenBuffer::syncLine(int lineNumber) {
 
 float
 ScreenBuffer::getScreenXMin() const {
-    return -camera.pixelWidth * (float)camera.xSize / 2.0f;
+    return -camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0f;
 }
 
 float
 ScreenBuffer::getScreenYMin() const {
-    return -camera.pixelHeight * (float)camera.ySize / 2.0f;
+    return -camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0f;
 }
 
 float
@@ -232,8 +232,8 @@ ScreenBuffer::getPixYSize() const {
 
 Vector2D
 ScreenBuffer::getPixelPoint(int nx, int ny, float xOffset, float yOffset) const {
-    return {getScreenXMin() + ((float) nx + xOffset) * getPixXSize(),
-            getScreenYMin() + ((float) ny + yOffset) * getPixYSize()};
+    return {getScreenXMin() + (static_cast<float>(nx) + xOffset) * getPixXSize(),
+            getScreenYMin() + (static_cast<float>(ny) + yOffset) * getPixYSize()};
 }
 
 Vector2D
@@ -243,12 +243,12 @@ ScreenBuffer::getPixelCenter(int nx, int ny) const {
 
 int
 ScreenBuffer::getNx(float x) const {
-    return (int) java::Math::floor((x - getScreenXMin()) / getPixXSize());
+    return static_cast<int>(java::Math::floor((x - getScreenXMin()) / getPixXSize()));
 }
 
 int
 ScreenBuffer::getNy(float y) const {
-    return (int) java::Math::floor((y - getScreenYMin()) / getPixYSize());
+    return static_cast<int>(java::Math::floor((y - getScreenYMin()) / getPixYSize()));
 }
 
 void
@@ -294,29 +294,29 @@ computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
     double ySample = y + v * 0.5;
 
-    dir.combine3(camera->Z, (float) xSample, camera->X, (float) ySample, camera->Y);
+    dir.combine3(camera->Z, static_cast<float>(xSample), camera->X, static_cast<float>(ySample), camera->Y);
     double distPixel2 = dir.norm2();
     double distPixel = java::Math::sqrt(distPixel2);
-    dir.inverseScaledCopy((float)distPixel, dir, Numeric::EPSILON_FLOAT);
+    dir.inverseScaledCopy(static_cast<float>(distPixel), dir, Numeric::EPSILON_FLOAT);
 
     double factor = 1.0 / (h * v);
 
     factor *= distPixel2; // r(eye->pixel)^2
     factor /= java::Math::pow(dir.dotProduct(camera->Z), 2);  // cos^2
 
-    return (float)factor;
+    return static_cast<float>(factor);
 }
 
 #ifdef RAYTRACING_ENABLED
 
 float
 ScreenBuffer::getScreenXMax() const {
-    return camera.pixelWidth * (float)camera.xSize / 2.0f;
+    return camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0f;
 }
 
 float
 ScreenBuffer::getScreenYMax() const {
-    return camera.pixelHeight * (float)camera.ySize / 2.0f;
+    return camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0f;
 }
 
 ColorRgb

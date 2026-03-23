@@ -36,9 +36,9 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation
-        rgb[3 * i] = (unsigned char) (displayRgb.r * 255.0);
-        rgb[3 * i + 1] = (unsigned char) (displayRgb.g * 255.0);
-        rgb[3 * i + 2] = (unsigned char) (displayRgb.b * 255.0);
+        rgb[3 * i] = static_cast<unsigned char>(displayRgb.r * 255.0);
+        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.g * 255.0);
+        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.b * 255.0);
     }
 
     // Output display RGB values
@@ -64,9 +64,9 @@ ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
         gammaCorrect(displayRgb, gamma);
 
         // Convert float to byte representation
-        rgb[3 * i] = (unsigned char) (displayRgb.r * 255.0);
-        rgb[3 * i + 1] = (unsigned char) (displayRgb.g * 255.0);
-        rgb[3 * i + 2] = (unsigned char) (displayRgb.b * 255.0);
+        rgb[3 * i] = static_cast<unsigned char>(displayRgb.r * 255.0);
+        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.g * 255.0);
+        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.b * 255.0);
     }
 
     // Output display RGB values

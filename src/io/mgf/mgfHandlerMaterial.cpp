@@ -303,7 +303,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
-            globalMgfCurrentMaterial = (MgfMaterialContext *) lp->data;
+            globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( globalMgfCurrentMaterial == nullptr) {
@@ -326,7 +326,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
-                globalMgfCurrentMaterial = (MgfMaterialContext *)lp->data;
+                globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
                 globalMgfCurrentMaterial->clock = 0;
             }
             i = globalMgfCurrentMaterial->clock;
@@ -344,7 +344,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr ) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *globalMgfCurrentMaterial = *(MgfMaterialContext *) lp->data;
+            *globalMgfCurrentMaterial = *reinterpret_cast<MgfMaterialContext *>(lp->data);
             globalMgfCurrentMaterial->clock = i + 1;
             return MgfErrorCode::MGF_OK;
 

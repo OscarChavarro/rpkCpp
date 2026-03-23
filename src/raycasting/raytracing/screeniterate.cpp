@@ -32,7 +32,7 @@ For counting how much CPU time was used for the computations
 */
 static void
 screenIterateUpdateCpuSecs() {
-    GLOBAL_raytracer_totalTime += (double)clock() - (double)iState.lastTime;
+    GLOBAL_raytracer_totalTime += static_cast<double>(clock()) - static_cast<double>(iState.lastTime);
     iState.lastTime = clock();
 }
 

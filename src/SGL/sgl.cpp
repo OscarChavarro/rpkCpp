@@ -228,9 +228,9 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
 
     // Perspective divide and transformation to viewport and depth range
     for ( i = 0, pv = &pol.vertices[0]; i < pol.n; i++, pv++ ) {
-        pv->sx = (double)vp_x + (pv->sx / pv->sw + 1.0) * (double)vp_width * 0.5;
-        pv->sy = (double) vp_y + (pv->sy / pv->sw + 1.0) * (double)vp_height * 0.5;
-        pv->sz = (near + (pv->sz / pv->sw + 1.0) * far * 0.5) * (double) SGL_MAXIMUM_Z;
+        pv->sx = static_cast<double>(vp_x) + (pv->sx / pv->sw + 1.0) * static_cast<double>(vp_width) * 0.5;
+        pv->sy = static_cast<double>(vp_y) + (pv->sy / pv->sw + 1.0) * static_cast<double>(vp_height) * 0.5;
+        pv->sz = (near + (pv->sz / pv->sw + 1.0) * far * 0.5) * static_cast<double>(SGL_MAXIMUM_Z);
     }
 
     // Window

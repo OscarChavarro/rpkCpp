@@ -117,9 +117,9 @@ MeshSurface::normalizeVertexColor(Vertex *vertex) {
     }
 
     if ( numberOfPatches > 0 ) {
-        vertex->color.r /= (float)numberOfPatches;
-        vertex->color.g /= (float)numberOfPatches;
-        vertex->color.b /= (float)numberOfPatches;
+        vertex->color.r /= static_cast<float>(numberOfPatches);
+        vertex->color.g /= static_cast<float>(numberOfPatches);
+        vertex->color.b /= static_cast<float>(numberOfPatches);
     }
 }
 
@@ -144,9 +144,9 @@ MeshSurface::surfaceConnectFace(Patch *face) const {
                 face->color.g += face->vertex[i]->color.g;
                 face->color.b += face->vertex[i]->color.b;
             }
-            face->color.r /= (float) i;
-            face->color.g /= (float) i;
-            face->color.b /= (float) i;
+            face->color.r /= static_cast<float>(i);
+            face->color.g /= static_cast<float>(i);
+            face->color.b /= static_cast<float>(i);
             break;
         default: {
             ColorRgb rho;

@@ -31,7 +31,7 @@ Halton2(int i) {
         f <<= 1;
     }
 
-    return (double) h / (double) f;
+    return static_cast<double>(h) / static_cast<double>(f);
 }
 
 double
@@ -51,7 +51,7 @@ Halton3(int i) {
         f = (f << 1) + f;
     }
 
-    return (double) h / (double) f;
+    return static_cast<double>(h) / static_cast<double>(f);
 }
 
 double
@@ -71,7 +71,7 @@ Halton5(int i) {
         f = (f << 2) + f;
     }
 
-    return (double) h / (double) f;
+    return static_cast<double>(h) / static_cast<double>(f);
 }
 
 double
@@ -91,5 +91,5 @@ Halton7(int i) {
         f = (f << 2) + (f << 1) + f;
     }
 
-    return (double) h / (double) f;
+    return static_cast<double>(h) / static_cast<double>(f);
 }

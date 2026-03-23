@@ -51,7 +51,7 @@ CKernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
     if ( tp < m_h2 ) {
         // Point inside kernel
         tp = (1.0f - (tp * m_h2inv));
-        tp = (float)M_2_PI * tp * m_h2inv;
+        tp = static_cast<float>(M_2_PI) * tp * m_h2inv;
         return tp;
     } else {
         return 0.0f;
@@ -113,7 +113,7 @@ CKernel2D::varCover(
     // scaleSamples is normally total samples per pixel, while
     // totalSamples is the total number of samples for the CURRENT
     // number of samples per pixel
-    float Bn = (float)(B * (java::Math::pow((double) scaleSamples, (-1.5 / 5.0))));
+    float Bn = static_cast<float>(B * (java::Math::pow((double) scaleSamples, (-1.5 / 5.0))));
 
     float h;
 
@@ -140,6 +140,6 @@ CKernel2D::varCover(
     SetH(h);
 
     // h determined, now splat the fucker
-    cover(center, 1.0f / (float) totalSamples, color, dest);
+    cover(center, 1.0f / static_cast<float>(totalSamples), color, dest);
 }
 #endif

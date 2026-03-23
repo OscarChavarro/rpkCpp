@@ -66,7 +66,7 @@ photonMapRadiosityUpdateCpuSecs() {
     clock_t t;
 
     t = clock();
-    GLOBAL_photonMap_state.cpuSecs += (float) (t - GLOBAL_photonMap_state.lastClock) / (float) CLOCKS_PER_SEC;
+    GLOBAL_photonMap_state.cpuSecs += static_cast<float>(t - GLOBAL_photonMap_state.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
     GLOBAL_photonMap_state.lastClock = t;
 }
 
@@ -242,7 +242,7 @@ photonMapDoComputePixelFluxEstimate(
     // Evaluate radiance and probabilityDensityFunction and weight
     f = bp->evalRadiance();
 
-    float factor = 1.0f / (float) bp->evalPdfAcc();
+    float factor = 1.0f / static_cast<float>(bp->evalPdfAcc());
 
     f.scale(factor); // Flux estimate
 
@@ -313,10 +313,10 @@ photonMapDoScreenNEE(
 
         if ( config->currentMap == config->globalMap ) {
             factor = (computeFluxToRadFactor(camera, nx, ny)
-                      / (float) GLOBAL_photonMap_state.totalGPaths);
+                      / static_cast<float>(GLOBAL_photonMap_state.totalGPaths));
         } else {
             factor = (computeFluxToRadFactor(camera, nx, ny)
-                      / (float) GLOBAL_photonMap_state.totalCPaths);
+                      / static_cast<float>(GLOBAL_photonMap_state.totalCPaths));
         }
 
         f.scale(factor);
@@ -401,7 +401,7 @@ photonMapHandlePath(
 
     while ( !lDone ) {
         // Adjust accPower
-        factor = (float)(currentNode->m_G / currentNode->m_pdfFromPrev);
+        factor = static_cast<float>(currentNode->m_G / currentNode->m_pdfFromPrev);
         accPower.scale(factor);
 
         // Store photon, but not emitted light
@@ -498,10 +498,10 @@ photonMapBRRealIteration(
 {
     GLOBAL_photonMap_state.iterationNumber++;
 
-    java::lang::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", (long) GLOBAL_photonMap_state.iterationNumber);
+    java::lang::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", static_cast<long>(GLOBAL_photonMap_state.iterationNumber));
 
     if ( (GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap) ) {
-        float scaleFactor = ((float)GLOBAL_photonMap_state.iterationNumber - 1.0f) / (float) GLOBAL_photonMap_state.iterationNumber;
+        float scaleFactor = (static_cast<float>(GLOBAL_photonMap_state.iterationNumber) - 1.0f) / static_cast<float>(GLOBAL_photonMap_state.iterationNumber);
         GLOBAL_photonMap_config.screen->scaleRadiance(scaleFactor);
     }
 
@@ -513,7 +513,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.currentMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
         GLOBAL_photonMap_config.importanceCMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
-        tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, (int)GLOBAL_photonMap_state.iPathsPerIteration);
+        tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, static_cast<int>(GLOBAL_photonMap_state.iPathsPerIteration));
 
         java::lang::System::err.printf("Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
@@ -534,7 +534,7 @@ photonMapBRRealIteration(
                 camera,
                 sceneWorldVoxelGrid,
                 sceneBackground,
-                (int)GLOBAL_photonMap_state.gPathsPerIteration,
+                static_cast<int>(GLOBAL_photonMap_state.gPathsPerIteration),
                 BSDF_ALL_COMPONENTS,
                 radianceMethod);
 
@@ -556,7 +556,7 @@ photonMapBRRealIteration(
             camera,
             sceneWorldVoxelGrid,
             sceneBackground,
-            (int)GLOBAL_photonMap_state.cPathsPerIteration,
+            static_cast<int>(GLOBAL_photonMap_state.cPathsPerIteration),
             BSDF_SPECULAR_COMPONENT);
 
         java::lang::System::err.printf("Caustic map: ");

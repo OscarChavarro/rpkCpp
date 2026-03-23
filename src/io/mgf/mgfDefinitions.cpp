@@ -148,7 +148,7 @@ mgfEntity(const char *name, MgfContext *context) {
     if ( cp == nullptr) {
         return -1;
     }
-    return (int)((cp - context->entityNames[0]) / sizeof(context->entityNames[0]));
+    return static_cast<int>((cp - context->entityNames[0]) / sizeof(context->entityNames[0]));
 }
 
 /**

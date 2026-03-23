@@ -121,9 +121,9 @@ Scaled vector sum: d = a + s.b
 */
 inline void
 Vector3D::sumScaled(const Vector3D a, const double s, const Vector3D b) {
-    x = a.x + (float)s * b.x;
-    y = a.y + (float)s * b.y;
-    z = a.z + (float)s * b.z;
+    x = a.x + static_cast<float>(s) * b.x;
+    y = a.y + static_cast<float>(s) * b.y;
+    z = a.z + static_cast<float>(s) * b.z;
 }
 
 /**

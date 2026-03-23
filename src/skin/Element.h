@@ -37,7 +37,7 @@ class Element {
     Element();
     virtual ~Element() {};
 
-    inline bool
+    bool
     isCluster() const {
         return flags & IS_CLUSTER_MASK;
     }

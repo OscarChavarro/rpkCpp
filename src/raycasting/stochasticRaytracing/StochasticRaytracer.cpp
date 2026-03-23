@@ -287,7 +287,7 @@ stochasticRaytracerGetScatteredRadiance(
                     // Collect outgoing radiance
                     factor = newNode.m_G / (newNode.m_pdfFromPrev * numberOfSamples);
 
-                    radiance.scalarProductScaled(radiance, (float) factor, thisNode->m_bsdfEval);
+                    radiance.scalarProductScaled(radiance, static_cast<float>(factor), thisNode->m_bsdfEval);
                     result.add(radiance, result);
                 }
             }
@@ -433,7 +433,7 @@ srGetDirectRadiance(
 
                             factor = weight * geom / (lightNode.m_pdfFromPrev *
                                                       config->nextEventSamples);
-                            radiance.scalarProductScaled(prevNode->m_bsdfEval, (float) factor, lightNode.m_bsdfEval);
+                            radiance.scalarProductScaled(prevNode->m_bsdfEval, static_cast<float>(factor), lightNode.m_bsdfEval);
 
                             // Collect outgoing radiance
                             result.add(result, radiance);
@@ -507,7 +507,7 @@ stochasticRaytracerGetRadiance(
         Vector3D position = thisNode->previous()->m_hit.getPoint();
         result = backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), nullptr);
 
-        result.scale((float)weight);
+        result.scale(static_cast<float>(weight));
     } else {
         // Handle non-background
         const PhongEmittanceDistributionFunction *thisEdf = thisNode->m_hit.getMaterial()->getEdf();
@@ -637,7 +637,7 @@ stochasticRaytracerGetRadiance(
                 col = thisEdf->phongEdfEval(&thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, nullptr);
             }
 
-            result.addScaled(result, (float) weight, col);
+            result.addScaled(result, static_cast<float>(weight), col);
         }
     }
 
@@ -679,7 +679,7 @@ StochasticRaytracer::calcPixel(
 
     // Sample eye node
     config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
-    ((CPixelSampler *) config->samplerConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
+    static_cast<CPixelSampler *>(config->samplerConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
 
     eyeNode.attach(&pixelNode);
 
@@ -719,15 +719,15 @@ StochasticRaytracer::calcPixel(
             // -- Not needed yet ...
 
             // Account for pixel sampling
-            col.scale((float) (pixelNode.m_G / pixelNode.m_pdfFromPrev));
+            col.scale(static_cast<float>(pixelNode.m_G / pixelNode.m_pdfFromPrev));
             result.add(result, col);
         }
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (computeFluxToRadFactor(camera, nx, ny) / (float)config->samplesPerPixel);
+    double factor = (computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->samplesPerPixel));
 
-    result.scale((float)factor);
+    result.scale(static_cast<float>(factor));
     config->screen->add(nx, ny, result);
 
     // Frame coherent & correlated sampling

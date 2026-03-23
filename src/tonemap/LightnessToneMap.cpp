@@ -44,7 +44,7 @@ LightnessToneMap::lightness(float luminance) {
         return 0.0f;
     }
 
-    float relativeLuminance = luminance / (float)GLOBAL_statistics.referenceLuminance;
+    float relativeLuminance = luminance / static_cast<float>(GLOBAL_statistics.referenceLuminance);
     if ( relativeLuminance > 0.008856 ) {
         return 1.16f * java::Math::pow(relativeLuminance, 0.33f) - 0.16f;
     } else {

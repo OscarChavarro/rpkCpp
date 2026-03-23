@@ -106,7 +106,7 @@ rayTraceSaveImage(
 
     deleteImageOutputHandle(img);
 
-    java::lang::System::out.printf("Raytrace save image: %g secs.\n", (float) (clock() - t) / (float) CLOCKS_PER_SEC);
+    java::lang::System::out.printf("Raytrace save image: %g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
 }
 
 void

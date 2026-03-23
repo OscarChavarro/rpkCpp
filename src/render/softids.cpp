@@ -23,8 +23,8 @@ setupSoftFrameBuffer(const Camera *camera) {
     GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
 
     Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
-        camera->fieldOfVision * 2.0f * (float) M_PI / 180.0f,
-        (float) camera->xSize / (float) camera->ySize,
+        camera->fieldOfVision * 2.0f * static_cast<float>(M_PI) / 180.0f,
+        static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
         camera->near,
         camera->far);
     GLOBAL_sgl_currentContext->sglLoadMatrix(&p);
@@ -106,7 +106,7 @@ softRenderPixels(int width, int height, const ColorRgb *rgb) {
     int rowLength;
 
     // Length of one row of RGBA image data rounded up to a multiple of 8
-    rowLength = (int)((4 * width * sizeof(unsigned char) + 7) & ~7);
+    rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
     unsigned char *c = new unsigned char[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
@@ -116,9 +116,9 @@ softRenderPixels(int width, int height, const ColorRgb *rgb) {
         for ( int i = 0; i < width; i++, rgbP++ ) {
             ColorRgb corrected_rgb = *rgbP;
             toneMappingGammaCorrection(corrected_rgb);
-            *p++ = (unsigned char) (corrected_rgb.r * 255.0);
-            *p++ = (unsigned char) (corrected_rgb.g * 255.0);
-            *p++ = (unsigned char) (corrected_rgb.b * 255.0);
+            *p++ = static_cast<unsigned char>(corrected_rgb.r * 255.0);
+            *p++ = static_cast<unsigned char>(corrected_rgb.g * 255.0);
+            *p++ = static_cast<unsigned char>(corrected_rgb.b * 255.0);
             *p++ = 255; // alpha = 1.0
         }
     }

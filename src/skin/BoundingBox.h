@@ -110,12 +110,12 @@ class BoundingBox {
     void transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const;
     void enlargeTinyBit();
 
-    inline void
+    void
     computeContributionFlags(
         const BoundingBox *other,
         bool *hasMinMax1,
         bool *hasMinMax2
-    ) {
+    ) const {
         for (int i = MIN_X; i <= MIN_Z; i++) {
             if ( coordinates[i] < other->coordinates[i]) {
                 hasMinMax1[i] = true;
@@ -143,19 +143,19 @@ class BoundingBox {
         }
     }
 
-    inline float dx() const {
+    float dx() const {
         return coordinates[MAX_X] - coordinates[MIN_X];
     }
 
-    inline float dy() const {
+    float dy() const {
         return coordinates[MAX_Y] - coordinates[MIN_Y];
     }
 
-    inline float dz() const {
+    float dz() const {
         return coordinates[MAX_Z] - coordinates[MIN_Z];
     }
 
-    inline Vector3D
+    Vector3D
     voxelSize(const short nx, const short ny, const short nz) const {
         return Vector3D(
             dx() / static_cast<float>(nx),
@@ -164,7 +164,7 @@ class BoundingBox {
         );
     }
 
-    inline void
+    void
     enlargeByFactor(float factor) {
         float fdx = dx() * factor;
         float fdy = dy() * factor;
@@ -188,7 +188,7 @@ class BoundingBox {
         coordinates[MAX_Z] += fdz;
     }
 
-    inline Vector3D
+    Vector3D
     minPoint() const {
         return Vector3D(
             coordinates[MIN_X],
@@ -197,7 +197,7 @@ class BoundingBox {
         );
     }
 
-    inline Vector3D
+    Vector3D
     maxPoint() const {
         return Vector3D(
             coordinates[MAX_X],
@@ -206,31 +206,31 @@ class BoundingBox {
         );
     }
 
-    inline float minX() const {
+    float minX() const {
         return coordinates[MIN_X];
     }
 
-    inline float minY() const {
+    float minY() const {
         return coordinates[MIN_Y];
     }
 
-    inline float minZ() const {
+    float minZ() const {
         return coordinates[MIN_Z];
     }
 
-    inline float maxX() const {
+    float maxX() const {
         return coordinates[MAX_X];
     }
 
-    inline float maxY() const {
+    float maxY() const {
         return coordinates[MAX_Y];
     }
 
-    inline float maxZ() const {
+    float maxZ() const {
         return coordinates[MAX_Z];
     }
 
-    inline float valueAt(int idx) const {
+    float valueAt(int idx) const {
         switch (idx) {
             case MIN_X: return minX();
             case MIN_Y: return minY();
@@ -242,7 +242,7 @@ class BoundingBox {
         }
     }
 
-    inline void
+    void
     corners(Vector3D out[8]) const {
         const float minX = coordinates[MIN_X];
         const float minY = coordinates[MIN_Y];

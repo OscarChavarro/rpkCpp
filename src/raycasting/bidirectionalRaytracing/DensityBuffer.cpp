@@ -10,14 +10,14 @@
 inline int
 DensityBuffer::xIndex(float x) const {
     return java::Math::min(
-        (int)(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
+        static_cast<int>(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
         DHA_X_RES - 1);
 }
 
 inline int
 DensityBuffer::yIndex(float y) const {
     return java::Math::min(
-            (int)(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
+            static_cast<int>(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
             DHA_Y_RES - 1);
 }
 
@@ -44,7 +44,7 @@ Add a hit
 void
 DensityBuffer::add(float x, float y, ColorRgb color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
-                   * (float) baseConfig->totalSamples;
+                   * static_cast<float>(baseConfig->totalSamples);
     ColorRgb tmpCol;
 
     if ( color.average() > Numeric::EPSILON ) {
@@ -65,7 +65,7 @@ DensityBuffer::reconstruct() {
 
     // Kernel size. Now spread over 3 pixels
     float h = 8.0f * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
-              / java::Math::sqrt((float)baseConfig->samplesPerPixel);
+              / java::Math::sqrt(static_cast<float>(baseConfig->samplesPerPixel));
 
     java::lang::System::out.printf("h = %f\n", h);
 
@@ -88,7 +88,7 @@ DensityBuffer::reconstruct() {
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.cover(center, 1.0f / (float) baseConfig->totalSamples, hit.color, screenBuffer);
+                kernel.cover(center, 1.0f / static_cast<float>(baseConfig->totalSamples), hit.color, screenBuffer);
             }
         }
     }
@@ -120,7 +120,7 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.varCover(center, hit.color, screenBuffer, dest, (int) baseConfig->totalSamples,
+                kernel.varCover(center, hit.color, screenBuffer, dest, static_cast<int>(baseConfig->totalSamples),
                                 baseConfig->samplesPerPixel, baseSize);
             }
         }

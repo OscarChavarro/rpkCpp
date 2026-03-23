@@ -118,7 +118,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
     } else {
         spec->transformationArray = nullptr;
     }
-    spec->xac = (short)(ac + TRANSFORM_ARGC(context->transformContext));
+    spec->xac = static_cast<short>(ac + TRANSFORM_ARGC(context->transformContext));
 
     // And store new xf arguments
     if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
@@ -135,7 +135,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
         }
         globalTransformArgumentListBeginning = newAv;
     }
-    char *cp = (char *)(spec + 1);
+    char *cp = reinterpret_cast<char *>(spec + 1);
 
     // Use memory allocated above
     for ( int i = 0; i < ac; i++ ) {

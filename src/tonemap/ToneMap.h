@@ -30,7 +30,7 @@ class ToneMap {
 
 inline int
 gammaTableEntry(float x) {
-    return (int)(x * (float)(1 << GAMMA_TABLE_BITS));
+    return static_cast<int>(x * (float) (1 << GAMMA_TABLE_BITS));
 }
 
 inline void
@@ -54,7 +54,7 @@ be OK.
 */
 inline float
 tmoCandelaLambert(float a) {
-    return a * (float)M_PI * 1e-4f;
+    return a * static_cast<float>(M_PI) * 1e-4f;
 }
 
 /**
@@ -62,7 +62,7 @@ Transforms luminance from lamberts to cd/m^2 to lamberts.
 */
 inline float
 tmoLambertCandela(float a) {
-    return a / ((float)M_PI * 1e-4f);
+    return a / (static_cast<float>(M_PI) * 1e-4f);
 }
 
 extern void recomputeGammaTables(ColorRgb gamma);
