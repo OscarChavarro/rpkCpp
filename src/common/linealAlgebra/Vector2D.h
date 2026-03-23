@@ -6,16 +6,21 @@ class Vector2D {
     float u;
     float v;
 
-    Vector2D() {
-        u = 0.0;
-        v = 0.0;
-    }
-
-    Vector2D(float x, float y) {
-        u = x;
-        v = y;
-    }
+    Vector2D();
+    Vector2D(float x, float y);
 };
+
+inline
+Vector2D::Vector2D() {
+    u = 0.0;
+    v = 0.0;
+}
+
+inline
+Vector2D::Vector2D(float x, float y) {
+    u = x;
+    v = y;
+}
 
 /**
 Vector difference

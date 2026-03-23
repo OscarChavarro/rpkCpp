@@ -17,7 +17,6 @@ public:
     Patch *light;
 };
 
-
 class LightListIterator;
 
 class LightList final : private CircularList<LightInfo> {
@@ -92,28 +91,31 @@ class LightListIterator {
   public:
     explicit LightListIterator(LightList &list) : iterator(list) {}
 
-    Patch *
-    First(LightList &list) {
-        iterator.init(list);
-
-        LightInfo *li = iterator.nextOnSequence();
-        if ( li != nullptr ) {
-            return li->light;
-        } else {
-            return nullptr;
-        }
-    }
-
-    Patch *
-    Next() {
-        LightInfo *li = iterator.nextOnSequence();
-        if ( li ) {
-            return li->light;
-        } else {
-            return nullptr;
-        }
-    }
+    Patch *First(LightList &list);
+    Patch *Next();
 };
+
+inline Patch *
+LightListIterator::First(LightList &list) {
+    iterator.init(list);
+
+    LightInfo *li = iterator.nextOnSequence();
+    if ( li != nullptr ) {
+        return li->light;
+    } else {
+        return nullptr;
+    }
+}
+
+inline Patch *
+LightListIterator::Next() {
+    LightInfo *li = iterator.nextOnSequence();
+    if ( li ) {
+        return li->light;
+    } else {
+        return nullptr;
+    }
+}
 
 // Global var for the scene light list
 extern LightList *GLOBAL_lightList;

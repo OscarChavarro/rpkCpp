@@ -19,25 +19,30 @@ class Material {
         bool sided);
     virtual ~Material();
 
-    inline PhongEmittanceDistributionFunction *
-    getEdf() const {
-        return edf;
-    }
-
-    inline PhongBidirectionalScatteringDistributionFunction *
-    getBsdf() const {
-        return bsdf;
-    }
-
-    inline bool
-    isSided() const {
-        return sided;
-    }
-
-    inline char *
-    getName() const {
-        return name;
-    }
+    PhongEmittanceDistributionFunction *getEdf() const;
+    PhongBidirectionalScatteringDistributionFunction *getBsdf() const;
+    bool isSided() const;
+    char *getName() const;
 };
+
+inline PhongEmittanceDistributionFunction *
+Material::getEdf() const {
+    return edf;
+}
+
+inline PhongBidirectionalScatteringDistributionFunction *
+Material::getBsdf() const {
+    return bsdf;
+}
+
+inline bool
+Material::isSided() const {
+    return sided;
+}
+
+inline char *
+Material::getName() const {
+    return name;
+}
 
 #endif

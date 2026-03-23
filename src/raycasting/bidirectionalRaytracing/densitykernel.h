@@ -19,11 +19,8 @@ class CKernel2D final {
     CKernel2D();
 
     void Init(float h, float w);
-
     void SetH(float newH);
-
     float Evaluate(const Vector2D &point, const Vector2D &center) const;
-
     void cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const;
 
     void

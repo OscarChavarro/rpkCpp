@@ -35,13 +35,9 @@ class Element {
         // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch
 
     Element();
-    virtual ~Element() {};
+    virtual ~Element();
 
-    bool
-    isCluster() const {
-        return flags & IS_CLUSTER_MASK;
-    }
-
+    bool isCluster() const;
     Matrix2x2 *topTransform(Matrix2x2 *xf) const;
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
@@ -53,5 +49,15 @@ class Element {
     bool traverseAllChildren(void (*traversalCallbackFunction)(Element *)) const;
 #endif
 };
+
+inline
+Element::~Element() {
+
+}
+
+inline bool
+Element::isCluster() const {
+    return flags & IS_CLUSTER_MASK;
+}
 
 #endif

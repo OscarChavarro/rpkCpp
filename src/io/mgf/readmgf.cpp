@@ -8,7 +8,6 @@
 #include "java/lang/StringBuilder.h"
 #include "java/io/BufferedInputStream.h"
 #include "common/error.h"
-#include "io/mgf/vectoroctree.h"
 #include "io/mgf/MgfColorContext.h"
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/mgfHandlerGeometry.h"

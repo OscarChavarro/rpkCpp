@@ -14,17 +14,20 @@ class SoftIdsWrapper {
     explicit SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions);
     ~SoftIdsWrapper();
 
-    inline void
-    getSize(long *width, long *height) const {
-        *width = sgl->width;
-        *height = sgl->height;
-    }
-
-    inline Patch *
-    getPatchAtPixel(int x, int y) const {
-        int index = (sgl->height - 1 - y) * sgl->width + x;
-        return sgl->patchBuffer[index];
-    }
+    void getSize(long *width, long *height) const;
+    Patch *getPatchAtPixel(int x, int y) const;
 };
+
+inline void
+SoftIdsWrapper::getSize(long *width, long *height) const {
+    *width = sgl->width;
+    *height = sgl->height;
+}
+
+inline Patch *
+SoftIdsWrapper::getPatchAtPixel(int x, int y) const {
+    int index = (sgl->height - 1 - y) * sgl->width + x;
+    return sgl->patchBuffer[index];
+}
 
 #endif

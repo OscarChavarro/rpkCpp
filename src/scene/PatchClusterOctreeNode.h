@@ -16,27 +16,7 @@ class PatchClusterOctreeNode {
     PatchClusterOctreeNode();
     bool movePatchToSubOctantCluster(int patchIndexOnParent) const;
     void clusterAddPatch(Patch *patch);
-
-    inline int
-    octantIndex(const Vector3D &p) const {
-        Vector3D c = boundingBox.center();
-
-        int index = 0;
-
-        if (p.x > c.x) {
-            index |= 1;
-        }
-
-        if (p.y > c.y) {
-            index |= 2;
-        }
-
-        if (p.z > c.z) {
-            index |= 4;
-        }
-
-        return index;
-    }
+    int octantIndex(const Vector3D &p) const;
 
   public:
     explicit PatchClusterOctreeNode(const java::ArrayList<Patch *> *inPatches);
@@ -47,5 +27,25 @@ class PatchClusterOctreeNode {
     static void deleteCachedGeometries();
     void print(int level) const;
 };
+
+inline int
+PatchClusterOctreeNode::octantIndex(const Vector3D &p) const {
+    Vector3D c = boundingBox.center();
+    int index = 0;
+
+    if (p.x > c.x) {
+        index |= 1;
+    }
+
+    if (p.y > c.y) {
+        index |= 2;
+    }
+
+    if (p.z > c.z) {
+        index |= 4;
+    }
+
+    return index;
+}
 
 #endif

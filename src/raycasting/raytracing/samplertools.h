@@ -27,58 +27,11 @@ class CSamplerConfig {
     int minDepth;
     int maxDepth;
 
-    // methods
-
-    // Constructor
-
-    void
-    clearVars() {
-        pointSampler = nullptr;
-        dirSampler = nullptr;
-        surfaceSampler = nullptr;
-        neSampler = nullptr;
-        m_qmcSeed = nullptr;
-    }
-
-    void
-    releaseVars() {
-        if ( pointSampler ) {
-            delete pointSampler;
-            pointSampler = nullptr;
-        }
-        if ( dirSampler ) {
-            delete dirSampler;
-            dirSampler = nullptr;
-        }
-        if ( surfaceSampler ) {
-            delete surfaceSampler;
-            surfaceSampler = nullptr;
-        }
-        if ( neSampler ) {
-            delete neSampler;
-            neSampler = nullptr;
-        }
-        if ( m_qmcSeed ) {
-            delete[] m_qmcSeed;
-            m_qmcSeed = nullptr;
-        }
-    }
-
+    void clearVars();
+    void releaseVars();
     void init(bool useQMC = false, int maxD = 0);
-
-    CSamplerConfig():
-        pointSampler(), dirSampler(), surfaceSampler(), neSampler(), m_useQMC(), m_qmcDepth(), m_qmcSeed(),
-        minDepth(), maxDepth()
-    {
-        clearVars();
-        init();
-    }
-
-    ~CSamplerConfig() {
-        if ( m_qmcSeed ) {
-            delete[] m_qmcSeed;
-        }
-    }
+    CSamplerConfig();
+    ~CSamplerConfig();
 
     // TraceNode: trace a new node, given two random numbers
     // The correct sampler is chosen depending on the current
@@ -124,6 +77,54 @@ class CSamplerConfig {
     void getRand(int depth, double *x1, double *x2) const;
 
 };
+
+inline void
+CSamplerConfig::clearVars() {
+    pointSampler = nullptr;
+    dirSampler = nullptr;
+    surfaceSampler = nullptr;
+    neSampler = nullptr;
+    m_qmcSeed = nullptr;
+}
+
+inline void
+CSamplerConfig::releaseVars() {
+    if ( pointSampler ) {
+        delete pointSampler;
+        pointSampler = nullptr;
+    }
+    if ( dirSampler ) {
+        delete dirSampler;
+        dirSampler = nullptr;
+    }
+    if ( surfaceSampler ) {
+        delete surfaceSampler;
+        surfaceSampler = nullptr;
+    }
+    if ( neSampler ) {
+        delete neSampler;
+        neSampler = nullptr;
+    }
+    if ( m_qmcSeed ) {
+        delete[] m_qmcSeed;
+        m_qmcSeed = nullptr;
+    }
+}
+
+inline CSamplerConfig::CSamplerConfig():
+    pointSampler(), dirSampler(), surfaceSampler(), neSampler(), m_useQMC(), m_qmcDepth(), m_qmcSeed(),
+    minDepth(), maxDepth()
+{
+    clearVars();
+    init();
+}
+
+inline
+CSamplerConfig::~CSamplerConfig() {
+    if ( m_qmcSeed ) {
+        delete[] m_qmcSeed;
+    }
+}
 
 /**
 pathNodeConnect : this is a flexible function for connecting

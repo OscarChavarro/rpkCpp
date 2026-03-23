@@ -5,7 +5,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 

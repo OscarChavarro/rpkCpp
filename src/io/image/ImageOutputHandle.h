@@ -13,14 +13,7 @@ class ImageOutputHandle {
     int width;
     int height;
 
-    void init(const char *_name, int _width, int _height) {
-        driverName = _name;
-        width = _width;
-        height = _height;
-        gamma[0] = 1.0;
-        gamma[1] = 1.0;
-        gamma[2] = 1.0;
-    }
+    void init(const char *_name, int _width, int _height);
 
   public:
     ImageOutputHandle();
@@ -41,6 +34,16 @@ class ImageOutputHandle {
 
     virtual int writeRadianceRGB(ColorRgb *rgbRadiance);
 };
+
+inline void
+ImageOutputHandle::init(const char *_name, int _width, int _height) {
+    driverName = _name;
+    width = _width;
+    height = _height;
+    gamma[0] = 1.0;
+    gamma[1] = 1.0;
+    gamma[2] = 1.0;
+}
 
 extern ImageOutputHandle *
 createRadianceImageOutputHandle(

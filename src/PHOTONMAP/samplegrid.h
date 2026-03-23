@@ -14,9 +14,7 @@ class CSampleGrid2D {
     double *ySums;  // Sum of y columns for faster sampling
     double totalSum; // Normalisation factor
 
-    inline int valIndex(int i, int j) const {
-        return i * ySections + j;
-    }
+    int valIndex(int i, int j) const;
 
   public:
     CSampleGrid2D(int xSectionsParam, int ySectionsParam);
@@ -37,5 +35,10 @@ class CSampleGrid2D {
     // probabilityDensityFunction for sampling this point is filled in.
     void sample(double *x, double *y, double *probabilityDensityFunction) const;
 };
+
+inline int
+CSampleGrid2D::valIndex(int i, int j) const {
+    return i * ySections + j;
+}
 
 #endif

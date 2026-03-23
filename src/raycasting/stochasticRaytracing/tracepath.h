@@ -29,8 +29,12 @@ class PATH {
     int nodesAllocated;
     StochasticRaytracingPathNode *nodes;
 
-    PATH(): numberOfNodes(), nodesAllocated(), nodes() {}
+    PATH();
 };
+
+inline
+PATH::PATH(): numberOfNodes(), nodesAllocated(), nodes() {
+}
 
 extern void
 tracePaths(

@@ -22,35 +22,40 @@ class VoxelData {
     VoxelData(Patch *data, unsigned flags);
     VoxelData(Geometry *data, unsigned flags);
     virtual ~VoxelData();
-
-    inline void
-    updateRayId(const unsigned int id) {
-        flags = (flags & ~VOXEL_DATA_RAY_COUNT_MASK) | (id & VOXEL_DATA_RAY_COUNT_MASK);
-    }
-
-    inline unsigned int
-    lastRayId() const {
-        return flags & VOXEL_DATA_RAY_COUNT_MASK;
-    }
-
-    inline bool
-    isPatch() const {
-        return flags & VOXEL_DATA_PATCH_MASK;
-    }
-
-    inline bool
-    isGeom() const {
-        return flags & VOXEL_DATA_GEOMETRY_MASK;
-    }
-
-    inline bool
-    isGrid() const {
-        return flags & VOXEL_DATA_GRID_MASK;
-    }
+    void updateRayId(const unsigned int id);
+    unsigned int lastRayId() const;
+    bool isPatch() const;
+    bool isGeom() const;
+    bool isGrid() const;
 
   public:
     friend VoxelGrid;
 };
+
+inline void
+VoxelData::updateRayId(const unsigned int id) {
+    flags = (flags & ~VOXEL_DATA_RAY_COUNT_MASK) | (id & VOXEL_DATA_RAY_COUNT_MASK);
+}
+
+inline unsigned int
+VoxelData::lastRayId() const {
+    return flags & VOXEL_DATA_RAY_COUNT_MASK;
+}
+
+inline bool
+VoxelData::isPatch() const {
+    return flags & VOXEL_DATA_PATCH_MASK;
+}
+
+inline bool
+VoxelData::isGeom() const {
+    return flags & VOXEL_DATA_GEOMETRY_MASK;
+}
+
+inline bool
+VoxelData::isGrid() const {
+    return flags & VOXEL_DATA_GRID_MASK;
+}
 
 #include "scene/VoxelGrid.h"
 #include "skin/Geometry.h"

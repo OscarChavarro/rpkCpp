@@ -11,39 +11,48 @@ class DensityHitArray {
     DensityHitArray *next;
 
   public:
-    explicit DensityHitArray(int paramMaxHits) {
-        numHits = 0;
-        maxHits = paramMaxHits;
-        hits = new DensityHit[paramMaxHits];
-        next = nullptr;
-    }
-
-    ~DensityHitArray() {
-        delete[] hits;
-    }
-
-    bool add(const DensityHit &hit) {
-        if ( numHits < maxHits ) {
-            hits[numHits++] = hit;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    DensityHit operator[](int i) const {
-        return hits[i];
-    }
-
-    DensityHitArray *
-    getNext() {
-        return next;
-    }
-
-    void
-    setNext(DensityHitArray *inNext) {
-        next = inNext;
-    }
+    explicit DensityHitArray(int paramMaxHits);
+    ~DensityHitArray();
+    bool add(const DensityHit &hit);
+    DensityHit operator[](int i) const;
+    DensityHitArray * getNext();
+    void setNext(DensityHitArray *inNext);
 };
+
+inline DensityHitArray::DensityHitArray(int paramMaxHits) {
+    numHits = 0;
+    maxHits = paramMaxHits;
+    hits = new DensityHit[paramMaxHits];
+    next = nullptr;
+}
+
+inline DensityHitArray::~DensityHitArray() {
+    delete[] hits;
+}
+
+inline bool
+DensityHitArray::add(const DensityHit &hit) {
+    if ( numHits < maxHits ) {
+        hits[numHits++] = hit;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+inline DensityHit
+DensityHitArray::operator[](int i) const {
+    return hits[i];
+}
+
+inline DensityHitArray *
+DensityHitArray::getNext() {
+    return next;
+}
+
+inline void
+DensityHitArray::setNext(DensityHitArray *inNext) {
+    next = inNext;
+}
 
 #endif

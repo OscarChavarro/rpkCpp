@@ -21,6 +21,8 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
+typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
+
 /**
 Common routines for stochastic relaxation and random walks
 */

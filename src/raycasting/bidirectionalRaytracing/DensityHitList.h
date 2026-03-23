@@ -15,13 +15,13 @@ class DensityHitList {
     DensityHitList();
     ~DensityHitList();
     void add(const DensityHit &hit);
-
-    int
-    storedHits() const {
-        return numHits;
-    }
-
+    int storedHits() const;
     DensityHit operator[](int i);
 };
+
+inline int
+DensityHitList::storedHits() const {
+    return numHits;
+}
 
 #endif

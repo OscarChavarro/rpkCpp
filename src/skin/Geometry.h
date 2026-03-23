@@ -29,8 +29,7 @@ class Geometry {
     static Geometry *excludedGeometry1;
     static Geometry *excludedGeometry2;
 
-    Geometry(
-        GeometryClassId inClassName);
+    Geometry(GeometryClassId inClassName);
 
     bool
     discretizationIntersectPreTest(

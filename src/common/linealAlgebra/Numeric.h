@@ -1,8 +1,6 @@
 #ifndef __NUMERIC__
 #define __NUMERIC__
 
-typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
-
 class Numeric {
   public:
     static const double HUGE_DOUBLE_VALUE;
@@ -10,22 +8,24 @@ class Numeric {
     static const double EPSILON;
     static const float EPSILON_FLOAT;
 
-    /**
-    Tests whether two floating point numbers are equal within the given tolerance
-    */
-    static bool
-    doubleEqual(double a, double b, double tolerance) {
-        return (a - b) > -tolerance && (a - b) < tolerance;
-    }
-
+    static bool doubleEqual(double a, double b, double tolerance);
     static int floatCompare(const float *x, const float *y);
-
-    static void
-    roundDeltaToZero(double &x, double epsilon) {
-        if ( x <= epsilon && x >= -epsilon ) {
-            x = 0;
-        }
-    }
+    static void roundDeltaToZero(double &x, double epsilon);
 };
+
+/**
+Tests whether two floating point numbers are equal within the given tolerance
+*/
+inline bool
+Numeric::doubleEqual(double a, double b, double tolerance) {
+    return (a - b) > -tolerance && (a - b) < tolerance;
+}
+
+inline void
+Numeric::roundDeltaToZero(double &x, double epsilon) {
+    if ( x <= epsilon && x >= -epsilon ) {
+        x = 0;
+    }
+}
 
 #endif

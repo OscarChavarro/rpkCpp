@@ -36,7 +36,6 @@ class SimpleRaytracingPathNode {
     Vector3D m_normal;
 
     double m_G; // Geometric factor x(i-1) -> x(i)
-
     double m_pdfFromPrev;
     double m_pdfFromNext;
     double m_rrPdfFromNext; // Path length in other direction not
@@ -56,7 +55,7 @@ class SimpleRaytracingPathNode {
 
     PhongBidirectionalScatteringDistributionFunction *m_useBsdf; // bsdf used for scattering
     PhongBidirectionalScatteringDistributionFunction *m_inBsdf; // Medium of incoming ray
-    PhongBidirectionalScatteringDistributionFunction *m_outBsdf;//Medium of a possible transmitted ray (other side of normal)
+    PhongBidirectionalScatteringDistributionFunction *m_outBsdf; //Medium of a possible transmitted ray (other side of normal)
     PathRayType m_rayType;
     int m_depth; // First node in a path has depth 0
 
@@ -69,36 +68,60 @@ class SimpleRaytracingPathNode {
     ~SimpleRaytracingPathNode();
 
     // Navigation in a path
-    SimpleRaytracingPathNode *next() { return m_next; }
-
-    SimpleRaytracingPathNode *previous() { return m_previous; }
-
-    void setNext(SimpleRaytracingPathNode *node) { m_next = node; }
-
-    void setPrevious(SimpleRaytracingPathNode *node) { m_previous = node; }
-
-    void attach(SimpleRaytracingPathNode *node) {
-        m_next = node;
-        node->setPrevious(this);
-    }
-
-    void ensureNext() {
-        if ( m_next == nullptr ) {
-            attach(new SimpleRaytracingPathNode);
-        }
-    }
+    SimpleRaytracingPathNode *next();
+    SimpleRaytracingPathNode *previous();
+    void setNext(SimpleRaytracingPathNode *node);
+    void setPrevious(SimpleRaytracingPathNode *node);
+    void attach(SimpleRaytracingPathNode *node);
+    void ensureNext();
 
     PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
     void print(FILE *out) const;
 
-    bool ends() const {
-        return (m_rayType == PathRayType::STOPS) || (m_rayType == PathRayType::ENVIRONMENT);
-    }
+    bool ends() const;
 
   protected:
     SimpleRaytracingPathNode *GetMatchingNode();
 };
+
+inline SimpleRaytracingPathNode *
+SimpleRaytracingPathNode::next() {
+    return m_next;
+}
+
+inline SimpleRaytracingPathNode *
+SimpleRaytracingPathNode::previous() {
+    return m_previous;
+}
+
+inline void
+SimpleRaytracingPathNode::setNext(SimpleRaytracingPathNode *node) {
+    m_next = node;
+}
+
+inline void
+SimpleRaytracingPathNode::setPrevious(SimpleRaytracingPathNode *node) {
+    m_previous = node;
+}
+
+inline void
+SimpleRaytracingPathNode::attach(SimpleRaytracingPathNode *node) {
+    m_next = node;
+    node->setPrevious(this);
+}
+
+inline void
+SimpleRaytracingPathNode::ensureNext() {
+    if ( m_next == nullptr ) {
+        attach(new SimpleRaytracingPathNode);
+    }
+}
+
+inline bool
+SimpleRaytracingPathNode::ends() const {
+    return (m_rayType == PathRayType::STOPS) || (m_rayType == PathRayType::ENVIRONMENT);
+}
 
 #endif

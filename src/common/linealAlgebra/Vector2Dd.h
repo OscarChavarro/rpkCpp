@@ -6,11 +6,14 @@ class Vector2Dd {
     double u;
     double v;
 
-    Vector2Dd() {
-        u = 0.0;
-        v = 0.0;
-    }
+    Vector2Dd();
 };
+
+inline
+Vector2Dd::Vector2Dd() {
+    u = 0.0;
+    v = 0.0;
+}
 
 inline
 void vector2DSet(Vector2Dd &v, double a, double b) {

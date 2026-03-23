@@ -33,8 +33,8 @@ public:
     // Sample : newNode gets filled, others may change
     //   Return true if the node was filled in, false if path Ends
     //   When path ends (absorption) the type of thisNode is adjusted to 'Ends'
-    Sampler() {}
-    virtual ~Sampler() {}
+    Sampler();
+    virtual ~Sampler();
 
     virtual bool
     sample(
@@ -58,6 +58,12 @@ public:
         double *probabilityDensityFunction = nullptr,
         double *probabilityDensityFunctionRR = nullptr) = 0;
 };
+
+inline Sampler::Sampler() {
+}
+
+inline Sampler::~Sampler() {
+}
 
 /**
 Next event samplers provide a few functions to

@@ -39,15 +39,7 @@ class Patch {
 
     unsigned char flags; // Other flags
 
-    static double
-    clipToUnitInterval(double x) {
-        if ( x < Numeric::EPSILON ) {
-            return Numeric::EPSILON;
-        } else {
-            return x > (1.0 - Numeric::EPSILON) ? 1.0 - Numeric::EPSILON : x;
-        }
-    }
-
+    static double clipToUnitInterval(double x);
     static int solveQuadraticUnitInterval(double A, double B, double C, double *x);
     static int quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
 
@@ -98,16 +90,8 @@ class Patch {
     Patch(int inNumberOfVertices, Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4);
     ~Patch();
 
-    void
-    setVisible() {
-        flags |= PATCH_VISIBILITY;
-    }
-
-    void
-    setInvisible() {
-        flags &= ~PATCH_VISIBILITY;
-    }
-
+    void setVisible();
+    void setInvisible();
     int hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
@@ -124,15 +108,38 @@ class Patch {
     ColorRgb averageEmittance(char components);
 
 #ifdef RAYTRACING_ENABLED
-    bool
-    isVisible() const {
-        return (flags & PATCH_VISIBILITY) != 0;
-    }
-
+    bool isVisible() const;
     int uniformUv(const Vector3D *point, double *u, double *v) const;
 
 #endif
 
 };
+
+inline double
+Patch::clipToUnitInterval(double x) {
+    if ( x < Numeric::EPSILON ) {
+        return Numeric::EPSILON;
+    } else {
+        return x > (1.0 - Numeric::EPSILON) ? 1.0 - Numeric::EPSILON : x;
+    }
+}
+
+inline void
+Patch::setVisible() {
+    flags |= PATCH_VISIBILITY;
+}
+
+inline void
+Patch::setInvisible() {
+    flags &= ~PATCH_VISIBILITY;
+}
+
+#ifdef RAYTRACING_ENABLED
+inline bool
+Patch::isVisible() const {
+    return (flags & PATCH_VISIBILITY) != 0;
+}
+
+#endif
 
 #endif

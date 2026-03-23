@@ -48,96 +48,118 @@ public:
     int getTexCoord(Vector3D *outTexCoord);
     int shadingNormal(Vector3D *inNormal);
 
-    inline Patch*
-    getPatch() const {
-        return patch;
-    }
-
-    inline void
-    setPatch(Patch *inPatch) {
-        patch = inPatch;
-    }
-
-    inline Vector3D
-    getPoint() const {
-        return point;
-    }
-
-    inline void
-    setPoint(const Vector3D *position) {
-        point = *position;
-    }
-
-    inline void
-    setGeometricNormal(const Vector3D *inNormal) {
-        geometricNormal = *inNormal;
-    }
-
-    inline void
-    setMaterial(Material *inMaterial) {
-        material = inMaterial;
-    }
-
-    inline Vector2Dd
-    getUv() const {
-        return uv;
-    }
-
-    inline void
-    setUv(const Vector2Dd *inUv) {
-        uv = *inUv;
-    }
-
-    inline void
-    setUv(const double inU, const double inV) {
-        uv.u = inU;
-        uv.v = inV;
-    }
-
-    inline unsigned int
-    getFlags() const {
-        return flags;
-    }
-
-    inline void
-    setFlags(unsigned int inFlags) {
-        flags = inFlags;
-    }
+    Patch *getPatch() const;
+    void setPatch(Patch *inPatch);
+    Vector3D getPoint() const;
+    void setPoint(const Vector3D *position);
+    void setGeometricNormal(const Vector3D *inNormal);
+    void setMaterial(Material *inMaterial);
+    Vector2Dd getUv() const;
+    void setUv(const Vector2Dd *inUv);
+    void setUv(const double inU, const double inV);
+    unsigned int getFlags() const;
+    void setFlags(unsigned int inFlags);
 
 #ifdef RAYTRACING_ENABLED
-    inline Vector3D getNormal() const {
-        return shadingFrame.Z;
-    }
-
-    inline void setNormal(const Vector3D *n) {
-        shadingFrame.Z = *n;
-    }
-
     bool setShadingFrame(CoordinateSystem *frame);
-
-    inline CoordinateSystem
-    getShadingFrame() const {
-        return shadingFrame;
-    }
-
-    inline Material *
-    getMaterial() const {
-        return material;
-    }
-
-    inline Vector3D
-    getGeometricNormal() const {
-        return geometricNormal;
-    }
-
-    inline void
-    setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
-        shadingFrame.X = *inX;
-        shadingFrame.Y = *inY;
-        shadingFrame.Z = *inZ;
-    }
+    Vector3D getNormal() const;
+    void setNormal(const Vector3D *n);
+    CoordinateSystem getShadingFrame() const;
+    Material * getMaterial() const;
+    Vector3D getGeometricNormal() const;
+    void setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ);
 #endif
 
 };
+
+inline Patch*
+RayHit::getPatch() const {
+    return patch;
+}
+
+inline void
+RayHit::setPatch(Patch *inPatch) {
+    patch = inPatch;
+}
+
+inline Vector3D
+RayHit::getPoint() const {
+    return point;
+}
+
+inline void
+RayHit::setPoint(const Vector3D *position) {
+    point = *position;
+}
+
+inline void
+RayHit::setGeometricNormal(const Vector3D *inNormal) {
+    geometricNormal = *inNormal;
+}
+
+inline void
+RayHit::setMaterial(Material *inMaterial) {
+    material = inMaterial;
+}
+
+inline Vector2Dd
+RayHit::getUv() const {
+    return uv;
+}
+
+inline void
+RayHit::setUv(const Vector2Dd *inUv) {
+    uv = *inUv;
+}
+
+inline void
+RayHit::setUv(const double inU, const double inV) {
+    uv.u = inU;
+    uv.v = inV;
+}
+
+inline unsigned int
+RayHit::getFlags() const {
+    return flags;
+}
+
+inline void
+RayHit::setFlags(unsigned int inFlags) {
+    flags = inFlags;
+}
+
+#ifdef RAYTRACING_ENABLED
+inline Vector3D
+RayHit::getNormal() const {
+    return shadingFrame.Z;
+}
+
+inline void
+RayHit::setNormal(const Vector3D *n) {
+    shadingFrame.Z = *n;
+}
+
+inline CoordinateSystem
+RayHit::getShadingFrame() const {
+    return shadingFrame;
+}
+
+inline Material *
+RayHit::getMaterial() const {
+    return material;
+}
+
+inline Vector3D
+RayHit::getGeometricNormal() const {
+    return geometricNormal;
+}
+
+inline void
+RayHit::setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
+    shadingFrame.X = *inX;
+    shadingFrame.Y = *inY;
+    shadingFrame.Z = *inZ;
+}
+#endif
 
 #endif

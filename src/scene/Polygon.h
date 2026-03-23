@@ -19,15 +19,18 @@ class Polygon {
     int numberOfVertices;
     char index;
 
-    Polygon():
-        normal(),
-        planeConstant(),
-        bounds(),
-        vertex(),
-        numberOfVertices(),
-        index()
-    {
-    }
+    Polygon();
 };
+
+inline
+Polygon::Polygon():
+    normal(),
+    planeConstant(),
+    bounds(),
+    vertex(),
+    numberOfVertices(),
+    index()
+{
+}
 
 #endif
