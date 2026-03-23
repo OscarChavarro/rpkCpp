@@ -123,7 +123,7 @@ Looks for solution of the quadratic equation A.u^2 + B.u + C = 0
 in the interval [0,1]. There must be exactly one such solution.
 Returns true if one such solution is found, or false if the equation
 has no real solutions, both solutions are in the interval [0,1] or
-none of them is. In case of problems, a best guess solution
+none of them is. In case of problems, best guess solution
 is returned. Problems seem to be due to numerical inaccuracy
 */
 int
@@ -315,7 +315,7 @@ Patch::computeMidpoint(Vector3D *p) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         p->addition(*p, *(vertex[i]->point));
     }
-    p->inverseScaledCopy((float) numberOfVertices, *p, Numeric::EPSILON_FLOAT);
+    p->inverseScaledCopy(numberOfVertices, *p, Numeric::EPSILON_FLOAT);
 }
 
 /**
@@ -431,9 +431,6 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     Vector2Dd AE;
     double u = -1.0; // Parametric coordinates
     double v = -1.0;
-    double a; // Quadratic equation
-    double b;
-    double c;
     Vector2Dd Vector; // Temporary 2D-vector
     int isInside = false;
 
@@ -484,6 +481,10 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     vector2DAdd(CD, AB, AE);
     vector2DNegate(AE);
     vector2DSubtract(M, A, AM);
+
+    double a; // Quadratic equation
+    double b;
+    double c;
 
     if ( java::Math::abs(vector2DDeterminant(AB, CD)) < Numeric::EPSILON ) {
         // Case AB // CD
@@ -842,7 +843,7 @@ Patch::interpolatedNormalAtUv(double u, double v) const {
 
 /**
 Computes shading frame at the given uv on the patch.
-Computes a interpolated (shading) frame at the uv or point with
+Computes 'a' interpolated (shading) frame at the uv or point with
 given parameters on the patch. The frame is consistent over the
 complete patch if the shading normals in the vertices do not differ
 too much from the geometric normal. The Z axis is the interpolated
@@ -1018,8 +1019,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     double B = (a + 0.5 * c) / area;
     double C = -(*u);
     if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
-        //logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d",
-        //  A, B, -C, id);
+        //logError(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d", A, B, -C, id);
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 
@@ -1027,8 +1027,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     B = (a + 0.5 * b) / area;
     C = -(*v);
     if ( !solveQuadraticUnitInterval(A, B, C, v) ) {
-        //logError(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d",
-        //  A, B, -C, id);
+        //logError(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d", A, B, -C, id);
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 }

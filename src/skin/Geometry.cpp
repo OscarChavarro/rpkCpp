@@ -106,9 +106,9 @@ geomPrimListCopy(const Geometry *geometry) {
 java::ArrayList<Patch *> *
 geomPatchArrayListReference(const Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
-        return ((MeshSurface *)geometry)->faces;
+        return dynamic_cast<const MeshSurface *>(geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
-        return ((PatchSet *)geometry)->getPatchList();
+        return dynamic_cast<const PatchSet *>(geometry)->getPatchList();
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         return nullptr;
     }

@@ -16,7 +16,8 @@ recomputeGammaTable(int index, double gamma) {
     }
     for ( int i = 0; i <= (1 << GAMMA_TABLE_BITS); i++ ) {
         GLOBAL_toneMap_options.gammaTab[index][i] =
-            static_cast<float>(java::Math::pow((double) i / (double) (1 << GAMMA_TABLE_BITS), 1.0 / gamma));
+            static_cast<float>(java::Math::pow(static_cast<double>(i) / static_cast<double>(1 << GAMMA_TABLE_BITS),
+            1.0 / gamma));
     }
 }
 

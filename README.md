@@ -105,3 +105,10 @@ Basically, this program has two use cases:
 - Raytracer solution: Check the use of `RAYTRACING_ENABLED` macro on how to remove this code from project.
 
 
+## Ctidy linter
+
+Can check pending warnings/smells using:
+
+```bash
+clang-tidy -checks='-*,modernize-use-nullptr,google-readability-casting' src/**/*.cpp -- -std=c++17 -Isrc -I/usr/include/c++/ -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11
+```
