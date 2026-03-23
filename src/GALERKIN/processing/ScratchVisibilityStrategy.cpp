@@ -41,13 +41,13 @@ in cluster in the scratch frame buffer and returns pointer to a bounding box
 containing the size of the virtual screen. The cluster nicely fits
 into the virtual screen
 */
-float *
+BoundingBox *
 ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vector3D eye, GalerkinState *galerkinState) {
     static BoundingBox boundingBox;
 
     if ( cluster->id == galerkinState->lastClusterId &&
          eye.equals(galerkinState->lastEye, Numeric::EPSILON_FLOAT) ) {
-        return boundingBox.coordinates;
+        return &boundingBox;
     }
 
     // Cache previously rendered cluster and eye point in order to
@@ -95,7 +95,8 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
 
     sglMakeCurrent(prev_sgl_context);
-    return boundingBox.coordinates;
+
+    return &boundingBox;
 }
 
 /**

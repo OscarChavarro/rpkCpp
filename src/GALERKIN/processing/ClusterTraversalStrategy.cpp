@@ -85,7 +85,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the samplePoint point
-                const float *boundingBox =
+                const BoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
@@ -93,8 +93,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
-                areaFactor = ((boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y])) /
-                             (0.25 * sourceElement->area);
+                areaFactor = (boundingBox->dx() * boundingBox->dy()) / (0.25 * sourceElement->area);
                 sourceRadiance.scale((float) areaFactor);
                 return sourceRadiance;
             }
@@ -186,14 +185,14 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 return receiverElement->area;
             } else {
-                const float *boundingBox =
+                const BoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
                 // the total number of pixels * area of the virtual screen
                 projectedArea =
                     (double)ScratchVisibilityStrategy::scratchNonBackgroundPixels(galerkinState) *
-                    (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /
+                    boundingBox->dx() * boundingBox->dy() /
                     (double)(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
                 return projectedArea;
             }
@@ -268,15 +267,14 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                         receiverElement,
                         galerkinState);
             } else {
-                const float *boundingBox =
+                const BoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer
                 ScratchVisibilityStrategy::scratchPixelsPerElement(galerkinState);
 
                 // Area corresponding to one pixel in the scratch frame buffer (virtual screen)
-                double pixelArea =
-                    (boundingBox[MAX_X] - boundingBox[MIN_X]) * (boundingBox[MAX_Y] - boundingBox[MIN_Y]) /
+                double pixelArea = boundingBox->dx() * boundingBox->dy() /
                     (double)(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height);
 
                 // Gathers the radiance to each element that occupies at least one

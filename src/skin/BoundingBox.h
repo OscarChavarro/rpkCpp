@@ -22,6 +22,8 @@ The meaning of the numbers is given by the constants MIN_X
 */
 class BoundingBox {
   private:
+    float coordinates[6];
+
     static void inline
     setIfLess(float &a, const float &b) {
         a = a < b ? a : b;
@@ -33,8 +35,6 @@ class BoundingBox {
     }
 
   public:
-    float coordinates[6];
-
     BoundingBox();
 
     inline float
