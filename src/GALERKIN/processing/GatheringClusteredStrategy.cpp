@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-#include "scene/Camera.h"
 #include "java/lang/System.h"
 #include "render/potential.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"

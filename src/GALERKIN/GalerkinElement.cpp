@@ -457,7 +457,7 @@ Computes the vertices of a surface element (3 or 4 vertices) or
 cluster element (8 vertices). The number of vertices is returned
 */
 int
-GalerkinElement::vertices(Vector3D *p, int n) const {
+GalerkinElement::vertices(Vector3D *p) const {
     if ( isCluster() ) {
         BoundingBox boundingBox;
         bounds(&boundingBox);
@@ -518,7 +518,7 @@ GalerkinElement::midPoint() const {
         return geometry->getBoundingBox().center();
     } else {
         Vector3D p[8];
-        int numberOfVertices = vertices(p, 4);
+        int numberOfVertices = vertices(p);
 
         Vector3D c(0.0f, 0.0f, 0.0f);
 
@@ -542,7 +542,7 @@ GalerkinElement::bounds(BoundingBox *boundingBox) const {
     } else {
         Vector3D p[4];
 
-        const int numberOfVertices = vertices(p, 4);
+        const int numberOfVertices = vertices(p);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
             boundingBox->enlargeToIncludePoint(&p[i]);
@@ -565,7 +565,7 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
     polygon->normal = patch->normal;
     polygon->planeConstant = patch->planeConstant;
     polygon->index = patch->index;
-    polygon->numberOfVertices = vertices(polygon->vertex, polygon->numberOfVertices);
+    polygon->numberOfVertices = vertices(polygon->vertex);
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         polygon->bounds.enlargeToIncludePoint(&polygon->vertex[i]);
@@ -582,7 +582,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     }
 
     Vector3D p[4];
-    int numberOfVertices = vertices(p, 4);
+    int numberOfVertices = vertices(p);
 
     // Draw surfaces
     if ( renderOptions->drawSurfaces ) {

@@ -237,7 +237,7 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     }
 
     Vector3D rcVertices[8];
-    int numberOfRcVertices = interaction->receiverElement->vertices(rcVertices, 8);
+    int numberOfRcVertices = interaction->receiverElement->vertices(rcVertices);
 
     ColorRgb minimumSrcRad;
     ColorRgb maximumSrcRad;

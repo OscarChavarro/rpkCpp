@@ -49,7 +49,7 @@ static void
 galerkinWriteVertexCoords(Element *element) {
     const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     Vector3D v[8];
-    int numberOfVertices = galerkinElement->vertices(v, 8);
+    int numberOfVertices = galerkinElement->vertices(v);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         galerkinWriteVertexCoord(&v[i]);
     }

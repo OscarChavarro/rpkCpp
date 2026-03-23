@@ -8,11 +8,6 @@
 #include "common/linealAlgebra/Numeric.h"
 #include "common/linealAlgebra/CoordinateAxis.h"
 
-extern const int X_GREATER_MASK;
-extern const int Y_GREATER_MASK;
-extern const int Z_GREATER_MASK;
-extern const int XYZ_EQUAL_MASK;
-
 class Vector3D {
   public:
     float x;
@@ -26,7 +21,6 @@ class Vector3D {
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
     CoordinateAxis dominantCoordinate() const;
-    int compareByDimensions(const Vector3D *other, float epsilon) const;
     void print(FILE *fp) const;
     float dotProduct(Vector3D b) const;
     float norm2() const;

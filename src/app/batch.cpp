@@ -5,7 +5,6 @@
 
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
-#include "io/writevrml.h"
 #include "render/canvas.h"
 #include "render/render.h"
 #include "io/FileUncompressWrapper.h"
