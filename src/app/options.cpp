@@ -101,8 +101,8 @@ optionsPrintInt(FILE *fp, const int *n, const void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_intType = {
-    (int (*)(void *, void *))optionsGetInt,
-    (void (*)(FILE *, void *, void *))optionsPrintInt,
+    reinterpret_cast<int (*)(void *, void *)>(optionsGetInt),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintInt),
     static_cast<void *>(&globalDummyInt),
     nullptr
 };
@@ -128,8 +128,8 @@ optionsPrintString(FILE *fp, char **s, const void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_stringType = {
-    (int (*)(void *, void *)) optionsGetString,
-    (void (*)(FILE *, void *, void *)) optionsPrintString,
+    reinterpret_cast<int (*)(void *, void *)>(optionsGetString),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintString),
     static_cast<void *>(&globalDummyString),
     nullptr
 };
@@ -202,8 +202,8 @@ static ENUMDESC boolTable[] = {
 };
 
 CommandLineOptions GLOBAL_options_boolType = {
-    (int (*)(void *, void *)) optionsEnumGet,
-    (void (*)(FILE *, void *, void *))optionsEnumPrint,
+    reinterpret_cast<int (*)(void *, void *)>(optionsEnumGet),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsEnumPrint),
     static_cast<void *>(&GLOBAL_options_dummyVal),
     static_cast<void *>(boolTable)
 };
@@ -233,15 +233,15 @@ optionsPrintOther(FILE *fp, const void * /*x*/, const void * /*data*/) {
 
 
 CommandLineOptions GLOBAL_options_setTrueType = {
-    (int (*)(void *, void *)) optionsSetTrue,
-    (void (*)(FILE *, void *, void *)) optionsPrintOther,
+    reinterpret_cast<int (*)(void *, void *)>(optionsSetTrue),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintOther),
     static_cast<void *>(&globalDummyTrue),
     nullptr
 };
 
 CommandLineOptions GLOBAL_options_setFalseType = {
-    (int (*)(void *, void *)) optionsSetFalse,
-    (void (*)(FILE *, void *, void *)) optionsPrintOther,
+    reinterpret_cast<int (*)(void *, void *)>(optionsSetFalse),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintOther),
     static_cast<void *>(&globalDummyFalse),
     nullptr
 };
@@ -262,8 +262,8 @@ optionsPrintFloat(FILE *fp, const float *x, const void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_floatType = {
-        (int (*)(void *, void *)) optionsGetfloat,
-        (void (*)(FILE *, void *, void *)) optionsPrintFloat,
+        reinterpret_cast<int (*)(void *, void *)>(optionsGetfloat),
+        reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintFloat),
         static_cast<void *>(&globalDummyFloat),
         nullptr
 };
@@ -295,8 +295,8 @@ optionsPrintVector(FILE *fp, const Vector3D *v, const void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_vectorType = {
-    (int (*)(void *, void *)) optionsGetVector,
-    (void (*)(FILE *, void *, void *)) optionsPrintVector,
+    reinterpret_cast<int (*)(void *, void *)>(optionsGetVector),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintVector),
     static_cast<void *>(&globalDummyVector3D),
     nullptr
 };
@@ -328,8 +328,8 @@ optionsPrintRgb(FILE *fp, const ColorRgb *v, const void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {
-    (int (*)(void *, void *)) optionsGetRgb,
-    (void (*)(FILE *, void *, void *)) optionsPrintRgb,
+    reinterpret_cast<int (*)(void *, void *)>(optionsGetRgb),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintRgb),
     static_cast<void *>(&globalDummyRgb),
     nullptr
 };
@@ -358,8 +358,8 @@ optionsPrintCieXyCallBack(FILE *fp, const float *c, void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_xyType = {
-    (int (*)(void *, void *)) optionsGetCieXy,
-    (void (*)(FILE *, void *, void *)) optionsPrintCieXyCallBack,
+    reinterpret_cast<int (*)(void *, void *)>(optionsGetCieXy),
+    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintCieXyCallBack),
     static_cast<void *>(&globalDummyCieXy),
     nullptr
 };

@@ -16,6 +16,22 @@ static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
 
+short
+VoxelGrid::clampVoxel(const short v, const short max) {
+    if (v < 0) {
+        return 0;
+    }
+    if (v >= max) {
+        return static_cast<short>(max - 1);
+    }
+    return v;
+}
+
+bool
+VoxelGrid::shouldSubdivide(const Geometry *geometry) {
+    return geometry->itemCount >= MINIMUM_ELEMENT_COUNT_PER_CELL;
+}
+
 /**
 Constructs a recursive grid structure containing the whole geometry
 */
@@ -30,7 +46,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
 
     static int level = 0; // TODO warning: this makes this class non re-entrant
 
-    const double p = java::Math::pow((double) geometry->itemCount, 0.33333) + 1;
+    const double p = java::Math::pow(geometry->itemCount, 0.33333) + 1;
     const short gridSize = static_cast<short>(java::Math::floor(p));
     java::lang::System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
     level++;
@@ -153,13 +169,6 @@ VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
     addToCellsDeletionCache(voxelData);
 }
 
-short
-VoxelGrid::clampVoxel(short v, short max) const {
-    if (v < 0) return 0;
-    if (v >= max) return static_cast<short>(max - 1);
-    return v;
-}
-
 Vector3D
 VoxelGrid::toVoxelClamped(const Vector3D &p) const {
     return Vector3D(
@@ -169,20 +178,15 @@ VoxelGrid::toVoxelClamped(const Vector3D &p) const {
     );
 }
 
-bool
-VoxelGrid::shouldSubdivide(const Geometry *geometry) const {
-    return geometry->itemCount >= MINIMUM_ELEMENT_COUNT_PER_CELL;
-}
-
 void
-VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) {
+VoxelGrid::insertGeometryAsVoxelData(Geometry *geometry) const {
     VoxelData *voxelData = new VoxelData(geometry, VOXEL_DATA_GEOMETRY_MASK);
     putItemInsideVoxelGrid(voxelData, &geometry->boundingBox);
     addToCellsDeletionCache(voxelData);
 }
 
 void
-VoxelGrid::insertSubGrid(Geometry *geometry) {
+VoxelGrid::insertSubGrid(Geometry *geometry) const {
     VoxelGrid *subGrid = new VoxelGrid(geometry);
     VoxelData *voxelData = new VoxelData(subGrid, VOXEL_DATA_GRID_MASK);
 
@@ -194,8 +198,7 @@ VoxelGrid::insertSubGrid(Geometry *geometry) {
 
 void
 VoxelGrid::processCompoundGeometry(Geometry *geometry) {
-    const java::ArrayList<Geometry *> *geometryList =
-            static_cast<const Compound *>(geometry)->children;
+    const java::ArrayList<Geometry *> *geometryList = dynamic_cast<const Compound *>(geometry)->children;
 
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         putSubGeometryInsideVoxelGrid(geometryList->get(i));
@@ -203,7 +206,7 @@ VoxelGrid::processCompoundGeometry(Geometry *geometry) {
 }
 
 void
-VoxelGrid::processPatches(Geometry *geometry) {
+VoxelGrid::processPatches(Geometry *geometry) const {
     const java::ArrayList<Patch *> *patches =
             geomPatchArrayListReference(geometry);
 

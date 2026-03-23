@@ -20,60 +20,26 @@ class VoxelGrid {
 
     static void addToSubGridsDeletionCache(VoxelGrid *voxelGrid);
     static void addToCellsDeletionCache(VoxelData *cell);
+    static short clampVoxel(short v, short max);
+    static bool shouldSubdivide(const Geometry *geometry);
 
-    inline float
-    voxel2x(const float px) const {
-        return px * voxelSize.x + boundingBox.minX();
-    }
-
-    inline float
-    voxel2y(const float py) const {
-        return py * voxelSize.y + boundingBox.minY();
-    }
-
-    inline float
-    voxel2z(const float pz) const {
-        return pz * voxelSize.z + boundingBox.minZ();
-    }
-
-    inline short
-    x2voxel(const float px) const {
-        return static_cast<short>((voxelSize.x < Numeric::EPSILON)
-                                      ? 0
-                                      : (px - boundingBox.minX()) / voxelSize.x);
-    }
-
-    inline short
-    y2voxel(const float py) const {
-        return static_cast<short>((voxelSize.y < Numeric::EPSILON)
-                                      ? 0
-                                      : (py - boundingBox.minY()) / voxelSize.y);
-    }
-
-    inline short
-    z2voxel(const float pz) const {
-        return static_cast<short>((voxelSize.z < Numeric::EPSILON)
-                                      ? 0
-                                      : (pz - boundingBox.minZ()) / voxelSize.z);
-    }
-
-    inline int
-    cellIndexAddress(const int a, const int b, const int c) const {
-        return (a * ySize + b) * zSize + c;
-    }
-
+    float voxel2x(float px) const;
+    float voxel2y(float py) const;
+    float voxel2z(float pz) const;
+    short x2voxel(float px) const;
+    short y2voxel(float py) const;
+    short z2voxel(float pz) const;
+    int cellIndexAddress(int a, int b, int c) const;
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
     bool isSmall(const BoundingBox *bb) const;
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
     void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const;
     void putPatchInsideVoxelGrid(Patch *patch) const;
-    short clampVoxel(short v, short max) const;
     Vector3D toVoxelClamped(const Vector3D &p) const;
-    bool shouldSubdivide(const Geometry *geometry) const;
-    void insertGeometryAsVoxelData(Geometry *geometry);
+    void insertGeometryAsVoxelData(Geometry *geometry) const;
     void processCompoundGeometry(Geometry *geometry);
-    void processPatches(Geometry *geometry);
-    void insertSubGrid(Geometry *geometry);
+    void processPatches(Geometry *geometry) const;
+    void insertSubGrid(Geometry *geometry) const;
 
     void
     gridTraceSetup(
@@ -125,5 +91,46 @@ public:
 
     static void freeVoxelGridElements();
 };
+
+inline float
+VoxelGrid::voxel2x(const float px) const {
+    return px * voxelSize.x + boundingBox.minX();
+}
+
+inline float
+VoxelGrid::voxel2y(const float py) const {
+    return py * voxelSize.y + boundingBox.minY();
+}
+
+inline float
+VoxelGrid::voxel2z(const float pz) const {
+    return pz * voxelSize.z + boundingBox.minZ();
+}
+
+inline short
+VoxelGrid::x2voxel(const float px) const {
+    return static_cast<short>((voxelSize.x < Numeric::EPSILON)
+                                  ? 0
+                                  : (px - boundingBox.minX()) / voxelSize.x);
+}
+
+inline short
+VoxelGrid::y2voxel(const float py) const {
+    return static_cast<short>((voxelSize.y < Numeric::EPSILON)
+                                  ? 0
+                                  : (py - boundingBox.minY()) / voxelSize.y);
+}
+
+inline short
+VoxelGrid::z2voxel(const float pz) const {
+    return static_cast<short>((voxelSize.z < Numeric::EPSILON)
+                                  ? 0
+                                  : (pz - boundingBox.minZ()) / voxelSize.z);
+}
+
+inline int
+VoxelGrid::cellIndexAddress(const int a, const int b, const int c) const {
+    return (a * ySize + b) * zSize + c;
+}
 
 #endif

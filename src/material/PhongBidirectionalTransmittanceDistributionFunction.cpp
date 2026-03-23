@@ -97,7 +97,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
 
         if ( !isReflection ) {
             result = Kd;
-            result.scale((float)M_1_PI);
+            result.scale(M_1_PI);
         }
     }
 

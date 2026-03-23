@@ -86,7 +86,7 @@ meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     float areaMax = GLOBAL_statistics.totalArea / 2.0f;
     float areaCnt = 0.0;
 
-    qsort((void *) pairs, numPairs, sizeof(LuminanceArea), (QSORT_CALLBACK_TYPE) adaptationLumAreaComp);
+    qsort(pairs, numPairs, sizeof(LuminanceArea), adaptationLumAreaComp);
 
     while ( areaCnt < areaMax ) {
         areaCnt += pairs->area;

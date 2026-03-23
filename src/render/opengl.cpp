@@ -31,7 +31,7 @@ openGlRenderClearWindow(const Camera *camera) {
 #endif
 
 /**
-Renders a line from point p to point q, for eg debugging
+Renders a line from point p to point q, for example debugging
 */
 void
 openGlRenderLine(Vector3D *x, Vector3D *y) {
@@ -39,8 +39,8 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     glBegin(GL_LINES);
-        glVertex3fv((GLfloat *) x);
-        glVertex3fv((GLfloat *) y);
+        glVertex3fv(reinterpret_cast<GLfloat *>(x));
+        glVertex3fv(reinterpret_cast<GLfloat *>(y));
     glEnd();
 
     glEnable(GL_POLYGON_OFFSET_FILL);
@@ -58,7 +58,7 @@ openGlRenderSetColor(const ColorRgb *rgb) {
     correctedRgb = *rgb;
     toneMappingGammaCorrection(correctedRgb);
 #ifdef OPEN_GL_ENABLED
-    glColor3fv((GLfloat *) &correctedRgb);
+    glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif
 }
 
@@ -70,7 +70,7 @@ openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        glVertex3fv((GLfloat *)&vertices[i]);
+        glVertex3fv(reinterpret_cast<GLfloat *>(&vertices[i]));
     }
     glEnd();
 #endif
@@ -85,7 +85,7 @@ openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const Color
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
         openGlRenderSetColor(&verticesColors[i]);
-        glVertex3fv((GLfloat *)&vertices[i]);
+        glVertex3fv(reinterpret_cast<GLfloat *>(&vertices[i]));
     }
     glEnd();
 #endif
@@ -99,23 +99,23 @@ openGlRenderPatchFlat(const Patch *patch) {
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            glVertex3fv((GLfloat *) patch->vertex[2]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            glVertex3fv((GLfloat *) patch->vertex[0]->point);
-            glVertex3fv((GLfloat *) patch->vertex[1]->point);
-            glVertex3fv((GLfloat *) patch->vertex[2]->point);
-            glVertex3fv((GLfloat *) patch->vertex[3]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[3]->point));
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-                glVertex3fv((GLfloat *) patch->vertex[i]->point);
+                glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[i]->point));
             }
             glEnd();
     }
@@ -127,30 +127,30 @@ openGlRenderPatchSmooth(const Patch *patch) {
         case 3:
             glBegin(GL_TRIANGLES);
             openGlRenderSetColor(&patch->vertex[0]->color);
-            glVertex3fv((GLfloat *) patch->vertex[0]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
             openGlRenderSetColor(&patch->vertex[1]->color);
-            glVertex3fv((GLfloat *) patch->vertex[1]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
             openGlRenderSetColor(&patch->vertex[2]->color);
-            glVertex3fv((GLfloat *) patch->vertex[2]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
             openGlRenderSetColor(&patch->vertex[0]->color);
-            glVertex3fv((GLfloat *) patch->vertex[0]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
             openGlRenderSetColor(&patch->vertex[1]->color);
-            glVertex3fv((GLfloat *) patch->vertex[1]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
             openGlRenderSetColor(&patch->vertex[2]->color);
-            glVertex3fv((GLfloat *) patch->vertex[2]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
             openGlRenderSetColor(&patch->vertex[3]->color);
-            glVertex3fv((GLfloat *) patch->vertex[3]->point);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[3]->point));
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( int i = 0; i < patch->numberOfVertices; i++ ) {
                 openGlRenderSetColor(&patch->vertex[i]->color);
-                glVertex3fv((GLfloat *) patch->vertex[i]->point);
+                glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[i]->point));
             }
             glEnd();
     }
@@ -165,7 +165,7 @@ openGlRenderPatchOutline(const Patch *patch) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_LINE_LOOP);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        glVertex3fv((GLfloat *) &patch->vertex[i]->point);
+        glVertex3fv(reinterpret_cast<GLfloat *>(&patch->vertex[i]->point));
     }
     glEnd();
 #endif
@@ -175,7 +175,7 @@ openGlRenderPatchOutline(const Patch *patch) {
 static void
 openGlReallyRenderOctreeLeaf(
     const Camera *camera,
-    Geometry *geometry,
+    const Geometry *geometry,
     void (*renderPatch)(const Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
@@ -188,7 +188,7 @@ openGlReallyRenderOctreeLeaf(
 static void
 openGlRenderOctreeLeaf(
     const Camera *camera,
-    Geometry *geometry,
+    const Geometry *geometry,
     void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
     const RenderOptions *renderOptions)
 {
@@ -228,13 +228,10 @@ openGlRenderOctreeNonLeaf(
     void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *renderOptions),
     const RenderOptions *renderOptions)
 {
-    int i;
-    int n;
-    int remaining;
     OctreeChild octree_children[8];
     java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
 
-    i = 0;
+    int i = 0;
     for ( int j = 0; children != nullptr && j < children->size(); j++ ) {
         Geometry *child = children->get(j);
         if ( child->isCompound() ) {
@@ -249,7 +246,7 @@ openGlRenderOctreeNonLeaf(
             openGlRenderOctreeLeaf(camera, child, renderPatchCallback, renderOptions);
         }
     }
-    n = i; // Number of compound children
+    int n = i; // Number of compound children
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
@@ -264,7 +261,7 @@ openGlRenderOctreeNonLeaf(
     }
 
     // Render children geometries, front to back order
-    remaining = n;
+    int remaining = n;
     while ( remaining > 0 ) {
         // Find the closest remaining child
         int closest = 0;

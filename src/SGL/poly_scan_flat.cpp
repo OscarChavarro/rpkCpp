@@ -43,7 +43,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+scanline(const SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;

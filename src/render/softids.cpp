@@ -20,7 +20,7 @@ setupSoftFrameBuffer(const Camera *camera) {
     SGL_CONTEXT *sgl = new SGL_CONTEXT(camera->xSize, camera->ySize);
     GLOBAL_sgl_currentContext->sglDepthTesting(true);
     GLOBAL_sgl_currentContext->sglClipping(true);
-    GLOBAL_sgl_currentContext->sglClear((SGL_PIXEL) 0, SGL_MAXIMUM_Z);
+    GLOBAL_sgl_currentContext->sglClear(0, SGL_MAXIMUM_Z);
 
     Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
         camera->fieldOfVision * 2.0f * static_cast<float>(M_PI) / 180.0f,
@@ -78,17 +78,13 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    SGL_CONTEXT *currentSglContext;
-    SGL_CONTEXT *oldSglContext;
-    unsigned long *ids;
-
-    oldSglContext = GLOBAL_sgl_currentContext;
-    currentSglContext = setupSoftFrameBuffer(scene->camera);
+    SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
+    SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
     softRenderPatches(scene, renderOptions);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;
-    ids = new unsigned long[currentSglContext->width * currentSglContext->height];
+    unsigned long *ids = new unsigned long[currentSglContext->width * currentSglContext->height];
     memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
 
     delete currentSglContext;
@@ -103,10 +99,8 @@ left corner of image, relative to the lower left corner of the window)
 */
 void
 softRenderPixels(int width, int height, const ColorRgb *rgb) {
-    int rowLength;
-
     // Length of one row of RGBA image data rounded up to a multiple of 8
-    rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
+    const int rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
     unsigned char *c = new unsigned char[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {

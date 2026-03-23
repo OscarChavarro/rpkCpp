@@ -161,7 +161,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         if ( !isRgbImage() ) {
             ip->writeRadianceRGB(&radiance[i * camera.xSize]);
         } else {
-            ip->writeDisplayRGB((float *)&radiance[i * camera.xSize]);
+            ip->writeDisplayRGB(reinterpret_cast<float *>(&radiance[i * camera.xSize]));
         }
     }
 

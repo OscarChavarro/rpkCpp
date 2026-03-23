@@ -92,9 +92,6 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     char flags) const
 {
     ColorRgb result;
-    float tmpFloat;
-    float localDotProduct;
-    Vector3D idealReflected;
     char nonDiffuseFlag;
     Vector3D inRev;
     inRev.scaledCopy(-1.0, *in);
@@ -108,7 +105,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     }
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0.0) ) {
-        result.addScaled(result, (float)M_1_PI, Kd);
+        result.addScaled(result, M_1_PI, Kd);
     }
 
     if ( isSpecular() ) {
@@ -118,11 +115,11 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     }
 
     if ( (flags & nonDiffuseFlag) && (avgKs > 0.0) ) {
-        idealReflected = idealReflectedDirection(&inRev, normal);
-        localDotProduct = idealReflected.dotProduct(*out);
+        Vector3D idealReflected = idealReflectedDirection(&inRev, normal);
+        float localDotProduct = idealReflected.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
-            tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
+            float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0f) / (2.0f * static_cast<float>(M_PI)); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
@@ -194,7 +191,6 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
     Vector3D idealDir = idealReflectedDirection(&inRev, normal);
     CoordinateSystem coord;
     double diffPdf;
-    float tmpFloat;
     double nonDiffPdf;
 
     if ( x1 < (localAverageKd / scatteredPower) ) {
@@ -204,7 +200,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         coord.setFromZAxis(normal);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
-        tmpFloat = idealDir.dotProduct(newDir);
+        float tmpFloat = idealDir.dotProduct(newDir);
 
         if ( tmpFloat > 0 ) {
             nonDiffPdf = (Ns + 1.0) * java::Math::pow(tmpFloat, Ns) / (2.0 * M_PI);
@@ -245,14 +241,9 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR) const
 {
-    double cosAlpha;
-    double diffPdf;
-    double nonDiffPdf;
-    double scatteredPower;
     double localAverageKs;
     double localAverageKd;
     char nonDiffuseFlag;
-    Vector3D idealDir;
     Vector3D inRev;
     Vector3D goodNormal;
 
@@ -293,25 +284,25 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
         localAverageKs = 0.0;
     }
 
-    scatteredPower = localAverageKd + localAverageKs;
+    double scatteredPower = localAverageKd + localAverageKs;
 
     if ( scatteredPower < Numeric::EPSILON ) {
         return;
     }
 
     // Diffuse sampling probabilityDensityFunction
-    diffPdf = 0.0;
+    double diffPdf = 0.0;
 
     if ( avgKd > 0 ) {
         diffPdf = cosTheta / M_PI;
     }
 
     // Glossy or specular
-    nonDiffPdf = 0.0;
+    double nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
-        idealDir = idealReflectedDirection(&inRev, &goodNormal);
+        const Vector3D idealDir = idealReflectedDirection(&inRev, &goodNormal);
 
-        cosAlpha = idealDir.dotProduct(*out);
+        const double cosAlpha = idealDir.dotProduct(*out);
 
         if ( cosAlpha > 0 ) {
             nonDiffPdf = (Ns + 1.0) * java::Math::pow(cosAlpha, static_cast<double>(Ns)) / (2.0 * M_PI);

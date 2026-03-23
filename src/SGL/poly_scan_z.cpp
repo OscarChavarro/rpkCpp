@@ -20,11 +20,11 @@ p1 and p2 in p, put change with respect to y in dp
 */
 static void
 incrementalizeY(const double *p1, const double *p2, double *p, double *dp, int y) {
-    double dy = ((const PolygonVertex *) p2)->sy - ((const PolygonVertex *) p1)->sy;
+    double dy = reinterpret_cast<const PolygonVertex *>(p2)->sy - reinterpret_cast<const PolygonVertex *>(p1)->sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
     }
-    double frac = y + 0.5 - ((const PolygonVertex *) p1)->sy;
+    double frac = y + 0.5 - reinterpret_cast<const PolygonVertex *>(p1)->sy;
 
     // Interpolate only sx and sz (first and third field)
     dp[0] = (p2[0] - p1[0]) / dy;
@@ -44,7 +44,7 @@ increment(double *p, const double *dp) {
 Output scanline by sampling polygon at Y = y + 0.5
 */
 static void
-scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+scanline(const SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -70,7 +70,7 @@ scanline(SGL_CONTEXT *sglContext, int y, const PolygonVertex *l, const PolygonVe
 
     int offset = y * sglContext->width + lx;
     SGL_PIXEL *pix = sglContext->frameBuffer + offset;
-    const Patch **patch = (const Patch **)(sglContext->patchBuffer + offset);
+    const Patch **patch = const_cast<const Patch **>(sglContext->patchBuffer + offset);
 
     SGL_Z_VALUE *zValue = sglContext->depthBuffer + offset;
     for ( int x = lx; x <= rx; x++ ) {
@@ -147,7 +147,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalizeY((double *) &p->vertices[li], (double *) &p->vertices[i], (double *) &l, (double *) &dl, y);
+            incrementalizeY(reinterpret_cast<double *>(&p->vertices[li]), reinterpret_cast<double *>(&p->vertices[i]), reinterpret_cast<double *>(&l), reinterpret_cast<double *>(&dl), y);
             ly = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             li = i;
         }
@@ -158,7 +158,7 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalizeY((double *) &p->vertices[ri], (double *) &p->vertices[i], (double *) &r, (double *) &dr, y);
+            incrementalizeY(reinterpret_cast<double *>(&p->vertices[ri]), reinterpret_cast<double *>(&p->vertices[i]), reinterpret_cast<double *>(&r), reinterpret_cast<double *>(&dr), y);
             ry = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             ri = i;
         }
@@ -173,8 +173,8 @@ polyScanZ(SGL_CONTEXT *sglContext, Polygon *p,  const Window *window)
                 }
             }
             y++;
-            increment((double *) &l, (double *) &dl);
-            increment((double *) &r, (double *) &dr);
+            increment(reinterpret_cast<double *>(&l), reinterpret_cast<double *>(&dl));
+            increment(reinterpret_cast<double *>(&r), reinterpret_cast<double *>(&dr));
         }
     }
 }

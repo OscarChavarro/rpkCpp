@@ -49,8 +49,6 @@ nullptr if this fails, and a pointer to the camera arg if success
 */
 static Camera *
 cameraComplete(Camera *camera) {
-    float n;
-
     // Compute viewing direction ==> Z axis of eye coordinate system
     camera->Z.subtraction(camera->lookPosition, camera->eyePosition);
 
@@ -64,7 +62,7 @@ cameraComplete(Camera *camera) {
 
     // camera->X is a direction pointing to the right in the window
     camera->X.crossProduct(camera->Z, camera->upDirection);
-    n = camera->X.norm();
+    const float n = camera->X.norm();
     if ( n < Numeric::EPSILON ) {
         logError("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
@@ -79,11 +77,11 @@ cameraComplete(Camera *camera) {
     if ( camera->xSize < camera->ySize ) {
         camera->horizontalFov = camera->fieldOfVision;
         camera->verticalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                                                  (float) camera->ySize / (float) camera->xSize)) * 180.0f / static_cast<float>(M_PI);
+                                                                  static_cast<float>(camera->ySize) / static_cast<float>(camera->xSize))) * 180.0f / static_cast<float>(M_PI);
     } else {
         camera->verticalFov = camera->fieldOfVision;
         camera->horizontalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                                                    (float) camera->xSize / (float) camera->ySize)) * 180.0f / static_cast<float>(M_PI);
+                                                                    static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize))) * 180.0f / static_cast<float>(M_PI);
     }
 
     // Default near and far clipping plane distance, will be set to a more reasonable
