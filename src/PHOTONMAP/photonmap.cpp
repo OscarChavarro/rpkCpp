@@ -22,8 +22,6 @@ zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit 
 
 static float
 getFalseMonochrome(float val) {
-    float tmp;
-
     float max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
@@ -31,7 +29,7 @@ getFalseMonochrome(float val) {
         val = static_cast<float>(java::Math::log(1.0 + val));
     }
 
-    tmp = java::Math::min(val, max);
+    float tmp = java::Math::min(val, max);
     tmp = (tmp / max);
 
     return tmp;
@@ -40,7 +38,6 @@ getFalseMonochrome(float val) {
 ColorRgb
 getFalseColor(float val) {
     ColorRgb col;
-    float max;
     float tmp;
     float r = 0;
     float g = 0;
@@ -52,7 +49,7 @@ getFalseColor(float val) {
         return col;
     }
 
-    max = GLOBAL_photonMap_state.falseColMax;
+    float max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
         max = static_cast<float>(java::Math::log(1.0 + max));
@@ -61,7 +58,7 @@ getFalseColor(float val) {
 
     tmp = java::Math::min(val, max);
 
-    // Do some log scale ?
+    // Does some log scale ?
 
     tmp = 3.0f * (tmp / max);
 
@@ -120,13 +117,11 @@ CPhotonMap::~CPhotonMap() {
 
 void
 CPhotonMap::computeCosines(const Vector3D normal) {
-    Vector3D dir;
-
     if ( !m_cosinesOk ) {
         m_nrpCosinePos = 0;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
-            dir = m_photons[i]->dir();
+            Vector3D dir = m_photons[i]->dir();
             m_cosines[i] = dir.dotProduct(normal);
             if ( m_cosines[i] > 0 ) {
                 m_nrpCosinePos++;
@@ -200,10 +195,9 @@ CPhotonMap::redistribute(const CPhoton &photon) const {
     // -- normal weighted average?
 
     ColorRgb deltaPower;
-    ColorRgb pow;
     float factor = 1.0f / static_cast<float>(m_nrpCosinePos);
 
-    pow = photon.power();
+    ColorRgb pow = photon.power();
     deltaPower.scaledCopy(factor, pow);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
@@ -278,7 +272,6 @@ CPhotonMap::GetMaxR2() {
 void
 CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     ColorRgb irradiance;
-    ColorRgb power;
     irradiance.clear();
 
     // Locate the nearest photons using a max radius limit
@@ -291,7 +284,7 @@ CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
-                power = m_photons[i]->power();
+                ColorRgb power = m_photons[i]->power();
                 irradiance.add(irradiance, power);
             }
         }
@@ -315,7 +308,7 @@ void
 CPhotonMap::precomputeIrradiance() {
     java::lang::System::err.printf("CPhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->iterateNodes((void (*)(void *, void *)) PrecomputeIrradianceCallback, this);
+        m_kdtree->iterateNodes(reinterpret_cast<void (*)(void *, void *)>(PrecomputeIrradianceCallback), this);
         m_irradianceComputed = true;
     }
 }
@@ -354,12 +347,9 @@ CPhotonMap::reconstruct(
     PhongBidirectionalScatteringDistributionFunction *outBsdf)
 {
     // Find the nearest photons
-    float maxDistance;
     ColorRgb result;
     ColorRgb eval;
-    ColorRgb power;
     ColorRgb col;
-    float factor;
 
     result.clear();
 
@@ -402,7 +392,7 @@ CPhotonMap::reconstruct(
     }
 
     // Construct radiance estimate
-    maxDistance = m_distances[0];
+    float maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
         Vector3D dir = m_photons[i]->dir();
@@ -413,7 +403,7 @@ CPhotonMap::reconstruct(
             eval = bsdf->evaluate(
                 hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
         }
-        power = m_photons[i]->power();
+        ColorRgb power = m_photons[i]->power();
 
         col.scalarProduct(eval, power);
         result.add(result, col);
@@ -422,7 +412,7 @@ CPhotonMap::reconstruct(
     // Now we have a radiance integrated over area estimate,
     // so we convert it to radiance, maxDistance is already squared
 
-    factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
+    float factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
 
     result.scale(factor);
 
@@ -436,8 +426,6 @@ CPhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
         nrPhotons = *m_estimate_nrp;
     }
 
-    float maxDistance;
-
     if ( nrPhotons == 0 ) {
         return 0.0;
     }
@@ -450,7 +438,7 @@ CPhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
     }
 
     // Construct density estimate
-    maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
+    float maxDistance = m_distances[0]; // Only valid since max heap is used in kdtree
 
     computeCosines(hit.getGeometricNormal()); // Shading normal?
 
@@ -466,12 +454,9 @@ Return a color coded density of the photon map
 */
 ColorRgb
 CPhotonMap::getDensityColor(RayHit &hit) {
-    float density;
-    ColorRgb result;
+    float density = getCurrentDensity(hit, 0);
 
-    density = getCurrentDensity(hit, 0);
-
-    result = getFalseColor(density);
+    ColorRgb result = getFalseColor(density);
 
     return result;
 }
@@ -485,8 +470,6 @@ CPhotonMap::sample(
     char flag,
     float n)
 {
-    ColorRgb color;
-
     // -- Epsilon in as a function of scene/camera measure ??
     if ( !m_sampleLastPos.equals(position, 0.0001f) ) {
         // Need a new grid
@@ -502,7 +485,7 @@ CPhotonMap::sample(
         for ( int i = 0; i < m_nrpFound; i++ ) {
             m_photons[i]->findRS(&pr, &ps, coord, flag, n);
 
-            color = m_photons[i]->power();
+            ColorRgb color = m_photons[i]->power();
 
             m_grid->add(pr, ps, color.average() / static_cast<float>(m_nrPhotons));
         }

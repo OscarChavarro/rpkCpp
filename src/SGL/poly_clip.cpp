@@ -35,30 +35,23 @@ polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
 */
 static void
 polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
-    const double *up;
-    const double *vp;
-    double *wp;
-    double t;
-    double tu;
-    double tv;
-
     q->n = 0;
     q->mask = p->mask;
 
     // Start with u=vert[n-1], v=vert[0]
     PolygonVertex *u = &p->vertices[p->n - 1];
-    tu = sign * u->getCoord(index) - u->sw * k;
+    double tu = sign * u->getCoord(index) - u->sw * k;
     PolygonVertex *v = &p->vertices[0];
     for ( int i = p->n; i > 0; i-- ) {
         // On old polygon (p), u is previous vertex, v is current vertex
         // tv is negative if vertex v is in
-        tv = sign * v->getCoord(index) - v->sw * k;
+        const double tv = sign * v->getCoord(index) - v->sw * k;
         if ( ((tu <= 0.0) && (tv > 0.0)) || ((tu > 0.0) && (tv <= 0.0)) ) {
             // Edge crosses plane; add intersection point to q
-            t = tu / (tu - tv);
-            up = (double *) u;
-            vp = (double *) v;
-            wp = (double *) &q->vertices[q->n];
+            const double t = tu / (tu - tv);
+            const double *up = reinterpret_cast<double *>(u);
+            const double *vp = reinterpret_cast<double *>(v);
+            double *wp = reinterpret_cast<double *>(&q->vertices[q->n]);
             for ( unsigned long m = p->mask; m != 0; m >>= 1, up++, vp++, wp++ ) {
                 if ( m & 1 ) {
                     *wp = *up + t * (*vp - *up);
@@ -109,8 +102,6 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     int i;
     const PolygonVertex *v;
     Polygon p2{};
-    Polygon *p;
-    Polygon *q;
 
     if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
         java::lang::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
@@ -160,8 +151,8 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
 
     // Now clip against each of the planes that might cut the polygon,
     // at each step toggling between polygons p1 and p2
-    p = p1;
-    q = &p2;
+    Polygon *p = p1;
+    Polygon *q = &p2;
     if ( x0out ) {
         polygonClipAndSwap(0 /*sx*/, -1.0, box->x0, p, q, p1);
     }

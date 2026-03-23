@@ -18,7 +18,7 @@ public:
 static NormalQuery qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
-inline static float sqrDistance3D(const float *a, const float *b) {
+static float sqrDistance3D(const float *a, const float *b) {
     float result;
     float tmp;
 
@@ -101,7 +101,7 @@ PhotonKDTree::normalPhotonQuery(
     // Fill qdat_s
     qdat_s.photon = nullptr;
     qdat_s.normal = *normal;
-    qdat_s.point = (float *)position;
+    qdat_s.point = reinterpret_cast<float *>(position);
     qdat_s.threshold = threshold;
     qdat_s.maximumDistance = maxR2;
 
