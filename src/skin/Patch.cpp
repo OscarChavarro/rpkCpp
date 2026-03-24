@@ -5,7 +5,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "common/quasiMonteCarlo/Niederreiter31.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 
@@ -721,84 +720,6 @@ Patch::computeBoundingBox() {
             boundingBox->enlargeToIncludePoint(vertex[i]->point);
         }
     }
-}
-
-int
-Patch::getNumberOfSamples() const {
-    int numberOfSamples = 1;
-    if ( material->getBsdf() != nullptr && material->getBsdf()->splitBsdfIsTextured() ) {
-        if ( vertex[0]->textureCoordinates == vertex[1]->textureCoordinates &&
-             vertex[0]->textureCoordinates == vertex[2]->textureCoordinates &&
-             (numberOfVertices == 3 || vertex[0]->textureCoordinates == vertex[3]->textureCoordinates) &&
-             vertex[0]->textureCoordinates != nullptr ) {
-            // All vertices have same texture coordinates (important special case)
-            numberOfSamples = 1;
-        } else {
-            numberOfSamples = 100;
-        }
-    }
-    return numberOfSamples;
-}
-
-/**
-Use next function (with PatchListIterate) to close any open files of the patch use for recording
-Computes average scattered power and emittance of the Patch
-*/
-ColorRgb
-Patch::averageNormalAlbedo(char components) {
-    ColorRgb albedo;
-    RayHit hit;
-
-    hit.init(this, &midPoint, &normal, material);
-
-    const int numberOfSamples = getNumberOfSamples();
-    albedo.clear();
-    for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample;
-        const unsigned *xi = niederreiter31(i);
-        hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-        hit.setFlags(newFlags);
-        Vector3D position = hit.getPoint();
-        pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
-        sample.clear();
-        if ( material->getBsdf() != nullptr ) {
-            sample = material->getBsdf()->splitBsdfScatteredPower(&hit, components);
-        }
-        albedo.add(albedo, sample);
-    }
-    albedo.scaleInverse(static_cast<float>(numberOfSamples), albedo);
-
-    return albedo;
-}
-
-ColorRgb
-Patch::averageEmittance(char components) {
-    ColorRgb emittance;
-    RayHit hit;
-    hit.init(this, &midPoint, &normal, material);
-
-    const int numberOfSamples = getNumberOfSamples();
-    emittance.clear();
-    for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample;
-        const unsigned *xi = niederreiter31(i);
-        hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
-        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
-        hit.setFlags(newFlags);
-        Vector3D position = hit.getPoint();
-        pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
-
-        if ( material->getEdf() == nullptr ) {
-            sample.clear();
-        } else {
-            sample = material->getEdf()->phongEmittance(&hit, components);
-        }
-        emittance.add(emittance, sample);
-    }
-    emittance.scaleInverse(static_cast<float>(numberOfSamples), emittance);
-
-    return emittance;
 }
 
 /**

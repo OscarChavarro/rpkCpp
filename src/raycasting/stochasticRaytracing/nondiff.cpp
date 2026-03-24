@@ -9,6 +9,7 @@ Non diffuse first shot
 
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
+#include "skin/PatchVisitor.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -39,7 +40,7 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        ColorRgb emittedRadiance = light->averageEmittance(ALL_COMPONENTS);
+        ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, ALL_COMPONENTS);
         double flux = M_PI * light->area * emittedRadiance.sumAbsComponents();
         globalTotalFlux += flux;
         initLight(&globalLights[i], light, flux);

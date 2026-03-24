@@ -3,6 +3,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/numericalAnalysis/QuadCubatureRule.h"
+#include "skin/PatchVisitor.h"
 #include "render/render.h"
 #include "render/opengl.h"
 #include "tonemap/ToneMap.h"
@@ -177,10 +178,10 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(area / M_PI));
     directPotential = patch->directPotential;
 
-    Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
+    Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
     if ( patch->material != nullptr && patch->material->getEdf() != nullptr ) {
         flags |= ElementFlags::IS_LIGHT_SOURCE_MASK;
-        Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
+        Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
         Ed.scaleInverse(M_PI, Ed);
     }
 

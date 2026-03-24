@@ -1,5 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
+#include "skin/PatchVisitor.h"
 #include "skin/MeshSurface.h"
 
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
@@ -150,7 +151,7 @@ MeshSurface::surfaceConnectFace(Patch *face) const {
             break;
         default: {
             ColorRgb rho;
-            rho = face->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
+            rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
             rho.set(face->color.r, face->color.g, face->color.b);
         }
     }

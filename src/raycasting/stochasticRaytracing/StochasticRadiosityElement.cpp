@@ -4,7 +4,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "render/render.h"
+#include "skin/PatchVisitor.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -212,9 +212,9 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
     stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
-    elem->Ed = patch->averageEmittance(DIFFUSE_COMPONENT);
+    elem->Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
     elem->Ed.scaleInverse((float)M_PI, elem->Ed);
-    elem->Rd = patch->averageNormalAlbedo(BRDF_DIFFUSE_COMPONENT);
+    elem->Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
 }

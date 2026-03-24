@@ -1,5 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
+#include "skin/PatchVisitor.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 
 LightList *GLOBAL_lightList = nullptr;
@@ -29,7 +30,7 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
                 }
                 info.emittedFlux = e.average();
             } else {
-                lightColor = light->averageEmittance(DIFFUSE_COMPONENT);
+                lightColor = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
                 info.emittedFlux = lightColor.average() * light->area;
             }
 
@@ -118,7 +119,7 @@ LightList::evalPdfReal(Patch *light, const Vector3D */*point*/) const {
     ColorRgb color;
     double pdf;
 
-    color = light->averageEmittance(DIFFUSE_COMPONENT);
+    color = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
     pdf = color.average() * light->area / totalFlux;

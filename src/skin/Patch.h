@@ -104,8 +104,6 @@ class Patch {
     void computeBoundingBox();
     void computeAndGetBoundingBox(BoundingBox *bounds);
     RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
-    ColorRgb averageNormalAlbedo(char components);
-    ColorRgb averageEmittance(char components);
 
 #ifdef RAYTRACING_ENABLED
     bool isVisible() const;

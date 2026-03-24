@@ -66,6 +66,7 @@ set(MAIN_SRC
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
     src/skin/Patch.cpp
+    src/skin/PatchVisitor.cpp
     src/skin/BoundingBox.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
@@ -214,7 +215,7 @@ set(MAIN_SRC
     src/app/GalerkinDebugRenderer.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp)
+    src/app/main.cpp src/skin/PatchVisitor.cpp src/skin/PatchVisitor.h)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL glut)

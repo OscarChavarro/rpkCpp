@@ -8,6 +8,7 @@ Estimate static adaptation for tone mapping
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
+#include "skin/PatchVisitor.h"
 #include "tonemap/ToneMap.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
 #include "app/LuminanceArea.h"
@@ -24,8 +25,8 @@ A-priori estimate of a patch's radiance
 */
 static ColorRgb
 initRadianceEstimate(Patch *patch) {
-    ColorRgb E = patch->averageEmittance(ALL_COMPONENTS);
-    ColorRgb R = patch->averageNormalAlbedo(BSDF_ALL_COMPONENTS);
+    ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
+    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
     radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
