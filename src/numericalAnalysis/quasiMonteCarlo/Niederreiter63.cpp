@@ -14,7 +14,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 #ifndef NOINT64
 // All this makes no sense if you don't have 64-bit integers
 
-#include "common/quasiMonteCarlo/Niederreiter63.h"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter63.h"
 
 static unsigned long long cj[DIMEN][NBITS] = {
     {
@@ -92,6 +92,6 @@ static unsigned long long cj[DIMEN][NBITS] = {
 };
 
 // The implementation is the same for 31bit and 63bit sequences
-#include "common/quasiMonteCarlo/Niederreiter.inc"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter.inc"
 
 #endif

@@ -1,6 +1,5 @@
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
-#include "skin/PatchVisitor.h"
 #include "skin/MeshSurface.h"
 
 // Static counter that is increased each time a surface is created for making unique MeshSurface ids
@@ -48,11 +47,6 @@ MeshSurface::MeshSurface(
         for ( int i = 0; vertices != nullptr && i < vertices->size(); i++ ) {
             MeshSurface::normalizeVertexColor(vertices->get(i));
         }
-    }
-
-    // Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
-    for ( int i = 0; faces != nullptr && i < faces->size(); i++ ) {
-        surfaceConnectFace(faces->get(i));
     }
 
     // Compute vertex colors
@@ -121,39 +115,6 @@ MeshSurface::normalizeVertexColor(Vertex *vertex) {
         vertex->color.r /= static_cast<float>(numberOfPatches);
         vertex->color.g /= static_cast<float>(numberOfPatches);
         vertex->color.b /= static_cast<float>(numberOfPatches);
-    }
-}
-
-/**
-Fills in the MeshSurface back pointer of the face belonging to the given surface
-*/
-void
-MeshSurface::surfaceConnectFace(Patch *face) const {
-    int i;
-
-    face->material = material;
-
-    // Also fill in a nicer default color for the patch
-    switch ( colorFlags ) {
-        case MaterialColorFlags::FACE_COLORS:
-            break;
-        case MaterialColorFlags::VERTEX_COLORS:
-            // Average color of the vertices
-            face->color.set(0, 0, 0);
-            for ( i = 0; i < face->numberOfVertices; i++ ) {
-                face->color.r += face->vertex[i]->color.r;
-                face->color.g += face->vertex[i]->color.g;
-                face->color.b += face->vertex[i]->color.b;
-            }
-            face->color.r /= static_cast<float>(i);
-            face->color.g /= static_cast<float>(i);
-            face->color.b /= static_cast<float>(i);
-            break;
-        default: {
-            ColorRgb rho;
-            rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            rho.set(face->color.r, face->color.g, face->color.b);
-        }
     }
 }
 

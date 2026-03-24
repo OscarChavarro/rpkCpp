@@ -1,5 +1,5 @@
 #include "common/error.h"
-#include "common/numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/QuadCubatureRule.h"
 
 /**
 quadrilaterals: [-1, 1] ^ 2

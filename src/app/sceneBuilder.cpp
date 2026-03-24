@@ -5,7 +5,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "skin/PatchVisitor.h"
+#include "numericalAnalysis/PatchVisitor.h"
 #include "tonemap/ToneMap.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"

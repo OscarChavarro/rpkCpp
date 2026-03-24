@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
-#include "common/numericalAnalysis/CubatureRule.h"
+#include "numericalAnalysis/CubatureRule.h"
 #include "SGL/sgl.h"
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/ShaftCullStrategy.h"

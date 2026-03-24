@@ -9,7 +9,7 @@ Non diffuse first shot
 
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
-#include "skin/PatchVisitor.h"
+#include "numericalAnalysis/PatchVisitor.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

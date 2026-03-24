@@ -9,7 +9,7 @@ September, 5 1995
 */
 
 #include "common/error.h"
-#include "common/numericalAnalysis/TriangleCubatureRule.h"
+#include "numericalAnalysis/TriangleCubatureRule.h"
 
 /**
 Triangles: barycentric coordinates

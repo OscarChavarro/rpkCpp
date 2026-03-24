@@ -1,5 +1,5 @@
 #include "java/lang/Math.h"
-#include "common/quasiMonteCarlo/Sobol.h"
+#include "numericalAnalysis/quasiMonteCarlo/Sobol.h"
 
 static constexpr int MAX_DIM = 5;
 static constexpr int V_MAX = 30;

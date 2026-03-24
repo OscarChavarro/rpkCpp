@@ -94,7 +94,7 @@ geometryListDiscretizationIntersect(
     int hitFlags,
     RayHit *hitStore);
 
-#include "skin/PatchSet.h"
+#include "PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "skin/Compound.h"
 #include "skin/Element.h"

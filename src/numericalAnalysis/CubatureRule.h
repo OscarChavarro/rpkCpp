@@ -5,7 +5,7 @@ Numerical cubature rules needed to compute form factors
 #ifndef __CUBATURE_RULE__
 #define __CUBATURE_RULE__
 
-#include "common/numericalAnalysis/CubatureDegree.h"
+#include "numericalAnalysis/CubatureDegree.h"
 
 // No rule has more than 20 nodes
 #define CUBATURE_MAXIMUM_NODES 20

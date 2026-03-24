@@ -11,6 +11,7 @@ Hierarchical object names tracking
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfDefinitions.h"
+#include "numericalAnalysis/MeshSurfaceVisitor.h"
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size
@@ -171,6 +172,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
             context->currentVertexList,
             context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
+        MeshSurfaceVisitor::fillFacesBackPointers(dynamic_cast<MeshSurface *>(newGeometry));
         context->currentGeometryList->add(newGeometry);
         context->allGeometries->add(newGeometry);
         context->currentObjectName = nullptr;

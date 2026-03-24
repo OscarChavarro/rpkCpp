@@ -3,7 +3,7 @@ Faure's quasiMonteCarlo sequences
 */
 
 #include "java/lang/Math.h"
-#include "common/quasiMonteCarlo/Faure.h"
+#include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 
 #define MAX_DIM 10
 #define PR_DIM 30

@@ -1,5 +1,5 @@
-#include "common/numericalAnalysis/TriangleCubatureRule.h"
-#include "common/numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/TriangleCubatureRule.h"
+#include "numericalAnalysis/QuadCubatureRule.h"
 #include "GALERKIN/GalerkinState.h"
 
 // -gr-hierarchical -gr-no-hierarchical option

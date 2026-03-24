@@ -5,7 +5,7 @@
 #include "common/error.h"
 #include "java/lang/System.h"
 #include "skin/Patch.h"
-#include "common/quasiMonteCarlo/Niederreiter31.h"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/samplertools.h"
 
 void

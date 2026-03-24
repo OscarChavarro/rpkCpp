@@ -41,18 +41,10 @@ set(MAIN_SRC
     src/common/linealAlgebra/Vector3Dd.cpp
     src/common/linealAlgebra/CoordinateSystem.cpp
     src/common/linealAlgebra/Jacobian.cpp
-    src/common/numericalAnalysis/TriangleCubatureRule.cpp
-    src/common/numericalAnalysis/QuadCubatureRule.cpp
     src/common/dataStructures/CircularListBase.cpp
     src/common/dataStructures/CircularListLink.cpp
     src/common/dataStructures/CircularListBaseIterator.cpp
     src/common/dataStructures/KDTree.cpp
-    src/common/quasiMonteCarlo/Halton.cpp
-    src/common/quasiMonteCarlo/ScrambledHalton.cpp
-    src/common/quasiMonteCarlo/Niederreiter31.cpp
-    src/common/quasiMonteCarlo/Faure.cpp
-    src/common/quasiMonteCarlo/Niederreiter63.cpp
-    src/common/quasiMonteCarlo/Sobol.cpp
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
     src/material/xxdf.cpp
@@ -66,7 +58,6 @@ set(MAIN_SRC
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
     src/skin/Patch.cpp
-    src/skin/PatchVisitor.cpp
     src/skin/BoundingBox.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
@@ -91,6 +82,17 @@ set(MAIN_SRC
     src/tonemap/TumblinRushmeierToneMap.cpp
     src/tonemap/RevisedTumblinRushmeierToneMap.cpp
     src/tonemap/FerwerdaToneMap.cpp
+    src/numericalAnalysis/TriangleCubatureRule.cpp
+    src/numericalAnalysis/QuadCubatureRule.cpp
+    src/numericalAnalysis/quasiMonteCarlo/Halton.cpp
+    src/numericalAnalysis/quasiMonteCarlo/ScrambledHalton.cpp
+    src/numericalAnalysis/quasiMonteCarlo/Niederreiter31.cpp
+    src/numericalAnalysis/quasiMonteCarlo/Faure.cpp
+    src/numericalAnalysis/quasiMonteCarlo/Niederreiter63.cpp
+    src/numericalAnalysis/quasiMonteCarlo/Sobol.cpp
+    src/numericalAnalysis/PatchVisitor.cpp
+    src/numericalAnalysis/MeshSurfaceVisitor.cpp
+    src/numericalAnalysis/PatchVisitor.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
     src/io/mgf/MgfColorContext.cpp
@@ -215,7 +217,7 @@ set(MAIN_SRC
     src/app/GalerkinDebugRenderer.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp src/skin/PatchVisitor.cpp src/skin/PatchVisitor.h)
+    src/app/main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL glut)

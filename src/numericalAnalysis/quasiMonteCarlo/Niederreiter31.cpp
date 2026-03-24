@@ -10,7 +10,7 @@ July  1992 p195
 Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 */
 
-#include "common/quasiMonteCarlo/Niederreiter31.h"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 
 static unsigned cj[DIMEN][NBITS] = {
     {
@@ -56,4 +56,4 @@ static unsigned cj[DIMEN][NBITS] = {
 };
 
 // The implementation is the same for 31bit and 63bit sequences
-#include "common/quasiMonteCarlo/Niederreiter.inc"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter.inc"

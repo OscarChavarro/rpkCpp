@@ -1,5 +1,5 @@
-#ifndef RPK_PATCH_VISITOR_H
-#define RPK_PATCH_VISITOR_H
+#ifndef __PATCH_VISITOR__
+#define __PATCH_VISITOR__
 
 #include "skin/Patch.h"
 

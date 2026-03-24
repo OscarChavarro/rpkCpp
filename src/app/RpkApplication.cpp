@@ -1,5 +1,5 @@
 #include <cstring>
-#include "common/numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/QuadCubatureRule.h"
 #include "tonemap/ToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"

@@ -2,7 +2,7 @@
 #define __GALERKIN_RADIOSITY_METHOD__
 
 #include "common/RenderOptions.h"
-#include "common/numericalAnalysis/CubatureRule.h"
+#include "numericalAnalysis/CubatureRule.h"
 #include "scene/RadianceMethod.h"
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/processing/GatheringStrategy.h"

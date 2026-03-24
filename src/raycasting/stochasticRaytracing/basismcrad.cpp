@@ -1,4 +1,4 @@
-#include "common/numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/QuadCubatureRule.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -6,7 +6,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "common/numericalAnalysis/CubatureRule.h"
+#include "numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"

@@ -2,7 +2,7 @@
 Scrambled halton quasiMonteCarlo sample sequence
 */
 
-#include "common/quasiMonteCarlo/ScrambledHalton.h"
+#include "numericalAnalysis/quasiMonteCarlo/ScrambledHalton.h"
 
 static constexpr int MAX_DIM = 10;
 

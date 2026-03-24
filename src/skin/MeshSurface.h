@@ -17,14 +17,14 @@ class Vertex;
 class MeshSurface final : public Geometry {
   private:
     static int nextSurfaceId;
-    static MaterialColorFlags colorFlags;
 
     static void normalizeVertexColor(Vertex *vertex);
-    void surfaceConnectFace(Patch *face) const;
 
   public:
     int meshId;
     char *objectName;
+
+    static MaterialColorFlags colorFlags;
 
     /**
     The vertices of the patches. Each vertex contains a pointer to the vertex

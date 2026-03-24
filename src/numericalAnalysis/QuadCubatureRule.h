@@ -1,7 +1,7 @@
 #ifndef __QUAD_CUBATURE_RULE_H
 #define __QUAD_CUBATURE_RULE_H
 
-#include "common/numericalAnalysis/CubatureRule.h"
+#include "numericalAnalysis/CubatureRule.h"
 
 extern CubatureRule GLOBAL_crq8; // quads, degree 8, 16 nodes
 extern CubatureRule GLOBAL_crt8; // triangles, degree 8, 16 nodes

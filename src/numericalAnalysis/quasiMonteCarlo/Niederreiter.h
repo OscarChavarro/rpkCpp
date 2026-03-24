@@ -7,7 +7,7 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 or 63 bits, 
 
 #ifndef NOINT64
     // Use 63bit sequence by default
-    #include "common/quasiMonteCarlo/Niederreiter63.h"
+    #include "numericalAnalysis/quasiMonteCarlo/Niederreiter63.h"
 #else
     // Use 31bit sequence
     #include "common/quasiMonteCarlo/Niederreiter31.h"

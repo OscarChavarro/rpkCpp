@@ -2,7 +2,7 @@
 Halton quasi Monte Carlo sample generator
 */
 
-#include "common/quasiMonteCarlo/Halton.h"
+#include "numericalAnalysis/quasiMonteCarlo/Halton.h"
 
 double
 Halton2(int i) {

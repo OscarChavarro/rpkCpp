@@ -1,5 +1,5 @@
-#include "common/quasiMonteCarlo/Niederreiter31.h"
-#include "PatchVisitor.h"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
+#include "numericalAnalysis/PatchVisitor.h"
 
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {

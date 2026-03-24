@@ -8,7 +8,7 @@ Estimate static adaptation for tone mapping
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "skin/PatchVisitor.h"
+#include "numericalAnalysis/PatchVisitor.h"
 #include "tonemap/ToneMap.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
 #include "app/LuminanceArea.h"

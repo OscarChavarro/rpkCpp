@@ -4,7 +4,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "skin/PatchVisitor.h"
+#include "numericalAnalysis/PatchVisitor.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
