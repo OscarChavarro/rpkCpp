@@ -1,4 +1,3 @@
-#include <cstdio>
 
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"

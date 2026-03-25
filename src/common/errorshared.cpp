@@ -1,5 +1,4 @@
 #include <cstdlib>
-#include <cstdio>
 #include "java/lang/System.h"
 #include <cstdarg>
 #include "common/error.h"

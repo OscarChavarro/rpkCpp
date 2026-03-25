@@ -2,7 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cmath>
 
 #include "java/lang/Math.h"
 #include "scene/Camera.h"

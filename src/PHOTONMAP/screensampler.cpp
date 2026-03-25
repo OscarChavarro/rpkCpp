@@ -2,7 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cmath>
 
 #include "java/lang/Math.h"
 #include "PHOTONMAP/screensampler.h"

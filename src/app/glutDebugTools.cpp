@@ -12,7 +12,6 @@ GlutDebugState::GlutDebugState(){
 
 #ifdef OPEN_GL_ENABLED
 
-#include <cstdio>
 
 #define GL_SILENCE_DEPRECATION
 

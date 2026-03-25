@@ -2,9 +2,7 @@
 Hierarchical object names tracking
 */
 
-#include <cstdlib>
 #include "java/lang/System.h"
-#include <cstring>
 
 #include "java/util/ArrayList.txx"
 #include "common/CppReAlloc.h"

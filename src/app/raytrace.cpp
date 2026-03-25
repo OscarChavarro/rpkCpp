@@ -1,7 +1,6 @@
 #include "common/RenderOptions.h"
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdio>
 #include "java/lang/System.h"
 #include <cstring>
 #include <ctime>

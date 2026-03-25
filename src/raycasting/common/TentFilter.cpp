@@ -1,4 +1,3 @@
-#include <cmath>
 
 #include "java/lang/Math.h"
 #include "raycasting/common/TentFilter.h"

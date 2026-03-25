@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cstring>
 #include "java/lang/System.h"
 

@@ -7,7 +7,6 @@ Random walk generation
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdlib>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"

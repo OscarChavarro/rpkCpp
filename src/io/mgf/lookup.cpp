@@ -2,7 +2,6 @@
 Table lookup routines
 */
 
-#include <cstdlib>
 
 #include "io/mgf/lookup.h"
 

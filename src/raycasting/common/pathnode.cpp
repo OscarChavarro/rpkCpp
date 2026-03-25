@@ -7,7 +7,6 @@ and contain necessary information for raytracing-like algorithms
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdio>
 
 #include "common/error.h"
 #include "skin/Patch.h"

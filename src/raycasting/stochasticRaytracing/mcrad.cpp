@@ -7,7 +7,6 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdlib>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"

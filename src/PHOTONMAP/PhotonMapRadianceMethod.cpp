@@ -2,9 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdlib>
 #include "java/lang/System.h"
-#include <ctime>
 
 #include "java/util/ArrayList.txx"
 #include "common/ColorRgb.h"

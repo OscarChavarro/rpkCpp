@@ -1,4 +1,3 @@
-#include <cmath>
 
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Matrix4x4.h"

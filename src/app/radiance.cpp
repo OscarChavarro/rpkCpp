@@ -2,7 +2,6 @@
 Stuff common to all radiance methods
 */
 
-#include <cstring>
 
 #include "java/util/ArrayList.txx"
 #include "common/RenderOptions.h"

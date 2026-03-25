@@ -8,9 +8,7 @@ Note that original algorithm is available at
 https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
-#include <cstdio>
 #include "java/lang/System.h"
-#include <cstdlib>
 #include <cstring>
 
 #include "SGL/poly.h"
