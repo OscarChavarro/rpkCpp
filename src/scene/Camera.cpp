@@ -1,5 +1,7 @@
 #include "common/error.h"
+#include "common/linealAlgebra/Matrix4x4.h"
 #include "scene/Camera.h"
+#include "skin/BoundingBox.h"
 
 Camera::Camera(): background() {
     eyePosition = Vector3D{};
@@ -158,4 +160,53 @@ Camera::setUpDirection(float x, float y, float z) {
 void
 Camera::setFieldOfView(float fieldOfView) {
     set(&eyePosition, &lookPosition, &upDirection, fieldOfView, xSize, ySize, &background);
+}
+
+void
+Camera::transformBoundingBox(
+    const BoundingBox &sourceBoundingBox,
+    const Matrix4x4 &transform,
+    BoundingBox *transformedBoundingBox)
+{
+    if ( transformedBoundingBox == nullptr ) {
+        return;
+    }
+
+    Vector3D corners[8];
+    sourceBoundingBox.corners(corners);
+
+    *transformedBoundingBox = BoundingBox{};
+    for ( int i = 0; i < 8; i++ ) {
+        transform.transformPoint3D(corners[i], corners[i]);
+        transformedBoundingBox->enlargeToIncludePoint(&corners[i]);
+    }
+
+    const float xDelta = transformedBoundingBox->dx() * Numeric::EPSILON_FLOAT;
+    const float yDelta = transformedBoundingBox->dy() * Numeric::EPSILON_FLOAT;
+    const float zDelta = transformedBoundingBox->dz() * Numeric::EPSILON_FLOAT;
+    Vector3D minPoint = transformedBoundingBox->minPoint();
+    Vector3D maxPoint = transformedBoundingBox->maxPoint();
+    minPoint.x -= xDelta;
+    minPoint.y -= yDelta;
+    minPoint.z -= zDelta;
+    maxPoint.x += xDelta;
+    maxPoint.y += yDelta;
+    maxPoint.z += zDelta;
+
+    BoundingBox expandedBoundingBox;
+    expandedBoundingBox.enlargeToIncludePoint(&minPoint);
+    expandedBoundingBox.enlargeToIncludePoint(&maxPoint);
+    transformedBoundingBox->copyFrom(&expandedBoundingBox);
+}
+
+Matrix4x4
+Camera::projectionMatrixFromBoundingBox(const BoundingBox &boundingBox) {
+    return Matrix4x4::createOrthogonalViewMatrix(
+        boundingBox.minX(),
+        boundingBox.maxX(),
+        boundingBox.minY(),
+        boundingBox.maxY(),
+        -boundingBox.maxZ(),
+        -boundingBox.minZ()
+    );
 }

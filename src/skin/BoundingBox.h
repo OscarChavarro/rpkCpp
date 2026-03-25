@@ -1,7 +1,7 @@
 #ifndef __BOUNDING_BOX__
 #define __BOUNDING_BOX__
 
-#include "common/linealAlgebra/Matrix4x4.h"
+#include "common/linealAlgebra/Vector3D.h"
 
 /**
 The following defines must obey the following rules:
@@ -37,7 +37,6 @@ class BoundingBox {
     BoundingBox();
 
     float maxExtent() const;
-    Matrix4x4 createOrthographicProjectionMatrix() const;
     bool outOfBounds(const Vector3D *p) const;
     Vector3D center() const;
     void setAsUnion(const BoundingBox *a, const BoundingBox *b);
@@ -46,7 +45,6 @@ class BoundingBox {
     void copyFrom(const BoundingBox *other);
     void enlarge(const BoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);
-    void transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const;
     void enlargeTinyBit();
     void computeContributionFlags(const BoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const;
     float dx() const;
@@ -74,18 +72,6 @@ BoundingBox::maxExtent() const {
     return dx > dy
            ? (dx > dz ? dx : dz)
            : (dy > dz ? dy : dz);
-}
-
-inline Matrix4x4
-BoundingBox::createOrthographicProjectionMatrix() const {
-    return Matrix4x4::createOrthogonalViewMatrix(
-        coordinates[MIN_X],
-        coordinates[MAX_X],
-        coordinates[MIN_Y],
-        coordinates[MAX_Y],
-        -coordinates[MAX_Z],
-        -coordinates[MIN_Z]
-    );
 }
 
 inline bool

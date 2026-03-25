@@ -71,40 +71,6 @@ BoundingBox::behindPlane(const Vector3D *normal, float distance) const {
     return normal->dotProduct(P) + distance <= 0.0;
 }
 
-/**
-Computes bounding box after transforming this with coordinates after applying transform.
-Result is filled in transBoundingBox->coordinates
-*/
-void
-BoundingBox::transformTo(const Matrix4x4 *transform, BoundingBox *transformedBoundingBox) const {
-    Vector3D v[8];
-
-    v[0].set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);
-    v[1].set(coordinates[MAX_X], coordinates[MIN_Y], coordinates[MIN_Z]);
-    v[2].set(coordinates[MIN_X], coordinates[MAX_Y], coordinates[MIN_Z]);
-    v[3].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MIN_Z]);
-    v[4].set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MAX_Z]);
-    v[5].set(coordinates[MAX_X], coordinates[MIN_Y], coordinates[MAX_Z]);
-    v[6].set(coordinates[MIN_X], coordinates[MAX_Y], coordinates[MAX_Z]);
-    v[7].set(coordinates[MAX_X], coordinates[MAX_Y], coordinates[MAX_Z]);
-
-    for ( int i = 0; i < 8; i++ ) {
-        transform->transformPoint3D(v[i], v[i]);
-        transformedBoundingBox->enlargeToIncludePoint(&v[i]);
-    }
-
-    float d = (transformedBoundingBox->coordinates[MAX_X] - transformedBoundingBox->coordinates[MIN_X]) *
-              Numeric::EPSILON_FLOAT;
-    transformedBoundingBox->coordinates[MIN_X] -= d;
-    transformedBoundingBox->coordinates[MAX_X] += d;
-    d = (transformedBoundingBox->coordinates[MAX_Y] - transformedBoundingBox->coordinates[MIN_Y]) * Numeric::EPSILON_FLOAT;
-    transformedBoundingBox->coordinates[MIN_Y] -= d;
-    transformedBoundingBox->coordinates[MAX_Y] += d;
-    d = (transformedBoundingBox->coordinates[MAX_Z] - transformedBoundingBox->coordinates[MIN_Z]) * Numeric::EPSILON_FLOAT;
-    transformedBoundingBox->coordinates[MIN_Z] -= d;
-    transformedBoundingBox->coordinates[MAX_Z] += d;
-}
-
 void
 BoundingBox::enlargeTinyBit() {
     float Dx = static_cast<float>((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);

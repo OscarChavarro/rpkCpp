@@ -6,6 +6,7 @@ with a Z-buffer visibility algorithm in software
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/visitors/ScratchRendererVisitor.h"
+#include "scene/Camera.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch
@@ -67,11 +68,11 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     const Matrix4x4 lookAt = Matrix4x4::createLookAtMatrix(eye, center, up);
 
-    cluster->geometry->getBoundingBox().transformTo(&lookAt, &boundingBox);
+    Camera::transformBoundingBox(cluster->geometry->getBoundingBox(), lookAt, &boundingBox);
 
     SGL_CONTEXT *prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
 
-    Matrix4x4 o = boundingBox.createOrthographicProjectionMatrix();
+    Matrix4x4 o = Camera::projectionMatrixFromBoundingBox(boundingBox);
     GLOBAL_sgl_currentContext->sglLoadMatrix(&o);
     GLOBAL_sgl_currentContext->sglMultiplyMatrix(&lookAt);
 

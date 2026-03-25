@@ -7,6 +7,9 @@
 
 #define NUMBER_OF_VIEW_PLANES 4
 
+class BoundingBox;
+class Matrix4x4;
+
 class Camera {
   public:
     Vector3D eyePosition; // Virtual camera position in 3D space
@@ -47,6 +50,8 @@ class Camera {
     void setLookPosition(float x, float y, float z);
     void setUpDirection(float x, float y, float z);
     void setFieldOfView(float fieldOfView);
+    static void transformBoundingBox(const BoundingBox &sourceBoundingBox, const Matrix4x4 &transform, BoundingBox *transformedBoundingBox);
+    static Matrix4x4 projectionMatrixFromBoundingBox(const BoundingBox &boundingBox);
 };
 
 #endif
