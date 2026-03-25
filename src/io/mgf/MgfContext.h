@@ -13,6 +13,7 @@ class MgfTransformContext;
 class MgfColorContext;
 class LookUpTable;
 class MgfEntityHandler;
+class MgfModel;
 
 class MgfContext {
   public:
@@ -53,6 +54,7 @@ class MgfContext {
     // Return model
     java::ArrayList<Geometry *> *geometries;
     java::ArrayList<Material *> *materials;
+    MgfModel *model;
 
     MgfContext();
     ~MgfContext();

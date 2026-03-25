@@ -2,6 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "io/mgf/MgfContext.h"
+#include "io/mgf/MgfModel.h"
 
 MgfContext::MgfContext():
     radianceMethod(),
@@ -17,7 +18,8 @@ MgfContext::MgfContext():
     geometryStack(),
     currentPointList(),
     geometries(),
-    materials()
+    materials(),
+    model()
 {
     strcpy(entityNames[0], "#");
     strcpy(entityNames[1], "c");
@@ -81,6 +83,7 @@ MgfContext::MgfContext():
 
     allGeometries = new java::ArrayList<Geometry *>();
     currentObjectName = nullptr;
+    model = nullptr;
 }
 
 MgfContext::~MgfContext() {
@@ -100,5 +103,9 @@ MgfContext::~MgfContext() {
         allGeometries->dispose();
         delete allGeometries;
         allGeometries = nullptr;
+    }
+    if ( model != nullptr ) {
+        delete model;
+        model = nullptr;
     }
 }

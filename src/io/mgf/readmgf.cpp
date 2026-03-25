@@ -533,13 +533,46 @@ initMgf(MgfContext *context) {
     mgfAlternativeInit(context->handleCallbacks, context);
 }
 
+static MgfModel *
+mgfBuildModel(MgfContext *context) {
+    if ( context == nullptr ) {
+        return nullptr;
+    }
+
+    if ( context->model == nullptr ) {
+        context->model = new MgfModel();
+    }
+
+    MgfModel *model = context->model;
+    model->currentColor = context->currentColor;
+    model->currentFaceList = context->currentFaceList;
+    model->currentGeometryList = context->currentGeometryList;
+    model->currentMaterialName = context->currentMaterialName;
+    model->currentNormalList = context->currentNormalList;
+    model->currentObjectName = context->currentObjectName;
+    model->currentPointList = context->currentPointList;
+    model->currentVertexList = context->currentVertexList;
+    model->currentVertexName = context->currentVertexName;
+    model->geometries = context->geometries;
+    model->geometryStackHeadIndex = context->geometryStackHeadIndex;
+    model->inComplex = context->inComplex;
+    model->inSurface = context->inSurface;
+    model->materials = context->materials;
+    model->monochrome = context->monochrome;
+    model->readerContext = context->readerContext;
+    model->transformContext = context->transformContext;
+
+    return model;
+}
+
 /**
 Reads in a mgf file. The result is that the global variables
-context->geometries and context->materials are filled in.
+context->geometries and context->materials are filled in, and a MgfModel
+snapshot with parser outputs/state pointers is returned.
 
 Note: this is an implementation of MGF file format with major version number 2.
 */
-void
+MgfModel *
 readMgf(const char *filename, MgfContext *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
@@ -583,6 +616,8 @@ readMgf(const char *filename, MgfContext *context) {
         mgfObjectSurfaceDone(context);
     }
     context->geometries = context->currentGeometryList;
+
+    return mgfBuildModel(context);
 }
 
 void
@@ -646,6 +681,11 @@ mgfFreeMemory(MgfContext *context) {
     if ( context->currentObjectName != nullptr ) {
         delete[] context->currentObjectName;
         context->currentObjectName = nullptr;
+    }
+
+    if ( context->model != nullptr ) {
+        delete context->model;
+        context->model = nullptr;
     }
 
     mgfObjectFreeMemory();

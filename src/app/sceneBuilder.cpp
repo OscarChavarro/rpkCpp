@@ -268,8 +268,8 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     }
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
-        readMgf(fileName, mgfContext);
-        scene->geometryList = mgfContext->geometries;
+        MgfModel *mgfModel = readMgf(fileName, mgfContext);
+        scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
         sceneBuilderFillFacesBackPointers(scene->geometryList);
     }
 
