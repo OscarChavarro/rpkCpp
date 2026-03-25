@@ -32,6 +32,24 @@ BufferedInputStream::open(const char *fileName) {
 }
 
 bool
+BufferedInputStream::openCompressed(const File &file) {
+    if ( inputStream == nullptr ) {
+        inputStream = new FileInputStream();
+        ownInputStream = true;
+    }
+    return inputStream->openCompressed(file);
+}
+
+bool
+BufferedInputStream::openCompressed(const char *fileName) {
+    if ( inputStream == nullptr ) {
+        inputStream = new FileInputStream();
+        ownInputStream = true;
+    }
+    return inputStream->openCompressed(fileName);
+}
+
+bool
 BufferedInputStream::openStandardInput() {
     if ( inputStream == nullptr ) {
         inputStream = new FileInputStream();

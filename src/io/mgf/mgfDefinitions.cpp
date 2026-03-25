@@ -209,7 +209,7 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
 
     java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
     java::io::File inputFile(readerContext->fileName);
-    const bool opened = fileInputStream->open(inputFile);
+    const bool opened = fileInputStream->openCompressed(inputFile);
     inputFile.dispose();
     if ( !opened ) {
         fileInputStream->dispose();

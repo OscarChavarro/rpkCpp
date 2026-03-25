@@ -1,12 +1,11 @@
 #include <cstring>
-#include <cstdlib>
 
 #include "common/error.h"
 #include "io/FileUncompressWrapper.h"
 
 /**
 Opens a file with given name and fopen() open_mode ("w" or "r" e.g.). Returns the
-FILE * or nullptr if opening the file was not succesful. Returns in isPipe whether
+FILE * or nullptr if opening the file was not successful. Returns in isPipe whether
 or not the file has been opened through a pipe. File extensions
 .Z, .gz, .bz and .bz2 are recognised and lead to piped input/output with the
 proper compress/uncompress commands. Also if the first character of the file name is

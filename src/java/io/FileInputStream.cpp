@@ -34,6 +34,20 @@ FileInputStream::open(const File &file) {
 bool
 FileInputStream::open(const char *fileName) {
     close();
+    stream = fopen(fileName, "r");
+    isPipe = false;
+    standardInput = false;
+    return stream != nullptr;
+}
+
+bool
+FileInputStream::openCompressed(const File &file) {
+    return openCompressed(file.getPath().toCString());
+}
+
+bool
+FileInputStream::openCompressed(const char *fileName) {
+    close();
     int pipeFlag = false;
     stream = openFileCompressWrapper(fileName, "r", &pipeFlag);
     isPipe = pipeFlag;

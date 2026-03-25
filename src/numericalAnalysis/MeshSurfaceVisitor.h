@@ -4,9 +4,9 @@
 #include "skin/Patch.h"
 
 class MeshSurfaceVisitor {
-public:
+  private:
     static void surfaceConnectFace(MeshSurface *mesh, Patch *face);
-
+  public:
     static void fillFacesBackPointers(MeshSurface *pSurface);
 };
 
