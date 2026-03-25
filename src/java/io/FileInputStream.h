@@ -27,6 +27,9 @@ class FileInputStream : public InputStream {
     open(const char *fileName);
 
     bool
+    open(FILE *fileHandle, bool pipeInput);
+
+    bool
     openCompressed(const File &file);
 
     bool

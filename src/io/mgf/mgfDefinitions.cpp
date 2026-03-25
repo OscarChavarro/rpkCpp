@@ -1,9 +1,9 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/BufferedInputStream.h"
+#include "io/FileUncompressWrapper.h"
 #include "io/mgf/lookup.h"
 #include "io/mgf/MgfReaderFilePosition.h"
 #include "io/mgf/mgfDefinitions.h"
@@ -208,15 +208,14 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
     }
 
     java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
-    java::io::File inputFile(readerContext->fileName);
-    const bool opened = fileInputStream->openCompressed(inputFile);
-    inputFile.dispose();
-    if ( !opened ) {
+    int pipeFlag = false;
+    FILE *inputHandle = openFileCompressWrapper(readerContext->fileName, "r", &pipeFlag);
+    if ( !fileInputStream->open(inputHandle, pipeFlag != 0) ) {
         fileInputStream->dispose();
         delete fileInputStream;
         return MgfErrorCode::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
-    readerContext->isPipe = static_cast<char>(fileInputStream->isPipeInput());
+    readerContext->isPipe = static_cast<char>(pipeFlag != 0);
     readerContext->inputStream = new java::io::BufferedInputStream(fileInputStream);
 
     readerContext->prev = context->readerContext; // Establish new context

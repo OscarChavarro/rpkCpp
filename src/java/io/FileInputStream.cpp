@@ -2,8 +2,6 @@
 
 #include <cstring>
 
-#include "io/FileUncompressWrapper.h"
-
 namespace java {
 namespace io {
 
@@ -41,18 +39,25 @@ FileInputStream::open(const char *fileName) {
 }
 
 bool
+FileInputStream::open(FILE *fileHandle, bool pipeInput) {
+    close();
+    if ( fileHandle == nullptr ) {
+        return false;
+    }
+    stream = fileHandle;
+    isPipe = pipeInput;
+    standardInput = false;
+    return true;
+}
+
+bool
 FileInputStream::openCompressed(const File &file) {
     return openCompressed(file.getPath().toCString());
 }
 
 bool
 FileInputStream::openCompressed(const char *fileName) {
-    close();
-    int pipeFlag = false;
-    stream = openFileCompressWrapper(fileName, "r", &pipeFlag);
-    isPipe = pipeFlag;
-    standardInput = false;
-    return stream != nullptr;
+    return open(fileName);
 }
 
 bool
@@ -133,7 +138,11 @@ FileInputStream::close() {
         return true;
     }
     if ( !standardInput ) {
-        closeFile(stream, isPipe);
+        if ( isPipe ) {
+            pclose(stream);
+        } else {
+            fclose(stream);
+        }
     }
     stream = nullptr;
     isPipe = false;
