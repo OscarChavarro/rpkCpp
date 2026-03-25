@@ -2,7 +2,6 @@
 #define __BOUNDING_BOX__
 
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "common/Ray.h"
 
 /**
 The following defines must obey the following rules:
@@ -43,8 +42,6 @@ class BoundingBox {
     Vector3D center() const;
     void setAsUnion(const BoundingBox *a, const BoundingBox *b);
     bool disjointToOtherBoundingBox(const BoundingBox *other) const;
-    bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
-    bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
     bool behindPlane(const Vector3D *normal, float distance) const;
     void copyFrom(const BoundingBox *other);
     void enlarge(const BoundingBox *other);

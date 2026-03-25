@@ -2,6 +2,7 @@
 #define __PATCH__
 
 #include "common/RenderOptions.h"
+#include "common/Ray.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
 #include "common/linealAlgebra/Jacobian.h"

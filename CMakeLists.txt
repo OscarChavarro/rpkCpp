@@ -59,6 +59,7 @@ set(MAIN_SRC
     src/skin/Geometry.cpp
     src/skin/Patch.cpp
     src/skin/BoundingBox.cpp
+    src/skin/MinMaxBox.cpp
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/skin/Element.cpp

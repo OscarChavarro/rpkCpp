@@ -5,6 +5,8 @@
 #include "skin/Geometry.h"
 #include "scene/VoxelData.h"
 
+class MinMaxBox;
+
 class VoxelGrid {
   private:
     static java::ArrayList<VoxelGrid *> *subGridsToDelete;
@@ -17,6 +19,7 @@ class VoxelGrid {
     java::ArrayList<VoxelData *> **volumeListsOfItems; // 3D array of item lists
     void **gridItemPool;
     BoundingBox boundingBox;
+    mutable MinMaxBox *rayIntersectionBox;
 
     static void addToSubGridsDeletionCache(VoxelGrid *voxelGrid);
     static void addToCellsDeletionCache(VoxelData *cell);

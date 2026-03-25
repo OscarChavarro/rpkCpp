@@ -4,6 +4,7 @@
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/ShadowCache.h"
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
+#include "skin/MinMaxBox.h"
 
 /**
 Like above, but with a constant approximation on both the receiver and source
@@ -111,6 +112,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
     const BoundingBox *boundingBox = &geometry->boundingBox;
+    MinMaxBox *minMaxBox = geometry->getRayIntersectionBox();
 
     // Check ray/bounding volume intersection and compute feature size of occluder
     Vector3D vectorTmp;
@@ -118,7 +120,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
     vectorTmp.sumScaled(ray->position, tMinimum, ray->direction);
     if ( boundingBox->outOfBounds(&vectorTmp) ) {
-        if ( !boundingBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
+        if ( !minMaxBox->intersectingSegment(ray, &tMinimum, &tMaximum) ) {
             // Ray doesn't intersect the bounding box of the Geometry within
             // distance interval tMinimum ... tMaximum
             return 1.0;

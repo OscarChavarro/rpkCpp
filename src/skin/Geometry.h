@@ -2,6 +2,7 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
+#include "common/Ray.h"
 #include "material/RayHit.h"
 #include "skin/BoundingBox.h"
 #include "skin/GeometryClassId.h"
@@ -22,6 +23,7 @@ class PatchSet;
 class MeshSurface;
 class Compound;
 class Element;
+class MinMaxBox;
 
 class Geometry {
   public: // Will become protected
@@ -41,6 +43,7 @@ class Geometry {
   //public:
     int id; // Unique ID number
     BoundingBox boundingBox;
+    mutable MinMaxBox *rayIntersectionBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
     int itemCount;
     char bounded; // A flag indicating if the geometry has a bounding box, non-zero if bounded geometry
@@ -76,6 +79,7 @@ class Geometry {
 
     bool isExcluded() const;
     BoundingBox getBoundingBox() const;
+    MinMaxBox *getRayIntersectionBox() const;
     Geometry *clone() const;
 };
 

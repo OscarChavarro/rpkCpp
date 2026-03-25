@@ -9,6 +9,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "scene/VoxelGrid.h"
+#include "skin/MinMaxBox.h"
 
 static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
 static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
@@ -36,13 +37,15 @@ VoxelGrid::shouldSubdivide(const Geometry *geometry) {
 Constructs a recursive grid structure containing the whole geometry
 */
 VoxelGrid::VoxelGrid(Geometry *geometry):
-    boundingBox()
+    boundingBox(),
+    rayIntersectionBox()
 {
     xSize = 0.0f;
     ySize = 0.0f;
     zSize = 0.0f;
     volumeListsOfItems = nullptr;
     gridItemPool = nullptr;
+    rayIntersectionBox = nullptr;
 
     static int level = 0; // TODO warning: this makes this class non re-entrant
 
@@ -57,6 +60,10 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
 }
 
 VoxelGrid::~VoxelGrid() {
+    if ( rayIntersectionBox != nullptr ) {
+        delete rayIntersectionBox;
+        rayIntersectionBox = nullptr;
+    }
     for ( int i = 0; i < xSize * ySize * zSize; i++ ) {
         if ( volumeListsOfItems[i] != nullptr ) {
             delete volumeListsOfItems[i];
@@ -243,6 +250,10 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     // Enlarge the getBoundingBox by a small amount
     boundingBox.copyFrom(&geometry->boundingBox);
     boundingBox.enlargeByFactor(DELTA_BOUND_FACTOR);
+    if ( rayIntersectionBox != nullptr ) {
+        delete rayIntersectionBox;
+    }
+    rayIntersectionBox = new MinMaxBox(&boundingBox);
     xSize = na;
     ySize = nb;
     zSize = nc;
@@ -281,7 +292,10 @@ VoxelGrid::gridBoundsIntersect(
     position->sumScaled(ray->position, *t0, ray->direction);
     if ( boundingBox.outOfBounds(position) ) {
         *t0 = maximumDistance;
-        if ( !boundingBox.intersect(ray, minimumDistance, t0) ) {
+        if ( rayIntersectionBox == nullptr ) {
+            rayIntersectionBox = new MinMaxBox(&boundingBox);
+        }
+        if ( !rayIntersectionBox->intersect(ray, minimumDistance, t0) ) {
             return false;
         }
         position->sumScaled(ray->position, *t0, ray->direction);

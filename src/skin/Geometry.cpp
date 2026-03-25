@@ -2,6 +2,7 @@
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "skin/Geometry.h"
+#include "skin/MinMaxBox.h"
 
 Geometry *Geometry::excludedGeometry1 = nullptr;
 Geometry *Geometry::excludedGeometry2 = nullptr;
@@ -10,6 +11,7 @@ int Geometry::nextGeometryId = 0;
 Geometry::Geometry():
     id(),
     boundingBox(),
+    rayIntersectionBox(),
     radianceData(),
     itemCount(),
     bounded(),
@@ -35,12 +37,17 @@ Geometry::Geometry(
     isDuplicate = false;
     bounded = false;
     shaftCullGeometry = false;
+    rayIntersectionBox = nullptr;
     radianceData = nullptr;
     itemCount = 0;
     omit = false;
 }
 
 Geometry::~Geometry() {
+    if ( rayIntersectionBox != nullptr ) {
+        delete rayIntersectionBox;
+        rayIntersectionBox = nullptr;
+    }
     if ( radianceData != nullptr && !isDuplicate ) {
         delete radianceData;
         radianceData = nullptr;
@@ -53,6 +60,16 @@ This function returns a bounding box for the geometry
 BoundingBox
 Geometry::getBoundingBox() const {
     return boundingBox;
+}
+
+MinMaxBox *
+Geometry::getRayIntersectionBox() const {
+    if ( rayIntersectionBox == nullptr ) {
+        rayIntersectionBox = new MinMaxBox(&boundingBox);
+    } else {
+        rayIntersectionBox->updateFromBoundingBox(&boundingBox);
+    }
+    return rayIntersectionBox;
 }
 
 /**
@@ -168,7 +185,8 @@ Geometry::discretizationIntersectPreTest(
         vTmp.sumScaled(ray->position, minimumDistance, ray->direction);
         if ( boundingBox.outOfBounds(&vTmp) ) {
             float nMaximumDistance = *maximumDistance;
-            if ( !boundingBox.intersect(ray, minimumDistance, &nMaximumDistance) ) {
+            MinMaxBox *minMaxBox = getRayIntersectionBox();
+            if ( !minMaxBox->intersect(ray, minimumDistance, &nMaximumDistance) ) {
                 return false;
             }
         }
