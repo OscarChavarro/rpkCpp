@@ -13,7 +13,6 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 
 #include <cstdlib>
 #include "java/lang/System.h"
-#include <cstdio>
 
 static NiederreiterIndex nied[DIMEN] = {0, 0, 0, 0};
 static NiederreiterIndex count = 0;

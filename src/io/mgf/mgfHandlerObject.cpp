@@ -170,7 +170,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
             context->currentVertexList,
             context->currentFaceList,
             MaterialColorFlags::NO_COLORS);
-        MeshSurfaceVisitor::fillFacesBackPointers(dynamic_cast<MeshSurface *>(newGeometry));
+        MeshSurfaceVisitor::initializeFacesDefaults(dynamic_cast<MeshSurface *>(newGeometry));
         context->currentGeometryList->add(newGeometry);
         context->allGeometries->add(newGeometry);
         context->currentObjectName = nullptr;

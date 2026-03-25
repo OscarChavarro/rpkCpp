@@ -5,6 +5,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
+#include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "tonemap/ToneMap.h"
 #include "scene/Scene.h"
@@ -175,6 +176,27 @@ sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::Arr
 }
 
 static void
+sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList) {
+    if ( geometryList == nullptr ) {
+        return;
+    }
+    for ( int i = 0; i < geometryList->size(); i++ ) {
+        Geometry *geometry = geometryList->get(i);
+        if ( geometry == nullptr ) {
+            continue;
+        }
+        if ( geometry->isCompound() ) {
+            const Compound *compound = static_cast<const Compound *>(geometry);
+            sceneBuilderFillFacesBackPointers(compound->children);
+            continue;
+        }
+        if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
+            MeshSurfaceVisitor::fillFacesBackPointers(static_cast<MeshSurface *>(geometry));
+        }
+    }
+}
+
+static void
 removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
@@ -248,6 +270,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         readMgf(fileName, mgfContext);
         scene->geometryList = mgfContext->geometries;
+        sceneBuilderFillFacesBackPointers(scene->geometryList);
     }
 
     clock_t t = clock();

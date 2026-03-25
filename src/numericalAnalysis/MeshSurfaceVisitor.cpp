@@ -3,6 +3,23 @@
 #include "numericalAnalysis/PatchVisitor.h"
 
 /**
+Initializes MeshSurface/Patch links with safe defaults without running numerical analysis.
+*/
+void
+MeshSurfaceVisitor::initializeFacesDefaults(MeshSurface *mesh) {
+    if ( mesh == nullptr ) {
+        return;
+    }
+    for ( int i = 0; mesh->faces != nullptr && i < mesh->faces->size(); i++ ) {
+        Patch *face = mesh->faces->get(i);
+        if ( face == nullptr ) {
+            continue;
+        }
+        face->material = mesh->material;
+    }
+}
+
+/**
 Fills in the MeshSurface back pointer of the face belonging to the given surface
 */
 void
@@ -40,6 +57,7 @@ Fill in the MeshSurface back pointer of the FACEs in the MeshSurface
 */
 void
 MeshSurfaceVisitor::fillFacesBackPointers(MeshSurface *mesh) {
+    initializeFacesDefaults(mesh);
     for ( int i = 0; mesh->faces != nullptr && i < mesh->faces->size(); i++ ) {
         MeshSurfaceVisitor::surfaceConnectFace(mesh, mesh->faces->get(i));
     }

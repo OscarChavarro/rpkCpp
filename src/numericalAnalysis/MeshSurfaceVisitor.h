@@ -7,6 +7,7 @@ class MeshSurfaceVisitor {
   private:
     static void surfaceConnectFace(MeshSurface *mesh, Patch *face);
   public:
+    static void initializeFacesDefaults(MeshSurface *pSurface);
     static void fillFacesBackPointers(MeshSurface *pSurface);
 };
 
