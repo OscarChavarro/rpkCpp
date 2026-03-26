@@ -1,5 +1,5 @@
-#ifndef RPK_SPLITBSDFSAMPLINGMODE_H
-#define RPK_SPLITBSDFSAMPLINGMODE_H
+#ifndef __SPLIT_BSDF_SAMPLING_MODE__
+#define __SPLIT_BSDF_SAMPLING_MODE__
 
 #include "common/RenderOptions.h"
 

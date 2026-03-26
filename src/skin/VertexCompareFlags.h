@@ -1,5 +1,5 @@
-#ifndef RPK_VERTEX_COMPARE_FLAGS_H
-#define RPK_VERTEX_COMPARE_FLAGS_H
+#ifndef __VERTEX_COMPARE_FLAGS__
+#define __VERTEX_COMPARE_FLAGS__
 
 enum VertexCompareFlags : unsigned {
     VERTEX_COMPARE_LOCATION = 0x01U,

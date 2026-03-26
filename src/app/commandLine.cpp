@@ -61,17 +61,17 @@ commandLineImageHeightOption(void *value) {
 static CommandLineOptionDescription globalOptions[] = {
     {"-nqcdivs", 3, &GLOBAL_options_intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, TYPELESS, &globalYes, mainForceOneSidedOption,
+    {"-force-onesided", 10, nullptr, &globalYes, mainForceOneSidedOption,
      "-force-onesided\t\t: force one-sided surfaces"},
-    {"-dont-force-onesided", 14, TYPELESS, &globalNo, mainForceOneSidedOption,
+    {"-dont-force-onesided", 14, nullptr, &globalNo, mainForceOneSidedOption,
      "-dont-force-onesided\t: allow two-sided surfaces"},
-    {"-monochromatic", 5, TYPELESS, &globalYes, mainMonochromeOption,
+    {"-monochromatic", 5, nullptr, &globalYes, mainMonochromeOption,
      "-monochromatic \t\t: convert colors to shades of grey"},
     {"-width", 5, &GLOBAL_options_intType, &globalOutputImageWidth, commandLineImageWidthOption,
             "-width \t\t: image output width in pixels"},
     {"-height", 6, &GLOBAL_options_intType, &globalOutputImageHeight, commandLineImageHeightOption,
             "-width \t\t: image output width in pixels"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -129,7 +129,7 @@ static CommandLineOptionDescription globalCameraOptions[] = {
      "-updir     <vector>\t: direction pointing up"},
     {"-fov", 4, Tfloat,  &globalCamera.fieldOfVision, cameraSetFieldOfViewOption,
      "-fov       <float> \t: field of view angle"},
-    {nullptr, 0, TYPELESS, nullptr, nullptr, nullptr}
+    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
 static void
@@ -213,25 +213,25 @@ ambientOption(void *value) {
 static CommandLineOptionDescription galerkinOptions[] = {
         {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
                                                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical", 6, TYPELESS, static_cast<void *>(&globalTrue), hierarchicalOption,
+        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), hierarchicalOption,
                                                 "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical", 10, TYPELESS, static_cast<void *>(&globalFalse), hierarchicalOption,
+        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), hierarchicalOption,
                                                 "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking", 6, TYPELESS, static_cast<void *>(&globalTrue), lazyOption,
+        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), lazyOption,
                                                 "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking", 10, TYPELESS, static_cast<void *>(&globalFalse), lazyOption,
+        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), lazyOption,
                                                 "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering", 6, TYPELESS, static_cast<void *>(&globalTrue), clusteringOption,
+        {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), clusteringOption,
                                                 "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering", 10, TYPELESS, static_cast<void *>(&globalFalse), clusteringOption,
+        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), clusteringOption,
                                                 "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance", 6, TYPELESS, static_cast<void *>(&globalTrue), importanceOption,
+        {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), importanceOption,
                                                 "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance", 10, TYPELESS, static_cast<void *>(&globalFalse), importanceOption,
+        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), importanceOption,
                                                 "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient", 6, TYPELESS, static_cast<void *>(&globalTrue), ambientOption,
+        {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), ambientOption,
                                                 "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient", 10, TYPELESS, static_cast<void *>(&globalFalse), ambientOption,
+        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), ambientOption,
                                                 "-gr-no-ambient      \t: do visualisation without ambient term"},
         {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
                                                 "-gr-link-error-threshold <float>: Relative link error threshold"},
@@ -347,7 +347,7 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
      "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
     {"-white", 4, Txy, globalWxy, chromaOption,
      "-white <xy>          \t: CIE xy chromaticity of monitor white"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -362,7 +362,7 @@ static char *globalRadianceMethodsString;
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
         {"-radiance-method", 4, Tstring,  nullptr, DEFAULT_ACTION, globalRadianceMethodsString},
-        {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -395,13 +395,13 @@ traceOption(void * /*value*/) {
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
-    {"-flat-shading", 5, TYPELESS, nullptr, flatOption,
+    {"-flat-shading", 5, nullptr, nullptr, flatOption,
     "-flat-shading\t\t: render without Gouraud (color) interpolation"},
-    {"-raycast", 5, TYPELESS, nullptr, traceOption,
+    {"-raycast", 5, nullptr, nullptr, traceOption,
     "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
-    {"-no-culling", 5, TYPELESS, nullptr, noCullingOption,
+    {"-no-culling", 5, nullptr, nullptr, noCullingOption,
     "-no-culling\t\t: don't use backface culling"},
-    {"-outlines", 5, TYPELESS, nullptr, outlinesOption,
+    {"-outlines", 5, nullptr, nullptr, outlinesOption,
     "-outlines\t\t: draw polygon outlines"},
     {"-outline-color", 10, TRGB, &globalOutlineColor, DEFAULT_ACTION,
     "-outline-color <rgb> \t: color for polygon outlines"},
@@ -454,7 +454,7 @@ static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
      "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
     {"-timings", 3, Tsettrue, &globalBatchOptions.timings, DEFAULT_ACTION,
      "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
-    {nullptr, 0,  TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0,  nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -554,7 +554,7 @@ static CommandLineOptionDescription srrOptions[] = {
      "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
     {"-srr-initial-ls-samples", 7, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples, DEFAULT_ACTION,
      "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 static CommandLineOptionDescription rwrOptions[] = {
@@ -576,7 +576,7 @@ static CommandLineOptionDescription rwrOptions[] = {
      "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
     {"-rwr-numlast", 12, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast, DEFAULT_ACTION,
      "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -604,7 +604,7 @@ static CommandLineOptionDescription globalRayMatterOptions[] =
      "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
     {"-rm-pixel-filter", 7, &rmPixelFilterTypeStruct, &GLOBAL_rayCasting_rayMatterState.filter, DEFAULT_ACTION,
      "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -674,7 +674,7 @@ static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
      "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
     {"-rts-NOindirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
      "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -713,7 +713,7 @@ static CommandLineOptionDescription globalBiDirectionalOptions[] = {
     "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
     {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp, DEFAULT_ACTION,
     "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -732,7 +732,7 @@ mainRayTracingOption(void *value) {
 
 static CommandLineOptionDescription globalRaytracingOptions[] = {
     {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
@@ -768,7 +768,7 @@ static CommandLineOptionDescription globalPhotonMapOptions[] = {
      "-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
     {"-pmap-balancing", 9, Tbool, &GLOBAL_photonMap_state.balanceKDTree, DEFAULT_ACTION,
      "-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
-    {nullptr, 0, TYPELESS, nullptr, DEFAULT_ACTION, nullptr}
+    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void

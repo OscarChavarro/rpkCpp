@@ -34,7 +34,6 @@ extern char *GLOBAL_option_dummyVal;
 Shorthands for specifying command line argument type, the 'type'
 field of the CMD_LINE_OPT_DESC structure below
 */
-#define TYPELESS nullptr
 #define Tbool (&GLOBAL_options_boolType)
 #define Tsettrue (&GLOBAL_options_setTrueType)
 #define Tsetfalse (&GLOBAL_options_setFalseType)

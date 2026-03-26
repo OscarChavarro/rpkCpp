@@ -1,5 +1,5 @@
-#ifndef RPK_BSDF_COMPONENT_FLAGS_H
-#define RPK_BSDF_COMPONENT_FLAGS_H
+#ifndef __BSDF_COMPONENT_FLAGS__
+#define __BSDF_COMPONENT_FLAGS__
 
 enum XxdfComponentFlag {
     DIFFUSE_COMPONENT = 1,

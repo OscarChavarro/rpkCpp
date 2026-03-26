@@ -1,5 +1,5 @@
-#ifndef RPK_VOXEL_DATA_FLAGS_H
-#define RPK_VOXEL_DATA_FLAGS_H
+#ifndef __VOXEL_DATA_FLAGS__
+#define __VOXEL_DATA_FLAGS__
 
 enum VoxelDataFlags : unsigned {
     VOXEL_DATA_PATCH_MASK = 0x10000000U,

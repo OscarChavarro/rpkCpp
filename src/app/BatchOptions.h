@@ -1,5 +1,5 @@
-#ifndef RPK_BATCHOPTIONS_H
-#define RPK_BATCHOPTIONS_H
+#ifndef __BATCH_OPTIONS__
+#define __BATCH_OPTIONS__
 
 class BatchOptions {
   public:

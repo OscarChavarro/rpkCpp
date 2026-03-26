@@ -1,5 +1,5 @@
-#ifndef RPK_SAMPLE_CONNECTION_FLAGS_H
-#define RPK_SAMPLE_CONNECTION_FLAGS_H
+#ifndef __SAMPLE_CONNECTION_FLAGS__
+#define __SAMPLE_CONNECTION_FLAGS__
 
 enum SampleConnectionFlags : char {
     CONNECT_EL = 0x01,  // Compute pdf(E->L) and bsdf(EP -> E -> L)

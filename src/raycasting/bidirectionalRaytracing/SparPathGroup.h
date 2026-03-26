@@ -1,5 +1,5 @@
-#ifndef RPK_SPAR_PATH_GROUP_H
-#define RPK_SPAR_PATH_GROUP_H
+#ifndef __SPAR_PATH_GROUP__
+#define __SPAR_PATH_GROUP__
 
 constexpr int MAX_PATH_GROUPS = 2;
 

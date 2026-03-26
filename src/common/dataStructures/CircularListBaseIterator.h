@@ -1,5 +1,5 @@
-#ifndef RPK_CIRCULARLISTBASEITERATOR_H
-#define RPK_CIRCULARLISTBASEITERATOR_H
+#ifndef __CIRCULAR_LIST_BASE_ITERATOR__
+#define __CIRCULAR_LIST_BASE_ITERATOR__
 
 #include "common/dataStructures/CircularListBase.h"
 
