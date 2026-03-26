@@ -68,6 +68,7 @@ set(MAIN_SRC
     src/SGL/sgl.cpp
     src/SGL/poly_scan_flat.cpp
     src/scene/Background.cpp
+    src/scene/ConstantColorBackground.cpp
     src/scene/Plane.cpp
     src/scene/Camera.cpp
     src/scene/PatchClusterOctreeNode.cpp

@@ -6,14 +6,18 @@
 #include "common/ColorRgb.h"
 #include "skin/Patch.h"
 
-class BACKGROUND_METHODS {
+class Background {
   public:
+    Background();
+    virtual ~Background();
+
     /*
     Evaluate background radiance coming in from direction (direction
     positions towards the background). If probabilityDensityFunction is non-null, also fills
-    in the probability of sampling this direction with Sample()
+    in the probability of sampling this direction with sample()
     */
-    ColorRgb (*Radiance)(void *data, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+    virtual ColorRgb
+    radiance(Vector3D *position, Vector3D *direction, float *probabilityDensityFunction) const;
 
     /*
     Samples a direction to the background, taking into account the
@@ -25,20 +29,22 @@ class BACKGROUND_METHODS {
     in from the sampled direction or the probability of sampling the
     direction are computed on the fly.
     */
-    Vector3D (*Sample)(void *data, Vector3D *position, float xi1, float xi2, ColorRgb *radiance, float *probabilityDensityFunction);
+    virtual Vector3D
+    sample(
+        Vector3D *position,
+        float xi1,
+        float xi2,
+        ColorRgb *radiance,
+        float *probabilityDensityFunction) const;
 
     /*
     Computes total power emitted by the background (= integral over
     the full sphere of the background radiance.
     */
-    ColorRgb (*Power)(void *data, Vector3D *position);
-};
+    virtual ColorRgb
+    power(Vector3D *position) const;
 
-class Background {
-  public:
-    void *data; // Object state
     Patch *bkgPatch; // Virtual patch for background
-    BACKGROUND_METHODS *methods; // class methods operating on state
 };
 
 #ifdef RAYTRACING_ENABLED

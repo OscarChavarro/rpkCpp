@@ -10,6 +10,7 @@
 #include "numericalAnalysis/PatchVisitor.h"
 #include "material/Material.h"
 #include "tonemap/ToneMap.h"
+#include "app/commandLine.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
 #include "io/bin/BinaryModelReader.h"
@@ -393,7 +394,10 @@ sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene)
     scene->geometryList = nullptr;
 
     Patch::setNextId(1);
-    scene->background = nullptr;
+    if ( scene->background != nullptr ) {
+        delete scene->background;
+    }
+    scene->background = commandLineCreateBackground();
 
     // Read the source scene description into a MgfModel snapshot
     java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);

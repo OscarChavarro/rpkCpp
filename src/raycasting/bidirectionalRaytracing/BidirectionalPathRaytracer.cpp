@@ -317,10 +317,12 @@ addWithSpikeCheck(
 void
 handlePathX0(
     Camera *camera,
+    Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
     CBiPath *path)
 {
     const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
+    const bool endingInEnvironment = path->m_eyeEndNode->m_rayType == PathRayType::ENVIRONMENT;
     ColorRgb oldBsdfEval;
     ColorRgb f;
     ColorRgb fRad;
@@ -341,7 +343,7 @@ handlePathX0(
         return;
     }
 
-    if ( endingEdf != nullptr || config->baseConfig->useSpars ) {
+    if ( endingEdf != nullptr || endingInEnvironment || config->baseConfig->useSpars ) {
         eyeEndNode = path->m_eyeEndNode;
 
         // Store the Bsdf and PDF evaluations that will be overwritten
@@ -404,6 +406,23 @@ handlePathX0(
             }
 
             path->m_pdfLNE = pdfLNE;
+        } else if ( endingInEnvironment ) {
+            eyeEndNode->m_bsdfEval = backgroundRadiance(
+                sceneBackground,
+                nullptr,
+                &eyeEndNode->m_inDirF,
+                nullptr);
+            eyeEndNode->m_bsdfComp.Fill(
+                eyeEndNode->m_bsdfEval,
+                BRDF_DIFFUSE_COMPONENT);
+
+            eyeEndNode->m_pdfFromNext = 0.0;
+            eyeEndNode->m_rrPdfFromNext = 0.0;
+
+            eyePrevNode->m_pdfFromNext = 0.0;
+            eyePrevNode->m_rrPdfFromNext = 0.0;
+
+            path->m_pdfLNE = 0.0;
         }
 
         // Path radiance evaluation
@@ -742,7 +761,7 @@ bpCombinePaths(
             path.m_lightSize = 0;
             path.m_lightEndNode = nullptr;
 
-            handlePathX0(camera, config, &path);
+            handlePathX0(camera, sceneBackground, config, &path);
         }
 
         // Handle lightSize > 0 (with N.E.E.)

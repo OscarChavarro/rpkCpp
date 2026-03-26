@@ -1,7 +1,10 @@
+#include <cerrno>
+#include <cstdlib>
 #include <cstring>
 #include "common/error.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
+#include "scene/ConstantColorBackground.h"
 #include "tonemap/ToneMap.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
@@ -37,6 +40,115 @@ static int globalNo = 0;
 static int globalOutputImageWidth = 1920;
 static int globalOutputImageHeight = 1080;
 static Camera globalCamera;
+enum class BackgroundMode {
+    NONE,
+    SOLID
+};
+static BackgroundMode globalBackgroundMode = BackgroundMode::NONE;
+static ColorRgb globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
+
+ColorRgb
+commandLineDefaultBackgroundColor() {
+    return DEFAULT_BACKGROUND_COLOR;
+}
+
+Background *
+commandLineCreateBackground() {
+    if ( globalBackgroundMode == BackgroundMode::SOLID ) {
+        return new ConstantColorBackground(globalBackgroundColor);
+    }
+    return nullptr;
+}
+
+static bool
+commandLineParseFloat(const char *text, float *value) {
+    if ( text == nullptr || value == nullptr ) {
+        return false;
+    }
+
+    errno = 0;
+    char *endPointer = nullptr;
+    const float parsedValue = strtof(text, &endPointer);
+    if ( endPointer == text || *endPointer != '\0' || errno == ERANGE ) {
+        return false;
+    }
+
+    *value = parsedValue;
+    return true;
+}
+
+static bool
+commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
+    float red = 0.0f;
+    float green = 0.0f;
+    float blue = 0.0f;
+    if ( !commandLineParseFloat(rArg, &red)
+         || !commandLineParseFloat(gArg, &green)
+         || !commandLineParseFloat(bArg, &blue) ) {
+        return false;
+    }
+
+    if ( red < 0.0f || red > 1.0f || green < 0.0f || green > 1.0f || blue < 0.0f || blue > 1.0f ) {
+        return false;
+    }
+
+    color->set(red, green, blue);
+    return true;
+}
+
+static void
+commandLineParseBackgroundOption(int *argc, char **argv) {
+    int writeIndex = 0;
+    int readIndex = 0;
+    while ( readIndex < *argc ) {
+        const char *argument = argv[readIndex];
+        if ( argument == nullptr || strcmp(argument, "-background") != 0 ) {
+            argv[writeIndex++] = argv[readIndex++];
+            continue;
+        }
+
+        if ( readIndex + 1 >= *argc ) {
+            java::lang::System::err.printf("Option '-background' requires a mode. Supported mode: solid.\n");
+            readIndex += 1;
+            continue;
+        }
+
+        const char *mode = argv[readIndex + 1];
+        if ( strcasecmp(mode, "solid") != 0 ) {
+            java::lang::System::err.printf(
+                "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",
+                mode);
+            readIndex += 2;
+            continue;
+        }
+
+        if ( readIndex + 4 >= *argc ) {
+            java::lang::System::err.printf(
+                "Option '-background solid' requires three values in range [0.0, 1.0].\n");
+            readIndex += 2;
+            continue;
+        }
+
+        ColorRgb parsedColor;
+        if ( !commandLineParseBackgroundColor(
+                 argv[readIndex + 2],
+                 argv[readIndex + 3],
+                 argv[readIndex + 4],
+                 &parsedColor) ) {
+            java::lang::System::err.printf(
+                "Invalid '-background solid' color. Use '-background solid <r> <g> <b>' with values in [0.0, 1.0].\n");
+        } else {
+            globalBackgroundMode = BackgroundMode::SOLID;
+            globalBackgroundColor = parsedColor;
+        }
+        readIndex += 5;
+    }
+
+    while ( writeIndex < *argc ) {
+        argv[writeIndex++] = nullptr;
+    }
+    *argc = writeIndex;
+}
 
 static void
 mainForceOneSidedOption(void *value) {
@@ -85,6 +197,9 @@ commandLineGeneralProgramParseOptions(
 {
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
+    globalBackgroundMode = BackgroundMode::NONE;
+    globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
+    commandLineParseBackgroundOption(argc, argv);
     parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
 
     if ( globalFileOptionsForceOneSidedSurfaces != 0 ) {

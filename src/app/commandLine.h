@@ -4,6 +4,9 @@
 #include "raycasting/common/Raytracer.h"
 #include "app/BatchOptions.h"
 
+extern ColorRgb commandLineDefaultBackgroundColor();
+extern Background *commandLineCreateBackground();
+
 extern void cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight);
 
 extern void
