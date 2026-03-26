@@ -9,61 +9,11 @@ Table lookup routines
 #include "io/mgf/LookUpTable.h"
 
 namespace {
-int
-lookUpReAlloc(LookUpTable *tbl, int nel) {
-    LookUpEntity *oldTable = tbl->getTable();
-    const int oldTSize = tbl->getCurrentTableSize();
-    int i = tbl->getNumberOfDeletedEntries();
-    if ( !tbl->lookUpInit(nel) ) {
-        // No more memory!
-        tbl->setTable(oldTable);
-        tbl->setCurrentTableSize(oldTSize);
-        tbl->setNumberOfDeletedEntries(i);
-        return 0;
-    }
-
-    // The following code may fail if the user has reclaimed many
-    // deleted entries and the system runs out of memory in a
-    // recursive call to lookUpFind()
-    for ( i = 0; i < oldTSize; i++ ) {
-        const LookUpEntity &entity = oldTable[i];
-        if ( entity.key != nullptr ) {
-            if ( entity.data != nullptr ) {
-                *tbl->lookUpFind(entity.key) = entity;
-            } else {
-                if ( tbl->getFreeKeyFunction() != nullptr ) {
-                    (*tbl->getFreeKeyFunction())(entity.key);
-                }
-            }
-        }
-    }
-    delete[] oldTable;
-
-    return tbl->getCurrentTableSize();
-}
-}
-
-void
-LookUpTable::lookUpRemove(const char *data) {
-    delete[] data;
-}
-
 /**
 Hash a null-terminated string
-
-The functions must be assigned separately.  If the hash value is sufficient to
-guarantee equality between keys, then the keyCompareFunction pointer may be nullptr.  Otherwise, it
-should return 0 if the two passed keys match.  If it is not necessary
-(or possible) to free the key and/or data values, then the freeKeyFunction and/or
-freeDataFunction member functions may be nullptr.
-
-It isn't fully necessary to call lookUpInit to initialize the LookUpTable structure.
-If currentTableSize is 0, then the first call to lookUpFind will allocate a minimal table.
-The LookUpTable constructor provides a convenient static declaration for character
-string keys.
 */
 long
-LookUpTable::lookUpShuffleHash(const char *s) {
+lookUpShuffleHash(const char *text) {
     static const unsigned char globalShuffle[256] = {
         0, 157, 58, 215, 116, 17, 174, 75, 232, 133, 34, 191, 92, 249, 150, 51,
         208, 109, 10, 167, 68, 225, 126, 27, 184, 85, 242, 143, 44, 201, 102, 3,
@@ -82,93 +32,76 @@ LookUpTable::lookUpShuffleHash(const char *s) {
         96, 253, 154, 55, 212, 113, 14, 171, 72, 229, 130, 31, 188, 89, 246, 147,
         48, 205, 106, 7, 164, 65, 222, 123, 24, 181, 82, 239, 140, 41, 198, 99
     };
-    int i = 0;
-    long h = 0;
-    const unsigned char *text = reinterpret_cast<const unsigned char *>(s);
 
-    for ( std::size_t index = 0; text[index] != '\0'; index++ ) {
-        h ^= static_cast<long>(globalShuffle[text[index]]) << ((i += 11) & 0xf);
+    int bitShift = 0;
+    long hash = 0;
+    const unsigned char *bytes = reinterpret_cast<const unsigned char *>(text);
+
+    for ( std::size_t i = 0; bytes[i] != '\0'; i++ ) {
+        hash ^= static_cast<long>(globalShuffle[bytes[i]]) << ((bitShift += 11) & 0xf);
     }
 
-    return h;
+    return hash;
+}
+}
+
+long
+CStringLookUpBehavior::hash(const char *key) const {
+    return lookUpShuffleHash(key);
+}
+
+bool
+CStringLookUpBehavior::keysEqual(const char *left, const char *right) const {
+    return std::strcmp(left, right) == 0;
+}
+
+void
+OwningCStringLookUpBehavior::freeKey(const char *key) const {
+    delete[] key;
+}
+
+void
+OwningCStringLookUpBehavior::freeData(const char *data) const {
+    delete[] data;
+}
+
+namespace LookUpBehaviors {
+const LookUpBehavior &
+nonOwningCString() {
+    // Process-lifetime singleton avoids static destruction order issues.
+    static const LookUpBehavior *behavior = new CStringLookUpBehavior();
+    return *behavior;
+}
+
+const LookUpBehavior &
+owningCString() {
+    // Process-lifetime singleton avoids static destruction order issues.
+    static const LookUpBehavior *behavior = new OwningCStringLookUpBehavior();
+    return *behavior;
+}
 }
 
 LookUpTable::LookUpTable():
-    LookUpTable(nullptr, nullptr)
+    LookUpTable(LookUpBehaviors::nonOwningCString())
 {
 }
 
-LookUpTable::LookUpTable(
-    void (*freeKeyFunction)(const char *),
-    void (*freeDataFunction)(const char *)):
-    keyHashFunction(lookUpShuffleHash),
-    keyCompareFunction(std::strcmp),
-    freeKeyFunction(freeKeyFunction),
-    freeDataFunction(freeDataFunction),
+LookUpTable::LookUpTable(const LookUpBehavior &behavior):
+    behavior(behavior),
     currentTableSize(0),
     table(nullptr),
     numberOfDeletedEntries(0)
 {
 }
 
-long
-(*LookUpTable::getKeyHashFunction() const)(const char *)
-{
-    return keyHashFunction;
-}
-
-int
-(*LookUpTable::getKeyCompareFunction() const)(const char *, const char *)
-{
-    return keyCompareFunction;
-}
-
-void
-(*LookUpTable::getFreeKeyFunction() const)(const char *)
-{
-    return freeKeyFunction;
-}
-
-void
-(*LookUpTable::getFreeDataFunction() const)(const char *)
-{
-    return freeDataFunction;
+LookUpTable::~LookUpTable() {
+    lookUpDone();
 }
 
 int
 LookUpTable::getCurrentTableSize() const
 {
     return currentTableSize;
-}
-
-LookUpEntity *
-LookUpTable::getTable() const
-{
-    return table;
-}
-
-int
-LookUpTable::getNumberOfDeletedEntries() const
-{
-    return numberOfDeletedEntries;
-}
-
-void
-LookUpTable::setCurrentTableSize(int value)
-{
-    currentTableSize = value;
-}
-
-void
-LookUpTable::setTable(LookUpEntity *value)
-{
-    table = value;
-}
-
-void
-LookUpTable::setNumberOfDeletedEntries(int value)
-{
-    numberOfDeletedEntries = value;
 }
 
 /**
@@ -184,10 +117,11 @@ actual allocated table size (or zero if there was insufficient memory).
 int
 LookUpTable::lookUpInit(int nel) {
     static int hSizeTab[] = {
-            31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
-            32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
-            4194301, 8388593, 0
+        31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
+        32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
+        4194301, 8388593, 0
     };
+
     int chosenTableSize = 0;
 
     nel += nel >> 1; // 66% occupancy
@@ -197,23 +131,27 @@ LookUpTable::lookUpInit(int nel) {
             break;
         }
     }
-    setCurrentTableSize(chosenTableSize);
-    if ( !getCurrentTableSize() ) {
-        // Not always prime
-        setCurrentTableSize(nel * 2 + 1);
-    }
-    setTable(new LookUpEntity[getCurrentTableSize()]);
-    for ( int i = 0; i < getCurrentTableSize(); i++ ) {
-        getTable()[i].key = nullptr;
-        getTable()[i].data = nullptr;
-        getTable()[i].value = 0;
-    }
-    if ( getTable() == nullptr ) {
-        setCurrentTableSize(0);
-    }
-    setNumberOfDeletedEntries(0);
 
-    return getCurrentTableSize();
+    currentTableSize = chosenTableSize;
+    if ( currentTableSize == 0 ) {
+        // Not always prime
+        currentTableSize = nel * 2 + 1;
+    }
+
+    table = new LookUpEntity[currentTableSize];
+    if ( table == nullptr ) {
+        currentTableSize = 0;
+        return 0;
+    }
+
+    for ( int i = 0; i < currentTableSize; i++ ) {
+        table[i].key = nullptr;
+        table[i].data = nullptr;
+        table[i].value = 0;
+    }
+    numberOfDeletedEntries = 0;
+
+    return currentTableSize;
 }
 
 /**
@@ -221,7 +159,7 @@ Find a table entry
 
 The lookUpFind routine returns the entry corresponding to the given
 key.  If the entry does not exist, the corresponding key field will
-be nullptr.  If the entry has been previously deleted but not yet freeDataFunction,
+be nullptr.  If the entry has been previously deleted but not yet freed,
 then only the data field will be nullptr.  It is the caller's
 responsibility to (allocate and) assign the key and data fields when
 creating a new entry.  The only case where lookUpFind returns nullptr is when
@@ -230,38 +168,38 @@ the system has run out of memory.
 LookUpEntity *
 LookUpTable::lookUpFind(const char *key) {
     // Look up object
-    if ( getCurrentTableSize() <= 0 ) {
-        lookUpInit(1);
+    if ( currentTableSize <= 0 ) {
+        if ( !lookUpInit(1) ) {
+            return nullptr;
+        }
     }
 
-    const long hVal = (*getKeyHashFunction())(key);
+    const long hashValue = behavior.hash(key);
 
     do {
-        int ndx = static_cast<int>(hVal % getCurrentTableSize());
+        int index = static_cast<int>(hashValue % currentTableSize);
         int i = 0;
         int n = -1;
         do {
-            LookUpEntity *le = &getTable()[ndx];
-            if ( le->key == nullptr ) {
-                le->value = hVal;
-                return le;
+            LookUpEntity *entry = &table[index];
+            if ( entry->key == nullptr ) {
+                entry->value = hashValue;
+                return entry;
             }
-            if ( le->value == hVal &&
-                 (getKeyCompareFunction() == nullptr || (*getKeyCompareFunction())(le->key, key) == 0) ) {
-                return le;
+            if ( entry->value == hashValue && behavior.keysEqual(entry->key, key) ) {
+                return entry;
             }
 
             i++;
             n += 2;
-            if ( (ndx += n) >= getCurrentTableSize() ) {
+            if ( (index += n) >= currentTableSize ) {
                 // This happens rarely
-                ndx = ndx % getCurrentTableSize();
+                index = index % currentTableSize;
             }
-        }
-        while ( i < getCurrentTableSize() );
+        } while ( i < currentTableSize );
 
-        if ( !lookUpReAlloc(this, getCurrentTableSize() - getNumberOfDeletedEntries() + 1) ) {
-            // Table is full, reallocate
+        // Table is full, reallocate
+        if ( !lookUpReAlloc(currentTableSize - numberOfDeletedEntries + 1) ) {
             return nullptr;
         }
     } while ( true ); // Should happen only once!
@@ -270,31 +208,68 @@ LookUpTable::lookUpFind(const char *key) {
 /**
 Free table and contents
 
-The lookUpDone routine calls the given free function once for each
+The lookUpDone routine calls the configured cleanup behavior once for each
 assigned table entry (i.e. each entry with an assigned key value).
-The user must define these routines to free the key and the data
-in the LU_TAB structure.  The final action of lookUpDone is to free the
-allocated table itself.
+The final action of lookUpDone is to free the allocated table itself.
 */
 void
 LookUpTable::lookUpDone() {
-    if ( !getCurrentTableSize() ) {
+    if ( currentTableSize <= 0 ) {
         return;
     }
 
-    for ( int i = getCurrentTableSize() - 1; i >= 0; i-- ) {
-        const LookUpEntity *tp = &getTable()[i];
-        if ( tp->key != nullptr ) {
-            if ( getFreeKeyFunction() != nullptr ) {
-                (*getFreeKeyFunction())(tp->key);
-            }
-            if ( tp->data != nullptr && getFreeDataFunction() != nullptr ) {
-                (*getFreeDataFunction())(tp->data);
+    for ( int i = currentTableSize - 1; i >= 0; i-- ) {
+        const LookUpEntity *entry = &table[i];
+        if ( entry->key != nullptr ) {
+            behavior.freeKey(entry->key);
+            if ( entry->data != nullptr ) {
+                behavior.freeData(entry->data);
             }
         }
     }
-    delete[] getTable();
-    setTable(nullptr);
-    setCurrentTableSize(0);
-    setNumberOfDeletedEntries(0);
+
+    delete[] table;
+    table = nullptr;
+    currentTableSize = 0;
+    numberOfDeletedEntries = 0;
+}
+
+/**
+Reallocate table for at least nel entries
+*/
+int
+LookUpTable::lookUpReAlloc(int nel) {
+    LookUpEntity *oldTable = table;
+    const int oldTableSize = currentTableSize;
+    const int oldDeletedEntries = numberOfDeletedEntries;
+
+    if ( !lookUpInit(nel) ) {
+        // No more memory!
+        table = oldTable;
+        currentTableSize = oldTableSize;
+        numberOfDeletedEntries = oldDeletedEntries;
+        return 0;
+    }
+
+    // The following code may fail if the user has reclaimed many
+    // deleted entries and the system runs out of memory in a
+    // recursive call to lookUpFind()
+    for ( int i = 0; i < oldTableSize; i++ ) {
+        const LookUpEntity &entry = oldTable[i];
+        if ( entry.key == nullptr ) {
+            continue;
+        }
+        if ( entry.data != nullptr ) {
+            LookUpEntity *newEntry = lookUpFind(entry.key);
+            if ( newEntry == nullptr ) {
+                continue;
+            }
+            *newEntry = entry;
+        } else {
+            behavior.freeKey(entry.key);
+        }
+    }
+    delete[] oldTable;
+
+    return currentTableSize;
 }

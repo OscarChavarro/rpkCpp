@@ -6,7 +6,7 @@
 #include "io/mgf/mgfDefinitions.h"
 
 // Color lookup table
-static LookUpTable globalColorTable(LookUpTable::lookUpRemove, LookUpTable::lookUpRemove);
+static LookUpTable globalColorTable(LookUpBehaviors::owningCString());
 
 /**
 Handle color entity

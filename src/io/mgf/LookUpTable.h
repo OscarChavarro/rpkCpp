@@ -3,45 +3,60 @@
 
 class LookUpEntity;
 
+class LookUpBehavior {
+  public:
+    virtual ~LookUpBehavior() {}
+
+    virtual long
+    hash(const char *key) const = 0;
+
+    virtual bool
+    keysEqual(const char *left, const char *right) const = 0;
+
+    virtual void
+    freeKey(const char * /*key*/) const {}
+
+    virtual void
+    freeData(const char * /*data*/) const {}
+};
+
+class CStringLookUpBehavior : public LookUpBehavior {
+  public:
+    long
+    hash(const char *key) const override;
+
+    bool
+    keysEqual(const char *left, const char *right) const override;
+};
+
+class OwningCStringLookUpBehavior : public CStringLookUpBehavior {
+  public:
+    void
+    freeKey(const char *key) const override;
+
+    void
+    freeData(const char *data) const override;
+};
+
+namespace LookUpBehaviors {
+const LookUpBehavior &
+nonOwningCString();
+
+const LookUpBehavior &
+owningCString();
+}
+
 class LookUpTable {
   public:
     LookUpTable();
-    LookUpTable(
-        void (*freeKeyFunction)(const char *),
-        void (*freeDataFunction)(const char *));
+    explicit LookUpTable(const LookUpBehavior &behavior);
+    ~LookUpTable();
 
-    static void
-    lookUpRemove(const char *data);
-
-    long
-    (*getKeyHashFunction() const)(const char *);
-
-    int
-    (*getKeyCompareFunction() const)(const char *, const char *);
-
-    void
-    (*getFreeKeyFunction() const)(const char *);
-
-    void
-    (*getFreeDataFunction() const)(const char *);
+    LookUpTable(const LookUpTable &) = delete;
+    LookUpTable &operator=(const LookUpTable &) = delete;
 
     int
     getCurrentTableSize() const;
-
-    LookUpEntity *
-    getTable() const;
-
-    int
-    getNumberOfDeletedEntries() const;
-
-    void
-    setCurrentTableSize(int value);
-
-    void
-    setTable(LookUpEntity *value);
-
-    void
-    setNumberOfDeletedEntries(int value);
 
     int
     lookUpInit(int nel);
@@ -53,13 +68,10 @@ class LookUpTable {
     lookUpDone();
 
   private:
-    static long
-    lookUpShuffleHash(const char *s);
+    int
+    lookUpReAlloc(int nel);
 
-    long (*keyHashFunction)(const char *);
-    int (*keyCompareFunction)(const char *, const char *);
-    void (*freeKeyFunction)(const char *);
-    void (*freeDataFunction)(const char *);
+    const LookUpBehavior &behavior;
     int currentTableSize;
     LookUpEntity *table;
     int numberOfDeletedEntries;

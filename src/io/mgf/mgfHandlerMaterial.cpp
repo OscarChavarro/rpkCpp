@@ -33,7 +33,7 @@ static const MgfMaterialContext DEFAULT_MGF_MATERIAL_CONTEXT = {
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-static LookUpTable globalMaterialLookUpTable(LookUpTable::lookUpRemove, LookUpTable::lookUpRemove);
+static LookUpTable globalMaterialLookUpTable(LookUpBehaviors::owningCString());
 
 /**
 Looks up a material with given name in the given material list. Returns

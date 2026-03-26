@@ -8,63 +8,7 @@
 #include "io/mgf/MgfReaderFilePosition.h"
 #include "io/mgf/mgfDefinitions.h"
 
-static LookUpTable globalLookUpTable(nullptr, nullptr);
-
-class MgfCallbackHandler final : public MgfEntityHandler {
-  public:
-    MgfCallbackHandler():
-        callback(nullptr)
-    {
-    }
-
-    explicit MgfCallbackHandler(const HandleCallBack callback):
-        callback(callback)
-    {
-    }
-
-    int
-    handle(int argc, const char **argv, MgfContext *context) const override {
-        return callback(argc, argv, context);
-    }
-
-    bool
-    matches(const HandleCallBack candidate) const override {
-        return callback == candidate;
-    }
-
-  private:
-    HandleCallBack callback;
-};
-
-static constexpr int MGF_MAXIMUM_CALLBACK_HANDLERS = 128;
-static HandleCallBack globalMgfHandlerCallbacks[MGF_MAXIMUM_CALLBACK_HANDLERS];
-static MgfCallbackHandler globalMgfHandlers[MGF_MAXIMUM_CALLBACK_HANDLERS];
-static int globalMgfHandlerCount = 0;
-
-MgfEntityHandler *
-mgfHandlerFromCallback(HandleCallBack callback) {
-    if ( callback == nullptr ) {
-        return nullptr;
-    }
-    for ( int i = 0; i < globalMgfHandlerCount; i++ ) {
-        if ( globalMgfHandlerCallbacks[i] == callback ) {
-            return &globalMgfHandlers[i];
-        }
-    }
-    if ( globalMgfHandlerCount >= MGF_MAXIMUM_CALLBACK_HANDLERS ) {
-        logFatal(-1, "mgfHandlerFromCallback", "Too many handler callbacks");
-    }
-    globalMgfHandlerCallbacks[globalMgfHandlerCount] = callback;
-    globalMgfHandlers[globalMgfHandlerCount] = MgfCallbackHandler(callback);
-    globalMgfHandlerCount++;
-    return &globalMgfHandlers[globalMgfHandlerCount - 1];
-}
-
-bool
-mgfHandlerMatches(const MgfEntityHandler *handler, HandleCallBack callback) {
-    return handler != nullptr && handler->matches(callback);
-}
-
+static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());
 
 /**
 Default handler for unknown entities
@@ -254,8 +198,5 @@ mgfClose(MgfContext *context) {
 
 void
 mgfLookUpFreeMemory() {
-    if ( globalLookUpTable.getTable() != nullptr ) {
-        delete[] globalLookUpTable.getTable();
-        globalLookUpTable.setTable(nullptr);
-    }
+    globalLookUpTable.lookUpDone();
 }
