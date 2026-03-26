@@ -429,11 +429,20 @@ binaryOutputOption(void * /*value*/) {
         && globalBatchOptions.binaryOutputFilename[0] != '\0';
 }
 
+static void
+binaryInputOption(void * /*value*/) {
+    globalBatchOptions.importBinary =
+        globalBatchOptions.binaryInputFilename != nullptr
+        && globalBatchOptions.binaryInputFilename[0] != '\0';
+}
+
 static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
     {"-iterations", 3, &GLOBAL_options_intType, &globalBatchOptions.iterations, DEFAULT_ACTION,
     "-iterations <integer>\t: world-space radiance iterations"},
     {"-obf", 4, Tstring, &globalBatchOptions.binaryOutputFilename, binaryOutputOption,
      "-obf <output.bin>\t: export loaded MgfModel snapshot to binary file"},
+    {"-ibf", 4, Tstring, &globalBatchOptions.binaryInputFilename, binaryInputOption,
+     "-ibf <input.bin>\t: import MgfModel snapshot from binary file (skips MGF read)"},
     {"-radiance-image-savefile", 12, Tstring, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
      "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,\n\tfirst '%%d' will be substituted by iteration number"},
     {"-radiance-model-savefile", 12, Tstring, &globalBatchOptions.radianceModelFileNameFormat, DEFAULT_ACTION,
@@ -452,6 +461,7 @@ void
 batchParseOptions(int *argc, char **argv, BatchOptions *options) {
     globalBatchOptions = *options;
     globalBatchOptions.exportBinary = false;
+    globalBatchOptions.importBinary = false;
     parseGeneralOptions(globalCommandLineBatchOptions, argc, argv);
     *options = globalBatchOptions;
 }

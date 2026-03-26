@@ -93,6 +93,7 @@ class Patch {
 
     void setVisible();
     void setInvisible();
+    void setFlags(unsigned char newFlags);
     unsigned char getFlags() const;
     int hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
@@ -132,6 +133,11 @@ Patch::setVisible() {
 inline void
 Patch::setInvisible() {
     flags &= ~PATCH_VISIBILITY;
+}
+
+inline void
+Patch::setFlags(unsigned char newFlags) {
+    flags = newFlags;
 }
 
 inline unsigned char

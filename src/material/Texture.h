@@ -11,6 +11,13 @@ class Texture {
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 
   public:
+    Texture();
+    Texture(int inWidth, int inHeight, int inChannels, const unsigned char *inData);
+    ~Texture();
+
+    Texture(const Texture &) = delete;
+    Texture &operator=(const Texture &) = delete;
+
     int getWidth() const;
     int getHeight() const;
     int getChannels() const;

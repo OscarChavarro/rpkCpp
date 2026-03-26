@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelWritter.h"
+#include "io/bin/BinaryModelWriter.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -751,7 +751,7 @@ writeModelRecord(FILE *output, const MgfModel *model, const SerializationContext
 } // namespace
 
 bool
-BinaryModelWritter::write(const MgfModel *model, const char *fileName) {
+BinaryModelWriter::write(const MgfModel *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
         return false;
     }

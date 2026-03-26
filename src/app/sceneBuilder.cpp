@@ -1,4 +1,5 @@
 #include <ctime>
+#include <cerrno>
 #include <cstring>
 #include "java/lang/System.h"
 
@@ -7,10 +8,12 @@
 #include "common/Statistics.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
+#include "material/Material.h"
 #include "tonemap/ToneMap.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
-#include "io/bin/BinaryModelWritter.h"
+#include "io/bin/BinaryModelReader.h"
+#include "io/bin/BinaryModelWriter.h"
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
 #include "scene/PatchClusterOctreeNode.h"
@@ -199,6 +202,88 @@ sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryLis
 }
 
 static void
+sceneBuilderCollectGeometriesRecursive(
+    const java::ArrayList<Geometry *> *source,
+    java::ArrayList<Geometry *> *target)
+{
+    if ( source == nullptr || target == nullptr ) {
+        return;
+    }
+
+    for ( int i = 0; i < source->size(); i++ ) {
+        Geometry *geometry = source->get(i);
+        if ( geometry == nullptr ) {
+            continue;
+        }
+
+        bool alreadyInTarget = false;
+        for ( int j = 0; j < target->size(); j++ ) {
+            if ( target->get(j) == geometry ) {
+                alreadyInTarget = true;
+                break;
+            }
+        }
+        if ( !alreadyInTarget ) {
+            target->add(geometry);
+        }
+
+        if ( geometry->isCompound() ) {
+            const Compound *compound = static_cast<const Compound *>(geometry);
+            sceneBuilderCollectGeometriesRecursive(compound->children, target);
+        }
+    }
+}
+
+static void
+sceneBuilderApplyModelToMgfContext(MgfContext *mgfContext, MgfModel *mgfModel) {
+    if ( mgfContext == nullptr || mgfModel == nullptr ) {
+        return;
+    }
+
+    mgfContext->currentColor = mgfModel->currentColor;
+    mgfContext->currentFaceList = mgfModel->currentFaceList;
+    mgfContext->currentGeometryList = mgfModel->currentGeometryList;
+    mgfContext->currentMaterialName = mgfModel->currentMaterialName;
+    mgfContext->currentNormalList = mgfModel->currentNormalList;
+    mgfContext->currentObjectName = mgfModel->currentObjectName;
+    mgfContext->currentPointList = mgfModel->currentPointList;
+    mgfContext->currentVertexList = mgfModel->currentVertexList;
+    mgfContext->currentVertexName = mgfModel->currentVertexName;
+    mgfContext->geometries = mgfModel->geometries;
+    mgfContext->geometryStackHeadIndex = mgfModel->geometryStackHeadIndex;
+    mgfContext->inComplex = mgfModel->inComplex;
+    mgfContext->inSurface = mgfModel->inSurface;
+    mgfContext->materials = mgfModel->materials;
+    mgfContext->monochrome = mgfModel->monochrome;
+    mgfContext->readerContext = mgfModel->readerContext;
+    mgfContext->transformContext = mgfModel->transformContext;
+    mgfContext->model = mgfModel;
+
+    mgfContext->currentMaterial = nullptr;
+    if ( mgfContext->materials != nullptr && mgfContext->currentMaterialName != nullptr ) {
+        for ( int i = 0; i < mgfContext->materials->size(); i++ ) {
+            Material *material = mgfContext->materials->get(i);
+            if ( material != nullptr
+                 && material->getName() != nullptr
+                 && strcmp(material->getName(), mgfContext->currentMaterialName) == 0 ) {
+                mgfContext->currentMaterial = material;
+                break;
+            }
+        }
+    }
+
+    if ( mgfContext->allGeometries != nullptr ) {
+        mgfContext->allGeometries->dispose();
+        delete mgfContext->allGeometries;
+    }
+    mgfContext->allGeometries = new java::ArrayList<Geometry *>();
+    sceneBuilderCollectGeometriesRecursive(mgfModel->currentGeometryList, mgfContext->allGeometries);
+    if ( mgfModel->geometries != mgfModel->currentGeometryList ) {
+        sceneBuilderCollectGeometriesRecursive(mgfModel->geometries, mgfContext->allGeometries);
+    }
+}
+
+static void
 removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
@@ -220,30 +305,83 @@ removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geo
     }
 }
 
+static bool
+sceneBuilderValidateReadableFile(
+    const char *fileName,
+    const char *openMode,
+    const char *fileRole)
+{
+    errno = 0;
+    FILE *input = fopen(fileName, openMode);
+    if ( input == nullptr ) {
+        if ( errno == ENOENT ) {
+            logError(
+                "sceneBuilderReadFile",
+                "Requested %s file '%s' does not exist",
+                fileRole,
+                fileName);
+        } else if ( errno == EACCES ) {
+            logError(
+                "sceneBuilderReadFile",
+                "Requested %s file '%s' is not readable (permission denied)",
+                fileRole,
+                fileName);
+        } else {
+            logError(
+                "sceneBuilderReadFile",
+                "Requested %s file '%s' cannot be opened for reading (%s)",
+                fileRole,
+                fileName,
+                strerror(errno));
+        }
+        return false;
+    }
+
+    const int firstByte = fgetc(input);
+    fclose(input);
+
+    if ( firstByte == EOF ) {
+        logError(
+            "sceneBuilderReadFile",
+            "Requested %s file '%s' is empty",
+            fileRole,
+            fileName);
+        return false;
+    }
+
+    return true;
+}
+
 /**
 Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
 static bool
-sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
-    // Check whether the file can be opened if not reading from stdin
-    if ( fileName[0] != '#' ) {
-        FILE *input = fopen(fileName, "r");
-        if ( input == nullptr || fgetc(input) == EOF ) {
-            if ( input != nullptr ) {
-                fclose(input);
-            }
-            logError(nullptr, "Can't open file '%s' for reading", fileName);
+sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene) {
+    const BatchOptions *batchOptions = batchGetOptions();
+    const bool importBinary =
+        batchOptions != nullptr
+        && batchOptions->importBinary
+        && batchOptions->binaryInputFilename != nullptr
+        && batchOptions->binaryInputFilename[0] != '\0';
+    const char *inputName = importBinary ? batchOptions->binaryInputFilename : fileName;
+
+    // Check whether the file can be opened/read
+    if ( importBinary && !sceneBuilderValidateReadableFile(inputName, "rb", "binary model") ) {
+        return false;
+    }
+
+    if ( !importBinary && fileName[0] != '#' ) {
+        if ( !sceneBuilderValidateReadableFile(fileName, "r", "scene") ) {
             return false;
         }
-        fclose(input);
     }
 
     // Get current directory from the filename
-    unsigned long n = strlen(fileName) + 1;
+    unsigned long n = strlen(inputName) + 1;
 
     char *currentDirectory = new char[n];
-    snprintf(currentDirectory, n, "%s", fileName);
+    snprintf(currentDirectory, n, "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';
@@ -257,21 +395,18 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
     Patch::setNextId(1);
     scene->background = nullptr;
 
-    // Read the mgf file. The result is a new GLOBAL_scene_world and GLOBAL_scene_materials if everything goes well
-    const char *extension;
-    java::lang::System::err.printf("Reading the scene from file '%s' ... \n", fileName);
+    // Read the source scene description into a MgfModel snapshot
+    java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
     clock_t last = clock();
+    MgfModel *mgfModel = nullptr;
 
-    const char *dot = strrchr(fileName, '.');
-    if ( dot != nullptr ) {
-        extension = dot + 1;
+    if ( importBinary ) {
+        mgfModel = BinaryModelReader::read(inputName);
+        if ( mgfModel != nullptr ) {
+            sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
+        }
     } else {
-        extension = "mgf";
-    }
-
-    if ( strncmp(extension, "mgf", 3) == 0 ) {
-        MgfModel *mgfModel = readMgf(fileName, mgfContext);
-        const BatchOptions *batchOptions = batchGetOptions();
+        mgfModel = readMgf(fileName, mgfContext);
         if ( mgfModel != nullptr
              && batchOptions != nullptr
              && batchOptions->exportBinary
@@ -281,7 +416,7 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
                 "Exporting loaded MgfModel to binary '%s' ... ",
                 batchOptions->binaryOutputFilename);
             java::lang::System::err.flush();
-            const bool binarySaved = BinaryModelWritter::write(
+            const bool binarySaved = BinaryModelWriter::write(
                 mgfModel,
                 batchOptions->binaryOutputFilename);
             if ( binarySaved ) {
@@ -294,9 +429,10 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
                     batchOptions->binaryOutputFilename);
             }
         }
-        scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
-        sceneBuilderFillFacesBackPointers(scene->geometryList);
     }
+
+    scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
+    sceneBuilderFillFacesBackPointers(scene->geometryList);
 
     clock_t t = clock();
     java::lang::System::err.printf("Reading took %g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
@@ -419,6 +555,17 @@ sceneBuilderCreateModel(
     MgfContext *mgfContext,
     Scene *scene)
 {
+    const BatchOptions *batchOptions = batchGetOptions();
+    if ( batchOptions != nullptr
+         && batchOptions->importBinary
+         && batchOptions->binaryInputFilename != nullptr
+         && batchOptions->binaryInputFilename[0] != '\0' ) {
+        if ( !sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene) ) {
+            exit(1);
+        }
+        return;
+    }
+
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {

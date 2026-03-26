@@ -3,6 +3,8 @@
 BatchOptions::BatchOptions() {
     exportBinary = false;
     binaryOutputFilename = "";
+    importBinary = false;
+    binaryInputFilename = "";
     iterations = 1;
     radianceImageFileNameFormat = "";
     radianceModelFileNameFormat = "";

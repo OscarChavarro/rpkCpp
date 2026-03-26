@@ -1,5 +1,41 @@
+#include <cstdint>
+#include <cstring>
+
 #include "java/lang/Math.h"
 #include "material/Texture.h"
+
+Texture::Texture():
+    width(0),
+    height(0),
+    channels(0),
+    data(nullptr)
+{
+}
+
+Texture::Texture(
+    int inWidth,
+    int inHeight,
+    int inChannels,
+    const unsigned char *inData):
+    width(inWidth),
+    height(inHeight),
+    channels(inChannels),
+    data(nullptr)
+{
+    const int64_t byteCount = static_cast<int64_t>(width)
+                              * static_cast<int64_t>(height)
+                              * static_cast<int64_t>(channels);
+    if ( byteCount <= 0 || inData == nullptr ) {
+        return;
+    }
+    data = new unsigned char[byteCount];
+    std::memcpy(data, inData, static_cast<size_t>(byteCount));
+}
+
+Texture::~Texture() {
+    delete[] data;
+    data = nullptr;
+}
 
 inline void
 rgbSetMonochrome(ColorRgb rgb, float val) {

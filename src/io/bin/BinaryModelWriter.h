@@ -3,7 +3,7 @@
 
 class MgfModel;
 
-class BinaryModelWritter {
+class BinaryModelWriter {
   public:
     static bool write(const MgfModel *model, const char *fileName);
 };

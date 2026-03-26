@@ -5,6 +5,7 @@ Command line options and defaults
 #include <cstring>
 #include "java/lang/System.h"
 #include <cerrno>
+#include <climits>
 
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Vector3D.h"
@@ -71,8 +72,23 @@ Scans the current argument value for a value of given format
 */
 static bool
 optionsGetArgumentIntValue(int *res) {
-    *res = static_cast<int>(strtol(*globalCurrentArgumentValue, nullptr, 10));
-    return errno == ERANGE;
+    if ( globalCurrentArgumentValue == nullptr || *globalCurrentArgumentValue == nullptr ) {
+        return false;
+    }
+
+    errno = 0;
+    char *endPointer = nullptr;
+    const long parsedValue = strtol(*globalCurrentArgumentValue, &endPointer, 10);
+
+    if ( endPointer == *globalCurrentArgumentValue || *endPointer != '\0' ) {
+        return false;
+    }
+    if ( errno == ERANGE || parsedValue < INT_MIN || parsedValue > INT_MAX ) {
+        return false;
+    }
+
+    *res = static_cast<int>(parsedValue);
+    return true;
 }
 
 /**
