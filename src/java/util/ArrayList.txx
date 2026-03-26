@@ -1,4 +1,4 @@
-#include <cstdlib>
+#include <new>
 
 #include "java/util/ArrayList.h"
 
@@ -29,7 +29,7 @@ template <class T>
 void
 ArrayList<T>::dispose() {
     if ( Data ) {
-        free(Data);
+        delete[] Data;
         Data = nullptr;
     }
     currentSize = 0;
@@ -38,7 +38,14 @@ ArrayList<T>::dispose() {
 
 template <class T> void
 ArrayList<T>::init() {
-    Data = static_cast<T *>(malloc(sizeof(T) * maxSize));
+    if ( maxSize > 0 ) {
+        Data = new (std::nothrow) T[maxSize];
+        if ( !Data ) {
+            maxSize = 0;
+        }
+    } else {
+        Data = nullptr;
+    }
     currentSize = 0;
 }
 
@@ -46,11 +53,23 @@ template <class T> bool
 ArrayList<T>::add(T voxelData)
 {
     if ( currentSize >= maxSize ) {
-        Data = static_cast<T *>(realloc(Data, sizeof(T) * (maxSize + increaseChunk)));
-        if ( !Data ) {
+        long int newMaxSize = maxSize + increaseChunk;
+        if ( newMaxSize <= maxSize ) {
+            newMaxSize = maxSize + 1;
+        }
+
+        T *newData = new (std::nothrow) T[newMaxSize];
+        if ( !newData ) {
             return false;
         }
-        maxSize += increaseChunk;
+
+        for ( long int i = 0; i < currentSize; i++ ) {
+            newData[i] = Data[i];
+        }
+
+        delete[] Data;
+        Data = newData;
+        maxSize = newMaxSize;
     }
     Data[currentSize] = voxelData;
     currentSize++;

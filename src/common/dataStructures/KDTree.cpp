@@ -78,7 +78,7 @@ KDTree::deleteNodes(KDTreeNode *node, bool deleteData) {
     deleteNodes(node->hison, deleteData);
 
     if ( deleteData ) {
-        free(node->m_data);
+        delete[] static_cast<unsigned char *>(node->m_data);
     }
 
     delete node;
@@ -92,7 +92,7 @@ KDTree::deleteBNodes(bool deleteData) {
 
     if ( deleteData ) {
         for ( int node = 0; node < numBalanced; node++ ) {
-            free(balancedRootNode[node].m_data);
+            delete[] static_cast<unsigned char *>(balancedRootNode[node].m_data);
         }
     }
 
@@ -190,10 +190,8 @@ KDTree::addPoint(void *data, short flags = 0) {
 void *
 KDTree::assignData(void *data) const {
     if ( copyData ) {
-        void *newData;
-
-        newData = malloc(dataSize);
-        memcpy(static_cast<char *>(newData), static_cast<char *>(data), dataSize);
+        unsigned char *newData = new unsigned char[static_cast<size_t>(dataSize)];
+        memcpy(newData, data, static_cast<size_t>(dataSize));
         return newData;
     } else {
         return data;
