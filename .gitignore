@@ -34,6 +34,8 @@
 # Cmake
 build
 cmake*
+!CMakeLists.txt
+!**/CMakeLists.txt
 
 # IntelliJ/Clion
 .idea

@@ -1,8 +1,8 @@
-#ifndef __MGF_ERROR_CODE__
-#define __MGF_ERROR_CODE__
+#ifndef __ERROR_CODE_CONTEXT__
+#define __ERROR_CODE_CONTEXT__
 
 // Error codes
-enum MgfErrorCode {
+enum ErrorCodeContext {
     MGF_OK = 0, // normal return value
     MGF_ERROR_UNKNOWN_ENTITY = 1,
     MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS = 2,

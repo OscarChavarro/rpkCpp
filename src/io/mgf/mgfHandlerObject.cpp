@@ -97,17 +97,17 @@ handleObject2Entity(int ac, const char **av) {
     if ( ac == 1 ) {
         // Just pop top object
         if ( globalObjectNames < 1 ) {
-            return MgfErrorCode::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
+            return ErrorCodeContext::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         delete[] globalObjectNamesList[--globalObjectNames];
         globalObjectNamesList[globalObjectNames] = nullptr;
-        return MgfErrorCode::MGF_OK;
+        return ErrorCodeContext::MGF_OK;
     }
     if ( ac != 2 ) {
-        return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
     if ( !WordsContext::isName(av[1]) ) {
-        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
         // Enlarge array
@@ -124,18 +124,18 @@ handleObject2Entity(int ac, const char **av) {
             }
         }
         if ( globalObjectNamesList == nullptr ) {
-            return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+            return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
         }
     }
 
     // Allocate new entry
     globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
     if ( globalObjectNamesList[globalObjectNames] == nullptr) {
-        return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+        return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
     }
     strcpy(globalObjectNamesList[globalObjectNames++], av[1]);
     globalObjectNamesList[globalObjectNames] = nullptr;
-    return MgfErrorCode::MGF_OK;
+    return ErrorCodeContext::MGF_OK;
 }
 
 void

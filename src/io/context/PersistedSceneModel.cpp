@@ -1,4 +1,4 @@
-#include "io/PersistedSceneModel.h"
+#include "io/context/PersistedSceneModel.h"
 
 PersistedSceneModel::PersistedSceneModel():
     currentColor(nullptr),

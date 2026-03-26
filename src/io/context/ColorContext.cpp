@@ -96,7 +96,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
 
     // Check getBoundingBox
     if ( wlMaximum <= COLOR_MINIMUM_WAVE_LENGTH || wlMaximum <= wlMinimum || wlMinimum >= COLOR_MAXIMUM_WAVE_LENGTH ) {
-        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wlStep = (wlMaximum - wlMinimum) / (ac - 1);
     while ( wlMinimum < COLOR_MINIMUM_WAVE_LENGTH ) {
@@ -125,7 +125,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
         while ( boxPos < i + 0.5 && pos < ac ) {
             const char *value = av[argumentStartIndex + pos];
             if ( !WordsContext::isFloat(value) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += strtof(value, nullptr);
             pos++;
@@ -142,7 +142,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
             }
     }
     if ( scale <= Numeric::EPSILON ) {
-        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
     spectralStraightSum = 0; // Convert to our spacing
@@ -169,7 +169,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return MgfErrorCode::MGF_OK;
+    return ErrorCodeContext::MGF_OK;
 }
 
 /**
@@ -181,7 +181,7 @@ ColorContext::setBlackBodyTemperature(double tk) {
     double wl;
 
     if ( tk < 1000 ) {
-        return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wl = bBlm(tk);
     // Scale factor based on peak
@@ -198,7 +198,7 @@ ColorContext::setBlackBodyTemperature(double tk) {
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return MgfErrorCode::MGF_OK;
+    return ErrorCodeContext::MGF_OK;
 }
 
 /**

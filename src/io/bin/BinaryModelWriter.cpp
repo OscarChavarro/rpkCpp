@@ -1,5 +1,8 @@
 #include "io/bin/BinaryModelWriter.h"
 
+#include <cstring>
+#include <limits>
+
 #include "java/io/FileOutputStream.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/HashMap.txx"
@@ -8,10 +11,10 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/PersistenceElement.h"
 #include "io/context/ColorContext.h"
-#include "io/PersistedSceneModel.h"
+#include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
-#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -31,18 +34,31 @@ const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
 };
 const int32_t BinaryModelWriter::BINARY_MODEL_VERSION = 1;
 
-void
+namespace {
+const char *
+safeLabel(const char *text) {
+    if ( text == nullptr ) {
+        return "(null)";
+    }
+    return text;
+}
+}
+
+bool
 BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, int64_t length) {
     if ( length < 0 ) {
-        throw std::runtime_error("Negative block length");
+        logError("BinaryModelWriter::writeBytesChunked", "Negative block length");
+        return false;
     }
     int64_t offset = 0;
     const int64_t maxChunk = static_cast<int64_t>(std::numeric_limits<int>::max());
     while ( offset < length ) {
-        const int chunk = static_cast<int>(std::min(maxChunk, length - offset));
+        const int64_t remaining = length - offset;
+        const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
         vsdk::PersistenceElement::writeBytes(output, data + offset, chunk);
         offset += static_cast<int64_t>(chunk);
     }
+    return true;
 }
 
 void
@@ -53,29 +69,36 @@ BinaryModelWriter::writeTag(java::io::OutputStream &output, const char tag[4]) {
         4);
 }
 
-int32_t
-BinaryModelWriter::checkedLongToInt32(long value, const char *what) {
+bool
+BinaryModelWriter::checkedLongToInt32(long value, const char *what, int32_t &result) {
     if ( value > static_cast<long>(std::numeric_limits<int32_t>::max())
          || value < static_cast<long>(std::numeric_limits<int32_t>::min()) ) {
-        throw std::runtime_error(std::string("Overflow converting to int32 for ") + what);
+        logError("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+        return false;
     }
-    return static_cast<int32_t>(value);
+    result = static_cast<int32_t>(value);
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::writeString(java::io::OutputStream &output, const char *text) {
     if ( text == nullptr ) {
         vsdk::PersistenceElement::writeInt32LE(output, -1);
-        return;
+        return true;
     }
     const long size = static_cast<long>(std::strlen(text));
-    vsdk::PersistenceElement::writeInt32LE(output, checkedLongToInt32(size, "string length"));
+    int32_t sizeAsInt32 = 0;
+    if ( !checkedLongToInt32(size, "string length", sizeAsInt32) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, sizeAsInt32);
     if ( size > 0 ) {
         vsdk::PersistenceElement::writeBytes(
             output,
             reinterpret_cast<const unsigned char *>(text),
             static_cast<int>(size));
     }
+    return true;
 }
 
 void
@@ -100,20 +123,28 @@ BinaryModelWriter::writeBoundingBox(java::io::OutputStream &output, const Boundi
 }
 
 template <typename T>
-int32_t
-BinaryModelWriter::indexOfPointer(const T *ptr, const java::HashMap<const T *, int> &indices, const char *what) {
+bool
+BinaryModelWriter::indexOfPointer(
+    const T *ptr,
+    const java::HashMap<const T *, int> &indices,
+    const char *what,
+    int32_t &result)
+{
     if ( ptr == nullptr ) {
-        return -1;
+        result = -1;
+        return true;
     }
     int index = 0;
     if ( !indices.tryGet(ptr, &index) ) {
-        throw std::runtime_error(std::string("Missing pointer index for ") + what);
+        logError("BinaryModelWriter::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+        return false;
     }
-    return static_cast<int32_t>(index);
+    result = static_cast<int32_t>(index);
+    return true;
 }
 
 template <typename T>
-void
+bool
 BinaryModelWriter::writeIndexList(
     java::io::OutputStream &output,
     const java::ArrayList<T *> *list,
@@ -122,15 +153,23 @@ BinaryModelWriter::writeIndexList(
 {
     if ( list == nullptr ) {
         vsdk::PersistenceElement::writeInt32LE(output, -1);
-        return;
+        return true;
     }
 
-    const int32_t size = checkedLongToInt32(list->size(), what);
+    int32_t size = 0;
+    if ( !checkedLongToInt32(list->size(), what, size) ) {
+        return false;
+    }
     vsdk::PersistenceElement::writeInt32LE(output, size);
     for ( int32_t i = 0; i < size; i++ ) {
         const T *element = list->get(i);
-        vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(element, indices, what));
+        int32_t elementIndex = -1;
+        if ( !indexOfPointer(element, indices, what, elementIndex) ) {
+            return false;
+        }
+        vsdk::PersistenceElement::writeInt32LE(output, elementIndex);
     }
+    return true;
 }
 
 class BinaryModelWriter::SerializationContext {
@@ -159,335 +198,422 @@ class BinaryModelWriter::SerializationContext {
     java::HashMap<const TransformArray *, int> transformArrayIndices;
     java::ArrayList<const TransformArray *> transformArrays;
 
-    java::HashMap<const TransformContext *, int> transformContextIndices;
-    java::ArrayList<const TransformContext *> transformContexts;
+    java::HashMap<const TransformStackContext *, int> transformContextIndices;
+    java::ArrayList<const TransformStackContext *> transformContexts;
 
-    int ensureVector(const Vector3D *value);
-    int ensureMaterial(const Material *value);
-    int ensureVertex(const Vertex *value);
-    int ensurePatch(const Patch *value);
-    int ensureGeometry(const Geometry *value);
-    int ensureColorContext(const ColorContext *value);
-    int ensureReaderContext(const ReaderContext *value);
-    int ensureTransformArray(const TransformArray *value);
-    int ensureTransformContext(const TransformContext *value);
+    bool ensureVector(const Vector3D *value);
+    bool ensureMaterial(const Material *value);
+    bool ensureVertex(const Vertex *value);
+    bool ensurePatch(const Patch *value);
+    bool ensureGeometry(const Geometry *value);
+    bool ensureColorContext(const ColorContext *value);
+    bool ensureReaderContext(const ReaderContext *value);
+    bool ensureTransformArray(const TransformArray *value);
+    bool ensureTransformContext(const TransformStackContext *value);
 
-    void collectVectorList(const java::ArrayList<Vector3D *> *list);
-    void collectVertexList(const java::ArrayList<Vertex *> *list);
-    void collectPatchList(const java::ArrayList<Patch *> *list);
-    void collectMaterialList(const java::ArrayList<Material *> *list);
-    void collectGeometryList(const java::ArrayList<Geometry *> *list);
-    void collectModel(const PersistedSceneModel *model);
+    bool collectVectorList(const java::ArrayList<Vector3D *> *list);
+    bool collectVertexList(const java::ArrayList<Vertex *> *list);
+    bool collectPatchList(const java::ArrayList<Patch *> *list);
+    bool collectMaterialList(const java::ArrayList<Material *> *list);
+    bool collectGeometryList(const java::ArrayList<Geometry *> *list);
+    bool collectModel(const PersistedSceneModel *model);
 };
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureVector(const Vector3D *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( vectorIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(vectors.size());
     if ( !vectors.add(value) ) {
-        throw std::runtime_error("Failed to append vector");
+        logError("BinaryModelWriter::SerializationContext::ensureVector", "Failed to append vector");
+        return false;
     }
     if ( !vectorIndices.put(value, index) ) {
         vectors.remove(vectors.size() - 1);
-        throw std::runtime_error("Failed to index vector");
+        logError("BinaryModelWriter::SerializationContext::ensureVector", "Failed to index vector");
+        return false;
     }
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureMaterial(const Material *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( materialIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(materials.size());
     if ( !materials.add(value) ) {
-        throw std::runtime_error("Failed to append material");
+        logError("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to append material");
+        return false;
     }
     if ( !materialIndices.put(value, index) ) {
         materials.remove(materials.size() - 1);
-        throw std::runtime_error("Failed to index material");
+        logError("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to index material");
+        return false;
     }
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureVertex(const Vertex *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( vertexIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
 
     if ( value->radianceData != nullptr ) {
-        throw std::runtime_error("Vertex radianceData is not supported by BinaryModelWritter");
+        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+        return false;
     }
 
     const int index = static_cast<int>(vertices.size());
     if ( !vertices.add(value) ) {
-        throw std::runtime_error("Failed to append vertex");
+        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to append vertex");
+        return false;
     }
     if ( !vertexIndices.put(value, index) ) {
         vertices.remove(vertices.size() - 1);
-        throw std::runtime_error("Failed to index vertex");
+        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to index vertex");
+        return false;
     }
 
-    ensureVector(value->point);
-    ensureVector(value->normal);
-    ensureVector(value->textureCoordinates);
-    ensureVertex(value->back);
+    if ( !ensureVector(value->point) ) {
+        return false;
+    }
+    if ( !ensureVector(value->normal) ) {
+        return false;
+    }
+    if ( !ensureVector(value->textureCoordinates) ) {
+        return false;
+    }
+    if ( !ensureVertex(value->back) ) {
+        return false;
+    }
 
     if ( value->patches != nullptr ) {
         for ( int i = 0; i < value->patches->size(); i++ ) {
-            ensurePatch(value->patches->get(i));
+            if ( !ensurePatch(value->patches->get(i)) ) {
+                return false;
+            }
         }
     }
 
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensurePatch(const Patch *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( patchIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
 
     if ( value->radianceData != nullptr ) {
-        throw std::runtime_error("Patch radianceData is not supported by BinaryModelWritter");
+        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+        return false;
     }
 
     const int index = static_cast<int>(patches.size());
     if ( !patches.add(value) ) {
-        throw std::runtime_error("Failed to append patch");
+        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to append patch");
+        return false;
     }
     if ( !patchIndices.put(value, index) ) {
         patches.remove(patches.size() - 1);
-        throw std::runtime_error("Failed to index patch");
+        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to index patch");
+        return false;
     }
 
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        ensureVertex(value->vertex[i]);
+        if ( !ensureVertex(value->vertex[i]) ) {
+            return false;
+        }
     }
-    ensurePatch(value->twin);
-    ensureMaterial(value->material);
+    if ( !ensurePatch(value->twin) ) {
+        return false;
+    }
+    if ( !ensureMaterial(value->material) ) {
+        return false;
+    }
 
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureGeometry(const Geometry *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( geometryIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
 
     if ( value->radianceData != nullptr ) {
-        throw std::runtime_error("Geometry radianceData is not supported by BinaryModelWritter");
+        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+        return false;
     }
 
     const int index = static_cast<int>(geometries.size());
     if ( !geometries.add(value) ) {
-        throw std::runtime_error("Failed to append geometry");
+        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to append geometry");
+        return false;
     }
     if ( !geometryIndices.put(value, index) ) {
         geometries.remove(geometries.size() - 1);
-        throw std::runtime_error("Failed to index geometry");
+        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to index geometry");
+        return false;
     }
 
     if ( value->className == GeometryClassId::SURFACE_MESH ) {
         const MeshSurface *surface = static_cast<const MeshSurface *>(value);
-        ensureMaterial(surface->material);
-        collectVectorList(surface->positions);
-        collectVectorList(surface->normals);
-        collectVertexList(surface->vertices);
-        collectPatchList(surface->faces);
+        if ( !ensureMaterial(surface->material) ) {
+            return false;
+        }
+        if ( !collectVectorList(surface->positions) ) {
+            return false;
+        }
+        if ( !collectVectorList(surface->normals) ) {
+            return false;
+        }
+        if ( !collectVertexList(surface->vertices) ) {
+            return false;
+        }
+        if ( !collectPatchList(surface->faces) ) {
+            return false;
+        }
     } else if ( value->className == GeometryClassId::COMPOUND ) {
         const Compound *compound = static_cast<const Compound *>(value);
-        collectGeometryList(compound->children);
+        if ( !collectGeometryList(compound->children) ) {
+            return false;
+        }
     } else if ( value->className == GeometryClassId::PATCH_SET ) {
         const PatchSet *patchSet = static_cast<const PatchSet *>(value);
-        collectPatchList(patchSet->getPatchList());
+        if ( !collectPatchList(patchSet->getPatchList()) ) {
+            return false;
+        }
     } else {
-        throw std::runtime_error("Unsupported geometry class for BinaryModelWritter");
+        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+        return false;
     }
 
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureColorContext(const ColorContext *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( colorContextIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(colorContexts.size());
     if ( !colorContexts.add(value) ) {
-        throw std::runtime_error("Failed to append color context");
+        logError("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to append color context");
+        return false;
     }
     if ( !colorContextIndices.put(value, index) ) {
         colorContexts.remove(colorContexts.size() - 1);
-        throw std::runtime_error("Failed to index color context");
+        logError("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to index color context");
+        return false;
     }
-    return index;
+    return true;
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureReaderContext(const ReaderContext *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( readerContextIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(readerContexts.size());
     if ( !readerContexts.add(value) ) {
-        throw std::runtime_error("Failed to append reader context");
+        logError("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to append reader context");
+        return false;
     }
     if ( !readerContextIndices.put(value, index) ) {
         readerContexts.remove(readerContexts.size() - 1);
-        throw std::runtime_error("Failed to index reader context");
+        logError("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to index reader context");
+        return false;
     }
 
-    ensureReaderContext(value->prev);
-    return index;
+    return ensureReaderContext(value->prev);
 }
 
-int
+bool
 BinaryModelWriter::SerializationContext::ensureTransformArray(const TransformArray *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( transformArrayIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(transformArrays.size());
     if ( !transformArrays.add(value) ) {
-        throw std::runtime_error("Failed to append transform array");
+        logError("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to append transform array");
+        return false;
     }
     if ( !transformArrayIndices.put(value, index) ) {
         transformArrays.remove(transformArrays.size() - 1);
-        throw std::runtime_error("Failed to index transform array");
+        logError("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to index transform array");
+        return false;
     }
-    return index;
+    return true;
 }
 
-int
-BinaryModelWriter::SerializationContext::ensureTransformContext(const TransformContext *value) {
+bool
+BinaryModelWriter::SerializationContext::ensureTransformContext(const TransformStackContext *value) {
     if ( value == nullptr ) {
-        return -1;
+        return true;
     }
     int existingIndex = -1;
     if ( transformContextIndices.tryGet(value, &existingIndex) ) {
-        return existingIndex;
+        return true;
     }
     const int index = static_cast<int>(transformContexts.size());
     if ( !transformContexts.add(value) ) {
-        throw std::runtime_error("Failed to append transform context");
+        logError("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to append transform context");
+        return false;
     }
     if ( !transformContextIndices.put(value, index) ) {
         transformContexts.remove(transformContexts.size() - 1);
-        throw std::runtime_error("Failed to index transform context");
+        logError("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to index transform context");
+        return false;
     }
 
-    ensureTransformArray(value->transformationArray);
-    ensureTransformContext(value->prev);
-    return index;
+    if ( !ensureTransformArray(value->transformationArray) ) {
+        return false;
+    }
+    return ensureTransformContext(value->prev);
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectVectorList(const java::ArrayList<Vector3D *> *list) {
     if ( list == nullptr ) {
-        return;
+        return true;
     }
     for ( int i = 0; i < list->size(); i++ ) {
-        ensureVector(list->get(i));
+        if ( !ensureVector(list->get(i)) ) {
+            return false;
+        }
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectVertexList(const java::ArrayList<Vertex *> *list) {
     if ( list == nullptr ) {
-        return;
+        return true;
     }
     for ( int i = 0; i < list->size(); i++ ) {
-        ensureVertex(list->get(i));
+        if ( !ensureVertex(list->get(i)) ) {
+            return false;
+        }
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectPatchList(const java::ArrayList<Patch *> *list) {
     if ( list == nullptr ) {
-        return;
+        return true;
     }
     for ( int i = 0; i < list->size(); i++ ) {
-        ensurePatch(list->get(i));
+        if ( !ensurePatch(list->get(i)) ) {
+            return false;
+        }
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectMaterialList(const java::ArrayList<Material *> *list) {
     if ( list == nullptr ) {
-        return;
+        return true;
     }
     for ( int i = 0; i < list->size(); i++ ) {
-        ensureMaterial(list->get(i));
+        if ( !ensureMaterial(list->get(i)) ) {
+            return false;
+        }
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectGeometryList(const java::ArrayList<Geometry *> *list) {
     if ( list == nullptr ) {
-        return;
+        return true;
     }
     for ( int i = 0; i < list->size(); i++ ) {
-        ensureGeometry(list->get(i));
+        if ( !ensureGeometry(list->get(i)) ) {
+            return false;
+        }
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::SerializationContext::collectModel(const PersistedSceneModel *model) {
     if ( model == nullptr ) {
-        return;
+        return true;
     }
 
-    ensureColorContext(model->currentColor);
-    collectPatchList(model->currentFaceList);
-    collectGeometryList(model->currentGeometryList);
-    collectMaterialList(model->materials);
-    collectVectorList(model->currentNormalList);
-    collectVectorList(model->currentPointList);
-    collectVertexList(model->currentVertexList);
-    collectGeometryList(model->geometries);
-    ensureReaderContext(model->readerContext);
-    ensureTransformContext(model->transformContext);
+    if ( !ensureColorContext(model->currentColor) ) {
+        return false;
+    }
+    if ( !collectPatchList(model->currentFaceList) ) {
+        return false;
+    }
+    if ( !collectGeometryList(model->currentGeometryList) ) {
+        return false;
+    }
+    if ( !collectMaterialList(model->materials) ) {
+        return false;
+    }
+    if ( !collectVectorList(model->currentNormalList) ) {
+        return false;
+    }
+    if ( !collectVectorList(model->currentPointList) ) {
+        return false;
+    }
+    if ( !collectVertexList(model->currentVertexList) ) {
+        return false;
+    }
+    if ( !collectGeometryList(model->geometries) ) {
+        return false;
+    }
+    if ( !ensureReaderContext(model->readerContext) ) {
+        return false;
+    }
+    return ensureTransformContext(model->transformContext);
 }
 
-void
+bool
 BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Material *material) {
-    writeString(output, material->getName());
+    if ( !writeString(output, material->getName()) ) {
+        return false;
+    }
     vsdk::PersistenceElement::writeBool(output, material->isSided());
 
     const PhongEmittanceDistributionFunction *edf = material->getEdf();
@@ -501,7 +627,7 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
     const PhongBidirectionalScatteringDistributionFunction *bsdf = material->getBsdf();
     vsdk::PersistenceElement::writeBool(output, bsdf != nullptr);
     if ( bsdf == nullptr ) {
-        return;
+        return true;
     }
 
     const PhongBidirectionalReflectanceDistributionFunction *brdf = bsdf->getBrdf();
@@ -529,7 +655,8 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
         const int height = texture->getHeight();
         const int channels = texture->getChannels();
         if ( width < 0 || height < 0 || channels < 0 ) {
-            throw std::runtime_error("Invalid texture dimensions");
+            logError("BinaryModelWriter::writeMaterialRecord", "Invalid texture dimensions");
+            return false;
         }
 
         vsdk::PersistenceElement::writeInt32LE(output, width);
@@ -544,11 +671,15 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
             if ( data == nullptr ) {
-                throw std::runtime_error("Texture data is null with non-zero size");
+                logError("BinaryModelWriter::writeMaterialRecord", "Texture data is null with non-zero size");
+                return false;
             }
-            writeBytesChunked(output, data, dataBytes);
+            if ( !writeBytesChunked(output, data, dataBytes) ) {
+                return false;
+            }
         }
     }
+    return true;
 }
 
 void
@@ -564,7 +695,7 @@ BinaryModelWriter::writeColorContextRecord(java::io::OutputStream &output, const
     vsdk::PersistenceElement::writeFloatLE(output, colorContext->eff);
 }
 
-void
+bool
 BinaryModelWriter::writeReaderContextRecord(
     java::io::OutputStream &output,
     const ReaderContext *readerContext,
@@ -582,15 +713,19 @@ BinaryModelWriter::writeReaderContextRecord(
         MGF_MAXIMUM_INPUT_LINE_LENGTH);
     vsdk::PersistenceElement::writeInt32LE(output, readerContext->lineNumber);
     vsdk::PersistenceElement::writeByte(output, static_cast<unsigned char>(readerContext->isPipe));
-    vsdk::PersistenceElement::writeInt32LE(
-        output,
-        indexOfPointer(readerContext->prev, context.readerContextIndices, "readerContext.prev"));
+
+    int32_t previousIndex = -1;
+    if ( !indexOfPointer(readerContext->prev, context.readerContextIndices, "readerContext.prev", previousIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, previousIndex);
+    return true;
 }
 
 void
 BinaryModelWriter::writeTransformArrayRecord(java::io::OutputStream &output, const TransformArray *transformArray) {
-    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fid);
-    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineno);
+    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
+    vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<int64_t>(transformArray->startingPosition.offset));
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
     for ( int i = 0; i < TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
@@ -603,10 +738,10 @@ BinaryModelWriter::writeTransformArrayRecord(java::io::OutputStream &output, con
     }
 }
 
-void
+bool
 BinaryModelWriter::writeTransformContextRecord(
     java::io::OutputStream &output,
-    const TransformContext *transformContext,
+    const TransformStackContext *transformContext,
     const BinaryModelWriter::SerializationContext &context)
 {
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<int64_t>(transformContext->xid));
@@ -620,40 +755,76 @@ BinaryModelWriter::writeTransformContextRecord(
     }
     vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.scaleFactor);
 
-    vsdk::PersistenceElement::writeInt32LE(
-        output,
-        indexOfPointer(
-            transformContext->transformationArray,
-            context.transformArrayIndices,
-            "transformContext.transformationArray"));
-    vsdk::PersistenceElement::writeInt32LE(
-        output,
-        indexOfPointer(
-            transformContext->prev,
-            context.transformContextIndices,
-            "transformContext.prev"));
+    int32_t transformArrayIndex = -1;
+    if ( !indexOfPointer(
+             transformContext->transformationArray,
+             context.transformArrayIndices,
+             "transformContext.transformationArray",
+             transformArrayIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, transformArrayIndex);
+
+    int32_t previousIndex = -1;
+    if ( !indexOfPointer(transformContext->prev, context.transformContextIndices, "transformContext.prev", previousIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, previousIndex);
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriter::SerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(vertex->point, context.vectorIndices, "vertex.point"));
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(vertex->normal, context.vectorIndices, "vertex.normal"));
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(vertex->textureCoordinates, context.vectorIndices, "vertex.textureCoordinates"));
+
+    int32_t pointIndex = -1;
+    if ( !indexOfPointer(vertex->point, context.vectorIndices, "vertex.point", pointIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, pointIndex);
+
+    int32_t normalIndex = -1;
+    if ( !indexOfPointer(vertex->normal, context.vectorIndices, "vertex.normal", normalIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, normalIndex);
+
+    int32_t textureIndex = -1;
+    if ( !indexOfPointer(vertex->textureCoordinates, context.vectorIndices, "vertex.textureCoordinates", textureIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, textureIndex);
+
     writeColor(output, vertex->color);
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(vertex->back, context.vertexIndices, "vertex.back"));
+
+    int32_t backIndex = -1;
+    if ( !indexOfPointer(vertex->back, context.vertexIndices, "vertex.back", backIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, backIndex);
+
     vsdk::PersistenceElement::writeInt32LE(output, vertex->tmp);
     vsdk::PersistenceElement::writeBool(output, vertex->radianceData != nullptr);
-    writeIndexList(output, vertex->patches, context.patchIndices, "vertex.patches");
+    return writeIndexList(output, vertex->patches, context.patchIndices, "vertex.patches");
 }
 
-void
+bool
 BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriter::SerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(patch->id));
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(patch->twin, context.patchIndices, "patch.twin"));
+
+    int32_t twinIndex = -1;
+    if ( !indexOfPointer(patch->twin, context.patchIndices, "patch.twin", twinIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, twinIndex);
+
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(patch->numberOfVertices));
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(patch->vertex[i], context.vertexIndices, "patch.vertex"));
+        int32_t vertexIndex = -1;
+        if ( !indexOfPointer(patch->vertex[i], context.vertexIndices, "patch.vertex", vertexIndex) ) {
+            return false;
+        }
+        vsdk::PersistenceElement::writeInt32LE(output, vertexIndex);
     }
 
     vsdk::PersistenceElement::writeBool(output, patch->boundingBox != nullptr);
@@ -679,11 +850,18 @@ BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch 
     vsdk::PersistenceElement::writeBool(output, patch->omit != 0);
     vsdk::PersistenceElement::writeByte(output, patch->getFlags());
     writeColor(output, patch->color);
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(patch->material, context.materialIndices, "patch.material"));
+
+    int32_t materialIndex = -1;
+    if ( !indexOfPointer(patch->material, context.materialIndices, "patch.material", materialIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
+
     vsdk::PersistenceElement::writeBool(output, patch->radianceData != nullptr);
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriter::SerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
@@ -698,131 +876,263 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
 
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         const MeshSurface *surface = static_cast<const MeshSurface *>(geometry);
-        writeString(output, surface->objectName);
+        if ( !writeString(output, surface->objectName) ) {
+            return false;
+        }
         vsdk::PersistenceElement::writeInt32LE(output, surface->meshId);
-        vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(surface->material, context.materialIndices, "surface.material"));
-        writeIndexList(output, surface->positions, context.vectorIndices, "surface.positions");
-        writeIndexList(output, surface->normals, context.vectorIndices, "surface.normals");
-        writeIndexList(output, surface->vertices, context.vertexIndices, "surface.vertices");
-        writeIndexList(output, surface->faces, context.patchIndices, "surface.faces");
+
+        int32_t materialIndex = -1;
+        if ( !indexOfPointer(surface->material, context.materialIndices, "surface.material", materialIndex) ) {
+            return false;
+        }
+        vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
+
+        if ( !writeIndexList(output, surface->positions, context.vectorIndices, "surface.positions") ) {
+            return false;
+        }
+        if ( !writeIndexList(output, surface->normals, context.vectorIndices, "surface.normals") ) {
+            return false;
+        }
+        if ( !writeIndexList(output, surface->vertices, context.vertexIndices, "surface.vertices") ) {
+            return false;
+        }
+        if ( !writeIndexList(output, surface->faces, context.patchIndices, "surface.faces") ) {
+            return false;
+        }
     } else if ( geometry->className == GeometryClassId::COMPOUND ) {
         const Compound *compound = static_cast<const Compound *>(geometry);
-        writeIndexList(output, compound->children, context.geometryIndices, "compound.children");
+        if ( !writeIndexList(output, compound->children, context.geometryIndices, "compound.children") ) {
+            return false;
+        }
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
         const PatchSet *patchSet = static_cast<const PatchSet *>(geometry);
-        writeIndexList(output, patchSet->getPatchList(), context.patchIndices, "patchSet.patchList");
+        if ( !writeIndexList(output, patchSet->getPatchList(), context.patchIndices, "patchSet.patchList") ) {
+            return false;
+        }
     } else {
-        throw std::runtime_error("Unsupported geometry class while writing");
+        logError("BinaryModelWriter::writeGeometryRecord", "Unsupported geometry class while writing");
+        return false;
     }
+    return true;
 }
 
-void
+bool
 BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriter::SerializationContext &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor"));
-    writeString(output, model->currentMaterialName);
-    writeString(output, model->currentObjectName);
-    writeString(output, model->currentVertexName);
+    int32_t currentColorIndex = -1;
+    if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, currentColorIndex);
+
+    if ( !writeString(output, model->currentMaterialName) ) {
+        return false;
+    }
+    if ( !writeString(output, model->currentObjectName) ) {
+        return false;
+    }
+    if ( !writeString(output, model->currentVertexName) ) {
+        return false;
+    }
+
     vsdk::PersistenceElement::writeInt32LE(output, model->geometryStackHeadIndex);
     vsdk::PersistenceElement::writeBool(output, model->inComplex);
     vsdk::PersistenceElement::writeBool(output, model->inSurface);
     vsdk::PersistenceElement::writeBool(output, model->monochrome);
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(model->readerContext, context.readerContextIndices, "model.readerContext"));
-    vsdk::PersistenceElement::writeInt32LE(output, indexOfPointer(model->transformContext, context.transformContextIndices, "model.transformContext"));
 
-    writeIndexList(output, model->currentFaceList, context.patchIndices, "model.currentFaceList");
-    writeIndexList(output, model->currentGeometryList, context.geometryIndices, "model.currentGeometryList");
-    writeIndexList(output, model->currentNormalList, context.vectorIndices, "model.currentNormalList");
-    writeIndexList(output, model->currentPointList, context.vectorIndices, "model.currentPointList");
-    writeIndexList(output, model->currentVertexList, context.vertexIndices, "model.currentVertexList");
-    writeIndexList(output, model->geometries, context.geometryIndices, "model.geometries");
-    writeIndexList(output, model->materials, context.materialIndices, "model.materials");
+    int32_t readerContextIndex = -1;
+    if ( !indexOfPointer(model->readerContext, context.readerContextIndices, "model.readerContext", readerContextIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, readerContextIndex);
+
+    int32_t transformContextIndex = -1;
+    if ( !indexOfPointer(model->transformContext, context.transformContextIndices, "model.transformContext", transformContextIndex) ) {
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, transformContextIndex);
+
+    if ( !writeIndexList(output, model->currentFaceList, context.patchIndices, "model.currentFaceList") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->currentGeometryList, context.geometryIndices, "model.currentGeometryList") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->currentNormalList, context.vectorIndices, "model.currentNormalList") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->currentPointList, context.vectorIndices, "model.currentPointList") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->currentVertexList, context.vertexIndices, "model.currentVertexList") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->geometries, context.geometryIndices, "model.geometries") ) {
+        return false;
+    }
+    if ( !writeIndexList(output, model->materials, context.materialIndices, "model.materials") ) {
+        return false;
+    }
+    return true;
 }
 
 bool
 BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
+        logError("BinaryModelWriter::write", "Invalid model or fileName");
         return false;
     }
 
     java::io::FileOutputStream output;
     if ( !output.open(fileName) ) {
+        logError("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
+        output.close();
         return false;
     }
 
-    bool ok = false;
-    try {
-        SerializationContext context;
-        context.collectModel(model);
-
-        vsdk::PersistenceElement::writeBytes(output, BINARY_MODEL_MAGIC, 16);
-        vsdk::PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(void *)));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(long)));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(PersistedSceneModel)));
-
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.vectors.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.vertices.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.patches.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.materials.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.geometries.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.colorContexts.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.readerContexts.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.transformArrays.size()));
-        vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(context.transformContexts.size()));
-
-        writeTag(output, "VEC3");
-        for ( long int i = 0; i < context.vectors.size(); i++ ) {
-            writeVector(output, *context.vectors.get(i));
-        }
-
-        writeTag(output, "MTLS");
-        for ( long int i = 0; i < context.materials.size(); i++ ) {
-            writeMaterialRecord(output, context.materials.get(i));
-        }
-
-        writeTag(output, "COLR");
-        for ( long int i = 0; i < context.colorContexts.size(); i++ ) {
-            writeColorContextRecord(output, context.colorContexts.get(i));
-        }
-
-        writeTag(output, "RCTX");
-        for ( long int i = 0; i < context.readerContexts.size(); i++ ) {
-            writeReaderContextRecord(output, context.readerContexts.get(i), context);
-        }
-
-        writeTag(output, "XFAR");
-        for ( long int i = 0; i < context.transformArrays.size(); i++ ) {
-            writeTransformArrayRecord(output, context.transformArrays.get(i));
-        }
-
-        writeTag(output, "XFCT");
-        for ( long int i = 0; i < context.transformContexts.size(); i++ ) {
-            writeTransformContextRecord(output, context.transformContexts.get(i), context);
-        }
-
-        writeTag(output, "VRTX");
-        for ( long int i = 0; i < context.vertices.size(); i++ ) {
-            writeVertexRecord(output, context.vertices.get(i), context);
-        }
-
-        writeTag(output, "PTCH");
-        for ( long int i = 0; i < context.patches.size(); i++ ) {
-            writePatchRecord(output, context.patches.get(i), context);
-        }
-
-        writeTag(output, "GEOM");
-        for ( long int i = 0; i < context.geometries.size(); i++ ) {
-            writeGeometryRecord(output, context.geometries.get(i), context);
-        }
-
-        writeTag(output, "MODL");
-        writeModelRecord(output, model, context);
-
-        ok = true;
-    } catch ( const std::exception &e ) {
-        logError("BinaryModelWritter::write", "%s", e.what());
-        ok = false;
+    SerializationContext context;
+    if ( !context.collectModel(model) ) {
+        output.close();
+        return false;
     }
+
+    vsdk::PersistenceElement::writeBytes(output, BINARY_MODEL_MAGIC, 16);
+    vsdk::PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(void *)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(long)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(PersistedSceneModel)));
+
+    int32_t vectorsCount = 0;
+    if ( !checkedLongToInt32(context.vectors.size(), "vectors count", vectorsCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, vectorsCount);
+
+    int32_t verticesCount = 0;
+    if ( !checkedLongToInt32(context.vertices.size(), "vertices count", verticesCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, verticesCount);
+
+    int32_t patchesCount = 0;
+    if ( !checkedLongToInt32(context.patches.size(), "patches count", patchesCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, patchesCount);
+
+    int32_t materialsCount = 0;
+    if ( !checkedLongToInt32(context.materials.size(), "materials count", materialsCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, materialsCount);
+
+    int32_t geometriesCount = 0;
+    if ( !checkedLongToInt32(context.geometries.size(), "geometries count", geometriesCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, geometriesCount);
+
+    int32_t colorContextsCount = 0;
+    if ( !checkedLongToInt32(context.colorContexts.size(), "color contexts count", colorContextsCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, colorContextsCount);
+
+    int32_t readerContextsCount = 0;
+    if ( !checkedLongToInt32(context.readerContexts.size(), "reader contexts count", readerContextsCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, readerContextsCount);
+
+    int32_t transformArraysCount = 0;
+    if ( !checkedLongToInt32(context.transformArrays.size(), "transform arrays count", transformArraysCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, transformArraysCount);
+
+    int32_t transformContextsCount = 0;
+    if ( !checkedLongToInt32(context.transformContexts.size(), "transform contexts count", transformContextsCount) ) {
+        output.close();
+        return false;
+    }
+    vsdk::PersistenceElement::writeInt32LE(output, transformContextsCount);
+
+    writeTag(output, "VEC3");
+    for ( long int i = 0; i < context.vectors.size(); i++ ) {
+        writeVector(output, *context.vectors.get(i));
+    }
+
+    writeTag(output, "MTLS");
+    for ( long int i = 0; i < context.materials.size(); i++ ) {
+        if ( !writeMaterialRecord(output, context.materials.get(i)) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "COLR");
+    for ( long int i = 0; i < context.colorContexts.size(); i++ ) {
+        writeColorContextRecord(output, context.colorContexts.get(i));
+    }
+
+    writeTag(output, "RCTX");
+    for ( long int i = 0; i < context.readerContexts.size(); i++ ) {
+        if ( !writeReaderContextRecord(output, context.readerContexts.get(i), context) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "XFAR");
+    for ( long int i = 0; i < context.transformArrays.size(); i++ ) {
+        writeTransformArrayRecord(output, context.transformArrays.get(i));
+    }
+
+    writeTag(output, "XFCT");
+    for ( long int i = 0; i < context.transformContexts.size(); i++ ) {
+        if ( !writeTransformContextRecord(output, context.transformContexts.get(i), context) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "VRTX");
+    for ( long int i = 0; i < context.vertices.size(); i++ ) {
+        if ( !writeVertexRecord(output, context.vertices.get(i), context) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "PTCH");
+    for ( long int i = 0; i < context.patches.size(); i++ ) {
+        if ( !writePatchRecord(output, context.patches.get(i), context) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "GEOM");
+    for ( long int i = 0; i < context.geometries.size(); i++ ) {
+        if ( !writeGeometryRecord(output, context.geometries.get(i), context) ) {
+            output.close();
+            return false;
+        }
+    }
+
+    writeTag(output, "MODL");
+    if ( !writeModelRecord(output, model, context) ) {
+        output.close();
+        return false;
+    }
+
     output.close();
-    return ok;
+    return true;
 }

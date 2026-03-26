@@ -1,13 +1,5 @@
 #include "io/bin/BinaryModelReader.h"
 
-#include <algorithm>
-#include <cstdint>
-#include <cstring>
-#include <limits>
-#include <memory>
-#include <stdexcept>
-#include <string>
-
 #include "java/io/BufferedInputStream.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -16,10 +8,10 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/PersistenceElement.h"
 #include "io/context/ColorContext.h"
-#include "io/PersistedSceneModel.h"
+#include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
-#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -106,7 +98,7 @@ class BinaryModelReader::GeometryRecord {
     bool hasRadianceData;
 
     bool hasObjectName;
-    std::string objectName;
+    char *objectName;
     int32_t meshId;
     int32_t materialIndex;
     IndexListRecord positions;
@@ -122,11 +114,11 @@ class BinaryModelReader::ModelRecord {
   public:
     int32_t currentColorIndex;
     bool hasCurrentMaterialName;
-    std::string currentMaterialName;
+    char *currentMaterialName;
     bool hasCurrentObjectName;
-    std::string currentObjectName;
+    char *currentObjectName;
     bool hasCurrentVertexName;
-    std::string currentVertexName;
+    char *currentVertexName;
     int32_t geometryStackHeadIndex;
     bool inComplex;
     bool inSurface;
@@ -141,20 +133,38 @@ class BinaryModelReader::ModelRecord {
     IndexListRecord currentVertexList;
     IndexListRecord geometries;
     IndexListRecord materials;
+
+    ModelRecord():
+        currentColorIndex(0),
+        hasCurrentMaterialName(false),
+        currentMaterialName(nullptr),
+        hasCurrentObjectName(false),
+        currentObjectName(nullptr),
+        hasCurrentVertexName(false),
+        currentVertexName(nullptr),
+        geometryStackHeadIndex(0),
+        inComplex(false),
+        inSurface(false),
+        monochrome(false),
+        readerContextIndex(0),
+        transformContextIndex(0)
+    {
+    }
 };
 
 template <typename T>
 void
 BinaryModelReader::initializeArrayList(java::ArrayList<T> *list, int32_t count, T initialValue, const char *what) {
+    (void)what;
     if ( list == nullptr ) {
         throw std::runtime_error("Null list pointer");
     }
     if ( count < 0 ) {
-        throw std::runtime_error(std::string("Negative count for ") + what);
+        throw std::runtime_error("Negative count while reading binary model");
     }
     for ( int32_t i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
-            throw std::runtime_error(std::string("Failed to allocate entries for ") + what);
+            throw std::runtime_error("Failed to allocate entries while reading binary model");
         }
     }
 }
@@ -253,46 +263,52 @@ BinaryModelReader::expectTag(java::io::InputStream &input, const char expected[4
 
 int32_t
 BinaryModelReader::readNonNegativeCount(java::io::InputStream &input, const char *what) {
+    (void)what;
     const int32_t count = readInt32LE(input);
     if ( count < 0 ) {
-        throw std::runtime_error(std::string("Negative count for ") + what);
+        throw std::runtime_error("Negative count while reading binary model");
     }
     return count;
 }
 
 bool
-BinaryModelReader::readNullableString(java::io::InputStream &input, std::string *value) {
+BinaryModelReader::readNullableString(java::io::InputStream &input, char **value) {
     if ( value == nullptr ) {
         throw std::runtime_error("Null string output pointer");
+    }
+    if ( *value != nullptr ) {
+        delete[] *value;
+        *value = nullptr;
     }
 
     const int32_t size = readInt32LE(input);
     if ( size == -1 ) {
-        value->clear();
         return false;
     }
     if ( size < -1 ) {
         throw std::runtime_error("Invalid negative string size");
     }
 
-    value->clear();
-    value->resize(static_cast<size_t>(size));
+    char *text = new char[static_cast<size_t>(size) + 1];
     if ( size > 0 ) {
         readBytes(
             input,
-            reinterpret_cast<unsigned char *>(&(*value)[0]),
+            reinterpret_cast<unsigned char *>(text),
             size);
     }
+    text[size] = '\0';
+    *value = text;
     return true;
 }
 
 char *
-BinaryModelReader::duplicateNullableString(bool hasValue, const std::string &value) {
-    if ( !hasValue ) {
+BinaryModelReader::duplicateNullableString(bool hasValue, const char *value) {
+    if ( !hasValue || value == nullptr ) {
         return nullptr;
     }
-    char *text = new char[value.size() + 1];
-    std::memcpy(text, value.c_str(), value.size() + 1);
+    const size_t length = std::strlen(value);
+    char *text = new char[length + 1];
+    std::memcpy(text, value, length + 1);
     return text;
 }
 
@@ -343,6 +359,7 @@ BinaryModelReader::setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const
 
 BinaryModelReader::IndexListRecord
 BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what) {
+    (void)what;
     IndexListRecord record;
     record.isNull = false;
     record.indices = nullptr;
@@ -353,7 +370,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what)
         return record;
     }
     if ( count < -1 ) {
-        throw std::runtime_error(std::string("Negative index list count for ") + what);
+        throw std::runtime_error("Negative index list count while reading binary model");
     }
 
     record.indices = new java::ArrayList<int32_t>(count > 0 ? static_cast<long int>(count) : 1);
@@ -361,7 +378,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what)
         if ( !record.indices->add(readInt32LE(input)) ) {
             delete record.indices;
             record.indices = nullptr;
-            throw std::runtime_error(std::string("Failed to allocate index list for ") + what);
+            throw std::runtime_error("Failed to allocate index list while reading binary model");
         }
     }
 
@@ -371,11 +388,12 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what)
 template <typename T>
 T *
 BinaryModelReader::pointerFromIndex(const java::ArrayList<T *> &values, int32_t index, const char *what) {
+    (void)what;
     if ( index == -1 ) {
         return nullptr;
     }
     if ( index < 0 || static_cast<long int>(index) >= values.size() ) {
-        throw std::runtime_error(std::string("Out of range index for ") + what);
+        throw std::runtime_error("Out of range index while reading binary model");
     }
     return values.get(static_cast<long int>(index));
 }
@@ -391,13 +409,13 @@ BinaryModelReader::arrayListFromIndices(
         return nullptr;
     }
     if ( record.indices == nullptr ) {
-        throw std::runtime_error(std::string("Missing index list for ") + what);
+        throw std::runtime_error("Missing index list while reading binary model");
     }
     java::ArrayList<T *> *list = new java::ArrayList<T *>();
     for ( long int i = 0; i < record.indices->size(); i++ ) {
         if ( !list->add(pointerFromIndex(values, record.indices->get(i), what)) ) {
             delete list;
-            throw std::runtime_error(std::string("Failed to allocate output list for ") + what);
+            throw std::runtime_error("Failed to allocate output list while reading binary model");
         }
     }
     return list;
@@ -454,7 +472,7 @@ BinaryModelReader::cleanupPartialModel(
     java::ArrayList<ColorContext *> &colorContexts,
     java::ArrayList<ReaderContext *> &readerContexts,
     java::ArrayList<TransformArray *> &transformArrays,
-    java::ArrayList<TransformContext *> &transformContexts,
+    java::ArrayList<TransformStackContext *> &transformContexts,
     PersistedSceneModel *model)
 {
     const bool hasGeometry = geometries.size() > 0;
@@ -518,6 +536,11 @@ void
 BinaryModelReader::releaseGeometryRecordIndexLists(java::ArrayList<BinaryModelReader::GeometryRecord> &geometryRecords) {
     for ( long int i = 0; i < geometryRecords.size(); i++ ) {
         GeometryRecord &record = geometryRecords[i];
+        if ( record.objectName != nullptr ) {
+            delete[] record.objectName;
+            record.objectName = nullptr;
+        }
+        record.hasObjectName = false;
         releaseIndexListRecord(&record.positions);
         releaseIndexListRecord(&record.normals);
         releaseIndexListRecord(&record.vertices);
@@ -532,6 +555,21 @@ BinaryModelReader::releaseModelRecordIndexLists(BinaryModelReader::ModelRecord *
     if ( modelRecord == nullptr ) {
         return;
     }
+    if ( modelRecord->currentMaterialName != nullptr ) {
+        delete[] modelRecord->currentMaterialName;
+        modelRecord->currentMaterialName = nullptr;
+    }
+    if ( modelRecord->currentObjectName != nullptr ) {
+        delete[] modelRecord->currentObjectName;
+        modelRecord->currentObjectName = nullptr;
+    }
+    if ( modelRecord->currentVertexName != nullptr ) {
+        delete[] modelRecord->currentVertexName;
+        modelRecord->currentVertexName = nullptr;
+    }
+    modelRecord->hasCurrentMaterialName = false;
+    modelRecord->hasCurrentObjectName = false;
+    modelRecord->hasCurrentVertexName = false;
     releaseIndexListRecord(&modelRecord->currentFaceList);
     releaseIndexListRecord(&modelRecord->currentGeometryList);
     releaseIndexListRecord(&modelRecord->currentNormalList);
@@ -560,7 +598,7 @@ BinaryModelReader::read(const char *fileName) {
     java::ArrayList<ColorContext *> colorContexts;
     java::ArrayList<ReaderContext *> readerContexts;
     java::ArrayList<TransformArray *> transformArrays;
-    java::ArrayList<TransformContext *> transformContexts;
+    java::ArrayList<TransformStackContext *> transformContexts;
     java::ArrayList<VertexRecord> vertexRecords;
     java::ArrayList<PatchRecord> patchRecords;
     java::ArrayList<GeometryRecord> geometryRecords;
@@ -588,7 +626,7 @@ BinaryModelReader::read(const char *fileName) {
         initializeArrayList(&colorContexts, colorContextCount, static_cast<ColorContext *>(nullptr), "color contexts");
         initializeArrayList(&readerContexts, readerContextCount, static_cast<ReaderContext *>(nullptr), "reader contexts");
         initializeArrayList(&transformArrays, transformArrayCount, static_cast<TransformArray *>(nullptr), "transform arrays");
-        initializeArrayList(&transformContexts, transformContextCount, static_cast<TransformContext *>(nullptr), "transform contexts");
+        initializeArrayList(&transformContexts, transformContextCount, static_cast<TransformStackContext *>(nullptr), "transform contexts");
         initializeArrayList(&vertexRecords, vertexCount, VertexRecord(), "vertex records");
         initializeArrayList(&patchRecords, patchCount, PatchRecord(), "patch records");
         initializeArrayList(&geometryRecords, geometryCount, GeometryRecord(), "geometry records");
@@ -602,8 +640,9 @@ BinaryModelReader::read(const char *fileName) {
 
         expectTag(input, "MTLS");
         for ( int32_t i = 0; i < materialCount; i++ ) {
-            std::string materialName;
+            char *materialName = nullptr;
             const bool hasMaterialName = readNullableString(input, &materialName);
+            std::unique_ptr<char[]> materialNameGuard(materialName);
             const bool sided = readBool(input);
 
             PhongEmittanceDistributionFunction *edf = nullptr;
@@ -682,7 +721,7 @@ BinaryModelReader::read(const char *fileName) {
                 bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, texture);
             }
 
-            const char *materialNameCstr = hasMaterialName ? materialName.c_str() : "";
+            const char *materialNameCstr = hasMaterialName ? materialNameGuard.get() : "";
             materials.set(static_cast<long int>(i), new Material(materialNameCstr, edf, bsdf, sided));
         }
 
@@ -738,8 +777,8 @@ BinaryModelReader::read(const char *fileName) {
         expectTag(input, "XFAR");
         for ( int32_t i = 0; i < transformArrayCount; i++ ) {
             TransformArray *transformArray = new TransformArray();
-            transformArray->startingPosition.fid = readInt32LE(input);
-            transformArray->startingPosition.lineno = readInt32LE(input);
+            transformArray->startingPosition.fileId = readInt32LE(input);
+            transformArray->startingPosition.lineNumber = readInt32LE(input);
             transformArray->startingPosition.offset = static_cast<long>(readInt64LE(input));
             transformArray->numberOfDimensions = readInt32LE(input);
             for ( int j = 0; j < TRANSFORM_MAXIMUM_DIMENSIONS; j++ ) {
@@ -760,7 +799,7 @@ BinaryModelReader::read(const char *fileName) {
         initializeArrayList(&transformContextArrayIndex, transformContextCount, static_cast<int32_t>(-1), "transform context array index");
         initializeArrayList(&transformContextPrevIndex, transformContextCount, static_cast<int32_t>(-1), "transform context prev index");
         for ( int32_t i = 0; i < transformContextCount; i++ ) {
-            TransformContext *transformContext = new TransformContext();
+            TransformStackContext *transformContext = new TransformStackContext();
             transformContext->xid = static_cast<long>(readInt64LE(input));
             transformContext->xac = readInt16LE(input);
             transformContext->rev = readInt16LE(input);
@@ -778,7 +817,7 @@ BinaryModelReader::read(const char *fileName) {
             transformContexts.set(static_cast<long int>(i), transformContext);
         }
         for ( int32_t i = 0; i < transformContextCount; i++ ) {
-            TransformContext *transformContext = transformContexts.get(static_cast<long int>(i));
+            TransformStackContext *transformContext = transformContexts.get(static_cast<long int>(i));
             transformContext->transformationArray = pointerFromIndex(
                 transformArrays,
                 transformContextArrayIndex.get(static_cast<long int>(i)),
@@ -944,7 +983,10 @@ BinaryModelReader::read(const char *fileName) {
             }
 
             record.hasObjectName = false;
-            record.objectName.clear();
+            if ( record.objectName != nullptr ) {
+                delete[] record.objectName;
+                record.objectName = nullptr;
+            }
             record.meshId = 0;
             record.materialIndex = -1;
 

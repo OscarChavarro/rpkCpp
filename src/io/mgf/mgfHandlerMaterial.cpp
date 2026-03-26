@@ -282,48 +282,48 @@ handleMaterialEntity(int ac, const char **av, BaseContext *context) {
 
     switch ( mgfEntity(av[0], context) ) {
 
-        case MgfEntity::MGF_MATERIAL:
+        case EntityContext::MGF_MATERIAL:
             // Get / set material context
             if ( ac > 4 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {
                 // Set unnamed material context
                 globalUnNamedMaterialContext = globalDefaultMgfMaterial;
                 globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
                 context->currentMaterialName = nullptr;
-                return MgfErrorCode::MGF_OK;
+                return ErrorCodeContext::MGF_OK;
             }
             if ( !WordsContext::isName(av[1]) ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = globalMaterialLookUpTable.lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
-                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
             globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( globalMgfCurrentMaterial == nullptr) {
-                    return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
+                    return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return MgfErrorCode::MGF_OK;
+                return ErrorCodeContext::MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( globalMgfCurrentMaterial == nullptr ) {
                 // Create new material
                 lp->key = new char[strlen(av[1]) + 1];
                 if ( lp->key == nullptr) {
-                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
                 lp->data = new char[sizeof(MgfMaterialContext)];
                 if ( lp->data == nullptr) {
-                    return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
                 globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
@@ -334,127 +334,127 @@ handleMaterialEntity(int ac, const char **av, BaseContext *context) {
                 // Use default template
                 *globalMgfCurrentMaterial = globalDefaultMgfMaterial;
                 globalMgfCurrentMaterial->clock = i + 1;
-                return MgfErrorCode::MGF_OK;
+                return ErrorCodeContext::MGF_OK;
             }
             lp = globalMaterialLookUpTable.lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr ) {
-                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr ) {
-                return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
+                return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *globalMgfCurrentMaterial = *reinterpret_cast<MgfMaterialContext *>(lp->data);
             globalMgfCurrentMaterial->clock = i + 1;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::IR:
+        case EntityContext::IR:
             // Set index of refraction
             if ( ac != 3 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->ni = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->nr <= Numeric::EPSILON ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::RD:
+        case EntityContext::RD:
             // Set diffuse reflectance
             if ( ac != 2 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->rd < 0. || globalMgfCurrentMaterial->rd > 1.0 ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->rd_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::ED:
+        case EntityContext::ED:
             // Set diffuse emittance
             if ( ac != 2 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->ed < 0.0 ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->ed_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::TD:
+        case EntityContext::TD:
             // Set diffuse transmittance
             if ( ac != 2 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->td = strtof(av[1], nullptr);
             if ( globalMgfCurrentMaterial->td < 0.0 || globalMgfCurrentMaterial->td > 1.0 ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->td_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::RS:
+        case EntityContext::RS:
             // Set specular reflectance
             if ( ac != 3 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->rs_a = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->rs < 0.0 || globalMgfCurrentMaterial->rs > 1.0 ||
                  globalMgfCurrentMaterial->rs_a < 0.0 ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->rs_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::TS:
+        case EntityContext::TS:
             // Set specular transmittance
             if ( ac != 3 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);
             globalMgfCurrentMaterial->ts_a = strtof(av[2], nullptr);
             if ( globalMgfCurrentMaterial->ts < 0.0 || globalMgfCurrentMaterial->ts > 1.0 ||
                  globalMgfCurrentMaterial->ts_a < 0.0 ) {
-                return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             globalMgfCurrentMaterial->ts_c = *(context->currentColor);
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
-        case MgfEntity::SIDES:
+        case EntityContext::SIDES:
             // Set number of sides
             if ( ac != 2 ) {
-                return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( !WordsContext::isInt(av[1]) ) {
-                return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             i = static_cast<int>(strtol(av[1], nullptr, 10));
             if ( i == 1 ) {
@@ -462,13 +462,13 @@ handleMaterialEntity(int ac, const char **av, BaseContext *context) {
             } else if ( i == 2 ) {
                     globalMgfCurrentMaterial->sided = false;
                 } else {
-                    return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                    return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
             globalMgfCurrentMaterial->clock++;
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
 
         default:
             break;
     }
-    return MgfErrorCode::MGF_ERROR_UNKNOWN_ENTITY;
+    return ErrorCodeContext::MGF_ERROR_UNKNOWN_ENTITY;
 }

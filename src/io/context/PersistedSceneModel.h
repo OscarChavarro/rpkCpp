@@ -10,7 +10,7 @@ class Vector3D;
 class Vertex;
 class ColorContext;
 class ReaderContext;
-class TransformContext;
+class TransformStackContext;
 
 class PersistedSceneModel {
   public:
@@ -31,7 +31,7 @@ class PersistedSceneModel {
     java::ArrayList<Material *> *materials;
     bool monochrome;
     ReaderContext *readerContext;
-    TransformContext *transformContext;
+    TransformStackContext *transformContext;
 
     PersistedSceneModel();
 };

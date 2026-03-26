@@ -1,8 +1,7 @@
 #ifndef __BINARY_MODEL_READER__
 #define __BINARY_MODEL_READER__
 
-#include <cstdint>
-#include <string>
+#include <stdint.h>
 
 namespace java {
 template <class T>
@@ -21,7 +20,7 @@ class ColorContext;
 class PersistedSceneModel;
 class ReaderContext;
 class TransformArray;
-class TransformContext;
+class TransformStackContext;
 class Patch;
 class Vector3D;
 class Vertex;
@@ -55,8 +54,8 @@ class BinaryModelReader {
     static double readDoubleLE(java::io::InputStream &input);
     static void expectTag(java::io::InputStream &input, const char expected[4]);
     static int32_t readNonNegativeCount(java::io::InputStream &input, const char *what);
-    static bool readNullableString(java::io::InputStream &input, std::string *value);
-    static char *duplicateNullableString(bool hasValue, const std::string &value);
+    static bool readNullableString(java::io::InputStream &input, char **value);
+    static char *duplicateNullableString(bool hasValue, const char *value);
     static void readColor(java::io::InputStream &input, ColorRgb *color);
     static void readVector(java::io::InputStream &input, Vector3D *vector);
     static void readBoundingBoxCoordinates(java::io::InputStream &input, float coordinates[6]);
@@ -83,7 +82,7 @@ class BinaryModelReader {
         java::ArrayList<ColorContext *> &colorContexts,
         java::ArrayList<ReaderContext *> &readerContexts,
         java::ArrayList<TransformArray *> &transformArrays,
-        java::ArrayList<TransformContext *> &transformContexts,
+        java::ArrayList<TransformStackContext *> &transformContexts,
         PersistedSceneModel *model);
     static void releaseVertexRecordIndexLists(java::ArrayList<VertexRecord> &vertexRecords);
     static void releaseGeometryRecordIndexLists(java::ArrayList<GeometryRecord> &geometryRecords);

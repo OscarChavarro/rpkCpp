@@ -95,7 +95,7 @@ set(MAIN_SRC
     src/numericalAnalysis/quasiMonteCarlo/Sobol.cpp
     src/numericalAnalysis/PatchVisitor.cpp
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
-    src/io/mgf/MgfTransform.cpp
+    src/io/context/TransformContext.cpp
     src/io/context/BaseContext.cpp
     src/io/mgf/LookUpEntity.cpp
     src/io/mgf/LookUpTable.cpp
@@ -110,7 +110,7 @@ set(MAIN_SRC
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/mgf/readmgf.cpp
-    src/io/PersistedSceneModel.cpp
+    src/io/context/PersistedSceneModel.cpp
     src/io/PersistenceElement.cpp
     src/io/bin/BinaryModelWriter.cpp
     src/io/bin/BinaryModelReader.cpp

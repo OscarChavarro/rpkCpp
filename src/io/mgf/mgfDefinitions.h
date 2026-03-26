@@ -5,7 +5,7 @@
 
 #include "io/context/BaseContext.h"
 
-class MgfReaderFilePosition;
+class FilePositionContext;
 
 enum class MgfHandlerType {
     DISCARD_UNNEEDED,
@@ -44,12 +44,12 @@ extern int mgfOpen(ReaderContext *readerContext, const char *functionCallback, B
 extern void mgfClose(BaseContext *context);
 extern void doError(const char *errmsg, BaseContext *context);
 extern void doWarning(const char *errmsg, BaseContext *context);
-extern void mgfGetFilePosition(MgfReaderFilePosition *pos, BaseContext *context);
-extern int mgfGoToFilePosition(const MgfReaderFilePosition *pos, BaseContext *context);
+extern void mgfGetFilePosition(FilePositionContext *pos, BaseContext *context);
+extern int mgfGoToFilePosition(const FilePositionContext *pos, BaseContext *context);
 extern int mgfEntity(const char *name, BaseContext *context);
 extern int mgfHandle(int entityIndex, int argc, const char **argv, BaseContext * /*context*/);
 extern void mgfLookUpFreeMemory();
 
-#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
 
 #endif

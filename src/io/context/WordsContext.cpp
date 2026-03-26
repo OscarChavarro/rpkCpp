@@ -1,7 +1,3 @@
-/**
-Routines for recognizing and moving about words in strings.
-*/
-
 #include <cctype>
 #include <cstring>
 

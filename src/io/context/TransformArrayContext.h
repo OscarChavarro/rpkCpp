@@ -1,7 +1,7 @@
-#ifndef __MGF_TRANSFORM_ARRAY_ARGUMENT__
-#define __MGF_TRANSFORM_ARRAY_ARGUMENT__
+#ifndef __TRANSFORM_ARRAY_CONTEXT__
+#define __TRANSFORM_ARRAY_CONTEXT__
 
-class MgfTransformArrayArgument {
+class TransformArrayContext {
   public:
     short i; // Current count
     short n; // Current maximum

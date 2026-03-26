@@ -7,7 +7,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
-#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
 #include "io/context/BaseContext.h"
 #include "io/mgf/mgfDefinitions.h"
 
@@ -16,17 +16,17 @@ static int globalTransformArgumentCount = 0;
 static char globalTransformIterateArgument[] = "-i";
 
 static int
-transformArgumentCount(const TransformContext *xf) {
+transformArgumentCount(const TransformStackContext *xf) {
     return xf == nullptr ? 0 : xf->xac;
 }
 
 static int
-transformArgumentStartIndex(const TransformContext *xf) {
+transformArgumentStartIndex(const TransformStackContext *xf) {
     return globalTransformArgumentCount - transformArgumentCount(xf);
 }
 
 static char **
-transformArgumentVector(const TransformContext *xf) {
+transformArgumentVector(const TransformStackContext *xf) {
     return &globalTransformArgumentListBeginning[transformArgumentStartIndex(xf)];
 }
 
@@ -58,7 +58,7 @@ computeUniqueId(const MATRIX4Dd *xfm) {
 Free a transform
 */
 static void
-free_xf(const TransformContext *spec) {
+free_xf(const TransformStackContext *spec) {
     if ( spec->ownedArgumentCopies != nullptr ) {
         for ( int i = 0; i < spec->ownedArgumentCount; i++ ) {
             delete[] spec->ownedArgumentCopies[i];
@@ -91,10 +91,10 @@ static int
 transformName(const TransformArray *ap, BaseContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static const char *oav[3] = {
-        context->entityNames[MgfEntity::OBJECT], oName
+        context->entityNames[EntityContext::OBJECT], oName
     };
     if ( ap == nullptr ) {
-        return mgfHandle(MgfEntity::OBJECT, 1, oav, context);
+        return mgfHandle(EntityContext::OBJECT, 1, oav, context);
     }
     int writeIndex = 0;
     oName[writeIndex++] = 'a';
@@ -106,13 +106,13 @@ transformName(const TransformArray *ap, BaseContext *context) {
         oName[writeIndex++] = '.';
     }
     oName[writeIndex] = '\0';
-    return mgfHandle(MgfEntity::OBJECT, 2, oav, context);
+    return mgfHandle(EntityContext::OBJECT, 2, oav, context);
 }
 
 /**
 Allocate new transform structure
 */
-static TransformContext *
+static TransformStackContext *
 newTransform(int ac, const char **av, BaseContext *context) {
     int nDim = 0;
     const int previousArgumentCount = transformArgumentCount(context->transformContext);
@@ -128,7 +128,7 @@ newTransform(int ac, const char **av, BaseContext *context) {
         return nullptr;
     }
 
-    TransformContext *spec = new TransformContext();
+    TransformStackContext *spec = new TransformStackContext();
     if ( spec == nullptr ) {
         return nullptr;
     }
@@ -231,7 +231,7 @@ mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const BaseContext *contex
 }
 
 static void
-finish(int count, MgfTransform *ret, const MATRIX4Dd *transformMatrix, double scaTransform) {
+finish(int count, TransformContext *ret, const MATRIX4Dd *transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
         multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, transformMatrix);
         ret->scaleFactor *= scaTransform;
@@ -242,7 +242,7 @@ finish(int count, MgfTransform *ret, const MATRIX4Dd *transformMatrix, double sc
 Get transform specification
 */
 static int
-xf(MgfTransform *ret, int ac, char **av) {
+xf(TransformContext *ret, int ac, char **av) {
     ret->transformMatrix.identity();
     ret->scaleFactor = 1.0;
 
@@ -453,7 +453,7 @@ xf(MgfTransform *ret, int ac, char **av) {
 }
 
 static bool
-compactTransformArguments(const TransformContext *context) {
+compactTransformArguments(const TransformStackContext *context) {
     const int contextArgumentCount = transformArgumentCount(context);
     char **newArgumentList = nullptr;
 
@@ -481,14 +481,14 @@ Handle xf entity
 */
 int
 handleTransformationEntity(int ac, const char **av, BaseContext *context) {
-    TransformContext *spec;
+    TransformStackContext *spec;
     int n;
 
     if ( ac == 1 ) {
         // Something with existing transform
         spec = context->transformContext;
         if ( spec == nullptr ) {
-            return MgfErrorCode::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
+            return ErrorCodeContext::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
         }
         n = -1;
         if ( spec->transformationArray != nullptr) {
@@ -506,7 +506,7 @@ handleTransformationEntity(int ac, const char **av, BaseContext *context) {
             }
             if ( n >= 0 ) {
                 int rv = mgfGoToFilePosition(&ap->startingPosition, context);
-                if ( rv != MgfErrorCode::MGF_OK ) {
+                if ( rv != ErrorCodeContext::MGF_OK ) {
                     return rv;
                 }
                 snprintf(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
@@ -516,17 +516,17 @@ handleTransformationEntity(int ac, const char **av, BaseContext *context) {
         if ( n < 0 ) {
             // Pop transform
             if ( !compactTransformArguments(spec->prev) ) {
-                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->transformContext = spec->prev;
             free_xf(spec);
-            return MgfErrorCode::MGF_OK;
+            return ErrorCodeContext::MGF_OK;
         }
     } else {
         // Allocate transform
         spec = newTransform(ac - 1, &av[1], context);
         if ( spec == nullptr ) {
-            return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+            return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
         }
         if ( spec->transformationArray != nullptr) {
             transformName(spec->transformationArray, context);
@@ -539,7 +539,7 @@ handleTransformationEntity(int ac, const char **av, BaseContext *context) {
     n = transformArgumentCount(spec);
     n -= transformArgumentCount(spec->prev); // Incremental comp. is more eff.
     if ( xf(&spec->xf, n, transformArgumentVector(spec)) != n ) {
-        return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
+        return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
     }
 
     // Check for vertex reversal
@@ -554,7 +554,7 @@ handleTransformationEntity(int ac, const char **av, BaseContext *context) {
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }
     spec->xid = computeUniqueId(&spec->xf.transformMatrix); // Compute unique ID
-    return MgfErrorCode::MGF_OK;
+    return ErrorCodeContext::MGF_OK;
 }
 
 void

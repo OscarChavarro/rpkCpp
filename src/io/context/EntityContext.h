@@ -1,8 +1,8 @@
-#ifndef __MGF_ENTITY__
-#define __MGF_ENTITY__
+#ifndef __ENTITY_CONTEXT__
+#define __ENTITY_CONTEXT__
 
 // Entities
-enum MgfEntity {
+enum EntityContext {
     COLOR = 1, // c
     CCT = 2, // cct
     CONE = 3, // cone
