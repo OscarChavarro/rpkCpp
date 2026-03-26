@@ -45,7 +45,7 @@ field of the CMD_LINE_OPT_DESC structure below
 #define Txy (&GLOBAL_options_xyType)
 
 // Default action; no action
-#define DEFAULT_ACTION (void (*)(void *))nullptr
+#define DEFAULT_ACTION static_cast<void (*)(void *)>(nullptr)
 
 class CommandLineOptionDescription {
   public:
@@ -94,8 +94,8 @@ MakeEnumTypeStruct(kindTypeStruct, kinds);
 static CommandLineOptions enumTypeStructName = { \
   optionsEnumGet, \
   optionsEnumPrint, \
-  (void *)&GLOBAL_options_dummyVal, \
-  (void *)(enumvaltab) \
+  static_cast<void *>(&GLOBAL_options_dummyVal), \
+  static_cast<void *>(enumvaltab) \
 }
 
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
@@ -114,8 +114,8 @@ MakeNStringTypeStruct(nStringTypeStruct, n);
 static CommandLineOptions nstringTypeStructName = { \
   optionsStringGet, \
   optionsStringPrint, \
-  (void *)&GLOBAL_option_dummyVal, \
-  (void *)(n) \
+  static_cast<void *>(&GLOBAL_option_dummyVal), \
+  reinterpret_cast<void *>(n) \
 }
 
 extern void deleteOptionsMemory();

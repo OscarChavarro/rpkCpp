@@ -38,7 +38,7 @@ setFaureC() {
     for ( int i = globalDim - 1; i >= 0; i-- ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
             for ( int k = j; k < globalNDigits; k++ ) {
-                C[i][j][k] = (C[0][j][k] * static_cast<int>(java::Math::pow((float) i, (float) (k - j)))) % globalPR;
+                C[i][j][k] = (C[0][j][k] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(k - j)))) % globalPR;
             }
         }
     }
@@ -73,7 +73,7 @@ setGFaureC() {
                 int Q = m < n ? m : n;
                 C[i][m][n] = 0;
                 for ( int q = 0; q <= Q; q++ ) {
-                    C[i][m][n] = static_cast<int>(C[i][m][n] + P[m][q] * P[n][q] * (int) java::Math::pow((float) i, (float) (m + n - 2 * q))) % globalPR;
+                    C[i][m][n] = static_cast<int>(C[i][m][n] + P[m][q] * P[n][q] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(m + n - 2 * q)))) % globalPR;
                 }
             }
         }
@@ -147,7 +147,7 @@ initOriginalFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log((double) MAX_SEED) / java::Math::log((double) globalPR) + 1);
+    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
     setFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
@@ -155,7 +155,7 @@ initOriginalFaureSequence(int iDim) {
         }
     }
 
-    globalSkip = static_cast<int>(java::Math::pow((float) globalPR, 4.0f)) - 1;
+    globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f)) - 1;
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
         nextFaure();
@@ -170,7 +170,7 @@ initGeneralizedFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log((double) MAX_SEED) / java::Math::log((double) globalPR) + 1);
+    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
     setGFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
@@ -178,7 +178,7 @@ initGeneralizedFaureSequence(int iDim) {
         }
     }
 
-    globalSkip = static_cast<int>(java::Math::pow((float) globalPR, 4.0f) - 1);
+    globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f) - 1);
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
         nextFaure();

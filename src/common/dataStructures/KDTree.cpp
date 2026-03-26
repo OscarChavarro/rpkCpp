@@ -193,7 +193,7 @@ KDTree::assignData(void *data) const {
         void *newData;
 
         newData = malloc(dataSize);
-        memcpy((char *) newData, (char *) data, dataSize);
+        memcpy(static_cast<char *>(newData), static_cast<char *>(data), dataSize);
         return newData;
     } else {
         return data;

@@ -242,7 +242,7 @@ MgfColorContext::fixColorRepresentation(int fl) {
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * straightSamples[i];
             }
-            eff = static_cast<float>((COLOR_PEAK_LUMENS_PER_WATT * y / (double) spectralStraightSum));
+            eff = static_cast<float>((COLOR_PEAK_LUMENS_PER_WATT * y / static_cast<double>(spectralStraightSum)));
         } else {
             // flags & C_CS_XY from (x,y)
             eff = static_cast<float>(cx * cie_xf.eff + cy * cie_yf.eff +

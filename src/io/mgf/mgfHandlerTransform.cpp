@@ -37,7 +37,7 @@ computeUniqueId(const MATRIX4Dd *xfm) {
 
     // Compute unique transform id
     for ( long unsigned int i = 0; i < sizeof(MATRIX4Dd) / sizeof(unsigned short); i++ ) {
-        xid ^= static_cast<long>(((unsigned short *)xfm->m)[i] << shiftTab[i & 63]);
+        xid ^= static_cast<long>((reinterpret_cast<const unsigned short *>(xfm->m))[i] << shiftTab[i & 63]);
     }
     return xid;
 }

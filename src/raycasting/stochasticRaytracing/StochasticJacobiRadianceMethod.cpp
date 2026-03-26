@@ -95,7 +95,7 @@ Randomly returns floor(x) or ceil(x) so that the expected value is equal to x
 */
 static long
 stochasticRelaxationRadiosityRandomRound(float x) {
-    long l = (long)java::Math::floor(x);
+    long l = static_cast<long>(java::Math::floor(x));
     if ( drand48() < (x - static_cast<float>(l)) ) {
         l++;
     }
@@ -211,7 +211,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             break;
         }
         numberOfRays = stochasticRelaxationRadiosityRandomRound(
-                static_cast<float>(unShotFraction * (double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
+                static_cast<float>(unShotFraction * static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays) *
                                    GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.
                                        approximationOrderType].basis_size));
 

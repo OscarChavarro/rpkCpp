@@ -213,7 +213,7 @@ stochasticRadiosityElementCreateFromPatch(Patch *patch) {
     stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 
     elem->Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
-    elem->Ed.scaleInverse((float)M_PI, elem->Ed);
+    elem->Ed.scaleInverse(static_cast<float>(M_PI), elem->Ed);
     elem->Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
 
     return elem;
@@ -633,7 +633,7 @@ galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
         elem->midPoint.addition(elem->midPoint, *elem->vertices[i]->point);
     }
-    elem->midPoint.inverseScaledCopy((float) elem->numberOfVertices, elem->midPoint, Numeric::EPSILON_FLOAT);
+    elem->midPoint.inverseScaledCopy(static_cast<float>(elem->numberOfVertices), elem->midPoint, Numeric::EPSILON_FLOAT);
 
     return elem->midPoint;
 }
@@ -808,7 +808,7 @@ monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element,
     openGlRenderLine(m1->point, m2->point);
     openGlRenderLine(m2->point, m0->point);
 
-    return (StochasticRadiosityElement **)element->regularSubElements;
+    return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
 
 static StochasticRadiosityElement **
@@ -836,7 +836,7 @@ monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, con
     openGlRenderLine(m0->point, m2->point);
     openGlRenderLine(m1->point, m3->point);
 
-    return (StochasticRadiosityElement **)element->regularSubElements;
+    return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
 
 /**
@@ -849,7 +849,7 @@ stochasticRadiosityElementRegularSubdivideElement(
     const RenderOptions *renderOptions)
 {
     if ( element->regularSubElements ) {
-        return (StochasticRadiosityElement **)element->regularSubElements;
+        return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
     }
 
     if ( element->isCluster() ) {
@@ -867,7 +867,7 @@ stochasticRadiosityElementRegularSubdivideElement(
     }
 
     // Create the sub-elements
-    element->regularSubElements = (Element **)new StochasticRadiosityElement *[4];
+    element->regularSubElements = reinterpret_cast<Element **>(new StochasticRadiosityElement *[4]);
     switch ( element->numberOfVertices ) {
         case 3:
             monteCarloRadiosityRegularSubdivideTriangle(element, renderOptions);
@@ -878,7 +878,7 @@ stochasticRadiosityElementRegularSubdivideElement(
         default:
             logFatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
     }
-    return (StochasticRadiosityElement **)element->regularSubElements;
+    return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
 
 static void

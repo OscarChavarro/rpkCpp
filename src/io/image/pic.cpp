@@ -29,7 +29,7 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( fileDescriptor != nullptr ) {
-        result = dkColorWriteScan((DK_COLOR *)rgbRadiance, width, fileDescriptor);
+        result = dkColorWriteScan(reinterpret_cast<DK_COLOR *>(rgbRadiance), width, fileDescriptor);
     }
 
     if ( result ) {

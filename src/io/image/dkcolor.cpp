@@ -50,7 +50,7 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
 
     if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {
         // OOBs, write out flat
-        return static_cast<int>(fwrite((char *) scanline, sizeof(BYTE_COLOR), len, fp) - len);
+        return static_cast<int>(fwrite(reinterpret_cast<char *>(scanline), sizeof(BYTE_COLOR), len, fp) - len);
     }
 
     // Put magic header

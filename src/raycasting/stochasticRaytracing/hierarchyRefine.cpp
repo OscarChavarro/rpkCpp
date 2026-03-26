@@ -129,7 +129,7 @@ lowPowerLink(
     float propagatedPower;
 
     // Compute receiver reflectance times source radiosity
-    rhoSrcRad.scaledCopy((float)M_PI, src->radiance[0]);
+    rhoSrcRad.scaledCopy(static_cast<float>(M_PI), src->radiance[0]);
     if ( !rcv->isCluster() ) {
         ColorRgb Rd = topLevelStochasticRadiosityElement(rcv->patch)->Rd;
         rhoSrcRad.selfScalarProduct(Rd);
@@ -152,7 +152,7 @@ subDivideLargest(const LINK *link) {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
-        return (REFINE_ACTION)dontRefineCallBack;
+        return static_cast<REFINE_ACTION>(dontRefineCallBack);
     } else {
         return (rcv->area > src->area) ? subdivideReceiverCallBack : subdivideSourceCallBack;
     }
@@ -165,9 +165,9 @@ a la [SMIT1992] Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState
 REFINE_ACTION
 powerOracle(const LINK *link) {
     if ( selfLink(link) ) {
-        return (REFINE_ACTION)subdivideReceiverCallBack;
+        return static_cast<REFINE_ACTION>(subdivideReceiverCallBack);
     } else if ( lowPowerLink(link, &GLOBAL_statistics) ) {
-        return (REFINE_ACTION)dontRefineCallBack;
+        return static_cast<REFINE_ACTION>(dontRefineCallBack);
     } else {
         return subDivideLargest(link);
     }

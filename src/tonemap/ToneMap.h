@@ -30,7 +30,7 @@ class ToneMap {
 
 inline int
 gammaTableEntry(float x) {
-    return static_cast<int>(x * (float) (1 << GAMMA_TABLE_BITS));
+    return static_cast<int>(x * static_cast<float>(1 << GAMMA_TABLE_BITS));
 }
 
 inline void

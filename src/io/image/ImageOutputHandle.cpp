@@ -32,7 +32,7 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb = *(ColorRgb *)(&rgbFloatArray[3 * i]);
+        ColorRgb displayRgb = *reinterpret_cast<ColorRgb *>(&rgbFloatArray[3 * i]);
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation

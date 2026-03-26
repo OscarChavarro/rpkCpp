@@ -642,7 +642,7 @@ stochasticJacobiShootRaysRecursive(
         // Trivial case
         double p = element->samplingProbability / globalSumOfProbabilities;
         long rays_this_leaf =
-                static_cast<long>(java::Math::floor((*cumulative + p) * (double) globalNumberOfRays + rnd)) - *rayCount;
+                static_cast<long>(java::Math::floor((*cumulative + p) * static_cast<double>(globalNumberOfRays) + rnd)) - *rayCount;
 
         if ( rays_this_leaf > 0 ) {
             stochasticJacobiElementShootRays(sceneWorldVoxelGrid, element, static_cast<int>(rays_this_leaf), renderOptions);

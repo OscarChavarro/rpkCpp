@@ -19,12 +19,12 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
     static inline ColorRgb
     galerkinGetRadiance(Patch *patch) {
-        return ((GalerkinElement *)(patch->radianceData))->radiance[0];
+        return static_cast<GalerkinElement *>(patch->radianceData)->radiance[0];
     }
 
     static inline void
     galerkinSetRadiance(Patch *patch, ColorRgb value) {
-        ((GalerkinElement *)(patch->radianceData))->radiance[0] = value;
+        static_cast<GalerkinElement *>(patch->radianceData)->radiance[0] = value;
     }
 
     static inline void

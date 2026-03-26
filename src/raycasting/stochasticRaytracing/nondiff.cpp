@@ -137,7 +137,7 @@ sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     for ( int i = 0; i < globalNumberOfLights; i++ ) {
         double p = globalLights[i].flux / globalTotalFlux;
         int samples_this_light =
-                static_cast<int>(floor((pCumulative + p) * (double) globalNumberOfSamples + rnd)) - count;
+                static_cast<int>(floor((pCumulative + p) * static_cast<double>(globalNumberOfSamples) + rnd)) - count;
 
         for ( int j = 0; j < samples_this_light; j++ ) {
             sampleLight(sceneWorldVoxelGrid, &globalLights[i], p);

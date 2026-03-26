@@ -213,7 +213,7 @@ randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*bi
             double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
             getTopLevelPatchReceivedRad(P)[i].addScaled(
                 getTopLevelPatchReceivedRad(P)[i],
-                static_cast<float>(w * dual / (double) nr_paths),
+                static_cast<float>(w * dual / static_cast<double>(nr_paths)),
                 accumPow);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
@@ -273,7 +273,7 @@ randomWalkRadiosityDoShootingIteration(
 
     java::lang::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-            numberOfWalks, static_cast<long>(java::Math::floor((double) numberOfWalks /
+            numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
                                                                (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
 
     tracePaths(
@@ -420,7 +420,7 @@ randomWalkRadiosityDoGatheringIteration(
 
     java::lang::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-        numberOfWalks, static_cast<long>(floor((double) numberOfWalks / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
+        numberOfWalks, static_cast<long>(floor(static_cast<double>(numberOfWalks) / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
 
     tracePaths(
         sceneWorldVoxelGrid,

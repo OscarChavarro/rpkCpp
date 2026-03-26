@@ -76,7 +76,7 @@ class CIrrPhoton : public CPhoton {
     inline void
     copy(const CPhoton &photon) {
         // Dangerous ??
-        memcpy((char *) this, &photon, sizeof(CPhoton));
+        memcpy(reinterpret_cast<char *>(this), &photon, sizeof(CPhoton));
     }
 };
 

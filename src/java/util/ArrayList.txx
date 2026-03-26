@@ -38,7 +38,7 @@ ArrayList<T>::dispose() {
 
 template <class T> void
 ArrayList<T>::init() {
-    Data = (T *) malloc(sizeof(T) * maxSize);
+    Data = static_cast<T *>(malloc(sizeof(T) * maxSize));
     currentSize = 0;
 }
 
@@ -46,7 +46,7 @@ template <class T> bool
 ArrayList<T>::add(T voxelData)
 {
     if ( currentSize >= maxSize ) {
-        Data = (T *)realloc(Data, sizeof(T) * (maxSize + increaseChunk));
+        Data = static_cast<T *>(realloc(Data, sizeof(T) * (maxSize + increaseChunk)));
         if ( !Data ) {
             return false;
         }

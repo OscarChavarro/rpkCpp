@@ -255,7 +255,7 @@ monteCarloRadiosityDetermineAreaFraction(
     }
 
     // Sort the table to decreasing areas
-    qsort((void *) areas,
+    qsort(areas,
         numberOfPatchIds,
         sizeof(float),
         qSortFloatCompare);
@@ -280,7 +280,7 @@ monteCarloRadiosityDetermineInitialNrRays(
     const java::ArrayList<Geometry *> *sceneGeometries)
 {
     double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = static_cast<long>((double) GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt * areaFrac);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = static_cast<long>(static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt) * areaFrac);
 }
 
 /**

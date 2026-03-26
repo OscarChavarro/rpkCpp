@@ -94,7 +94,7 @@ class Window {
     int y1;
 };
 
-#define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - (double *)GLOBAL_sgl_polyDummy))
+#define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - reinterpret_cast<double *>(GLOBAL_sgl_polyDummy)))
 
 // Polygon entirely outside box
 #define POLY_CLIP_OUT 0

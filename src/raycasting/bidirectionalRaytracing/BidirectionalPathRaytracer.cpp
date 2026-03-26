@@ -893,7 +893,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     // number of samples per pixel.
 
     // Get the highest power of two < number of samples
-    nrIterations = static_cast<int>(java::Math::log((double) GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel) /
+    nrIterations = static_cast<int>(java::Math::log(static_cast<double>(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel)) /
                                     java::Math::log(2.0));
     maxSamples = static_cast<int>(java::Math::pow(2.0, nrIterations));
 

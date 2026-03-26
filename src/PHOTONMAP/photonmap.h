@@ -58,7 +58,7 @@ class CPhotonMap {
         short excludeFlags = 0) {
         m_cosinesOk = false;
         return m_kdtree->query(
-            (float *)position,
+            reinterpret_cast<float *>(position),
             numberOfPhotons,
             m_photons,
             m_distances,
@@ -68,7 +68,7 @@ class CPhotonMap {
 
     int doQuery(Vector3D *pos) {
         m_cosinesOk = false;
-        return m_kdtree->query((float *) pos, *m_estimate_nrp /*pmapstate.reconPhotons*/,
+        return m_kdtree->query(reinterpret_cast<float *>(pos), *m_estimate_nrp /*pmapstate.reconPhotons*/,
                                m_photons, m_distances, static_cast<float>(GetMaxR2()));
     }
 

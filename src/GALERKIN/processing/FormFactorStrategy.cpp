@@ -646,8 +646,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
     // Returns the visibility: basically the fraction of rays that did not hit an occluder
     if ( sourceCubatureRule != nullptr && receiveCubatureRule != nullptr ) {
-        link->visibility = static_cast<unsigned char>((unsigned) (255.0 * (double) visibilityCount /
-                                                                  (double) (receiveCubatureRule->numberOfNodes * sourceCubatureRule->
+        link->visibility = static_cast<unsigned char>(static_cast<unsigned>(255.0 * static_cast<double>(visibilityCount) /
+                                                                  static_cast<double>(receiveCubatureRule->numberOfNodes * sourceCubatureRule->
                                                                             numberOfNodes)));
     }
 

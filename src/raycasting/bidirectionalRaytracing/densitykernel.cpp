@@ -113,7 +113,7 @@ CKernel2D::varCover(
     // scaleSamples is normally total samples per pixel, while
     // totalSamples is the total number of samples for the CURRENT
     // number of samples per pixel
-    float Bn = static_cast<float>(B * (java::Math::pow((double) scaleSamples, (-1.5 / 5.0))));
+    float Bn = static_cast<float>(B * (java::Math::pow(static_cast<double>(scaleSamples), (-1.5 / 5.0))));
 
     float h;
 

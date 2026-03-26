@@ -179,7 +179,7 @@ tracePaths(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         double p = birthProbabilityCallBack(patch) / globalSumProbabilities;
-        long paths_this_patch = static_cast<int>(java::Math::floor((pCumulative + p) * (double) numberOfPaths + rnd)) - pathCount;
+        long paths_this_patch = static_cast<int>(java::Math::floor((pCumulative + p) * static_cast<double>(numberOfPaths) + rnd)) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
             tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, &path);
             scorePathCallBack(&path, numberOfPaths, patchNormalisedBirthProbability);
