@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(rpk)
 
 if(UNIX AND NOT APPLE)
-    add_compile_options(-std=c++11 -Wall -pedantic)
+    add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
 endif()
 
 if(APPLE)
@@ -93,7 +93,6 @@ set(MAIN_SRC
     src/numericalAnalysis/quasiMonteCarlo/Sobol.cpp
     src/numericalAnalysis/PatchVisitor.cpp
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
-    src/numericalAnalysis/PatchVisitor.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
     src/io/mgf/MgfColorContext.cpp
