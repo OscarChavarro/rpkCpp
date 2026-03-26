@@ -10,18 +10,15 @@ with a Z-buffer visibility algorithm in software
 
 /**
 Src is a toplevel surface element. Render the corresponding patch
-with pixel value a pointer to the element. Uses global variable
-eyePoint for backface culling
+with pixel value a pointer to the element.
 */
-static Vector3D globalEyePoint;
-
 /**
 Create a scratch software renderer for various operations on clusters
 */
 void
 ScratchVisibilityStrategy::scratchInit(GalerkinState *galerkinState) {
     galerkinState->scratch = new SGL_CONTEXT(galerkinState->scratchFrameBufferSize, galerkinState->scratchFrameBufferSize);
-    GLOBAL_sgl_currentContext->sglDepthTesting(true);
+    galerkinState->scratch->sglDepthTesting(true);
 }
 
 /**
@@ -70,11 +67,11 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 
     Camera::transformBoundingBox(cluster->geometry->getBoundingBox(), lookAt, &boundingBox);
 
-    SGL_CONTEXT *prev_sgl_context = sglMakeCurrent(galerkinState->scratch);
+    SGL_CONTEXT *scratch = galerkinState->scratch;
 
     Matrix4x4 o = Camera::projectionMatrixFromBoundingBox(boundingBox);
-    GLOBAL_sgl_currentContext->sglLoadMatrix(&o);
-    GLOBAL_sgl_currentContext->sglMultiplyMatrix(&lookAt);
+    scratch->sglLoadMatrix(&o);
+    scratch->sglMultiplyMatrix(&lookAt);
 
     // Choose a viewport depending on the relative size of the smallest
     // surface element in the cluster to be rendered
@@ -86,16 +83,13 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     if ( vp_size < 32 ) {
         vp_size = 32;
     }
-    GLOBAL_sgl_currentContext->sglViewport(0, 0, vp_size, vp_size);
+    scratch->sglViewport(0, 0, vp_size, vp_size);
 
     // Render element pointers in the scratch frame buffer
-    globalEyePoint = eye; // Needed for backface culling test
-    GLOBAL_sgl_currentContext->sglClear(static_cast<SGL_PIXEL>(0x00), SGL_MAXIMUM_Z);
+    scratch->sglClear(static_cast<SGL_PIXEL>(0x00), SGL_MAXIMUM_Z);
 
-    ScratchRendererVisitor leafVisitor(globalEyePoint);
+    ScratchRendererVisitor leafVisitor(eye, scratch);
     ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);
-
-    sglMakeCurrent(prev_sgl_context);
 
     return &boundingBox;
 }

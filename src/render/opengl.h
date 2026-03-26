@@ -7,6 +7,9 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
+typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);
+typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *, const RenderOptions *, void *);
+
 extern void openGlRenderLine(Vector3D *x, Vector3D *y);
 extern void openGlRenderSetColor(const ColorRgb *rgb);
 extern void openGlRenderPatchOutline(const Patch *patch);
@@ -20,7 +23,14 @@ extern void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry
 extern void
 openGlRenderWorldOctree(
     const Scene *scene,
-    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
+    OpenGlRenderPatchCallback renderPatchCallback,
+    const RenderOptions *renderOptions);
+
+extern void
+openGlRenderWorldOctreeWithData(
+    const Scene *scene,
+    OpenGlRenderPatchCallbackWithData renderPatchCallback,
+    void *callbackData,
     const RenderOptions *renderOptions);
 
 extern void

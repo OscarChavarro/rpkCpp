@@ -172,16 +172,37 @@ openGlRenderPatchOutline(const Patch *patch) {
 }
 
 #ifdef OPEN_GL_ENABLED
+class OpenGlRenderTraversalCallback {
+  public:
+    OpenGlRenderPatchCallback callbackWithoutData;
+    OpenGlRenderPatchCallbackWithData callbackWithData;
+    void *callbackData;
+};
+
+static void
+openGlInvokeRenderPatch(
+    const OpenGlRenderTraversalCallback &renderPatch,
+    const Patch *patch,
+    const Camera *camera,
+    const RenderOptions *renderOptions)
+{
+    if ( renderPatch.callbackWithData != nullptr ) {
+        renderPatch.callbackWithData(patch, camera, renderOptions, renderPatch.callbackData);
+    } else if ( renderPatch.callbackWithoutData != nullptr ) {
+        renderPatch.callbackWithoutData(patch, camera, renderOptions);
+    }
+}
+
 static void
 openGlReallyRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
-    void (*renderPatch)(const Patch *, const Camera *, const RenderOptions *),
+    const OpenGlRenderTraversalCallback &renderPatch,
     const RenderOptions *renderOptions)
 {
     const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        renderPatch(patchList->get(i), camera, renderOptions);
+        openGlInvokeRenderPatch(renderPatch, patchList->get(i), camera, renderOptions);
     }
 }
 
@@ -189,7 +210,7 @@ static void
 openGlRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
-    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
+    const OpenGlRenderTraversalCallback &renderPatchCallback,
     const RenderOptions *renderOptions)
 {
     openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
@@ -225,7 +246,7 @@ static void
 openGlRenderOctreeNonLeaf(
     Camera *camera,
     const Geometry *geometry,
-    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *renderOptions),
+    const OpenGlRenderTraversalCallback &renderPatchCallback,
     const RenderOptions *renderOptions)
 {
     OctreeChild octree_children[8];
@@ -296,20 +317,47 @@ renderPatchCallback is called
 void
 openGlRenderWorldOctree(
     const Scene *scene,
-    void (*renderPatchCallback)(const Patch *, const Camera *, const RenderOptions *),
+    OpenGlRenderPatchCallback renderPatchCallback,
     const RenderOptions *renderOptions)
 {
     if ( scene->clusteredRootGeometry == nullptr ) {
         return;
     }
 #ifdef OPEN_GL_ENABLED
+    OpenGlRenderTraversalCallback callbackContext{};
     if ( renderPatchCallback == nullptr ) {
         renderPatchCallback = openGlRenderPatchCallBack;
     }
+    callbackContext.callbackWithoutData = renderPatchCallback;
+    callbackContext.callbackWithData = nullptr;
+    callbackContext.callbackData = nullptr;
     if ( scene->clusteredRootGeometry->isCompound() ) {
-        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
+        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {
-        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, renderPatchCallback, renderOptions);
+        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+    }
+#endif
+}
+
+void
+openGlRenderWorldOctreeWithData(
+    const Scene *scene,
+    OpenGlRenderPatchCallbackWithData renderPatchCallback,
+    void *callbackData,
+    const RenderOptions *renderOptions)
+{
+    if ( scene->clusteredRootGeometry == nullptr || renderPatchCallback == nullptr ) {
+        return;
+    }
+#ifdef OPEN_GL_ENABLED
+    OpenGlRenderTraversalCallback callbackContext{};
+    callbackContext.callbackWithoutData = nullptr;
+    callbackContext.callbackWithData = renderPatchCallback;
+    callbackContext.callbackData = callbackData;
+    if ( scene->clusteredRootGeometry->isCompound() ) {
+        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+    } else {
+        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     }
 #endif
 }

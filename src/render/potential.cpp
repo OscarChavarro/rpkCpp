@@ -138,13 +138,11 @@ softGetPatchPointers(const SGL_CONTEXT *sgl, const java::ArrayList<Patch *> *sce
 static void
 softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
     clock_t t = clock();
-    SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
 
-    softRenderPatches(scene, renderOptions);
+    softRenderPatches(scene, renderOptions, currentSglContext);
     softGetPatchPointers(currentSglContext, scene->patchList);
     delete currentSglContext;
-    sglMakeCurrent(oldSglContext);
 
     java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
         static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));

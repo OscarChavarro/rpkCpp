@@ -13,29 +13,29 @@ formats, etc.
 
 /**
 Sets up a software rendering context and initialises transforms and
-viewport for the current view. The new renderer is made current
+viewport for the current view.
 */
 SGL_CONTEXT *
 setupSoftFrameBuffer(const Camera *camera) {
     SGL_CONTEXT *sgl = new SGL_CONTEXT(camera->xSize, camera->ySize);
-    GLOBAL_sgl_currentContext->sglDepthTesting(true);
-    GLOBAL_sgl_currentContext->sglClipping(true);
-    GLOBAL_sgl_currentContext->sglClear(0, SGL_MAXIMUM_Z);
+    sgl->sglDepthTesting(true);
+    sgl->sglClipping(true);
+    sgl->sglClear(0, SGL_MAXIMUM_Z);
 
     Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
         camera->fieldOfVision * 2.0f * static_cast<float>(M_PI) / 180.0f,
         static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
         camera->near,
         camera->far);
-    GLOBAL_sgl_currentContext->sglLoadMatrix(&p);
+    sgl->sglLoadMatrix(&p);
     Matrix4x4 l = Matrix4x4::createLookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
-    GLOBAL_sgl_currentContext->sglMultiplyMatrix(&l);
+    sgl->sglMultiplyMatrix(&l);
 
     return sgl;
 }
 
 static void
-softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions, SGL_CONTEXT *sglContext) {
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
@@ -50,21 +50,39 @@ softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *r
         vertices[3] = *patch->vertex[3]->point;
     }
 
-    GLOBAL_sgl_currentContext->sglSetPatch(patch);
-    GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, vertices);
+    sglContext->sglSetPatch(patch);
+    sglContext->sglPolygon(patch->numberOfVertices, vertices);
+}
+
+static void
+softRenderPatchWithContext(
+    const Patch *patch,
+    const Camera *camera,
+    const RenderOptions *renderOptions,
+    void *callbackData)
+{
+    auto *sglContext = static_cast<SGL_CONTEXT *>(callbackData);
+    if ( sglContext == nullptr ) {
+        return;
+    }
+    softRenderPatch(patch, camera, renderOptions, sglContext);
 }
 
 /**
-Renders all scenePatches in the current sgl renderer. PatchPixel returns
+Renders all scenePatches in the provided sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(const Scene *scene, const RenderOptions *renderOptions) {
+softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SGL_CONTEXT *sglContext) {
+    if ( sglContext == nullptr ) {
+        return;
+    }
+
     if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctree(scene, softRenderPatch, renderOptions);
+        openGlRenderWorldOctreeWithData(scene, softRenderPatchWithContext, sglContext, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
+            softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
         }
     }
 }
@@ -78,9 +96,8 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    SGL_CONTEXT *oldSglContext = GLOBAL_sgl_currentContext;
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, renderOptions);
+    softRenderPatches(scene, renderOptions, currentSglContext);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;
@@ -88,7 +105,6 @@ softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderO
     memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
 
     delete currentSglContext;
-    sglMakeCurrent(oldSglContext);
 
     return ids;
 }

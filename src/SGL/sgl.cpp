@@ -9,9 +9,6 @@ of patches needs to be ID rendered very often
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
 
-// Note this can change between drawing the main frame buffer, drawing Z-based form factors, etc.
-SGL_CONTEXT *GLOBAL_sgl_currentContext{};
-
 static Matrix4x4 globalIdentityMatrix(
     1.0f, 0.0f, 0.0f, 0.0f,
     0.0f, 1.0f, 0.0f, 0.0f,
@@ -20,26 +17,13 @@ static Matrix4x4 globalIdentityMatrix(
 );
 
 /**
-Makes the specified context current, returns the previous current context
-*/
-SGL_CONTEXT *
-sglMakeCurrent(SGL_CONTEXT *context) {
-    SGL_CONTEXT *oldContext = GLOBAL_sgl_currentContext;
-    GLOBAL_sgl_currentContext = context;
-    return oldContext;
-}
-
-/**
-Creates, destroys an SGL rendering context. sglOpen() also makes the new context
-the current context
+Creates and destroys an SGL rendering context.
 */
 SGL_CONTEXT::SGL_CONTEXT(int width, int height):
     transformStack(),
     elementBuffer(),
     currentElement()
 {
-    GLOBAL_sgl_currentContext = this;
-
     // Frame buffer
     this->width = width;
     this->height = height;
@@ -85,16 +69,8 @@ SGL_CONTEXT::~SGL_CONTEXT() {
     if ( depthBuffer != nullptr ) {
         delete[] depthBuffer;
     }
-
-    if ( this == GLOBAL_sgl_currentContext ) {
-        GLOBAL_sgl_currentContext = nullptr;
-    }
 }
 
-/**
-All the following operate on the current SGL context and behave very similar as
-the corresponding functions in OpenGL
-*/
 static void
 sglClearFrameBuffer(SGL_CONTEXT *sglContext, SGL_PIXEL backgroundColor) {
     const int viewportOrigin = sglContext->vp_y * sglContext->width + sglContext->vp_x;

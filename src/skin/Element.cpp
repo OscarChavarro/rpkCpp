@@ -2,26 +2,26 @@
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/error.h"
+    #include "common/error.h"
 #endif
 
 #include "skin/Element.h"
 
 Element::Element():
-        id(),
-        Ed(),
-        Rd(),
-        radiance(),
-        receivedRadiance(),
-        unShotRadiance(),
-        area(),
-        className(),
-        patch(),
-        geometry(),
-        parent(),
-        regularSubElements(),
-        irregularSubElements(),
-        transformToParent()
+    id(),
+    Ed(),
+    Rd(),
+    radiance(),
+    receivedRadiance(),
+    unShotRadiance(),
+    area(),
+    className(),
+    patch(),
+    geometry(),
+    parent(),
+    regularSubElements(),
+    irregularSubElements(),
+    transformToParent()
 {
     flags = 0x00;
     Ed.clear();
@@ -39,22 +39,22 @@ element). In the other case, the composed transform is filled in in xf and
 xf (pointer to the transform) is returned
 */
 Matrix2x2 *
-Element::topTransform(Matrix2x2 *xf) const {
+Element::topTransform(Matrix2x2 *transform) const {
     // Top level element: no transform necessary to transform to top
     if ( !transformToParent ) {
         return nullptr;
     }
 
     const Element *window = this;
-    *xf = *window->transformToParent;
+    *transform = *window->transformToParent;
     do {
         window = window->parent;
         if ( window != nullptr && window->transformToParent != nullptr ) {
-            window->transformToParent->matrix2DPreConcatTransform(*xf, *xf);
+            window->transformToParent->matrix2DPreConcatTransform(*transform, *transform);
         }
     } while ( window != nullptr && window->transformToParent );
 
-    return xf;
+    return transform;
 }
 
 /**

@@ -14,7 +14,7 @@ due to frame buffer formats, etc.
 #include "scene/Scene.h"
 
 extern SGL_CONTEXT *setupSoftFrameBuffer(const Camera *camera);
-extern void softRenderPatches(const Scene *scene, const RenderOptions *renderOptions);
+extern void softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SGL_CONTEXT *sglContext);
 extern unsigned long *softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions);
 
 #endif

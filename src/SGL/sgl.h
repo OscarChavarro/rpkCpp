@@ -55,8 +55,4 @@ public:
     void sglPolygon(int numberOfVertices, const Vector3D *vertices);
 };
 
-extern SGL_CONTEXT *GLOBAL_sgl_currentContext;
-
-extern SGL_CONTEXT *sglMakeCurrent(SGL_CONTEXT *context);
-
 #endif

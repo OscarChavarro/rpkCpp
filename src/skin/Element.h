@@ -38,7 +38,7 @@ class Element {
     virtual ~Element();
 
     bool isCluster() const;
-    Matrix2x2 *topTransform(Matrix2x2 *xf) const;
+    Matrix2x2 *topTransform(Matrix2x2 *transform) const;
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RenderOptions *renderOptions), const RenderOptions *renderOptions);
@@ -52,7 +52,6 @@ class Element {
 
 inline
 Element::~Element() {
-
 }
 
 inline bool

@@ -1,7 +1,9 @@
 #include "GALERKIN/processing/visitors/ScratchRendererVisitor.h"
+#include "SGL/sgl.h"
 
-ScratchRendererVisitor::ScratchRendererVisitor(Vector3D inEyePoint) {
+ScratchRendererVisitor::ScratchRendererVisitor(Vector3D inEyePoint, SGL_CONTEXT *inSglContext) {
     eyePoint = inEyePoint;
+    sglContext = inSglContext;
 }
 
 ScratchRendererVisitor::~ScratchRendererVisitor() {
@@ -25,7 +27,11 @@ ScratchRendererVisitor::visit(
         v[i] = *patch->vertex[i]->point;
     }
 
+    if ( sglContext == nullptr ) {
+        return;
+    }
+
     // TODO: Extend SGL_CONTEXT to support Element*
-    GLOBAL_sgl_currentContext->sglSetColor(reinterpret_cast<SGL_PIXEL>(galerkinElement));
-    GLOBAL_sgl_currentContext->sglPolygon(patch->numberOfVertices, v);
+    sglContext->sglSetColor(reinterpret_cast<SGL_PIXEL>(galerkinElement));
+    sglContext->sglPolygon(patch->numberOfVertices, v);
 }
