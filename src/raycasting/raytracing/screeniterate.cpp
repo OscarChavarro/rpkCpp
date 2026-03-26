@@ -9,7 +9,10 @@
 #include "raycasting/raytracing/screeniterate.h"
 
 // Different functions need to sync with the timer
-#define WAKE_UP_RENDER ((unsigned char)1<<1)
+static inline unsigned char
+wakeUpRender() {
+    return static_cast<unsigned char>(1u << 1);
+}
 
 class ScreenIterateState {
   public:
@@ -185,8 +188,8 @@ screenIterateProgressive(
 
                     GLOBAL_raytracer_pixelCount++;
 
-                    if ( iState.wakeUp & WAKE_UP_RENDER) {
-                        iState.wakeUp &= ~WAKE_UP_RENDER;
+                    if ( iState.wakeUp & wakeUpRender() ) {
+                        iState.wakeUp &= static_cast<unsigned char>(~wakeUpRender());
                         if ( (yMax > 0) && (yMax > yMin) ) {
                             softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                         }

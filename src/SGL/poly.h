@@ -71,7 +71,9 @@ class Polygon {
 Mask is an interpolation mask whose kth bit indicates whether the kth
 double in a Poly_vert is relevant.
 For example, if the valid attributes are sx, sy, and sz, then set
-mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz);
+mask = polyMask(offsetof(PolygonVertex, sx)) |
+       polyMask(offsetof(PolygonVertex, sy)) |
+       polyMask(offsetof(PolygonVertex, sz));
 */
 
 // A BOX (TYPICALLY IN SCREEN SPACE)
@@ -94,7 +96,10 @@ class Window {
     int y1;
 };
 
-#define POLY_MASK(elem) (1UL << (offsetof(PolygonVertex, elem) / sizeof(double)))
+inline constexpr unsigned long
+polyMask(std::size_t elementOffset) {
+    return 1UL << (elementOffset / sizeof(double));
+}
 
 int polyClipToBox(Polygon *p1, const PolygonBox *box);
 void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win);

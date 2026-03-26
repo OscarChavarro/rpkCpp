@@ -2,6 +2,24 @@
 #include "io/mgf/words.h"
 #include "io/mgf/MgfColorContext.h"
 
+const MgfColorContext DEFAULT_COLOR_CONTEXT = {
+    1,
+    COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
+    {
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE
+    },
+    static_cast<long>(NUMBER_OF_SPECTRAL_SAMPLES) * COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+    1.0 / 3.0,
+    1.0 / 3.0,
+    178.006f
+};
+
 // Derived CIE 1931 Primaries (imaginary)
 static MgfColorContext cie_xp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
@@ -93,11 +111,11 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     imax = ac; // Box filter if necessary
     boxPos = 0;
     boxStep = 1;
-    if ( wlStep < static_cast<double>(COLOR_WAVE_LENGTH_DELTA_I) ) {
-        imax = static_cast<int>(java::Math::round((wlMaximum - wlMinimum) / COLOR_WAVE_LENGTH_DELTA_I + (1 - Numeric::EPSILON)));
-        boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / COLOR_WAVE_LENGTH_DELTA_I;
-        boxStep = wlStep / COLOR_WAVE_LENGTH_DELTA_I;
-        wlStep = COLOR_WAVE_LENGTH_DELTA_I;
+    if ( wlStep < static_cast<double>(colorWaveLengthDeltaI()) ) {
+        imax = static_cast<int>(java::Math::round((wlMaximum - wlMinimum) / colorWaveLengthDeltaI() + (1 - Numeric::EPSILON)));
+        boxPos = (wlMinimum - COLOR_MINIMUM_WAVE_LENGTH) / colorWaveLengthDeltaI();
+        boxStep = wlStep / colorWaveLengthDeltaI();
+        wlStep = colorWaveLengthDeltaI();
     }
     scale = 0.0; // Get values and maximum
     pos = 0;
@@ -130,7 +148,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += static_cast<int>(COLOR_WAVE_LENGTH_DELTA_I)) {
+    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += static_cast<int>(colorWaveLengthDeltaI()) ) {
         if ( wl < wlMinimum || wl > wlMaximum ) {
             straightSamples[i] = 0;
         } else {
@@ -175,7 +193,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
     sf = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
     spectralStraightSum = 0;
     for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-        wl = (COLOR_MINIMUM_WAVE_LENGTH + static_cast<float>(i) * COLOR_WAVE_LENGTH_DELTA_I) * 1e-9;
+        wl = (COLOR_MINIMUM_WAVE_LENGTH + static_cast<float>(i) * colorWaveLengthDeltaI()) * 1e-9;
         spectralStraightSum += straightSamples[i] = static_cast<short>(java::Math::round(sf * bBsp(wl, tk) + 0.5));
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
@@ -245,7 +263,7 @@ MgfColorContext::fixColorRepresentation(int fl) {
             for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * straightSamples[i];
             }
-            eff = static_cast<float>((COLOR_PEAK_LUMENS_PER_WATT * y / static_cast<double>(spectralStraightSum)));
+            eff = static_cast<float>((colorPeakLumensPerWatt() * y / static_cast<double>(spectralStraightSum)));
         } else {
             // flags & C_CS_XY from (x,y)
             eff = static_cast<float>(cx * cie_xf.eff + cy * cie_yf.eff +

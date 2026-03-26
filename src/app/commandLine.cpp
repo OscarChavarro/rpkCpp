@@ -121,13 +121,13 @@ static void cameraSetFieldOfViewOption(void *val) {
 }
 
 static CommandLineOptionDescription globalCameraOptions[] = {
-    {"-eyepoint", 4, TVECTOR, &globalCamera.eyePosition, cameraSetEyePositionOption,
+    {"-eyepoint", 4, OPTIONS_TYPE_VECTOR, &globalCamera.eyePosition, cameraSetEyePositionOption,
      "-eyepoint  <vector>\t: viewing position"},
-    {"-center", 4, TVECTOR, &globalCamera.lookPosition, cameraSetLookPositionOption,
+    {"-center", 4, OPTIONS_TYPE_VECTOR, &globalCamera.lookPosition, cameraSetLookPositionOption,
      "-center    <vector>\t: point looked at"},
-    {"-updir", 3, TVECTOR, &globalCamera.upDirection, cameraSetUpDirectionOption,
+    {"-updir", 3, OPTIONS_TYPE_VECTOR, &globalCamera.upDirection, cameraSetUpDirectionOption,
      "-updir     <vector>\t: direction pointing up"},
-    {"-fov", 4, Tfloat,  &globalCamera.fieldOfVision, cameraSetFieldOfViewOption,
+    {"-fov", 4, OPTIONS_TYPE_FLOAT,  &globalCamera.fieldOfVision, cameraSetFieldOfViewOption,
      "-fov       <float> \t: field of view angle"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
@@ -211,7 +211,7 @@ ambientOption(void *value) {
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
-        {"-gr-iteration-method", 6, Tstring, nullptr, iterationMethodOption,
+        {"-gr-iteration-method", 6, OPTIONS_TYPE_STRING, nullptr, iterationMethodOption,
                                                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
         {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), hierarchicalOption,
                                                 "-gr-hierarchical    \t: do hierarchical refinement"},
@@ -233,9 +233,9 @@ static CommandLineOptionDescription galerkinOptions[] = {
                                                 "-gr-ambient         \t: do visualisation with ambient term"},
         {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), ambientOption,
                                                 "-gr-no-ambient      \t: do visualisation without ambient term"},
-        {"-gr-link-error-threshold", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
+        {"-gr-link-error-threshold", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
                                                 "-gr-link-error-threshold <float>: Relative link error threshold"},
-        {"-gr-min-elem-area", 6, Tfloat, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
+        {"-gr-min-elem-area", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
                                                 "-gr-min-elem-area <float> \t: Relative element area threshold"},
         {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
@@ -324,28 +324,28 @@ gammaOption(void *value) {
 }
 
 static CommandLineOptionDescription globalToneMappingOptions[] = {
-    {"-tonemapping", 4, Tstring, nullptr, toneMappingMethodOption, globalToneMappingMethodsString},
-    {"-brightness-adjust", 4, Tfloat, &GLOBAL_toneMap_options.brightness_adjust, brightnessAdjustOption,
+    {"-tonemapping", 4, OPTIONS_TYPE_STRING, nullptr, toneMappingMethodOption, globalToneMappingMethodsString},
+    {"-brightness-adjust", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.brightness_adjust, brightnessAdjustOption,
      "-brightness-adjust <float> : brightness adjustment factor"},
-    {"-adapt", 5, Tstring, nullptr, toneMappingCommandLineOptionDescAdaptMethodOption,
+    {"-adapt", 5, OPTIONS_TYPE_STRING, nullptr, toneMappingCommandLineOptionDescAdaptMethodOption,
     "-adapt <method>  \t: adaptation estimation method\n\tmethods: \"average\", \"median\""},
-    {"-lwa", 3, Tfloat, &GLOBAL_toneMap_options.realWorldAdaptionLuminance, DEFAULT_ACTION,
+    {"-lwa", 3, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.realWorldAdaptionLuminance, DEFAULT_ACTION,
      "-lwa <float>\t\t: real world adaptation luminance"},
-    {"-ldmax", 5, Tfloat, &GLOBAL_toneMap_options.maximumDisplayLuminance, DEFAULT_ACTION,
+    {"-ldmax", 5, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.maximumDisplayLuminance, DEFAULT_ACTION,
      "-ldmax <float>\t\t: maximum diaply luminance"},
-    {"-cmax", 4, Tfloat, &GLOBAL_toneMap_options.maximumDisplayContrast, DEFAULT_ACTION,
+    {"-cmax", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.maximumDisplayContrast, DEFAULT_ACTION,
      "-cmax <float>\t\t: maximum displayable contrast"},
-    {"-gamma", 4, Tfloat, nullptr, gammaOption,
+    {"-gamma", 4, OPTIONS_TYPE_FLOAT, nullptr, gammaOption,
      "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
-    {"-rgbgamma", 4, TRGB, &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
+    {"-rgbgamma", 4, OPTIONS_TYPE_RGB, &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
      "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
-    {"-red", 4, Txy, globalRxy, chromaOption,
+    {"-red", 4, OPTIONS_TYPE_XY, globalRxy, chromaOption,
      "-red <xy>            \t: CIE xy chromaticity of monitor red"},
-    {"-green", 4, Txy, globalGxy, chromaOption,
+    {"-green", 4, OPTIONS_TYPE_XY, globalGxy, chromaOption,
      "-green <xy>          \t: CIE xy chromaticity of monitor green"},
-    {"-blue", 4, Txy, globalBxy, chromaOption,
+    {"-blue", 4, OPTIONS_TYPE_XY, globalBxy, chromaOption,
      "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
-    {"-white", 4, Txy, globalWxy, chromaOption,
+    {"-white", 4, OPTIONS_TYPE_XY, globalWxy, chromaOption,
      "-white <xy>          \t: CIE xy chromaticity of monitor white"},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -361,7 +361,7 @@ toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
 static char *globalRadianceMethodsString;
 
 static CommandLineOptionDescription globalRadianceOptions[] = {
-        {"-radiance-method", 4, Tstring,  nullptr, DEFAULT_ACTION, globalRadianceMethodsString},
+        {"-radiance-method", 4, OPTIONS_TYPE_STRING,  nullptr, DEFAULT_ACTION, globalRadianceMethodsString},
         {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
@@ -403,7 +403,7 @@ static CommandLineOptionDescription renderingOptions[] = {
     "-no-culling\t\t: don't use backface culling"},
     {"-outlines", 5, nullptr, nullptr, outlinesOption,
     "-outlines\t\t: draw polygon outlines"},
-    {"-outline-color", 10, TRGB, &globalOutlineColor, DEFAULT_ACTION,
+    {"-outline-color", 10, OPTIONS_TYPE_RGB, &globalOutlineColor, DEFAULT_ACTION,
     "-outline-color <rgb> \t: color for polygon outlines"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
@@ -439,20 +439,20 @@ binaryInputOption(void * /*value*/) {
 static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
     {"-iterations", 3, &GLOBAL_options_intType, &globalBatchOptions.iterations, DEFAULT_ACTION,
     "-iterations <integer>\t: world-space radiance iterations"},
-    {"-obf", 4, Tstring, &globalBatchOptions.binaryOutputFilename, binaryOutputOption,
+    {"-obf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryOutputFilename, binaryOutputOption,
      "-obf <output.bin>\t: export loaded MgfModel snapshot to binary file"},
-    {"-ibf", 4, Tstring, &globalBatchOptions.binaryInputFilename, binaryInputOption,
+    {"-ibf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryInputFilename, binaryInputOption,
      "-ibf <input.bin>\t: import MgfModel snapshot from binary file (skips MGF read)"},
-    {"-radiance-image-savefile", 12, Tstring, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
+    {"-radiance-image-savefile", 12, OPTIONS_TYPE_STRING, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
      "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,\n\tfirst '%%d' will be substituted by iteration number"},
-    {"-radiance-model-savefile", 12, Tstring, &globalBatchOptions.radianceModelFileNameFormat, DEFAULT_ACTION,
+    {"-radiance-model-savefile", 12, OPTIONS_TYPE_STRING, &globalBatchOptions.radianceModelFileNameFormat, DEFAULT_ACTION,
      "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
      "\n\tfirst '%%d' will be substituted by iteration number"},
     {"-save-modulo", 8, &GLOBAL_options_intType, &globalBatchOptions.saveModulo, DEFAULT_ACTION,
      "-save-modulo <integer>\t: save every n-th iteration"},
-    {"-raytracing-image-savefile", 14, Tstring, &globalBatchOptions.raytracingImageFileName, DEFAULT_ACTION,
+    {"-raytracing-image-savefile", 14, OPTIONS_TYPE_STRING, &globalBatchOptions.raytracingImageFileName, DEFAULT_ACTION,
      "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
-    {"-timings", 3, Tsettrue, &globalBatchOptions.timings, DEFAULT_ACTION,
+    {"-timings", 3, OPTIONS_TYPE_SET_TRUE, &globalBatchOptions.timings, DEFAULT_ACTION,
      "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
     {nullptr, 0,  nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -476,7 +476,7 @@ static ENUMDESC globalApproximateValues[] = {
     {StochasticRaytracingApproximation::CUBIC, "cubic", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(approxTypeStruct, globalApproximateValues);
+static CommandLineOptions approxTypeStruct = makeEnumOptTypeStruct(globalApproximateValues);
 
 static ENUMDESC clusteringVals[] = {
     {HierarchyClusteringMode::NO_CLUSTERING, "none", 2},
@@ -484,7 +484,7 @@ static ENUMDESC clusteringVals[] = {
     {HierarchyClusteringMode::ORIENTED_CLUSTERING, "oriented",  2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(clusteringTypeStruct, clusteringVals);
+static CommandLineOptions clusteringTypeStruct = makeEnumOptTypeStruct(clusteringVals);
 
 static ENUMDESC sequenceVals[] = {
     {Sampler4DSequence::RANDOM, "PseudoRandom", 2},
@@ -492,14 +492,14 @@ static ENUMDESC sequenceVals[] = {
     {Sampler4DSequence::NIEDERREITER, "Niederreiter", 2}, // TODO: Not able to select all available sequences...
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(sequenceTypeStruct, sequenceVals);
+static CommandLineOptions sequenceTypeStruct = makeEnumOptTypeStruct(sequenceVals);
 
 static ENUMDESC estTypeVals[] = {
     {RandomWalkEstimatorType::RW_SHOOTING, "Shooting", 2},
     {RandomWalkEstimatorType::RW_GATHERING, "Gathering", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(estTypeTypeStruct, estTypeVals);
+static CommandLineOptions estTypeTypeStruct = makeEnumOptTypeStruct(estTypeVals);
 
 static ENUMDESC globalEstKindValues[] = {
     {RandomWalkEstimatorKind::RW_COLLISION, "Collision", 2},
@@ -509,7 +509,7 @@ static ENUMDESC globalEstKindValues[] = {
     {RandomWalkEstimatorKind::RW_N_LAST, "Last-N", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(estKindTypeStruct, globalEstKindValues);
+static CommandLineOptions estKindTypeStruct = makeEnumOptTypeStruct(globalEstKindValues);
 
 static ENUMDESC showWhatVals[] = {
     {WhatToShow::SHOW_TOTAL_RADIANCE, "total-radiance", 2},
@@ -517,40 +517,40 @@ static ENUMDESC showWhatVals[] = {
     {WhatToShow::SHOW_IMPORTANCE, "importance", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(showWhatTypeStruct, showWhatVals);
+static CommandLineOptions showWhatTypeStruct = makeEnumOptTypeStruct(showWhatVals);
 
 static CommandLineOptionDescription srrOptions[] = {
     {"-srr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt, DEFAULT_ACTION,
      "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
-    {"-srr-bidirectional", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers, DEFAULT_ACTION,
+    {"-srr-bidirectional", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers, DEFAULT_ACTION,
      "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
-    {"-srr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
+    {"-srr-control-variate", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
      "-srr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-    {"-srr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
+    {"-srr-indirect-only", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
      "-srr-indirect-only <y|n>    : Compute indirect illumination only"},
-    {"-srr-importance-driven", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven, DEFAULT_ACTION,
+    {"-srr-importance-driven", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven, DEFAULT_ACTION,
      "-srr-importance-driven <y|n>: Use view-importance"},
     {"-srr-sampling-sequence", 7, &sequenceTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence, DEFAULT_ACTION,
      "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
     {"-srr-approximation", 7, &approxTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
      "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-    {"-srr-hierarchical", 7, Tbool, &GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing, DEFAULT_ACTION,
+    {"-srr-hierarchical", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing, DEFAULT_ACTION,
      "-srr-hierarchical <y|n>     : hierarchical refinement"},
     {"-srr-clustering", 7, &clusteringTypeStruct, &GLOBAL_stochasticRaytracing_hierarchy.clustering, DEFAULT_ACTION,
      "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
-    {"-srr-epsilon", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.epsilon, DEFAULT_ACTION,
+    {"-srr-epsilon", 7, OPTIONS_TYPE_FLOAT, &GLOBAL_stochasticRaytracing_hierarchy.epsilon, DEFAULT_ACTION,
      "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
-    {"-srr-minarea", 7, Tfloat, &GLOBAL_stochasticRaytracing_hierarchy.minimumArea, DEFAULT_ACTION,
+    {"-srr-minarea", 7, OPTIONS_TYPE_FLOAT, &GLOBAL_stochasticRaytracing_hierarchy.minimumArea, DEFAULT_ACTION,
      "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
     {"-srr-display", 7, &showWhatTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show, DEFAULT_ACTION,
      "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
-    {"-srr-discard-incremental", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental, DEFAULT_ACTION,
+    {"-srr-discard-incremental", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental, DEFAULT_ACTION,
      "-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps)"},
-    {"-srr-incremental-uses-importance", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance, DEFAULT_ACTION,
+    {"-srr-incremental-uses-importance", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance, DEFAULT_ACTION,
      "-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps)"},
-    {"-srr-naive-merging", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging, DEFAULT_ACTION,
+    {"-srr-naive-merging", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging, DEFAULT_ACTION,
      "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
-    {"-srr-nondiffuse-first-shot", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot, DEFAULT_ACTION,
+    {"-srr-nondiffuse-first-shot", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot, DEFAULT_ACTION,
      "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
     {"-srr-initial-ls-samples", 7, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples, DEFAULT_ACTION,
      "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
@@ -560,11 +560,11 @@ static CommandLineOptionDescription srrOptions[] = {
 static CommandLineOptionDescription rwrOptions[] = {
     {"-rwr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt, DEFAULT_ACTION,
      "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
-    {"-rwr-continuous", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
+    {"-rwr-continuous", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
      "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
-    {"-rwr-control-variate", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
+    {"-rwr-control-variate", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
      "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-    {"-rwr-indirect-only", 7, Tbool, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
+    {"-rwr-indirect-only", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
      "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
     {"-rwr-sampling-sequence", 7, &estTypeTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence, DEFAULT_ACTION,
      "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
@@ -596,7 +596,7 @@ static ENUMDESC globalRayMatterPixelFilters[] = {
     {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(rmPixelFilterTypeStruct, globalRayMatterPixelFilters);
+static CommandLineOptions rmPixelFilterTypeStruct = makeEnumOptTypeStruct(globalRayMatterPixelFilters);
 
 static CommandLineOptionDescription globalRayMatterOptions[] =
 {
@@ -622,8 +622,7 @@ static ENUMDESC globalRadModeValues[] = {
     {0, nullptr, 0}
 };
 
-MakeEnumOptTypeStruct(radModeTypeStruct, globalRadModeValues);
-#define TradMode (&radModeTypeStruct)
+static CommandLineOptions radModeTypeStruct = makeEnumOptTypeStruct(globalRadModeValues);
 
 static ENUMDESC globalLightModeValues[] = {
     {RayTracingLightMode::POWER_LIGHTS, "power", 2},
@@ -632,47 +631,45 @@ static ENUMDESC globalLightModeValues[] = {
     {0, nullptr, 0}
 };
 
-MakeEnumOptTypeStruct(lightModeTypeStruct, globalLightModeValues);
-#define TlightMode (&lightModeTypeStruct)
+static CommandLineOptions lightModeTypeStruct = makeEnumOptTypeStruct(globalLightModeValues);
 
 static ENUMDESC globalSamplingModeValues[] = {
     {RayTracingSamplingMode::BRDF_SAMPLING, "bsdf", 2},
     {RayTracingSamplingMode::CLASSICAL_SAMPLING, "classical", 2},
     {0, nullptr, 0}
 };
-MakeEnumOptTypeStruct(samplingModeTypeStruct, globalSamplingModeValues);
-#define TsamplingMode (&samplingModeTypeStruct)
+static CommandLineOptions samplingModeTypeStruct = makeEnumOptTypeStruct(globalSamplingModeValues);
 
 static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
     {"-rts-samples-per-pixel", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.samplesPerPixel, DEFAULT_ACTION,
      "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
-    {"-rts-no-progressive", 9, Tsetfalse, &GLOBAL_raytracing_state.progressiveTracing, DEFAULT_ACTION,
+    {"-rts-no-progressive", 9, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.progressiveTracing, DEFAULT_ACTION,
      "-rts-no-progressive\t: don't do progressive image refinement"},
-    {"-rts-rad-mode", 8, TradMode, &GLOBAL_raytracing_state.radMode, DEFAULT_ACTION,
+    {"-rts-rad-mode", 8, &radModeTypeStruct, &GLOBAL_raytracing_state.radMode, DEFAULT_ACTION,
      "-rts-rad-mode <type>\t: Stored radiance usage - \"none\", \"direct\", \"indirect\", \"photonmap\""},
-    {"-rts-no-lightsampling", 9, Tsetfalse, &GLOBAL_raytracing_state.nextEvent, DEFAULT_ACTION,
+    {"-rts-no-lightsampling", 9, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.nextEvent, DEFAULT_ACTION,
      "-rts-no-lightsampling\t: don't do explicit light sampling"},
-    {"-rts-l-mode", 8, TlightMode, &GLOBAL_raytracing_state.lightMode, DEFAULT_ACTION,
+    {"-rts-l-mode", 8, &lightModeTypeStruct, &GLOBAL_raytracing_state.lightMode, DEFAULT_ACTION,
      "-rts-l-mode <type>\t: Light sampling mode - \"power\", \"important\", \"all\""},
     {"-rts-l-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.nextEventSamples, DEFAULT_ACTION,
      "-rts-l-samples <number>\t: explicit light source samples at each hit"},
     {"-rts-scatter-samples", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.scatterSamples, DEFAULT_ACTION,
      "-rts-scatter-samples <number>\t: scattered rays at each bounce"},
-    {"-rts-do-fdg", 0, Tsettrue, &GLOBAL_raytracing_state.differentFirstDG, DEFAULT_ACTION,
+    {"-rts-do-fdg", 0, OPTIONS_TYPE_SET_TRUE, &GLOBAL_raytracing_state.differentFirstDG, DEFAULT_ACTION,
      "-rts-do-fdg\t: use different nr. of scatter samples for first diffuse/glossy bounce"},
     {"-rts-fdg-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.firstDGSamples, DEFAULT_ACTION,
      "-rts-fdg-samples <number>\t: scattered rays at first diffuse/glossy bounce"},
-    {"-rts-separate-specular", 8, Tsettrue, &GLOBAL_raytracing_state.separateSpecular, DEFAULT_ACTION,
+    {"-rts-separate-specular", 8, OPTIONS_TYPE_SET_TRUE, &GLOBAL_raytracing_state.separateSpecular, DEFAULT_ACTION,
      "-rts-separate-specular\t: always shoot separate rays for specular scattering"},
-    {"-rts-s-mode", 9, TsamplingMode, &GLOBAL_raytracing_state.reflectionSampling, DEFAULT_ACTION,
+    {"-rts-s-mode", 9, &samplingModeTypeStruct, &GLOBAL_raytracing_state.reflectionSampling, DEFAULT_ACTION,
      "-rts-s-mode <type>\t: Sampling mode - \"bsdf\", \"classical\""},
     {"-rts-min-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.minPathDepth, DEFAULT_ACTION,
      "-rts-min-path-length <number>\t: minimum path length before Russian roulette"},
     {"-rts-max-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.maxPathDepth, DEFAULT_ACTION,
      "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
-    {"-rts-NOdirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundDirect, DEFAULT_ACTION,
+    {"-rts-NOdirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.backgroundDirect, DEFAULT_ACTION,
      "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
-    {"-rts-NOindirect-background-rad", 8, Tsetfalse, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
+    {"-rts-NOindirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
      "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
@@ -682,12 +679,12 @@ stochasticRayTracerParseOptions(int *argc, char **argv) {
     parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
 }
 
-MakeNStringTypeStruct(RegExpStringType, MAX_REGEXP_SIZE);
+static CommandLineOptions RegExpStringType = makeNStringTypeStruct(MAX_REGEXP_SIZE);
 
 static CommandLineOptionDescription globalBiDirectionalOptions[] = {
     {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel, DEFAULT_ACTION,
     "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
-    {"-bidir-no-progressive", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing, DEFAULT_ACTION,
+    {"-bidir-no-progressive", 11, OPTIONS_TYPE_SET_FALSE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing, DEFAULT_ACTION,
     "-bidir-no-progressive          \t: don't do progressive image refinement"},
     {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth, DEFAULT_ACTION,
     "-bidir-max-eye-path-length <number>: maximum eye path length"},
@@ -697,19 +694,19 @@ static CommandLineOptionDescription globalBiDirectionalOptions[] = {
     "-bidir-max-path-length <number>\t: maximum combined path length"},
     {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth, DEFAULT_ACTION,
     "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
-    {"-bidir-no-light-importance", 11, Tsetfalse, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights, DEFAULT_ACTION,
+    {"-bidir-no-light-importance", 11, OPTIONS_TYPE_SET_FALSE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights, DEFAULT_ACTION,
     "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
-    {"-bidir-use-regexp", 12, Tsettrue, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars, DEFAULT_ACTION,
+    {"-bidir-use-regexp", 12, OPTIONS_TYPE_SET_TRUE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars, DEFAULT_ACTION,
     "-bidir-use-regexp\t: use regular expressions for path evaluation"},
-    {"-bidir-use-emitted", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLe, DEFAULT_ACTION,
+    {"-bidir-use-emitted", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLe, DEFAULT_ACTION,
     "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
     {"-bidir-rexp-emitted", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp, DEFAULT_ACTION,
     "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
-    {"-bidir-reg-direct", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLD, DEFAULT_ACTION,
+    {"-bidir-reg-direct", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLD, DEFAULT_ACTION,
     "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
     {"-bidir-rexp-direct", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp, DEFAULT_ACTION,
     "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
-    {"-bidir-reg-indirect", 12, Tbool, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLI, DEFAULT_ACTION,
+    {"-bidir-reg-indirect", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLI, DEFAULT_ACTION,
     "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
     {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp, DEFAULT_ACTION,
     "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
@@ -731,7 +728,7 @@ mainRayTracingOption(void *value) {
 }
 
 static CommandLineOptionDescription globalRaytracingOptions[] = {
-    {"-raytracing-method", 4, Tstring,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
+    {"-raytracing-method", 4, OPTIONS_TYPE_STRING,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
@@ -748,17 +745,17 @@ rayTracingParseOptions(
 
 // Command line options
 static CommandLineOptionDescription globalPhotonMapOptions[] = {
-    {"-pmap-do-global", 9, Tbool, &GLOBAL_photonMap_state.doGlobalMap, DEFAULT_ACTION,
+    {"-pmap-do-global", 9, OPTIONS_TYPE_BOOL, &GLOBAL_photonMap_state.doGlobalMap, DEFAULT_ACTION,
      "-pmap-do-global <true|false> : Trace photons for the global map"},
     {"-pmap-global-paths", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.gPathsPerIteration, DEFAULT_ACTION,
      "-pmap-global-paths <number> : Number of paths per iteration for the global map"},
-    {"-pmap-g-preirradiance", 11, Tbool, &GLOBAL_photonMap_state.precomputeGIrradiance, DEFAULT_ACTION,
+    {"-pmap-g-preirradiance", 11, OPTIONS_TYPE_BOOL, &GLOBAL_photonMap_state.precomputeGIrradiance, DEFAULT_ACTION,
      "-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
-    {"-pmap-do-caustic", 9, Tbool, &GLOBAL_photonMap_state.doCausticMap, DEFAULT_ACTION,
+    {"-pmap-do-caustic", 9, OPTIONS_TYPE_BOOL, &GLOBAL_photonMap_state.doCausticMap, DEFAULT_ACTION,
      "-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
     {"-pmap-caustic-paths", 9,  &GLOBAL_options_intType, &GLOBAL_photonMap_state.cPathsPerIteration, DEFAULT_ACTION,
      "-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
-    {"-pmap-render-hits", 9, Tsettrue, &GLOBAL_photonMap_state.renderImage, DEFAULT_ACTION,
+    {"-pmap-render-hits", 9, OPTIONS_TYPE_SET_TRUE, &GLOBAL_photonMap_state.renderImage, DEFAULT_ACTION,
      "-pmap-render-hits: Show photon hits on screen"},
     {"-pmap-recon-gphotons", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.reconGPhotons, DEFAULT_ACTION,
      "-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map)"},
@@ -766,7 +763,7 @@ static CommandLineOptionDescription globalPhotonMapOptions[] = {
      "-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map)"},
     {"-pmap-recon-photons", 9, &GLOBAL_options_intType, &GLOBAL_photonMap_state.reconIPhotons, DEFAULT_ACTION,
      "-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
-    {"-pmap-balancing", 9, Tbool, &GLOBAL_photonMap_state.balanceKDTree, DEFAULT_ACTION,
+    {"-pmap-balancing", 9, OPTIONS_TYPE_BOOL, &GLOBAL_photonMap_state.balanceKDTree, DEFAULT_ACTION,
      "-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };

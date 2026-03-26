@@ -420,6 +420,16 @@ CommandLineOptions GLOBAL_options_xyType = {
     nullptr
 };
 
+CommandLineOptions *const OPTIONS_TYPE_BOOL = &GLOBAL_options_boolType;
+CommandLineOptions *const OPTIONS_TYPE_SET_TRUE = &GLOBAL_options_setTrueType;
+CommandLineOptions *const OPTIONS_TYPE_SET_FALSE = &GLOBAL_options_setFalseType;
+CommandLineOptions *const OPTIONS_TYPE_STRING = &GLOBAL_options_stringType;
+CommandLineOptions *const OPTIONS_TYPE_FLOAT = &GLOBAL_options_floatType;
+CommandLineOptions *const OPTIONS_TYPE_VECTOR = &GLOBAL_options_vectorType;
+CommandLineOptions *const OPTIONS_TYPE_RGB = &GLOBAL_options_rgbType;
+CommandLineOptions *const OPTIONS_TYPE_XY = &GLOBAL_options_xyType;
+void (*const DEFAULT_ACTION)(void *) = nullptr;
+
 /**
 Argument parsing
 */

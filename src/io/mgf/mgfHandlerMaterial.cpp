@@ -11,24 +11,24 @@
 
 static constexpr int NUMBER_OF_SAMPLES = 3;
 
-#define DEFAULT_MGF_MATERIAL_CONTEXT { \
-    1, \
-    0, \
-    1.0f, \
-    0.0f, \
-    0.0f, \
-    DEFAULT_COLOR_CONTEXT, \
-    0.0f, \
-    DEFAULT_COLOR_CONTEXT, \
-    0.0f, \
-    DEFAULT_COLOR_CONTEXT, \
-    0.0f, \
-    DEFAULT_COLOR_CONTEXT, \
-    0.0f, \
-    0.0f, \
-    DEFAULT_COLOR_CONTEXT, \
-    0.0f \
-}
+static const MgfMaterialContext DEFAULT_MGF_MATERIAL_CONTEXT = {
+    1,
+    0,
+    1.0f,
+    0.0f,
+    0.0f,
+    DEFAULT_COLOR_CONTEXT,
+    0.0f,
+    DEFAULT_COLOR_CONTEXT,
+    0.0f,
+    DEFAULT_COLOR_CONTEXT,
+    0.0f,
+    DEFAULT_COLOR_CONTEXT,
+    0.0f,
+    0.0f,
+    DEFAULT_COLOR_CONTEXT,
+    0.0f
+};
 
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MGF_MATERIAL_CONTEXT;

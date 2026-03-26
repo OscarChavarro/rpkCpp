@@ -6,6 +6,7 @@ Command line options and defaults
 #define __OPTIONS__
 
 #include <cstdio>
+#include <cstdint>
 
 /**
 Command line option value type structures
@@ -34,17 +35,17 @@ extern char *GLOBAL_option_dummyVal;
 Shorthands for specifying command line argument type, the 'type'
 field of the CMD_LINE_OPT_DESC structure below
 */
-#define Tbool (&GLOBAL_options_boolType)
-#define Tsettrue (&GLOBAL_options_setTrueType)
-#define Tsetfalse (&GLOBAL_options_setFalseType)
-#define Tstring (&GLOBAL_options_stringType)
-#define Tfloat (&GLOBAL_options_floatType)
-#define TVECTOR (&GLOBAL_options_vectorType)
-#define TRGB (&GLOBAL_options_rgbType)
-#define Txy (&GLOBAL_options_xyType)
+extern CommandLineOptions *const OPTIONS_TYPE_BOOL;
+extern CommandLineOptions *const OPTIONS_TYPE_SET_TRUE;
+extern CommandLineOptions *const OPTIONS_TYPE_SET_FALSE;
+extern CommandLineOptions *const OPTIONS_TYPE_STRING;
+extern CommandLineOptions *const OPTIONS_TYPE_FLOAT;
+extern CommandLineOptions *const OPTIONS_TYPE_VECTOR;
+extern CommandLineOptions *const OPTIONS_TYPE_RGB;
+extern CommandLineOptions *const OPTIONS_TYPE_XY;
 
-// Default action; no action
-#define DEFAULT_ACTION static_cast<void (*)(void *)>(nullptr)
+// Default action; no action.
+extern void (*const DEFAULT_ACTION)(void *);
 
 class CommandLineOptionDescription {
   public:
@@ -77,7 +78,7 @@ extern int optionsEnumGet(void *value, void *data);
 extern void optionsEnumPrint(FILE *fp, void *value, void *data);
 
 /**
-The following macro declares an enumerated value options type:
+The following helper function builds an enumerated value options type:
 example usage:
 
 static ENUMDESC kinds = {
@@ -85,16 +86,18 @@ static ENUMDESC kinds = {
   { 2, "secondkind", 6 },
   { 0, nullptr, 0 }
 };
-MakeEnumTypeStruct(kindTypeStruct, kinds);
-#define Tkind (&kindTypeStruct)
-"Tkind" then can be used as option value type in a CMDLINEOPTDESC record
+static CommandLineOptions kindTypeStruct = makeEnumOptTypeStruct(kinds);
+"&kindTypeStruct" then can be used as option value type in a CMDLINEOPTDESC record
 */
-#define MakeEnumOptTypeStruct(enumTypeStructName, enumvaltab) \
-static CommandLineOptions enumTypeStructName = { \
-  optionsEnumGet, \
-  optionsEnumPrint, \
-  static_cast<void *>(&GLOBAL_options_dummyVal), \
-  static_cast<void *>(enumvaltab) \
+inline CommandLineOptions
+makeEnumOptTypeStruct(ENUMDESC *enumvaltab) {
+    CommandLineOptions optionsType = {
+        optionsEnumGet,
+        optionsEnumPrint,
+        static_cast<void *>(&GLOBAL_options_dummyVal),
+        static_cast<void *>(enumvaltab)
+    };
+    return optionsType;
 }
 
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
@@ -103,18 +106,20 @@ extern int optionsStringGet(void *value, void *data);
 extern void optionsStringPrint(FILE *fp, void *value, void *data);
 
 /**
-The following macro declares an n string value options type:
+The following helper function builds an n string value options type:
 example usage:
-MakeNStringTypeStruct(nStringTypeStruct, n);
-#define Tnstring (&nStringTypeStruct)
-"Tnstring" then can be used as option value type in a CMDLINEOPTDESC record
+static CommandLineOptions nStringTypeStruct = makeNStringTypeStruct(n);
+"&nStringTypeStruct" then can be used as option value type in a CMDLINEOPTDESC record
 */
-#define MakeNStringTypeStruct(nstringTypeStructName, n) \
-static CommandLineOptions nstringTypeStructName = { \
-  optionsStringGet, \
-  optionsStringPrint, \
-  static_cast<void *>(&GLOBAL_option_dummyVal), \
-  reinterpret_cast<void *>(n) \
+inline CommandLineOptions
+makeNStringTypeStruct(int n) {
+    CommandLineOptions optionsType = {
+        optionsStringGet,
+        optionsStringPrint,
+        static_cast<void *>(&GLOBAL_option_dummyVal),
+        reinterpret_cast<void *>(static_cast<intptr_t>(n))
+    };
+    return optionsType;
 }
 
 extern void deleteOptionsMemory();

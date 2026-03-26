@@ -210,7 +210,10 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     pol.mask = 0;
 
     if ( clipping ) {
-        pol.mask = POLY_MASK(sx) | POLY_MASK(sy) | POLY_MASK(sz) | POLY_MASK(sw);
+        pol.mask = polyMask(offsetof(PolygonVertex, sx)) |
+                   polyMask(offsetof(PolygonVertex, sy)) |
+                   polyMask(offsetof(PolygonVertex, sz)) |
+                   polyMask(offsetof(PolygonVertex, sw));
         if ( polyClipToBox(&pol, &clip_box) == POLY_CLIP_OUT ) {
             return;
         }

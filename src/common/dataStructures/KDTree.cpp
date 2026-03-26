@@ -6,9 +6,6 @@
 #include "common/linealAlgebra/Numeric.h"
 #include "common/dataStructures/KDTree.h"
 
-#define E_SWAP(a, b) bkdswap(broot, (a), (b))
-#define E_VAL(index) bkdval(broot, (index), discr)
-
 const float KD_MAX_RADIUS = 1e10;
 
 // KD Tree with one data element per node
@@ -521,6 +518,16 @@ bkdval(BalancedKDTreeNode root[], int index, int discr) {
     return static_cast<float *>(root[index].m_data)[discr];
 }
 
+static inline void
+eSwap(BalancedKDTreeNode broot[], int a, int b) {
+    bkdswap(broot, a, b);
+}
+
+static inline float
+eVal(BalancedKDTreeNode broot[], int index, int discr) {
+    return bkdval(broot, index, discr);
+}
+
 int
 getBalancedMedian(int low, int high) {
     int N = high - low + 1;  // High inclusive
@@ -570,26 +577,26 @@ quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
 
         if ( high == low + 1 ) {
             // Two elements only
-            if ( E_VAL(low) > E_VAL(high) ) {
-                E_SWAP(low, high);
+            if ( eVal(broot, low, discr) > eVal(broot, high, discr) ) {
+                eSwap(broot, low, high);
             }
             return median;
         }
 
         // Find median of low, middle and high volumeListsOfItems; swap into position low
         middle = (low + high + 1) / 2;
-        if ( E_VAL(middle) > E_VAL(high) ) {
-            E_SWAP(middle, high);
+        if ( eVal(broot, middle, discr) > eVal(broot, high, discr) ) {
+            eSwap(broot, middle, high);
         }
-        if ( E_VAL(low) > E_VAL(high) ) {
-            E_SWAP(low, high);
+        if ( eVal(broot, low, discr) > eVal(broot, high, discr) ) {
+            eSwap(broot, low, high);
         }
-        if ( E_VAL(middle) > E_VAL(low) ) {
-            E_SWAP(middle, low);
+        if ( eVal(broot, middle, discr) > eVal(broot, low, discr) ) {
+            eSwap(broot, middle, low);
         }
 
         // Swap low item (now in position middle) into position (low + 1)
-        E_SWAP(middle, low + 1);
+        eSwap(broot, middle, low + 1);
 
         // Nibble from each end towards middle, swapping volumeListsOfItems when stuck
         ll = low + 1;
@@ -597,20 +604,20 @@ quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
         for ( ;; ) {
             do {
                 ll++;
-            } while ( E_VAL(low) > E_VAL(ll));
+            } while ( eVal(broot, low, discr) > eVal(broot, ll, discr) );
             do {
                 hh--;
-            } while ( E_VAL(hh) > E_VAL(low));
+            } while ( eVal(broot, hh, discr) > eVal(broot, low, discr) );
 
             if ( hh < ll ) {
                 break;
             }
 
-            E_SWAP(ll, hh);
+            eSwap(broot, ll, hh);
         }
 
         // Swap middle item (in position low) back into correct position
-        E_SWAP(low, hh);
+        eSwap(broot, low, hh);
 
         // Re-set active partition
         if ( hh <= median ) {

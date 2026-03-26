@@ -34,42 +34,51 @@ static float CIE_y_b = 0.060f;
 static float CIE_x_w = 0.3333333333f;
 static float CIE_y_w = 0.3333333333f;
 
-#define CIE_D ( \
-    CIE_x_r * (CIE_y_g - CIE_y_b) + \
-    CIE_x_g * (CIE_y_b - CIE_y_r) + \
-    CIE_x_b * (CIE_y_r - CIE_y_g) \
-)
+static inline double
+cieD() {
+    return CIE_x_r * (CIE_y_g - CIE_y_b) +
+           CIE_x_g * (CIE_y_b - CIE_y_r) +
+           CIE_x_b * (CIE_y_r - CIE_y_g);
+}
 
-#define CIE_C_rD ( \
-    (1.0/CIE_y_w) * \
-        ( \
-            CIE_x_w*(CIE_y_g - CIE_y_b) - \
-            CIE_y_w*(CIE_x_g - CIE_x_b) + \
-            CIE_x_g*CIE_y_b - CIE_x_b*CIE_y_g \
-        ) \
-    )
+static inline double
+cieCrD() {
+    return (1.0 / CIE_y_w) *
+           (CIE_x_w * (CIE_y_g - CIE_y_b) -
+            CIE_y_w * (CIE_x_g - CIE_x_b) +
+            CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g);
+}
 
-#define CIE_C_gD ( \
-    (1.0/CIE_y_w) * \
-        ( \
-            CIE_x_w*(CIE_y_b - CIE_y_r) - \
-            CIE_y_w*(CIE_x_b - CIE_x_r) - \
-            CIE_x_r*CIE_y_b + CIE_x_b*CIE_y_r \
-        ) \
-    )
+static inline double
+cieCgD() {
+    return (1.0 / CIE_y_w) *
+           (CIE_x_w * (CIE_y_b - CIE_y_r) -
+            CIE_y_w * (CIE_x_b - CIE_x_r) -
+            CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r);
+}
 
-#define CIE_C_bD ( \
-    (1.0/CIE_y_w) * \
-        ( \
-            CIE_x_w*(CIE_y_r - CIE_y_g) - \
-            CIE_y_w*(CIE_x_r - CIE_x_g) + \
-            CIE_x_r*CIE_y_g - CIE_x_g*CIE_y_r \
-        ) \
-    )
+static inline double
+cieCbD() {
+    return (1.0 / CIE_y_w) *
+           (CIE_x_w * (CIE_y_r - CIE_y_g) -
+            CIE_y_w * (CIE_x_r - CIE_x_g) +
+            CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r);
+}
 
-#define CIE_rf (CIE_y_r * CIE_C_rD / CIE_D)
-#define CIE_gf (CIE_y_g * CIE_C_gD / CIE_D)
-#define CIE_bf (CIE_y_b * CIE_C_bD / CIE_D)
+static inline double
+cieRf() {
+    return CIE_y_r * cieCrD() / cieD();
+}
+
+static inline double
+cieGf() {
+    return CIE_y_g * cieCgD() / cieD();
+}
+
+static inline double
+cieBf() {
+    return CIE_y_b * cieCbD() / cieD();
+}
 
 /**
 Luminous efficacy currently in use.
@@ -85,7 +94,7 @@ static float globalRgb2XyzMat[3][3];
 
 static float
 gray(const float r, const float g, const float b) {
-    return static_cast<float>(CIE_rf) * r + static_cast<float>(CIE_gf) * g + static_cast<float>(CIE_bf) * b;
+    return static_cast<float>(cieRf()) * r + static_cast<float>(cieGf()) * g + static_cast<float>(cieBf()) * b;
 }
 
 static float
@@ -169,27 +178,27 @@ computeColorConversionTransforms(
 
     setColorTransform(
             globalXyz2RgbMat, // XYZ to RGB
-          static_cast<float>((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / CIE_C_rD),
-            static_cast<float>((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / CIE_C_rD),
-            static_cast<float>((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / CIE_C_rD),
-            static_cast<float>((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / CIE_C_gD),
-            static_cast<float>((CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / CIE_C_gD),
-            static_cast<float>((CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / CIE_C_gD),
-            static_cast<float>((CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / CIE_C_bD),
-            static_cast<float>((CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / CIE_C_bD),
-            static_cast<float>((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / CIE_C_bD));
+          static_cast<float>((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / cieCrD()),
+            static_cast<float>((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / cieCrD()),
+            static_cast<float>((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / cieCrD()),
+            static_cast<float>((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / cieCgD()),
+            static_cast<float>((CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / cieCgD()),
+            static_cast<float>((CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / cieCgD()),
+            static_cast<float>((CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / cieCbD()),
+            static_cast<float>((CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / cieCbD()),
+            static_cast<float>((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / cieCbD()));
 
     setColorTransform(
             globalRgb2XyzMat, // RGB to XYZ
-          static_cast<float>(CIE_x_r * CIE_C_rD / CIE_D),
-            static_cast<float>(CIE_x_g * CIE_C_gD / CIE_D),
-            static_cast<float>(CIE_x_b * CIE_C_bD / CIE_D),
-            static_cast<float>(CIE_y_r * CIE_C_rD / CIE_D),
-            static_cast<float>(CIE_y_g * CIE_C_gD / CIE_D),
-            static_cast<float>(CIE_y_b * CIE_C_bD / CIE_D),
-            static_cast<float>((1.0 - CIE_x_r - CIE_y_r) * CIE_C_rD / CIE_D),
-            static_cast<float>((1.0 - CIE_x_g - CIE_y_g) * CIE_C_gD / CIE_D),
-            static_cast<float>((1.0 - CIE_x_b - CIE_y_b) * CIE_C_bD / CIE_D));
+          static_cast<float>(CIE_x_r * cieCrD() / cieD()),
+            static_cast<float>(CIE_x_g * cieCgD() / cieD()),
+            static_cast<float>(CIE_x_b * cieCbD() / cieD()),
+            static_cast<float>(CIE_y_r * cieCrD() / cieD()),
+            static_cast<float>(CIE_y_g * cieCgD() / cieD()),
+            static_cast<float>(CIE_y_b * cieCbD() / cieD()),
+            static_cast<float>((1.0 - CIE_x_r - CIE_y_r) * cieCrD() / cieD()),
+            static_cast<float>((1.0 - CIE_x_g - CIE_y_g) * cieCgD() / cieD()),
+            static_cast<float>((1.0 - CIE_x_b - CIE_y_b) * cieCbD() / cieD()));
 }
 
 /**
