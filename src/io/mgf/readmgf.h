@@ -1,10 +1,10 @@
 #ifndef __READ_MGF__
 #define __READ_MGF__
 
-#include "io/mgf/MgfContext.h"
-#include "io/mgf/MgfModel.h"
+#include "io/context/BaseContext.h"
+#include "io/PersistedSceneModel.h"
 
-extern MgfModel *readMgf(const char *filename, MgfContext *context);
-extern void mgfFreeMemory(MgfContext *context);
+extern PersistedSceneModel *readMgf(const char *filename, BaseContext *context);
+extern void mgfFreeMemory(BaseContext *context);
 
 #endif

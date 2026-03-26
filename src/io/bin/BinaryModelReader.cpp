@@ -8,18 +8,18 @@
 #include <stdexcept>
 #include <string>
 
-#include "common/error.h"
 #include "java/io/BufferedInputStream.h"
 #include "java/util/ArrayList.txx"
+#include "common/error.h"
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/PersistenceElement.h"
-#include "io/mgf/MgfColorContext.h"
-#include "io/mgf/MgfModel.h"
-#include "io/mgf/MgfReaderContext.h"
-#include "io/mgf/MgfTransformArray.h"
-#include "io/mgf/MgfTransformContext.h"
+#include "io/context/ColorContext.h"
+#include "io/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformContext.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -36,8 +36,8 @@
 #include "skin/Vertex.h"
 
 const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
-    'R', 'P', 'K', 'M', 'G', 'F', 'B', 'I',
-    'N', 'W', 'R', 'T', '1', 0, 0, 0
+    'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
+    'B', 'I', 'N', '_', '1', 0, 0, 0
 };
 const int32_t BinaryModelReader::BINARY_MODEL_VERSION = 1;
 
@@ -422,13 +422,13 @@ BinaryModelReader::validateBinaryHeader(java::io::InputStream &input) {
 
     if ( pointerSize != static_cast<int32_t>(sizeof(void *))
          || longSize != static_cast<int32_t>(sizeof(long))
-         || modelSize != static_cast<int32_t>(sizeof(MgfModel)) ) {
+         || modelSize != static_cast<int32_t>(sizeof(PersistedSceneModel)) ) {
         throw std::runtime_error("Incompatible binary model platform/type sizes");
     }
 }
 
 void
-BinaryModelReader::populateModelStrings(MgfModel *model, const BinaryModelReader::ModelRecord &record) {
+BinaryModelReader::populateModelStrings(PersistedSceneModel *model, const BinaryModelReader::ModelRecord &record) {
     if ( model == nullptr ) {
         throw std::runtime_error("Null model in string population");
     }
@@ -451,11 +451,11 @@ BinaryModelReader::cleanupPartialModel(
     java::ArrayList<Patch *> &patches,
     java::ArrayList<Material *> &materials,
     java::ArrayList<Geometry *> &geometries,
-    java::ArrayList<MgfColorContext *> &colorContexts,
-    java::ArrayList<MgfReaderContext *> &readerContexts,
-    java::ArrayList<MgfTransformArray *> &transformArrays,
-    java::ArrayList<MgfTransformContext *> &transformContexts,
-    MgfModel *model)
+    java::ArrayList<ColorContext *> &colorContexts,
+    java::ArrayList<ReaderContext *> &readerContexts,
+    java::ArrayList<TransformArray *> &transformArrays,
+    java::ArrayList<TransformContext *> &transformContexts,
+    PersistedSceneModel *model)
 {
     const bool hasGeometry = geometries.size() > 0;
     bool hasSurfaceGeometry = false;
@@ -541,7 +541,7 @@ BinaryModelReader::releaseModelRecordIndexLists(BinaryModelReader::ModelRecord *
     releaseIndexListRecord(&modelRecord->materials);
 }
 
-MgfModel *
+PersistedSceneModel *
 BinaryModelReader::read(const char *fileName) {
     if ( fileName == nullptr || fileName[0] == '\0' ) {
         return nullptr;
@@ -557,15 +557,15 @@ BinaryModelReader::read(const char *fileName) {
     java::ArrayList<Patch *> patches;
     java::ArrayList<Material *> materials;
     java::ArrayList<Geometry *> geometries;
-    java::ArrayList<MgfColorContext *> colorContexts;
-    java::ArrayList<MgfReaderContext *> readerContexts;
-    java::ArrayList<MgfTransformArray *> transformArrays;
-    java::ArrayList<MgfTransformContext *> transformContexts;
+    java::ArrayList<ColorContext *> colorContexts;
+    java::ArrayList<ReaderContext *> readerContexts;
+    java::ArrayList<TransformArray *> transformArrays;
+    java::ArrayList<TransformContext *> transformContexts;
     java::ArrayList<VertexRecord> vertexRecords;
     java::ArrayList<PatchRecord> patchRecords;
     java::ArrayList<GeometryRecord> geometryRecords;
     ModelRecord modelRecord;
-    MgfModel *model = nullptr;
+    PersistedSceneModel *model = nullptr;
 
     try {
         validateBinaryHeader(input);
@@ -585,10 +585,10 @@ BinaryModelReader::read(const char *fileName) {
         initializeArrayList(&patches, patchCount, static_cast<Patch *>(nullptr), "patches");
         initializeArrayList(&materials, materialCount, static_cast<Material *>(nullptr), "materials");
         initializeArrayList(&geometries, geometryCount, static_cast<Geometry *>(nullptr), "geometries");
-        initializeArrayList(&colorContexts, colorContextCount, static_cast<MgfColorContext *>(nullptr), "color contexts");
-        initializeArrayList(&readerContexts, readerContextCount, static_cast<MgfReaderContext *>(nullptr), "reader contexts");
-        initializeArrayList(&transformArrays, transformArrayCount, static_cast<MgfTransformArray *>(nullptr), "transform arrays");
-        initializeArrayList(&transformContexts, transformContextCount, static_cast<MgfTransformContext *>(nullptr), "transform contexts");
+        initializeArrayList(&colorContexts, colorContextCount, static_cast<ColorContext *>(nullptr), "color contexts");
+        initializeArrayList(&readerContexts, readerContextCount, static_cast<ReaderContext *>(nullptr), "reader contexts");
+        initializeArrayList(&transformArrays, transformArrayCount, static_cast<TransformArray *>(nullptr), "transform arrays");
+        initializeArrayList(&transformContexts, transformContextCount, static_cast<TransformContext *>(nullptr), "transform contexts");
         initializeArrayList(&vertexRecords, vertexCount, VertexRecord(), "vertex records");
         initializeArrayList(&patchRecords, patchCount, PatchRecord(), "patch records");
         initializeArrayList(&geometryRecords, geometryCount, GeometryRecord(), "geometry records");
@@ -688,7 +688,7 @@ BinaryModelReader::read(const char *fileName) {
 
         expectTag(input, "COLR");
         for ( int32_t i = 0; i < colorContextCount; i++ ) {
-            MgfColorContext *colorContext = new MgfColorContext();
+            ColorContext *colorContext = new ColorContext();
             colorContext->clock = readInt32LE(input);
             colorContext->flags = readInt16LE(input);
             for ( int j = 0; j < NUMBER_OF_SPECTRAL_SAMPLES; j++ ) {
@@ -705,7 +705,7 @@ BinaryModelReader::read(const char *fileName) {
         java::ArrayList<int32_t> readerContextPrevIndex;
         initializeArrayList(&readerContextPrevIndex, readerContextCount, static_cast<int32_t>(-1), "reader context prev index");
         for ( int32_t i = 0; i < readerContextCount; i++ ) {
-            MgfReaderContext *readerContext = new MgfReaderContext();
+            ReaderContext *readerContext = new ReaderContext();
 
             readBytes(input, reinterpret_cast<unsigned char *>(readerContext->fileName), 96);
             readerContext->fileName[95] = '\0';
@@ -737,7 +737,7 @@ BinaryModelReader::read(const char *fileName) {
 
         expectTag(input, "XFAR");
         for ( int32_t i = 0; i < transformArrayCount; i++ ) {
-            MgfTransformArray *transformArray = new MgfTransformArray();
+            TransformArray *transformArray = new TransformArray();
             transformArray->startingPosition.fid = readInt32LE(input);
             transformArray->startingPosition.lineno = readInt32LE(input);
             transformArray->startingPosition.offset = static_cast<long>(readInt64LE(input));
@@ -760,7 +760,7 @@ BinaryModelReader::read(const char *fileName) {
         initializeArrayList(&transformContextArrayIndex, transformContextCount, static_cast<int32_t>(-1), "transform context array index");
         initializeArrayList(&transformContextPrevIndex, transformContextCount, static_cast<int32_t>(-1), "transform context prev index");
         for ( int32_t i = 0; i < transformContextCount; i++ ) {
-            MgfTransformContext *transformContext = new MgfTransformContext();
+            TransformContext *transformContext = new TransformContext();
             transformContext->xid = static_cast<long>(readInt64LE(input));
             transformContext->xac = readInt16LE(input);
             transformContext->rev = readInt16LE(input);
@@ -778,7 +778,7 @@ BinaryModelReader::read(const char *fileName) {
             transformContexts.set(static_cast<long int>(i), transformContext);
         }
         for ( int32_t i = 0; i < transformContextCount; i++ ) {
-            MgfTransformContext *transformContext = transformContexts.get(static_cast<long int>(i));
+            TransformContext *transformContext = transformContexts.get(static_cast<long int>(i));
             transformContext->transformationArray = pointerFromIndex(
                 transformArrays,
                 transformContextArrayIndex.get(static_cast<long int>(i)),
@@ -1056,7 +1056,7 @@ BinaryModelReader::read(const char *fileName) {
         modelRecord.geometries = readIndexList(input, "model.geometries");
         modelRecord.materials = readIndexList(input, "model.materials");
 
-        model = new MgfModel();
+        model = new PersistedSceneModel();
         model->currentColor = pointerFromIndex(colorContexts, modelRecord.currentColorIndex, "model.currentColor");
         model->geometryStackHeadIndex = modelRecord.geometryStackHeadIndex;
         model->inComplex = modelRecord.inComplex;

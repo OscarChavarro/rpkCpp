@@ -2,7 +2,7 @@
 #define __GLUT__
 
 #include "java/util/ArrayList.h"
-#include "io/mgf/MgfContext.h"
+#include "io/context/BaseContext.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 
@@ -24,7 +24,7 @@ executeGlutGui(
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions,
-    void (*memoryFreeCallBack)(MgfContext *mgfContext),
-    MgfContext *mgfContext);
+    void (*memoryFreeCallBack)(BaseContext *mgfContext),
+    BaseContext *mgfContext);
 
 #endif

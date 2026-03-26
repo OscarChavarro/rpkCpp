@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "io/mgf/LookUpEntity.h"
-#include "io/mgf/words.h"
+#include "io/context/WordsContext.h"
 #include "io/mgf/mgfHandlerColor.h"
 #include "io/mgf/mgfDefinitions.h"
 
@@ -12,7 +12,7 @@ static LookUpTable globalColorTable(LookUpBehaviors::owningCString());
 Handle color entity
 */
 int
-handleColorEntity(int ac, const char **av, MgfContext *context) {
+handleColorEntity(int ac, const char **av, BaseContext *context) {
     int i;
     double wSum;
     LookUpEntity *lp;
@@ -29,14 +29,14 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 context->currentColor = context->unNamedColorContext;
                 return MgfErrorCode::MGF_OK;
             }
-            if ( !isNameWords(av[1]) ) {
+            if ( !WordsContext::isName(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = globalColorTable.lookUpFind(av[1]); // Lookup context
             if ( lp == nullptr) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
-            context->currentColor = reinterpret_cast<MgfColorContext *>(lp->data);
+            context->currentColor = reinterpret_cast<ColorContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( context->currentColor == nullptr) {
@@ -53,11 +53,11 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
-                lp->data = new char[sizeof(MgfColorContext)];
+                lp->data = new char[sizeof(ColorContext)];
                 if ( lp->data == nullptr) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
-                context->currentColor = reinterpret_cast<MgfColorContext *>(lp->data);
+                context->currentColor = reinterpret_cast<ColorContext *>(lp->data);
                 context->currentColor->clock = 0;
             }
             i = context->currentColor->clock;
@@ -75,7 +75,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *context->currentColor = *reinterpret_cast<MgfColorContext *>(lp->data);
+            *context->currentColor = *reinterpret_cast<ColorContext *>(lp->data);
             context->currentColor->clock = i + 1;
             return MgfErrorCode::MGF_OK;
         case MgfEntity::CXY:
@@ -83,7 +83,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
+            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             context->currentColor->cx = strtof(av[1], nullptr);
@@ -100,7 +100,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( ac < 5 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
+            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             return context->currentColor->setSpectrum(
@@ -113,7 +113,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) ) {
+            if ( !WordsContext::isFloat(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             return context->currentColor->setBlackBodyTemperature(strtod(av[1], nullptr));
@@ -122,7 +122,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( ac < 5 || (ac - 1) % 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) ) {
+            if ( !WordsContext::isFloat(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             wSum = strtod(av[1], nullptr);
@@ -133,9 +133,9 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( lp->data == nullptr) {
                 return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *context->currentColor = *reinterpret_cast<MgfColorContext *>(lp->data);
+            *context->currentColor = *reinterpret_cast<ColorContext *>(lp->data);
             for ( i = 3; i < ac; i += 2 ) {
-                if ( !isFloatWords(av[i]) ) {
+                if ( !WordsContext::isFloat(av[i]) ) {
                     return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
                 }
                 const double w = strtod(av[i], nullptr);
@@ -150,7 +150,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                     wSum,
                     context->currentColor,
                     w,
-                    reinterpret_cast<MgfColorContext *>(lp->data));
+                    reinterpret_cast<ColorContext *>(lp->data));
                 wSum += w;
             }
             if ( wSum <= 0.0 ) {
@@ -168,7 +168,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
 Empty context tables
 */
 void
-initColorContextTables(MgfContext *context) {
+initColorContextTables(BaseContext *context) {
     *(context->unNamedColorContext) = DEFAULT_COLOR_CONTEXT;
     context->currentColor = context->unNamedColorContext;
     globalColorTable.lookUpDone();

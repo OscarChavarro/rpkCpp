@@ -3,7 +3,7 @@
 
 #include <cstdio>
 
-#include "io/mgf/MgfContext.h"
+#include "io/context/BaseContext.h"
 
 class MgfReaderFilePosition;
 
@@ -32,7 +32,7 @@ enum class MgfHandlerType {
 
 class MgfEntityHandler {
   public:
-    virtual int handle(int argc, const char **argv, MgfContext *context) const = 0;
+    virtual int handle(int argc, const char **argv, BaseContext *context) const = 0;
     virtual MgfHandlerType type() const = 0;
     virtual ~MgfEntityHandler() {}
 };
@@ -40,16 +40,16 @@ class MgfEntityHandler {
 extern MgfEntityHandler *mgfHandlerFromType(MgfHandlerType handlerType);
 extern bool mgfHandlerMatches(const MgfEntityHandler *handler, MgfHandlerType handlerType);
 
-extern int mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContext *context);
-extern void mgfClose(MgfContext *context);
-extern void doError(const char *errmsg, MgfContext *context);
-extern void doWarning(const char *errmsg, MgfContext *context);
-extern void mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context);
-extern int mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context);
-extern int mgfEntity(const char *name, MgfContext *context);
-extern int mgfHandle(int entityIndex, int argc, const char **argv, MgfContext * /*context*/);
+extern int mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext *context);
+extern void mgfClose(BaseContext *context);
+extern void doError(const char *errmsg, BaseContext *context);
+extern void doWarning(const char *errmsg, BaseContext *context);
+extern void mgfGetFilePosition(MgfReaderFilePosition *pos, BaseContext *context);
+extern int mgfGoToFilePosition(const MgfReaderFilePosition *pos, BaseContext *context);
+extern int mgfEntity(const char *name, BaseContext *context);
+extern int mgfHandle(int entityIndex, int argc, const char **argv, BaseContext * /*context*/);
 extern void mgfLookUpFreeMemory();
 
-#include "io/mgf/MgfTransformContext.h"
+#include "io/context/TransformContext.h"
 
 #endif

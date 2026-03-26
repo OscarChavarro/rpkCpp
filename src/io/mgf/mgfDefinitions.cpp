@@ -14,18 +14,18 @@ static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());
 Default handler for unknown entities
 */
 static int
-mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const MgfContext * /*context*/) {
+mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const BaseContext * /*context*/) {
     // Just ignore line
     return MgfErrorCode::MGF_OK;
 }
 
 void
-doError(const char *errmsg, MgfContext *context) {
+doError(const char *errmsg, BaseContext *context) {
     logError(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
-doWarning(const char *errmsg, MgfContext *context) {
+doWarning(const char *errmsg, BaseContext *context) {
     logWarning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
@@ -33,7 +33,7 @@ doWarning(const char *errmsg, MgfContext *context) {
 Get current position in input file
 */
 void
-mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
+mgfGetFilePosition(MgfReaderFilePosition *pos, BaseContext *context) {
     pos->fid = context->readerContext->fileContextId;
     pos->lineno = context->readerContext->lineNumber;
     if ( context->readerContext->inputStream == nullptr ) {
@@ -47,7 +47,7 @@ mgfGetFilePosition(MgfReaderFilePosition *pos, MgfContext *context) {
 Reposition input file pointer
 */
 int
-mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
+mgfGoToFilePosition(const MgfReaderFilePosition *pos, BaseContext *context) {
     if ( pos->fid != context->readerContext->fileContextId ) {
         return MgfErrorCode::MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -72,7 +72,7 @@ mgfGoToFilePosition(const MgfReaderFilePosition *pos, MgfContext *context) {
 Get entity number from its name
 */
 int
-mgfEntity(const char *name, MgfContext *context) {
+mgfEntity(const char *name, BaseContext *context) {
     if ( !globalLookUpTable.getCurrentTableSize() ) {
         // Initialize hash table
         if ( !globalLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
@@ -101,7 +101,7 @@ mgfEntity(const char *name, MgfContext *context) {
 Pass entity to appropriate handler
 */
 int
-mgfHandle(int entityIndex, int argc, const char **argv, MgfContext *context) {
+mgfHandle(int entityIndex, int argc, const char **argv, BaseContext *context) {
     entityIndex = mgfEntity(argv[0], context);
     if ( entityIndex < 0 ) {
         // Unknown entity
@@ -121,7 +121,7 @@ mgfHandle(int entityIndex, int argc, const char **argv, MgfContext *context) {
 shaftCullOpen new input file
 */
 int
-mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContext *context) {
+mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext *context) {
     static int numberOfFileIds;
 
     readerContext->fileContextId = ++numberOfFileIds;
@@ -181,11 +181,11 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
 Close input file
 */
 void
-mgfClose(MgfContext *context) {
+mgfClose(BaseContext *context) {
     if ( context == nullptr || context->readerContext == nullptr ) {
         return;
     }
-    MgfReaderContext *ctx = context->readerContext;
+    ReaderContext *ctx = context->readerContext;
 
     context->readerContext = ctx->prev; // Restore enclosing context
     if ( ctx->inputStream != nullptr ) {

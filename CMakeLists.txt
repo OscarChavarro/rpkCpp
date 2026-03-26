@@ -25,6 +25,7 @@ set(MAIN_SRC
     src/java/util/StringTokenizer.cpp
     src/java/io/File.cpp
     src/java/io/FileInputStream.cpp
+    src/java/io/FileOutputStream.cpp
     src/java/io/BufferedInputStream.cpp
     src/java/io/PrintStream.cpp
     src/common/errorshared.cpp
@@ -95,25 +96,26 @@ set(MAIN_SRC
     src/numericalAnalysis/PatchVisitor.cpp
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
     src/io/mgf/MgfTransform.cpp
-    src/io/mgf/MgfContext.cpp
+    src/io/context/BaseContext.cpp
     src/io/mgf/LookUpEntity.cpp
     src/io/mgf/LookUpTable.cpp
-    src/io/mgf/MgfColorContext.cpp
+    src/io/context/ColorContext.cpp
     src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfGeometry.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
-    src/io/mgf/words.cpp
+    src/io/context/WordsContext.cpp
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/mgf/readmgf.cpp
+    src/io/PersistedSceneModel.cpp
     src/io/PersistenceElement.cpp
     src/io/bin/BinaryModelWriter.cpp
     src/io/bin/BinaryModelReader.cpp
     src/io/FileUncompressWrapper.cpp
-    src/io/writevrml.cpp
+    src/io/wrl/VrmlWriter.cpp
     src/io/image/pic.cpp
     src/io/image/dkcolor.cpp
     src/io/image/ImageOutputHandle.cpp

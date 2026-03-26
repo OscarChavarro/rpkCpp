@@ -1,6 +1,6 @@
 #include <cctype>
 
-#include "io/mgf/words.h"
+#include "io/context/WordsContext.h"
 #include "io/mgf/badarg.h"
 
 /**
@@ -25,12 +25,12 @@ checkForBadArguments(int ac, char **av, const char *fl) {
                 }
                 break;
             case 'i': // Integer
-                if ( !isIntDWords(av[formatIndex], " \t\r\n") ) {
+                if ( !WordsContext::isIntDelimited(av[formatIndex], " \t\r\n") ) {
                     return argumentIndex;
                 }
                 break;
             case 'f': // Float
-                if ( !isFloatDWords(av[formatIndex], " \t\r\n") ) {
+                if ( !WordsContext::isFloatDelimited(av[formatIndex], " \t\r\n") ) {
                     return argumentIndex;
                 }
                 break;

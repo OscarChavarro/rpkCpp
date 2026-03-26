@@ -1,10 +1,12 @@
 #ifndef __PERSISTENCE_ELEMENT__
 #define __PERSISTENCE_ELEMENT__
 
+#include <cstdint>
 #include <cstdio>
 #include <string>
 
 #include "java/io/InputStream.h"
+#include "java/io/OutputStream.h"
 #include "java/io/File.h"
 
 namespace vsdk {
@@ -41,9 +43,12 @@ class PersistenceElement {
 
     static int readByteInt(java::io::InputStream &is);
     static int readByteUnsignedInt(java::io::InputStream &is);
+    static void writeByte(java::io::OutputStream &os, unsigned char value);
+    static void writeBool(java::io::OutputStream &os, bool value);
 
     static void readBytes(java::io::InputStream &is, unsigned char *bytesBuffer, int length);
 
+    static void writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length);
     static void writeBytes(FILE *os, const unsigned char *bytesBuffer, int length);
 
     static int byteArray2signedShortBE(const unsigned char *arr, int start);
@@ -64,10 +69,15 @@ class PersistenceElement {
 
     static int readSignedShortLE(java::io::InputStream &is);
     static int readSignedShortBE(java::io::InputStream &is);
+    static void writeSignedShortBE(java::io::OutputStream &os, int num);
+    static void writeSignedShortLE(java::io::OutputStream &os, int num);
     static void writeSignedShortBE(FILE *os, int num);
     static void writeSignedShortLE(FILE *os, int num);
 
     static long readLongLE(java::io::InputStream &is);
+    static void writeInt32LE(java::io::OutputStream &os, int32_t num);
+    static void writeInt64LE(java::io::OutputStream &os, int64_t num);
+    static void writeDoubleLE(java::io::OutputStream &os, double num);
 
     static long readLongBE(java::io::InputStream &is);
 
@@ -76,6 +86,10 @@ class PersistenceElement {
     static double readDoubleBE(java::io::InputStream &is);
     static float readFloatBE(java::io::InputStream &is);
 
+    static void writeFloatBE(java::io::OutputStream &os, float num);
+    static void writeFloatLE(java::io::OutputStream &os, float num);
+    static void writeLongBE(java::io::OutputStream &os, long num);
+    static void writeLongLE(java::io::OutputStream &os, long num);
     static void writeFloatBE(FILE *os, float num);
     static void writeFloatLE(FILE *os, float num);
     static void writeLongBE(FILE *os, long num);

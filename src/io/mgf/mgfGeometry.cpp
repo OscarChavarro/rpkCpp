@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/words.h"
+#include "io/context/WordsContext.h"
 #include "io/mgf/mgfGeometry.h"
 
 // Alternate handler support functions
@@ -13,7 +13,7 @@ static bool globalWarpConeEnds; // Hack for generating good normals
 Expand a sphere into cones
 */
 int
-mgfEntitySphere(int ac, const char **av, MgfContext *context) {
+mgfEntitySphere(int ac, const char **av, BaseContext *context) {
     char p2x[24];
     char p2y[24];
     char p2z[24];
@@ -46,7 +46,7 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
     if ( cv == nullptr) {
         return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
-    if ( !isFloatWords(av[2]) ) {
+    if ( !WordsContext::isFloat(av[2]) ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     double rad = strtod(av[2], nullptr);
@@ -96,7 +96,7 @@ mgfEntitySphere(int ac, const char **av, MgfContext *context) {
 Expand a torus into cones
 */
 int
-mgfEntityTorus(int ac, const char **av, MgfContext *context) {
+mgfEntityTorus(int ac, const char **av, BaseContext *context) {
     char p2[3][24];
     char r1[24];
     char r2[24];
@@ -137,7 +137,7 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
     if ( cv->n.isNull(Numeric::EPSILON) ) {
         return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
+    if ( !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     double minRad = strtod(av[2], nullptr);
@@ -234,7 +234,7 @@ mgfEntityTorus(int ac, const char **av, MgfContext *context) {
 Replace a cylinder with equivalent cone
 */
 int
-mgfEntityCylinder(int ac, const char **av, MgfContext *context) {
+mgfEntityCylinder(int ac, const char **av, BaseContext *context) {
     const char *newArgV[6] = {context->entityNames[MgfEntity::CONE]};
 
     if ( ac != 4 ) {
@@ -283,7 +283,7 @@ mgfMakeAxes(VECTOR3Dd *u, VECTOR3Dd *v, const VECTOR3Dd *w, double epsilon)
 Turn a ring into polygons
 */
 int
-mgfEntityRing(int ac, const char **av, MgfContext *context) {
+mgfEntityRing(int ac, const char **av, BaseContext *context) {
     char p3[3][24];
     char p4[3][24];
     const char *namesEntity[5] = {
@@ -345,7 +345,7 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
     if ( vertexContext->n.isNull(Numeric::EPSILON) ) {
         return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( !isFloatWords(av[2]) || !isFloatWords(av[3]) ) {
+    if ( !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     double minRad = strtod(av[2], nullptr);
@@ -481,7 +481,7 @@ mgfEntityRing(int ac, const char **av, MgfContext *context) {
 Turn a cone into polygons
 */
 int
-mgfEntityCone(int ac, const char **av, MgfContext *context) {
+mgfEntityCone(int ac, const char **av, BaseContext *context) {
     char p3[3][24];
     char p4[3][24];
     char n3[3][24];
@@ -547,7 +547,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
         return MgfErrorCode::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     v1n = av[1];
-    if ( !isFloatWords(av[2]) || !isFloatWords(av[4]) ) {
+    if ( !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[4]) ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
 
@@ -825,7 +825,7 @@ mgfEntityCone(int ac, const char **av, MgfContext *context) {
 Turn a prism into polygons
 */
 int
-mgfEntityPrism(int ac, const char **av, MgfContext *context) {
+mgfEntityPrism(int ac, const char **av, BaseContext *context) {
     char p[3][24];
     const char *vent[5] = {
         context->entityNames[MgfEntity::VERTEX],
@@ -854,7 +854,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
     if ( ac < 5 ) {
         return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( !isFloatWords(av[ac - 1]) ) {
+    if ( !WordsContext::isFloat(av[ac - 1]) ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
     double length = strtod(av[ac - 1], nullptr);
@@ -987,7 +987,7 @@ mgfEntityPrism(int ac, const char **av, MgfContext *context) {
 Replace face + holes with single contour
 */
 int
-mgfEntityFaceWithHoles(int ac, const char **av, MgfContext *context) {
+mgfEntityFaceWithHoles(int ac, const char **av, BaseContext *context) {
     const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 

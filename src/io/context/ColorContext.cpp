@@ -1,8 +1,8 @@
-#include "io/mgf/MgfContext.h"
-#include "io/mgf/words.h"
-#include "io/mgf/MgfColorContext.h"
+#include "io/context/BaseContext.h"
+#include "io/context/WordsContext.h"
+#include "io/context/ColorContext.h"
 
-const MgfColorContext DEFAULT_COLOR_CONTEXT = {
+const ColorContext DEFAULT_COLOR_CONTEXT = {
     1,
     COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {
@@ -21,7 +21,7 @@ const MgfColorContext DEFAULT_COLOR_CONTEXT = {
 };
 
 // Derived CIE 1931 Primaries (imaginary)
-static MgfColorContext cie_xp = {
+static ColorContext cie_xp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {-174, -198, -195, -197, -202, -213, -235, -272, -333,
      -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
@@ -31,7 +31,7 @@ static MgfColorContext cie_xp = {
     127424L, 1.0f, 0.0f, 0.0f
 };
 
-static MgfColorContext cie_yp = {
+static ColorContext cie_yp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {-451, -431, -431, -430, -427, -417, -399, -366, -312,
      -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
@@ -41,7 +41,7 @@ static MgfColorContext cie_yp = {
     -23035L, 0.0f, 1.0f, 0.0f
 };
 
-static MgfColorContext cie_zp = {
+static ColorContext cie_zp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
      4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
@@ -52,7 +52,7 @@ static MgfColorContext cie_zp = {
 };
 
 // CIE 1931 Standard Observer curves
-static MgfColorContext cie_xf = {
+static ColorContext cie_xf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
      320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
@@ -60,7 +60,7 @@ static MgfColorContext cie_xf = {
      114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, 0.467f, 0.368f, 362.230f
 };
 
-static MgfColorContext cie_yf = {
+static ColorContext cie_yf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
      5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
@@ -68,7 +68,7 @@ static MgfColorContext cie_yf = {
      5, 2, 1, 1, 0, 0}, 106856L, 0.398f, 0.542f, 493.525f
 };
 
-static MgfColorContext cie_zf = {
+static ColorContext cie_zf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
      12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
@@ -80,7 +80,7 @@ static MgfColorContext cie_zf = {
 Convert a spectrum
 */
 int
-MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char **av) {
+ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char **av) {
     double scale;
     float va[NUMBER_OF_SPECTRAL_SAMPLES];
     int i;
@@ -124,7 +124,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
         n = 0;
         while ( boxPos < i + 0.5 && pos < ac ) {
             const char *value = av[argumentStartIndex + pos];
-            if ( !isFloatWords(value) ) {
+            if ( !WordsContext::isFloat(value) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += strtof(value, nullptr);
@@ -176,7 +176,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
 Set black body spectrum
 */
 int
-MgfColorContext::setBlackBodyTemperature(double tk) {
+ColorContext::setBlackBodyTemperature(double tk) {
     double sf;
     double wl;
 
@@ -205,7 +205,7 @@ MgfColorContext::setBlackBodyTemperature(double tk) {
 Convert color representations
 */
 void
-MgfColorContext::fixColorRepresentation(int fl) {
+ColorContext::fixColorRepresentation(int fl) {
     double x;
     double y;
     double z;
@@ -277,11 +277,11 @@ MgfColorContext::fixColorRepresentation(int fl) {
 Mix two colors according to weights given
 */
 void
-MgfColorContext::mixColors(
+ColorContext::mixColors(
     double w1,
-    MgfColorContext *c1,
+    ColorContext *c1,
     double w2,
-    MgfColorContext *c2)
+    ColorContext *c2)
 {
     double scale;
     float cMix[NUMBER_OF_SPECTRAL_SAMPLES];

@@ -1,5 +1,5 @@
-#ifndef __MGF_COLOR_CONTEXT__
-#define __MGF_COLOR_CONTEXT__
+#ifndef __COLOR_CONTEXT__
+#define __COLOR_CONTEXT__
 
 #include "java/lang/Math.h"
 
@@ -37,7 +37,7 @@ constexpr double C1 = 3.741832e-16;
 // m-K
 constexpr double C2 = 1.4388e-2;
 
-class MgfColorContext {
+class ColorContext {
   private:
     inline static double
     bBlm(double t) {
@@ -65,11 +65,11 @@ class MgfColorContext {
     void
     mixColors(
         double w1,
-        MgfColorContext *c1,
+        ColorContext *c1,
         double w2,
-        MgfColorContext *c2);
+        ColorContext *c2);
 };
 
-extern const MgfColorContext DEFAULT_COLOR_CONTEXT;
+extern const ColorContext DEFAULT_COLOR_CONTEXT;
 
 #endif

@@ -1,21 +1,21 @@
-#ifndef __MGF_CONTEXT__
-#define __MGF_CONTEXT__
+#ifndef __BASE_CONTEXT__
+#define __BASE_CONTEXT__
 
 #include "scene/RadianceMethod.h"
 #include "io/mgf/MgfEntity.h"
 #include "io/mgf/MgfErrorCode.h"
-#include "io/mgf/MgfReaderContext.h"
+#include "io/context/ReaderContext.h"
 
 // Objects 'o' contexts can be nested this deep
 constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
 
-class MgfTransformContext;
-class MgfColorContext;
+class TransformContext;
+class ColorContext;
 class LookUpTable;
 class MgfEntityHandler;
-class MgfModel;
+class PersistedSceneModel;
 
-class MgfContext {
+class BaseContext {
   public:
     // Parameters received from main program
     RadianceMethod *radianceMethod;
@@ -28,7 +28,7 @@ class MgfContext {
     // Internal variables on the MGF reader context
     char entityNames[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[MgfErrorCode::MGF_NUMBER_OF_ERRORS];
-    MgfReaderContext *readerContext;
+    ReaderContext *readerContext;
     MgfEntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES];
     MgfEntityHandler *supportCallbacks[TOTAL_NUMBER_OF_ENTITIES];
     char *currentMaterialName;
@@ -43,9 +43,9 @@ class MgfContext {
     java::ArrayList<Geometry *> *currentGeometryList;
     char *currentObjectName;
 
-    MgfTransformContext *transformContext;
-    MgfColorContext *unNamedColorContext;
-    MgfColorContext *currentColor;
+    TransformContext *transformContext;
+    ColorContext *unNamedColorContext;
+    ColorContext *currentColor;
     bool inSurface;
     bool inComplex;
     LookUpTable *vertexLookUpTable;
@@ -54,14 +54,14 @@ class MgfContext {
     // Return model
     java::ArrayList<Geometry *> *geometries;
     java::ArrayList<Material *> *materials;
-    MgfModel *model;
+    PersistedSceneModel *model;
 
-    MgfContext();
-    ~MgfContext();
+    BaseContext();
+    ~BaseContext();
 };
 
-#include "io/mgf/MgfTransformContext.h"
-#include "io/mgf/MgfColorContext.h"
+#include "io/context/TransformContext.h"
+#include "io/context/ColorContext.h"
 #include "io/mgf/LookUpTable.h"
 
 #endif

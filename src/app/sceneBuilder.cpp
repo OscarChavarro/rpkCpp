@@ -236,7 +236,7 @@ sceneBuilderCollectGeometriesRecursive(
 }
 
 static void
-sceneBuilderApplyModelToMgfContext(MgfContext *mgfContext, MgfModel *mgfModel) {
+sceneBuilderApplyModelToMgfContext(BaseContext *mgfContext, PersistedSceneModel *mgfModel) {
     if ( mgfContext == nullptr || mgfModel == nullptr ) {
         return;
     }
@@ -285,7 +285,7 @@ sceneBuilderApplyModelToMgfContext(MgfContext *mgfContext, MgfModel *mgfModel) {
 }
 
 static void
-removeEmptyMeshSurfaces(MgfContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+removeEmptyMeshSurfaces(BaseContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
@@ -358,7 +358,7 @@ Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
 static bool
-sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene) {
+sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene) {
     const BatchOptions *batchOptions = batchGetOptions();
     const bool importBinary =
         batchOptions != nullptr
@@ -399,10 +399,10 @@ sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene)
     }
     scene->background = commandLineCreateBackground();
 
-    // Read the source scene description into a MgfModel snapshot
+    // Read the source scene description into a PersistedSceneModel snapshot
     java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
     clock_t last = clock();
-    MgfModel *mgfModel = nullptr;
+    PersistedSceneModel *mgfModel = nullptr;
 
     if ( importBinary ) {
         mgfModel = BinaryModelReader::read(inputName);
@@ -417,7 +417,7 @@ sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene)
              && batchOptions->binaryOutputFilename != nullptr
              && batchOptions->binaryOutputFilename[0] != '\0' ) {
             java::lang::System::err.printf(
-                "Exporting loaded MgfModel to binary '%s' ... ",
+                "Exporting loaded PersistedSceneModel to binary '%s' ... ",
                 batchOptions->binaryOutputFilename);
             java::lang::System::err.flush();
             const bool binarySaved = BinaryModelWriter::write(
@@ -429,7 +429,7 @@ sceneBuilderReadFile(const char *fileName, MgfContext *mgfContext, Scene *scene)
                 java::lang::System::err.printf("failed.\n");
                 logError(
                     "sceneBuilderReadFile",
-                    "Could not export MgfModel binary to '%s'",
+                    "Could not export PersistedSceneModel binary to '%s'",
                     batchOptions->binaryOutputFilename);
             }
         }
@@ -556,7 +556,7 @@ void
 sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    MgfContext *mgfContext,
+    BaseContext *mgfContext,
     Scene *scene)
 {
     const BatchOptions *batchOptions = batchGetOptions();

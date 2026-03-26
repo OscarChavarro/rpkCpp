@@ -1,10 +1,10 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "io/mgf/MgfContext.h"
-#include "io/mgf/MgfModel.h"
+#include "io/context/BaseContext.h"
+#include "io/PersistedSceneModel.h"
 
-MgfContext::MgfContext():
+BaseContext::BaseContext():
     radianceMethod(),
     singleSided(),
     currentVertexName(),
@@ -73,7 +73,7 @@ MgfContext::MgfContext():
     currentGeometryList = nullptr;
     currentFaceList = nullptr;
     transformContext = nullptr;
-    unNamedColorContext = new MgfColorContext();
+    unNamedColorContext = new ColorContext();
     *unNamedColorContext = DEFAULT_COLOR_CONTEXT;
     currentColor = unNamedColorContext;
     inSurface = false; // True if busy creating a new surface
@@ -85,7 +85,7 @@ MgfContext::MgfContext():
     model = nullptr;
 }
 
-MgfContext::~MgfContext() {
+BaseContext::~BaseContext() {
     if ( currentObjectName != nullptr ) {
         delete[] currentObjectName;
         currentObjectName = nullptr;

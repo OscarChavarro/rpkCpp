@@ -1,7 +1,7 @@
 #ifndef __MGF_MATERIAL_CONTEXT__
 #define __MGF_MATERIAL_CONTEXT__
 
-#include "io/mgf/MgfColorContext.h"
+#include "io/context/ColorContext.h"
 
 class MgfMaterialContext {
   public:
@@ -10,16 +10,16 @@ class MgfMaterialContext {
     float nr; // Index of refraction, real and imaginary
     float ni;
     float rd; // Diffuse reflectance
-    MgfColorContext rd_c; // Diffuse reflectance color
+    ColorContext rd_c; // Diffuse reflectance color
     float td; // Diffuse transmittance
-    MgfColorContext td_c; // Diffuse transmittance color
+    ColorContext td_c; // Diffuse transmittance color
     float ed; // Diffuse emittance
-    MgfColorContext ed_c; // Diffuse emittance color
+    ColorContext ed_c; // Diffuse emittance color
     float rs; // Specular reflectance
-    MgfColorContext rs_c; // Specular reflectance color
+    ColorContext rs_c; // Specular reflectance color
     float rs_a; // Specular reflectance roughness
     float ts; // Specular transmittance
-    MgfColorContext ts_c; // Specular transmittance color
+    ColorContext ts_c; // Specular transmittance color
     float ts_a; // Specular transmittance roughness
 };
 

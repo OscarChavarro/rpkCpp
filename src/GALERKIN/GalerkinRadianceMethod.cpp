@@ -13,7 +13,7 @@ Galerkin radiosity, with the following variants:
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "io/writevrml.h"
+#include "io/wrl/VrmlWriter.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
 #include "tonemap/ToneMap.h"
@@ -506,12 +506,12 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
 
 void
 GalerkinRadianceMethod::writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const {
-    writeVrmlHeader(camera, fp, renderOptions);
+    VrmlWriter::writeHeader(camera, fp, renderOptions);
 
     globalVrmlFileDescriptor = fp;
     galerkinWriteCoords();
     galerkinWriteColors(renderOptions);
     galerkinWriteCoordIndicesTopCluster();
 
-    writeVRMLTrailer(fp);
+    VrmlWriter::writeTrailer(fp);
 }

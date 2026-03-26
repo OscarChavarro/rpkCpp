@@ -17,18 +17,18 @@ class BoundingBox;
 class ColorRgb;
 class Geometry;
 class Material;
-class MgfColorContext;
-class MgfModel;
-class MgfReaderContext;
-class MgfTransformArray;
-class MgfTransformContext;
+class ColorContext;
+class PersistedSceneModel;
+class ReaderContext;
+class TransformArray;
+class TransformContext;
 class Patch;
 class Vector3D;
 class Vertex;
 
 class BinaryModelReader {
   public:
-    static MgfModel *read(const char *fileName);
+    static PersistedSceneModel *read(const char *fileName);
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
@@ -73,18 +73,18 @@ class BinaryModelReader {
         const char *what);
 
     static void validateBinaryHeader(java::io::InputStream &input);
-    static void populateModelStrings(MgfModel *model, const ModelRecord &record);
+    static void populateModelStrings(PersistedSceneModel *model, const ModelRecord &record);
     static void cleanupPartialModel(
         java::ArrayList<Vector3D *> &vectors,
         java::ArrayList<Vertex *> &vertices,
         java::ArrayList<Patch *> &patches,
         java::ArrayList<Material *> &materials,
         java::ArrayList<Geometry *> &geometries,
-        java::ArrayList<MgfColorContext *> &colorContexts,
-        java::ArrayList<MgfReaderContext *> &readerContexts,
-        java::ArrayList<MgfTransformArray *> &transformArrays,
-        java::ArrayList<MgfTransformContext *> &transformContexts,
-        MgfModel *model);
+        java::ArrayList<ColorContext *> &colorContexts,
+        java::ArrayList<ReaderContext *> &readerContexts,
+        java::ArrayList<TransformArray *> &transformArrays,
+        java::ArrayList<TransformContext *> &transformContexts,
+        PersistedSceneModel *model);
     static void releaseVertexRecordIndexLists(java::ArrayList<VertexRecord> &vertexRecords);
     static void releaseGeometryRecordIndexLists(java::ArrayList<GeometryRecord> &geometryRecords);
     static void releaseModelRecordIndexLists(ModelRecord *modelRecord);

@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "skin/Vertex.h"
-#include "io/mgf/MgfContext.h"
+#include "io/context/BaseContext.h"
 
 class MgfVertexContext {
   public:
@@ -27,6 +27,6 @@ class MgfVertexContext {
     };
 };
 
-extern MgfVertexContext *getNamedVertex(const char *name, MgfContext *context);
+extern MgfVertexContext *getNamedVertex(const char *name, BaseContext *context);
 
 #endif

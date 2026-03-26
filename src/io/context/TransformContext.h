@@ -1,21 +1,21 @@
-#ifndef __MGF_TRANSFORM_CONTEXT__
-#define __MGF_TRANSFORM_CONTEXT__
+#ifndef __TRANSFORM_CONTEXT__
+#define __TRANSFORM_CONTEXT__
 
 #include "io/mgf/MgfTransform.h"
-#include "io/mgf/MgfTransformArray.h"
+#include "io/context/TransformArray.h"
 
-class MgfTransformContext {
+class TransformContext {
   public:
     long xid; // Unique transform id
     short xac; // Context argument count
     short rev; // Boolean true if vertices reversed
     short ownedArgumentCount; // Number of owned argument copies
     MgfTransform xf; // Cumulative transformation
-    MgfTransformArray *transformationArray;
+    TransformArray *transformationArray;
     char **ownedArgumentCopies; // Copies for non-iterative transform arguments
-    MgfTransformContext *prev; // Previous transformation context
+    TransformContext *prev; // Previous transformation context
 
-    MgfTransformContext() :
+    TransformContext() :
         xid(),
         xac(),
         rev(),

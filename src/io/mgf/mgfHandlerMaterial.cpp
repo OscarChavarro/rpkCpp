@@ -5,7 +5,7 @@
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/LookUpEntity.h"
-#include "io/mgf/words.h"
+#include "io/context/WordsContext.h"
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
 
@@ -40,7 +40,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 static Material *
-materialLookup(const char *name, const MgfContext *context) {
+materialLookup(const char *name, const BaseContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
@@ -54,7 +54,7 @@ materialLookup(const char *name, const MgfContext *context) {
 Translates mgf color into out color representation
 */
 static void
-mgfGetColor(MgfColorContext *cin, float intensity, ColorRgb *colorOut, MgfContext *context) {
+mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, BaseContext *context) {
     float xyz[3];
     float rgb[3];
 
@@ -123,7 +123,7 @@ creates a new MATERIAL, which is added to the global material library.
 The routine returns true if the material being used has changed
 */
 int
-mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *context) {
+mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, BaseContext *context) {
     ColorRgb Ed;
     ColorRgb Es;
     ColorRgb Rd;
@@ -246,7 +246,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfContext *co
 }
 
 void
-initMaterialContextTables(MgfContext *context) {
+initMaterialContextTables(BaseContext *context) {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
     globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
     globalMaterialLookUpTable.lookUpDone();
@@ -257,7 +257,7 @@ initMaterialContextTables(MgfContext *context) {
 This routine returns true if the current material has changed
 */
 int
-mgfMaterialChanged(const Material *material, const MgfContext *context) {
+mgfMaterialChanged(const Material *material, const BaseContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -276,7 +276,7 @@ mgfMaterialChanged(const Material *material, const MgfContext *context) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, const char **av, MgfContext *context) {
+handleMaterialEntity(int ac, const char **av, BaseContext *context) {
     int i;
     LookUpEntity *lp;
 
@@ -294,7 +294,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                 context->currentMaterialName = nullptr;
                 return MgfErrorCode::MGF_OK;
             }
-            if ( !isNameWords(av[1]) ) {
+            if ( !WordsContext::isName(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = globalMaterialLookUpTable.lookUpFind(av[1]);
@@ -353,7 +353,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
+            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
@@ -369,7 +369,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) ) {
+            if ( !WordsContext::isFloat(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
@@ -385,7 +385,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) ) {
+            if ( !WordsContext::isFloat(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
@@ -401,7 +401,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) ) {
+            if ( !WordsContext::isFloat(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->td = strtof(av[1], nullptr);
@@ -417,7 +417,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
+            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
@@ -435,7 +435,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 3 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isFloatWords(av[1]) || !isFloatWords(av[2]) ) {
+            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);
@@ -453,7 +453,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( ac != 2 ) {
                 return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !isIntWords(av[1]) ) {
+            if ( !WordsContext::isInt(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             i = static_cast<int>(strtol(av[1], nullptr, 10));

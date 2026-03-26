@@ -1,5 +1,5 @@
-#ifndef __MGF_TRANSFORM_ARRAY__
-#define __MGF_TRANSFORM_ARRAY__
+#ifndef __TRANSFORM_ARRAY__
+#define __TRANSFORM_ARRAY__
 
 #include "io/mgf/MgfTransformArrayArgument.h"
 #include "io/mgf/MgfReaderFilePosition.h"
@@ -7,7 +7,7 @@
 // Maximum array dimensions
 constexpr int TRANSFORM_MAXIMUM_DIMENSIONS = 8;
 
-class MgfTransformArray {
+class TransformArray {
   public:
     MgfReaderFilePosition startingPosition; // Starting position on input
     int numberOfDimensions; // Number of array dimensions

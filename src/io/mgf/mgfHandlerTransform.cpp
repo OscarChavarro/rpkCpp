@@ -7,8 +7,8 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
-#include "io/mgf/MgfTransformContext.h"
-#include "io/mgf/MgfContext.h"
+#include "io/context/TransformContext.h"
+#include "io/context/BaseContext.h"
 #include "io/mgf/mgfDefinitions.h"
 
 static char **globalTransformArgumentListBeginning;
@@ -16,17 +16,17 @@ static int globalTransformArgumentCount = 0;
 static char globalTransformIterateArgument[] = "-i";
 
 static int
-transformArgumentCount(const MgfTransformContext *xf) {
+transformArgumentCount(const TransformContext *xf) {
     return xf == nullptr ? 0 : xf->xac;
 }
 
 static int
-transformArgumentStartIndex(const MgfTransformContext *xf) {
+transformArgumentStartIndex(const TransformContext *xf) {
     return globalTransformArgumentCount - transformArgumentCount(xf);
 }
 
 static char **
-transformArgumentVector(const MgfTransformContext *xf) {
+transformArgumentVector(const TransformContext *xf) {
     return &globalTransformArgumentListBeginning[transformArgumentStartIndex(xf)];
 }
 
@@ -58,7 +58,7 @@ computeUniqueId(const MATRIX4Dd *xfm) {
 Free a transform
 */
 static void
-free_xf(const MgfTransformContext *spec) {
+free_xf(const TransformContext *spec) {
     if ( spec->ownedArgumentCopies != nullptr ) {
         for ( int i = 0; i < spec->ownedArgumentCount; i++ ) {
             delete[] spec->ownedArgumentCopies[i];
@@ -88,7 +88,7 @@ checkArgument(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-transformName(const MgfTransformArray *ap, MgfContext *context) {
+transformName(const TransformArray *ap, BaseContext *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static const char *oav[3] = {
         context->entityNames[MgfEntity::OBJECT], oName
@@ -112,8 +112,8 @@ transformName(const MgfTransformArray *ap, MgfContext *context) {
 /**
 Allocate new transform structure
 */
-static MgfTransformContext *
-newTransform(int ac, const char **av, MgfContext *context) {
+static TransformContext *
+newTransform(int ac, const char **av, BaseContext *context) {
     int nDim = 0;
     const int previousArgumentCount = transformArgumentCount(context->transformContext);
 
@@ -128,7 +128,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
         return nullptr;
     }
 
-    MgfTransformContext *spec = new MgfTransformContext();
+    TransformContext *spec = new TransformContext();
     if ( spec == nullptr ) {
         return nullptr;
     }
@@ -146,7 +146,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
     }
 
     if ( nDim != 0 ) {
-        spec->transformationArray = new MgfTransformArray;
+        spec->transformationArray = new TransformArray;
         if ( spec->transformationArray == nullptr) {
             free_xf(spec);
             return nullptr;
@@ -210,7 +210,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
 Transform a point by the current matrix
 */
 void
-mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context) {
+mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const BaseContext *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -222,7 +222,7 @@ mgfTransformPoint(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context)
 Transform a vector using current matrix
 */
 void
-mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const MgfContext *context) {
+mgfTransformVector(VECTOR3Dd *v1, const VECTOR3Dd *v2, const BaseContext *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -453,7 +453,7 @@ xf(MgfTransform *ret, int ac, char **av) {
 }
 
 static bool
-compactTransformArguments(const MgfTransformContext *context) {
+compactTransformArguments(const TransformContext *context) {
     const int contextArgumentCount = transformArgumentCount(context);
     char **newArgumentList = nullptr;
 
@@ -480,8 +480,8 @@ compactTransformArguments(const MgfTransformContext *context) {
 Handle xf entity
 */
 int
-handleTransformationEntity(int ac, const char **av, MgfContext *context) {
-    MgfTransformContext *spec;
+handleTransformationEntity(int ac, const char **av, BaseContext *context) {
+    TransformContext *spec;
     int n;
 
     if ( ac == 1 ) {
@@ -493,7 +493,7 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
         n = -1;
         if ( spec->transformationArray != nullptr) {
             // check for iteration
-            MgfTransformArray *ap = spec->transformationArray;
+            TransformArray *ap = spec->transformationArray;
 
             transformName(nullptr, context);
             n = ap->numberOfDimensions;

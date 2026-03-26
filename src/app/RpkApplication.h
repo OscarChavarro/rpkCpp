@@ -1,7 +1,7 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "io/mgf/MgfContext.h"
+#include "io/context/BaseContext.h"
 #include "raycasting/common/Raytracer.h"
 #include "scene/Scene.h"
 
@@ -11,7 +11,7 @@ class RpkApplication {
     int imageOutputWidth;
     int imageOutputHeight;
     Scene *scene;
-    MgfContext *mgfContext;
+    BaseContext *mgfContext;
     RadianceMethod *selectedRadianceMethod;
     RenderOptions *renderOptions;
     RayTracer *rayTracer;
@@ -21,7 +21,7 @@ class RpkApplication {
     void mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName);
     void mainCreateOffscreenCanvasWindow() const;
     void executeRendering(const char *rayTracerName);
-    static void freeMemory(MgfContext *mgfContext);
+    static void freeMemory(BaseContext *mgfContext);
 
   public:
     RpkApplication();

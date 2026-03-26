@@ -7,8 +7,8 @@
 #include "java/lang/StringBuilder.h"
 #include "java/io/BufferedInputStream.h"
 #include "common/error.h"
-#include "io/mgf/MgfColorContext.h"
-#include "io/mgf/MgfTransformContext.h"
+#include "io/context/ColorContext.h"
+#include "io/context/TransformContext.h"
 #include "io/mgf/mgfHandlerGeometry.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/mgfHandlerObject.h"
@@ -57,7 +57,7 @@ parallel support handlers to assist in this effort.
 Read next line from file
 */
 static int
-mgfReadNextLine(const MgfContext *context) {
+mgfReadNextLine(const BaseContext *context) {
     if ( context->readerContext->inputStream == nullptr ) {
         return 0;
     }
@@ -108,7 +108,7 @@ mgfReadNextLine(const MgfContext *context) {
 Parse current input line
 */
 static int
-mgfParseCurrentLine(MgfContext *context) {
+mgfParseCurrentLine(BaseContext *context) {
     const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
     java::lang::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
     int argc = 0;
@@ -166,7 +166,7 @@ mgfParseCurrentLine(MgfContext *context) {
 Clear parser history
 */
 static void
-mgfClear(MgfContext *context) {
+mgfClear(BaseContext *context) {
     initColorContextTables(context);
     initGeometryContextTables(context);
     initMaterialContextTables(context);
@@ -191,7 +191,7 @@ mgfSetNrQuartCircDivs(int divs) {
 If yesno is true, all materials will be converted to be monochrome
 */
 static void
-mgfSetMonochrome(bool yesno, MgfContext *context) {
+mgfSetMonochrome(bool yesno, BaseContext *context) {
     context->monochrome = yesno;
 }
 
@@ -199,7 +199,7 @@ mgfSetMonochrome(bool yesno, MgfContext *context) {
 Discard unneeded/unwanted entity
 */
 static int
-mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, MgfContext * /*context*/) {
+mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, BaseContext * /*context*/) {
     return MgfErrorCode::MGF_OK;
 }
 
@@ -207,7 +207,7 @@ mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, MgfContext * /*contex
 Put out current color spectrum
 */
 static int
-mgfPutCSpec(MgfContext *context)
+mgfPutCSpec(BaseContext *context)
 {
     char wl[2][6];
     char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
@@ -237,7 +237,7 @@ mgfPutCSpec(MgfContext *context)
 Put out current xy chromatic values
 */
 static int
-mgfPutCxy(MgfContext *context) {
+mgfPutCxy(BaseContext *context) {
     static char xBuffer[24];
     static char yBuffer[24];
     static const char *cCom[4] = {
@@ -255,7 +255,7 @@ mgfPutCxy(MgfContext *context) {
 Handle spectral color
 */
 static int
-mgfECSpec(int /*ac*/, const char ** /*av*/, MgfContext *context) {
+mgfECSpec(int /*ac*/, const char ** /*av*/, BaseContext *context) {
     // Convert to xy chromaticity
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
@@ -275,7 +275,7 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-mgfECMix(int /*ac*/, const char ** /*av*/, MgfContext *context) {
+mgfECMix(int /*ac*/, const char ** /*av*/, BaseContext *context) {
     if ( mgfHandlerMatches(context->handleCallbacks[MgfEntity::C_SPEC], MgfHandlerType::COLOR_SPEC_HELPER) ) {
         context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
@@ -291,7 +291,7 @@ mgfECMix(int /*ac*/, const char ** /*av*/, MgfContext *context) {
 Handle color temperature
 */
 static int
-mgfColorTemperature(int /*ac*/, const char ** /*av*/, MgfContext *context) {
+mgfColorTemperature(int /*ac*/, const char ** /*av*/, BaseContext *context) {
     // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
@@ -307,10 +307,10 @@ mgfColorTemperature(int /*ac*/, const char ** /*av*/, MgfContext *context) {
 }
 
 static int
-handleIncludedFile(int ac, const char **av, MgfContext *context) {
+handleIncludedFile(int ac, const char **av, BaseContext *context) {
     const char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
-    MgfReaderContext readerContext{};
-    const MgfTransformContext *originTransform = context->transformContext;
+    ReaderContext readerContext{};
+    const TransformContext *originTransform = context->transformContext;
 
     if ( ac < 2 ) {
         return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -369,7 +369,7 @@ class MgfStaticHandler final : public MgfEntityHandler {
     }
 
     int
-    handle(int argc, const char **argv, MgfContext *context) const override {
+    handle(int argc, const char **argv, BaseContext *context) const override {
         switch ( handlerType ) {
             case MgfHandlerType::DISCARD_UNNEEDED:
                 return mgfDiscardUnNeededEntity(argc, argv, context);
@@ -472,7 +472,7 @@ rayCasterInitialize alternate entity handlers
 static void
 mgfAlternativeInit(
     MgfEntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES],
-    MgfContext *context)
+    BaseContext *context)
 {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
@@ -600,8 +600,8 @@ mgfAlternativeInit(
 }
 
 static void
-initMgf(MgfContext *context) {
-    // Related to MgfColorContext
+initMgf(BaseContext *context) {
+    // Related to ColorContext
     context->handleCallbacks[MgfEntity::COLOR] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
     context->handleCallbacks[MgfEntity::CXY] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
     context->handleCallbacks[MgfEntity::C_MIX] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
@@ -616,7 +616,7 @@ initMgf(MgfContext *context) {
     context->handleCallbacks[MgfEntity::TD] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
     context->handleCallbacks[MgfEntity::TS] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
 
-    // Related to MgfTransformContext
+    // Related to TransformContext
     context->handleCallbacks[MgfEntity::TRANSFORM] = mgfHandlerFromType(MgfHandlerType::HANDLE_TRANSFORM);
 
     // Related to object, no explicit context
@@ -638,17 +638,17 @@ initMgf(MgfContext *context) {
     mgfAlternativeInit(context->handleCallbacks, context);
 }
 
-static MgfModel *
-mgfBuildModel(MgfContext *context) {
+static PersistedSceneModel *
+mgfBuildModel(BaseContext *context) {
     if ( context == nullptr ) {
         return nullptr;
     }
 
     if ( context->model == nullptr ) {
-        context->model = new MgfModel();
+        context->model = new PersistedSceneModel();
     }
 
-    MgfModel *model = context->model;
+    PersistedSceneModel *model = context->model;
     model->currentColor = context->currentColor;
     model->currentFaceList = context->currentFaceList;
     model->currentGeometryList = context->currentGeometryList;
@@ -672,13 +672,13 @@ mgfBuildModel(MgfContext *context) {
 
 /**
 Reads in a mgf file. The result is that the global variables
-context->geometries and context->materials are filled in, and a MgfModel
+context->geometries and context->materials are filled in, and a PersistedSceneModel
 snapshot with parser outputs/state pointers is returned.
 
 Note: this is an implementation of MGF file format with major version number 2.
 */
-MgfModel *
-readMgf(const char *filename, MgfContext *context) {
+PersistedSceneModel *
+readMgf(const char *filename, BaseContext *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
 
@@ -697,7 +697,7 @@ readMgf(const char *filename, MgfContext *context) {
 
     mgfObjectNewSurface(context);
 
-    MgfReaderContext mgfReaderContext{};
+    ReaderContext mgfReaderContext{};
     int status;
     if ( filename[0] == '#' ) {
         status = mgfOpen(&mgfReaderContext, nullptr, context);
@@ -726,7 +726,7 @@ readMgf(const char *filename, MgfContext *context) {
 }
 
 void
-mgfFreeMemory(MgfContext *context) {
+mgfFreeMemory(BaseContext *context) {
     if ( context->currentGeometryList != nullptr ) {
         java::lang::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;

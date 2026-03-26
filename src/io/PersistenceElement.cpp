@@ -36,6 +36,16 @@ PersistenceElement::readByteUnsignedInt(java::io::InputStream &is) {
     return signedByte2unsignedInteger(byteBuffer1byte[0]);
 }
 
+void
+PersistenceElement::writeByte(java::io::OutputStream &os, unsigned char value) {
+    writeBytes(os, &value, 1);
+}
+
+void
+PersistenceElement::writeBool(java::io::OutputStream &os, bool value) {
+    writeByte(os, static_cast<unsigned char>(value ? 1 : 0));
+}
+
 /**
 Given a previously initialized array of bytes, this method fills it
 with information readed from the given input stream.  If it is not
@@ -60,6 +70,34 @@ PersistenceElement::readBytes(java::io::InputStream &is, unsigned char *bytesBuf
 
     if ( offset < length ) {
         throw std::runtime_error("PersistenceElement::readBytes could not read requested length");
+    }
+}
+
+/**
+Given a previously initialized array of bytes, this method writes it
+with information readed from the given output stream.  If it is not
+enough information to read, this method generates an Exception.
+@param os
+@param bytesBuffer
+*/
+void
+PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length) {
+    if ( bytesBuffer == nullptr || length < 0 ) {
+        throw std::runtime_error("PersistenceElement::writeBytes invalid arguments");
+    }
+
+    int offset = 0;
+    int numWritten = 0;
+    do {
+        numWritten = os.write(bytesBuffer, offset, (length - offset));
+        if ( numWritten <= 0 ) {
+            break;
+        }
+        offset += numWritten;
+    } while ( offset < length && numWritten >= 0 );
+
+    if ( offset < length ) {
+        throw std::runtime_error("PersistenceElement::writeBytes failed");
     }
 }
 
@@ -439,6 +477,18 @@ PersistenceElement::readSignedShortBE(java::io::InputStream &is) {
 }
 
 void
+PersistenceElement::writeSignedShortBE(java::io::OutputStream &os, int num) {
+    signedShort2byteArrayBE(byteBuffer2byte, 0, num);
+    writeBytes(os, byteBuffer2byte, 2);
+}
+
+void
+PersistenceElement::writeSignedShortLE(java::io::OutputStream &os, int num) {
+    signedShort2byteArrayLE(byteBuffer2byte, 0, num);
+    writeBytes(os, byteBuffer2byte, 2);
+}
+
+void
 PersistenceElement::writeSignedShortBE(FILE *os, int num) {
     signedShort2byteArrayBE(byteBuffer2byte, 0, num);
     writeBytes(os, byteBuffer2byte, 2);
@@ -459,6 +509,27 @@ long
 PersistenceElement::readLongLE(java::io::InputStream &is) {
     readBytes(is, bytesForLong, 4);
     return byteArray2longLE(bytesForLong, 0);
+}
+
+void
+PersistenceElement::writeInt32LE(java::io::OutputStream &os, int32_t num) {
+    writeLongLE(os, static_cast<long>(num));
+}
+
+void
+PersistenceElement::writeInt64LE(java::io::OutputStream &os, int64_t num) {
+    const uint64_t bits = static_cast<uint64_t>(num);
+    const int32_t low = static_cast<int32_t>(bits & 0xFFFFFFFFULL);
+    const int32_t high = static_cast<int32_t>((bits >> 32) & 0xFFFFFFFFULL);
+    writeInt32LE(os, low);
+    writeInt32LE(os, high);
+}
+
+void
+PersistenceElement::writeDoubleLE(java::io::OutputStream &os, double num) {
+    uint64_t bits = 0;
+    std::memcpy(&bits, &num, sizeof(double));
+    writeInt64LE(os, static_cast<int64_t>(bits));
 }
 
 /**
@@ -498,6 +569,36 @@ PersistenceElement::readFloatBE(java::io::InputStream &is) {
     float out = 0.0f;
     std::memcpy(&out, &j, sizeof(float));
     return out;
+}
+
+void
+PersistenceElement::writeFloatBE(java::io::OutputStream &os, float num) {
+    float2byteArrayBE(byteBuffer4byte, 0, num);
+    writeBytes(os, byteBuffer4byte, 4);
+}
+
+void
+PersistenceElement::writeFloatLE(java::io::OutputStream &os, float num) {
+    float2byteArrayLE(byteBuffer4byte, 0, num);
+    writeBytes(os, byteBuffer4byte, 4);
+}
+
+void
+PersistenceElement::writeLongBE(java::io::OutputStream &os, long num) {
+    if ( bigEndianArchitecture ) {
+        signedInt2byteArrayDirect(bytesForLong, 0, num);
+    }
+    signedInt2byteArrayInvert(bytesForLong, 0, num);
+    writeBytes(os, bytesForLong, 4);
+}
+
+void
+PersistenceElement::writeLongLE(java::io::OutputStream &os, long num) {
+    if ( bigEndianArchitecture ) {
+        signedInt2byteArrayInvert(bytesForLong, 0, num);
+    }
+    signedInt2byteArrayDirect(bytesForLong, 0, num);
+    writeBytes(os, bytesForLong, 4);
 }
 
 void

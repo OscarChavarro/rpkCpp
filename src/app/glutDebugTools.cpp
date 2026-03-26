@@ -30,8 +30,8 @@ static int globalHeight = 1200;
 static Scene *globalScene;
 static RadianceMethod *globalRadianceMethod;
 static RenderOptions *globalRenderOptions;
-static void (*globalMemoryFreeCallBack)(MgfContext *mgfContext);
-static MgfContext *globalMgfContext;
+static void (*globalMemoryFreeCallBack)(BaseContext *mgfContext);
+static BaseContext *globalMgfContext;
 
 static void
 resizeCallback(int newWidth, int newHeight) {
@@ -215,8 +215,8 @@ executeGlutGui(
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions,
-    void (*memoryFreeCallBack)(MgfContext *mgfContext),
-    MgfContext *mgfContext)
+    void (*memoryFreeCallBack)(BaseContext *mgfContext),
+    BaseContext *mgfContext)
 {
     globalScene = scene;
     globalRadianceMethod = radianceMethod;

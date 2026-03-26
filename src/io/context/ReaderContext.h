@@ -1,5 +1,5 @@
-#ifndef __MGF_READER_CONTEXT__
-#define __MGF_READER_CONTEXT__
+#ifndef __READER_CONTEXT__
+#define __READER_CONTEXT__
 
 constexpr int MGF_MAXIMUM_INPUT_LINE_LENGTH = 4096;
 constexpr int MGF_MAXIMUM_ARGUMENT_COUNT = (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4);
@@ -10,7 +10,7 @@ class BufferedInputStream;
 }
 }
 
-class MgfReaderContext {
+class ReaderContext {
   public:
     char fileName[96];
     java::io::BufferedInputStream *inputStream; // stream pointer
@@ -18,7 +18,7 @@ class MgfReaderContext {
     char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     int lineNumber;
     char isPipe; // Flag indicating whether input comes from a pipe or a real file
-    MgfReaderContext *prev; // Previous context
+    ReaderContext *prev; // Previous context
 };
 
 #endif

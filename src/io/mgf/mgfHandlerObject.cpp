@@ -6,7 +6,7 @@ Hierarchical object names tracking
 
 #include "java/util/ArrayList.txx"
 #include "common/CppReAlloc.h"
-#include "io/mgf/words.h"
+#include "io/context/WordsContext.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
@@ -19,7 +19,7 @@ static int globalObjectNames; // Depth of name hierarchy
 static constexpr int ALLOC_INC = 16;
 
 static void
-disposeCurrentSurfaceLists(MgfContext *context) {
+disposeCurrentSurfaceLists(BaseContext *context) {
     if ( context->currentPointList != nullptr ) {
         for ( int i = 0; i < context->currentPointList->size(); i++ ) {
             delete context->currentPointList->get(i);
@@ -55,7 +55,7 @@ disposeCurrentSurfaceLists(MgfContext *context) {
 }
 
 static void
-pushCurrentGeometryList(MgfContext *context) {
+pushCurrentGeometryList(BaseContext *context) {
     if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
@@ -67,7 +67,7 @@ pushCurrentGeometryList(MgfContext *context) {
 }
 
 static void
-popCurrentGeometryList(MgfContext *context) {
+popCurrentGeometryList(BaseContext *context) {
     if ( context->geometryStackHeadIndex < 0 ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         context->currentGeometryList = nullptr;
@@ -79,9 +79,9 @@ popCurrentGeometryList(MgfContext *context) {
 }
 
 void
-mgfObjectNewSurface(MgfContext *context) {
+mgfObjectNewSurface(BaseContext *context) {
     // Note: lists created here will be transferred to new MeshSurface,
-    // should not be deleted from MgfContext
+    // should not be deleted from BaseContext
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
@@ -106,7 +106,7 @@ handleObject2Entity(int ac, const char **av) {
     if ( ac != 2 ) {
         return MgfErrorCode::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( !isNameWords(av[1]) ) {
+    if ( !WordsContext::isName(av[1]) ) {
         return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     if ( globalObjectNames >= globalObjectMaxName - 1 ) {
@@ -139,7 +139,7 @@ handleObject2Entity(int ac, const char **av) {
 }
 
 void
-mgfObjectSurfaceDone(MgfContext *context) {
+mgfObjectSurfaceDone(BaseContext *context) {
     if ( context->currentGeometryList == nullptr ) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
@@ -185,7 +185,7 @@ mgfObjectSurfaceDone(MgfContext *context) {
 }
 
 int
-handleObjectEntity(int argc, const char **argv, MgfContext *context) {
+handleObjectEntity(int argc, const char **argv, BaseContext *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
         if ( context->inSurface ) {
