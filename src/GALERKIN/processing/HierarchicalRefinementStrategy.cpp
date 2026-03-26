@@ -30,18 +30,20 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
     if ( galerkinState->shaftCullMode == GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT ||
          galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING ) {
         Shaft shaft;
+        // Keep these temporaries alive during the full culling pass because Shaft
+        // stores references used later in cullGeometry/doCulling.
+        Polygon rcvPolygon;
+        Polygon srcPolygon;
+        BoundingBox srcBounds;
+        BoundingBox rcvBounds;
 
         if ( galerkinState->exactVisibility
           && !interaction->receiverElement->isCluster()
           && !interaction->sourceElement->isCluster() ) {
-            Polygon rcvPolygon;
-            Polygon srcPolygon;
             interaction->receiverElement->initPolygon(&rcvPolygon);
             interaction->sourceElement->initPolygon(&srcPolygon);
             shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
         } else {
-            BoundingBox srcBounds;
-            BoundingBox rcvBounds;
             shaft.constructFromBoundingBoxes(
                     interaction->receiverElement->bounds(&rcvBounds),
                     interaction->sourceElement->bounds(&srcBounds));

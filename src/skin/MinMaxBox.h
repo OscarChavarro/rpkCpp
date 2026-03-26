@@ -6,16 +6,16 @@
 
 class MinMaxBox {
   private:
-    BoundingBox *boundingBox;
+    BoundingBox boundingBox;
 
   public:
     explicit MinMaxBox(const BoundingBox *sourceBoundingBox);
-    ~MinMaxBox();
+    ~MinMaxBox() = default;
 
     MinMaxBox(const MinMaxBox &) = delete;
     MinMaxBox &operator=(const MinMaxBox &) = delete;
 
-    void updateFromBoundingBox(const BoundingBox *sourceBoundingBox) const;
+    void updateFromBoundingBox(const BoundingBox *sourceBoundingBox);
 
     bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
 

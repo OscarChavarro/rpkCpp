@@ -250,10 +250,11 @@ VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const 
     // Enlarge the getBoundingBox by a small amount
     boundingBox.copyFrom(&geometry->boundingBox);
     boundingBox.enlargeByFactor(DELTA_BOUND_FACTOR);
-    if ( rayIntersectionBox != nullptr ) {
-        delete rayIntersectionBox;
+    if ( rayIntersectionBox == nullptr ) {
+        rayIntersectionBox = new MinMaxBox(&boundingBox);
+    } else {
+        rayIntersectionBox->updateFromBoundingBox(&boundingBox);
     }
-    rayIntersectionBox = new MinMaxBox(&boundingBox);
     xSize = na;
     ySize = nb;
     zSize = nc;

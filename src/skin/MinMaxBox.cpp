@@ -1,40 +1,35 @@
 #include "skin/MinMaxBox.h"
 
 MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
-    boundingBox(new BoundingBox())
+    boundingBox()
 {
     if ( sourceBoundingBox != nullptr ) {
-        boundingBox->copyFrom(sourceBoundingBox);
+        boundingBox.copyFrom(sourceBoundingBox);
     }
-}
-
-MinMaxBox::~MinMaxBox() {
-    delete boundingBox;
-    boundingBox = nullptr;
 }
 
 void
-MinMaxBox::updateFromBoundingBox(const BoundingBox *sourceBoundingBox) const {
-    if ( sourceBoundingBox == nullptr || boundingBox == nullptr ) {
+MinMaxBox::updateFromBoundingBox(const BoundingBox *sourceBoundingBox) {
+    if ( sourceBoundingBox == nullptr ) {
         return;
     }
-    boundingBox->copyFrom(sourceBoundingBox);
+    boundingBox.copyFrom(sourceBoundingBox);
 }
 
 bool
 MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
-    if ( boundingBox == nullptr || ray == nullptr || tMin == nullptr || tMax == nullptr ) {
+    if ( ray == nullptr || tMin == nullptr || tMax == nullptr ) {
         return false;
     }
 
     const float minimumDistance = *tMin;
     const float maximumDistance = *tMax;
-    const float minX = boundingBox->minX();
-    const float minY = boundingBox->minY();
-    const float minZ = boundingBox->minZ();
-    const float maxX = boundingBox->maxX();
-    const float maxY = boundingBox->maxY();
-    const float maxZ = boundingBox->maxZ();
+    const float minX = boundingBox.minX();
+    const float minY = boundingBox.minY();
+    const float minZ = boundingBox.minZ();
+    const float maxX = boundingBox.maxX();
+    const float maxY = boundingBox.maxY();
+    const float maxZ = boundingBox.maxZ();
     float t;
 
     float dir = ray->direction.x;

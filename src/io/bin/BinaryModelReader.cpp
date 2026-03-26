@@ -924,12 +924,15 @@ BinaryModelReader::read(const char *fileName) {
             geometry->isDuplicate = record.isDuplicate;
             setBoundingBoxFromCoordinates(&geometry->boundingBox, record.boundingBoxCoordinates);
 
-            if ( geometry->rayIntersectionBox != nullptr ) {
+            if ( record.hasRayIntersectionBox ) {
+                if ( geometry->rayIntersectionBox == nullptr ) {
+                    geometry->rayIntersectionBox = new MinMaxBox(&geometry->boundingBox);
+                } else {
+                    geometry->rayIntersectionBox->updateFromBoundingBox(&geometry->boundingBox);
+                }
+            } else if ( geometry->rayIntersectionBox != nullptr ) {
                 delete geometry->rayIntersectionBox;
                 geometry->rayIntersectionBox = nullptr;
-            }
-            if ( record.hasRayIntersectionBox ) {
-                geometry->rayIntersectionBox = new MinMaxBox(&geometry->boundingBox);
             }
 
             geometry->radianceData = nullptr;
