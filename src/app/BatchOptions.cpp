@@ -1,6 +1,8 @@
 #include "app/BatchOptions.h"
 
 BatchOptions::BatchOptions() {
+    exportBinary = false;
+    binaryOutputFilename = "";
     iterations = 1;
     radianceImageFileNameFormat = "";
     radianceModelFileNameFormat = "";

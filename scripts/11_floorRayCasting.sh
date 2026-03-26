@@ -3,6 +3,7 @@
 mkdir -p output
 
 ./build/rpk etc/floor_gloss.mgf -raytracing-method RayCasting \
+    -obf output/11_floorRayCasting.bin \
     -nqcdivs 16 \
     -iterations 9 -radiance-method Galerkin \
     -eyepoint 8.16 1.99 0.81 -center -1.72 2.63 -0.44 -updir 0 0 1 \

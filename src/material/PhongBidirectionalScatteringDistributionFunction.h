@@ -71,6 +71,10 @@ public:
     explicit PhongBidirectionalScatteringDistributionFunction(PhongBidirectionalReflectanceDistributionFunction *brdf, PhongBidirectionalTransmittanceDistributionFunction *btdf, Texture *texture);
     virtual ~PhongBidirectionalScatteringDistributionFunction();
 
+    const PhongBidirectionalReflectanceDistributionFunction *getBrdf() const;
+    const PhongBidirectionalTransmittanceDistributionFunction *getBtdf() const;
+    const Texture *getTexture() const;
+
     static bool bsdfShadingFrame(
         const RayHit *hit,
         const Vector3D *X,
@@ -127,5 +131,20 @@ public:
 #endif
 
 };
+
+inline const PhongBidirectionalReflectanceDistributionFunction *
+PhongBidirectionalScatteringDistributionFunction::getBrdf() const {
+    return brdf;
+}
+
+inline const PhongBidirectionalTransmittanceDistributionFunction *
+PhongBidirectionalScatteringDistributionFunction::getBtdf() const {
+    return btdf;
+}
+
+inline const Texture *
+PhongBidirectionalScatteringDistributionFunction::getTexture() const {
+    return texture;
+}
 
 #endif

@@ -108,6 +108,8 @@ set(MAIN_SRC
     src/io/mgf/mgfHandlerColor.cpp
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/mgf/readmgf.cpp
+    src/io/PersistenceElement.cpp
+    src/io/bin/BinaryModelWritter.cpp
     src/io/FileUncompressWrapper.cpp
     src/io/writevrml.cpp
     src/io/image/pic.cpp

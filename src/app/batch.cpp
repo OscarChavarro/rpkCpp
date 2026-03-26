@@ -21,6 +21,11 @@
 
 static BatchOptions globalBatchOptions;
 
+const BatchOptions *
+batchGetOptions() {
+    return &globalBatchOptions;
+}
+
 void
 generalParseOptions(int *argc, char **argv) {
     batchParseOptions(argc, argv, &globalBatchOptions);

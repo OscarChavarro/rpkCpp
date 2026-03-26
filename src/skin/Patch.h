@@ -93,6 +93,7 @@ class Patch {
 
     void setVisible();
     void setInvisible();
+    unsigned char getFlags() const;
     int hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
@@ -131,6 +132,11 @@ Patch::setVisible() {
 inline void
 Patch::setInvisible() {
     flags &= ~PATCH_VISIBILITY;
+}
+
+inline unsigned char
+Patch::getFlags() const {
+    return flags;
 }
 
 #ifdef RAYTRACING_ENABLED

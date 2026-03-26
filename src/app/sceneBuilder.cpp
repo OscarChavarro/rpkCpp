@@ -10,10 +10,12 @@
 #include "tonemap/ToneMap.h"
 #include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
+#include "io/bin/BinaryModelWritter.h"
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "app/adaptation.h"
+#include "app/batch.h"
 #include "app/options.h"
 #include "app/radiance.h"
 #include "app/sceneBuilder.h"
@@ -269,6 +271,29 @@ sceneBuilderReadFile(char *fileName, MgfContext *mgfContext, Scene *scene) {
 
     if ( strncmp(extension, "mgf", 3) == 0 ) {
         MgfModel *mgfModel = readMgf(fileName, mgfContext);
+        const BatchOptions *batchOptions = batchGetOptions();
+        if ( mgfModel != nullptr
+             && batchOptions != nullptr
+             && batchOptions->exportBinary
+             && batchOptions->binaryOutputFilename != nullptr
+             && batchOptions->binaryOutputFilename[0] != '\0' ) {
+            java::lang::System::err.printf(
+                "Exporting loaded MgfModel to binary '%s' ... ",
+                batchOptions->binaryOutputFilename);
+            java::lang::System::err.flush();
+            const bool binarySaved = BinaryModelWritter::write(
+                mgfModel,
+                batchOptions->binaryOutputFilename);
+            if ( binarySaved ) {
+                java::lang::System::err.printf("done.\n");
+            } else {
+                java::lang::System::err.printf("failed.\n");
+                logError(
+                    "sceneBuilderReadFile",
+                    "Could not export MgfModel binary to '%s'",
+                    batchOptions->binaryOutputFilename);
+            }
+        }
         scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
         sceneBuilderFillFacesBackPointers(scene->geometryList);
     }

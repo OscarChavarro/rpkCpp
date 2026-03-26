@@ -26,6 +26,10 @@ public:
     explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
     virtual ~PhongBidirectionalReflectanceDistributionFunction();
 
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
+    float getNs() const;
+
     ColorRgb reflectance(char flags) const;
     ColorRgb evaluate(const Vector3D *in, const Vector3D *out, const Vector3D *normal, char flags) const;
 
@@ -48,5 +52,20 @@ public:
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
 };
+
+inline const ColorRgb &
+PhongBidirectionalReflectanceDistributionFunction::getKd() const {
+    return Kd;
+}
+
+inline const ColorRgb &
+PhongBidirectionalReflectanceDistributionFunction::getKs() const {
+    return Ks;
+}
+
+inline float
+PhongBidirectionalReflectanceDistributionFunction::getNs() const {
+    return Ns;
+}
 
 #endif

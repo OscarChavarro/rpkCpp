@@ -26,6 +26,11 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
     virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
+    float getNs() const;
+    const RefractionIndex &getRefractionIndex() const;
+
     ColorRgb transmittance(char flags) const;
 
     ColorRgb
@@ -64,5 +69,25 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     void setIndexOfRefraction(RefractionIndex *index) const;
 #endif
 };
+
+inline const ColorRgb &
+PhongBidirectionalTransmittanceDistributionFunction::getKd() const {
+    return Kd;
+}
+
+inline const ColorRgb &
+PhongBidirectionalTransmittanceDistributionFunction::getKs() const {
+    return Ks;
+}
+
+inline float
+PhongBidirectionalTransmittanceDistributionFunction::getNs() const {
+    return Ns;
+}
+
+inline const RefractionIndex &
+PhongBidirectionalTransmittanceDistributionFunction::getRefractionIndex() const {
+    return refractionIndex;
+}
 
 #endif

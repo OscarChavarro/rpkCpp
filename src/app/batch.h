@@ -4,6 +4,9 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "scene/Scene.h"
+#include "app/BatchOptions.h"
+
+class RayTracer;
 
 extern void
 batchExecuteRadianceSimulation(
@@ -13,5 +16,6 @@ batchExecuteRadianceSimulation(
     RenderOptions *renderOptions);
 
 extern void generalParseOptions(int *argc, char **argv);
+extern const BatchOptions *batchGetOptions();
 
 #endif

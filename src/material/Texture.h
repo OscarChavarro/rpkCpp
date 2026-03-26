@@ -11,7 +11,32 @@ class Texture {
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 
   public:
+    int getWidth() const;
+    int getHeight() const;
+    int getChannels() const;
+    const unsigned char *getData() const;
+
     ColorRgb evaluateColor(float u, float v) const;
 };
+
+inline int
+Texture::getWidth() const {
+    return width;
+}
+
+inline int
+Texture::getHeight() const {
+    return height;
+}
+
+inline int
+Texture::getChannels() const {
+    return channels;
+}
+
+inline const unsigned char *
+Texture::getData() const {
+    return data;
+}
 
 #endif

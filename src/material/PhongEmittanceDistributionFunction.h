@@ -21,6 +21,10 @@ public:
     explicit PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
     virtual ~PhongEmittanceDistributionFunction();
 
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
+    float getNs() const;
+
     static bool edfIsTextured();
 
     static bool
@@ -48,5 +52,20 @@ public:
         ColorRgb *selfEmittedRadiance,
         double *probabilityDensityFunction) const ;
 };
+
+inline const ColorRgb &
+PhongEmittanceDistributionFunction::getKd() const {
+    return Kd;
+}
+
+inline const ColorRgb &
+PhongEmittanceDistributionFunction::getKs() const {
+    return Ks;
+}
+
+inline float
+PhongEmittanceDistributionFunction::getNs() const {
+    return Ns;
+}
 
 #endif

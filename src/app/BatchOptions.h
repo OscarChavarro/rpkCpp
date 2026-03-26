@@ -3,6 +3,8 @@
 
 class BatchOptions {
   public:
+    bool exportBinary;
+    const char *binaryOutputFilename;
     int iterations; // Radiance method iterations
     const char *radianceImageFileNameFormat;
     const char *radianceModelFileNameFormat;
