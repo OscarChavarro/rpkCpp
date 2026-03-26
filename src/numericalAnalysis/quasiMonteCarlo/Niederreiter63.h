@@ -15,24 +15,31 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 63 bits, skip 4
 
 // Number of samples to be skipped from the beginning of the
 // series in order to deal with the "initial zeroes" phenomenon
-#define SKIP 4096
+constexpr unsigned SKIP = 4096;
+
+// Dimension of the samples generated
+constexpr unsigned DIMEN = 4;
+
+// Number of bits in an integer, excluding the sign bit
+constexpr unsigned NBITS = 63;
 
 // 2 ^ NBITS
-#define NBITS_POW  (1uLL << NBITS)
+constexpr unsigned long long NBITS_POW = (1uLL << NBITS);
 
 // 2 ^ (NBITS - 1)
-#define NBITS_POW1 (1uLL << (NBITS - 1))
+constexpr unsigned long long NBITS_POW1 = (1uLL << (NBITS - 1));
 
-#define DIMEN 4 // Dimension of the samples generated
-#define NBITS 63 // Number of bits in an integer, excluding the sign bit
-#define RECIP (1.0 / 9223372036854775808.0) // 1 / 2^NBITS
-#define RECIP1 9223372036854775808.0 // 2 ^ NBITS
+// 1 / 2^NBITS
+constexpr double RECIP = 1.0 / 9223372036854775808.0;
+
+// 2 ^ NBITS
+constexpr double RECIP1 = 9223372036854775808.0;
 
 #define Nied Nied63
 #define NextNiedInRange NextNiedInRange63
 #define radicalInverse radicalInverse63
 #define foldSample foldSample63
-#define NiederreiterIndex unsigned long long
+typedef unsigned long long NiederreiterIndex;
 
 extern unsigned long long *
 NextNiedInRange63(

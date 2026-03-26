@@ -7,7 +7,7 @@ Encapsulates option handling for bidirectional path tracing
 
 #include "render/ScreenBuffer.h"
 
-inline constexpr int MAX_REGEXP_SIZE = 100;
+constexpr int MAX_REGEXP_SIZE = 100;
 
 /**
 Contains basic config options used throughout the complete BPT code. typically two

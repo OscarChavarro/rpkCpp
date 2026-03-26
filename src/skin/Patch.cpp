@@ -32,13 +32,11 @@ Patch::setNextId(int id) {
 
 bool
 Patch::isExcluded() const {
-    Patch **excl = globalExcludedPatches;
     // MAX_EXCLUDED_PATCHES tests!
     for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        if ( *excl == this ) {
+        if ( globalExcludedPatches[i] == this ) {
             return true;
         }
-        excl++;
     }
     return false;
 }

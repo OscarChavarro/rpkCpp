@@ -82,24 +82,32 @@ Returns file name extension. Understands extra suffixes ".Z", ".gz",
 */
 const char *
 imageFileExtension(const char *fileName) {
-    const char *fileExtension = fileName + strlen(fileName) - 1; // Find filename extension
-
-    while ( fileExtension >= fileName && *fileExtension != '.' ) {
-        fileExtension--;
+    const int fileNameLength = static_cast<int>(strlen(fileName));
+    if ( fileNameLength <= 0 ) {
+        return fileName;
     }
 
-    if ( !strcmp(fileExtension, ".Z") ||
-         !strcmp(fileExtension, ".gz") ||
-         !strcmp(fileExtension, ".bz") ||
-         !strcmp(fileExtension, ".bz2") ) {
-        fileExtension--; // Before '.'
-        while ( fileExtension >= fileName && *fileExtension != '.' ) {
-            fileExtension--;
+    int extensionDotIndex = fileNameLength - 1;
+    while ( extensionDotIndex >= 0 && fileName[extensionDotIndex] != '.' ) {
+        extensionDotIndex--;
+    }
+
+    if ( extensionDotIndex < 0 ) {
+        return fileName;
+    }
+
+    const char *fileExtension = &fileName[extensionDotIndex];
+    if ( !strcmp(fileExtension, ".Z") || !strcmp(fileExtension, ".gz") || !strcmp(fileExtension, ".bz") || !strcmp(fileExtension, ".bz2") ) {
+        extensionDotIndex--;
+        while ( extensionDotIndex >= 0 && fileName[extensionDotIndex] != '.' ) {
+            extensionDotIndex--;
         }
-        // Find extension before .gz or .Z
+        if ( extensionDotIndex < 0 ) {
+            return fileName;
+        }
     }
 
-    return fileExtension + 1; // After '.'
+    return &fileName[extensionDotIndex + 1];
 }
 
 /**

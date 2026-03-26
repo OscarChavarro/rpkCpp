@@ -274,13 +274,13 @@ sqrDistance3D(const float *a, const float *b) {
     float result;
     float tmp;
 
-    tmp = *(a++) - *(b++);
+    tmp = a[0] - b[0];
     result = tmp * tmp;
 
-    tmp = *(a++) - *(b++);
+    tmp = a[1] - b[1];
     result += tmp * tmp;
 
-    tmp = *a - *b;
+    tmp = a[2] - b[2];
     result += tmp * tmp;
 
     return result;

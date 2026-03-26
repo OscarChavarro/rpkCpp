@@ -17,8 +17,8 @@ char *GLOBAL_option_dummyVal = nullptr;
 int GLOBAL_options_dummyVal = 0;
 
 static int *globalArgumentCount;
-static char **globalCurrentArgumentValue = nullptr;
-static char **globalFirstArgument;
+static char **globalArguments = nullptr;
+static int globalCurrentArgumentIndex = 0;
 static int globalDummyInt = 0;
 static char *globalDummyString = nullptr;
 static int globalDummyTrue = true;
@@ -35,7 +35,19 @@ Initializes the global variables above
 static void
 optionsInitArguments(int *argc, char **argv) {
     globalArgumentCount = argc;
-    globalCurrentArgumentValue = globalFirstArgument = argv;
+    globalArguments = argv;
+    globalCurrentArgumentIndex = 0;
+}
+
+static const char *
+optionsCurrentArgumentValue() {
+    if ( globalArguments == nullptr || globalArgumentCount == nullptr ) {
+        return nullptr;
+    }
+    if ( globalCurrentArgumentIndex < 0 || globalCurrentArgumentIndex >= *globalArgumentCount ) {
+        return nullptr;
+    }
+    return globalArguments[globalCurrentArgumentIndex];
 }
 
 /**
@@ -43,7 +55,7 @@ Tests whether arguments remain
 */
 static bool
 optionsArgumentsRemaining() {
-    return globalCurrentArgumentValue - globalFirstArgument < *globalArgumentCount;
+    return globalCurrentArgumentIndex < *globalArgumentCount;
 }
 
 /**
@@ -51,7 +63,7 @@ Skips to next argument value
 */
 static void
 optionsNextArgument() {
-    globalCurrentArgumentValue++;
+    globalCurrentArgumentIndex++;
 }
 
 /**
@@ -59,12 +71,10 @@ Consumes the current argument value, that is: removes it from the list
 */
 static void
 optionsConsumeArgument() {
-    char **av = globalCurrentArgumentValue;
-    while ( av - globalFirstArgument < *globalArgumentCount - 1 ) {
-        *av = *(av + 1);
-        av++;
+    for ( int i = globalCurrentArgumentIndex; i < *globalArgumentCount - 1; i++ ) {
+        globalArguments[i] = globalArguments[i + 1];
     }
-    *av = nullptr;
+    globalArguments[*globalArgumentCount - 1] = nullptr;
     (*globalArgumentCount)--;
 }
 
@@ -73,15 +83,16 @@ Scans the current argument value for a value of given format
 */
 static bool
 optionsGetArgumentIntValue(int *res) {
-    if ( globalCurrentArgumentValue == nullptr || *globalCurrentArgumentValue == nullptr ) {
+    const char *currentArgument = optionsCurrentArgumentValue();
+    if ( currentArgument == nullptr ) {
         return false;
     }
 
     errno = 0;
     char *endPointer = nullptr;
-    const long parsedValue = strtol(*globalCurrentArgumentValue, &endPointer, 10);
+    const long parsedValue = strtol(currentArgument, &endPointer, 10);
 
-    if ( endPointer == *globalCurrentArgumentValue || *endPointer != '\0' ) {
+    if ( endPointer == currentArgument || *endPointer != '\0' ) {
         return false;
     }
     if ( errno == ERANGE || parsedValue < INT_MIN || parsedValue > INT_MAX ) {
@@ -97,7 +108,8 @@ Scans the current argument value for a value of given format
 */
 static bool
 optionsGetArgumentFloatValue(const char *format, float *res) {
-    return (sscanf(*globalCurrentArgumentValue, format, res) == 1);
+    const char *currentArgument = optionsCurrentArgumentValue();
+    return currentArgument != nullptr && (sscanf(currentArgument, format, res) == 1);
 }
 
 /**
@@ -107,7 +119,7 @@ static int
 optionsGetInt(void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
     if ( !optionsGetArgumentIntValue(n) ) {
-        java::lang::System::err.printf("'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
+        java::lang::System::err.printf("'%s' is not a valid integer value\n", optionsCurrentArgumentValue());
         return false;
     }
     return true;
@@ -132,13 +144,17 @@ String option values
 static int
 optionsGetString(void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
-    unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
+    const char *currentArgument = optionsCurrentArgumentValue();
+    if ( currentArgument == nullptr ) {
+        return false;
+    }
+    unsigned long n = strlen(currentArgument) + 1;
     *s = new char[n];
 
     if ( globalStringsToDelete != nullptr ) {
         globalStringsToDelete->add(*s);
     }
-    snprintf(*s, n, "%s", *globalCurrentArgumentValue);
+    snprintf(*s, n, "%s", currentArgument);
     return true;
 }
 
@@ -162,8 +178,9 @@ int
 optionsStringGet(void *value, void *data) {
     char *s = static_cast<char *>(value);
     int n = static_cast<int>(reinterpret_cast<intptr_t>(data));
-    if ( s != nullptr ) {
-        strncpy(s, *globalCurrentArgumentValue, n);
+    const char *currentArgument = optionsCurrentArgumentValue();
+    if ( s != nullptr && currentArgument != nullptr ) {
+        strncpy(s, currentArgument, n);
         s[n - 1] = '\0';  // Ensure zero ending c-string
     }
 
@@ -181,9 +198,8 @@ Enumerated type option values
 */
 static void
 optionsPrintEnumValues(const ENUMDESC *tab) {
-    while ( tab && tab->name ) {
-        java::lang::System::err.printf("\t%s\n", tab->name);
-        tab++;
+    for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
+        java::lang::System::err.printf("\t%s\n", tab[i].name);
     }
 }
 
@@ -192,14 +208,17 @@ optionsEnumGet(void *value, void *data) {
     int *v = static_cast<int *>(value);
     const ENUMDESC *tab = static_cast<const ENUMDESC *>(data);
     const ENUMDESC *tabSave = tab;
-    while ( tab && tab->name ) {
-        if ( strncasecmp(*globalCurrentArgumentValue, tab->name, tab->abbrev) == 0 ) {
-            *v = tab->value;
+    const char *currentArgument = optionsCurrentArgumentValue();
+    if ( currentArgument == nullptr ) {
+        return false;
+    }
+    for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
+        if ( strncasecmp(currentArgument, tab[i].name, tab[i].abbrev) == 0 ) {
+            *v = tab[i].value;
             return true;
         }
-        tab++;
     }
-    java::lang::System::err.printf("Invalid option argument '%s'. Should be one of:\n", *globalCurrentArgumentValue);
+    java::lang::System::err.printf("Invalid option argument '%s'. Should be one of:\n", currentArgument);
     optionsPrintEnumValues(tabSave);
     return false;
 }
@@ -208,12 +227,11 @@ void
 optionsEnumPrint(FILE *fp, void *value, void *data) {
     const int *v = static_cast<const int *>(value);
     const ENUMDESC *tab = static_cast<const ENUMDESC *>(data);
-    while ( tab && tab->name ) {
-        if ( *v == tab->value ) {
-            fprintf(fp, "%s", tab->name);
+    for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
+        if ( *v == tab[i].value ) {
+            fprintf(fp, "%s", tab[i].name);
             return;
         }
-        tab++;
     }
     fprintf(fp, "INVALID ENUM VALUE!!!");
 }
@@ -281,7 +299,7 @@ static int
 optionsGetfloat(void *value, void * /*data*/) {
     float *x = static_cast<float *>(value);
     if ( !optionsGetArgumentFloatValue("%f", x) ) {
-        java::lang::System::err.printf("'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
+        java::lang::System::err.printf("'%s' is not a valid floating point value\n", optionsCurrentArgumentValue());
         return false;
     }
     return true;
@@ -416,21 +434,20 @@ optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
     if ( s == nullptr ) {
         return nullptr;
     }
-    CommandLineOptionDescription *opt = options;
-    while ( opt->name ) {
+    for ( int i = 0; options[i].name != nullptr; i++ ) {
+        CommandLineOptionDescription *opt = &options[i];
         if ( strncmp(s, opt->name,
              unsignedLongMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
              0 ) {
             return opt;
         }
-        opt++;
     }
     return nullptr;
 }
 
 static void
 optionsProcessArguments(CommandLineOptionDescription *options) {
-    CommandLineOptionDescription *opt = optionsLookupOption(*globalCurrentArgumentValue, options);
+    CommandLineOptionDescription *opt = optionsLookupOption(optionsCurrentArgumentValue(), options);
     if ( opt ) {
         int ok = true;
         if ( opt->type ) {

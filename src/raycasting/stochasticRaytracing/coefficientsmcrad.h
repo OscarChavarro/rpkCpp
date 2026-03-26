@@ -13,44 +13,31 @@ stochasticRadiosityClearCoefficients(ColorRgb *c, const GalerkinBasis *galerkinB
 
 inline void
 stochasticRadiosityCopyCoefficients(ColorRgb *dst, const ColorRgb *src, const GalerkinBasis *galerkinBasis) {
-    int i;
-    ColorRgb *d;
-    const ColorRgb *s;
-
-    for ( i = 0, d = dst, s = src; i < galerkinBasis->size; i++, d++, s++ ) {
-        *d = *s;
+    for ( int i = 0; i < galerkinBasis->size; i++ ) {
+        dst[i] = src[i];
     }
 }
 
 inline void
 stochasticRadiosityAddCoefficients(ColorRgb *dst, const ColorRgb *extra, const GalerkinBasis *galerkinBasis) {
-    int i;
-    ColorRgb *d;
-    const ColorRgb *s;
-
-    for ( i = 0, d = dst, s = extra; i < galerkinBasis->size; i++, d++, s++ ) {
-        d->add(*d, *s);
+    for ( int i = 0; i < galerkinBasis->size; i++ ) {
+        dst[i].add(dst[i], extra[i]);
     }
 }
 
 inline void
 stochasticRadiosityScaleCoefficients(float scale, ColorRgb *color, const GalerkinBasis *galerkinBasis) {
-    int i;
-    ColorRgb *d;
-
-    for ( i = 0, d = color; i < galerkinBasis->size; i++, d++ ) {
-        d->scale(scale);
+    for ( int i = 0; i < galerkinBasis->size; i++ ) {
+        color[i].scale(scale);
     }
 }
 
 inline void
 stochasticRadiosityMultiplyCoefficients(const ColorRgb &color, ColorRgb *coefficients, const GalerkinBasis *galerkinBasis) {
-    ColorRgb *d;
     ColorRgb c = color;
 
-    int i;
-    for ( i = 0, d = coefficients; i < galerkinBasis->size; i++, d++) {
-        d->selfScalarProduct(c);
+    for ( int i = 0; i < galerkinBasis->size; i++ ) {
+        coefficients[i].selfScalarProduct(c);
     }
 }
 

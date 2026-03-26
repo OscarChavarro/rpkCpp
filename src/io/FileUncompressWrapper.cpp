@@ -25,7 +25,7 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
         char *command = new char[n];
         const char *ext = strrchr(fileName, '.');
         if ( fileName[0] == '|' ) {
-            snprintf(command, n, "%s", fileName + 1);
+            snprintf(command, n, "%s", &fileName[1]);
             fp = popen(command, open_mode);
             *isPipe = true;
         } else if ( ext && strcmp(ext, ".gz") == 0 ) {

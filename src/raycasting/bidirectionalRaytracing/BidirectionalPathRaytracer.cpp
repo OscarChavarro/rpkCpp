@@ -15,7 +15,7 @@
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
-#define STRINGS_SIZE 300
+static constexpr int STRINGS_SIZE = 300;
 
 char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
 

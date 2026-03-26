@@ -12,7 +12,7 @@ Determination of constant control radiosity value
 #include "raycasting/stochasticRaytracing/ccr.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-#define NUMBER_OF_INTERVALS 10
+static constexpr int NUMBER_OF_INTERVALS = 10;
 
 static ColorRgb *(*globalGetRadiance)(const StochasticRadiosityElement *);
 static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);

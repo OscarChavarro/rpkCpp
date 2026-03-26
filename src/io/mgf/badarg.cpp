@@ -13,24 +13,25 @@ checkForBadArguments(int ac, char **av, const char *fl) {
 	    // No arguments?
         fl = "";
     }
-    for ( int i = 1; *fl; i++, av++, fl++ ) {
-        if ( i > ac || *av == nullptr ) {
+    for ( int formatIndex = 0; fl[formatIndex] != '\0'; formatIndex++ ) {
+        const int argumentIndex = formatIndex + 1;
+        if ( argumentIndex > ac || av[formatIndex] == nullptr ) {
             return -1;
         }
-        switch ( *fl ) {
+        switch ( fl[formatIndex] ) {
             case 's': // String
-                if ( **av == '\0' || isspace(**av) ) {
-                    return i;
+                if ( av[formatIndex][0] == '\0' || isspace(av[formatIndex][0]) ) {
+                    return argumentIndex;
                 }
                 break;
             case 'i': // Integer
-                if ( !isIntDWords(*av, " \t\r\n") ) {
-                    return i;
+                if ( !isIntDWords(av[formatIndex], " \t\r\n") ) {
+                    return argumentIndex;
                 }
                 break;
             case 'f': // Float
-                if ( !isFloatDWords(*av, " \t\r\n") ) {
-                    return i;
+                if ( !isFloatDWords(av[formatIndex], " \t\r\n") ) {
+                    return argumentIndex;
                 }
                 break;
             default: // Bad call!

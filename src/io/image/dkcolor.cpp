@@ -150,10 +150,8 @@ dkColorWriteScan(DK_COLOR *scanline, int len, FILE *fileDescriptor)
     BYTE_COLOR *colorScan = sp;
 
     // Convert scanline
-    for ( int n = len - 1; n >= 0; n-- ) {
-        dkColorSetByteColors(sp[0], scanline[0][RED], scanline[0][GREEN], scanline[0][BLUE]);
-        scanline++;
-        sp++;
+    for ( int n = 0; n < len; n++ ) {
+        dkColorSetByteColors(sp[n], scanline[n][RED], scanline[n][GREEN], scanline[n][BLUE]);
     }
     return dkColorWriteByteColors(colorScan, len, fileDescriptor);
 }

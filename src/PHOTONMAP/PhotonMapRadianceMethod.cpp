@@ -2,6 +2,8 @@
 
 #ifdef RAYTRACING_ENABLED
 
+#include <cstdarg>
+
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
@@ -33,7 +35,29 @@ PhotonMapConfig GLOBAL_photonMap_config;
 // To adjust photonMapGetRadiance returns
 static bool globalDoingLocalRayCasting = false;
 
-#define STRING_LENGTH 1000
+static constexpr int STRING_LENGTH = 1000;
+
+static void
+appendStatsText(char *buffer, int *offset, const char *format, ...) {
+    if ( *offset >= STRING_LENGTH - 1 ) {
+        return;
+    }
+
+    va_list arguments;
+    va_start(arguments, format);
+    const int available = STRING_LENGTH - *offset;
+    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    va_end(arguments);
+
+    if ( written <= 0 ) {
+        return;
+    }
+    if ( written >= available ) {
+        *offset = STRING_LENGTH - 1;
+    } else {
+        *offset += written;
+    }
+}
 
 PhotonMapRadianceMethod::PhotonMapRadianceMethod() {
     GLOBAL_photonMap_state.setDefaults();
@@ -734,47 +758,51 @@ PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *re
 char *
 PhotonMapRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
-    char *p;
-    int n;
+    int statsOffset = 0;
 
-    p = stats;
-    snprintf(p, STRING_LENGTH, "Photon map Statistics:\n\n%n", &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Ray count %li\n%n", GLOBAL_raytracer_rayCount, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Time %g\n%n", GLOBAL_photonMap_state.cpuSecs, &n);
-    p += n;
+    appendStatsText(stats, &statsOffset, "Photon map Statistics:\n\n");
+    appendStatsText(stats, &statsOffset, "Ray count %li\n", GLOBAL_raytracer_rayCount);
+    appendStatsText(stats, &statsOffset, "Time %g\n", GLOBAL_photonMap_state.cpuSecs);
 
     if ( GLOBAL_photonMap_config.globalMap ) {
-        snprintf(p, STRING_LENGTH, "Global Map: %n", &n);
-        p += n;
-        GLOBAL_photonMap_config.globalMap->getStats(p, STRING_LENGTH);
-        p += strlen(p);
-        snprintf(p, STRING_LENGTH, "\n%n", &n);
-        p += n;
+        appendStatsText(stats, &statsOffset, "Global Map: ");
+        if ( statsOffset < STRING_LENGTH - 1 ) {
+            GLOBAL_photonMap_config.globalMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
+            while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
+                statsOffset++;
+            }
+        }
+        appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.causticMap ) {
-        snprintf(p, STRING_LENGTH, "Caustic Map: %n", &n);
-        p += n;
-        GLOBAL_photonMap_config.causticMap->getStats(p, STRING_LENGTH);
-        p += strlen(p);
-        snprintf(p, STRING_LENGTH, "\n%n", &n);
-        p += n;
+        appendStatsText(stats, &statsOffset, "Caustic Map: ");
+        if ( statsOffset < STRING_LENGTH - 1 ) {
+            GLOBAL_photonMap_config.causticMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
+            while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
+                statsOffset++;
+            }
+        }
+        appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.importanceMap ) {
-        snprintf(p, STRING_LENGTH, "Global Importance Map: %n", &n);
-        p += n;
-        GLOBAL_photonMap_config.importanceMap->getStats(p, STRING_LENGTH);
-        p += strlen(p);
-        snprintf(p, STRING_LENGTH, "\n%n", &n);
-        p += n;
+        appendStatsText(stats, &statsOffset, "Global Importance Map: ");
+        if ( statsOffset < STRING_LENGTH - 1 ) {
+            GLOBAL_photonMap_config.importanceMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
+            while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
+                statsOffset++;
+            }
+        }
+        appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.importanceCMap ) {
-        snprintf(p, STRING_LENGTH, "Caustic Importance Map: %n", &n);
-        p += n;
-        GLOBAL_photonMap_config.importanceCMap->getStats(p, STRING_LENGTH);
-        p += strlen(p);
-        snprintf(p, STRING_LENGTH, "\n%n", &n);
+        appendStatsText(stats, &statsOffset, "Caustic Importance Map: ");
+        if ( statsOffset < STRING_LENGTH - 1 ) {
+            GLOBAL_photonMap_config.importanceCMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
+            while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
+                statsOffset++;
+            }
+        }
+        appendStatsText(stats, &statsOffset, "\n");
     }
 
     return stats;

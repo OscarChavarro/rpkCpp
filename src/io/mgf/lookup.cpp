@@ -3,6 +3,8 @@ Table lookup routines
 */
 
 
+#include <cstddef>
+
 #include "io/mgf/lookup.h"
 
 static unsigned char globalShuffle[256] = {
@@ -46,15 +48,17 @@ lookUpInit(LookUpTable *tbl, int nel) {
             32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
             4194301, 8388593, 0
     };
-    const int *hsp;
+    int chosenTableSize = 0;
 
     nel += nel >> 1; // 66% occupancy
-    for ( hsp = hSizeTab; *hsp; hsp++ ) {
-        if ( *hsp > nel ) {
+    for ( int i = 0; hSizeTab[i] != 0; i++ ) {
+        if ( hSizeTab[i] > nel ) {
+            chosenTableSize = hSizeTab[i];
             break;
         }
     }
-    if ( !(tbl->currentTableSize = *hsp) ) {
+    tbl->currentTableSize = chosenTableSize;
+    if ( !tbl->currentTableSize ) {
         // Not always prime
         tbl->currentTableSize = nel * 2 + 1;
     }
@@ -90,10 +94,10 @@ long
 lookUpShuffleHash(const char *s) {
     int i = 0;
     long h = 0;
-    const unsigned char *t = reinterpret_cast<const unsigned char *>(s);
+    const unsigned char *text = reinterpret_cast<const unsigned char *>(s);
 
-    while ( *t ) {
-        h ^= static_cast<long>(globalShuffle[*t++]) << ((i += 11) & 0xf);
+    for ( std::size_t index = 0; text[index] != '\0'; index++ ) {
+        h ^= static_cast<long>(globalShuffle[text[index]]) << ((i += 11) & 0xf);
     }
 
     return h;
@@ -101,8 +105,6 @@ lookUpShuffleHash(const char *s) {
 
 int
 lookUpReAlloc(LookUpTable *tbl, int nel) {
-    const LookUpEntity *le;
-
     LookUpEntity *oldTable = tbl->table;
     int oldTSize = tbl->currentTableSize;
     int i = tbl->numberOfDeletedEntries;
@@ -117,13 +119,14 @@ lookUpReAlloc(LookUpTable *tbl, int nel) {
     // The following code may fail if the user has reclaimed many
     // deleted entries and the system runs out of memory in a
     // recursive call to lu_find()
-    for ( i = 0, le = oldTable; i < oldTSize; i++, le++ ) {
-        if ( le->key != nullptr) {
-            if ( le->data != nullptr) {
-                *lookUpFind(tbl, le->key) = *le;
+    for ( i = 0; i < oldTSize; i++ ) {
+        const LookUpEntity &entity = oldTable[i];
+        if ( entity.key != nullptr) {
+            if ( entity.data != nullptr) {
+                *lookUpFind(tbl, entity.key) = entity;
             } else {
                 if ( tbl->freeKeyFunction != nullptr) {
-                    (*tbl->freeKeyFunction)(le->key);
+                    (*tbl->freeKeyFunction)(entity.key);
                 }
             }
         }
@@ -155,10 +158,10 @@ lookUpFind(LookUpTable *tbl, const char *key) {
 
     do {
         int ndx = static_cast<int>(hVal % tbl->currentTableSize);
-        LookUpEntity *le = &tbl->table[ndx];
         int i = 0;
         int n = -1;
         do {
+            LookUpEntity *le = &tbl->table[ndx];
             if ( le->key == nullptr ) {
                 le->value = hVal;
                 return le;
@@ -170,11 +173,9 @@ lookUpFind(LookUpTable *tbl, const char *key) {
 
             i++;
             n += 2;
-            le += n;
             if ( (ndx += n) >= tbl->currentTableSize ) {
                 // This happens rarely
                 ndx = ndx % tbl->currentTableSize;
-                le = &tbl->table[ndx];
             }
         }
         while ( i < tbl->currentTableSize );
@@ -201,7 +202,8 @@ lookUpDone(LookUpTable *l) {
         return;
     }
 
-    for ( const LookUpEntity *tp = l->table + l->currentTableSize; tp-- > l->table; ) {
+    for ( int i = l->currentTableSize - 1; i >= 0; i-- ) {
+        const LookUpEntity *tp = &l->table[i];
         if ( tp->key != nullptr) {
             if ( l->freeKeyFunction != nullptr) {
                 (*l->freeKeyFunction)(tp->key);

@@ -18,7 +18,7 @@ The header files above define NiederreiterIndex as either 'unsigned' or
 'unsigned long long', depending on whether you have
 integers on your system or not
 
-The header files above also define the following constants:
+The header files above also declare the following constants:
 DIMEN   4		dimension of the samples generated.
 NBITS   63 or 31     number of bits in an integer, excluding the sign bit
 RECIP   1 / 2^NBITS  multiply niedindex values by this to get

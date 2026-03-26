@@ -111,9 +111,9 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
     rad.clear();
     int nonBackGround = 0;
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
-        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
-        for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            const GalerkinElement *element = reinterpret_cast<GalerkinElement *>(*pix);
+        const int rowStart = j * galerkinState->scratch->width;
+        for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
+            const GalerkinElement *element = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + i]);
             if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
                      galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
@@ -139,9 +139,9 @@ ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galer
     int nonBackGround = 0;
 
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
-        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + j * galerkinState->scratch->width;
-        for ( int i = 0; i < galerkinState->scratch->vp_width; i++, pix++ ) {
-            const GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(*pix);
+        const int rowStart = j * galerkinState->scratch->width;
+        for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
+            const GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + i]);
             if ( elem ) {
                 nonBackGround++;
             }
@@ -158,9 +158,9 @@ initialized to zero before
 void
 ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkinState) {
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
-        const SGL_PIXEL *pix = galerkinState->scratch->frameBuffer + i * galerkinState->scratch->width;
-        for ( int j = 0; j < galerkinState->scratch->vp_width; j++, pix++ ) {
-            GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(*pix);
+        const int rowStart = i * galerkinState->scratch->width;
+        for ( int j = 0; j < galerkinState->scratch->vp_width; j++ ) {
+            GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + j]);
             if ( elem != nullptr ) {
                 elem->scratchVisibilityUsageCounter++;
             }

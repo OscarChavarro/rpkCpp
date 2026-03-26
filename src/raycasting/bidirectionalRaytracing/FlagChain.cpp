@@ -316,7 +316,7 @@ regSPar is not needed here. The regExp must ensure disjoint paths!
 void
 ContribHandler::addRegExp(char *regExp) {
     if ( regExp[0] == '-' ) {
-        doRegExp(regExp + 1, true);
+        doRegExp(&regExp[1], true);
     } else {
         doRegExp(regExp, false);
     }

@@ -129,26 +129,28 @@ Get entity number from its name
 */
 int
 mgfEntity(const char *name, MgfContext *context) {
-    char *cp;
-
     if ( !globalLookUpTable.currentTableSize ) {
         // Initialize hash table
         if ( !lookUpInit(&globalLookUpTable, TOTAL_NUMBER_OF_ENTITIES) ) {
             return -1;
         }
 
-        // What to do?
-        for ( cp = context->entityNames[TOTAL_NUMBER_OF_ENTITIES - 1];
-              cp >= context->entityNames[0];
-              cp -= sizeof(context->entityNames[0]) ) {
-            lookUpFind(&globalLookUpTable, cp)->key = cp;
+        for ( int i = TOTAL_NUMBER_OF_ENTITIES - 1; i >= 0; i-- ) {
+            char *entityName = context->entityNames[i];
+            lookUpFind(&globalLookUpTable, entityName)->key = entityName;
         }
     }
-    cp = lookUpFind(&globalLookUpTable, name)->key;
-    if ( cp == nullptr) {
+
+    char *entityName = lookUpFind(&globalLookUpTable, name)->key;
+    if ( entityName == nullptr) {
         return -1;
     }
-    return static_cast<int>((cp - context->entityNames[0]) / sizeof(context->entityNames[0]));
+    for ( int i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
+        if ( context->entityNames[i] == entityName ) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /**
@@ -198,10 +200,18 @@ mgfOpen(MgfReaderContext *readerContext, const char *functionCallback, MgfContex
 
     // Get name relative to this context
     if ( context->readerContext != nullptr ) {
-        const char *cp = strrchr(context->readerContext->fileName, '/');
-        if ( cp != nullptr ) {
+        const char *currentFileName = context->readerContext->fileName;
+        int slashIndex = -1;
+        for ( int i = 0; currentFileName[i] != '\0'; i++ ) {
+            if ( currentFileName[i] == '/' ) {
+                slashIndex = i;
+            }
+        }
+        if ( slashIndex >= 0 ) {
             strcpy(readerContext->fileName, context->readerContext->fileName);
-            strcpy(readerContext->fileName + (cp - context->readerContext->fileName + 1), functionCallback);
+            strcpy(&readerContext->fileName[slashIndex + 1], functionCallback);
+        } else {
+            strcpy(readerContext->fileName, functionCallback);
         }
     } else {
         strcpy(readerContext->fileName, functionCallback);

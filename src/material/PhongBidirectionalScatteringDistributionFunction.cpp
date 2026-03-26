@@ -10,7 +10,7 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 // Texture modulates diffuse reflection
-#define TEXTURED_COMPONENT BRDF_DIFFUSE_COMPONENT
+static constexpr int TEXTURED_COMPONENT = BRDF_DIFFUSE_COMPONENT;
 
 /**
 Creates a BSDF instance with given data and methods

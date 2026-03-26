@@ -66,9 +66,9 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     for ( j = y - 1, ySample = -v * static_cast<float>(y - 1) / 2.0f;
           j >= 0;
           j--, ySample += v ) {
-        const unsigned long *id = ids + j * x;
-        for ( long i = 0, xSample = -h * static_cast<float>(x - 1) / 2.0f; i < x; i++, id++, xSample += static_cast<long>(h) ) {
-            const unsigned long the_id = (*id) & 0xffffff;
+        const long rowStart = j * x;
+        for ( long i = 0, xSample = -h * static_cast<float>(x - 1) / 2.0f; i < x; i++, xSample += static_cast<long>(h) ) {
+            const unsigned long the_id = ids[rowStart + i] & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {
                 Vector3D pixDir;
@@ -120,15 +120,15 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
 
 static void
 softGetPatchPointers(const SGL_CONTEXT *sgl, const java::ArrayList<Patch *> *scenePatches) {
-    const SGL_PIXEL *pix;
     int i;
 
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         scenePatches->get(i)->setInvisible();
     }
 
-    for ( pix = sgl->frameBuffer, i = 0; i < sgl->width * sgl->height; pix++, i++ ) {
-        Patch *P = reinterpret_cast<Patch *>(*pix);
+    const int pixelCount = sgl->width * sgl->height;
+    for ( i = 0; i < pixelCount; i++ ) {
+        Patch *P = reinterpret_cast<Patch *>(sgl->frameBuffer[i]);
         if ( P ) {
             P->setVisible();
         }

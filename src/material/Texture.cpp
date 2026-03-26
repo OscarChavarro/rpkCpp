@@ -78,10 +78,14 @@ Texture::evaluateColor(float u, float v) const {
         return rgb;
     }
 
-    const unsigned char *pix00 = data + (j * width + i) * channels;
-    const unsigned char *pix01 = data + (j1 * width + i) * channels;
-    const unsigned char *pix10 = data + (j * width + i1) * channels;
-    const unsigned char *pix11 = data + (j1 * width + i1) * channels;
+    const int pixelIndex00 = (j * width + i) * channels;
+    const int pixelIndex01 = (j1 * width + i) * channels;
+    const int pixelIndex10 = (j * width + i1) * channels;
+    const int pixelIndex11 = (j1 * width + i1) * channels;
+
+    auto channelValue = [this](int pixelIndex, int channel) {
+        return static_cast<float>(data[pixelIndex + channel]) / 255.0f;
+    };
 
     ColorRgb rgb00{};
     ColorRgb rgb10{};
@@ -90,17 +94,17 @@ Texture::evaluateColor(float u, float v) const {
 
     switch ( channels ) {
         case 1:
-            rgbSetMonochrome(rgb00, static_cast<float>(pix00[0]) / 255.0f);
-            rgbSetMonochrome(rgb10, static_cast<float>(pix10[0]) / 255.0f);
-            rgbSetMonochrome(rgb01, static_cast<float>(pix01[0]) / 255.0f);
-            rgbSetMonochrome(rgb11, static_cast<float>(pix11[0]) / 255.0f);
+            rgbSetMonochrome(rgb00, channelValue(pixelIndex00, 0));
+            rgbSetMonochrome(rgb10, channelValue(pixelIndex10, 0));
+            rgbSetMonochrome(rgb01, channelValue(pixelIndex01, 0));
+            rgbSetMonochrome(rgb11, channelValue(pixelIndex11, 0));
             break;
         case 3:
         case 4: {
-            rgb00.set(static_cast<float>(pix00[0]) / 255.0f, static_cast<float>(pix00[1]) / 255.0f, static_cast<float>(pix00[2]) / 255.0f);
-            rgb10.set(static_cast<float>(pix10[0]) / 255.0f, static_cast<float>(pix10[1]) / 255.0f, static_cast<float>(pix10[2]) / 255.0f);
-            rgb01.set(static_cast<float>(pix01[0]) / 255.0f, static_cast<float>(pix01[1]) / 255.0f, static_cast<float>(pix01[2]) / 255.0f);
-            rgb11.set(static_cast<float>(pix11[0]) / 255.0f, static_cast<float>(pix11[1]) / 255.0f, static_cast<float>(pix11[2]) / 255.0f);
+            rgb00.set(channelValue(pixelIndex00, 0), channelValue(pixelIndex00, 1), channelValue(pixelIndex00, 2));
+            rgb10.set(channelValue(pixelIndex10, 0), channelValue(pixelIndex10, 1), channelValue(pixelIndex10, 2));
+            rgb01.set(channelValue(pixelIndex01, 0), channelValue(pixelIndex01, 1), channelValue(pixelIndex01, 2));
+            rgb11.set(channelValue(pixelIndex11, 0), channelValue(pixelIndex11, 1), channelValue(pixelIndex11, 2));
         }
             break;
         default:

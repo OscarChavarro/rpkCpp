@@ -14,11 +14,11 @@ References:
 #include "GALERKIN/ShaftPlane.h"
 #include "GALERKIN/ShaftCullStrategy.h"
 
-inline constexpr int MAX_SKIP_ELEMENTS = 2;
+constexpr int MAX_SKIP_ELEMENTS = 2;
 
 // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
 // maximum 2 times the total number of vertices for a patch-to-patch shaft
-inline constexpr int SHAFT_MAX_PLANES = 16;
+constexpr int SHAFT_MAX_PLANES = 16;
 
 /**
 The shaft is the region bounded by extent and referenceItem1 and referenceItem2 (if defined)

@@ -74,7 +74,7 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
     referenceItem1->computeContributionFlags(referenceItem2, hasMinMax1, hasMinMax2);
 
     // 3. Create the plane set between the two reference items' boxes [HAIN1991]
-    ShaftPlane *localPlane = &planeSet[0];
+    int localPlaneIndex = 0;
     for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
         if ( !hasMinMax1[i] ) {
             continue;
@@ -108,19 +108,20 @@ Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundi
             }
 
             // 3.2. Build the new identified plane
-            localPlane->n[a] = du;
-            localPlane->n[b] = dv;
-            localPlane->n[3 - a - b] = 0.0;
-            localPlane->d = -(du * u1 + dv * v1);
+            ShaftPlane &localPlane = planeSet[localPlaneIndex];
+            localPlane.n[a] = du;
+            localPlane.n[b] = dv;
+            localPlane.n[3 - a - b] = 0.0;
+            localPlane.d = -(du * u1 + dv * v1);
 
-            localPlane->coordinateOffset[0] = localPlane->n[0] > 0.0f ? MIN_X : MAX_X;
-            localPlane->coordinateOffset[1] = localPlane->n[1] > 0.0f ? MIN_Y : MAX_Y;
-            localPlane->coordinateOffset[2] = localPlane->n[2] > 0.0f ? MIN_Z : MAX_Z;
+            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0f ? MIN_X : MAX_X;
+            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0f ? MIN_Y : MAX_Y;
+            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0f ? MIN_Z : MAX_Z;
 
-            localPlane++; // Should avoid using pointer arithmetic
+            localPlaneIndex++;
         }
     }
-    numberOfPlanesInSet = (localPlane - &planeSet[0]);
+    numberOfPlanesInSet = localPlaneIndex;
 }
 
 /**
@@ -254,8 +255,8 @@ true if the plane differs from all previous defined planes
 */
 int
 Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
-    for ( const ShaftPlane *ref = &planeSet[0]; ref != parameterPlane; ref++ ) {
-        if ( compareShaftPlanes(ref, parameterPlane) == 0 ) {
+    for ( int i = 0; &planeSet[i] != parameterPlane; i++ ) {
+        if ( compareShaftPlanes(&planeSet[i], parameterPlane) == 0 ) {
             return false;
         }
     }
@@ -283,7 +284,7 @@ Construct the planes determining the shaft that use edges of p1 and vertices of 
 void
 Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *polygon2) {
     Vector3D normal;
-    ShaftPlane *localPlane = &planeSet[numberOfPlanesInSet];
+    int localPlaneIndex = numberOfPlanesInSet;
     int maxPlanesPerEdge;
 
     // Test p2 wrt plane of p1
@@ -293,9 +294,9 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
             // a shaft plane and there will be at most one shaft plane per edge of p1
             fillInPlane(
-                localPlane, polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
-            if ( uniqueShaftPlane(localPlane) ) {
-                localPlane++;
+                &planeSet[localPlaneIndex], polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
+            if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                localPlaneIndex++;
             }
             maxPlanesPerEdge = 1;
             break;
@@ -303,9 +304,9 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             // Like above, except that p2 is on the positive side of the plane of p1, so
             // we have to invert normal and plane constant
             fillInPlane(
-                localPlane, -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
-            if ( uniqueShaftPlane(localPlane) ) {
-                localPlane++;
+                &planeSet[localPlaneIndex], -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
+            if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                localPlaneIndex++;
             }
             maxPlanesPerEdge = 1;
             break;
@@ -365,19 +366,19 @@ Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *p
             if ( verifyPolygonWithRespectToPlane(polygon2, &normal, d, side) ) {
                 if ( side == ShaftPlanePosition::INSIDE ) {
                     // p1 and p2 are on the negative side as it should be
-                    fillInPlane(localPlane, normal.x, normal.y, normal.z, d);
+                    fillInPlane(&planeSet[localPlaneIndex], normal.x, normal.y, normal.z, d);
                 } else {
-                    fillInPlane(localPlane, -normal.x, -normal.y, -normal.z, -d);
+                    fillInPlane(&planeSet[localPlaneIndex], -normal.x, -normal.y, -normal.z, -d);
                 }
-                if ( uniqueShaftPlane(localPlane) ) {
-                    localPlane++;
+                if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                    localPlaneIndex++;
                 }
                 planesFoundForEdge++;
             }
         }
     }
 
-    numberOfPlanesInSet = localPlane - &planeSet[0];
+    numberOfPlanesInSet = localPlaneIndex;
 }
 
 /**
@@ -493,20 +494,20 @@ Shaft::shaftPatchTest(Patch *patch) {
         pTol[j] = patch->vertex[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
     }
 
-    const ShaftPlane *localPlane = &planeSet[0];
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
         // Test patch against i-th plane of the shaft
+        const ShaftPlane &localPlane = planeSet[i];
         Vector3D planeNormal;
         double e[MAXIMUM_VERTICES_PER_PATCH];
         int side[MAXIMUM_VERTICES_PER_PATCH];
         int in = false;
         int out = false;
 
-        planeNormal.set(localPlane->n[0], localPlane->n[1], localPlane->n[2]);
+        planeNormal.set(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
 
         for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-            e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane->d;
-            double tolerance = java::Math::abs(localPlane->d) * Numeric::EPSILON + pTol[j];
+            e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane.d;
+            double tolerance = java::Math::abs(localPlane.d) * Numeric::EPSILON + pTol[j];
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {
                 side[j] = ShaftPlanePosition::OUTSIDE;
@@ -570,7 +571,6 @@ Shaft::shaftPatchTest(Patch *patch) {
                 }
             }
         }
-        localPlane++;
     }
 
     // The remaining tests only work if the shaft planes alone determine the shaft

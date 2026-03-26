@@ -23,47 +23,91 @@ polygonSwap(Polygon *a, Polygon *b) {
 /**
 Clip convex polygon p against a plane,
 copying the portion satisfying sign*s[index] < k*sw into q,
-where s is a Poly_vert* cast as a double*.
-index is an index into the array of doubles at each vertex, such that
-s[index] is sx, sy, or sz (screen space x, y, or z).
+where s[index] is one of the vertex coordinates selected by index.
+index is a coordinate selector (sx, sy, or sz for clipping).
 Thus, to clip against xMin, use
 polyClipToHalfSpace(p, q, X_INDEX, -1.0, -xMin);
 and to clip against xMax, use
 polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
 */
+static inline void
+setPolygonVertexCoord(PolygonVertex *vertex, int index, double value) {
+    switch ( index ) {
+        case 0:
+            vertex->sx = value;
+            break;
+        case 1:
+            vertex->sy = value;
+            break;
+        case 2:
+            vertex->sz = value;
+            break;
+        case 3:
+            vertex->sw = value;
+            break;
+        case 4:
+            vertex->x = value;
+            break;
+        case 5:
+            vertex->y = value;
+            break;
+        case 6:
+            vertex->z = value;
+            break;
+        case 7:
+            vertex->u = value;
+            break;
+        case 8:
+            vertex->v = value;
+            break;
+        case 9:
+            vertex->r = value;
+            break;
+        case 10:
+            vertex->g = value;
+            break;
+        case 11:
+            vertex->b = value;
+            break;
+        default:
+            break;
+    }
+}
+
 static void
 polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     q->n = 0;
     q->mask = p->mask;
 
     // Start with u=vert[n-1], v=vert[0]
-    PolygonVertex *u = &p->vertices[p->n - 1];
-    double tu = sign * u->getCoord(index) - u->sw * k;
-    PolygonVertex *v = &p->vertices[0];
-    for ( int i = p->n; i > 0; i-- ) {
+    int previousVertexIndex = p->n - 1;
+    double tu = sign * p->vertices[previousVertexIndex].getCoord(index) - p->vertices[previousVertexIndex].sw * k;
+    for ( int currentVertexIndex = 0; currentVertexIndex < p->n; currentVertexIndex++ ) {
         // On old polygon (p), u is previous vertex, v is current vertex
         // tv is negative if vertex v is in
-        const double tv = sign * v->getCoord(index) - v->sw * k;
+        const PolygonVertex &u = p->vertices[previousVertexIndex];
+        const PolygonVertex &v = p->vertices[currentVertexIndex];
+        const double tv = sign * v.getCoord(index) - v.sw * k;
         if ( ((tu <= 0.0) && (tv > 0.0)) || ((tu > 0.0) && (tv <= 0.0)) ) {
             // Edge crosses plane; add intersection point to q
             const double t = tu / (tu - tv);
-            const double *up = reinterpret_cast<double *>(u);
-            const double *vp = reinterpret_cast<double *>(v);
-            double *wp = reinterpret_cast<double *>(&q->vertices[q->n]);
-            for ( unsigned long m = p->mask; m != 0; m >>= 1, up++, vp++, wp++ ) {
-                if ( m & 1 ) {
-                    *wp = *up + t * (*vp - *up);
+            PolygonVertex *w = &q->vertices[q->n];
+            unsigned long maskBits = p->mask;
+            for ( int attributeIndex = 0; maskBits != 0; attributeIndex++, maskBits >>= 1 ) {
+                if ( maskBits & 1UL ) {
+                    const double uCoord = u.getCoord(attributeIndex);
+                    const double vCoord = v.getCoord(attributeIndex);
+                    setPolygonVertexCoord(w, attributeIndex, uCoord + t * (vCoord - uCoord));
                 }
             }
             q->n++;
         }
         if ( tv <= 0.0 ) {
             // Vertex v is in, copy it to q
-            q->vertices[q->n++] = *v;
+            q->vertices[q->n++] = v;
         }
-        u = v;
+        previousVertexIndex = currentVertexIndex;
         tu = tv;
-        v++;
     }
 }
 
@@ -97,8 +141,6 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     int y1out = 0;
     int z0out = 0;
     int z1out = 0;
-    int i;
-    const PolygonVertex *v;
     Polygon p2{};
 
     if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
@@ -108,28 +150,29 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     }
 
     // Count vertices "outside" with respect to each of the six planes
-    for ( v = p1->vertices, i = p1->n; i > 0; i--, v++ ) {
-        if ( v->sx < box->x0 * v->sw ) {
+    for ( int i = 0; i < p1->n; i++ ) {
+        const PolygonVertex &vertex = p1->vertices[i];
+        if ( vertex.sx < box->x0 * vertex.sw ) {
             // Out on left
             x0out++;
         }
-        if ( v->sx > box->x1 * v->sw ) {
+        if ( vertex.sx > box->x1 * vertex.sw ) {
             // Out on right
             x1out++;
         }
-        if ( v->sy < box->y0 * v->sw ) {
+        if ( vertex.sy < box->y0 * vertex.sw ) {
             // Out on top
             y0out++;
         }
-        if ( v->sy > box->y1 * v->sw ) {
+        if ( vertex.sy > box->y1 * vertex.sw ) {
             // Out on bottom
             y1out++;
         }
-        if ( v->sz < box->z0 * v->sw ) {
+        if ( vertex.sz < box->z0 * vertex.sw ) {
             // Out on near
             z0out++;
         }
-        if ( v->sz > box->z1 * v->sw ) {
+        if ( vertex.sz > box->z1 * vertex.sw ) {
             // Out on far
             z1out++;
         }

@@ -65,12 +65,13 @@ openGlSaveScreen(
 #endif
 
     for ( long j = y - 1; j >= 0; j-- ) {
-        unsigned char *bufferPosition = buffer;
-        const GLubyte *pixel = &screen[j * x * 4];
-        for ( long i = 0; i < x; i++, pixel += 4 ) {
-            *bufferPosition++ = pixel[0];
-            *bufferPosition++ = pixel[1];
-            *bufferPosition++ = pixel[2];
+        const long screenRowStart = j * x * 4;
+        for ( long i = 0; i < x; i++ ) {
+            const long pixelOffset = screenRowStart + i * 4;
+            const long bufferOffset = i * 3;
+            buffer[bufferOffset] = screen[pixelOffset];
+            buffer[bufferOffset + 1] = screen[pixelOffset + 1];
+            buffer[bufferOffset + 2] = screen[pixelOffset + 2];
         }
         writeDisplayRGB(image, buffer);
     }

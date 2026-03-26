@@ -8,7 +8,7 @@ COLOR_MINIMUM_WAVE_LENGTH = 380,
 COLOR_MAXIMUM_WAVE_LENGTH = 780
 };
 #define COLOR_WAVE_LENGTH_DELTA_I (static_cast<float>(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) / static_cast<float>(NUMBER_OF_SPECTRAL_SAMPLES - 1))
-inline constexpr int COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE = 10000;
+constexpr int COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE = 10000;
 #define COLOR_PEAK_LUMENS_PER_WATT (683.0/COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE)
 enum {
 COLOR_SPECTRUM_IS_SET_FLAG = 01,
@@ -36,13 +36,13 @@ COLOR_EFFICACY_FLAG = 020
     178.006 \
 }
 
-inline constexpr int NUMBER_OF_SPECTRAL_SAMPLES = 41; // Number of spectral samples
+constexpr int NUMBER_OF_SPECTRAL_SAMPLES = 41; // Number of spectral samples
 
 // W-m^2
-#define C1 3.741832e-16
+constexpr double C1 = 3.741832e-16;
 
 // m-K
-#define C2 1.4388e-2
+constexpr double C2 = 1.4388e-2;
 
 class MgfColorContext {
   private:

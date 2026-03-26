@@ -2,6 +2,8 @@
 Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 */
 
+#include <cstdarg>
+
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
 #include "common/error.h"
@@ -17,6 +19,28 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 static constexpr int STRING_LENGTH = 2000;
+
+static void
+appendStochasticStatsText(char *buffer, int *offset, const char *format, ...) {
+    if ( *offset >= STRING_LENGTH - 1 ) {
+        return;
+    }
+
+    va_list arguments;
+    va_start(arguments, format);
+    const int available = STRING_LENGTH - *offset;
+    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    va_end(arguments);
+
+    if ( written <= 0 ) {
+        return;
+    }
+    if ( written >= available ) {
+        *offset = STRING_LENGTH - 1;
+    } else {
+        *offset += written;
+    }
+}
 
 #ifdef RAYTRACING_ENABLED
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {
@@ -69,23 +93,16 @@ StochasticJacobiRadianceMethod::initialize(Scene */*scene*/) {
 char *
 StochasticJacobiRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
-    char *p;
-    int n;
+    int statsOffset = 0;
 
-    p = stats;
-    snprintf(p, STRING_LENGTH, "Stochastic Relaxation Radiosity\nStatistics\n\n%n", &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
-    p += n;
-
-    snprintf(p, STRING_LENGTH, "%ld elements (%ld clusters, %ld surfaces)\n%n",
-             GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
+    appendStochasticStatsText(stats, &statsOffset, "Stochastic Relaxation Radiosity\nStatistics\n\n");
+    appendStochasticStatsText(stats, &statsOffset, "Iteration nr: %d\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+    appendStochasticStatsText(stats, &statsOffset, "CPU time: %g secs\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds);
+    appendStochasticStatsText(stats, &statsOffset, "%ld elements (%ld clusters, %ld surfaces)\n",
+                              GLOBAL_stochasticRaytracing_hierarchy.nr_elements, GLOBAL_stochasticRaytracing_hierarchy.nr_clusters,
+                              GLOBAL_stochasticRaytracing_hierarchy.nr_elements - GLOBAL_stochasticRaytracing_hierarchy.nr_clusters);
+    appendStochasticStatsText(stats, &statsOffset, "Radiance rays: %ld\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
+    appendStochasticStatsText(stats, &statsOffset, "Importance rays: %ld\n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays);
 
     return stats;
 }

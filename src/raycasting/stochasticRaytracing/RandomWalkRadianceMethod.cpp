@@ -1,4 +1,6 @@
 
+#include <cstdarg>
+
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
 #include "common/error.h"
@@ -11,6 +13,30 @@
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
+
+static constexpr int STRING_LENGTH = 2000;
+
+static void
+appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
+    if ( *offset >= STRING_LENGTH - 1 ) {
+        return;
+    }
+
+    va_list arguments;
+    va_start(arguments, format);
+    const int available = STRING_LENGTH - *offset;
+    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    va_end(arguments);
+
+    if ( written <= 0 ) {
+        return;
+    }
+    if ( written >= available ) {
+        *offset = STRING_LENGTH - 1;
+    } else {
+        *offset += written;
+    }
+}
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
     monteCarloRadiosityDefaults();
@@ -154,13 +180,12 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
             break;
         case RandomWalkEstimatorKind::RW_LAST_BUT_NTH:
             if ( n == t - 1 ) {
-                int i = path->numberOfNodes - 1;
-                const StochasticRaytracingPathNode *node = &path->nodes[i];
-                w = 1.0 / (1.0 - node->probability);
+                const int lastNodeIndex = path->numberOfNodes - 1;
+                w = 1.0 / (1.0 - path->nodes[lastNodeIndex].probability);
                 // Absorption prob of the last node
-                for ( i--, node--; i >= n; i--, node-- ) {
+                for ( int nodeIndex = lastNodeIndex - 1; nodeIndex >= n; nodeIndex-- ) {
                     // Survival prob of n...numberOfNodes-2th node
-                    w /= node->probability;
+                    w /= path->nodes[nodeIndex].probability;
                 }
             }
             break;
@@ -182,28 +207,28 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
 static void
 randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumPow;
-    int n;
-    const StochasticRaytracingPathNode *node = &path->nodes[0];
+    const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
-    accumPow.scaledCopy(static_cast<float>(node->patch->area / node->probability), topLevelStochasticRadiosityElement(node->patch)->sourceRad);
-    for ( n = 1, node++; n < path->numberOfNodes; n++, node++ ) {
+    accumPow.scaledCopy(static_cast<float>(firstNode.patch->area / firstNode.probability), topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
+    for ( int n = 1; n < path->numberOfNodes; n++ ) {
+        const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
         double vin = 0.0;
         double uOut = 0.0;
         double vOut = 0.0;
         double r = 1.0;
         double w;
-        const Patch *P = node->patch;
+        const Patch *P = node.patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumPow.scalarProduct(accumPow, Rd);
 
-        P->uniformUv(&node->inPoint, &uin, &vin);
+        P->uniformUv(&node.inPoint, &uin, &vin);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.0;
             if ( n < path->numberOfNodes - 1 ) {
                 // Not continuous random walk and not node of absorption
-                P->uniformUv(&node->outpoint, &uOut, &vOut);
+                P->uniformUv(&node.outpoint, &uOut, &vOut);
             }
         }
 
@@ -222,7 +247,7 @@ randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*bi
             }
         }
 
-        accumPow.scale(static_cast<float>(r / node->probability));
+        accumPow.scale(static_cast<float>(r / node.probability));
     }
 }
 
@@ -329,25 +354,25 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
 static void
 randomWalkRadiosityCollisionGatheringScore(const PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumRad;
-    int n;
-    const StochasticRaytracingPathNode *node = &path->nodes[path->numberOfNodes - 1];
-    accumRad = topLevelStochasticRadiosityElement(node->patch)->sourceRad;
-    for ( n = path->numberOfNodes - 2, node--; n >= 0; n--, node-- ) {
+    const int lastNodeIndex = path->numberOfNodes - 1;
+    accumRad = topLevelStochasticRadiosityElement(path->nodes[lastNodeIndex].patch)->sourceRad;
+    for ( int n = lastNodeIndex - 1; n >= 0; n-- ) {
+        const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
         double vin = 0.0;
         double uOut = 0.0;
         double vOut = 0.0;
         double r = 1.0;
-        const Patch *P = node->patch;
+        const Patch *P = node.patch;
         ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
         accumRad.selfScalarProduct(Rd);
 
-        P->uniformUv(&node->outpoint, &uOut, &vOut);
+        P->uniformUv(&node.outpoint, &uOut, &vOut);
         if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             r = 0.0;
             if ( n > 0 ) {
                 // Not continuous random walk and not birth node
-                P->uniformUv(&node->inPoint, &uin, &vin);
+                P->uniformUv(&node.inPoint, &uin, &vin);
             }
         }
 
@@ -362,7 +387,7 @@ randomWalkRadiosityCollisionGatheringScore(const PATH *path, long /*nr_paths*/, 
         }
         topLevelStochasticRadiosityElement(P)->ng++;
 
-        accumRad.scale(static_cast<float>(r / node->probability));
+        accumRad.scale(static_cast<float>(r / node.probability));
         accumRad.add(accumRad, topLevelStochasticRadiosityElement(P)->sourceRad);
     }
 }
@@ -487,23 +512,20 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     return false; // Never converged
 }
 
-#define STRING_LENGTH 2000
-
 char *
 RandomWalkRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
-    char *p = stats;
-    int n = 0;
+    int statsOffset = 0;
 
-    snprintf(p, STRING_LENGTH, "Random Walk Radiosity\nStatistics\n\n%n", &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Iteration nr: %d\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "CPU time: %g secs\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Radiance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Importance rays: %ld\n%n", GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, &n);
+    appendRandomWalkStatsText(stats, &statsOffset, "Random Walk Radiosity\nStatistics\n\n");
+    appendRandomWalkStatsText(stats, &statsOffset, "Iteration nr: %d\n",
+                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+    appendRandomWalkStatsText(stats, &statsOffset, "CPU time: %g secs\n",
+                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds);
+    appendRandomWalkStatsText(stats, &statsOffset, "Radiance rays: %ld\n",
+                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
+    appendRandomWalkStatsText(stats, &statsOffset, "Importance rays: %ld\n",
+                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays);
 
     return stats;
 }

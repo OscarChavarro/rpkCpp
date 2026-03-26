@@ -13,19 +13,20 @@ Skip integer in string
 static const char *
 isSkipWords(const char *s)
 {
-    while ( isspace(*s) ) {
-        s++;
+    int index = 0;
+    while ( isspace(static_cast<unsigned char>(s[index])) ) {
+        index++;
     }
-    if ( *s == '-' || *s == '+' ) {
-        s++;
+    if ( s[index] == '-' || s[index] == '+' ) {
+        index++;
     }
-    if ( !isdigit(*s) ) {
+    if ( !isdigit(static_cast<unsigned char>(s[index])) ) {
         return nullptr;
     }
     do {
-        s++;
-    } while (isdigit(*s) );
-    return s;
+        index++;
+    } while (isdigit(static_cast<unsigned char>(s[index])) );
+    return &s[index];
 }
 
 /**
@@ -34,30 +35,31 @@ Skip float in string
 static const char *
 fileSkipWords(const char *s)
 {
-    while ( isspace(*s) ) {
-        s++;
+    int startIndex = 0;
+    while ( isspace(static_cast<unsigned char>(s[startIndex])) ) {
+        startIndex++;
     }
-    if ( *s == '-' || *s == '+' ) {
-        s++;
+    if ( s[startIndex] == '-' || s[startIndex] == '+' ) {
+        startIndex++;
     }
-    const char *cp = s;
-    while ( isdigit(*cp) ) {
-        cp++;
+    int currentIndex = startIndex;
+    while ( isdigit(static_cast<unsigned char>(s[currentIndex])) ) {
+        currentIndex++;
     }
-    if ( *cp == '.' ) {
-        cp++;
-        s++;
-        while ( isdigit(*cp) ) {
-            cp++;
+    if ( s[currentIndex] == '.' ) {
+        currentIndex++;
+        startIndex++;
+        while ( isdigit(static_cast<unsigned char>(s[currentIndex])) ) {
+            currentIndex++;
         }
     }
-    if ( cp == s ) {
+    if ( currentIndex == startIndex ) {
         return nullptr;
     }
-    if ( *cp == 'e' || *cp == 'E' ) {
-        return isSkipWords(cp + 1);
+    if ( s[currentIndex] == 'e' || s[currentIndex] == 'E' ) {
+        return isSkipWords(&s[currentIndex + 1]);
     }
-    return cp;
+    return &s[currentIndex];
 }
 
 /**
@@ -106,16 +108,19 @@ Check for legal identifier name
 int
 isNameWords(const char *s)
 {
-    while ( *s == '_' ) {
+    int index = 0;
+    while ( s[index] == '_' ) {
         // skip leading underscores
-        s++;
+        index++;
     }
-    if ( !isascii(*s) || !isalpha(*s) ) {
+    if ( !isascii(static_cast<unsigned char>(s[index])) || !isalpha(static_cast<unsigned char>(s[index])) ) {
         // start with a letter
         return 0;
     }
-    while ( isascii(*++s) && isgraph(*s) ) {
+    int tokenIndex = index + 1;
+    while ( isascii(static_cast<unsigned char>(s[tokenIndex])) && isgraph(static_cast<unsigned char>(s[tokenIndex])) ) {
         // all visible characters
+        tokenIndex++;
     }
-    return *s == '\0'; // ending in nul
+    return s[tokenIndex] == '\0'; // ending in nul
 }

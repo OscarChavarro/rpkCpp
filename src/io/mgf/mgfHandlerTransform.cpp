@@ -12,11 +12,23 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "io/mgf/mgfDefinitions.h"
 
 static char **globalTransformArgumentListBeginning;
-static char **globalLastTransform; // End of transform argument list (last transform argument)
+static int globalTransformArgumentCount = 0;
 static char globalTransformIterateArgument[] = "-i";
 
-#define TRANSFORM_ARGC(xf) ( (xf) == nullptr ? 0 : (xf)->xac )
-#define TRANSFORM_ARGV(xf) (globalLastTransform - (xf)->xac)
+static int
+transformArgumentCount(const MgfTransformContext *xf) {
+    return xf == nullptr ? 0 : xf->xac;
+}
+
+static int
+transformArgumentStartIndex(const MgfTransformContext *xf) {
+    return globalTransformArgumentCount - transformArgumentCount(xf);
+}
+
+static char **
+transformArgumentVector(const MgfTransformContext *xf) {
+    return &globalTransformArgumentListBeginning[transformArgumentStartIndex(xf)];
+}
 
 /**
 Compute unique ID from matrix
@@ -66,7 +78,7 @@ d2r(double a) {
 
 static bool
 checkArgument(int a, const char *l, int ac, char **av, int i) {
-    if ( av[i][a] || checkForBadArguments(ac - i - 1, av + i + 1, l) ) {
+    if ( av[i][a] || checkForBadArguments(ac - i - 1, &av[i + 1], l) ) {
         return false;
     }
     return true;
@@ -84,15 +96,16 @@ transformName(const MgfTransformArray *ap, MgfContext *context) {
     if ( ap == nullptr ) {
         return mgfHandle(MgfEntity::OBJECT, 1, oav, context);
     }
-    char *cp1 = oName;
-    *cp1 = 'a';
+    int writeIndex = 0;
+    oName[writeIndex++] = 'a';
     for ( int i = 0; i < ap->numberOfDimensions; i++ ) {
-        for ( const char *cp2 = ap->transformArguments[i].arg; *cp2; ) {
-            *++cp1 = *cp2++;
+        const char *argument = ap->transformArguments[i].arg;
+        for ( int j = 0; argument[j] != '\0'; j++ ) {
+            oName[writeIndex++] = argument[j];
         }
-        *++cp1 = '.';
+        oName[writeIndex++] = '.';
     }
-    *cp1 = '\0';
+    oName[writeIndex] = '\0';
     return mgfHandle(MgfEntity::OBJECT, 2, oav, context);
 }
 
@@ -102,6 +115,7 @@ Allocate new transform structure
 static MgfTransformContext *
 newTransform(int ac, const char **av, MgfContext *context) {
     int nDim = 0;
+    const int previousArgumentCount = transformArgumentCount(context->transformContext);
 
     // Compute space required by arguments
     for ( int i = 0; i < ac; i++ ) {
@@ -142,32 +156,36 @@ newTransform(int ac, const char **av, MgfContext *context) {
     } else {
         spec->transformationArray = nullptr;
     }
-    spec->xac = static_cast<short>(ac + TRANSFORM_ARGC(context->transformContext));
+    spec->xac = static_cast<short>(ac + previousArgumentCount);
 
-    // And store new xf arguments
-    if ( globalTransformArgumentListBeginning == nullptr || TRANSFORM_ARGV(spec) < globalTransformArgumentListBeginning ) {
-        char **newAv = new char *[spec->xac + 1];
-        if ( newAv == nullptr) {
+    // Allocate the argument list with the new arguments first and inherited
+    // arguments appended after them.
+    char **newArgumentList = nullptr;
+    if ( spec->xac > 0 ) {
+        newArgumentList = new char *[spec->xac + 1];
+        if ( newArgumentList == nullptr ) {
             free_xf(spec);
             return nullptr;
         }
-        for ( int i = TRANSFORM_ARGC(context->transformContext); i-- > 0; ) {
-            newAv[ac + i] = globalLastTransform[i - context->transformContext->xac];
+
+        const int previousStartIndex = globalTransformArgumentCount - previousArgumentCount;
+        for ( int i = 0; i < previousArgumentCount; i++ ) {
+            newArgumentList[ac + i] = globalTransformArgumentListBeginning[previousStartIndex + i];
         }
-        *(globalLastTransform = newAv + spec->xac) = nullptr;
-        if ( globalTransformArgumentListBeginning != nullptr) {
-            delete[] globalTransformArgumentListBeginning;
-        }
-        globalTransformArgumentListBeginning = newAv;
+        newArgumentList[spec->xac] = nullptr;
     }
+    delete[] globalTransformArgumentListBeginning;
+    globalTransformArgumentListBeginning = newArgumentList;
+    globalTransformArgumentCount = spec->xac;
 
     // Use memory allocated above
+    char **specArguments = ac > 0 ? transformArgumentVector(spec) : nullptr;
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            TRANSFORM_ARGV(spec)[i] = globalTransformIterateArgument;
+            specArguments[i] = globalTransformIterateArgument;
             spec->ownedArgumentCopies[i] = nullptr;
             i++;
-            TRANSFORM_ARGV(spec)[i] = strcpy(
+            specArguments[i] = strcpy(
                     spec->transformationArray->transformArguments[spec->transformationArray->numberOfDimensions].arg,
                     "0");
             spec->ownedArgumentCopies[i] = nullptr;
@@ -181,7 +199,7 @@ newTransform(int ac, const char **av, MgfContext *context) {
                 return nullptr;
             }
             strcpy(argumentCopy, av[i]);
-            TRANSFORM_ARGV(spec)[i] = argumentCopy;
+            specArguments[i] = argumentCopy;
             spec->ownedArgumentCopies[i] = argumentCopy;
         }
     }
@@ -434,6 +452,30 @@ xf(MgfTransform *ret, int ac, char **av) {
     return i;
 }
 
+static bool
+compactTransformArguments(const MgfTransformContext *context) {
+    const int contextArgumentCount = transformArgumentCount(context);
+    char **newArgumentList = nullptr;
+
+    if ( contextArgumentCount > 0 ) {
+        newArgumentList = new char *[contextArgumentCount + 1];
+        if ( newArgumentList == nullptr ) {
+            return false;
+        }
+
+        const int sourceStartIndex = globalTransformArgumentCount - contextArgumentCount;
+        for ( int i = 0; i < contextArgumentCount; i++ ) {
+            newArgumentList[i] = globalTransformArgumentListBeginning[sourceStartIndex + i];
+        }
+        newArgumentList[contextArgumentCount] = nullptr;
+    }
+
+    delete[] globalTransformArgumentListBeginning;
+    globalTransformArgumentListBeginning = newArgumentList;
+    globalTransformArgumentCount = contextArgumentCount;
+    return true;
+}
+
 /**
 Handle xf entity
 */
@@ -473,13 +515,16 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
         }
         if ( n < 0 ) {
             // Pop transform
+            if ( !compactTransformArguments(spec->prev) ) {
+                return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
+            }
             context->transformContext = spec->prev;
             free_xf(spec);
             return MgfErrorCode::MGF_OK;
         }
     } else {
         // Allocate transform
-        spec = newTransform(ac - 1, av + 1, context);
+        spec = newTransform(ac - 1, &av[1], context);
         if ( spec == nullptr ) {
             return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
         }
@@ -491,9 +536,9 @@ handleTransformationEntity(int ac, const char **av, MgfContext *context) {
     }
 
     // Translate new specification
-    n = TRANSFORM_ARGC(spec);
-    n -= TRANSFORM_ARGC(spec->prev); // Incremental comp. is more eff.
-    if ( xf(&spec->xf, n, TRANSFORM_ARGV(spec)) != n ) {
+    n = transformArgumentCount(spec);
+    n -= transformArgumentCount(spec->prev); // Incremental comp. is more eff.
+    if ( xf(&spec->xf, n, transformArgumentVector(spec)) != n ) {
         return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
     }
 
@@ -516,5 +561,5 @@ void
 mgfTransformFreeMemory() {
     delete[] globalTransformArgumentListBeginning;
     globalTransformArgumentListBeginning = nullptr;
-    globalLastTransform = nullptr;
+    globalTransformArgumentCount = 0;
 }

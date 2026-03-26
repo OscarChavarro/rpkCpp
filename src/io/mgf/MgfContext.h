@@ -7,7 +7,7 @@
 #include "io/mgf/MgfReaderContext.h"
 
 // Objects 'o' contexts can be nested this deep
-inline constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
+constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
 
 class MgfTransformContext;
 class MgfColorContext;

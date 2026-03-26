@@ -17,6 +17,7 @@ Estimate static adaptation for tone mapping
 static int globalNumEntries;
 static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
+static int globalLumAreaIndex;
 static float globalLumMin = FLT_MAX; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 static float globalLumMax = 0.0;
 
@@ -68,13 +69,14 @@ static void
 patchFillLumArea(Patch *patch) {
     float brightness = patchBrightnessEstimate(patch);
 
-    globalLumArea->luminance = brightness;
-    globalLumArea->area = patch->area;
+    LuminanceArea &entry = globalLumArea[globalLumAreaIndex];
+    entry.luminance = brightness;
+    entry.area = patch->area;
 
-    globalLumMin = java::Math::min(globalLumMin, globalLumArea->luminance);
-    globalLumMax = java::Math::max(globalLumMax, globalLumArea->luminance);
+    globalLumMin = java::Math::min(globalLumMin, entry.luminance);
+    globalLumMax = java::Math::max(globalLumMax, entry.luminance);
 
-    globalLumArea++;
+    globalLumAreaIndex++;
     globalNumEntries++;
 }
 
@@ -84,19 +86,25 @@ of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_tot
 */
 static float
 meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
+    if ( numPairs <= 0 ) {
+        return 0.0f;
+    }
+
     float areaMax = GLOBAL_statistics.totalArea / 2.0f;
     float areaCnt = 0.0;
+    int pairIndex = 0;
 
     qsort(pairs, numPairs, sizeof(LuminanceArea), adaptationLumAreaComp);
 
-    while ( areaCnt < areaMax ) {
-        areaCnt += pairs->area;
-        pairs++;
+    while ( pairIndex < numPairs && areaCnt < areaMax ) {
+        areaCnt += pairs[pairIndex].area;
+        pairIndex++;
     }
 
-    pairs--;
-
-    return pairs->luminance;
+    if ( pairIndex == 0 ) {
+        return pairs[0].luminance;
+    }
+    return pairs[pairIndex - 1].luminance;
 }
 
 /**
@@ -126,6 +134,8 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             LuminanceArea *la = new LuminanceArea[GLOBAL_statistics.numberOfPatches];
 
             globalLumArea = la;
+            globalLumAreaIndex = 0;
+            globalNumEntries = 0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchFillLumArea(scenePatches->get(i));
             }

@@ -74,6 +74,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     double wlStep;
     double boxPos;
     double boxStep;
+    int argumentStartIndex = 0;
 
     // Check getBoundingBox
     if ( wlMaximum <= COLOR_MINIMUM_WAVE_LENGTH || wlMaximum <= wlMinimum || wlMinimum >= COLOR_MAXIMUM_WAVE_LENGTH ) {
@@ -83,7 +84,7 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
     while ( wlMinimum < COLOR_MINIMUM_WAVE_LENGTH ) {
         wlMinimum += wlStep;
         ac--;
-        av++;
+        argumentStartIndex++;
     }
     while ( wlMaximum > COLOR_MAXIMUM_WAVE_LENGTH ) {
         wlMaximum -= wlStep;
@@ -104,10 +105,12 @@ MgfColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const c
         va[i] = 0.0;
         n = 0;
         while ( boxPos < i + 0.5 && pos < ac ) {
-            if ( !isFloatWords(av[pos]) ) {
+            const char *value = av[argumentStartIndex + pos];
+            if ( !isFloatWords(value) ) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
-            va[i] += strtof(av[pos++], nullptr);
+            va[i] += strtof(value, nullptr);
+            pos++;
             n++;
             boxPos += boxStep;
         }

@@ -5,6 +5,8 @@ Definitions for polygon package
 #ifndef __POLY_HDR__
 #define __POLY_HDR__
 
+#include <cstddef>
+
 #include "SGL/sgl.h"
 #include "SGL/PolygonConstants.h"
 
@@ -92,10 +94,7 @@ class Window {
     int y1;
 };
 
-#define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - reinterpret_cast<double *>(GLOBAL_sgl_polyDummy)))
-
-// Used superficially by POLY_MASK macro
-extern PolygonVertex *GLOBAL_sgl_polyDummy;
+#define POLY_MASK(elem) (1UL << (offsetof(PolygonVertex, elem) / sizeof(double)))
 
 int polyClipToBox(Polygon *p1, const PolygonBox *box);
 void polyScanFlat(SGL_CONTEXT *sglContext, Polygon *p, const Window *win);

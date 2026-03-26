@@ -106,7 +106,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 strtod(av[1], nullptr),
                 strtod(av[2], nullptr),
                 ac - 3,
-                av + 3);
+                &av[3]);
         case MgfEntity::CCT:
             // Assign black body spectrum
             if ( ac != 2 ) {

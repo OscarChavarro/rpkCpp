@@ -7,6 +7,8 @@ Galerkin radiosity, with the following variants:
 */
 
 #include <ctime>
+#include <cstdarg>
+#include <cstdio>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -31,6 +33,28 @@ GalerkinState GalerkinRadianceMethod::galerkinState;
 static FILE *globalVrmlFileDescriptor;
 static int globalNumberOfWrites;
 static int globalVertexId;
+
+static void
+appendStatsText(char *buffer, int *offset, const char *format, ...) {
+    if ( *offset >= STRING_LENGTH - 1 ) {
+        return;
+    }
+
+    va_list arguments;
+    va_start(arguments, format);
+    const int available = STRING_LENGTH - *offset;
+    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    va_end(arguments);
+
+    if ( written <= 0 ) {
+        return;
+    }
+    if ( written >= available ) {
+        *offset = STRING_LENGTH - 1;
+    } else {
+        *offset += written;
+    }
+}
 
 static void
 galerkinWriteVertexCoord(const Vector3D *p) {
@@ -427,45 +451,29 @@ GalerkinRadianceMethod::getStats() {
         stats[i] = '\0';
     }
 
-    int n;
+    int statsOffset = 0;
 
-    char *p = stats;
-    snprintf(p, STRING_LENGTH, "Galerkin Radiosity Statistics:\n\n%n", &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Iteration: %d\n\n%n", galerkinState.iterationNumber, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Nr. elements: %d\n%n", GalerkinElement::getNumberOfElements(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "clusters: %d\n%n", GalerkinElement::getNumberOfClusters(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface elements: %d\n\n%n", GalerkinElement::getNumberOfSurfaceElements(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Nr. interactions: %d\n%n", Interaction::getNumberOfInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "cluster to cluster: %d\n%n", Interaction::getNumberOfClusterToClusterInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "cluster to surface: %d\n%n", Interaction::getNumberOfClusterToSurfaceInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface to cluster: %d\n%n", Interaction::getNumberOfSurfaceToClusterInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "surface to surface: %d\n%n", Interaction::getNumberOfSurfaceToSurfaceInteractions(), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "shadow hits: %d\n%n", GLOBAL_statistics.numberOfShadowRays, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "shadow hits cached: %d\n%n", GLOBAL_statistics.numberOfShadowCacheHits, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "CPU time: %g secs.\n%n", galerkinState.cpuSeconds, &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Minimum element area: %g m^2\n%n", GLOBAL_statistics.totalArea * static_cast<double>(galerkinState.relMinElemArea), &n);
-    p += n;
-    snprintf(p, STRING_LENGTH, "Link error threshold: %g %s\n\n%n",
+    appendStatsText(stats, &statsOffset, "Galerkin Radiosity Statistics:\n\n");
+    appendStatsText(stats, &statsOffset, "Iteration: %d\n\n", galerkinState.iterationNumber);
+    appendStatsText(stats, &statsOffset, "Nr. elements: %d\n", GalerkinElement::getNumberOfElements());
+    appendStatsText(stats, &statsOffset, "clusters: %d\n", GalerkinElement::getNumberOfClusters());
+    appendStatsText(stats, &statsOffset, "surface elements: %d\n\n", GalerkinElement::getNumberOfSurfaceElements());
+    appendStatsText(stats, &statsOffset, "Nr. interactions: %d\n", Interaction::getNumberOfInteractions());
+    appendStatsText(stats, &statsOffset, "cluster to cluster: %d\n", Interaction::getNumberOfClusterToClusterInteractions());
+    appendStatsText(stats, &statsOffset, "cluster to surface: %d\n", Interaction::getNumberOfClusterToSurfaceInteractions());
+    appendStatsText(stats, &statsOffset, "surface to cluster: %d\n", Interaction::getNumberOfSurfaceToClusterInteractions());
+    appendStatsText(stats, &statsOffset, "surface to surface: %d\n", Interaction::getNumberOfSurfaceToSurfaceInteractions());
+    appendStatsText(stats, &statsOffset, "shadow hits: %d\n", GLOBAL_statistics.numberOfShadowRays);
+    appendStatsText(stats, &statsOffset, "shadow hits cached: %d\n", GLOBAL_statistics.numberOfShadowCacheHits);
+    appendStatsText(stats, &statsOffset, "CPU time: %g secs.\n", galerkinState.cpuSeconds);
+    appendStatsText(stats, &statsOffset, "Minimum element area: %g m^2\n", GLOBAL_statistics.totalArea * static_cast<double>(galerkinState.relMinElemArea));
+    appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
                            GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
                    galerkinState.relLinkErrorThreshold *
                    GLOBAL_statistics.maxSelfEmittedPower.luminance()),
-         (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"),
-         &n);
+         (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;
 }

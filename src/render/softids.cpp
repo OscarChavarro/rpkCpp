@@ -104,16 +104,16 @@ softRenderPixels(int width, int height, const ColorRgb *rgb) {
     unsigned char *c = new unsigned char[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
-        const ColorRgb *rgbP = &rgb[j * width];
-
-        unsigned char *p = c + j * rowLength; // Let each line start on an 8-byte boundary
-        for ( int i = 0; i < width; i++, rgbP++ ) {
-            ColorRgb corrected_rgb = *rgbP;
+        const int rowRgbStart = j * width;
+        const int rowStart = j * rowLength;
+        for ( int i = 0; i < width; i++ ) {
+            ColorRgb corrected_rgb = rgb[rowRgbStart + i];
             toneMappingGammaCorrection(corrected_rgb);
-            *p++ = static_cast<unsigned char>(corrected_rgb.r * 255.0);
-            *p++ = static_cast<unsigned char>(corrected_rgb.g * 255.0);
-            *p++ = static_cast<unsigned char>(corrected_rgb.b * 255.0);
-            *p++ = 255; // alpha = 1.0
+            const int pixelOffset = rowStart + 4 * i;
+            c[pixelOffset] = static_cast<unsigned char>(corrected_rgb.r * 255.0);
+            c[pixelOffset + 1] = static_cast<unsigned char>(corrected_rgb.g * 255.0);
+            c[pixelOffset + 2] = static_cast<unsigned char>(corrected_rgb.b * 255.0);
+            c[pixelOffset + 3] = 255; // alpha = 1.0
         }
     }
 
