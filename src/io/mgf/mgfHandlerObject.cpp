@@ -16,7 +16,7 @@ static int globalObjectMaxName; // Allocated list size
 static int globalObjectNames; // Depth of name hierarchy
 
 // List increment ( > 1 )
-#define ALLOC_INC 16
+static constexpr int ALLOC_INC = 16;
 
 static void
 disposeCurrentSurfaceLists(MgfContext *context) {

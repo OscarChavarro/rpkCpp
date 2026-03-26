@@ -8,9 +8,11 @@
 #include "common/linealAlgebra/Jacobian.h"
 #include "skin/Vertex.h"
 
-#define MAXIMUM_VERTICES_PER_PATCH 4
-#define PATCH_VISIBILITY 0x01
-#define MAX_EXCLUDED_PATCHES 4
+enum {
+MAXIMUM_VERTICES_PER_PATCH = 4,
+PATCH_VISIBILITY = 0x01,
+MAX_EXCLUDED_PATCHES = 4
+};
 
 class Patch {
   private:

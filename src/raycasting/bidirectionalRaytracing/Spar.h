@@ -10,12 +10,7 @@ Specification of the Stored Partial Radiance class
 #include "raycasting/common/pathnode.h"
 #include "raycasting/bidirectionalRaytracing/bipath.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
-
-#define MAX_PATH_GROUPS 2
-
-// Some global path groups
-#define DISJOINT_GROUP 0
-#define LD_GROUP 1
+#include "raycasting/bidirectionalRaytracing/SparPathGroup.h"
 
 class Spar;
 

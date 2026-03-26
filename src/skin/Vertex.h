@@ -4,6 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
+#include "skin/VertexCompareFlags.h"
 
 class Element;
 class Patch;
@@ -58,10 +59,6 @@ The vertex comparison routines return
   X_GREATER_MASK, Y_GREATER_MASK and Z_GREATER_MASK and is the same as for Vertex::setCompareFlags in
   Vector3D
 */
-
-#define VERTEX_COMPARE_LOCATION 0x01
-#define VERTEX_COMPARE_NORMAL 0x02
-#define VERTEX_COMPARE_TEXTURE_COORDINATE 0x04
 
 #include "skin/Patch.h"
 #include "skin/Element.h"

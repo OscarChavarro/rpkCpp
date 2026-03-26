@@ -246,7 +246,7 @@ galerkinParseOptions(int *argc, char **argv) {
 }
 
 // Composes explanation for -tonemapping command line option
-#define STRING_LENGTH 1000
+static constexpr int STRING_LENGTH = 1000;
 static char globalToneMappingMethodsString[STRING_LENGTH];
 static float globalRxy[2];
 static float globalGxy[2];

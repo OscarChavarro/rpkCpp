@@ -8,12 +8,10 @@ Small Graphics Library
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "skin/Patch.h"
 #include "SGL/SglPixelContent.h"
+#include "SGL/SglConstants.h"
 
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
-
-#define SGL_MAXIMUM_Z 4294967295U
-#define SGL_TRANSFORM_STACK_SIZE 4
 
 class SGL_CONTEXT {
 public:

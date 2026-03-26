@@ -5,7 +5,7 @@
 #include "io/mgf/MgfReaderFilePosition.h"
 
 // Maximum array dimensions
-#define TRANSFORM_MAXIMUM_DIMENSIONS 8
+inline constexpr int TRANSFORM_MAXIMUM_DIMENSIONS = 8;
 
 class MgfTransformArray {
   public:

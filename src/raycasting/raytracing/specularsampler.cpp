@@ -30,14 +30,14 @@ CSpecularSampler::sample(
     if ( thisNode->m_useBsdf != nullptr ) {
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
             &thisNode->m_hit,
-            GET_BRDF_FLAGS(flags));
+            getBrdfFlags(flags));
     }
     ColorRgb transmittance;
     transmittance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
             &thisNode->m_hit,
-            GET_BTDF_FLAGS(flags));
+            getBtdfFlags(flags));
     }
 
     float avgReflectance = reflectance.average();

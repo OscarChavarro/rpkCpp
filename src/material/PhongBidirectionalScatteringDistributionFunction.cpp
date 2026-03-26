@@ -109,7 +109,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit
     }
 
     if ( btdf != nullptr ) {
-        ColorRgb transmitted = btdf->transmittance(GET_BTDF_FLAGS(flags));
+        ColorRgb transmitted = btdf->transmittance(getBtdfFlags(flags));
         albedo.add(albedo, transmitted);
     }
 
@@ -173,8 +173,8 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
         flags &= ~TEXTURED_COMPONENT;
     }
 
-    *brdfFlags = GET_BRDF_FLAGS(flags);
-    *btdfFlags = GET_BTDF_FLAGS(flags);
+    *brdfFlags = getBrdfFlags(flags);
+    *btdfFlags = getBtdfFlags(flags);
 
     ColorRgb reflectance;
     if ( brdf == nullptr ) {
@@ -415,7 +415,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     // Just add brdf and btdf contributions, the eval routines handle the direction of out.
     // Note that out * normal is computed more than once :-(
     if ( brdf != nullptr ) {
-        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, GET_BRDF_FLAGS(flags));
+        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, getBrdfFlags(flags));
         result.add(result, reflectionCol);
 
         RefractionIndex inIndex{};
@@ -434,7 +434,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
             refractionCol.clear();
         } else {
             refractionCol = btdf->evaluate(
-                    inIndex, outIndex, in, out, &normal, GET_BTDF_FLAGS(flags));
+                    inIndex, outIndex, in, out, &normal, getBtdfFlags(flags));
         }
 
         result.add(result, refractionCol);
@@ -554,7 +554,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
     result.clear();
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = static_cast<char>(BSDF_INDEX_TO_COMP(i));
+        thisFlag = static_cast<char>(bsdfIndexToComp(i));
 
         if ( flags & thisFlag ) {
             colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(

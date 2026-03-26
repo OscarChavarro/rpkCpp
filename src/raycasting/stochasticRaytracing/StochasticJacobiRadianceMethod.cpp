@@ -16,7 +16,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-#define STRING_LENGTH 2000
+static constexpr int STRING_LENGTH = 2000;
 
 #ifdef RAYTRACING_ENABLED
 StochasticJacobiRadianceMethod::StochasticJacobiRadianceMethod() {

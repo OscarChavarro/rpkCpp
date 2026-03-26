@@ -5,7 +5,7 @@
 #include "common/ColorRgb.h"
 #include "scene/Plane.h"
 
-#define NUMBER_OF_VIEW_PLANES 4
+inline constexpr int NUMBER_OF_VIEW_PLANES = 4;
 
 class BoundingBox;
 class Matrix4x4;

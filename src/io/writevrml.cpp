@@ -6,7 +6,7 @@ Saves the result of a radiosity computation as a VRML file
 #include "io/writevrml.h"
 
 // Camera position etc. can be saved on a stack of size MAXIMUM_CAMERA_STACK
-#define MAXIMUM_CAMERA_STACK 20
+static constexpr int MAXIMUM_CAMERA_STACK = 20;
 
 static constexpr char RPK_HOME[] = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 

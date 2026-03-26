@@ -5,9 +5,11 @@ Faure's quasiMonteCarlo sequences
 #include "java/lang/Math.h"
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 
-#define MAX_DIM 10
-#define PR_DIM 30
-#define MAX_SEED 2147483647
+enum {
+MAX_DIM = 10,
+PR_DIM = 30,
+MAX_SEED = 2147483647
+};
 
 static int globalIx[MAX_DIM][PR_DIM];  // PR part presentation of x
 static int globalDim;

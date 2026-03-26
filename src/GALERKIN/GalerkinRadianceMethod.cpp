@@ -23,7 +23,7 @@ Galerkin radiosity, with the following variants:
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
 
-#define STRING_LENGTH 2000
+static constexpr int STRING_LENGTH = 2000;
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
 

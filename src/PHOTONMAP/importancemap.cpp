@@ -92,7 +92,7 @@ CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D 
 
         if ( photon ) {
             switch ( GLOBAL_photonMap_state.importanceOption ) {
-                case PhotonMapImportanceOption::USE_IMPORTANCE:
+                case USE_IMPORTANCE:
                     density = photon->PImportance();
                     density *= *m_impScalePtr;
                     break;
@@ -112,7 +112,7 @@ CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D 
             return 0; // State for minimumImpRD
 
         switch ( GLOBAL_photonMap_state.importanceOption ) {
-            case PhotonMapImportanceOption::USE_IMPORTANCE:
+            case USE_IMPORTANCE:
                 density = getImpReqDensity(camera, pos, normal);
                 density *= *m_impScalePtr;
                 break;

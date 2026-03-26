@@ -8,7 +8,7 @@ Numerical cubature rules needed to compute form factors
 #include "numericalAnalysis/CubatureDegree.h"
 
 // No rule has more than 20 nodes
-#define CUBATURE_MAXIMUM_NODES 20
+inline constexpr int CUBATURE_MAXIMUM_NODES = 20;
 
 /**
 Note that <u[i], v[i], t[i]> where 0 <= i < numberOfNodes are points that samples valid positions

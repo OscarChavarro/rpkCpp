@@ -2,18 +2,7 @@
 #define __BOUNDING_BOX__
 
 #include "common/linealAlgebra/Vector3D.h"
-
-/**
-The following defines must obey the following rules:
-1. (MIN_X + 3) = MAX_X and (MAX_X + 3) = MIN_X and same for MIN_Y, ...
-2. MIN_X + 1 = MIN_Y, MIN_Y + 1 = MIN_Z and MAX_X + 1 = MAX_Y, MAX_Y+1 = MAX_Z
-*/
-#define MIN_X 0
-#define MIN_Y 1
-#define MIN_Z 2
-#define MAX_X 3
-#define MAX_Y 4
-#define MAX_Z 5
+#include "skin/BoundingBoxCoordinateIndex.h"
 
 /**
 A bounding box is represented as an array of 6 floating point numbers.

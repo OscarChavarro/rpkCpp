@@ -34,6 +34,6 @@ enum MgfEntity {
     TOTAL_NUMBER_OF_ENTITIES = 29
 };
 
-#define MGF_MAXIMUM_ENTITY_NAME_LENGTH    6
+inline constexpr int MGF_MAXIMUM_ENTITY_NAME_LENGTH = 6;
 
 #endif

@@ -6,9 +6,7 @@ Definitions for polygon package
 #define __POLY_HDR__
 
 #include "SGL/sgl.h"
-
-// Note that poly_clip, given an n-gon as input, might output an (n+6)gon
-#define MAXIMUM_SIDES_PER_POLYGON 10
+#include "SGL/PolygonConstants.h"
 
 class PolygonVertex {
   public:
@@ -95,15 +93,6 @@ class Window {
 };
 
 #define POLY_MASK(elem) (1 << (&GLOBAL_sgl_polyDummy->elem - reinterpret_cast<double *>(GLOBAL_sgl_polyDummy)))
-
-// Polygon entirely outside box
-#define POLY_CLIP_OUT 0
-
-// Polygon partially inside
-#define POLY_CLIP_PARTIAL 1
-
-// Polygon entirely inside box
-#define POLY_CLIP_IN 2
 
 // Used superficially by POLY_MASK macro
 extern PolygonVertex *GLOBAL_sgl_polyDummy;

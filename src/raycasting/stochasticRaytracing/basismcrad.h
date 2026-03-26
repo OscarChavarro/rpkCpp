@@ -10,7 +10,7 @@ Higher order approximations for Galerkin radiosity
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElementType.h"
 
 // No basis consists of more than this number of basis functions
-#define MAX_BASIS_SIZE 10
+inline constexpr int MAX_BASIS_SIZE = 10;
 
 typedef double FILTER[MAX_BASIS_SIZE][MAX_BASIS_SIZE];
 typedef FILTER FILTER_TABLE[4];
@@ -42,7 +42,7 @@ extern GalerkinBasis GLOBAL_stochasticRadiosity_triBasis;
 extern GalerkinBasis GLOBAL_stochasticRadiosity_quadBasis;
 extern GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis;
 
-#define NUMBER_OF_APPROXIMATION_TYPES 5
+inline constexpr int NUMBER_OF_APPROXIMATION_TYPES = 5;
 
 // Description of the approximation types
 class ApproximationTypeDescription {

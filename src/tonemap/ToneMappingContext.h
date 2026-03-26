@@ -7,8 +7,8 @@
 class ToneMap;
 
 // Gamma correction table
-#define GAMMA_TABLE_BITS 12
-#define GAMMA_TABLE_SIZE ((1 << GAMMA_TABLE_BITS) + 1)
+inline constexpr int GAMMA_TABLE_BITS = 12;
+inline constexpr int GAMMA_TABLE_SIZE = (1 << GAMMA_TABLE_BITS) + 1;
 
 class ToneMappingContext {
   public:

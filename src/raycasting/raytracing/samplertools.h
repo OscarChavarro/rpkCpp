@@ -12,6 +12,7 @@ procedure of a monte carlo ray tracing like algorithm
 
 #include "raycasting/raytracing/sampler.h"
 #include "raycasting/raytracing/pixelsampler.h"
+#include "raycasting/raytracing/SampleConnectionFlags.h"
 
 class CSamplerConfig {
   public:
@@ -145,14 +146,6 @@ OUT : geometry factor is returned (not filled in cause it would overwrite
       other geometries !)
 */
 typedef int CONNECT_FLAGS;
-
-#define CONNECT_EL 0x01  // Compute pdf(E->L) and bsdf(EP -> E -> L)
-#define CONNECT_LE 0x02  // Compute pdf(L->E) and bsdf(LP -> L -> E)
-// Note that if EP or LP are nullptr the meaning of bsdf may change !
-
-#define FILL_OTHER_PDF 0x10  // if (CONNECT_EL) then also compute the pdf
-// (when coming from nodeE) for generating the node the leads to nodeL.
-// Same if (CONNECT_LE).
 
 double
 pathNodeConnect(
