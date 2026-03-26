@@ -184,7 +184,7 @@ summarize(const java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RenderOptions */*renderOptions*/) {
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,

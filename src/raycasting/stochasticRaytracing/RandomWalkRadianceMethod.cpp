@@ -26,12 +26,12 @@ RandomWalkRadianceMethod::getRadianceMethodName() const {
 }
 
 void
-RandomWalkRadianceMethod::parseOptions(int *argc, char **argv) {
+RandomWalkRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 }
 
 ColorRgb
 RandomWalkRadianceMethod::getRadiance(
-    Camera *camera,
+    Camera */*camera*/,
     Patch *patch,
     double u,
     double v,

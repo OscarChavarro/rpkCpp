@@ -9,15 +9,15 @@
 
 bool
 CSpecularSampler::sample(
-    Camera *camera,
+    Camera */*camera*/,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,
-    double x2,
-    bool doRR,
+    double /*x2*/,
+    bool /*doRR*/,
     char flags)
 {
     Vector3D dir;
@@ -132,10 +132,10 @@ CSpecularSampler::sample(
 
 double
 CSpecularSampler::evalPDF(
-    Camera *camera,
-    SimpleRaytracingPathNode *thisNode,
-    SimpleRaytracingPathNode *newNode,
-    char flags,
+    Camera */*camera*/,
+    SimpleRaytracingPathNode */*thisNode*/,
+    SimpleRaytracingPathNode */*newNode*/,
+    char /*flags*/,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {
@@ -152,10 +152,10 @@ CSpecularSampler::evalPDF(
 
 double
 CSpecularSampler::EvalPDFPrev(
-    SimpleRaytracingPathNode *prevNode,
-    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode */*thisNode*/,
     SimpleRaytracingPathNode */*newNode*/,
-    char flags,
+    char /*flags*/,
     double *probabilityDensityFunction,
     double *probabilityDensityFunctionRR)
 {

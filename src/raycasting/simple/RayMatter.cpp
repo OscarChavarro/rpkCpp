@@ -54,15 +54,15 @@ RayMatter::getName() const {
 }
 
 void
-RayMatter::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+RayMatter::initialize(const java::ArrayList<Patch *> */*lightPatches*/) const {
 }
 
 void
 RayMatter::execute(
     ImageOutputHandle *ip,
     Scene *scene,
-    RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions) const
+    RadianceMethod */*radianceMethod*/,
+    const RenderOptions */*renderOptions*/) const
 {
     if ( globalRayMatter != nullptr ) {
         delete globalRayMatter;

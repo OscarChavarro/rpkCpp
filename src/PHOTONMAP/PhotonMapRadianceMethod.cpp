@@ -49,11 +49,11 @@ PhotonMapRadianceMethod::getRadianceMethodName() const {
 }
 
 void
-PhotonMapRadianceMethod::parseOptions(int *argc, char **argv) {
+PhotonMapRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 }
 
 void
-PhotonMapRadianceMethod::writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const {
+PhotonMapRadianceMethod::writeVRML(const Camera */*camera*/, FILE */*fp*/, const RenderOptions */*renderOptions*/) const {
 }
 
 /**
@@ -569,7 +569,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 bool
-PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
+PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions */*renderOptions*/) {
     GLOBAL_photonMap_state.lastClock = clock();
 
     photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
@@ -584,7 +584,7 @@ PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 Undoes the effect of mainInitApplication() and all side-effects of Step()
 */
 void
-PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
         GLOBAL_photonMap_config.screen = nullptr;
@@ -650,7 +650,7 @@ PhotonMapRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D dir,
-    const RenderOptions *renderOptions) const
+    const RenderOptions */*renderOptions*/) const
 {
     RayHit hit;
     Vector3D point;

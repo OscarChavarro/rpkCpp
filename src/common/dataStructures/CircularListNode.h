@@ -11,8 +11,7 @@ class CircularListNode : public CircularListLink {
 };
 
 template<class T>
-CircularListNode<T>::CircularListNode(const T &inData) {
-    data = inData;
+CircularListNode<T>::CircularListNode(const T &inData): data(inData) {
 }
 
 #endif

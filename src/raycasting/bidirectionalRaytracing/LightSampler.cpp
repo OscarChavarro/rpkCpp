@@ -41,15 +41,15 @@ bool UniformLightSampler::ActivateNextUnit() {
 
 bool
 UniformLightSampler::sample(
-    Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
-    SimpleRaytracingPathNode *prevNode,
+    Camera */*camera*/,
+    VoxelGrid */*sceneVoxelGrid*/,
+    Background */*sceneBackground*/,
+    SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,
     double x2,
-    bool doRR,
+    bool /*doRR*/,
     char flags)
 {
     double pdfLight;
@@ -132,7 +132,7 @@ UniformLightSampler::sample(
 
 double
 UniformLightSampler::evalPDF(
-    Camera *camera,
+    Camera */*camera*/,
     SimpleRaytracingPathNode */*thisNode*/,
     SimpleRaytracingPathNode *newNode,
     char /*flags*/,
@@ -182,15 +182,15 @@ Important light sampler : attach weights to each lamp
 */
 bool
 ImportantLightSampler::sample(
-    Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
-    SimpleRaytracingPathNode *prevNode,
+    Camera */*camera*/,
+    VoxelGrid */*sceneVoxelGrid*/,
+    Background */*sceneBackground*/,
+    SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,
     double x2,
-    bool doRR,
+    bool /*doRR*/,
     char flags)
 {
     double pdfLight;
@@ -283,7 +283,7 @@ ImportantLightSampler::sample(
 
 double
 ImportantLightSampler::evalPDF(
-    Camera *camera,
+    Camera */*camera*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     char /*flags*/,

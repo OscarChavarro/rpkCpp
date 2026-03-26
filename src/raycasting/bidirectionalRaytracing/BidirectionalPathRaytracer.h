@@ -33,7 +33,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Background *sceneBackground,
         int nx,
         int ny,
-        BidirectionalPathTracingConfiguration *config);
+        void *data);
 
   public:
     BidirectionalPathRaytracer();

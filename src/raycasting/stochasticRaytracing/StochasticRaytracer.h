@@ -19,9 +19,7 @@ class StochasticRaytracer final : public RayTracer {
         Background *sceneBackground,
         int nx,
         int ny,
-        StochasticRaytracingConfiguration *config,
-        RadianceMethod *radianceMethod,
-        RenderOptions *renderOptions);
+        void *data);
 
   public:
     StochasticRaytracer();

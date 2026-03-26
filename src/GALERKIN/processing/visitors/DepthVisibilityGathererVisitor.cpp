@@ -22,7 +22,7 @@ of the element. Uses global variables globalPixelArea, globalTheLink, globalPSou
 void
 DepthVisibilityGathererVisitor::visit(
     GalerkinElement *galerkinElement,
-    const GalerkinState *galerkinState)
+    const GalerkinState */*galerkinState*/)
 {
     if ( galerkinElement->scratchVisibilityUsageCounter <= 0 ) {
         // Element occupies no pixels in the scratch frame buffer

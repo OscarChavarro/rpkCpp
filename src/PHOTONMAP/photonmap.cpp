@@ -270,7 +270,7 @@ CPhotonMap::GetMaxR2() {
 
 // Precompute Irradiance
 void
-CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
+CPhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, CIrrPhoton *photon) {
     ColorRgb irradiance;
     irradiance.clear();
 
@@ -300,15 +300,17 @@ CPhotonMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
 }
 
 static void
-PrecomputeIrradianceCallback(Camera *camera, CPhotonMap *map, CIrrPhoton *photon) {
-    map->photonPrecomputeIrradiance(camera, photon);
+PrecomputeIrradianceCallback(void *data, void *nodeData) {
+    CPhotonMap *map = static_cast<CPhotonMap *>(data);
+    CIrrPhoton *photon = static_cast<CIrrPhoton *>(nodeData);
+    map->photonPrecomputeIrradiance(nullptr, photon);
 }
 
 void
 CPhotonMap::precomputeIrradiance() {
     java::lang::System::err.printf("CPhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->iterateNodes(reinterpret_cast<void (*)(void *, void *)>(PrecomputeIrradianceCallback), this);
+        m_kdtree->iterateNodes(PrecomputeIrradianceCallback, this);
         m_irradianceComputed = true;
     }
 }

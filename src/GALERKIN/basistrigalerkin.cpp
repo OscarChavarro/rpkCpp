@@ -55,5 +55,6 @@ static double tg9(double u, double v) {
 GalerkinBasis GLOBAL_galerkin_triBasis = {
     "orthonormal basis for the standard triangle", // Description
     10, // Size
-    {tg0, tg1, tg2, tg3, tg4, tg5, tg6, tg7, tg8, tg9} // Functions
+    {tg0, tg1, tg2, tg3, tg4, tg5, tg6, tg7, tg8, tg9}, // Functions
+    {} // regularFilter (computed later)
 };

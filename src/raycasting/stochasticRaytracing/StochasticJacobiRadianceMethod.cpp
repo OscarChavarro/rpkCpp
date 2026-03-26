@@ -33,7 +33,7 @@ StochasticJacobiRadianceMethod::getRadianceMethodName() const {
 }
 
 void
-StochasticJacobiRadianceMethod::parseOptions(int *argc, char **argv) {
+StochasticJacobiRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 }
 
 void
@@ -42,7 +42,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const {
+StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const {
     return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
@@ -57,11 +57,11 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::writeVRML(const Camera * /*camera*/, FILE *fp, const RenderOptions * /*renderOptions*/) const {
+StochasticJacobiRadianceMethod::writeVRML(const Camera * /*camera*/, FILE */*fp*/, const RenderOptions * /*renderOptions*/) const {
 }
 
 void
-StochasticJacobiRadianceMethod::initialize(Scene *scene) {
+StochasticJacobiRadianceMethod::initialize(Scene */*scene*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     monteCarloRadiosityInit();
 }
@@ -178,7 +178,7 @@ stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
 static void
 stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     Scene* scene,
-    const RadianceMethod *radianceMethod,
+    const RadianceMethod */*radianceMethod*/,
     RenderOptions *renderOptions)
 {
     double refUnShot;

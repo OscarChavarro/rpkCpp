@@ -87,10 +87,10 @@ The LOOK_UP_INIT macro provides a convenient static declaration for character
 string keys
 */
 long
-lookUpShuffleHash(char *s) {
+lookUpShuffleHash(const char *s) {
     int i = 0;
     long h = 0;
-    const unsigned char *t = reinterpret_cast<unsigned char *>(s);
+    const unsigned char *t = reinterpret_cast<const unsigned char *>(s);
 
     while ( *t ) {
         h ^= static_cast<long>(globalShuffle[*t++]) << ((i += 11) & 0xf);

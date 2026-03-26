@@ -45,7 +45,7 @@ RayCaster::getName() const {
 }
 
 void
-RayCaster::initialize(const java::ArrayList<Patch *> *lightPatches) const {
+RayCaster::initialize(const java::ArrayList<Patch *> */*lightPatches*/) const {
 }
 
 void

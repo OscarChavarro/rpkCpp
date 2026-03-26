@@ -9,15 +9,15 @@
 bool
 CEyeSampler::sample(
     Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
+    VoxelGrid */*sceneVoxelGrid*/,
+    Background */*sceneBackground*/,
     SimpleRaytracingPathNode *prevNode,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
-    double x1,
-    double x2,
-    bool doRR,
-    char flags)
+    double /*x1*/,
+    double /*x2*/,
+    bool /*doRR*/,
+    char /*flags*/)
 {
     if ( prevNode != nullptr || thisNode != nullptr ) {
         logWarning("CEyeSampler::sample", "Not first node in path ?!");

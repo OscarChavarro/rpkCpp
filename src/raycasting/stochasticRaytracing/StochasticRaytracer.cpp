@@ -20,6 +20,15 @@ const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; //
 
 StochasticRayTracingState GLOBAL_raytracing_state;
 
+namespace {
+class StochasticRaytracerCallbackData {
+  public:
+    StochasticRaytracingConfiguration *config;
+    RadianceMethod *radianceMethod;
+    RenderOptions *renderOptions;
+};
+} // namespace
+
 StochasticRaytracer::StochasticRaytracer() {
 }
 
@@ -89,6 +98,11 @@ StochasticRaytracer::execute(
     const RenderOptions *renderOptions) const
 {
     StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, radianceMethod); // config filled in by constructor
+    StochasticRaytracerCallbackData callbackData = {
+        &config,
+        radianceMethod,
+        const_cast<RenderOptions *>(renderOptions)
+    };
 
     // Frame Coherent sampling : init fixed seed
     if ( GLOBAL_raytracing_state.doFrameCoherent ) {
@@ -100,15 +114,15 @@ StochasticRaytracer::execute(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))StochasticRaytracer::calcPixel,
-                &config);
+                StochasticRaytracer::calcPixel,
+                &callbackData);
     } else {
         screenIterateProgressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))StochasticRaytracer::calcPixel,
-                &config);
+                StochasticRaytracer::calcPixel,
+                &callbackData);
     }
 
     config.screen->render();
@@ -651,10 +665,12 @@ StochasticRaytracer::calcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    StochasticRaytracingConfiguration *config,
-    RadianceMethod *radianceMethod,
-    RenderOptions *renderOptions)
+    void *data)
 {
+    auto *callbackData = static_cast<StochasticRaytracerCallbackData *>(data);
+    StochasticRaytracingConfiguration *config = callbackData->config;
+    RadianceMethod *radianceMethod = callbackData->radianceMethod;
+    RenderOptions *renderOptions = callbackData->renderOptions;
     SimpleRaytracingPathNode eyeNode;
     SimpleRaytracingPathNode pixelNode;
     double x1;

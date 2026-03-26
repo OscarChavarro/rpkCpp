@@ -12,16 +12,16 @@ sample : newNode gets filled, others may change
 */
 bool
 LightDirSampler::sample(
-    Camera *camera,
+    Camera */*camera*/,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,
     double x2,
-    bool /* doRR */doRR,
-    char /* flags */flags)
+    bool /*doRR*/,
+    char /*flags*/)
 {
     double pdfDir = 0.0;
 
@@ -66,7 +66,7 @@ LightDirSampler::sample(
 
 double
 LightDirSampler::evalPDF(
-    Camera *camera,
+    Camera */*camera*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     char /*flags*/,

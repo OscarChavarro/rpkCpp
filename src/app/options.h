@@ -74,8 +74,8 @@ class ENUMDESC {
     int abbrev;
 };
 
-extern int optionsEnumGet(int *, const ENUMDESC *);
-extern void optionsEnumPrint(FILE *fp, const int *v, const ENUMDESC *tab);
+extern int optionsEnumGet(void *value, void *data);
+extern void optionsEnumPrint(FILE *fp, void *value, void *data);
 
 /**
 The following macro declares an enumerated value options type:
@@ -92,16 +92,16 @@ MakeEnumTypeStruct(kindTypeStruct, kinds);
 */
 #define MakeEnumOptTypeStruct(enumTypeStructName, enumvaltab) \
 static CommandLineOptions enumTypeStructName = { \
-  (int (*)(void *, void *))optionsEnumGet, \
-  (void (*)(FILE *, void *, void *))optionsEnumPrint, \
+  optionsEnumGet, \
+  optionsEnumPrint, \
   (void *)&GLOBAL_options_dummyVal, \
   (void *)(enumvaltab) \
 }
 
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
 
-extern int optionsStringGet(char *, int);
-extern void optionsStringPrint(FILE *fp, const char *s, int n);
+extern int optionsStringGet(void *value, void *data);
+extern void optionsStringPrint(FILE *fp, void *value, void *data);
 
 /**
 The following macro declares an n string value options type:
@@ -112,8 +112,8 @@ MakeNStringTypeStruct(nStringTypeStruct, n);
 */
 #define MakeNStringTypeStruct(nstringTypeStructName, n) \
 static CommandLineOptions nstringTypeStructName = { \
-  (int (*)(void *, void *))optionsStringGet, \
-  (void (*)(FILE *, void *, void *))optionsStringPrint, \
+  optionsStringGet, \
+  optionsStringPrint, \
   (void *)&GLOBAL_option_dummyVal, \
   (void *)(n) \
 }

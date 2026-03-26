@@ -52,5 +52,6 @@ static double qg9(double /*u*/, double v) {
 GalerkinBasis GLOBAL_galerkin_quadBasis = {
     "orthonormal basis for the unit square", // Description
     MAX_BASIS_SIZE, // Size
-    {qg0, qg1, qg2, qg3, qg4, qg5, qg6, qg7, qg8, qg9} // Functions
+    {qg0, qg1, qg2, qg3, qg4, qg5, qg6, qg7, qg8, qg9}, // Functions
+    {} // regularFilter (computed later)
 };

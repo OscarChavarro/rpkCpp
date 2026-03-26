@@ -14,7 +14,7 @@
 GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
 GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
         "dummy basis",
-        0, nullptr, nullptr
+        0, nullptr, nullptr, nullptr
 };
 
 static int inited = false;
@@ -32,7 +32,8 @@ GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis = {
     "cluster basis",
     1,
     f,
-    f
+    f,
+    nullptr
 };
 
 ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APPROXIMATION_TYPES] = {

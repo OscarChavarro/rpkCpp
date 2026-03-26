@@ -82,7 +82,7 @@ BidirectionalPathRaytracer::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions) const
+    const RenderOptions */*renderOptions*/) const
 {
     // Install the samplers to be used in the state
     BidirectionalPathTracingConfiguration config;
@@ -167,14 +167,14 @@ BidirectionalPathRaytracer::execute(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+                BidirectionalPathRaytracer::bpCalcPixel,
                 &config);
     } else {
         screenIterateProgressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
-                (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+                BidirectionalPathRaytracer::bpCalcPixel,
                 &config);
     }
 
@@ -793,8 +793,9 @@ BidirectionalPathRaytracer::bpCalcPixel(
     Background *sceneBackground,
     int nx,
     int ny,
-    BidirectionalPathTracingConfiguration *config)
+    void *data)
 {
+    auto *config = static_cast<BidirectionalPathTracingConfiguration *>(data);
     double x1;
     double x2;
     ColorRgb result;
@@ -942,7 +943,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
             camera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+            BidirectionalPathRaytracer::bpCalcPixel,
             config);
 
         config->screen->render();
@@ -1013,7 +1014,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         camera,
         sceneVoxelGrid,
         sceneBackground,
-        (ColorRgb(*)(Camera *, VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+        BidirectionalPathRaytracer::bpCalcPixel,
         config);
 
     // Now we have a noisy screen in dest and hits in double buffer
@@ -1098,7 +1099,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
             camera,
             sceneVoxelGrid,
             sceneBackground,
-            (ColorRgb(*)(Camera* , VoxelGrid *, Background *, int, int, void *))BidirectionalPathRaytracer::bpCalcPixel,
+            BidirectionalPathRaytracer::bpCalcPixel,
             config);
 
         // Render screen & write

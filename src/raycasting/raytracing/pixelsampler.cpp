@@ -13,13 +13,13 @@ CPixelSampler::sample(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    SimpleRaytracingPathNode *prevNode,
+    SimpleRaytracingPathNode */*prevNode*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     double x1,
     double x2,
-    bool doRR,
-    char flags)
+    bool /*doRR*/,
+    char /*flags*/)
 {
     Vector3D dir;
 

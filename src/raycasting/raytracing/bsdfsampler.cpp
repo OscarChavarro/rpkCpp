@@ -8,7 +8,7 @@
 
 bool
 CBsdfSampler::sample(
-    Camera *camera,
+    Camera */*camera*/,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SimpleRaytracingPathNode *prevNode,
@@ -107,7 +107,7 @@ CBsdfSampler::sample(
 
 double
 CBsdfSampler::evalPDF(
-    Camera *camera,
+    Camera */*camera*/,
     SimpleRaytracingPathNode *thisNode,
     SimpleRaytracingPathNode *newNode,
     char flags,

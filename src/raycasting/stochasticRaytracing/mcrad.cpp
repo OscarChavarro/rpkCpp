@@ -20,8 +20,6 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-typedef int (*QSORT_CALLBACK_TYPE)(const void *, const void *);
-
 /**
 Common routines for stochastic relaxation and random walks
 */
@@ -237,6 +235,10 @@ monteCarloRadiosityDetermineAreaFraction(
     int numberOfPatchIds = Patch::getNextId();
     int i;
 
+    auto qSortFloatCompare = [](const void *a, const void *b) -> int {
+        return Numeric::floatCompare(static_cast<const float *>(a), static_cast<const float *>(b));
+    };
+
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
         // An arbitrary positive number (in order to avoid divisions by zero
         return 100;
@@ -256,7 +258,7 @@ monteCarloRadiosityDetermineAreaFraction(
     qsort((void *) areas,
         numberOfPatchIds,
         sizeof(float),
-        (QSORT_CALLBACK_TYPE) Numeric::floatCompare);
+        qSortFloatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
     for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < GLOBAL_statistics.totalArea * 0.1; i-- ) {

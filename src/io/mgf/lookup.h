@@ -24,10 +24,10 @@ class LookUpTable {
 };
 
 #define LOOK_UP_INIT(fk, fd) { \
-    (long (*)(const char *))lookUpShuffleHash, \
-    (int (*)(const char *, const char *))strcmp, \
-    (void (*)(const char *))(fk), \
-    (void (*)(const char *))(fd), \
+    lookUpShuffleHash, \
+    strcmp, \
+    (fk), \
+    (fd), \
     0, \
     nullptr, \
     0 \
@@ -37,6 +37,6 @@ extern void lookUpRemove(const char *data);
 extern int lookUpInit(LookUpTable *tbl, int nel);
 extern LookUpEntity *lookUpFind(LookUpTable *tbl, const char *key);
 extern void lookUpDone(LookUpTable *l);
-extern long lookUpShuffleHash(char *s);
+extern long lookUpShuffleHash(const char *s);
 
 #endif

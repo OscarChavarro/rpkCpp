@@ -6,6 +6,7 @@ Command line options and defaults
 #include "java/lang/System.h"
 #include <cerrno>
 #include <climits>
+#include <cstdint>
 
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Vector3D.h"
@@ -103,7 +104,8 @@ optionsGetArgumentFloatValue(const char *format, float *res) {
 Integer option values
 */
 static int
-optionsGetInt(int *n, const void * /*data*/) {
+optionsGetInt(void *value, void * /*data*/) {
+    int *n = static_cast<int *>(value);
     if ( !optionsGetArgumentIntValue(n) ) {
         java::lang::System::err.printf("'%s' is not a valid integer value\n", *globalCurrentArgumentValue);
         return false;
@@ -112,13 +114,14 @@ optionsGetInt(int *n, const void * /*data*/) {
 }
 
 static void
-optionsPrintInt(FILE *fp, const int *n, const void * /*data*/) {
+optionsPrintInt(FILE *fp, void *value, void * /*data*/) {
+    int *n = static_cast<int *>(value);
     fprintf(fp, "%d", *n);
 }
 
 CommandLineOptions GLOBAL_options_intType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsGetInt),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintInt),
+    optionsGetInt,
+    optionsPrintInt,
     static_cast<void *>(&globalDummyInt),
     nullptr
 };
@@ -127,7 +130,8 @@ CommandLineOptions GLOBAL_options_intType = {
 String option values
 */
 static int
-optionsGetString(char **s, const void * /*data*/) {
+optionsGetString(void *value, void * /*data*/) {
+    char **s = static_cast<char **>(value);
     unsigned long n = strlen(*globalCurrentArgumentValue) + 1;
     *s = new char[n];
 
@@ -139,13 +143,14 @@ optionsGetString(char **s, const void * /*data*/) {
 }
 
 static void
-optionsPrintString(FILE *fp, char **s, const void * /*data*/) {
+optionsPrintString(FILE *fp, void *value, void * /*data*/) {
+    char **s = static_cast<char **>(value);
     fprintf(fp, "'%s'", *s ? *s : "");
 }
 
 CommandLineOptions GLOBAL_options_stringType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsGetString),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintString),
+    optionsGetString,
+    optionsPrintString,
     static_cast<void *>(&globalDummyString),
     nullptr
 };
@@ -154,7 +159,9 @@ CommandLineOptions GLOBAL_options_stringType = {
 Copied string (maxlength n) option values
 */
 int
-optionsStringGet(char *s, int n) {
+optionsStringGet(void *value, void *data) {
+    char *s = static_cast<char *>(value);
+    int n = static_cast<int>(reinterpret_cast<intptr_t>(data));
     if ( s != nullptr ) {
         strncpy(s, *globalCurrentArgumentValue, n);
         s[n - 1] = '\0';  // Ensure zero ending c-string
@@ -164,7 +171,8 @@ optionsStringGet(char *s, int n) {
 }
 
 void
-optionsStringPrint(FILE *fp, const char *s, int /*n*/) {
+optionsStringPrint(FILE *fp, void *value, void * /*data*/) {
+    const char *s = static_cast<const char *>(value);
     fprintf(fp, "'%s'", s ? s : "");
 }
 
@@ -180,7 +188,9 @@ optionsPrintEnumValues(const ENUMDESC *tab) {
 }
 
 int
-optionsEnumGet(int *v, const ENUMDESC *tab) {
+optionsEnumGet(void *value, void *data) {
+    int *v = static_cast<int *>(value);
+    const ENUMDESC *tab = static_cast<const ENUMDESC *>(data);
     const ENUMDESC *tabSave = tab;
     while ( tab && tab->name ) {
         if ( strncasecmp(*globalCurrentArgumentValue, tab->name, tab->abbrev) == 0 ) {
@@ -195,7 +205,9 @@ optionsEnumGet(int *v, const ENUMDESC *tab) {
 }
 
 void
-optionsEnumPrint(FILE *fp, const int *v, const ENUMDESC *tab) {
+optionsEnumPrint(FILE *fp, void *value, void *data) {
+    const int *v = static_cast<const int *>(value);
+    const ENUMDESC *tab = static_cast<const ENUMDESC *>(data);
     while ( tab && tab->name ) {
         if ( *v == tab->value ) {
             fprintf(fp, "%s", tab->name);
@@ -218,8 +230,8 @@ static ENUMDESC boolTable[] = {
 };
 
 CommandLineOptions GLOBAL_options_boolType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsEnumGet),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsEnumPrint),
+    optionsEnumGet,
+    optionsEnumPrint,
     static_cast<void *>(&GLOBAL_options_dummyVal),
     static_cast<void *>(boolTable)
 };
@@ -227,7 +239,8 @@ CommandLineOptions GLOBAL_options_boolType = {
 /* ------------------- set true/false option values --------------------- */
 
 static int
-optionsSetTrue(int *x, const void * /*data*/) {
+optionsSetTrue(void *value, void * /*data*/) {
+    int *x = static_cast<int *>(value);
     // No option expected on command line, nothing consumed
 
     *x = true;
@@ -235,7 +248,8 @@ optionsSetTrue(int *x, const void * /*data*/) {
 }
 
 static int
-optionsSetFalse(int *x, const void * /*data*/) {
+optionsSetFalse(void *value, void * /*data*/) {
+    int *x = static_cast<int *>(value);
     /* No option expected on command line, nothing consumed */
 
     *x = false;
@@ -243,28 +257,29 @@ optionsSetFalse(int *x, const void * /*data*/) {
 }
 
 static void
-optionsPrintOther(FILE *fp, const void * /*x*/, const void * /*data*/) {
+optionsPrintOther(FILE *fp, void * /*x*/, void * /*data*/) {
     fprintf(fp, "other");
 }
 
 
 CommandLineOptions GLOBAL_options_setTrueType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsSetTrue),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintOther),
+    optionsSetTrue,
+    optionsPrintOther,
     static_cast<void *>(&globalDummyTrue),
     nullptr
 };
 
 CommandLineOptions GLOBAL_options_setFalseType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsSetFalse),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintOther),
+    optionsSetFalse,
+    optionsPrintOther,
     static_cast<void *>(&globalDummyFalse),
     nullptr
 };
 
 /* ------------------- float option values --------------------- */
 static int
-optionsGetfloat(float *x, const void * /*data*/) {
+optionsGetfloat(void *value, void * /*data*/) {
+    float *x = static_cast<float *>(value);
     if ( !optionsGetArgumentFloatValue("%f", x) ) {
         java::lang::System::err.printf("'%s' is not a valid floating point value\n", *globalCurrentArgumentValue);
         return false;
@@ -273,13 +288,14 @@ optionsGetfloat(float *x, const void * /*data*/) {
 }
 
 static void
-optionsPrintFloat(FILE *fp, const float *x, const void * /*data*/) {
+optionsPrintFloat(FILE *fp, void *value, void * /*data*/) {
+    const float *x = static_cast<const float *>(value);
     fprintf(fp, "%g", *x);
 }
 
 CommandLineOptions GLOBAL_options_floatType = {
-        reinterpret_cast<int (*)(void *, void *)>(optionsGetfloat),
-        reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintFloat),
+        optionsGetfloat,
+        optionsPrintFloat,
         static_cast<void *>(&globalDummyFloat),
         nullptr
 };
@@ -288,7 +304,8 @@ CommandLineOptions GLOBAL_options_floatType = {
 Vector3D option values
 */
 static int
-optionsGetVector(Vector3D *v, const void * /*data*/) {
+optionsGetVector(void *value, void * /*data*/) {
+    Vector3D *v = static_cast<Vector3D *>(value);
     int ok = optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
         optionsConsumeArgument();
@@ -306,13 +323,14 @@ optionsGetVector(Vector3D *v, const void * /*data*/) {
 }
 
 static void
-optionsPrintVector(FILE *fp, const Vector3D *v, const void * /*data*/) {
+optionsPrintVector(FILE *fp, void *value, void * /*data*/) {
+    const Vector3D *v = static_cast<const Vector3D *>(value);
     v->print(fp);
 }
 
 CommandLineOptions GLOBAL_options_vectorType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsGetVector),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintVector),
+    optionsGetVector,
+    optionsPrintVector,
     static_cast<void *>(&globalDummyVector3D),
     nullptr
 };
@@ -321,7 +339,8 @@ CommandLineOptions GLOBAL_options_vectorType = {
 RGB option values
 */
 static int
-optionsGetRgb(ColorRgb *c, const void * /*data*/) {
+optionsGetRgb(void *value, void * /*data*/) {
+    ColorRgb *c = static_cast<ColorRgb *>(value);
     int ok = optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
         optionsConsumeArgument();
@@ -339,13 +358,14 @@ optionsGetRgb(ColorRgb *c, const void * /*data*/) {
 }
 
 static void
-optionsPrintRgb(FILE *fp, const ColorRgb *v, const void * /*data*/) {
+optionsPrintRgb(FILE *fp, void *value, void * /*data*/) {
+    const ColorRgb *v = static_cast<const ColorRgb *>(value);
     v->print(fp);
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsGetRgb),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintRgb),
+    optionsGetRgb,
+    optionsPrintRgb,
     static_cast<void *>(&globalDummyRgb),
     nullptr
 };
@@ -355,7 +375,8 @@ CIE xy option values
 */
 
 static int
-optionsGetCieXy(float *c, const void * /*data*/) {
+optionsGetCieXy(void *value, void * /*data*/) {
+    float *c = static_cast<float *>(value);
     int ok = optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
         optionsConsumeArgument();
@@ -369,13 +390,14 @@ optionsGetCieXy(float *c, const void * /*data*/) {
 }
 
 static void
-optionsPrintCieXyCallBack(FILE *fp, const float *c, void * /*data*/) {
+optionsPrintCieXyCallBack(FILE *fp, void *value, void * /*data*/) {
+    const float *c = static_cast<const float *>(value);
     fprintf(fp, "%g %g", c[0], c[1]);
 }
 
 CommandLineOptions GLOBAL_options_xyType = {
-    reinterpret_cast<int (*)(void *, void *)>(optionsGetCieXy),
-    reinterpret_cast<void (*)(FILE *, void *, void *)>(optionsPrintCieXyCallBack),
+    optionsGetCieXy,
+    optionsPrintCieXyCallBack,
     static_cast<void *>(&globalDummyCieXy),
     nullptr
 };

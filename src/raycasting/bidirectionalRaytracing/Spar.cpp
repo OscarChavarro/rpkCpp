@@ -14,7 +14,7 @@ Spar::~Spar() {
 }
 
 void
-Spar::init(SparConfig *config, RadianceMethod *radianceMethod) {
+Spar::init(SparConfig *config, RadianceMethod */*radianceMethod*/) {
     for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
         m_contrib[i].init(config->baseConfig->maximumPathDepth);
         m_sparList[i].removeAll();
@@ -57,7 +57,7 @@ is returned. Normally this is a contribution for the pixel
 affected by the path
 */
 ColorRgb
-Spar::handlePath(SparConfig *config, CBiPath *path) {
+Spar::handlePath(SparConfig */*config*/, CBiPath */*path*/) {
     ColorRgb result;
 
     result.clear();

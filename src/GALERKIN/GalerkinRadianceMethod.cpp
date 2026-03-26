@@ -277,7 +277,7 @@ GalerkinRadianceMethod::setStrategy() {
 }
 
 void
-GalerkinRadianceMethod::parseOptions(int *argc, char **argv) {
+GalerkinRadianceMethod::parseOptions(int * /*argc*/, char ** /*argv*/) {
 }
 
 void
@@ -357,7 +357,7 @@ GalerkinRadianceMethod::galerkinDestroyClusterHierarchy(GalerkinElement *cluster
 }
 
 void
-GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
     if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy::Z_VISIBILITY ) {
         ScratchVisibilityStrategy::scratchTerminate(&galerkinState);
     }
@@ -370,12 +370,12 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 
 ColorRgb
 GalerkinRadianceMethod::getRadiance(
-    Camera *camera,
+    Camera */*camera*/,
     Patch *patch,
     double u,
     double v,
-    Vector3D dir,
-    const RenderOptions *renderOptions) const
+    Vector3D /*dir*/,
+    const RenderOptions */*renderOptions*/) const
 {
     const GalerkinElement *leaf;
     ColorRgb rad;
