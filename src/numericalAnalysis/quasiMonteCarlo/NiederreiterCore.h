@@ -30,25 +30,19 @@ class NiederreiterCore {
     IndexType *
     sample(IndexType n) {
         IndexType diff;
-        const IndexType *cj0 = cj_[0];
-        const IndexType *cj1 = cj_[1];
-        const IndexType *cj2 = cj_[2];
-        const IndexType *cj3 = cj_[3];
 
         n += skip_;
         diff = n ^ count_; // Contains 1s where bits in n and count differ
+        unsigned bitIndex = 0;
         while ( diff ) {
             if ( diff & 1 ) {
-                nied_[0] ^= *cj0;
-                nied_[1] ^= *cj1;
-                nied_[2] ^= *cj2;
-                nied_[3] ^= *cj3;
+                nied_[0] ^= cj_[0][bitIndex];
+                nied_[1] ^= cj_[1][bitIndex];
+                nied_[2] ^= cj_[2][bitIndex];
+                nied_[3] ^= cj_[3][bitIndex];
             }
 
-            cj0++;
-            cj1++;
-            cj2++;
-            cj3++;
+            bitIndex++;
             diff >>= 1;
         }
 
@@ -70,10 +64,7 @@ class NiederreiterCore {
         IndexType c;
         IndexType i;
         IndexType step;
-        const IndexType *cj0;
-        const IndexType *cj1;
-        const IndexType *cj2;
-        const IndexType *cj3;
+        unsigned bitIndex;
 
         step = static_cast<IndexType>(1) << nmsb;
         mask = step - 1;
@@ -92,24 +83,24 @@ class NiederreiterCore {
 
         c = count_;
         diff = (i ^ c) & mask;
-        cj1 = cj_[1];
+        bitIndex = 0;
         while ( diff ) {
             if ( diff & 1 ) {
-                nied_[1] ^= *cj1;
+                nied_[1] ^= cj_[1][bitIndex];
             }
             diff >>= 1;
-            cj1++;
+            bitIndex++;
         }
 
         do {
             diff = (i ^ c) >> nmsb;
-            cj1 = cj_[1] + nmsb;
+            bitIndex = static_cast<unsigned>(nmsb);
             while ( diff ) {
                 if ( diff & 1 ) {
-                    nied_[1] ^= *cj1;
+                    nied_[1] ^= cj_[1][bitIndex];
                 }
                 diff >>= 1;
-                cj1++;
+                bitIndex++;
             }
             c = i;
             i += step;
@@ -121,20 +112,16 @@ class NiederreiterCore {
             }
         } while ( (nied_[1] & rmask) != rmsb2 );
 
-        cj0 = cj_[0];
-        cj2 = cj_[2];
-        cj3 = cj_[3];
         diff = c ^ count_;
+        bitIndex = 0;
         while ( diff ) {
             if ( diff & 1 ) {
-                nied_[0] ^= *cj0;
-                nied_[2] ^= *cj2;
-                nied_[3] ^= *cj3;
+                nied_[0] ^= cj_[0][bitIndex];
+                nied_[2] ^= cj_[2][bitIndex];
+                nied_[3] ^= cj_[3][bitIndex];
             }
             diff >>= 1;
-            cj0++;
-            cj2++;
-            cj3++;
+            bitIndex++;
         }
         count_ = c;
 

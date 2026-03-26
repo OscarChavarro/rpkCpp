@@ -97,7 +97,7 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
     if ( stream == nullptr || buffer == nullptr || offset < 0 || length <= 0 ) {
         return 0;
     }
-    return static_cast<int>(fread(buffer + offset, 1, static_cast<std::size_t>(length), stream));
+    return static_cast<int>(fread(&buffer[offset], 1, static_cast<std::size_t>(length), stream));
 }
 
 int

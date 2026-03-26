@@ -97,11 +97,12 @@ String::substring(int beginIndex) const {
     if ( beginIndex >= sourceLength ) {
         return String();
     }
-    return String(toCString() + beginIndex);
+    return substring(beginIndex, sourceLength);
 }
 
 String
 String::substring(int beginIndex, int endIndex) const {
+    const char *source = toCString();
     const int sourceLength = length();
     if ( beginIndex < 0 ) {
         beginIndex = 0;
@@ -114,7 +115,9 @@ String::substring(int beginIndex, int endIndex) const {
     }
     const int sliceLength = endIndex - beginIndex;
     char *slice = new char[static_cast<std::size_t>(sliceLength) + 1];
-    std::strncpy(slice, toCString() + beginIndex, static_cast<std::size_t>(sliceLength));
+    for ( int i = 0; i < sliceLength; i++ ) {
+        slice[i] = source[beginIndex + i];
+    }
     slice[sliceLength] = '\0';
     String result(slice);
     delete[] slice;

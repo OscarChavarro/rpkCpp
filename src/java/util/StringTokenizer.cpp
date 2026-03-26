@@ -86,15 +86,15 @@ StringTokenizer::nextToken() {
         return java::lang::String();
     }
     const int tokenEnd = findTokenEnd(tokenStart);
-    if ( tokenEnd < 0 ) {
-        cursor = static_cast<int>(std::strlen(text));
-        return java::lang::String(text + tokenStart);
-    }
-    const int tokenLength = tokenEnd - tokenStart;
+    const int sourceLength = static_cast<int>(std::strlen(text));
+    const int effectiveTokenEnd = (tokenEnd < 0) ? sourceLength : tokenEnd;
+    const int tokenLength = effectiveTokenEnd - tokenStart;
     char *token = new char[static_cast<std::size_t>(tokenLength) + 1];
-    std::strncpy(token, text + tokenStart, static_cast<std::size_t>(tokenLength));
+    for ( int i = 0; i < tokenLength; i++ ) {
+        token[i] = text[tokenStart + i];
+    }
     token[tokenLength] = '\0';
-    cursor = tokenEnd + 1;
+    cursor = (tokenEnd < 0) ? sourceLength : tokenEnd + 1;
     java::lang::String result(token);
     delete[] token;
     return result;
