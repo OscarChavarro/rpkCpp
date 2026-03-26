@@ -333,7 +333,7 @@ stochasticRadiosityElementCreateFromGeometry(Geometry *world) {
 Determine the (u, v) coordinate range of the element w.r.t. the patch to
 which it belongs when using regular quadtree subdivision in
 order to efficiently generate samples with NextNiedInRange()
-in niederreiter.inc. NextNiedInRange() creates a sample on a quadrilateral
+in the Niederreiter core implementation. NextNiedInRange() creates a sample on a quadrilateral
 subdomain, called a "dyadic box" in QMC literature. All samples in
 such a dyadic box have the same most significant bits. This routine
 basically computes what these most significant bits are. The computation

@@ -11,6 +11,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 */
 
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.h"
 
 static unsigned cj[DIMEN][NBITS] = {
     {
@@ -55,5 +56,30 @@ static unsigned cj[DIMEN][NBITS] = {
     }
 };
 
-// The implementation is the same for 31bit and 63bit sequences
-#include "numericalAnalysis/quasiMonteCarlo/Niederreiter.inc"
+static NiederreiterCore<unsigned, DIMEN, NBITS> globalNiederreiter31(cj, SKIP, NBITS_POW, NBITS_POW1);
+
+unsigned *
+niederreiter31(unsigned index) {
+    return globalNiederreiter31.sample(index);
+}
+
+unsigned *
+NextNiedInRange31(
+    unsigned *idx,
+    int dir,
+    int nmsb,
+    unsigned msb1,
+    unsigned rmsb2)
+{
+    return globalNiederreiter31.nextInRange(idx, dir, nmsb, msb1, rmsb2);
+}
+
+unsigned
+radicalInverse31(unsigned n) {
+    return globalNiederreiter31.radicalInverse(n);
+}
+
+void
+foldSample31(unsigned *xi1, unsigned *xi2) {
+    globalNiederreiter31.foldSample(xi1, xi2);
+}

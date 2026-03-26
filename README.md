@@ -72,6 +72,36 @@ cd ..
 
 Generated images will be written at `./output` folder, reading models from `./etc`.
 
+## Selecting Niederreiter variant (31-bit vs 63-bit)
+
+The quasi-Monte-Carlo Niederreiter implementation provides:
+
+- A generic API in `Niederreiter.h`: `Nied`, `NextNiedInRange`, `radicalInverse`, `foldSample`.
+- Explicit APIs per variant:
+  - 31-bit: `niederreiter31`, `NextNiedInRange31`, `radicalInverse31`, `foldSample31`
+  - 63-bit: `Nied63`, `NextNiedInRange63`, `radicalInverse63`, `foldSample63`
+
+Variant selection for the generic API is compile-time:
+
+- Default build (without `NOINT64`): uses 63-bit variant.
+- Build with `NOINT64` defined: uses 31-bit variant.
+
+Examples:
+
+```bash
+# 63-bit (default)
+cmake -S . -B build
+cmake --build build -j
+```
+
+```bash
+# 31-bit (force by disabling 64-bit Niederreiter generic API)
+cmake -S . -B build -DCMAKE_CXX_FLAGS="-DNOINT64"
+cmake --build build -j
+```
+
+Note: modules calling explicit `*31`/`*63` functions keep using that exact variant by design.
+
 ## Running RPK program from the command line
 
 The following command will run all the samples located on the `./etc` folder and generate output

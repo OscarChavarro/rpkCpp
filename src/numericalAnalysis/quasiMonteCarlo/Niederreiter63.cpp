@@ -15,6 +15,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 // All this makes no sense if you don't have 64-bit integers
 
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter63.h"
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.h"
 
 static unsigned long long cj[DIMEN][NBITS] = {
     {
@@ -91,7 +92,32 @@ static unsigned long long cj[DIMEN][NBITS] = {
     }
 };
 
-// The implementation is the same for 31bit and 63bit sequences
-#include "numericalAnalysis/quasiMonteCarlo/Niederreiter.inc"
+static NiederreiterCore<unsigned long long, DIMEN, NBITS> globalNiederreiter63(cj, SKIP, NBITS_POW, NBITS_POW1);
+
+unsigned long long *
+Nied63(unsigned long long index) {
+    return globalNiederreiter63.sample(index);
+}
+
+unsigned long long *
+NextNiedInRange63(
+    unsigned long long *idx,
+    int dir,
+    int nmsb,
+    unsigned long long msb1,
+    unsigned long long rmsb2)
+{
+    return globalNiederreiter63.nextInRange(idx, dir, nmsb, msb1, rmsb2);
+}
+
+unsigned long long
+radicalInverse63(unsigned long long n) {
+    return globalNiederreiter63.radicalInverse(n);
+}
+
+void
+foldSample63(unsigned long long *xi1, unsigned long long *xi2) {
+    globalNiederreiter63.foldSample(xi1, xi2);
+}
 
 #endif

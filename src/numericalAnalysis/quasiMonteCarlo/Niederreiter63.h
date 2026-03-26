@@ -35,11 +35,10 @@ constexpr double RECIP = 1.0 / 9223372036854775808.0;
 // 2 ^ NBITS
 constexpr double RECIP1 = 9223372036854775808.0;
 
-#define Nied Nied63
-#define NextNiedInRange NextNiedInRange63
-#define radicalInverse radicalInverse63
-#define foldSample foldSample63
 typedef unsigned long long NiederreiterIndex;
+
+extern unsigned long long *
+Nied63(unsigned long long index);
 
 extern unsigned long long *
 NextNiedInRange63(

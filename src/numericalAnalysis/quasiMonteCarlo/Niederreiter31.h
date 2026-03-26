@@ -31,10 +31,6 @@ constexpr unsigned NBITS_POW = (1u << NBITS);
 // 2^(NBITS-1)
 constexpr unsigned NBITS_POW1 = (1u << (NBITS - 1));
 
-#define Nied niederreiter31
-#define NextNiedInRange NextNiedInRange31
-#define radicalInverse radicalInverse31
-#define foldSample foldSample31
 typedef unsigned NiederreiterIndex;
 
 extern unsigned *niederreiter31(unsigned index);
