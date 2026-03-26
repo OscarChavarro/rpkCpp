@@ -10,10 +10,6 @@
 
 #include <sys/stat.h>
 
-#if defined(_WIN32)
-#include <direct.h>
-#endif
-
 namespace vsdk {
 
 const bool PersistenceElement::bigEndianArchitecture = false;

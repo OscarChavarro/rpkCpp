@@ -1,7 +1,5 @@
-#include "common/Statistics.h"
-
 #include "java/util/ArrayList.txx"
-#include "PatchSet.h"
+#include "skin/PatchSet.h"
 
 PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClassId::PATCH_SET) {
     patchList = new java::ArrayList<Patch *>();
