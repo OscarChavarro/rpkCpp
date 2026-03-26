@@ -4,11 +4,11 @@
 #include "java/io/FileInputStream.h"
 #include "java/io/BufferedInputStream.h"
 #include "io/FileUncompressWrapper.h"
-#include "io/mgf/lookup.h"
+#include "io/mgf/LookUpEntity.h"
 #include "io/mgf/MgfReaderFilePosition.h"
 #include "io/mgf/mgfDefinitions.h"
 
-static LookUpTable globalLookUpTable = LOOK_UP_INIT(nullptr, nullptr);
+static LookUpTable globalLookUpTable(nullptr, nullptr);
 
 class MgfCallbackHandler final : public MgfEntityHandler {
   public:
@@ -129,19 +129,19 @@ Get entity number from its name
 */
 int
 mgfEntity(const char *name, MgfContext *context) {
-    if ( !globalLookUpTable.currentTableSize ) {
+    if ( !globalLookUpTable.getCurrentTableSize() ) {
         // Initialize hash table
-        if ( !lookUpInit(&globalLookUpTable, TOTAL_NUMBER_OF_ENTITIES) ) {
+        if ( !globalLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
             return -1;
         }
 
         for ( int i = TOTAL_NUMBER_OF_ENTITIES - 1; i >= 0; i-- ) {
             char *entityName = context->entityNames[i];
-            lookUpFind(&globalLookUpTable, entityName)->key = entityName;
+            globalLookUpTable.lookUpFind(entityName)->key = entityName;
         }
     }
 
-    char *entityName = lookUpFind(&globalLookUpTable, name)->key;
+    char *entityName = globalLookUpTable.lookUpFind(name)->key;
     if ( entityName == nullptr) {
         return -1;
     }
@@ -254,8 +254,8 @@ mgfClose(MgfContext *context) {
 
 void
 mgfLookUpFreeMemory() {
-    if ( globalLookUpTable.table != nullptr ) {
-        delete[] globalLookUpTable.table;
-        globalLookUpTable.table = nullptr;
+    if ( globalLookUpTable.getTable() != nullptr ) {
+        delete[] globalLookUpTable.getTable();
+        globalLookUpTable.setTable(nullptr);
     }
 }

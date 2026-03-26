@@ -4,7 +4,7 @@
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/lookup.h"
+#include "io/mgf/LookUpEntity.h"
 #include "io/mgf/words.h"
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"
@@ -33,7 +33,7 @@ static constexpr int NUMBER_OF_SAMPLES = 3;
 static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MGF_MATERIAL_CONTEXT;
 static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-static LookUpTable globalMaterialLookUpTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
+static LookUpTable globalMaterialLookUpTable(LookUpTable::lookUpRemove, LookUpTable::lookUpRemove);
 
 /**
 Looks up a material with given name in the given material list. Returns
@@ -249,7 +249,7 @@ void
 initMaterialContextTables(MgfContext *context) {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
     globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-    lookUpDone(&globalMaterialLookUpTable);
+    globalMaterialLookUpTable.lookUpDone();
     context->currentMaterialName = nullptr;
 }
 
@@ -297,7 +297,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
             if ( !isNameWords(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(&globalMaterialLookUpTable, av[1]);
+            lp = globalMaterialLookUpTable.lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
@@ -336,7 +336,7 @@ handleMaterialEntity(int ac, const char **av, MgfContext *context) {
                 globalMgfCurrentMaterial->clock = i + 1;
                 return MgfErrorCode::MGF_OK;
             }
-            lp = lookUpFind(&globalMaterialLookUpTable, av[3]);
+            lp = globalMaterialLookUpTable.lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr ) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;

@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "io/mgf/lookup.h"
+#include "io/mgf/LookUpEntity.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/mgfHandlerObject.h"
@@ -765,7 +765,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
             if ( !isNameWords(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(context->vertexLookUpTable, av[1]);
+            lp = context->vertexLookUpTable->lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
@@ -801,7 +801,7 @@ handleVertexEntity(int ac, const char **av, MgfContext *context) {
                 *globalMgfCurrentVertex = globalMgfDefaultVertexContext;
                 return MgfErrorCode::MGF_OK;
             }
-            lp = lookUpFind(context->vertexLookUpTable, av[3]);
+            lp = context->vertexLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
@@ -850,7 +850,7 @@ Get a named vertex
 */
 MgfVertexContext *
 getNamedVertex(const char *name, MgfContext *context) {
-    LookUpEntity *lp = lookUpFind(context->vertexLookUpTable, name);
+    LookUpEntity *lp = context->vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
         return nullptr;
@@ -863,5 +863,5 @@ initGeometryContextTables(MgfContext *context) {
     globalMgfVertexContext = globalMgfDefaultVertexContext;
     globalMgfCurrentVertex = &globalMgfVertexContext;
     context->currentVertexName = nullptr;
-    lookUpDone(context->vertexLookUpTable);
+    context->vertexLookUpTable->lookUpDone();
 }

@@ -1,13 +1,5 @@
 #include "skin/MinMaxBox.h"
 
-MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
-    boundingBox()
-{
-    if ( sourceBoundingBox != nullptr ) {
-        boundingBox.copyFrom(sourceBoundingBox);
-    }
-}
-
 void
 MinMaxBox::updateFromBoundingBox(const BoundingBox *sourceBoundingBox) {
     if ( sourceBoundingBox == nullptr ) {

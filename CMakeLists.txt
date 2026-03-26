@@ -95,12 +95,13 @@ set(MAIN_SRC
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
     src/io/mgf/MgfTransform.cpp
     src/io/mgf/MgfContext.cpp
+    src/io/mgf/LookUpEntity.cpp
+    src/io/mgf/LookUpTable.cpp
     src/io/mgf/MgfColorContext.cpp
     src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfGeometry.cpp
     src/io/mgf/mgfHandlerGeometry.cpp
     src/io/mgf/mgfHandlerObject.cpp
-    src/io/mgf/lookup.cpp
     src/io/mgf/badarg.cpp
     src/io/mgf/mgfHandlerTransform.cpp
     src/io/mgf/words.cpp

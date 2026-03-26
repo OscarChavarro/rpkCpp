@@ -62,6 +62,6 @@ class MgfContext {
 
 #include "io/mgf/MgfTransformContext.h"
 #include "io/mgf/MgfColorContext.h"
-#include "io/mgf/lookup.h"
+#include "io/mgf/LookUpTable.h"
 
 #endif

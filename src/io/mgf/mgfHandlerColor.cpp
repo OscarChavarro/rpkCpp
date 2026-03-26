@@ -1,11 +1,12 @@
 #include <cstring>
 
+#include "io/mgf/LookUpEntity.h"
 #include "io/mgf/words.h"
 #include "io/mgf/mgfHandlerColor.h"
 #include "io/mgf/mgfDefinitions.h"
 
 // Color lookup table
-static LookUpTable globalColorTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
+static LookUpTable globalColorTable(LookUpTable::lookUpRemove, LookUpTable::lookUpRemove);
 
 /**
 Handle color entity
@@ -31,7 +32,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
             if ( !isNameWords(av[1]) ) {
                 return MgfErrorCode::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = lookUpFind(&globalColorTable, av[1]); // Lookup context
+            lp = globalColorTable.lookUpFind(av[1]); // Lookup context
             if ( lp == nullptr) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -66,7 +67,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 context->currentColor->clock = i + 1;
                 return MgfErrorCode::MGF_OK;
             }
-            lp = lookUpFind(&globalColorTable, av[3]);
+            lp = globalColorTable.lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
@@ -125,7 +126,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                 return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
             }
             wSum = strtod(av[1], nullptr);
-            lp = lookUpFind(&globalColorTable, av[2]);
+            lp = globalColorTable.lookUpFind(av[2]);
             if ( lp == nullptr ) {
                 return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -138,7 +139,7 @@ handleColorEntity(int ac, const char **av, MgfContext *context) {
                     return MgfErrorCode::MGF_ERROR_ARGUMENT_TYPE;
                 }
                 const double w = strtod(av[i], nullptr);
-                lp = lookUpFind(&globalColorTable, av[i + 1]);
+                lp = globalColorTable.lookUpFind(av[i + 1]);
                 if ( lp == nullptr ) {
                     return MgfErrorCode::MGF_ERROR_OUT_OF_MEMORY;
                 }
@@ -170,5 +171,5 @@ void
 initColorContextTables(MgfContext *context) {
     *(context->unNamedColorContext) = DEFAULT_COLOR_CONTEXT;
     context->currentColor = context->unNamedColorContext;
-    lookUpDone(&globalColorTable);
+    globalColorTable.lookUpDone();
 }

@@ -78,8 +78,7 @@ MgfContext::MgfContext():
     currentColor = unNamedColorContext;
     inSurface = false; // True if busy creating a new surface
     inComplex = false; // True if reading a sphere, torus or other unsupported
-    vertexLookUpTable = new LookUpTable;
-    *vertexLookUpTable = LOOK_UP_INIT(lookUpRemove, lookUpRemove);
+    vertexLookUpTable = new LookUpTable(LookUpTable::lookUpRemove, LookUpTable::lookUpRemove);
 
     allGeometries = new java::ArrayList<Geometry *>();
     currentObjectName = nullptr;

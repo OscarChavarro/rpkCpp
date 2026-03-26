@@ -9,17 +9,26 @@ class MinMaxBox {
     BoundingBox boundingBox;
 
   public:
-    explicit MinMaxBox(const BoundingBox *sourceBoundingBox);
-    ~MinMaxBox() = default;
+    inline explicit MinMaxBox(const BoundingBox *sourceBoundingBox);
+    inline ~MinMaxBox();
 
-    MinMaxBox(const MinMaxBox &) = delete;
-    MinMaxBox &operator=(const MinMaxBox &) = delete;
+    inline MinMaxBox(const MinMaxBox &) = delete;
+    inline MinMaxBox &operator=(const MinMaxBox &) = delete;
 
     void updateFromBoundingBox(const BoundingBox *sourceBoundingBox);
-
     bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
-
     bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
 };
+
+MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
+        boundingBox()
+{
+    if ( sourceBoundingBox != nullptr ) {
+        boundingBox.copyFrom(sourceBoundingBox);
+    }
+}
+
+MinMaxBox::~MinMaxBox() {
+}
 
 #endif
