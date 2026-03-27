@@ -28,7 +28,7 @@ RevisedTumblinRushmeierToneMap::init() {
     ldaRTR = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     g = stevensGamma(lwa) / stevensGamma(ldaRTR);
-    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log(ldaRTR));
+    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log10(ldaRTR));
     comp = java::Math::pow(java::Math::sqrt(maximumDisplayContrast), gwd - 1) * ldaRTR;
     display = comp / maximumDisplayLuminance;
 }
