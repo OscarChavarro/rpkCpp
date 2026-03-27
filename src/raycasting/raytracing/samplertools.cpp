@@ -144,7 +144,12 @@ CSamplerConfig::tracePath(
 
     nextNode = traceNode(camera, sceneVoxelGrid, sceneBackground, nextNode, x1, x2, flags);
 
-    if ( nextNode != nullptr && !nextNode->ends() ) {
+    bool continueTrace = nextNode != nullptr;
+    if ( continueTrace && sceneBackground != nullptr && nextNode->ends() ) {
+        continueTrace = false;
+    }
+
+    if ( continueTrace ) {
         nextNode->ensureNext();
 
         // Recursive call
