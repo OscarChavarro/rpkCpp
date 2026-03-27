@@ -1,7 +1,7 @@
 #ifndef __MIN_MAX_BOX__
 #define __MIN_MAX_BOX__
 
-#include "common/Ray.h"
+#include "common/linealAlgebra/Ray.h"
 #include "skin/BoundingBox.h"
 
 class MinMaxBox {

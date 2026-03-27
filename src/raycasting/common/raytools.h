@@ -5,7 +5,7 @@ Some utility routines for ray intersections and for statistics
 #ifndef __RAY_TOOLS__
 #define __RAY_TOOLS__
 
-#include "common/Ray.h"
+#include "common/linealAlgebra/Ray.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"

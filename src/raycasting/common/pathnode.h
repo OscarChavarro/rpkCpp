@@ -6,7 +6,7 @@ and contain necessary information for raytracing-like algorithms
 #ifndef __PATH_NODE__
 #define __PATH_NODE__
 
-#include "common/Ray.h"
+#include "common/linealAlgebra/Ray.h"
 #include "common/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 

@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <stdexcept>
 
+#include "common/error.h"
 #include "java/util/ArrayList.txx"
 
 namespace vsdk {
@@ -54,7 +54,8 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::readBytes(java::io::InputStream &is, unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
-        throw std::runtime_error("PersistenceElement::readBytes invalid buffer");
+        logError("PersistenceElement::readBytes", "%s", "invalid buffer");
+        return;
     }
     int offset = 0;
     int numRead = 0;
@@ -67,7 +68,8 @@ PersistenceElement::readBytes(java::io::InputStream &is, unsigned char *bytesBuf
     } while ( offset < length && numRead >= 0 );
 
     if ( offset < length ) {
-        throw std::runtime_error("PersistenceElement::readBytes could not read requested length");
+        std::memset(bytesBuffer + offset, 0, static_cast<size_t>(length - offset));
+        logError("PersistenceElement::readBytes", "could not read requested length (%d/%d)", offset, length);
     }
 }
 
@@ -81,7 +83,8 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
-        throw std::runtime_error("PersistenceElement::writeBytes invalid arguments");
+        logError("PersistenceElement::writeBytes", "%s", "invalid arguments");
+        return;
     }
 
     int offset = 0;
@@ -95,7 +98,7 @@ PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *
     } while ( offset < length && numWritten >= 0 );
 
     if ( offset < length ) {
-        throw std::runtime_error("PersistenceElement::writeBytes failed");
+        logError("PersistenceElement::writeBytes", "failed (%d/%d)", offset, length);
     }
 }
 
@@ -109,11 +112,12 @@ enough information to read, this method generates an Exception.
 void
 PersistenceElement::writeBytes(FILE *os, const unsigned char *bytesBuffer, int length) {
     if ( os == nullptr || bytesBuffer == nullptr || length < 0 ) {
-        throw std::runtime_error("PersistenceElement::writeBytes invalid arguments");
+        logError("PersistenceElement::writeBytes(FILE)", "%s", "invalid arguments");
+        return;
     }
     const size_t written = fwrite(bytesBuffer, 1, static_cast<size_t>(length), os);
     if ( written != static_cast<size_t>(length) ) {
-        throw std::runtime_error("PersistenceElement::writeBytes failed");
+        logError("PersistenceElement::writeBytes(FILE)", "failed (%ld/%d)", static_cast<long>(written), length);
     }
 }
 
@@ -640,7 +644,8 @@ PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size
 
     char *msg = static_cast<char *>(std::malloc(static_cast<size_t>(size) + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readAsciiFixedSizeString allocation failure");
+        logError("PersistenceElement::readAsciiFixedSizeString", "%s", "allocation failure");
+        return duplicateCString("");
     }
     std::memcpy(msg, bytesForString.data(), static_cast<size_t>(size));
     msg[size] = '\0';
@@ -660,7 +665,8 @@ PersistenceElement::readAsciiString(java::io::InputStream &is) {
         readBytes(is, character, 1);
         if ( character[0] != 0x00 ) {
             if ( !bytes.add(character[0]) ) {
-                throw std::runtime_error("PersistenceElement::readAsciiString allocation failure");
+                logError("PersistenceElement::readAsciiString", "%s", "allocation failure");
+                return duplicateCString("");
             }
         }
     } while ( character[0] != 0x00 );
@@ -668,7 +674,8 @@ PersistenceElement::readAsciiString(java::io::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readAsciiString allocation failure");
+        logError("PersistenceElement::readAsciiString", "%s", "allocation failure");
+        return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
         msg[i] = static_cast<char>(bytes.get(i));
@@ -703,22 +710,23 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
 
         if ( character[0] != 0x00 && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
+                logError("PersistenceElement::readUtf8String", "%s", "allocation failure");
+                return duplicateCString("");
             }
         } else if ( character[0] != 0x00 ) {
             pair[0] = character[0];
-            try {
-                readBytes(is, character, 1);
-                pair[1] = character[0];
-                if ( buildUtf8Char(pair, utf8Char) ) {
-                    if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                        throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
-                    }
-                } else {
-                    std::fprintf(stderr, "* UNHANDLED UTF sequence while reading UTF-8 string\n");
-                }
-            } catch ( const std::exception & ) {
+            readBytes(is, character, 1);
+            if ( character[0] == 0x00 ) {
                 break;
+            }
+            pair[1] = character[0];
+            if ( buildUtf8Char(pair, utf8Char) ) {
+                if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
+                    logError("PersistenceElement::readUtf8String", "%s", "allocation failure");
+                    return duplicateCString("");
+                }
+            } else {
+                std::fprintf(stderr, "* UNHANDLED UTF sequence while reading UTF-8 string\n");
             }
         }
     } while ( character[0] != 0x00 );
@@ -726,7 +734,8 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
+        logError("PersistenceElement::readUtf8String", "%s", "allocation failure");
+        return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
         msg[i] = static_cast<char>(bytes.get(i));
@@ -743,28 +752,28 @@ PersistenceElement::readUtf8Line(java::io::InputStream &is) {
     java::ArrayList<unsigned char> bytes(64);
 
     do {
-        try {
-            readBytes(is, character, 1);
-        } catch ( const std::exception & ) {
-            return duplicateCString("");
+        readBytes(is, character, 1);
+        if ( character[0] == 0x00 ) {
+            break;
         }
 
         if ( character[0] != '\n' && character[0] != '\r' && ((character[0] >> 7) == 0) ) {
             if ( !bytes.add(character[0]) ) {
-                throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
+                logError("PersistenceElement::readUtf8Line", "%s", "allocation failure");
+                return duplicateCString("");
             }
         } else if ( character[0] != '\n' && character[0] != '\r' ) {
             pair[0] = character[0];
-            try {
-                readBytes(is, character, 1);
-                pair[1] = character[0];
-                if ( buildUtf8Char(pair, utf8Char) ) {
-                    if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
-                        throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
-                    }
-                }
-            } catch ( const std::exception & ) {
+            readBytes(is, character, 1);
+            if ( character[0] == 0x00 ) {
                 break;
+            }
+            pair[1] = character[0];
+            if ( buildUtf8Char(pair, utf8Char) ) {
+                if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
+                    logError("PersistenceElement::readUtf8Line", "%s", "allocation failure");
+                    return duplicateCString("");
+                }
             }
         }
     } while ( character[0] != '\n' );
@@ -772,7 +781,8 @@ PersistenceElement::readUtf8Line(java::io::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
+        logError("PersistenceElement::readUtf8Line", "%s", "allocation failure");
+        return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
         msg[i] = static_cast<char>(bytes.get(i));
@@ -787,15 +797,15 @@ PersistenceElement::readAsciiLine(java::io::InputStream &is) {
     java::ArrayList<unsigned char> bytes(64);
 
     while ( true ) {
-        try {
-            readBytes(is, character, 1);
-        } catch ( const std::exception & ) {
+        readBytes(is, character, 1);
+        if ( character[0] == 0x00 ) {
             break;
         }
 
         if ( character[0] != '\n' && character[0] != '\r' ) {
             if ( !bytes.add(character[0]) ) {
-                throw std::runtime_error("PersistenceElement::readAsciiLine allocation failure");
+                logError("PersistenceElement::readAsciiLine", "%s", "allocation failure");
+                return duplicateCString("");
             }
         }
 
@@ -807,7 +817,8 @@ PersistenceElement::readAsciiLine(java::io::InputStream &is) {
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readAsciiLine allocation failure");
+        logError("PersistenceElement::readAsciiLine", "%s", "allocation failure");
+        return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
         msg[i] = static_cast<char>(bytes.get(i));
@@ -833,9 +844,13 @@ PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned cha
 
     do {
         readBytes(is, character, 1);
+        if ( character[0] == 0x00 ) {
+            break;
+        }
         if ( !isInSet(character[0], separators, separatorsLength) ) {
             if ( !bytes.add(character[0]) ) {
-                throw std::runtime_error("PersistenceElement::readAsciiToken allocation failure");
+                logError("PersistenceElement::readAsciiToken", "%s", "allocation failure");
+                return duplicateCString("");
             }
         }
     } while ( !isInSet(character[0], separators, separatorsLength) );
@@ -843,7 +858,8 @@ PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned cha
     const size_t length = static_cast<size_t>(bytes.size());
     char *msg = static_cast<char *>(std::malloc(length + 1));
     if ( msg == nullptr ) {
-        throw std::runtime_error("PersistenceElement::readAsciiToken allocation failure");
+        logError("PersistenceElement::readAsciiToken", "%s", "allocation failure");
+        return duplicateCString("");
     }
     for ( long int i = 0; i < bytes.size(); i++ ) {
         msg[i] = static_cast<char>(bytes.get(i));
