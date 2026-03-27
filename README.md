@@ -4,6 +4,8 @@ Modernized version of RenderPark radiosity engine
 Original software from 2001 is available on
 [https://graphics.cs.kuleuven.be/renderpark/](https://graphics.cs.kuleuven.be/renderpark/).
 
+## Modenized ANSI C to C++-11 code
+
 This is a full rewrite with the following features:
 - Project controlled by cmake instead of make.
 - Code ported from a mix of K&C + ancient C++ to C++ 2011.
@@ -45,6 +47,13 @@ This is a full rewrite with the following features:
 - Object-oriented programming implemented using C++ features
   - Using static_cast and reinterpret_cast instead of simple old C++-style casts
   - Replacing pointer to callback functions with class hierarchies using inheritance overloaded methods
+
+## Annotated math in code with respect to references
+
+Papers to understand the code are included in [doc/references](doc/references). Where identified, key equations in code are annotated with citations to original papers or book chapters.
+
+Here is an example:
+![Annotated equations in code](doc/annotatedEquationsInCode.png)
 
 ## Install prerequisites
 

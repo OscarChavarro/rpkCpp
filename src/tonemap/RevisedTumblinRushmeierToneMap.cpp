@@ -27,8 +27,11 @@ RevisedTumblinRushmeierToneMap::init() {
     float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
     ldaRTR = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
+    // Equation [TUMB1999b](17): exponent gw/gd
     g = stevensGamma(lwa) / stevensGamma(ldaRTR);
+    // Equation [TUMB1999b](20): gwd = gw / (1.855 + 0.4 * log10(Lda))
     float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log10(ldaRTR));
+    // Equation [TUMB1999b](19): m(Lwa) * Lda
     comp = java::Math::pow(java::Math::sqrt(maximumDisplayContrast), gwd - 1) * ldaRTR;
     display = comp / maximumDisplayLuminance;
 }
@@ -39,6 +42,7 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     float scale;
 
     if ( rwl > 0.0 ) {
+        // Equation [TUMB1999b](17) in multiplicative scale form
         scale = comp * java::Math::pow(rwl / lwaRTR, g) / rwl;
     } else {
         scale = 0.0;
@@ -56,6 +60,7 @@ RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     float scale;
     if ( rwl > 0.0 ) {
+        // Equation [TUMB1999b](17) in multiplicative scale form
         scale = display * java::Math::pow(rwl / lwaRTR, g) / rwl;
     } else {
         scale = 0.0f;
@@ -70,6 +75,7 @@ RevisedTumblinRushmeierToneMap::stevensGamma(float lum) {
     if ( lum > 100.0 ) {
         return 2.655f;
     } else {
+        // Equation [TUMB1999b](18): g(L_a)
         return 1.855f + 0.4f * java::Math::log10(lum + 2.3e-5f);
     }
 }

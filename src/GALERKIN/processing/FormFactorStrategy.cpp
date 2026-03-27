@@ -195,7 +195,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
         }
     }
 
-    // Un-occluded kernel value (without reflectivity term) - see equation (1) from [BEKA1996]
+    // Equation [BEKA1996](1): unoccluded transport kernel (without reflectivity term)
     double formFactorKernelTerm = cosThetaX * cosThetaY / (M_PI * distance * distance);
     float shortenedDistance = static_cast<float>(distance * (1.0f - Numeric::EPSILON));
 

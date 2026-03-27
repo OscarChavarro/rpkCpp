@@ -29,9 +29,12 @@ FerwerdaToneMap::init() {
     float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0f;
 
+    // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)
     msf = FerwerdaToneMap::mesopicScaleFactor(java::Math::log10(realWorldAdaptionLuminance));
+    // Equation [FERW1996](3): m = t(L_da) / t(L_wa) using scotopic t_s from Equation (5)
     smComp = FerwerdaToneMap::scotopicOperator(java::Math::log10(lda)) /
              FerwerdaToneMap::scotopicOperator(java::Math::log10(realWorldAdaptionLuminance));
+    // Equation [FERW1996](3): m = t(L_da) / t(L_wa) using photopic t_p from Equation (4)
     pmComp = FerwerdaToneMap::photopicOperator(java::Math::log10(lda)) /
              FerwerdaToneMap::photopicOperator(java::Math::log10(realWorldAdaptionLuminance));
     smDisplay = smComp / maximumDisplayLuminance;
@@ -49,6 +52,7 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
 
     // Compute the scotopic grayscale shift
     p.set(radiance.r, radiance.g, radiance.b);
+    // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = smComp * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
 
     // Scale the photopic luminance
@@ -73,6 +77,7 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     // Compute the scotopic grayscale shift
     radiance.set(p.r, p.g, p.b);
+    // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = smDisplay * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
 
     // Scale the photopic luminance
@@ -88,6 +93,7 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
 
 float
 FerwerdaToneMap::photopicOperator(float logLa) {
+    // Equation [FERW1996](4): piecewise approximation of log(t_p(L_a))
     float r;
     if ( logLa <= -2.6 ) {
         r = -0.72f;
@@ -102,6 +108,7 @@ FerwerdaToneMap::photopicOperator(float logLa) {
 
 float
 FerwerdaToneMap::scotopicOperator(float logLa) {
+    // Equation [FERW1996](5): piecewise approximation of log(t_s(L_a))
     float r;
     if ( logLa <= -3.94 ) {
         r = -2.86f;

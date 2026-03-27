@@ -61,6 +61,7 @@ patchBrightnessEstimate(Patch *patch) {
 static void
 patchComputeLogAreaLum(Patch *patch) {
     float brightness = patchBrightnessEstimate(patch);
+    // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     globalLogAreaLum += patch->area * java::Math::log(brightness);
 }
 
@@ -125,6 +126,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 patchComputeLogAreaLum(scenePatches->get(i));
             }
+            // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
             GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / GLOBAL_statistics.totalArea + 0.84f);
             break;
         }
