@@ -75,7 +75,7 @@ Math::log(double a) {
 
 inline float
 Math::log10(float a) {
-    return std::log(a);
+    return std::log10(a);
 }
 
 inline float
