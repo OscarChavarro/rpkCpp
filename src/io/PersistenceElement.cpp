@@ -6,7 +6,6 @@
 #include <cstring>
 #include <stdexcept>
 
-#include <sys/stat.h>
 #include "java/util/ArrayList.txx"
 
 namespace vsdk {
@@ -1032,21 +1031,16 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
                 std::memcpy(token, tokenStart, tokenLength);
                 token[tokenLength] = '\0';
 
-                struct stat st {};
-                if ( stat(token, &st) == 0 && S_ISDIR(st.st_mode) ) {
-#if defined(_WIN32)
-                    char *fullPath = joinCString3(token, "\\", nativeLibname);
-#else
-                    char *fullPath = joinCString3(token, "/", nativeLibname);
-#endif
-                    if ( fullPath != nullptr ) {
-                        if ( stat(fullPath, &st) == 0 ) {
-                            std::free(fullPath);
-                            std::free(token);
-                            return true;
-                        }
+                char *fullPath = joinCString3(token, "/", nativeLibname);
+                if ( fullPath != nullptr ) {
+                    FILE *candidate = std::fopen(fullPath, "rb");
+                    if ( candidate != nullptr ) {
+                        std::fclose(candidate);
                         std::free(fullPath);
+                        std::free(token);
+                        return true;
                     }
+                    std::free(fullPath);
                 }
                 std::free(token);
             }
@@ -1108,31 +1102,28 @@ PersistenceElement::checkDirectory(const char *dirName) {
         return false;
     }
 
-    struct stat st {};
-    if ( stat(dirName, &st) == 0 ) {
-        if ( !S_ISDIR(st.st_mode) ) {
-            std::fprintf(
-                stderr,
-                "Directory %s can not be created, because a file with that name already exists (not overwriten).\n",
-                dirName);
-            return false;
-        }
-        return true;
-    }
-
-#if defined(_WIN32)
-    const int result = _mkdir(dirName);
-#else
-    const int result = mkdir(dirName, 0755);
-#endif
-    if ( result != 0 ) {
+    char *probePath = joinCString3(dirName, "/", ".rpk_dir_probe.tmp");
+    if ( probePath == nullptr ) {
         std::fprintf(
             stderr,
-            "Directory %s can not be created, check permisions and available free disk space.\n",
+            "Directory %s can not be validated.\n",
             dirName);
         return false;
     }
 
+    FILE *probe = std::fopen(probePath, "ab");
+    if ( probe == nullptr ) {
+        std::free(probePath);
+        std::fprintf(
+            stderr,
+            "Directory %s is not accessible and automatic creation is disabled.\n",
+            dirName);
+        return false;
+    }
+
+    std::fclose(probe);
+    std::remove(probePath);
+    std::free(probePath);
     return true;
 }
 

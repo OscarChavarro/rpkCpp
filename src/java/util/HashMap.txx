@@ -1,10 +1,44 @@
 #include <cstddef>
-#include <functional>
+#include <cstdint>
 #include <new>
 
 #include "java/util/HashMap.h"
 
 namespace java {
+
+namespace {
+
+inline size_t
+hashFNV1a(const unsigned char *bytes, size_t length) {
+    const size_t offset = static_cast<size_t>(1469598103934665603ULL);
+    const size_t prime = static_cast<size_t>(1099511628211ULL);
+    size_t hash = offset;
+    for ( size_t i = 0; i < length; i++ ) {
+        hash ^= static_cast<size_t>(bytes[i]);
+        hash *= prime;
+    }
+    return hash;
+}
+
+template <class T>
+inline size_t
+hashKeyValue(const T &value) {
+    return hashFNV1a(reinterpret_cast<const unsigned char *>(&value), sizeof(T));
+}
+
+template <class T>
+inline size_t
+hashKeyValue(T *const &value) {
+    return static_cast<size_t>(reinterpret_cast<uintptr_t>(value));
+}
+
+template <class T>
+inline size_t
+hashKeyValue(const T *const &value) {
+    return static_cast<size_t>(reinterpret_cast<uintptr_t>(value));
+}
+
+}
 
 template <class K, class V>
 class HashMap<K, V>::Entry {
@@ -104,7 +138,7 @@ HashMap<K, V>::bucketIndexFor(const K &key) const {
     if ( bucketCount <= 0 ) {
         return 0;
     }
-    const size_t hashValue = std::hash<K>()(key);
+    const size_t hashValue = hashKeyValue(key);
     return static_cast<long>(hashValue % static_cast<size_t>(bucketCount));
 }
 
@@ -165,7 +199,7 @@ HashMap<K, V>::rehash(long newBucketCount) {
         Entry *current = buckets[i];
         while ( current != nullptr ) {
             Entry *next = current->next;
-            const size_t hashValue = std::hash<K>()(current->key);
+            const size_t hashValue = hashKeyValue(current->key);
             const long newIndex = static_cast<long>(hashValue % static_cast<size_t>(newBucketCount));
             current->next = newBuckets[newIndex];
             newBuckets[newIndex] = current;

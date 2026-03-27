@@ -1,10 +1,10 @@
 #include "io/bin/BinaryModelReader.h"
 
 #include <cstring>
-#include <limits>
 #include <memory>
 
 #include "java/io/BufferedInputStream.h"
+#include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/ColorRgb.h"
@@ -208,12 +208,9 @@ BinaryModelReader::readBytesChunked(java::io::InputStream &input, unsigned char 
     if ( length <= 0 ) {
         return true;
     }
-    if ( length > static_cast<int64_t>(std::numeric_limits<size_t>::max()) ) {
-        return reportReadError("BinaryModelReader::readBytesChunked", "Requested read length too large");
-    }
 
     int64_t offset = 0;
-    const int64_t maxChunk = static_cast<int64_t>(std::numeric_limits<int>::max());
+    const int64_t maxChunk = static_cast<int64_t>(java::Integer::MAX_VALUE);
     while ( offset < length ) {
         const int64_t remaining = length - offset;
         const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
@@ -781,11 +778,11 @@ BinaryModelReader::read(const char *fileName) {
 
                     std::unique_ptr<unsigned char[]> textureData;
                     if ( dataBytes > 0 ) {
-                        if ( dataBytes > static_cast<int64_t>(std::numeric_limits<size_t>::max()) ) {
+                        if ( dataBytes > static_cast<int64_t>(java::Integer::MAX_VALUE) ) {
                             logError("BinaryModelReader::read", "%s", "Texture data too large for current platform");
                             goto fail;
                         }
-                        textureData = std::unique_ptr<unsigned char[]>(new unsigned char[static_cast<size_t>(dataBytes)]);
+                        textureData = std::unique_ptr<unsigned char[]>(new unsigned char[static_cast<int>(dataBytes)]);
                         if ( !readBytesChunked(input, textureData.get(), dataBytes) ) goto fail;
                     }
                     texture = new Texture(

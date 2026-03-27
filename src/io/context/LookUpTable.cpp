@@ -3,7 +3,6 @@ Table lookup routines
 */
 
 #include <cstring>
-#include <cstddef>
 
 #include "io/context/LookUpEntity.h"
 #include "io/context/LookUpTable.h"

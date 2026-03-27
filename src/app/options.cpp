@@ -4,8 +4,8 @@ Command line options and defaults
 
 #include <cstring>
 #include "java/lang/System.h"
+#include "java/lang/Integer.h"
 #include <cerrno>
-#include <climits>
 #include <cstdint>
 
 #include "java/util/ArrayList.txx"
@@ -95,7 +95,9 @@ optionsGetArgumentIntValue(int *res) {
     if ( endPointer == currentArgument || *endPointer != '\0' ) {
         return false;
     }
-    if ( errno == ERANGE || parsedValue < INT_MIN || parsedValue > INT_MAX ) {
+    if ( errno == ERANGE
+         || parsedValue < static_cast<long>(java::Integer::MIN_VALUE)
+         || parsedValue > static_cast<long>(java::Integer::MAX_VALUE) ) {
         return false;
     }
 

@@ -2,8 +2,7 @@
 Estimate static adaptation for tone mapping
 */
 
-#include <cfloat>
-
+#include "java/lang/Float.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -18,7 +17,7 @@ static int globalNumEntries;
 static double globalLogAreaLum;
 static LuminanceArea *globalLumArea;
 static int globalLumAreaIndex;
-static float globalLumMin = FLT_MAX; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+static float globalLumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 static float globalLumMax = 0.0;
 
 /**

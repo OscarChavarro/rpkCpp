@@ -1,7 +1,7 @@
 #ifndef __BINARY_MODEL_READER__
 #define __BINARY_MODEL_READER__
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace java {
 template <class T>

@@ -5,6 +5,8 @@ namespace java {
 
 class Character {
   public:
+    static const int MIN_VALUE = 0;
+    static const int MAX_VALUE = 65535;
     static char min(char a, char b);
 };
 

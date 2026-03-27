@@ -1,9 +1,9 @@
 #include "io/bin/BinaryModelWriter.h"
 
 #include <cstring>
-#include <limits>
 
 #include "java/io/FileOutputStream.h"
+#include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/HashMap.txx"
 #include "common/error.h"
@@ -51,7 +51,7 @@ BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsig
         return false;
     }
     int64_t offset = 0;
-    const int64_t maxChunk = static_cast<int64_t>(std::numeric_limits<int>::max());
+    const int64_t maxChunk = static_cast<int64_t>(java::Integer::MAX_VALUE);
     while ( offset < length ) {
         const int64_t remaining = length - offset;
         const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
@@ -71,8 +71,8 @@ BinaryModelWriter::writeTag(java::io::OutputStream &output, const char tag[4]) {
 
 bool
 BinaryModelWriter::checkedLongToInt32(long value, const char *what, int32_t &result) {
-    if ( value > static_cast<long>(std::numeric_limits<int32_t>::max())
-         || value < static_cast<long>(std::numeric_limits<int32_t>::min()) ) {
+    if ( value > static_cast<long>(java::Integer::MAX_VALUE)
+         || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
         logError("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
         return false;
     }
