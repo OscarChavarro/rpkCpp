@@ -1,7 +1,6 @@
 #ifndef __VECTOR_3D__
 #define __VECTOR_3D__
 
-#include <cmath>
 #include <cstdio>
 
 #include "java/lang/Math.h"

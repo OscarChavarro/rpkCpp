@@ -1,7 +1,6 @@
-#include <cmath>
-
 #include "common/CppReAlloc.h"
 #include "io/image/dkcolor.h"
+#include "java/lang/Math.h"
 
 static constexpr int RED = 0;
 static constexpr int GREEN = 1;
@@ -126,8 +125,9 @@ dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
         return;
     }
 
-    int e;
-    d = std::frexp(d, &e) * 255.9999 / d;
+    const int e = java::Math::getExponent(d) + 1;
+    const double normalized = java::Math::scalb(d, -e);
+    d = normalized * 255.9999 / d;
 
     color[RED] = static_cast<unsigned char>(r * d);
     color[GREEN] = static_cast<unsigned char>(g * d);

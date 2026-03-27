@@ -1,6 +1,7 @@
 #ifndef __TONE_MAP__
 #define __TONE_MAP__
 
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.h"
 #include "tonemap/ToneMappingContext.h"
 
@@ -54,7 +55,7 @@ be OK.
 */
 inline float
 tmoCandelaLambert(float a) {
-    return a * static_cast<float>(M_PI) * 1e-4f;
+    return a * static_cast<float>(java::Math::PI) * 1e-4f;
 }
 
 /**
@@ -62,7 +63,7 @@ Transforms luminance from lamberts to cd/m^2 to lamberts.
 */
 inline float
 tmoLambertCandela(float a) {
-    return a / (static_cast<float>(M_PI) * 1e-4f);
+    return a / (static_cast<float>(java::Math::PI) * 1e-4f);
 }
 
 extern void recomputeGammaTables(ColorRgb gamma);

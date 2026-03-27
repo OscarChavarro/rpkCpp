@@ -2,7 +2,6 @@
 #define __COLOR__
 
 #include <cstdio>
-#include <cmath>
 
 #include "common/cie.h"
 

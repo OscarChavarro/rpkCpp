@@ -6,6 +6,9 @@
 namespace java {
 class Math {
 public:
+    static constexpr double E = 2.7182818284590452354;
+    static constexpr double PI = 3.14159265358979323846;
+
     static double floor(double a);
     static float floor(float a);
     static double ceil(double a);
@@ -34,6 +37,10 @@ public:
     static float max(float a, float b);
     static float sqrt(float a);
     static double sqrt(double a);
+    static int getExponent(double a);
+    static int getExponent(float a);
+    static double scalb(double a, int scaleFactor);
+    static float scalb(float a, int scaleFactor);
 };
 
 inline double
@@ -174,6 +181,26 @@ Math::sqrt(float a) {
 inline double
 Math::sqrt(double a) {
     return std::sqrt(a);
+}
+
+inline int
+Math::getExponent(double a) {
+    return std::ilogb(a);
+}
+
+inline int
+Math::getExponent(float a) {
+    return std::ilogb(a);
+}
+
+inline double
+Math::scalb(double a, int scaleFactor) {
+    return std::ldexp(a, scaleFactor);
+}
+
+inline float
+Math::scalb(float a, int scaleFactor) {
+    return std::ldexp(a, scaleFactor);
 }
 }
 #endif

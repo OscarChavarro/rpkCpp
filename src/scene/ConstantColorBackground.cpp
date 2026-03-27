@@ -1,10 +1,8 @@
-#include <cmath>
-
 #include "java/lang/Math.h"
 #include "scene/ConstantColorBackground.h"
 
 namespace {
-static constexpr float FOUR_PI = 4.0f * static_cast<float>(M_PI);
+static constexpr float FOUR_PI = 4.0f * static_cast<float>(java::Math::PI);
 static constexpr float INV_FOUR_PI = 1.0f / FOUR_PI;
 }
 
@@ -49,10 +47,10 @@ ConstantColorBackground::sample(
     ColorRgb *radianceValue,
     float *probabilityDensityFunction) const
 {
-    const double phi = 2.0 * static_cast<double>(M_PI) * static_cast<double>(xi1);
+    const double phi = 2.0 * static_cast<double>(java::Math::PI) * static_cast<double>(xi1);
     const float z = 1.0f - 2.0f * xi2;
     const float radialSquared = java::Math::max(0.0f, 1.0f - z * z);
-    const float radius = std::sqrt(radialSquared);
+    const float radius = java::Math::sqrt(radialSquared);
 
     if ( radianceValue != nullptr ) {
         *radianceValue = color;
@@ -63,8 +61,8 @@ ConstantColorBackground::sample(
 
     Vector3D direction;
     direction.set(
-        radius * static_cast<float>(std::cos(phi)),
-        radius * static_cast<float>(std::sin(phi)),
+        radius * static_cast<float>(java::Math::cos(phi)),
+        radius * static_cast<float>(java::Math::sin(phi)),
         z);
     return direction;
 }

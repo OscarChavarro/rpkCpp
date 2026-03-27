@@ -1,7 +1,6 @@
 #ifndef __SCREEN_BUFFER__
 #define __SCREEN_BUFFER__
 
-#include <cmath>
 #include <cstdio>
 
 #include "common/RenderOptions.h"
