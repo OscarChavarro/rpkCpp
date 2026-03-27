@@ -824,7 +824,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
 /**
 Ray-patch intersection test, for computing form factors, creating ray-cast
 images ... Returns nullptr if the Ray doesn't hit the patch. Fills in the
-'the_hit' hit record if there is a new hit and returns a pointer to it.
+'hit' record if there is a new hit and returns a pointer to it.
 Fills in the distance to the patch in maximumDistance if the patch
 is hit. Intersections closer than minimumDistance or further than *maximumDistance are
 ignored. The hitFlags determine what information to return about an
