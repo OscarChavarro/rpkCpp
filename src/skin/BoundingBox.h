@@ -49,6 +49,7 @@ class BoundingBox {
     float maxX() const;
     float maxY() const;
     float maxZ() const;
+    const float *rawCoordinates() const;
     float valueAt(int idx) const;
     void corners(Vector3D out[8]) const;
 };
@@ -228,6 +229,11 @@ BoundingBox::maxY() const {
 inline float
 BoundingBox::maxZ() const {
     return coordinates[MAX_Z];
+}
+
+inline const float *
+BoundingBox::rawCoordinates() const {
+    return coordinates;
 }
 
 inline float

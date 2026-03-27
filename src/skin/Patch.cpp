@@ -839,35 +839,45 @@ Patch::intersect(
     int hitFlags,
     RayHit *hitStore)
 {
-    RayHit hit;
+    if ( ray == nullptr || maximumDistance == nullptr || hitStore == nullptr ) {
+        return nullptr;
+    }
 
     if ( isExcluded() ) {
         return nullptr;
     }
 
-    float distance = normal.dotProduct(ray->direction);
-    if ( distance > Numeric::EPSILON ) {
+    const Vector3D &rayDirection = ray->direction;
+    const Vector3D &rayPosition = ray->position;
+    const float denominator =
+        normal.x * rayDirection.x +
+        normal.y * rayDirection.y +
+        normal.z * rayDirection.z;
+
+    unsigned int outputFlags = 0;
+    if ( denominator > Numeric::EPSILON ) {
         // Back facing patch
         if ( !(hitFlags & RayHitFlag::BACK) ) {
             return nullptr;
-        } else {
-            unsigned int newFlags = hit.getFlags() | RayHitFlag::BACK;
-            hit.setFlags(newFlags);
         }
-    } else if ( distance < -Numeric::EPSILON ) {
+        outputFlags |= RayHitFlag::BACK;
+    } else if ( denominator < -Numeric::EPSILON ) {
         // Front facing patch
         if ( !(hitFlags & RayHitFlag::FRONT) ) {
             return nullptr;
-        } else {
-            unsigned int newFlags = hit.getFlags() | RayHitFlag::FRONT;
-            hit.setFlags(newFlags);
         }
+        outputFlags |= RayHitFlag::FRONT;
     } else {
         // Ray is parallel with the plane of the patch
         return nullptr;
     }
 
-    distance = -(normal.dotProduct(ray->position) + planeConstant) / distance;
+    const float numerator =
+        -(normal.x * rayPosition.x +
+          normal.y * rayPosition.y +
+          normal.z * rayPosition.z +
+          planeConstant);
+    const float distance = numerator / denominator;
 
     if ( distance > *maximumDistance || distance < minimumDistance ) {
         // Intersection too far or too close
@@ -876,38 +886,44 @@ Patch::intersect(
 
     // Intersection point of ray with plane of patch
     Vector3D position;
-    position.sumScaled(ray->position, distance, ray->direction);
-    hit.setPoint(&position);
+    position.x = rayPosition.x + distance * rayDirection.x;
+    position.y = rayPosition.y + distance * rayDirection.y;
+    position.z = rayPosition.z + distance * rayDirection.z;
 
-    // Test whether it lays inside or outside the patch
-    if ( hitInPatch(&hit, this) ) {
-        hit.setPatch(this);
-        hit.setMaterial(material);
-        hit.setGeometricNormal(&normal);
-        unsigned int newFlags = hit.getFlags()
-            | RayHitFlag::PATCH
-            | RayHitFlag::POINT
-            | RayHitFlag::MATERIAL
-            | RayHitFlag::GEOMETRIC_NORMAL
-            | RayHitFlag::DISTANCE;
-        hit.setFlags(newFlags);
-        if ( hitFlags & RayHitFlag::UV && !(hit.getFlags() & RayHitFlag::UV) ) {
-            position = hit.getPoint();
-            double u;
-            double v;
-            hit.getPatch()->uv(&position, &u, &v);
-            hit.setUv(u, v);
-            hit.setPoint(&position);
-            newFlags = hit.getFlags() & RayHitFlag::UV;
-            hit.setFlags(newFlags);
+    if ( boundingBox != nullptr ) {
+        const float *bounds = boundingBox->rawCoordinates();
+        const float epsilon = Numeric::EPSILON_FLOAT;
+        if ( position.x < bounds[MIN_X] - epsilon || position.x > bounds[MAX_X] + epsilon ||
+             position.y < bounds[MIN_Y] - epsilon || position.y > bounds[MAX_Y] + epsilon ||
+             position.z < bounds[MIN_Z] - epsilon || position.z > bounds[MAX_Z] + epsilon ) {
+            return nullptr;
         }
-        *hitStore = hit;
-        *maximumDistance = distance;
-
-        return hitStore;
     }
 
-    return nullptr;
+    // Test whether it lays inside or outside the patch
+    Vector2Dd uv;
+    const bool inside = (numberOfVertices == 3)
+        ? triangleUv(&position, &uv)
+        : quadUv(this, &position, &uv);
+    if ( !inside ) {
+        return nullptr;
+    }
+
+    hitStore->setPatch(this);
+    hitStore->setMaterial(material);
+    hitStore->setGeometricNormal(&normal);
+    hitStore->setPoint(&position);
+    hitStore->setUv(&uv);
+    outputFlags |= RayHitFlag::PATCH
+                 | RayHitFlag::POINT
+                 | RayHitFlag::MATERIAL
+                 | RayHitFlag::GEOMETRIC_NORMAL
+                 | RayHitFlag::DISTANCE
+                 | RayHitFlag::UV;
+    hitStore->setFlags(outputFlags);
+    *maximumDistance = distance;
+
+    return hitStore;
 }
 
 /**
