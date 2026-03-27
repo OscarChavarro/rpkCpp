@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <cstdio>
-#include <string>
 
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"
@@ -95,25 +94,24 @@ class PersistenceElement {
     static void writeLongBE(FILE *os, long num);
     static void writeLongLE(FILE *os, long num);
 
-    static std::string readAsciiFixedSizeString(java::io::InputStream &is, int size);
-    static std::string readAsciiString(java::io::InputStream &is);
-    static std::string readUtf8String(java::io::InputStream &is);
-    static std::string buildUtf8Char(const unsigned char arr[2]);
-    static std::string readUtf8Line(java::io::InputStream &is);
-    static std::string readAsciiLine(java::io::InputStream &is);
-    static std::string readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength);
+    static char *readAsciiFixedSizeString(java::io::InputStream &is, int size);
+    static char *readAsciiString(java::io::InputStream &is);
+    static char *readUtf8String(java::io::InputStream &is);
+    static char *readUtf8Line(java::io::InputStream &is);
+    static char *readAsciiLine(java::io::InputStream &is);
+    static char *readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength);
 
-    static void writeAsciiString(FILE *writer, const std::string &cad);
-    static void writeUtf8String(FILE *writer, const std::string &cad);
-    static void writeAsciiLine(FILE *writer, const std::string &cad);
-    static void writeUtf8Line(FILE *writer, const std::string &cad);
+    static void writeAsciiString(FILE *writer, const char *cad);
+    static void writeUtf8String(FILE *writer, const char *cad);
+    static void writeAsciiLine(FILE *writer, const char *cad);
+    static void writeUtf8Line(FILE *writer, const char *cad);
 
-    static bool verifyLibrary(const std::string &libname);
+    static bool verifyLibrary(const char *libname);
 
-    static bool checkDirectory(const std::string &dirName);
+    static bool checkDirectory(const char *dirName);
 
   protected:
-    static std::string extractExtensionFromFile(const java::io::File &fd);
+    static char *extractExtensionFromFile(const java::io::File &fd);
 
   private:
     static const bool bigEndianArchitecture;
@@ -147,7 +145,15 @@ class PersistenceElement {
     static double byteArray2doubleInvert(const unsigned char *arr, int start);
 
     static bool isInSet(unsigned char key, const unsigned char *set, int setLength);
-    static std::string mapLibraryName(const std::string &libname);
+    static bool buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]);
+    static char *duplicateCString(const char *text);
+    static char *joinCString2(const char *left, const char *right);
+    static char *joinCString3(const char *first, const char *second, const char *third);
+    static bool containsCString(const char *text, const char *fragment);
+    static bool startsWithCString(const char *text, const char *prefix);
+    static bool endsWithCString(const char *text, const char *suffix);
+    static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
+    static char *mapLibraryName(const char *libname);
 };
 
 }

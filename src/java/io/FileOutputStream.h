@@ -30,12 +30,6 @@ class FileOutputStream : public OutputStream {
     open(FILE *fileHandle, bool pipeOutput);
 
     bool
-    openCompressed(const File &file);
-
-    bool
-    openCompressed(const char *fileName);
-
-    bool
     openStandardOutput();
 
     bool

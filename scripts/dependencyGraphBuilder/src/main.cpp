@@ -1,8 +1,7 @@
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <string>
 #include <vector>
 
@@ -12,6 +11,15 @@ struct Relation {
     std::string source;
     std::string target;
 };
+
+static bool containsNode(const std::vector<std::string>& nodes, const std::string& node) {
+    for (const auto& current : nodes) {
+        if (current == node) {
+            return true;
+        }
+    }
+    return false;
+}
 
 static std::string trim(const std::string& text) {
     std::size_t start = 0;
@@ -87,7 +95,7 @@ static bool isSourceFile(const fs::path& path) {
 int main() {
     const fs::path sourceRoot = fs::path(".") / "src";
     if (!fs::exists(sourceRoot) || !fs::is_directory(sourceRoot)) {
-        std::cerr << "Cannot find ./src\n";
+        std::fprintf(stderr, "Cannot find ./src\n");
         return 1;
     }
 
@@ -106,42 +114,55 @@ int main() {
         return a.generic_string() < b.generic_string();
     });
 
-    std::vector<std::string> nodes;
-    std::vector<Relation> relations;
-
+    std::vector<std::string> sourceNodes;
+    sourceNodes.reserve(files.size());
     for (const auto& filePath : files) {
         const fs::path relativePath = fs::relative(filePath, ".");
-        const std::string nodeName = normalizePath(relativePath);
-        nodes.push_back(nodeName);
+        sourceNodes.push_back(normalizePath(relativePath));
+    }
 
-        std::ifstream input(filePath);
-        if (!input.is_open()) {
+    std::vector<std::string> nodes = sourceNodes;
+    std::vector<Relation> relations;
+
+    for (std::size_t index = 0; index < files.size(); index++) {
+        const fs::path& filePath = files[index];
+        const std::string& nodeName = sourceNodes[index];
+
+        const std::string fileName = filePath.string();
+        FILE* input = std::fopen(fileName.c_str(), "rb");
+        if (input == nullptr) {
             continue;
         }
 
-        std::string line;
-        while (std::getline(input, line)) {
+        char lineBuffer[8192];
+        while (std::fgets(lineBuffer, sizeof(lineBuffer), input) != nullptr) {
+            std::string line(lineBuffer);
             std::string target;
             if (!parseIncludeTarget(line, target)) {
                 continue;
             }
             relations.push_back(Relation{nodeName, target});
+            if (!containsNode(sourceNodes, target) && !containsNode(nodes, target)) {
+                nodes.push_back(target);
+            }
         }
+
+        std::fclose(input);
     }
 
-    std::ofstream output("cache.txt", std::ios::binary);
-    if (!output.is_open()) {
-        std::cerr << "Cannot write cache.txt\n";
+    FILE* output = std::fopen("cache.txt", "wb");
+    if (output == nullptr) {
+        std::fprintf(stderr, "Cannot write cache.txt\n");
         return 1;
     }
 
     for (const auto& node : nodes) {
-        output << "n " << node << " good\n";
+        std::fprintf(output, "n %s good\n", node.c_str());
     }
-    output << "\n";
     for (const auto& relation : relations) {
-        output << "r " << relation.source << " " << relation.target << "\n";
+        std::fprintf(output, "r %s %s\n", relation.source.c_str(), relation.target.c_str());
     }
 
+    std::fclose(output);
     return 0;
 }

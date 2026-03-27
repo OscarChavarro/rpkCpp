@@ -62,6 +62,6 @@ class BaseContext {
 
 #include "io/context/TransformStackContext.h"
 #include "io/context/ColorContext.h"
-#include "io/mgf/LookUpTable.h"
+#include "io/context/LookUpTable.h"
 
 #endif

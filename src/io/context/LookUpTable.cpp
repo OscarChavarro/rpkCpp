@@ -5,8 +5,8 @@ Table lookup routines
 #include <cstring>
 #include <cstddef>
 
-#include "io/mgf/LookUpEntity.h"
-#include "io/mgf/LookUpTable.h"
+#include "io/context/LookUpEntity.h"
+#include "io/context/LookUpTable.h"
 
 namespace {
 /**

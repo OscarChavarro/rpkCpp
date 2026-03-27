@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "io/mgf/LookUpEntity.h"
+#include "io/context/LookUpEntity.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/context/TransformStackContext.h"
 #include "io/mgf/mgfHandlerObject.h"

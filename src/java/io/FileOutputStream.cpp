@@ -1,7 +1,5 @@
 #include "java/io/FileOutputStream.h"
 
-#include "io/FileUncompressWrapper.h"
-
 namespace java {
 namespace io {
 
@@ -51,24 +49,6 @@ FileOutputStream::open(FILE *fileHandle, bool pipeOutput) {
     isPipe = pipeOutput ? 1 : 0;
     standardOutput = false;
     return true;
-}
-
-bool
-FileOutputStream::openCompressed(const File &file) {
-    return openCompressed(file.getPath().toCString());
-}
-
-bool
-FileOutputStream::openCompressed(const char *fileName) {
-    close();
-    if ( fileName == nullptr || fileName[0] == '\0' ) {
-        return false;
-    }
-    int pipeFlag = 0;
-    stream = openFileCompressWrapper(fileName, "w", &pipeFlag);
-    isPipe = pipeFlag;
-    standardOutput = false;
-    return stream != nullptr;
 }
 
 bool
@@ -134,7 +114,11 @@ FileOutputStream::close() {
         return true;
     }
 
-    closeFile(stream, isPipe);
+    if ( isPipe ) {
+        pclose(stream);
+    } else {
+        fclose(stream);
+    }
     stream = nullptr;
     isPipe = 0;
     standardOutput = false;

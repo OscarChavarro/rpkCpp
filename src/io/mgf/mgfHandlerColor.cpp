@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "io/mgf/LookUpEntity.h"
+#include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/mgfHandlerColor.h"
 #include "io/mgf/mgfDefinitions.h"

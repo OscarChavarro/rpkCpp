@@ -1,6 +1,6 @@
-#include <algorithm>
 #include <cmath>
 
+#include "java/lang/Math.h"
 #include "scene/ConstantColorBackground.h"
 
 namespace {
@@ -51,7 +51,7 @@ ConstantColorBackground::sample(
 {
     const double phi = 2.0 * static_cast<double>(M_PI) * static_cast<double>(xi1);
     const float z = 1.0f - 2.0f * xi2;
-    const float radialSquared = std::max(0.0f, 1.0f - z * z);
+    const float radialSquared = java::Math::max(0.0f, 1.0f - z * z);
     const float radius = std::sqrt(radialSquared);
 
     if ( radianceValue != nullptr ) {

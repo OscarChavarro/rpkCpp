@@ -1,4 +1,4 @@
-#include "io/mgf/LookUpEntity.h"
+#include "io/context/LookUpEntity.h"
 
 LookUpEntity::LookUpEntity():
     key(nullptr),

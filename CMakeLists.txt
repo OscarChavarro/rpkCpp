@@ -97,8 +97,8 @@ set(MAIN_SRC
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
     src/io/context/TransformContext.cpp
     src/io/context/BaseContext.cpp
-    src/io/mgf/LookUpEntity.cpp
-    src/io/mgf/LookUpTable.cpp
+    src/io/context/LookUpEntity.cpp
+    src/io/context/LookUpTable.cpp
     src/io/context/ColorContext.cpp
     src/io/mgf/mgfDefinitions.cpp
     src/io/mgf/mgfGeometry.cpp

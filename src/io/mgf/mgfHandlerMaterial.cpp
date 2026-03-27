@@ -4,7 +4,7 @@
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
-#include "io/mgf/LookUpEntity.h"
+#include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/MgfMaterialContext.h"
 #include "io/mgf/mgfHandlerMaterial.h"

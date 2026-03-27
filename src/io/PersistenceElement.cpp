@@ -4,11 +4,10 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <stdexcept>
-#include <vector>
 
 #include <sys/stat.h>
+#include "java/util/ArrayList.txx"
 
 namespace vsdk {
 
@@ -631,16 +630,21 @@ PersistenceElement::writeLongLE(FILE *os, long num) {
     writeBytes(os, bytesForLong, 4);
 }
 
-std::string
+char *
 PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size) {
     if ( size <= 0 ) {
-        return "";
+        return duplicateCString("");
     }
 
-    std::vector<unsigned char> bytesForString(static_cast<size_t>(size));
+    java::ArrayList<unsigned char> bytesForString(size);
     readBytes(is, bytesForString.data(), size);
 
-    std::string msg(reinterpret_cast<const char *>(bytesForString.data()), bytesForString.size());
+    char *msg = static_cast<char *>(std::malloc(static_cast<size_t>(size) + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readAsciiFixedSizeString allocation failure");
+    }
+    std::memcpy(msg, bytesForString.data(), static_cast<size_t>(size));
+    msg[size] = '\0';
 
     unsigned char skip[1] = {0};
     readBytes(is, skip, 1);
@@ -648,42 +652,71 @@ PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size
     return msg;
 }
 
-std::string
+char *
 PersistenceElement::readAsciiString(java::io::InputStream &is) {
     unsigned char character[1] = {0};
-    std::string msg;
+    java::ArrayList<unsigned char> bytes(64);
 
     do {
         readBytes(is, character, 1);
         if ( character[0] != 0x00 ) {
-            msg.push_back(static_cast<char>(character[0]));
+            if ( !bytes.add(character[0]) ) {
+                throw std::runtime_error("PersistenceElement::readAsciiString allocation failure");
+            }
         }
     } while ( character[0] != 0x00 );
 
+    const size_t length = static_cast<size_t>(bytes.size());
+    char *msg = static_cast<char *>(std::malloc(length + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readAsciiString allocation failure");
+    }
+    for ( long int i = 0; i < bytes.size(); i++ ) {
+        msg[i] = static_cast<char>(bytes.get(i));
+    }
+    msg[length] = '\0';
     return msg;
 }
 
-std::string
+bool
+PersistenceElement::buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]) {
+    const int a = signedByte2unsignedInteger(arr[0]);
+    const int b = signedByte2unsignedInteger(arr[1]);
+
+    if ( ((a >> 5) == 0x06) && ((b >> 6) == 0x02) ) {
+        outBytes[0] = arr[0];
+        outBytes[1] = arr[1];
+        return true;
+    }
+
+    return false;
+}
+
+char *
 PersistenceElement::readUtf8String(java::io::InputStream &is) {
     unsigned char character[1] = {0};
-    std::string msg;
-    unsigned char a[2] = {0, 0};
+    unsigned char pair[2] = {0, 0};
+    unsigned char utf8Char[2] = {0, 0};
+    java::ArrayList<unsigned char> bytes(64);
 
     do {
         readBytes(is, character, 1);
 
         if ( character[0] != 0x00 && ((character[0] >> 7) == 0) ) {
-            msg.push_back(static_cast<char>(character[0]));
+            if ( !bytes.add(character[0]) ) {
+                throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
+            }
         } else if ( character[0] != 0x00 ) {
-            a[0] = character[0];
+            pair[0] = character[0];
             try {
                 readBytes(is, character, 1);
-                a[1] = character[0];
-                const std::string cc = buildUtf8Char(a);
-                if ( !cc.empty() ) {
-                    msg += cc;
+                pair[1] = character[0];
+                if ( buildUtf8Char(pair, utf8Char) ) {
+                    if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
+                        throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
+                    }
                 } else {
-                    std::cout << "* UNHANDLED UTF! ********************************************************** ->" << msg << std::endl;
+                    std::fprintf(stderr, "* UNHANDLED UTF sequence while reading UTF-8 string\n");
                 }
             } catch ( const std::exception & ) {
                 break;
@@ -691,44 +724,45 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
         }
     } while ( character[0] != 0x00 );
 
+    const size_t length = static_cast<size_t>(bytes.size());
+    char *msg = static_cast<char *>(std::malloc(length + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readUtf8String allocation failure");
+    }
+    for ( long int i = 0; i < bytes.size(); i++ ) {
+        msg[i] = static_cast<char>(bytes.get(i));
+    }
+    msg[length] = '\0';
     return msg;
 }
 
-std::string
-PersistenceElement::buildUtf8Char(const unsigned char arr[2]) {
-    const int a = signedByte2unsignedInteger(arr[0]);
-    const int b = signedByte2unsignedInteger(arr[1]);
-
-    if ( ((a >> 5) == 0x06) && ((b >> 6) == 0x02) ) {
-        return std::string(reinterpret_cast<const char *>(arr), 2);
-    }
-
-    return "";
-}
-
-std::string
+char *
 PersistenceElement::readUtf8Line(java::io::InputStream &is) {
     unsigned char character[1] = {0};
-    std::string msg;
-    unsigned char a[2] = {0, 0};
+    unsigned char pair[2] = {0, 0};
+    unsigned char utf8Char[2] = {0, 0};
+    java::ArrayList<unsigned char> bytes(64);
 
     do {
         try {
             readBytes(is, character, 1);
         } catch ( const std::exception & ) {
-            return "";
+            return duplicateCString("");
         }
 
         if ( character[0] != '\n' && character[0] != '\r' && ((character[0] >> 7) == 0) ) {
-            msg.push_back(static_cast<char>(character[0]));
+            if ( !bytes.add(character[0]) ) {
+                throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
+            }
         } else if ( character[0] != '\n' && character[0] != '\r' ) {
-            a[0] = character[0];
+            pair[0] = character[0];
             try {
                 readBytes(is, character, 1);
-                a[1] = character[0];
-                const std::string cc = buildUtf8Char(a);
-                if ( !cc.empty() ) {
-                    msg += cc;
+                pair[1] = character[0];
+                if ( buildUtf8Char(pair, utf8Char) ) {
+                    if ( !bytes.add(utf8Char[0]) || !bytes.add(utf8Char[1]) ) {
+                        throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
+                    }
                 }
             } catch ( const std::exception & ) {
                 break;
@@ -736,13 +770,22 @@ PersistenceElement::readUtf8Line(java::io::InputStream &is) {
         }
     } while ( character[0] != '\n' );
 
+    const size_t length = static_cast<size_t>(bytes.size());
+    char *msg = static_cast<char *>(std::malloc(length + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readUtf8Line allocation failure");
+    }
+    for ( long int i = 0; i < bytes.size(); i++ ) {
+        msg[i] = static_cast<char>(bytes.get(i));
+    }
+    msg[length] = '\0';
     return msg;
 }
 
-std::string
+char *
 PersistenceElement::readAsciiLine(java::io::InputStream &is) {
     unsigned char character[1] = {0};
-    std::string stringBuffer;
+    java::ArrayList<unsigned char> bytes(64);
 
     while ( true ) {
         try {
@@ -752,7 +795,9 @@ PersistenceElement::readAsciiLine(java::io::InputStream &is) {
         }
 
         if ( character[0] != '\n' && character[0] != '\r' ) {
-            stringBuffer.push_back(static_cast<char>(character[0]));
+            if ( !bytes.add(character[0]) ) {
+                throw std::runtime_error("PersistenceElement::readAsciiLine allocation failure");
+            }
         }
 
         if ( character[0] == '\n' ) {
@@ -760,7 +805,16 @@ PersistenceElement::readAsciiLine(java::io::InputStream &is) {
         }
     }
 
-    return stringBuffer;
+    const size_t length = static_cast<size_t>(bytes.size());
+    char *msg = static_cast<char *>(std::malloc(length + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readAsciiLine allocation failure");
+    }
+    for ( long int i = 0; i < bytes.size(); i++ ) {
+        msg[i] = static_cast<char>(bytes.get(i));
+    }
+    msg[length] = '\0';
+    return msg;
 }
 
 bool
@@ -773,76 +827,238 @@ PersistenceElement::isInSet(unsigned char key, const unsigned char *set, int set
     return false;
 }
 
-std::string
+char *
 PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength) {
     unsigned char character[1] = {0};
-    std::string msg;
+    java::ArrayList<unsigned char> bytes(64);
 
     do {
         readBytes(is, character, 1);
         if ( !isInSet(character[0], separators, separatorsLength) ) {
-            msg.push_back(static_cast<char>(character[0]));
+            if ( !bytes.add(character[0]) ) {
+                throw std::runtime_error("PersistenceElement::readAsciiToken allocation failure");
+            }
         }
     } while ( !isInSet(character[0], separators, separatorsLength) );
 
+    const size_t length = static_cast<size_t>(bytes.size());
+    char *msg = static_cast<char *>(std::malloc(length + 1));
+    if ( msg == nullptr ) {
+        throw std::runtime_error("PersistenceElement::readAsciiToken allocation failure");
+    }
+    for ( long int i = 0; i < bytes.size(); i++ ) {
+        msg[i] = static_cast<char>(bytes.get(i));
+    }
+    msg[length] = '\0';
     return msg;
 }
 
 void
-PersistenceElement::writeAsciiString(FILE *writer, const std::string &cad) {
-    writeBytes(writer, reinterpret_cast<const unsigned char *>(cad.data()), static_cast<int>(cad.size()));
+PersistenceElement::writeAsciiString(FILE *writer, const char *cad) {
+    const char *text = cad == nullptr ? "" : cad;
+    const int textLength = static_cast<int>(std::strlen(text));
+    if ( textLength > 0 ) {
+        writeBytes(writer, reinterpret_cast<const unsigned char *>(text), textLength);
+    }
     unsigned char end[1] = {'\0'};
     writeBytes(writer, end, 1);
 }
 
 void
-PersistenceElement::writeUtf8String(FILE *writer, const std::string &cad) {
-    writeBytes(writer, reinterpret_cast<const unsigned char *>(cad.data()), static_cast<int>(cad.size()));
+PersistenceElement::writeUtf8String(FILE *writer, const char *cad) {
+    const char *text = cad == nullptr ? "" : cad;
+    const int textLength = static_cast<int>(std::strlen(text));
+    if ( textLength > 0 ) {
+        writeBytes(writer, reinterpret_cast<const unsigned char *>(text), textLength);
+    }
     unsigned char end[1] = {'\0'};
     writeBytes(writer, end, 1);
 }
 
 void
-PersistenceElement::writeAsciiLine(FILE *writer, const std::string &cad) {
-    writeBytes(writer, reinterpret_cast<const unsigned char *>(cad.data()), static_cast<int>(cad.size()));
+PersistenceElement::writeAsciiLine(FILE *writer, const char *cad) {
+    const char *text = cad == nullptr ? "" : cad;
+    const int textLength = static_cast<int>(std::strlen(text));
+    if ( textLength > 0 ) {
+        writeBytes(writer, reinterpret_cast<const unsigned char *>(text), textLength);
+    }
     unsigned char end[1] = {'\n'};
     writeBytes(writer, end, 1);
 }
 
 void
-PersistenceElement::writeUtf8Line(FILE *writer, const std::string &cad) {
-    writeBytes(writer, reinterpret_cast<const unsigned char *>(cad.data()), static_cast<int>(cad.size()));
+PersistenceElement::writeUtf8Line(FILE *writer, const char *cad) {
+    const char *text = cad == nullptr ? "" : cad;
+    const int textLength = static_cast<int>(std::strlen(text));
+    if ( textLength > 0 ) {
+        writeBytes(writer, reinterpret_cast<const unsigned char *>(text), textLength);
+    }
     unsigned char end[1] = {'\n'};
     writeBytes(writer, end, 1);
 }
 
-std::string
-PersistenceElement::mapLibraryName(const std::string &libname) {
-    if ( libname.empty() ) {
-        return libname;
+char *
+PersistenceElement::duplicateCString(const char *text) {
+    const char *source = text == nullptr ? "" : text;
+    const size_t length = std::strlen(source);
+    char *copy = static_cast<char *>(std::malloc(length + 1));
+    if ( copy == nullptr ) {
+        return nullptr;
+    }
+    std::memcpy(copy, source, length + 1);
+    return copy;
+}
+
+char *
+PersistenceElement::joinCString2(const char *left, const char *right) {
+    const char *leftText = left == nullptr ? "" : left;
+    const char *rightText = right == nullptr ? "" : right;
+
+    const size_t leftLength = std::strlen(leftText);
+    const size_t rightLength = std::strlen(rightText);
+    char *joined = static_cast<char *>(std::malloc(leftLength + rightLength + 1));
+    if ( joined == nullptr ) {
+        return nullptr;
+    }
+
+    std::memcpy(joined, leftText, leftLength);
+    std::memcpy(joined + leftLength, rightText, rightLength);
+    joined[leftLength + rightLength] = '\0';
+    return joined;
+}
+
+char *
+PersistenceElement::joinCString3(const char *first, const char *second, const char *third) {
+    const char *firstText = first == nullptr ? "" : first;
+    const char *secondText = second == nullptr ? "" : second;
+    const char *thirdText = third == nullptr ? "" : third;
+
+    const size_t firstLength = std::strlen(firstText);
+    const size_t secondLength = std::strlen(secondText);
+    const size_t thirdLength = std::strlen(thirdText);
+    char *joined = static_cast<char *>(std::malloc(firstLength + secondLength + thirdLength + 1));
+    if ( joined == nullptr ) {
+        return nullptr;
+    }
+
+    std::memcpy(joined, firstText, firstLength);
+    std::memcpy(joined + firstLength, secondText, secondLength);
+    std::memcpy(joined + firstLength + secondLength, thirdText, thirdLength);
+    joined[firstLength + secondLength + thirdLength] = '\0';
+    return joined;
+}
+
+bool
+PersistenceElement::containsCString(const char *text, const char *fragment) {
+    if ( text == nullptr || fragment == nullptr ) {
+        return false;
+    }
+    return std::strstr(text, fragment) != nullptr;
+}
+
+bool
+PersistenceElement::startsWithCString(const char *text, const char *prefix) {
+    if ( text == nullptr || prefix == nullptr ) {
+        return false;
+    }
+    const size_t textLength = std::strlen(text);
+    const size_t prefixLength = std::strlen(prefix);
+    if ( prefixLength > textLength ) {
+        return false;
+    }
+    return std::strncmp(text, prefix, prefixLength) == 0;
+}
+
+bool
+PersistenceElement::endsWithCString(const char *text, const char *suffix) {
+    if ( text == nullptr || suffix == nullptr ) {
+        return false;
+    }
+    const size_t textLength = std::strlen(text);
+    const size_t suffixLength = std::strlen(suffix);
+    if ( suffixLength > textLength ) {
+        return false;
+    }
+    return std::strncmp(text + textLength - suffixLength, suffix, suffixLength) == 0;
+}
+
+char *
+PersistenceElement::mapLibraryName(const char *libname) {
+    const char *text = libname == nullptr ? "" : libname;
+    if ( text[0] == '\0' ) {
+        return duplicateCString("");
     }
 #if defined(_WIN32)
-    if ( libname.size() > 4 && libname.substr(libname.size() - 4) == ".dll" ) {
-        return libname;
+    if ( endsWithCString(text, ".dll") ) {
+        return duplicateCString(text);
     }
-    return libname + ".dll";
+    return joinCString2(text, ".dll");
 #elif defined(__APPLE__)
-    if ( libname.find(".dylib") != std::string::npos || libname.find(".so") != std::string::npos ) {
-        return libname;
+    if ( containsCString(text, ".dylib") || containsCString(text, ".so") ) {
+        return duplicateCString(text);
     }
-    if ( libname.size() > 3 && libname.substr(0, 3) == "lib" ) {
-        return libname + ".dylib";
+    if ( startsWithCString(text, "lib") ) {
+        return joinCString2(text, ".dylib");
     }
-    return "lib" + libname + ".dylib";
+    return joinCString3("lib", text, ".dylib");
 #else
-    if ( libname.find(".so") != std::string::npos ) {
-        return libname;
+    if ( containsCString(text, ".so") ) {
+        return duplicateCString(text);
     }
-    if ( libname.size() > 3 && libname.substr(0, 3) == "lib" ) {
-        return libname + ".so";
+    if ( startsWithCString(text, "lib") ) {
+        return joinCString2(text, ".so");
     }
-    return "lib" + libname + ".so";
+    return joinCString3("lib", text, ".so");
 #endif
+}
+
+bool
+PersistenceElement::containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname) {
+    if ( pathList == nullptr || nativeLibname == nullptr || nativeLibname[0] == '\0' ) {
+        return false;
+    }
+
+    const char *tokenStart = pathList;
+    while ( tokenStart != nullptr ) {
+        const char *cursor = tokenStart;
+        while ( *cursor != '\0' && *cursor != pathSeparator ) {
+            cursor++;
+        }
+
+        const size_t tokenLength = static_cast<size_t>(cursor - tokenStart);
+        if ( tokenLength > 0 ) {
+            char *token = static_cast<char *>(std::malloc(tokenLength + 1));
+            if ( token != nullptr ) {
+                std::memcpy(token, tokenStart, tokenLength);
+                token[tokenLength] = '\0';
+
+                struct stat st {};
+                if ( stat(token, &st) == 0 && S_ISDIR(st.st_mode) ) {
+#if defined(_WIN32)
+                    char *fullPath = joinCString3(token, "\\", nativeLibname);
+#else
+                    char *fullPath = joinCString3(token, "/", nativeLibname);
+#endif
+                    if ( fullPath != nullptr ) {
+                        if ( stat(fullPath, &st) == 0 ) {
+                            std::free(fullPath);
+                            std::free(token);
+                            return true;
+                        }
+                        std::free(fullPath);
+                    }
+                }
+                std::free(token);
+            }
+        }
+
+        if ( *cursor == '\0' ) {
+            break;
+        }
+        tokenStart = cursor + 1;
+    }
+
+    return false;
 }
 
 /**
@@ -860,68 +1076,60 @@ in bettering the user feedback for this kind of circumstance.
 @return true if library is available
 */
 bool
-PersistenceElement::verifyLibrary(const std::string &libname) {
-    const std::string nativeLibname = mapLibraryName(libname);
+PersistenceElement::verifyLibrary(const char *libname) {
+    char *nativeLibname = mapLibraryName(libname);
+    if ( nativeLibname == nullptr ) {
+        return false;
+    }
 
 #if defined(_WIN32)
     char pathSeparator = ';';
     const char *envPath = std::getenv("PATH");
+    const bool found = containsExistingLibrary(envPath, pathSeparator, nativeLibname);
 #else
     char pathSeparator = ':';
     const char *envPath = std::getenv("LD_LIBRARY_PATH");
-#endif
-
-    std::string paths = envPath == nullptr ? "" : envPath;
-#if !defined(_WIN32)
-    paths += ":/lib:/usr/lib:/usr/local/lib:/usr/X11R6/lib:/usr/X11R6/lib64:/usr/openwin/lib:/usr/dt/lib:/lib64:/usr/lib64:/usr/local/lib64";
-#endif
-
-    size_t pos = 0;
-    while ( pos <= paths.size() ) {
-        const size_t next = paths.find(pathSeparator, pos);
-        const std::string token = next == std::string::npos
-                                  ? paths.substr(pos)
-                                  : paths.substr(pos, next - pos);
-        if ( !token.empty() ) {
-            struct stat st {};
-            if ( stat(token.c_str(), &st) == 0 && S_ISDIR(st.st_mode) ) {
-#if defined(_WIN32)
-                const std::string fullPath = token + "\\" + nativeLibname;
-#else
-                const std::string fullPath = token + "/" + nativeLibname;
-#endif
-                if ( stat(fullPath.c_str(), &st) == 0 ) {
-                    return true;
-                }
-            }
-        }
-        if ( next == std::string::npos ) {
-            break;
-        }
-        pos = next + 1;
+    bool found = containsExistingLibrary(envPath, pathSeparator, nativeLibname);
+    if ( !found ) {
+        static const char *fallbackPaths =
+            "/lib:/usr/lib:/usr/local/lib:/usr/X11R6/lib:/usr/X11R6/lib64:/usr/openwin/lib:/usr/dt/lib:/lib64:/usr/lib64:/usr/local/lib64";
+        found = containsExistingLibrary(fallbackPaths, pathSeparator, nativeLibname);
     }
+#endif
 
-    return false;
+    std::free(nativeLibname);
+    return found;
 }
 
 bool
-PersistenceElement::checkDirectory(const std::string &dirName) {
+PersistenceElement::checkDirectory(const char *dirName) {
+    if ( dirName == nullptr || dirName[0] == '\0' ) {
+        std::fprintf(stderr, "Directory name is empty.\n");
+        return false;
+    }
+
     struct stat st {};
-    if ( stat(dirName.c_str(), &st) == 0 ) {
+    if ( stat(dirName, &st) == 0 ) {
         if ( !S_ISDIR(st.st_mode) ) {
-            std::cerr << "Directory " << dirName << " can not be created, because a file with that name already exists (not overwriten)." << std::endl;
+            std::fprintf(
+                stderr,
+                "Directory %s can not be created, because a file with that name already exists (not overwriten).\n",
+                dirName);
             return false;
         }
         return true;
     }
 
 #if defined(_WIN32)
-    const int result = _mkdir(dirName.c_str());
+    const int result = _mkdir(dirName);
 #else
-    const int result = mkdir(dirName.c_str(), 0755);
+    const int result = mkdir(dirName, 0755);
 #endif
     if ( result != 0 ) {
-        std::cerr << "Directory " << dirName << " can not be created, check permisions and available free disk space." << std::endl;
+        std::fprintf(
+            stderr,
+            "Directory %s can not be created, check permisions and available free disk space.\n",
+            dirName);
         return false;
     }
 
@@ -935,31 +1143,29 @@ more than one dot.  Needs to be fixed.
 @param fd
 @return file extension
 */
-std::string
+char *
 PersistenceElement::extractExtensionFromFile(const java::io::File &fd) {
     java::lang::String javaFilename = fd.getName();
     const char *raw = javaFilename.toCString();
-    const std::string filename = raw == nullptr ? "" : raw;
-
-    if ( filename.empty() ) {
+    if ( raw == nullptr || raw[0] == '\0' ) {
         javaFilename.dispose();
-        return "";
+        return duplicateCString("");
     }
 
-    std::string ext;
-    size_t begin = 0;
-    while ( begin <= filename.size() ) {
-        size_t end = filename.find('.', begin);
-        if ( end == std::string::npos ) {
-            ext = filename.substr(begin);
+    const char *extension = raw;
+    const char *cursor = raw;
+    while ( true ) {
+        const char *dot = std::strchr(cursor, '.');
+        if ( dot == nullptr ) {
             break;
         }
-        ext = filename.substr(begin, end - begin);
-        begin = end + 1;
+        extension = dot + 1;
+        cursor = dot + 1;
     }
 
+    char *output = duplicateCString(extension);
     javaFilename.dispose();
-    return ext;
+    return output;
 }
 
 } // namespace vsdk

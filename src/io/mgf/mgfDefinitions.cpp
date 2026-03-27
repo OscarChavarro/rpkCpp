@@ -4,7 +4,7 @@
 #include "java/io/FileInputStream.h"
 #include "java/io/BufferedInputStream.h"
 #include "io/FileUncompressWrapper.h"
-#include "io/mgf/LookUpEntity.h"
+#include "io/context/LookUpEntity.h"
 #include "io/context/FilePositionContext.h"
 #include "io/mgf/mgfDefinitions.h"
 

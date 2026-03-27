@@ -2,6 +2,7 @@
 
 #include "common/error.h"
 #include "io/FileUncompressWrapper.h"
+#include "java/io/FileOutputStream.h"
 
 /**
 Opens a file with given name and fopen() open_mode ("w" or "r" e.g.). Returns the
@@ -89,4 +90,18 @@ closeFile(FILE *fp, int isPipe) {
             fclose(fp);
         }
     }
+}
+
+bool
+openCompressedOutputStream(const char *fileName, java::io::FileOutputStream &outputStream) {
+    int isPipe = 0;
+    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
+    if ( fp == nullptr ) {
+        return false;
+    }
+    if ( outputStream.open(fp, isPipe != 0) ) {
+        return true;
+    }
+    closeFile(fp, isPipe);
+    return false;
 }
