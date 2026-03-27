@@ -323,7 +323,6 @@ handlePathX0(
 {
     const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     const bool endingInEnvironment = path->m_eyeEndNode->m_rayType == PathRayType::ENVIRONMENT;
-    const bool hasEnvironmentBackground = endingInEnvironment && sceneBackground != nullptr;
     ColorRgb oldBsdfEval;
     ColorRgb f;
     ColorRgb fRad;
@@ -344,7 +343,7 @@ handlePathX0(
         return;
     }
 
-    if ( endingEdf != nullptr || hasEnvironmentBackground || config->baseConfig->useSpars ) {
+    if ( endingEdf != nullptr || endingInEnvironment || config->baseConfig->useSpars ) {
         eyeEndNode = path->m_eyeEndNode;
 
         // Store the Bsdf and PDF evaluations that will be overwritten
@@ -407,7 +406,7 @@ handlePathX0(
             }
 
             path->m_pdfLNE = pdfLNE;
-        } else if ( hasEnvironmentBackground ) {
+        } else if ( endingInEnvironment ) {
             eyeEndNode->m_bsdfEval = backgroundRadiance(
                 sceneBackground,
                 nullptr,

@@ -3,6 +3,14 @@ CBiPath method implementation
 */
 
 #include "raycasting/bidirectionalRaytracing/bipath.h"
+#include "common/linealAlgebra/Numeric.h"
+
+namespace {
+double
+safePdfRatio(double numerator, double denominator) {
+    return denominator > Numeric::EPSILON ? numerator / denominator : 0.0;
+}
+}
 
 CBiPath::CBiPath():
     m_eyePath(),
@@ -129,7 +137,7 @@ CBiPath::evalPdfAndWeight(
 
     if ( m_lightSize == 1 ) {
         // Account for the importance sampling of the light point
-        realPdf = pdfAcc * m_pdfLNE / m_lightEndNode->m_pdfFromPrev;
+        realPdf = pdfAcc * safePdfRatio(m_pdfLNE, m_lightEndNode->m_pdfFromPrev);
     } else {
         realPdf = pdfAcc;
     }
@@ -146,7 +154,7 @@ CBiPath::evalPdfAndWeight(
     {
         currentConnect++; // Handle next N.E.E.
 
-        newPdf = currentPdf * nextNode->m_pdfFromNext / nextNode->m_pdfFromPrev;
+        newPdf = currentPdf * safePdfRatio(nextNode->m_pdfFromNext, nextNode->m_pdfFromPrev);
 
         if ( currentConnect - 1 >=
              baseConfig->minimumPathDepth ) {
@@ -162,7 +170,7 @@ CBiPath::evalPdfAndWeight(
 
         if ( currentConnect == m_eyeSize + m_lightSize - 1 ) {
             // Account for light importance sampling pdf
-            tmpPdf = newPdf * m_pdfLNE / nextNode->previous()->m_pdfFromPrev;
+            tmpPdf = newPdf * safePdfRatio(m_pdfLNE, nextNode->previous()->m_pdfFromPrev);
         } else {
             tmpPdf = newPdf;
         }
@@ -183,7 +191,7 @@ CBiPath::evalPdfAndWeight(
     {
         currentConnect--; // Handle next N.E.E.
 
-        newPdf = currentPdf * nextNode->m_pdfFromNext / nextNode->m_pdfFromPrev;
+        newPdf = currentPdf * safePdfRatio(nextNode->m_pdfFromNext, nextNode->m_pdfFromPrev);
 
         if ( m_eyeSize + m_lightSize - 2 - currentConnect >=
              baseConfig->minimumPathDepth ) {
@@ -200,7 +208,7 @@ CBiPath::evalPdfAndWeight(
         if ( currentConnect == m_eyeSize + m_lightSize - 1 ) {
             // Account for light importance sampling pdf
             // This code is only reached for X_0 paths !
-            tmpPdf = newPdf * m_pdfLNE / nextNode->m_pdfFromNext;
+            tmpPdf = newPdf * safePdfRatio(m_pdfLNE, nextNode->m_pdfFromNext);
         } else {
             tmpPdf = newPdf;
         }
@@ -212,7 +220,11 @@ CBiPath::evalPdfAndWeight(
         nextNode = nextNode->previous();
     }
 
-    weight = weight / pdfSum;
+    if ( pdfSum > Numeric::EPSILON ) {
+        weight = weight / pdfSum;
+    } else {
+        weight = 0.0;
+    }
 
     if ( pWeight ) {
         *pWeight = static_cast<float>(weight);
@@ -222,5 +234,8 @@ CBiPath::evalPdfAndWeight(
         *pPdf = static_cast<float>(realPdf);
     }
 
-    return static_cast<float>(weight / realPdf);
+    if ( realPdf > Numeric::EPSILON ) {
+        return static_cast<float>(weight / realPdf);
+    }
+    return 0.0f;
 }
