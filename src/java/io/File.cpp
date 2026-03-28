@@ -14,88 +14,56 @@ isValidPath(const char *rawPath) {
 }
 
 static bool
-canOpenForRead(const char *rawPath) {
-    FILE *probe = std::fopen(rawPath, "rb");
+canOpenWithMode(const char *rawPath, const char *mode, int *errorCode = nullptr) {
+    errno = 0;
+    FILE *probe = std::fopen(rawPath, mode);
     if ( probe == nullptr ) {
+        if ( errorCode != nullptr ) {
+            *errorCode = errno;
+        }
         return false;
     }
     std::fclose(probe);
-    return true;
-}
-
-static bool
-canOpenForUpdate(const char *rawPath) {
-    FILE *probe = std::fopen(rawPath, "r+b");
-    if ( probe == nullptr ) {
-        return false;
+    if ( errorCode != nullptr ) {
+        *errorCode = 0;
     }
-    std::fclose(probe);
     return true;
 }
 
 static bool
 isDirectoryByReadProbe(const char *rawPath) {
-    FILE *probe = std::fopen(rawPath, "rb");
-    if ( probe == nullptr ) {
-        return false;
+    int openError = 0;
+    if ( canOpenWithMode(rawPath, "rb", &openError) ) {
+        errno = 0;
+        FILE *probe = std::fopen(rawPath, "rb");
+        if ( probe == nullptr ) {
+            return false;
+        }
+        unsigned char byteProbe = 0;
+        errno = 0;
+        const std::size_t readCount = std::fread(&byteProbe, 1, 1, probe);
+        const bool isDirectory = (readCount == 0) && (std::ferror(probe) != 0) && (errno == EISDIR);
+        std::fclose(probe);
+        return isDirectory;
     }
 
-    unsigned char byteProbe = 0;
-    errno = 0;
-    const std::size_t readCount = std::fread(&byteProbe, 1, 1, probe);
-    const bool isDirectory = (readCount == 0) && (std::ferror(probe) != 0) && (errno == EISDIR);
-
-    std::fclose(probe);
-    return isDirectory;
-}
-
-static char *
-buildDirectoryProbePath(const char *directoryPath) {
-    if ( !isValidPath(directoryPath) ) {
-        return nullptr;
+    if ( openError == EISDIR ) {
+        return true;
     }
 
-    const char *suffix = ".rpk_file_can_write_probe.tmp";
-    const std::size_t dirLength = std::strlen(directoryPath);
-    const std::size_t suffixLength = std::strlen(suffix);
-    const bool hasSeparator = (dirLength > 0)
-                              && (directoryPath[dirLength - 1] == '/' || directoryPath[dirLength - 1] == '\\');
-    const std::size_t separatorLength = hasSeparator ? 0 : 1;
-    const std::size_t totalLength = dirLength + separatorLength + suffixLength + 1;
+    const std::size_t pathLength = std::strlen(rawPath);
+    char *slashPath = new char[pathLength + 2];
+    std::memcpy(slashPath, rawPath, pathLength);
+    slashPath[pathLength] = '/';
+    slashPath[pathLength + 1] = '\0';
 
-    char *probePath = new char[totalLength];
-    std::strcpy(probePath, directoryPath);
-    if ( !hasSeparator ) {
-        std::strcat(probePath, "/");
+    int slashError = 0;
+    const bool slashOpenOk = canOpenWithMode(slashPath, "rb", &slashError);
+    delete[] slashPath;
+    if ( slashOpenOk ) {
+        return true;
     }
-    std::strcat(probePath, suffix);
-    return probePath;
-}
-
-static bool
-canCreateProbeFileInDirectory(const char *directoryPath) {
-    char *probePath = buildDirectoryProbePath(directoryPath);
-    if ( probePath == nullptr ) {
-        return false;
-    }
-
-    const bool probeAlreadyExists = canOpenForRead(probePath) || canOpenForUpdate(probePath);
-    if ( probeAlreadyExists ) {
-        const bool writable = canOpenForUpdate(probePath);
-        delete[] probePath;
-        return writable;
-    }
-
-    FILE *probe = std::fopen(probePath, "wb");
-    if ( probe == nullptr ) {
-        delete[] probePath;
-        return false;
-    }
-
-    std::fclose(probe);
-    std::remove(probePath);
-    delete[] probePath;
-    return true;
+    return slashError == EISDIR || slashError == EACCES || slashError == EPERM;
 }
 }
 
@@ -123,11 +91,6 @@ File::dispose() {
     path.dispose();
 }
 
-const java::lang::String &
-File::getPath() const {
-    return path;
-}
-
 java::lang::String
 File::getName() const {
     const int separator = path.indexOf('/');
@@ -147,29 +110,6 @@ File::getName() const {
     return path.substring(lastSeparator + 1);
 }
 
-java::lang::String
-File::getParent() const {
-    int lastSeparator = -1;
-    int searchFrom = 0;
-    while ( true ) {
-        const int nextSeparator = path.indexOf('/', searchFrom);
-        if ( nextSeparator < 0 ) {
-            break;
-        }
-        lastSeparator = nextSeparator;
-        searchFrom = nextSeparator + 1;
-    }
-    if ( lastSeparator < 0 ) {
-        return java::lang::String();
-    }
-    return path.substring(0, lastSeparator);
-}
-
-bool
-File::isEmpty() const {
-    return path.isEmpty();
-}
-
 bool
 File::exists() const {
     const char *rawPath = path.toCString();
@@ -177,10 +117,14 @@ File::exists() const {
         return false;
     }
 
-    if ( canOpenForRead(rawPath) || canOpenForUpdate(rawPath) || isDirectoryByReadProbe(rawPath) ) {
+    int readError = 0;
+    if ( canOpenWithMode(rawPath, "rb", &readError) ) {
         return true;
     }
-    return canCreateProbeFileInDirectory(rawPath);
+    if ( readError == EACCES || readError == EPERM || readError == EISDIR ) {
+        return true;
+    }
+    return isDirectoryByReadProbe(rawPath);
 }
 
 bool
@@ -190,13 +134,15 @@ File::isDirectory() const {
         return false;
     }
 
-    if ( isDirectoryByReadProbe(rawPath) ) {
-        return true;
-    }
-    if ( canOpenForRead(rawPath) || canOpenForUpdate(rawPath) ) {
+    return isDirectoryByReadProbe(rawPath);
+}
+
+bool
+File::isFile() const {
+    if ( !exists() ) {
         return false;
     }
-    return canCreateProbeFileInDirectory(rawPath);
+    return !isDirectory();
 }
 
 bool
@@ -205,7 +151,7 @@ File::canRead() const {
     if ( !isValidPath(rawPath) ) {
         return false;
     }
-    return canOpenForRead(rawPath);
+    return canOpenWithMode(rawPath, "rb");
 }
 
 bool
@@ -215,10 +161,7 @@ File::canWrite() const {
         return false;
     }
 
-    if ( canOpenForUpdate(rawPath) ) {
-        return true;
-    }
-    return canCreateProbeFileInDirectory(rawPath);
+    return canOpenWithMode(rawPath, "ab");
 }
 
 }

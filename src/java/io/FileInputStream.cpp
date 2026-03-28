@@ -12,15 +12,8 @@ toFileHandle(void *handle) {
 }
 }
 
-FileInputStream::FileInputStream():
-    stream(nullptr),
-    closeOnDispose(true)
-{
-}
-
 FileInputStream::FileInputStream(const char *fileName):
-    stream(nullptr),
-    closeOnDispose(true)
+    stream(nullptr)
 {
     if ( fileName != nullptr && fileName[0] != '\0' ) {
         stream = static_cast<void *>(std::fopen(fileName, "rb"));
@@ -29,11 +22,6 @@ FileInputStream::FileInputStream(const char *fileName):
 
 FileInputStream::~FileInputStream() {
     dispose();
-}
-
-bool
-FileInputStream::isOpen() const {
-    return toFileHandle(stream) != nullptr;
 }
 
 int
@@ -64,26 +52,14 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
     return readCount;
 }
 
-long
-FileInputStream::tell() const {
-    FILE *fileHandle = toFileHandle(stream);
-    if ( fileHandle == nullptr ) {
-        return -1;
-    }
-    return ftell(fileHandle);
-}
-
 void
 FileInputStream::close() {
     FILE *fileHandle = toFileHandle(stream);
     if ( fileHandle == nullptr ) {
         return;
     }
-    if ( closeOnDispose ) {
-        std::fclose(fileHandle);
-    }
+    std::fclose(fileHandle);
     stream = nullptr;
-    closeOnDispose = true;
 }
 
 void

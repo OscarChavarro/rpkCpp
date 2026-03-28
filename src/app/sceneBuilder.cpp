@@ -1,6 +1,6 @@
-#include <cerrno>
 #include <cstring>
 
+#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
@@ -308,32 +308,33 @@ sceneBuilderValidateReadableFile(
     const char *fileName,
     const char *fileRole)
 {
-    errno = 0;
-    java::io::FileInputStream input(fileName);
-    if ( !input.isOpen() ) {
-        if ( errno == ENOENT ) {
-            logError(
-                "sceneBuilderReadFile",
-                "Requested %s file '%s' does not exist",
-                fileRole,
-                fileName);
-        } else if ( errno == EACCES ) {
-            logError(
-                "sceneBuilderReadFile",
-                "Requested %s file '%s' is not readable (permission denied)",
-                fileRole,
-                fileName);
-        } else {
-            logError(
-                "sceneBuilderReadFile",
-                "Requested %s file '%s' cannot be opened for reading (%s)",
-                fileRole,
-                fileName,
-                strerror(errno));
-        }
+    java::io::File file(fileName);
+    if ( !file.exists() ) {
+        logError(
+            "sceneBuilderReadFile",
+            "Requested %s file '%s' does not exist",
+            fileRole,
+            fileName);
+        return false;
+    }
+    if ( !file.isFile() ) {
+        logError(
+            "sceneBuilderReadFile",
+            "Requested %s file '%s' is not a regular file",
+            fileRole,
+            fileName);
+        return false;
+    }
+    if ( !file.canRead() ) {
+        logError(
+            "sceneBuilderReadFile",
+            "Requested %s file '%s' is not readable",
+            fileRole,
+            fileName);
         return false;
     }
 
+    java::io::FileInputStream input(fileName);
     const int firstByte = input.read();
     input.close();
 

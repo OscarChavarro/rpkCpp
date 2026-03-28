@@ -674,12 +674,13 @@ BinaryModelReader::read(const char *fileName) {
     if ( fileName == nullptr || fileName[0] == '\0' ) {
         return nullptr;
     }
-
-    java::io::FileInputStream fileInput(fileName);
-    if ( !fileInput.isOpen() ) {
+    java::io::File file(fileName);
+    if ( !(file.exists() && file.canRead() && file.isFile()) ) {
         return nullptr;
     }
-    java::io::BufferedInputStream input(&fileInput, false);
+
+    java::io::FileInputStream fileInput(fileName);
+    java::io::BufferedInputStream input(&fileInput);
 
     java::ArrayList<Vector3D *> vectors;
     java::ArrayList<Vertex *> vertices;

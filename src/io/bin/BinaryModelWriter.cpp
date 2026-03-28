@@ -981,13 +981,13 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
         logError("BinaryModelWriter::write", "Invalid model or fileName");
         return false;
     }
-
-    java::io::FileOutputStream output(fileName);
-    if ( !output.isOpen() ) {
+    java::io::File file(fileName);
+    if ( !file.canWrite() || file.isDirectory() ) {
         logError("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
-        output.close();
         return false;
     }
+
+    java::io::FileOutputStream output(fileName);
 
     SerializationContext context;
     if ( !context.collectModel(model) ) {

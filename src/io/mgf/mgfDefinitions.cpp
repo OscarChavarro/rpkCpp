@@ -2,7 +2,6 @@
 
 #include "common/error.h"
 #include "java/io/FileInputStream.h"
-#include "java/io/BufferedInputStream.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/context/LookUpEntity.h"
 #include "io/context/FilePositionContext.h"
@@ -17,6 +16,30 @@ standardInputPath() {
 #else
     return "/dev/stdin";
 #endif
+}
+
+static bool
+skipLines(java::io::InputStream *inputStream, int lineCount) {
+    if ( inputStream == nullptr || lineCount < 0 ) {
+        return false;
+    }
+    for ( int line = 0; line < lineCount; line++ ) {
+        bool foundEol = false;
+        while ( true ) {
+            const int ch = inputStream->read();
+            if ( ch < 0 ) {
+                return false;
+            }
+            if ( ch == '\n' ) {
+                foundEol = true;
+                break;
+            }
+        }
+        if ( !foundEol ) {
+            return false;
+        }
+    }
+    return true;
 }
 
 /**
@@ -45,11 +68,7 @@ void
 mgfGetFilePosition(FilePositionContext *pos, BaseContext *context) {
     pos->fileId = context->readerContext->fileContextId;
     pos->lineNumber = context->readerContext->lineNumber;
-    if ( context->readerContext->inputStream == nullptr ) {
-        pos->offset = -1;
-    } else {
-        pos->offset = context->readerContext->inputStream->tell();
-    }
+    pos->offset = -1;
 }
 
 /**
@@ -70,10 +89,6 @@ mgfGoToFilePosition(const FilePositionContext *pos, BaseContext *context) {
         // Cannot seek on standard input or pipes
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( pos->offset < 0 ) {
-        return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
-    }
-
     int pipeFlag = 0;
     java::io::InputStream *inputStream = openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
     if ( inputStream == nullptr || pipeFlag != 0 ) {
@@ -81,32 +96,14 @@ mgfGoToFilePosition(const FilePositionContext *pos, BaseContext *context) {
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
 
-    java::io::BufferedInputStream *newInputStream =
-        new java::io::BufferedInputStream(inputStream, true);
-    if ( !newInputStream->isOpen() ) {
-        newInputStream->dispose();
-        delete newInputStream;
+    if ( !skipLines(inputStream, pos->lineNumber) ) {
+        closeInputStream(inputStream);
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
-    }
-
-    long remaining = pos->offset;
-    unsigned char buffer[512];
-    while ( remaining > 0 ) {
-        const int chunk = remaining > static_cast<long>(sizeof(buffer))
-            ? static_cast<int>(sizeof(buffer))
-            : static_cast<int>(remaining);
-        const int readCount = newInputStream->read(buffer, 0, chunk);
-        if ( readCount <= 0 ) {
-            newInputStream->dispose();
-            delete newInputStream;
-            return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
-        }
-        remaining -= readCount;
     }
 
     context->readerContext->inputStream->dispose();
     delete context->readerContext->inputStream;
-    context->readerContext->inputStream = newInputStream;
+    context->readerContext->inputStream = inputStream;
     context->readerContext->lineNumber = pos->lineNumber;
     return ErrorCodeContext::MGF_OK;
 }
@@ -173,13 +170,12 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
     readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(standardInputPath());
-        if ( !fileInputStream->isOpen() ) {
-            fileInputStream->dispose();
-            delete fileInputStream;
+        java::io::File standardInputFile(standardInputPath());
+        if ( !standardInputFile.exists() || !standardInputFile.canRead() ) {
             return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
         }
-        readerContext->inputStream = new java::io::BufferedInputStream(fileInputStream);
+        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(standardInputPath());
+        readerContext->inputStream = fileInputStream;
         readerContext->prev = context->readerContext;
         context->readerContext = readerContext;
         return ErrorCodeContext::MGF_OK;
@@ -210,13 +206,7 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
         return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
     readerContext->isPipe = static_cast<char>(pipeFlag != 0);
-    readerContext->inputStream = new java::io::BufferedInputStream(inputStream, true);
-    if ( !readerContext->inputStream->isOpen() ) {
-        readerContext->inputStream->dispose();
-        delete readerContext->inputStream;
-        readerContext->inputStream = nullptr;
-        return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
-    }
+    readerContext->inputStream = inputStream;
 
     readerContext->prev = context->readerContext; // Establish new context
     context->readerContext = readerContext;

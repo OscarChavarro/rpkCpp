@@ -8,25 +8,18 @@ namespace java {
 namespace io {
 
 class BufferedInputStream : public InputStream {
-  private:
+  protected:
     InputStream *inputStream;
-    bool ownInputStream;
 
   public:
-    explicit BufferedInputStream(InputStream *inputStream = nullptr, bool ownInputStream = true);
+    explicit BufferedInputStream(InputStream *inputStream = nullptr);
     ~BufferedInputStream() override;
-
-    bool
-    isOpen() const;
 
     int
     read() override;
 
     int
     read(unsigned char *buffer, int offset, int length) override;
-
-    long
-    tell() const;
 
     void
     close() override;

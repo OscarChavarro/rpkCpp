@@ -10,18 +10,10 @@ namespace io {
 class FileOutputStream : public OutputStream {
   private:
     void *stream;
-    bool closeOnDispose;
 
   public:
-    FileOutputStream();
     explicit FileOutputStream(const char *fileName);
     ~FileOutputStream() override;
-
-    bool
-    isOpen() const;
-
-    bool
-    ownsHandle() const;
 
     void
     write(int value) override;

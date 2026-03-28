@@ -28,14 +28,13 @@ picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...)
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
-    java::io::FileOutputStream *fileStream = new java::io::FileOutputStream(filename);
-    if ( !fileStream->isOpen() ) {
-        delete fileStream;
+    java::io::File file(filename);
+    if ( !file.canWrite() || file.isDirectory() ) {
         outputStream = nullptr;
         java::lang::System::err.printf("Can't open PIC output");
         return;
     }
-    outputStream = fileStream;
+    outputStream = new java::io::FileOutputStream(filename);
 
     writeHeader();
 }

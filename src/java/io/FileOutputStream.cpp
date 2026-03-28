@@ -12,15 +12,8 @@ toFileHandle(void *handle) {
 }
 }
 
-FileOutputStream::FileOutputStream():
-    stream(nullptr),
-    closeOnDispose(true)
-{
-}
-
 FileOutputStream::FileOutputStream(const char *fileName):
-    stream(nullptr),
-    closeOnDispose(true)
+    stream(nullptr)
 {
     if ( fileName != nullptr && fileName[0] != '\0' ) {
         stream = static_cast<void *>(std::fopen(fileName, "wb"));
@@ -29,16 +22,6 @@ FileOutputStream::FileOutputStream(const char *fileName):
 
 FileOutputStream::~FileOutputStream() {
     close();
-}
-
-bool
-FileOutputStream::isOpen() const {
-    return toFileHandle(stream) != nullptr;
-}
-
-bool
-FileOutputStream::ownsHandle() const {
-    return closeOnDispose;
 }
 
 void
@@ -77,14 +60,8 @@ FileOutputStream::close() {
     if ( fileHandle == nullptr ) {
         return;
     }
-
-    if ( !closeOnDispose ) {
-        flush();
-    } else {
-        std::fclose(fileHandle);
-    }
+    std::fclose(fileHandle);
     stream = nullptr;
-    closeOnDispose = true;
 }
 
 void

@@ -19,23 +19,17 @@ class File {
     void
     dispose();
 
-    const java::lang::String &
-    getPath() const;
-
     java::lang::String
     getName() const;
-
-    java::lang::String
-    getParent() const;
-
-    bool
-    isEmpty() const;
 
     bool
     exists() const;
 
     bool
     isDirectory() const;
+
+    bool
+    isFile() const;
 
     bool
     canRead() const;

@@ -4,7 +4,7 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "java/io/FileInputStream.h"
+#include "java/io/File.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 
@@ -978,9 +978,8 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 
                 char *fullPath = joinCString3(token, "/", nativeLibname);
                 if ( fullPath != nullptr ) {
-                    java::io::FileInputStream candidate(fullPath);
-                    if ( candidate.isOpen() ) {
-                        candidate.close();
+                    java::io::File candidate(fullPath);
+                    if ( candidate.exists() && candidate.canRead() && candidate.isFile() ) {
                         std::free(fullPath);
                         std::free(token);
                         return true;

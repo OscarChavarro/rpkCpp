@@ -6,14 +6,14 @@ constexpr int MGF_MAXIMUM_ARGUMENT_COUNT = (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4);
 
 namespace java {
 namespace io {
-class BufferedInputStream;
+class InputStream;
 }
 }
 
 class ReaderContext {
   public:
     char fileName[96];
-    java::io::BufferedInputStream *inputStream; // stream pointer
+    java::io::InputStream *inputStream; // stream pointer
     int fileContextId;
     char inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH];
     int lineNumber;

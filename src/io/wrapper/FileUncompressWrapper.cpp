@@ -4,6 +4,7 @@
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
+#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
 #include "java/util/Formatter.h"
@@ -109,11 +110,9 @@ openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( pipeFlag != 0 ) {
         stream = openPipeInputStream(command);
     } else {
-        java::io::FileInputStream *fileStream = new java::io::FileInputStream(fileName);
-        if ( fileStream->isOpen() ) {
-            stream = fileStream;
-        } else {
-            delete fileStream;
+        java::io::File file(fileName);
+        if ( file.exists() && file.canRead() && file.isFile() ) {
+            stream = new java::io::FileInputStream(fileName);
         }
     }
     delete[] command;
@@ -149,11 +148,9 @@ openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( pipeFlag != 0 ) {
         stream = openPipeOutputStream(command);
     } else {
-        java::io::FileOutputStream *fileStream = new java::io::FileOutputStream(fileName);
-        if ( fileStream->isOpen() ) {
-            stream = fileStream;
-        } else {
-            delete fileStream;
+        java::io::File file(fileName);
+        if ( file.canWrite() && !file.isDirectory() ) {
+            stream = new java::io::FileOutputStream(fileName);
         }
     }
     delete[] command;
