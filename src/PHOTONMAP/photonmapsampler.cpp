@@ -420,6 +420,8 @@ CPhotonMapSampler::gdSample(
     float glossy_exponent;
 
     if ( dChosen ) {
+        // Equation [ARVO1995b](6) in CoordinateSystem::setFromZAxis builds the
+        // local tangent basis used by the spherical importance map.
         coord.setFromZAxis(&thisNode->m_normal);
         glossy_exponent = 1;
         flags = BRDF_DIFFUSE_COMPONENT;

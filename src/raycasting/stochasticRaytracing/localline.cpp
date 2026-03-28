@@ -16,10 +16,16 @@ Creates a coordinate system on the patch P with Z direction along the normal
 */
 static void
 patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
-    coord->Z = patch->normal;
-    coord->X.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
-    coord->X.normalize(Numeric::EPSILON_FLOAT);
-    coord->Y.crossProduct(coord->Z, coord->X);
+    Vector3D z = patch->normal;
+    Vector3D x;
+    x.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
+    x.normalize(Numeric::EPSILON_FLOAT);
+    Vector3D y;
+    y.crossProduct(z, x);
+
+    coord->setX(x);
+    coord->setY(y);
+    coord->setZ(z);
 }
 
 /**
@@ -42,6 +48,8 @@ mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     }
 
     patch->uniformPoint(xi[0], xi[1], &ray.position);
+    // Section [ARVO1995b].2: use two uniform samples from [0,1]^2 to
+    // generate a local hemisphere direction in the patch frame.
     ray.direction = coordSys.sampleHemisphereCosTheta(xi[2], xi[3], &pdf);
 
     return ray;

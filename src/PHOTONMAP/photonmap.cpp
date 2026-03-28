@@ -485,6 +485,8 @@ CPhotonMap::sample(
         double ps;
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
+            // Section [ARVO1995b].2: each photon direction is re-parameterized
+            // in a local spherical frame before building the 2D sampling grid.
             m_photons[i]->findRS(&pr, &ps, coord, flag, n);
 
             ColorRgb color = m_photons[i]->power();

@@ -197,6 +197,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         // Sample diffuse
         x1 = x1 / (localAverageKd / scatteredPower);
 
+        // Section [ARVO1995b].2: square-to-sphere mapping in a frame aligned with the surface normal.
         coord.setFromZAxis(normal);
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
 
@@ -211,6 +212,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         // Sample specular
         x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
+        // Section [ARVO1995b].2: same 2D random-parameter mapping, but around the ideal reflection axis.
         coord.setFromZAxis(&idealDir);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 

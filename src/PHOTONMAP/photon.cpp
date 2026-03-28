@@ -11,6 +11,8 @@ CPhoton::findRS(
     // Determine angles
     double phi;
     double theta;
+    // Equation [ARVO1995b](6): rectangularToSphericalCoord projects onto the
+    // plane orthogonal to the local Z-axis before recovering (phi, theta).
     coord->rectangularToSphericalCoord(&m_dir, &phi, &theta);
 
     // Compute r, s

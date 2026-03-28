@@ -134,6 +134,7 @@ PhongBidirectionalScatteringDistributionFunction::texturedScattererSample(
     double *probabilityDensityFunction)
 {
     CoordinateSystem coord;
+    // Section [ARVO1995b].2: map (x1, x2) from [0,1]^2 into a hemisphere direction.
     coord.setFromZAxis(normal);
     return coord.sampleHemisphereCosTheta(x1, x2, probabilityDensityFunction);
 }

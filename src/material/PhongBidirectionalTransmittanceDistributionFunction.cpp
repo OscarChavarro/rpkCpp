@@ -198,6 +198,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         // Sample diffuse
         x1 = x1 / (localAverageKd / scatteredPower);
 
+        // Section [ARVO1995b].2: square-to-sphere mapping in the frame of the transmitted hemisphere.
         coord.setFromZAxis(&invNormal);
 
         newDir = coord.sampleHemisphereCosTheta(x1, x2, &diffPdf);
@@ -213,6 +214,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         // Sample specular
         x1 = (x1 - (localAverageKd / scatteredPower)) / (localAverageKs / scatteredPower);
 
+        // Section [ARVO1995b].2: same 2D mapping with a lobe centered on the ideal transmitted direction.
         coord.setFromZAxis(&idealDir);
         newDir = coord.sampleHemisphereCosNTheta(Ns, x1, x2, &nonDiffPdf);
 

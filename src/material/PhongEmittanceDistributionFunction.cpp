@@ -149,6 +149,8 @@ PhongEmittanceDistributionFunction::phongEdfSample(
             return dir;
         }
 
+        // Section [ARVO1995b].2: two independent samples (xi1, xi2) in [0,1]^2
+        // are mapped to a direction on the hemisphere after building a local frame.
         coord.setFromZAxis(&normal);
         dir = coord.sampleHemisphereCosTheta(xi1, xi2, &sProbabilityDensityFunction);
         if ( probabilityDensityFunction ) {

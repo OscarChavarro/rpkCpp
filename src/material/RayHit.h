@@ -27,7 +27,7 @@ class RayHit {
     Vector3D texCoord; // Texture coordinate
     Vector3D geometricNormal;
     Material *material; // Material of hit surface
-    CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.Z == hit->normal)
+    CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
     Vector2Dd uv; // Bi-linear / barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
 
@@ -131,12 +131,12 @@ RayHit::setFlags(unsigned int inFlags) {
 #ifdef RAYTRACING_ENABLED
 inline Vector3D
 RayHit::getNormal() const {
-    return shadingFrame.Z;
+    return shadingFrame.getZ();
 }
 
 inline void
 RayHit::setNormal(const Vector3D *n) {
-    shadingFrame.Z = *n;
+    shadingFrame.setZ(*n);
 }
 
 inline CoordinateSystem
@@ -156,9 +156,9 @@ RayHit::getGeometricNormal() const {
 
 inline void
 RayHit::setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ) {
-    shadingFrame.X = *inX;
-    shadingFrame.Y = *inY;
-    shadingFrame.Z = *inZ;
+    shadingFrame.setX(*inX);
+    shadingFrame.setY(*inY);
+    shadingFrame.setZ(*inZ);
 }
 #endif
 

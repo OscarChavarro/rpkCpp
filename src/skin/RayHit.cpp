@@ -61,9 +61,9 @@ RayHit::init(
     Vector3D localNormal;
     localNormal.set(0, 0, 0);
     texCoord = localNormal;
-    shadingFrame.X = localNormal;
-    shadingFrame.Y = localNormal;
-    shadingFrame.Z = localNormal;
+    shadingFrame.setX(localNormal);
+    shadingFrame.setY(localNormal);
+    shadingFrame.setZ(localNormal);
     uv.u = 0.0;
     uv.v = 0.0;
     return hitInitialised();
@@ -121,18 +121,18 @@ of shading X and Y axis if possible
 int
 RayHit::shadingNormal(Vector3D *inNormal) {
     if ( flags & RayHitFlag::SHADING_FRAME || flags & RayHitFlag::NORMAL ) {
-        *inNormal = shadingFrame.Z;
+        *inNormal = shadingFrame.getZ();
         return true;
     }
 
-    Vector3D localNormal = shadingFrame.Z;
+    Vector3D localNormal = shadingFrame.getZ();
     if ( !pointShadingFrame(nullptr, nullptr, &localNormal) ) {
         return false;
     }
 
     flags |= RayHitFlag::NORMAL;
-    shadingFrame.Z = localNormal;
-    *inNormal = shadingFrame.Z;
+    shadingFrame.setZ(localNormal);
+    *inNormal = shadingFrame.getZ();
     return true;
 }
 
@@ -175,21 +175,28 @@ Fills in shading frame: Z is the shading normal
 bool
 RayHit::setShadingFrame(CoordinateSystem *frame) {
     if ( flags & RayHitFlag::SHADING_FRAME ) {
-        frame->X = shadingFrame.X;
-        frame->Y = shadingFrame.Y;
-        frame->Z = shadingFrame.Z;
+        frame->setX(shadingFrame.getX());
+        frame->setY(shadingFrame.getY());
+        frame->setZ(shadingFrame.getZ());
         return true;
     }
 
-    if ( !pointShadingFrame(&shadingFrame.X, &shadingFrame.Y, &shadingFrame.Z) ) {
+    Vector3D shadingX = shadingFrame.getX();
+    Vector3D shadingY = shadingFrame.getY();
+    Vector3D shadingZ = shadingFrame.getZ();
+
+    if ( !pointShadingFrame(&shadingX, &shadingY, &shadingZ) ) {
         return false;
     }
 
+    shadingFrame.setX(shadingX);
+    shadingFrame.setY(shadingY);
+    shadingFrame.setZ(shadingZ);
     flags |= RayHitFlag::SHADING_FRAME | RayHitFlag::NORMAL;
 
-    frame->X = shadingFrame.X;
-    frame->Y = shadingFrame.Y;
-    frame->Z = shadingFrame.Z;
+    frame->setX(shadingFrame.getX());
+    frame->setY(shadingFrame.getY());
+    frame->setZ(shadingFrame.getZ());
     return true;
 }
 #endif

@@ -9,6 +9,8 @@ void
 CoordinateSystem::setFromZAxis(const Vector3D *inZ) {
     Z = *inZ;
 
+    // Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
+    // X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
     float zz = java::Math::sqrt(1.0f - inZ->z * inZ->z);
 
     if ( zz < Numeric::EPSILON ) {
@@ -21,6 +23,7 @@ CoordinateSystem::setFromZAxis(const Vector3D *inZ) {
         X.z = 0.0;
     }
 
+    // Section [ARVO1995b].2: complete a local orthonormal frame to express spherical angles.
     Y.crossProduct(Z, X);
 }
 
@@ -43,6 +46,7 @@ CoordinateSystem::rectangularToSphericalCoord(const Vector3D *C, double *phi, do
 
     Vector3D c;
 
+    // Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
     c.sumScaled(*C, -z, Z);
     c.normalize(Numeric::EPSILON_FLOAT);
     double x = c.dotProduct(X);
@@ -66,6 +70,7 @@ Samples the hemisphere according to a cos_theta distribution
 */
 Vector3D
 CoordinateSystem::sampleHemisphereCosTheta(double xi1, double xi2, double *probabilityDensityFunction) const {
+    // Section [ARVO1995b].2: map (xi1, xi2) in [0,1]^2 to angular parameters on the sphere.
     float phi = 2.0f * static_cast<float>(M_PI) * static_cast<float>(xi1);
     float cos_phi = java::Math::cos(phi);
     float sin_phi = java::Math::sin(phi);
@@ -91,6 +96,7 @@ CoordinateSystem::sampleHemisphereCosNTheta(
     double xi2,
     double *probabilityDensityFunction) const
 {
+    // Section [ARVO1995b].2: same square-to-sphere mapping pattern with a different radial CDF.
     float phi = 2.0f * static_cast<float>(M_PI) * static_cast<float>(xi1);
     float cosPhi = java::Math::cos(phi);
     float sinPhi = java::Math::sin(phi);
