@@ -1,12 +1,8 @@
 #include "java/io/File.h"
 
-#include <sys/stat.h>
-
-#if defined(_WIN32)
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 
 namespace java {
 namespace io {
@@ -18,20 +14,88 @@ isValidPath(const char *rawPath) {
 }
 
 static bool
-queryStat(const char *rawPath, struct stat *fileInfo) {
-    if ( !isValidPath(rawPath) || fileInfo == nullptr ) {
+canOpenForRead(const char *rawPath) {
+    FILE *probe = std::fopen(rawPath, "rb");
+    if ( probe == nullptr ) {
         return false;
     }
-    return ::stat(rawPath, fileInfo) == 0;
+    std::fclose(probe);
+    return true;
 }
 
-static int
-pathAccess(const char *rawPath, int mode) {
-#if defined(_WIN32)
-    return _access(rawPath, mode);
-#else
-    return access(rawPath, mode);
-#endif
+static bool
+canOpenForUpdate(const char *rawPath) {
+    FILE *probe = std::fopen(rawPath, "r+b");
+    if ( probe == nullptr ) {
+        return false;
+    }
+    std::fclose(probe);
+    return true;
+}
+
+static bool
+isDirectoryByReadProbe(const char *rawPath) {
+    FILE *probe = std::fopen(rawPath, "rb");
+    if ( probe == nullptr ) {
+        return false;
+    }
+
+    unsigned char byteProbe = 0;
+    errno = 0;
+    const std::size_t readCount = std::fread(&byteProbe, 1, 1, probe);
+    const bool isDirectory = (readCount == 0) && (std::ferror(probe) != 0) && (errno == EISDIR);
+
+    std::fclose(probe);
+    return isDirectory;
+}
+
+static char *
+buildDirectoryProbePath(const char *directoryPath) {
+    if ( !isValidPath(directoryPath) ) {
+        return nullptr;
+    }
+
+    const char *suffix = ".rpk_file_can_write_probe.tmp";
+    const std::size_t dirLength = std::strlen(directoryPath);
+    const std::size_t suffixLength = std::strlen(suffix);
+    const bool hasSeparator = (dirLength > 0)
+                              && (directoryPath[dirLength - 1] == '/' || directoryPath[dirLength - 1] == '\\');
+    const std::size_t separatorLength = hasSeparator ? 0 : 1;
+    const std::size_t totalLength = dirLength + separatorLength + suffixLength + 1;
+
+    char *probePath = new char[totalLength];
+    std::strcpy(probePath, directoryPath);
+    if ( !hasSeparator ) {
+        std::strcat(probePath, "/");
+    }
+    std::strcat(probePath, suffix);
+    return probePath;
+}
+
+static bool
+canCreateProbeFileInDirectory(const char *directoryPath) {
+    char *probePath = buildDirectoryProbePath(directoryPath);
+    if ( probePath == nullptr ) {
+        return false;
+    }
+
+    const bool probeAlreadyExists = canOpenForRead(probePath) || canOpenForUpdate(probePath);
+    if ( probeAlreadyExists ) {
+        const bool writable = canOpenForUpdate(probePath);
+        delete[] probePath;
+        return writable;
+    }
+
+    FILE *probe = std::fopen(probePath, "wb");
+    if ( probe == nullptr ) {
+        delete[] probePath;
+        return false;
+    }
+
+    std::fclose(probe);
+    std::remove(probePath);
+    delete[] probePath;
+    return true;
 }
 }
 
@@ -108,21 +172,31 @@ File::isEmpty() const {
 
 bool
 File::exists() const {
-    struct stat fileInfo {};
-    return queryStat(path.toCString(), &fileInfo);
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
+        return false;
+    }
+
+    if ( canOpenForRead(rawPath) || canOpenForUpdate(rawPath) || isDirectoryByReadProbe(rawPath) ) {
+        return true;
+    }
+    return canCreateProbeFileInDirectory(rawPath);
 }
 
 bool
 File::isDirectory() const {
-    struct stat fileInfo {};
-    if ( !queryStat(path.toCString(), &fileInfo) ) {
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
         return false;
     }
-#if defined(_WIN32)
-    return (fileInfo.st_mode & _S_IFDIR) != 0;
-#else
-    return S_ISDIR(fileInfo.st_mode);
-#endif
+
+    if ( isDirectoryByReadProbe(rawPath) ) {
+        return true;
+    }
+    if ( canOpenForRead(rawPath) || canOpenForUpdate(rawPath) ) {
+        return false;
+    }
+    return canCreateProbeFileInDirectory(rawPath);
 }
 
 bool
@@ -131,11 +205,7 @@ File::canRead() const {
     if ( !isValidPath(rawPath) ) {
         return false;
     }
-#if defined(_WIN32)
-    return pathAccess(rawPath, 4) == 0;
-#else
-    return pathAccess(rawPath, R_OK) == 0;
-#endif
+    return canOpenForRead(rawPath);
 }
 
 bool
@@ -144,11 +214,11 @@ File::canWrite() const {
     if ( !isValidPath(rawPath) ) {
         return false;
     }
-#if defined(_WIN32)
-    return pathAccess(rawPath, 2) == 0;
-#else
-    return pathAccess(rawPath, W_OK) == 0;
-#endif
+
+    if ( canOpenForUpdate(rawPath) ) {
+        return true;
+    }
+    return canCreateProbeFileInDirectory(rawPath);
 }
 
 }
