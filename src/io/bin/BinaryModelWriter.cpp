@@ -8,7 +8,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 
 #include "common/ColorRgb.h"
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -53,7 +53,7 @@ safeLabel(const char *text) {
 bool
 BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
-        logError("BinaryModelWriter::writeBytesChunked", "Negative block length");
+        Error::error("BinaryModelWriter::writeBytesChunked", "Negative block length");
         return false;
     }
     long long offset = 0;
@@ -79,7 +79,7 @@ bool
 BinaryModelWriter::checkedLongToInt32(long value, const char *what, int &result) {
     if ( value > static_cast<long>(java::Integer::MAX_VALUE)
          || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
-        logError("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+        Error::error("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(value);
@@ -142,7 +142,7 @@ BinaryModelWriter::indexOfPointer(
     }
     int index = 0;
     if ( !indices.tryGet(ptr, &index) ) {
-        logError("BinaryModelWriter::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+        Error::error("BinaryModelWriter::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(index);
@@ -236,12 +236,12 @@ BinaryModelWriter::SerializationContext::ensureVector(const Vector3D *value) {
     }
     const int index = static_cast<int>(vectors.size());
     if ( !vectors.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureVector", "Failed to append vector");
+        Error::error("BinaryModelWriter::SerializationContext::ensureVector", "Failed to append vector");
         return false;
     }
     if ( !vectorIndices.put(value, index) ) {
         vectors.remove(vectors.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureVector", "Failed to index vector");
+        Error::error("BinaryModelWriter::SerializationContext::ensureVector", "Failed to index vector");
         return false;
     }
     return true;
@@ -258,12 +258,12 @@ BinaryModelWriter::SerializationContext::ensureMaterial(const Material *value) {
     }
     const int index = static_cast<int>(materials.size());
     if ( !materials.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to append material");
+        Error::error("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to append material");
         return false;
     }
     if ( !materialIndices.put(value, index) ) {
         materials.remove(materials.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to index material");
+        Error::error("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to index material");
         return false;
     }
     return true;
@@ -280,18 +280,18 @@ BinaryModelWriter::SerializationContext::ensureVertex(const Vertex *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(vertices.size());
     if ( !vertices.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to append vertex");
+        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to append vertex");
         return false;
     }
     if ( !vertexIndices.put(value, index) ) {
         vertices.remove(vertices.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to index vertex");
+        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to index vertex");
         return false;
     }
 
@@ -330,18 +330,18 @@ BinaryModelWriter::SerializationContext::ensurePatch(const Patch *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(patches.size());
     if ( !patches.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to append patch");
+        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to append patch");
         return false;
     }
     if ( !patchIndices.put(value, index) ) {
         patches.remove(patches.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to index patch");
+        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to index patch");
         return false;
     }
 
@@ -371,18 +371,18 @@ BinaryModelWriter::SerializationContext::ensureGeometry(const Geometry *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(geometries.size());
     if ( !geometries.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to append geometry");
+        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to append geometry");
         return false;
     }
     if ( !geometryIndices.put(value, index) ) {
         geometries.remove(geometries.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to index geometry");
+        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to index geometry");
         return false;
     }
 
@@ -414,7 +414,7 @@ BinaryModelWriter::SerializationContext::ensureGeometry(const Geometry *value) {
             return false;
         }
     } else {
-        logError("BinaryModelWriter::SerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
         return false;
     }
 
@@ -432,12 +432,12 @@ BinaryModelWriter::SerializationContext::ensureColorContext(const ColorContext *
     }
     const int index = static_cast<int>(colorContexts.size());
     if ( !colorContexts.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to append color context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to append color context");
         return false;
     }
     if ( !colorContextIndices.put(value, index) ) {
         colorContexts.remove(colorContexts.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to index color context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to index color context");
         return false;
     }
     return true;
@@ -454,12 +454,12 @@ BinaryModelWriter::SerializationContext::ensureReaderContext(const ReaderContext
     }
     const int index = static_cast<int>(readerContexts.size());
     if ( !readerContexts.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to append reader context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to append reader context");
         return false;
     }
     if ( !readerContextIndices.put(value, index) ) {
         readerContexts.remove(readerContexts.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to index reader context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to index reader context");
         return false;
     }
 
@@ -477,12 +477,12 @@ BinaryModelWriter::SerializationContext::ensureTransformArray(const TransformArr
     }
     const int index = static_cast<int>(transformArrays.size());
     if ( !transformArrays.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to append transform array");
+        Error::error("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to append transform array");
         return false;
     }
     if ( !transformArrayIndices.put(value, index) ) {
         transformArrays.remove(transformArrays.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to index transform array");
+        Error::error("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to index transform array");
         return false;
     }
     return true;
@@ -499,12 +499,12 @@ BinaryModelWriter::SerializationContext::ensureTransformContext(const TransformS
     }
     const int index = static_cast<int>(transformContexts.size());
     if ( !transformContexts.add(value) ) {
-        logError("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to append transform context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to append transform context");
         return false;
     }
     if ( !transformContextIndices.put(value, index) ) {
         transformContexts.remove(transformContexts.size() - 1);
-        logError("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to index transform context");
+        Error::error("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to index transform context");
         return false;
     }
 
@@ -661,7 +661,7 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
         const int height = texture->getHeight();
         const int channels = texture->getChannels();
         if ( width < 0 || height < 0 || channels < 0 ) {
-            logError("BinaryModelWriter::writeMaterialRecord", "Invalid texture dimensions");
+            Error::error("BinaryModelWriter::writeMaterialRecord", "Invalid texture dimensions");
             return false;
         }
 
@@ -677,7 +677,7 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
             if ( data == nullptr ) {
-                logError("BinaryModelWriter::writeMaterialRecord", "Texture data is null with non-zero size");
+                Error::error("BinaryModelWriter::writeMaterialRecord", "Texture data is null with non-zero size");
                 return false;
             }
             if ( !writeBytesChunked(output, data, dataBytes) ) {
@@ -916,7 +916,7 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
             return false;
         }
     } else {
-        logError("BinaryModelWriter::writeGeometryRecord", "Unsupported geometry class while writing");
+        Error::error("BinaryModelWriter::writeGeometryRecord", "Unsupported geometry class while writing");
         return false;
     }
     return true;
@@ -984,12 +984,12 @@ BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const Persis
 bool
 BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
-        logError("BinaryModelWriter::write", "Invalid model or fileName");
+        Error::error("BinaryModelWriter::write", "Invalid model or fileName");
         return false;
     }
     java::io::File file(fileName);
     if ( !file.canWrite() || file.isDirectory() ) {
-        logError("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
+        Error::error("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
         return false;
     }
 

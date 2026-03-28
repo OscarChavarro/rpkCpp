@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
@@ -110,7 +110,7 @@ FormFactorStrategy::determineNodes(
                 *cr = role == GalerkinRole::RECEIVER ? galerkinState->receiverQuadCubatureRule : galerkinState->sourceQuadCubatureRule;
                 break;
             default:
-                logFatal(4, "determineNodes", "Can only handle triangular and quadrilateral patches");
+                Error::fatal(4, "determineNodes", "Can only handle triangular and quadrilateral patches");
         }
 
         // Compute the transform relating positions on the element to positions on
@@ -165,7 +165,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Don't allow too nearby nodes to interact
     if ( distance < Numeric::EPSILON ) {
-        logWarning("evaluatePointsPairKernel", "Nodes too close too each other (receiver id %d, source id %d)",
+        Error::warning("evaluatePointsPairKernel", "Nodes too close too each other (receiver id %d, source id %d)",
             receiverElement->id, sourceElement->id);
         return 0.0;
     }
@@ -256,7 +256,7 @@ FormFactorStrategy::computeInteractionFormFactor(
         if ( receiverElement->isCluster() ) {
             // Constant approximation on clusters
             if ( twoPatchesInteraction->numberOfBasisFunctionsOnReceiver != 1 ) {
-                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
+                Error::fatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on receiver cluster is not possible");
             }
             receiverPhi[0][k] = 1.0;
@@ -283,7 +283,7 @@ FormFactorStrategy::computeInteractionFormFactor(
         // Determine basis function values \phi_{j,\beta}(x_l) at sample positions on the source patch
         if ( sourceElement->isCluster() ) {
             if ( beta > 0 ) {
-                logFatal(-1, "doHigherOrderAreaToAreaFormFactor",
+                Error::fatal(-1, "doHigherOrderAreaToAreaFormFactor",
                          "non-constant approximation on source cluster is not possible");
             }
             for ( int l = 0; l < sourceCubatureRule->numberOfNodes; l++ ) {

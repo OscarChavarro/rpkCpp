@@ -7,7 +7,7 @@
 #include "java/util/Formatter.h"
 #include "java/util/StringTokenizer.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfGeometry.h"
@@ -202,7 +202,7 @@ Sets the number of quarter circle divisions for discrete approximation of cylind
 static void
 mgfSetNrQuartCircDivs(int divs) {
     if ( divs <= 0 ) {
-        logError(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
+        Error::error(nullptr, "Number of quarter circle divisions (%d) should be positive", divs);
         return;
     }
 }
@@ -476,7 +476,7 @@ MgfEntityHandler *
 mgfHandlerFromType(MgfHandlerType handlerType) {
     const int handlerIndex = static_cast<int>(handlerType);
     if ( handlerIndex < 0 || handlerIndex >= TOTAL_MGF_HANDLER_TYPES ) {
-        logFatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
+        Error::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
     }
     return &globalMgfHandlers[handlerIndex];
 }
@@ -581,7 +581,7 @@ mgfAlternativeInit(
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
             java::lang::System::err.printf("Missing support for \"%s\" entity\n",
                 context->entityNames[i]);
-            exit(1);
+            java::lang::System::exit(1);
         }
     }
 

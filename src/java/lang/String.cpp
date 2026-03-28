@@ -1,6 +1,8 @@
+#include <cstdarg>
 #include <cstring>
 
 #include "java/lang/String.h"
+#include "java/util/Formatter.h"
 
 namespace java {
 namespace lang {
@@ -153,6 +155,39 @@ String::startsWith(const char *prefix) const {
         return false;
     }
     return std::strncmp(toCString(), prefix, prefixLength) == 0;
+}
+
+String
+String::formatCStringToJavaString(const char *format, va_list arguments) {
+    if ( format == nullptr ) {
+        return String();
+    }
+
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(
+        localBuffer,
+        static_cast<int>(sizeof(localBuffer)),
+        format,
+        argumentsCopy);
+    va_end(argumentsCopy);
+
+    if ( required < 0 ) {
+        return String();
+    }
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        return String(localBuffer);
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_copy(argumentsCopy, arguments);
+    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    String result(dynamicBuffer);
+    delete[] dynamicBuffer;
+    return result;
 }
 
 }

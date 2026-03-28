@@ -34,7 +34,7 @@ WardToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 WardToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float eff = getLuminousEfficacy();
+    float eff = Cie::getLuminousEfficacy();
 
     radiance.scale(eff * display);
     return radiance;

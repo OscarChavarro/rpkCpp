@@ -114,12 +114,12 @@ ColorRgb::average() const {
 
 float
 ColorRgb::gray() const {
-    return spectrumGray(r, g, b);
+    return Cie::spectrumGray(r, g, b);
 }
 
 float
 ColorRgb::luminance() const {
-    return spectrumLuminance(r, g, b);
+    return Cie::spectrumLuminance(r, g, b);
 }
 
 void

@@ -4,7 +4,7 @@ Higher order approximations for Galerkin radiosity
 
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "GALERKIN/basisgalerkin.h"
 
@@ -39,7 +39,7 @@ basisGalerkinPull(
         parent_coefficients[0].scaledCopy(child->area / parent->area, childCoefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            logError("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
+            Error::error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
             colorsArrayClear(parent_coefficients, parent->basisSize);
             parent_coefficients[0] = childCoefficients[0];
             return;
@@ -258,7 +258,7 @@ basisGalerkinPush(
         childCoefficients[0] = parentCoefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
-            logError("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
+            Error::error("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
             colorsArrayClear(childCoefficients, child->basisSize);
             childCoefficients[0] = parentCoefficients[0];
             return;

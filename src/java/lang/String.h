@@ -1,6 +1,8 @@
 #ifndef __JAVA_STRING__
 #define __JAVA_STRING__
 
+#include <cstdarg>
+
 namespace java {
 namespace lang {
 
@@ -52,6 +54,9 @@ class String {
 
     bool
     startsWith(const char *prefix) const;
+
+    static String
+    formatCStringToJavaString(const char *format, va_list arguments);
 };
 
 }

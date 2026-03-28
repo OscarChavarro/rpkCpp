@@ -8,7 +8,7 @@ Implementation of the special importance map functions
 #ifdef RAYTRACING_ENABLED
 
 #include "PHOTONMAP/importancemap.h"
-#include "common/error.h"
+#include "common/Error.h"
 
 bool
 CImportanceMap::addPhoton(
@@ -95,7 +95,7 @@ CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D 
                     density *= *m_impScalePtr;
                     break;
                 default:
-                    logError("CImportanceMap::getRequiredDensity", "Unsupported importance option");
+                    Error::error("CImportanceMap::getRequiredDensity", "Unsupported importance option");
                     return 0;
             }
         } else
@@ -115,7 +115,7 @@ CImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D 
                 density *= *m_impScalePtr;
                 break;
             default:
-                logError("CImportanceMap::getRequiredDensity", "Unsupported importance option");
+                Error::error("CImportanceMap::getRequiredDensity", "Unsupported importance option");
                 return 0;
         }
     }

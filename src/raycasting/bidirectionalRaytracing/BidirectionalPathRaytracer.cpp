@@ -9,7 +9,7 @@
 
 #include "java/lang/System.h"
 
-#include "common/stratification.h"
+#include "common/StratifiedSampling2D.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"

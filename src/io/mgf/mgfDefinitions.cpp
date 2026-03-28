@@ -2,7 +2,7 @@
 
 #include "java/io/FileInputStream.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "io/wrapper/FileUncompressWrapper.h"
 
@@ -56,12 +56,12 @@ mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const Base
 
 void
 doError(const char *errmsg, BaseContext *context) {
-    logError(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Error::error(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
 doWarning(const char *errmsg, BaseContext *context) {
-    logWarning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Error::warning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 /**

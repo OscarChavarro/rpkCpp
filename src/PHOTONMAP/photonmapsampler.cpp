@@ -9,7 +9,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #include "common/RenderOptions.h"
 
 #include "PHOTONMAP/photonmapsampler.h"
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/common/raytools.h"
 
 CPhotonMapSampler::CPhotonMapSampler() {
@@ -204,7 +204,7 @@ chooseFresnelDirection(
     bool trans = (transmittance.average() > Numeric::EPSILON);
 
     if ( reflective && trans ) {
-        logError("FresnelFactor",
+        Error::error("FresnelFactor",
                  "Cannot deal with simultaneous reflective & transit materials");
         return false;
     }
@@ -225,7 +225,7 @@ chooseFresnelDirection(
                                                    &thisNode->m_normal);
             cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
             if ( cosI < 0 ) {
-                logError("fresnelSample", "cosI < 0");
+                Error::error("fresnelSample", "cosI < 0");
             }
         } else {
             F = 0;
@@ -244,14 +244,14 @@ chooseFresnelDirection(
         cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
 
         if ( cosI < 0 ) {
-            logError("fresnelSample", "cosI < 0");
+            Error::error("fresnelSample", "cosI < 0");
         }
 
         if ( !tir ) {
             cost = -thisNode->m_normal.dotProduct(refractedDir);
 
             if ( cost < 0 ) {
-                logError("fresnelSample", "cost < 0");
+                Error::error("fresnelSample", "cost < 0");
             }
 
             float rParallel;
@@ -360,7 +360,7 @@ CPhotonMapSampler::fresnelSample(
 
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
-        logWarning("FresnelSampler", "FromNextPdf not supported");
+        Error::warning("FresnelSampler", "FromNextPdf not supported");
     }
 
     // Component propagation
@@ -429,7 +429,7 @@ CPhotonMapSampler::gdSample(
     } else {
         flags = BRDF_GLOSSY_COMPONENT;
 
-        logError("CPhotonMapSampler::gdSample", "Not done yet");
+        Error::error("CPhotonMapSampler::gdSample", "Not done yet");
         return false;
     }
 

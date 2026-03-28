@@ -10,7 +10,7 @@ and contain necessary information for raytracing-like algorithms
 #include "common/RenderOptions.h"
 
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "skin/Patch.h"
 #include "raycasting/common/pathnode.h"
 
@@ -94,7 +94,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
             case PathRayType::REFLECTS:
                 break;
             default:
-                logError("CPathNode::GetMatchingNode", "Wrong ray type in path");
+                Error::error("CPathNode::GetMatchingNode", "Wrong ray type in path");
         }
 
         matchedNode = tmpNode;
@@ -113,19 +113,19 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
     SimpleRaytracingPathNode *matchedNode;
 
     if ( !(m_hit.getFlags() & RayHitFlag::BACK) ) {
-        logError("CPathNode::getPreviousBsdf", "Last node not a back hit");
+        Error::error("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return m_inBsdf;  // Should not happen
     }
 
     if ( m_hit.getPatch()->material->getBsdf() != m_inBsdf ) {
-        logWarning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+        Error::warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     // Find the corresponding ray that enters the material
     matchedNode = GetMatchingNode();
 
     if ( matchedNode == nullptr ) {
-        logWarning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+        Error::warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
         return m_inBsdf;  // Should not happen
     }
 

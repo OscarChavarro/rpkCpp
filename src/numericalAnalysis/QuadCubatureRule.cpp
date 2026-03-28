@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "numericalAnalysis/QuadCubatureRule.h"
 
@@ -390,6 +390,6 @@ QuadCubatureRule::setQuadCubatureRules(CubatureRule **quadRule, const CubatureDe
             *quadRule = &globalCrq7Pg;
             break;
         default:
-            logFatal(2, "setQuadCubatureRules", "Invalid degree %d", degree);
+            Error::fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree);
     }
 }

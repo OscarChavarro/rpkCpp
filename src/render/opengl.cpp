@@ -3,7 +3,7 @@
 #ifdef OPEN_GL_ENABLED
     #include <GL/glu.h>
 
-    #include "common/error.h"
+    #include "common/Error.h"
     #include "render/renderhook.h"
     #include "render/glutDebugTools.h"
 #endif
@@ -257,7 +257,7 @@ openGlRenderOctreeNonLeaf(
         Geometry *child = children->get(j);
         if ( child->isCompound() ) {
             if ( i >= 8 ) {
-                logError("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                Error::error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                 delete children;
                 return;
             }

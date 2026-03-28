@@ -5,7 +5,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "scene/PatchClusterOctreeNode.h"
@@ -314,7 +314,7 @@ sceneBuilderValidateReadableFile(
 {
     java::io::File file(fileName);
     if ( !file.exists() ) {
-        logError(
+        Error::error(
             "sceneBuilderReadFile",
             "Requested %s file '%s' does not exist",
             fileRole,
@@ -322,7 +322,7 @@ sceneBuilderValidateReadableFile(
         return false;
     }
     if ( !file.isFile() ) {
-        logError(
+        Error::error(
             "sceneBuilderReadFile",
             "Requested %s file '%s' is not a regular file",
             fileRole,
@@ -330,7 +330,7 @@ sceneBuilderValidateReadableFile(
         return false;
     }
     if ( !file.canRead() ) {
-        logError(
+        Error::error(
             "sceneBuilderReadFile",
             "Requested %s file '%s' is not readable",
             fileRole,
@@ -343,7 +343,7 @@ sceneBuilderValidateReadableFile(
     input.close();
 
     if ( firstByte < 0 ) {
-        logError(
+        Error::error(
             "sceneBuilderReadFile",
             "Requested %s file '%s' is empty",
             fileRole,
@@ -428,7 +428,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
                 java::lang::System::err.printf("done.\n");
             } else {
                 java::lang::System::err.printf("failed.\n");
-                logError(
+                Error::error(
                     "sceneBuilderReadFile",
                     "Could not export PersistedSceneModel binary to '%s'",
                     batchOptions->binaryOutputFilename);
@@ -486,7 +486,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     scene->clusteredRootGeometry = sceneBuilderCreateClusterHierarchy(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className != GeometryClassId::COMPOUND ) {
-        logWarning(nullptr, "Strange clusters for this world ...");
+        Error::warning(nullptr, "Strange clusters for this world ...");
     }
 
     t = java::lang::System::nanoTime();
@@ -582,7 +582,7 @@ sceneBuilderCreateModel(
          && batchOptions->binaryInputFilename != nullptr
          && batchOptions->binaryInputFilename[0] != '\0' ) {
         if ( !sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene) ) {
-            exit(1);
+            java::lang::System::exit(1);
         }
         return;
     }
@@ -590,9 +590,9 @@ sceneBuilderCreateModel(
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
-            logError(nullptr, "Unrecognized option '%s'", argv[1]);
+            Error::error(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
-            exit(1);
+            java::lang::System::exit(1);
         }
     }
 }

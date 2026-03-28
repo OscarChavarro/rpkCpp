@@ -9,7 +9,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 
 #include "common/ColorRgb.h"
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -79,7 +79,7 @@ class ScopedArray {
 
 bool
 reportReadError(const char *routine, const char *message) {
-    logError(routine, "%s", message);
+    Error::error(routine, "%s", message);
     return false;
 }
 }
@@ -210,12 +210,12 @@ BinaryModelReader::initializeArrayList(java::ArrayList<T> *list, int count, T in
         return reportReadError("BinaryModelReader::initializeArrayList", "Null list pointer");
     }
     if ( count < 0 ) {
-        logError("BinaryModelReader::initializeArrayList", "Negative count while reading binary model (%s)", what);
+        Error::error("BinaryModelReader::initializeArrayList", "Negative count while reading binary model (%s)", what);
         return false;
     }
     for ( int i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
-            logError("BinaryModelReader::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
+            Error::error("BinaryModelReader::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
             return false;
         }
     }
@@ -321,7 +321,7 @@ BinaryModelReader::readNonNegativeCount(java::io::InputStream &input, const char
     }
     *count = readInt32LE(input);
     if ( *count < 0 ) {
-        logError("BinaryModelReader::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
+        Error::error("BinaryModelReader::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
         return false;
     }
     return true;
@@ -437,7 +437,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what,
         return true;
     }
     if ( count < -1 ) {
-        logError("BinaryModelReader::readIndexList", "Negative index list count while reading binary model (%s)", what);
+        Error::error("BinaryModelReader::readIndexList", "Negative index list count while reading binary model (%s)", what);
         return false;
     }
 
@@ -446,7 +446,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what,
         if ( !record->indices->add(readInt32LE(input)) ) {
             delete record->indices;
             record->indices = nullptr;
-            logError("BinaryModelReader::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
+            Error::error("BinaryModelReader::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
             return false;
         }
     }
@@ -465,7 +465,7 @@ BinaryModelReader::pointerFromIndex(const java::ArrayList<T *> &values, int inde
         return true;
     }
     if ( index < 0 || static_cast<long int>(index) >= values.size() ) {
-        logError("BinaryModelReader::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+        Error::error("BinaryModelReader::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
         return false;
     }
     *result = values.get(static_cast<long int>(index));
@@ -806,7 +806,7 @@ BinaryModelReader::read(const char *fileName) {
                     const long long dataBytes = readInt64LE(input);
 
                     if ( width < 0 || height < 0 || channels < 0 || dataBytes < 0 ) {
-                        logError("BinaryModelReader::read", "%s", "Invalid texture dimensions in binary material");
+                        Error::error("BinaryModelReader::read", "%s", "Invalid texture dimensions in binary material");
                         goto fail;
                     }
 
@@ -814,14 +814,14 @@ BinaryModelReader::read(const char *fileName) {
                                                   * static_cast<long long>(height)
                                                   * static_cast<long long>(channels);
                     if ( expectedBytes != dataBytes ) {
-                        logError("BinaryModelReader::read", "%s", "Texture byte count mismatch in binary material");
+                        Error::error("BinaryModelReader::read", "%s", "Texture byte count mismatch in binary material");
                         goto fail;
                     }
 
                     ScopedArray<unsigned char> textureData;
                     if ( dataBytes > 0 ) {
                         if ( dataBytes > static_cast<long long>(java::Integer::MAX_VALUE) ) {
-                            logError("BinaryModelReader::read", "%s", "Texture data too large for current platform");
+                            Error::error("BinaryModelReader::read", "%s", "Texture data too large for current platform");
                             goto fail;
                         }
                         textureData.reset(new unsigned char[static_cast<int>(dataBytes)]);
@@ -965,7 +965,7 @@ BinaryModelReader::read(const char *fileName) {
             record.tmp = readInt32LE(input);
             record.hasRadianceData = readBool(input);
             if ( record.hasRadianceData ) {
-                logError("BinaryModelReader::read", "%s", "Vertex radianceData is not supported in binary reader");
+                Error::error("BinaryModelReader::read", "%s", "Vertex radianceData is not supported in binary reader");
                 goto fail;
             }
             if ( !readIndexList(input, "vertex.patches", &record.patchIndices) ) goto fail;
@@ -1000,7 +1000,7 @@ BinaryModelReader::read(const char *fileName) {
             record.twinIndex = readInt32LE(input);
             record.numberOfVertices = readInt32LE(input);
             if ( record.numberOfVertices != 3 && record.numberOfVertices != 4 ) {
-                logError("BinaryModelReader::read", "%s", "Invalid patch vertex count while loading binary model");
+                Error::error("BinaryModelReader::read", "%s", "Invalid patch vertex count while loading binary model");
                 goto fail;
             }
             for ( int j = 0; j < MAXIMUM_VERTICES_PER_PATCH; j++ ) {
@@ -1036,7 +1036,7 @@ BinaryModelReader::read(const char *fileName) {
             record.materialIndex = readInt32LE(input);
             record.hasRadianceData = readBool(input);
             if ( record.hasRadianceData ) {
-                logError("BinaryModelReader::read", "%s", "Patch radianceData is not supported in binary reader");
+                Error::error("BinaryModelReader::read", "%s", "Patch radianceData is not supported in binary reader");
                 goto fail;
             }
 
@@ -1122,7 +1122,7 @@ BinaryModelReader::read(const char *fileName) {
             record.hasRayIntersectionBox = readBool(input);
             record.hasRadianceData = readBool(input);
             if ( record.hasRadianceData ) {
-                logError("BinaryModelReader::read", "%s", "Geometry radianceData is not supported in binary reader");
+                Error::error("BinaryModelReader::read", "%s", "Geometry radianceData is not supported in binary reader");
                 goto fail;
             }
 
@@ -1147,7 +1147,7 @@ BinaryModelReader::read(const char *fileName) {
             } else if ( record.classId == static_cast<int>(GeometryClassId::PATCH_SET) ) {
                 if ( !readIndexList(input, "patchSet.patchList", &record.patchSetPatches) ) goto fail;
             } else {
-                logError("BinaryModelReader::read", "%s", "Unsupported geometry type in binary model");
+                Error::error("BinaryModelReader::read", "%s", "Unsupported geometry type in binary model");
                 goto fail;
             }
         }
@@ -1192,7 +1192,7 @@ BinaryModelReader::read(const char *fileName) {
             }
 
             if ( geometry == nullptr ) {
-                logError("BinaryModelReader::read", "%s", "Could not instantiate geometry while loading binary model");
+                Error::error("BinaryModelReader::read", "%s", "Could not instantiate geometry while loading binary model");
                 goto fail;
             }
 
@@ -1296,7 +1296,7 @@ BinaryModelReader::read(const char *fileName) {
 
         ok = true;
     } catch (...) {
-        logError("BinaryModelReader::read", "%s", "Unexpected failure while reading binary model");
+        Error::error("BinaryModelReader::read", "%s", "Unexpected failure while reading binary model");
         ok = false;
     }
 

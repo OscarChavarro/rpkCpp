@@ -9,7 +9,7 @@ Rendering elements
 #include "common/RenderOptions.h"
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
+#include "common/Error.h"
 #include "tonemap/ToneMap.h"
 #include "render/opengl.h"
 #include "render/render.h"
@@ -39,7 +39,7 @@ stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
             break;
         }
         default:
-            logFatal(
+            Error::fatal(
                 -1,
                 "stochasticRadiosityElementColor",
                 "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
@@ -121,7 +121,7 @@ vertexColor(Vertex *v) {
             break;
         }
         default:
-            logFatal(-1, "vertexColor",
+            Error::fatal(-1, "vertexColor",
                      "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
     }
@@ -460,7 +460,7 @@ stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElemen
                     radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], static_cast<float>(u), static_cast<float>(v));
                     break;
                 default:
-                    logFatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
+                    Error::fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
                              "can only handle triangular or quadrilateral elements");
             }
         } else {

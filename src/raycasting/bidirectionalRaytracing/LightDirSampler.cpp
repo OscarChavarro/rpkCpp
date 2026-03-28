@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 
 /**
@@ -25,7 +25,7 @@ LightDirSampler::sample(
     double pdfDir = 0.0;
 
     if ( !thisNode->m_hit.getMaterial()->getEdf() ) {
-        logError("CLightDirSampler::sample", "No EDF");
+        Error::error("CLightDirSampler::sample", "No EDF");
         return false;
     }
 
@@ -79,7 +79,7 @@ LightDirSampler::evalPDF(
     Vector3D outDir;
 
     if ( !thisNode->m_hit.getMaterial()->getEdf() ) {
-        logError("CLightDirSampler::evalPdf", "No EDF");
+        Error::error("CLightDirSampler::evalPdf", "No EDF");
         return false;
     }
     // More efficient with extra params?

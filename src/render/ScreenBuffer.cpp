@@ -2,7 +2,7 @@
 
 #include "java/lang/System.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/Statistics.h"
 
@@ -103,7 +103,7 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
     rgbImage = src1->isRgbImage();
 
     if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {
-        logError("ScreenBuffer::merge", "Incompatible screen buffer sources");
+        Error::error("ScreenBuffer::merge", "Incompatible screen buffer sources");
         return;
     }
 

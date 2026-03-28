@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "raycasting/bidirectionalRaytracing/DensityHitList.h"
-#include "common/error.h"
+#include "common/Error.h"
 
 static constexpr int DHL_ARRAY_SIZE = 20;
 
@@ -25,7 +25,7 @@ DensityHitList::~DensityHitList() {
 DensityHit
 DensityHitList::operator[](int i) {
     if ( i >= numHits ) {
-        logFatal(-1, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+        Error::fatal(-1, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if ( !cacheCurrent || (i < cacheLowerLimit) ) {

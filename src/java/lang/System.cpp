@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <chrono>
 
 #include "java/io/FileOutputStream.h"
@@ -18,6 +19,11 @@ java::io::FileOutputStream globalSystemErrStream("/dev/stderr");
 
 java::io::PrintStream System::out(&globalSystemOutStream);
 java::io::PrintStream System::err(&globalSystemErrStream);
+
+[[noreturn]] void
+System::exit(int status) {
+    std::exit(status);
+}
 
 long long
 System::nanoTime() {

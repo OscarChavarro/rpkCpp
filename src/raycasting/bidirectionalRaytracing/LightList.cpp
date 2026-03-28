@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "numericalAnalysis/PatchVisitor.h"
 
@@ -66,7 +66,7 @@ LightList::sample(double *x1, double *pdf) {
     }
 
     if ( info == nullptr ) {
-        logWarning("CLightList::sample", "No lights available");
+        Error::warning("CLightList::sample", "No lights available");
         return nullptr;
     }
 
@@ -301,7 +301,7 @@ LightList::sampleImportant(const Vector3D *point, const Vector3D *normal, double
     }
 
     if ( info == nullptr ) {
-        logWarning("CLightList::sample", "No lights available");
+        Error::warning("CLightList::sample", "No lights available");
         return nullptr;
     }
 
@@ -352,7 +352,7 @@ LightList::evalPdfImportant(
     while ( (info = iterator.nextOnSequence()) && info->light != light );
 
     if ( info == nullptr ) {
-        logWarning("CLightList::evalPdfImportant", "Could not find light");
+        Error::warning("CLightList::evalPdfImportant", "Could not find light");
         return 0.0;
     }
 

@@ -63,7 +63,7 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 ColorRgb
 TumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
     float rwl = static_cast<float>(M_PI) * radiance.luminance();
-    float eff = getLuminousEfficacy();
+    float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff * static_cast<float>(M_PI));
 
     float scale;

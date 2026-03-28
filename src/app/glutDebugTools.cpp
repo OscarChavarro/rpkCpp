@@ -105,7 +105,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     switch ( keyChar ) {
         case 27:
             globalMemoryFreeCallBack(globalMgfContext);
-            exit(1);
+            java::lang::System::exit(1);
         case '0':
             if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
                 GLOBAL_render_glutDebugState.showSelectedPathOnly = false;
@@ -229,7 +229,7 @@ executeGlutGui(
     int windowHandle = glutCreateWindow("RPK");
     if ( windowHandle == GL_FALSE ) {
         java::lang::System::out.printf("ERROR: Can not open GLUT window, check X11 setup!\n");
-        exit(1);
+        java::lang::System::exit(1);
     }
 
     renderOptions->frustumCulling = false;

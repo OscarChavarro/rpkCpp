@@ -43,7 +43,7 @@ ToneMappingContext::ToneMappingContext():
     yb = 0.060f;
     xw = 0.333333333333f;
     yw = 0.333333333333f;
-    computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
+    Cie::computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
     gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     recomputeGammaTables(gamma);

@@ -5,7 +5,7 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 */
 #include "java/lang/Float.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -78,7 +78,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
     }
 
     if ( hit == nullptr || !hit->getTexCoord(&texCoord) ) {
-        logWarning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+        Error::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
@@ -102,7 +102,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit
     if ( brdf ) {
         ColorRgb reflectance = brdf->reflectance(flags);
         if ( !java::Float::isFinite(reflectance.average()) ) {
-            logFatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+            Error::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
 
         albedo.add(albedo, reflectance);
@@ -251,7 +251,7 @@ PhongBidirectionalScatteringDistributionFunction::sample(
 
     *probabilityDensityFunction = 0; // So we can return safely
     if ( !hit->shadingNormal(&normal) ) {
-        logWarning("sample", "Couldn't determine shading normal");
+        Error::warning("sample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
         return out;
     }
@@ -401,7 +401,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
 
     result.clear();
     if ( !hit->shadingNormal(&normal) ) {
-        logWarning("evaluate", "Couldn't determine shading normal");
+        Error::warning("evaluate", "Couldn't determine shading normal");
         return result;
     }
 
@@ -476,7 +476,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluateProbabilityDensityFunc
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
     if ( !hit->shadingNormal(&normal) ) {
-        logWarning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
+        Error::warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
         return;
     }
 

@@ -5,7 +5,7 @@
 
 #include "common/linealAlgebra/Numeric.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "common/dataStructures/KDTree.h"
 
@@ -204,7 +204,7 @@ Iterate nodes : iterate all nodes (only for balanced trees!)
 void
 KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
     if ( numUnbalanced > 0 ) {
-        logError(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+        Error::error(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
 
@@ -231,7 +231,7 @@ KDTree::query(
 
     if ( inDistances == nullptr ) {
         if ( N > 1000 ) {
-            logError("KDTree::query", "Too many nodes requested");
+            Error::error("KDTree::query", "Too many nodes requested");
             return 0;
         }
         usedDistances = inDistances;

@@ -2,7 +2,7 @@
 
 #include "java/lang/Math.h"
 
-#include "common/stratification.h"
+#include "common/StratifiedSampling2D.h"
 
 StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {
     getNumberOfDivisions(nrSamples, &xMaxStratum, &yMaxStratum);
@@ -31,7 +31,7 @@ StratifiedSampling2D::sample(double *x1, double *x2) {
 Makes a nice grid for stratified sampling
 */
 void
-getNumberOfDivisions(int samples, int *divs1, int *divs2) {
+StratifiedSampling2D::getNumberOfDivisions(int samples, int *divs1, int *divs2) {
     if ( samples <= 0 ) {
         *divs1 = 0;
         *divs2 = 0;

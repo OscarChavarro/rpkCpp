@@ -5,7 +5,7 @@ of patches needs to be ID rendered very often
 */
 #include <cstddef>
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "SGL/poly.h"
 #include "SGL/sgl.h"
@@ -162,7 +162,7 @@ SGL_CONTEXT::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     PolygonBox clip_box = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
 
     if ( numberOfVertices > (clipping ? (MAXIMUM_SIDES_PER_POLYGON - 6) : MAXIMUM_SIDES_PER_POLYGON) ) {
-        logError("sglPolygon", "Too many vertices (max. %d)", MAXIMUM_SIDES_PER_POLYGON);
+        Error::error("sglPolygon", "Too many vertices (max. %d)", MAXIMUM_SIDES_PER_POLYGON);
         return;
     }
 

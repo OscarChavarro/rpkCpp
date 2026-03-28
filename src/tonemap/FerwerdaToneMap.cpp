@@ -45,7 +45,7 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     float sl;
 
     // Convert to photometric values
-    float eff = getLuminousEfficacy();
+    float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
@@ -70,7 +70,7 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
     float sl;
 
     // Convert to photometric values
-    float eff = getLuminousEfficacy();
+    float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift

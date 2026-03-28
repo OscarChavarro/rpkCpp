@@ -9,7 +9,7 @@ Random walk generation
 
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/localline.h"
@@ -167,7 +167,7 @@ tracePaths(
         stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
     }
     if ( globalSumProbabilities < Numeric::EPSILON ) {
-        logWarning("tracePaths", "No sources");
+        Error::warning("tracePaths", "No sources");
         return;
     }
 

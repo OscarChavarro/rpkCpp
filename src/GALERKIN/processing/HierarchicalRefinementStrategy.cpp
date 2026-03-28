@@ -4,7 +4,7 @@ Hierarchical refinement
 
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
@@ -124,7 +124,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
                 GLOBAL_statistics.maxSelfEmittedPower) * galerkinState->relLinkErrorThreshold / (M_PI * receiverArea);
             break;
         default:
-            logFatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
+            Error::fatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
     }
 
     // Weight the error with the potential of the receiver in case of view-potential
@@ -214,7 +214,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
             break;
 
         default:
-            logFatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
+            Error::fatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
     }
 
     return approxError;
@@ -414,7 +414,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             interaction->receiverElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
         } else {
-            logFatal(
+            Error::fatal(
                 -1, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
         }
     }
@@ -720,7 +720,7 @@ HierarchicalRefinementStrategy::refineRecursive(
             refined = true;
             break;
         default:
-            logFatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
+            Error::fatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
     }
 
     return refined;

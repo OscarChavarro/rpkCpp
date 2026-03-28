@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/raytracing/eyesampler.h"
 
 bool
@@ -20,7 +20,7 @@ CEyeSampler::sample(
     char /*flags*/)
 {
     if ( prevNode != nullptr || thisNode != nullptr ) {
-        logWarning("CEyeSampler::sample", "Not first node in path ?!");
+        Error::warning("CEyeSampler::sample", "Not first node in path ?!");
     }
 
     // Just fill in newNode with camera data. Appropriate pdf fields are set to 1

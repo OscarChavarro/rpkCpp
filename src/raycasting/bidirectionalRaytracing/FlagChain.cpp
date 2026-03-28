@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "scene/RadianceMethod.h"
 
@@ -121,7 +121,7 @@ FlagChain::compute(CBiPath *path) const {
     SimpleRaytracingPathNode *node;
 
     if ( lightSize + eyeSize != length ) {
-        logError("FlagChain::Compute", "Wrong path length");
+        Error::error("FlagChain::Compute", "Wrong path length");
         return result;
     }
 
@@ -173,7 +173,7 @@ void
 FlagChainList::add(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
-            logError("CChainList::add", "Wrong length flag chain inserted!");
+            Error::error("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else {
@@ -189,7 +189,7 @@ void
 FlagChainList::addDisjoint(const FlagChain &chain) {
     if ( count > 0 ) {
         if ( chain.length != length ) {
-            logError("CChainList::add", "Wrong length flag chain inserted!");
+            Error::error("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else {
@@ -295,7 +295,7 @@ ContribHandler::compute(CBiPath *path) {
     length = path->m_eyeSize + path->m_lightSize;
 
     if ( length > maxLength ) {
-        logError("CContribHandler::Compute", "Path too long !!");
+        Error::error("CContribHandler::Compute", "Path too long !!");
         return result;
     }
 
@@ -324,7 +324,7 @@ ContribHandler::addRegExp(char *regExp) {
 
 void
 ContribHandler::doSyntaxError(const char *errString) {
-    logError("Flag chain Syntax Error", errString);
+    Error::error("Flag chain Syntax Error", errString);
     init(maxLength);
 }
 

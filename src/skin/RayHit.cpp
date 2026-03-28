@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 
 #include "skin/Patch.h"
@@ -148,7 +148,7 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     int success = false;
 
     if ( !hitInitialised() ) {
-        logWarning("pointShadingFrame", "uninitialised hit structure");
+        Error::warning("pointShadingFrame", "uninitialised hit structure");
         return false;
     }
 

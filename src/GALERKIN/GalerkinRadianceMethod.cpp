@@ -11,7 +11,7 @@ Galerkin radiosity, with the following variants:
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "tonemap/ToneMap.h"
@@ -206,7 +206,7 @@ galerkinWriteVertexColorsTopCluster() {
 static void
 galerkinWriteColors(const RenderOptions *renderOptions) {
     if ( !renderOptions->smoothShading ) {
-        logWarning(nullptr, "I assume you want a smooth shaded model ...");
+        Error::warning(nullptr, "I assume you want a smooth shaded model ...");
     }
     galerkinWriteFormatted("\tcolorPerVertex %s\n", "TRUE");
     galerkinWriteVertexColorsTopCluster();
@@ -319,7 +319,7 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
                 galerkinSetUnShotPotential(patch, patch->directPotential);
                 break;
             default:
-                logFatal(-1, "patchInit", "Invalid iteration method");
+                Error::fatal(-1, "patchInit", "Invalid iteration method");
         }
     }
 
@@ -397,7 +397,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 bool
 GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     if ( galerkinState.iterationNumber < 0 ) {
-        logError("doGalerkinOneStep", "method not initialized");
+        Error::error("doGalerkinOneStep", "method not initialized");
         return true; // Done, don't continue!
     }
 
@@ -416,7 +416,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
             done = ShootingStrategy::doShootingStep(scene, &galerkinState, renderOptions);
             break;
         default:
-            logFatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
+            Error::fatal(2, "doGalerkinOneStep", "Invalid iteration method %d\n", galerkinState.galerkinIterationMethod);
     }
 
     updateCpuSecs();

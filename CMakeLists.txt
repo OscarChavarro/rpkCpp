@@ -34,12 +34,12 @@ set(MAIN_SRC
     src/java/io/FileOutputStream.cpp
     src/java/io/BufferedInputStream.cpp
     src/java/io/PrintStream.cpp
-    src/common/errorshared.cpp
+    src/common/Error.cpp
     src/common/CppReAlloc.cpp
     src/common/ColorRgb.cpp
-    src/common/cie.cpp
+    src/common/Cie.cpp
     src/common/RenderOptions.cpp
-    src/common/stratification.cpp
+    src/common/StratifiedSampling2D.cpp
     src/common/Statistics.cpp
     src/common/linealAlgebra/Numeric.cpp
     src/common/linealAlgebra/Matrix2x2.cpp

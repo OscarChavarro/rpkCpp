@@ -4,7 +4,7 @@
 
 #include <cstdlib>
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 #include "numericalAnalysis/quasiMonteCarlo/Halton.h"
@@ -121,7 +121,7 @@ sample4D(unsigned seed) {
             xi[3] = zeta[3] * RECIP;
             break;
         default:
-            logFatal(-1, "sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
+            Error::fatal(-1, "sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
     }
 
     return xi;

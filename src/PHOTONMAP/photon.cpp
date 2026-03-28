@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "PHOTONMAP/photon.h"
 
@@ -25,6 +25,6 @@ CPhoton::findRS(
         *s = phi / (2 * M_PI);
         *r = java::Math::pow(java::Math::cos(theta), static_cast<double>(n) + 1.0);
     } else {
-        logError("CPhoton::findRS", "Component %i not implemented yet", flag);
+        Error::error("CPhoton::findRS", "Component %i not implemented yet", flag);
     }
 }

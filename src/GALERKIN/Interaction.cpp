@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "GALERKIN/Interaction.h"
 
@@ -48,7 +48,7 @@ Interaction::Interaction(
     }
 
     if ( inNumberOfReceiverCubaturePositions > 1 ) {
-        logFatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+        Error::fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
     deltaK = new float[1];
     *deltaK = *inDeltaK;

@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "tonemap/LightnessToneMap.h"
@@ -15,7 +15,7 @@ LightnessToneMap::init() {
 
 ColorRgb
 LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
-    logWarning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    Error::warning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 
@@ -28,7 +28,7 @@ LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
 
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
-    float scaleFactor = lightness(WHITE_EFFICACY * max);
+    float scaleFactor = lightness(Cie::WHITE_EFFICACY * max);
     if ( scaleFactor == 0.0 ) {
         return radiance;
     }

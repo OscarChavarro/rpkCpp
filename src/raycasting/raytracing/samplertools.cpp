@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "java/lang/System.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/samplertools.h"
@@ -78,7 +78,7 @@ CSamplerConfig::traceNode(
     if ( lastNode == nullptr ) {
         // Fill in first node
         if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, nextNode, x1, x2) ) {
-            logWarning("CSamplerConfig::traceNode", "Point sampler failed");
+            Error::warning("CSamplerConfig::traceNode", "Point sampler failed");
             return nullptr;
         }
     } else if ( lastNode->m_depth == 0 ) {

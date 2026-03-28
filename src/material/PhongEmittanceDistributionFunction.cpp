@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
@@ -25,7 +25,7 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
     kd.scaledCopy((1.00f / static_cast<float>(M_PI)), Kd); // Because we use it often
     Ks = *KsParameter;
     if ( !Ks.isBlack() ) {
-        logWarning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+        Error::warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
     Ns = static_cast<float>(NsParameter);
 }
@@ -89,7 +89,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     }
 
     if ( !hit->shadingNormal(&normal) ) {
-        logWarning("phongEdfEval", "Couldn't determine shading normal");
+        Error::warning("phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
 
@@ -145,7 +145,7 @@ PhongEmittanceDistributionFunction::phongEdfSample(
 
         Vector3D normal;
         if ( !hit->shadingNormal(&normal) ) {
-            logWarning("phongEdfEval", "Couldn't determine shading normal");
+            Error::warning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
 

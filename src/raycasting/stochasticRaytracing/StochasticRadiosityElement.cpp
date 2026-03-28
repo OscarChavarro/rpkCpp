@@ -5,7 +5,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
+#include "common/Error.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
@@ -430,7 +430,7 @@ stochasticRadiosityElementRegularSubElementAtPoint(
             }
             break;
         default:
-            logFatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+            Error::fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
     }
 
     return child;
@@ -586,7 +586,7 @@ stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *e
                         v = static_cast<StochasticRadiosityElement *>(neighbour->regularSubElements[2])->vertices[0];
                         break;
                     default:
-                        logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        Error::error("EdgeMidpointVertex", "Invalid vertex index %d", index);
                 }
                 break;
             case 4:
@@ -604,11 +604,11 @@ stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *e
                         v = static_cast<StochasticRadiosityElement *>(neighbour->regularSubElements[2])->vertices[0];
                         break;
                     default:
-                        logError("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                        Error::error("EdgeMidpointVertex", "Invalid vertex index %d", index);
                 }
                 break;
             default:
-                logFatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+                Error::fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
         }
     }
 
@@ -644,7 +644,7 @@ Only for surface elements
 int
 stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
-        logFatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
+        Error::fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
     const Material *mat = elem->patch->material;
@@ -853,14 +853,14 @@ stochasticRadiosityElementRegularSubdivideElement(
     }
 
     if ( element->isCluster() ) {
-        logFatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+        Error::fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
         return nullptr;
     }
 
     if ( element->patch->jacobian ) {
         static bool flag = false;
         if ( !flag ) {
-            logWarning("galerkinElementRegularSubDivide",
+            Error::warning("galerkinElementRegularSubDivide",
                        "irregular quadrilateral patches are not correctly handled (but you probably won't notice it)");
         }
         flag = true;
@@ -876,7 +876,7 @@ stochasticRadiosityElementRegularSubdivideElement(
             monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
             break;
         default:
-            logFatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
+            Error::fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
     }
     return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
@@ -960,7 +960,7 @@ stochasticRadiosityElementPushRadiance(
         filterColorDown(parentRadiance, &(*child->basis->regularFilter)[child->childNumber], childRadiance,
                         child->basis->size);
     } else {
-        logFatal(-1, "stochasticRadiosityElementPushRadiance",
+        Error::fatal(-1, "stochasticRadiosityElementPushRadiance",
                  "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }
@@ -984,7 +984,7 @@ stochasticRadiosityElementPullRadiance(
         filterColorUp(childRad, &(*child->basis->regularFilter)[child->childNumber],
                       parentRad, child->basis->size, areaFactor);
     } else {
-        logFatal(-1, "stochasticRadiosityElementPullRadiance",
+        Error::fatal(-1, "stochasticRadiosityElementPullRadiance",
                  "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
     }
 }

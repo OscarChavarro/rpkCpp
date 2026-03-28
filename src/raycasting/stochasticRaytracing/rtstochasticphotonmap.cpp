@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 
 #include "scene/RadianceMethod.h"
@@ -35,9 +35,9 @@ StochasticRaytracingConfiguration::init(
 
     if ( radMode != RayTracingRadMode::STORED_NONE ) {
         if ( radianceMethod == nullptr ) {
-            logError("Stored Radiance", "No radiance method active, using no storage");
+            Error::error("Stored Radiance", "No radiance method active, using no storage");
         } else if ( (radMode == RayTracingRadMode::STORED_PHOTON_MAP) && (radianceMethod->className != PHOTON_MAP) ) {
-            logError("Stored Radiance", "Photon map method not active, using no storage");
+            Error::error("Stored Radiance", "Photon map method not active, using no storage");
         }
         radMode = RayTracingRadMode::STORED_NONE;
     }
@@ -53,7 +53,7 @@ StochasticRaytracingConfiguration::init(
 
     if ( reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING
       && radMode == RayTracingRadMode::STORED_INDIRECT ) {
-        logError("Classical raytracing", "Incompatible with extended final gather, using storage directly");
+        Error::error("Classical raytracing", "Incompatible with extended final gather, using storage directly");
         radMode = RayTracingRadMode::STORED_DIRECT;
     }
 
@@ -67,7 +67,7 @@ StochasticRaytracingConfiguration::init(
     separateSpecular = state.separateSpecular;
 
     if ( reflectionSampling == RayTracingSamplingMode::PHOTON_MAP_SAMPLING ) {
-        logWarning("Fresnel Specular Sampling", "always uses separate specular");
+        Error::warning("Fresnel Specular Sampling", "always uses separate specular");
         separateSpecular = true;  // Always separate specular with photon map
     }
 
@@ -100,7 +100,7 @@ StochasticRaytracingConfiguration::initDependentVars(
             samplerConfig.surfaceSampler = new CSpecularSampler;
             break;
         default:
-            logError("SR CONFIG::initDependentVars", "Wrong sampling mode");
+            Error::error("SR CONFIG::initDependentVars", "Wrong sampling mode");
     }
 
     if ( lightMode == RayTracingLightMode::IMPORTANT_LIGHTS ) {
@@ -145,7 +145,7 @@ StochasticRaytracingConfiguration::initDependentVars(
             siStorage.nrSamplesAfter = 0;
             break;
         default:
-            logError("SR CONFIG::initDependentVars", "Wrong Rad Mode");
+            Error::error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
     }
 
     // Other blocks, this is non storage with optional

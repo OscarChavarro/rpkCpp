@@ -2,7 +2,7 @@
 
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
@@ -55,7 +55,7 @@ doDiscreteConic(int argc, const char **argv, BaseContext *context) {
         case EntityContext::PRISM:
             return mgfEntityPrism(argc, argv, context);
         default:
-            logFatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+            Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
     }
 }
 

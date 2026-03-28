@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
 

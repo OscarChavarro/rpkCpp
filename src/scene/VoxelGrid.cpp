@@ -8,7 +8,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "skin/MinMaxBox.h"
 
@@ -246,8 +246,8 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
 void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
-        logError("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
-        exit(1);
+        Error::error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+        java::lang::System::exit(1);
     }
 
     // Enlarge the getBoundingBox by a small amount

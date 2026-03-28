@@ -128,7 +128,7 @@ handleObject2Entity(int ac, const char **av) {
                 globalObjectMaxName);
             if ( globalObjectNamesList == nullptr ) {
                 java::lang::System::err.println("Memory error");
-                exit(1);
+                java::lang::System::exit(1);
             }
         }
         if ( globalObjectNamesList == nullptr ) {

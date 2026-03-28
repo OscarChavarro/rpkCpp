@@ -5,7 +5,7 @@ Routines dealing with view potential
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "render/canvas.h"
@@ -88,7 +88,7 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     }
 
     if ( lostPixels > 0 ) {
-        logWarning(nullptr, "%d lost pixels", lostPixels);
+        Error::warning(nullptr, "%d lost pixels", lostPixels);
     }
 
     GLOBAL_statistics.averageDirectPotential = GLOBAL_statistics.totalDirectPotential =

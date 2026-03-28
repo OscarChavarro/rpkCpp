@@ -5,7 +5,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 
 #include "java/lang/System.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "tonemap/ToneMap.h"
 
@@ -133,14 +133,14 @@ createRadianceImageOutputHandle(
         // Olaf: HDR PIC output
         else if ( strncasecmp(fileExtension, "pic", 3) == 0 ) {
             if ( isPipe ) {
-                logError("createRadianceImageOutputHandle",
+                Error::error("createRadianceImageOutputHandle",
                          "Can't write PIC output to a pipe.\n");
                 return nullptr;
             }
 
             return new PicOutputHandle(fileName, width, height);
         } else {
-            logError("createRadianceImageOutputHandle",
+            Error::error("createRadianceImageOutputHandle",
                      "Can't save high dynamic range image to a '%s' file, format not supported.",
                      fileExtension);
             return nullptr;
@@ -166,7 +166,7 @@ createImageOutputHandle(
         if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(outputStream, width, height);
         } else {
-            logError("createImageOutputHandle",
+            Error::error("createImageOutputHandle",
                      "Can't save display-RGB images to a '%s' file, format not supported.\n",
                      fileExtension);
             return nullptr;

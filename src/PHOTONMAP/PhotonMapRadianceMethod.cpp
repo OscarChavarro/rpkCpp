@@ -7,7 +7,7 @@
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
+#include "common/Error.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
@@ -731,7 +731,7 @@ PhotonMapRadianceMethod::getRadiance(
             break;
         default:
             radiance.clear();
-            logError("photonMapGetRadiance", "Unknown radiance return");
+            Error::error("photonMapGetRadiance", "Unknown radiance return");
     }
 
     return radiance;

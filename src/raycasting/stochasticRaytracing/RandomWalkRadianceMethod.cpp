@@ -2,7 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/Statistics.h"
 
@@ -202,7 +202,7 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
             }
             break;
         default:
-            logFatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
+            Error::fatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind);
     }
     return w;
@@ -505,7 +505,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
             randomWalkRadiosityDoGatheringIteration(scene->voxelGrid, scene->patchList);
             break;
         default:
-            logFatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
+            Error::fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                      GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
     }
 

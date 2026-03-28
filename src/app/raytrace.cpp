@@ -7,7 +7,7 @@
 #include "java/lang/System.h"
 #include <cstring>
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
@@ -54,7 +54,7 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
 
     if ( newRaytracer == nullptr && strncasecmp(rayTracerName, "none", 4) != 0 ) {
-        logError(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
+        Error::error(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
     }
 
     return newRaytracer;
@@ -99,9 +99,9 @@ rayTraceSaveImage(
     }
 
     if ( rayTracer == nullptr ) {
-        logWarning(nullptr, "No ray tracing method active");
+        Error::warning(nullptr, "No ray tracing method active");
     } else if ( !rayTracer->saveImage(img) ) {
-        logWarning(nullptr, "No previous %s image available", rayTracer->getName());
+        Error::warning(nullptr, "No previous %s image available", rayTracer->getName());
     }
 
     deleteImageOutputHandle(img);

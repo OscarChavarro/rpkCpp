@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
-#include "common/stratification.h"
+#include "common/StratifiedSampling2D.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"
 #include "raycasting/common/raytools.h"

@@ -8,7 +8,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be
 September, 5 1995
 */
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "numericalAnalysis/TriangleCubatureRule.h"
 
@@ -267,6 +267,6 @@ TriangleCubatureRule::setTriangleCubatureRules(CubatureRule **triRule, const Cub
             *triRule = &globalCrt9;
             break;
         default:
-            logFatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
+            Error::fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
     }
 }

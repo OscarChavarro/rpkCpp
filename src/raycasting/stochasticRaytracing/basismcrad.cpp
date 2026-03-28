@@ -8,7 +8,7 @@
 
 #include <cstring>
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
@@ -60,7 +60,7 @@ static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRayt
             elem = "quadrilaterals";
             break;
         default:
-            logFatal(-1, "MakeBasis", "Invalid element type %d", et);
+            Error::fatal(-1, "MakeBasis", "Invalid element type %d", et);
     }
 
     basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;

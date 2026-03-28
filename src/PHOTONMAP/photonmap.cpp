@@ -5,7 +5,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/System.h"
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 #include "PHOTONMAP/photonmap.h"
 
@@ -194,7 +194,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
 
         return (0.5 * (1.0 + java::Math::cos(ratio * M_PI)));
     } else {
-        logError("ComputeAcceptProb", "Unknown accept pdf type");
+        Error::error("ComputeAcceptProb", "Unknown accept pdf type");
         return 0.0;
     }
 }

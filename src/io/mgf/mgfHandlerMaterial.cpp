@@ -83,8 +83,8 @@ mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, BaseContext 
         }
     }
 
-    transformColorFromXYZ2RGB(xyz, rgb);
-    if ( clipGamut(rgb) ) {
+    Cie::transformColorFromXYZ2RGB(xyz, rgb);
+    if ( Cie::clipGamut(rgb) ) {
         doWarning("color desaturated during gamut clipping", context);
     }
     colorOut->set(rgb[0], rgb[1], rgb[2]);
@@ -177,7 +177,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, BaseContext *c
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed.scale(1.0f / WHITE_EFFICACY);
+    Ed.scale(1.0f / Cie::WHITE_EFFICACY);
 
     Es.clear();
 

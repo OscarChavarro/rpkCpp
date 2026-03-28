@@ -16,7 +16,7 @@ TODO: global lines and global line bundles.
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
+#include "common/Error.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/ccr.h"
@@ -180,7 +180,7 @@ stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
     stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( globalSumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
-        logWarning("Iteration", "No sources");
+        Error::warning("Iteration", "No sources");
         return false;
     }
     return true;
@@ -354,7 +354,7 @@ stochasticJacobiPropagateRadiance(
     } else {
         switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
             case HierarchyClusteringMode::NO_CLUSTERING:
-                logFatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
+                Error::fatal(-1, "Propagate", "hierarchyRefine() returns cluster although clustering is disabled.\n");
 
             case HierarchyClusteringMode::ISOTROPIC_CLUSTERING:
                 stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
@@ -367,7 +367,7 @@ stochasticJacobiPropagateRadiance(
                 }
                 break;
             default:
-                logFatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(GLOBAL_stochasticRaytracing_hierarchy.clustering));
+                Error::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(GLOBAL_stochasticRaytracing_hierarchy.clustering));
         }
     }
 }
@@ -393,7 +393,7 @@ stochasticJacobiPropagateImportance(
 
     if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ||
          GLOBAL_stochasticRaytracing_hierarchy.clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
-        logFatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
+        Error::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
 

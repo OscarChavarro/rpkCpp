@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 
 #include "scene/ConstantColorBackground.h"
@@ -284,7 +284,7 @@ iterationMethodOption(void *value) {
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
     } else {
-        logError(nullptr, "Invalid iteration method '%s'", name);
+        Error::error(nullptr, "Invalid iteration method '%s'", name);
     }
 }
 
@@ -407,10 +407,10 @@ chromaOption(void *value) {
         GLOBAL_toneMap_options.xw = chroma[0];
         GLOBAL_toneMap_options.yw = chroma[1];
     } else {
-        logFatal(-1, "chromaOption", "invalid value pointer");
+        Error::fatal(-1, "chromaOption", "invalid value pointer");
     }
 
-    computeColorConversionTransforms(
+    Cie::computeColorConversionTransforms(
         GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
         GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
         GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
@@ -426,7 +426,7 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
         GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     } else {
-        logError(nullptr, "Invalid adaptation estimate method '%s'", name);
+        Error::error(nullptr, "Invalid adaptation estimate method '%s'", name);
     }
 }
 

@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "skin/MinMaxBox.h"
 
@@ -107,7 +107,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     }
 
     if ( !geometry->bounded ) {
-        logFatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
+        Error::fatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     float fSize = Numeric::HUGE_FLOAT_VALUE;

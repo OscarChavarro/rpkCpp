@@ -3,7 +3,7 @@
 
 #include "java/io/PrintStream.h"
 
-#include "common/cie.h"
+#include "common/Cie.h"
 
 /**
 Representation of radiance, radiosity, power, spectra

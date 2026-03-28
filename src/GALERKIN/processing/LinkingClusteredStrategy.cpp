@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"
@@ -27,7 +27,7 @@ LinkingClusteredStrategy::createInitialLinks(
             receiverElement = galerkinState->topCluster;
             break;
         default:
-            logFatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
+            Error::fatal(-1, "createInitialLinkWithTopCluster", "Invalid role");
     }
 
     if ( receiverElement == nullptr || sourceElement == nullptr ) {

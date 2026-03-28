@@ -8,7 +8,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 #include "render/render.h"
 #include "render/opengl.h"
@@ -168,7 +168,7 @@ stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement
         elem->quality = 0.0;
         static bool repeated = false;
         if ( !repeated ) {
-            logWarning("stochasticRelaxationRadiosityElementIncrementRadiance",
+            Error::warning("stochasticRelaxationRadiosityElementIncrementRadiance",
                        "Solution of incremental Jacobi steps receives zero quality");
         }
         repeated = true;
@@ -531,7 +531,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
 
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance ) {
-                logWarning(nullptr, "Importance is only used from the second iteration on ...");
+                Error::warning(nullptr, "Importance is only used from the second iteration on ...");
             } else if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated ) {
                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
 

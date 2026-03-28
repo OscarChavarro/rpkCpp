@@ -2,7 +2,7 @@
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/RenderOptions.h"
 
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -64,7 +64,7 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
     }
 
     if ( !java::Float::isFinite(result.average()) ) {
-        logFatal(-1, "transmittance", "Oops - result is not finite!");
+        Error::fatal(-1, "transmittance", "Oops - result is not finite!");
     }
 
     return result;

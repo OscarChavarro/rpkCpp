@@ -1,4 +1,4 @@
-#include "common/error.h"
+#include "common/Error.h"
 
 #include "render/canvas.h"
 
@@ -18,7 +18,7 @@ void
 canvasPushMode() {
     globalModeStackIndex++;
     if ( globalModeStackIndex >= CANVAS_MODE_STACK_SIZE ) {
-        logFatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE);
+        Error::fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE);
     }
 }
 
@@ -29,6 +29,6 @@ void
 canvasPullMode() {
     globalModeStackIndex--;
     if ( globalModeStackIndex < 0 ) {
-        logFatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
+        Error::fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
     }
 }

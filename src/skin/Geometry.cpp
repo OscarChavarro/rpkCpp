@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 
-#include "common/error.h"
+#include "common/Error.h"
 #include "common/Statistics.h"
 
 #include "skin/Geometry.h"
@@ -141,7 +141,7 @@ shaft culling.
 Geometry *
 Geometry::clone() const {
     if ( className != GeometryClassId::PATCH_SET ) {
-        logFatal(666, "duplicateIfPatchSet", "this should not happen");
+        Error::fatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
     PatchSet *newPatchSet = new PatchSet(geomPatchArrayListReference(this));
