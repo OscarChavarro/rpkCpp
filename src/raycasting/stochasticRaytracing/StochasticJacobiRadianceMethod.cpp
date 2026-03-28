@@ -2,8 +2,6 @@
 Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 */
 
-#include <cstdarg>
-
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "java/lang/System.h"

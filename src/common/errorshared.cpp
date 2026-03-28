@@ -1,7 +1,6 @@
 #include <cstdlib>
 #include "java/lang/System.h"
 #include "java/util/Formatter.h"
-#include <cstdarg>
 #include "common/error.h"
 
 /**

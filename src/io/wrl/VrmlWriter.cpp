@@ -3,9 +3,6 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "io/wrl/VrmlWriter.h"
-
-#include <cstdarg>
-
 #include "io/wrapper/PersistenceElement.h"
 #include "java/lang/Math.h"
 #include "java/util/Formatter.h"

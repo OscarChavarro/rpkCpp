@@ -6,7 +6,6 @@ Galerkin radiosity, with the following variants:
 - With potential-driven or not
 */
 
-#include <cstdarg>
 #include <cstring>
 
 #include "java/lang/System.h"

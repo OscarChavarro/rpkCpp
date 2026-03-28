@@ -2,8 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdarg>
-
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"

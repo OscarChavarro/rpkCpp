@@ -1,5 +1,3 @@
-#include <cstdarg>
-
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
 #include "io/wrapper/PersistenceElement.h"

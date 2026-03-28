@@ -1,6 +1,5 @@
 #include "java/io/PrintStream.h"
 
-#include <cstdarg>
 #include <cstring>
 
 #include "java/util/Formatter.h"

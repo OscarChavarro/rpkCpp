@@ -1,6 +1,4 @@
 
-#include <cstdarg>
-
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "java/lang/Math.h"
