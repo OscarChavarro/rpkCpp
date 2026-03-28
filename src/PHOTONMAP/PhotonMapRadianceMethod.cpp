@@ -1,3 +1,4 @@
+#include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -5,7 +6,6 @@
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
-#include "java/util/Formatter.h"
 #include "common/ColorRgb.h"
 #include "common/error.h"
 #include "skin/Patch.h"
@@ -45,7 +45,7 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = java::util::vformatToBuffer(&buffer[*offset], available, format, arguments);
+    const int written = java::util::Formatter::vformat(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {

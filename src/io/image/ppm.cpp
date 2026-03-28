@@ -1,6 +1,7 @@
+#include "java/util/Formatter.h"
+
 #include "io/image/ppm.h"
 #include "io/wrapper/PersistenceElement.h"
-#include "java/util/Formatter.h"
 
 PPMOutputHandle::PPMOutputHandle(java::io::OutputStream *_outputStream, int w, int h) {
     ImageOutputHandle::init("PPM", w, h);
@@ -8,7 +9,7 @@ PPMOutputHandle::PPMOutputHandle(java::io::OutputStream *_outputStream, int w, i
 
     if ( outputStream != nullptr ) {
         char header[64];
-        const int headerLength = java::util::formatToBuffer(
+        const int headerLength = java::util::Formatter::format(
             header, static_cast<int>(sizeof(header)), "P6\n%d %d\n255\n", width, height);
         if ( headerLength > 0 ) {
             vsdk::PersistenceElement::writeBytes(

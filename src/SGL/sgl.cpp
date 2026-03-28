@@ -4,6 +4,8 @@ accessible memory buffer. E.g. for clustering where a small number
 of patches needs to be ID rendered very often
 */
 
+#include <cstddef>
+
 #include "common/error.h"
 #include "common/linealAlgebra/Numeric.h"
 #include "SGL/poly.h"

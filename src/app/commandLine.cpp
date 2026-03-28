@@ -1,4 +1,3 @@
-#include <cerrno>
 #include <cstdlib>
 #include <cstring>
 #include "common/error.h"
@@ -66,10 +65,9 @@ commandLineParseFloat(const char *text, float *value) {
         return false;
     }
 
-    errno = 0;
     char *endPointer = nullptr;
     const float parsedValue = strtof(text, &endPointer);
-    if ( endPointer == text || *endPointer != '\0' || errno == ERANGE ) {
+    if ( endPointer == text || *endPointer != '\0' ) {
         return false;
     }
 

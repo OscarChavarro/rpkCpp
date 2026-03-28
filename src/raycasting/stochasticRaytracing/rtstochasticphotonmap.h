@@ -5,8 +5,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include <cstdlib>
-
 #include "java/util/ArrayList.h"
 #include "raycasting/raytracing/samplertools.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"

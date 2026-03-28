@@ -1,10 +1,10 @@
 #include <cstring>
 
+#include "java/util/Formatter.h"
 #include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "java/util/Formatter.h"
 
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -379,7 +379,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     unsigned long n = strlen(inputName) + 1;
 
     char *currentDirectory = new char[n];
-    java::util::formatToBuffer(currentDirectory, static_cast<int>(n), "%s", inputName);
+    java::util::Formatter::format(currentDirectory, static_cast<int>(n), "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';

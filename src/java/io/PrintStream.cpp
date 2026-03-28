@@ -1,8 +1,10 @@
 #include "java/io/PrintStream.h"
+#include "java/util/Formatter.h"
 
+#include <cstdarg>
+#include <cstdio>
 #include <cstring>
 
-#include "java/util/Formatter.h"
 
 namespace java {
 namespace io {
@@ -24,6 +26,34 @@ writeText(OutputStream *stream, const char *text) {
     stream->write(reinterpret_cast<const unsigned char *>(text), 0, length);
 }
 
+static void
+writeFormatted(OutputStream *stream, const char *format, va_list arguments) {
+    if ( stream == nullptr || format == nullptr ) {
+        return;
+    }
+
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    va_end(argumentsCopy);
+    if ( required <= 0 ) {
+        return;
+    }
+
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        writeText(stream, localBuffer);
+        return;
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_copy(argumentsCopy, arguments);
+    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    va_end(argumentsCopy);
+    writeText(stream, dynamicBuffer);
+    delete[] dynamicBuffer;
+}
+
 PrintStream &
 PrintStream::printf(const char *format, ...) {
     if ( stream == nullptr || format == nullptr ) {
@@ -31,9 +61,8 @@ PrintStream::printf(const char *format, ...) {
     }
     va_list arguments;
     va_start(arguments, format);
-    const java::lang::String text = java::util::vformat(format, arguments);
+    writeFormatted(stream, format, arguments);
     va_end(arguments);
-    writeText(stream, text.toCString());
     return *this;
 }
 

@@ -1,5 +1,6 @@
 #include "java/util/Formatter.h"
 
+#include <cstdarg>
 #include <cstdio>
 #include <cstring>
 
@@ -25,31 +26,9 @@ appendText(const java::lang::String &left, const java::lang::String &right) {
     delete[] joined;
     return result;
 }
-}
 
-int
-vformatToBuffer(char *buffer, int bufferSize, const char *formatText, va_list arguments) {
-    if ( buffer == nullptr || bufferSize <= 0 || formatText == nullptr ) {
-        return -1;
-    }
-    const int written = std::vsnprintf(buffer, static_cast<std::size_t>(bufferSize), formatText, arguments);
-    if ( written < 0 ) {
-        buffer[0] = '\0';
-    }
-    return written;
-}
-
-int
-formatToBuffer(char *buffer, int bufferSize, const char *formatText, ...) {
-    va_list arguments;
-    va_start(arguments, formatText);
-    const int written = vformatToBuffer(buffer, bufferSize, formatText, arguments);
-    va_end(arguments);
-    return written;
-}
-
-java::lang::String
-vformat(const char *formatText, va_list arguments) {
+static java::lang::String
+formatToString(const char *formatText, va_list arguments) {
     if ( formatText == nullptr ) {
         return java::lang::String();
     }
@@ -57,10 +36,10 @@ vformat(const char *formatText, va_list arguments) {
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), formatText, argumentsCopy);
+    const int required = Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), formatText, argumentsCopy);
     va_end(argumentsCopy);
 
-    if ( required <= 0 ) {
+    if ( required < 0 ) {
         return java::lang::String();
     }
     if ( required < static_cast<int>(sizeof(localBuffer)) ) {
@@ -69,21 +48,13 @@ vformat(const char *formatText, va_list arguments) {
 
     char *dynamicBuffer = new char[required + 1];
     va_copy(argumentsCopy, arguments);
-    std::vsnprintf(dynamicBuffer, static_cast<std::size_t>(required + 1), formatText, argumentsCopy);
+    Formatter::vformat(dynamicBuffer, required + 1, formatText, argumentsCopy);
     va_end(argumentsCopy);
 
     java::lang::String result(dynamicBuffer);
     delete[] dynamicBuffer;
     return result;
 }
-
-java::lang::String
-format(const char *formatText, ...) {
-    va_list arguments;
-    va_start(arguments, formatText);
-    java::lang::String result = vformat(formatText, arguments);
-    va_end(arguments);
-    return result;
 }
 
 Formatter::Formatter():
@@ -135,7 +106,7 @@ Formatter::format(const char *formatText, ...) {
 
     va_list arguments;
     va_start(arguments, formatText);
-    const java::lang::String text = vformat(formatText, arguments);
+    const java::lang::String text = formatToString(formatText, arguments);
     va_end(arguments);
 
     content = appendText(content, text);
@@ -143,6 +114,28 @@ Formatter::format(const char *formatText, ...) {
         outputStream->write(reinterpret_cast<const unsigned char *>(text.toCString()), 0, text.length());
     }
     return *this;
+}
+
+int
+Formatter::format(char *buffer, int bufferSize, const char *formatText, ...) {
+    va_list arguments;
+    va_start(arguments, formatText);
+    const int written = vformat(buffer, bufferSize, formatText, arguments);
+    va_end(arguments);
+    return written;
+}
+
+int
+Formatter::vformat(char *buffer, int bufferSize, const char *formatText, va_list arguments) {
+    if ( buffer == nullptr || bufferSize <= 0 || formatText == nullptr ) {
+        return -1;
+    }
+
+    const int written = std::vsnprintf(buffer, static_cast<std::size_t>(bufferSize), formatText, arguments);
+    if ( written < 0 ) {
+        buffer[0] = '\0';
+    }
+    return written;
 }
 
 }

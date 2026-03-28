@@ -3,7 +3,6 @@
 
 #include "common/ColorRgb.h"
 #include "java/io/PrintStream.h"
-#include "java/util/Formatter.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/photonkdtree.h"
@@ -138,17 +137,9 @@ class CPhotonMap {
 
     // Utility functions
 
-    void printStats(java::io::PrintStream *stream) const {
-        if ( stream == nullptr ) {
-            return;
-        }
-        stream->printf("%i stored photons\n", m_nrPhotons);
-    }
+    void printStats(java::io::PrintStream *stream) const;
 
-    void getStats(char *p, int n) const {
-        java::util::formatToBuffer(
-            p, n, "%i stored photons, %i total, %li paths\n", m_nrPhotons, m_totalPhotons, m_totalPaths);
-    }
+    void getStats(char *p, int n) const;
 
     void Balance() {
         m_kdtree->balance();

@@ -103,6 +103,7 @@ makeEnumOptTypeStruct(ENUMDESC *enumvaltab) {
 
 extern int optionsStringGet(void *value, void *data);
 extern void optionsStringPrint(java::io::PrintStream *stream, void *value, void *data);
+extern int *optionsCreateStringLengthStorage(int n);
 
 /**
 The following helper function builds an n string value options type:
@@ -116,7 +117,7 @@ makeNStringTypeStruct(int n) {
         optionsStringGet,
         optionsStringPrint,
         static_cast<void *>(&GLOBAL_option_dummyVal),
-        reinterpret_cast<void *>(static_cast<intptr_t>(n))
+        static_cast<void *>(optionsCreateStringLengthStorage(n))
     };
     return optionsType;
 }

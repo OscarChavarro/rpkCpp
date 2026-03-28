@@ -1,4 +1,5 @@
 #include "common/RenderOptions.h"
+#include "java/util/Formatter.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -113,6 +114,20 @@ CPhotonMap::~CPhotonMap() {
     delete[] m_photons;
     delete[] m_distances;
     delete[] m_cosines;
+}
+
+void
+CPhotonMap::printStats(java::io::PrintStream *stream) const {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->printf("%i stored photons\n", m_nrPhotons);
+}
+
+void
+CPhotonMap::getStats(char *p, int n) const {
+    java::util::Formatter::format(
+        p, n, "%i stored photons, %i total, %li paths\n", m_nrPhotons, m_totalPhotons, m_totalPaths);
 }
 
 void

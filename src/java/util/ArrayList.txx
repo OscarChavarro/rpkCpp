@@ -1,5 +1,3 @@
-#include <new>
-
 #include "java/util/ArrayList.h"
 
 namespace java {
@@ -39,7 +37,7 @@ ArrayList<T>::dispose() {
 template <class T> void
 ArrayList<T>::init() {
     if ( maxSize > 0 ) {
-        Data = new (std::nothrow) T[maxSize];
+        Data = new T[maxSize];
         if ( !Data ) {
             maxSize = 0;
         }
@@ -58,7 +56,7 @@ ArrayList<T>::add(T voxelData)
             newMaxSize = maxSize + 1;
         }
 
-        T *newData = new (std::nothrow) T[newMaxSize];
+        T *newData = new T[newMaxSize];
         if ( !newData ) {
             return false;
         }

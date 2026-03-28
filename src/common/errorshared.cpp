@@ -1,7 +1,42 @@
 #include <cstdlib>
-#include "java/lang/System.h"
+
 #include "java/util/Formatter.h"
+#include "java/lang/String.h"
+#include "java/lang/System.h"
 #include "common/error.h"
+
+namespace {
+
+static java::lang::String
+formatToString(const char *format, va_list arguments) {
+    if ( format == nullptr ) {
+        return java::lang::String();
+    }
+
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    if ( required < 0 ) {
+        return java::lang::String();
+    }
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        return java::lang::String(localBuffer);
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_copy(argumentsCopy, arguments);
+    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    java::lang::String result(dynamicBuffer);
+    delete[] dynamicBuffer;
+    return result;
+}
+
+}
 
 /**
 Prints an error message. Behaves much like printf. The first argument is the
@@ -16,7 +51,7 @@ void logError(const char *routine, const char *text, ...) {
     }
 
     va_start(variableList, text);
-    const java::lang::String message = java::util::vformat(text, variableList);
+    const java::lang::String message = formatToString(text, variableList);
     va_end(variableList);
     java::lang::System::err.print(message.toCString());
 
@@ -39,7 +74,7 @@ logFatal(int errcode, const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::util::vformat(text, pvar);
+    const java::lang::String message = formatToString(text, pvar);
     va_end(pvar);
     java::lang::System::err.print(message.toCString());
 
@@ -62,7 +97,7 @@ logWarning(const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::util::vformat(text, pvar);
+    const java::lang::String message = formatToString(text, pvar);
     va_end(pvar);
     java::lang::System::err.print(message.toCString());
 

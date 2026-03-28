@@ -1,6 +1,3 @@
-#include <cstddef>
-#include <new>
-
 #include "java/util/HashMap.h"
 
 namespace java {
@@ -86,7 +83,7 @@ HashMap<K, V>::initialize(long initialBucketCount) {
         initialBucketCount = 16;
     }
 
-    buckets = new (std::nothrow) Entry *[initialBucketCount];
+    buckets = new Entry *[initialBucketCount];
     if ( buckets == nullptr ) {
         bucketCount = 0;
         return;
@@ -186,7 +183,7 @@ HashMap<K, V>::rehash(long newBucketCount) {
         return;
     }
 
-    Entry **newBuckets = new (std::nothrow) Entry *[newBucketCount];
+    Entry **newBuckets = new Entry *[newBucketCount];
     if ( newBuckets == nullptr ) {
         return;
     }
@@ -231,7 +228,7 @@ HashMap<K, V>::put(const K &key, const V &value) {
         current = current->next;
     }
 
-    Entry *entry = new (std::nothrow) Entry(key, value, buckets[index]);
+    Entry *entry = new Entry(key, value, buckets[index]);
     if ( entry == nullptr ) {
         return false;
     }

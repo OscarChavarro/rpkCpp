@@ -5,7 +5,6 @@ Shared Niederreiter core implementation for 31-bit and 63-bit variants.
 #ifndef __NIEDERREITER_CORE__
 #define __NIEDERREITER_CORE__
 
-#include <cstdlib>
 #include "java/lang/System.h"
 
 template<typename IndexType, unsigned Dimension, unsigned NumberOfBits>
@@ -108,7 +107,7 @@ class NiederreiterCore {
                 java::lang::System::err.printf(
                     "\nOverflow in Niederreiter sequence. A %u-bit sequence is not enough???\n",
                     NumberOfBits);
-                abort();
+                return nullptr;
             }
         } while ( (nied_[1] & rmask) != rmsb2 );
 

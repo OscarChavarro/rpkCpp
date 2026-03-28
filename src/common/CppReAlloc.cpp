@@ -1,7 +1,6 @@
 #include "common/CppReAlloc.h"
 
 #include <cstring>
-#include <new>
 
 unsigned char *
 CppReAlloc::reAlloc(
@@ -14,7 +13,7 @@ CppReAlloc::reAlloc(
         return nullptr;
     }
 
-    unsigned char *newPtr = new (std::nothrow) unsigned char[newElementCount];
+    unsigned char *newPtr = new unsigned char[newElementCount];
     if ( newPtr == nullptr ) {
         return nullptr;
     }
@@ -42,7 +41,7 @@ CppReAlloc::reAlloc(
         return nullptr;
     }
 
-    char **newPtr = new (std::nothrow) char *[newElementCount];
+    char **newPtr = new char *[newElementCount];
     if ( newPtr == nullptr ) {
         return nullptr;
     }

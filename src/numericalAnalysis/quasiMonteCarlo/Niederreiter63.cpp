@@ -15,7 +15,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 // All this makes no sense if you don't have 64-bit integers
 
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter63.h"
-#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.h"
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
 static unsigned long long cj[DIMEN][NBITS] = {
     {

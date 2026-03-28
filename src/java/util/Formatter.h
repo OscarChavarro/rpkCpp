@@ -29,23 +29,17 @@ class Formatter {
     Formatter &
     format(const char *format, ...);
 
+    static int
+    format(char *buffer, int bufferSize, const char *format, ...);
+
+    static int
+    vformat(char *buffer, int bufferSize, const char *format, va_list arguments);
+
   private:
     java::io::OutputStream *outputStream;
     java::lang::String content;
     bool closed;
 };
-
-int
-formatToBuffer(char *buffer, int bufferSize, const char *format, ...);
-
-int
-vformatToBuffer(char *buffer, int bufferSize, const char *format, va_list arguments);
-
-java::lang::String
-format(const char *format, ...);
-
-java::lang::String
-vformat(const char *format, va_list arguments);
 
 }
 }

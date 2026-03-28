@@ -4,12 +4,11 @@ Command line options and defaults
 
 #include <cstring>
 #include <cstdlib>
-#include <cerrno>
 
 #include "java/lang/System.h"
 #include "java/lang/Integer.h"
-#include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
+#include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 #include "app/options.h"
@@ -29,6 +28,7 @@ static Vector3D globalDummyVector3D = {0.0f, 0.0f, 0.0f};
 static ColorRgb globalDummyRgb{};
 static float globalDummyCieXy[2] = {0.0f, 0.0f};
 static java::ArrayList<char *> *globalStringsToDelete = new java::ArrayList<char *>();
+static java::ArrayList<int *> *globalStringLengthsToDelete = new java::ArrayList<int *>();
 
 /**
 Initializes the global variables above
@@ -89,15 +89,13 @@ optionsGetArgumentIntValue(int *res) {
         return false;
     }
 
-    errno = 0;
     char *endPointer = nullptr;
     const long parsedValue = strtol(currentArgument, &endPointer, 10);
 
     if ( endPointer == currentArgument || *endPointer != '\0' ) {
         return false;
     }
-    if ( errno == ERANGE
-         || parsedValue < static_cast<long>(java::Integer::MIN_VALUE)
+    if ( parsedValue < static_cast<long>(java::Integer::MIN_VALUE)
          || parsedValue > static_cast<long>(java::Integer::MAX_VALUE) ) {
         return false;
     }
@@ -116,10 +114,9 @@ optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
         return false;
     }
 
-    errno = 0;
     char *endPointer = nullptr;
     const float parsedValue = strtof(currentArgument, &endPointer);
-    if ( endPointer == currentArgument || *endPointer != '\0' || errno == ERANGE ) {
+    if ( endPointer == currentArgument || *endPointer != '\0' ) {
         return false;
     }
 
@@ -171,7 +168,7 @@ optionsGetString(void *value, void * /*data*/) {
     if ( globalStringsToDelete != nullptr ) {
         globalStringsToDelete->add(*s);
     }
-    java::util::formatToBuffer(*s, static_cast<int>(n), "%s", currentArgument);
+    java::util::Formatter::format(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
 }
 
@@ -196,14 +193,24 @@ Copied string (maxlength n) option values
 int
 optionsStringGet(void *value, void *data) {
     char *s = static_cast<char *>(value);
-    int n = static_cast<int>(reinterpret_cast<intptr_t>(data));
+    int *nPointer = static_cast<int *>(data);
     const char *currentArgument = optionsCurrentArgumentValue();
-    if ( s != nullptr && currentArgument != nullptr ) {
+    if ( s != nullptr && currentArgument != nullptr && nPointer != nullptr && *nPointer > 0 ) {
+        const int n = *nPointer;
         strncpy(s, currentArgument, n);
         s[n - 1] = '\0';  // Ensure zero ending c-string
     }
 
     return true;
+}
+
+int *
+optionsCreateStringLengthStorage(int n) {
+    int *storage = new int(n);
+    if ( globalStringLengthsToDelete != nullptr ) {
+        globalStringLengthsToDelete->add(storage);
+    }
+    return storage;
 }
 
 void
@@ -538,6 +545,14 @@ parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **arg
 
 void
 deleteOptionsMemory() {
+    if ( globalStringLengthsToDelete != nullptr ) {
+        for ( int i = 0; i < globalStringLengthsToDelete->size(); i++ ) {
+            delete globalStringLengthsToDelete->get(i);
+        }
+        delete globalStringLengthsToDelete;
+        globalStringLengthsToDelete = nullptr;
+    }
+
     if ( globalStringsToDelete != nullptr ) {
         for ( int i = 0; i < globalStringsToDelete->size(); i++ ) {
             delete[] globalStringsToDelete->get(i);

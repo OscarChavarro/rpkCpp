@@ -1,9 +1,44 @@
+#include "java/util/Formatter.h"
+
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "java/io/FileOutputStream.h"
+#include "java/lang/String.h"
 #include "java/lang/System.h"
-#include "java/util/Formatter.h"
+
+namespace {
+
+static java::lang::String
+formatToString(const char *format, va_list arguments) {
+    if ( format == nullptr ) {
+        return java::lang::String();
+    }
+
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    if ( required < 0 ) {
+        return java::lang::String();
+    }
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        return java::lang::String(localBuffer);
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_copy(argumentsCopy, arguments);
+    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    java::lang::String result(dynamicBuffer);
+    delete[] dynamicBuffer;
+    return result;
+}
+
+}
 
 static void
 picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
@@ -13,7 +48,7 @@ picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...)
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::vformat(format, arguments);
+    java::lang::String text = formatToString(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {

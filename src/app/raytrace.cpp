@@ -1,12 +1,12 @@
+#include "java/util/Formatter.h"
+
 #include "common/RenderOptions.h"
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/System.h"
 #include <cstring>
-#include "java/util/Formatter.h"
 
 #include "common/error.h"
-#include "common/Statistics.h"
 #include "render/canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
@@ -17,7 +17,7 @@
 
 static void
 rayTraceMakeMethodsHelpMessage(char *str) {
-    java::util::formatToBuffer(str, 1000,
+    java::util::Formatter::format(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
          "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"

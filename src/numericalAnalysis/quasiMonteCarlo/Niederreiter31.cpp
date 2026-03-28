@@ -11,7 +11,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 */
 
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
-#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.h"
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
 static unsigned cj[DIMEN][NBITS] = {
     {

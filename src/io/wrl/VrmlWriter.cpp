@@ -2,10 +2,12 @@
 Saves the result of a radiosity computation as a VRML file
 */
 
+#include "java/util/Formatter.h"
+
 #include "io/wrl/VrmlWriter.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "java/lang/Math.h"
-#include "java/util/Formatter.h"
+#include "java/lang/String.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
@@ -19,7 +21,25 @@ vrmlWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::vformat(format, arguments);
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    java::lang::String text;
+    if ( required >= 0 ) {
+        if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+            text = java::lang::String(localBuffer);
+        } else {
+            char *dynamicBuffer = new char[required + 1];
+            va_copy(argumentsCopy, arguments);
+            java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+            va_end(argumentsCopy);
+            text = java::lang::String(dynamicBuffer);
+            delete[] dynamicBuffer;
+        }
+    }
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -131,7 +151,9 @@ VrmlWriter::writeViewPoints(
     writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
     while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
         count++;
-        const java::lang::String viewPointName = java::util::format("ViewPoint %d", count);
+        char viewPointNameBuffer[32];
+        java::util::Formatter::format(viewPointNameBuffer, static_cast<int>(sizeof(viewPointNameBuffer)), "ViewPoint %d", count);
+        const java::lang::String viewPointName(viewPointNameBuffer);
         writeViewPoint(outputStream, modelTransform, localCamera, viewPointName.toCString());
     }
 }

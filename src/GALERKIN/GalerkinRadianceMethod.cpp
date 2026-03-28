@@ -8,9 +8,10 @@ Galerkin radiosity, with the following variants:
 
 #include <cstring>
 
-#include "java/lang/System.h"
-#include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
+#include "java/lang/System.h"
+#include "java/lang/String.h"
+#include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "io/wrapper/PersistenceElement.h"
@@ -35,6 +36,35 @@ static java::io::OutputStream *globalVrmlOutputStream;
 static int globalNumberOfWrites;
 static int globalVertexId;
 
+static java::lang::String
+formatToString(const char *format, va_list arguments) {
+    if ( format == nullptr ) {
+        return java::lang::String();
+    }
+
+    char localBuffer[256];
+    va_list argumentsCopy;
+    va_copy(argumentsCopy, arguments);
+    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    if ( required < 0 ) {
+        return java::lang::String();
+    }
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        return java::lang::String(localBuffer);
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_copy(argumentsCopy, arguments);
+    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    va_end(argumentsCopy);
+
+    java::lang::String result(dynamicBuffer);
+    delete[] dynamicBuffer;
+    return result;
+}
+
 static void
 galerkinWriteFormatted(const char *format, ...) {
     if ( globalVrmlOutputStream == nullptr || format == nullptr ) {
@@ -43,7 +73,7 @@ galerkinWriteFormatted(const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::vformat(format, arguments);
+    java::lang::String text = formatToString(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -64,7 +94,7 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::vformat(format, arguments);
+    java::lang::String text = formatToString(format, arguments);
     va_end(arguments);
 
     const int written = text.length();
