@@ -1,8 +1,8 @@
 /**
 Random walk generation
 */
-
 #include "common/RenderOptions.h"
+
 #include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED

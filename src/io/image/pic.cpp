@@ -4,7 +4,6 @@
 #include "io/image/pic.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "java/io/FileOutputStream.h"
-#include "java/lang/String.h"
 #include "java/lang/System.h"
 
 namespace {

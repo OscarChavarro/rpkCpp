@@ -3,8 +3,8 @@ Density kernel functions
 Many routines borrowed from Density Estimation master thesis by
 Olivier Ceulemans.
 */
+#include "common/RenderOptions.h"
 
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/densitykernel.h"
 

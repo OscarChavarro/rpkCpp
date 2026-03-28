@@ -1,8 +1,8 @@
-#include "java/util/ArrayList.txx"
 #include "common/RenderOptions.h"
+#include "java/util/ArrayList.txx"
+#include "common/error.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "common/error.h"
 #endif
 
 #include "skin/Element.h"

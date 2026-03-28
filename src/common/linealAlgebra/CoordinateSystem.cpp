@@ -1,5 +1,3 @@
-#include "java/lang/Math.h"
-#include "common/linealAlgebra/Numeric.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 
 /**

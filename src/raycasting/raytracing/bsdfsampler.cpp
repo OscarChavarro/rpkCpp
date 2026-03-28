@@ -1,8 +1,9 @@
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
 
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
+#ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/bsdfsampler.h"
 

@@ -9,8 +9,6 @@ Galerkin radiosity, with the following variants:
 #include <cstring>
 
 #include "java/util/Formatter.h"
-#include "java/lang/System.h"
-#include "java/lang/String.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"

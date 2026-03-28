@@ -1,9 +1,10 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/error.h"
-#include "skin/Patch.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 
 UniformLightSampler::UniformLightSampler() {

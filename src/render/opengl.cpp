@@ -1,5 +1,6 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef OPEN_GL_ENABLED
     #include <GL/glu.h>
 

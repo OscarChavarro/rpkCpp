@@ -3,11 +3,9 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
 #include "java/util/ArrayList.txx"
-#include "java/lang/System.h"
 #include "common/Statistics.h"
 #include "render/potential.h"
 #include "render/opengl.h"
-#include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"

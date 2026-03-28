@@ -1,8 +1,9 @@
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
 
-#include "scene/Camera.h"
+#ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 

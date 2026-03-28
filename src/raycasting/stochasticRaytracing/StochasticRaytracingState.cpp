@@ -1,3 +1,4 @@
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 StochasticRelaxation GLOBAL_stochasticRaytracing_monteCarloRadiosityState;

@@ -1,8 +1,9 @@
 /**
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
-
 #include "common/RenderOptions.h"
+#include "raycasting/stochasticRaytracing/mcrad.h"
+
 #include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -11,11 +12,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
 #include "render/potential.h"
-#include "scene/Camera.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"

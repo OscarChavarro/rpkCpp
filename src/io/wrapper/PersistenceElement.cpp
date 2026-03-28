@@ -4,7 +4,6 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "java/io/File.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 

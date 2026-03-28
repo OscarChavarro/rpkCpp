@@ -1,4 +1,3 @@
-#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "GALERKIN/Shaft.h"
 

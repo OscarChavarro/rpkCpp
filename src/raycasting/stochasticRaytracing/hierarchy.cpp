@@ -1,9 +1,10 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "java/util/ArrayList.txx"
-#include "skin/Vertex.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
 

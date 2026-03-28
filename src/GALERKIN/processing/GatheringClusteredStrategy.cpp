@@ -1,8 +1,6 @@
 #include "java/util/ArrayList.txx"
-#include "java/lang/System.h"
 #include "render/potential.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
-#include "GALERKIN/GalerkinRole.h"
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/LinkingClusteredStrategy.h"

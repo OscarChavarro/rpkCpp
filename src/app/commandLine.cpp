@@ -1,8 +1,7 @@
+#include "common/RenderOptions.h"
 #include <cstdlib>
 #include <cstring>
 #include "common/error.h"
-#include "common/RenderOptions.h"
-#include "scene/Camera.h"
 #include "scene/ConstantColorBackground.h"
 #include "tonemap/ToneMap.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
@@ -10,8 +9,6 @@
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatter.h"
     #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-    #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
-    #include "raycasting/stochasticRaytracing/sample4d.h"
     #include "raycasting/stochasticRaytracing/hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
     #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -19,7 +16,6 @@
 #endif
 
 #include "app/options.h"
-#include "app/BatchOptions.h"
 #include "app/commandLine.h"
 
 // Default scene level configuration

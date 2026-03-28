@@ -1,5 +1,5 @@
-#include "java/util/ArrayList.txx"
 #include "render/renderhook.h"
+#include "java/util/ArrayList.txx"
 #include "render/renderhook_priv.h"
 
 static java::ArrayList<RenderHook *> *globalRenderHookList = new java::ArrayList<RenderHook*>();

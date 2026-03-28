@@ -3,13 +3,12 @@ Small Graphics Library. Software rendering into a user
 accessible memory buffer. E.g. for clustering where a small number
 of patches needs to be ID rendered very often
 */
+#include "SGL/sgl.h"
 
 #include <cstddef>
 
 #include "common/error.h"
-#include "common/linealAlgebra/Numeric.h"
 #include "SGL/poly.h"
-#include "SGL/sgl.h"
 
 static Matrix4x4 globalIdentityMatrix(
     1.0f, 0.0f, 0.0f, 0.0f,

@@ -1,6 +1,6 @@
+#include "common/RenderOptions.h"
 #include <cstring>
 
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"

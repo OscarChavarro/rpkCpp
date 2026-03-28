@@ -1,6 +1,6 @@
+#include "common/RenderOptions.h"
 #include <cstring>
 #include "numericalAnalysis/QuadCubatureRule.h"
-#include "tonemap/ToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"

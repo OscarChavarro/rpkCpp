@@ -1,22 +1,19 @@
+#include "common/RenderOptions.h"
 #include <cstring>
 #include <GL/gl.h>
 
 #include "java/util/Formatter.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "java/io/OutputStream.h"
 
-#include "common/RenderOptions.h"
 #include "render/canvas.h"
 #include "render/render.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "app/commandLine.h"
-#include "app/BatchOptions.h"
 #include "app/batch.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/common/Raytracer.h"
     #include "app/raytrace.h"
     #include "render/opengl.h"
 #endif

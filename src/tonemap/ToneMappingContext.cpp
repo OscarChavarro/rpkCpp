@@ -1,4 +1,3 @@
-#include "java/lang/Math.h"
 #include "tonemap/ToneMappingContext.h"
 
 // Tone mapping defaults

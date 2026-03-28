@@ -1,8 +1,6 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "io/mgf/mgfDefinitions.h"
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"

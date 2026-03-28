@@ -1,13 +1,14 @@
+#include "common/RenderOptions.h"
+
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction
 */
 
-#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "PHOTONMAP/photonmapsampler.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "common/error.h"
 #include "raycasting/common/raytools.h"
 

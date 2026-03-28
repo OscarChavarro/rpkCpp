@@ -1,4 +1,4 @@
-#include "java/lang/Math.h"
+#include "GALERKIN/GalerkinElement.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "numericalAnalysis/PatchVisitor.h"
@@ -7,7 +7,6 @@
 #include "render/opengl.h"
 #include "tonemap/ToneMap.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/GalerkinElement.h"
 
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;

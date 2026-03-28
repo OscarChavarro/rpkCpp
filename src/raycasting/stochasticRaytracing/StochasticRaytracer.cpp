@@ -1,14 +1,14 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/stratification.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"
-#include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/screeniterate.h"
-#include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 
 char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";

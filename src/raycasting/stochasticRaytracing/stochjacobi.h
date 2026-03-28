@@ -2,6 +2,11 @@
 #define __STOCHASTIC_JACOBI__
 
 #include "java/util/ArrayList.h"
+#include "common/ColorRgb.h"
+#include "common/RenderOptions.h"
+#include "scene/VoxelGrid.h"
+#include "skin/Patch.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 /**
 Generic routine for Stochastic Jacobi iterations:

@@ -1,17 +1,16 @@
+#include "common/RenderOptions.h"
+#include "raycasting/stochasticRaytracing/basismcrad.h"
 #include <cstdio>
 #include "java/util/Formatter.h"
 
 #include "numericalAnalysis/QuadCubatureRule.h"
-#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 
 #include <cstring>
 
 #include "common/error.h"
-#include "numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-#include "raycasting/stochasticRaytracing/basismcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
 GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];

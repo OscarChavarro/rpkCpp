@@ -1,10 +1,10 @@
+#include "io/mgf/mgfHandlerGeometry.h"
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "io/context/LookUpEntity.h"
 #include "io/mgf/mgfHandlerTransform.h"
-#include "io/context/TransformStackContext.h"
 #include "io/mgf/mgfHandlerObject.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/mgfGeometry.h"

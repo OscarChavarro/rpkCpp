@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "java/util/Formatter.h"
-#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
@@ -10,10 +9,8 @@
 #include "common/Statistics.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "material/Material.h"
 #include "tonemap/ToneMap.h"
 #include "app/commandLine.h"
-#include "scene/Scene.h"
 #include "io/mgf/readmgf.h"
 #include "io/bin/BinaryModelReader.h"
 #include "io/bin/BinaryModelWriter.h"

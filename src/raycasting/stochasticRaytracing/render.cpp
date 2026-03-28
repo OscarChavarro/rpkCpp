@@ -1,10 +1,12 @@
+#include "common/RenderOptions.h"
+
 /**
 Rendering elements
 */
 
-#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"

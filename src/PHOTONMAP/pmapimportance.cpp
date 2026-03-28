@@ -1,14 +1,14 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
 
 /**
 Importon tracing
 */
+#include "common/RenderOptions.h"
 
-#include "skin/Patch.h"
 #include "PHOTONMAP/pmapimportance.h"
-#include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/screensampler.h"
 

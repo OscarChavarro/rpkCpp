@@ -2,7 +2,6 @@
 Some general functions regarding edf, brdf, btdf, bsdf
 */
 
-#include "java/lang/Math.h"
 #include "material/xxdf.h"
 
 /**

@@ -5,7 +5,6 @@ Higher order approximations for Galerkin radiosity
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/GalerkinState.h"
 
 /**
 Pulls radiance up: reverse of the above: the radiance coefficients on the

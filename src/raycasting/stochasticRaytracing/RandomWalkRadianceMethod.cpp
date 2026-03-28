@@ -1,11 +1,10 @@
+#include "common/RenderOptions.h"
 #include "java/util/Formatter.h"
 
 #include "java/util/ArrayList.txx"
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "scene/Background.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/tracepath.h"
 #include "raycasting/stochasticRaytracing/stochjacobi.h"

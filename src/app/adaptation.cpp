@@ -3,13 +3,11 @@ Estimate static adaptation for tone mapping
 */
 
 #include "java/lang/Float.h"
-#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "tonemap/ToneMap.h"
-#include "tonemap/ToneMapAdaptationMethod.h"
 #include "app/LuminanceArea.h"
 #include "app/adaptation.h"
 

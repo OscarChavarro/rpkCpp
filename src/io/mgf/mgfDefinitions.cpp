@@ -4,7 +4,6 @@
 #include "java/io/FileInputStream.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/context/LookUpEntity.h"
-#include "io/context/FilePositionContext.h"
 #include "io/mgf/mgfDefinitions.h"
 
 static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());

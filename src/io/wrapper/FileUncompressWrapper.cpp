@@ -7,7 +7,6 @@
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
-#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
 

@@ -1,5 +1,4 @@
 #include "GALERKIN/processing/visitors/ScratchRendererVisitor.h"
-#include "SGL/sgl.h"
 
 ScratchRendererVisitor::ScratchRendererVisitor(Vector3D inEyePoint, SGL_CONTEXT *inSglContext) {
     eyePoint = inEyePoint;

@@ -1,4 +1,3 @@
-#include "java/lang/Math.h"
 #include "common/linealAlgebra/Vector3D.h"
 
 /**

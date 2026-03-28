@@ -3,11 +3,9 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "PHOTONMAP/photonmap.h"
 
 bool

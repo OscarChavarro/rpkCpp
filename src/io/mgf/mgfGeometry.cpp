@@ -6,7 +6,6 @@
 #include "io/mgf/mgfDefinitions.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/mgfGeometry.h"
-#include "java/lang/Math.h"
 
 // Alternate handler support functions
 static constexpr int MGF_PV_SIZE = 24;

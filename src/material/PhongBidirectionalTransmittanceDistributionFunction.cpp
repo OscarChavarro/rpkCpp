@@ -1,3 +1,4 @@
+#include "common/RenderOptions.h"
 #include "java/lang/Float.h"
 #include "common/error.h"
 #include "common/linealAlgebra/CoordinateSystem.h"

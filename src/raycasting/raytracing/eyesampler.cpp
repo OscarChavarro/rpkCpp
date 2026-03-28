@@ -1,9 +1,10 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/error.h"
-#include "scene/Camera.h"
 #include "raycasting/raytracing/eyesampler.h"
 
 bool

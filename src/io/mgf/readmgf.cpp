@@ -6,12 +6,9 @@
 
 #include "java/util/ArrayList.txx"
 #include "java/util/StringTokenizer.h"
-#include "java/lang/String.h"
 #include "java/lang/StringBuilder.h"
 #include "java/io/BufferedInputStream.h"
 #include "common/error.h"
-#include "io/context/ColorContext.h"
-#include "io/context/TransformStackContext.h"
 #include "io/mgf/mgfHandlerGeometry.h"
 #include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/mgfHandlerObject.h"

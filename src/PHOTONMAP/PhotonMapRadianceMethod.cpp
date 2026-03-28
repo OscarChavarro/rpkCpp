@@ -1,31 +1,21 @@
-#include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
+#include "java/util/Formatter.h"
 
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
-#include "common/ColorRgb.h"
 #include "common/error.h"
-#include "skin/Patch.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"
 #include "raycasting/common/raytools.h"
-#include "render/ScreenBuffer.h"
-#include "raycasting/common/pathnode.h"
-#include "raycasting/bidirectionalRaytracing/bipath.h"
 #include "raycasting/raytracing/eyesampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
-#include "raycasting/raytracing/bsdfsampler.h"
-#include "raycasting/raytracing/samplertools.h"
 #include "PHOTONMAP/photonmapsampler.h"
 #include "PHOTONMAP/screensampler.h"
-#include "PHOTONMAP/photonmap.h"
-#include "PHOTONMAP/importancemap.h"
 #include "PHOTONMAP/PhotonMapRadianceMethod.h"
-#include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/pmapconfig.h"
 #include "PHOTONMAP/pmapimportance.h"
 

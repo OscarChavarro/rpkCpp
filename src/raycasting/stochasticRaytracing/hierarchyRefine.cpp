@@ -1,3 +1,5 @@
+#include "common/RenderOptions.h"
+
 /**
 Hierarchical element refinement.
 
@@ -6,9 +8,9 @@ References:
 [SMIT1992] Smits, Brian. et al, "An importance-driven radiosity algorithm", SIGGRAPH 1992
 */
 
-#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/Statistics.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"

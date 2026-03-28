@@ -1,5 +1,3 @@
-#include "java/lang/Math.h"
-#include "common/ColorRgb.h"
 #include "tonemap/FerwerdaToneMap.h"
 
 /**

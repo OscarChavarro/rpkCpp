@@ -1,6 +1,3 @@
-#include "java/lang/Math.h"
-#include "common/ColorRgb.h"
-#include "common/cie.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 
 /**

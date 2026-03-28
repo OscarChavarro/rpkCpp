@@ -1,6 +1,5 @@
 #include "render/glutDebugTools.h"
 #include "app/GalerkinDebugRenderer.h"
-#include "java/lang/System.h"
 
 GlutDebugState GLOBAL_render_glutDebugState;
 
@@ -18,9 +17,7 @@ GlutDebugState::GlutDebugState(){
 #include <GL/glut.h>
 
 #include "java/util/ArrayList.txx"
-#include "common/RenderOptions.h"
 #include "render/opengl.h"
-#include "GALERKIN/GalerkinElement.h"
 
 static constexpr int TOTAL_DEBUG_OPERATION_MODES = 2;
 static int globalMode = 0

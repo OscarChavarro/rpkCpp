@@ -1,11 +1,11 @@
 /**
 Stuff common to all radiance methods
 */
+#include "common/RenderOptions.h"
 
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/RenderOptions.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "app/radiance.h"
 #include "app/commandLine.h"

@@ -1,6 +1,8 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 

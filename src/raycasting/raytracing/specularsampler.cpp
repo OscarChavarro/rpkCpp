@@ -1,9 +1,10 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/error.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/specularsampler.h"
 

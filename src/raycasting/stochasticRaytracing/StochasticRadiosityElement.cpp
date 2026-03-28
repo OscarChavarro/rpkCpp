@@ -1,15 +1,16 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "render/opengl.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 static StochasticRadiosityElement *monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world);
 

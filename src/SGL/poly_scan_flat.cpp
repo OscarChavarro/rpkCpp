@@ -14,7 +14,6 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
 #include "SGL/poly.h"
-#include "SGL/sgl.h"
 
 /**
 Put intersection of line Y = y + 0.5 with edge between positions

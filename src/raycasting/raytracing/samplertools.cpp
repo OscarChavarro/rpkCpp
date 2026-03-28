@@ -1,10 +1,11 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 #include "common/error.h"
 #include "java/lang/System.h"
-#include "skin/Patch.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/samplertools.h"
 

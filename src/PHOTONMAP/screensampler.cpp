@@ -1,12 +1,12 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 
-#include "java/lang/Math.h"
 #include "PHOTONMAP/screensampler.h"
 #include "raycasting/common/raytools.h"
-#include "scene/Camera.h"
 
 /**
 newNode gets filled, others may change

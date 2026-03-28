@@ -1,10 +1,10 @@
 #include "common/RenderOptions.h"
 
+
 #ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
 
 
-#include "java/lang/Math.h"
-#include "scene/Camera.h"
 #include "raycasting/common/raytools.h"
 #include "raycasting/raytracing/pixelsampler.h"
 

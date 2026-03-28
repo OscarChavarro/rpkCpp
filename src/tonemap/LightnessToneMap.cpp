@@ -1,6 +1,4 @@
-#include "java/lang/Math.h"
 #include "common/error.h"
-#include "common/cie.h"
 #include "common/Statistics.h"
 #include "tonemap/LightnessToneMap.h"
 

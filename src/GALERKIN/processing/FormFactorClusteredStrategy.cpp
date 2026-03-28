@@ -1,4 +1,3 @@
-#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "GALERKIN/GalerkinElement.h"

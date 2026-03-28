@@ -1,7 +1,4 @@
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
-#include "common/ColorRgb.h"
-#include "scene/Camera.h"
 #include "tonemap/ToneMap.h"
 #include "render/opengl.h"
 #include "raycasting/common/Raytracer.h"

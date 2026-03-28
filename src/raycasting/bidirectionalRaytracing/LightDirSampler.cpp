@@ -1,10 +1,10 @@
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
 
-#include "java/lang/Math.h"
+#ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+
 #include "common/error.h"
-#include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 
 /**

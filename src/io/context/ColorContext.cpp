@@ -1,6 +1,6 @@
+#include "io/context/ColorContext.h"
 #include "io/context/BaseContext.h"
 #include "io/context/WordsContext.h"
-#include "io/context/ColorContext.h"
 
 const ColorContext DEFAULT_COLOR_CONTEXT = {
     1,

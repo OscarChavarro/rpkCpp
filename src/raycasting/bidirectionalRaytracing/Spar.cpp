@@ -1,6 +1,5 @@
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "scene/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
 Spar::Spar() {

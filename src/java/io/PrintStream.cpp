@@ -1,10 +1,8 @@
 #include "java/io/PrintStream.h"
 #include "java/util/Formatter.h"
 
-#include <cstdarg>
 #include <cstdio>
 #include <cstring>
-
 
 namespace java {
 namespace io {

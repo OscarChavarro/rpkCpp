@@ -1,16 +1,14 @@
 /**
 Implementation of the special importance map functions
 */
-
 #include "common/RenderOptions.h"
+
 #include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
-#include "PHOTONMAP/pmapoptions.h"
 #include "PHOTONMAP/importancemap.h"
 #include "common/error.h"
-#include "java/lang/Math.h"
 
 bool
 CImportanceMap::addPhoton(

@@ -1,13 +1,12 @@
 /**
 Generate and trace a local line
 */
-
 #include "common/RenderOptions.h"
+
 #include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
-#include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/mcradP.h"
 #include "raycasting/stochasticRaytracing/localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"

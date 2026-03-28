@@ -1,3 +1,4 @@
+#include "io/mgf/mgfHandlerTransform.h"
 #include <cstdio>
 #include "java/util/Formatter.h"
 
@@ -8,11 +9,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include <cstring>
 #include <cstdlib>
 
-#include "java/lang/Math.h"
-#include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
-#include "io/context/TransformStackContext.h"
-#include "io/context/BaseContext.h"
 #include "io/mgf/mgfDefinitions.h"
 
 static char **globalTransformArgumentListBeginning;

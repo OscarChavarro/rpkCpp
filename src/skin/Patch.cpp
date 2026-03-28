@@ -1,11 +1,10 @@
+#include "common/RenderOptions.h"
 #include <cstdarg>
 
-#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/Patch.h"
 
 static constexpr double TOLERANCE = 1e-5;

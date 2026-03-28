@@ -7,11 +7,8 @@ Reference:
 Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
-#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
-#include "skin/Geometry.h"
-#include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
 #include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
 #include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"

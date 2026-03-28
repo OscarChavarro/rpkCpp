@@ -1,6 +1,6 @@
+#include "common/RenderOptions.h"
 #include "common/error.h"
 #include "skin/Patch.h"
-#include "material/RayHit.h"
 
 RayHit::RayHit():
     point(),

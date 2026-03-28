@@ -1,8 +1,9 @@
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
 
-#include "java/lang/Math.h"
+#ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+
 #include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
 #include "raycasting/bidirectionalRaytracing/densitykernel.h"
