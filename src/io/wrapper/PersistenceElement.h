@@ -1,8 +1,6 @@
 #ifndef __PERSISTENCE_ELEMENT__
 #define __PERSISTENCE_ELEMENT__
 
-#include <cstdint>
-
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"
 #include "java/io/File.h"
@@ -71,7 +69,7 @@ class PersistenceElement {
 
     static long readLongLE(java::io::InputStream &is);
     static void writeInt32LE(java::io::OutputStream &os, int num);
-    static void writeInt64LE(java::io::OutputStream &os, int64_t num);
+    static void writeInt64LE(java::io::OutputStream &os, long long num);
     static void writeDoubleLE(java::io::OutputStream &os, double num);
 
     static long readLongBE(java::io::InputStream &is);

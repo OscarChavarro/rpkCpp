@@ -237,15 +237,15 @@ BinaryModelReader::readBytes(java::io::InputStream &input, unsigned char *buffer
 }
 
 bool
-BinaryModelReader::readBytesChunked(java::io::InputStream &input, unsigned char *buffer, int64_t length) {
+BinaryModelReader::readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length) {
     if ( length <= 0 ) {
         return true;
     }
 
-    int64_t offset = 0;
-    const int64_t maxChunk = static_cast<int64_t>(java::Integer::MAX_VALUE);
+    long long offset = 0;
+    const long long maxChunk = static_cast<long long>(java::Integer::MAX_VALUE);
     while ( offset < length ) {
-        const int64_t remaining = length - offset;
+        const long long remaining = length - offset;
         const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
         readBytes(input, buffer + offset, chunk);
         offset += chunk;
@@ -263,9 +263,9 @@ BinaryModelReader::readBool(java::io::InputStream &input) {
     return readByte(input) != 0;
 }
 
-int16_t
+short
 BinaryModelReader::readInt16LE(java::io::InputStream &input) {
-    return static_cast<int16_t>(vsdk::PersistenceElement::readSignedShortLE(input));
+    return static_cast<short>(vsdk::PersistenceElement::readSignedShortLE(input));
 }
 
 int
@@ -274,15 +274,15 @@ BinaryModelReader::readInt32LE(java::io::InputStream &input) {
     return static_cast<int>(value);
 }
 
-int64_t
+long long
 BinaryModelReader::readInt64LE(java::io::InputStream &input) {
     unsigned char bytes[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     readBytes(input, bytes, 8);
-    uint64_t value = 0;
+    unsigned long long value = 0;
     for ( int i = 0; i < 8; i++ ) {
-        value |= static_cast<uint64_t>(bytes[i]) << (8 * i);
+        value |= static_cast<unsigned long long>(bytes[i]) << (8 * i);
     }
-    return static_cast<int64_t>(value);
+    return static_cast<long long>(value);
 }
 
 float
@@ -796,16 +796,16 @@ BinaryModelReader::read(const char *fileName) {
                     const int width = readInt32LE(input);
                     const int height = readInt32LE(input);
                     const int channels = readInt32LE(input);
-                    const int64_t dataBytes = readInt64LE(input);
+                    const long long dataBytes = readInt64LE(input);
 
                     if ( width < 0 || height < 0 || channels < 0 || dataBytes < 0 ) {
                         logError("BinaryModelReader::read", "%s", "Invalid texture dimensions in binary material");
                         goto fail;
                     }
 
-                    const int64_t expectedBytes = static_cast<int64_t>(width)
-                                                  * static_cast<int64_t>(height)
-                                                  * static_cast<int64_t>(channels);
+                    const long long expectedBytes = static_cast<long long>(width)
+                                                  * static_cast<long long>(height)
+                                                  * static_cast<long long>(channels);
                     if ( expectedBytes != dataBytes ) {
                         logError("BinaryModelReader::read", "%s", "Texture byte count mismatch in binary material");
                         goto fail;
@@ -813,7 +813,7 @@ BinaryModelReader::read(const char *fileName) {
 
                     ScopedArray<unsigned char> textureData;
                     if ( dataBytes > 0 ) {
-                        if ( dataBytes > static_cast<int64_t>(java::Integer::MAX_VALUE) ) {
+                        if ( dataBytes > static_cast<long long>(java::Integer::MAX_VALUE) ) {
                             logError("BinaryModelReader::read", "%s", "Texture data too large for current platform");
                             goto fail;
                         }

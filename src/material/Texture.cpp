@@ -1,4 +1,3 @@
-#include <cstdint>
 #include <cstring>
 
 #include "java/lang/Math.h"
@@ -22,9 +21,9 @@ Texture::Texture(
     channels(inChannels),
     data(nullptr)
 {
-    const int64_t byteCount = static_cast<int64_t>(width)
-                              * static_cast<int64_t>(height)
-                              * static_cast<int64_t>(channels);
+    const long long byteCount = static_cast<long long>(width)
+                              * static_cast<long long>(height)
+                              * static_cast<long long>(channels);
     if ( byteCount <= 0 || inData == nullptr ) {
         return;
     }

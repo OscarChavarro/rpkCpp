@@ -1,8 +1,6 @@
 #ifndef __BINARY_MODEL_WRITTER__
 #define __BINARY_MODEL_WRITTER__
 
-#include <cstdint>
-
 namespace java {
 template <class T>
 class ArrayList;
@@ -38,7 +36,7 @@ class BinaryModelWriter {
 
     class SerializationContext;
 
-    static bool writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, int64_t length);
+    static bool writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length);
     static void writeTag(java::io::OutputStream &output, const char tag[4]);
     static bool checkedLongToInt32(long value, const char *what, int &result);
     static bool writeString(java::io::OutputStream &output, const char *text);

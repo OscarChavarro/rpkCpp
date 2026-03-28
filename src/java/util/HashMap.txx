@@ -1,5 +1,4 @@
 #include <cstddef>
-#include <cstdint>
 #include <new>
 
 #include "java/util/HashMap.h"
@@ -29,13 +28,13 @@ hashKeyValue(const T &value) {
 template <class T>
 inline size_t
 hashKeyValue(T *const &value) {
-    return static_cast<size_t>(reinterpret_cast<uintptr_t>(value));
+    return reinterpret_cast<size_t>(value);
 }
 
 template <class T>
 inline size_t
 hashKeyValue(const T *const &value) {
-    return static_cast<size_t>(reinterpret_cast<uintptr_t>(value));
+    return reinterpret_cast<size_t>(value);
 }
 
 }

@@ -4,11 +4,10 @@ Command line options and defaults
 
 #include <cstring>
 #include <cstdlib>
+#include <cerrno>
+
 #include "java/lang/System.h"
 #include "java/lang/Integer.h"
-#include <cerrno>
-#include <cstdint>
-
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/linealAlgebra/Vector3D.h"

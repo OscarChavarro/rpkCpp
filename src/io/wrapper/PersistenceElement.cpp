@@ -1,6 +1,5 @@
 #include "io/wrapper/PersistenceElement.h"
 
-#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
@@ -254,10 +253,10 @@ PersistenceElement::byteArray2floatDirect(const unsigned char *arr, int start) {
         tmp[cnt] = arr[i];
     }
 
-    uint32_t accum = 0;
+    unsigned int accum = 0;
     i = 0;
     for ( int shiftBy = 0; shiftBy < 32; shiftBy += 8 ) {
-        accum |= static_cast<uint32_t>(tmp[i] & 0xff) << shiftBy;
+        accum |= static_cast<unsigned int>(tmp[i] & 0xff) << shiftBy;
         i++;
     }
 
@@ -277,10 +276,10 @@ PersistenceElement::byteArray2doubleDirect(const unsigned char *arr, int start) 
         tmp[cnt] = arr[i];
     }
 
-    uint64_t accum = 0;
+    unsigned long long accum = 0;
     i = 0;
     for ( int shiftBy = 0; shiftBy < 64; shiftBy += 8 ) {
-        accum |= static_cast<uint64_t>(tmp[i] & 0xff) << shiftBy;
+        accum |= static_cast<unsigned long long>(tmp[i] & 0xff) << shiftBy;
         i++;
     }
 
@@ -300,10 +299,10 @@ PersistenceElement::byteArray2floatInvert(const unsigned char *arr, int start) {
         cnt--;
     }
 
-    uint32_t accum = 0;
+    unsigned int accum = 0;
     i = 0;
     for ( int shiftBy = 0; shiftBy < 32; shiftBy += 8 ) {
-        accum |= static_cast<uint32_t>(tmp[i] & 0xff) << shiftBy;
+        accum |= static_cast<unsigned int>(tmp[i] & 0xff) << shiftBy;
         i++;
     }
 
@@ -323,10 +322,10 @@ PersistenceElement::byteArray2doubleInvert(const unsigned char *arr, int start) 
         cnt--;
     }
 
-    uint64_t accum = 0;
+    unsigned long long accum = 0;
     i = 0;
     for ( int shiftBy = 0; shiftBy < 64; shiftBy += 8 ) {
-        accum |= static_cast<uint64_t>(tmp[i] & 0xff) << shiftBy;
+        accum |= static_cast<unsigned long long>(tmp[i] & 0xff) << shiftBy;
         i++;
     }
 
@@ -393,8 +392,8 @@ PersistenceElement::byteArray2floatBE(const unsigned char *arr, int start) {
 
 void
 PersistenceElement::float2byteArrayBE(unsigned char *arr, int start, float num) {
-    uint32_t bits = 0;
-    std::memcpy(&bits, &num, sizeof(uint32_t));
+    unsigned int bits = 0;
+    std::memcpy(&bits, &num, sizeof(unsigned int));
     const long a = static_cast<long>(bits);
     if ( bigEndianArchitecture ) {
         signedInt2byteArrayDirect(arr, start, a);
@@ -404,8 +403,8 @@ PersistenceElement::float2byteArrayBE(unsigned char *arr, int start, float num) 
 
 void
 PersistenceElement::float2byteArrayLE(unsigned char *arr, int start, float num) {
-    uint32_t bits = 0;
-    std::memcpy(&bits, &num, sizeof(uint32_t));
+    unsigned int bits = 0;
+    std::memcpy(&bits, &num, sizeof(unsigned int));
     const long a = static_cast<long>(bits);
     if ( bigEndianArchitecture ) {
         signedInt2byteArrayInvert(arr, start, a);
@@ -479,8 +478,8 @@ PersistenceElement::writeInt32LE(java::io::OutputStream &os, int num) {
 }
 
 void
-PersistenceElement::writeInt64LE(java::io::OutputStream &os, int64_t num) {
-    const uint64_t bits = static_cast<uint64_t>(num);
+PersistenceElement::writeInt64LE(java::io::OutputStream &os, long long num) {
+    const unsigned long long bits = static_cast<unsigned long long>(num);
     const int low = static_cast<int>(bits & 0xFFFFFFFFULL);
     const int high = static_cast<int>((bits >> 32) & 0xFFFFFFFFULL);
     writeInt32LE(os, low);
@@ -489,9 +488,9 @@ PersistenceElement::writeInt64LE(java::io::OutputStream &os, int64_t num) {
 
 void
 PersistenceElement::writeDoubleLE(java::io::OutputStream &os, double num) {
-    uint64_t bits = 0;
+    unsigned long long bits = 0;
     std::memcpy(&bits, &num, sizeof(double));
-    writeInt64LE(os, static_cast<int64_t>(bits));
+    writeInt64LE(os, static_cast<long long>(bits));
 }
 
 /**
@@ -527,7 +526,7 @@ float
 PersistenceElement::readFloatBE(java::io::InputStream &is) {
     readBytes(is, byteBuffer4byte, 4);
     const long i = byteArray2longBE(byteBuffer4byte, 0);
-    const uint32_t j = static_cast<uint32_t>(i);
+    const unsigned int j = static_cast<unsigned int>(i);
     float out = 0.0f;
     std::memcpy(&out, &j, sizeof(float));
     return out;

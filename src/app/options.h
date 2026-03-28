@@ -5,7 +5,6 @@ Command line options and defaults
 #ifndef __OPTIONS__
 #define __OPTIONS__
 
-#include <cstdint>
 #include "java/io/PrintStream.h"
 
 /**

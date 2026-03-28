@@ -1,8 +1,6 @@
 #ifndef __BINARY_MODEL_READER__
 #define __BINARY_MODEL_READER__
 
-#include <cstdint>
-
 namespace java {
 template <class T>
 class ArrayList;
@@ -44,12 +42,12 @@ class BinaryModelReader {
 
     static void releaseIndexListRecord(IndexListRecord *record);
     static void readBytes(java::io::InputStream &input, unsigned char *buffer, int length);
-    static bool readBytesChunked(java::io::InputStream &input, unsigned char *buffer, int64_t length);
+    static bool readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length);
     static unsigned char readByte(java::io::InputStream &input);
     static bool readBool(java::io::InputStream &input);
-    static int16_t readInt16LE(java::io::InputStream &input);
+    static short readInt16LE(java::io::InputStream &input);
     static int readInt32LE(java::io::InputStream &input);
-    static int64_t readInt64LE(java::io::InputStream &input);
+    static long long readInt64LE(java::io::InputStream &input);
     static float readFloatLE(java::io::InputStream &input);
     static double readDoubleLE(java::io::InputStream &input);
     static bool expectTag(java::io::InputStream &input, const char expected[4]);

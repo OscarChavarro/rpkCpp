@@ -45,18 +45,18 @@ safeLabel(const char *text) {
 }
 
 bool
-BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, int64_t length) {
+BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
         logError("BinaryModelWriter::writeBytesChunked", "Negative block length");
         return false;
     }
-    int64_t offset = 0;
-    const int64_t maxChunk = static_cast<int64_t>(java::Integer::MAX_VALUE);
+    long long offset = 0;
+    const long long maxChunk = static_cast<long long>(java::Integer::MAX_VALUE);
     while ( offset < length ) {
-        const int64_t remaining = length - offset;
+        const long long remaining = length - offset;
         const int chunk = static_cast<int>(remaining < maxChunk ? remaining : maxChunk);
         vsdk::PersistenceElement::writeBytes(output, data + offset, chunk);
-        offset += static_cast<int64_t>(chunk);
+        offset += static_cast<long long>(chunk);
     }
     return true;
 }
@@ -663,9 +663,9 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
         vsdk::PersistenceElement::writeInt32LE(output, height);
         vsdk::PersistenceElement::writeInt32LE(output, channels);
 
-        const int64_t dataBytes = static_cast<int64_t>(width)
-                                  * static_cast<int64_t>(height)
-                                  * static_cast<int64_t>(channels);
+        const long long dataBytes = static_cast<long long>(width)
+                                  * static_cast<long long>(height)
+                                  * static_cast<long long>(channels);
         vsdk::PersistenceElement::writeInt64LE(output, dataBytes);
 
         if ( dataBytes > 0 ) {
@@ -689,7 +689,7 @@ BinaryModelWriter::writeColorContextRecord(java::io::OutputStream &output, const
     for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->straightSamples[i]);
     }
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<int64_t>(colorContext->spectralStraightSum));
+    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(colorContext->spectralStraightSum));
     vsdk::PersistenceElement::writeFloatLE(output, colorContext->cx);
     vsdk::PersistenceElement::writeFloatLE(output, colorContext->cy);
     vsdk::PersistenceElement::writeFloatLE(output, colorContext->eff);
@@ -726,7 +726,7 @@ void
 BinaryModelWriter::writeTransformArrayRecord(java::io::OutputStream &output, const TransformArray *transformArray) {
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<int64_t>(transformArray->startingPosition.offset));
+    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
     for ( int i = 0; i < TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
         vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].i);
@@ -744,7 +744,7 @@ BinaryModelWriter::writeTransformContextRecord(
     const TransformStackContext *transformContext,
     const BinaryModelWriter::SerializationContext &context)
 {
-    vsdk::PersistenceElement::writeInt64LE(output, static_cast<int64_t>(transformContext->xid));
+    vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformContext->xid));
     vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->xac);
     vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->rev);
 
