@@ -18,19 +18,9 @@ class FileOutputStream : public OutputStream {
   public:
     FileOutputStream();
     explicit FileOutputStream(const File &file);
+    explicit FileOutputStream(const char *fileName);
+    FileOutputStream(FILE *fileHandle, bool pipeOutput, bool standardOutput = false);
     ~FileOutputStream() override;
-
-    bool
-    open(const File &file);
-
-    bool
-    open(const char *fileName);
-
-    bool
-    open(FILE *fileHandle, bool pipeOutput);
-
-    bool
-    openStandardOutput();
 
     bool
     isOpen() const;
@@ -41,16 +31,13 @@ class FileOutputStream : public OutputStream {
     bool
     isStandardOutput() const;
 
-    int
+    void
     write(int value) override;
 
-    int
+    void
     write(const unsigned char *buffer, int offset, int length) override;
 
-    FILE *
-    nativeHandle() const;
-
-    bool
+    void
     close() override;
 
     void

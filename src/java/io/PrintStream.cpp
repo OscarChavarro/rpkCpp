@@ -10,21 +10,16 @@ PrintStream::PrintStream(FILE *stream):
 {
 }
 
-void
-PrintStream::setStream(FILE *stream) {
-    this->stream = stream;
-}
-
-int
-PrintStream::printf(const char *format, ...) const {
+PrintStream &
+PrintStream::printf(const char *format, ...) {
     if ( stream == nullptr || format == nullptr ) {
-        return 0;
+        return *this;
     }
     va_list arguments;
     va_start(arguments, format);
-    const int count = vfprintf(stream, format, arguments);
+    vfprintf(stream, format, arguments);
     va_end(arguments);
-    return count;
+    return *this;
 }
 
 void
@@ -61,18 +56,6 @@ PrintStream::flush() const {
         return;
     }
     fflush(stream);
-}
-
-PrintStream &
-PrintStream::out() {
-    static PrintStream output(stdout);
-    return output;
-}
-
-PrintStream &
-PrintStream::err() {
-    static PrintStream error(stderr);
-    return error;
 }
 
 }

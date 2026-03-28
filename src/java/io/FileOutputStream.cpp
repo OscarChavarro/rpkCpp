@@ -11,53 +11,29 @@ FileOutputStream::FileOutputStream():
 }
 
 FileOutputStream::FileOutputStream(const File &file):
+    stream(file.open("wb")),
+    isPipe(false),
+    standardOutput(false)
+{
+}
+
+FileOutputStream::FileOutputStream(const char *fileName):
     stream(nullptr),
     isPipe(false),
     standardOutput(false)
 {
-    open(file);
+    stream = File::openHandle(fileName, "wb");
+}
+
+FileOutputStream::FileOutputStream(FILE *fileHandle, bool pipeOutput, bool isStandardOutput):
+    stream(fileHandle),
+    isPipe(pipeOutput ? 1 : 0),
+    standardOutput(isStandardOutput)
+{
 }
 
 FileOutputStream::~FileOutputStream() {
     close();
-}
-
-bool
-FileOutputStream::open(const File &file) {
-    return open(file.getPath().toCString());
-}
-
-bool
-FileOutputStream::open(const char *fileName) {
-    close();
-    if ( fileName == nullptr || fileName[0] == '\0' ) {
-        return false;
-    }
-    stream = fopen(fileName, "wb");
-    isPipe = false;
-    standardOutput = false;
-    return stream != nullptr;
-}
-
-bool
-FileOutputStream::open(FILE *fileHandle, bool pipeOutput) {
-    close();
-    if ( fileHandle == nullptr ) {
-        return false;
-    }
-    stream = fileHandle;
-    isPipe = pipeOutput ? 1 : 0;
-    standardOutput = false;
-    return true;
-}
-
-bool
-FileOutputStream::openStandardOutput() {
-    close();
-    stream = stdout;
-    isPipe = 0;
-    standardOutput = true;
-    return true;
 }
 
 bool
@@ -75,35 +51,29 @@ FileOutputStream::isStandardOutput() const {
     return standardOutput;
 }
 
-int
+void
 FileOutputStream::write(int value) {
     if ( stream == nullptr ) {
-        return -1;
+        return;
     }
-    unsigned char b[1];
-    b[0] = static_cast<unsigned char>(value & 0xFF);
-    const int written = write(b, 0, 1);
-    return written == 1 ? (b[0] & 0xFF) : -1;
+    fputc(static_cast<unsigned char>(value & 0xFF), stream);
 }
 
-int
+void
 FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
     if ( stream == nullptr || buffer == nullptr || offset < 0 || length < 0 ) {
-        return -1;
+        return;
     }
-    const size_t written = fwrite(buffer + offset, 1, static_cast<size_t>(length), stream);
-    return static_cast<int>(written);
+    if ( length == 0 ) {
+        return;
+    }
+    fwrite(buffer + offset, 1, static_cast<size_t>(length), stream);
 }
 
-FILE *
-FileOutputStream::nativeHandle() const {
-    return stream;
-}
-
-bool
+void
 FileOutputStream::close() {
     if ( stream == nullptr ) {
-        return true;
+        return;
     }
 
     if ( standardOutput ) {
@@ -111,18 +81,17 @@ FileOutputStream::close() {
         stream = nullptr;
         isPipe = 0;
         standardOutput = false;
-        return true;
+        return;
     }
 
     if ( isPipe ) {
         pclose(stream);
     } else {
-        fclose(stream);
+        File::closeHandle(stream);
     }
     stream = nullptr;
     isPipe = 0;
     standardOutput = false;
-    return true;
 }
 
 void

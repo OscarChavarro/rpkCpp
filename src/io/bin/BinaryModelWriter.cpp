@@ -982,8 +982,8 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
         return false;
     }
 
-    java::io::FileOutputStream output;
-    if ( !output.open(fileName) ) {
+    java::io::FileOutputStream output(fileName);
+    if ( !output.isOpen() ) {
         logError("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
         output.close();
         return false;

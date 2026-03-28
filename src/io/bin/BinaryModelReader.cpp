@@ -1,9 +1,9 @@
 #include "io/bin/BinaryModelReader.h"
 
 #include <cstring>
-#include <memory>
 
 #include "java/io/BufferedInputStream.h"
+#include "java/io/FileInputStream.h"
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
@@ -38,6 +38,39 @@ const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
 const int32_t BinaryModelReader::BINARY_MODEL_VERSION = 1;
 
 namespace {
+template <typename T>
+class ScopedArray {
+  private:
+    T *value;
+
+  public:
+    explicit ScopedArray(T *initialValue = nullptr):
+        value(initialValue)
+    {
+    }
+
+    ~ScopedArray() {
+        delete[] value;
+        value = nullptr;
+    }
+
+    ScopedArray(const ScopedArray &) = delete;
+    ScopedArray &operator=(const ScopedArray &) = delete;
+
+    void
+    reset(T *newValue = nullptr) {
+        if ( value != newValue ) {
+            delete[] value;
+            value = newValue;
+        }
+    }
+
+    T *
+    get() const {
+        return value;
+    }
+};
+
 bool
 reportReadError(const char *routine, const char *message) {
     logError(routine, "%s", message);
@@ -642,10 +675,11 @@ BinaryModelReader::read(const char *fileName) {
         return nullptr;
     }
 
-    java::io::BufferedInputStream input;
-    if ( !input.open(fileName) ) {
+    java::io::FileInputStream fileInput(fileName);
+    if ( !fileInput.isOpen() ) {
         return nullptr;
     }
+    java::io::BufferedInputStream input(&fileInput, false);
 
     java::ArrayList<Vector3D *> vectors;
     java::ArrayList<Vertex *> vertices;
@@ -710,10 +744,11 @@ BinaryModelReader::read(const char *fileName) {
 
         if ( !expectTag(input, "MTLS") ) goto fail;
         for ( int32_t i = 0; i < materialCount; i++ ) {
+            ScopedArray<char> materialNameGuard;
             char *materialName = nullptr;
             bool hasMaterialName = false;
             if ( !readNullableString(input, &materialName, &hasMaterialName) ) goto fail;
-            std::unique_ptr<char[]> materialNameGuard(materialName);
+            materialNameGuard.reset(materialName);
             const bool sided = readBool(input);
 
             PhongEmittanceDistributionFunction *edf = nullptr;
@@ -776,13 +811,13 @@ BinaryModelReader::read(const char *fileName) {
                         goto fail;
                     }
 
-                    std::unique_ptr<unsigned char[]> textureData;
+                    ScopedArray<unsigned char> textureData;
                     if ( dataBytes > 0 ) {
                         if ( dataBytes > static_cast<int64_t>(java::Integer::MAX_VALUE) ) {
                             logError("BinaryModelReader::read", "%s", "Texture data too large for current platform");
                             goto fail;
                         }
-                        textureData = std::unique_ptr<unsigned char[]>(new unsigned char[static_cast<int>(dataBytes)]);
+                        textureData.reset(new unsigned char[static_cast<int>(dataBytes)]);
                         if ( !readBytesChunked(input, textureData.get(), dataBytes) ) goto fail;
                     }
                     texture = new Texture(

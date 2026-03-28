@@ -57,6 +57,26 @@ parallel support handlers to assist in this effort.
 Read next line from file
 */
 static int
+readInputLine(java::io::InputStream *inputStream, char *readBuffer, int maxLength) {
+    if ( inputStream == nullptr || readBuffer == nullptr || maxLength <= 0 ) {
+        return 0;
+    }
+    int length = 0;
+    while ( length < maxLength - 1 ) {
+        const int readChar = inputStream->read();
+        if ( readChar < 0 ) {
+            break;
+        }
+        readBuffer[length++] = static_cast<char>(readChar);
+        if ( readChar == '\n' ) {
+            break;
+        }
+    }
+    readBuffer[length] = '\0';
+    return length;
+}
+
+static int
 mgfReadNextLine(const BaseContext *context) {
     if ( context->readerContext->inputStream == nullptr ) {
         return 0;
@@ -72,7 +92,7 @@ mgfReadNextLine(const BaseContext *context) {
             lineBuilder.dispose();
             return len;
         }
-        const int readLength = context->readerContext->inputStream->readLine(readBuffer, maxLength);
+        const int readLength = readInputLine(context->readerContext->inputStream, readBuffer, maxLength);
         if ( readLength <= 0 ) {
             java::lang::String line = lineBuilder.toString();
             strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);

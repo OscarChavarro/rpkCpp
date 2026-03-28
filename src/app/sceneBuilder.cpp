@@ -1,6 +1,7 @@
 #include <ctime>
 #include <cerrno>
 #include <cstring>
+#include "java/io/File.h"
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
@@ -313,7 +314,7 @@ sceneBuilderValidateReadableFile(
     const char *fileRole)
 {
     errno = 0;
-    FILE *input = fopen(fileName, openMode);
+    FILE *input = java::io::File::openHandle(fileName, openMode);
     if ( input == nullptr ) {
         if ( errno == ENOENT ) {
             logError(
@@ -339,7 +340,7 @@ sceneBuilderValidateReadableFile(
     }
 
     const int firstByte = fgetc(input);
-    fclose(input);
+    java::io::File::closeHandle(input);
 
     if ( firstByte == EOF ) {
         logError(

@@ -57,13 +57,47 @@ mgfGoToFilePosition(const FilePositionContext *pos, BaseContext *context) {
     if ( context->readerContext->inputStream == nullptr ) {
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( context->readerContext->inputStream->isStandardInput() || context->readerContext->isPipe ) {
-        // Cannot seek on standard input
+    if ( strcmp(context->readerContext->fileName, "<stdin>") == 0 || context->readerContext->isPipe ) {
+        // Cannot seek on standard input or pipes
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
-    if ( !context->readerContext->inputStream->seek(pos->offset) ) {
+    if ( pos->offset < 0 ) {
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
+
+    int pipeFlag = 0;
+    FILE *inputHandle = openFileCompressWrapper(context->readerContext->fileName, "r", &pipeFlag);
+    if ( inputHandle == nullptr || pipeFlag != 0 ) {
+        closeFile(inputHandle, pipeFlag);
+        return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
+    }
+
+    java::io::BufferedInputStream *newInputStream =
+        new java::io::BufferedInputStream(new java::io::FileInputStream(inputHandle, false), true);
+    if ( !newInputStream->isOpen() ) {
+        newInputStream->dispose();
+        delete newInputStream;
+        return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
+    }
+
+    long remaining = pos->offset;
+    unsigned char buffer[512];
+    while ( remaining > 0 ) {
+        const int chunk = remaining > static_cast<long>(sizeof(buffer))
+            ? static_cast<int>(sizeof(buffer))
+            : static_cast<int>(remaining);
+        const int readCount = newInputStream->read(buffer, 0, chunk);
+        if ( readCount <= 0 ) {
+            newInputStream->dispose();
+            delete newInputStream;
+            return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
+        }
+        remaining -= readCount;
+    }
+
+    context->readerContext->inputStream->dispose();
+    delete context->readerContext->inputStream;
+    context->readerContext->inputStream = newInputStream;
     context->readerContext->lineNumber = pos->lineNumber;
     return ErrorCodeContext::MGF_OK;
 }
@@ -130,8 +164,8 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
     readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
-        if ( !fileInputStream->openStandardInput() ) {
+        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(stdin, false, true);
+        if ( !fileInputStream->isOpen() ) {
             fileInputStream->dispose();
             delete fileInputStream;
             return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
@@ -161,10 +195,14 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
         strcpy(readerContext->fileName, functionCallback);
     }
 
-    java::io::FileInputStream *fileInputStream = new java::io::FileInputStream();
     int pipeFlag = false;
     FILE *inputHandle = openFileCompressWrapper(readerContext->fileName, "r", &pipeFlag);
-    if ( !fileInputStream->open(inputHandle, pipeFlag != 0) ) {
+    if ( inputHandle == nullptr ) {
+        return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
+    }
+    java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(inputHandle, pipeFlag != 0);
+    if ( !fileInputStream->isOpen() ) {
+        closeFile(inputHandle, pipeFlag);
         fileInputStream->dispose();
         delete fileInputStream;
         return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;

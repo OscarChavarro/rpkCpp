@@ -13,11 +13,8 @@ class PrintStream {
   public:
     explicit PrintStream(FILE *stream);
 
-    void
-    setStream(FILE *stream);
-
-    int
-    printf(const char *format, ...) const;
+    PrintStream &
+    printf(const char *format, ...);
 
     void
     print(const char *text) const;
@@ -30,12 +27,6 @@ class PrintStream {
 
     void
     flush() const;
-
-    static PrintStream &
-    out();
-
-    static PrintStream &
-    err();
 };
 
 }

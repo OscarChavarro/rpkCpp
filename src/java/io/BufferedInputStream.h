@@ -4,7 +4,6 @@
 #include <cstdio>
 
 #include "java/io/File.h"
-#include "java/io/FileInputStream.h"
 #include "java/io/InputStream.h"
 
 namespace java {
@@ -12,36 +11,15 @@ namespace io {
 
 class BufferedInputStream : public InputStream {
   private:
-    FileInputStream *inputStream;
+    InputStream *inputStream;
     bool ownInputStream;
 
   public:
-    explicit BufferedInputStream(FileInputStream *inputStream = nullptr, bool ownInputStream = true);
+    explicit BufferedInputStream(InputStream *inputStream = nullptr, bool ownInputStream = true);
     ~BufferedInputStream() override;
 
     bool
-    open(const File &file);
-
-    bool
-    open(const char *fileName);
-
-    bool
-    openCompressed(const File &file);
-
-    bool
-    openCompressed(const char *fileName);
-
-    bool
-    openStandardInput();
-
-    bool
     isOpen() const;
-
-    bool
-    isPipeInput() const;
-
-    bool
-    isStandardInput() const;
 
     int
     read() override;
@@ -49,19 +27,10 @@ class BufferedInputStream : public InputStream {
     int
     read(unsigned char *buffer, int offset, int length) override;
 
-    int
-    readLine(char *buffer, int maxLength);
-
     long
     tell() const;
 
-    bool
-    seek(long offset);
-
-    FILE *
-    nativeHandle() const;
-
-    bool
+    void
     close() override;
 
     void

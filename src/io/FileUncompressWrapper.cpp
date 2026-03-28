@@ -2,10 +2,10 @@
 
 #include "common/error.h"
 #include "io/FileUncompressWrapper.h"
-#include "java/io/FileOutputStream.h"
+#include "java/io/File.h"
 
 /**
-Opens a file with given name and fopen() open_mode ("w" or "r" e.g.). Returns the
+Opens a file with given name and open_mode ("w" or "r" e.g.). Returns the
 FILE * or nullptr if opening the file was not successful. Returns in isPipe whether
 or not the file has been opened through a pipe. File extensions
 .Z, .gz, .bz and .bz2 are recognised and lead to piped input/output with the
@@ -17,7 +17,7 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
     FILE *fp = nullptr;
 
     if ( *open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a' ) {
-        logError("openFileCompressWrapper", "Invalid fopen() mode '%s'\n", open_mode);
+        logError("openFileCompressWrapper", "Invalid file open mode '%s'\n", open_mode);
         return fp;
     }
 
@@ -62,7 +62,7 @@ openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe
             fp = popen(command, open_mode);
             *isPipe = true;
         } else {
-            fp = fopen(fileName, open_mode);
+            fp = java::io::File::openHandle(fileName, open_mode);
             *isPipe = false;
         }
 
@@ -87,21 +87,7 @@ closeFile(FILE *fp, int isPipe) {
         if ( isPipe ) {
             pclose(fp);
         } else {
-            fclose(fp);
+            java::io::File::closeHandle(fp);
         }
     }
-}
-
-bool
-openCompressedOutputStream(const char *fileName, java::io::FileOutputStream &outputStream) {
-    int isPipe = 0;
-    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
-    if ( fp == nullptr ) {
-        return false;
-    }
-    if ( outputStream.open(fp, isPipe != 0) ) {
-        return true;
-    }
-    closeFile(fp, isPipe);
-    return false;
 }

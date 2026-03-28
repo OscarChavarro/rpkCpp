@@ -86,20 +86,10 @@ PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *
         logError("PersistenceElement::writeBytes", "%s", "invalid arguments");
         return;
     }
-
-    int offset = 0;
-    int numWritten = 0;
-    do {
-        numWritten = os.write(bytesBuffer, offset, (length - offset));
-        if ( numWritten <= 0 ) {
-            break;
-        }
-        offset += numWritten;
-    } while ( offset < length && numWritten >= 0 );
-
-    if ( offset < length ) {
-        logError("PersistenceElement::writeBytes", "failed (%d/%d)", offset, length);
+    if ( length == 0 ) {
+        return;
     }
+    os.write(bytesBuffer, 0, length);
 }
 
 /**
@@ -1049,9 +1039,9 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 
                 char *fullPath = joinCString3(token, "/", nativeLibname);
                 if ( fullPath != nullptr ) {
-                    FILE *candidate = std::fopen(fullPath, "rb");
+                    FILE *candidate = java::io::File::openHandle(fullPath, "rb");
                     if ( candidate != nullptr ) {
-                        std::fclose(candidate);
+                        java::io::File::closeHandle(candidate);
                         std::free(fullPath);
                         std::free(token);
                         return true;
@@ -1127,7 +1117,7 @@ PersistenceElement::checkDirectory(const char *dirName) {
         return false;
     }
 
-    FILE *probe = std::fopen(probePath, "ab");
+    FILE *probe = java::io::File::openHandle(probePath, "ab");
     if ( probe == nullptr ) {
         std::free(probePath);
         std::fprintf(
@@ -1137,7 +1127,7 @@ PersistenceElement::checkDirectory(const char *dirName) {
         return false;
     }
 
-    std::fclose(probe);
+    java::io::File::closeHandle(probe);
     std::remove(probePath);
     std::free(probePath);
     return true;

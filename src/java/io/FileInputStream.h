@@ -18,25 +18,9 @@ class FileInputStream : public InputStream {
   public:
     FileInputStream();
     explicit FileInputStream(const File &file);
+    explicit FileInputStream(const char *fileName);
+    FileInputStream(FILE *fileHandle, bool pipeInput, bool standardInput = false);
     ~FileInputStream() override;
-
-    bool
-    open(const File &file);
-
-    bool
-    open(const char *fileName);
-
-    bool
-    open(FILE *fileHandle, bool pipeInput);
-
-    bool
-    openCompressed(const File &file);
-
-    bool
-    openCompressed(const char *fileName);
-
-    bool
-    openStandardInput();
 
     bool
     isOpen() const;
@@ -53,19 +37,10 @@ class FileInputStream : public InputStream {
     int
     read(unsigned char *buffer, int offset, int length) override;
 
-    int
-    readLine(char *buffer, int maxLength);
-
     long
     tell() const;
 
-    bool
-    seek(long offset);
-
-    FILE *
-    nativeHandle() const;
-
-    bool
+    void
     close() override;
 
     void

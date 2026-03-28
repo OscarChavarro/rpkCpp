@@ -1,7 +1,5 @@
 #include "java/io/FileInputStream.h"
 
-#include <cstring>
-
 namespace java {
 namespace io {
 
@@ -13,60 +11,29 @@ FileInputStream::FileInputStream():
 }
 
 FileInputStream::FileInputStream(const File &file):
+    stream(file.open("rb")),
+    isPipe(false),
+    standardInput(false)
+{
+}
+
+FileInputStream::FileInputStream(const char *fileName):
     stream(nullptr),
     isPipe(false),
     standardInput(false)
 {
-    open(file);
+    stream = File::openHandle(fileName, "rb");
+}
+
+FileInputStream::FileInputStream(FILE *fileHandle, bool pipeInput, bool isStandardInput):
+    stream(fileHandle),
+    isPipe(pipeInput ? 1 : 0),
+    standardInput(isStandardInput)
+{
 }
 
 FileInputStream::~FileInputStream() {
     dispose();
-}
-
-bool
-FileInputStream::open(const File &file) {
-    return open(file.getPath().toCString());
-}
-
-bool
-FileInputStream::open(const char *fileName) {
-    close();
-    stream = fopen(fileName, "r");
-    isPipe = false;
-    standardInput = false;
-    return stream != nullptr;
-}
-
-bool
-FileInputStream::open(FILE *fileHandle, bool pipeInput) {
-    close();
-    if ( fileHandle == nullptr ) {
-        return false;
-    }
-    stream = fileHandle;
-    isPipe = pipeInput;
-    standardInput = false;
-    return true;
-}
-
-bool
-FileInputStream::openCompressed(const File &file) {
-    return openCompressed(file.getPath().toCString());
-}
-
-bool
-FileInputStream::openCompressed(const char *fileName) {
-    return open(fileName);
-}
-
-bool
-FileInputStream::openStandardInput() {
-    close();
-    stream = stdin;
-    isPipe = false;
-    standardInput = true;
-    return true;
 }
 
 bool
@@ -94,21 +61,20 @@ FileInputStream::read() {
 
 int
 FileInputStream::read(unsigned char *buffer, int offset, int length) {
-    if ( stream == nullptr || buffer == nullptr || offset < 0 || length <= 0 ) {
+    if ( stream == nullptr ) {
+        return -1;
+    }
+    if ( buffer == nullptr || offset < 0 || length < 0 ) {
+        return -1;
+    }
+    if ( length == 0 ) {
         return 0;
     }
-    return static_cast<int>(fread(&buffer[offset], 1, static_cast<std::size_t>(length), stream));
-}
-
-int
-FileInputStream::readLine(char *buffer, int maxLength) {
-    if ( stream == nullptr || buffer == nullptr || maxLength <= 0 ) {
-        return 0;
+    const int readCount = static_cast<int>(fread(&buffer[offset], 1, static_cast<std::size_t>(length), stream));
+    if ( readCount == 0 && feof(stream) ) {
+        return -1;
     }
-    if ( fgets(buffer, maxLength, stream) == nullptr ) {
-        return 0;
-    }
-    return static_cast<int>(std::strlen(buffer));
+    return readCount;
 }
 
 long
@@ -119,35 +85,21 @@ FileInputStream::tell() const {
     return ftell(stream);
 }
 
-bool
-FileInputStream::seek(long offset) {
-    if ( stream == nullptr ) {
-        return false;
-    }
-    return fseek(stream, offset, 0) != EOF;
-}
-
-FILE *
-FileInputStream::nativeHandle() const {
-    return stream;
-}
-
-bool
+void
 FileInputStream::close() {
     if ( stream == nullptr ) {
-        return true;
+        return;
     }
     if ( !standardInput ) {
         if ( isPipe ) {
             pclose(stream);
         } else {
-            fclose(stream);
+            File::closeHandle(stream);
         }
     }
     stream = nullptr;
     isPipe = false;
     standardInput = false;
-    return true;
 }
 
 void

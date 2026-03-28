@@ -1,7 +1,19 @@
-#include <cctype>
 #include <cstring>
 
+#include "java/lang/Character.h"
 #include "io/context/WordsContext.h"
+
+namespace {
+inline bool
+isAsciiCode(int value) {
+    return value >= 0 && value <= 127;
+}
+
+inline bool
+isAsciiGraph(int value) {
+    return value >= 33 && value <= 126;
+}
+}
 
 /**
 Skip integer in string
@@ -10,18 +22,18 @@ const char *
 WordsContext::skipInt(const char *text)
 {
     int index = 0;
-    while ( isspace(static_cast<unsigned char>(text[index])) ) {
+    while ( java::Character::isSpace(text[index]) ) {
         index++;
     }
     if ( text[index] == '-' || text[index] == '+' ) {
         index++;
     }
-    if ( !isdigit(static_cast<unsigned char>(text[index])) ) {
+    if ( !java::Character::isDigit(text[index]) ) {
         return nullptr;
     }
     do {
         index++;
-    } while (isdigit(static_cast<unsigned char>(text[index])) );
+    } while (java::Character::isDigit(text[index]) );
     return &text[index];
 }
 
@@ -32,20 +44,20 @@ const char *
 WordsContext::skipFloat(const char *text)
 {
     int startIndex = 0;
-    while ( isspace(static_cast<unsigned char>(text[startIndex])) ) {
+    while ( java::Character::isSpace(text[startIndex]) ) {
         startIndex++;
     }
     if ( text[startIndex] == '-' || text[startIndex] == '+' ) {
         startIndex++;
     }
     int currentIndex = startIndex;
-    while ( isdigit(static_cast<unsigned char>(text[currentIndex])) ) {
+    while ( java::Character::isDigit(text[currentIndex]) ) {
         currentIndex++;
     }
     if ( text[currentIndex] == '.' ) {
         currentIndex++;
         startIndex++;
-        while ( isdigit(static_cast<unsigned char>(text[currentIndex])) ) {
+        while ( java::Character::isDigit(text[currentIndex]) ) {
             currentIndex++;
         }
     }
@@ -109,12 +121,12 @@ WordsContext::isName(const char *text)
         // skip leading underscores
         index++;
     }
-    if ( !isascii(static_cast<unsigned char>(text[index])) || !isalpha(static_cast<unsigned char>(text[index])) ) {
+    if ( !isAsciiCode(text[index]) || !java::Character::isLetter(text[index]) ) {
         // start with a letter
         return 0;
     }
     int tokenIndex = index + 1;
-    while ( isascii(static_cast<unsigned char>(text[tokenIndex])) && isgraph(static_cast<unsigned char>(text[tokenIndex])) ) {
+    while ( isAsciiCode(text[tokenIndex]) && isAsciiGraph(text[tokenIndex]) ) {
         // all visible characters
         tokenIndex++;
     }

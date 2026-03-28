@@ -1,5 +1,7 @@
 #include "java/io/File.h"
 
+#include <cstdio>
+
 namespace java {
 namespace io {
 
@@ -67,6 +69,27 @@ File::getParent() const {
         return java::lang::String();
     }
     return path.substring(0, lastSeparator);
+}
+
+FILE *
+File::open(const char *openMode) const {
+    return openHandle(path.toCString(), openMode);
+}
+
+FILE *
+File::openHandle(const char *filePath, const char *openMode) {
+    if ( filePath == nullptr || openMode == nullptr || filePath[0] == '\0' || openMode[0] == '\0' ) {
+        return nullptr;
+    }
+    return std::fopen(filePath, openMode);
+}
+
+int
+File::closeHandle(FILE *handle) {
+    if ( handle == nullptr ) {
+        return 0;
+    }
+    return std::fclose(handle);
 }
 
 bool

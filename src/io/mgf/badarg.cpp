@@ -1,5 +1,4 @@
-#include <cctype>
-
+#include "java/lang/Character.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/badarg.h"
 
@@ -20,7 +19,7 @@ checkForBadArguments(int ac, char **av, const char *fl) {
         }
         switch ( fl[formatIndex] ) {
             case 's': // String
-                if ( av[formatIndex][0] == '\0' || isspace(av[formatIndex][0]) ) {
+                if ( av[formatIndex][0] == '\0' || java::Character::isSpace(av[formatIndex][0]) ) {
                     return argumentIndex;
                 }
                 break;
