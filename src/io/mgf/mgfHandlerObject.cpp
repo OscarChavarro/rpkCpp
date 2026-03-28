@@ -2,6 +2,8 @@
 Hierarchical object names tracking
 */
 
+#include <cstring>
+
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
@@ -115,9 +117,12 @@ handleObject2Entity(int ac, const char **av) {
             globalObjectMaxName = ALLOC_INC;
             globalObjectNamesList = new char *[globalObjectMaxName];
         } else {
-            CppReAlloc<char *> memoryManager;
+            const int oldObjectMaxName = globalObjectMaxName;
             globalObjectMaxName += ALLOC_INC;
-            globalObjectNamesList = memoryManager.reAlloc(globalObjectNamesList, globalObjectMaxName);
+            globalObjectNamesList = CppReAlloc::reAlloc(
+                globalObjectNamesList,
+                oldObjectMaxName,
+                globalObjectMaxName);
             if ( globalObjectNamesList == nullptr ) {
                 java::lang::System::err.println("Memory error");
                 exit(1);

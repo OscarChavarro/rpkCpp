@@ -38,8 +38,10 @@ dkColorTempBuffer(unsigned int length) {
 
     if ( length > tempBufferLength ) {
         if ( tempBufferLength > 0 ) {
-            CppReAlloc<BYTE> memoryManager;
-            globalTempBuffer = memoryManager.reAlloc(globalTempBuffer, length);
+            globalTempBuffer = CppReAlloc::reAlloc(
+                globalTempBuffer,
+                static_cast<int>(tempBufferLength),
+                static_cast<int>(length));
         } else {
             globalTempBuffer = new BYTE[length];
         }

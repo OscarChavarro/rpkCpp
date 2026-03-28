@@ -35,6 +35,7 @@ set(MAIN_SRC
     src/java/io/BufferedInputStream.cpp
     src/java/io/PrintStream.cpp
     src/common/errorshared.cpp
+    src/common/CppReAlloc.cpp
     src/common/ColorRgb.cpp
     src/common/cie.cpp
     src/common/RenderOptions.cpp
