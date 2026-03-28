@@ -1,6 +1,5 @@
 #include "common/RenderOptions.h"
 
-
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 

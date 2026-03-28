@@ -2,6 +2,7 @@
 #define __GATHERING_STRATEGY__
 
 #include "scene/Scene.h"
+
 #include "GALERKIN/GalerkinState.h"
 
 /**

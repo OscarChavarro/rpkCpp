@@ -6,12 +6,14 @@ and contain necessary information for raytracing-like algorithms
 #ifndef __PATH_NODE__
 #define __PATH_NODE__
 
-#include "common/linealAlgebra/Ray.h"
-#include "common/ColorRgb.h"
 #include "java/io/PrintStream.h"
+
+#include "common/linealAlgebra/Ray.h"
+
+#include "common/ColorRgb.h"
+
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
-// -- For evaluation of bi paths, should change!
 #include "raycasting/common/bsdfcomp.h"
 #include "raycasting/common/PathRayType.h"
 

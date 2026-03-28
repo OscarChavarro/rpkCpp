@@ -1,27 +1,23 @@
-#include "io/bin/BinaryModelReader.h"
-
 #include <cstring>
 
 #include "java/io/BufferedInputStream.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
-#include "common/ColorRgb.h"
+
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "io/wrapper/PersistenceElement.h"
-#include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
-#include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
-#include "io/context/TransformStackContext.h"
+
+#include "common/ColorRgb.h"
+#include "common/error.h"
+
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/Texture.h"
+
 #include "skin/Compound.h"
 #include "skin/Geometry.h"
 #include "skin/MaterialColorFlags.h"
@@ -30,6 +26,16 @@
 #include "skin/Patch.h"
 #include "skin/PatchSet.h"
 #include "skin/Vertex.h"
+
+#include "io/wrapper/PersistenceElement.h"
+
+#include "io/context/ColorContext.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformStackContext.h"
+
+#include "io/bin/BinaryModelReader.h"
 
 const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',

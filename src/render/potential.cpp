@@ -3,13 +3,14 @@ Routines dealing with view potential
 */
 
 #include "java/lang/System.h"
-
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
 #include "common/Statistics.h"
+
 #include "render/canvas.h"
-#include "render/softids.h"
 #include "render/potential.h"
+#include "render/softids.h"
 
 /**
 In analogy with [SMIT1992] Smits, "Importance-driven Radiosity", SIGGRAPH '92, we

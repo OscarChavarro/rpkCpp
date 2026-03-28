@@ -1,9 +1,13 @@
-#include "common/RenderOptions.h"
 #include <cstdlib>
 #include <cstring>
+
 #include "common/error.h"
+#include "common/RenderOptions.h"
+
 #include "scene/ConstantColorBackground.h"
+
 #include "tonemap/ToneMap.h"
+
 #include "GALERKIN/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED

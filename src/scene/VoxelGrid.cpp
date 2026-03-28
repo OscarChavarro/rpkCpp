@@ -5,11 +5,14 @@ Ray-grid intersection: [SNYD1987] Snyder & Barr, SIGGRAPH '87, p123, with severa
 optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 */
 
-#include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
+
 #include "common/error.h"
-#include "scene/VoxelGrid.h"
+
 #include "skin/MinMaxBox.h"
+
+#include "scene/VoxelGrid.h"
 
 static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
 static constexpr float DELTA_BOUND_FACTOR = 1e-4f;

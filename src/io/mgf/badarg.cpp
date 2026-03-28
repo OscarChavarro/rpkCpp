@@ -1,5 +1,7 @@
 #include "java/lang/Character.h"
+
 #include "io/context/WordsContext.h"
+
 #include "io/mgf/badarg.h"
 
 /**

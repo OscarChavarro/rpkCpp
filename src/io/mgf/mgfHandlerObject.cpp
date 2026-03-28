@@ -5,13 +5,16 @@ Hierarchical object names tracking
 #include <cstring>
 
 #include "java/lang/System.h"
-
 #include "java/util/ArrayList.txx"
+
 #include "common/CppReAlloc.h"
-#include "io/context/WordsContext.h"
-#include "io/mgf/mgfHandlerObject.h"
-#include "io/mgf/mgfDefinitions.h"
+
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
+
+#include "io/context/WordsContext.h"
+
+#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/mgfHandlerObject.h"
 
 static char **globalObjectNamesList; // Name list (names in hierarchy)
 static int globalObjectMaxName; // Allocated list size

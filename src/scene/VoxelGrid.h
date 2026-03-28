@@ -2,7 +2,9 @@
 #define __VOXEL_GRID__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Geometry.h"
+
 #include "scene/VoxelData.h"
 
 class MinMaxBox;

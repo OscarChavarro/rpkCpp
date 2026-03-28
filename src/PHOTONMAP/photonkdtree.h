@@ -6,6 +6,7 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 #define __PHOTON_K_D_TREE__
 
 #include "common/dataStructures/KDTree.h"
+
 #include "PHOTONMAP/photon.h"
 
 class PhotonKDTree final : public KDTree {

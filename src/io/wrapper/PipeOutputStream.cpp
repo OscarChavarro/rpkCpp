@@ -1,6 +1,6 @@
-#include "io/wrapper/PipeOutputStream.h"
-
 #include <cstdio>
+
+#include "io/wrapper/PipeOutputStream.h"
 
 namespace {
 static FILE *

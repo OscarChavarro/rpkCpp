@@ -1,12 +1,16 @@
-#include "common/RenderOptions.h"
 #include <cstring>
 
 #include "java/lang/System.h"
+
 #include "common/error.h"
+#include "common/RenderOptions.h"
 #include "common/Statistics.h"
-#include "render/opengl.h"
-#include "io/wrapper/FileUncompressWrapper.h"
+
 #include "tonemap/ToneMap.h"
+
+#include "io/wrapper/FileUncompressWrapper.h"
+
+#include "render/opengl.h"
 #include "render/ScreenBuffer.h"
 
 /**

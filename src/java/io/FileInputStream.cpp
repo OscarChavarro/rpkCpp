@@ -1,6 +1,6 @@
-#include "java/io/FileInputStream.h"
-
 #include <cstdio>
+
+#include "java/io/FileInputStream.h"
 
 namespace java {
 namespace io {

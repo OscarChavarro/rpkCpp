@@ -1,4 +1,5 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
+
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/xxdf.h"
 

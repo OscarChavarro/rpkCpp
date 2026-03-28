@@ -1,4 +1,5 @@
 #include "common/error.h"
+
 #include "numericalAnalysis/QuadCubatureRule.h"
 
 /**

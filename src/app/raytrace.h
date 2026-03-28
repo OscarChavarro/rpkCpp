@@ -1,10 +1,13 @@
 #ifndef __RAYTRACE__
 #define __RAYTRACE__
 
-#include "java/util/ArrayList.h"
 #include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
+
 #include "common/RenderOptions.h"
+
 #include "scene/Scene.h"
+
 #include "raycasting/common/Raytracer.h"
 
 #ifdef RAYTRACING_ENABLED

@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "java/lang/Math.h"
+
 #include "material/Texture.h"
 
 Texture::Texture():

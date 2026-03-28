@@ -1,8 +1,8 @@
 #ifndef __MATERIAL__
 #define __MATERIAL__
 
-#include "material/PhongEmittanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
+#include "material/PhongEmittanceDistributionFunction.h"
 
 class Material {
   private:

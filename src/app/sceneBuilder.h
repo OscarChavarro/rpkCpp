@@ -1,8 +1,9 @@
 #ifndef __SCENE_BUILDER__
 #define __SCENE_BUILDER__
 
-#include "io/context/BaseContext.h"
 #include "scene/Scene.h"
+
+#include "io/context/BaseContext.h"
 
 extern void
 sceneBuilderCreateModel(

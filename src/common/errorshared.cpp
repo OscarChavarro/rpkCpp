@@ -1,7 +1,8 @@
 #include <cstdlib>
 
-#include "java/util/Formatter.h"
 #include "java/lang/System.h"
+#include "java/util/Formatter.h"
+
 #include "common/error.h"
 
 namespace {

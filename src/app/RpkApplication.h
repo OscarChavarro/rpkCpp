@@ -1,9 +1,11 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "io/context/BaseContext.h"
-#include "raycasting/common/Raytracer.h"
 #include "scene/Scene.h"
+
+#include "io/context/BaseContext.h"
+
+#include "raycasting/common/Raytracer.h"
 
 class RpkApplication {
   private:

@@ -1,10 +1,10 @@
-#include "common/RenderOptions.h"
-#include <cstdarg>
-
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
+#include "common/RenderOptions.h"
 #include "common/Statistics.h"
+
 #include "skin/Patch.h"
 
 static constexpr double TOLERANCE = 1e-5;
@@ -719,32 +719,57 @@ Patch::computeBoundingBox() {
     }
 }
 
-/**
-Specify up to MAX_EXCLUDED_PATCHES patches not to test for intersections with.
-Used to avoid self intersections when raytracing. First argument is number of
-patches to include. next arguments are pointers to the patches to exclude.
-Call with first parameter == 0 to clear the list
-*/
 void
-Patch::dontIntersect(int n, ...) {
-    va_list ap;
-    int i;
-
-    if ( n > MAX_EXCLUDED_PATCHES ) {
-        logFatal(-1, "dontIntersect", "Too many patches to exclude from intersection tests (maximum is %d)",
-                 MAX_EXCLUDED_PATCHES);
+Patch::dontIntersectBase(
+    int n,
+    Patch *p0,
+    Patch *p1,
+    Patch *p2,
+    Patch *p3)
+{
+    if ( n < 0 || n > MAX_EXCLUDED_PATCHES ) {
+        logFatal(
+            -1,
+            "Patch::dontIntersectBase",
+            "Invalid number of excluded patches %d (maximum is %d)",
+            n,
+            MAX_EXCLUDED_PATCHES);
         return;
     }
 
-    va_start(ap, n);
-    for ( i = 0; i < n; i++ ) {
-        globalExcludedPatches[i] = va_arg(ap, Patch *);
+    Patch *localPatches[MAX_EXCLUDED_PATCHES] = {p0, p1, p2, p3};
+    int i = 0;
+    for ( ; i < n; i++ ) {
+        globalExcludedPatches[i] = localPatches[i];
     }
-    va_end(ap);
+    for ( ; i < MAX_EXCLUDED_PATCHES; i++ ) {
+        globalExcludedPatches[i] = nullptr;
+    }
+}
 
-    while ( i < MAX_EXCLUDED_PATCHES ) {
-        globalExcludedPatches[i++] = nullptr;
-    }
+void
+Patch::dontIntersect0() {
+    dontIntersectBase(0, nullptr, nullptr, nullptr, nullptr);
+}
+
+void
+Patch::dontIntersect1(Patch *p0) {
+    dontIntersectBase(1, p0, nullptr, nullptr, nullptr);
+}
+
+void
+Patch::dontIntersect2(Patch *p0, Patch *p1) {
+    dontIntersectBase(2, p0, p1, nullptr, nullptr);
+}
+
+void
+Patch::dontIntersect3(Patch *p0, Patch *p1, Patch *p2) {
+    dontIntersectBase(3, p0, p1, p2, nullptr);
+}
+
+void
+Patch::dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3) {
+    dontIntersectBase(4, p0, p1, p2, p3);
 }
 
 /**

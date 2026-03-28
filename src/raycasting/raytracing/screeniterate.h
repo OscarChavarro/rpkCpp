@@ -9,6 +9,7 @@ Several functions are provided for different iterating schemes
 #define __SCREEN_ITERATE__
 
 #include "common/ColorRgb.h"
+
 #include "scene/Background.h"
 
 typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Camera *, VoxelGrid *, Background *, int, int, void *);

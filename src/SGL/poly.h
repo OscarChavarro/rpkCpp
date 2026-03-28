@@ -5,8 +5,8 @@ Definitions for polygon package
 #ifndef __POLY_HDR__
 #define __POLY_HDR__
 
-#include "SGL/sgl.h"
 #include "SGL/PolygonConstants.h"
+#include "SGL/sgl.h"
 
 class PolygonVertex {
   public:

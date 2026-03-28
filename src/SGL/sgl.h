@@ -6,9 +6,11 @@ Small Graphics Library
 #define __SGL__
 
 #include "common/linealAlgebra/Matrix4x4.h"
+
 #include "skin/Patch.h"
-#include "SGL/SglPixelContent.h"
+
 #include "SGL/SglConstants.h"
+#include "SGL/SglPixelContent.h"
 
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;

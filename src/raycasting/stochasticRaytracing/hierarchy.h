@@ -6,10 +6,10 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 #define __ELEMENT_HIERARCHY__
 
 #include "java/util/ArrayList.h"
+
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
-/* a link contains a pointer to the receiver and source elements */
 class LINK {
   public:
     StochasticRadiosityElement *rcv;

@@ -1,8 +1,10 @@
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
-#include "GALERKIN/Shaft.h"
+
 #include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/LinkingSimpleStrategy.h"
+#include "GALERKIN/Shaft.h"
 
 void
 LinkingSimpleStrategy::createInitialLink(

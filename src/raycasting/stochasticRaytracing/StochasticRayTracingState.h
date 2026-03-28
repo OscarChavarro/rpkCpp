@@ -6,9 +6,10 @@ Options and global state vars for stochastic raytracing
 #define __STOCHASTIC_RAYTRACER_OPTIONS__
 
 #include "render/ScreenBuffer.h"
-#include "raycasting/stochasticRaytracing/RayTracingSamplingMode.h"
+
 #include "raycasting/stochasticRaytracing/RayTracingLightMode.h"
 #include "raycasting/stochasticRaytracing/RayTracingRadMode.h"
+#include "raycasting/stochasticRaytracing/RayTracingSamplingMode.h"
 
 class StochasticRayTracingState {
   public:

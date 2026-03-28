@@ -8,14 +8,16 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
+
+#include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
+#include "GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h"
 #include "GALERKIN/processing/visitors/MaximumRadianceVisitor.h"
+#include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
 #include "GALERKIN/processing/visitors/PowerAccumulatorVisitor.h"
 #include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
-#include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
-#include "GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h"
-#include "GALERKIN/processing/ScratchVisibilityStrategy.h"
-#include "GALERKIN/processing/ClusterTraversalStrategy.h"
 
 /**
 Executes func for every surface element in the cluster

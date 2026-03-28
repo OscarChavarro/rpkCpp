@@ -1,11 +1,14 @@
 #ifndef __PATCH__
 #define __PATCH__
 
-#include "common/RenderOptions.h"
-#include "common/linealAlgebra/Ray.h"
-#include "material/Material.h"
-#include "skin/BoundingBox.h"
 #include "common/linealAlgebra/Jacobian.h"
+#include "common/linealAlgebra/Ray.h"
+
+#include "common/RenderOptions.h"
+
+#include "material/Material.h"
+
+#include "skin/BoundingBox.h"
 #include "skin/Vertex.h"
 
 enum {
@@ -39,6 +42,13 @@ class Patch {
     // order to make a unique Patch id
     static int globalPatchId;
     static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES];
+    static void
+    dontIntersectBase(
+        int n,
+        Patch *p0,
+        Patch *p1,
+        Patch *p2,
+        Patch *p3);
 
     unsigned char flags; // Other flags
 
@@ -86,7 +96,11 @@ class Patch {
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
     Material *material;
 
-    static void dontIntersect(int n, ...);
+    static void dontIntersect0();
+    static void dontIntersect1(Patch *p0);
+    static void dontIntersect2(Patch *p0, Patch *p1);
+    static void dontIntersect3(Patch *p0, Patch *p1, Patch *p2);
+    static void dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3);
     static int getNextId();
     static void setNextId(int id);
 

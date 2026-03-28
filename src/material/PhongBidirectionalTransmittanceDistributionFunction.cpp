@@ -1,10 +1,13 @@
-#include "common/RenderOptions.h"
 #include "java/lang/Float.h"
-#include "common/error.h"
+
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "material/xxdf.h"
+
+#include "common/error.h"
+#include "common/RenderOptions.h"
+
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
+#include "material/xxdf.h"
 
 /**
 All components of the Btdf

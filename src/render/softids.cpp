@@ -6,10 +6,12 @@ formats, etc.
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+
+#include "tonemap/ToneMap.h"
+
 #include "render/opengl.h"
 #include "render/render.h"
 #include "render/softids.h"
-#include "tonemap/ToneMap.h"
 
 /**
 Sets up a software rendering context and initialises transforms and

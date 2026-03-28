@@ -6,6 +6,7 @@ Stores eyePath and lightPath, lengths and end nodes
 #define __BI_PATH__
 
 #include "raycasting/common/pathnode.h"
+
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 
 class CBiPath {

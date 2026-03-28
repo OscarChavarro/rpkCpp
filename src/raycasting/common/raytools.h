@@ -6,10 +6,14 @@ Some utility routines for ray intersections and for statistics
 #define __RAY_TOOLS__
 
 #include "common/linealAlgebra/Ray.h"
+
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
+
 #include "skin/Patch.h"
+
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
+
 #include "raycasting/common/pathnode.h"
 
 extern RayHit *

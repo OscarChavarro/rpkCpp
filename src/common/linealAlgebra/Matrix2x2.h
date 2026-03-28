@@ -1,8 +1,9 @@
 #ifndef __MATRIX_2x2__
 #define __MATRIX_2x2__
 
-#include "common/linealAlgebra/Vector2D.h"
 #include "java/io/PrintStream.h"
+
+#include "common/linealAlgebra/Vector2D.h"
 
 /**
 |u'|   |m[0][0]  m[0][1]|   | u |   |t[0]|

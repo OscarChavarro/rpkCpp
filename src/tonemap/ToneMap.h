@@ -3,6 +3,7 @@
 
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.h"
+
 #include "tonemap/ToneMappingContext.h"
 
 /**

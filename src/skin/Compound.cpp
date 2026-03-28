@@ -1,6 +1,8 @@
-#include "skin/Compound.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/Statistics.h"
+
+#include "skin/Compound.h"
 
 /**
 Creates a Compound from a list of geometries

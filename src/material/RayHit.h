@@ -6,10 +6,12 @@ used as a parameter for BSDF/EDF queries
 #ifndef __RAY_HIT__
 #define __RAY_HIT__
 
-#include "common/RenderOptions.h"
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/linealAlgebra/CoordinateSystem.h"
+
+#include "common/RenderOptions.h"
+
 #include "material/RayHitFlag.h"
 
 class Patch; // TODO: this is coupling RayHit with skin level classes :(

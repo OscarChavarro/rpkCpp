@@ -6,12 +6,15 @@ All kind of form factor computations
 #define __FORM_FACTOR_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "scene/VoxelGrid.h"
+
 #include "skin/Geometry.h"
-#include "GALERKIN/ShadowCache.h"
+
+#include "scene/VoxelGrid.h"
+
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/Interaction.h"
 #include "GALERKIN/GalerkinRole.h"
+#include "GALERKIN/Interaction.h"
+#include "GALERKIN/ShadowCache.h"
 
 class FormFactorStrategy {
   private:

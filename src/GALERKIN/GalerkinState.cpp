@@ -1,8 +1,8 @@
-#include "numericalAnalysis/TriangleCubatureRule.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/TriangleCubatureRule.h"
+
 #include "GALERKIN/GalerkinState.h"
 
-// -gr-hierarchical -gr-no-hierarchical option
 static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;
 
 // -gr-iteration-method option

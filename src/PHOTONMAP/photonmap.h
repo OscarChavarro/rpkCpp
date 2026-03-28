@@ -1,14 +1,18 @@
 #ifndef __PHOTON_MAP__
 #define __PHOTON_MAP__
 
-#include "common/ColorRgb.h"
 #include "java/io/PrintStream.h"
-#include "material/PhongBidirectionalScatteringDistributionFunction.h"
+
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "PHOTONMAP/photonkdtree.h"
+
+#include "common/ColorRgb.h"
+
+#include "material/PhongBidirectionalScatteringDistributionFunction.h"
+
 #include "PHOTONMAP/photon.h"
-#include "PHOTONMAP/samplegrid.h"
+#include "PHOTONMAP/photonkdtree.h"
 #include "PHOTONMAP/pmapoptions.h"
+#include "PHOTONMAP/samplegrid.h"
 
 bool zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
 

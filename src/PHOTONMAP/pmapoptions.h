@@ -2,10 +2,11 @@
 #define __PHOTON_MAP_OPTIONS__
 
 #include "render/ScreenBuffer.h"
-#include "PHOTONMAP/RadiosityReturnOption.h"
+
+#include "PHOTONMAP/PhotonMapDCAcceptPDFType.h"
 #include "PHOTONMAP/PhotonMapDensityControlOption.h"
 #include "PHOTONMAP/PhotonMapImportanceOption.h"
-#include "PHOTONMAP/PhotonMapDCAcceptPDFType.h"
+#include "PHOTONMAP/RadiosityReturnOption.h"
 
 const int MAXIMUM_RECON_PHOTONS = 400;
 

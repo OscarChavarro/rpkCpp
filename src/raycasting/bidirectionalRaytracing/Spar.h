@@ -6,8 +6,11 @@ Specification of the Stored Partial Radiance class
 #define __SPAR__
 
 #include "common/ColorRgb.h"
+
 #include "scene/RadianceMethod.h"
+
 #include "raycasting/common/pathnode.h"
+
 #include "raycasting/bidirectionalRaytracing/bipath.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 #include "raycasting/bidirectionalRaytracing/SparPathGroup.h"

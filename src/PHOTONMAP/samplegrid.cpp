@@ -1,6 +1,7 @@
 #include "common/linealAlgebra/Numeric.h"
-#include "PHOTONMAP/samplegrid.h"
+
 #include "PHOTONMAP/discretesampling.h"
+#include "PHOTONMAP/samplegrid.h"
 
 CSampleGrid2D::CSampleGrid2D(int xSectionsParam, int ySectionsParam): totalSum() {
     xSections = xSectionsParam;

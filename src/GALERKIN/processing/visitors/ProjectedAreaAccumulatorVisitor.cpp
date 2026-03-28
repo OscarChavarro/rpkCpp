@@ -1,5 +1,5 @@
-#include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
 
 ProjectedAreaAccumulatorVisitor::ProjectedAreaAccumulatorVisitor() {
     totalProjectedArea = 0.0;

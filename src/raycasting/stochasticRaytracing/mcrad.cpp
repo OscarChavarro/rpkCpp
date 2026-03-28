@@ -1,10 +1,11 @@
 /**
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
-#include "common/RenderOptions.h"
-#include "raycasting/stochasticRaytracing/mcrad.h"
-
 #include "java/lang/System.h"
+
+#include "common/RenderOptions.h"
+
+#include "raycasting/stochasticRaytracing/mcrad.h"
 
 #ifdef RAYTRACING_ENABLED
 

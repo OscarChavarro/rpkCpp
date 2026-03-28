@@ -1,9 +1,12 @@
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
-#include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/ShadowCache.h"
-#include "GALERKIN/processing/FormFactorClusteredStrategy.h"
+
 #include "skin/MinMaxBox.h"
+
+#include "GALERKIN/GalerkinElement.h"
+#include "GALERKIN/processing/FormFactorClusteredStrategy.h"
+#include "GALERKIN/ShadowCache.h"
 
 /**
 Like above, but with a constant approximation on both the receiver and source

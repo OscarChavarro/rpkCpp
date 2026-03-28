@@ -7,13 +7,14 @@ functions that relate to brdf or btdf like reflectance etc.
 #ifndef __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
-#include "common/RenderOptions.h"
 #include "common/ColorRgb.h"
-#include "material/RayHit.h"
-#include "material/xxdf.h"
-#include "material/Texture.h"
+#include "common/RenderOptions.h"
+
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
+#include "material/RayHit.h"
+#include "material/Texture.h"
+#include "material/xxdf.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "material/SplitBSDFSamplingMode.h"

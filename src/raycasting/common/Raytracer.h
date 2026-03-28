@@ -1,12 +1,15 @@
 #ifndef __RAYTRACER__
 #define __RAYTRACER__
 
+#include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
+
 #include "skin/Patch.h"
+
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
+
 #include "io/image/ImageOutputHandle.h"
-#include "java/io/OutputStream.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four

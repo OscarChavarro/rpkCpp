@@ -2,9 +2,11 @@
 #define __GLUT__
 
 #include "java/util/ArrayList.h"
-#include "io/context/BaseContext.h"
+
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
+
+#include "io/context/BaseContext.h"
 
 class GlutDebugState {
   public:

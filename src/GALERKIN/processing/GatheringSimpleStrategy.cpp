@@ -1,11 +1,14 @@
 #include "java/util/ArrayList.txx"
-#include "render/potential.h"
+
 #include "common/Statistics.h"
-#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
-#include "GALERKIN/GalerkinRadianceMethod.h"
+
+#include "render/potential.h"
+
 #include "GALERKIN/basisgalerkin.h"
-#include "GALERKIN/processing/LinkingSimpleStrategy.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/GatheringSimpleStrategy.h"
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
+#include "GALERKIN/processing/LinkingSimpleStrategy.h"
 
 /**
 Lazy linking: delay creating the initial links for a patch until it has

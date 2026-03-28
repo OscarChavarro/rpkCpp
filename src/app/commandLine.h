@@ -2,6 +2,7 @@
 #define __COMMAND_LINE_OPTIONS__
 
 #include "raycasting/common/Raytracer.h"
+
 #include "app/BatchOptions.h"
 
 extern ColorRgb commandLineDefaultBackgroundColor();

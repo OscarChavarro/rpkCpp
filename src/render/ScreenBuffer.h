@@ -1,12 +1,16 @@
 #ifndef __SCREEN_BUFFER__
 #define __SCREEN_BUFFER__
 
-#include "common/RenderOptions.h"
-#include "common/linealAlgebra/Vector2D.h"
-#include "io/image/ImageOutputHandle.h"
 #include "java/io/OutputStream.h"
+
+#include "common/linealAlgebra/Vector2D.h"
+
 #include "common/ColorRgb.h"
+#include "common/RenderOptions.h"
+
 #include "scene/Camera.h"
+
+#include "io/image/ImageOutputHandle.h"
 
 /**
 Class for storing pixel radiance/fluxes

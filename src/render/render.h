@@ -2,9 +2,12 @@
 #define __RENDER__
 
 #include "java/util/ArrayList.h"
+
 #include "common/RenderOptions.h"
+
 #include "skin/BoundingBox.h"
 #include "skin/Geometry.h"
+
 #include "scene/Camera.h"
 
 extern void renderBoundingBox(BoundingBox boundingBox);

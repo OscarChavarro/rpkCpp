@@ -1,8 +1,9 @@
 #ifndef __PHONG_BIDIRECTIONAL_REFLECTANCE_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_REFLECTANCE_DISTRIBUTION_FUNCTION__
 
-#include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
+
+#include "common/ColorRgb.h"
 
 /**
 BRDF evaluation functions :

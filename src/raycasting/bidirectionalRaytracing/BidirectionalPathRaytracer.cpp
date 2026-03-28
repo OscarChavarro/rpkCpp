@@ -1,12 +1,12 @@
-#include "common/RenderOptions.h"
-#include <cstdio>
 #include "java/util/Formatter.h"
 
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 
 #include <cstdlib>
 #include <cstring>
+
 #include "java/lang/System.h"
 
 #include "common/stratification.h"

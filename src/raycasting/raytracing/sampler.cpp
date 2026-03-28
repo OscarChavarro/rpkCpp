@@ -1,5 +1,7 @@
 #include "common/RenderOptions.h"
+
 #include "raycasting/common/raytools.h"
+
 #include "raycasting/raytracing/sampler.h"
 
 #ifdef RAYTRACING_ENABLED

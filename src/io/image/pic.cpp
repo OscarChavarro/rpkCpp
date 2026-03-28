@@ -1,10 +1,11 @@
+#include "java/io/FileOutputStream.h"
+#include "java/lang/System.h"
 #include "java/util/Formatter.h"
+
+#include "io/wrapper/PersistenceElement.h"
 
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
-#include "io/wrapper/PersistenceElement.h"
-#include "java/io/FileOutputStream.h"
-#include "java/lang/System.h"
 
 namespace {
 

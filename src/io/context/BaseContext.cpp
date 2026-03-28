@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+
 #include "io/context/BaseContext.h"
 #include "io/context/PersistedSceneModel.h"
 

@@ -1,7 +1,8 @@
 #include "common/error.h"
-#include "material/xxdf.h"
-#include "material/PhongEmittanceDistributionFunction.h"
+
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
+#include "material/PhongEmittanceDistributionFunction.h"
+#include "material/xxdf.h"
 
 bool
 PhongEmittanceDistributionFunction::isSpecular() const {

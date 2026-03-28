@@ -1,5 +1,6 @@
 #include "common/error.h"
 #include "common/Statistics.h"
+
 #include "tonemap/LightnessToneMap.h"
 
 LightnessToneMap::LightnessToneMap() {

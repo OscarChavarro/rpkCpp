@@ -2,8 +2,11 @@
 #define __BATCH__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Patch.h"
+
 #include "scene/Scene.h"
+
 #include "app/BatchOptions.h"
 
 class RayTracer;

@@ -2,6 +2,7 @@
 #define __MGF_HANDLER_MATERIAL__
 
 #include "material/Material.h"
+
 #include "io/context/BaseContext.h"
 
 extern int handleMaterialEntity(int ac, const char **av, BaseContext * /*context*/);

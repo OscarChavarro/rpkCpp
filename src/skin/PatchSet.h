@@ -2,6 +2,7 @@
 #define __PATCH_LIST__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Geometry.h"
 
 class PatchSet final : public Geometry {

@@ -6,10 +6,13 @@ Photon map configuration structure, used during construction
 #define __PHOTON_MAP_CONFIG__
 
 #include "render/ScreenBuffer.h"
-#include "raycasting/bidirectionalRaytracing/bipath.h"
+
 #include "raycasting/raytracing/samplertools.h"
-#include "PHOTONMAP/photonmap.h"
+
+#include "raycasting/bidirectionalRaytracing/bipath.h"
+
 #include "PHOTONMAP/importancemap.h"
+#include "PHOTONMAP/photonmap.h"
 
 class PhotonMapConfig {
   public:

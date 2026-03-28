@@ -3,9 +3,11 @@
 
 
 #include "java/util/ArrayList.h"
+
 #include "scene/Scene.h"
-#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+
 #include "raycasting/stochasticRaytracing/coefficientsmcrad.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 inline int
 numberOfVertices(const StochasticRadiosityElement *elem) {

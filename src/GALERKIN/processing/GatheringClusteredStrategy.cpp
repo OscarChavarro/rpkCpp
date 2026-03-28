@@ -1,10 +1,12 @@
 #include "java/util/ArrayList.txx"
+
 #include "render/potential.h"
-#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
+
 #include "GALERKIN/basisgalerkin.h"
 #include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/processing/LinkingClusteredStrategy.h"
 #include "GALERKIN/processing/GatheringClusteredStrategy.h"
+#include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
+#include "GALERKIN/processing/LinkingClusteredStrategy.h"
 
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
 }

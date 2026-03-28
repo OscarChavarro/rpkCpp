@@ -36,7 +36,7 @@ lookUpShuffleHash(const char *text) {
     long hash = 0;
     const unsigned char *bytes = reinterpret_cast<const unsigned char *>(text);
 
-    for ( std::size_t i = 0; bytes[i] != '\0'; i++ ) {
+    for ( int i = 0; bytes[i] != '\0'; i++ ) {
         hash ^= static_cast<long>(globalShuffle[bytes[i]]) << ((bitShift += 11) & 0xf);
     }
 

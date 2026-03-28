@@ -2,7 +2,10 @@
 #define __COEFFICIENTS__
 
 #include "common/ColorRgb.h"
+
 #include "raycasting/stochasticRaytracing/basismcrad.h"
+
+class StochasticRadiosityElement;
 
 inline void
 stochasticRadiosityClearCoefficients(ColorRgb *c, const GalerkinBasis *galerkinBasis) {

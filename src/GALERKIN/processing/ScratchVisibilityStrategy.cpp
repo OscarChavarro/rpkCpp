@@ -3,10 +3,11 @@ Scratch renderer routines. Used for handling intra-cluster visibility
 with a Z-buffer visibility algorithm in software
 */
 
+#include "scene/Camera.h"
+
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/visitors/ScratchRendererVisitor.h"
-#include "scene/Camera.h"
 
 /**
 Src is a toplevel surface element. Render the corresponding patch

@@ -1,5 +1,5 @@
-#include "GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.h"
 
 DepthVisibilityGathererVisitor::DepthVisibilityGathererVisitor(
     Interaction *inLink,

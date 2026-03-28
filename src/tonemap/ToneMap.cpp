@@ -1,7 +1,9 @@
-#include "tonemap/ToneMap.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/linealAlgebra/Numeric.h"
+
 #include "tonemap/IdentityToneMap.h"
+#include "tonemap/ToneMap.h"
 
 ToneMap::ToneMap() {
 }

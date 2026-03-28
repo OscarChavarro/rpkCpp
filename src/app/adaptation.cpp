@@ -4,12 +4,16 @@ Estimate static adaptation for tone mapping
 
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "numericalAnalysis/PatchVisitor.h"
+
 #include "tonemap/ToneMap.h"
-#include "app/LuminanceArea.h"
+
+#include "numericalAnalysis/PatchVisitor.h"
+
 #include "app/adaptation.h"
+#include "app/LuminanceArea.h"
 
 static int globalNumEntries;
 static double globalLogAreaLum;

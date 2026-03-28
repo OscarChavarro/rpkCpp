@@ -3,7 +3,6 @@
 
 #include "skin/Patch.h"
 
-// Cache blocking patches
 constexpr int MAX_CACHE = 5;
 
 class ShadowCache {

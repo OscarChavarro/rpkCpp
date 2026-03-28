@@ -1,8 +1,7 @@
-#include "java/lang/System.h"
-
 #include <chrono>
 
 #include "java/io/FileOutputStream.h"
+#include "java/lang/System.h"
 
 namespace java {
 namespace lang {

@@ -1,10 +1,9 @@
-#include "java/util/Formatter.h"
-
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
 
 #include "java/io/OutputStream.h"
+#include "java/util/Formatter.h"
 
 namespace java {
 namespace util {

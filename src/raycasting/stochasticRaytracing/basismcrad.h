@@ -6,10 +6,10 @@ Higher order approximations for Galerkin radiosity
 #define __BASIS__
 
 #include "common/ColorRgb.h"
+
 #include "raycasting/stochasticRaytracing/mcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElementType.h"
 
-// No basis consists of more than this number of basis functions
 constexpr int MAX_BASIS_SIZE = 10;
 
 typedef double FILTER[MAX_BASIS_SIZE][MAX_BASIS_SIZE];

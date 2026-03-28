@@ -1,17 +1,19 @@
-#include "io/mgf/mgfHandlerGeometry.h"
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "common/error.h"
-#include "io/context/LookUpEntity.h"
-#include "io/mgf/mgfHandlerTransform.h"
-#include "io/mgf/mgfHandlerObject.h"
-#include "io/context/WordsContext.h"
-#include "io/mgf/mgfGeometry.h"
-#include "io/mgf/mgfHandlerMaterial.h"
-#include "io/mgf/mgfDefinitions.h"
 
-// No face can have more than this vertices
+#include "common/error.h"
+
+#include "io/context/LookUpEntity.h"
+#include "io/context/WordsContext.h"
+
+#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/mgfGeometry.h"
+#include "io/mgf/mgfHandlerGeometry.h"
+#include "io/mgf/mgfHandlerMaterial.h"
+#include "io/mgf/mgfHandlerObject.h"
+#include "io/mgf/mgfHandlerTransform.h"
+
 static constexpr int MAXIMUM_FACE_VERTICES = 100;
 
 static long

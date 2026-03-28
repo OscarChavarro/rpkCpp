@@ -6,7 +6,9 @@ Density estimation on screen
 #define __DENSITY_BUFFER__
 
 #include "common/ColorRgb.h"
+
 #include "render/ScreenBuffer.h"
+
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/DensityHitList.h"
 

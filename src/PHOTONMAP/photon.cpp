@@ -1,5 +1,6 @@
-#include "PHOTONMAP/photon.h"
 #include "common/error.h"
+
+#include "PHOTONMAP/photon.h"
 
 void
 CPhoton::findRS(

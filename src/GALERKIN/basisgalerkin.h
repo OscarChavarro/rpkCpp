@@ -8,7 +8,6 @@ Higher order approximations for Galerkin radiosity
 #include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinState.h"
 
-// No basis consists of more than this number of basis functions
 constexpr int MAX_BASIS_SIZE = 10;
 
 /**

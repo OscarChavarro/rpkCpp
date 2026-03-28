@@ -5,8 +5,9 @@ Interface for writing image data in different file formats
 #ifndef __IMAGE_OUTPUT_HANDLE__
 #define __IMAGE_OUTPUT_HANDLE__
 
-#include "common/ColorRgb.h"
 #include "java/io/OutputStream.h"
+
+#include "common/ColorRgb.h"
 
 class ImageOutputHandle {
   protected:

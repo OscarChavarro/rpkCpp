@@ -1,8 +1,8 @@
 #ifndef __RANDOM_WALK_RADIANCE_METHOD__
 #define __RANDOM_WALK_RADIANCE_METHOD__
 
-#include "scene/RadianceMethod.h"
 #include "scene/Camera.h"
+#include "scene/RadianceMethod.h"
 
 class RandomWalkRadianceMethod final : public RadianceMethod {
   public:

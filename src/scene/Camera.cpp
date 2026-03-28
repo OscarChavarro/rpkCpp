@@ -1,7 +1,10 @@
-#include "common/error.h"
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "scene/Camera.h"
+
+#include "common/error.h"
+
 #include "skin/BoundingBox.h"
+
+#include "scene/Camera.h"
 
 Camera::Camera(): background() {
     eyePosition = Vector3D{};

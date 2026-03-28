@@ -1,9 +1,8 @@
-#include "common/RenderOptions.h"
-#include "raycasting/stochasticRaytracing/basismcrad.h"
-#include <cstdio>
 #include "java/util/Formatter.h"
 
+#include "common/RenderOptions.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
+#include "raycasting/stochasticRaytracing/basismcrad.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -15,8 +14,8 @@
 
 GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
 GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
-        "dummy basis",
-        0, nullptr, nullptr, nullptr
+    "dummy basis",
+    0, nullptr, nullptr, nullptr
 };
 
 static int inited = false;

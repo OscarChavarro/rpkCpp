@@ -2,9 +2,11 @@
 #define __OPENGL__
 
 #include "common/RenderOptions.h"
+
 #include "skin/Patch.h"
-#include "scene/RadianceMethod.h"
+
 #include "scene/Camera.h"
+#include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 
 typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);

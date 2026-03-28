@@ -1,4 +1,5 @@
 #include "render/glutDebugTools.h"
+
 #include "app/GalerkinDebugRenderer.h"
 
 GlutDebugState GLOBAL_render_glutDebugState;

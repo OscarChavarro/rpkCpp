@@ -5,11 +5,13 @@
 #include <cstdlib>
 
 #include "common/error.h"
+
+#include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 #include "numericalAnalysis/quasiMonteCarlo/Halton.h"
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "numericalAnalysis/quasiMonteCarlo/ScrambledHalton.h"
 #include "numericalAnalysis/quasiMonteCarlo/Sobol.h"
-#include "numericalAnalysis/quasiMonteCarlo/Faure.h"
-#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
+
 #include "raycasting/stochasticRaytracing/sample4d.h"
 
 static Sampler4DSequence seq = Sampler4DSequence::RANDOM;

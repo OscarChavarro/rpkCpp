@@ -2,6 +2,7 @@
 #define __CLUSTER__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Geometry.h"
 
 class PatchClusterOctreeNode {

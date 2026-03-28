@@ -1,8 +1,8 @@
 #ifndef __PhongEmittanceDistributionFunctions__
 #define __PhongEmittanceDistributionFunctions__
 
-#include "material/RayHit.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
+#include "material/RayHit.h"
 
 /**
 Emittance Distribution Functions: the self-emitted radiance

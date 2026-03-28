@@ -1,4 +1,5 @@
 #include "java/util/ArrayList.txx"
+
 #include "GALERKIN/processing/GatheringStrategy.h"
 
 GatheringStrategy::GatheringStrategy() {

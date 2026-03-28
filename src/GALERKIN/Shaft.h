@@ -9,10 +9,12 @@ References:
 */
 
 #include "java/util/ArrayList.h"
+
 #include "scene/Polygon.h"
-#include "GALERKIN/ShaftPlanePosition.h"
-#include "GALERKIN/ShaftPlane.h"
+
 #include "GALERKIN/ShaftCullStrategy.h"
+#include "GALERKIN/ShaftPlane.h"
+#include "GALERKIN/ShaftPlanePosition.h"
 
 constexpr int MAX_SKIP_ELEMENTS = 2;
 

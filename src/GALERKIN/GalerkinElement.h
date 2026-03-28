@@ -5,9 +5,11 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #ifndef __GALERKIN_ELEMENT__
 #define __GALERKIN_ELEMENT__
 
-#include "java/util/ArrayList.h"
 #include "java/lang/System.h"
+#include "java/util/ArrayList.h"
+
 #include "scene/Polygon.h"
+
 #include "GALERKIN/GalerkinElementRenderMode.h"
 #include "GALERKIN/Interaction.h"
 

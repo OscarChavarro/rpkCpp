@@ -1,8 +1,9 @@
 #ifndef __MGF_GEOMETRY__
 #define __MGF_GEOMETRY__
 
-#include "io/mgf/MgfVertexContext.h"
 #include "io/context/BaseContext.h"
+
+#include "io/mgf/MgfVertexContext.h"
 
 extern int mgfEntitySphere(int ac, const char **av, BaseContext *context);
 extern int mgfEntityTorus(int ac, const char **av, BaseContext *context);

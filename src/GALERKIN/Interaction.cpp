@@ -1,4 +1,5 @@
 #include "common/error.h"
+
 #include "GALERKIN/Interaction.h"
 
 int Interaction::totalInteractions = 0;

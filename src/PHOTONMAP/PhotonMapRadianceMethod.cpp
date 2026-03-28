@@ -1,5 +1,6 @@
-#include "common/RenderOptions.h"
 #include "java/util/Formatter.h"
+
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 

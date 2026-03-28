@@ -8,22 +8,28 @@ Galerkin radiosity, with the following variants:
 
 #include <cstring>
 
-#include "java/util/Formatter.h"
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
+
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "io/wrapper/PersistenceElement.h"
-#include "io/wrl/VrmlWriter.h"
-#include "render/opengl.h"
-#include "render/glutDebugTools.h"
+
 #include "tonemap/ToneMap.h"
+
+#include "io/wrapper/PersistenceElement.h"
+
+#include "io/wrl/VrmlWriter.h"
+
+#include "render/glutDebugTools.h"
+#include "render/opengl.h"
+
 #include "GALERKIN/basisgalerkin.h"
+#include "GALERKIN/GalerkinRadianceMethod.h"
+#include "GALERKIN/processing/ClusterCreationStrategy.h"
+#include "GALERKIN/processing/GatheringClusteredStrategy.h"
+#include "GALERKIN/processing/GatheringSimpleStrategy.h"
 #include "GALERKIN/processing/ScratchVisibilityStrategy.h"
 #include "GALERKIN/processing/ShootingStrategy.h"
-#include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/processing/GatheringSimpleStrategy.h"
-#include "GALERKIN/processing/GatheringClusteredStrategy.h"
-#include "GALERKIN/processing/ClusterCreationStrategy.h"
 
 static constexpr int STRING_LENGTH = 2000;
 

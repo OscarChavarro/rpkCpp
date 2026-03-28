@@ -2,6 +2,7 @@
 #define _SOFT_IDS_WRAPPER__
 
 #include "java/util/ArrayList.h"
+
 #include "render/softids.h"
 
 class SoftIdsWrapper {

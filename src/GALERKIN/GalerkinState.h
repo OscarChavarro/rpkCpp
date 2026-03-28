@@ -2,16 +2,20 @@
 #define __GALERKIN_STATE__
 
 #include "common/linealAlgebra/Vector3D.h"
+
 #include "common/ColorRgb.h"
+
 #include "numericalAnalysis/CubatureRule.h"
+
 #include "SGL/sgl.h"
-#include "GALERKIN/GalerkinElement.h"
-#include "GALERKIN/ShaftCullStrategy.h"
-#include "GALERKIN/GalerkinClusteringStrategy.h"
+
 #include "GALERKIN/GalerkinBasisType.h"
+#include "GALERKIN/GalerkinClusteringStrategy.h"
+#include "GALERKIN/GalerkinElement.h"
 #include "GALERKIN/GalerkinErrorNorm.h"
 #include "GALERKIN/GalerkinIterationMethod.h"
 #include "GALERKIN/GalerkinShaftCullMode.h"
+#include "GALERKIN/ShaftCullStrategy.h"
 
 class GalerkinState {
   public:

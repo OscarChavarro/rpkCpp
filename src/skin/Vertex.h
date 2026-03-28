@@ -2,8 +2,11 @@
 #define __VERTEX__
 
 #include "java/util/ArrayList.h"
+
 #include "common/linealAlgebra/Vector3D.h"
+
 #include "common/ColorRgb.h"
+
 #include "skin/VertexCompareFlags.h"
 
 class Element;

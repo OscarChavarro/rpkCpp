@@ -1,7 +1,8 @@
 #include "java/util/Formatter.h"
 
-#include "io/image/ppm.h"
 #include "io/wrapper/PersistenceElement.h"
+
+#include "io/image/ppm.h"
 
 PPMOutputHandle::PPMOutputHandle(java::io::OutputStream *_outputStream, int w, int h) {
     ImageOutputHandle::init("PPM", w, h);

@@ -2,10 +2,10 @@
 
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
-#include "io/mgf/mgfHandlerColor.h"
-#include "io/mgf/mgfDefinitions.h"
 
-// Color lookup table
+#include "io/mgf/mgfDefinitions.h"
+#include "io/mgf/mgfHandlerColor.h"
+
 static LookUpTable globalColorTable(LookUpBehaviors::owningCString());
 
 /**

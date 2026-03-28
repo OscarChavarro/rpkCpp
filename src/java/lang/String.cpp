@@ -1,6 +1,6 @@
-#include "java/lang/String.h"
-
 #include <cstring>
+
+#include "java/lang/String.h"
 
 namespace java {
 namespace lang {

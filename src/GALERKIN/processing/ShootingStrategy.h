@@ -2,7 +2,9 @@
 #define __SHOOTING__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Patch.h"
+
 #include "GALERKIN/GalerkinState.h"
 
 /**

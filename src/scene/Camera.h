@@ -2,7 +2,9 @@
 #define __CAMERA__
 
 #include "common/linealAlgebra/Vector3D.h"
+
 #include "common/ColorRgb.h"
+
 #include "scene/Plane.h"
 
 constexpr int NUMBER_OF_VIEW_PLANES = 4;

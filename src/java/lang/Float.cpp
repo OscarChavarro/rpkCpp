@@ -1,6 +1,6 @@
-#include "java/lang/Float.h"
-
 #include <cmath>
+
+#include "java/lang/Float.h"
 
 namespace java {
 

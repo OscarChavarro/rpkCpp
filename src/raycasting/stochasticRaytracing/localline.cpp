@@ -1,9 +1,9 @@
 /**
 Generate and trace a local line
 */
-#include "common/RenderOptions.h"
-
 #include "java/lang/System.h"
+
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -74,14 +74,14 @@ mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *h
     RayHit *hit;
 
     // Reject self-intersections
-    Patch::dontIntersect(2, P, P->twin);
+    Patch::dontIntersect2(P, P->twin);
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
         Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
         &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore);
-    Patch::dontIntersect(0);
+    Patch::dontIntersect0();
     someFeedback();
 
     return hit;

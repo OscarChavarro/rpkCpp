@@ -1,6 +1,5 @@
 #include "common/RenderOptions.h"
 
-
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 
@@ -29,7 +28,7 @@ traceWorld(
     }
 
     dist = Numeric::HUGE_FLOAT_VALUE;
-    Patch::dontIntersect(3, patch, patch ? patch->twin : nullptr, extraPatch);
+    Patch::dontIntersect3(patch, patch ? patch->twin : nullptr, extraPatch);
     result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore);
 
     if ( result ) {
@@ -37,7 +36,7 @@ traceWorld(
         CoordinateSystem frame = result->getShadingFrame();
         result->setShadingFrame(&frame);
     }
-    Patch::dontIntersect(0);
+    Patch::dontIntersect0();
 
     return result;
 }
@@ -151,8 +150,7 @@ pathNodesVisible(
             fDistance = static_cast<float>(dist);
         }
 
-        Patch::dontIntersect(
-            3,
+        Patch::dontIntersect3(
             node2->m_hit.getPatch(),
             node1->m_hit.getPatch(),
             node1->m_hit.getPatch() != nullptr ? node1->m_hit.getPatch()->twin : nullptr);
@@ -162,7 +160,7 @@ pathNodesVisible(
             &fDistance,
             RayHitFlag::FRONT | RayHitFlag::BACK | RayHitFlag::ANY,
             &hitStore);
-        Patch::dontIntersect(0);
+        Patch::dontIntersect0();
         visible = (hit == nullptr);
 
         GLOBAL_raytracer_rayCount++; // Statistics
@@ -235,13 +233,13 @@ eyeNodeVisible(
 
                 if ( (cosRayLight > 0) && (cosRayEye > 0) ) {
                     fDistance = static_cast<float>(dist);
-                    Patch::dontIntersect(
-                        3, node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
-                         eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
+                    Patch::dontIntersect3(
+                        node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
+                        eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
                     hit = sceneWorldVoxelGrid->gridIntersect(&ray,
                                                              0.0, &fDistance,
                                                              RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);
-                    Patch::dontIntersect(0);
+                    Patch::dontIntersect0();
                     // HIT_BACK removed ! So you can see through back walls with N.E.E
                     visible = (hit == nullptr);
 

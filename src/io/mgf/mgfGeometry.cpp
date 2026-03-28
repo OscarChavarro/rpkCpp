@@ -1,13 +1,13 @@
-#include "java/util/Formatter.h"
-
 #include <cstdlib>
 #include <cstring>
 
-#include "io/mgf/mgfDefinitions.h"
+#include "java/util/Formatter.h"
+
 #include "io/context/WordsContext.h"
+
+#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfGeometry.h"
 
-// Alternate handler support functions
 static constexpr int MGF_PV_SIZE = 24;
 static constexpr char globalFloatFormat[] = "%.12g";
 static bool globalWarpConeEnds; // Hack for generating good normals

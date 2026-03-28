@@ -1,6 +1,8 @@
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
 #include "common/Statistics.h"
+
 #include "GALERKIN/processing/FormFactorClusteredStrategy.h"
 #include "GALERKIN/processing/FormFactorStrategy.h"
 
@@ -577,8 +579,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         ShadowCache shadowCache;
 
         // Mark the patches in order to avoid immediate self-intersections
-        Patch::dontIntersect(
-            4,
+        Patch::dontIntersect4(
             receiverElement->isCluster() ? nullptr : receiverElement->patch,
             receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
             sourceElement->isCluster() ? nullptr : sourceElement->patch,
@@ -613,7 +614,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         }
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
-        Patch::dontIntersect(0);
+        Patch::dontIntersect0();
         geomDontIntersect(nullptr, nullptr);
     }
 

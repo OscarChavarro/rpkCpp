@@ -1,6 +1,7 @@
-#include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 #endif

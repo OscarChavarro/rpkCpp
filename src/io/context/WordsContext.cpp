@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "java/lang/Character.h"
+
 #include "io/context/WordsContext.h"
 
 namespace {

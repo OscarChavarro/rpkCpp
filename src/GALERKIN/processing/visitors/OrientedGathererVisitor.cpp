@@ -1,5 +1,5 @@
-#include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/visitors/OrientedGathererVisitor.h"
 
 OrientedGathererVisitor::OrientedGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance) {
     link = inLink;

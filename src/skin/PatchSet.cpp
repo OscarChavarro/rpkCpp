@@ -1,4 +1,5 @@
 #include "java/util/ArrayList.txx"
+
 #include "skin/PatchSet.h"
 
 PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClassId::PATCH_SET) {

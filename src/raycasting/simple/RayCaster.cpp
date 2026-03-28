@@ -2,14 +2,15 @@
 Ray casting using the SGL library for rendering Patch pointers into
 a software frame buffer directly.
 */
-#include "common/RenderOptions.h"
-
-
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
+#include "common/RenderOptions.h"
 #include "common/Statistics.h"
+
 #include "render/SoftIdsWrapper.h"
+
 #include "raycasting/simple/RayCaster.h"
 
 char RayCaster::name[12] = "Ray Casting";

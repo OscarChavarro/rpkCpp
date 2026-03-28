@@ -1,9 +1,12 @@
 #ifndef __RAY_CASTER__
 #define __RAY_CASTER__
 
-#include "common/RenderOptions.h"
 #include "java/util/ArrayList.h"
+
+#include "common/RenderOptions.h"
+
 #include "scene/RadianceMethod.h"
+
 #include "render/ScreenBuffer.h"
 
 #include "raycasting/common/Raytracer.h"

@@ -1,23 +1,30 @@
-#include "common/RenderOptions.h"
 #include <cstring>
-#include "numericalAnalysis/QuadCubatureRule.h"
+
+#include "common/RenderOptions.h"
+
+#include "scene/PatchClusterOctreeNode.h"
+
+#include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
-#include "tonemap/FerwerdaToneMap.h"
+
+#include "numericalAnalysis/QuadCubatureRule.h"
+
 #include "io/mgf/readmgf.h"
+
 #include "io/image/dkcolor.h"
-//#include "render/glutDebugTools.h"
+
 #include "GALERKIN/GalerkinRadianceMethod.h"
 #include "GALERKIN/processing/ClusterCreationStrategy.h"
-#include "scene/PatchClusterOctreeNode.h"
-#include "app/options.h"
-#include "app/commandLine.h"
-#include "app/sceneBuilder.h"
-#include "app/radiance.h"
+
 #include "app/batch.h"
+#include "app/commandLine.h"
+#include "app/options.h"
+#include "app/radiance.h"
 #include "app/RpkApplication.h"
+#include "app/sceneBuilder.h"
 
 #ifdef RAYTRACING_ENABLED
 #include "raycasting/bidirectionalRaytracing/LightList.h"

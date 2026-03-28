@@ -12,8 +12,9 @@ Reference:
   Univ. of Washington, 1995, p116-117 - section 6.7 "Creation of Clusters"
 */
 
-#include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
+
 #include "scene/PatchClusterOctreeNode.h"
 
 static const int XYZ_EQUAL_MASK = 0x08;

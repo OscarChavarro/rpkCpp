@@ -2,15 +2,18 @@
 Command line options and defaults
 */
 
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
-#include "java/lang/System.h"
 #include "java/lang/Integer.h"
-#include "java/util/Formatter.h"
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
+
 #include "common/linealAlgebra/Vector3D.h"
+
 #include "common/ColorRgb.h"
+
 #include "app/options.h"
 
 char *GLOBAL_option_dummyVal = nullptr;

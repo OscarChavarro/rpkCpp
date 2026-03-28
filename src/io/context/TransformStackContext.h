@@ -1,8 +1,8 @@
 #ifndef __TRANSFORM_STACK_CONTEXT__
 #define __TRANSFORM_STACK_CONTEXT__
 
-#include "io/context/TransformContext.h"
 #include "io/context/TransformArray.h"
+#include "io/context/TransformContext.h"
 
 class TransformStackContext {
   public:

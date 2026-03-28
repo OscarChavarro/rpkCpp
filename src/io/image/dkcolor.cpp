@@ -1,7 +1,10 @@
-#include "common/CppReAlloc.h"
-#include "io/image/dkcolor.h"
-#include "io/wrapper/PersistenceElement.h"
 #include "java/lang/Math.h"
+
+#include "common/CppReAlloc.h"
+
+#include "io/wrapper/PersistenceElement.h"
+
+#include "io/image/dkcolor.h"
 
 static constexpr int RED = 0;
 static constexpr int GREEN = 1;

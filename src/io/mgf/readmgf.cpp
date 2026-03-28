@@ -1,22 +1,22 @@
-#include <cstdio>
-#include "java/util/Formatter.h"
-
 #include <cstring>
-#include "java/lang/System.h"
 
-#include "java/util/ArrayList.txx"
-#include "java/util/StringTokenizer.h"
-#include "java/lang/StringBuilder.h"
 #include "java/io/BufferedInputStream.h"
+#include "java/lang/StringBuilder.h"
+#include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
+#include "java/util/StringTokenizer.h"
+
 #include "common/error.h"
-#include "io/mgf/mgfHandlerGeometry.h"
-#include "io/mgf/mgfHandlerTransform.h"
-#include "io/mgf/mgfHandlerObject.h"
+
+#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfGeometry.h"
 #include "io/mgf/mgfHandlerColor.h"
+#include "io/mgf/mgfHandlerGeometry.h"
 #include "io/mgf/mgfHandlerMaterial.h"
+#include "io/mgf/mgfHandlerObject.h"
+#include "io/mgf/mgfHandlerTransform.h"
 #include "io/mgf/readmgf.h"
-#include "io/mgf/mgfDefinitions.h"
 
 /**
 The parser follows the following process:

@@ -2,6 +2,7 @@
 #define __BOUNDING_BOX__
 
 #include "common/linealAlgebra/Vector3D.h"
+
 #include "skin/BoundingBoxCoordinateIndex.h"
 
 /**

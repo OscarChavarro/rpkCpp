@@ -1,6 +1,6 @@
-#include "java/lang/StringBuilder.h"
-
 #include <cstring>
+
+#include "java/lang/StringBuilder.h"
 
 namespace java {
 namespace lang {

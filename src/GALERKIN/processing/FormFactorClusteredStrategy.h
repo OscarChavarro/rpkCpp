@@ -2,10 +2,13 @@
 #define __FORM_FACTOR_CLUSTERED_STRATEGY__
 
 #include "common/linealAlgebra/Ray.h"
+
+#include "skin/Geometry.h"
+
 #include "numericalAnalysis/CubatureRule.h"
+
 #include "GALERKIN/Interaction.h"
 #include "GALERKIN/ShadowCache.h"
-#include "skin/Geometry.h"
 
 class FormFactorClusteredStrategy {
   public:

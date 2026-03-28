@@ -1,8 +1,9 @@
 #ifndef __COLOR__
 #define __COLOR__
 
-#include "common/cie.h"
 #include "java/io/PrintStream.h"
+
+#include "common/cie.h"
 
 /**
 Representation of radiance, radiosity, power, spectra

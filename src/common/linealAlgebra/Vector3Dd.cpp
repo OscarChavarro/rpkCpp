@@ -3,6 +3,7 @@ Routines for 3-d vectors
 */
 
 #include "java/lang/Math.h"
+
 #include "common/linealAlgebra/Vector3Dd.h"
 
 VECTOR3Dd::VECTOR3Dd() {

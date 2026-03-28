@@ -1,10 +1,13 @@
 #include "java/lang/System.h"
+
 #include "tonemap/ToneMap.h"
+
 #include "render/opengl.h"
+
 #include "raycasting/common/Raytracer.h"
+
 #include "raycasting/raytracing/screeniterate.h"
 
-// Different functions need to sync with the timer
 static inline unsigned char
 wakeUpRender() {
     return static_cast<unsigned char>(1u << 1);

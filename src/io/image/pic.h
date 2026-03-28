@@ -1,8 +1,9 @@
 #ifndef __PIC_CPP__
 #define __PIC_CPP__
 
-#include "io/image/ImageOutputHandle.h"
 #include "java/io/OutputStream.h"
+
+#include "io/image/ImageOutputHandle.h"
 
 /**
 High dynamic range PIC output handle.

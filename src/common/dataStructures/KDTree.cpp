@@ -1,9 +1,12 @@
 #include <cstring>
-#include "java/lang/System.h"
 
 #include "java/lang/Math.h"
-#include "common/error.h"
+#include "java/lang/System.h"
+
 #include "common/linealAlgebra/Numeric.h"
+
+#include "common/error.h"
+
 #include "common/dataStructures/KDTree.h"
 
 const float KD_MAX_RADIUS = 1e10;

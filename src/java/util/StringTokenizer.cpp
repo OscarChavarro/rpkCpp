@@ -1,6 +1,6 @@
-#include "java/util/StringTokenizer.h"
-
 #include <cstring>
+
+#include "java/util/StringTokenizer.h"
 
 namespace java {
 namespace util {

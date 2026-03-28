@@ -1,9 +1,13 @@
 #include <cstring>
 
-#include "common/error.h"
 #include "java/io/FileInputStream.h"
+
+#include "common/error.h"
+
 #include "io/wrapper/FileUncompressWrapper.h"
+
 #include "io/context/LookUpEntity.h"
+
 #include "io/mgf/mgfDefinitions.h"
 
 static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());

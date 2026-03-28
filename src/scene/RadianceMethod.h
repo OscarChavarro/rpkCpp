@@ -1,13 +1,16 @@
 #ifndef __RADIANCE_METHOD__
 #define __RADIANCE_METHOD__
 
-#include "java/util/ArrayList.h"
 #include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
+
 #include "common/RenderOptions.h"
+
 #include "skin/Patch.h"
+
 #include "scene/Camera.h"
-#include "scene/Scene.h"
 #include "scene/RadianceMethodAlgorithm.h"
+#include "scene/Scene.h"
 
 class RadianceMethod {
   public:

@@ -1,4 +1,5 @@
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
+
 #include "numericalAnalysis/PatchVisitor.h"
 
 int

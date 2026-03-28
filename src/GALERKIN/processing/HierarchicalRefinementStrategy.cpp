@@ -3,12 +3,14 @@ Hierarchical refinement
 */
 
 #include "java/util/ArrayList.txx"
+
 #include "common/error.h"
 #include "common/Statistics.h"
-#include "GALERKIN/processing/FormFactorStrategy.h"
-#include "GALERKIN/Shaft.h"
+
 #include "GALERKIN/processing/ClusterTraversalStrategy.h"
+#include "GALERKIN/processing/FormFactorStrategy.h"
 #include "GALERKIN/processing/HierarchicalRefinementStrategy.h"
+#include "GALERKIN/Shaft.h"
 
 /**
 Does shaft-culling between elements in a interaction (if the user asked for it).

@@ -1,4 +1,5 @@
 #include "java/util/ArrayList.txx"
+
 #include "GALERKIN/Shaft.h"
 
 static constexpr int MIN_MAX_DIMENSIONS = 6;

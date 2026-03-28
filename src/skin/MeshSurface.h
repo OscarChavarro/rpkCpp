@@ -6,7 +6,9 @@ Surfaces are basically a list of patches representing a simple object with given
 #define __SURFACE__
 
 #include "java/util/ArrayList.h"
+
 #include "material/Material.h"
+
 #include "skin/Geometry.h"
 #include "skin/MaterialColorFlags.h"
 

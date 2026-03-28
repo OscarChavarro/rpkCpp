@@ -1,14 +1,14 @@
-#include <cstdio>
-#include "java/util/Formatter.h"
-
 #include <cstring>
 
+#include "java/io/FileInputStream.h"
+#include "java/io/FileOutputStream.h"
+#include "java/util/Formatter.h"
+
 #include "common/error.h"
+
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
-#include "java/io/FileInputStream.h"
-#include "java/io/FileOutputStream.h"
 
 namespace {
 

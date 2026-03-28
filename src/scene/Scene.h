@@ -2,8 +2,8 @@
 #define __SCENE__
 
 #include "scene/Background.h"
-#include "scene/VoxelGrid.h"
 #include "scene/Camera.h"
+#include "scene/VoxelGrid.h"
 
 class Scene {
   private:

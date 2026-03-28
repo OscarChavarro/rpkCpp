@@ -2,6 +2,7 @@
 #define __GALERKIN_DEBUG_RENDERER__
 
 #include "scene/Scene.h"
+
 #include "GALERKIN/GalerkinElement.h"
 
 class GalerkinDebugRenderer {

@@ -1,11 +1,13 @@
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
-#include "io/mgf/mgfDefinitions.h"
+
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
-#include "io/mgf/MgfMaterialContext.h"
+
+#include "io/mgf/mgfDefinitions.h"
 #include "io/mgf/mgfHandlerMaterial.h"
+#include "io/mgf/MgfMaterialContext.h"
 
 static constexpr int NUMBER_OF_SAMPLES = 3;
 

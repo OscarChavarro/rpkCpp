@@ -7,11 +7,15 @@ due to frame buffer formats, etc.
 #define __SOFT_IDS__
 
 #include "java/util/ArrayList.h"
+
 #include "common/RenderOptions.h"
-#include "SGL/sgl.h"
+
 #include "skin/Patch.h"
+
 #include "scene/Camera.h"
 #include "scene/Scene.h"
+
+#include "SGL/sgl.h"
 
 extern SGL_CONTEXT *setupSoftFrameBuffer(const Camera *camera);
 extern void softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SGL_CONTEXT *sglContext);

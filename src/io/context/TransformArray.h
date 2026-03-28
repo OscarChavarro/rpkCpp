@@ -1,10 +1,9 @@
 #ifndef __TRANSFORM_ARRAY__
 #define __TRANSFORM_ARRAY__
 
-#include "io/context/TransformArrayContext.h"
 #include "io/context/FilePositionContext.h"
+#include "io/context/TransformArrayContext.h"
 
-// Maximum array dimensions
 constexpr int TRANSFORM_MAXIMUM_DIMENSIONS = 8;
 
 class TransformArray {

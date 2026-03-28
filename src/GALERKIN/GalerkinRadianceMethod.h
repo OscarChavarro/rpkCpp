@@ -2,13 +2,16 @@
 #define __GALERKIN_RADIOSITY_METHOD__
 
 #include "common/RenderOptions.h"
-#include "numericalAnalysis/CubatureRule.h"
+
+#include "scene/Background.h"
 #include "scene/RadianceMethod.h"
+#include "scene/Scene.h"
+#include "scene/VoxelGrid.h"
+
+#include "numericalAnalysis/CubatureRule.h"
+
 #include "GALERKIN/GalerkinState.h"
 #include "GALERKIN/processing/GatheringStrategy.h"
-#include "scene/Background.h"
-#include "scene/VoxelGrid.h"
-#include "scene/Scene.h"
 
 class GalerkinRadianceMethod final : public RadianceMethod {
   private:

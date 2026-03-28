@@ -1,11 +1,12 @@
-#include "io/wrapper/PersistenceElement.h"
-
 #include <cstdlib>
 #include <cstring>
 
-#include "common/error.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+
+#include "common/error.h"
+
+#include "io/wrapper/PersistenceElement.h"
 
 namespace vsdk {
 

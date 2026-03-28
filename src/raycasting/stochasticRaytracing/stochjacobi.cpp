@@ -7,10 +7,11 @@ sampling positions on shooters with higher order radiosity approximation
 (lower variance)
 TODO: global lines and global line bundles.
 */
-#include "common/RenderOptions.h"
-#include "raycasting/stochasticRaytracing/stochjacobi.h"
-
 #include "java/lang/System.h"
+
+#include "common/RenderOptions.h"
+
+#include "raycasting/stochasticRaytracing/stochjacobi.h"
 
 #ifdef RAYTRACING_ENABLED
 

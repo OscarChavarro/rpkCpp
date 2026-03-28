@@ -1,9 +1,9 @@
 /**
 Determination of constant control radiosity value
 */
-#include "common/RenderOptions.h"
-
 #include "java/lang/System.h"
+
+#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 

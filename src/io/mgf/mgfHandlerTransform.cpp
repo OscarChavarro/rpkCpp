@@ -1,6 +1,6 @@
-#include "io/mgf/mgfHandlerTransform.h"
-#include <cstdio>
 #include "java/util/Formatter.h"
+
+#include "io/mgf/mgfHandlerTransform.h"
 
 /**
 Routines for 4x4 homogeneous, rigid-body transformations

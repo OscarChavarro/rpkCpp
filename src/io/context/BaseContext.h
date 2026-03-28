@@ -1,12 +1,12 @@
 #ifndef __BASE_CONTEXT__
 #define __BASE_CONTEXT__
 
+#include "scene/RadianceMethod.h"
+
 #include "io/context/EntityContext.h"
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/ReaderContext.h"
-#include "scene/RadianceMethod.h"
 
-// Objects 'o' contexts can be nested this deep
 constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
 
 class TransformStackContext;

@@ -2,7 +2,9 @@
 #define __POTENTIAL__
 
 #include "java/util/ArrayList.h"
+
 #include "skin/Patch.h"
+
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 

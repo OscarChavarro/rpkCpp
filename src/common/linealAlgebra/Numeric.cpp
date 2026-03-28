@@ -1,6 +1,6 @@
-#include "common/linealAlgebra/Numeric.h"
-
 #include "java/lang/Float.h"
+
+#include "common/linealAlgebra/Numeric.h"
 
 const double Numeric::HUGE_DOUBLE_VALUE = 1e30;
 const float Numeric::HUGE_FLOAT_VALUE = java::Float::MAX_VALUE;

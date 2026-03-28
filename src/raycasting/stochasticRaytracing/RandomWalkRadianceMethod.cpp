@@ -1,15 +1,16 @@
-#include "common/RenderOptions.h"
+#include "java/lang/System.h"
+#include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 
-#include "java/util/ArrayList.txx"
-#include "java/lang/System.h"
 #include "common/error.h"
+#include "common/RenderOptions.h"
 #include "common/Statistics.h"
+
 #include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/tracepath.h"
-#include "raycasting/stochasticRaytracing/stochjacobi.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "raycasting/stochasticRaytracing/stochjacobi.h"
+#include "raycasting/stochasticRaytracing/tracepath.h"
 
 #ifdef RAYTRACING_ENABLED
 

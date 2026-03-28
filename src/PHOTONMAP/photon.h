@@ -5,12 +5,14 @@ Data structure for individual photons
 #ifndef __PHOTON__
 #define __PHOTON__
 
-#include "common/ColorRgb.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "PHOTONMAP/pmapoptions.h"
+
+#include "common/ColorRgb.h"
+
 #include "material/xxdf.h"
 
-// KD tree flags (currently not used)
+#include "PHOTONMAP/pmapoptions.h"
+
 const short DIRECT_LIGHT_PHOTON = 0x10;
 const short CAUSTIC_LIGHT_PHOTON = 0x20; // Lower 4 bits reserved for kd tree
 // This type of photon should not be included in the importance sampling

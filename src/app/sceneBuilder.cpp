@@ -1,24 +1,31 @@
 #include <cstring>
 
-#include "java/util/Formatter.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 
 #include "common/error.h"
 #include "common/Statistics.h"
+
+#include "scene/PatchClusterOctreeNode.h"
+
+#include "tonemap/ToneMap.h"
+
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "tonemap/ToneMap.h"
-#include "app/commandLine.h"
-#include "io/mgf/readmgf.h"
+
 #include "io/bin/BinaryModelReader.h"
 #include "io/bin/BinaryModelWriter.h"
+
+#include "io/mgf/readmgf.h"
+
 #include "render/renderhook.h"
 #include "render/ScreenBuffer.h"
-#include "scene/PatchClusterOctreeNode.h"
+
 #include "app/adaptation.h"
 #include "app/batch.h"
+#include "app/commandLine.h"
 #include "app/radiance.h"
 #include "app/sceneBuilder.h"
 

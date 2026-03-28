@@ -1,9 +1,11 @@
 #ifndef __PHONG_BIDIRECTIONAL_TRANSMITTANCE_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_TRANSMITTANCE_DISTRIBUTION_FUNCTION__
 
-#include "common/RenderOptions.h"
-#include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
+
+#include "common/ColorRgb.h"
+#include "common/RenderOptions.h"
+
 #include "material/RefractionIndex.h"
 
 /**

@@ -1,8 +1,9 @@
 #include "java/util/ArrayList.txx"
+
 #include "common/Statistics.h"
+
 #include "skin/MeshSurface.h"
 
-// Static counter that is increased each time a surface is created for making unique MeshSurface ids
 int MeshSurface::nextSurfaceId = 0;
 
 /**

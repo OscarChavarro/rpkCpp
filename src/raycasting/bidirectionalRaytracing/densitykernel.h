@@ -6,6 +6,7 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 #define __DENSITY_KERNEL__
 
 #include "common/linealAlgebra/Vector2D.h"
+
 #include "render/ScreenBuffer.h"
 
 class CKernel2D final {

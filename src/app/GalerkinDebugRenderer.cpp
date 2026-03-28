@@ -1,8 +1,10 @@
 #include <GL/gl.h>
 
 #include "java/util/ArrayList.txx"
-#include "app/GalerkinDebugRenderer.h"
+
 #include "GALERKIN/basisgalerkin.h"
+
+#include "app/GalerkinDebugRenderer.h"
 
 void
 GalerkinDebugRenderer::recursiveDrawElement(const GalerkinElement *element, GalerkinElementRenderMode mode, const RenderOptions *renderOptions) {
