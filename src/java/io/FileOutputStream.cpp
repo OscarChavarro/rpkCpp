@@ -5,30 +5,26 @@ namespace io {
 
 FileOutputStream::FileOutputStream():
     stream(nullptr),
-    isPipe(false),
-    standardOutput(false)
+    closeOnDispose(true)
 {
 }
 
 FileOutputStream::FileOutputStream(const File &file):
     stream(file.open("wb")),
-    isPipe(false),
-    standardOutput(false)
+    closeOnDispose(true)
 {
 }
 
 FileOutputStream::FileOutputStream(const char *fileName):
     stream(nullptr),
-    isPipe(false),
-    standardOutput(false)
+    closeOnDispose(true)
 {
     stream = File::openHandle(fileName, "wb");
 }
 
-FileOutputStream::FileOutputStream(FILE *fileHandle, bool pipeOutput, bool isStandardOutput):
+FileOutputStream::FileOutputStream(FILE *fileHandle, bool closeHandleOnDispose):
     stream(fileHandle),
-    isPipe(pipeOutput ? 1 : 0),
-    standardOutput(isStandardOutput)
+    closeOnDispose(closeHandleOnDispose)
 {
 }
 
@@ -42,13 +38,8 @@ FileOutputStream::isOpen() const {
 }
 
 bool
-FileOutputStream::isPipeOutput() const {
-    return isPipe != 0;
-}
-
-bool
-FileOutputStream::isStandardOutput() const {
-    return standardOutput;
+FileOutputStream::ownsHandle() const {
+    return closeOnDispose;
 }
 
 void
@@ -76,22 +67,13 @@ FileOutputStream::close() {
         return;
     }
 
-    if ( standardOutput ) {
+    if ( !closeOnDispose ) {
         fflush(stream);
-        stream = nullptr;
-        isPipe = 0;
-        standardOutput = false;
-        return;
-    }
-
-    if ( isPipe ) {
-        pclose(stream);
     } else {
         File::closeHandle(stream);
     }
     stream = nullptr;
-    isPipe = 0;
-    standardOutput = false;
+    closeOnDispose = true;
 }
 
 void

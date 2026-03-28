@@ -3,7 +3,7 @@
 #include "common/error.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/BufferedInputStream.h"
-#include "io/FileUncompressWrapper.h"
+#include "io/wrapper/FileUncompressWrapper.h"
 #include "io/context/LookUpEntity.h"
 #include "io/context/FilePositionContext.h"
 #include "io/mgf/mgfDefinitions.h"
@@ -164,7 +164,7 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
     readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(stdin, false, true);
+        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(stdin, false);
         if ( !fileInputStream->isOpen() ) {
             fileInputStream->dispose();
             delete fileInputStream;

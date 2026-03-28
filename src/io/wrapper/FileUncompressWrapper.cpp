@@ -1,7 +1,9 @@
 #include <cstring>
 
 #include "common/error.h"
-#include "io/FileUncompressWrapper.h"
+#include "io/wrapper/FileUncompressWrapper.h"
+#include "io/wrapper/PipeInputStream.h"
+#include "io/wrapper/PipeOutputStream.h"
 #include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
@@ -110,7 +112,10 @@ openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
         *isPipe = pipeFlag;
     }
 
-    return new java::io::FileInputStream(fileHandle, pipeFlag != 0, false);
+    if ( pipeFlag != 0 ) {
+        return new PipeInputStream(fileHandle);
+    }
+    return new java::io::FileInputStream(fileHandle);
 }
 
 java::io::OutputStream *
@@ -127,7 +132,10 @@ openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
         *isPipe = pipeFlag;
     }
 
-    return new java::io::FileOutputStream(fileHandle, pipeFlag != 0, false);
+    if ( pipeFlag != 0 ) {
+        return new PipeOutputStream(fileHandle);
+    }
+    return new java::io::FileOutputStream(fileHandle);
 }
 
 void

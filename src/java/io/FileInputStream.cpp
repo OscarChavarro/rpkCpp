@@ -5,30 +5,26 @@ namespace io {
 
 FileInputStream::FileInputStream():
     stream(nullptr),
-    isPipe(false),
-    standardInput(false)
+    closeOnDispose(true)
 {
 }
 
 FileInputStream::FileInputStream(const File &file):
     stream(file.open("rb")),
-    isPipe(false),
-    standardInput(false)
+    closeOnDispose(true)
 {
 }
 
 FileInputStream::FileInputStream(const char *fileName):
     stream(nullptr),
-    isPipe(false),
-    standardInput(false)
+    closeOnDispose(true)
 {
     stream = File::openHandle(fileName, "rb");
 }
 
-FileInputStream::FileInputStream(FILE *fileHandle, bool pipeInput, bool isStandardInput):
+FileInputStream::FileInputStream(FILE *fileHandle, bool closeHandleOnDispose):
     stream(fileHandle),
-    isPipe(pipeInput ? 1 : 0),
-    standardInput(isStandardInput)
+    closeOnDispose(closeHandleOnDispose)
 {
 }
 
@@ -42,13 +38,8 @@ FileInputStream::isOpen() const {
 }
 
 bool
-FileInputStream::isPipeInput() const {
-    return isPipe;
-}
-
-bool
-FileInputStream::isStandardInput() const {
-    return standardInput;
+FileInputStream::ownsHandle() const {
+    return closeOnDispose;
 }
 
 int
@@ -90,16 +81,11 @@ FileInputStream::close() {
     if ( stream == nullptr ) {
         return;
     }
-    if ( !standardInput ) {
-        if ( isPipe ) {
-            pclose(stream);
-        } else {
-            File::closeHandle(stream);
-        }
+    if ( closeOnDispose ) {
+        File::closeHandle(stream);
     }
     stream = nullptr;
-    isPipe = false;
-    standardInput = false;
+    closeOnDispose = true;
 }
 
 void

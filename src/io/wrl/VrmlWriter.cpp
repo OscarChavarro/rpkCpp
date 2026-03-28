@@ -6,7 +6,7 @@ Saves the result of a radiosity computation as a VRML file
 
 #include <cstdarg>
 
-#include "io/PersistenceElement.h"
+#include "io/wrapper/PersistenceElement.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];

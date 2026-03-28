@@ -111,10 +111,12 @@ set(MAIN_SRC
     src/io/mgf/mgfHandlerMaterial.cpp
     src/io/mgf/readmgf.cpp
     src/io/context/PersistedSceneModel.cpp
-    src/io/PersistenceElement.cpp
+    src/io/wrapper/PersistenceElement.cpp
     src/io/bin/BinaryModelWriter.cpp
     src/io/bin/BinaryModelReader.cpp
-    src/io/FileUncompressWrapper.cpp
+    src/io/wrapper/PipeInputStream.cpp
+    src/io/wrapper/PipeOutputStream.cpp
+    src/io/wrapper/FileUncompressWrapper.cpp
     src/io/wrl/VrmlWriter.cpp
     src/io/image/pic.cpp
     src/io/image/dkcolor.cpp

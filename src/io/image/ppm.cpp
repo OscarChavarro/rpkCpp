@@ -1,5 +1,5 @@
 #include "io/image/ppm.h"
-#include "io/PersistenceElement.h"
+#include "io/wrapper/PersistenceElement.h"
 
 PPMOutputHandle::PPMOutputHandle(FILE *_fp, int w, int h) {
     ImageOutputHandle::init("PPM", w, h);

@@ -12,24 +12,20 @@ namespace io {
 class FileInputStream : public InputStream {
   private:
     FILE *stream;
-    int isPipe;
-    bool standardInput;
+    bool closeOnDispose;
 
   public:
     FileInputStream();
     explicit FileInputStream(const File &file);
     explicit FileInputStream(const char *fileName);
-    FileInputStream(FILE *fileHandle, bool pipeInput, bool standardInput = false);
+    explicit FileInputStream(FILE *fileHandle, bool closeOnDispose = true);
     ~FileInputStream() override;
 
     bool
     isOpen() const;
 
     bool
-    isPipeInput() const;
-
-    bool
-    isStandardInput() const;
+    ownsHandle() const;
 
     int
     read() override;

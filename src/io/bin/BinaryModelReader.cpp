@@ -10,7 +10,7 @@
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "io/PersistenceElement.h"
+#include "io/wrapper/PersistenceElement.h"
 #include "io/context/ColorContext.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"

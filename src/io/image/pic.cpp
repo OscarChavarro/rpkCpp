@@ -2,7 +2,7 @@
 
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
-#include "io/PersistenceElement.h"
+#include "io/wrapper/PersistenceElement.h"
 #include "java/io/FileOutputStream.h"
 #include "java/lang/System.h"
 

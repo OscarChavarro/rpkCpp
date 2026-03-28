@@ -5,7 +5,7 @@
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "render/opengl.h"
-#include "io/FileUncompressWrapper.h"
+#include "io/wrapper/FileUncompressWrapper.h"
 #include "tonemap/ToneMap.h"
 #include "render/ScreenBuffer.h"
 

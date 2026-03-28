@@ -8,7 +8,7 @@
 #include "java/io/OutputStream.h"
 #include "render/canvas.h"
 #include "render/render.h"
-#include "io/FileUncompressWrapper.h"
+#include "io/wrapper/FileUncompressWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 #include "app/commandLine.h"
 #include "app/BatchOptions.h"
