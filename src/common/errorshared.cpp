@@ -17,7 +17,7 @@ void logError(const char *routine, const char *text, ...) {
     }
 
     va_start(variableList, text);
-    const java::lang::String message = java::util::Formatter::vformat(text, variableList);
+    const java::lang::String message = java::util::vformat(text, variableList);
     va_end(variableList);
     java::lang::System::err.print(message.toCString());
 
@@ -40,7 +40,7 @@ logFatal(int errcode, const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::util::Formatter::vformat(text, pvar);
+    const java::lang::String message = java::util::vformat(text, pvar);
     va_end(pvar);
     java::lang::System::err.print(message.toCString());
 
@@ -63,7 +63,7 @@ logWarning(const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::util::Formatter::vformat(text, pvar);
+    const java::lang::String message = java::util::vformat(text, pvar);
     va_end(pvar);
     java::lang::System::err.print(message.toCString());
 

@@ -5,8 +5,8 @@ namespace java {
 
 class Object {
   public:
-    virtual ~Object() {}
-    virtual void dispose() {}
+    virtual ~Object();
+    virtual void dispose();
 };
 
 }

@@ -31,7 +31,7 @@ class BinaryModelReader {
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
-    static const int32_t BINARY_MODEL_VERSION;
+    static const int BINARY_MODEL_VERSION;
 
     class IndexListRecord;
     class VertexRecord;
@@ -40,7 +40,7 @@ class BinaryModelReader {
     class ModelRecord;
 
     template <typename T>
-    static bool initializeArrayList(java::ArrayList<T> *list, int32_t count, T initialValue, const char *what);
+    static bool initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what);
 
     static void releaseIndexListRecord(IndexListRecord *record);
     static void readBytes(java::io::InputStream &input, unsigned char *buffer, int length);
@@ -48,12 +48,12 @@ class BinaryModelReader {
     static unsigned char readByte(java::io::InputStream &input);
     static bool readBool(java::io::InputStream &input);
     static int16_t readInt16LE(java::io::InputStream &input);
-    static int32_t readInt32LE(java::io::InputStream &input);
+    static int readInt32LE(java::io::InputStream &input);
     static int64_t readInt64LE(java::io::InputStream &input);
     static float readFloatLE(java::io::InputStream &input);
     static double readDoubleLE(java::io::InputStream &input);
     static bool expectTag(java::io::InputStream &input, const char expected[4]);
-    static bool readNonNegativeCount(java::io::InputStream &input, const char *what, int32_t *count);
+    static bool readNonNegativeCount(java::io::InputStream &input, const char *what, int *count);
     static bool readNullableString(java::io::InputStream &input, char **value, bool *hasValue);
     static bool duplicateNullableString(bool hasValue, const char *value, char **text);
     static bool readColor(java::io::InputStream &input, ColorRgb *color);
@@ -63,7 +63,7 @@ class BinaryModelReader {
     static bool readIndexList(java::io::InputStream &input, const char *what, IndexListRecord *record);
 
     template <typename T>
-    static bool pointerFromIndex(const java::ArrayList<T *> &values, int32_t index, const char *what, T **result);
+    static bool pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result);
 
     template <typename T>
     static bool arrayListFromIndices(

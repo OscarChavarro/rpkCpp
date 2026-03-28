@@ -35,34 +35,34 @@ buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, i
     }
 
     if ( fileName[0] == '|' ) {
-        java::util::Formatter::formatToBuffer(command, commandLength, "%s", &fileName[1]);
+        java::util::formatToBuffer(command, commandLength, "%s", &fileName[1]);
         return 1;
     }
 
     const char *ext = strrchr(fileName, '.');
     if ( ext && std::strcmp(ext, ".gz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::formatToBuffer(command, commandLength, "gunzip < %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "gunzip < %s", fileName);
         } else {
-            java::util::Formatter::formatToBuffer(command, commandLength, "gzip > %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "gzip > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".Z") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::formatToBuffer(command, commandLength, "uncompress < %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "uncompress < %s", fileName);
         } else {
-            java::util::Formatter::formatToBuffer(command, commandLength, "compress > %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "compress > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".bz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::formatToBuffer(command, commandLength, "bunzip < %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "bunzip < %s", fileName);
         } else {
-            java::util::Formatter::formatToBuffer(command, commandLength, "bzip > %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "bzip > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".bz2") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::formatToBuffer(command, commandLength, "bunzip2 < %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "bunzip2 < %s", fileName);
         } else {
-            java::util::Formatter::formatToBuffer(command, commandLength, "bzip2 > %s", fileName);
+            java::util::formatToBuffer(command, commandLength, "bzip2 > %s", fileName);
         }
     } else {
         return 0;

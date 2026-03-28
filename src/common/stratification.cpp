@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "java/lang/Math.h"
 #include "common/stratification.h"
 

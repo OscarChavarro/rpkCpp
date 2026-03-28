@@ -4,7 +4,17 @@ Modernized version of RenderPark radiosity engine
 Original software from 2001 is available on
 [https://graphics.cs.kuleuven.be/renderpark/](https://graphics.cs.kuleuven.be/renderpark/).
 
-## Modenized ANSI C to C++-11 code
+## What RPK program does
+
+Basically, this program has two use cases:
+- Galerkin / geometric subdivision view independent solution.
+- Raytracer solution: Check the use of `RAYTRACING_ENABLED` macro on how to remove this code from project.
+
+The program is a command line application that reads a geometry description in [MGF file format](./doc/references/mgfFileFormatSpecs/), computes the 3D image and writes the resulting image in ppm format (note that Galerkin geometry is also exported in VRML). For example, [this scene](./etc/cube.mgf) is rendered as the classic Cornell Box:
+
+![Cornell box](./doc/cornellBox.png)
+
+## Modenized features from original ANSI C to current C++-11 code
 
 This is a full rewrite with the following features:
 - Project controlled by cmake instead of make.
@@ -47,6 +57,12 @@ This is a full rewrite with the following features:
 - Object-oriented programming implemented using C++ features
   - Using static_cast and reinterpret_cast instead of simple old C++-style casts
   - Replacing pointer to callback functions with class hierarchies using inheritance overloaded methods
+
+## Modenized OOP design
+
+Some clean code and SOLID object oriented programming (OOP) principles and best practices has been applied:
+- Inspired in ports and adapters / hexagonal architecture: infrastructure code has been decoupled from business logic. Basic operating system, filesystem and other operations where abastracted in a Java-like organization targeted to migrate this program to other languages easily.
+- All functions and variables where organized in to classes.
 
 ## Annotated math in code with respect to references
 
@@ -111,6 +127,14 @@ cmake --build build -j
 
 Note: modules calling explicit `*31`/`*63` functions keep using that exact variant by design.
 
+## Using the Ctidy linter
+
+Can check pending warnings/smells using:
+
+```bash
+clang-tidy -checks='-*,modernize-use-nullptr,google-readability-casting' src/**/*.cpp -- -std=c++17 -Isrc -I/usr/include/c++/ -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11
+```
+
 ## Running RPK program from the command line
 
 The following command will run all the samples located on the `./etc` folder and generate output
@@ -135,19 +159,4 @@ such optimizations by removing the following line on `CMakeLists.txt`:
 
 ```
 add_compile_options(-ffast-math -O3)
-```
-
-## What RPK program does
-
-Basically, this program has two use cases:
-- Galerkin / geometric subdivision view independent solution.
-- Raytracer solution: Check the use of `RAYTRACING_ENABLED` macro on how to remove this code from project.
-
-
-## Ctidy linter
-
-Can check pending warnings/smells using:
-
-```bash
-clang-tidy -checks='-*,modernize-use-nullptr,google-readability-casting' src/**/*.cpp -- -std=c++17 -Isrc -I/usr/include/c++/ -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11
 ```

@@ -19,11 +19,16 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(MAIN_SRC
+    src/java/lang/Object.cpp
+    src/java/lang/Character.cpp
+    src/java/lang/Float.cpp
     src/java/lang/String.cpp
     src/java/lang/System.cpp
     src/java/lang/StringBuilder.cpp
     src/java/util/Formatter.cpp
     src/java/util/StringTokenizer.cpp
+    src/java/io/InputStream.cpp
+    src/java/io/OutputStream.cpp
     src/java/io/File.cpp
     src/java/io/FileInputStream.cpp
     src/java/io/FileOutputStream.cpp

@@ -3,6 +3,7 @@
 
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
+#include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -26,7 +27,7 @@ appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = java::util::Formatter::vformatToBuffer(&buffer[*offset], available, format, arguments);
+    const int written = java::util::vformatToBuffer(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {
@@ -450,7 +451,7 @@ randomWalkRadiosityDoGatheringIteration(
 
     java::lang::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-        numberOfWalks, static_cast<long>(floor(static_cast<double>(numberOfWalks) / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
+        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
 
     tracePaths(
         sceneWorldVoxelGrid,

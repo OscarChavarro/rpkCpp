@@ -8,7 +8,7 @@ PPMOutputHandle::PPMOutputHandle(java::io::OutputStream *_outputStream, int w, i
 
     if ( outputStream != nullptr ) {
         char header[64];
-        const int headerLength = java::util::Formatter::formatToBuffer(
+        const int headerLength = java::util::formatToBuffer(
             header, static_cast<int>(sizeof(header)), "P6\n%d %d\n255\n", width, height);
         if ( headerLength > 0 ) {
             vsdk::PersistenceElement::writeBytes(

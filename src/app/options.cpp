@@ -172,7 +172,7 @@ optionsGetString(void *value, void * /*data*/) {
     if ( globalStringsToDelete != nullptr ) {
         globalStringsToDelete->add(*s);
     }
-    java::util::Formatter::formatToBuffer(*s, static_cast<int>(n), "%s", currentArgument);
+    java::util::formatToBuffer(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
 }
 

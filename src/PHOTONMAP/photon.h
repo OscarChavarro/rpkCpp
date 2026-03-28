@@ -5,8 +5,6 @@ Data structure for individual photons
 #ifndef __PHOTON__
 #define __PHOTON__
 
-#include <cstring>
-
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "PHOTONMAP/pmapoptions.h"
@@ -75,8 +73,9 @@ class CIrrPhoton : public CPhoton {
 
     inline void
     copy(const CPhoton &photon) {
-        // Dangerous ??
-        memcpy(reinterpret_cast<char *>(this), &photon, sizeof(CPhoton));
+        m_pos = photon.pos();
+        m_power = photon.power();
+        m_dir = photon.dir();
     }
 };
 

@@ -235,14 +235,14 @@ mgfPutCSpec(BaseContext *context)
     const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
     if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], MgfHandlerType::HANDLE_COLOR) ) {
-        java::util::Formatter::formatToBuffer(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
-        java::util::Formatter::formatToBuffer(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
+        java::util::formatToBuffer(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
+        java::util::formatToBuffer(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[EntityContext::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         const double sf = static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
         for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            java::util::Formatter::formatToBuffer(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
+            java::util::formatToBuffer(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
@@ -267,8 +267,8 @@ mgfPutCxy(BaseContext *context) {
         yBuffer
     };
 
-    java::util::Formatter::formatToBuffer(xBuffer, 24, "%.4f", context->currentColor->cx);
-    java::util::Formatter::formatToBuffer(yBuffer, 24, "%.4f", context->currentColor->cy);
+    java::util::formatToBuffer(xBuffer, 24, "%.4f", context->currentColor->cx);
+    java::util::formatToBuffer(yBuffer, 24, "%.4f", context->currentColor->cy);
     return mgfHandle(EntityContext::CXY, 3, cCom, context);
 }
 

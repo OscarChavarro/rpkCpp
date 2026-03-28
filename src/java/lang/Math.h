@@ -5,7 +5,7 @@
 
 namespace java {
 class Math {
-public:
+  public:
     static constexpr double E = 2.7182818284590452354;
     static constexpr double PI = 3.14159265358979323846;
 
@@ -202,5 +202,6 @@ inline float
 Math::scalb(float a, int scaleFactor) {
     return std::ldexp(a, scaleFactor);
 }
+
 }
 #endif

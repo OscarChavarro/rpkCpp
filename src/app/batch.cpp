@@ -243,7 +243,7 @@ batchExecuteRadianceSimulation(
             if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                java::util::Formatter::formatToBuffer(
+                java::util::formatToBuffer(
                     fileName,
                     n,
                     globalBatchOptions.radianceImageFileNameFormat,
@@ -261,7 +261,7 @@ batchExecuteRadianceSimulation(
             if ( *globalBatchOptions.radianceModelFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceModelFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                java::util::Formatter::formatToBuffer(
+                java::util::formatToBuffer(
                     fileName,
                     n,
                     globalBatchOptions.radianceModelFileNameFormat,

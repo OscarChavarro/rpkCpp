@@ -8,6 +8,7 @@ Galerkin radiosity, with the following variants:
 
 #include <ctime>
 #include <cstdarg>
+#include <cmath>
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
@@ -44,7 +45,7 @@ galerkinWriteFormatted(const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::Formatter::vformat(format, arguments);
+    java::lang::String text = java::util::vformat(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -65,7 +66,7 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::Formatter::vformat(format, arguments);
+    java::lang::String text = java::util::vformat(format, arguments);
     va_end(arguments);
 
     const int written = text.length();

@@ -1,8 +1,10 @@
+#include <cstdlib>
 #include <cstring>
 
 #include "io/mgf/mgfDefinitions.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/mgfGeometry.h"
+#include "java/lang/Math.h"
 #include "java/util/Formatter.h"
 
 // Alternate handler support functions
@@ -58,9 +60,9 @@ mgfEntitySphere(int ac, const char **av, BaseContext *context) {
     if ( rVal != ErrorCodeContext::MGF_OK ) {
         return rVal;
     }
-    java::util::Formatter::formatToBuffer(p2x, 24, globalFloatFormat, cv->p.x);
-    java::util::Formatter::formatToBuffer(p2y, 24, globalFloatFormat, cv->p.y);
-    java::util::Formatter::formatToBuffer(p2z, 24, globalFloatFormat, cv->p.z + rad);
+    java::util::formatToBuffer(p2x, 24, globalFloatFormat, cv->p.x);
+    java::util::formatToBuffer(p2y, 24, globalFloatFormat, cv->p.y);
+    java::util::formatToBuffer(p2z, 24, globalFloatFormat, cv->p.z + rad);
     rVal = mgfHandle(EntityContext::MGF_POINT, 4, p2Entity, context);
     if ( rVal != ErrorCodeContext::MGF_OK ) {
         return rVal;
@@ -73,7 +75,7 @@ mgfEntitySphere(int ac, const char **av, BaseContext *context) {
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
         }
-        java::util::Formatter::formatToBuffer(p2z, 24, globalFloatFormat, cv->p.z + rad * java::Math::cos(theta));
+        java::util::formatToBuffer(p2z, 24, globalFloatFormat, cv->p.z + rad * java::Math::cos(theta));
         rVal = mgfHandle(EntityContext::VERTEX, 2, v2Entity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -83,7 +85,7 @@ mgfEntitySphere(int ac, const char **av, BaseContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        java::util::Formatter::formatToBuffer(r2, 24, globalFloatFormat, rad * java::Math::sin(theta));
+        java::util::formatToBuffer(r2, 24, globalFloatFormat, rad * java::Math::sin(theta));
         rVal = mgfHandle(EntityContext::CONE, 5, coneEntity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -161,9 +163,9 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
     // Initialize
     globalWarpConeEnds = true;
     v2Entity[3] = av[1];
-    java::util::Formatter::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * cv->n.x);
-    java::util::Formatter::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * cv->n.y);
-    java::util::Formatter::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * cv->n.z);
+    java::util::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * cv->n.x);
+    java::util::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * cv->n.y);
+    java::util::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * cv->n.z);
     int rVal = mgfHandle(EntityContext::VERTEX, 4, v2Entity, context);
     if ( rVal != ErrorCodeContext::MGF_OK ) {
         return rVal;
@@ -172,7 +174,7 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
     if ( rVal != ErrorCodeContext::MGF_OK ) {
         return rVal;
     }
-    java::util::Formatter::formatToBuffer(r2, 24, globalFloatFormat, avgRad = 0.5 * (minRad + maxRad));
+    java::util::formatToBuffer(r2, 24, globalFloatFormat, avgRad = 0.5 * (minRad + maxRad));
 
     // Run outer section
     int i;
@@ -182,9 +184,9 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
         }
-        java::util::Formatter::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
-        java::util::Formatter::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
-        java::util::Formatter::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
+        java::util::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
+        java::util::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
+        java::util::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(EntityContext::VERTEX, 2, v2Entity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -194,7 +196,7 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        java::util::Formatter::formatToBuffer(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * java::Math::sin(theta));
+        java::util::formatToBuffer(r2, 24, globalFloatFormat, avgRad + 0.5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(EntityContext::CONE, 5, coneEntity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -202,12 +204,12 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
     }
 
     // Run inner section
-    java::util::Formatter::formatToBuffer(r2, 24, globalFloatFormat, -0.5 * (minRad + maxRad));
+    java::util::formatToBuffer(r2, 24, globalFloatFormat, -0.5 * (minRad + maxRad));
     for ( ; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        java::util::Formatter::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
-        java::util::Formatter::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
-        java::util::Formatter::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
+        java::util::formatToBuffer(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.x);
+        java::util::formatToBuffer(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.y);
+        java::util::formatToBuffer(p2[2], 24, globalFloatFormat, cv->p.z + 0.5 * sign * (maxRad - minRad) * java::Math::cos(theta) * cv->n.z);
         rVal = mgfHandle(EntityContext::VERTEX, 4, v1Entity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -221,7 +223,7 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
             return rVal;
         }
         strcpy(r1, r2);
-        java::util::Formatter::formatToBuffer(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * java::Math::sin(theta));
+        java::util::formatToBuffer(r2, 24, globalFloatFormat, -avgRad - .5 * (maxRad - minRad) * java::Math::sin(theta));
         rVal = mgfHandle(EntityContext::CONE, 5, coneEntity, context);
         if ( rVal != ErrorCodeContext::MGF_OK ) {
             return rVal;
@@ -361,9 +363,9 @@ mgfEntityRing(int ac, const char **av, BaseContext *context) {
     VECTOR3Dd v;
 
     mgfMakeAxes(&u, &v, &vertexContext->n, Numeric::EPSILON);
-    java::util::Formatter::formatToBuffer(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * u.x);
-    java::util::Formatter::formatToBuffer(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * u.y);
-    java::util::Formatter::formatToBuffer(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * u.z);
+    java::util::formatToBuffer(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * u.x);
+    java::util::formatToBuffer(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * u.y);
+    java::util::formatToBuffer(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * u.z);
     int rv = mgfHandle(EntityContext::VERTEX, 3, v3Entity, context);
     if ( rv != ErrorCodeContext::MGF_OK ) {
         return rv;
@@ -391,13 +393,13 @@ mgfEntityRing(int ac, const char **av, BaseContext *context) {
                 return rv;
             }
 
-            java::util::Formatter::formatToBuffer(
+            java::util::formatToBuffer(
                 p3[0], 24, globalFloatFormat,
                 vertexContext->p.x + maxRad * u.x * java::Math::cos(theta) + maxRad * v.x * java::Math::sin(theta));
-            java::util::Formatter::formatToBuffer(
+            java::util::formatToBuffer(
                 p3[1], 24, globalFloatFormat,
                 vertexContext->p.y + maxRad * u.y * java::Math::cos(theta) + maxRad * v.y * java::Math::sin(theta));
-            java::util::Formatter::formatToBuffer(
+            java::util::formatToBuffer(
                 p3[2], 24, globalFloatFormat,
                 vertexContext->p.z + maxRad * u.z * java::Math::cos(theta) + maxRad * v.z * java::Math::sin(theta));
 
@@ -421,9 +423,9 @@ mgfEntityRing(int ac, const char **av, BaseContext *context) {
             return rv;
         }
 
-        java::util::Formatter::formatToBuffer(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * u.x);
-        java::util::Formatter::formatToBuffer(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * u.y);
-        java::util::Formatter::formatToBuffer(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * u.z);
+        java::util::formatToBuffer(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * u.x);
+        java::util::formatToBuffer(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * u.y);
+        java::util::formatToBuffer(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * u.z);
 
         rv = mgfHandle(EntityContext::MGF_POINT, 4, p4Entity, context);
         if ( rv != ErrorCodeContext::MGF_OK ) {
@@ -442,16 +444,16 @@ mgfEntityRing(int ac, const char **av, BaseContext *context) {
             }
 
             double d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * d);
-            java::util::Formatter::formatToBuffer(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * d);
+            java::util::formatToBuffer(p3[0], 24, globalFloatFormat, vertexContext->p.x + maxRad * d);
+            java::util::formatToBuffer(p4[0], 24, globalFloatFormat, vertexContext->p.x + minRad * d);
 
             d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * d);
-            java::util::Formatter::formatToBuffer(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * d);
+            java::util::formatToBuffer(p3[1], 24, globalFloatFormat, vertexContext->p.y + maxRad * d);
+            java::util::formatToBuffer(p4[1], 24, globalFloatFormat, vertexContext->p.y + minRad * d);
 
             d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * d);
-            java::util::Formatter::formatToBuffer(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * d);
+            java::util::formatToBuffer(p3[2], 24, globalFloatFormat, vertexContext->p.z + maxRad * d);
+            java::util::formatToBuffer(p4[2], 24, globalFloatFormat, vertexContext->p.z + minRad * d);
 
             rv = mgfHandle(EntityContext::VERTEX, 2, v3Entity, context);
             if ( rv != ErrorCodeContext::MGF_OK ) {
@@ -609,25 +611,25 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
     VECTOR3Dd v;
     mgfMakeAxes(&u, &v, &w, Numeric::EPSILON);
 
-    java::util::Formatter::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * u.x);
+    java::util::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * u.x);
     if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
-        java::util::Formatter::formatToBuffer(n3[0], 24, globalFloatFormat, -w.x);
+        java::util::formatToBuffer(n3[0], 24, globalFloatFormat, -w.x);
     } else {
-        java::util::Formatter::formatToBuffer(n3[0], 24, globalFloatFormat, u.x + w.x * n2off);
+        java::util::formatToBuffer(n3[0], 24, globalFloatFormat, u.x + w.x * n2off);
     }
 
-    java::util::Formatter::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * u.y);
+    java::util::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * u.y);
     if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
-        java::util::Formatter::formatToBuffer(n3[1], 24, globalFloatFormat, -w.y);
+        java::util::formatToBuffer(n3[1], 24, globalFloatFormat, -w.y);
     } else {
-        java::util::Formatter::formatToBuffer(n3[1], 24, globalFloatFormat, u.y + w.y * n2off);
+        java::util::formatToBuffer(n3[1], 24, globalFloatFormat, u.y + w.y * n2off);
     }
 
-    java::util::Formatter::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * u.z);
+    java::util::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * u.z);
     if ( n2off <= -Numeric::HUGE_FLOAT_VALUE) {
-        java::util::Formatter::formatToBuffer(n3[2], 24, globalFloatFormat, -w.z);
+        java::util::formatToBuffer(n3[2], 24, globalFloatFormat, -w.z);
     } else {
-        java::util::Formatter::formatToBuffer(n3[2], 24, globalFloatFormat, u.z + w.z * n2off);
+        java::util::formatToBuffer(n3[2], 24, globalFloatFormat, u.z + w.z * n2off);
     }
 
     rv = mgfHandle(EntityContext::VERTEX, 3, v3Entity, context);
@@ -651,9 +653,9 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
             return rv;
         }
 
-        java::util::Formatter::formatToBuffer(n4[0], 24, globalFloatFormat, w.x);
-        java::util::Formatter::formatToBuffer(n4[1], 24, globalFloatFormat, w.y);
-        java::util::Formatter::formatToBuffer(n4[2], 24, globalFloatFormat, w.z);
+        java::util::formatToBuffer(n4[0], 24, globalFloatFormat, w.x);
+        java::util::formatToBuffer(n4[1], 24, globalFloatFormat, w.y);
+        java::util::formatToBuffer(n4[2], 24, globalFloatFormat, w.z);
 
         rv = mgfHandle(EntityContext::MGF_NORMAL, 4, n4Entity, context);
         if ( rv != ErrorCodeContext::MGF_OK ) {
@@ -667,21 +669,21 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
             }
 
             d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
+            java::util::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[0], 24, globalFloatFormat, d + w.x * n2off);
+                java::util::formatToBuffer(n3[0], 24, globalFloatFormat, d + w.x * n2off);
             }
 
             d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
+            java::util::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[1], 24, globalFloatFormat, d + w.y * n2off);
+                java::util::formatToBuffer(n3[1], 24, globalFloatFormat, d + w.y * n2off);
             }
 
             d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
+            java::util::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[2], 24, globalFloatFormat, d + w.z * n2off);
+                java::util::formatToBuffer(n3[2], 24, globalFloatFormat, d + w.z * n2off);
             }
 
             rv = mgfHandle(EntityContext::VERTEX, 2, v3Entity, context);
@@ -714,25 +716,25 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
             }
         }
 
-        java::util::Formatter::formatToBuffer(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * u.x);
+        java::util::formatToBuffer(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * u.x);
         if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
-            java::util::Formatter::formatToBuffer(n4[0], 24, globalFloatFormat, w.x);
+            java::util::formatToBuffer(n4[0], 24, globalFloatFormat, w.x);
         } else {
-            java::util::Formatter::formatToBuffer(n4[0], 24, globalFloatFormat, u.x + w.x * n1off);
+            java::util::formatToBuffer(n4[0], 24, globalFloatFormat, u.x + w.x * n1off);
         }
 
-        java::util::Formatter::formatToBuffer(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * u.y);
+        java::util::formatToBuffer(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * u.y);
         if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
-            java::util::Formatter::formatToBuffer(n4[1], 24, globalFloatFormat, w.y);
+            java::util::formatToBuffer(n4[1], 24, globalFloatFormat, w.y);
         } else {
-            java::util::Formatter::formatToBuffer(n4[1], 24, globalFloatFormat, u.y + w.y * n1off);
+            java::util::formatToBuffer(n4[1], 24, globalFloatFormat, u.y + w.y * n1off);
         }
 
-        java::util::Formatter::formatToBuffer(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * u.z);
+        java::util::formatToBuffer(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * u.z);
         if ( n1off >= Numeric::HUGE_FLOAT_VALUE) {
-            java::util::Formatter::formatToBuffer(n4[2], 24, globalFloatFormat, w.z);
+            java::util::formatToBuffer(n4[2], 24, globalFloatFormat, w.z);
         } else {
-            java::util::Formatter::formatToBuffer(n4[2], 24, globalFloatFormat, u.z + w.z * n1off);
+            java::util::formatToBuffer(n4[2], 24, globalFloatFormat, u.z + w.z * n1off);
         }
 
         rv = mgfHandle(EntityContext::VERTEX, 3, v4Entity, context);
@@ -759,33 +761,33 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
             }
 
             d = u.x * java::Math::cos(theta) + v.x * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
+            java::util::formatToBuffer(p3[0], 24, globalFloatFormat, cv2->p.x + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[0], 24, globalFloatFormat, d + w.x * n2off);
+                java::util::formatToBuffer(n3[0], 24, globalFloatFormat, d + w.x * n2off);
             }
-            java::util::Formatter::formatToBuffer(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * d);
+            java::util::formatToBuffer(p4[0], 24, globalFloatFormat, cv1->p.x + radius1 * d);
             if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n4[0], 24, globalFloatFormat, d + w.x * n1off);
+                java::util::formatToBuffer(n4[0], 24, globalFloatFormat, d + w.x * n1off);
             }
 
             d = u.y * java::Math::cos(theta) + v.y * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
+            java::util::formatToBuffer(p3[1], 24, globalFloatFormat, cv2->p.y + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[1], 24, globalFloatFormat, d + w.y * n2off);
+                java::util::formatToBuffer(n3[1], 24, globalFloatFormat, d + w.y * n2off);
             }
-            java::util::Formatter::formatToBuffer(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * d);
+            java::util::formatToBuffer(p4[1], 24, globalFloatFormat, cv1->p.y + radius1 * d);
             if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n4[1], 24, globalFloatFormat, d + w.y * n1off);
+                java::util::formatToBuffer(n4[1], 24, globalFloatFormat, d + w.y * n1off);
             }
 
             d = u.z * java::Math::cos(theta) + v.z * java::Math::sin(theta);
-            java::util::Formatter::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
+            java::util::formatToBuffer(p3[2], 24, globalFloatFormat, cv2->p.z + radius2 * d);
             if ( n2off > -Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n3[2], 24, globalFloatFormat, d + w.z * n2off);
+                java::util::formatToBuffer(n3[2], 24, globalFloatFormat, d + w.z * n2off);
             }
-            java::util::Formatter::formatToBuffer(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * d);
+            java::util::formatToBuffer(p4[2], 24, globalFloatFormat, cv1->p.z + radius1 * d);
             if ( n1off < Numeric::HUGE_FLOAT_VALUE) {
-                java::util::Formatter::formatToBuffer(n4[2], 24, globalFloatFormat, d + w.z * n1off);
+                java::util::formatToBuffer(n4[2], 24, globalFloatFormat, d + w.z * n1off);
             }
 
             rv = mgfHandle(EntityContext::VERTEX, 2, v3Entity, context);
@@ -901,7 +903,7 @@ mgfEntityPrism(int ac, const char **av, BaseContext *context) {
 
     // Create moved vertices
     for ( i = 1; i < ac - 1; i++ ) {
-        java::util::Formatter::formatToBuffer(nvn[i - 1], MGF_PV_SIZE, "_pv%d", i);
+        java::util::formatToBuffer(nvn[i - 1], MGF_PV_SIZE, "_pv%d", i);
         vent[1] = nvn[i - 1];
         vent[3] = av[i];
         rv = mgfHandle(EntityContext::VERTEX, 4, vent, context);
@@ -909,9 +911,9 @@ mgfEntityPrism(int ac, const char **av, BaseContext *context) {
             return rv;
         }
         cv = getNamedVertex(av[i], context); // Checked above
-        java::util::Formatter::formatToBuffer(p[0], 24, globalFloatFormat, cv->p.x - length * norm.x);
-        java::util::Formatter::formatToBuffer(p[1], 24, globalFloatFormat, cv->p.y - length * norm.y);
-        java::util::Formatter::formatToBuffer(p[2], 24, globalFloatFormat, cv->p.z - length * norm.z);
+        java::util::formatToBuffer(p[0], 24, globalFloatFormat, cv->p.x - length * norm.x);
+        java::util::formatToBuffer(p[1], 24, globalFloatFormat, cv->p.y - length * norm.y);
+        java::util::formatToBuffer(p[2], 24, globalFloatFormat, cv->p.z - length * norm.z);
         rv = mgfHandle(EntityContext::MGF_POINT, 4, pent, context);
         if ( rv != ErrorCodeContext::MGF_OK ) {
             return rv;

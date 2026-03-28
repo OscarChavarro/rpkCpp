@@ -146,7 +146,7 @@ class CPhotonMap {
     }
 
     void getStats(char *p, int n) const {
-        java::util::Formatter::formatToBuffer(
+        java::util::formatToBuffer(
             p, n, "%i stored photons, %i total, %li paths\n", m_nrPhotons, m_totalPhotons, m_totalPaths);
     }
 

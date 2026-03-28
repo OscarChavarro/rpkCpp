@@ -32,7 +32,7 @@ PrintStream::printf(const char *format, ...) {
     }
     va_list arguments;
     va_start(arguments, format);
-    const java::lang::String text = java::util::Formatter::vformat(format, arguments);
+    const java::lang::String text = java::util::vformat(format, arguments);
     va_end(arguments);
     writeText(stream, text.toCString());
     return *this;

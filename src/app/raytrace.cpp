@@ -18,7 +18,7 @@
 
 static void
 rayTraceMakeMethodsHelpMessage(char *str) {
-    java::util::Formatter::formatToBuffer(str, 1000,
+    java::util::formatToBuffer(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
          "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"

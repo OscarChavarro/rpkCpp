@@ -65,7 +65,7 @@ static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRayt
 
     basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
 
-    java::util::Formatter::formatToBuffer(
+    java::util::formatToBuffer(
         desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
     basis.description = strdup(desc);
 

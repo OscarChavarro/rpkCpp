@@ -32,7 +32,7 @@ const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
     'B', 'I', 'N', '_', '1', 0, 0, 0
 };
-const int32_t BinaryModelWriter::BINARY_MODEL_VERSION = 1;
+const int BinaryModelWriter::BINARY_MODEL_VERSION = 1;
 
 namespace {
 const char *
@@ -70,13 +70,13 @@ BinaryModelWriter::writeTag(java::io::OutputStream &output, const char tag[4]) {
 }
 
 bool
-BinaryModelWriter::checkedLongToInt32(long value, const char *what, int32_t &result) {
+BinaryModelWriter::checkedLongToInt32(long value, const char *what, int &result) {
     if ( value > static_cast<long>(java::Integer::MAX_VALUE)
          || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
         logError("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
         return false;
     }
-    result = static_cast<int32_t>(value);
+    result = static_cast<int>(value);
     return true;
 }
 
@@ -87,7 +87,7 @@ BinaryModelWriter::writeString(java::io::OutputStream &output, const char *text)
         return true;
     }
     const long size = static_cast<long>(std::strlen(text));
-    int32_t sizeAsInt32 = 0;
+    int sizeAsInt32 = 0;
     if ( !checkedLongToInt32(size, "string length", sizeAsInt32) ) {
         return false;
     }
@@ -128,7 +128,7 @@ BinaryModelWriter::indexOfPointer(
     const T *ptr,
     const java::HashMap<const T *, int> &indices,
     const char *what,
-    int32_t &result)
+    int &result)
 {
     if ( ptr == nullptr ) {
         result = -1;
@@ -139,7 +139,7 @@ BinaryModelWriter::indexOfPointer(
         logError("BinaryModelWriter::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
         return false;
     }
-    result = static_cast<int32_t>(index);
+    result = static_cast<int>(index);
     return true;
 }
 
@@ -156,14 +156,14 @@ BinaryModelWriter::writeIndexList(
         return true;
     }
 
-    int32_t size = 0;
+    int size = 0;
     if ( !checkedLongToInt32(list->size(), what, size) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, size);
-    for ( int32_t i = 0; i < size; i++ ) {
+    for ( int i = 0; i < size; i++ ) {
         const T *element = list->get(i);
-        int32_t elementIndex = -1;
+        int elementIndex = -1;
         if ( !indexOfPointer(element, indices, what, elementIndex) ) {
             return false;
         }
@@ -714,7 +714,7 @@ BinaryModelWriter::writeReaderContextRecord(
     vsdk::PersistenceElement::writeInt32LE(output, readerContext->lineNumber);
     vsdk::PersistenceElement::writeByte(output, static_cast<unsigned char>(readerContext->isPipe));
 
-    int32_t previousIndex = -1;
+    int previousIndex = -1;
     if ( !indexOfPointer(readerContext->prev, context.readerContextIndices, "readerContext.prev", previousIndex) ) {
         return false;
     }
@@ -755,7 +755,7 @@ BinaryModelWriter::writeTransformContextRecord(
     }
     vsdk::PersistenceElement::writeDoubleLE(output, transformContext->xf.scaleFactor);
 
-    int32_t transformArrayIndex = -1;
+    int transformArrayIndex = -1;
     if ( !indexOfPointer(
              transformContext->transformationArray,
              context.transformArrayIndices,
@@ -765,7 +765,7 @@ BinaryModelWriter::writeTransformContextRecord(
     }
     vsdk::PersistenceElement::writeInt32LE(output, transformArrayIndex);
 
-    int32_t previousIndex = -1;
+    int previousIndex = -1;
     if ( !indexOfPointer(transformContext->prev, context.transformContextIndices, "transformContext.prev", previousIndex) ) {
         return false;
     }
@@ -777,19 +777,19 @@ bool
 BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriter::SerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
 
-    int32_t pointIndex = -1;
+    int pointIndex = -1;
     if ( !indexOfPointer(vertex->point, context.vectorIndices, "vertex.point", pointIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, pointIndex);
 
-    int32_t normalIndex = -1;
+    int normalIndex = -1;
     if ( !indexOfPointer(vertex->normal, context.vectorIndices, "vertex.normal", normalIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, normalIndex);
 
-    int32_t textureIndex = -1;
+    int textureIndex = -1;
     if ( !indexOfPointer(vertex->textureCoordinates, context.vectorIndices, "vertex.textureCoordinates", textureIndex) ) {
         return false;
     }
@@ -797,7 +797,7 @@ BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Verte
 
     writeColor(output, vertex->color);
 
-    int32_t backIndex = -1;
+    int backIndex = -1;
     if ( !indexOfPointer(vertex->back, context.vertexIndices, "vertex.back", backIndex) ) {
         return false;
     }
@@ -810,17 +810,17 @@ BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Verte
 
 bool
 BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriter::SerializationContext &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(patch->id));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->id));
 
-    int32_t twinIndex = -1;
+    int twinIndex = -1;
     if ( !indexOfPointer(patch->twin, context.patchIndices, "patch.twin", twinIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, twinIndex);
 
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(patch->numberOfVertices));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->numberOfVertices));
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        int32_t vertexIndex = -1;
+        int vertexIndex = -1;
         if ( !indexOfPointer(patch->vertex[i], context.vertexIndices, "patch.vertex", vertexIndex) ) {
             return false;
         }
@@ -846,12 +846,12 @@ BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch 
     }
 
     vsdk::PersistenceElement::writeFloatLE(output, patch->directPotential);
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(patch->index));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->index));
     vsdk::PersistenceElement::writeBool(output, patch->omit != 0);
     vsdk::PersistenceElement::writeByte(output, patch->getFlags());
     writeColor(output, patch->color);
 
-    int32_t materialIndex = -1;
+    int materialIndex = -1;
     if ( !indexOfPointer(patch->material, context.materialIndices, "patch.material", materialIndex) ) {
         return false;
     }
@@ -863,7 +863,7 @@ BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch 
 
 bool
 BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriter::SerializationContext &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(geometry->className));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
     vsdk::PersistenceElement::writeBool(output, geometry->bounded != 0);
@@ -881,7 +881,7 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
         }
         vsdk::PersistenceElement::writeInt32LE(output, surface->meshId);
 
-        int32_t materialIndex = -1;
+        int materialIndex = -1;
         if ( !indexOfPointer(surface->material, context.materialIndices, "surface.material", materialIndex) ) {
             return false;
         }
@@ -918,7 +918,7 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
 
 bool
 BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriter::SerializationContext &context) {
-    int32_t currentColorIndex = -1;
+    int currentColorIndex = -1;
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
     }
@@ -939,13 +939,13 @@ BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const Persis
     vsdk::PersistenceElement::writeBool(output, model->inSurface);
     vsdk::PersistenceElement::writeBool(output, model->monochrome);
 
-    int32_t readerContextIndex = -1;
+    int readerContextIndex = -1;
     if ( !indexOfPointer(model->readerContext, context.readerContextIndices, "model.readerContext", readerContextIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, readerContextIndex);
 
-    int32_t transformContextIndex = -1;
+    int transformContextIndex = -1;
     if ( !indexOfPointer(model->transformContext, context.transformContextIndices, "model.transformContext", transformContextIndex) ) {
         return false;
     }
@@ -997,67 +997,67 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
 
     vsdk::PersistenceElement::writeBytes(output, BINARY_MODEL_MAGIC, 16);
     vsdk::PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(void *)));
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(long)));
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int32_t>(sizeof(PersistedSceneModel)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(void *)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(long)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(PersistedSceneModel)));
 
-    int32_t vectorsCount = 0;
+    int vectorsCount = 0;
     if ( !checkedLongToInt32(context.vectors.size(), "vectors count", vectorsCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, vectorsCount);
 
-    int32_t verticesCount = 0;
+    int verticesCount = 0;
     if ( !checkedLongToInt32(context.vertices.size(), "vertices count", verticesCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, verticesCount);
 
-    int32_t patchesCount = 0;
+    int patchesCount = 0;
     if ( !checkedLongToInt32(context.patches.size(), "patches count", patchesCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, patchesCount);
 
-    int32_t materialsCount = 0;
+    int materialsCount = 0;
     if ( !checkedLongToInt32(context.materials.size(), "materials count", materialsCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, materialsCount);
 
-    int32_t geometriesCount = 0;
+    int geometriesCount = 0;
     if ( !checkedLongToInt32(context.geometries.size(), "geometries count", geometriesCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, geometriesCount);
 
-    int32_t colorContextsCount = 0;
+    int colorContextsCount = 0;
     if ( !checkedLongToInt32(context.colorContexts.size(), "color contexts count", colorContextsCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, colorContextsCount);
 
-    int32_t readerContextsCount = 0;
+    int readerContextsCount = 0;
     if ( !checkedLongToInt32(context.readerContexts.size(), "reader contexts count", readerContextsCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, readerContextsCount);
 
-    int32_t transformArraysCount = 0;
+    int transformArraysCount = 0;
     if ( !checkedLongToInt32(context.transformArrays.size(), "transform arrays count", transformArraysCount) ) {
         output.close();
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, transformArraysCount);
 
-    int32_t transformContextsCount = 0;
+    int transformContextsCount = 0;
     if ( !checkedLongToInt32(context.transformContexts.size(), "transform contexts count", transformContextsCount) ) {
         output.close();
         return false;

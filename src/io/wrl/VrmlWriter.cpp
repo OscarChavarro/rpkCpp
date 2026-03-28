@@ -7,6 +7,7 @@ Saves the result of a radiosity computation as a VRML file
 #include <cstdarg>
 
 #include "io/wrapper/PersistenceElement.h"
+#include "java/lang/Math.h"
 #include "java/util/Formatter.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
@@ -21,7 +22,7 @@ vrmlWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::Formatter::vformat(format, arguments);
+    java::lang::String text = java::util::vformat(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -118,7 +119,7 @@ VrmlWriter::writeViewPoint(
         viewRotationAxis.y,
         viewRotationAxis.z,
         viewRotationAngle,
-        2.0 * camera->fieldOfVision * M_PI / 180.0,
+        2.0 * camera->fieldOfVision * java::Math::PI / 180.0,
         viewPointName);
 }
 
@@ -133,7 +134,7 @@ VrmlWriter::writeViewPoints(
     writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
     while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
         count++;
-        const java::lang::String viewPointName = java::util::Formatter::format("ViewPoint %d", count);
+        const java::lang::String viewPointName = java::util::format("ViewPoint %d", count);
         writeViewPoint(outputStream, modelTransform, localCamera, viewPointName.toCString());
     }
 }

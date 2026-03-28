@@ -1,7 +1,6 @@
 #ifndef __ArrayList__
 #define __ArrayList__
 
-#include <cstdlib>
 #include "java/lang/Object.h"
 
 namespace java {

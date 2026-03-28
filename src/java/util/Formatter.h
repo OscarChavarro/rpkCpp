@@ -6,22 +6,46 @@
 #include "java/lang/String.h"
 
 namespace java {
+namespace io {
+class OutputStream;
+}
 namespace util {
 
 class Formatter {
   public:
-    static int
-    formatToBuffer(char *buffer, int bufferSize, const char *format, ...);
+    Formatter();
+    explicit Formatter(java::io::OutputStream *outputStream);
+    ~Formatter();
 
-    static int
-    vformatToBuffer(char *buffer, int bufferSize, const char *format, va_list arguments);
+    java::io::OutputStream *
+    out() const;
 
-    static java::lang::String
+    void
+    flush();
+
+    void
+    close();
+
+    Formatter &
     format(const char *format, ...);
 
-    static java::lang::String
-    vformat(const char *format, va_list arguments);
+  private:
+    java::io::OutputStream *outputStream;
+    java::lang::String content;
+    bool closed;
 };
+
+int
+formatToBuffer(char *buffer, int bufferSize, const char *format, ...);
+
+int
+vformatToBuffer(char *buffer, int bufferSize, const char *format, va_list arguments);
+
+java::lang::String
+format(const char *format, ...);
+
+java::lang::String
+vformat(const char *format, va_list arguments);
 
 }
 }

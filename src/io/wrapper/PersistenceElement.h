@@ -70,7 +70,7 @@ class PersistenceElement {
     static void writeSignedShortLE(java::io::OutputStream &os, int num);
 
     static long readLongLE(java::io::InputStream &is);
-    static void writeInt32LE(java::io::OutputStream &os, int32_t num);
+    static void writeInt32LE(java::io::OutputStream &os, int num);
     static void writeInt64LE(java::io::OutputStream &os, int64_t num);
     static void writeDoubleLE(java::io::OutputStream &os, double num);
 

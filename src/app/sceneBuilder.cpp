@@ -1,5 +1,6 @@
 #include <ctime>
 #include <cerrno>
+#include <cmath>
 #include <cstring>
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
@@ -383,7 +384,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     unsigned long n = strlen(inputName) + 1;
 
     char *currentDirectory = new char[n];
-    java::util::Formatter::formatToBuffer(currentDirectory, static_cast<int>(n), "%s", inputName);
+    java::util::formatToBuffer(currentDirectory, static_cast<int>(n), "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';

@@ -15,7 +15,7 @@ picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...)
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = java::util::Formatter::vformat(format, arguments);
+    java::lang::String text = java::util::vformat(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {

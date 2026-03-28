@@ -34,20 +34,20 @@ class BinaryModelWriter {
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
-    static const int32_t BINARY_MODEL_VERSION;
+    static const int BINARY_MODEL_VERSION;
 
     class SerializationContext;
 
     static bool writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, int64_t length);
     static void writeTag(java::io::OutputStream &output, const char tag[4]);
-    static bool checkedLongToInt32(long value, const char *what, int32_t &result);
+    static bool checkedLongToInt32(long value, const char *what, int &result);
     static bool writeString(java::io::OutputStream &output, const char *text);
     static void writeColor(java::io::OutputStream &output, const ColorRgb &color);
     static void writeVector(java::io::OutputStream &output, const Vector3D &vector);
     static void writeBoundingBox(java::io::OutputStream &output, const BoundingBox &boundingBox);
 
     template <typename T>
-    static bool indexOfPointer(const T *ptr, const java::HashMap<const T *, int> &indices, const char *what, int32_t &result);
+    static bool indexOfPointer(const T *ptr, const java::HashMap<const T *, int> &indices, const char *what, int &result);
 
     template <typename T>
     static bool writeIndexList(

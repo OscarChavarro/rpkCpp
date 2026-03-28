@@ -474,15 +474,15 @@ PersistenceElement::readLongLE(java::io::InputStream &is) {
 }
 
 void
-PersistenceElement::writeInt32LE(java::io::OutputStream &os, int32_t num) {
+PersistenceElement::writeInt32LE(java::io::OutputStream &os, int num) {
     writeLongLE(os, static_cast<long>(num));
 }
 
 void
 PersistenceElement::writeInt64LE(java::io::OutputStream &os, int64_t num) {
     const uint64_t bits = static_cast<uint64_t>(num);
-    const int32_t low = static_cast<int32_t>(bits & 0xFFFFFFFFULL);
-    const int32_t high = static_cast<int32_t>((bits >> 32) & 0xFFFFFFFFULL);
+    const int low = static_cast<int>(bits & 0xFFFFFFFFULL);
+    const int high = static_cast<int>((bits >> 32) & 0xFFFFFFFFULL);
     writeInt32LE(os, low);
     writeInt32LE(os, high);
 }

@@ -35,7 +35,7 @@ const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
     'B', 'I', 'N', '_', '1', 0, 0, 0
 };
-const int32_t BinaryModelReader::BINARY_MODEL_VERSION = 1;
+const int BinaryModelReader::BINARY_MODEL_VERSION = 1;
 
 namespace {
 template <typename T>
@@ -81,7 +81,7 @@ reportReadError(const char *routine, const char *message) {
 class BinaryModelReader::IndexListRecord {
   public:
     bool isNull;
-    java::ArrayList<int32_t> *indices;
+    java::ArrayList<int> *indices;
 
     IndexListRecord():
         isNull(true),
@@ -92,23 +92,23 @@ class BinaryModelReader::IndexListRecord {
 
 class BinaryModelReader::VertexRecord {
   public:
-    int32_t id;
-    int32_t pointIndex;
-    int32_t normalIndex;
-    int32_t textureCoordinateIndex;
+    int id;
+    int pointIndex;
+    int normalIndex;
+    int textureCoordinateIndex;
     ColorRgb color;
-    int32_t backIndex;
-    int32_t tmp;
+    int backIndex;
+    int tmp;
     bool hasRadianceData;
     IndexListRecord patchIndices;
 };
 
 class BinaryModelReader::PatchRecord {
   public:
-    int32_t id;
-    int32_t twinIndex;
-    int32_t numberOfVertices;
-    int32_t vertexIndices[MAXIMUM_VERTICES_PER_PATCH];
+    int id;
+    int twinIndex;
+    int numberOfVertices;
+    int vertexIndices[MAXIMUM_VERTICES_PER_PATCH];
     bool hasBoundingBox;
     float boundingBoxCoordinates[6];
     Vector3D normal;
@@ -121,19 +121,19 @@ class BinaryModelReader::PatchRecord {
     float jacobianB;
     float jacobianC;
     float directPotential;
-    int32_t dominantIndex;
+    int dominantIndex;
     bool omit;
     unsigned char flags;
     ColorRgb color;
-    int32_t materialIndex;
+    int materialIndex;
     bool hasRadianceData;
 };
 
 class BinaryModelReader::GeometryRecord {
   public:
-    int32_t classId;
-    int32_t id;
-    int32_t itemCount;
+    int classId;
+    int id;
+    int itemCount;
     bool bounded;
     bool shaftCullGeometry;
     bool omit;
@@ -144,8 +144,8 @@ class BinaryModelReader::GeometryRecord {
 
     bool hasObjectName;
     char *objectName;
-    int32_t meshId;
-    int32_t materialIndex;
+    int meshId;
+    int materialIndex;
     IndexListRecord positions;
     IndexListRecord normals;
     IndexListRecord vertices;
@@ -157,19 +157,19 @@ class BinaryModelReader::GeometryRecord {
 
 class BinaryModelReader::ModelRecord {
   public:
-    int32_t currentColorIndex;
+    int currentColorIndex;
     bool hasCurrentMaterialName;
     char *currentMaterialName;
     bool hasCurrentObjectName;
     char *currentObjectName;
     bool hasCurrentVertexName;
     char *currentVertexName;
-    int32_t geometryStackHeadIndex;
+    int geometryStackHeadIndex;
     bool inComplex;
     bool inSurface;
     bool monochrome;
-    int32_t readerContextIndex;
-    int32_t transformContextIndex;
+    int readerContextIndex;
+    int transformContextIndex;
 
     IndexListRecord currentFaceList;
     IndexListRecord currentGeometryList;
@@ -199,7 +199,7 @@ class BinaryModelReader::ModelRecord {
 
 template <typename T>
 bool
-BinaryModelReader::initializeArrayList(java::ArrayList<T> *list, int32_t count, T initialValue, const char *what) {
+BinaryModelReader::initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what) {
     if ( list == nullptr ) {
         return reportReadError("BinaryModelReader::initializeArrayList", "Null list pointer");
     }
@@ -207,7 +207,7 @@ BinaryModelReader::initializeArrayList(java::ArrayList<T> *list, int32_t count, 
         logError("BinaryModelReader::initializeArrayList", "Negative count while reading binary model (%s)", what);
         return false;
     }
-    for ( int32_t i = 0; i < count; i++ ) {
+    for ( int i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
             logError("BinaryModelReader::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
             return false;
@@ -268,10 +268,10 @@ BinaryModelReader::readInt16LE(java::io::InputStream &input) {
     return static_cast<int16_t>(vsdk::PersistenceElement::readSignedShortLE(input));
 }
 
-int32_t
+int
 BinaryModelReader::readInt32LE(java::io::InputStream &input) {
     const long value = vsdk::PersistenceElement::readLongLE(input);
-    return static_cast<int32_t>(value);
+    return static_cast<int>(value);
 }
 
 int64_t
@@ -309,7 +309,7 @@ BinaryModelReader::expectTag(java::io::InputStream &input, const char expected[4
 }
 
 bool
-BinaryModelReader::readNonNegativeCount(java::io::InputStream &input, const char *what, int32_t *count) {
+BinaryModelReader::readNonNegativeCount(java::io::InputStream &input, const char *what, int *count) {
     if ( count == nullptr ) {
         return reportReadError("BinaryModelReader::readNonNegativeCount", "Null output count pointer");
     }
@@ -332,7 +332,7 @@ BinaryModelReader::readNullableString(java::io::InputStream &input, char **value
     }
     *hasValue = false;
 
-    const int32_t size = readInt32LE(input);
+    const int size = readInt32LE(input);
     if ( size == -1 ) {
         return true;
     }
@@ -425,7 +425,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what,
     record->isNull = false;
     record->indices = nullptr;
 
-    const int32_t count = readInt32LE(input);
+    const int count = readInt32LE(input);
     if ( count == -1 ) {
         record->isNull = true;
         return true;
@@ -435,8 +435,8 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what,
         return false;
     }
 
-    record->indices = new java::ArrayList<int32_t>(count > 0 ? static_cast<long int>(count) : 1);
-    for ( int32_t i = 0; i < count; i++ ) {
+    record->indices = new java::ArrayList<int>(count > 0 ? static_cast<long int>(count) : 1);
+    for ( int i = 0; i < count; i++ ) {
         if ( !record->indices->add(readInt32LE(input)) ) {
             delete record->indices;
             record->indices = nullptr;
@@ -450,7 +450,7 @@ BinaryModelReader::readIndexList(java::io::InputStream &input, const char *what,
 
 template <typename T>
 bool
-BinaryModelReader::pointerFromIndex(const java::ArrayList<T *> &values, int32_t index, const char *what, T **result) {
+BinaryModelReader::pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result) {
     if ( result == nullptr ) {
         return reportReadError("BinaryModelReader::pointerFromIndex", "Null output pointer");
     }
@@ -508,18 +508,18 @@ BinaryModelReader::validateBinaryHeader(java::io::InputStream &input) {
         return reportReadError("BinaryModelReader::validateBinaryHeader", "Invalid binary model magic header");
     }
 
-    const int32_t version = readInt32LE(input);
+    const int version = readInt32LE(input);
     if ( version != BINARY_MODEL_VERSION ) {
         return reportReadError("BinaryModelReader::validateBinaryHeader", "Unsupported binary model version");
     }
 
-    const int32_t pointerSize = readInt32LE(input);
-    const int32_t longSize = readInt32LE(input);
-    const int32_t modelSize = readInt32LE(input);
+    const int pointerSize = readInt32LE(input);
+    const int longSize = readInt32LE(input);
+    const int modelSize = readInt32LE(input);
 
-    if ( pointerSize != static_cast<int32_t>(sizeof(void *))
-         || longSize != static_cast<int32_t>(sizeof(long))
-         || modelSize != static_cast<int32_t>(sizeof(PersistedSceneModel)) ) {
+    if ( pointerSize != static_cast<int>(sizeof(void *))
+         || longSize != static_cast<int>(sizeof(long))
+         || modelSize != static_cast<int>(sizeof(PersistedSceneModel)) ) {
         return reportReadError("BinaryModelReader::validateBinaryHeader", "Incompatible binary model platform/type sizes");
     }
     return true;
@@ -696,15 +696,15 @@ BinaryModelReader::read(const char *fileName) {
     ModelRecord modelRecord;
     PersistedSceneModel *model = nullptr;
     bool ok = false;
-    int32_t vectorCount = 0;
-    int32_t vertexCount = 0;
-    int32_t patchCount = 0;
-    int32_t materialCount = 0;
-    int32_t geometryCount = 0;
-    int32_t colorContextCount = 0;
-    int32_t readerContextCount = 0;
-    int32_t transformArrayCount = 0;
-    int32_t transformContextCount = 0;
+    int vectorCount = 0;
+    int vertexCount = 0;
+    int patchCount = 0;
+    int materialCount = 0;
+    int geometryCount = 0;
+    int colorContextCount = 0;
+    int readerContextCount = 0;
+    int transformArrayCount = 0;
+    int transformContextCount = 0;
 
     try {
         if ( !validateBinaryHeader(input) ) goto fail;
@@ -733,7 +733,7 @@ BinaryModelReader::read(const char *fileName) {
         if ( !initializeArrayList(&geometryRecords, geometryCount, GeometryRecord(), "geometry records") ) goto fail;
 
         if ( !expectTag(input, "VEC3") ) goto fail;
-        for ( int32_t i = 0; i < vectorCount; i++ ) {
+        for ( int i = 0; i < vectorCount; i++ ) {
             Vector3D *vector = new Vector3D();
             if ( !readVector(input, vector) ) {
                 delete vector;
@@ -743,7 +743,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "MTLS") ) goto fail;
-        for ( int32_t i = 0; i < materialCount; i++ ) {
+        for ( int i = 0; i < materialCount; i++ ) {
             ScopedArray<char> materialNameGuard;
             char *materialName = nullptr;
             bool hasMaterialName = false;
@@ -793,9 +793,9 @@ BinaryModelReader::read(const char *fileName) {
 
                 const bool hasTexture = readBool(input);
                 if ( hasTexture ) {
-                    const int32_t width = readInt32LE(input);
-                    const int32_t height = readInt32LE(input);
-                    const int32_t channels = readInt32LE(input);
+                    const int width = readInt32LE(input);
+                    const int height = readInt32LE(input);
+                    const int channels = readInt32LE(input);
                     const int64_t dataBytes = readInt64LE(input);
 
                     if ( width < 0 || height < 0 || channels < 0 || dataBytes < 0 ) {
@@ -835,7 +835,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "COLR") ) goto fail;
-        for ( int32_t i = 0; i < colorContextCount; i++ ) {
+        for ( int i = 0; i < colorContextCount; i++ ) {
             ColorContext *colorContext = new ColorContext();
             colorContext->clock = readInt32LE(input);
             colorContext->flags = readInt16LE(input);
@@ -850,9 +850,9 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "RCTX") ) goto fail;
-        java::ArrayList<int32_t> readerContextPrevIndex;
-        if ( !initializeArrayList(&readerContextPrevIndex, readerContextCount, static_cast<int32_t>(-1), "reader context prev index") ) goto fail;
-        for ( int32_t i = 0; i < readerContextCount; i++ ) {
+        java::ArrayList<int> readerContextPrevIndex;
+        if ( !initializeArrayList(&readerContextPrevIndex, readerContextCount, static_cast<int>(-1), "reader context prev index") ) goto fail;
+        for ( int i = 0; i < readerContextCount; i++ ) {
             ReaderContext *readerContext = new ReaderContext();
             readBytes(input, reinterpret_cast<unsigned char *>(readerContext->fileName), 96);
             readerContext->fileName[95] = '\0';
@@ -875,7 +875,7 @@ BinaryModelReader::read(const char *fileName) {
             readerContext->prev = nullptr;
             readerContexts.set(static_cast<long int>(i), readerContext);
         }
-        for ( int32_t i = 0; i < readerContextCount; i++ ) {
+        for ( int i = 0; i < readerContextCount; i++ ) {
             ReaderContext *prev = nullptr;
             if ( !pointerFromIndex(
                      readerContexts,
@@ -886,7 +886,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "XFAR") ) goto fail;
-        for ( int32_t i = 0; i < transformArrayCount; i++ ) {
+        for ( int i = 0; i < transformArrayCount; i++ ) {
             TransformArray *transformArray = new TransformArray();
             transformArray->startingPosition.fileId = readInt32LE(input);
             transformArray->startingPosition.lineNumber = readInt32LE(input);
@@ -905,11 +905,11 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "XFCT") ) goto fail;
-        java::ArrayList<int32_t> transformContextArrayIndex;
-        java::ArrayList<int32_t> transformContextPrevIndex;
-        if ( !initializeArrayList(&transformContextArrayIndex, transformContextCount, static_cast<int32_t>(-1), "transform context array index") ) goto fail;
-        if ( !initializeArrayList(&transformContextPrevIndex, transformContextCount, static_cast<int32_t>(-1), "transform context prev index") ) goto fail;
-        for ( int32_t i = 0; i < transformContextCount; i++ ) {
+        java::ArrayList<int> transformContextArrayIndex;
+        java::ArrayList<int> transformContextPrevIndex;
+        if ( !initializeArrayList(&transformContextArrayIndex, transformContextCount, static_cast<int>(-1), "transform context array index") ) goto fail;
+        if ( !initializeArrayList(&transformContextPrevIndex, transformContextCount, static_cast<int>(-1), "transform context prev index") ) goto fail;
+        for ( int i = 0; i < transformContextCount; i++ ) {
             TransformStackContext *transformContext = new TransformStackContext();
             transformContext->xid = static_cast<long>(readInt64LE(input));
             transformContext->xac = readInt16LE(input);
@@ -927,7 +927,7 @@ BinaryModelReader::read(const char *fileName) {
             transformContext->prev = nullptr;
             transformContexts.set(static_cast<long int>(i), transformContext);
         }
-        for ( int32_t i = 0; i < transformContextCount; i++ ) {
+        for ( int i = 0; i < transformContextCount; i++ ) {
             TransformStackContext *transformContext = transformContexts.get(static_cast<long int>(i));
             TransformArray *transformArray = nullptr;
             if ( !pointerFromIndex(
@@ -947,7 +947,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "VRTX") ) goto fail;
-        for ( int32_t i = 0; i < vertexCount; i++ ) {
+        for ( int i = 0; i < vertexCount; i++ ) {
             VertexRecord &record = vertexRecords[static_cast<long int>(i)];
             record.id = readInt32LE(input);
             record.pointIndex = readInt32LE(input);
@@ -978,7 +978,7 @@ BinaryModelReader::read(const char *fileName) {
             vertices.set(static_cast<long int>(i), vertex);
         }
 
-        for ( int32_t i = 0; i < vertexCount; i++ ) {
+        for ( int i = 0; i < vertexCount; i++ ) {
             Vertex *vertex = vertices.get(static_cast<long int>(i));
             const VertexRecord &record = vertexRecords[static_cast<long int>(i)];
             Vertex *back = nullptr;
@@ -987,7 +987,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "PTCH") ) goto fail;
-        for ( int32_t i = 0; i < patchCount; i++ ) {
+        for ( int i = 0; i < patchCount; i++ ) {
             PatchRecord &record = patchRecords[static_cast<long int>(i)];
             record.id = readInt32LE(input);
             record.twinIndex = readInt32LE(input);
@@ -1081,7 +1081,7 @@ BinaryModelReader::read(const char *fileName) {
             patches.set(static_cast<long int>(i), patch);
         }
 
-        for ( int32_t i = 0; i < patchCount; i++ ) {
+        for ( int i = 0; i < patchCount; i++ ) {
             Patch *patch = patches.get(static_cast<long int>(i));
             const PatchRecord &record = patchRecords[static_cast<long int>(i)];
             Patch *twin = nullptr;
@@ -1089,7 +1089,7 @@ BinaryModelReader::read(const char *fileName) {
             patch->twin = twin;
         }
 
-        for ( int32_t i = 0; i < vertexCount; i++ ) {
+        for ( int i = 0; i < vertexCount; i++ ) {
             Vertex *vertex = vertices.get(static_cast<long int>(i));
             delete vertex->patches;
             java::ArrayList<Patch *> *patchList = nullptr;
@@ -1102,7 +1102,7 @@ BinaryModelReader::read(const char *fileName) {
         }
 
         if ( !expectTag(input, "GEOM") ) goto fail;
-        for ( int32_t i = 0; i < geometryCount; i++ ) {
+        for ( int i = 0; i < geometryCount; i++ ) {
             GeometryRecord &record = geometryRecords[static_cast<long int>(i)];
             record.classId = readInt32LE(input);
             record.id = readInt32LE(input);
@@ -1127,7 +1127,7 @@ BinaryModelReader::read(const char *fileName) {
             record.meshId = 0;
             record.materialIndex = -1;
 
-            if ( record.classId == static_cast<int32_t>(GeometryClassId::SURFACE_MESH) ) {
+            if ( record.classId == static_cast<int>(GeometryClassId::SURFACE_MESH) ) {
                 if ( !readNullableString(input, &record.objectName, &record.hasObjectName) ) goto fail;
                 record.meshId = readInt32LE(input);
                 record.materialIndex = readInt32LE(input);
@@ -1135,9 +1135,9 @@ BinaryModelReader::read(const char *fileName) {
                 if ( !readIndexList(input, "surface.normals", &record.normals) ) goto fail;
                 if ( !readIndexList(input, "surface.vertices", &record.vertices) ) goto fail;
                 if ( !readIndexList(input, "surface.faces", &record.faces) ) goto fail;
-            } else if ( record.classId == static_cast<int32_t>(GeometryClassId::COMPOUND) ) {
+            } else if ( record.classId == static_cast<int>(GeometryClassId::COMPOUND) ) {
                 if ( !readIndexList(input, "compound.children", &record.children) ) goto fail;
-            } else if ( record.classId == static_cast<int32_t>(GeometryClassId::PATCH_SET) ) {
+            } else if ( record.classId == static_cast<int>(GeometryClassId::PATCH_SET) ) {
                 if ( !readIndexList(input, "patchSet.patchList", &record.patchSetPatches) ) goto fail;
             } else {
                 logError("BinaryModelReader::read", "%s", "Unsupported geometry type in binary model");
@@ -1145,11 +1145,11 @@ BinaryModelReader::read(const char *fileName) {
             }
         }
 
-        for ( int32_t i = 0; i < geometryCount; i++ ) {
+        for ( int i = 0; i < geometryCount; i++ ) {
             const GeometryRecord &record = geometryRecords[static_cast<long int>(i)];
             Geometry *geometry = nullptr;
 
-            if ( record.classId == static_cast<int32_t>(GeometryClassId::SURFACE_MESH) ) {
+            if ( record.classId == static_cast<int>(GeometryClassId::SURFACE_MESH) ) {
                 char *objectName = nullptr;
                 if ( !duplicateNullableString(record.hasObjectName, record.objectName, &objectName) ) goto fail;
 
@@ -1175,9 +1175,9 @@ BinaryModelReader::read(const char *fileName) {
                     MaterialColorFlags::NO_COLORS);
                 surface->meshId = record.meshId;
                 geometry = surface;
-            } else if ( record.classId == static_cast<int32_t>(GeometryClassId::COMPOUND) ) {
+            } else if ( record.classId == static_cast<int>(GeometryClassId::COMPOUND) ) {
                 geometry = new Compound(new java::ArrayList<Geometry *>());
-            } else if ( record.classId == static_cast<int32_t>(GeometryClassId::PATCH_SET) ) {
+            } else if ( record.classId == static_cast<int>(GeometryClassId::PATCH_SET) ) {
                 java::ArrayList<Patch *> *patchList = nullptr;
                 if ( !arrayListFromIndices(record.patchSetPatches, patches, "patchSet.patchList", &patchList) ) goto fail;
                 geometry = new PatchSet(patchList);
@@ -1213,9 +1213,9 @@ BinaryModelReader::read(const char *fileName) {
             geometries.set(static_cast<long int>(i), geometry);
         }
 
-        for ( int32_t i = 0; i < geometryCount; i++ ) {
+        for ( int i = 0; i < geometryCount; i++ ) {
             const GeometryRecord &record = geometryRecords[static_cast<long int>(i)];
-            if ( record.classId == static_cast<int32_t>(GeometryClassId::COMPOUND) ) {
+            if ( record.classId == static_cast<int>(GeometryClassId::COMPOUND) ) {
                 Compound *compound = static_cast<Compound *>(geometries.get(static_cast<long int>(i)));
                 delete compound->children;
                 java::ArrayList<Geometry *> *children = nullptr;
