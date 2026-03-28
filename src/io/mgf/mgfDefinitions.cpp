@@ -66,14 +66,14 @@ mgfGoToFilePosition(const FilePositionContext *pos, BaseContext *context) {
     }
 
     int pipeFlag = 0;
-    FILE *inputHandle = openFileCompressWrapper(context->readerContext->fileName, "r", &pipeFlag);
-    if ( inputHandle == nullptr || pipeFlag != 0 ) {
-        closeFile(inputHandle, pipeFlag);
+    java::io::InputStream *inputStream = openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
+    if ( inputStream == nullptr || pipeFlag != 0 ) {
+        closeInputStream(inputStream);
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
 
     java::io::BufferedInputStream *newInputStream =
-        new java::io::BufferedInputStream(new java::io::FileInputStream(inputHandle, false), true);
+        new java::io::BufferedInputStream(inputStream, true);
     if ( !newInputStream->isOpen() ) {
         newInputStream->dispose();
         delete newInputStream;
@@ -196,19 +196,18 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
     }
 
     int pipeFlag = false;
-    FILE *inputHandle = openFileCompressWrapper(readerContext->fileName, "r", &pipeFlag);
-    if ( inputHandle == nullptr ) {
-        return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
-    }
-    java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(inputHandle, pipeFlag != 0);
-    if ( !fileInputStream->isOpen() ) {
-        closeFile(inputHandle, pipeFlag);
-        fileInputStream->dispose();
-        delete fileInputStream;
+    java::io::InputStream *inputStream = openInputStreamCompressWrapper(readerContext->fileName, &pipeFlag);
+    if ( inputStream == nullptr ) {
         return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }
     readerContext->isPipe = static_cast<char>(pipeFlag != 0);
-    readerContext->inputStream = new java::io::BufferedInputStream(fileInputStream);
+    readerContext->inputStream = new java::io::BufferedInputStream(inputStream, true);
+    if ( !readerContext->inputStream->isOpen() ) {
+        readerContext->inputStream->dispose();
+        delete readerContext->inputStream;
+        readerContext->inputStream = nullptr;
+        return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
+    }
 
     readerContext->prev = context->readerContext; // Establish new context
     context->readerContext = readerContext;

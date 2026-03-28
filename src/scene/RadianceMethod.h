@@ -1,9 +1,8 @@
 #ifndef __RADIANCE_METHOD__
 #define __RADIANCE_METHOD__
 
-#include <cstdio>
-
 #include "java/util/ArrayList.h"
+#include "java/io/OutputStream.h"
 #include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
@@ -57,7 +56,11 @@ class RadianceMethod {
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will
     // be used
-    virtual void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const  = 0;
+    virtual void
+    writeVRML(
+        const Camera *camera,
+        java::io::OutputStream *outputStream,
+        const RenderOptions *renderOptions) const = 0;
 };
 
 #endif

@@ -81,7 +81,11 @@ StochasticJacobiRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-StochasticJacobiRadianceMethod::writeVRML(const Camera * /*camera*/, FILE */*fp*/, const RenderOptions * /*renderOptions*/) const {
+StochasticJacobiRadianceMethod::writeVRML(
+    const Camera * /*camera*/,
+    java::io::OutputStream * /*outputStream*/,
+    const RenderOptions * /*renderOptions*/) const
+{
 }
 
 void
@@ -184,11 +188,11 @@ static void
 stochasticRelaxationRadiosityPrintIncrementalRadianceStats() {
     java::lang::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.print(&java::lang::System::err);
     java::lang::System::err.printf(", total flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
     java::lang::System::err.printf(", indirect importance weighted un-shot flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.print(&java::lang::System::err);
     java::lang::System::err.printf("\n");
 }
 
@@ -387,7 +391,7 @@ stochasticRelaxationRadiosityPrintRegularStats() {
     java::lang::System::err.printf("%g secs., radiance rays = %ld (%ld not to background), un-shot flux = ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses);
     java::lang::System::err.printf(", total flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);

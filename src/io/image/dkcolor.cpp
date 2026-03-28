@@ -1,5 +1,6 @@
 #include "common/CppReAlloc.h"
 #include "io/image/dkcolor.h"
+#include "io/PersistenceElement.h"
 #include "java/lang/Math.h"
 
 static constexpr int RED = 0;
@@ -19,6 +20,14 @@ static constexpr int MINIMUM_SCAN_LINE_LENGTH = 8;
 static constexpr int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
 static constexpr int MINIMUM_RUN_LENGTH = 4;
 static BYTE *globalTempBuffer = nullptr;
+
+static inline void
+dkColorWriteByte(java::io::OutputStream *stream, int value) {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->write(value & 0xFF);
+}
 
 /**
 Get a temporary buffer
@@ -43,20 +52,28 @@ dkColorTempBuffer(unsigned int length) {
 Write out a byte color scanline
 */
 static int
-dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
+dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *outputStream) {
     int cnt = 0;
     int c2;
 
+    if ( outputStream == nullptr ) {
+        return -1;
+    }
+
     if ( len < MINIMUM_SCAN_LINE_LENGTH || len > MAXIMUM_SCAN_LINE_LENGTH ) {
         // OOBs, write out flat
-        return static_cast<int>(fwrite(reinterpret_cast<char *>(scanline), sizeof(BYTE_COLOR), len, fp) - len);
+        vsdk::PersistenceElement::writeBytes(
+            *outputStream,
+            reinterpret_cast<unsigned char *>(scanline),
+            static_cast<int>(sizeof(BYTE_COLOR) * len));
+        return 0;
     }
 
     // Put magic header
-    putc(2, fp);
-    putc(2, fp);
-    putc(len >> 8, fp);
-    putc(len & 255, fp);
+    dkColorWriteByte(outputStream, 2);
+    dkColorWriteByte(outputStream, 2);
+    dkColorWriteByte(outputStream, len >> 8);
+    dkColorWriteByte(outputStream, len & 255);
 
     // Put components separately
     for ( int i = 0; i < 4; i++ ) {
@@ -77,8 +94,8 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
                 while ( scanline[c2++][i] == scanline[j][i] ) {
                     if ( c2 == beg ) {
                         // Short run
-                        putc(128 + beg - j, fp);
-                        putc(scanline[j][i], fp);
+                        dkColorWriteByte(outputStream, 128 + beg - j);
+                        dkColorWriteByte(outputStream, scanline[j][i]);
                         j = beg;
                         break;
                     }
@@ -89,21 +106,21 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, FILE *fp) {
                 if ( (c2 = beg - j) > 128 ) {
                     c2 = 128;
                 }
-                putc(c2, fp);
+                dkColorWriteByte(outputStream, c2);
                 while ( c2-- ) {
-                    putc(scanline[j++][i], fp);
+                    dkColorWriteByte(outputStream, scanline[j++][i]);
                 }
             }
             if ( cnt >= MINIMUM_RUN_LENGTH ) {
                 // Write out run
-                putc(128 + cnt, fp);
-                putc(scanline[beg][i], fp);
+                dkColorWriteByte(outputStream, 128 + cnt);
+                dkColorWriteByte(outputStream, scanline[beg][i]);
             } else {
                 cnt = 0;
             }
         }
     }
-    return (ferror(fp) ? -1 : 0);
+    return 0;
 }
 
 /**
@@ -139,7 +156,7 @@ dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
 Write out a scanline
 */
 int
-dkColorWriteScan(DK_COLOR *scanline, int len, FILE *fileDescriptor)
+dkColorWriteScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream)
 {
     // Get scanline buffer
     BYTE *byteArray = dkColorTempBuffer(len * sizeof(BYTE_COLOR));
@@ -153,7 +170,7 @@ dkColorWriteScan(DK_COLOR *scanline, int len, FILE *fileDescriptor)
     for ( int n = 0; n < len; n++ ) {
         dkColorSetByteColors(sp[n], scanline[n][RED], scanline[n][GREEN], scanline[n][BLUE]);
     }
-    return dkColorWriteByteColors(colorScan, len, fileDescriptor);
+    return dkColorWriteByteColors(colorScan, len, outputStream);
 }
 
 void

@@ -3,91 +3,147 @@
 #include "common/error.h"
 #include "io/FileUncompressWrapper.h"
 #include "java/io/File.h"
+#include "java/io/FileInputStream.h"
+#include "java/io/FileOutputStream.h"
 
-/**
-Opens a file with given name and open_mode ("w" or "r" e.g.). Returns the
-FILE * or nullptr if opening the file was not successful. Returns in isPipe whether
-or not the file has been opened through a pipe. File extensions
-.Z, .gz, .bz and .bz2 are recognised and lead to piped input/output with the
-proper compress/uncompress commands. Also if the first character of the file name is
-equal to '|', the file name is opened as a pipe.
-*/
-FILE *
-openFileCompressWrapper(const char *fileName, const char *open_mode, int *isPipe) {
-    FILE *fp = nullptr;
+namespace {
 
-    if ( *open_mode != 'r' && *open_mode != 'w' && *open_mode != 'a' ) {
-        logError("openFileCompressWrapper", "Invalid file open mode '%s'\n", open_mode);
-        return fp;
-    }
+enum class StreamOpenMode {
+    READ,
+    WRITE
+};
 
-    if ( fileName[0] != '\0' && fileName[strlen(fileName) - 1] != '/' ) {
-        int n = static_cast<int>(strlen(fileName)) + 20;
-        char *command = new char[n];
-        const char *ext = strrchr(fileName, '.');
-        if ( fileName[0] == '|' ) {
-            snprintf(command, n, "%s", &fileName[1]);
-            fp = popen(command, open_mode);
-            *isPipe = true;
-        } else if ( ext && strcmp(ext, ".gz") == 0 ) {
-            if ( *open_mode == 'r' ) {
-                snprintf(command, n, "gunzip < %s", fileName);
-            } else {
-                snprintf(command, n, "gzip > %s", fileName);
-            }
-            fp = popen(command, open_mode);
-            *isPipe = true;
-        } else if ( ext && strcmp(ext, ".Z") == 0 ) {
-            if ( *open_mode == 'r' ) {
-                snprintf(command, n, "uncompress < %s", fileName);
-            } else {
-                snprintf(command, n, "compress > %s", fileName);
-            }
-            fp = popen(command, open_mode);
-            *isPipe = true;
-        } else if ( ext && strcmp(ext, ".bz") == 0 ) {
-            if ( *open_mode == 'r' ) {
-                snprintf(command, n, "bunzip < %s", fileName);
-            } else {
-                snprintf(command, n, "bzip > %s", fileName);
-            }
-            fp = popen(command, open_mode);
-            *isPipe = true;
-        } else if ( ext && strcmp(ext, ".bz2") == 0 ) {
-            if ( *open_mode == 'r' ) {
-                snprintf(command, n, "bunzip2 < %s", fileName);
-            } else {
-                snprintf(command, n, "bzip2 > %s", fileName);
-            }
-            fp = popen(command, open_mode);
-            *isPipe = true;
-        } else {
-            fp = java::io::File::openHandle(fileName, open_mode);
-            *isPipe = false;
-        }
-
-        delete[] command;
-
-        if ( !fp ) {
-            logError(nullptr, "Can't open file '%s' for %s",
-                     fileName, *open_mode == 'r' ? "reading" : "writing");
-        }
-        return fp;
-    }
-
-    return nullptr;
+static const char *
+modeToLogAction(StreamOpenMode mode) {
+    return mode == StreamOpenMode::READ ? "reading" : "writing";
 }
 
-/**
-Closes the file taking into account whether or not it is a pipe
-*/
-void
-closeFile(FILE *fp, int isPipe) {
-    if ( fp ) {
-        if ( isPipe ) {
-            pclose(fp);
-        } else {
-            java::io::File::closeHandle(fp);
-        }
+static const char *
+modeToPopen(StreamOpenMode mode) {
+    return mode == StreamOpenMode::READ ? "r" : "w";
+}
+
+static const char *
+modeToFileOpen(StreamOpenMode mode) {
+    return mode == StreamOpenMode::READ ? "rb" : "wb";
+}
+
+static FILE *
+openFileHandleCompressWrapper(const char *fileName, StreamOpenMode openMode, int *isPipe) {
+    if ( isPipe == nullptr ) {
+        return nullptr;
     }
+    *isPipe = 0;
+
+    if ( fileName == nullptr || fileName[0] == '\0' || fileName[strlen(fileName) - 1] == '/' ) {
+        return nullptr;
+    }
+
+    FILE *fileHandle = nullptr;
+    const int commandLength = static_cast<int>(strlen(fileName)) + 20;
+    char *command = new char[commandLength];
+    const char *ext = strrchr(fileName, '.');
+
+    if ( fileName[0] == '|' ) {
+        std::snprintf(command, commandLength, "%s", &fileName[1]);
+        fileHandle = popen(command, modeToPopen(openMode));
+        *isPipe = 1;
+    } else if ( ext && std::strcmp(ext, ".gz") == 0 ) {
+        if ( openMode == StreamOpenMode::READ ) {
+            std::snprintf(command, commandLength, "gunzip < %s", fileName);
+        } else {
+            std::snprintf(command, commandLength, "gzip > %s", fileName);
+        }
+        fileHandle = popen(command, modeToPopen(openMode));
+        *isPipe = 1;
+    } else if ( ext && std::strcmp(ext, ".Z") == 0 ) {
+        if ( openMode == StreamOpenMode::READ ) {
+            std::snprintf(command, commandLength, "uncompress < %s", fileName);
+        } else {
+            std::snprintf(command, commandLength, "compress > %s", fileName);
+        }
+        fileHandle = popen(command, modeToPopen(openMode));
+        *isPipe = 1;
+    } else if ( ext && std::strcmp(ext, ".bz") == 0 ) {
+        if ( openMode == StreamOpenMode::READ ) {
+            std::snprintf(command, commandLength, "bunzip < %s", fileName);
+        } else {
+            std::snprintf(command, commandLength, "bzip > %s", fileName);
+        }
+        fileHandle = popen(command, modeToPopen(openMode));
+        *isPipe = 1;
+    } else if ( ext && std::strcmp(ext, ".bz2") == 0 ) {
+        if ( openMode == StreamOpenMode::READ ) {
+            std::snprintf(command, commandLength, "bunzip2 < %s", fileName);
+        } else {
+            std::snprintf(command, commandLength, "bzip2 > %s", fileName);
+        }
+        fileHandle = popen(command, modeToPopen(openMode));
+        *isPipe = 1;
+    } else {
+        fileHandle = java::io::File::openHandle(fileName, modeToFileOpen(openMode));
+        *isPipe = 0;
+    }
+
+    delete[] command;
+
+    if ( fileHandle == nullptr ) {
+        logError(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(openMode));
+    }
+
+    return fileHandle;
+}
+
+} // namespace
+
+java::io::InputStream *
+openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
+    int pipeFlag = 0;
+    FILE *fileHandle = openFileHandleCompressWrapper(fileName, StreamOpenMode::READ, &pipeFlag);
+    if ( fileHandle == nullptr ) {
+        if ( isPipe != nullptr ) {
+            *isPipe = 0;
+        }
+        return nullptr;
+    }
+    if ( isPipe != nullptr ) {
+        *isPipe = pipeFlag;
+    }
+
+    return new java::io::FileInputStream(fileHandle, pipeFlag != 0, false);
+}
+
+java::io::OutputStream *
+openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
+    int pipeFlag = 0;
+    FILE *fileHandle = openFileHandleCompressWrapper(fileName, StreamOpenMode::WRITE, &pipeFlag);
+    if ( fileHandle == nullptr ) {
+        if ( isPipe != nullptr ) {
+            *isPipe = 0;
+        }
+        return nullptr;
+    }
+    if ( isPipe != nullptr ) {
+        *isPipe = pipeFlag;
+    }
+
+    return new java::io::FileOutputStream(fileHandle, pipeFlag != 0, false);
+}
+
+void
+closeInputStream(java::io::InputStream *stream) {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->close();
+    delete stream;
+}
+
+void
+closeOutputStream(java::io::OutputStream *stream) {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->close();
+    delete stream;
 }

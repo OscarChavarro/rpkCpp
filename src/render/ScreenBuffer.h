@@ -1,11 +1,10 @@
 #ifndef __SCREEN_BUFFER__
 #define __SCREEN_BUFFER__
 
-#include <cstdio>
-
 #include "common/RenderOptions.h"
 #include "common/linealAlgebra/Vector2D.h"
 #include "io/image/ImageOutputHandle.h"
+#include "java/io/OutputStream.h"
 #include "common/ColorRgb.h"
 #include "scene/Camera.h"
 
@@ -70,6 +69,7 @@ class ScreenBuffer {
     void setAddScaleFactor(float inFactor);
     void setFactor(float inFactor);
     void setRgbImage(bool isRGB);
+    void writeFile(const char *fileName, java::io::OutputStream *outputStream, int isPipe);
     void writeFile(const char *fileName);
 #endif
 

@@ -1,9 +1,8 @@
 #ifndef __COLOR__
 #define __COLOR__
 
-#include <cstdio>
-
 #include "common/cie.h"
+#include "java/io/PrintStream.h"
 
 /**
 Representation of radiance, radiosity, power, spectra
@@ -43,7 +42,7 @@ class ColorRgb {
     void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v);
     void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
     void clip();
-    void print(FILE *fp) const;
+    void print(java::io::PrintStream *stream) const;
 };
 
 inline ColorRgb::ColorRgb() {

@@ -72,7 +72,7 @@ rayTraceCreate(const Scene *scene, const char *rayTracerName) {
 void
 rayTraceSaveImage(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *stream,
     int isPipe,
     const Scene *scene,
     const RadianceMethod * /*radianceMethod*/,
@@ -81,7 +81,7 @@ rayTraceSaveImage(
 {
     clock_t t;
 
-    if ( fp == nullptr ) {
+    if ( stream == nullptr ) {
         return;
     }
 
@@ -89,7 +89,7 @@ rayTraceSaveImage(
 
     ImageOutputHandle *img = createRadianceImageOutputHandle(
         fileName,
-        fp,
+        stream,
         isPipe,
         scene->camera->xSize,
         scene->camera->ySize);
@@ -120,7 +120,7 @@ rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
 void
 rayTraceExecute(
     const char *filename,
-    FILE *fp,
+    java::io::OutputStream *stream,
     int isPipe,
     Scene *scene,
     RadianceMethod *radianceMethod,
@@ -133,7 +133,7 @@ rayTraceExecute(
     canvasPushMode();
     rayTrace(
         filename,
-        fp,
+        stream,
         isPipe,
         rayTracer,
         scene,

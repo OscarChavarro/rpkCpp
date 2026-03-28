@@ -205,23 +205,23 @@ RayCaster::save(ImageOutputHandle *ip) {
 
 /**
 Ray-Casts the current Radiance solution. Output is displayed on the screen
-and saved into the file with given name and file pointer. 'isPipe'
-reflects whether this file pointer is a pipe or not.
+and saved into the file with given name and output stream. 'isPipe'
+reflects whether this output stream is backed by a pipe or not.
 */
 void
 rayCast(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *stream,
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) {
     ImageOutputHandle *img = nullptr;
 
-    if ( fp ) {
+    if ( stream != nullptr ) {
         img = createRadianceImageOutputHandle(
             fileName,
-            fp,
+            stream,
             isPipe,
             scene->camera->xSize,
             scene->camera->ySize);

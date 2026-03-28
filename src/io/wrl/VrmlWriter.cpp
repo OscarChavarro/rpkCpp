@@ -4,9 +4,48 @@ Saves the result of a radiosity computation as a VRML file
 
 #include "io/wrl/VrmlWriter.h"
 
+#include <cstdarg>
+
+#include "io/PersistenceElement.h"
+
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
 Camera *VrmlWriter::globalCameraStackPtr = VrmlWriter::globalCameraStack;
+
+static void
+vrmlWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+    if ( outputStream == nullptr || format == nullptr ) {
+        return;
+    }
+
+    char localBuffer[1024];
+    va_list arguments;
+    va_start(arguments, format);
+    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    va_end(arguments);
+
+    if ( required <= 0 ) {
+        return;
+    }
+
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        vsdk::PersistenceElement::writeBytes(
+            *outputStream,
+            reinterpret_cast<const unsigned char *>(localBuffer),
+            required);
+        return;
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_start(arguments, format);
+    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
+    va_end(arguments);
+    vsdk::PersistenceElement::writeBytes(
+        *outputStream,
+        reinterpret_cast<const unsigned char *>(dynamicBuffer),
+        required);
+    delete[] dynamicBuffer;
+}
 
 /**
 Returns pointer to the next saved camera. If previous==nullptr, the first saved
@@ -48,7 +87,12 @@ VrmlWriter::transformModel(const Camera *camera, Vector3D *modelRotationAxis, fl
 Write VRML ViewPoint node for the given camera position
 */
 void
-VrmlWriter::writeViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Camera *camera, const char *viewPointName) {
+VrmlWriter::writeViewPoint(
+    java::io::OutputStream *outputStream,
+    const Matrix4x4 *modelTransform,
+    const Camera *camera,
+    const char *viewPointName)
+{
     Vector3D X;
     Vector3D Y;
     Vector3D Z;
@@ -77,24 +121,34 @@ VrmlWriter::writeViewPoint(FILE *fp, const Matrix4x4 *modelTransform, const Came
     // Apply model transform to eye point
     modelTransform->transformPoint3D(camera->eyePosition, eyePosition);
 
-    fprintf(fp,
-            "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
-            eyePosition.x, eyePosition.y, eyePosition.z,
-            viewRotationAxis.x, viewRotationAxis.y, viewRotationAxis.z, viewRotationAngle,
-            2.0 * camera->fieldOfVision * M_PI / 180.0,
-            viewPointName);
+    vrmlWriteFormatted(
+        outputStream,
+        "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
+        eyePosition.x,
+        eyePosition.y,
+        eyePosition.z,
+        viewRotationAxis.x,
+        viewRotationAxis.y,
+        viewRotationAxis.z,
+        viewRotationAngle,
+        2.0 * camera->fieldOfVision * M_PI / 180.0,
+        viewPointName);
 }
 
 void
-VrmlWriter::writeViewPoints(const Camera *camera, FILE *fp, const Matrix4x4 *modelTransform) {
+VrmlWriter::writeViewPoints(
+    const Camera *camera,
+    java::io::OutputStream *outputStream,
+    const Matrix4x4 *modelTransform)
+{
     Camera *localCamera = nullptr;
     int count = 1;
-    writeViewPoint(fp, modelTransform, camera, "ViewPoint 1");
+    writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
     while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
         char viewPointName[21];
         count++;
         snprintf(viewPointName, 21, "ViewPoint %d", count);
-        writeViewPoint(fp, modelTransform, localCamera, viewPointName);
+        writeViewPoint(outputStream, modelTransform, localCamera, viewPointName);
     }
 }
 
@@ -102,28 +156,39 @@ VrmlWriter::writeViewPoints(const Camera *camera, FILE *fp, const Matrix4x4 *mod
 Can also be used by radiance-method specific VRML savers.
 */
 void
-VrmlWriter::writeHeader(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) {
+VrmlWriter::writeHeader(
+    const Camera *camera,
+    java::io::OutputStream *outputStream,
+    const RenderOptions *renderOptions)
+{
     Vector3D modelRotationAxis;
     float modelRotationAngle;
 
-    fprintf(fp, "#VRML V2.0 utf8\n\n");
+    vrmlWriteFormatted(outputStream, "#VRML V2.0 utf8\n\n");
 
-    fprintf(fp, "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
-            "Some nice model",
-            RPK_HOME);
+    vrmlWriteFormatted(
+        outputStream,
+        "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
+        "Some nice model",
+        RPK_HOME);
 
-    fprintf(fp, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
+    vrmlWriteFormatted(outputStream, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
     const Matrix4x4 modelTransform = transformModel(camera, &modelRotationAxis, &modelRotationAngle);
-    writeViewPoints(camera, fp, &modelTransform);
+    writeViewPoints(camera, outputStream, &modelTransform);
 
-    fprintf(fp, "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
-            modelRotationAxis.x, modelRotationAxis.y, modelRotationAxis.z, modelRotationAngle);
+    vrmlWriteFormatted(
+        outputStream,
+        "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
+        modelRotationAxis.x,
+        modelRotationAxis.y,
+        modelRotationAxis.z,
+        modelRotationAngle);
 
-    fprintf(fp, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
+    vrmlWriteFormatted(outputStream, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
 }
 
 void
-VrmlWriter::writeTrailer(FILE *fp) {
-    fprintf(fp, "      }\n    }\n  ]\n}\n\n");
+VrmlWriter::writeTrailer(java::io::OutputStream *outputStream) {
+    vrmlWriteFormatted(outputStream, "      }\n    }\n  ]\n}\n\n");
 }

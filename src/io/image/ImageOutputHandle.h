@@ -5,8 +5,8 @@ Interface for writing image data in different file formats
 #ifndef __IMAGE_OUTPUT_HANDLE__
 #define __IMAGE_OUTPUT_HANDLE__
 
-#include <cstdio>
 #include "common/ColorRgb.h"
+#include "java/io/OutputStream.h"
 
 class ImageOutputHandle {
   protected:
@@ -48,7 +48,23 @@ ImageOutputHandle::init(const char *_name, int _width, int _height) {
 extern ImageOutputHandle *
 createRadianceImageOutputHandle(
     const char *fileName,
+    java::io::OutputStream *outputStream,
+    int isPipe,
+    int width,
+    int height);
+
+extern ImageOutputHandle *
+createRadianceImageOutputHandle(
+    const char *fileName,
     FILE *fileDescriptor,
+    int isPipe,
+    int width,
+    int height);
+
+extern ImageOutputHandle *
+createImageOutputHandle(
+    const char *fileName,
+    java::io::OutputStream *outputStream,
     int isPipe,
     int width,
     int height);

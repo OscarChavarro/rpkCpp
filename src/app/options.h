@@ -5,8 +5,8 @@ Command line options and defaults
 #ifndef __OPTIONS__
 #define __OPTIONS__
 
-#include <cstdio>
 #include <cstdint>
+#include "java/io/PrintStream.h"
 
 /**
 Command line option value type structures
@@ -14,7 +14,7 @@ Command line option value type structures
 class CommandLineOptions {
   public:
     int (*get)(void *value, void *data); // Retrieves a argument value
-    void (*print)(FILE *fp, void *value, void *data); // Prints an argument value
+    void (*print)(java::io::PrintStream *stream, void *value, void *data); // Prints an argument value
     void *dummy; // Pointer to "dummy" argument value storage
     void *data; // Pointer to additional data
 };
@@ -75,7 +75,7 @@ class ENUMDESC {
 };
 
 extern int optionsEnumGet(void *value, void *data);
-extern void optionsEnumPrint(FILE *fp, void *value, void *data);
+extern void optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data);
 
 /**
 The following helper function builds an enumerated value options type:
@@ -103,7 +103,7 @@ makeEnumOptTypeStruct(ENUMDESC *enumvaltab) {
 // n string options: let the nstringTypeStruct.data field point to a maximum string length
 
 extern int optionsStringGet(void *value, void *data);
-extern void optionsStringPrint(FILE *fp, void *value, void *data);
+extern void optionsStringPrint(java::io::PrintStream *stream, void *value, void *data);
 
 /**
 The following helper function builds an n string value options type:

@@ -1,25 +1,67 @@
+#include <cstdarg>
+
 #include "io/image/dkcolor.h"
 #include "io/image/pic.h"
-#include "java/io/File.h"
+#include "io/PersistenceElement.h"
+#include "java/io/FileOutputStream.h"
 #include "java/lang/System.h"
+
+static void
+picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+    if ( outputStream == nullptr || format == nullptr ) {
+        return;
+    }
+
+    char localBuffer[256];
+    va_list arguments;
+    va_start(arguments, format);
+    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    va_end(arguments);
+
+    if ( required <= 0 ) {
+        return;
+    }
+
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        vsdk::PersistenceElement::writeBytes(
+            *outputStream,
+            reinterpret_cast<const unsigned char *>(localBuffer),
+            required);
+        return;
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_start(arguments, format);
+    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
+    va_end(arguments);
+    vsdk::PersistenceElement::writeBytes(
+        *outputStream,
+        reinterpret_cast<const unsigned char *>(dynamicBuffer),
+        required);
+    delete[] dynamicBuffer;
+}
 
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
-    fileDescriptor = java::io::File::openHandle(filename, "wb");
-    if ( fileDescriptor == nullptr ) {
+    java::io::FileOutputStream *fileStream = new java::io::FileOutputStream(filename);
+    if ( !fileStream->isOpen() ) {
+        delete fileStream;
+        outputStream = nullptr;
         java::lang::System::err.printf("Can't open PIC output");
         return;
     }
+    outputStream = fileStream;
 
     writeHeader();
 }
 
 PicOutputHandle::~PicOutputHandle() {
-    if ( fileDescriptor != nullptr ) {
-        java::io::File::closeHandle(fileDescriptor);
+    if ( outputStream != nullptr ) {
+        outputStream->close();
+        delete outputStream;
     }
-    fileDescriptor = nullptr;
+    outputStream = nullptr;
 }
 
 /**
@@ -29,8 +71,8 @@ int
 PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     int result = 0;
 
-    if ( fileDescriptor != nullptr ) {
-        result = dkColorWriteScan(reinterpret_cast<DK_COLOR *>(rgbRadiance), width, fileDescriptor);
+    if ( outputStream != nullptr ) {
+        result = dkColorWriteScan(reinterpret_cast<DK_COLOR *>(rgbRadiance), width, outputStream);
     }
 
     if ( result ) {
@@ -44,9 +86,9 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
 void
 PicOutputHandle::writeHeader() {
     // Simple RADIANCE header
-    fprintf(fileDescriptor, "#?RADIANCE\n");
-    fprintf(fileDescriptor, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
-    fprintf(fileDescriptor, "FORMAT=32-bit_rle_rgbe\n");
-    fprintf(fileDescriptor, "\n");
-    fprintf(fileDescriptor, "-Y %d +X %d\n", height, width);
+    picWriteFormatted(outputStream, "#?RADIANCE\n");
+    picWriteFormatted(outputStream, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
+    picWriteFormatted(outputStream, "FORMAT=32-bit_rle_rgbe\n");
+    picWriteFormatted(outputStream, "\n");
+    picWriteFormatted(outputStream, "-Y %d +X %d\n", height, width);
 }

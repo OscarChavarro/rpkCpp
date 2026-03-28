@@ -315,7 +315,7 @@ determineControlRadiosity(
 
     beta.add(minRad, maxRad);
     beta.scale(0.5);
-    beta.print(stderr);
+    beta.print(&java::lang::System::err);
     java::lang::System::err.printf(" (%g lux)", M_PI * beta.luminance());
     java::lang::System::err.printf("\n");
     return beta;

@@ -1,5 +1,6 @@
 #include "io/PersistenceElement.h"
 
+#include <cstdio>
 #include <cerrno>
 #include <cstdint>
 #include <cstdlib>

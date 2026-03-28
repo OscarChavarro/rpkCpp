@@ -2,7 +2,6 @@
 #define __PERSISTENCE_ELEMENT__
 
 #include <cstdint>
-#include <cstdio>
 
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"

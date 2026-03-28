@@ -128,9 +128,11 @@ optionsGetInt(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintInt(FILE *fp, void *value, void * /*data*/) {
+optionsPrintInt(java::io::PrintStream *stream, void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
-    fprintf(fp, "%d", *n);
+    if ( stream != nullptr ) {
+        stream->printf("%d", *n);
+    }
 }
 
 CommandLineOptions GLOBAL_options_intType = {
@@ -161,9 +163,11 @@ optionsGetString(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintString(FILE *fp, void *value, void * /*data*/) {
+optionsPrintString(java::io::PrintStream *stream, void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
-    fprintf(fp, "'%s'", *s ? *s : "");
+    if ( stream != nullptr ) {
+        stream->printf("'%s'", *s ? *s : "");
+    }
 }
 
 CommandLineOptions GLOBAL_options_stringType = {
@@ -190,9 +194,11 @@ optionsStringGet(void *value, void *data) {
 }
 
 void
-optionsStringPrint(FILE *fp, void *value, void * /*data*/) {
+optionsStringPrint(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const char *s = static_cast<const char *>(value);
-    fprintf(fp, "'%s'", s ? s : "");
+    if ( stream != nullptr ) {
+        stream->printf("'%s'", s ? s : "");
+    }
 }
 
 /**
@@ -226,16 +232,19 @@ optionsEnumGet(void *value, void *data) {
 }
 
 void
-optionsEnumPrint(FILE *fp, void *value, void *data) {
+optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data) {
     const int *v = static_cast<const int *>(value);
     const ENUMDESC *tab = static_cast<const ENUMDESC *>(data);
+    if ( stream == nullptr ) {
+        return;
+    }
     for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
         if ( *v == tab[i].value ) {
-            fprintf(fp, "%s", tab[i].name);
+            stream->printf("%s", tab[i].name);
             return;
         }
     }
-    fprintf(fp, "INVALID ENUM VALUE!!!");
+    stream->printf("%s", "INVALID ENUM VALUE!!!");
 }
 
 /* ------------------- boolean (yes|no) option values-------------------- */
@@ -277,8 +286,10 @@ optionsSetFalse(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintOther(FILE *fp, void * /*x*/, void * /*data*/) {
-    fprintf(fp, "other");
+optionsPrintOther(java::io::PrintStream *stream, void * /*x*/, void * /*data*/) {
+    if ( stream != nullptr ) {
+        stream->printf("%s", "other");
+    }
 }
 
 
@@ -308,9 +319,11 @@ optionsGetfloat(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintFloat(FILE *fp, void *value, void * /*data*/) {
+optionsPrintFloat(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const float *x = static_cast<const float *>(value);
-    fprintf(fp, "%g", *x);
+    if ( stream != nullptr ) {
+        stream->printf("%g", *x);
+    }
 }
 
 CommandLineOptions GLOBAL_options_floatType = {
@@ -343,9 +356,11 @@ optionsGetVector(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintVector(FILE *fp, void *value, void * /*data*/) {
+optionsPrintVector(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const Vector3D *v = static_cast<const Vector3D *>(value);
-    v->print(fp);
+    if ( stream != nullptr && v != nullptr ) {
+        stream->printf("%g %g %g", v->x, v->y, v->z);
+    }
 }
 
 CommandLineOptions GLOBAL_options_vectorType = {
@@ -378,9 +393,11 @@ optionsGetRgb(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintRgb(FILE *fp, void *value, void * /*data*/) {
+optionsPrintRgb(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const ColorRgb *v = static_cast<const ColorRgb *>(value);
-    v->print(fp);
+    if ( stream != nullptr && v != nullptr ) {
+        stream->printf("%g %g %g", v->r, v->g, v->b);
+    }
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {
@@ -410,9 +427,11 @@ optionsGetCieXy(void *value, void * /*data*/) {
 }
 
 static void
-optionsPrintCieXyCallBack(FILE *fp, void *value, void * /*data*/) {
+optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const float *c = static_cast<const float *>(value);
-    fprintf(fp, "%g %g", c[0], c[1]);
+    if ( stream != nullptr && c != nullptr ) {
+        stream->printf("%g %g", c[0], c[1]);
+    }
 }
 
 CommandLineOptions GLOBAL_options_xyType = {

@@ -23,6 +23,9 @@ Vector3D::dominantCoordinate() const {
 }
 
 void
-Vector3D::print(FILE *fp) const {
-    fprintf(fp, "%g %g %g", x, y, z);
+Vector3D::print(java::io::PrintStream *stream) const {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->printf("%g %g %g", x, y, z);
 }

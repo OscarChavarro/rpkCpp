@@ -5,8 +5,6 @@ Surfaces are basically a list of patches representing a simple object with given
 #ifndef __SURFACE__
 #define __SURFACE__
 
-#include <cstdio>
-
 #include "java/util/ArrayList.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"

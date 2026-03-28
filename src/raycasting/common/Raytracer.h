@@ -6,6 +6,7 @@
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "io/image/ImageOutputHandle.h"
+#include "java/io/OutputStream.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four
@@ -49,7 +50,7 @@ extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
 extern void
 rayTrace(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *stream,
     int isPipe,
     const RayTracer *rayTracer,
     Scene *scene,

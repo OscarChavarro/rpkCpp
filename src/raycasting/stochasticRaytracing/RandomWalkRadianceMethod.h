@@ -18,7 +18,11 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     void destroyPatchData(Patch *patch) final;
     char *getStats() final;
     void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
-    void writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const final;
+    void
+    writeVRML(
+        const Camera *camera,
+        java::io::OutputStream *outputStream,
+        const RenderOptions *renderOptions) const final;
 };
 
 #endif

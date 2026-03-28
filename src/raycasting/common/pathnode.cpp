@@ -26,27 +26,31 @@ SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
 void
-SimpleRaytracingPathNode::print(FILE *out) const {
-    fprintf(out, "Path node at depth %i\n", m_depth);
-    fprintf(out, "Pos : ");
+SimpleRaytracingPathNode::print(java::io::PrintStream *out) const {
+    if ( out == nullptr ) {
+        return;
+    }
+
+    out->printf("Path node at depth %i\n", m_depth);
+    out->printf("Pos : ");
     m_hit.getPoint().print(out);
-    fprintf(out, "\n");
-    fprintf(out, "Norm: ");
+    out->printf("\n");
+    out->printf("Norm: ");
     m_normal.print(out);
-    fprintf(out, "\n");
+    out->printf("\n");
     if ( m_previous ) {
-        fprintf(out, "InF: ");
+        out->printf("InF: ");
         m_inDirF.print(out);
-        fprintf(out, "\n");
-        fprintf(out, "Cos in  %f\n", m_normal.dotProduct(m_inDirF));
-        fprintf(out, "GCos in %f\n", m_hit.getPatch()->normal.dotProduct(m_inDirF));
+        out->printf("\n");
+        out->printf("Cos in  %f\n", m_normal.dotProduct(m_inDirF));
+        out->printf("GCos in %f\n", m_hit.getPatch()->normal.dotProduct(m_inDirF));
     }
     if ( m_next ) {
-        fprintf(out, "OutF: ");
+        out->printf("OutF: ");
         m_next->m_inDirT.print(out);
-        fprintf(out, "\n");
-        fprintf(out, "Cos out %f\n", m_normal.dotProduct(m_next->m_inDirT));
-        fprintf(out, "GCos out %f\n", m_hit.getPatch()->normal.dotProduct(m_next->m_inDirT));
+        out->printf("\n");
+        out->printf("Cos out %f\n", m_normal.dotProduct(m_next->m_inDirT));
+        out->printf("GCos out %f\n", m_hit.getPatch()->normal.dotProduct(m_next->m_inDirT));
     }
 }
 

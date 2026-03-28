@@ -1,8 +1,7 @@
 #ifndef __VECTOR_3D__
 #define __VECTOR_3D__
 
-#include <cstdio>
-
+#include "java/io/PrintStream.h"
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Numeric.h"
 #include "common/linealAlgebra/CoordinateAxis.h"
@@ -20,7 +19,7 @@ class Vector3D {
     float tolerance(float epsilon) const;
     bool equals(const Vector3D &w, float epsilon) const;
     CoordinateAxis dominantCoordinate() const;
-    void print(FILE *fp) const;
+    void print(java::io::PrintStream *stream) const;
     float dotProduct(Vector3D b) const;
     float norm2() const;
     float norm() const;

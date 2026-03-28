@@ -11,13 +11,13 @@ for speed.  Stored color values use 4 bytes which contain
 three single byte mantissas and a common exponent.
 */
 
-#include <cstdio>
+#include "java/io/OutputStream.h"
 
 typedef unsigned char BYTE; // 8-bit unsigned integer
 typedef BYTE BYTE_COLOR[4]; // Red, green, blue (or X,Y,Z), exponent
 typedef float DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
 
-int dkColorWriteScan(DK_COLOR *scanline, int len, FILE *fileDescriptor);
+int dkColorWriteScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream);
 void dkColorFreeBuffer();
 
 #endif

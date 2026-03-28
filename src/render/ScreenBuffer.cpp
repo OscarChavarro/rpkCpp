@@ -387,22 +387,34 @@ ScreenBuffer::setRgbImage(bool isRGB) {
 }
 
 void
-ScreenBuffer::writeFile(const char *fileName) {
-    int isPipe;
-    FILE *fp = openFileCompressWrapper(fileName, "w", &isPipe);
-    if ( !fp ) {
+ScreenBuffer::writeFile(const char *fileName, java::io::OutputStream *outputStream, int isPipe) {
+    if ( outputStream == nullptr ) {
         return;
     }
 
     ImageOutputHandle *ip = createRadianceImageOutputHandle(
         fileName,
-        fp,
+        outputStream,
         isPipe,
         camera.xSize,
         camera.ySize);
 
     writeFile(ip);
-    closeFile(fp, isPipe);
+    if ( ip != nullptr ) {
+        deleteImageOutputHandle(ip);
+    }
+}
+
+void
+ScreenBuffer::writeFile(const char *fileName) {
+    int isPipe = 0;
+    java::io::OutputStream *outputStream = openOutputStreamCompressWrapper(fileName, &isPipe);
+    if ( outputStream == nullptr ) {
+        return;
+    }
+
+    writeFile(fileName, outputStream, isPipe);
+    closeOutputStream(outputStream);
 }
 
 #endif

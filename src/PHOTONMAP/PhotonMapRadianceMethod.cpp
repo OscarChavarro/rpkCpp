@@ -77,7 +77,11 @@ PhotonMapRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 }
 
 void
-PhotonMapRadianceMethod::writeVRML(const Camera */*camera*/, FILE */*fp*/, const RenderOptions */*renderOptions*/) const {
+PhotonMapRadianceMethod::writeVRML(
+    const Camera */*camera*/,
+    java::io::OutputStream */*outputStream*/,
+    const RenderOptions */*renderOptions*/) const
+{
 }
 
 /**

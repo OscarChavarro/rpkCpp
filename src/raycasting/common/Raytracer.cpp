@@ -13,7 +13,7 @@ and performs raytracing
 void
 rayTrace(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *stream,
     int isPipe,
     const RayTracer *rayTracer,
     Scene *scene,
@@ -22,10 +22,10 @@ rayTrace(
 {
     ImageOutputHandle *img = nullptr;
 
-    if ( fp != nullptr ) {
+    if ( stream != nullptr ) {
         img = createRadianceImageOutputHandle(
             fileName,
-            fp,
+            stream,
             isPipe,
             scene->camera->xSize,
             scene->camera->ySize);

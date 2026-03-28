@@ -82,7 +82,11 @@ RandomWalkRadianceMethod::renderScene(const Scene * /*scene*/, const RenderOptio
 }
 
 void
-RandomWalkRadianceMethod::writeVRML(const Camera * /*camera*/, FILE * /*fp*/, const RenderOptions * /*renderOptions*/) const {
+RandomWalkRadianceMethod::writeVRML(
+    const Camera * /*camera*/,
+    java::io::OutputStream * /*outputStream*/,
+    const RenderOptions * /*renderOptions*/) const
+{
 }
 
 void
@@ -96,7 +100,7 @@ randomWalkRadiosityPrintStats() {
     java::lang::System::err.printf("%g secs., total radiance rays = %ld",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
     java::lang::System::err.printf(", total flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(stderr);
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
@@ -345,7 +349,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
 
     cr.divide(c1, c2);
     java::lang::System::err.printf("Control radiosity value = ");
-    cr.print(stderr);
+    cr.print(&java::lang::System::err);
     java::lang::System::err.printf(", luminosity = %g\n", cr.luminance());
 
     return cr;

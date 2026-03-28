@@ -5,6 +5,7 @@
 
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
+#include "java/io/OutputStream.h"
 #include "render/canvas.h"
 #include "render/render.h"
 #include "io/FileUncompressWrapper.h"
@@ -37,7 +38,7 @@ Saves a RGB image in the front buffer
 static void
 openGlSaveScreen(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *outputStream,
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
@@ -45,13 +46,13 @@ openGlSaveScreen(
 {
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderOptions->trace ) {
-        rayCast(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
+        rayCast(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
         return;
     }
 
     long x = scene->camera->xSize;
     long y = scene->camera->ySize;
-    ImageOutputHandle *image = createImageOutputHandle(fileName, fp, isPipe, static_cast<int>(x), static_cast<int>(y));
+    ImageOutputHandle *image = createImageOutputHandle(fileName, outputStream, isPipe, static_cast<int>(x), static_cast<int>(y));
     if ( image == nullptr ) {
         return;
     }
@@ -81,32 +82,53 @@ openGlSaveScreen(
     delete image;
 }
 
+#ifdef RAYTRACING_ENABLED
+static void
+batchRayTraceSaveImage(
+    const char *fileName,
+    java::io::OutputStream *outputStream,
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RayTracer *rayTracer,
+    const RenderOptions *renderOptions)
+{
+    rayTraceSaveImage(
+        fileName,
+        outputStream,
+        isPipe,
+        scene,
+        radianceMethod,
+        rayTracer,
+        renderOptions);
+}
+#endif
+
 /**
 This routine was copied from uit.c, leaving out all interface related things
 */
 static void
 batchProcessFile(
     const char *fileName,
-    const char *openMode,
-    void (*processFileCallback)(const char *fileName, FILE *fp, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
+    void (*processFileCallback)(const char *fileName, java::io::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
     const RenderOptions *renderOptions)
 {
     int isPipe;
-    FILE *fp = openFileCompressWrapper(fileName, openMode, &isPipe);
+    java::io::OutputStream *outputStream = openOutputStreamCompressWrapper(fileName, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, fp, isPipe, scene, radianceMethod, rayTracer, renderOptions);
+    processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, renderOptions);
 
-    closeFile(fp, isPipe);
+    closeOutputStream(outputStream);
 }
 
 static void
 batchSaveRadianceImage(
     const char *fileName,
-    FILE *fp,
+    java::io::OutputStream *outputStream,
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
@@ -116,7 +138,7 @@ batchSaveRadianceImage(
     clock_t t;
     const char *extension;
 
-    if ( !fp ) {
+    if ( outputStream == nullptr ) {
         return;
     }
 
@@ -133,7 +155,7 @@ batchSaveRadianceImage(
     t = clock();
 
     // No OpenGL really if renderOptions->trace is true
-    openGlSaveScreen(fileName, fp, isPipe, scene, radianceMethod, renderOptions);
+    openGlSaveScreen(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
 
     java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
     canvasPullMode();
@@ -142,8 +164,8 @@ batchSaveRadianceImage(
 static void
 batchSaveRadianceModel(
     const char *fileName,
-    FILE *fp,
-    int /*isPipe*/,
+    java::io::OutputStream *outputStream,
+    const int /*isPipe*/,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer */*rayTracer*/,
@@ -151,7 +173,7 @@ batchSaveRadianceModel(
 {
     clock_t t;
 
-    if ( !fp ) {
+    if ( outputStream == nullptr ) {
         return;
     }
 
@@ -161,7 +183,7 @@ batchSaveRadianceModel(
     t = clock();
 
     if ( radianceMethod != nullptr ) {
-        radianceMethod->writeVRML(scene->camera, fp, renderOptions);
+        radianceMethod->writeVRML(scene->camera, outputStream, renderOptions);
     }
 
     java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
@@ -223,7 +245,6 @@ batchExecuteRadianceSimulation(
                 snprintf(fileName, n, globalBatchOptions.radianceImageFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
-                    "w",
                     batchSaveRadianceImage,
                     scene,
                     radianceMethod,
@@ -238,7 +259,6 @@ batchExecuteRadianceSimulation(
                 snprintf(fileName, n, globalBatchOptions.radianceModelFileNameFormat, iterationNumber);
                 batchProcessFile(
                     fileName,
-                    "w",
                     batchSaveRadianceModel,
                     scene,
                     radianceMethod,
@@ -282,8 +302,7 @@ batchExecuteRadianceSimulation(
 
             batchProcessFile(
                 globalBatchOptions.raytracingImageFileName,
-                "w",
-                rayTraceSaveImage,
+                batchRayTraceSaveImage,
                 scene,
                 radianceMethod,
                 rayTracer,

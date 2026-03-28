@@ -117,6 +117,39 @@ use to write radiance image
 ImageOutputHandle *
 createRadianceImageOutputHandle(
     const char *fileName,
+    java::io::OutputStream *outputStream,
+    int isPipe,
+    int width,
+    int height)
+{
+    if ( outputStream != nullptr ) {
+        const char *fileExtension = isPipe ? "ppm" : imageFileExtension(fileName);
+        // Assume PPM format if pipe
+        if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
+            return new PPMOutputHandle(outputStream, width, height);
+        }
+        // Olaf: HDR PIC output
+        else if ( strncasecmp(fileExtension, "pic", 3) == 0 ) {
+            if ( isPipe ) {
+                logError("createRadianceImageOutputHandle",
+                         "Can't write PIC output to a pipe.\n");
+                return nullptr;
+            }
+
+            return new PicOutputHandle(fileName, width, height);
+        } else {
+            logError("createRadianceImageOutputHandle",
+                     "Can't save high dynamic range image to a '%s' file, format not supported.",
+                     fileExtension);
+            return nullptr;
+        }
+    }
+    return nullptr;
+}
+
+ImageOutputHandle *
+createRadianceImageOutputHandle(
+    const char *fileName,
     FILE *fileDescriptor,
     int isPipe,
     int width,
@@ -150,6 +183,29 @@ createRadianceImageOutputHandle(
 /**
 Same, but for writing "normal" display RGB images instead radiance image
 */
+ImageOutputHandle *
+createImageOutputHandle(
+    const char *fileName,
+    java::io::OutputStream *outputStream,
+    const int isPipe,
+    const int width,
+    const int height)
+{
+    if ( outputStream != nullptr ) {
+        const char *fileExtension = isPipe ? "ppm" : imageFileExtension(fileName);
+
+        if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
+            return new PPMOutputHandle(outputStream, width, height);
+        } else {
+            logError("createImageOutputHandle",
+                     "Can't save display-RGB images to a '%s' file, format not supported.\n",
+                     fileExtension);
+            return nullptr;
+        }
+    }
+    return nullptr;
+}
+
 ImageOutputHandle *
 createImageOutputHandle(
     const char *fileName,

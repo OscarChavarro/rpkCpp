@@ -8,6 +8,7 @@ and contain necessary information for raytracing-like algorithms
 
 #include "common/linealAlgebra/Ray.h"
 #include "common/ColorRgb.h"
+#include "java/io/PrintStream.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 // -- For evaluation of bi paths, should change!
@@ -78,7 +79,7 @@ class SimpleRaytracingPathNode {
     PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
-    void print(FILE *out) const;
+    void print(java::io::PrintStream *out) const;
 
     bool ends() const;
 

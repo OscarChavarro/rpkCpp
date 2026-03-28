@@ -1,8 +1,6 @@
 #ifndef __MGF_DEFINITIONS__
 #define __MGF_DEFINITIONS__
 
-#include <cstdio>
-
 #include "io/context/BaseContext.h"
 
 class FilePositionContext;

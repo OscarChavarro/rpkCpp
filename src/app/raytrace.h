@@ -1,9 +1,8 @@
 #ifndef __RAYTRACE__
 #define __RAYTRACE__
 
-#include <cstdio>
-
 #include "java/util/ArrayList.h"
+#include "java/io/OutputStream.h"
 #include "common/RenderOptions.h"
 #include "scene/Scene.h"
 #include "raycasting/common/Raytracer.h"
@@ -14,7 +13,7 @@
     extern void
     rayTraceSaveImage(
         const char *fileName,
-        FILE *fp,
+        java::io::OutputStream *stream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *,
@@ -24,7 +23,7 @@
     extern void
     rayTraceExecute(
         const char *filename,
-        FILE *fp,
+        java::io::OutputStream *stream,
         int isPipe,
         Scene *scene,
         RadianceMethod *radianceMethod,

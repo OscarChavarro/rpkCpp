@@ -160,6 +160,9 @@ ColorRgb::clip() {
 }
 
 void
-ColorRgb::print(FILE *fp) const {
-    fprintf(fp, "%g %g %g", r, g, b);
+ColorRgb::print(java::io::PrintStream *stream) const {
+    if ( stream == nullptr ) {
+        return;
+    }
+    stream->printf("%g %g %g", r, g, b);
 }

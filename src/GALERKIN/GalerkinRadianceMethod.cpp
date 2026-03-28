@@ -8,11 +8,11 @@ Galerkin radiosity, with the following variants:
 
 #include <ctime>
 #include <cstdarg>
-#include <cstdio>
 
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
+#include "io/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
 #include "render/opengl.h"
 #include "render/glutDebugTools.h"
@@ -30,9 +30,44 @@ static constexpr int STRING_LENGTH = 2000;
 GalerkinState GalerkinRadianceMethod::galerkinState;
 
 // Used for VRML export
-static FILE *globalVrmlFileDescriptor;
+static java::io::OutputStream *globalVrmlOutputStream;
 static int globalNumberOfWrites;
 static int globalVertexId;
+
+static void
+galerkinWriteFormatted(const char *format, ...) {
+    if ( globalVrmlOutputStream == nullptr || format == nullptr ) {
+        return;
+    }
+
+    char localBuffer[1024];
+    va_list arguments;
+    va_start(arguments, format);
+    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    va_end(arguments);
+
+    if ( required <= 0 ) {
+        return;
+    }
+
+    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
+        vsdk::PersistenceElement::writeBytes(
+            *globalVrmlOutputStream,
+            reinterpret_cast<const unsigned char *>(localBuffer),
+            required);
+        return;
+    }
+
+    char *dynamicBuffer = new char[required + 1];
+    va_start(arguments, format);
+    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
+    va_end(arguments);
+    vsdk::PersistenceElement::writeBytes(
+        *globalVrmlOutputStream,
+        reinterpret_cast<const unsigned char *>(dynamicBuffer),
+        required);
+    delete[] dynamicBuffer;
+}
 
 static void
 appendStatsText(char *buffer, int *offset, const char *format, ...) {
@@ -59,13 +94,13 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
 static void
 galerkinWriteVertexCoord(const Vector3D *p) {
     if ( globalNumberOfWrites > 0 ) {
-        fprintf(globalVrmlFileDescriptor, ", ");
+        galerkinWriteFormatted("%s", ", ");
     }
     globalNumberOfWrites++;
     if ( globalNumberOfWrites % 4 == 0 ) {
-        fprintf(globalVrmlFileDescriptor, "\n\t  ");
+        galerkinWriteFormatted("%s", "\n\t  ");
     }
-    fprintf(globalVrmlFileDescriptor, "%g %g %g", p->x, p->y, p->z);
+    galerkinWriteFormatted("%g %g %g", p->x, p->y, p->z);
     globalVertexId++;
 }
 
@@ -82,22 +117,22 @@ galerkinWriteVertexCoords(Element *element) {
 static void
 galerkinWriteCoords() {
     globalNumberOfWrites = globalVertexId = 0;
-    fprintf(globalVrmlFileDescriptor, "\tcoord Coordinate {\n\t  point [ ");
+    galerkinWriteFormatted("%s", "\tcoord Coordinate {\n\t  point [ ");
     GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteVertexCoords);
-    fprintf(globalVrmlFileDescriptor, " ] ");
-    fprintf(globalVrmlFileDescriptor, "\n\t}\n");
+    galerkinWriteFormatted("%s", " ] ");
+    galerkinWriteFormatted("%s", "\n\t}\n");
 }
 
 static void
 galerkinWriteVertexColor(const ColorRgb *color) {
     if ( globalNumberOfWrites > 0 ) {
-        fprintf(globalVrmlFileDescriptor, ", ");
+        galerkinWriteFormatted("%s", ", ");
     }
     globalNumberOfWrites++;
     if ( globalNumberOfWrites % 4 == 0 ) {
-        fprintf(globalVrmlFileDescriptor, "\n\t  ");
+        galerkinWriteFormatted("%s", "\n\t  ");
     }
-    fprintf(globalVrmlFileDescriptor, "%.3g %.3g %.3g", color->r, color->g, color->b);
+    galerkinWriteFormatted("%.3g %.3g %.3g", color->r, color->g, color->b);
     globalVertexId++;
 }
 
@@ -138,10 +173,10 @@ galerkinWriteVertexColors(Element *element) {
 static void
 galerkinWriteVertexColorsTopCluster() {
     globalVertexId = globalNumberOfWrites = 0;
-    fprintf(globalVrmlFileDescriptor, "\tcolor Color {\n\t  color [ ");
+    galerkinWriteFormatted("%s", "\tcolor Color {\n\t  color [ ");
     GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteVertexColors);
-    fprintf(globalVrmlFileDescriptor, " ] ");
-    fprintf(globalVrmlFileDescriptor, "\n\t}\n");
+    galerkinWriteFormatted("%s", " ] ");
+    galerkinWriteFormatted("%s", "\n\t}\n");
 }
 
 static void
@@ -149,7 +184,7 @@ galerkinWriteColors(const RenderOptions *renderOptions) {
     if ( !renderOptions->smoothShading ) {
         logWarning(nullptr, "I assume you want a smooth shaded model ...");
     }
-    fprintf(globalVrmlFileDescriptor, "\tcolorPerVertex %s\n", "TRUE");
+    galerkinWriteFormatted("\tcolorPerVertex %s\n", "TRUE");
     galerkinWriteVertexColorsTopCluster();
 }
 
@@ -157,9 +192,9 @@ static void
 galerkinWriteCoordIndex(int index) {
     globalNumberOfWrites++;
     if ( globalNumberOfWrites % 20 == 0 ) {
-        fprintf(globalVrmlFileDescriptor, "\n\t  ");
+        galerkinWriteFormatted("%s", "\n\t  ");
     }
-    fprintf(globalVrmlFileDescriptor, "%d ", index);
+    galerkinWriteFormatted("%d ", index);
 }
 
 static void
@@ -175,9 +210,9 @@ galerkinWriteCoordIndices(Element *element) {
 static void
 galerkinWriteCoordIndicesTopCluster() {
     globalVertexId = globalNumberOfWrites = 0;
-    fprintf(globalVrmlFileDescriptor, "\tcoordIndex [ ");
+    galerkinWriteFormatted("%s", "\tcoordIndex [ ");
     GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteCoordIndices);
-    fprintf(globalVrmlFileDescriptor, " ]\n");
+    galerkinWriteFormatted("%s", " ]\n");
 }
 
 void
@@ -505,13 +540,20 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
 }
 
 void
-GalerkinRadianceMethod::writeVRML(const Camera *camera, FILE *fp, const RenderOptions *renderOptions) const {
-    VrmlWriter::writeHeader(camera, fp, renderOptions);
+GalerkinRadianceMethod::writeVRML(
+    const Camera *camera,
+    java::io::OutputStream *outputStream,
+    const RenderOptions *renderOptions) const
+{
+    if ( outputStream == nullptr ) {
+        return;
+    }
+    VrmlWriter::writeHeader(camera, outputStream, renderOptions);
 
-    globalVrmlFileDescriptor = fp;
+    globalVrmlOutputStream = outputStream;
     galerkinWriteCoords();
     galerkinWriteColors(renderOptions);
     galerkinWriteCoordIndicesTopCluster();
 
-    VrmlWriter::writeTrailer(fp);
+    VrmlWriter::writeTrailer(outputStream);
 }

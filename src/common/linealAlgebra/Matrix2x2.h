@@ -1,8 +1,8 @@
 #ifndef __MATRIX_2x2__
 #define __MATRIX_2x2__
 
-#include <cstdio>
 #include "common/linealAlgebra/Vector2D.h"
+#include "java/io/PrintStream.h"
 
 /**
 |u'|   |m[0][0]  m[0][1]|   | u |   |t[0]|
@@ -14,7 +14,7 @@ class Matrix2x2 {
     float m[2][2];
     float t[2];
 
-    void print(FILE *fp) const;
+    void print(java::io::PrintStream *stream) const;
 
     void transformPoint2D(Vector2D src, Vector2D &dst) const;
     void matrix2DPreConcatTransform(Matrix2x2 xf1, Matrix2x2 &xf) const;
