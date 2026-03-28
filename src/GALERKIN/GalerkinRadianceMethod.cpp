@@ -8,8 +8,10 @@ Galerkin radiosity, with the following variants:
 
 #include <ctime>
 #include <cstdarg>
+#include <cstring>
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "io/wrapper/PersistenceElement.h"
@@ -40,33 +42,19 @@ galerkinWriteFormatted(const char *format, ...) {
         return;
     }
 
-    char localBuffer[1024];
     va_list arguments;
     va_start(arguments, format);
-    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    java::lang::String text = java::util::Formatter::vformat(format, arguments);
     va_end(arguments);
 
-    if ( required <= 0 ) {
+    if ( text.isEmpty() ) {
         return;
     }
 
-    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        vsdk::PersistenceElement::writeBytes(
-            *globalVrmlOutputStream,
-            reinterpret_cast<const unsigned char *>(localBuffer),
-            required);
-        return;
-    }
-
-    char *dynamicBuffer = new char[required + 1];
-    va_start(arguments, format);
-    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
-    va_end(arguments);
     vsdk::PersistenceElement::writeBytes(
         *globalVrmlOutputStream,
-        reinterpret_cast<const unsigned char *>(dynamicBuffer),
-        required);
-    delete[] dynamicBuffer;
+        reinterpret_cast<const unsigned char *>(text.toCString()),
+        text.length());
 }
 
 static void
@@ -77,17 +65,20 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    const int available = STRING_LENGTH - *offset;
-    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    java::lang::String text = java::util::Formatter::vformat(format, arguments);
     va_end(arguments);
 
+    const int written = text.length();
     if ( written <= 0 ) {
         return;
     }
-    if ( written >= available ) {
-        *offset = STRING_LENGTH - 1;
-    } else {
-        *offset += written;
+
+    const int available = STRING_LENGTH - *offset - 1;
+    const int copied = (written > available) ? available : written;
+    if ( copied > 0 ) {
+        std::memcpy(&buffer[*offset], text.toCString(), static_cast<std::size_t>(copied));
+        *offset += copied;
+        buffer[*offset] = '\0';
     }
 }
 

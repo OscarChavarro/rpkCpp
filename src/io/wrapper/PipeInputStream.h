@@ -1,17 +1,24 @@
 #ifndef __PIPE_INPUT_STREAM__
 #define __PIPE_INPUT_STREAM__
 
-#include <cstdio>
+#include "java/io/InputStream.h"
 
-#include "java/io/FileInputStream.h"
-
-class PipeInputStream : public java::io::FileInputStream {
+class PipeInputStream : public java::io::InputStream {
   private:
-    FILE *pipeHandle;
+    void *pipeHandle;
 
   public:
-    explicit PipeInputStream(FILE *fileHandle);
+    explicit PipeInputStream(const char *command);
     ~PipeInputStream() override;
+
+    bool
+    isOpen() const;
+
+    int
+    read() override;
+
+    int
+    read(unsigned char *buffer, int offset, int length) override;
 
     void
     close() override;

@@ -1,16 +1,19 @@
 #include "java/io/FileOutputStream.h"
 
+#include <cstdio>
+
 namespace java {
 namespace io {
 
-FileOutputStream::FileOutputStream():
-    stream(nullptr),
-    closeOnDispose(true)
-{
+namespace {
+static FILE *
+toFileHandle(void *handle) {
+    return static_cast<FILE *>(handle);
+}
 }
 
-FileOutputStream::FileOutputStream(const File &file):
-    stream(file.open("wb")),
+FileOutputStream::FileOutputStream():
+    stream(nullptr),
     closeOnDispose(true)
 {
 }
@@ -19,13 +22,9 @@ FileOutputStream::FileOutputStream(const char *fileName):
     stream(nullptr),
     closeOnDispose(true)
 {
-    stream = File::openHandle(fileName, "wb");
-}
-
-FileOutputStream::FileOutputStream(FILE *fileHandle, bool closeHandleOnDispose):
-    stream(fileHandle),
-    closeOnDispose(closeHandleOnDispose)
-{
+    if ( fileName != nullptr && fileName[0] != '\0' ) {
+        stream = static_cast<void *>(std::fopen(fileName, "wb"));
+    }
 }
 
 FileOutputStream::~FileOutputStream() {
@@ -34,7 +33,7 @@ FileOutputStream::~FileOutputStream() {
 
 bool
 FileOutputStream::isOpen() const {
-    return stream != nullptr;
+    return toFileHandle(stream) != nullptr;
 }
 
 bool
@@ -44,33 +43,45 @@ FileOutputStream::ownsHandle() const {
 
 void
 FileOutputStream::write(int value) {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return;
     }
-    fputc(static_cast<unsigned char>(value & 0xFF), stream);
+    fputc(static_cast<unsigned char>(value & 0xFF), fileHandle);
 }
 
 void
 FileOutputStream::write(const unsigned char *buffer, int offset, int length) {
-    if ( stream == nullptr || buffer == nullptr || offset < 0 || length < 0 ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr || buffer == nullptr || offset < 0 || length < 0 ) {
         return;
     }
     if ( length == 0 ) {
         return;
     }
-    fwrite(buffer + offset, 1, static_cast<size_t>(length), stream);
+    fwrite(buffer + offset, 1, static_cast<size_t>(length), fileHandle);
+}
+
+void
+FileOutputStream::flush() {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
+        return;
+    }
+    fflush(fileHandle);
 }
 
 void
 FileOutputStream::close() {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return;
     }
 
     if ( !closeOnDispose ) {
-        fflush(stream);
+        flush();
     } else {
-        File::closeHandle(stream);
+        std::fclose(fileHandle);
     }
     stream = nullptr;
     closeOnDispose = true;

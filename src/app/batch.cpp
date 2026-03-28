@@ -5,6 +5,7 @@
 
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "java/io/OutputStream.h"
 #include "render/canvas.h"
 #include "render/render.h"
@@ -242,7 +243,11 @@ batchExecuteRadianceSimulation(
             if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalBatchOptions.radianceImageFileNameFormat, iterationNumber);
+                java::util::Formatter::formatToBuffer(
+                    fileName,
+                    n,
+                    globalBatchOptions.radianceImageFileNameFormat,
+                    iterationNumber);
                 batchProcessFile(
                     fileName,
                     batchSaveRadianceImage,
@@ -256,7 +261,11 @@ batchExecuteRadianceSimulation(
             if ( *globalBatchOptions.radianceModelFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceModelFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                snprintf(fileName, n, globalBatchOptions.radianceModelFileNameFormat, iterationNumber);
+                java::util::Formatter::formatToBuffer(
+                    fileName,
+                    n,
+                    globalBatchOptions.radianceModelFileNameFormat,
+                    iterationNumber);
                 batchProcessFile(
                     fileName,
                     batchSaveRadianceModel,

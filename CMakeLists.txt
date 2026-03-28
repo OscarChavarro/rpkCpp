@@ -22,6 +22,7 @@ set(MAIN_SRC
     src/java/lang/String.cpp
     src/java/lang/System.cpp
     src/java/lang/StringBuilder.cpp
+    src/java/util/Formatter.cpp
     src/java/util/StringTokenizer.cpp
     src/java/io/File.cpp
     src/java/io/FileInputStream.cpp

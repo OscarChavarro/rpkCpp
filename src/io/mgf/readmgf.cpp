@@ -2,6 +2,7 @@
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "java/util/StringTokenizer.h"
 #include "java/lang/String.h"
 #include "java/lang/StringBuilder.h"
@@ -234,14 +235,14 @@ mgfPutCSpec(BaseContext *context)
     const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
     if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], MgfHandlerType::HANDLE_COLOR) ) {
-        snprintf(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
-        snprintf(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
+        java::util::Formatter::formatToBuffer(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
+        java::util::Formatter::formatToBuffer(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[EntityContext::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         const double sf = static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
         for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            snprintf(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
+            java::util::Formatter::formatToBuffer(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
@@ -266,8 +267,8 @@ mgfPutCxy(BaseContext *context) {
         yBuffer
     };
 
-    snprintf(xBuffer, 24, "%.4f", context->currentColor->cx);
-    snprintf(yBuffer, 24, "%.4f", context->currentColor->cy);
+    java::util::Formatter::formatToBuffer(xBuffer, 24, "%.4f", context->currentColor->cx);
+    java::util::Formatter::formatToBuffer(yBuffer, 24, "%.4f", context->currentColor->cy);
     return mgfHandle(EntityContext::CXY, 3, cCom, context);
 }
 

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include "java/lang/System.h"
+#include "java/util/Formatter.h"
 #include <cstdarg>
 #include "common/error.h"
 
@@ -16,8 +17,9 @@ void logError(const char *routine, const char *text, ...) {
     }
 
     va_start(variableList, text);
-    vfprintf(stderr, text, variableList);
+    const java::lang::String message = java::util::Formatter::vformat(text, variableList);
     va_end(variableList);
+    java::lang::System::err.print(message.toCString());
 
     java::lang::System::err.printf(".\n");
     java::lang::System::err.flush();
@@ -38,8 +40,9 @@ logFatal(int errcode, const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    vfprintf(stderr, text, pvar);
+    const java::lang::String message = java::util::Formatter::vformat(text, pvar);
     va_end(pvar);
+    java::lang::System::err.print(message.toCString());
 
     java::lang::System::err.printf(".\n");
     java::lang::System::err.flush();
@@ -60,10 +63,10 @@ logWarning(const char *routine, const char *text, ...) {
     }
 
     va_start(pvar, text);
-    vfprintf(stderr, text, pvar);
+    const java::lang::String message = java::util::Formatter::vformat(text, pvar);
     va_end(pvar);
+    java::lang::System::err.print(message.toCString());
 
     java::lang::System::err.printf(".\n");
     java::lang::System::err.flush();
 }
-

@@ -10,6 +10,15 @@
 
 static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());
 
+static const char *
+standardInputPath() {
+#if defined(_WIN32)
+    return "CONIN$";
+#else
+    return "/dev/stdin";
+#endif
+}
+
 /**
 Default handler for unknown entities
 */
@@ -164,7 +173,7 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, BaseContext 
     readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(stdin, false);
+        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(standardInputPath());
         if ( !fileInputStream->isOpen() ) {
             fileInputStream->dispose();
             delete fileInputStream;

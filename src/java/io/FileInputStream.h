@@ -1,8 +1,6 @@
 #ifndef __JAVA_IO_FILE_INPUT_STREAM__
 #define __JAVA_IO_FILE_INPUT_STREAM__
 
-#include <cstdio>
-
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
 
@@ -11,21 +9,16 @@ namespace io {
 
 class FileInputStream : public InputStream {
   private:
-    FILE *stream;
+    void *stream;
     bool closeOnDispose;
 
   public:
     FileInputStream();
-    explicit FileInputStream(const File &file);
     explicit FileInputStream(const char *fileName);
-    explicit FileInputStream(FILE *fileHandle, bool closeOnDispose = true);
     ~FileInputStream() override;
 
     bool
     isOpen() const;
-
-    bool
-    ownsHandle() const;
 
     int
     read() override;

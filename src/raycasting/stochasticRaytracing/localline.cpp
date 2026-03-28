@@ -3,6 +3,7 @@ Generate and trace a local line
 */
 
 #include "common/RenderOptions.h"
+#include "java/lang/System.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -61,7 +62,7 @@ In order to let the user have the impression that the computations are proceedin
 static void
 someFeedback() {
     if ( (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays + GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays) % 1000 == 0 ) {
-        fputc('.', stderr);
+        java::lang::System::err.print(".");
     }
 }
 

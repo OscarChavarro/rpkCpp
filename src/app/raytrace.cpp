@@ -4,6 +4,7 @@
 #include "java/lang/System.h"
 #include <cstring>
 #include <ctime>
+#include "java/util/Formatter.h"
 
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -17,7 +18,7 @@
 
 static void
 rayTraceMakeMethodsHelpMessage(char *str) {
-    snprintf(str, 1000,
+    java::util::Formatter::formatToBuffer(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
          "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"

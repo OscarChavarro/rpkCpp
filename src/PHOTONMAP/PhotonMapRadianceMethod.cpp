@@ -7,6 +7,7 @@
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "common/ColorRgb.h"
 #include "common/error.h"
 #include "skin/Patch.h"
@@ -46,7 +47,7 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    const int written = java::util::Formatter::vformatToBuffer(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {
@@ -565,7 +566,7 @@ photonMapBRRealIteration(
                 radianceMethod);
 
         java::lang::System::err.printf("Global map: ");
-        GLOBAL_photonMap_config.globalMap->printStats(stderr);
+        GLOBAL_photonMap_config.globalMap->printStats(&java::lang::System::err);
     }
 
     // Caustic map
@@ -586,7 +587,7 @@ photonMapBRRealIteration(
             BSDF_SPECULAR_COMPONENT);
 
         java::lang::System::err.printf("Caustic map: ");
-        GLOBAL_photonMap_config.causticMap->printStats(stderr);
+        GLOBAL_photonMap_config.causticMap->printStats(&java::lang::System::err);
     }
 }
 

@@ -5,6 +5,7 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include <cstring>
 
 #include "java/lang/Math.h"
+#include "java/util/Formatter.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/mgf/badarg.h"
 #include "io/context/TransformStackContext.h"
@@ -509,7 +510,7 @@ handleTransformationEntity(int ac, const char **av, BaseContext *context) {
                 if ( rv != ErrorCodeContext::MGF_OK ) {
                     return rv;
                 }
-                snprintf(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
+                java::util::Formatter::formatToBuffer(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
                 transformName(ap, context);
             }
         }

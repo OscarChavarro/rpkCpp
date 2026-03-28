@@ -3,12 +3,14 @@ Command line options and defaults
 */
 
 #include <cstring>
+#include <cstdlib>
 #include "java/lang/System.h"
 #include "java/lang/Integer.h"
 #include <cerrno>
 #include <cstdint>
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 #include "app/options.h"
@@ -109,9 +111,21 @@ optionsGetArgumentIntValue(int *res) {
 Scans the current argument value for a value of given format
 */
 static bool
-optionsGetArgumentFloatValue(const char *format, float *res) {
+optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
     const char *currentArgument = optionsCurrentArgumentValue();
-    return currentArgument != nullptr && (sscanf(currentArgument, format, res) == 1);
+    if ( currentArgument == nullptr || res == nullptr ) {
+        return false;
+    }
+
+    errno = 0;
+    char *endPointer = nullptr;
+    const float parsedValue = strtof(currentArgument, &endPointer);
+    if ( endPointer == currentArgument || *endPointer != '\0' || errno == ERANGE ) {
+        return false;
+    }
+
+    *res = parsedValue;
+    return true;
 }
 
 /**
@@ -158,7 +172,7 @@ optionsGetString(void *value, void * /*data*/) {
     if ( globalStringsToDelete != nullptr ) {
         globalStringsToDelete->add(*s);
     }
-    snprintf(*s, n, "%s", currentArgument);
+    java::util::Formatter::formatToBuffer(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
 }
 

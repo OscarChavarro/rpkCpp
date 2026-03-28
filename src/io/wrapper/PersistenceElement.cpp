@@ -1,12 +1,12 @@
 #include "io/wrapper/PersistenceElement.h"
 
-#include <cstdio>
-#include <cerrno>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
 #include "common/error.h"
+#include "java/io/FileInputStream.h"
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 
 namespace vsdk {
@@ -91,25 +91,6 @@ PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *
         return;
     }
     os.write(bytesBuffer, 0, length);
-}
-
-/**
-Given a previously initialized array of bytes, this method writes it
-with information readed from the given output stream.  If it is not
-enough information to read, this method generates an Exception.
-@param os
-@param bytesBuffer
-*/
-void
-PersistenceElement::writeBytes(FILE *os, const unsigned char *bytesBuffer, int length) {
-    if ( os == nullptr || bytesBuffer == nullptr || length < 0 ) {
-        logError("PersistenceElement::writeBytes(FILE)", "%s", "invalid arguments");
-        return;
-    }
-    const size_t written = fwrite(bytesBuffer, 1, static_cast<size_t>(length), os);
-    if ( written != static_cast<size_t>(length) ) {
-        logError("PersistenceElement::writeBytes(FILE)", "failed (%ld/%d)", static_cast<long>(written), length);
-    }
 }
 
 /**
@@ -481,18 +462,6 @@ PersistenceElement::writeSignedShortLE(java::io::OutputStream &os, int num) {
     writeBytes(os, byteBuffer2byte, 2);
 }
 
-void
-PersistenceElement::writeSignedShortBE(FILE *os, int num) {
-    signedShort2byteArrayBE(byteBuffer2byte, 0, num);
-    writeBytes(os, byteBuffer2byte, 2);
-}
-
-void
-PersistenceElement::writeSignedShortLE(FILE *os, int num) {
-    signedShort2byteArrayLE(byteBuffer2byte, 0, num);
-    writeBytes(os, byteBuffer2byte, 2);
-}
-
 /**
 Pending to check. Is this really managing 64 bit long integers?
 @param is
@@ -594,36 +563,6 @@ PersistenceElement::writeLongLE(java::io::OutputStream &os, long num) {
     writeBytes(os, bytesForLong, 4);
 }
 
-void
-PersistenceElement::writeFloatBE(FILE *os, float num) {
-    float2byteArrayBE(byteBuffer4byte, 0, num);
-    writeBytes(os, byteBuffer4byte, 4);
-}
-
-void
-PersistenceElement::writeFloatLE(FILE *os, float num) {
-    float2byteArrayLE(byteBuffer4byte, 0, num);
-    writeBytes(os, byteBuffer4byte, 4);
-}
-
-void
-PersistenceElement::writeLongBE(FILE *os, long num) {
-    if ( bigEndianArchitecture ) {
-        signedInt2byteArrayDirect(bytesForLong, 0, num);
-    }
-    signedInt2byteArrayInvert(bytesForLong, 0, num);
-    writeBytes(os, bytesForLong, 4);
-}
-
-void
-PersistenceElement::writeLongLE(FILE *os, long num) {
-    if ( bigEndianArchitecture ) {
-        signedInt2byteArrayInvert(bytesForLong, 0, num);
-    }
-    signedInt2byteArrayDirect(bytesForLong, 0, num);
-    writeBytes(os, bytesForLong, 4);
-}
-
 char *
 PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size) {
     if ( size <= 0 ) {
@@ -717,7 +656,7 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
                     return duplicateCString("");
                 }
             } else {
-                std::fprintf(stderr, "* UNHANDLED UTF sequence while reading UTF-8 string\n");
+                java::lang::System::err.print("* UNHANDLED UTF sequence while reading UTF-8 string\n");
             }
         }
     } while ( character[0] != 0x00 );
@@ -860,7 +799,7 @@ PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned cha
 }
 
 void
-PersistenceElement::writeAsciiString(FILE *writer, const char *cad) {
+PersistenceElement::writeAsciiString(java::io::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -871,7 +810,7 @@ PersistenceElement::writeAsciiString(FILE *writer, const char *cad) {
 }
 
 void
-PersistenceElement::writeUtf8String(FILE *writer, const char *cad) {
+PersistenceElement::writeUtf8String(java::io::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -882,7 +821,7 @@ PersistenceElement::writeUtf8String(FILE *writer, const char *cad) {
 }
 
 void
-PersistenceElement::writeAsciiLine(FILE *writer, const char *cad) {
+PersistenceElement::writeAsciiLine(java::io::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -893,7 +832,7 @@ PersistenceElement::writeAsciiLine(FILE *writer, const char *cad) {
 }
 
 void
-PersistenceElement::writeUtf8Line(FILE *writer, const char *cad) {
+PersistenceElement::writeUtf8Line(java::io::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -1040,9 +979,9 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 
                 char *fullPath = joinCString3(token, "/", nativeLibname);
                 if ( fullPath != nullptr ) {
-                    FILE *candidate = java::io::File::openHandle(fullPath, "rb");
-                    if ( candidate != nullptr ) {
-                        java::io::File::closeHandle(candidate);
+                    java::io::FileInputStream candidate(fullPath);
+                    if ( candidate.isOpen() ) {
+                        candidate.close();
                         std::free(fullPath);
                         std::free(token);
                         return true;
@@ -1105,32 +1044,18 @@ PersistenceElement::verifyLibrary(const char *libname) {
 bool
 PersistenceElement::checkDirectory(const char *dirName) {
     if ( dirName == nullptr || dirName[0] == '\0' ) {
-        std::fprintf(stderr, "Directory name is empty.\n");
+        java::lang::System::err.print("Directory name is empty.\n");
         return false;
     }
 
-    char *probePath = joinCString3(dirName, "/", ".rpk_dir_probe.tmp");
-    if ( probePath == nullptr ) {
-        std::fprintf(
-            stderr,
-            "Directory %s can not be validated.\n",
-            dirName);
-        return false;
-    }
-
-    FILE *probe = java::io::File::openHandle(probePath, "ab");
-    if ( probe == nullptr ) {
-        std::free(probePath);
-        std::fprintf(
-            stderr,
+    java::io::File directory(dirName);
+    if ( !directory.exists() || !directory.isDirectory() || !directory.canRead() || !directory.canWrite() ) {
+        java::lang::System::err.printf(
             "Directory %s is not accessible and automatic creation is disabled.\n",
             dirName);
         return false;
     }
 
-    java::io::File::closeHandle(probe);
-    std::remove(probePath);
-    std::free(probePath);
     return true;
 }
 

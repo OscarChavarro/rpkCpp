@@ -1,8 +1,6 @@
 #ifndef __JAVA_IO_BUFFERED_INPUT_STREAM__
 #define __JAVA_IO_BUFFERED_INPUT_STREAM__
 
-#include <cstdio>
-
 #include "java/io/File.h"
 #include "java/io/InputStream.h"
 

@@ -1,17 +1,27 @@
 #ifndef __PIPE_OUTPUT_STREAM__
 #define __PIPE_OUTPUT_STREAM__
 
-#include <cstdio>
+#include "java/io/OutputStream.h"
 
-#include "java/io/FileOutputStream.h"
-
-class PipeOutputStream : public java::io::FileOutputStream {
+class PipeOutputStream : public java::io::OutputStream {
   private:
-    FILE *pipeHandle;
+    void *pipeHandle;
 
   public:
-    explicit PipeOutputStream(FILE *fileHandle);
+    explicit PipeOutputStream(const char *command);
     ~PipeOutputStream() override;
+
+    bool
+    isOpen() const;
+
+    void
+    write(int value) override;
+
+    void
+    write(const unsigned char *buffer, int offset, int length) override;
+
+    void
+    flush() override;
 
     void
     close() override;

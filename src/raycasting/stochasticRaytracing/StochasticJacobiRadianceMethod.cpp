@@ -5,6 +5,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include <cstdarg>
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "java/lang/System.h"
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -29,7 +30,7 @@ appendStochasticStatsText(char *buffer, int *offset, const char *format, ...) {
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = vsnprintf(&buffer[*offset], available, format, arguments);
+    const int written = java::util::Formatter::vformatToBuffer(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {

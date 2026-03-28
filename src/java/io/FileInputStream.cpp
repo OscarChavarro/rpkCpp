@@ -1,16 +1,19 @@
 #include "java/io/FileInputStream.h"
 
+#include <cstdio>
+
 namespace java {
 namespace io {
 
-FileInputStream::FileInputStream():
-    stream(nullptr),
-    closeOnDispose(true)
-{
+namespace {
+static FILE *
+toFileHandle(void *handle) {
+    return static_cast<FILE *>(handle);
+}
 }
 
-FileInputStream::FileInputStream(const File &file):
-    stream(file.open("rb")),
+FileInputStream::FileInputStream():
+    stream(nullptr),
     closeOnDispose(true)
 {
 }
@@ -19,13 +22,9 @@ FileInputStream::FileInputStream(const char *fileName):
     stream(nullptr),
     closeOnDispose(true)
 {
-    stream = File::openHandle(fileName, "rb");
-}
-
-FileInputStream::FileInputStream(FILE *fileHandle, bool closeHandleOnDispose):
-    stream(fileHandle),
-    closeOnDispose(closeHandleOnDispose)
-{
+    if ( fileName != nullptr && fileName[0] != '\0' ) {
+        stream = static_cast<void *>(std::fopen(fileName, "rb"));
+    }
 }
 
 FileInputStream::~FileInputStream() {
@@ -34,25 +33,22 @@ FileInputStream::~FileInputStream() {
 
 bool
 FileInputStream::isOpen() const {
-    return stream != nullptr;
-}
-
-bool
-FileInputStream::ownsHandle() const {
-    return closeOnDispose;
+    return toFileHandle(stream) != nullptr;
 }
 
 int
 FileInputStream::read() {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return -1;
     }
-    return fgetc(stream);
+    return fgetc(fileHandle);
 }
 
 int
 FileInputStream::read(unsigned char *buffer, int offset, int length) {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return -1;
     }
     if ( buffer == nullptr || offset < 0 || length < 0 ) {
@@ -61,8 +57,8 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
     if ( length == 0 ) {
         return 0;
     }
-    const int readCount = static_cast<int>(fread(&buffer[offset], 1, static_cast<std::size_t>(length), stream));
-    if ( readCount == 0 && feof(stream) ) {
+    const int readCount = static_cast<int>(fread(&buffer[offset], 1, static_cast<std::size_t>(length), fileHandle));
+    if ( readCount == 0 && feof(fileHandle) ) {
         return -1;
     }
     return readCount;
@@ -70,19 +66,21 @@ FileInputStream::read(unsigned char *buffer, int offset, int length) {
 
 long
 FileInputStream::tell() const {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return -1;
     }
-    return ftell(stream);
+    return ftell(fileHandle);
 }
 
 void
 FileInputStream::close() {
-    if ( stream == nullptr ) {
+    FILE *fileHandle = toFileHandle(stream);
+    if ( fileHandle == nullptr ) {
         return;
     }
     if ( closeOnDispose ) {
-        File::closeHandle(stream);
+        std::fclose(fileHandle);
     }
     stream = nullptr;
     closeOnDispose = true;

@@ -147,7 +147,7 @@ sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
         count += samples_this_light;
     }
 
-    fputc('\n', stderr);
+    java::lang::System::err.println();
 }
 
 static void

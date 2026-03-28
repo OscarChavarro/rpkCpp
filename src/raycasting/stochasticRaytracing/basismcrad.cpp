@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include "common/error.h"
+#include "java/util/Formatter.h"
 #include "numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/basismcrad.h"
@@ -64,7 +65,8 @@ static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRayt
 
     basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
 
-    snprintf(desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
+    java::util::Formatter::formatToBuffer(
+        desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
     basis.description = strdup(desc);
 
     return basis;

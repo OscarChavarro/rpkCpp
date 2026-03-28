@@ -5,6 +5,7 @@
 #include "io/wrapper/PersistenceElement.h"
 #include "java/io/FileOutputStream.h"
 #include "java/lang/System.h"
+#include "java/util/Formatter.h"
 
 static void
 picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
@@ -12,33 +13,18 @@ picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...)
         return;
     }
 
-    char localBuffer[256];
     va_list arguments;
     va_start(arguments, format);
-    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    java::lang::String text = java::util::Formatter::vformat(format, arguments);
     va_end(arguments);
 
-    if ( required <= 0 ) {
+    if ( text.isEmpty() ) {
         return;
     }
-
-    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        vsdk::PersistenceElement::writeBytes(
-            *outputStream,
-            reinterpret_cast<const unsigned char *>(localBuffer),
-            required);
-        return;
-    }
-
-    char *dynamicBuffer = new char[required + 1];
-    va_start(arguments, format);
-    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
-    va_end(arguments);
     vsdk::PersistenceElement::writeBytes(
         *outputStream,
-        reinterpret_cast<const unsigned char *>(dynamicBuffer),
-        required);
-    delete[] dynamicBuffer;
+        reinterpret_cast<const unsigned char *>(text.toCString()),
+        text.length());
 }
 
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {

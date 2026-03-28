@@ -225,7 +225,7 @@ CPhotonMap::DC_AddPhoton(
 
     double acceptProb = ComputeAcceptProb(currentD, requiredD);
 
-    // printf("A prob %g, CD %g RD %g\n", acceptProb, currentD, requiredD);
+    // Debug trace for acceptance probability and density values.
 
     // Roulette
     if ( drand48() < acceptProb ) {

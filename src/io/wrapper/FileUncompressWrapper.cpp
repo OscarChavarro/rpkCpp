@@ -4,9 +4,9 @@
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
-#include "java/io/File.h"
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
+#include "java/util/Formatter.h"
 
 namespace {
 
@@ -20,122 +20,156 @@ modeToLogAction(StreamOpenMode mode) {
     return mode == StreamOpenMode::READ ? "reading" : "writing";
 }
 
-static const char *
-modeToPopen(StreamOpenMode mode) {
-    return mode == StreamOpenMode::READ ? "r" : "w";
-}
-
-static const char *
-modeToFileOpen(StreamOpenMode mode) {
-    return mode == StreamOpenMode::READ ? "rb" : "wb";
-}
-
-static FILE *
-openFileHandleCompressWrapper(const char *fileName, StreamOpenMode openMode, int *isPipe) {
-    if ( isPipe == nullptr ) {
-        return nullptr;
-    }
-    *isPipe = 0;
-
+static bool
+isInvalidFileName(const char *fileName) {
     if ( fileName == nullptr || fileName[0] == '\0' || fileName[strlen(fileName) - 1] == '/' ) {
-        return nullptr;
+        return true;
     }
+    return false;
+}
 
-    FILE *fileHandle = nullptr;
-    const int commandLength = static_cast<int>(strlen(fileName)) + 20;
-    char *command = new char[commandLength];
-    const char *ext = strrchr(fileName, '.');
+static int
+buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength) {
+    if ( fileName == nullptr || command == nullptr || commandLength <= 0 ) {
+        return 0;
+    }
 
     if ( fileName[0] == '|' ) {
-        std::snprintf(command, commandLength, "%s", &fileName[1]);
-        fileHandle = popen(command, modeToPopen(openMode));
-        *isPipe = 1;
-    } else if ( ext && std::strcmp(ext, ".gz") == 0 ) {
+        java::util::Formatter::formatToBuffer(command, commandLength, "%s", &fileName[1]);
+        return 1;
+    }
+
+    const char *ext = strrchr(fileName, '.');
+    if ( ext && std::strcmp(ext, ".gz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            std::snprintf(command, commandLength, "gunzip < %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "gunzip < %s", fileName);
         } else {
-            std::snprintf(command, commandLength, "gzip > %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "gzip > %s", fileName);
         }
-        fileHandle = popen(command, modeToPopen(openMode));
-        *isPipe = 1;
     } else if ( ext && std::strcmp(ext, ".Z") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            std::snprintf(command, commandLength, "uncompress < %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "uncompress < %s", fileName);
         } else {
-            std::snprintf(command, commandLength, "compress > %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "compress > %s", fileName);
         }
-        fileHandle = popen(command, modeToPopen(openMode));
-        *isPipe = 1;
     } else if ( ext && std::strcmp(ext, ".bz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            std::snprintf(command, commandLength, "bunzip < %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "bunzip < %s", fileName);
         } else {
-            std::snprintf(command, commandLength, "bzip > %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "bzip > %s", fileName);
         }
-        fileHandle = popen(command, modeToPopen(openMode));
-        *isPipe = 1;
     } else if ( ext && std::strcmp(ext, ".bz2") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            std::snprintf(command, commandLength, "bunzip2 < %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "bunzip2 < %s", fileName);
         } else {
-            std::snprintf(command, commandLength, "bzip2 > %s", fileName);
+            java::util::Formatter::formatToBuffer(command, commandLength, "bzip2 > %s", fileName);
         }
-        fileHandle = popen(command, modeToPopen(openMode));
-        *isPipe = 1;
     } else {
-        fileHandle = java::io::File::openHandle(fileName, modeToFileOpen(openMode));
-        *isPipe = 0;
+        return 0;
     }
+    return 1;
+}
 
-    delete[] command;
-
-    if ( fileHandle == nullptr ) {
-        logError(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(openMode));
+static java::io::InputStream *
+openPipeInputStream(const char *command) {
+    PipeInputStream *pipeStream = new PipeInputStream(command);
+    if ( !pipeStream->isOpen() ) {
+        delete pipeStream;
+        return nullptr;
     }
+    return pipeStream;
+}
 
-    return fileHandle;
+static java::io::OutputStream *
+openPipeOutputStream(const char *command) {
+    PipeOutputStream *pipeStream = new PipeOutputStream(command);
+    if ( !pipeStream->isOpen() ) {
+        delete pipeStream;
+        return nullptr;
+    }
+    return pipeStream;
 }
 
 } // namespace
 
 java::io::InputStream *
 openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
-    int pipeFlag = 0;
-    FILE *fileHandle = openFileHandleCompressWrapper(fileName, StreamOpenMode::READ, &pipeFlag);
-    if ( fileHandle == nullptr ) {
+    if ( isPipe != nullptr ) {
+        *isPipe = 0;
+    }
+    if ( isInvalidFileName(fileName) ) {
+        return nullptr;
+    }
+
+    const int commandLength = static_cast<int>(strlen(fileName)) + 20;
+    char *command = new char[commandLength];
+    const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::READ, command, commandLength);
+
+    java::io::InputStream *stream = nullptr;
+    if ( pipeFlag != 0 ) {
+        stream = openPipeInputStream(command);
+    } else {
+        java::io::FileInputStream *fileStream = new java::io::FileInputStream(fileName);
+        if ( fileStream->isOpen() ) {
+            stream = fileStream;
+        } else {
+            delete fileStream;
+        }
+    }
+    delete[] command;
+
+    if ( stream == nullptr ) {
+        logError(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::READ));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }
         return nullptr;
     }
+
     if ( isPipe != nullptr ) {
         *isPipe = pipeFlag;
     }
-
-    if ( pipeFlag != 0 ) {
-        return new PipeInputStream(fileHandle);
-    }
-    return new java::io::FileInputStream(fileHandle);
+    return stream;
 }
 
 java::io::OutputStream *
 openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
-    int pipeFlag = 0;
-    FILE *fileHandle = openFileHandleCompressWrapper(fileName, StreamOpenMode::WRITE, &pipeFlag);
-    if ( fileHandle == nullptr ) {
+    if ( isPipe != nullptr ) {
+        *isPipe = 0;
+    }
+    if ( isInvalidFileName(fileName) ) {
+        return nullptr;
+    }
+
+    const int commandLength = static_cast<int>(strlen(fileName)) + 20;
+    char *command = new char[commandLength];
+    const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::WRITE, command, commandLength);
+
+    java::io::OutputStream *stream = nullptr;
+    if ( pipeFlag != 0 ) {
+        stream = openPipeOutputStream(command);
+    } else {
+        java::io::FileOutputStream *fileStream = new java::io::FileOutputStream(fileName);
+        if ( fileStream->isOpen() ) {
+            stream = fileStream;
+        } else {
+            delete fileStream;
+        }
+    }
+    delete[] command;
+
+    if ( stream == nullptr ) {
+        logError(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::WRITE));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }
         return nullptr;
     }
+
     if ( isPipe != nullptr ) {
         *isPipe = pipeFlag;
     }
-
-    if ( pipeFlag != 0 ) {
-        return new PipeOutputStream(fileHandle);
-    }
-    return new java::io::FileOutputStream(fileHandle);
+    return stream;
 }
 
 void

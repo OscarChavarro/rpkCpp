@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include "java/lang/System.h"
+#include "java/util/Formatter.h"
 
 #include "common/stratification.h"
 #include "raycasting/common/raytools.h"
@@ -45,11 +46,31 @@ BidirectionalPathRaytracer::defaults() {
     // Weighted not in UI
     GLOBAL_rayTracing_biDirectionalPath.baseConfig.doWeighted = false;
 
-    snprintf(GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp, MAX_REGEXP_SIZE, "(LX)(X)*(EX)");
-    snprintf(GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp, MAX_REGEXP_SIZE, "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    snprintf(GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp, MAX_REGEXP_SIZE, "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    snprintf(GLOBAL_rayTracing_biDirectionalPath.baseConfig.wleRegExp, MAX_REGEXP_SIZE, "(LX)(DR)(X)*(EX)");
-    snprintf(GLOBAL_rayTracing_biDirectionalPath.baseConfig.wldRegExp, MAX_REGEXP_SIZE, "(LX)(X)*(EX)");
+    java::util::Formatter::formatToBuffer(
+        GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp,
+        MAX_REGEXP_SIZE,
+        "%s",
+        "(LX)(X)*(EX)");
+    java::util::Formatter::formatToBuffer(
+        GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp,
+        MAX_REGEXP_SIZE,
+        "%s",
+        "(LX)(G|S)(X)*(EX),(LX)(EX)");
+    java::util::Formatter::formatToBuffer(
+        GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp,
+        MAX_REGEXP_SIZE,
+        "%s",
+        "(LX)(G|S)(X)*(EX),(LX)(EX)");
+    java::util::Formatter::formatToBuffer(
+        GLOBAL_rayTracing_biDirectionalPath.baseConfig.wleRegExp,
+        MAX_REGEXP_SIZE,
+        "%s",
+        "(LX)(DR)(X)*(EX)");
+    java::util::Formatter::formatToBuffer(
+        GLOBAL_rayTracing_biDirectionalPath.baseConfig.wldRegExp,
+        MAX_REGEXP_SIZE,
+        "%s",
+        "(LX)(X)*(EX)");
 
     // Not in UI yet
     GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages = false;
@@ -930,8 +951,16 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     const char *lastOcc = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
 
     if ( lastOcc == nullptr ) {
-        snprintf(format1, STRINGS_SIZE, "%s%%i.tif", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
-        snprintf(format2, STRINGS_SIZE, "%s%%i.ppm.gz", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+        java::util::Formatter::formatToBuffer(
+            format1,
+            STRINGS_SIZE,
+            "%s%%i.tif",
+            GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+        java::util::Formatter::formatToBuffer(
+            format2,
+            STRINGS_SIZE,
+            "%s%%i.ppm.gz",
+            GLOBAL_rayTracing_biDirectionalPath.baseFilename);
     } else {
         strncpy(format1, GLOBAL_rayTracing_biDirectionalPath.baseFilename, lastOcc - GLOBAL_rayTracing_biDirectionalPath.baseFilename);
         strcat(format1, "%i");
@@ -970,11 +999,11 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
 
         // Save images
         if ( format1[0] != '\0' ) {
-            snprintf(filename, STRINGS_SIZE, format1, totalSamples);
+            java::util::Formatter::formatToBuffer(filename, STRINGS_SIZE, format1, totalSamples);
             config->screen->writeFile(filename);
         }
         if ( format2[0] != '\0' ) {
-            snprintf(filename, STRINGS_SIZE, format2, totalSamples);
+            java::util::Formatter::formatToBuffer(filename, STRINGS_SIZE, format2, totalSamples);
             config->screen->writeFile(filename);
         }
 
@@ -1125,16 +1154,16 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         // Render screen & write
 
         config->dest->render();
-        snprintf(fileName, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
+        java::util::Formatter::formatToBuffer(fileName, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
 
         if ( config->dest2 ) {
             config->dest2->render();
-            snprintf(fileName, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
+            java::util::Formatter::formatToBuffer(fileName, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
 
             // Merge two images (just add!) into screen
             config->screen->merge(config->dest, config->dest2, camera);
             config->screen->render();
-            snprintf(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
+            java::util::Formatter::formatToBuffer(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
         } else {
             config->screen->copy(config->dest, camera);
         }

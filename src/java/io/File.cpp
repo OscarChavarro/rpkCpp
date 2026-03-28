@@ -1,9 +1,39 @@
 #include "java/io/File.h"
 
-#include <cstdio>
+#include <sys/stat.h>
+
+#if defined(_WIN32)
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
 
 namespace java {
 namespace io {
+
+namespace {
+static bool
+isValidPath(const char *rawPath) {
+    return rawPath != nullptr && rawPath[0] != '\0';
+}
+
+static bool
+queryStat(const char *rawPath, struct stat *fileInfo) {
+    if ( !isValidPath(rawPath) || fileInfo == nullptr ) {
+        return false;
+    }
+    return ::stat(rawPath, fileInfo) == 0;
+}
+
+static int
+pathAccess(const char *rawPath, int mode) {
+#if defined(_WIN32)
+    return _access(rawPath, mode);
+#else
+    return access(rawPath, mode);
+#endif
+}
+}
 
 File::File():
     path()
@@ -71,30 +101,54 @@ File::getParent() const {
     return path.substring(0, lastSeparator);
 }
 
-FILE *
-File::open(const char *openMode) const {
-    return openHandle(path.toCString(), openMode);
-}
-
-FILE *
-File::openHandle(const char *filePath, const char *openMode) {
-    if ( filePath == nullptr || openMode == nullptr || filePath[0] == '\0' || openMode[0] == '\0' ) {
-        return nullptr;
-    }
-    return std::fopen(filePath, openMode);
-}
-
-int
-File::closeHandle(FILE *handle) {
-    if ( handle == nullptr ) {
-        return 0;
-    }
-    return std::fclose(handle);
-}
-
 bool
 File::isEmpty() const {
     return path.isEmpty();
+}
+
+bool
+File::exists() const {
+    struct stat fileInfo {};
+    return queryStat(path.toCString(), &fileInfo);
+}
+
+bool
+File::isDirectory() const {
+    struct stat fileInfo {};
+    if ( !queryStat(path.toCString(), &fileInfo) ) {
+        return false;
+    }
+#if defined(_WIN32)
+    return (fileInfo.st_mode & _S_IFDIR) != 0;
+#else
+    return S_ISDIR(fileInfo.st_mode);
+#endif
+}
+
+bool
+File::canRead() const {
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
+        return false;
+    }
+#if defined(_WIN32)
+    return pathAccess(rawPath, 4) == 0;
+#else
+    return pathAccess(rawPath, R_OK) == 0;
+#endif
+}
+
+bool
+File::canWrite() const {
+    const char *rawPath = path.toCString();
+    if ( !isValidPath(rawPath) ) {
+        return false;
+    }
+#if defined(_WIN32)
+    return pathAccess(rawPath, 2) == 0;
+#else
+    return pathAccess(rawPath, W_OK) == 0;
+#endif
 }
 
 }

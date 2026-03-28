@@ -7,6 +7,7 @@ Saves the result of a radiosity computation as a VRML file
 #include <cstdarg>
 
 #include "io/wrapper/PersistenceElement.h"
+#include "java/util/Formatter.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
 Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
@@ -18,33 +19,19 @@ vrmlWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...
         return;
     }
 
-    char localBuffer[1024];
     va_list arguments;
     va_start(arguments, format);
-    const int required = std::vsnprintf(localBuffer, sizeof(localBuffer), format, arguments);
+    java::lang::String text = java::util::Formatter::vformat(format, arguments);
     va_end(arguments);
 
-    if ( required <= 0 ) {
+    if ( text.isEmpty() ) {
         return;
     }
 
-    if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        vsdk::PersistenceElement::writeBytes(
-            *outputStream,
-            reinterpret_cast<const unsigned char *>(localBuffer),
-            required);
-        return;
-    }
-
-    char *dynamicBuffer = new char[required + 1];
-    va_start(arguments, format);
-    std::vsnprintf(dynamicBuffer, required + 1, format, arguments);
-    va_end(arguments);
     vsdk::PersistenceElement::writeBytes(
         *outputStream,
-        reinterpret_cast<const unsigned char *>(dynamicBuffer),
-        required);
-    delete[] dynamicBuffer;
+        reinterpret_cast<const unsigned char *>(text.toCString()),
+        text.length());
 }
 
 /**
@@ -145,10 +132,9 @@ VrmlWriter::writeViewPoints(
     int count = 1;
     writeViewPoint(outputStream, modelTransform, camera, "ViewPoint 1");
     while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
-        char viewPointName[21];
         count++;
-        snprintf(viewPointName, 21, "ViewPoint %d", count);
-        writeViewPoint(outputStream, modelTransform, localCamera, viewPointName);
+        const java::lang::String viewPointName = java::util::Formatter::format("ViewPoint %d", count);
+        writeViewPoint(outputStream, modelTransform, localCamera, viewPointName.toCString());
     }
 }
 

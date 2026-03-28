@@ -47,7 +47,6 @@ class PersistenceElement {
     static void readBytes(java::io::InputStream &is, unsigned char *bytesBuffer, int length);
 
     static void writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length);
-    static void writeBytes(FILE *os, const unsigned char *bytesBuffer, int length);
 
     static int byteArray2signedShortBE(const unsigned char *arr, int start);
     static void signedShort2byteArrayBE(unsigned char *arr, int start, int num);
@@ -69,8 +68,6 @@ class PersistenceElement {
     static int readSignedShortBE(java::io::InputStream &is);
     static void writeSignedShortBE(java::io::OutputStream &os, int num);
     static void writeSignedShortLE(java::io::OutputStream &os, int num);
-    static void writeSignedShortBE(FILE *os, int num);
-    static void writeSignedShortLE(FILE *os, int num);
 
     static long readLongLE(java::io::InputStream &is);
     static void writeInt32LE(java::io::OutputStream &os, int32_t num);
@@ -88,10 +85,6 @@ class PersistenceElement {
     static void writeFloatLE(java::io::OutputStream &os, float num);
     static void writeLongBE(java::io::OutputStream &os, long num);
     static void writeLongLE(java::io::OutputStream &os, long num);
-    static void writeFloatBE(FILE *os, float num);
-    static void writeFloatLE(FILE *os, float num);
-    static void writeLongBE(FILE *os, long num);
-    static void writeLongLE(FILE *os, long num);
 
     static char *readAsciiFixedSizeString(java::io::InputStream &is, int size);
     static char *readAsciiString(java::io::InputStream &is);
@@ -100,10 +93,10 @@ class PersistenceElement {
     static char *readAsciiLine(java::io::InputStream &is);
     static char *readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength);
 
-    static void writeAsciiString(FILE *writer, const char *cad);
-    static void writeUtf8String(FILE *writer, const char *cad);
-    static void writeAsciiLine(FILE *writer, const char *cad);
-    static void writeUtf8Line(FILE *writer, const char *cad);
+    static void writeAsciiString(java::io::OutputStream &writer, const char *cad);
+    static void writeUtf8String(java::io::OutputStream &writer, const char *cad);
+    static void writeAsciiLine(java::io::OutputStream &writer, const char *cad);
+    static void writeUtf8Line(java::io::OutputStream &writer, const char *cad);
 
     static bool verifyLibrary(const char *libname);
 

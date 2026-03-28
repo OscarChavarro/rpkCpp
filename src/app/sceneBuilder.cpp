@@ -1,10 +1,11 @@
 #include <ctime>
 #include <cerrno>
 #include <cstring>
-#include "java/io/File.h"
+#include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
+#include "java/util/Formatter.h"
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
@@ -310,12 +311,11 @@ removeEmptyMeshSurfaces(BaseContext *mgfContext, java::ArrayList<Geometry *> *ge
 static bool
 sceneBuilderValidateReadableFile(
     const char *fileName,
-    const char *openMode,
     const char *fileRole)
 {
     errno = 0;
-    FILE *input = java::io::File::openHandle(fileName, openMode);
-    if ( input == nullptr ) {
+    java::io::FileInputStream input(fileName);
+    if ( !input.isOpen() ) {
         if ( errno == ENOENT ) {
             logError(
                 "sceneBuilderReadFile",
@@ -339,10 +339,10 @@ sceneBuilderValidateReadableFile(
         return false;
     }
 
-    const int firstByte = fgetc(input);
-    java::io::File::closeHandle(input);
+    const int firstByte = input.read();
+    input.close();
 
-    if ( firstByte == EOF ) {
+    if ( firstByte < 0 ) {
         logError(
             "sceneBuilderReadFile",
             "Requested %s file '%s' is empty",
@@ -369,12 +369,12 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     const char *inputName = importBinary ? batchOptions->binaryInputFilename : fileName;
 
     // Check whether the file can be opened/read
-    if ( importBinary && !sceneBuilderValidateReadableFile(inputName, "rb", "binary model") ) {
+    if ( importBinary && !sceneBuilderValidateReadableFile(inputName, "binary model") ) {
         return false;
     }
 
     if ( !importBinary && fileName[0] != '#' ) {
-        if ( !sceneBuilderValidateReadableFile(fileName, "r", "scene") ) {
+        if ( !sceneBuilderValidateReadableFile(fileName, "scene") ) {
             return false;
         }
     }
@@ -383,7 +383,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     unsigned long n = strlen(inputName) + 1;
 
     char *currentDirectory = new char[n];
-    snprintf(currentDirectory, n, "%s", inputName);
+    java::util::Formatter::formatToBuffer(currentDirectory, static_cast<int>(n), "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';

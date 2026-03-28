@@ -1,17 +1,17 @@
 #ifndef __JAVA_IO_PRINT_STREAM__
 #define __JAVA_IO_PRINT_STREAM__
 
-#include <cstdio>
+#include "java/io/OutputStream.h"
 
 namespace java {
 namespace io {
 
 class PrintStream {
   private:
-    FILE *stream;
+    OutputStream *stream;
 
   public:
-    explicit PrintStream(FILE *stream);
+    explicit PrintStream(OutputStream *stream);
 
     PrintStream &
     printf(const char *format, ...);

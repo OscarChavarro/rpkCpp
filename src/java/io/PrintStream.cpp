@@ -1,13 +1,28 @@
 #include "java/io/PrintStream.h"
 
 #include <cstdarg>
+#include <cstring>
+
+#include "java/util/Formatter.h"
 
 namespace java {
 namespace io {
 
-PrintStream::PrintStream(FILE *stream):
+PrintStream::PrintStream(OutputStream *stream):
     stream(stream)
 {
+}
+
+static void
+writeText(OutputStream *stream, const char *text) {
+    if ( stream == nullptr || text == nullptr ) {
+        return;
+    }
+    const int length = static_cast<int>(std::strlen(text));
+    if ( length <= 0 ) {
+        return;
+    }
+    stream->write(reinterpret_cast<const unsigned char *>(text), 0, length);
 }
 
 PrintStream &
@@ -17,17 +32,15 @@ PrintStream::printf(const char *format, ...) {
     }
     va_list arguments;
     va_start(arguments, format);
-    vfprintf(stream, format, arguments);
+    const java::lang::String text = java::util::Formatter::vformat(format, arguments);
     va_end(arguments);
+    writeText(stream, text.toCString());
     return *this;
 }
 
 void
 PrintStream::print(const char *text) const {
-    if ( stream == nullptr || text == nullptr ) {
-        return;
-    }
-    fprintf(stream, "%s", text);
+    writeText(stream, text);
 }
 
 void
@@ -35,11 +48,8 @@ PrintStream::println(const char *text) const {
     if ( stream == nullptr ) {
         return;
     }
-    if ( text == nullptr ) {
-        fprintf(stream, "\n");
-    } else {
-        fprintf(stream, "%s\n", text);
-    }
+    writeText(stream, text);
+    stream->write('\n');
 }
 
 void
@@ -47,7 +57,7 @@ PrintStream::println() const {
     if ( stream == nullptr ) {
         return;
     }
-    fprintf(stream, "\n");
+    stream->write('\n');
 }
 
 void
@@ -55,7 +65,7 @@ PrintStream::flush() const {
     if ( stream == nullptr ) {
         return;
     }
-    fflush(stream);
+    stream->flush();
 }
 
 }
