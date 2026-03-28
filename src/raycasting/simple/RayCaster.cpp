@@ -5,10 +5,7 @@ a software frame buffer directly.
 
 #include "common/RenderOptions.h"
 
-#ifdef RAYTRACING_ENABLED
-    #include <ctime>
-#endif
-
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/error.h"
 #include "common/Statistics.h"
@@ -159,7 +156,7 @@ RayCaster::render(
     const RenderOptions *renderOptions)
 {
 #ifdef RAYTRACING_ENABLED
-    clock_t t = clock();
+    long long t = java::lang::System::nanoTime();
 #endif
 
     SoftIdsWrapper *idRenderer = new SoftIdsWrapper(scene, renderOptions);
@@ -187,7 +184,7 @@ RayCaster::render(
     delete idRenderer;
 
 #ifdef RAYTRACING_ENABLED
-    GLOBAL_raytracer_totalTime = static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC);
+    GLOBAL_raytracer_totalTime = static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0;
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
 #endif

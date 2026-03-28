@@ -1,8 +1,6 @@
 #ifndef __PHOTON_MAP_OPTIONS__
 #define __PHOTON_MAP_OPTIONS__
 
-#include <ctime>
-
 #include "render/ScreenBuffer.h"
 #include "PHOTONMAP/RadiosityReturnOption.h"
 #include "PHOTONMAP/PhotonMapDensityControlOption.h"
@@ -54,7 +52,7 @@ class PhotonMapState
 		     // different from currentIteration only when
 		     // statistics are gathered
     float cpuSecs; // For counting computing times
-    clock_t lastClock;
+    long long lastClock;
 
     PhotonMapState();
     virtual ~PhotonMapState();

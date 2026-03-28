@@ -58,10 +58,9 @@ For counting how much CPU time was used for the computations
 */
 void
 monteCarloRadiosityUpdateCpuSecs() {
-    clock_t t;
-
-    t = clock();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += static_cast<float>(t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
+    const long long t = java::lang::System::nanoTime();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += static_cast<float>(
+        static_cast<double>(t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / 1000000000.0);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
 }
 
@@ -298,7 +297,7 @@ monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions) {
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::lang::System::nanoTime();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = 0;
@@ -352,7 +351,7 @@ monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions) {
         monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = clock();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::lang::System::nanoTime();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration++;
 }
 

@@ -60,7 +60,7 @@ class GalerkinState {
     int lastClusterId; // Used for caching cluster and eye point
     Vector3D lastEye; // Rendered into the scratch frame buffer
 
-    unsigned long lastClock; // For CPU timing
+    long long lastClock; // For CPU timing (nanoseconds)
     float cpuSeconds;
 
     ShaftCullStrategy shaftCullStrategy;

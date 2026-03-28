@@ -1,12 +1,11 @@
-#include <ctime>
 #include <cerrno>
-#include <cmath>
 #include <cstring>
+
 #include "java/io/FileInputStream.h"
 #include "java/lang/System.h"
-
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
+
 #include "common/error.h"
 #include "common/Statistics.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
@@ -23,13 +22,8 @@
 #include "scene/PatchClusterOctreeNode.h"
 #include "app/adaptation.h"
 #include "app/batch.h"
-#include "app/options.h"
 #include "app/radiance.h"
 #include "app/sceneBuilder.h"
-
-#ifdef RAYTRACING_ENABLED
-    #include "app/raytrace.h"
-#endif
 
 static void
 sceneBuilderPatchAccumulateStats(Patch *patch) {
@@ -403,7 +397,7 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
 
     // Read the source scene description into a PersistedSceneModel snapshot
     java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
-    clock_t last = clock();
+    long long last = java::lang::System::nanoTime();
     PersistedSceneModel *mgfModel = nullptr;
 
     if ( importBinary ) {
@@ -440,8 +434,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
     sceneBuilderFillFacesBackPointers(scene->geometryList);
 
-    clock_t t = clock();
-    java::lang::System::err.printf("Reading took %g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    long long t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "Reading took %g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     delete[] currentDirectory;
@@ -460,8 +456,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     scene->patchList = new java::ArrayList<Patch *>();
     sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build the list of patches on light sources from the patch list
@@ -470,8 +468,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
 
     sceneBuilderFillLightSourcePatchList(scene);
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build a cluster hierarchy for the new scene
@@ -484,15 +484,19 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
         logWarning(nullptr, "Strange clusters for this world ...");
     }
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Create the scene level voxel grid
     scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
 
-    t = clock();
-    java::lang::System::err.printf("Voxel grid creation took %g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "Voxel grid creation took %g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
@@ -504,8 +508,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
                                                    GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Initialize tone mapping
@@ -514,8 +520,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
 
     initSceneAdaptation(scene->patchList);
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Print statistics report
@@ -541,8 +549,10 @@ sceneBuilderReadFile(const char *fileName, BaseContext *mgfContext, Scene *scene
 
     setRadianceMethod(mgfContext->radianceMethod, scene);
 
-    t = clock();
-    java::lang::System::err.printf("%g secs.\n", static_cast<float>(t - last) / static_cast<float>(CLOCKS_PER_SEC));
+    t = java::lang::System::nanoTime();
+    java::lang::System::err.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
 
     // Remove possible render hooks
     removeAllRenderHooks();

@@ -1,8 +1,6 @@
 #ifndef __STOCHASTIC_RAYTRACING_STATE__
 #define __STOCHASTIC_RAYTRACING_STATE__
 
-#include <ctime>
-
 #include "common/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/sample4d.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
@@ -57,7 +55,7 @@ class StochasticRelaxation {
     long numberOfMisses; // Rays disappearing to background
     int doNonDiffuseFirstShot; // Initial shooting pass handles non-diffuse lights
     int initialLightSourceSamples; // Initial shot samples per light source
-    clock_t lastClock; // For computation timings
+    long long lastClock; // For computation timings (nanoseconds)
     float cpuSeconds; // CPU time spent in calculations
 
     StochasticRelaxation();

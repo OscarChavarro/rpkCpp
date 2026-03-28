@@ -2,7 +2,6 @@
 Routines dealing with view potential
 */
 
-#include <ctime>
 #include "java/lang/System.h"
 
 #include "java/util/ArrayList.txx"
@@ -137,7 +136,7 @@ softGetPatchPointers(const SGL_CONTEXT *sgl, const java::ArrayList<Patch *> *sce
 
 static void
 softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
-    clock_t t = clock();
+    const long long t = java::lang::System::nanoTime();
     SGL_CONTEXT *currentSglContext = setupSoftFrameBuffer(scene->camera);
 
     softRenderPatches(scene, renderOptions, currentSglContext);
@@ -145,7 +144,7 @@ softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOption
     delete currentSglContext;
 
     java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
-        static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
+        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
 }
 
 /**

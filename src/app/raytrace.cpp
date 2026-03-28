@@ -3,7 +3,6 @@
 
 #include "java/lang/System.h"
 #include <cstring>
-#include <ctime>
 #include "java/util/Formatter.h"
 
 #include "common/error.h"
@@ -80,13 +79,13 @@ rayTraceSaveImage(
     const RayTracer *rayTracer,
     const RenderOptions * /*renderOptions*/)
 {
-    clock_t t;
+    long long t;
 
     if ( stream == nullptr ) {
         return;
     }
 
-    t = clock();
+    t = java::lang::System::nanoTime();
 
     ImageOutputHandle *img = createRadianceImageOutputHandle(
         fileName,
@@ -106,7 +105,9 @@ rayTraceSaveImage(
 
     deleteImageOutputHandle(img);
 
-    java::lang::System::out.printf("Raytrace save image: %g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
+    java::lang::System::out.printf(
+        "Raytrace save image: %g secs.\n",
+        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
 }
 
 void

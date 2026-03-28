@@ -6,11 +6,10 @@ Galerkin radiosity, with the following variants:
 - With potential-driven or not
 */
 
-#include <ctime>
 #include <cstdarg>
-#include <cmath>
 #include <cstring>
 
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/error.h"
@@ -251,8 +250,8 @@ For counting how much CPU time was used for the computations
 */
 void
 GalerkinRadianceMethod::updateCpuSecs() {
-    clock_t t = clock();
-    galerkinState.cpuSeconds += static_cast<float>(t - galerkinState.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
+    const long long t = java::lang::System::nanoTime();
+    galerkinState.cpuSeconds += static_cast<float>(static_cast<double>(t - galerkinState.lastClock) / 1000000000.0);
     galerkinState.lastClock = t;
 }
 
@@ -370,7 +369,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     }
 
     galerkinState.iterationNumber++;
-    galerkinState.lastClock = clock();
+    galerkinState.lastClock = java::lang::System::nanoTime();
 
     // And now the real work
     int done;

@@ -90,10 +90,9 @@ For counting how much CPU time was used for the computations
 */
 static void
 photonMapRadiosityUpdateCpuSecs() {
-    clock_t t;
-
-    t = clock();
-    GLOBAL_photonMap_state.cpuSecs += static_cast<float>(t - GLOBAL_photonMap_state.lastClock) / static_cast<float>(CLOCKS_PER_SEC);
+    const long long t = java::lang::System::nanoTime();
+    GLOBAL_photonMap_state.cpuSecs += static_cast<float>(
+        static_cast<double>(t - GLOBAL_photonMap_state.lastClock) / 1000000000.0);
     GLOBAL_photonMap_state.lastClock = t;
 }
 
@@ -127,7 +126,7 @@ void
 PhotonMapRadianceMethod::initialize(Scene *scene) {
     java::lang::System::err.printf("Photon map activated\n");
 
-    GLOBAL_photonMap_state.lastClock = clock();
+    GLOBAL_photonMap_state.lastClock = java::lang::System::nanoTime();
     GLOBAL_photonMap_state.cpuSecs = 0.0;
     GLOBAL_photonMap_state.gIterationNumber = 0;
     GLOBAL_photonMap_state.cIterationNumber = 0;
@@ -599,7 +598,7 @@ method is not updated in this file
 */
 bool
 PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions */*renderOptions*/) {
-    GLOBAL_photonMap_state.lastClock = clock();
+    GLOBAL_photonMap_state.lastClock = java::lang::System::nanoTime();
 
     photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
     photonMapRadiosityUpdateCpuSecs();

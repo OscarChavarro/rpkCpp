@@ -1,6 +1,5 @@
-#include <ctime>
-
 #include "java/lang/Math.h"
+#include "java/lang/System.h"
 #include "common/ColorRgb.h"
 #include "scene/Camera.h"
 #include "tonemap/ToneMap.h"
@@ -16,7 +15,7 @@ wakeUpRender() {
 
 class ScreenIterateState {
   public:
-    clock_t lastTime;
+    long long lastTime;
     unsigned char wakeUp;
 
     ScreenIterateState();
@@ -35,8 +34,9 @@ For counting how much CPU time was used for the computations
 */
 static void
 screenIterateUpdateCpuSecs() {
-    GLOBAL_raytracer_totalTime += static_cast<double>(clock()) - static_cast<double>(iState.lastTime);
-    iState.lastTime = clock();
+    const long long now = java::lang::System::nanoTime();
+    GLOBAL_raytracer_totalTime += static_cast<double>(now - iState.lastTime) / 1000000000.0;
+    iState.lastTime = now;
 }
 
 // ScreenIterateInit : initialise statistics and timers
@@ -47,7 +47,7 @@ ScreenIterateInit() {
 #endif
 
     // initialize for statistics etc.
-    iState.lastTime = clock();
+    iState.lastTime = java::lang::System::nanoTime();
     GLOBAL_raytracer_totalTime = 0.0;
     GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }

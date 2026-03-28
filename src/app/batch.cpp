@@ -1,4 +1,3 @@
-#include <ctime>
 #include <cstring>
 #include "java/lang/System.h"
 #include <GL/gl.h>
@@ -136,7 +135,7 @@ batchSaveRadianceImage(
     const RayTracer * /*rayTracer*/,
     const RenderOptions *renderOptions)
 {
-    clock_t t;
+    long long t;
     const char *extension;
 
     if ( outputStream == nullptr ) {
@@ -153,12 +152,14 @@ batchSaveRadianceImage(
     }
     java::lang::System::out.flush();
 
-    t = clock();
+    t = java::lang::System::nanoTime();
 
     // No OpenGL really if renderOptions->trace is true
     openGlSaveScreen(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
 
-    java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
+    java::lang::System::out.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
     canvasPullMode();
 }
 
@@ -172,7 +173,7 @@ batchSaveRadianceModel(
     const RayTracer */*rayTracer*/,
     const RenderOptions *renderOptions)
 {
-    clock_t t;
+    long long t;
 
     if ( outputStream == nullptr ) {
         return;
@@ -181,13 +182,15 @@ batchSaveRadianceModel(
     canvasPushMode();
     java::lang::System::out.printf("Saving VRML model to file '%s' ... ", fileName);
     java::lang::System::out.flush();
-    t = clock();
+    t = java::lang::System::nanoTime();
 
     if ( radianceMethod != nullptr ) {
         radianceMethod->writeVRML(scene->camera, outputStream, renderOptions);
     }
 
-    java::lang::System::out.printf("%g secs.\n", static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC));
+    java::lang::System::out.printf(
+        "%g secs.\n",
+        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
     canvasPullMode();
 }
 
@@ -198,8 +201,8 @@ batchExecuteRadianceSimulation(
     const RayTracer *rayTracer,
     RenderOptions *renderOptions)
 {
-    clock_t startTime;
-    clock_t wasted_start;
+    long long startTime;
+    long long wasted_start;
     float wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
@@ -207,7 +210,7 @@ batchExecuteRadianceSimulation(
         return;
     }
 
-    startTime = clock();
+    startTime = java::lang::System::nanoTime();
     wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
@@ -238,7 +241,7 @@ batchExecuteRadianceSimulation(
             java::lang::System::out.flush();
             java::lang::System::err.flush();
 
-            wasted_start = clock();
+            wasted_start = java::lang::System::nanoTime();
 
             if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
@@ -276,7 +279,8 @@ batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            wastedSecs += static_cast<float>(wasted_start - clock()) / static_cast<float>(CLOCKS_PER_SEC);
+            wastedSecs += static_cast<float>(
+                static_cast<double>(wasted_start - java::lang::System::nanoTime()) / 1000000000.0);
 
             java::lang::System::out.flush();
             java::lang::System::err.flush();
@@ -287,14 +291,14 @@ batchExecuteRadianceSimulation(
 
     if ( globalBatchOptions.timings ) {
         java::lang::System::out.printf("Radiance total time %g secs.\n",
-                (static_cast<float>(clock() - startTime) / static_cast<float>(CLOCKS_PER_SEC)) - wastedSecs);
+                static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
         if ( GLOBAL_rayTracer != nullptr ) {
             java::lang::System::out.printf("Doing %s ...\n", rayTracer->getName());
 
-            startTime = clock();
+            startTime = java::lang::System::nanoTime();
             rayTraceExecute(
                 nullptr,
                 nullptr,
@@ -306,7 +310,7 @@ batchExecuteRadianceSimulation(
 
             if ( globalBatchOptions.timings ) {
                 java::lang::System::out.printf("Raytracing total time %g secs.\n",
-                        static_cast<float>(clock() - startTime) / static_cast<float>(CLOCKS_PER_SEC));
+                        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - startTime) / 1000000000.0));
             }
 
             batchProcessFile(

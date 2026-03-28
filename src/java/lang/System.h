@@ -10,6 +10,7 @@ class System {
   public:
     static java::io::PrintStream out;
     static java::io::PrintStream err;
+    static long long nanoTime();
 };
 
 }

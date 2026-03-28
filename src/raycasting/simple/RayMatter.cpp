@@ -6,7 +6,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 #ifdef RAYTRACING_ENABLED
 
-#include <ctime>
+#include "java/lang/System.h"
 
 #include "raycasting/common/raytools.h"
 #include "render/ScreenBuffer.h"
@@ -115,7 +115,7 @@ RayMatter::createFilter() {
 
 void
 RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid) {
-    clock_t t = clock();
+    const long long t = java::lang::System::nanoTime();
 
     createFilter();
 
@@ -160,7 +160,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
         screenBuffer->renderScanline(y);
     }
 
-    GLOBAL_raytracer_totalTime = static_cast<float>(clock() - t) / static_cast<float>(CLOCKS_PER_SEC);
+    GLOBAL_raytracer_totalTime = static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0;
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
 }
