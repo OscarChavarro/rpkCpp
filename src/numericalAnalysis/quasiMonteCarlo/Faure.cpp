@@ -22,8 +22,8 @@ static int globalSkip;
 static int globalNDigits;
 static int C[MAX_DIM][PR_DIM][PR_DIM]; // generator matrix
 
-static int
-setFaureC() {
+int
+Faure::setFaureC() {
     // First set up C[0][][] (transposed Pascal matrix)
     for ( int j = 0; j < globalNDigits; j++ ) {
         for ( int k = j; k < globalNDigits; k++ ) {
@@ -48,8 +48,8 @@ setFaureC() {
     return 0;
 }
 
-static int
-setGFaureC() {
+int
+Faure::setGFaureC() {
     unsigned P[PR_DIM][PR_DIM];
 
     // Pascal matrix
@@ -89,8 +89,8 @@ If NO_GRAY is defined, you can't mix NextFaure() and Faure() calls,
 but faure() will be faster because it doesn't need to convert to
 seed to it's Gray code
 */
-static double *
-nextFaure() {
+double *
+Faure::nextFaure() {
     int save;
     static double x[MAX_DIM];
     double xx;
@@ -119,7 +119,7 @@ nextFaure() {
 Return sample with given index
 */
 double *
-faure(int seed) {
+Faure::faure(int seed) {
     int save;
     static double x[MAX_DIM];
     double xx;
@@ -145,12 +145,12 @@ faure(int seed) {
 Initialize for Original Faure sequence
 */
 void
-initOriginalFaureSequence(int iDim) {
+Faure::initOriginalFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
     globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
-    setFaureC();
+    Faure::setFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
             globalIx[i][j] = 0;
@@ -160,7 +160,7 @@ initOriginalFaureSequence(int iDim) {
     globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f)) - 1;
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
-        nextFaure();
+        Faure::nextFaure();
     }
 }
 
@@ -168,12 +168,12 @@ initOriginalFaureSequence(int iDim) {
 Initialize for generalized Faure sequence
 */
 void
-initGeneralizedFaureSequence(int iDim) {
+Faure::initGeneralizedFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
     globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
-    setGFaureC();
+    Faure::setGFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
             globalIx[i][j] = 0;
@@ -183,6 +183,6 @@ initGeneralizedFaureSequence(int iDim) {
     globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f) - 1);
     for ( int i = 1; i <= globalSkip; i++ ) {
         // Warm up
-        nextFaure();
+        Faure::nextFaure();
     }
 }

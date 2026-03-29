@@ -33,18 +33,21 @@ constexpr unsigned NBITS_POW1 = (1u << (NBITS - 1));
 
 typedef unsigned NiederreiterIndex;
 
-extern unsigned *niederreiter31(unsigned index);
+class Niederreiter31 {
+  public:
+    static unsigned *niederreiter31(unsigned index);
 
-extern unsigned *
-NextNiedInRange31(
-    unsigned *idx,
-    int dir,
-    int nmsb,
-    unsigned msb1,
-    unsigned rmsb2);
+    static unsigned *
+    NextNiedInRange31(
+        unsigned *idx,
+        int dir,
+        int nmsb,
+        unsigned msb1,
+        unsigned rmsb2);
 
-extern unsigned radicalInverse31(unsigned n);
+    static unsigned radicalInverse31(unsigned n);
 
-extern void foldSample31(unsigned *xi1, unsigned *xi2);
+    static void foldSample31(unsigned *xi1, unsigned *xi2);
+};
 
 #endif

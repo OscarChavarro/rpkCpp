@@ -503,13 +503,13 @@ stochasticJacobiNextSample(
     // Use different ray index for propagating importance and radiance
     NiederreiterIndex *ray_index = globalGetRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
 
-    xi = NextNiedInRange(ray_index, +1, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2);
+    xi = Niederreiter::NextNiedInRange(ray_index, +1, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2);
 
     (*ray_index)++;
     u = (xi[0] & ~3) | 1; // Avoid positions on sub-element boundaries
     v = (xi[1] & ~3) | 1;
     if ( elem->numberOfVertices == 3 ) {
-        foldSample(&u, &v);
+        Niederreiter::foldSample(&u, &v);
     }
     zeta[0] = static_cast<double>(u) * RECIP;
     zeta[1] = static_cast<double>(v) * RECIP;

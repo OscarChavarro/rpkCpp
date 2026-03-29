@@ -53,13 +53,13 @@ setSequence4D(Sampler4DSequence sequence) {
     seq = sequence;
     switch ( seq ) {
         case Sampler4DSequence::SOBOL:
-            initSobol(4);
+            Sobol::initSobol(4);
             break;
         case Sampler4DSequence::ORIGINAL_FAURE:
-            initOriginalFaureSequence(4);
+            Faure::initOriginalFaureSequence(4);
             break;
         case Sampler4DSequence::GENERALIZED_FAURE:
-            initGeneralizedFaureSequence(4);
+            Faure::initGeneralizedFaureSequence(4);
             break;
         default:
             break;
@@ -84,20 +84,20 @@ sample4D(unsigned seed) {
             xi[3] = drand48();
             break;
         case Sampler4DSequence::HALTON:
-            xi[0] = Halton2(static_cast<int>(seed));
-            xi[1] = Halton3(static_cast<int>(seed));
-            xi[2] = Halton5(static_cast<int>(seed));
-            xi[3] = Halton7(static_cast<int>(seed));
+            xi[0] = Halton::Halton2(static_cast<int>(seed));
+            xi[1] = Halton::Halton3(static_cast<int>(seed));
+            xi[2] = Halton::Halton5(static_cast<int>(seed));
+            xi[3] = Halton::Halton7(static_cast<int>(seed));
             break;
         case Sampler4DSequence::SCRAMBLED_HALTON:
-            xx = scrambledHalton(seed, 4);
+            xx = ScrambledHalton::scrambledHalton(seed, 4);
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
         case Sampler4DSequence::SOBOL:
-            xx = sobol(static_cast<int>(seed));
+            xx = Sobol::sobol(static_cast<int>(seed));
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
@@ -105,14 +105,14 @@ sample4D(unsigned seed) {
             break;
         case Sampler4DSequence::ORIGINAL_FAURE:
         case Sampler4DSequence::GENERALIZED_FAURE:
-            xx = faure(static_cast<int>(seed));
+            xx = Faure::faure(static_cast<int>(seed));
             xi[0] = xx[0];
             xi[1] = xx[1];
             xi[2] = xx[2];
             xi[3] = xx[3];
             break;
         case Sampler4DSequence::NIEDERREITER:
-            zeta = niederreiter31(seed);
+            zeta = Niederreiter31::niederreiter31(seed);
             xi[0] = zeta[0] * RECIP;
             xi[1] = zeta[1] * RECIP;
             xi[2] = zeta[2] * RECIP;
@@ -129,14 +129,14 @@ sample4D(unsigned seed) {
 The following routines are safe with Sample4D(), which calls only
 31-bit sequences (including 31-bit Niederreiter sequence). If
 you are looking for such a routine to use directly in conjunction
-with the routine Nied() or NextNiedInRange(), you should use
-the foldSample() routine in Niederreiter.h instead.
-Nied() and NextNiedInRange() are 63-bit unless compiled without
+with the routine Niederreiter::Nied() or Niederreiter::NextNiedInRange(), you should use
+the Niederreiter::foldSample() routine in Niederreiter.h instead.
+Niederreiter::Nied() and Niederreiter::NextNiedInRange() are 63-bit unless compiled without
 'unsigned long long' support
 */
 void
 foldSampleU(unsigned *xi1, unsigned *xi2) {
-    foldSample31(xi1, xi2);
+    Niederreiter31::foldSample31(xi1, xi2);
 }
 
 void

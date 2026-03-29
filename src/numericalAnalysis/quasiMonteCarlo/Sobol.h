@@ -5,7 +5,14 @@ Sobol quasiMonteCarlo sequence
 #ifndef __SOBOL__
 #define __SOBOL__
 
-extern double *sobol(int seed);
-extern void initSobol(int iDim);
+class Sobol {
+  private:
+    static double *nextSobol();
+    static int sobolGray(int n);
+
+  public:
+    static double *sobol(int seed);
+    static void initSobol(int iDim);
+};
 
 #endif

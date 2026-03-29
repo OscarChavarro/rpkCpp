@@ -11,8 +11,8 @@ static int v[MAX_DIM][V_MAX];
 static int skip;
 static double RECIP;
 
-static double *
-nextSobol() {
+double *
+Sobol::nextSobol() {
     static double xx[MAX_DIM];
 
     int c = 1;
@@ -31,20 +31,20 @@ nextSobol() {
 }
 
 // Translate n into Gray code
-inline static int
-sobolGray(int n) {
+int
+Sobol::sobolGray(int n) {
     return n ^ (n >> 1);
 }
 
 double *
-sobol(int seed) {
+Sobol::sobol(int seed) {
     static double xx[MAX_DIM];
 
     seed += skip + 1;
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
         int c = 1;
-        int gray = sobolGray(seed);
+        int gray = Sobol::sobolGray(seed);
         while ( gray ) {
             if ( gray & 1 ) {
                 x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
@@ -60,7 +60,7 @@ sobol(int seed) {
 }
 
 void
-initSobol(int iDim) {
+Sobol::initSobol(int iDim) {
     int d[MAX_DIM];
     int POLY[MAX_DIM];
 
@@ -107,6 +107,6 @@ initSobol(int iDim) {
     skip = static_cast<int>(java::Math::pow(2.0f, 6.0f)); // Not deterministic!
     for ( int i = 1; i <= skip; i++ ) {
         // Discard the beginning of the sequence because the initial values are the same
-        nextSobol();
+        Sobol::nextSobol();
     }
 }

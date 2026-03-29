@@ -38,14 +38,16 @@ samples. An array of four NBITS-bits integers is returned. Multiply
 with RECIP in order to obtain floating point numbers between 0 and 1.
 k * Do not modify the returned ints
 */
-inline NiederreiterIndex *
-Nied(NiederreiterIndex n) {
+class Niederreiter {
+  public:
+    static inline NiederreiterIndex *
+    Nied(NiederreiterIndex n) {
 #ifndef NOINT64
-    return Nied63(n);
+        return Niederreiter63::Nied63(n);
 #else
-    return niederreiter31(n);
+        return Niederreiter31::niederreiter31(n);
 #endif
-}
+    }
 
 /**
 Finds the next Niederreiter sample following or preceeding the
@@ -65,42 +67,43 @@ with msb1 and msb2. This is so because of efficiency reasons (which are
 very important for this routine!).
 Upon exit, *idx will contain the index of the sample that is returned
 */
-inline NiederreiterIndex *
-NextNiedInRange(
-        NiederreiterIndex *idx,
-        int dir,
-        int nmsb,
-        NiederreiterIndex msb1,
-        NiederreiterIndex rmsb2) {
+    static inline NiederreiterIndex *
+    NextNiedInRange(
+            NiederreiterIndex *idx,
+            int dir,
+            int nmsb,
+            NiederreiterIndex msb1,
+            NiederreiterIndex rmsb2) {
 #ifndef NOINT64
-    return NextNiedInRange63(idx, dir, nmsb, msb1, rmsb2);
+        return Niederreiter63::NextNiedInRange63(idx, dir, nmsb, msb1, rmsb2);
 #else
-    return NextNiedInRange31(idx, dir, nmsb, msb1, rmsb2);
+        return Niederreiter31::NextNiedInRange31(idx, dir, nmsb, msb1, rmsb2);
 #endif
-}
+    }
 
 /**
 Computes the (NBITS-bits) base-2 radical inverse of the given number
 */
-inline NiederreiterIndex
-radicalInverse(NiederreiterIndex n) {
+    static inline NiederreiterIndex
+    radicalInverse(NiederreiterIndex n) {
 #ifndef NOINT64
-    return radicalInverse63(n);
+        return Niederreiter63::radicalInverse63(n);
 #else
-    return radicalInverse31(n);
+        return Niederreiter31::radicalInverse31(n);
 #endif
-}
+    }
 
 /**
 "folds" a sample in the unit square to the standard triangle (0, 0), (1, 0), (0, 1)
 */
-inline void
-foldSample(NiederreiterIndex *xi1, NiederreiterIndex *xi2) {
+    static inline void
+    foldSample(NiederreiterIndex *xi1, NiederreiterIndex *xi2) {
 #ifndef NOINT64
-    foldSample63(xi1, xi2);
+        Niederreiter63::foldSample63(xi1, xi2);
 #else
-    foldSample31(xi1, xi2);
+        Niederreiter31::foldSample31(xi1, xi2);
 #endif
-}
+    }
+};
 
 #endif

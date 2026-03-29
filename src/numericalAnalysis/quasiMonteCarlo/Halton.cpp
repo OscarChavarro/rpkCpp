@@ -5,7 +5,7 @@ Halton quasi Monte Carlo sample generator
 #include "numericalAnalysis/quasiMonteCarlo/Halton.h"
 
 double
-Halton2(int i) {
+Halton::Halton2(int i) {
     unsigned long h;
     unsigned long f;
 
@@ -35,7 +35,7 @@ Halton2(int i) {
 }
 
 double
-Halton3(int i) {
+Halton::Halton3(int i) {
     unsigned long h;
     unsigned long f;
     unsigned long j = i;
@@ -55,7 +55,7 @@ Halton3(int i) {
 }
 
 double
-Halton5(int i) {
+Halton::Halton5(int i) {
     unsigned long h;
     unsigned long f;
     unsigned long j = i;
@@ -75,7 +75,7 @@ Halton5(int i) {
 }
 
 double
-Halton7(int i) {
+Halton::Halton7(int i) {
     unsigned long h;
     unsigned long f;
     unsigned long j = i;

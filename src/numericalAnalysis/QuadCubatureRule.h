@@ -8,6 +8,10 @@ extern CubatureRule GLOBAL_crt8; // triangles, degree 8, 16 nodes
 extern CubatureRule GLOBAL_crv1; // boxes, degree 1,  8 nodes (the corners)
 
 class QuadCubatureRule {
+  private:
+    static void cubatureTransformQuadRule(CubatureRule *rule);
+    static void cubatureTransformCubeRule(CubatureRule *rule);
+
   public:
     static void fixCubatureRules();
     static void setQuadCubatureRules(CubatureRule **quadRule, CubatureDegree degree);

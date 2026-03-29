@@ -59,12 +59,12 @@ static unsigned cj[DIMEN][NBITS] = {
 static NiederreiterCore<unsigned, DIMEN, NBITS> globalNiederreiter31(cj, SKIP, NBITS_POW, NBITS_POW1);
 
 unsigned *
-niederreiter31(unsigned index) {
+Niederreiter31::niederreiter31(unsigned index) {
     return globalNiederreiter31.sample(index);
 }
 
 unsigned *
-NextNiedInRange31(
+Niederreiter31::NextNiedInRange31(
     unsigned *idx,
     int dir,
     int nmsb,
@@ -75,11 +75,11 @@ NextNiedInRange31(
 }
 
 unsigned
-radicalInverse31(unsigned n) {
+Niederreiter31::radicalInverse31(unsigned n) {
     return globalNiederreiter31.radicalInverse(n);
 }
 
 void
-foldSample31(unsigned *xi1, unsigned *xi2) {
+Niederreiter31::foldSample31(unsigned *xi1, unsigned *xi2) {
     globalNiederreiter31.foldSample(xi1, xi2);
 }

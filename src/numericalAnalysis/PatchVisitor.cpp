@@ -33,7 +33,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        const unsigned *xi = niederreiter31(i);
+        const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
@@ -60,7 +60,7 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
         ColorRgb sample;
-        const unsigned *xi = niederreiter31(i);
+        const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * RECIP, xi[1] * RECIP);
         unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);

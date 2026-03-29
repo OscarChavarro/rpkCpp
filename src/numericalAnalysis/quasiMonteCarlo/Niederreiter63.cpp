@@ -95,12 +95,12 @@ static unsigned long long cj[DIMEN][NBITS] = {
 static NiederreiterCore<unsigned long long, DIMEN, NBITS> globalNiederreiter63(cj, SKIP, NBITS_POW, NBITS_POW1);
 
 unsigned long long *
-Nied63(unsigned long long index) {
+Niederreiter63::Nied63(unsigned long long index) {
     return globalNiederreiter63.sample(index);
 }
 
 unsigned long long *
-NextNiedInRange63(
+Niederreiter63::NextNiedInRange63(
     unsigned long long *idx,
     int dir,
     int nmsb,
@@ -111,12 +111,12 @@ NextNiedInRange63(
 }
 
 unsigned long long
-radicalInverse63(unsigned long long n) {
+Niederreiter63::radicalInverse63(unsigned long long n) {
     return globalNiederreiter63.radicalInverse(n);
 }
 
 void
-foldSample63(unsigned long long *xi1, unsigned long long *xi2) {
+Niederreiter63::foldSample63(unsigned long long *xi1, unsigned long long *xi2) {
     globalNiederreiter63.foldSample(xi1, xi2);
 }
 

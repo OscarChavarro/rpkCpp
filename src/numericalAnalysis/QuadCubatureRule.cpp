@@ -298,8 +298,8 @@ static CubatureRule *globalBoxesProductRule[1] = {&globalCrv3Pg};
 /**
 This routine transforms a rule over [-1, 1] ^ 2 to the unit square [0, 1] ^ 2
 */
-static void
-cubatureTransformQuadRule(CubatureRule *rule) {
+void
+QuadCubatureRule::cubatureTransformQuadRule(CubatureRule *rule) {
     for ( int k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.0) / 2.0;
         rule->v[k] = (rule->v[k] + 1.0) / 2.0;
@@ -310,8 +310,8 @@ cubatureTransformQuadRule(CubatureRule *rule) {
 /**
 This routine transforms a rule over [-1, 1] ^ 3 to the unit cube [0, 1] ^ 3
 */
-static void
-cubatureTransformCubeRule(CubatureRule *rule) {
+void
+QuadCubatureRule::cubatureTransformCubeRule(CubatureRule *rule) {
     for ( int k = 0; k < rule->numberOfNodes; k++ ) {
         rule->u[k] = (rule->u[k] + 1.0) / 2.0;
         rule->v[k] = (rule->v[k] + 1.0) / 2.0;
@@ -333,16 +333,16 @@ will allow us to treat parallelipipeda and triangles the same way
 void
 QuadCubatureRule::fixCubatureRules() {
     for ( int i = 0; i < 9; i++ ) {
-        cubatureTransformQuadRule(globalQuadRule[i]);
+        QuadCubatureRule::cubatureTransformQuadRule(globalQuadRule[i]);
     }
     for ( int i = 0; i < 3; i++ ) {
-        cubatureTransformQuadRule(globalQuadProductRule[i]);
+        QuadCubatureRule::cubatureTransformQuadRule(globalQuadProductRule[i]);
     }
     for ( int i = 0; i < 1; i++ ) {
-        cubatureTransformCubeRule(globalBoxesRule[i]);
+        QuadCubatureRule::cubatureTransformCubeRule(globalBoxesRule[i]);
     }
     for (  int i = 0; i < 1; i++ ) {
-        cubatureTransformCubeRule(globalBoxesProductRule[i]);
+        QuadCubatureRule::cubatureTransformCubeRule(globalBoxesProductRule[i]);
     }
 }
 

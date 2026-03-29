@@ -7,7 +7,7 @@ Scrambled halton quasiMonteCarlo sample sequence
 static constexpr int MAX_DIM = 10;
 
 double *
-scrambledHalton(unsigned nextN, int dim) {
+ScrambledHalton::scrambledHalton(unsigned nextN, int dim) {
     static int prime[MAX_DIM] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
     static double sample[MAX_DIM];
 

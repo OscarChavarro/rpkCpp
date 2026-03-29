@@ -37,21 +37,24 @@ constexpr double RECIP1 = 9223372036854775808.0;
 
 typedef unsigned long long NiederreiterIndex;
 
-extern unsigned long long *
-Nied63(unsigned long long index);
+class Niederreiter63 {
+  public:
+    static unsigned long long *
+    Nied63(unsigned long long index);
 
-extern unsigned long long *
-NextNiedInRange63(
-    unsigned long long *idx,
-    int dir,
-    int nmsb,
-    unsigned long long msb1,
-    unsigned long long rmsb2);
+    static unsigned long long *
+    NextNiedInRange63(
+        unsigned long long *idx,
+        int dir,
+        int nmsb,
+        unsigned long long msb1,
+        unsigned long long rmsb2);
 
-extern unsigned long long
-radicalInverse63(unsigned long long n);
+    static unsigned long long
+    radicalInverse63(unsigned long long n);
 
-extern void foldSample63(unsigned long long *xi1, unsigned long long *xi2);
+    static void foldSample63(unsigned long long *xi1, unsigned long long *xi2);
+};
 
 #endif
 
