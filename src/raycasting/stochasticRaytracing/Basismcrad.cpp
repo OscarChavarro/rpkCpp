@@ -19,13 +19,13 @@ GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
 
 static int inited = false;
 
-static double
-oneBasis(double /*u*/, double /*v*/) {
+double
+Basismcrad::oneBasis(double /*u*/, double /*v*/) {
     return 1;
 }
 
 static double (*f[1])(double, double) = {
-    oneBasis
+    Basismcrad::oneBasis
 };
 
 GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis = {
@@ -44,7 +44,8 @@ ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APP
     {"cubic",     10}
 };
 
-static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
+GalerkinBasis
+Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
     GalerkinBasis basis = GLOBAL_stochasticRadiosity_quadBasis;
     char desc[100];
     const char *elem;
@@ -59,7 +60,7 @@ static GalerkinBasis MakeBasis(StochasticRadiosityElementType et, StochasticRayt
             elem = "quadrilaterals";
             break;
         default:
-            Error::fatal(-1, "MakeBasis", "Invalid element type %d", et);
+            Error::fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
     }
 
     basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
@@ -85,8 +86,8 @@ H_{\alpha\,\beta} = int _S phi_\alpha(u',v') phi_\beta(u,v) du dv
 with S the domain on which the basis functions are defined (unit square or
 standard triangle), and (u',v') the result of "up-transforming" (u,v).
 */
-static void
-computeFilterCoefficients(
+void
+Basismcrad::computeFilterCoefficients(
     const GalerkinBasis *parent_basis,
     const int parent_size,
     const GalerkinBasis *child_basis,
@@ -117,8 +118,8 @@ elements with given basis and uptransform. The cubature rule 'cr' is used
 to compute the coefficients. The coefficients are filled in the
 basis->regular_filter table
 */
-static void
-basisGalerkinComputeRegularFilterCoefficients(
+void
+Basismcrad::basisGalerkinComputeRegularFilterCoefficients(
     GalerkinBasis *basis,
     const Matrix2x2 *upxfm,
     const CubatureRule *cr)
@@ -139,7 +140,7 @@ basisGalerkinComputeRegularFilterCoefficients(
 Initialises table of bases
 */
 void
-monteCarloRadiosityInitBasis() {
+Basismcrad::monteCarloRadiosityInitBasis() {
     if ( inited ) {
         return;
     }
@@ -149,7 +150,7 @@ monteCarloRadiosityInitBasis() {
 
     for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
         for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )
-            GLOBAL_stochasticRadiosity_basis[et][at] = MakeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
+            GLOBAL_stochasticRadiosity_basis[et][at] = makeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
     }
     inited = true;
 }
@@ -158,7 +159,7 @@ monteCarloRadiosityInitBasis() {
 Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
-colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
+Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
     ColorRgb res;
     res.clear();
     for ( int i = 0; i < basis->size; i++ ) {
@@ -173,7 +174,7 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
+Basismcrad::filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             child[i].addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
@@ -182,7 +183,7 @@ filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
 }
 
 void
-filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
+Basismcrad::filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;

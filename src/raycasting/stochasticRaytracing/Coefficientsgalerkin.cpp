@@ -9,24 +9,24 @@
 Disposes previously allocated coefficients
 */
 void
-disposeCoefficients(StochasticRadiosityElement *elem) {
+Coefficientsmcrad::disposeCoefficients(StochasticRadiosityElement *elem) {
     if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosity_dummyBasis && elem->radiance ) {
         delete[] elem->radiance;
         delete[] elem->unShotRadiance;
         delete[] elem->receivedRadiance;
     }
-    initCoefficients(elem);
+    Coefficientsmcrad::initCoefficients(elem);
 }
 
 /**
 Determines basis based on element type and currently desired approximation
 */
-static GalerkinBasis *
-actualBasis(const StochasticRadiosityElement *elem) {
+GalerkinBasis *
+Coefficientsmcrad::actualBasis(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         return &GLOBAL_stochasticRadiosity_clusterBasis;
     } else {
-        return &GLOBAL_stochasticRadiosity_basis[numberOfVertices(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
+        return &GLOBAL_stochasticRadiosity_basis[McradP::numberOfVertices(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
     }
 }
 
@@ -34,8 +34,8 @@ actualBasis(const StochasticRadiosityElement *elem) {
 Allocates memory for radiance coefficients
 */
 void
-allocCoefficients(StochasticRadiosityElement *elem) {
-    disposeCoefficients(elem);
+Coefficientsmcrad::allocCoefficients(StochasticRadiosityElement *elem) {
+    Coefficientsmcrad::disposeCoefficients(elem);
     elem->basis = actualBasis(elem);
     elem->radiance = new ColorRgb[elem->basis->size];
     elem->unShotRadiance = new ColorRgb[elem->basis->size];
@@ -49,9 +49,9 @@ as the approximation order for which the element has
 been initialised before
 */
 void
-reAllocCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem != nullptr && elem->basis != actualBasis(elem) ) {
-        allocCoefficients(elem);
+Coefficientsmcrad::reAllocCoefficients(StochasticRadiosityElement *elem) {
+    if ( elem != nullptr && elem->basis != Coefficientsmcrad::actualBasis(elem) ) {
+        Coefficientsmcrad::allocCoefficients(elem);
     }
 }
 

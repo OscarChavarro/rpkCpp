@@ -151,20 +151,8 @@ StochasticRaytracer::terminate() const {
     }
 }
 
-static ColorRgb
-stochasticRaytracerGetRadiance(
-    Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
-    SimpleRaytracingPathNode *thisNode,
-    StochasticRaytracingConfiguration *config,
-    StorageReadout readout,
-    int usedScatterSamples,
-    RadianceMethod *radianceMethod,
-    RenderOptions *renderOptions);
-
-static ColorRgb
-stochasticRaytracerGetScatteredRadiance(
+ ColorRgb
+StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background * sceneBackground,
@@ -308,8 +296,8 @@ stochasticRaytracerGetScatteredRadiance(
     return result;
 }
 
-static ColorRgb
-srGetDirectRadiance(
+ ColorRgb
+StochasticRaytracer::srGetDirectRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -463,8 +451,8 @@ srGetDirectRadiance(
     return result;
 }
 
-static ColorRgb
-stochasticRaytracerGetRadiance(
+ ColorRgb
+StochasticRaytracer::stochasticRaytracerGetRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,

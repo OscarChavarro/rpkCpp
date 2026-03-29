@@ -16,8 +16,8 @@ static constexpr int NUMBER_OF_INTERVALS = 10;
 static ColorRgb *(*globalGetRadiance)(const StochasticRadiosityElement *);
 static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);
 
-static void
-initialControlRadiosityRecursive(
+void
+Ccr::initialControlRadiosityRecursive(
     const StochasticRadiosityElement *element,
     ColorRgb *minRad,
     ColorRgb *maxRad,
@@ -58,8 +58,8 @@ initialControlRadiosityRecursive(
 /**
 Initial guess for constant control radiance value
 */
-static void
-initialControlRadiosity(
+void
+Ccr::initialControlRadiosity(
     ColorRgb *minRad,
     ColorRgb *maxRad,
     ColorRgb *fMin,
@@ -75,7 +75,7 @@ initialControlRadiosity(
     // Initial interval: 0 ... maxRadColor
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         initialControlRadiosityRecursive(
-                topLevelStochasticRadiosityElement(scenePatches->get(i)),
+                McradP::topLevelStochasticRadiosityElement(scenePatches->get(i)),
                 minRad,
                 maxRad,
                 fMin,
@@ -93,8 +93,8 @@ initialControlRadiosity(
     fMax->subtract(*fMax, totalFluxColor);
 }
 
-static void
-refineComponent(
+void
+Ccr::refineComponent(
     float *minRad,
     float *maxRad,
     float *fMin,
@@ -139,8 +139,8 @@ refineComponent(
     }
 }
 
-static void
-refineControlRadiosityRecursive(
+void
+Ccr::refineControlRadiosityRecursive(
     StochasticRadiosityElement *element,
     ColorRgb *colorOne,
     ColorRgb rad[NUMBER_OF_INTERVALS + 1],
@@ -176,8 +176,8 @@ Finds sub-interval containing optimal constant control radiosity value
 Uses regular interval subdivision (generalisation of the bisection
 method). Does so component wise
 */
-static void
-refineControlRadiosity(
+void
+Ccr::refineControlRadiosity(
     ColorRgb *minRad,
     ColorRgb *maxRad,
     ColorRgb *fMin,
@@ -202,7 +202,7 @@ refineControlRadiosity(
     // a regular subdivision of the interval
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         refineControlRadiosityRecursive(
-            topLevelStochasticRadiosityElement(scenePatches->get(i)),
+            McradP::topLevelStochasticRadiosityElement(scenePatches->get(i)),
             &colorOne,
             rad,
             f);
@@ -279,7 +279,7 @@ pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
 ColorRgb
-determineControlRadiosity(
+Ccr::determineControlRadiosity(
     ColorRgb *(*getRadiance)(const StochasticRadiosityElement *),
     ColorRgb (*getScaling)(StochasticRadiosityElement *),
     const java::ArrayList<Patch *> *scenePatches)

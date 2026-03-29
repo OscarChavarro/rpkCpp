@@ -7,7 +7,16 @@ Generate and trace a local line
 
 #include "common/linealAlgebra/Ray.h"
 
-extern Ray mcrGenerateLocalLine(const Patch *patch, const double *xi);
-extern RayHit *mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore);
+class CoordinateSystem;
+
+class Localline final {
+  public:
+    static Ray mcrGenerateLocalLine(const Patch *patch, const double *xi);
+    static RayHit *mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *patch, Ray *ray, RayHit *hitStore);
+
+  private:
+    static void patchCoordSys(const Patch *patch, CoordinateSystem *coord);
+    static void someFeedback();
+};
 
 #endif

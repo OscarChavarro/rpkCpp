@@ -15,39 +15,39 @@ static constexpr HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyCluste
 ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
 
 void
-elementHierarchyDefaults() {
+Hierarchy::elementHierarchyDefaults() {
     GLOBAL_stochasticRaytracing_hierarchy.epsilon = DEFAULT_EH_EPSILON;
     GLOBAL_stochasticRaytracing_hierarchy.minimumArea = DEFAULT_EH_MINIMUM_AREA;
     GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
     GLOBAL_stochasticRaytracing_hierarchy.clustering = DEFAULT_EH_CLUSTERING;
     GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_T_VERTEX_ELIMINATION;
-    GLOBAL_stochasticRaytracing_hierarchy.oracle = powerOracle;
+    GLOBAL_stochasticRaytracing_hierarchy.oracle = Hierarchy::powerOracle;
     GLOBAL_stochasticRaytracing_hierarchy.nr_elements = 0;
     GLOBAL_stochasticRaytracing_hierarchy.nr_clusters = 0;
 }
 
 void
-elementHierarchyInit(Geometry *clusteredWorldGeometry) {
+Hierarchy::elementHierarchyInit(Geometry *clusteredWorldGeometry) {
     // These lists hold vertices created during hierarchical refinement
     GLOBAL_stochasticRaytracing_hierarchy.coords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.normals = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.texCoords = new java::ArrayList<Vector3D *>();
     GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
     GLOBAL_stochasticRaytracing_hierarchy.topCluster =
-        stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
+        StochasticRadiosityElement::stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
 }
 
 void
-elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches) {
+Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
-    stochasticRadiosityElementDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    StochasticRadiosityElement::stochasticRadiosityElementDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
     GLOBAL_stochasticRaytracing_hierarchy.topCluster = nullptr;
 
     // Destroy surface elements
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
         // Need to be destroyed before destroying the automatically created vertices
-        stochasticRadiosityElementDestroy(topLevelStochasticRadiosityElement(patch));
+        StochasticRadiosityElement::stochasticRadiosityElementDestroy(McradP::topLevelStochasticRadiosityElement(patch));
         patch->radianceData = nullptr; // Prevents destroying a 2nd time later
     }
 

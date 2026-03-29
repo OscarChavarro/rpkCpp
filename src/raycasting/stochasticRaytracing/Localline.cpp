@@ -6,6 +6,7 @@ Generate and trace a local line
 
 #ifdef RAYTRACING_ENABLED
 
+#include "common/linealAlgebra/CoordinateSystem.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -13,8 +14,8 @@ Generate and trace a local line
 /**
 Creates a coordinate system on the patch P with Z direction along the normal
 */
-static void
-patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
+void
+Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     Vector3D z = patch->normal;
     Vector3D x;
     x.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
@@ -33,7 +34,7 @@ direction with respect to patch normal. Origin and direction are uniquely determ
 by the 4-dimensional sample vector xi
 */
 Ray
-mcrGenerateLocalLine(const Patch *patch, const double *xi) {
+Localline::mcrGenerateLocalLine(const Patch *patch, const double *xi) {
     const static Patch *previousPatch = nullptr;
     static CoordinateSystem coordSys;
     Ray ray;
@@ -57,8 +58,8 @@ mcrGenerateLocalLine(const Patch *patch, const double *xi) {
 /**
 In order to let the user have the impression that the computations are proceeding
 */
-static void
-someFeedback() {
+void
+Localline::someFeedback() {
     if ( (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays + GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays) % 1000 == 0 ) {
         java::lang::System::err.print(".");
     }
@@ -68,7 +69,7 @@ someFeedback() {
 Determines nearest intersection point and patch
 */
 RayHit *
-mcrShootRay(const VoxelGrid * sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
+Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *P, Ray *ray, RayHit *hitStore) {
     float distance = Numeric::HUGE_FLOAT_VALUE;
     RayHit *hit;
 

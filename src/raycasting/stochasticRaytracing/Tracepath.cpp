@@ -22,8 +22,8 @@ StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probabili
 /**
 Initialises numberOfNodes, nodes allocated to zero and 'nodes' to the nullptr pointer
 */
-static void
-initPath(Path *path) {
+void
+Tracepath::initPath(Path *path) {
     path->numberOfNodes = path->nodesAllocated = 0;
     path->nodes = nullptr;
 }
@@ -31,16 +31,16 @@ initPath(Path *path) {
 /**
 Sets numberOfNodes to zero (forgets old path, but does not free the memory for the nodes
 */
-static void
-clearPath(Path *path) {
+void
+Tracepath::clearPath(Path *path) {
     path->numberOfNodes = 0;
 }
 
 /**
 Adds a node to the path. Re-allocates more space for the nodes if necessary
 */
-static void
-pathAddNode(Path *path, Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
+void
+Tracepath::pathAddNode(Path *path, Patch *patch, double prob, Vector3D inPoint, Vector3D outpoint) {
     StochasticRaytracingPathNode *node;
 
     if ( path->numberOfNodes >= path->nodesAllocated ) {
@@ -67,8 +67,8 @@ pathAddNode(Path *path, Patch *patch, double prob, Vector3D inPoint, Vector3D ou
 /**
 Disposes of the memory for storing path nodes
 */
-static void
-freePathNodes(Path *path) {
+void
+Tracepath::freePathNodes(Path *path) {
     if ( path->nodes != nullptr ) {
         delete[] path->nodes;
         path->nodes = nullptr;
@@ -89,8 +89,8 @@ allocates extra space for storing nodes calls to pathAddNode().
 freePathNodes() should be called in order to dispose of this memory
 when no longer needed
 */
-static Path *
-tracePath(
+Path *
+Tracepath::tracePath(
     const VoxelGrid * sceneWorldVoxelGrid,
     Patch *origin,
     double birth_prob,
@@ -110,15 +110,15 @@ tracePath(
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-        ray = mcrGenerateLocalLine(P, sample4D(static_cast<unsigned int>(topLevelStochasticRadiosityElement(P)->rayIndex)));
-        topLevelStochasticRadiosityElement(P)->rayIndex++;
+        ray = Localline::mcrGenerateLocalLine(P, Sample4d::sample4D(static_cast<unsigned int>(McradP::topLevelStochasticRadiosityElement(P)->rayIndex)));
+        McradP::topLevelStochasticRadiosityElement(P)->rayIndex++;
         if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.position = path->nodes[path->numberOfNodes - 1].inPoint;
         }
         path->nodes[path->numberOfNodes - 1].outpoint = ray.position;
 
-        hit = mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
+        hit = Localline::mcrShootRay(sceneWorldVoxelGrid, P, &ray, &hitStore);
         if ( !hit ) {
             // Path disappears into background
             break;
@@ -132,8 +132,8 @@ tracePath(
     return path;
 }
 
-static double
-patchNormalisedBirthProbability(const Patch *P) {
+double
+Tracepath::patchNormalisedBirthProbability(const Patch *P) {
     return globalBirthProbability(P) / globalSumProbabilities;
 }
 
@@ -141,7 +141,7 @@ patchNormalisedBirthProbability(const Patch *P) {
 Traces 'numberOfPaths' paths with given birth probabilities
 */
 void
-tracePaths(
+Tracepath::tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
     double (*birthProbabilityCallBack)(const Patch *P),
@@ -163,7 +163,7 @@ tracePaths(
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         globalSumProbabilities += birthProbabilityCallBack(patch);
-        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
+        Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
     }
     if ( globalSumProbabilities < Numeric::EPSILON ) {
         Error::warning("tracePaths", "No sources");
@@ -202,11 +202,11 @@ tracePaths(
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
             static_cast<float>(M_PI) * patch->area,
-            getTopLevelPatchUnShotRad(patch)[0]);
+            McradP::getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
             static_cast<float>(M_PI) * patch->area,
-            getTopLevelPatchRad(patch)[0]);
+            McradP::getTopLevelPatchRad(patch)[0]);
     }
 }
 

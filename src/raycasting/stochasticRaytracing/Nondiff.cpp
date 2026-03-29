@@ -13,6 +13,7 @@ Non diffuse first shot
 #include "raycasting/stochasticRaytracing/LightSourceTable.h"
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
+#include "raycasting/stochasticRaytracing/Nondiff.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 static LightSourceTable *globalLights;
@@ -20,8 +21,8 @@ static int globalNumberOfLights;
 static int globalNumberOfSamples;
 static double globalTotalFlux;
 
-static void
-makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
+void
+Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
     globalNumberOfLights = GLOBAL_statistics.numberOfLightSources;
     globalLights = new LightSourceTable[globalNumberOfLights];
@@ -36,21 +37,21 @@ makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::A
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
-        stochasticRadiosityClearCoefficients(getTopLevelPatchRad(patch), getTopLevelPatchBasis(patch));
-        stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(patch), getTopLevelPatchBasis(patch));
-        stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(patch), getTopLevelPatchBasis(patch));
-        topLevelStochasticRadiosityElement(patch)->sourceRad.clear();
+        Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
+        Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchUnShotRad(patch), McradP::getTopLevelPatchBasis(patch));
+        Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
+        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad.clear();
     }
 }
 
-static void
-nextLightSample(const Patch *patch, double *zeta) {
-    const double *xi = sample4D(static_cast<unsigned int>(topLevelStochasticRadiosityElement(patch)->rayIndex));
-    topLevelStochasticRadiosityElement(patch)->rayIndex++;
+void
+Nondiff::nextLightSample(const Patch *patch, double *zeta) {
+    const double *xi = Sample4d::sample4D(static_cast<unsigned int>(McradP::topLevelStochasticRadiosityElement(patch)->rayIndex));
+    McradP::topLevelStochasticRadiosityElement(patch)->rayIndex++;
     if ( patch->numberOfVertices == 3 ) {
         double u = xi[0];
         double v = xi[1];
-        foldSampleF(&u, &v);
+        Sample4d::foldSampleF(&u, &v);
         zeta[0] = u;
         zeta[1] = v;
     } else {
@@ -61,8 +62,8 @@ nextLightSample(const Patch *patch, double *zeta) {
     zeta[3] = xi[3];
 }
 
-static Ray
-sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
+Ray
+Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
     Ray ray;
     do {
         double zeta[4];
@@ -89,8 +90,8 @@ sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf,
     return ray;
 }
 
-static void
-sampleLight(const VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
+void
+Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
     ColorRgb rad;
     double pointSelectionPdf;
     double dirSelectionPdf;
@@ -99,23 +100,23 @@ sampleLight(const VoxelGrid * sceneWorldVoxelGrid, LightSourceTable *light, doub
     const RayHit *hit;
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
-    hit = mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
+    hit = Localline::mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
-        ColorRgb Rd = topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
+        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
-        getTopLevelPatchRad(hit->getPatch())[0].add(getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
-        getTopLevelPatchUnShotRad(hit->getPatch())[0].add(getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
-        topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad.add(
-            topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad, receivedRadiosity);
+        McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
+        McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
+        McradP::topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad.add(
+            McradP::topLevelStochasticRadiosityElement(hit->getPatch())->sourceRad, receivedRadiosity);
     }
 }
 
-static void
-sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
+void
+Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     double rnd = drand48();
     int count = 0;
     double pCumulative = 0.0;
@@ -138,8 +139,8 @@ sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
     java::lang::System::err.println();
 }
 
-static void
-summarize(const java::ArrayList<Patch *> *scenePatches) {
+void
+Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
@@ -150,21 +151,21 @@ summarize(const java::ArrayList<Patch *> *scenePatches) {
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
             static_cast<float>(M_PI) * patch->area,
-            getTopLevelPatchUnShotRad(patch)[0]);
+            McradP::getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
             static_cast<float>(M_PI) * patch->area,
-            getTopLevelPatchRad(patch)[0]);
+            McradP::getTopLevelPatchRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
-            static_cast<float>(M_PI) * patch->area * (topLevelStochasticRadiosityElement(patch)->importance -
-                                                      topLevelStochasticRadiosityElement(patch)->sourceImportance),
-              getTopLevelPatchUnShotRad(patch)[0]);
+            static_cast<float>(M_PI) * patch->area * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
+                                                      McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
+              McradP::getTopLevelPatchUnShotRad(patch)[0]);
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(
-                topLevelStochasticRadiosityElement(patch)->unShotImportance);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * topLevelStochasticRadiosityElement(patch)->importance;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * topLevelStochasticRadiosityElement(patch)->sourceImportance;
-        monteCarloRadiosityPatchComputeNewColor(patch);
+                McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
+        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
+        Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
     }
 }
 
@@ -172,7 +173,7 @@ summarize(const java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RenderOptions */*renderOptions*/) {
+Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RenderOptions */*renderOptions*/) {
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,

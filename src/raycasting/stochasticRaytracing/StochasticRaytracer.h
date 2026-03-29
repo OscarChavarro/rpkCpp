@@ -20,6 +20,32 @@ class StochasticRaytracer final : public RayTracer {
         int nx,
         int ny,
         void *data);
+    static ColorRgb stochasticRaytracerGetScatteredRadiance(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        SimpleRaytracingPathNode *thisNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout,
+        RadianceMethod *radianceMethod,
+        RenderOptions *renderOptions);
+    static ColorRgb srGetDirectRadiance(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        SimpleRaytracingPathNode *prevNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout);
+    static ColorRgb stochasticRaytracerGetRadiance(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        SimpleRaytracingPathNode *thisNode,
+        StochasticRaytracingConfiguration *config,
+        StorageReadout readout,
+        int usedScatterSamples,
+        RadianceMethod *radianceMethod,
+        RenderOptions *renderOptions);
 
   public:
     StochasticRaytracer();

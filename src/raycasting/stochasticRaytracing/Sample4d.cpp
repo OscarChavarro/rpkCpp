@@ -23,8 +23,8 @@ static constexpr char GENERALIZED_FAURE_NAME[7] = "GFaure";
 static constexpr char NIEDERREITER_NAME[5] = "Nied";
 static constexpr char UNKNOWN_NAME[8] = "Unknown";
 
-static inline const char *
-SEQ4D_NAME(Sampler4DSequence sequence) {
+const char *
+Sample4d::sequenceName(Sampler4DSequence sequence) {
     switch ( sequence ) {
         case Sampler4DSequence::RANDOM:
             return RANDOM_NAME;
@@ -49,7 +49,7 @@ SEQ4D_NAME(Sampler4DSequence sequence) {
 Also initialises the sequence
 */
 void
-setSequence4D(Sampler4DSequence sequence) {
+Sample4d::setSequence4D(Sampler4DSequence sequence) {
     seq = sequence;
     switch ( seq ) {
         case Sampler4DSequence::SOBOL:
@@ -71,7 +71,7 @@ Returns 4D sample with given index from current sequence. When the
 current sequence is 'random', the index is not used
 */
 double *
-sample4D(unsigned seed) {
+Sample4d::sample4D(unsigned seed) {
     static double xi[4];
     const unsigned *zeta;
     const double *xx;
@@ -119,7 +119,7 @@ sample4D(unsigned seed) {
             xi[3] = zeta[3] * RECIP;
             break;
         default:
-            Error::fatal(-1, "sample4D", "QMC Sequence %s not yet implemented", SEQ4D_NAME(seq));
+            Error::fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
     }
 
     return xi;
@@ -135,15 +135,15 @@ Niederreiter::Nied() and Niederreiter::NextNiedInRange() are 63-bit unless compi
 'unsigned long long' support
 */
 void
-foldSampleU(unsigned *xi1, unsigned *xi2) {
+Sample4d::foldSampleU(unsigned *xi1, unsigned *xi2) {
     Niederreiter31::foldSample31(xi1, xi2);
 }
 
 void
-foldSampleF(double *xi1, double *xi2) {
+Sample4d::foldSampleF(double *xi1, double *xi2) {
     unsigned zeta1 = static_cast<unsigned>(*xi1 * RECIP1);
     unsigned zeta2 = static_cast<unsigned>(*xi2 * RECIP1);
-    foldSampleU(&zeta1, &zeta2);
+    Sample4d::foldSampleU(&zeta1, &zeta2);
     *xi1 = zeta1 * RECIP;
     *xi2 = zeta2 * RECIP;
 }

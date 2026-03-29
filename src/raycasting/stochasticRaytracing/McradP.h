@@ -4,51 +4,36 @@
 
 #include "java/util/ArrayList.h"
 #include "scene/Scene.h"
+#include "raycasting/stochasticRaytracing/Mcrad.h"
+#include "raycasting/stochasticRaytracing/Nondiff.h"
 #include "raycasting/stochasticRaytracing/Coefficientsmcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
-inline int
-numberOfVertices(const StochasticRadiosityElement *elem) {
-    return elem->patch->numberOfVertices;
-}
+class McradP final {
+  public:
+    static inline int numberOfVertices(const StochasticRadiosityElement *elem) {
+        return elem->patch->numberOfVertices;
+    }
 
-inline StochasticRadiosityElement*
-topLevelStochasticRadiosityElement(const Patch *patch) {
-    return static_cast<StochasticRadiosityElement *>(patch->radianceData);
-}
+    static inline StochasticRadiosityElement *topLevelStochasticRadiosityElement(const Patch *patch) {
+        return static_cast<StochasticRadiosityElement *>(patch->radianceData);
+    }
 
-inline ColorRgb *
-getTopLevelPatchRad(const Patch *patch) {
-    return topLevelStochasticRadiosityElement(patch)->radiance;
-}
+    static inline ColorRgb *getTopLevelPatchRad(const Patch *patch) {
+        return topLevelStochasticRadiosityElement(patch)->radiance;
+    }
 
-inline ColorRgb *
-getTopLevelPatchUnShotRad(const Patch *patch) {
-    return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
-}
+    static inline ColorRgb *getTopLevelPatchUnShotRad(const Patch *patch) {
+        return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
+    }
 
-inline ColorRgb*
-getTopLevelPatchReceivedRad(const Patch *patch) {
-    return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
-}
+    static inline ColorRgb *getTopLevelPatchReceivedRad(const Patch *patch) {
+        return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
+    }
 
-inline GalerkinBasis *
-getTopLevelPatchBasis(const Patch *patch) {
-    return topLevelStochasticRadiosityElement(patch)->basis;
-}
-
-extern float monteCarloRadiosityScalarReflectance(const Patch *P);
-extern void monteCarloRadiosityDefaults();
-extern void monteCarloRadiosityUpdateCpuSecs();
-extern Element *monteCarloRadiosityCreatePatchData(Patch *patch);
-extern void monteCarloRadiosityDestroyPatchData(Patch *patch);
-extern void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
-extern void monteCarloRadiosityInit();
-extern void monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions);
-extern void monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions);
-extern void monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions);
-extern void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
-extern ColorRgb monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions);
-extern void doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    static inline GalerkinBasis *getTopLevelPatchBasis(const Patch *patch) {
+        return topLevelStochasticRadiosityElement(patch)->basis;
+    }
+};
 
 #endif

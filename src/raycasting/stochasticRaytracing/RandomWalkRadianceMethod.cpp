@@ -14,8 +14,8 @@
 
 static constexpr int STRING_LENGTH = 2000;
 
-static void
-appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
+ void
+RandomWalkRadianceMethod::appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {
         return;
     }
@@ -37,7 +37,7 @@ appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
 }
 
 RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
-    monteCarloRadiosityDefaults();
+    Mcrad::monteCarloRadiosityDefaults();
     className = RANDOM_WALK;
 }
 
@@ -62,17 +62,17 @@ RandomWalkRadianceMethod::getRadiance(
     Vector3D dir,
     const RenderOptions *renderOptions) const
 {
-    return monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
+    return Mcrad::monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
 Element *
 RandomWalkRadianceMethod::createPatchData(Patch *patch) {
-    return monteCarloRadiosityCreatePatchData(patch);
+    return Mcrad::monteCarloRadiosityCreatePatchData(patch);
 }
 
 void
 RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
-    monteCarloRadiosityDestroyPatchData(patch);
+    Mcrad::monteCarloRadiosityDestroyPatchData(patch);
 }
 
 void
@@ -90,11 +90,11 @@ RandomWalkRadianceMethod::writeVRML(
 void
 RandomWalkRadianceMethod::initialize(Scene * /*scene*/) {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
-    monteCarloRadiosityInit();
+    Mcrad::monteCarloRadiosityInit();
 }
 
-static void
-randomWalkRadiosityPrintStats() {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityPrintStats() {
     java::lang::System::err.printf("%g secs., total radiance rays = %ld",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
     java::lang::System::err.printf(", total flux = ");
@@ -109,17 +109,17 @@ randomWalkRadiosityPrintStats() {
 /**
 Used as un-normalised stochasticJacobiProbability for mimicking global lines
 */
-static double
-randomWalkRadiosityPatchArea(const Patch *P) {
+ double
+RandomWalkRadianceMethod::randomWalkRadiosityPatchArea(const Patch *P) {
     return P->area;
 }
 
 /**
 stochasticJacobiProbability proportional to power to be propagated
 */
-static double
-randomWalkRadiosityScalarSourcePower(const Patch *P) {
-    ColorRgb radiance = topLevelStochasticRadiosityElement(P)->sourceRad;
+ double
+RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower(const Patch *P) {
+    ColorRgb radiance = McradP::topLevelStochasticRadiosityElement(P)->sourceRad;
     return P->area * radiance.sumAbsComponents();
 }
 
@@ -127,40 +127,40 @@ randomWalkRadiosityScalarSourcePower(const Patch *P) {
 Returns a double instead of a float in order to make it useful as
 a survival stochasticJacobiProbability function
 */
-static double
-randomWalkRadiosityScalarReflectance(const Patch *P) {
-    return monteCarloRadiosityScalarReflectance(P);
+ double
+RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance(const Patch *P) {
+    return Mcrad::monteCarloRadiosityScalarReflectance(P);
 }
 
-static ColorRgb *
-randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem) {
+ ColorRgb *
+RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem) {
     static ColorRgb Ed[MAX_BASIS_SIZE];
-    stochasticRadiosityClearCoefficients(Ed, elem->basis);
-    Ed[0] = topLevelStochasticRadiosityElement(elem->patch)->Ed; // Emittance
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(Ed, elem->basis);
+    Ed[0] = McradP::topLevelStochasticRadiosityElement(elem->patch)->Ed; // Emittance
     return Ed;
 }
 
 /**
 Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 */
-static void
-randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         ColorRgb newSourceRadiance;
         ColorRgb rho;
 
         newSourceRadiance.setMonochrome(1.0);
-        rho = topLevelStochasticRadiosityElement(patch)->Rd; // Reflectance
+        rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd; // Reflectance
         newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
         newSourceRadiance.selfScalarProduct(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance); // (1-rho) * beta
-        newSourceRadiance.subtract(topLevelStochasticRadiosityElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
-        topLevelStochasticRadiosityElement(patch)->sourceRad = newSourceRadiance;
+        newSourceRadiance.subtract(McradP::topLevelStochasticRadiosityElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
+        McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = newSourceRadiance;
     }
 }
 
-static double
-randomWalkRadiosityScoreWeight(const Path *path, int n) {
+ double
+RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n) {
     double w = 0.0;
     int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
@@ -206,13 +206,13 @@ randomWalkRadiosityScoreWeight(const Path *path, int n) {
     return w;
 }
 
-static void
-randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumPow;
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
-    accumPow.scaledCopy(static_cast<float>(firstNode.patch->area / firstNode.probability), topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
+    accumPow.scaledCopy(static_cast<float>(firstNode.patch->area / firstNode.probability), McradP::topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
     for ( int n = 1; n < path->numberOfNodes; n++ ) {
         const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
@@ -222,7 +222,7 @@ randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*bi
         double r = 1.0;
         double w;
         const Patch *P = node.patch;
-        ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
+        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
         accumPow.scalarProduct(accumPow, Rd);
 
         P->uniformUv(&node.inPoint, &uin, &vin);
@@ -236,15 +236,15 @@ randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*bi
 
         w = randomWalkRadiosityScoreWeight(path, n);
 
-        for ( int i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
-            getTopLevelPatchReceivedRad(P)[i].addScaled(
-                getTopLevelPatchReceivedRad(P)[i],
+        for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
+            double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
+            McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(
+                McradP::getTopLevelPatchReceivedRad(P)[i],
                 static_cast<float>(w * dual / static_cast<double>(nr_paths)),
                 accumPow);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-                double basf = getTopLevelPatchBasis(P)->function[i](uOut, vOut);
+                double basf = McradP::getTopLevelPatchBasis(P)->function[i](uOut, vOut);
                 r += dual * P->area * basf;
             }
         }
@@ -253,36 +253,36 @@ randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*bi
     }
 }
 
-static void
-randomWalkRadiosityShootingUpdate(const Patch *P, double w) {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate(const Patch *P, double w) {
     double k;
     double oldQuality;
-    oldQuality = topLevelStochasticRadiosityElement(P)->quality;
-    topLevelStochasticRadiosityElement(P)->quality += static_cast<float>(w);
-    if ( topLevelStochasticRadiosityElement(P)->quality < Numeric::EPSILON ) {
+    oldQuality = McradP::topLevelStochasticRadiosityElement(P)->quality;
+    McradP::topLevelStochasticRadiosityElement(P)->quality += static_cast<float>(w);
+    if ( McradP::topLevelStochasticRadiosityElement(P)->quality < Numeric::EPSILON ) {
         return;
     }
-    k = oldQuality / topLevelStochasticRadiosityElement(P)->quality;
+    k = oldQuality / McradP::topLevelStochasticRadiosityElement(P)->quality;
 
     // Subtract self-emitted rad
-    getTopLevelPatchRad(P)[0].subtract(getTopLevelPatchRad(P)[0], topLevelStochasticRadiosityElement(P)->sourceRad);
+    McradP::getTopLevelPatchRad(P)[0].subtract(McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
 
     // Weight with previous results
-    stochasticRadiosityScaleCoefficients(static_cast<float>(k), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityScaleCoefficients((1.0f - static_cast<float>(k)), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityAddCoefficients(getTopLevelPatchRad(P), getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0f - static_cast<float>(k)), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityAddCoefficients(McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Re-add self-emitted rad
-    getTopLevelPatchRad(P)[0].add(
-        getTopLevelPatchRad(P)[0], topLevelStochasticRadiosityElement(P)->sourceRad);
+    McradP::getTopLevelPatchRad(P)[0].add(
+        McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
 
     // Clear un-shot and received radiance
-    stochasticRadiosityClearCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
-    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchUnShotRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
 }
 
-static void
-randomWalkRadiosityDoShootingIteration(
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
     const VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches)
 {
@@ -303,7 +303,7 @@ randomWalkRadiosityDoShootingIteration(
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
                                                                (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
 
-    tracePaths(
+    Tracepath::tracePaths(
         sceneWorldVoxelGrid,
         numberOfWalks,
         randomWalkRadiosityScalarSourcePower,
@@ -316,8 +316,8 @@ randomWalkRadiosityDoShootingIteration(
 /**
 Determines control radiosity value for collision gathering estimator
 */
-static ColorRgb
-randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches) {
+ ColorRgb
+RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches) {
     ColorRgb c1;
     ColorRgb c2;
     ColorRgb cr;
@@ -334,10 +334,10 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
         const Patch *patch = scenePatches->get(i);
 
         absorb.setMonochrome(1.0);
-        rho = topLevelStochasticRadiosityElement(patch)->Rd;
+        rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd;
         absorb.subtract(absorb, rho); // 1-rho
 
-        Ed = topLevelStochasticRadiosityElement(patch)->sourceRad;
+        Ed = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad;
         num.scalarProduct(absorb, Ed);
         c1.addScaled(c1, patch->area, num); // A_P (1-rho_P) E_P
 
@@ -353,11 +353,11 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
     return cr;
 }
 
-static void
-randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumRad;
     const int lastNodeIndex = path->numberOfNodes - 1;
-    accumRad = topLevelStochasticRadiosityElement(path->nodes[lastNodeIndex].patch)->sourceRad;
+    accumRad = McradP::topLevelStochasticRadiosityElement(path->nodes[lastNodeIndex].patch)->sourceRad;
     for ( int n = lastNodeIndex - 1; n >= 0; n-- ) {
         const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
@@ -366,7 +366,7 @@ randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, 
         double vOut = 0.0;
         double r = 1.0;
         const Patch *P = node.patch;
-        ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
+        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
         accumRad.selfScalarProduct(Rd);
 
         P->uniformUv(&node.outpoint, &uOut, &vOut);
@@ -378,54 +378,54 @@ randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, 
             }
         }
 
-        for ( int i = 0; i < getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
-            getTopLevelPatchReceivedRad(P)[i].addScaled(getTopLevelPatchReceivedRad(P)[i], static_cast<float>(dual), accumRad);
+        for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
+            double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
+            McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], static_cast<float>(dual), accumRad);
 
             if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-                double basf = getTopLevelPatchBasis(P)->function[i](uin, vin);
+                double basf = McradP::getTopLevelPatchBasis(P)->function[i](uin, vin);
                 r += basf * dual;
             }
         }
-        topLevelStochasticRadiosityElement(P)->ng++;
+        McradP::topLevelStochasticRadiosityElement(P)->ng++;
 
         accumRad.scale(static_cast<float>(r / node.probability));
-        accumRad.add(accumRad, topLevelStochasticRadiosityElement(P)->sourceRad);
+        accumRad.add(accumRad, McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
     }
 }
 
-static void
-randomWalkRadiosityGatheringUpdate(const Patch *P, double /*w*/) {
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate(const Patch *P, double /*w*/) {
     // Use un-shot rad for accumulating sum of contributions
-    stochasticRadiosityAddCoefficients(getTopLevelPatchUnShotRad(P), getTopLevelPatchReceivedRad(P),
-                                       getTopLevelPatchBasis(P));
-    stochasticRadiosityCopyCoefficients(getTopLevelPatchRad(P), getTopLevelPatchUnShotRad(P), getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityAddCoefficients(McradP::getTopLevelPatchUnShotRad(P), McradP::getTopLevelPatchReceivedRad(P),
+                                       McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityCopyCoefficients(McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchUnShotRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Divide by nr of samples
-    if ( topLevelStochasticRadiosityElement(P)->ng > 0 )
-        stochasticRadiosityScaleCoefficients((1.0f / topLevelStochasticRadiosityElement(P)->ng), getTopLevelPatchRad(P), getTopLevelPatchBasis(P));
+    if ( McradP::topLevelStochasticRadiosityElement(P)->ng > 0 )
+        Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0f / McradP::topLevelStochasticRadiosityElement(P)->ng), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Add source radiance (source term estimation suppression!)
-    getTopLevelPatchRad(P)[0].add(getTopLevelPatchRad(P)[0], topLevelStochasticRadiosityElement(P)->sourceRad);
+    McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
         // Add constant control radiosity value
         ColorRgb cr = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance;
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
-            ColorRgb Rd = topLevelStochasticRadiosityElement(P)->Rd;
+            ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
             cr.scalarProduct(Rd, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
         }
-        getTopLevelPatchRad(P)[0].add(getTopLevelPatchRad(P)[0], cr);
+        McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], cr);
     }
 
-    stochasticRadiosityClearCoefficients(getTopLevelPatchReceivedRad(P), getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
 }
 
 /**
 Returns true when converged and false if not
 */
-static void
-randomWalkRadiosityDoGatheringIteration(
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
     const VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches)
 {
@@ -449,7 +449,7 @@ randomWalkRadiosityDoGatheringIteration(
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
         numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
 
-    tracePaths(
+    Tracepath::tracePaths(
         sceneWorldVoxelGrid,
         numberOfWalks,
         randomWalkRadiosityPatchArea,
@@ -459,16 +459,16 @@ randomWalkRadiosityDoGatheringIteration(
         scenePatches);
 }
 
-static void
-randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, double /*w*/) {
-    stochasticRadiosityCopyCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination(StochasticRadiosityElement *elem, double /*w*/) {
+    Coefficientsmcrad::stochasticRadiosityCopyCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
     elem->sourceRad = elem->receivedRadiance[0];
-    stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
-    stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->unShotRadiance, elem->basis);
+    Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
 }
 
-static void
-randomWalkRadiosityDoFirstShot(
+ void
+RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
@@ -476,19 +476,19 @@ randomWalkRadiosityDoFirstShot(
     long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
     java::lang::System::err.printf("First shot (%ld rays):\n", numberOfRays);
-    doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+    Stochjacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }
 
 void
 RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
-    monteCarloRadiosityTerminate(scenePatches);
+    Mcrad::monteCarloRadiosityTerminate(scenePatches);
 }
 
 bool
 RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
-    monteCarloRadiosityPreStep(scene, renderOptions);
+    Mcrad::monteCarloRadiosityPreStep(scene, renderOptions);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1
         && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
@@ -508,7 +508,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        monteCarloRadiosityPatchComputeNewColor(scene->patchList->get(i));
+        Mcrad::monteCarloRadiosityPatchComputeNewColor(scene->patchList->get(i));
     }
 
     return false; // Never converged

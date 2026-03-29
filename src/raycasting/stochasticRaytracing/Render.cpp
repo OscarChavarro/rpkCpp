@@ -17,13 +17,13 @@ Rendering elements
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 ColorRgb
-stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
+StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     ColorRgb color{};
 
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            ToneMap::radianceToRgb(stochasticRadiosityElementDisplayRadiance(element), &color);
+            ToneMap::radianceToRgb(StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(element), &color);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray;
@@ -48,8 +48,8 @@ stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     return color;
 }
 
-static ColorRgb
-vertexRadiance(const Vertex *v) {
+ ColorRgb
+StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
     int count = 0;
     ColorRgb radiance;
 
@@ -61,7 +61,7 @@ vertexRadiance(const Vertex *v) {
         }
         const StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(element);
         if ( !elem->regularSubElements ) {
-            ColorRgb elementRadiosity = stochasticRadiosityElementDisplayRadiance(elem);
+            ColorRgb elementRadiosity = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
             radiance.add(radiance, elementRadiosity);
             count++;
         }
@@ -77,8 +77,8 @@ vertexRadiance(const Vertex *v) {
 /**
 Same as above but for importance
 */
-static float
-vertexImportance(const Vertex *v) {
+ float
+StochasticRadiosityElement::vertexImportance(const Vertex *v) {
     int count = 0;
     float imp = 0.0;
 
@@ -102,7 +102,7 @@ vertexImportance(const Vertex *v) {
 }
 
 ColorRgb
-vertexColor(Vertex *v) {
+StochasticRadiosityElement::vertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
@@ -132,7 +132,7 @@ vertexColor(Vertex *v) {
 Compute new vertex colors
 */
 void
-stochasticRadiosityElementComputeNewVertexColors(Element *element) {
+StochasticRadiosityElement::stochasticRadiosityElementComputeNewVertexColors(Element *element) {
     const StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     vertexColor(stochasticRadiosityElement->vertices[0]);
     vertexColor(stochasticRadiosityElement->vertices[1]);
@@ -143,20 +143,20 @@ stochasticRadiosityElementComputeNewVertexColors(Element *element) {
 }
 
 void
-stochasticRadiosityElementAdjustTVertexColors(Element *element) {
+StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Element *element) {
     const StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     Vertex *m[4];
     int i;
     int n;
     for ( i = 0, n = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
-        m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
+        m[i] = StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
         if ( m[i] ) {
             n++;
         }
     }
 
     if ( n > 0 ) {
-        ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
                 m[i]->color.r = (m[i]->color.r + color.r) * 0.5f;
@@ -167,8 +167,8 @@ stochasticRadiosityElementAdjustTVertexColors(Element *element) {
     }
 }
 
-static void
-renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const RenderOptions *renderOptions) {
+ void
+StochasticRadiosityElement::renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const RenderOptions *renderOptions) {
     ColorRgb col[3];
     Vector3D vert[3];
 
@@ -188,8 +188,8 @@ renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const Rende
     }
 }
 
-static void
-renderQuadrilateral(const Vertex *v1, const Vertex *v2, const Vertex *v3, const Vertex *v4, const RenderOptions *renderOptions) {
+ void
+StochasticRadiosityElement::renderQuadrilateral(const Vertex *v1, const Vertex *v2, const Vertex *v3, const Vertex *v4, const RenderOptions *renderOptions) {
     ColorRgb col[4];
     Vector3D vert[4];
 
@@ -216,8 +216,8 @@ renderQuadrilateral(const Vertex *v1, const Vertex *v2, const Vertex *v3, const 
 TODO: The T-vertex elimination code only fully eliminates T-vertices in
 balanced meshes. Meshes are not yet balanced [PhB - 9901]
 */
-static void
-triangleTVertexElimination(
+ void
+StochasticRadiosityElement::triangleTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
@@ -266,8 +266,8 @@ triangleTVertexElimination(
     }
 }
 
-static void
-quadrilateralTVertexElimination(
+ void
+StochasticRadiosityElement::quadrilateralTVertexElimination(
     Vertex **v,
     Vertex **m,
     int numberOfTVertices,
@@ -348,18 +348,18 @@ quadrilateralTVertexElimination(
     }
 }
 
-static void
-renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
+ void
+StochasticRadiosityElement::renderTriangularElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
     triangleTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderOptions);
 }
 
-static void
-renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
+ void
+StochasticRadiosityElement::renderQuadrilateralElement(Vertex **v, Vertex **m, int numberOfTVertices, const RenderOptions *renderOptions) {
     quadrilateralTVertexElimination(v, m, numberOfTVertices, renderTriangle, renderQuadrilateral, renderOptions);
 }
 
-static void
-stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
+ void
+StochasticRadiosityElement::stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
     Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
@@ -374,7 +374,7 @@ stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, 
 }
 
 void
-stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions) {
+StochasticRadiosityElement::stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     Vector3D vertices[4];
 
@@ -382,7 +382,7 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
         Vertex *m[4]{};
         int n = 0;
         for ( int i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
-            m[i] = stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
+            m[i] = StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(stochasticRadiosityElement, i);
             if ( m[i] ) {
                 n++;
             }
@@ -414,7 +414,7 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
 
         Opengl::openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
     } else {
-        ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
 
         Opengl::openGlRenderSetColor(&color);
         Opengl::openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
@@ -425,7 +425,7 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
+StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
     ColorRgb radiance;
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
@@ -442,7 +442,7 @@ stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem
 }
 
 ColorRgb
-stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
+StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
     ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {
@@ -464,11 +464,11 @@ stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElemen
             }
         } else {
             // Flat shading
-            radiance = stochasticRadiosityElementDisplayRadiance(elem);
+            radiance = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
         }
     } else {
         // Higher order approximations
-        radiance = colorAtUv(elem->basis, elem->radiance, u, v);
+        radiance = Basismcrad::colorAtUv(elem->basis, elem->radiance, u, v);
         if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == WhatToShow::SHOW_INDIRECT_RADIANCE ) {
             radiance.subtract(radiance, elem->sourceRad);
         }

@@ -20,8 +20,8 @@ References:
 Refinement action 1: do nothing (link is accurate enough)
 Special refinement action used to indicate that a link is admissible
 */
-static Link *
-dontRefineCallBack(
+Link *
+Hierarchy::dontRefineCallBack(
     Link *link,
     StochasticRadiosityElement * /*rcvtop*/,
     double * /*ur*/,
@@ -38,8 +38,8 @@ dontRefineCallBack(
 /**
 Refinement action 2: subdivide the receiver using regular quadtree subdivision
 */
-static Link *
-subdivideReceiverCallBack(
+Link *
+Hierarchy::subdivideReceiverCallBack(
     Link *link,
     StochasticRadiosityElement *rcvtop,
     double *ur,
@@ -54,9 +54,9 @@ subdivideReceiverCallBack(
         rcv = static_cast<StochasticRadiosityElement *>(rcv->childContainingElement(rcvtop));
     } else {
         if ( !rcv->regularSubElements ) {
-            stochasticRadiosityElementRegularSubdivideElement(rcv, renderOptions);
+            StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(rcv, renderOptions);
         }
-        rcv = stochasticRadiosityElementRegularSubElementAtPoint(rcv, ur, vr);
+        rcv = StochasticRadiosityElement::stochasticRadiosityElementRegularSubElementAtPoint(rcv, ur, vr);
     }
     link->rcv = rcv;
     return link;
@@ -65,8 +65,8 @@ subdivideReceiverCallBack(
 /**
 Refinement action 3: subdivide the source using regular quadtree subdivision
 */
-static Link *
-subdivideSourceCallBack(
+Link *
+Hierarchy::subdivideSourceCallBack(
     Link *link,
     StochasticRadiosityElement * /*rcvtop*/,
     double * /*ur*/,
@@ -81,16 +81,16 @@ subdivideSourceCallBack(
         src = static_cast<StochasticRadiosityElement *>(src->childContainingElement(srcTop));
     } else {
         if ( !src->regularSubElements ) {
-            stochasticRadiosityElementRegularSubdivideElement(src, renderOptions);
+            StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(src, renderOptions);
         }
-        src = stochasticRadiosityElementRegularSubElementAtPoint(src, us, vs);
+        src = StochasticRadiosityElement::stochasticRadiosityElementRegularSubElementAtPoint(src, us, vs);
     }
     link->src = src;
     return link;
 }
 
-static int
-selfLink(const Link *link) {
+int
+Hierarchy::selfLink(const Link *link) {
     return (link->rcv == link->src);
 }
 
@@ -98,8 +98,8 @@ selfLink(const Link *link) {
 Cheap form factor estimate to drive hierarchical refinement
 as in Hanrahan SIGGRAPH'91
 */
-static float
-formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src) {
+float
+Hierarchy::formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src) {
     Vector3D D;
     D.subtraction(src->midPoint, rcv->midPoint);
 
@@ -117,8 +117,8 @@ formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadios
     return static_cast<float>(f * c1 * c2);
 }
 
-static int
-lowPowerLink(
+int
+Hierarchy::lowPowerLink(
     const Link *link,
     const Statistics *statistics)
 {
@@ -132,7 +132,7 @@ lowPowerLink(
     // Compute receiver reflectance times source radiosity
     rhoSrcRad.scaledCopy(static_cast<float>(M_PI), src->radiance[0]);
     if ( !rcv->isCluster() ) {
-        ColorRgb Rd = topLevelStochasticRadiosityElement(rcv->patch)->Rd;
+        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(rcv->patch)->Rd;
         rhoSrcRad.selfScalarProduct(Rd);
     }
 
@@ -141,21 +141,21 @@ lowPowerLink(
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {
-            propagatedPower *= stochasticRadiosityElementScalarReflectance(rcv);
+            propagatedPower *= StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(rcv);
         }
     }
 
     return (propagatedPower < threshold);
 }
 
-static REFINE_ACTION
-subDivideLargest(const Link *link) {
+REFINE_ACTION
+Hierarchy::subDivideLargest(const Link *link) {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
     if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
-        return static_cast<REFINE_ACTION>(dontRefineCallBack);
+        return static_cast<REFINE_ACTION>(Hierarchy::dontRefineCallBack);
     } else {
-        return (rcv->area > src->area) ? subdivideReceiverCallBack : subdivideSourceCallBack;
+        return (rcv->area > src->area) ? Hierarchy::subdivideReceiverCallBack : Hierarchy::subdivideSourceCallBack;
     }
 }
 
@@ -164,11 +164,11 @@ Well known power-based refinement oracle ([HANR1992] Hanrahan'91, with importanc
 a la [SMIT1992] Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
 */
 REFINE_ACTION
-powerOracle(const Link *link) {
+Hierarchy::powerOracle(const Link *link) {
     if ( selfLink(link) ) {
-        return static_cast<REFINE_ACTION>(subdivideReceiverCallBack);
+        return static_cast<REFINE_ACTION>(Hierarchy::subdivideReceiverCallBack);
     } else if ( lowPowerLink(link, &GLOBAL_statistics) ) {
-        return static_cast<REFINE_ACTION>(dontRefineCallBack);
+        return static_cast<REFINE_ACTION>(Hierarchy::dontRefineCallBack);
     } else {
         return subDivideLargest(link);
     }
@@ -182,7 +182,7 @@ enabled. If clustering is not enabled, a link between the
 given toplevel surface elements is returned
 */
 Link
-topLink(StochasticRadiosityElement *rcvTop, StochasticRadiosityElement *srcTop) {
+Hierarchy::topLink(StochasticRadiosityElement *rcvTop, StochasticRadiosityElement *srcTop) {
     StochasticRadiosityElement *rcv;
     StochasticRadiosityElement *src;
     Link link{};
@@ -215,7 +215,7 @@ after refinement
 (us,vs) coordinates of the point on the source patch
 */
 Link *
-hierarchyRefine(
+Hierarchy::hierarchyRefine(
     Link *link,
     StochasticRadiosityElement *rcvTop,
     double *ur,
@@ -231,7 +231,7 @@ hierarchyRefine(
         link->src = srcTop;
     } else {
         REFINE_ACTION action;
-        while ( (action = evaluateLink(link)) != static_cast<REFINE_ACTION>(dontRefineCallBack) ) {
+        while ( (action = evaluateLink(link)) != static_cast<REFINE_ACTION>(Hierarchy::dontRefineCallBack) ) {
             link = action(link, rcvTop, ur, vr, srcTop, us, vs, renderOptions);
         }
     }
