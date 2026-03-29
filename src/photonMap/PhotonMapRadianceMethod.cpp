@@ -24,8 +24,8 @@ static bool globalDoingLocalRayCasting = false;
 
 static constexpr int STRING_LENGTH = 1000;
 
-static void
-appendStatsText(char *buffer, int *offset, const char *format, ...) {
+void
+PhotonMapRadianceMethod::appendStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {
         return;
     }
@@ -74,8 +74,8 @@ PhotonMapRadianceMethod::writeVRML(
 /**
 For counting how much CPU time was used for the computations
 */
-static void
-photonMapRadiosityUpdateCpuSecs() {
+void
+PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
     const long long t = java::lang::System::nanoTime();
     GLOBAL_photonMap_state.cpuSecs += static_cast<float>(
         static_cast<double>(t - GLOBAL_photonMap_state.lastClock) / 1000000000.0);
@@ -92,8 +92,8 @@ PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
     patch->radianceData = nullptr;
 }
 
-static void
-photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr) {
+void
+PhotonMapRadianceMethod::photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr) {
     if ( *samplerPtr != nullptr ) {
         delete *samplerPtr;
     }
@@ -139,7 +139,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
 
     cfg->dirSampler = new ScreenSampler;
 
-    photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
+    PhotonMapRadianceMethod::photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     cfg->surfaceSampler->SetComputeFromNextPdf(false);
     cfg->neSampler = nullptr;
 
@@ -150,7 +150,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
 
     cfg->pointSampler = new UniformLightSampler;
     cfg->dirSampler = new LightDirSampler;
-    photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
+    PhotonMapRadianceMethod::photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     // cfg->surfaceSampler = new PhotonMapSampler; //new BsdfSampler;
     cfg->surfaceSampler->SetComputeFromNextPdf(false);  // Only 1 pdf
 
@@ -188,8 +188,8 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
 /**
 Adapted from bi-directional path, this is a bit overkill for here
 */
-static ColorRgb
-photonMapDoComputePixelFluxEstimate(
+ColorRgb
+PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     Camera *camera,
     PhotonMapConfig *config,
     const RadianceMethod * /*radianceMethod*/)
@@ -289,8 +289,8 @@ Test next event estimator to the screen. The result is standard
 particle tracing, although constructing global & caustic together
 does not give correct display
 */
-static void
-photonMapDoScreenNEE(
+void
+PhotonMapRadianceMethod::photonMapDoScreenNEE(
     Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
@@ -317,7 +317,7 @@ photonMapDoScreenNEE(
             &pixX,
             &pixY) ) {
         // Visible !
-        f = photonMapDoComputePixelFluxEstimate(camera, config, radianceMethod);
+        f = PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(camera, config, radianceMethod);
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
@@ -341,8 +341,8 @@ photonMapDoScreenNEE(
 /**
 Store a photon. Some acceptance tests are performed first
 */
-static bool
-photonMapDoPhotonStore(
+bool
+PhotonMapRadianceMethod::photonMapDoPhotonStore(
     const Camera *camera,
     SimpleRaytracingPathNode *node,
     ColorRgb power)
@@ -354,7 +354,7 @@ photonMapDoPhotonStore(
         const PhongBidirectionalScatteringDistributionFunction *bsdf;
         bsdf = node->m_hit.getPatch()->material->getBsdf();
 
-        if ( !zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+        if ( !PhotonMap::zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
             CPhoton photon(node->m_hit.getPoint(), power, node->m_inDirF);
 
             // Determine photon flags
@@ -388,8 +388,8 @@ photonMapDoPhotonStore(
 /**
 Handle one path : store at all end positions and for testing, connect to the eye
 */
-static void
-photonMapHandlePath(
+void
+PhotonMapRadianceMethod::photonMapHandlePath(
     Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
     PhotonMapConfig *config,
@@ -419,19 +419,19 @@ photonMapHandlePath(
         // Store photon, but not emitted light
         if ( config->currentMap == config->globalMap ) {
             // Store
-            if ( bp->m_lightSize > 1 && photonMapDoPhotonStore(camera, currentNode, accPower) ) {
+            if ( bp->m_lightSize > 1 && PhotonMapRadianceMethod::photonMapDoPhotonStore(camera, currentNode, accPower) ) {
                 // Screen next event estimation for testing
                 bp->m_lightEndNode = currentNode;
-                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
+                PhotonMapRadianceMethod::photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
             }
         } else {
             // Caustic map...
             // Store
-            if ( bp->m_lightSize > 2 && photonMapDoPhotonStore(camera, currentNode, accPower) ) {
+            if ( bp->m_lightSize > 2 && PhotonMapRadianceMethod::photonMapDoPhotonStore(camera, currentNode, accPower) ) {
                 // Screen next event estimation for testing
 
                 bp->m_lightEndNode = currentNode;
-                photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
+                PhotonMapRadianceMethod::photonMapDoScreenNEE(camera, sceneWorldVoxelGrid, config, radianceMethod);
             }
         }
 
@@ -448,8 +448,8 @@ photonMapHandlePath(
     }
 }
 
-static void
-photonMapTracePath(
+void
+PhotonMapRadianceMethod::photonMapTracePath(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -485,24 +485,24 @@ photonMapTracePath(
     }
 }
 
-static void
-photonMapTracePaths(
+void
+PhotonMapRadianceMethod::photonMapTracePaths(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     int numberOfPaths,
-    char bsdfFlags = BSDF_ALL_COMPONENTS,
-    const RadianceMethod *radianceMethod = nullptr)
+    char bsdfFlags,
+    const RadianceMethod *radianceMethod)
 {
     // Fill in config structures
     for ( int i = 0; i < numberOfPaths; i++ ) {
-        photonMapTracePath(camera, sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
-        photonMapHandlePath(camera, sceneWorldVoxelGrid, &GLOBAL_photonMap_config, radianceMethod);
+        PhotonMapRadianceMethod::photonMapTracePath(camera, sceneWorldVoxelGrid, sceneBackground, &GLOBAL_photonMap_config, bsdfFlags);
+        PhotonMapRadianceMethod::photonMapHandlePath(camera, sceneWorldVoxelGrid, &GLOBAL_photonMap_config, radianceMethod);
     }
 }
 
-static void
-photonMapBRRealIteration(
+void
+PhotonMapRadianceMethod::photonMapBRRealIteration(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
@@ -525,7 +525,7 @@ photonMapBRRealIteration(
         GLOBAL_photonMap_config.currentMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
         GLOBAL_photonMap_config.importanceCMap->setTotalPaths(GLOBAL_photonMap_state.totalIPaths);
 
-        tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, static_cast<int>(GLOBAL_photonMap_state.iPathsPerIteration));
+        PhotonMapImportance::tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, static_cast<int>(GLOBAL_photonMap_state.iPathsPerIteration));
 
         java::lang::System::err.printf("Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
@@ -542,7 +542,7 @@ photonMapBRRealIteration(
         // Set correct importance map: indirect importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceMap;
 
-        photonMapTracePaths(
+        PhotonMapRadianceMethod::photonMapTracePaths(
                 camera,
                 sceneWorldVoxelGrid,
                 sceneBackground,
@@ -564,7 +564,7 @@ photonMapBRRealIteration(
         // Set correct importance map: direct importance
         GLOBAL_photonMap_config.currentImpMap = GLOBAL_photonMap_config.importanceCMap;
 
-        photonMapTracePaths(
+        PhotonMapRadianceMethod::photonMapTracePaths(
             camera,
             sceneWorldVoxelGrid,
             sceneBackground,
@@ -586,8 +586,8 @@ bool
 PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions */*renderOptions*/) {
     GLOBAL_photonMap_state.lastClock = java::lang::System::nanoTime();
 
-    photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
-    photonMapRadiosityUpdateCpuSecs();
+    PhotonMapRadianceMethod::photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
+    PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs();
 
     GLOBAL_photonMap_state.runStopNumber++;
 
@@ -632,7 +632,7 @@ PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
 Returns the radiance emitted in the node related direction
 */
 ColorRgb
-photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
+PhotonMapRadianceMethod::getNodeGRadiance(SimpleRaytracingPathNode *node) {
     ColorRgb col;
 
     GLOBAL_photonMap_config.globalMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
@@ -646,7 +646,7 @@ photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node) {
 Returns the radiance emitted in the node related direction
 */
 ColorRgb
-photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node) {
+PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) {
     ColorRgb col;
 
     GLOBAL_photonMap_config.causticMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
@@ -678,7 +678,7 @@ PhotonMapRadianceMethod::getRadiance(
     hit.shadingNormal(&normal);
     hit.setNormal(&normal);
 
-    if ( zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+    if ( PhotonMap::zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
         radiance.clear();
         return radiance;
     }
@@ -709,14 +709,14 @@ PhotonMapRadianceMethod::getRadiance(
                 density = GLOBAL_photonMap_config.importanceCMap->getRequiredDensity(
                         camera, hit.getPoint(), nn);
                 hit.setNormal(&nn);
-                radiance = getFalseColor(density);
+                radiance = PhotonMap::getFalseColor(density);
             }
             break;
         case RadiosityReturnOption::REC_G_DENSITY:
             GLOBAL_photonMap_config.importanceMap->doBalancing(GLOBAL_photonMap_state.balanceKDTree);
             density = GLOBAL_photonMap_config.importanceMap->getRequiredDensity(
                     camera, hit.getPoint(), hit.getNormal());
-            radiance = getFalseColor(density);
+            radiance = PhotonMap::getFalseColor(density);
             break;
         case RadiosityReturnOption::GLOBAL_RADIANCE:
             radiance = GLOBAL_photonMap_config.globalMap->reconstruct(
@@ -750,49 +750,49 @@ PhotonMapRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];
     int statsOffset = 0;
 
-    appendStatsText(stats, &statsOffset, "Photon map Statistics:\n\n");
-    appendStatsText(stats, &statsOffset, "Ray count %li\n", GLOBAL_raytracer_rayCount);
-    appendStatsText(stats, &statsOffset, "Time %g\n", GLOBAL_photonMap_state.cpuSecs);
+    PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Photon map Statistics:\n\n");
+    PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Ray count %li\n", GLOBAL_raytracer_rayCount);
+    PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Time %g\n", GLOBAL_photonMap_state.cpuSecs);
 
     if ( GLOBAL_photonMap_config.globalMap ) {
-        appendStatsText(stats, &statsOffset, "Global Map: ");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Global Map: ");
         if ( statsOffset < STRING_LENGTH - 1 ) {
             GLOBAL_photonMap_config.globalMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
             while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
                 statsOffset++;
             }
         }
-        appendStatsText(stats, &statsOffset, "\n");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.causticMap ) {
-        appendStatsText(stats, &statsOffset, "Caustic Map: ");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Caustic Map: ");
         if ( statsOffset < STRING_LENGTH - 1 ) {
             GLOBAL_photonMap_config.causticMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
             while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
                 statsOffset++;
             }
         }
-        appendStatsText(stats, &statsOffset, "\n");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.importanceMap ) {
-        appendStatsText(stats, &statsOffset, "Global Importance Map: ");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Global Importance Map: ");
         if ( statsOffset < STRING_LENGTH - 1 ) {
             GLOBAL_photonMap_config.importanceMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
             while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
                 statsOffset++;
             }
         }
-        appendStatsText(stats, &statsOffset, "\n");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "\n");
     }
     if ( GLOBAL_photonMap_config.importanceCMap ) {
-        appendStatsText(stats, &statsOffset, "Caustic Importance Map: ");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Caustic Importance Map: ");
         if ( statsOffset < STRING_LENGTH - 1 ) {
             GLOBAL_photonMap_config.importanceCMap->getStats(&stats[statsOffset], STRING_LENGTH - statsOffset);
             while ( statsOffset < STRING_LENGTH - 1 && stats[statsOffset] != '\0' ) {
                 statsOffset++;
             }
         }
-        appendStatsText(stats, &statsOffset, "\n");
+        PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "\n");
     }
 
     return stats;

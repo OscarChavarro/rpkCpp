@@ -1,6 +1,6 @@
 #include "photonMap/DiscreteSampling.h"
 int
-discreteSample(
+DiscreteSampling::sample(
     const double probabilities[],
     double total,
     double *x1,

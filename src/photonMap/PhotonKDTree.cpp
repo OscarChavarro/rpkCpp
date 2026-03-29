@@ -8,7 +8,7 @@ Implementation of specific kdtree for photonmaps
 static NormalQuery qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
-static float sqrDistance3D(const float *a, const float *b) {
+float PhotonKDTree::sqrDistance3D(const float *a, const float *b) {
     float result;
     float tmp;
 
@@ -66,7 +66,7 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
         }
     }
 
-    dist = ::sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
+    dist = PhotonKDTree::sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
 
     // Normal constraint
     if ( dist < qdat_s.maximumDistance &&

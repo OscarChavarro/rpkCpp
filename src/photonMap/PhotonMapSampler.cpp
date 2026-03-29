@@ -152,8 +152,8 @@ PhotonMapSampler::sample(
 6. fresnel reflection/refraction multiplied by appropriate scattering powers
 7. node filled in.
 */
-static RefractionIndex
-bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
+RefractionIndex
+PhotonMapSampler::bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     RefractionIndex nc{};
 
     if ( bsdf == nullptr ) {
@@ -170,8 +170,8 @@ bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf) {
     return nc;
 }
 
-static bool
-chooseFresnelDirection(
+bool
+PhotonMapSampler::chooseFresnelDirection(
     SimpleRaytracingPathNode *thisNode,
     char flags,
     double x2,
@@ -181,8 +181,8 @@ chooseFresnelDirection(
     bool *doCosInverse)
 {
     // Index of refractions are taken
-    RefractionIndex nc_in = bsdfGeometricIOR(thisNode->m_inBsdf);
-    RefractionIndex nc_out = bsdfGeometricIOR(thisNode->m_outBsdf);
+    RefractionIndex nc_in = PhotonMapSampler::bsdfGeometricIOR(thisNode->m_inBsdf);
+    RefractionIndex nc_out = PhotonMapSampler::bsdfGeometricIOR(thisNode->m_outBsdf);
 
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
@@ -333,7 +333,7 @@ PhotonMapSampler::fresnelSample(
     bool doCosInverse;
     ColorRgb scatteringColor;
 
-    if ( !chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
+    if ( !PhotonMapSampler::chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
                                  &scatteringColor, &doCosInverse) ) {
         return false;
     }

@@ -9,6 +9,7 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 #include "photonMap/Photon.h"
 class PhotonKDTree final : public KDTree {
   private:
+    static float sqrDistance3D(const float *a, const float *b);
     void NormalBQuery_rec(int index);
 
   public:

@@ -5,7 +5,59 @@
 #include "scene/RadianceMethod.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 #include "photonMap/PhotonMap.h"
+
+class SurfaceSampler;
+class PhotonMapConfig;
+
 class PhotonMapRadianceMethod final : public RadianceMethod {
+  private:
+    static void appendStatsText(char *buffer, int *offset, const char *format, ...);
+    static void photonMapRadiosityUpdateCpuSecs();
+    static void photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr);
+    static ColorRgb
+    photonMapDoComputePixelFluxEstimate(
+        Camera *camera,
+        PhotonMapConfig *config,
+        const RadianceMethod *radianceMethod);
+    static void
+    photonMapDoScreenNEE(
+        Camera *camera,
+        const VoxelGrid *sceneWorldVoxelGrid,
+        PhotonMapConfig *config,
+        const RadianceMethod *radianceMethod);
+    static bool
+    photonMapDoPhotonStore(
+        const Camera *camera,
+        SimpleRaytracingPathNode *node,
+        ColorRgb power);
+    static void
+    photonMapHandlePath(
+        Camera *camera,
+        const VoxelGrid *sceneWorldVoxelGrid,
+        PhotonMapConfig *config,
+        const RadianceMethod *radianceMethod);
+    static void
+    photonMapTracePath(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        PhotonMapConfig *config,
+        char bsdfFlags);
+    static void
+    photonMapTracePaths(
+        Camera *camera,
+        VoxelGrid *sceneWorldVoxelGrid,
+        Background *sceneBackground,
+        int numberOfPaths,
+        char bsdfFlags = BSDF_ALL_COMPONENTS,
+        const RadianceMethod *radianceMethod = nullptr);
+    static void
+    photonMapBRRealIteration(
+        Camera *camera,
+        VoxelGrid *sceneWorldVoxelGrid,
+        Background *sceneBackground,
+        const RadianceMethod *radianceMethod);
+
   public:
     PhotonMapRadianceMethod();
     ~PhotonMapRadianceMethod() final;
@@ -24,9 +76,9 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
         const Camera *camera,
         java::io::OutputStream *outputStream,
         const RenderOptions *renderOptions) const final;
-};
 
-ColorRgb photonMapGetNodeGRadiance(SimpleRaytracingPathNode *node);
-ColorRgb photonMapGetNodeCRadiance(SimpleRaytracingPathNode *node);
+    static ColorRgb getNodeGRadiance(SimpleRaytracingPathNode *node);
+    static ColorRgb getNodeCRadiance(SimpleRaytracingPathNode *node);
+};
 
 #endif

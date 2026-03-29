@@ -528,14 +528,14 @@ stochasticRaytracerGetRadiance(
                     float dist2 = thisNode->m_hit.getPoint().distance2(thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
-                        radiance = photonMapGetNodeGRadiance(thisNode);
+                        radiance = PhotonMapRadianceMethod::getNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
                         radiance.clear();
                         readout = StorageReadout::SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
-                    radiance = photonMapGetNodeGRadiance(thisNode);
+                    radiance = PhotonMapRadianceMethod::getNodeGRadiance(thisNode);
                     // This does not include Le (self emitted light)
                 }
             } else {
@@ -571,7 +571,7 @@ stochasticRaytracerGetRadiance(
 
         // Stored caustic maps
         if ( (config->radMode == RayTracingRadMode::STORED_PHOTON_MAP) && readout == StorageReadout::SCATTER ) {
-            radiance = photonMapGetNodeCRadiance(thisNode);
+            radiance = PhotonMapRadianceMethod::getNodeCRadiance(thisNode);
             result.add(result, radiance);
         }
 

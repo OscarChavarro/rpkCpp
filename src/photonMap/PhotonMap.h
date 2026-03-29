@@ -9,10 +9,6 @@
 #include "photonMap/PhotonKDTree.h"
 #include "photonMap/PhotonMapState.h"
 #include "photonMap/SampleGrid2D.h"
-bool zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
-
-// Convert a value val given a maximum into some nice color
-ColorRgb getFalseColor(float val);
 
 class PhotonMap {
   protected:
@@ -83,7 +79,18 @@ class PhotonMap {
     // Add a photon taking possible irrPhoton into account
     void doAddPhoton(CPhoton &photon, Vector3D normal, short flags);
 
+  private:
+    static float getFalseMonochrome(float val);
+    static double computeAcceptProb(float currentD, float requiredD);
+    static void precomputeIrradianceCallback(void *data, void *nodeData);
+
   public:
+    static bool
+    zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
+
+    // Convert a value val given a maximum into some nice color
+    static ColorRgb getFalseColor(float val);
+
     explicit PhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
     virtual ~PhotonMap();
 

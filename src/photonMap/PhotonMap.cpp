@@ -8,7 +8,7 @@
 #include "common/Statistics.h"
 #include "photonMap/PhotonMap.h"
 bool
-zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
+PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb color;
     if ( bsdf == nullptr ) {
         color.clear();
@@ -18,8 +18,8 @@ zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit 
     return (color.average() < Numeric::EPSILON);
 }
 
-static float
-getFalseMonochrome(float val) {
+float
+PhotonMap::getFalseMonochrome(float val) {
     float max = GLOBAL_photonMap_state.falseColMax;
 
     if ( GLOBAL_photonMap_state.falseColLog ) {
@@ -34,7 +34,7 @@ getFalseMonochrome(float val) {
 }
 
 ColorRgb
-getFalseColor(float val) {
+PhotonMap::getFalseColor(float val) {
     ColorRgb col;
     float tmp;
     float r = 0;
@@ -42,7 +42,7 @@ getFalseColor(float val) {
     float b = 0;
 
     if ( GLOBAL_photonMap_state.falseColMono ) {
-        tmp = getFalseMonochrome(val);
+        tmp = PhotonMap::getFalseMonochrome(val);
         col.set(tmp, tmp, tmp);
         return col;
     }
@@ -178,7 +178,7 @@ PhotonMap::addPhoton(CPhoton &photon, Vector3D normal, short flags) {
 }
 
 double
-ComputeAcceptProb(float currentD, float requiredD) {
+PhotonMap::computeAcceptProb(float currentD, float requiredD) {
     // Step function
     if ( GLOBAL_photonMap_state.acceptPdfType == PhotonMapDCAcceptPDFType::STEP ) {
         if ( currentD > requiredD ) {
@@ -192,7 +192,7 @@ ComputeAcceptProb(float currentD, float requiredD) {
 
         return (0.5 * (1.0 + java::Math::cos(ratio * M_PI)));
     } else {
-        Error::error("ComputeAcceptProb", "Unknown accept pdf type");
+        Error::error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
         return 0.0;
     }
 }
@@ -235,7 +235,7 @@ PhotonMap::DC_AddPhoton(
 
     // Compute acceptance probability
 
-    double acceptProb = ComputeAcceptProb(currentD, requiredD);
+    double acceptProb = PhotonMap::computeAcceptProb(currentD, requiredD);
 
     // Debug trace for acceptance probability and density values.
 
@@ -311,8 +311,8 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, CIrrPhoton *photon) {
     photon->SetIrradiance(irradiance);
 }
 
-static void
-PrecomputeIrradianceCallback(void *data, void *nodeData) {
+void
+PhotonMap::precomputeIrradianceCallback(void *data, void *nodeData) {
     PhotonMap *map = static_cast<PhotonMap *>(data);
     CIrrPhoton *photon = static_cast<CIrrPhoton *>(nodeData);
     map->photonPrecomputeIrradiance(nullptr, photon);
@@ -322,7 +322,7 @@ void
 PhotonMap::precomputeIrradiance() {
     java::lang::System::err.printf("PhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
-        m_kdtree->iterateNodes(PrecomputeIrradianceCallback, this);
+        m_kdtree->iterateNodes(PhotonMap::precomputeIrradianceCallback, this);
         m_irradianceComputed = true;
     }
 }
@@ -470,7 +470,7 @@ ColorRgb
 PhotonMap::getDensityColor(RayHit &hit) {
     float density = getCurrentDensity(hit, 0);
 
-    ColorRgb result = getFalseColor(density);
+    ColorRgb result = PhotonMap::getFalseColor(density);
 
     return result;
 }

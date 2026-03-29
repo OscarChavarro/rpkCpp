@@ -12,25 +12,25 @@ Importon tracing
 /**
 Store a importon/poton. Some acceptance tests are performed first
 **/
-static bool
-HasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
+bool
+PhotonMapImportance::hasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.getPatch()->material ) {
         const PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->material->getBsdf();
-        return !zeroAlbedo(bsdf, &node->m_hit,
+        return !PhotonMap::zeroAlbedo(bsdf, &node->m_hit,
                            BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
     } else {
         return false;
     }
 }
 
-static bool
-BounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node) {
+bool
+PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node) {
     return node->m_usedComponents & (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
 }
 
-static bool
-DoImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
-    if ( HasDiffuseOrGlossy(node) ) {
+bool
+PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
+    if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
         float importanceF = importance.average();
         float potentialF = 1.0;
 
@@ -46,8 +46,8 @@ DoImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb i
 }
 
 // Returns whether a valid potential path was returned.
-static bool
-tracePotentialPath(
+bool
+PhotonMapImportance::tracePotentialPath(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -97,7 +97,7 @@ tracePotentialPath(
         const SimpleRaytracingPathNode *prev = node->previous();
 
         // Determine scatter type
-        bool didDG = BounceDiffuseOrGlossy(prev);
+        bool didDG = PhotonMapImportance::bounceDiffuseOrGlossy(prev);
         bool tooClose = (node->m_G > GLOBAL_photonMap_state.gThreshold);
 
         if ( didDG && !tooClose ) {
@@ -113,7 +113,7 @@ tracePotentialPath(
         ImportanceMap *imap = (indirectImportance ? config->importanceMap :
                                 config->importanceCMap);
         if ( imap ) {
-            DoImportanceStore(imap, node, accImportance);
+            PhotonMapImportance::doImportanceStore(imap, node, accImportance);
         }
 
         // New node
@@ -127,7 +127,7 @@ tracePotentialPath(
 }
 
 void
-tracePotentialPaths(
+PhotonMapImportance::tracePotentialPaths(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -138,7 +138,7 @@ tracePotentialPaths(
     GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
 
     for ( int i = 0; i < numberOfPaths; i++ ) {
-        tracePotentialPath(camera, sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
+        PhotonMapImportance::tracePotentialPath(camera, sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
     }
 
     GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state

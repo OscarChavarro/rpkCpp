@@ -83,10 +83,10 @@ SampleGrid2D::sample(double *x, double *y, double *probabilityDensityFunction) c
     }
 
     // Choose x row
-    xIndex = discreteSample(ySums, totalSum, x, &xPdf);
+    xIndex = DiscreteSampling::sample(ySums, totalSum, x, &xPdf);
 
     // Choose y column
-    yIndex = discreteSample(values + xIndex * ySections, ySums[xIndex], y, &yPdf);
+    yIndex = DiscreteSampling::sample(values + xIndex * ySections, ySums[xIndex], y, &yPdf);
 
     *probabilityDensityFunction = xPdf * yPdf;
 
@@ -103,4 +103,3 @@ SampleGrid2D::sample(double *x, double *y, double *probabilityDensityFunction) c
     *y = (*y + yIndex) * range;
     *probabilityDensityFunction /= range;  // Uniform sampling: pdf = 1/A(xi,yi) * p(xi) * p(yi)
 }
-

@@ -19,6 +19,19 @@ class PhotonMapSampler final : public BsdfSampler {
   private:
     PhotonMap *m_photonMap; // To be used for importance sampling
 
+    static RefractionIndex
+    bsdfGeometricIOR(const PhongBidirectionalScatteringDistributionFunction *bsdf);
+
+    static bool
+    chooseFresnelDirection(
+        SimpleRaytracingPathNode *thisNode,
+        char flags,
+        double x2,
+        Vector3D *dir,
+        double *pdfDir,
+        ColorRgb *scatteringColor,
+        bool *doCosInverse);
+
     bool
     fresnelSample(
         VoxelGrid *sceneVoxelGrid,
