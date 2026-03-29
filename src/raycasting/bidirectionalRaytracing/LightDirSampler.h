@@ -10,7 +10,7 @@ It's kind of a dual of a pixel sampler.
 
 #ifdef RAYTRACING_ENABLED
 
-#include "raycasting/raytracing/sampler.h"
+#include "raycasting/raytracing/Sampler.h"
 
 class LightDirSampler final : public Sampler {
 public:

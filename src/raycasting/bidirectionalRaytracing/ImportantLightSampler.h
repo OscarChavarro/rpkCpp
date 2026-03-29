@@ -6,7 +6,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "raycasting/raytracing/sampler.h"
+#include "raycasting/raytracing/Sampler.h"
 
 class ImportantLightSampler final : public CNextEventSampler {
   public:

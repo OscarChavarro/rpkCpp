@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
 

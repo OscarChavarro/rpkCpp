@@ -22,6 +22,11 @@ class TransformStackContext;
 class Patch;
 class Vector3D;
 class Vertex;
+class BinaryModelReaderIndexListRecord;
+class BinaryModelReaderVertexRecord;
+class BinaryModelReaderPatchRecord;
+class BinaryModelReaderGeometryRecord;
+class BinaryModelReaderModelRecord;
 
 class BinaryModelReader {
   public:
@@ -31,16 +36,10 @@ class BinaryModelReader {
     static const unsigned char BINARY_MODEL_MAGIC[16];
     static const int BINARY_MODEL_VERSION;
 
-    class IndexListRecord;
-    class VertexRecord;
-    class PatchRecord;
-    class GeometryRecord;
-    class ModelRecord;
-
     template <typename T>
     static bool initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what);
 
-    static void releaseIndexListRecord(IndexListRecord *record);
+    static void releaseIndexListRecord(BinaryModelReaderIndexListRecord *record);
     static void readBytes(java::io::InputStream &input, unsigned char *buffer, int length);
     static bool readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length);
     static unsigned char readByte(java::io::InputStream &input);
@@ -58,20 +57,20 @@ class BinaryModelReader {
     static bool readVector(java::io::InputStream &input, Vector3D *vector);
     static bool readBoundingBoxCoordinates(java::io::InputStream &input, float coordinates[6]);
     static bool setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]);
-    static bool readIndexList(java::io::InputStream &input, const char *what, IndexListRecord *record);
+    static bool readIndexList(java::io::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record);
 
     template <typename T>
     static bool pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result);
 
     template <typename T>
     static bool arrayListFromIndices(
-        const IndexListRecord &record,
+        const BinaryModelReaderIndexListRecord &record,
         const java::ArrayList<T *> &values,
         const char *what,
         java::ArrayList<T *> **result);
 
     static bool validateBinaryHeader(java::io::InputStream &input);
-    static bool populateModelStrings(PersistedSceneModel *model, const ModelRecord &record);
+    static bool populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record);
     static void cleanupPartialModel(
         java::ArrayList<Vector3D *> &vectors,
         java::ArrayList<Vertex *> &vertices,
@@ -83,9 +82,9 @@ class BinaryModelReader {
         java::ArrayList<TransformArray *> &transformArrays,
         java::ArrayList<TransformStackContext *> &transformContexts,
         PersistedSceneModel *model);
-    static void releaseVertexRecordIndexLists(java::ArrayList<VertexRecord> &vertexRecords);
-    static void releaseGeometryRecordIndexLists(java::ArrayList<GeometryRecord> &geometryRecords);
-    static void releaseModelRecordIndexLists(ModelRecord *modelRecord);
+    static void releaseVertexRecordIndexLists(java::ArrayList<BinaryModelReaderVertexRecord> &vertexRecords);
+    static void releaseGeometryRecordIndexLists(java::ArrayList<BinaryModelReaderGeometryRecord> &geometryRecords);
+    static void releaseModelRecordIndexLists(BinaryModelReaderModelRecord *modelRecord);
 };
 
 #endif

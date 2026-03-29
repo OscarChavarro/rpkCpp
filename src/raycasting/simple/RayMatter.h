@@ -7,7 +7,7 @@
 
 #include "raycasting/common/PixelFilter.h"
 #include "render/ScreenBuffer.h"
-#include "raycasting/common/Raytracer.h"
+#include "raycasting/common/RayTracer.h"
 #include "raycasting/simple/RayMatterState.h"
 #include "raycasting/simple/RayMatterFilterType.h"
 

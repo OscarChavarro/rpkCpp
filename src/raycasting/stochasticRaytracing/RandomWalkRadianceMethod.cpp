@@ -1,16 +1,14 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/Statistics.h"
-
-#include "raycasting/stochasticRaytracing/mcradP.h"
+#include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "raycasting/stochasticRaytracing/stochjacobi.h"
-#include "raycasting/stochasticRaytracing/tracepath.h"
+#include "raycasting/stochasticRaytracing/Stochjacobi.h"
+#include "raycasting/stochasticRaytracing/Tracepath.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -162,7 +160,7 @@ randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
 }
 
 static double
-randomWalkRadiosityScoreWeight(const PATH *path, int n) {
+randomWalkRadiosityScoreWeight(const Path *path, int n) {
     double w = 0.0;
     int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
 
@@ -209,7 +207,7 @@ randomWalkRadiosityScoreWeight(const PATH *path, int n) {
 }
 
 static void
-randomWalkRadiosityShootingScore(const PATH *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
+randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumPow;
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
@@ -356,7 +354,7 @@ randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patc
 }
 
 static void
-randomWalkRadiosityCollisionGatheringScore(const PATH *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
+randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
     ColorRgb accumRad;
     const int lastNodeIndex = path->numberOfNodes - 1;
     accumRad = topLevelStochasticRadiosityElement(path->nodes[lastNodeIndex].patch)->sourceRad;

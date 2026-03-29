@@ -1,7 +1,7 @@
 #ifndef __C_NEXT_EVENT_SAMPLER__
 #define __C_NEXT_EVENT_SAMPLER__
 
-#include "raycasting/raytracing/sampler.h"
+#include "raycasting/raytracing/Sampler.h"
 
 /**
 Next event samplers provide a few functions to

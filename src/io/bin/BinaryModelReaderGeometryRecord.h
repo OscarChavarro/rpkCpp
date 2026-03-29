@@ -1,10 +1,9 @@
 #ifndef __BINARY_MODEL_READER_GEOMETRY_RECORD__
 #define __BINARY_MODEL_READER_GEOMETRY_RECORD__
 
-#include "io/bin/BinaryModelReader.h"
 #include "io/bin/BinaryModelReaderIndexListRecord.h"
 
-class BinaryModelReader::GeometryRecord {
+class BinaryModelReaderGeometryRecord {
   public:
     int classId;
     int id;
@@ -21,13 +20,15 @@ class BinaryModelReader::GeometryRecord {
     char *objectName;
     int meshId;
     int materialIndex;
-    IndexListRecord positions;
-    IndexListRecord normals;
-    IndexListRecord vertices;
-    IndexListRecord faces;
+    BinaryModelReaderIndexListRecord positions;
+    BinaryModelReaderIndexListRecord normals;
+    BinaryModelReaderIndexListRecord vertices;
+    BinaryModelReaderIndexListRecord faces;
 
-    IndexListRecord children;
-    IndexListRecord patchSetPatches;
+    BinaryModelReaderIndexListRecord children;
+    BinaryModelReaderIndexListRecord patchSetPatches;
+
+    BinaryModelReaderGeometryRecord();
 };
 
 #endif

@@ -2,17 +2,16 @@
 #define __ELEMENT_HIERARCHY_STATE__
 
 #include "java/util/ArrayList.h"
-
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 
-class LINK;
+class Link;
 class RenderOptions;
 class StochasticRadiosityElement;
 class Vector3D;
 class Vertex;
 
-typedef LINK *(*REFINE_ACTION)(
-    LINK *link,
+typedef Link *(*REFINE_ACTION)(
+    Link *link,
     StochasticRadiosityElement *rcvtop,
     double *ur,
     double *vr,
@@ -21,7 +20,7 @@ typedef LINK *(*REFINE_ACTION)(
     double *vs,
     const RenderOptions *renderOptions);
 
-typedef REFINE_ACTION (*ORACLE)(const LINK *link);
+typedef REFINE_ACTION (*ORACLE)(const Link *link);
 
 /**
 Global parameters controlling hierarchical refinement

@@ -2,10 +2,9 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-
 #include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
-#include "raycasting/bidirectionalRaytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/Kernel2D.h"
 
 inline int
 DensityBuffer::xIndex(float x) const {
@@ -73,7 +72,7 @@ DensityBuffer::reconstruct() {
 
     int maxK;
     DensityHit hit;
-    CKernel2D kernel;
+    Kernel2D kernel;
     Vector2D center;
 
     kernel.SetH(h);
@@ -107,7 +106,7 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
 
     int maxK;
     DensityHit hit;
-    CKernel2D kernel;
+    Kernel2D kernel;
     Vector2D center;
 
     for ( int i = 0; i < DHA_X_RES; i++ ) {

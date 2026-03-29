@@ -5,7 +5,7 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include "raycasting/common/Raytracer.h"
+#include "raycasting/common/RayTracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 
 class BidirectionalPathRaytracer final : public RayTracer {

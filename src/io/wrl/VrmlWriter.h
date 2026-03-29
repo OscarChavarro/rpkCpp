@@ -6,11 +6,8 @@ Saves the result of a radiosity computation as a VRML file
 #define __VRML_WRITER__
 
 #include "java/io/OutputStream.h"
-
 #include "common/linealAlgebra/Matrix4x4.h"
-
 #include "common/RenderOptions.h"
-
 #include "scene/Camera.h"
 
 class VrmlWriter {

@@ -2,7 +2,6 @@
 #define __COLOR__
 
 #include "java/io/PrintStream.h"
-
 #include "common/Cie.h"
 
 /**

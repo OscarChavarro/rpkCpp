@@ -1,9 +1,7 @@
 #include <GL/gl.h>
 
 #include "java/util/ArrayList.txx"
-
-#include "GALERKIN/basisgalerkin.h"
-
+#include "galerkin/GalerkinBasis.h"
 #include "app/GalerkinDebugRenderer.h"
 
 void

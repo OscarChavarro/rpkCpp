@@ -1,6 +1,5 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "scene/Scene.h"
 
 static const char *globalCompoundType = "Compound";

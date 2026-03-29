@@ -6,7 +6,6 @@ General definitions for edf, brdf, btdf, etc.
 #define __XXDF__
 
 #include "common/linealAlgebra/Vector3D.h"
-
 #include "material/BsdfComponentFlags.h"
 #include "material/RefractionIndex.h"
 

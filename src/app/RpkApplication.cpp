@@ -1,34 +1,27 @@
 #include <cstring>
 
 #include "common/RenderOptions.h"
-
 #include "scene/PatchClusterOctreeNode.h"
-
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
-
 #include "numericalAnalysis/QuadCubatureRule.h"
-
-#include "io/mgf/readmgf.h"
-
-#include "io/image/dkcolor.h"
-
-#include "GALERKIN/GalerkinRadianceMethod.h"
-#include "GALERKIN/processing/ClusterCreationStrategy.h"
-
-#include "app/batch.h"
-#include "app/commandLine.h"
-#include "app/options.h"
-#include "app/radiance.h"
+#include "io/mgf/Readmgf.h"
+#include "io/image/Dkcolor.h"
+#include "galerkin/GalerkinRadianceMethod.h"
+#include "galerkin/processing/ClusterCreationStrategy.h"
+#include "app/Batch.h"
+#include "app/CommandLine.h"
+#include "app/Options.h"
+#include "app/Radiance.h"
 #include "app/RpkApplication.h"
-#include "app/sceneBuilder.h"
+#include "app/SceneBuilder.h"
 
 #ifdef RAYTRACING_ENABLED
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-    #include "app/raytrace.h"
+#include "app/Raytrace.h"
 #endif
 
 static constexpr bool DEFAULT_MONOCHROME = false;

@@ -25,6 +25,7 @@ class TransformStackContext;
 class Patch;
 class Vector3D;
 class Vertex;
+class BinaryModelWriterSerializationContext;
 
 class BinaryModelWriter {
   public:
@@ -33,8 +34,6 @@ class BinaryModelWriter {
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
     static const int BINARY_MODEL_VERSION;
-
-    class SerializationContext;
 
     static bool writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length);
     static void writeTag(java::io::OutputStream &output, const char tag[4]);
@@ -59,16 +58,16 @@ class BinaryModelWriter {
     static bool writeReaderContextRecord(
         java::io::OutputStream &output,
         const ReaderContext *readerContext,
-        const SerializationContext &context);
+        const BinaryModelWriterSerializationContext &context);
     static void writeTransformArrayRecord(java::io::OutputStream &output, const TransformArray *transformArray);
     static bool writeTransformContextRecord(
         java::io::OutputStream &output,
         const TransformStackContext *transformContext,
-        const SerializationContext &context);
-    static bool writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const SerializationContext &context);
-    static bool writePatchRecord(java::io::OutputStream &output, const Patch *patch, const SerializationContext &context);
-    static bool writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const SerializationContext &context);
-    static bool writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const SerializationContext &context);
+        const BinaryModelWriterSerializationContext &context);
+    static bool writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context);
+    static bool writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context);
+    static bool writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context);
+    static bool writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context);
 };
 
 #endif

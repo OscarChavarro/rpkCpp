@@ -5,8 +5,8 @@
 
 #ifdef RAYTRACING_ENABLED
 
-#include "raycasting/common/Raytracer.h"
-#include "raycasting/stochasticRaytracing/rtstochasticphotonmap.h"
+#include "raycasting/common/RayTracer.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 
 class StochasticRaytracer final : public RayTracer {
   private:

@@ -2,7 +2,6 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-
 #include "common/Error.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 

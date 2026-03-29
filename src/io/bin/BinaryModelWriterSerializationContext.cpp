@@ -1,0 +1,408 @@
+#include <cstddef>
+
+#include "java/util/ArrayList.txx"
+#include "java/util/HashMap.txx"
+#include "common/Error.h"
+#include "material/Material.h"
+#include "skin/Compound.h"
+#include "skin/Geometry.h"
+#include "skin/MeshSurface.h"
+#include "skin/Patch.h"
+#include "skin/PatchSet.h"
+#include "skin/Vertex.h"
+#include "io/context/ColorContext.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformStackContext.h"
+#include "io/bin/BinaryModelWriterSerializationContext.h"
+
+bool
+BinaryModelWriterSerializationContext::ensureVector(const Vector3D *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( vectorIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(vectors.size());
+    if ( !vectors.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureVector", "Failed to append vector");
+        return false;
+    }
+    if ( !vectorIndices.put(value, index) ) {
+        vectors.remove(vectors.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureVector", "Failed to index vector");
+        return false;
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureMaterial(const Material *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( materialIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(materials.size());
+    if ( !materials.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureMaterial", "Failed to append material");
+        return false;
+    }
+    if ( !materialIndices.put(value, index) ) {
+        materials.remove(materials.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureMaterial", "Failed to index material");
+        return false;
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureVertex(const Vertex *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( vertexIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+
+    if ( value->radianceData != nullptr ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+        return false;
+    }
+
+    const int index = static_cast<int>(vertices.size());
+    if ( !vertices.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Failed to append vertex");
+        return false;
+    }
+    if ( !vertexIndices.put(value, index) ) {
+        vertices.remove(vertices.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Failed to index vertex");
+        return false;
+    }
+
+    if ( !ensureVector(value->point) ) {
+        return false;
+    }
+    if ( !ensureVector(value->normal) ) {
+        return false;
+    }
+    if ( !ensureVector(value->textureCoordinates) ) {
+        return false;
+    }
+    if ( !ensureVertex(value->back) ) {
+        return false;
+    }
+
+    if ( value->patches != nullptr ) {
+        for ( int i = 0; i < value->patches->size(); i++ ) {
+            if ( !ensurePatch(value->patches->get(i)) ) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensurePatch(const Patch *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( patchIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+
+    if ( value->radianceData != nullptr ) {
+        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+        return false;
+    }
+
+    const int index = static_cast<int>(patches.size());
+    if ( !patches.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Failed to append patch");
+        return false;
+    }
+    if ( !patchIndices.put(value, index) ) {
+        patches.remove(patches.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Failed to index patch");
+        return false;
+    }
+
+    for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
+        if ( !ensureVertex(value->vertex[i]) ) {
+            return false;
+        }
+    }
+    if ( !ensurePatch(value->twin) ) {
+        return false;
+    }
+    if ( !ensureMaterial(value->material) ) {
+        return false;
+    }
+
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureGeometry(const Geometry *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( geometryIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+
+    if ( value->radianceData != nullptr ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+        return false;
+    }
+
+    const int index = static_cast<int>(geometries.size());
+    if ( !geometries.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Failed to append geometry");
+        return false;
+    }
+    if ( !geometryIndices.put(value, index) ) {
+        geometries.remove(geometries.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Failed to index geometry");
+        return false;
+    }
+
+    if ( value->className == GeometryClassId::SURFACE_MESH ) {
+        const MeshSurface *surface = static_cast<const MeshSurface *>(value);
+        if ( !ensureMaterial(surface->material) ) {
+            return false;
+        }
+        if ( !collectVectorList(surface->positions) ) {
+            return false;
+        }
+        if ( !collectVectorList(surface->normals) ) {
+            return false;
+        }
+        if ( !collectVertexList(surface->vertices) ) {
+            return false;
+        }
+        if ( !collectPatchList(surface->faces) ) {
+            return false;
+        }
+    } else if ( value->className == GeometryClassId::COMPOUND ) {
+        const Compound *compound = static_cast<const Compound *>(value);
+        if ( !collectGeometryList(compound->children) ) {
+            return false;
+        }
+    } else if ( value->className == GeometryClassId::PATCH_SET ) {
+        const PatchSet *patchSet = static_cast<const PatchSet *>(value);
+        if ( !collectPatchList(patchSet->getPatchList()) ) {
+            return false;
+        }
+    } else {
+        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+        return false;
+    }
+
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureColorContext(const ColorContext *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( colorContextIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(colorContexts.size());
+    if ( !colorContexts.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureColorContext", "Failed to append color context");
+        return false;
+    }
+    if ( !colorContextIndices.put(value, index) ) {
+        colorContexts.remove(colorContexts.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureColorContext", "Failed to index color context");
+        return false;
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureReaderContext(const ReaderContext *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( readerContextIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(readerContexts.size());
+    if ( !readerContexts.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureReaderContext", "Failed to append reader context");
+        return false;
+    }
+    if ( !readerContextIndices.put(value, index) ) {
+        readerContexts.remove(readerContexts.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureReaderContext", "Failed to index reader context");
+        return false;
+    }
+
+    return ensureReaderContext(value->prev);
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureTransformArray(const TransformArray *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( transformArrayIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(transformArrays.size());
+    if ( !transformArrays.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureTransformArray", "Failed to append transform array");
+        return false;
+    }
+    if ( !transformArrayIndices.put(value, index) ) {
+        transformArrays.remove(transformArrays.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureTransformArray", "Failed to index transform array");
+        return false;
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::ensureTransformContext(const TransformStackContext *value) {
+    if ( value == nullptr ) {
+        return true;
+    }
+    int existingIndex = -1;
+    if ( transformContextIndices.tryGet(value, &existingIndex) ) {
+        return true;
+    }
+    const int index = static_cast<int>(transformContexts.size());
+    if ( !transformContexts.add(value) ) {
+        Error::error("BinaryModelWriterSerializationContext::ensureTransformContext", "Failed to append transform context");
+        return false;
+    }
+    if ( !transformContextIndices.put(value, index) ) {
+        transformContexts.remove(transformContexts.size() - 1);
+        Error::error("BinaryModelWriterSerializationContext::ensureTransformContext", "Failed to index transform context");
+        return false;
+    }
+
+    if ( !ensureTransformArray(value->transformationArray) ) {
+        return false;
+    }
+    return ensureTransformContext(value->prev);
+}
+
+bool
+BinaryModelWriterSerializationContext::collectVectorList(const java::ArrayList<Vector3D *> *list) {
+    if ( list == nullptr ) {
+        return true;
+    }
+    for ( int i = 0; i < list->size(); i++ ) {
+        if ( !ensureVector(list->get(i)) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::collectVertexList(const java::ArrayList<Vertex *> *list) {
+    if ( list == nullptr ) {
+        return true;
+    }
+    for ( int i = 0; i < list->size(); i++ ) {
+        if ( !ensureVertex(list->get(i)) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::collectPatchList(const java::ArrayList<Patch *> *list) {
+    if ( list == nullptr ) {
+        return true;
+    }
+    for ( int i = 0; i < list->size(); i++ ) {
+        if ( !ensurePatch(list->get(i)) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::collectMaterialList(const java::ArrayList<Material *> *list) {
+    if ( list == nullptr ) {
+        return true;
+    }
+    for ( int i = 0; i < list->size(); i++ ) {
+        if ( !ensureMaterial(list->get(i)) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::collectGeometryList(const java::ArrayList<Geometry *> *list) {
+    if ( list == nullptr ) {
+        return true;
+    }
+    for ( int i = 0; i < list->size(); i++ ) {
+        if ( !ensureGeometry(list->get(i)) ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool
+BinaryModelWriterSerializationContext::collectModel(const PersistedSceneModel *model) {
+    if ( model == nullptr ) {
+        return true;
+    }
+
+    if ( !ensureColorContext(model->currentColor) ) {
+        return false;
+    }
+    if ( !collectPatchList(model->currentFaceList) ) {
+        return false;
+    }
+    if ( !collectGeometryList(model->currentGeometryList) ) {
+        return false;
+    }
+    if ( !collectMaterialList(model->materials) ) {
+        return false;
+    }
+    if ( !collectVectorList(model->currentNormalList) ) {
+        return false;
+    }
+    if ( !collectVectorList(model->currentPointList) ) {
+        return false;
+    }
+    if ( !collectVertexList(model->currentVertexList) ) {
+        return false;
+    }
+    if ( !collectGeometryList(model->geometries) ) {
+        return false;
+    }
+    if ( !ensureReaderContext(model->readerContext) ) {
+        return false;
+    }
+    return ensureTransformContext(model->transformContext);
+}

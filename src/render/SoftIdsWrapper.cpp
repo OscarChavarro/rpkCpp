@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-
 #include "render/SoftIdsWrapper.h"
 
 SoftIdsWrapper::SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions) {

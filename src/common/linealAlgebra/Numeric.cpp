@@ -1,5 +1,4 @@
 #include "java/lang/Float.h"
-
 #include "common/linealAlgebra/Numeric.h"
 
 const double Numeric::HUGE_DOUBLE_VALUE = 1e30;

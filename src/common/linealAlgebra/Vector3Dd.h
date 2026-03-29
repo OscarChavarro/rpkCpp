@@ -1,38 +1,38 @@
 #ifndef __VECTOR_3D_D__
 #define __VECTOR_3D_D__
 
-class VECTOR3Dd {
+class Vector3Dd {
   public:
     double x;
     double y;
     double z;
 
-    VECTOR3Dd();
-    VECTOR3Dd(double inX, double inY, double inZ);
-    virtual ~VECTOR3Dd();
+    Vector3Dd();
+    Vector3Dd(double inX, double inY, double inZ);
+    virtual ~Vector3Dd();
 
-    double distanceSquared(const VECTOR3Dd *v2) const;
-    double dotProduct(const VECTOR3Dd *b) const;
+    double distanceSquared(const Vector3Dd *v2) const;
+    double dotProduct(const Vector3Dd *b) const;
     bool isNull(double epsilon) const;
 
     // TODO: Replace this odd method with standard norm and normalize operations
     double normalizeAndGivePreviousNorm(double epsilon);
-    void crossProduct(const VECTOR3Dd *a, const VECTOR3Dd *b);
-    void copy(const VECTOR3Dd *source);
+    void crossProduct(const Vector3Dd *a, const Vector3Dd *b);
+    void copy(const Vector3Dd *source);
 };
 
 inline bool
-VECTOR3Dd::isNull(double epsilon) const {
+Vector3Dd::isNull(double epsilon) const {
     return dotProduct(this) <= epsilon * epsilon;
 }
 
 inline double
-VECTOR3Dd::dotProduct(const VECTOR3Dd *b) const {
+Vector3Dd::dotProduct(const Vector3Dd *b) const {
     return x * b->x + y * b->y + z * b->z;
 }
 
 inline void
-VECTOR3Dd::copy(const VECTOR3Dd *source) {
+Vector3Dd::copy(const Vector3Dd *source) {
     x = source->x;
     y = source->y;
     z = source->z;

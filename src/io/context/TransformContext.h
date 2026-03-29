@@ -5,7 +5,7 @@
 
 class TransformContext {
   public:
-    MATRIX4Dd transformMatrix;
+    Matrix4x4d transformMatrix;
     double scaleFactor;
 
     TransformContext();

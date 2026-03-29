@@ -4,7 +4,7 @@
 #include "common/ColorRgb.h"
 #include "common/dataStructures/CircularList.h"
 
-class CBiPath;
+class BiPath;
 class FlagChain;
 
 // A linked list of flag chains.
@@ -19,7 +19,7 @@ class FlagChainList final : private CircularList<FlagChain> {
     void add(const FlagChain &chain) final;
     void add(FlagChainList *list);
     void addDisjoint(const FlagChain &chain);
-    ColorRgb compute(CBiPath *path);
+    ColorRgb compute(BiPath *path);
     FlagChainList *simplify();
 };
 

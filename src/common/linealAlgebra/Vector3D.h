@@ -3,7 +3,6 @@
 
 #include "java/io/PrintStream.h"
 #include "java/lang/Math.h"
-
 #include "common/linealAlgebra/CoordinateAxis.h"
 #include "common/linealAlgebra/Numeric.h"
 

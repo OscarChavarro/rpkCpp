@@ -1,5 +1,4 @@
 #include "java/util/Formatter.h"
-
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -8,14 +7,13 @@
 #include <cstring>
 
 #include "java/lang/System.h"
-
 #include "common/StratifiedSampling2D.h"
-#include "raycasting/common/raytools.h"
-#include "raycasting/raytracing/eyesampler.h"
+#include "raycasting/common/Raytools.h"
+#include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
-#include "raycasting/raytracing/bsdfsampler.h"
-#include "raycasting/raytracing/screeniterate.h"
+#include "raycasting/raytracing/BsdfSampler.h"
+#include "raycasting/raytracing/ScreenIterate.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
@@ -120,9 +118,9 @@ BidirectionalPathRaytracer::execute(
     config.dBuffer = nullptr;
 
     // Eye and light path sampling config
-    config.eyeConfig.pointSampler = new CEyeSampler;
-    config.eyeConfig.dirSampler = new CPixelSampler;
-    config.eyeConfig.surfaceSampler = new CBsdfSampler;
+    config.eyeConfig.pointSampler = new EyeSampler;
+    config.eyeConfig.dirSampler = new PixelSampler;
+    config.eyeConfig.surfaceSampler = new BsdfSampler;
     config.eyeConfig.surfaceSampler->SetComputeFromNextPdf(true);
     config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars);
 
@@ -143,7 +141,7 @@ BidirectionalPathRaytracer::execute(
 
     config.lightConfig.pointSampler = new UniformLightSampler;
     config.lightConfig.dirSampler = new LightDirSampler;
-    config.lightConfig.surfaceSampler = new CBsdfSampler;
+    config.lightConfig.surfaceSampler = new BsdfSampler;
     config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
     config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars);
 
@@ -274,7 +272,7 @@ spikeCheck(ColorRgb color) {
 static void
 addWithSpikeCheck(
     BidirectionalPathTracingConfiguration *config,
-    const CBiPath * /*path*/,
+    const BiPath * /*path*/,
     int nx,
     int ny,
     float pix_x,
@@ -343,7 +341,7 @@ handlePathX0(
     Camera *camera,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
-    CBiPath *path)
+    BiPath *path)
 {
     const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     const bool endingInEnvironment = path->m_eyeEndNode->m_rayType == PathRayType::ENVIRONMENT;
@@ -491,7 +489,7 @@ ColorRgb
 computeNeFluxEstimate(
     Camera *camera,
     BidirectionalPathTracingConfiguration *config,
-    CBiPath *path,
+    BiPath *path,
     float *pPdf = nullptr,
     float *pWeight = nullptr,
     ColorRgb *fRad = nullptr)
@@ -598,7 +596,7 @@ handlePathXx(
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
-    CBiPath *path)
+    BiPath *path)
 {
     ColorRgb f;
     ColorRgb fRad;
@@ -683,7 +681,7 @@ handlePath1X(
     Camera *camera,
     const VoxelGrid *sceneVoxelGrid,
     BidirectionalPathTracingConfiguration *config,
-    CBiPath *path)
+    BiPath *path)
 {
     double oldPdfLNE;
 
@@ -748,7 +746,7 @@ bpCombinePaths(
     SimpleRaytracingPathNode *lightEndNode;
     SimpleRaytracingPathNode *eyePath;
     SimpleRaytracingPathNode *lightPath;
-    CBiPath path;
+    BiPath path;
 
     eyePath = config->eyePath;
     lightPath = config->lightPath;
@@ -855,7 +853,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
     }
 
     config->eyeConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, config->eyePath, 0, 0);
-    static_cast<CPixelSampler *>(config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
+    static_cast<PixelSampler *>(config->eyeConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
 
     // Provide a node for the pixel sampling
     pixNode = config->eyePath->next();

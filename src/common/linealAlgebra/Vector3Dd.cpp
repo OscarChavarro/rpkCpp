@@ -3,29 +3,28 @@ Routines for 3-d vectors
 */
 
 #include "java/lang/Math.h"
-
 #include "common/linealAlgebra/Vector3Dd.h"
 
-VECTOR3Dd::VECTOR3Dd() {
+Vector3Dd::Vector3Dd() {
     x = 0.0;
     y = 0.0;
     z = 0.0;
 }
 
-VECTOR3Dd::VECTOR3Dd(double inX, double inY, double inZ) {
+Vector3Dd::Vector3Dd(double inX, double inY, double inZ) {
     x = inX;
     y = inY;
     z = inZ;
 }
 
-VECTOR3Dd::~VECTOR3Dd() {
+Vector3Dd::~Vector3Dd() {
 }
 
 /**
 Normalize a vector, return old magnitude
 */
 double
-VECTOR3Dd::normalizeAndGivePreviousNorm(double epsilon)
+Vector3Dd::normalizeAndGivePreviousNorm(double epsilon)
 {
     double len = this->dotProduct(this); // Note: this starts being length ^ 2
 
@@ -52,7 +51,7 @@ Cross product of two vectors
 result = a X b
 */
 void
-VECTOR3Dd::crossProduct(const VECTOR3Dd *a, const VECTOR3Dd *b)
+Vector3Dd::crossProduct(const Vector3Dd *a, const Vector3Dd *b)
 {
     x = a->y * b->z - a->z * b->y;
     y = a->z * b->x - a->x * b->z;
@@ -63,8 +62,8 @@ VECTOR3Dd::crossProduct(const VECTOR3Dd *a, const VECTOR3Dd *b)
 Returns squared distance between the two vectors
 */
 double
-VECTOR3Dd::distanceSquared(const VECTOR3Dd *v2) const {
-    VECTOR3Dd d;
+Vector3Dd::distanceSquared(const Vector3Dd *v2) const {
+    Vector3Dd d;
 
     d.x = v2->x - x;
     d.y = v2->y - y;

@@ -3,19 +3,13 @@
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
 #include "java/util/Formatter.h"
-
 #include "common/Error.h"
-
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
+#include "io/wrapper/StreamOpenMode.h"
 
 namespace {
-
-enum class StreamOpenMode {
-    READ,
-    WRITE
-};
 
 static const char *
 modeToLogAction(StreamOpenMode mode) {

@@ -2,11 +2,8 @@
 #define __GEOMETRY__
 
 #include "java/util/ArrayList.h"
-
 #include "common/linealAlgebra/Ray.h"
-
 #include "material/RayHit.h"
-
 #include "skin/BoundingBox.h"
 #include "skin/GeometryClassId.h"
 

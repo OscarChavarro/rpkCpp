@@ -9,7 +9,6 @@ September, 5 1995
 */
 
 #include "common/Error.h"
-
 #include "numericalAnalysis/TriangleCubatureRule.h"
 
 /**

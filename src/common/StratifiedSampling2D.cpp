@@ -1,7 +1,6 @@
 #include <cstdlib>
 
 #include "java/lang/Math.h"
-
 #include "common/StratifiedSampling2D.h"
 
 StratifiedSampling2D::StratifiedSampling2D(int nrSamples): xMaxStratum(), yMaxStratum() {

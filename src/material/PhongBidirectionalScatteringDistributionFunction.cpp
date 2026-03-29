@@ -4,10 +4,8 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
 */
 #include "java/lang/Float.h"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 static constexpr int TEXTURED_COMPONENT = BRDF_DIFFUSE_COMPONENT;

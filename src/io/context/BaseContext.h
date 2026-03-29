@@ -2,7 +2,6 @@
 #define __BASE_CONTEXT__
 
 #include "scene/RadianceMethod.h"
-
 #include "io/context/EntityContext.h"
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/ReaderContext.h"

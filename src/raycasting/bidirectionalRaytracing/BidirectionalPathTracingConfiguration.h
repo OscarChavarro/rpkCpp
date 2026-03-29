@@ -6,9 +6,9 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "render/ScreenBuffer.h"
-#include "raycasting/raytracing/samplertools.h"
+#include "raycasting/raytracing/SamplerConfig.h"
 #include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
-#include "raycasting/bidirectionalRaytracing/densitykernel.h"
+#include "raycasting/bidirectionalRaytracing/Kernel2D.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
@@ -21,8 +21,8 @@ class BidirectionalPathTracingConfiguration {
     BidirectionalPathRaytracerConfig *baseConfig;
 
     // Configuration for tracing the paths
-    CSamplerConfig eyeConfig;
-    CSamplerConfig lightConfig;
+    SamplerConfig eyeConfig;
+    SamplerConfig lightConfig;
 
     // Internal vars
     ScreenBuffer *screen;
@@ -46,7 +46,7 @@ class BidirectionalPathTracingConfiguration {
     ScreenBuffer *dest;
     ScreenBuffer *ref2;
     ScreenBuffer *dest2;
-    CKernel2D kernel;
+    Kernel2D kernel;
     int scaleSamples;
 
     BidirectionalPathTracingConfiguration();

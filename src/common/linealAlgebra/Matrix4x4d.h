@@ -3,19 +3,19 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 
-class MATRIX4Dd {
+class Matrix4x4d {
   public:
     double m[4][4];
 
-    MATRIX4Dd();
+    Matrix4x4d();
 
-    void multiply(VECTOR3Dd *v3a, const VECTOR3Dd *v3b) const;
-    void multiplyWithTranslation(VECTOR3Dd *p3a, const VECTOR3Dd *p3b) const;
+    void multiply(Vector3Dd *v3a, const Vector3Dd *v3b) const;
+    void multiplyWithTranslation(Vector3Dd *p3a, const Vector3Dd *p3b) const;
 
-    void copy(const MATRIX4Dd *source);
+    void copy(const Matrix4x4d *source);
     void identity();
 };
 
-extern void multiplyMatrix4(MATRIX4Dd *m4a, const MATRIX4Dd *m4b, const MATRIX4Dd *m4c);
+extern void multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c);
 
 #endif

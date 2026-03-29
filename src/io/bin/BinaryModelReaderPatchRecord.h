@@ -3,12 +3,9 @@
 
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
-
 #include "skin/Patch.h"
 
-#include "io/bin/BinaryModelReader.h"
-
-class BinaryModelReader::PatchRecord {
+class BinaryModelReaderPatchRecord {
   public:
     int id;
     int twinIndex;
@@ -32,6 +29,8 @@ class BinaryModelReader::PatchRecord {
     ColorRgb color;
     int materialIndex;
     bool hasRadianceData;
+
+    BinaryModelReaderPatchRecord();
 };
 
 #endif

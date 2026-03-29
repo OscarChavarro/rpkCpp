@@ -2,10 +2,9 @@
 #define __STOCHASTIC_RAYTRACING_STATE__
 
 #include "common/ColorRgb.h"
-
 #include "raycasting/stochasticRaytracing/RandomWalkEstimatorKind.h"
 #include "raycasting/stochasticRaytracing/RandomWalkEstimatorType.h"
-#include "raycasting/stochasticRaytracing/sample4d.h"
+#include "raycasting/stochasticRaytracing/Sample4d.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingMethod.h"
 #include "raycasting/stochasticRaytracing/WhatToShow.h"

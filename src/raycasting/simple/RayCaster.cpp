@@ -4,13 +4,10 @@ a software frame buffer directly.
 */
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/Statistics.h"
-
 #include "render/SoftIdsWrapper.h"
-
 #include "raycasting/simple/RayCaster.h"
 
 char RayCaster::name[12] = "Ray Casting";

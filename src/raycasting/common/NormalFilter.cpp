@@ -1,6 +1,5 @@
 
 #include "java/lang/Math.h"
-
 #include "raycasting/common/NormalFilter.h"
 
 /**

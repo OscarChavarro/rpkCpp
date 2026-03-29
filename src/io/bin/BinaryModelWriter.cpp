@@ -4,35 +4,29 @@
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/HashMap.txx"
-
 #include "common/linealAlgebra/Vector3D.h"
-
 #include "common/ColorRgb.h"
 #include "common/Error.h"
-
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/Texture.h"
-
 #include "skin/Compound.h"
 #include "skin/Geometry.h"
 #include "skin/MeshSurface.h"
 #include "skin/Patch.h"
 #include "skin/PatchSet.h"
 #include "skin/Vertex.h"
-
 #include "io/wrapper/PersistenceElement.h"
-
 #include "io/context/ColorContext.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
 #include "io/context/TransformStackContext.h"
-
 #include "io/bin/BinaryModelWriter.h"
+#include "io/bin/BinaryModelWriterSerializationContext.h"
 
 const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
@@ -178,443 +172,6 @@ BinaryModelWriter::writeIndexList(
     return true;
 }
 
-class BinaryModelWriter::SerializationContext {
-  public:
-    java::HashMap<const Vector3D *, int> vectorIndices;
-    java::ArrayList<const Vector3D *> vectors;
-
-    java::HashMap<const Vertex *, int> vertexIndices;
-    java::ArrayList<const Vertex *> vertices;
-
-    java::HashMap<const Patch *, int> patchIndices;
-    java::ArrayList<const Patch *> patches;
-
-    java::HashMap<const Material *, int> materialIndices;
-    java::ArrayList<const Material *> materials;
-
-    java::HashMap<const Geometry *, int> geometryIndices;
-    java::ArrayList<const Geometry *> geometries;
-
-    java::HashMap<const ColorContext *, int> colorContextIndices;
-    java::ArrayList<const ColorContext *> colorContexts;
-
-    java::HashMap<const ReaderContext *, int> readerContextIndices;
-    java::ArrayList<const ReaderContext *> readerContexts;
-
-    java::HashMap<const TransformArray *, int> transformArrayIndices;
-    java::ArrayList<const TransformArray *> transformArrays;
-
-    java::HashMap<const TransformStackContext *, int> transformContextIndices;
-    java::ArrayList<const TransformStackContext *> transformContexts;
-
-    bool ensureVector(const Vector3D *value);
-    bool ensureMaterial(const Material *value);
-    bool ensureVertex(const Vertex *value);
-    bool ensurePatch(const Patch *value);
-    bool ensureGeometry(const Geometry *value);
-    bool ensureColorContext(const ColorContext *value);
-    bool ensureReaderContext(const ReaderContext *value);
-    bool ensureTransformArray(const TransformArray *value);
-    bool ensureTransformContext(const TransformStackContext *value);
-
-    bool collectVectorList(const java::ArrayList<Vector3D *> *list);
-    bool collectVertexList(const java::ArrayList<Vertex *> *list);
-    bool collectPatchList(const java::ArrayList<Patch *> *list);
-    bool collectMaterialList(const java::ArrayList<Material *> *list);
-    bool collectGeometryList(const java::ArrayList<Geometry *> *list);
-    bool collectModel(const PersistedSceneModel *model);
-};
-
-bool
-BinaryModelWriter::SerializationContext::ensureVector(const Vector3D *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( vectorIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(vectors.size());
-    if ( !vectors.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureVector", "Failed to append vector");
-        return false;
-    }
-    if ( !vectorIndices.put(value, index) ) {
-        vectors.remove(vectors.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureVector", "Failed to index vector");
-        return false;
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureMaterial(const Material *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( materialIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(materials.size());
-    if ( !materials.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to append material");
-        return false;
-    }
-    if ( !materialIndices.put(value, index) ) {
-        materials.remove(materials.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureMaterial", "Failed to index material");
-        return false;
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureVertex(const Vertex *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( vertexIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-
-    if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
-        return false;
-    }
-
-    const int index = static_cast<int>(vertices.size());
-    if ( !vertices.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to append vertex");
-        return false;
-    }
-    if ( !vertexIndices.put(value, index) ) {
-        vertices.remove(vertices.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureVertex", "Failed to index vertex");
-        return false;
-    }
-
-    if ( !ensureVector(value->point) ) {
-        return false;
-    }
-    if ( !ensureVector(value->normal) ) {
-        return false;
-    }
-    if ( !ensureVector(value->textureCoordinates) ) {
-        return false;
-    }
-    if ( !ensureVertex(value->back) ) {
-        return false;
-    }
-
-    if ( value->patches != nullptr ) {
-        for ( int i = 0; i < value->patches->size(); i++ ) {
-            if ( !ensurePatch(value->patches->get(i)) ) {
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensurePatch(const Patch *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( patchIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-
-    if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
-        return false;
-    }
-
-    const int index = static_cast<int>(patches.size());
-    if ( !patches.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to append patch");
-        return false;
-    }
-    if ( !patchIndices.put(value, index) ) {
-        patches.remove(patches.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensurePatch", "Failed to index patch");
-        return false;
-    }
-
-    for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        if ( !ensureVertex(value->vertex[i]) ) {
-            return false;
-        }
-    }
-    if ( !ensurePatch(value->twin) ) {
-        return false;
-    }
-    if ( !ensureMaterial(value->material) ) {
-        return false;
-    }
-
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureGeometry(const Geometry *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( geometryIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-
-    if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
-        return false;
-    }
-
-    const int index = static_cast<int>(geometries.size());
-    if ( !geometries.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to append geometry");
-        return false;
-    }
-    if ( !geometryIndices.put(value, index) ) {
-        geometries.remove(geometries.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Failed to index geometry");
-        return false;
-    }
-
-    if ( value->className == GeometryClassId::SURFACE_MESH ) {
-        const MeshSurface *surface = static_cast<const MeshSurface *>(value);
-        if ( !ensureMaterial(surface->material) ) {
-            return false;
-        }
-        if ( !collectVectorList(surface->positions) ) {
-            return false;
-        }
-        if ( !collectVectorList(surface->normals) ) {
-            return false;
-        }
-        if ( !collectVertexList(surface->vertices) ) {
-            return false;
-        }
-        if ( !collectPatchList(surface->faces) ) {
-            return false;
-        }
-    } else if ( value->className == GeometryClassId::COMPOUND ) {
-        const Compound *compound = static_cast<const Compound *>(value);
-        if ( !collectGeometryList(compound->children) ) {
-            return false;
-        }
-    } else if ( value->className == GeometryClassId::PATCH_SET ) {
-        const PatchSet *patchSet = static_cast<const PatchSet *>(value);
-        if ( !collectPatchList(patchSet->getPatchList()) ) {
-            return false;
-        }
-    } else {
-        Error::error("BinaryModelWriter::SerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
-        return false;
-    }
-
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureColorContext(const ColorContext *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( colorContextIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(colorContexts.size());
-    if ( !colorContexts.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to append color context");
-        return false;
-    }
-    if ( !colorContextIndices.put(value, index) ) {
-        colorContexts.remove(colorContexts.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureColorContext", "Failed to index color context");
-        return false;
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureReaderContext(const ReaderContext *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( readerContextIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(readerContexts.size());
-    if ( !readerContexts.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to append reader context");
-        return false;
-    }
-    if ( !readerContextIndices.put(value, index) ) {
-        readerContexts.remove(readerContexts.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureReaderContext", "Failed to index reader context");
-        return false;
-    }
-
-    return ensureReaderContext(value->prev);
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureTransformArray(const TransformArray *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( transformArrayIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(transformArrays.size());
-    if ( !transformArrays.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to append transform array");
-        return false;
-    }
-    if ( !transformArrayIndices.put(value, index) ) {
-        transformArrays.remove(transformArrays.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureTransformArray", "Failed to index transform array");
-        return false;
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::ensureTransformContext(const TransformStackContext *value) {
-    if ( value == nullptr ) {
-        return true;
-    }
-    int existingIndex = -1;
-    if ( transformContextIndices.tryGet(value, &existingIndex) ) {
-        return true;
-    }
-    const int index = static_cast<int>(transformContexts.size());
-    if ( !transformContexts.add(value) ) {
-        Error::error("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to append transform context");
-        return false;
-    }
-    if ( !transformContextIndices.put(value, index) ) {
-        transformContexts.remove(transformContexts.size() - 1);
-        Error::error("BinaryModelWriter::SerializationContext::ensureTransformContext", "Failed to index transform context");
-        return false;
-    }
-
-    if ( !ensureTransformArray(value->transformationArray) ) {
-        return false;
-    }
-    return ensureTransformContext(value->prev);
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectVectorList(const java::ArrayList<Vector3D *> *list) {
-    if ( list == nullptr ) {
-        return true;
-    }
-    for ( int i = 0; i < list->size(); i++ ) {
-        if ( !ensureVector(list->get(i)) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectVertexList(const java::ArrayList<Vertex *> *list) {
-    if ( list == nullptr ) {
-        return true;
-    }
-    for ( int i = 0; i < list->size(); i++ ) {
-        if ( !ensureVertex(list->get(i)) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectPatchList(const java::ArrayList<Patch *> *list) {
-    if ( list == nullptr ) {
-        return true;
-    }
-    for ( int i = 0; i < list->size(); i++ ) {
-        if ( !ensurePatch(list->get(i)) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectMaterialList(const java::ArrayList<Material *> *list) {
-    if ( list == nullptr ) {
-        return true;
-    }
-    for ( int i = 0; i < list->size(); i++ ) {
-        if ( !ensureMaterial(list->get(i)) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectGeometryList(const java::ArrayList<Geometry *> *list) {
-    if ( list == nullptr ) {
-        return true;
-    }
-    for ( int i = 0; i < list->size(); i++ ) {
-        if ( !ensureGeometry(list->get(i)) ) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool
-BinaryModelWriter::SerializationContext::collectModel(const PersistedSceneModel *model) {
-    if ( model == nullptr ) {
-        return true;
-    }
-
-    if ( !ensureColorContext(model->currentColor) ) {
-        return false;
-    }
-    if ( !collectPatchList(model->currentFaceList) ) {
-        return false;
-    }
-    if ( !collectGeometryList(model->currentGeometryList) ) {
-        return false;
-    }
-    if ( !collectMaterialList(model->materials) ) {
-        return false;
-    }
-    if ( !collectVectorList(model->currentNormalList) ) {
-        return false;
-    }
-    if ( !collectVectorList(model->currentPointList) ) {
-        return false;
-    }
-    if ( !collectVertexList(model->currentVertexList) ) {
-        return false;
-    }
-    if ( !collectGeometryList(model->geometries) ) {
-        return false;
-    }
-    if ( !ensureReaderContext(model->readerContext) ) {
-        return false;
-    }
-    return ensureTransformContext(model->transformContext);
-}
-
 bool
 BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Material *material) {
     if ( !writeString(output, material->getName()) ) {
@@ -705,7 +262,7 @@ bool
 BinaryModelWriter::writeReaderContextRecord(
     java::io::OutputStream &output,
     const ReaderContext *readerContext,
-    const BinaryModelWriter::SerializationContext &context)
+    const BinaryModelWriterSerializationContext &context)
 {
     vsdk::PersistenceElement::writeBytes(
         output,
@@ -748,7 +305,7 @@ bool
 BinaryModelWriter::writeTransformContextRecord(
     java::io::OutputStream &output,
     const TransformStackContext *transformContext,
-    const BinaryModelWriter::SerializationContext &context)
+    const BinaryModelWriterSerializationContext &context)
 {
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformContext->xid));
     vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->xac);
@@ -780,7 +337,7 @@ BinaryModelWriter::writeTransformContextRecord(
 }
 
 bool
-BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriter::SerializationContext &context) {
+BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
 
     int pointIndex = -1;
@@ -815,7 +372,7 @@ BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Verte
 }
 
 bool
-BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriter::SerializationContext &context) {
+BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->id));
 
     int twinIndex = -1;
@@ -868,7 +425,7 @@ BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch 
 }
 
 bool
-BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriter::SerializationContext &context) {
+BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
@@ -923,7 +480,7 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
 }
 
 bool
-BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriter::SerializationContext &context) {
+BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context) {
     int currentColorIndex = -1;
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
@@ -995,7 +552,7 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
 
     java::io::FileOutputStream output(fileName);
 
-    SerializationContext context;
+    BinaryModelWriterSerializationContext context;
     if ( !context.collectModel(model) ) {
         output.close();
         return false;

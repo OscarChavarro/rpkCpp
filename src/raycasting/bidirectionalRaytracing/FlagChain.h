@@ -10,14 +10,10 @@ A chain list is a set of scattering modes
 #define __FLAG_CHAIN__
 
 #include "common/ColorRgb.h"
-
 #include "common/dataStructures/CircularList.h"
-
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
-
-#include "raycasting/common/pathnode.h"
-
-#include "raycasting/bidirectionalRaytracing/bipath.h"
+#include "raycasting/common/SimpleRaytracingPathNode.h"
+#include "raycasting/bidirectionalRaytracing/BiPath.h"
 
 class FlagChain {
   public:
@@ -32,7 +28,7 @@ class FlagChain {
     FlagChain(const FlagChain &c); // Copy constructor
     ~FlagChain();
 
-    ColorRgb compute(CBiPath *path) const;
+    ColorRgb compute(BiPath *path) const;
 };
 
 

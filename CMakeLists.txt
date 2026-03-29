@@ -52,6 +52,7 @@ set(MAIN_SRC
     src/common/dataStructures/CircularListBase.cpp
     src/common/dataStructures/CircularListLink.cpp
     src/common/dataStructures/CircularListBaseIterator.cpp
+    src/common/dataStructures/KDQuery.cpp
     src/common/dataStructures/KDTree.cpp
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
@@ -71,10 +72,10 @@ set(MAIN_SRC
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/skin/Element.cpp
-    src/SGL/poly_clip.cpp
-    src/SGL/poly_scan_z.cpp
-    src/SGL/sgl.cpp
-    src/SGL/poly_scan_flat.cpp
+    src/sgl/PolyClip.cpp
+    src/sgl/PolyScanZ.cpp
+    src/sgl/SglContext.cpp
+    src/sgl/PolyScanFlat.cpp
     src/scene/Background.cpp
     src/scene/ConstantColorBackground.cpp
     src/scene/Plane.cpp
@@ -102,88 +103,97 @@ set(MAIN_SRC
     src/numericalAnalysis/quasiMonteCarlo/Sobol.cpp
     src/numericalAnalysis/PatchVisitor.cpp
     src/numericalAnalysis/MeshSurfaceVisitor.cpp
+    src/io/wrapper/PersistenceElement.cpp
+    src/io/wrapper/PipeInputStream.cpp
+    src/io/wrapper/PipeOutputStream.cpp
+    src/io/wrapper/FileUncompressWrapper.cpp
     src/io/context/TransformContext.cpp
     src/io/context/BaseContext.cpp
     src/io/context/LookUpEntity.cpp
     src/io/context/LookUpTable.cpp
     src/io/context/ColorContext.cpp
-    src/io/mgf/mgfDefinitions.cpp
-    src/io/mgf/mgfGeometry.cpp
-    src/io/mgf/mgfHandlerGeometry.cpp
-    src/io/mgf/mgfHandlerObject.cpp
-    src/io/mgf/badarg.cpp
-    src/io/mgf/mgfHandlerTransform.cpp
     src/io/context/WordsContext.cpp
-    src/io/mgf/mgfHandlerColor.cpp
-    src/io/mgf/mgfHandlerMaterial.cpp
-    src/io/mgf/readmgf.cpp
     src/io/context/PersistedSceneModel.cpp
-    src/io/wrapper/PersistenceElement.cpp
+    src/io/mgf/MgfDefinitions.cpp
+    src/io/mgf/MgfGeometry.cpp
+    src/io/mgf/MgfHandlerGeometry.cpp
+    src/io/mgf/MgfHandlerObject.cpp
+    src/io/mgf/Badarg.cpp
+    src/io/mgf/MgfHandlerTransform.cpp
+    src/io/mgf/MgfHandlerColor.cpp
+    src/io/mgf/MgfHandlerMaterial.cpp
+    src/io/mgf/MgfStaticHandler.cpp
+    src/io/mgf/Readmgf.cpp
     src/io/bin/BinaryModelWriter.cpp
+    src/io/bin/BinaryModelWriterSerializationContext.cpp
     src/io/bin/BinaryModelReader.cpp
-    src/io/wrapper/PipeInputStream.cpp
-    src/io/wrapper/PipeOutputStream.cpp
-    src/io/wrapper/FileUncompressWrapper.cpp
+    src/io/bin/BinaryModelReaderIndexListRecord.cpp
+    src/io/bin/BinaryModelReaderVertexRecord.cpp
+    src/io/bin/BinaryModelReaderPatchRecord.cpp
+    src/io/bin/BinaryModelReaderGeometryRecord.cpp
+    src/io/bin/BinaryModelReaderModelRecord.cpp
     src/io/wrl/VrmlWriter.cpp
-    src/io/image/pic.cpp
-    src/io/image/dkcolor.cpp
+    src/io/image/PicOutputHandle.cpp
+    src/io/image/Dkcolor.cpp
     src/io/image/ImageOutputHandle.cpp
-    src/io/image/ppm.cpp
-    src/render/potential.cpp
+    src/io/image/PPMOutputHandle.cpp
+    src/render/Potential.cpp
+    src/render/GlutDebugState.cpp
     src/render/SoftIdsWrapper.cpp
-    src/render/softids.cpp
-    src/render/opengl.cpp
-    src/render/renderhook.cpp
-    src/render/canvas.cpp
-    src/render/rendercommon.cpp
+    src/render/Softids.cpp
+    src/render/Opengl.cpp
+    src/render/RenderHookList.cpp
+    src/render/Canvas.cpp
+    src/render/Rendercommon.cpp
     src/render/ScreenBuffer.cpp
-    src/GALERKIN/GalerkinState.cpp
-    src/GALERKIN/basisgalerkin.cpp
-    src/GALERKIN/GalerkinRadianceMethod.cpp
-    src/GALERKIN/Shaft.cpp
-    src/GALERKIN/GalerkinElement.cpp
-    src/GALERKIN/basistrigalerkin.cpp
-    src/GALERKIN/Interaction.cpp
-    src/GALERKIN/basisquadgalerkin.cpp
-    src/GALERKIN/ShadowCache.cpp
-    src/GALERKIN/processing/ScratchVisibilityStrategy.cpp
-    src/GALERKIN/processing/ClusterTraversalStrategy.cpp
-    src/GALERKIN/processing/ClusterCreationStrategy.cpp
-    src/GALERKIN/processing/FormFactorStrategy.cpp
-    src/GALERKIN/processing/FormFactorClusteredStrategy.cpp
-    src/GALERKIN/processing/LinkingClusteredStrategy.cpp
-    src/GALERKIN/processing/LinkingSimpleStrategy.cpp
-    src/GALERKIN/processing/HierarchicalRefinementStrategy.cpp
-    src/GALERKIN/processing/GatheringStrategy.cpp
-    src/GALERKIN/processing/GatheringSimpleStrategy.cpp
-    src/GALERKIN/processing/GatheringClusteredStrategy.cpp
-    src/GALERKIN/processing/ShootingStrategy.cpp
-    src/GALERKIN/processing/visitors/ScratchRendererVisitor.cpp
-    src/GALERKIN/processing/visitors/MaximumRadianceVisitor.cpp
-    src/GALERKIN/processing/visitors/PowerAccumulatorVisitor.cpp
-    src/GALERKIN/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
-    src/GALERKIN/processing/visitors/OrientedGathererVisitor.cpp
-    src/GALERKIN/processing/visitors/DepthVisibilityGathererVisitor.cpp
-    src/raycasting/common/Raytracer.cpp
-    src/raycasting/common/pathnode.cpp
-    src/raycasting/common/raytools.cpp
+    src/galerkin/GalerkinState.cpp
+    src/galerkin/GalerkinBasis.cpp
+    src/galerkin/GalerkinRadianceMethod.cpp
+    src/galerkin/Shaft.cpp
+    src/galerkin/GalerkinElement.cpp
+    src/galerkin/Basistrigalerkin.cpp
+    src/galerkin/Interaction.cpp
+    src/galerkin/Basisquadgalerkin.cpp
+    src/galerkin/ShadowCache.cpp
+    src/galerkin/processing/ScratchVisibilityStrategy.cpp
+    src/galerkin/processing/ClusterTraversalStrategy.cpp
+    src/galerkin/processing/ClusterCreationStrategy.cpp
+    src/galerkin/processing/FormFactorStrategy.cpp
+    src/galerkin/processing/FormFactorClusteredStrategy.cpp
+    src/galerkin/processing/LinkingClusteredStrategy.cpp
+    src/galerkin/processing/LinkingSimpleStrategy.cpp
+    src/galerkin/processing/HierarchicalRefinementStrategy.cpp
+    src/galerkin/processing/GatheringStrategy.cpp
+    src/galerkin/processing/GatheringSimpleStrategy.cpp
+    src/galerkin/processing/GatheringClusteredStrategy.cpp
+    src/galerkin/processing/ShootingStrategy.cpp
+    src/galerkin/processing/visitors/ScratchRendererVisitor.cpp
+    src/galerkin/processing/visitors/MaximumRadianceVisitor.cpp
+    src/galerkin/processing/visitors/PowerAccumulatorVisitor.cpp
+    src/galerkin/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
+    src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
+    src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
+    src/raycasting/common/RayTracer.cpp
+    src/raycasting/common/SimpleRaytracingPathNode.cpp
+    src/raycasting/common/Raytools.cpp
     src/raycasting/common/PixelFilter.cpp
     src/raycasting/common/BoxFilter.cpp
     src/raycasting/common/NormalFilter.cpp
     src/raycasting/common/TentFilter.cpp
     src/raycasting/simple/RayCaster.cpp
     src/raycasting/simple/RayMatter.cpp
-    src/raycasting/raytracing/screeniterate.cpp
-    src/raycasting/raytracing/specularsampler.cpp
-    src/raycasting/raytracing/sampler.cpp
-    src/raycasting/raytracing/eyesampler.cpp
-    src/raycasting/raytracing/bsdfsampler.cpp
-    src/raycasting/raytracing/samplertools.cpp
-    src/raycasting/raytracing/pixelsampler.cpp
+    src/raycasting/raytracing/ScreenIterate.cpp
+    src/raycasting/raytracing/ScreenIterateState.cpp
+    src/raycasting/raytracing/SpecularSampler.cpp
+    src/raycasting/raytracing/Sampler.cpp
+    src/raycasting/raytracing/EyeSampler.cpp
+    src/raycasting/raytracing/BsdfSampler.cpp
+    src/raycasting/raytracing/SamplerConfig.cpp
+    src/raycasting/raytracing/PixelSampler.cpp
     src/raycasting/bidirectionalRaytracing/DensityHitList.cpp
     src/raycasting/bidirectionalRaytracing/DensityBuffer.cpp
-    src/raycasting/bidirectionalRaytracing/densitykernel.cpp
-    src/raycasting/bidirectionalRaytracing/bipath.cpp
+    src/raycasting/bidirectionalRaytracing/Kernel2D.cpp
+    src/raycasting/bidirectionalRaytracing/BiPath.cpp
     src/raycasting/bidirectionalRaytracing/LightList.cpp
     src/raycasting/bidirectionalRaytracing/LightSampler.cpp
     src/raycasting/bidirectionalRaytracing/LightDirSampler.cpp
@@ -191,49 +201,51 @@ set(MAIN_SRC
     src/raycasting/bidirectionalRaytracing/Spar.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
-    src/PHOTONMAP/samplegrid.cpp
-    src/PHOTONMAP/discretesampling.cpp
-    src/PHOTONMAP/photonkdtree.cpp
-    src/PHOTONMAP/pmapimportance.cpp
-    src/PHOTONMAP/screensampler.cpp
-    src/PHOTONMAP/pmapoptions.cpp
-    src/PHOTONMAP/photon.cpp
-    src/PHOTONMAP/importancemap.cpp
-    src/PHOTONMAP/PhotonMapRadianceMethod.cpp
-    src/PHOTONMAP/photonmap.cpp
-    src/PHOTONMAP/photonmapsampler.cpp
+    src/photonMap/SampleGrid2D.cpp
+    src/photonMap/NormalQuery.cpp
+    src/photonMap/DiscreteSampling.cpp
+    src/photonMap/PhotonKDTree.cpp
+    src/photonMap/PhotonMapImportance.cpp
+    src/photonMap/ScreenSampler.cpp
+    src/photonMap/PhotonMapState.cpp
+    src/photonMap/Photon.cpp
+    src/photonMap/ImportanceMap.cpp
+    src/photonMap/PhotonMapRadianceMethod.cpp
+    src/photonMap/PhotonMap.cpp
+    src/photonMap/PhotonMapSampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracingState.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
-    src/raycasting/stochasticRaytracing/hierarchy.cpp
+    src/raycasting/stochasticRaytracing/Hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp
-    src/raycasting/stochasticRaytracing/render.cpp
+    src/raycasting/stochasticRaytracing/Render.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.cpp
-    src/raycasting/stochasticRaytracing/coefficientsgalerkin.cpp
-    src/raycasting/stochasticRaytracing/basismcrad.cpp
-    src/raycasting/stochasticRaytracing/basistrimcrad.cpp
-    src/raycasting/stochasticRaytracing/ccr.cpp
-    src/raycasting/stochasticRaytracing/localline.cpp
-    src/raycasting/stochasticRaytracing/stochjacobi.cpp
-    src/raycasting/stochasticRaytracing/nondiff.cpp
-    src/raycasting/stochasticRaytracing/sample4d.cpp
-    src/raycasting/stochasticRaytracing/mcrad.cpp
-    src/raycasting/stochasticRaytracing/tracepath.cpp
-    src/raycasting/stochasticRaytracing/rtstochasticphotonmap.cpp
-    src/raycasting/stochasticRaytracing/hierarchyRefine.cpp
-    src/raycasting/stochasticRaytracing/basisquadmcrad.cpp
-    src/app/adaptation.cpp
-    src/app/options.cpp
-    src/app/glutDebugTools.cpp
-    src/app/radiance.cpp
-    src/app/raytrace.cpp
-    src/app/sceneBuilder.cpp
-    src/app/batch.cpp
-    src/app/commandLine.cpp
+    src/raycasting/stochasticRaytracing/Coefficientsgalerkin.cpp
+    src/raycasting/stochasticRaytracing/Basismcrad.cpp
+    src/raycasting/stochasticRaytracing/Basistrimcrad.cpp
+    src/raycasting/stochasticRaytracing/Ccr.cpp
+    src/raycasting/stochasticRaytracing/Localline.cpp
+    src/raycasting/stochasticRaytracing/Stochjacobi.cpp
+    src/raycasting/stochasticRaytracing/LightSourceTable.cpp
+    src/raycasting/stochasticRaytracing/Nondiff.cpp
+    src/raycasting/stochasticRaytracing/Sample4d.cpp
+    src/raycasting/stochasticRaytracing/Mcrad.cpp
+    src/raycasting/stochasticRaytracing/Tracepath.cpp
+    src/raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.cpp
+    src/raycasting/stochasticRaytracing/HierarchyRefine.cpp
+    src/raycasting/stochasticRaytracing/Basisquadmcrad.cpp
+    src/app/Adaptation.cpp
+    src/app/Options.cpp
+    src/app/GlutDebugTools.cpp
+    src/app/Radiance.cpp
+    src/app/Raytrace.cpp
+    src/app/SceneBuilder.cpp
+    src/app/Batch.cpp
+    src/app/CommandLine.cpp
     src/app/GalerkinDebugRenderer.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
-    src/app/main.cpp)
+    src/app/Main.cpp)
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL glut)

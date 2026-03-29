@@ -2,12 +2,12 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "PHOTONMAP/PhotonMapRadianceMethod.h"
-#include "raycasting/common/raytools.h"
-#include "raycasting/raytracing/screeniterate.h"
+#include "photonMap/PhotonMapRadianceMethod.h"
+#include "raycasting/common/Raytools.h"
+#include "raycasting/raytracing/ScreenIterate.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracerCallbackData.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 
 char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";
@@ -18,15 +18,6 @@ const float PHOTON_MAP_MIN_DIST = 0.02f;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
 StochasticRayTracingState GLOBAL_raytracing_state;
-
-namespace {
-class StochasticRaytracerCallbackData {
-  public:
-    StochasticRaytracingConfiguration *config;
-    RadianceMethod *radianceMethod;
-    RenderOptions *renderOptions;
-};
-} // namespace
 
 StochasticRaytracer::StochasticRaytracer() {
 }
@@ -694,7 +685,7 @@ StochasticRaytracer::calcPixel(
 
     // Sample eye node
     config->samplerConfig.pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, nullptr, nullptr, &eyeNode, 0, 0);
-    static_cast<CPixelSampler *>(config->samplerConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
+    static_cast<PixelSampler *>(config->samplerConfig.dirSampler)->SetPixel(camera, nx, ny, nullptr);
 
     eyeNode.attach(&pixelNode);
 

@@ -4,14 +4,11 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 #include <cstring>
 
 #include "java/lang/System.h"
-
 #include "common/Error.h"
-
 #include "tonemap/ToneMap.h"
-
 #include "io/image/ImageOutputHandle.h"
-#include "io/image/pic.h"
-#include "io/image/ppm.h"
+#include "io/image/PicOutputHandle.h"
+#include "io/image/PPMOutputHandle.h"
 
 ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma() {
 }

@@ -1,6 +1,5 @@
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-
 #include "skin/Patch.h"
 
 RayHit::RayHit():

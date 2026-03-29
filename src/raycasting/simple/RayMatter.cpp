@@ -7,10 +7,8 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-
 #include "java/lang/System.h"
-
-#include "raycasting/common/raytools.h"
+#include "raycasting/common/Raytools.h"
 #include "raycasting/common/BoxFilter.h"
 #include "raycasting/common/TentFilter.h"
 #include "raycasting/common/NormalFilter.h"

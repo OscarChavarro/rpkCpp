@@ -2,10 +2,8 @@
 #define __ELEMENT__
 
 #include "common/linealAlgebra/Matrix2x2.h"
-
 #include "common/ColorRgb.h"
 #include "common/RenderOptions.h"
-
 #include "skin/ElementFlags.h"
 #include "skin/ElementTypes.h"
 #include "skin/Geometry.h"

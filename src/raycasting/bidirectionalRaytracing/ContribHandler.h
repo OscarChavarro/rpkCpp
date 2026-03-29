@@ -3,7 +3,7 @@
 
 #include "common/ColorRgb.h"
 
-class CBiPath;
+class BiPath;
 class FlagChainList;
 
 /**
@@ -18,7 +18,7 @@ class ContribHandler {
     virtual void init(int paramMaxLength);
     virtual ~ContribHandler();
     virtual void addRegExp(char *regExp);
-    virtual ColorRgb compute(CBiPath *path);
+    virtual ColorRgb compute(BiPath *path);
 
   protected:
     virtual void doRegExp(char *regExp, bool subtract);

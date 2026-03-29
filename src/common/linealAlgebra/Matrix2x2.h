@@ -2,7 +2,6 @@
 #define __MATRIX_2x2__
 
 #include "java/io/PrintStream.h"
-
 #include "common/linealAlgebra/Vector2D.h"
 
 /**

@@ -1,6 +1,5 @@
 #include "common/Error.h"
 #include "common/Statistics.h"
-
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
 Spar::Spar() {
@@ -57,7 +56,7 @@ is returned. Normally this is a contribution for the pixel
 affected by the path
 */
 ColorRgb
-Spar::handlePath(SparConfig */*config*/, CBiPath */*path*/) {
+Spar::handlePath(SparConfig */*config*/, BiPath */*path*/) {
     ColorRgb result;
 
     result.clear();
@@ -106,7 +105,7 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *radianceMethod) {
 void
 SparList::handlePath(
     SparConfig *config,
-    CBiPath *path,
+    BiPath *path,
     ColorRgb *fRad,
     ColorRgb *fBpt)
 {

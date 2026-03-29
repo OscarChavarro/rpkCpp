@@ -1,10 +1,7 @@
 #include "java/lang/Float.h"
-
 #include "common/linealAlgebra/CoordinateSystem.h"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/Xxdf.h"

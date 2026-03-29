@@ -14,7 +14,6 @@ Reference:
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "scene/PatchClusterOctreeNode.h"
 
 static const int XYZ_EQUAL_MASK = 0x08;

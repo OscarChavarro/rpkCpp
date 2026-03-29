@@ -1,10 +1,8 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/Statistics.h"
-
 #include "skin/Patch.h"
 
 static constexpr double TOLERANCE = 1e-5;

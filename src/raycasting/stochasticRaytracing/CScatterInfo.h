@@ -1,7 +1,7 @@
 #ifndef __STOCHASTIC_RAYTRACING_CSCATTER_INFO__
 #define __STOCHASTIC_RAYTRACING_CSCATTER_INFO__
 
-#include "raycasting/common/pathnode.h"
+#include "raycasting/common/SimpleRaytracingPathNode.h"
 
 /**
 CScatterinfo includes information about different scattering properties for different bsdf components

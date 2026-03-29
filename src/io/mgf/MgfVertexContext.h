@@ -2,15 +2,13 @@
 #define __MGF_VERTEX_CONTEXT__
 
 #include "common/linealAlgebra/Vector3Dd.h"
-
 #include "skin/Vertex.h"
-
 #include "io/context/BaseContext.h"
 
 class MgfVertexContext {
   public:
-    VECTOR3Dd p; // Point
-    VECTOR3Dd n; // Normal
+    Vector3Dd p; // Point
+    Vector3Dd n; // Normal
     long xid; // Transform id of transform last time the vertex was modified (or created)
     int clock; // Incremented each change -- resettable
     Vertex *vertex;
@@ -19,7 +17,7 @@ class MgfVertexContext {
         p(), n(), xid(), clock(), vertex() {
     }
 
-    MgfVertexContext(const VECTOR3Dd &inP, const VECTOR3Dd &inN, long inXid, int inClock, Vertex *inVertex):
+    MgfVertexContext(const Vector3Dd &inP, const Vector3Dd &inN, long inXid, int inClock, Vertex *inVertex):
         p(), n(), xid(), clock(), vertex() {
         p = inP;
         n = inN;

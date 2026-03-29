@@ -2,10 +2,8 @@
 #define __RPK_APPLICATION__
 
 #include "scene/Scene.h"
-
 #include "io/context/BaseContext.h"
-
-#include "raycasting/common/Raytracer.h"
+#include "raycasting/common/RayTracer.h"
 
 class RpkApplication {
   private:

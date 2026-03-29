@@ -1,9 +1,6 @@
 #include "common/linealAlgebra/Matrix4x4.h"
-
 #include "common/Error.h"
-
 #include "skin/BoundingBox.h"
-
 #include "scene/Camera.h"
 
 Camera::Camera(): background() {

@@ -1,7 +1,5 @@
 #include "java/util/ArrayList.txx"
-
 #include "common/Statistics.h"
-
 #include "skin/MeshSurface.h"
 
 int MeshSurface::nextSurfaceId = 0;

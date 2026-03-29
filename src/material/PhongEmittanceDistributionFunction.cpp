@@ -1,5 +1,4 @@
 #include "common/Error.h"
-
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
 #include "material/Xxdf.h"

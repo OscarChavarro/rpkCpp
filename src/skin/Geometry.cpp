@@ -1,8 +1,6 @@
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
 #include "common/Statistics.h"
-
 #include "skin/Geometry.h"
 #include "skin/MinMaxBox.h"
 

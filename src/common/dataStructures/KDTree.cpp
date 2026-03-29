@@ -2,50 +2,15 @@
 
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
-
 #include "common/linealAlgebra/Numeric.h"
-
 #include "common/Error.h"
-
+#include "common/dataStructures/KDQuery.h"
 #include "common/dataStructures/KDTree.h"
 
 const float KD_MAX_RADIUS = 1e10;
 
 // KD Tree with one data element per node
 float *KDTree::distances = nullptr;
-
-class KDQuery {
-  public:
-    float *point;
-    int wantedN;
-    int foundN;
-    bool notFilled;
-    float **results;
-    float *distances;
-    float maximumDistance;
-    float sqrRadius;
-    short excludeFlags;
-
-    KDQuery():
-        point(),
-        wantedN(),
-        foundN(),
-        notFilled(),
-        results(),
-        distances(),
-        maximumDistance(),
-        sqrRadius(),
-        excludeFlags()
-    {}
-
-    void print() const {
-        java::lang::System::out.printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
-        java::lang::System::out.printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
-        java::lang::System::out.printf("maximumDistance %g\n", maximumDistance);
-        java::lang::System::out.printf("sqrRadius %g\n", sqrRadius);
-        java::lang::System::out.printf("excludeFlags %x\n", static_cast<int>(excludeFlags));
-    }
-};
 
 static KDQuery GLOBAL_qDatS;
 

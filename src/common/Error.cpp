@@ -1,6 +1,5 @@
 #include "java/lang/String.h"
 #include "java/lang/System.h"
-
 #include "common/Error.h"
 
 /**

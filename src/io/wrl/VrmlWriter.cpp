@@ -3,9 +3,7 @@ Saves the result of a radiosity computation as a VRML file
 */
 
 #include "java/util/Formatter.h"
-
 #include "io/wrapper/PersistenceElement.h"
-
 #include "io/wrl/VrmlWriter.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";

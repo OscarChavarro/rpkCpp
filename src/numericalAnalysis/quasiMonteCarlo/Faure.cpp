@@ -3,7 +3,6 @@ Faure's quasiMonteCarlo sequences
 */
 
 #include "java/lang/Math.h"
-
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 
 enum {

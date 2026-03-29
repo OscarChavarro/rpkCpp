@@ -1,5 +1,4 @@
 #include "java/lang/Math.h"
-
 #include "material/RefractionIndex.h"
 
 /**

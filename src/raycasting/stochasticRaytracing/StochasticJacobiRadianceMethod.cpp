@@ -1,5 +1,4 @@
 #include "java/util/Formatter.h"
-
 #include "common/RenderOptions.h"
 
 /**
@@ -10,12 +9,12 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/Statistics.h"
-#include "render/render.h"
-#include "render/opengl.h"
-#include "raycasting/common/Raytracer.h"
-#include "raycasting/stochasticRaytracing/mcradP.h"
-#include "raycasting/stochasticRaytracing/hierarchy.h"
-#include "raycasting/stochasticRaytracing/stochjacobi.h"
+#include "render/Render.h"
+#include "render/Opengl.h"
+#include "raycasting/common/RayTracer.h"
+#include "raycasting/stochasticRaytracing/McradP.h"
+#include "raycasting/stochasticRaytracing/Hierarchy.h"
+#include "raycasting/stochasticRaytracing/Stochjacobi.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 

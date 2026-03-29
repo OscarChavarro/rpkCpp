@@ -1,7 +1,5 @@
 #include "common/Error.h"
-
 #include "scene/RadianceMethod.h"
-
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
 FlagChain::FlagChain(const int paramLength, const bool paramSubtract): length(), subtract() {
@@ -111,7 +109,7 @@ Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
 ColorRgb
-FlagChain::compute(CBiPath *path) const {
+FlagChain::compute(BiPath *path) const {
     ColorRgb result;
     ColorRgb tmpCol;
     result.setMonochrome(1.0);
@@ -212,7 +210,7 @@ FlagChainList::addDisjoint(const FlagChain &chain) {
 }
 
 ColorRgb
-FlagChainList::compute(CBiPath *path) {
+FlagChainList::compute(BiPath *path) {
     ColorRgb result;
     ColorRgb tmpCol;
 
@@ -286,7 +284,7 @@ ContribHandler::~ContribHandler() {
 }
 
 ColorRgb
-ContribHandler::compute(CBiPath *path) {
+ContribHandler::compute(BiPath *path) {
     ColorRgb result;
     int length;
 

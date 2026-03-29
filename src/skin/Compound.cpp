@@ -1,7 +1,5 @@
 #include "java/util/ArrayList.txx"
-
 #include "common/Statistics.h"
-
 #include "skin/Compound.h"
 
 /**

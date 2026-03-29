@@ -3,7 +3,7 @@
 
 #include "common/dataStructures/CircularList.h"
 
-class CBiPath;
+class BiPath;
 class ColorRgb;
 class Spar;
 class SparConfig;
@@ -13,7 +13,7 @@ class SparList final : public CircularList<Spar *> {
     void
     handlePath(
         SparConfig *config,
-        CBiPath *path,
+        BiPath *path,
         ColorRgb *fRad,
         ColorRgb *fBpt);
     ~SparList() final;

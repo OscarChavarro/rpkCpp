@@ -1,6 +1,6 @@
 #include "common/linealAlgebra/Matrix4x4d.h"
 
-MATRIX4Dd::MATRIX4Dd(): m() {
+Matrix4x4d::Matrix4x4d(): m() {
     for ( int i = 0; i < 4; i++ ) {
         for ( int j = 0; j < 4; j++ ) {
             if ( i == j ) {
@@ -13,7 +13,7 @@ MATRIX4Dd::MATRIX4Dd(): m() {
 }
 
 void
-MATRIX4Dd::copy(const MATRIX4Dd *source) {
+Matrix4x4d::copy(const Matrix4x4d *source) {
     for ( int i = 0; i < 4; i++ ) {
         for ( int j = 0; j < 4; j++ ) {
             m[i][j] = source->m[i][j];
@@ -25,9 +25,9 @@ MATRIX4Dd::copy(const MATRIX4Dd *source) {
 Transform vector v3b by m4 and put into v3a
 */
 void
-MATRIX4Dd::multiply(VECTOR3Dd *v3a, const VECTOR3Dd *v3b) const
+Matrix4x4d::multiply(Vector3Dd *v3a, const Vector3Dd *v3b) const
 {
-    MATRIX4Dd tmp;
+    Matrix4x4d tmp;
 
     tmp.m[0][0] = v3b->x * m[0][0] + v3b->y * m[1][0] + v3b->z * m[2][0];
     tmp.m[0][1] = v3b->x * m[0][1] + v3b->y * m[1][1] + v3b->z * m[2][1];
@@ -42,7 +42,7 @@ MATRIX4Dd::multiply(VECTOR3Dd *v3a, const VECTOR3Dd *v3b) const
 Transform p3b by m4 and put into p3a
 */
 void
-MATRIX4Dd::multiplyWithTranslation(VECTOR3Dd *p3a, const VECTOR3Dd *p3b) const
+Matrix4x4d::multiplyWithTranslation(Vector3Dd *p3a, const Vector3Dd *p3b) const
 {
     multiply(p3a, p3b); // Transform as vector
     p3a->x += m[3][0]; // Translate
@@ -51,8 +51,8 @@ MATRIX4Dd::multiplyWithTranslation(VECTOR3Dd *p3a, const VECTOR3Dd *p3b) const
 }
 
 void
-MATRIX4Dd::identity() {
-    MATRIX4Dd tmp;
+Matrix4x4d::identity() {
+    Matrix4x4d tmp;
     copy(&tmp);
 }
 
@@ -60,9 +60,9 @@ MATRIX4Dd::identity() {
 Multiply m4b X m4c and put into m4a
 */
 void
-multiplyMatrix4(MATRIX4Dd *m4a, const MATRIX4Dd *m4b, const MATRIX4Dd *m4c)
+multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c)
 {
-    MATRIX4Dd tmp;
+    Matrix4x4d tmp;
     for ( int i = 3; i >= 0; i-- ) {
         for ( int j = 3; j >= 0; j-- ) {
             tmp.m[i][j] =

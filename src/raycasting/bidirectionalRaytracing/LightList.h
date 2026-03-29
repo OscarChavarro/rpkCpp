@@ -7,11 +7,8 @@ this class can be used for sampling lights
 #define __LIGHT_LIST__
 
 #include "java/util/ArrayList.h"
-
 #include "common/dataStructures/CircularList.h"
-
 #include "raycasting/bidirectionalRaytracing/LightInfo.h"
-
 #include "skin/Patch.h"
 
 class LightListIterator;

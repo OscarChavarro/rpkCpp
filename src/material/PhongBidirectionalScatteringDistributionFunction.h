@@ -9,7 +9,6 @@ functions that relate to brdf or btdf like reflectance etc.
 
 #include "common/ColorRgb.h"
 #include "common/RenderOptions.h"
-
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/RayHit.h"

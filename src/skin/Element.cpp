@@ -1,5 +1,4 @@
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 

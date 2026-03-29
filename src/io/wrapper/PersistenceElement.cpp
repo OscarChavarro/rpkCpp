@@ -3,9 +3,7 @@
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
-
 #include "io/wrapper/PersistenceElement.h"
 
 namespace vsdk {
@@ -1022,7 +1020,7 @@ PersistenceElement::verifyLibrary(const char *libname) {
 
 #if defined(_WIN32)
     char pathSeparator = ';';
-    const char *envPath = std::getenv("PATH");
+    const char *envPath = std::getenv("Path");
     const bool found = containsExistingLibrary(envPath, pathSeparator, nativeLibname);
 #else
     char pathSeparator = ':';

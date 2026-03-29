@@ -7,11 +7,8 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-
 #include "common/Error.h"
-
 #include "skin/MinMaxBox.h"
-
 #include "scene/VoxelGrid.h"
 
 static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;

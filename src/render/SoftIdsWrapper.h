@@ -2,12 +2,11 @@
 #define _SOFT_IDS_WRAPPER__
 
 #include "java/util/ArrayList.h"
-
-#include "render/softids.h"
+#include "render/Softids.h"
 
 class SoftIdsWrapper {
   private:
-    SGL_CONTEXT *sgl; // Software rendering context, includes frame buffer
+    SglContext *sgl; // Software rendering context, includes frame buffer
 
     void init(const Scene *scene, const RenderOptions *renderOptions); // Also performs the actual ID rendering
 
