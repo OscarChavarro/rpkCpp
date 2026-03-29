@@ -10,8 +10,11 @@
 #include "io/context/ReaderStackState.h"
 #include "io/context/GeometryBuildState.h"
 #include "io/context/MaterialState.h"
-#include "io/context/ColorState.h"
-#include "io/context/TransformState.h"
+#include "io/context/ColorRepository.h"
+#include "io/context/MaterialRepository.h"
+#include "io/context/VertexRepository.h"
+#include "io/context/ObjectHierarchyState.h"
+#include "io/context/TransformStack.h"
 
 namespace java {
 template <class T>
@@ -33,8 +36,11 @@ class MgfParseSession {
     ReaderStackState readerStackState;
     GeometryBuildState geometryBuildState;
     MaterialState materialState;
-    ColorState colorState;
-    TransformState transformState;
+    ColorRepository colorRepository;
+    MaterialRepository materialRepository;
+    VertexRepository vertexRepository;
+    ObjectHierarchyState objectHierarchyState;
+    TransformStack transformStack;
 
     PersistedSceneModel *model;
 
@@ -53,6 +59,8 @@ class MgfParseSession {
     Material *&currentMaterial;
     EntityNamesArray &entityNames;
     ErrorMessagesArray &errorCodeMessages;
+    LookUpTable &entityLookUpTable;
+    int &nextFileContextId;
     ReaderContext *&readerContext;
     HandlerArray &handleCallbacks;
     HandlerArray &supportCallbacks;
@@ -70,6 +78,7 @@ class MgfParseSession {
     ColorContext *&currentColor;
     bool &inSurface;
     bool &inComplex;
+    bool &warpConeEnds;
     LookUpTable *&vertexLookUpTable;
     java::ArrayList<Geometry *> *&allGeometries;
     java::ArrayList<Geometry *> *&geometries;

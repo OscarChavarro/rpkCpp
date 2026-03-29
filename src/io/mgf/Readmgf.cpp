@@ -381,39 +381,54 @@ handleIncludedFile(int ac, const char **av, MgfParseSession *context) {
 }
 
 namespace {
-static constexpr int TOTAL_MGF_HANDLER_TYPES = static_cast<int>(MgfHandlerType::HANDLE_OBJECT) + 1;
+static void
+ensureSessionHandlerRegistry(MgfParseSession *context) {
+    if ( context == nullptr ) {
+        return;
+    }
 
-static MgfStaticHandler globalMgfHandlers[TOTAL_MGF_HANDLER_TYPES] = {
-    MgfStaticHandler(MgfHandlerType::DISCARD_UNNEEDED, mgfDiscardUnNeededEntity),
-    MgfStaticHandler(MgfHandlerType::INCLUDE_FILE, handleIncludedFile),
-    MgfStaticHandler(MgfHandlerType::ENTITY_SPHERE, mgfEntitySphere),
-    MgfStaticHandler(MgfHandlerType::ENTITY_TORUS, mgfEntityTorus),
-    MgfStaticHandler(MgfHandlerType::ENTITY_CYLINDER, mgfEntityCylinder),
-    MgfStaticHandler(MgfHandlerType::ENTITY_RING, mgfEntityRing),
-    MgfStaticHandler(MgfHandlerType::ENTITY_CONE, mgfEntityCone),
-    MgfStaticHandler(MgfHandlerType::ENTITY_PRISM, mgfEntityPrism),
-    MgfStaticHandler(MgfHandlerType::ENTITY_FACE_WITH_HOLES, mgfEntityFaceWithHoles),
-    MgfStaticHandler(MgfHandlerType::COLOR_SPEC_HELPER, mgfECSpec),
-    MgfStaticHandler(MgfHandlerType::COLOR_MIX_HELPER, mgfECMix),
-    MgfStaticHandler(MgfHandlerType::COLOR_TEMPERATURE_HELPER, mgfColorTemperature),
-    MgfStaticHandler(MgfHandlerType::HANDLE_VERTEX, handleVertexEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_FACE, handleFaceEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_FACE_WITH_HOLES, handleFaceWithHolesEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_SURFACE, handleSurfaceEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_COLOR, handleColorEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_MATERIAL, handleMaterialEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_TRANSFORM, handleTransformationEntity),
-    MgfStaticHandler(MgfHandlerType::HANDLE_OBJECT, handleObjectEntity)
-};
+    MgfEntityHandler **handlers = context->readerStackState.handlerByType;
+    if ( handlers[0] != nullptr ) {
+        return;
+    }
+
+    handlers[static_cast<int>(MgfHandlerType::DISCARD_UNNEEDED)] = new MgfStaticHandler(MgfHandlerType::DISCARD_UNNEEDED, mgfDiscardUnNeededEntity);
+    handlers[static_cast<int>(MgfHandlerType::INCLUDE_FILE)] = new MgfStaticHandler(MgfHandlerType::INCLUDE_FILE, handleIncludedFile);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_SPHERE)] = new MgfStaticHandler(MgfHandlerType::ENTITY_SPHERE, mgfEntitySphere);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_TORUS)] = new MgfStaticHandler(MgfHandlerType::ENTITY_TORUS, mgfEntityTorus);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_CYLINDER)] = new MgfStaticHandler(MgfHandlerType::ENTITY_CYLINDER, mgfEntityCylinder);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_RING)] = new MgfStaticHandler(MgfHandlerType::ENTITY_RING, mgfEntityRing);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_CONE)] = new MgfStaticHandler(MgfHandlerType::ENTITY_CONE, mgfEntityCone);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_PRISM)] = new MgfStaticHandler(MgfHandlerType::ENTITY_PRISM, mgfEntityPrism);
+    handlers[static_cast<int>(MgfHandlerType::ENTITY_FACE_WITH_HOLES)] = new MgfStaticHandler(MgfHandlerType::ENTITY_FACE_WITH_HOLES, mgfEntityFaceWithHoles);
+    handlers[static_cast<int>(MgfHandlerType::COLOR_SPEC_HELPER)] = new MgfStaticHandler(MgfHandlerType::COLOR_SPEC_HELPER, mgfECSpec);
+    handlers[static_cast<int>(MgfHandlerType::COLOR_MIX_HELPER)] = new MgfStaticHandler(MgfHandlerType::COLOR_MIX_HELPER, mgfECMix);
+    handlers[static_cast<int>(MgfHandlerType::COLOR_TEMPERATURE_HELPER)] = new MgfStaticHandler(MgfHandlerType::COLOR_TEMPERATURE_HELPER, mgfColorTemperature);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_VERTEX)] = new MgfStaticHandler(MgfHandlerType::HANDLE_VERTEX, handleVertexEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_FACE)] = new MgfStaticHandler(MgfHandlerType::HANDLE_FACE, handleFaceEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_FACE_WITH_HOLES)] = new MgfStaticHandler(MgfHandlerType::HANDLE_FACE_WITH_HOLES, handleFaceWithHolesEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_SURFACE)] = new MgfStaticHandler(MgfHandlerType::HANDLE_SURFACE, handleSurfaceEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_COLOR)] = new MgfStaticHandler(MgfHandlerType::HANDLE_COLOR, handleColorEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_MATERIAL)] = new MgfStaticHandler(MgfHandlerType::HANDLE_MATERIAL, handleMaterialEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_TRANSFORM)] = new MgfStaticHandler(MgfHandlerType::HANDLE_TRANSFORM, handleTransformationEntity);
+    handlers[static_cast<int>(MgfHandlerType::HANDLE_OBJECT)] = new MgfStaticHandler(MgfHandlerType::HANDLE_OBJECT, handleObjectEntity);
+}
 }
 
 MgfEntityHandler *
-mgfHandlerFromType(MgfHandlerType handlerType) {
+mgfHandlerFromType(MgfParseSession *context, MgfHandlerType handlerType) {
+    ensureSessionHandlerRegistry(context);
+
     const int handlerIndex = static_cast<int>(handlerType);
     if ( handlerIndex < 0 || handlerIndex >= TOTAL_MGF_HANDLER_TYPES ) {
         Error::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
     }
-    return &globalMgfHandlers[handlerIndex];
+
+    MgfEntityHandler *handler = context->readerStackState.handlerByType[handlerIndex];
+    if ( handler == nullptr ) {
+        Error::fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+    }
+    return handler;
 }
 
 bool
@@ -435,43 +450,43 @@ mgfAlternativeInit(
 
     // Pick up slack
     if ( handleCallbacks[IES] == nullptr) {
-        handleCallbacks[IES] = mgfHandlerFromType(MgfHandlerType::DISCARD_UNNEEDED);
+        handleCallbacks[IES] = mgfHandlerFromType(context, MgfHandlerType::DISCARD_UNNEEDED);
     }
     if ( handleCallbacks[INCLUDE] == nullptr ) {
-        handleCallbacks[INCLUDE] = mgfHandlerFromType(MgfHandlerType::INCLUDE_FILE);
+        handleCallbacks[INCLUDE] = mgfHandlerFromType(context, MgfHandlerType::INCLUDE_FILE);
     }
     if ( handleCallbacks[EntityContext::SPHERE] == nullptr) {
-        handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(MgfHandlerType::ENTITY_SPHERE);
+        handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_SPHERE);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
     }
     if ( handleCallbacks[EntityContext::CYLINDER] == nullptr) {
-        handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(MgfHandlerType::ENTITY_CYLINDER);
+        handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_CYLINDER);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
     }
     if ( handleCallbacks[EntityContext::CONE] == nullptr) {
-        handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(MgfHandlerType::ENTITY_CONE);
+        handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_CONE);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
     }
     if ( handleCallbacks[EntityContext::RING] == nullptr) {
-        handleCallbacks[EntityContext::RING] = mgfHandlerFromType(MgfHandlerType::ENTITY_RING);
+        handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_RING);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
     }
     if ( handleCallbacks[EntityContext::PRISM] == nullptr) {
-        handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(MgfHandlerType::ENTITY_PRISM);
+        handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_PRISM);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
     }
     if ( handleCallbacks[EntityContext::TORUS] == nullptr) {
-        handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(MgfHandlerType::ENTITY_TORUS);
+        handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_TORUS);
         iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX;
     } else {
         uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
@@ -479,19 +494,19 @@ mgfAlternativeInit(
     if ( handleCallbacks[EntityContext::FACE] == nullptr) {
         handleCallbacks[EntityContext::FACE] = handleCallbacks[EntityContext::FACE_WITH_HOLES];
     } else if ( handleCallbacks[EntityContext::FACE_WITH_HOLES] == nullptr) {
-        handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(MgfHandlerType::ENTITY_FACE_WITH_HOLES);
+        handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, MgfHandlerType::ENTITY_FACE_WITH_HOLES);
     }
     if ( handleCallbacks[EntityContext::COLOR] != nullptr) {
         if ( handleCallbacks[EntityContext::C_MIX] == nullptr) {
-            handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(MgfHandlerType::COLOR_MIX_HELPER);
+            handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, MgfHandlerType::COLOR_MIX_HELPER);
             iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
         }
         if ( handleCallbacks[EntityContext::C_SPEC] == nullptr) {
-            handleCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(MgfHandlerType::COLOR_SPEC_HELPER);
+            handleCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, MgfHandlerType::COLOR_SPEC_HELPER);
             iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
         }
         if ( handleCallbacks[EntityContext::CCT] == nullptr) {
-            handleCallbacks[EntityContext::CCT] = mgfHandlerFromType(MgfHandlerType::COLOR_TEMPERATURE_HELPER);
+            handleCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, MgfHandlerType::COLOR_TEMPERATURE_HELPER);
             iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
         }
     }
@@ -522,34 +537,34 @@ mgfAlternativeInit(
 
     // Add support as needed
     if ( iNeed & 1L << EntityContext::VERTEX && !mgfHandlerMatches(handleCallbacks[EntityContext::VERTEX], MgfHandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
+        context->supportCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::MGF_POINT && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_POINT], MgfHandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
+        context->supportCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::MGF_NORMAL && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_NORMAL], MgfHandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
+        context->supportCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::COLOR && !mgfHandlerMatches(handleCallbacks[EntityContext::COLOR], MgfHandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::COLOR] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+        context->supportCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::CXY && !mgfHandlerMatches(handleCallbacks[EntityContext::CXY], MgfHandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::CXY] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+        context->supportCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::C_SPEC && !mgfHandlerMatches(handleCallbacks[EntityContext::C_SPEC], MgfHandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+        context->supportCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::C_MIX && !mgfHandlerMatches(handleCallbacks[EntityContext::C_MIX], MgfHandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+        context->supportCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::CCT && !mgfHandlerMatches(handleCallbacks[EntityContext::CCT], MgfHandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::CCT] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+        context->supportCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
     }
 
     // Discard remaining entities
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( handleCallbacks[i] == nullptr) {
-            handleCallbacks[i] = mgfHandlerFromType(MgfHandlerType::DISCARD_UNNEEDED);
+            handleCallbacks[i] = mgfHandlerFromType(context, MgfHandlerType::DISCARD_UNNEEDED);
         }
     }
 }
@@ -557,38 +572,38 @@ mgfAlternativeInit(
 static void
 initMgf(MgfParseSession *context) {
     // Related to ColorContext
-    context->handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
-    context->handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
-    context->handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
+    context->handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
+    context->handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
+    context->handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_COLOR);
 
     // Related to MgfMaterialContext
-    context->handleCallbacks[EntityContext::MGF_MATERIAL] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::ED] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::IR] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::RD] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::RS] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::SIDES] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::TD] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::TS] = mgfHandlerFromType(MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::MGF_MATERIAL] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::ED] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::IR] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::RD] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::RS] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::SIDES] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::TD] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
+    context->handleCallbacks[EntityContext::TS] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_MATERIAL);
 
     // Related to TransformStackContext
-    context->handleCallbacks[EntityContext::TRANSFORM] = mgfHandlerFromType(MgfHandlerType::HANDLE_TRANSFORM);
+    context->handleCallbacks[EntityContext::TRANSFORM] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_TRANSFORM);
 
     // Related to object, no explicit context
-    context->handleCallbacks[EntityContext::OBJECT] = mgfHandlerFromType(MgfHandlerType::HANDLE_OBJECT);
+    context->handleCallbacks[EntityContext::OBJECT] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_OBJECT);
 
     // Related to geometry elements, no explicit context
-    context->handleCallbacks[EntityContext::FACE] = mgfHandlerFromType(MgfHandlerType::HANDLE_FACE);
-    context->handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(MgfHandlerType::HANDLE_FACE_WITH_HOLES);
-    context->handleCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(MgfHandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::RING] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::FACE] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_FACE);
+    context->handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_FACE_WITH_HOLES);
+    context->handleCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
+    context->handleCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
+    context->handleCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_VERTEX);
+    context->handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
+    context->handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, MgfHandlerType::HANDLE_SURFACE);
 
     mgfAlternativeInit(context->handleCallbacks, context);
 }
@@ -748,7 +763,7 @@ mgfFreeMemory(MgfParseSession *context) {
         context->model = nullptr;
     }
 
-    mgfObjectFreeMemory();
-    mgfTransformFreeMemory();
-    mgfLookUpFreeMemory();
+    mgfObjectFreeMemory(context);
+    mgfTransformFreeMemory(context);
+    mgfLookUpFreeMemory(context);
 }

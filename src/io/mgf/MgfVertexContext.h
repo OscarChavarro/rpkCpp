@@ -3,7 +3,8 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "skin/Vertex.h"
-#include "io/context/MgfParseSession.h"
+
+class MgfParseSession;
 
 class MgfVertexContext {
   public:

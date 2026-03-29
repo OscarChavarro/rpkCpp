@@ -8,7 +8,6 @@
 
 static constexpr int MGF_PV_SIZE = 24;
 static constexpr char globalFloatFormat[] = "%.12g";
-static bool globalWarpConeEnds; // Hack for generating good normals
 
 /**
 Expand a sphere into cones
@@ -53,7 +52,7 @@ mgfEntitySphere(int ac, const char **av, MgfParseSession *context) {
     double rad = strtod(av[2], nullptr);
 
     // Initialize
-    globalWarpConeEnds = true;
+    context->warpConeEnds = true;
     int rVal = mgfHandle(EntityContext::VERTEX, 3, v2Entity, context);
     if ( rVal != ErrorCodeContext::MGF_OK ) {
         return rVal;
@@ -89,7 +88,7 @@ mgfEntitySphere(int ac, const char **av, MgfParseSession *context) {
             return rVal;
         }
     }
-    globalWarpConeEnds = false;
+    context->warpConeEnds = false;
     return ErrorCodeContext::MGF_OK;
 }
 
@@ -159,7 +158,7 @@ mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
     }
 
     // Initialize
-    globalWarpConeEnds = true;
+    context->warpConeEnds = true;
     v2Entity[3] = av[1];
     java::util::Formatter::format(p2[0], 24, globalFloatFormat, cv->p.x + 0.5 * sign * (maxRad - minRad) * cv->n.x);
     java::util::Formatter::format(p2[1], 24, globalFloatFormat, cv->p.y + 0.5 * sign * (maxRad - minRad) * cv->n.y);
@@ -227,7 +226,7 @@ mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
             return rVal;
         }
     }
-    globalWarpConeEnds = false;
+    context->warpConeEnds = false;
     return ErrorCodeContext::MGF_OK;
 }
 
@@ -595,7 +594,7 @@ mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
         return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     n1off = n2off = (radius2 - radius1) / d;
-    if ( globalWarpConeEnds ) {
+    if ( context->warpConeEnds ) {
         // Hack for mgfEntitySphere and mgfEntityTorus
         d = java::Math::atan(n2off) - (M_PI / 4) / context->numberOfQuarterCircleDivisions;
         if ( d <= -M_PI / 2 + Numeric::EPSILON ) {
@@ -704,7 +703,7 @@ mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
     } else {
         // Quads
         v1Entity[3] = "_cv4";
-        if ( globalWarpConeEnds ) {
+        if ( context->warpConeEnds ) {
             // Hack for mgfEntitySphere and mgfEntityTorus
             d = java::Math::atan(n1off) + (M_PI / 4) / context->numberOfQuarterCircleDivisions;
             if ( d >= M_PI / 2 - Numeric::EPSILON ) {

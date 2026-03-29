@@ -6,6 +6,6 @@
 extern int handleObjectEntity(int argc, const char **argv, MgfParseSession * /*context*/);
 extern void mgfObjectNewSurface(MgfParseSession *context);
 extern void mgfObjectSurfaceDone(MgfParseSession *context);
-extern void mgfObjectFreeMemory();
+extern void mgfObjectFreeMemory(MgfParseSession *context);
 
 #endif

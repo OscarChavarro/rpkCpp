@@ -18,15 +18,6 @@ TRANSFORM_XID(const TransformStackContext *xf) {
     return xf == nullptr ? 0L : xf->xid;
 }
 
-static const Vector3Dd ZERO_VECTOR(0.0, 0.0, 0.0);
-static const MgfVertexContext DEFAULT_VERTEX(
-    ZERO_VECTOR, ZERO_VECTOR, 0, 1, nullptr
-);
-
-static MgfVertexContext globalMgfVertexContext = DEFAULT_VERTEX;
-static MgfVertexContext *globalMgfCurrentVertex = &globalMgfVertexContext;
-static MgfVertexContext globalMgfDefaultVertexContext = DEFAULT_VERTEX;
-
 /**
 The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
 into polygons. In the official release of the parser library, these routines
@@ -747,6 +738,8 @@ Handle a vertex entity
 int
 handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
     LookUpEntity *lp;
+    MgfVertexContext *&currentVertexContext = context->vertexRepository.currentVertex;
+    LookUpTable *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
 
     switch ( mgfEntity(av[0], context) ) {
         case EntityContext::VERTEX:
@@ -756,24 +749,24 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
             }
             if ( ac == 1 ) {
                 // Set unnamed vertex context
-                globalMgfVertexContext = globalMgfDefaultVertexContext;
-                globalMgfCurrentVertex = &globalMgfVertexContext;
+                context->vertexRepository.unNamedVertexContext = context->vertexRepository.defaultVertexContext;
+                currentVertexContext = &context->vertexRepository.unNamedVertexContext;
                 context->currentVertexName = nullptr;
                 return ErrorCodeContext::MGF_OK;
             }
             if ( !WordsContext::isName(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = context->vertexLookUpTable->lookUpFind(av[1]);
+            lp = vertexLookUpTable->lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentVertexName = lp->key;
-            globalMgfCurrentVertex = reinterpret_cast<MgfVertexContext *>(lp->data);
+            currentVertexContext = reinterpret_cast<MgfVertexContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
-                if ( globalMgfCurrentVertex == nullptr) {
+                if ( currentVertexContext == nullptr) {
                     return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return ErrorCodeContext::MGF_OK;
@@ -781,7 +774,7 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
             if ( av[2][0] != '=' || av[2][1] ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( globalMgfCurrentVertex == nullptr  ) {
+            if ( currentVertexContext == nullptr  ) {
                 // Create new vertex context
                 context->currentVertexName = new char[strlen(av[1]) + 1];
                 if ( context->currentVertexName == nullptr ) {
@@ -789,18 +782,18 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
-                globalMgfCurrentVertex = reinterpret_cast<MgfVertexContext *>(new char[sizeof(MgfVertexContext)]);
-                if ( globalMgfCurrentVertex == nullptr ) {
+                currentVertexContext = reinterpret_cast<MgfVertexContext *>(new char[sizeof(MgfVertexContext)]);
+                if ( currentVertexContext == nullptr ) {
                     return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
-                lp->data = reinterpret_cast<char *>(globalMgfCurrentVertex);
+                lp->data = reinterpret_cast<char *>(currentVertexContext);
             }
             if ( ac == 3 ) {
                 // Use default template
-                *globalMgfCurrentVertex = globalMgfDefaultVertexContext;
+                *currentVertexContext = context->vertexRepository.defaultVertexContext;
                 return ErrorCodeContext::MGF_OK;
             }
-            lp = context->vertexLookUpTable->lookUpFind(av[3]);
+            lp = vertexLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
@@ -808,8 +801,8 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
             if ( lp->data == nullptr) {
                 return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *globalMgfCurrentVertex = *reinterpret_cast<MgfVertexContext *>(lp->data);
-            globalMgfCurrentVertex->clock++;
+            *currentVertexContext = *reinterpret_cast<MgfVertexContext *>(lp->data);
+            currentVertexContext->clock++;
             return ErrorCodeContext::MGF_OK;
         case EntityContext::MGF_POINT:
             // Set point
@@ -819,10 +812,10 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentVertex->p.x = strtod(av[1], nullptr);
-            globalMgfCurrentVertex->p.y = strtod(av[2], nullptr);
-            globalMgfCurrentVertex->p.z = strtod(av[3], nullptr);
-            globalMgfCurrentVertex->clock++;
+            currentVertexContext->p.x = strtod(av[1], nullptr);
+            currentVertexContext->p.y = strtod(av[2], nullptr);
+            currentVertexContext->p.z = strtod(av[3], nullptr);
+            currentVertexContext->clock++;
             return ErrorCodeContext::MGF_OK;
         case EntityContext::MGF_NORMAL:
             // Set normal
@@ -832,11 +825,11 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentVertex->n.x = strtod(av[1], nullptr);
-            globalMgfCurrentVertex->n.y = strtod(av[2], nullptr);
-            globalMgfCurrentVertex->n.z = strtod(av[3], nullptr);
-            globalMgfCurrentVertex->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
-            globalMgfCurrentVertex->clock++;
+            currentVertexContext->n.x = strtod(av[1], nullptr);
+            currentVertexContext->n.y = strtod(av[2], nullptr);
+            currentVertexContext->n.z = strtod(av[3], nullptr);
+            currentVertexContext->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
+            currentVertexContext->clock++;
             return ErrorCodeContext::MGF_OK;
         default:
             break;
@@ -849,7 +842,7 @@ Get a named vertex
 */
 MgfVertexContext *
 getNamedVertex(const char *name, MgfParseSession *context) {
-    LookUpEntity *lp = context->vertexLookUpTable->lookUpFind(name);
+    LookUpEntity *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
         return nullptr;
@@ -859,8 +852,6 @@ getNamedVertex(const char *name, MgfParseSession *context) {
 
 void
 initGeometryContextTables(MgfParseSession *context) {
-    globalMgfVertexContext = globalMgfDefaultVertexContext;
-    globalMgfCurrentVertex = &globalMgfVertexContext;
+    context->vertexRepository.reset();
     context->currentVertexName = nullptr;
-    context->vertexLookUpTable->lookUpDone();
 }

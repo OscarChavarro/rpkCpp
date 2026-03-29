@@ -1,13 +1,17 @@
 #include <cstring>
 
 #include "io/context/ReaderStackState.h"
+#include "io/mgf/MgfEntityHandler.h"
 
 ReaderStackState::ReaderStackState():
     entityNames(),
     errorCodeMessages(),
+    entityLookUpTable(LookUpBehaviors::nonOwningCString()),
+    nextFileContextId(0),
     readerContext(nullptr),
     handleCallbacks(),
-    supportCallbacks()
+    supportCallbacks(),
+    handlerByType()
 {
     std::strcpy(entityNames[0], "#");
     std::strcpy(entityNames[1], "c");
@@ -52,4 +56,13 @@ ReaderStackState::ReaderStackState():
     errorCodeMessages[10] = "Illegal material specification";
     errorCodeMessages[11] = "Input line too long";
     errorCodeMessages[12] = "Unmatched context close";
+}
+
+ReaderStackState::~ReaderStackState() {
+    for ( int i = 0; i < TOTAL_MGF_HANDLER_TYPES; i++ ) {
+        if ( handlerByType[i] != nullptr ) {
+            delete handlerByType[i];
+            handlerByType[i] = nullptr;
+        }
+    }
 }

@@ -11,25 +11,6 @@ Routines for 4x4 homogeneous, rigid-body transformations
 #include "io/mgf/Badarg.h"
 #include "io/mgf/MgfDefinitions.h"
 
-static char **globalTransformArgumentListBeginning;
-static int globalTransformArgumentCount = 0;
-static char globalTransformIterateArgument[] = "-i";
-
-static int
-transformArgumentCount(const TransformStackContext *xf) {
-    return xf == nullptr ? 0 : xf->xac;
-}
-
-static int
-transformArgumentStartIndex(const TransformStackContext *xf) {
-    return globalTransformArgumentCount - transformArgumentCount(xf);
-}
-
-static char **
-transformArgumentVector(const TransformStackContext *xf) {
-    return &globalTransformArgumentListBeginning[transformArgumentStartIndex(xf)];
-}
-
 /**
 Compute unique ID from matrix
 */
@@ -52,23 +33,6 @@ computeUniqueId(const Matrix4x4d *xfm) {
         xid ^= static_cast<long>((reinterpret_cast<const unsigned short *>(xfm->m))[i] << shiftTab[i & 63]);
     }
     return xid;
-}
-
-/**
-Free a transform
-*/
-static void
-free_xf(const TransformStackContext *spec) {
-    if ( spec->ownedArgumentCopies != nullptr ) {
-        for ( int i = 0; i < spec->ownedArgumentCount; i++ ) {
-            delete[] spec->ownedArgumentCopies[i];
-        }
-        delete[] spec->ownedArgumentCopies;
-    }
-    if ( spec->transformationArray != nullptr ) {
-        delete spec->transformationArray;
-    }
-    delete spec;
 }
 
 static double
@@ -114,8 +78,9 @@ Allocate new transform structure
 */
 static TransformStackContext *
 newTransform(int ac, const char **av, MgfParseSession *context) {
+    TransformStack &stack = context->transformStack;
     int nDim = 0;
-    const int previousArgumentCount = transformArgumentCount(context->transformContext);
+    const int previousArgumentCount = stack.argumentCountFor(context->transformContext);
 
     // Compute space required by arguments
     for ( int i = 0; i < ac; i++ ) {
@@ -148,7 +113,7 @@ newTransform(int ac, const char **av, MgfParseSession *context) {
     if ( nDim != 0 ) {
         spec->transformationArray = new TransformArray;
         if ( spec->transformationArray == nullptr) {
-            free_xf(spec);
+            stack.freeTransformContext(spec);
             return nullptr;
         }
         mgfGetFilePosition(&spec->transformationArray->startingPosition, context);
@@ -164,25 +129,25 @@ newTransform(int ac, const char **av, MgfParseSession *context) {
     if ( spec->xac > 0 ) {
         newArgumentList = new char *[spec->xac + 1];
         if ( newArgumentList == nullptr ) {
-            free_xf(spec);
+            stack.freeTransformContext(spec);
             return nullptr;
         }
 
-        const int previousStartIndex = globalTransformArgumentCount - previousArgumentCount;
+        const int previousStartIndex = stack.argumentCount - previousArgumentCount;
         for ( int i = 0; i < previousArgumentCount; i++ ) {
-            newArgumentList[ac + i] = globalTransformArgumentListBeginning[previousStartIndex + i];
+            newArgumentList[ac + i] = stack.argumentList[previousStartIndex + i];
         }
         newArgumentList[spec->xac] = nullptr;
     }
-    delete[] globalTransformArgumentListBeginning;
-    globalTransformArgumentListBeginning = newArgumentList;
-    globalTransformArgumentCount = spec->xac;
+    delete[] stack.argumentList;
+    stack.argumentList = newArgumentList;
+    stack.argumentCount = spec->xac;
 
     // Use memory allocated above
-    char **specArguments = ac > 0 ? transformArgumentVector(spec) : nullptr;
+    char **specArguments = ac > 0 ? stack.argumentVectorFor(spec) : nullptr;
     for ( int i = 0; i < ac; i++ ) {
         if ( !strcmp(av[i], "-a") ) {
-            specArguments[i] = globalTransformIterateArgument;
+            specArguments[i] = stack.iterateArgument;
             spec->ownedArgumentCopies[i] = nullptr;
             i++;
             specArguments[i] = strcpy(
@@ -195,7 +160,7 @@ newTransform(int ac, const char **av, MgfParseSession *context) {
             const unsigned long n = strlen(av[i]) + 1;
             char *argumentCopy = new char[n];
             if ( argumentCopy == nullptr ) {
-                free_xf(spec);
+                stack.freeTransformContext(spec);
                 return nullptr;
             }
             strcpy(argumentCopy, av[i]);
@@ -453,27 +418,8 @@ xf(TransformContext *ret, int ac, char **av) {
 }
 
 static bool
-compactTransformArguments(const TransformStackContext *context) {
-    const int contextArgumentCount = transformArgumentCount(context);
-    char **newArgumentList = nullptr;
-
-    if ( contextArgumentCount > 0 ) {
-        newArgumentList = new char *[contextArgumentCount + 1];
-        if ( newArgumentList == nullptr ) {
-            return false;
-        }
-
-        const int sourceStartIndex = globalTransformArgumentCount - contextArgumentCount;
-        for ( int i = 0; i < contextArgumentCount; i++ ) {
-            newArgumentList[i] = globalTransformArgumentListBeginning[sourceStartIndex + i];
-        }
-        newArgumentList[contextArgumentCount] = nullptr;
-    }
-
-    delete[] globalTransformArgumentListBeginning;
-    globalTransformArgumentListBeginning = newArgumentList;
-    globalTransformArgumentCount = contextArgumentCount;
-    return true;
+compactTransformArguments(MgfParseSession *context, const TransformStackContext *stackContext) {
+    return context->transformStack.compactTo(stackContext);
 }
 
 /**
@@ -481,6 +427,7 @@ Handle xf entity
 */
 int
 handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
+    TransformStack &stack = context->transformStack;
     TransformStackContext *spec;
     int n;
 
@@ -515,11 +462,11 @@ handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
         }
         if ( n < 0 ) {
             // Pop transform
-            if ( !compactTransformArguments(spec->prev) ) {
+            if ( !compactTransformArguments(context, spec->prev) ) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->transformContext = spec->prev;
-            free_xf(spec);
+            stack.freeTransformContext(spec);
             return ErrorCodeContext::MGF_OK;
         }
     } else {
@@ -536,9 +483,9 @@ handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
     }
 
     // Translate new specification
-    n = transformArgumentCount(spec);
-    n -= transformArgumentCount(spec->prev); // Incremental comp. is more eff.
-    if ( xf(&spec->xf, n, transformArgumentVector(spec)) != n ) {
+    n = stack.argumentCountFor(spec);
+    n -= stack.argumentCountFor(spec->prev); // Incremental comp. is more eff.
+    if ( xf(&spec->xf, n, stack.argumentVectorFor(spec)) != n ) {
         return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
     }
 
@@ -558,8 +505,8 @@ handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
 }
 
 void
-mgfTransformFreeMemory() {
-    delete[] globalTransformArgumentListBeginning;
-    globalTransformArgumentListBeginning = nullptr;
-    globalTransformArgumentCount = 0;
+mgfTransformFreeMemory(MgfParseSession *context) {
+    if ( context != nullptr ) {
+        context->transformStack.clearArguments();
+    }
 }

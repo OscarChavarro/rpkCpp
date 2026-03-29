@@ -5,8 +5,6 @@
 #include "io/mgf/MgfDefinitions.h"
 #include "io/mgf/MgfHandlerColor.h"
 
-static LookUpTable globalColorTable(LookUpBehaviors::owningCString());
-
 /**
 Handle color entity
 */
@@ -31,7 +29,7 @@ handleColorEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isName(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = globalColorTable.lookUpFind(av[1]); // Lookup context
+            lp = context->colorRepository.colorLookUpTable->lookUpFind(av[1]); // Lookup context
             if ( lp == nullptr) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -66,7 +64,7 @@ handleColorEntity(int ac, const char **av, MgfParseSession *context) {
                 context->currentColor->clock = i + 1;
                 return ErrorCodeContext::MGF_OK;
             }
-            lp = globalColorTable.lookUpFind(av[3]);
+            lp = context->colorRepository.colorLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
@@ -125,7 +123,7 @@ handleColorEntity(int ac, const char **av, MgfParseSession *context) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             wSum = strtod(av[1], nullptr);
-            lp = globalColorTable.lookUpFind(av[2]);
+            lp = context->colorRepository.colorLookUpTable->lookUpFind(av[2]);
             if ( lp == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
@@ -138,7 +136,7 @@ handleColorEntity(int ac, const char **av, MgfParseSession *context) {
                     return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
                 }
                 const double w = strtod(av[i], nullptr);
-                lp = globalColorTable.lookUpFind(av[i + 1]);
+                lp = context->colorRepository.colorLookUpTable->lookUpFind(av[i + 1]);
                 if ( lp == nullptr ) {
                     return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
@@ -168,7 +166,5 @@ Empty context tables
 */
 void
 initColorContextTables(MgfParseSession *context) {
-    *(context->unNamedColorContext) = DEFAULT_COLOR_CONTEXT;
-    context->currentColor = context->unNamedColorContext;
-    globalColorTable.lookUpDone();
+    context->colorRepository.reset();
 }

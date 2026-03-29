@@ -4,20 +4,11 @@ Hierarchical object names tracking
 
 #include <cstring>
 
-#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "common/CppReAlloc.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "io/context/WordsContext.h"
 #include "io/mgf/MgfDefinitions.h"
 #include "io/mgf/MgfHandlerObject.h"
-
-static char **globalObjectNamesList; // Name list (names in hierarchy)
-static int globalObjectMaxName; // Allocated list size
-static int globalObjectNames; // Depth of name hierarchy
-
-// List increment ( > 1 )
-static constexpr int ALLOC_INC = 16;
 
 static void
 disposeCurrentSurfaceLists(MgfParseSession *context) {
@@ -94,15 +85,10 @@ mgfObjectNewSurface(MgfParseSession *context) {
 Handle an object entity statement
 */
 static int
-handleObject2Entity(int ac, const char **av) {
+handleObject2Entity(int ac, const char **av, MgfParseSession *context) {
     if ( ac == 1 ) {
         // Just pop top object
-        if ( globalObjectNames < 1 ) {
-            return ErrorCodeContext::MGF_ERROR_UNMATCHED_CONTEXT_CLOSE;
-        }
-        delete[] globalObjectNamesList[--globalObjectNames];
-        globalObjectNamesList[globalObjectNames] = nullptr;
-        return ErrorCodeContext::MGF_OK;
+        return context->objectHierarchyState.popName();
     }
     if ( ac != 2 ) {
         return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
@@ -110,36 +96,7 @@ handleObject2Entity(int ac, const char **av) {
     if ( !WordsContext::isName(av[1]) ) {
         return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    if ( globalObjectNames >= globalObjectMaxName - 1 ) {
-        // Enlarge array
-        if ( globalObjectMaxName == 0 ) {
-            globalObjectMaxName = ALLOC_INC;
-            globalObjectNamesList = new char *[globalObjectMaxName];
-        } else {
-            const int oldObjectMaxName = globalObjectMaxName;
-            globalObjectMaxName += ALLOC_INC;
-            globalObjectNamesList = CppReAlloc::reAlloc(
-                globalObjectNamesList,
-                oldObjectMaxName,
-                globalObjectMaxName);
-            if ( globalObjectNamesList == nullptr ) {
-                java::lang::System::err.println("Memory error");
-                java::lang::System::exit(1);
-            }
-        }
-        if ( globalObjectNamesList == nullptr ) {
-            return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
-        }
-    }
-
-    // Allocate new entry
-    globalObjectNamesList[globalObjectNames] = new char[strlen(av[1]) + 1];
-    if ( globalObjectNamesList[globalObjectNames] == nullptr) {
-        return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
-    }
-    strcpy(globalObjectNamesList[globalObjectNames++], av[1]);
-    globalObjectNamesList[globalObjectNames] = nullptr;
-    return ErrorCodeContext::MGF_OK;
+    return context->objectHierarchyState.pushName(av[1]);
 }
 
 void
@@ -226,16 +183,12 @@ handleObjectEntity(int argc, const char **argv, MgfParseSession *context) {
         }
     }
 
-    return handleObject2Entity(argc, argv);
+    return handleObject2Entity(argc, argv, context);
 }
 
 void
-mgfObjectFreeMemory() {
-    for ( int i = 0; i < globalObjectNames; i++ ) {
-        delete[] globalObjectNamesList[i];
+mgfObjectFreeMemory(MgfParseSession *context) {
+    if ( context != nullptr ) {
+        context->objectHierarchyState.clear();
     }
-    delete[] globalObjectNamesList;
-    globalObjectNamesList = nullptr;
-    globalObjectMaxName = 0;
-    globalObjectNames = 0;
 }

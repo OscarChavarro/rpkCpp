@@ -9,7 +9,6 @@ class ArrayList;
 }
 
 class Geometry;
-class LookUpTable;
 class Patch;
 class Vector3D;
 class Vertex;
@@ -29,7 +28,7 @@ class GeometryBuildState {
     char *currentObjectName;
     bool inSurface;
     bool inComplex;
-    LookUpTable *vertexLookUpTable;
+    bool warpConeEnds;
     java::ArrayList<Geometry *> *allGeometries;
 
     // Return model geometry output

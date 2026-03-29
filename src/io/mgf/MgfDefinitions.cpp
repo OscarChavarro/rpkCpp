@@ -6,8 +6,6 @@
 #include "io/context/LookUpEntity.h"
 #include "io/mgf/MgfDefinitions.h"
 
-static LookUpTable globalLookUpTable(LookUpBehaviors::nonOwningCString());
-
 static const char *
 standardInputPath() {
 #if defined(_WIN32)
@@ -112,19 +110,19 @@ Get entity number from its name
 */
 int
 mgfEntity(const char *name, MgfParseSession *context) {
-    if ( !globalLookUpTable.getCurrentTableSize() ) {
+    if ( !context->entityLookUpTable.getCurrentTableSize() ) {
         // Initialize hash table
-        if ( !globalLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
+        if ( !context->entityLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
             return -1;
         }
 
         for ( int i = TOTAL_NUMBER_OF_ENTITIES - 1; i >= 0; i-- ) {
             char *entityName = context->entityNames[i];
-            globalLookUpTable.lookUpFind(entityName)->key = entityName;
+            context->entityLookUpTable.lookUpFind(entityName)->key = entityName;
         }
     }
 
-    char *entityName = globalLookUpTable.lookUpFind(name)->key;
+    char *entityName = context->entityLookUpTable.lookUpFind(name)->key;
     if ( entityName == nullptr) {
         return -1;
     }
@@ -161,9 +159,7 @@ shaftCullOpen new input file
 */
 int
 mgfOpen(ReaderContext *readerContext, const char *functionCallback, MgfParseSession *context) {
-    static int numberOfFileIds;
-
-    readerContext->fileContextId = ++numberOfFileIds;
+    readerContext->fileContextId = ++context->nextFileContextId;
     readerContext->lineNumber = 0;
     readerContext->isPipe = 0;
     readerContext->inputStream = nullptr;
@@ -232,6 +228,8 @@ mgfClose(MgfParseSession *context) {
 }
 
 void
-mgfLookUpFreeMemory() {
-    globalLookUpTable.lookUpDone();
+mgfLookUpFreeMemory(MgfParseSession *context) {
+    if ( context != nullptr ) {
+        context->entityLookUpTable.lookUpDone();
+    }
 }

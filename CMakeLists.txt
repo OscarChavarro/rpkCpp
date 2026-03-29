@@ -115,6 +115,11 @@ set(MAIN_SRC
     src/io/context/MaterialState.cpp
     src/io/context/ColorState.cpp
     src/io/context/TransformState.cpp
+    src/io/context/ColorRepository.cpp
+    src/io/context/MaterialRepository.cpp
+    src/io/context/VertexRepository.cpp
+    src/io/context/ObjectHierarchyState.cpp
+    src/io/context/TransformStack.cpp
     src/io/context/LookUpEntity.cpp
     src/io/context/LookUpTable.cpp
     src/io/context/ColorContext.cpp

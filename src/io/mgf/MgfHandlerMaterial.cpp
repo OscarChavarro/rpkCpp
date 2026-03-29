@@ -9,30 +9,6 @@
 
 static constexpr int NUMBER_OF_SAMPLES = 3;
 
-static const MgfMaterialContext DEFAULT_MGF_MATERIAL_CONTEXT = {
-    1,
-    0,
-    1.0f,
-    0.0f,
-    0.0f,
-    DEFAULT_COLOR_CONTEXT,
-    0.0f,
-    DEFAULT_COLOR_CONTEXT,
-    0.0f,
-    DEFAULT_COLOR_CONTEXT,
-    0.0f,
-    DEFAULT_COLOR_CONTEXT,
-    0.0f,
-    0.0f,
-    DEFAULT_COLOR_CONTEXT,
-    0.0f
-};
-
-static MgfMaterialContext globalUnNamedMaterialContext = DEFAULT_MGF_MATERIAL_CONTEXT;
-static MgfMaterialContext globalDefaultMgfMaterial = DEFAULT_MGF_MATERIAL_CONTEXT;
-static MgfMaterialContext *globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-static LookUpTable globalMaterialLookUpTable(LookUpBehaviors::owningCString());
-
 /**
 Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
@@ -117,7 +93,7 @@ colorMax(ColorRgb col) {
 /**
 This routine checks whether the mgf material being used has changed. If it
 changed, this routine converts to our representation of materials and
-creates a new MATERIAL, which is added to the global material library.
+creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 int
@@ -129,6 +105,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSessio
     ColorRgb Rs;
     ColorRgb Ts;
     ColorRgb A;
+    MgfMaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
@@ -137,23 +114,23 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSessio
 
     // Is it another material than the one used for the previous face ?? If not, the
     // material remains the same
-    if ( strcmp(materialName, (*material)->getName()) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
+    if ( strcmp(materialName, (*material)->getName()) == 0 && currentMaterialContext->clock == 0 ) {
         return false;
     }
 
     Material *storedMaterial = materialLookup(materialName, context);
-    if ( storedMaterial != nullptr && globalMgfCurrentMaterial->clock == 0 ) {
+    if ( storedMaterial != nullptr && currentMaterialContext->clock == 0 ) {
         *material = storedMaterial;
         return true;
     }
 
     // New material, or a material that changed. Convert intensities and chromaticities
     // to our color model
-    mgfGetColor(&globalMgfCurrentMaterial->ed_c, globalMgfCurrentMaterial->ed, &Ed, context);
-    mgfGetColor(&globalMgfCurrentMaterial->rd_c, globalMgfCurrentMaterial->rd, &Rd, context);
-    mgfGetColor(&globalMgfCurrentMaterial->td_c, globalMgfCurrentMaterial->td, &Td, context);
-    mgfGetColor(&globalMgfCurrentMaterial->rs_c, globalMgfCurrentMaterial->rs, &Rs, context);
-    mgfGetColor(&globalMgfCurrentMaterial->ts_c, globalMgfCurrentMaterial->ts, &Ts, context);
+    mgfGetColor(&currentMaterialContext->ed_c, currentMaterialContext->ed, &Ed, context);
+    mgfGetColor(&currentMaterialContext->rd_c, currentMaterialContext->rd, &Rd, context);
+    mgfGetColor(&currentMaterialContext->td_c, currentMaterialContext->td, &Td, context);
+    mgfGetColor(&currentMaterialContext->rs_c, currentMaterialContext->rs, &Rs, context);
+    mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
     A.add(Rd, Rs);
@@ -183,15 +160,15 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSessio
     float Nt;
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
-    if ( globalMgfCurrentMaterial->rs_a != 0.0 ) {
-        Nr = 0.6f / globalMgfCurrentMaterial->rs_a;
+    if ( currentMaterialContext->rs_a != 0.0 ) {
+        Nr = 0.6f / currentMaterialContext->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
-    if ( globalMgfCurrentMaterial->ts_a != 0.0 ) {
-        Nt = 0.6f / globalMgfCurrentMaterial->ts_a;
+    if ( currentMaterialContext->ts_a != 0.0 ) {
+        Nt = 0.6f / currentMaterialContext->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
@@ -223,8 +200,8 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSessio
             &Td,
             &Ts,
             Nt,
-            globalMgfCurrentMaterial->nr,
-            globalMgfCurrentMaterial->ni);
+            currentMaterialContext->nr,
+            currentMaterialContext->ni);
     }
 
     PhongBidirectionalScatteringDistributionFunction *bsdf = new PhongBidirectionalScatteringDistributionFunction(brdf, btdf, nullptr);
@@ -233,21 +210,19 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSessio
         materialName,
          edf,
          bsdf,
-        allSurfacesSided || globalMgfCurrentMaterial->sided);
+        allSurfacesSided || currentMaterialContext->sided);
 
     context->materials->add((*material));
 
     // Reset the clock value to be aware of possible changes in future
-    globalMgfCurrentMaterial->clock = 0;
+    currentMaterialContext->clock = 0;
 
     return true;
 }
 
 void
 initMaterialContextTables(MgfParseSession *context) {
-    globalUnNamedMaterialContext = globalDefaultMgfMaterial;
-    globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
-    globalMaterialLookUpTable.lookUpDone();
+    context->materialRepository.reset();
     context->currentMaterialName = nullptr;
 }
 
@@ -262,8 +237,9 @@ mgfMaterialChanged(const Material *material, const MgfParseSession *context) {
     }
 
     // Is it another material than the one used for the previous face? If not, the
-    // globalCurrentMaterial remains the same
-    if ( strcmp(materialName, material->getName()) == 0 && globalMgfCurrentMaterial->clock == 0 ) {
+    // current material context remains the same
+    if ( strcmp(materialName, material->getName()) == 0 &&
+         context->materialRepository.currentMaterialContext->clock == 0 ) {
         return false;
     }
 
@@ -277,6 +253,8 @@ int
 handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
     int i;
     LookUpEntity *lp;
+    MgfMaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
+    LookUpTable *materialLookUpTable = context->materialRepository.materialLookUpTable;
 
     switch ( mgfEntity(av[0], context) ) {
 
@@ -287,24 +265,24 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             }
             if ( ac == 1 ) {
                 // Set unnamed material context
-                globalUnNamedMaterialContext = globalDefaultMgfMaterial;
-                globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
+                context->materialRepository.unNamedMaterialContext = context->materialRepository.defaultMaterialContext;
+                currentMaterialContext = &context->materialRepository.unNamedMaterialContext;
                 context->currentMaterialName = nullptr;
                 return ErrorCodeContext::MGF_OK;
             }
             if ( !WordsContext::isName(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            lp = globalMaterialLookUpTable.lookUpFind(av[1]);
+            lp = materialLookUpTable->lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
-            globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
+            currentMaterialContext = reinterpret_cast<MgfMaterialContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
-                if ( globalMgfCurrentMaterial == nullptr) {
+                if ( currentMaterialContext == nullptr) {
                     return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
                 return ErrorCodeContext::MGF_OK;
@@ -312,7 +290,7 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( av[2][0] != '=' || av[2][1] ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            if ( globalMgfCurrentMaterial == nullptr ) {
+            if ( currentMaterialContext == nullptr ) {
                 // Create new material
                 lp->key = new char[strlen(av[1]) + 1];
                 if ( lp->key == nullptr) {
@@ -324,17 +302,17 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
                     return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
-                globalMgfCurrentMaterial = reinterpret_cast<MgfMaterialContext *>(lp->data);
-                globalMgfCurrentMaterial->clock = 0;
+                currentMaterialContext = reinterpret_cast<MgfMaterialContext *>(lp->data);
+                currentMaterialContext->clock = 0;
             }
-            i = globalMgfCurrentMaterial->clock;
+            i = currentMaterialContext->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *globalMgfCurrentMaterial = globalDefaultMgfMaterial;
-                globalMgfCurrentMaterial->clock = i + 1;
+                *currentMaterialContext = context->materialRepository.defaultMaterialContext;
+                currentMaterialContext->clock = i + 1;
                 return ErrorCodeContext::MGF_OK;
             }
-            lp = globalMaterialLookUpTable.lookUpFind(av[3]);
+            lp = materialLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
@@ -342,8 +320,8 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( lp->data == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *globalMgfCurrentMaterial = *reinterpret_cast<MgfMaterialContext *>(lp->data);
-            globalMgfCurrentMaterial->clock = i + 1;
+            *currentMaterialContext = *reinterpret_cast<MgfMaterialContext *>(lp->data);
+            currentMaterialContext->clock = i + 1;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::IR:
@@ -354,12 +332,12 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->nr = strtof(av[1], nullptr);
-            globalMgfCurrentMaterial->ni = strtof(av[2], nullptr);
-            if ( globalMgfCurrentMaterial->nr <= Numeric::EPSILON ) {
+            currentMaterialContext->nr = strtof(av[1], nullptr);
+            currentMaterialContext->ni = strtof(av[2], nullptr);
+            if ( currentMaterialContext->nr <= Numeric::EPSILON ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::RD:
@@ -370,12 +348,12 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->rd = strtof(av[1], nullptr);
-            if ( globalMgfCurrentMaterial->rd < 0. || globalMgfCurrentMaterial->rd > 1.0 ) {
+            currentMaterialContext->rd = strtof(av[1], nullptr);
+            if ( currentMaterialContext->rd < 0. || currentMaterialContext->rd > 1.0 ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->rd_c = *(context->currentColor);
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->rd_c = *(context->currentColor);
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::ED:
@@ -386,12 +364,12 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->ed = strtof(av[1], nullptr);
-            if ( globalMgfCurrentMaterial->ed < 0.0 ) {
+            currentMaterialContext->ed = strtof(av[1], nullptr);
+            if ( currentMaterialContext->ed < 0.0 ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->ed_c = *(context->currentColor);
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->ed_c = *(context->currentColor);
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::TD:
@@ -402,12 +380,12 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->td = strtof(av[1], nullptr);
-            if ( globalMgfCurrentMaterial->td < 0.0 || globalMgfCurrentMaterial->td > 1.0 ) {
+            currentMaterialContext->td = strtof(av[1], nullptr);
+            if ( currentMaterialContext->td < 0.0 || currentMaterialContext->td > 1.0 ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->td_c = *(context->currentColor);
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->td_c = *(context->currentColor);
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::RS:
@@ -418,14 +396,14 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->rs = strtof(av[1], nullptr);
-            globalMgfCurrentMaterial->rs_a = strtof(av[2], nullptr);
-            if ( globalMgfCurrentMaterial->rs < 0.0 || globalMgfCurrentMaterial->rs > 1.0 ||
-                 globalMgfCurrentMaterial->rs_a < 0.0 ) {
+            currentMaterialContext->rs = strtof(av[1], nullptr);
+            currentMaterialContext->rs_a = strtof(av[2], nullptr);
+            if ( currentMaterialContext->rs < 0.0 || currentMaterialContext->rs > 1.0 ||
+                 currentMaterialContext->rs_a < 0.0 ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->rs_c = *(context->currentColor);
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->rs_c = *(context->currentColor);
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::TS:
@@ -436,14 +414,14 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
                 return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
             }
-            globalMgfCurrentMaterial->ts = strtof(av[1], nullptr);
-            globalMgfCurrentMaterial->ts_a = strtof(av[2], nullptr);
-            if ( globalMgfCurrentMaterial->ts < 0.0 || globalMgfCurrentMaterial->ts > 1.0 ||
-                 globalMgfCurrentMaterial->ts_a < 0.0 ) {
+            currentMaterialContext->ts = strtof(av[1], nullptr);
+            currentMaterialContext->ts_a = strtof(av[2], nullptr);
+            if ( currentMaterialContext->ts < 0.0 || currentMaterialContext->ts > 1.0 ||
+                 currentMaterialContext->ts_a < 0.0 ) {
                 return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
-            globalMgfCurrentMaterial->ts_c = *(context->currentColor);
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->ts_c = *(context->currentColor);
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         case EntityContext::SIDES:
@@ -456,13 +434,13 @@ handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
             }
             i = static_cast<int>(strtol(av[1], nullptr, 10));
             if ( i == 1 ) {
-                globalMgfCurrentMaterial->sided = true;
+                currentMaterialContext->sided = true;
             } else if ( i == 2 ) {
-                    globalMgfCurrentMaterial->sided = false;
+                    currentMaterialContext->sided = false;
                 } else {
                     return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
-            globalMgfCurrentMaterial->clock++;
+            currentMaterialContext->clock++;
             return ErrorCodeContext::MGF_OK;
 
         default:
