@@ -38,7 +38,7 @@ FormFactorStrategy::shadowTestDiscretization(
         GLOBAL_statistics.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = geometryListDiscretizationIntersect(
+            hit = Geometry::listDiscretizationIntersect(
                 geometrySceneList,
                 ray,
                 Numeric::EPSILON_FLOAT * minimumDistance,
@@ -581,7 +581,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
             receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
             sourceElement->isCluster() ? nullptr : sourceElement->patch,
             sourceElement->isCluster() ? nullptr : sourceElement->patch->twin);
-        geomDontIntersect(
+        Geometry::dontIntersect(
             receiverElement->isCluster() ? receiverElement->geometry : nullptr,
             sourceElement->isCluster() ? sourceElement->geometry : nullptr);
 
@@ -612,7 +612,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
 
         // Unmark the patches, so they are considered for ray-patch intersections again in future
         Patch::dontIntersect0();
-        geomDontIntersect(nullptr, nullptr);
+        Geometry::dontIntersect(nullptr, nullptr);
     }
 
     if ( visibilityCount != 0 ) {

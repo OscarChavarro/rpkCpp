@@ -145,7 +145,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         return java::Math::exp(-kappa * (tMaximum - tMinimum));
     } else {
         if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+            java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
             double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
                 geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize);
             delete geometryList;
@@ -153,7 +153,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         } else {
             RayHit hitStore;
             const RayHit *hit = Geometry::patchListIntersect(
-                    geomPatchArrayListReference(geometry),
+                    Geometry::patchListReference(geometry),
                     ray,
                     rcvDist * Numeric::EPSILON_FLOAT,
                     &rcvDist,

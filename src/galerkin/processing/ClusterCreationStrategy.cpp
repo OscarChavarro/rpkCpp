@@ -117,13 +117,13 @@ ClusterCreationStrategy::createClusterHierarchy(Geometry *geometry, GalerkinStat
 
     // Recursively creates list of sub-clusters
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             geomAddClusterChild(geometryList->get(i), newGalerkinElement, galerkinState);
         }
         delete geometryList;
     } else {
-        const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             patchAddClusterChild(patchList->get(i), newGalerkinElement);
         }

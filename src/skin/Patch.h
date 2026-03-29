@@ -52,6 +52,7 @@ class Patch {
     static double clipToUnitInterval(double x);
     static int solveQuadraticUnitInterval(double A, double B, double C, double *x);
     static int quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
+    static Vector3D *patchNormal(const Patch *patch, Vector3D *normal);
 
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;

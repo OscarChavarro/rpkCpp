@@ -189,7 +189,7 @@ openGlReallyRenderOctreeLeaf(
     const OpenGlRenderTraversalCallback &renderPatch,
     const RenderOptions *renderOptions)
 {
-    const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
+    const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         openGlInvokeRenderPatch(renderPatch, patchList->get(i), camera, renderOptions);
     }
@@ -239,7 +239,7 @@ openGlRenderOctreeNonLeaf(
     const RenderOptions *renderOptions)
 {
     OctreeChild octree_children[8];
-    java::ArrayList<Geometry *> *children = geomPrimListCopy(geometry);
+    java::ArrayList<Geometry *> *children = Geometry::primitiveListCopy(geometry);
 
     int i = 0;
     for ( int j = 0; children != nullptr && j < children->size(); j++ ) {

@@ -23,7 +23,4 @@ class PatchSet final : public Geometry {
     java::ArrayList<Patch *> *getPatchList() const;
 };
 
-extern BoundingBox *
-patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
-
 #endif

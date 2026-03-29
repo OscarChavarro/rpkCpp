@@ -706,7 +706,7 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         doCulling(compound->children, candidateList, strategy);
     } else {
         // TODO: Check if this logic branch evers gets called
-        const java::ArrayList<Patch *> *geometryPatchesList = geomPatchArrayListReference(geometry);
+        const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
         const java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
 
         if ( culledPatches->size() > 0 ) {
@@ -798,7 +798,7 @@ Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
     for ( int i = 0; candidateList != nullptr && i < candidateList->size(); i++ ) {
         Geometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {
-            geomDestroy(geometry);
+            Geometry::destroy(geometry);
         }
     }
 

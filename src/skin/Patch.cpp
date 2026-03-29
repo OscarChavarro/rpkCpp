@@ -558,8 +558,8 @@ Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
 /**
 Returns a pointer to the normal vector if everything is OK. nullptr pointer if degenerate polygon
 */
-static Vector3D *
-patchNormal(const Patch *patch, Vector3D *normal) {
+Vector3D *
+Patch::patchNormal(const Patch *patch, Vector3D *normal) {
     Vector3D current;
 
     normal->set(0, 0, 0);
@@ -650,7 +650,7 @@ Patch::Patch(
     boundingBox = nullptr;
 
     // Compute normal
-    if ( patchNormal(this, &normal) == nullptr ) {
+    if ( Patch::patchNormal(this, &normal) == nullptr ) {
         GLOBAL_statistics.numberOfElements--;
         Error::error("Patch::Patch", "Error computing patch normal");
         java::lang::System::exit(3);

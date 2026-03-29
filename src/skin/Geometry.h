@@ -26,6 +26,10 @@ class Element;
 class MinMaxBox;
 
 class Geometry {
+  private:
+    static java::ArrayList<Geometry *> *
+    cloneGeometryList(const java::ArrayList<Geometry *> *input);
+
   public: // Will become protected
     static int nextGeometryId;
     static Geometry *excludedGeometry1;
@@ -81,22 +85,26 @@ class Geometry {
     BoundingBox getBoundingBox() const;
     MinMaxBox *getRayIntersectionBox() const;
     Geometry *clone() const;
+
+    static void destroy(Geometry *geometry);
+    static java::ArrayList<Geometry *> *primitiveListCopy(const Geometry *geometry);
+    static java::ArrayList<Patch *> *patchListReference(const Geometry *geometry);
+    static void dontIntersect(Geometry *geometry1, Geometry *geometry2);
+    static void listBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
+
+    static RayHit *
+    listDiscretizationIntersect(
+        const java::ArrayList<Geometry *> *geometryList,
+        Ray *ray,
+        float minimumDistance,
+        float *maximumDistance,
+        int hitFlags,
+        RayHit *hitStore);
+
+  protected:
+    static BoundingBox *
+    patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
 };
-
-extern void geomDestroy(Geometry *geometry);
-extern java::ArrayList<Geometry *> *geomPrimListCopy(const Geometry *geometry);
-extern java::ArrayList<Patch *> *geomPatchArrayListReference(const Geometry *geometry);
-extern void geomDontIntersect(Geometry *geometry1, Geometry *geometry2);
-extern void geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
-
-extern RayHit *
-geometryListDiscretizationIntersect(
-    const java::ArrayList<Geometry *> *geometryList,
-    Ray *ray,
-    float minimumDistance,
-    float *maximumDistance,
-    int hitFlags,
-    RayHit *hitStore);
 
 #include "skin/PatchSet.h"
 #include "skin/MeshSurface.h"

@@ -23,7 +23,7 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
         return;
     }
 
-    geometryListBounds(sceneGeometries, &bounds);
+    Geometry::listBounds(sceneGeometries, &bounds);
 
     minimum.set(bounds.minX(), bounds.minY(), bounds.minZ());
     maximum.set(bounds.maxX(), bounds.maxY(), bounds.maxZ());
@@ -107,7 +107,7 @@ renderGeomBounds(Camera *camera, const Geometry *geometry) {
     }
 
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             renderGeomBounds(camera, geometryList->get(i));
         }

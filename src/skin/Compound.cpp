@@ -11,7 +11,7 @@ returns the geometry list
 Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(GeometryClassId::COMPOUND) {
     GLOBAL_statistics.numberOfCompounds++;
     children = geometryList;
-    geometryListBounds(children, &boundingBox);
+    Geometry::listBounds(children, &boundingBox);
     boundingBox.enlargeTinyBit();
     bounded = true;
 }
@@ -41,6 +41,6 @@ Compound::discretizationIntersect(
         return nullptr;
     }
 
-    return geometryListDiscretizationIntersect(
+    return Geometry::listDiscretizationIntersect(
             children, ray, minimumDistance, maximumDistance, hitFlags, hitStore);
 }

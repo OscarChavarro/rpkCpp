@@ -7,7 +7,7 @@ PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClas
         patchList->add(input->get(i));
     }
 
-    patchListBounds(getPatchList(), &boundingBox);
+    Geometry::patchListBounds(getPatchList(), &boundingBox);
     boundingBox.enlargeTinyBit();
     bounded = true;
 }
@@ -17,22 +17,6 @@ PatchSet::~PatchSet() {
         delete patchList;
         patchList = nullptr;
     }
-}
-
-/**
-Computes a bounding box for the given list of patches. The bounding box is
-filled in 'bounding box' and a pointer to it returned
-*/
-BoundingBox *
-patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
-    BoundingBox currentPatchBoundingBox;
-
-    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        patchList->get(i)->computeAndGetBoundingBox(&currentPatchBoundingBox);
-        boundingBox->enlarge(&currentPatchBoundingBox);
-    }
-
-    return boundingBox;
 }
 
 /**

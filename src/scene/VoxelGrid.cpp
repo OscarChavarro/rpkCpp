@@ -215,7 +215,7 @@ VoxelGrid::processCompoundGeometry(Geometry *geometry) {
 void
 VoxelGrid::processPatches(Geometry *geometry) const {
     const java::ArrayList<Patch *> *patches =
-            geomPatchArrayListReference(geometry);
+            Geometry::patchListReference(geometry);
 
     for ( int i = 0; patches != nullptr && i < patches->size(); i++) {
         putPatchInsideVoxelGrid(patches->get(i));

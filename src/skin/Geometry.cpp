@@ -76,7 +76,7 @@ Geometry::getRayIntersectionBox() const {
 This function destroys the given geometry
 */
 void
-geomDestroy(Geometry *geometry) {
+Geometry::destroy(Geometry *geometry) {
     if ( geometry == nullptr ) {
         return;
     }
@@ -98,8 +98,8 @@ Geometry::isCompound() const {
     return className == GeometryClassId::COMPOUND;
 }
 
-static java::ArrayList<Geometry *> *
-cloneGeometryList(const java::ArrayList<Geometry *> * input) {
+java::ArrayList<Geometry *> *
+Geometry::cloneGeometryList(const java::ArrayList<Geometry *> *input) {
     java::ArrayList<Geometry *> *output = new java::ArrayList<Geometry *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         output->add(input->get(i));
@@ -112,16 +112,16 @@ Returns a list of the simpler geometries making up an aggregate geometry.
 A nullptr pointer is returned if the geometry is a primitive
 */
 java::ArrayList<Geometry *> *
-geomPrimListCopy(const Geometry *geometry) {
+Geometry::primitiveListCopy(const Geometry *geometry) {
     if ( geometry->isCompound() ) {
-        return cloneGeometryList(dynamic_cast<const Compound *>(geometry)->children);
+        return Geometry::cloneGeometryList(dynamic_cast<const Compound *>(geometry)->children);
     } else {
         return nullptr;
     }
 }
 
 java::ArrayList<Patch *> *
-geomPatchArrayListReference(const Geometry *geometry) {
+Geometry::patchListReference(const Geometry *geometry) {
     if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
         return dynamic_cast<const MeshSurface *>(geometry)->faces;
     } else if ( geometry->className == GeometryClassId::PATCH_SET ) {
@@ -142,7 +142,7 @@ Geometry::clone() const {
         Error::fatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
-    PatchSet *newPatchSet = new PatchSet(geomPatchArrayListReference(this));
+    PatchSet *newPatchSet = new PatchSet(Geometry::patchListReference(this));
     newPatchSet->id = GLOBAL_statistics.numberOfGeometries;
     newPatchSet->boundingBox = boundingBox;
     newPatchSet->radianceData = radianceData;
@@ -163,7 +163,7 @@ Will avoid intersection testing with geom1 and geom2 (possibly nullptr
 pointers). Can be used for avoiding immediate self-intersections
 */
 void
-geomDontIntersect(Geometry *geometry1, Geometry *geometry2) {
+Geometry::dontIntersect(Geometry *geometry1, Geometry *geometry2) {
     Geometry::excludedGeometry1 = geometry1;
     Geometry::excludedGeometry2 = geometry2;
 }
@@ -229,7 +229,7 @@ Geometry::discretizationIntersect(
 }
 
 RayHit *
-geometryListDiscretizationIntersect(
+Geometry::listDiscretizationIntersect(
     const java::ArrayList<Geometry *> *geometryList,
     Ray *ray,
     float minimumDistance,
@@ -257,7 +257,7 @@ geometryListDiscretizationIntersect(
 This function computes a bounding box for a list of geometries
 */
 void
-geometryListBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
+Geometry::listBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
@@ -292,6 +292,18 @@ Geometry::patchListIntersect(
         }
     }
     return hit;
+}
+
+BoundingBox *
+Geometry::patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
+    BoundingBox currentPatchBoundingBox;
+
+    for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
+        patchList->get(i)->computeAndGetBoundingBox(&currentPatchBoundingBox);
+        boundingBox->enlarge(&currentPatchBoundingBox);
+    }
+
+    return boundingBox;
 }
 
 bool

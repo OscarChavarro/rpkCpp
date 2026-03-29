@@ -150,7 +150,7 @@ LinkingSimpleStrategy::geometryLink(
     // If the Geometry is an aggregate, test each of its children GEOMs, if it
     // is a primitive, create an initial link with each patch it consists of
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = geomPrimListCopy(geometry);
+        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             LinkingSimpleStrategy::geometryLink(
                 scene,
@@ -163,7 +163,7 @@ LinkingSimpleStrategy::geometryLink(
         }
         delete geometryList;
     } else {
-        const java::ArrayList<Patch *> *patchList = geomPatchArrayListReference(geometry);
+        const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
             LinkingSimpleStrategy::createInitialLink(
                 scene,

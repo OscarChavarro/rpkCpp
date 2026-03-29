@@ -162,7 +162,7 @@ sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::Arr
             sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
-            const java::ArrayList<Patch *> *patchesFromNonCompounds = geomPatchArrayListReference(geometry);
+            const java::ArrayList<Patch *> *patchesFromNonCompounds = Geometry::patchListReference(geometry);
 
             for ( int j = 0; patchesFromNonCompounds != nullptr && j < patchesFromNonCompounds->size(); j++ ) {
                 Patch *patch = patchesFromNonCompounds->get(j);
