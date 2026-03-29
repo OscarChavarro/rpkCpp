@@ -178,13 +178,13 @@ renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const Rende
     col[1] = v2->color;
     vert[2] = *(v3->point);
     col[2] = v3->color;
-    openGlRenderPolygonGouraud(3, vert, col);
+    Opengl::openGlRenderPolygonGouraud(3, vert, col);
 
     if ( renderOptions->drawOutlines ) {
-        openGlRenderSetColor(&renderOptions->outlineColor);
-        openGlRenderLine(&vert[0], &vert[1]);
-        openGlRenderLine(&vert[1], &vert[2]);
-        openGlRenderLine(&vert[2], &vert[0]);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderLine(&vert[0], &vert[1]);
+        Opengl::openGlRenderLine(&vert[1], &vert[2]);
+        Opengl::openGlRenderLine(&vert[2], &vert[0]);
     }
 }
 
@@ -201,14 +201,14 @@ renderQuadrilateral(const Vertex *v1, const Vertex *v2, const Vertex *v3, const 
     col[2] = v3->color;
     vert[3] = *(v4->point);
     col[3] = v4->color;
-    openGlRenderPolygonGouraud(4, vert, col);
+    Opengl::openGlRenderPolygonGouraud(4, vert, col);
 
     if ( renderOptions->drawOutlines ) {
-        openGlRenderSetColor(&renderOptions->outlineColor);
-        openGlRenderLine(&vert[0], &vert[1]);
-        openGlRenderLine(&vert[1], &vert[2]);
-        openGlRenderLine(&vert[2], &vert[3]);
-        openGlRenderLine(&vert[3], &vert[0]);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderLine(&vert[0], &vert[1]);
+        Opengl::openGlRenderLine(&vert[1], &vert[2]);
+        Opengl::openGlRenderLine(&vert[2], &vert[3]);
+        Opengl::openGlRenderLine(&vert[3], &vert[0]);
     }
 }
 
@@ -362,14 +362,14 @@ static void
 stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
-    openGlRenderSetColor(&renderOptions->outlineColor);
-    openGlRenderLine(&vertices[0], &vertices[1]);
-    openGlRenderLine(&vertices[1], &vertices[2]);
+    Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+    Opengl::openGlRenderLine(&vertices[0], &vertices[1]);
+    Opengl::openGlRenderLine(&vertices[1], &vertices[2]);
     if ( elem->numberOfVertices == 3 ) {
-        openGlRenderLine(&vertices[2], &vertices[0]);
+        Opengl::openGlRenderLine(&vertices[2], &vertices[0]);
     } else {
-        openGlRenderLine(&vertices[2], &vertices[3]);
-        openGlRenderLine(&vertices[3], &vertices[0]);
+        Opengl::openGlRenderLine(&vertices[2], &vertices[3]);
+        Opengl::openGlRenderLine(&vertices[3], &vertices[0]);
     }
 }
 
@@ -412,12 +412,12 @@ stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOp
             vertexColors[3] = stochasticRadiosityElement->vertices[3]->color;
         }
 
-        openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
+        Opengl::openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
     } else {
         ColorRgb color = stochasticRadiosityElementColor(stochasticRadiosityElement);
 
-        openGlRenderSetColor(&color);
-        openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
+        Opengl::openGlRenderSetColor(&color);
+        Opengl::openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
     }
 
     if ( renderOptions->drawOutlines )

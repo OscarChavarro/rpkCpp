@@ -4,7 +4,10 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 
-extern void canvasPushMode();
-extern void canvasPullMode();
+class Canvas {
+  public:
+    static void canvasPushMode();
+    static void canvasPullMode();
+};
 
 #endif

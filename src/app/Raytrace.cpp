@@ -132,7 +132,7 @@ rayTraceExecute(
     renderOptions->renderRayTracedImage = true;
     scene->camera->changed = false;
 
-    canvasPushMode();
+    Canvas::canvasPushMode();
     rayTrace(
         filename,
         stream,
@@ -141,7 +141,7 @@ rayTraceExecute(
         scene,
         radianceMethod,
         renderOptions);
-    canvasPullMode();
+    Canvas::canvasPullMode();
 }
 
 #endif

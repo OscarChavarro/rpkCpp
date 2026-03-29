@@ -113,7 +113,7 @@ GatheringSimpleStrategy::doGatheringIteration(
 {
     if ( galerkinState->importanceDriven &&
          ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
-        updateDirectPotential(scene, renderOptions);
+        Potential::updateDirectPotential(scene, renderOptions);
         scene->camera->changed = false;
     }
 

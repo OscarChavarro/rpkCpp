@@ -5,8 +5,8 @@
 #include "common/RenderOptions.h"
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/FileUncompressWrapper.h"
-#include "render/Opengl.h"
 #include "render/ScreenBuffer.h"
+#include "render/Softids.h"
 
 /**
 Constructor : make an screen buffer from a camera definition
@@ -137,7 +137,7 @@ ScreenBuffer::render() {
         sync();
     }
 
-    softRenderPixels(camera.xSize, camera.ySize, rgbColor);
+    SoftIds::softRenderPixels(camera.xSize, camera.ySize, rgbColor);
 }
 
 void
@@ -175,7 +175,7 @@ ScreenBuffer::renderScanline(int y) {
         syncLine(y);
     }
 
-    softRenderPixels(camera.xSize, 1, &rgbColor[y * camera.xSize]);
+    SoftIds::softRenderPixels(camera.xSize, 1, &rgbColor[y * camera.xSize]);
 }
 
 void
@@ -282,7 +282,7 @@ ScreenBuffer::getVRes() const {
 }
 
 float
-computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
+ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     Vector3D dir;
     double h = camera->pixelWidth;
     double v = camera->pixelHeight;

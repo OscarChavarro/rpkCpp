@@ -552,7 +552,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
 
     // Remove possible render hooks
-    removeAllRenderHooks();
+    RenderHookList::removeAllRenderHooks();
 
     removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
 

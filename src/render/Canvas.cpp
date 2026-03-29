@@ -14,7 +14,7 @@ static int globalModeStackIndex;
 Pushes the current canvas mode on the canvas mode stack, so it can be restored later
 */
 void
-canvasPushMode() {
+Canvas::canvasPushMode() {
     globalModeStackIndex++;
     if ( globalModeStackIndex >= CANVAS_MODE_STACK_SIZE ) {
         Error::fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE);
@@ -25,7 +25,7 @@ canvasPushMode() {
 Restores the last saved canvas mode
 */
 void
-canvasPullMode() {
+Canvas::canvasPullMode() {
     globalModeStackIndex--;
     if ( globalModeStackIndex < 0 ) {
         Error::fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");

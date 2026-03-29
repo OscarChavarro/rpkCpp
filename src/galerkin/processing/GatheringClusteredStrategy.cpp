@@ -50,7 +50,7 @@ bool
 GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven &&
         ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
-        updateDirectPotential(scene, renderOptions);
+        Potential::updateDirectPotential(scene, renderOptions);
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
             GalerkinElement *top = static_cast<GalerkinElement *>(patch->radianceData);

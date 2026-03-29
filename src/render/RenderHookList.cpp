@@ -5,7 +5,7 @@
 static java::ArrayList<RenderHook *> *globalRenderHookList = new java::ArrayList<RenderHook*>();
 
 void
-renderHooks() {
+RenderHookList::renderHooks() {
     for ( int i = 0; globalRenderHookList != nullptr && i < globalRenderHookList->size(); i++ ) {
         RenderHook *h = globalRenderHookList->get(i);
         h->func(h->data);
@@ -13,7 +13,7 @@ renderHooks() {
 }
 
 void
-removeAllRenderHooks() {
+RenderHookList::removeAllRenderHooks() {
     delete globalRenderHookList;
     globalRenderHookList = nullptr;
 }

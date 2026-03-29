@@ -259,7 +259,7 @@ stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
             if ( GLOBAL_rayTracer != nullptr ) {
                 // TODO: Verify this is not needed, has been disabled flow on May 29 2024
                 //openGlRenderNewDisplayList(scene->clusteredRootGeometry, renderOptions);
-                //openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
+                //Opengl::openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
             }
         }
     }
@@ -499,14 +499,14 @@ stochasticRelaxationRadiosityRenderPatch(const Patch *patch, const Camera *camer
         topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(stochasticRadiosityElementRender, renderOptions);
     } else {
         // Not yet initialized
-        openGlRenderPatchCallBack(patch, camera, renderOptions);
+        Opengl::openGlRenderPatchCallBack(patch, camera, renderOptions);
     }
 }
 
 void
 StochasticJacobiRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctree(
+        Opengl::openGlRenderWorldOctree(
             scene,
             stochasticRelaxationRadiosityRenderPatch,
             renderOptions);

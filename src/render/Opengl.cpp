@@ -19,7 +19,7 @@
 
 #ifdef OPEN_GL_ENABLED
 void
-openGlRenderClearWindow(const Camera *camera) {
+Opengl::openGlRenderClearWindow(const Camera *camera) {
     glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -30,7 +30,7 @@ openGlRenderClearWindow(const Camera *camera) {
 Renders a line from point p to point q, for example debugging
 */
 void
-openGlRenderLine(Vector3D *x, Vector3D *y) {
+Opengl::openGlRenderLine(Vector3D *x, Vector3D *y) {
 #ifdef OPEN_GL_ENABLED
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -48,7 +48,7 @@ openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-openGlRenderSetColor(const ColorRgb *rgb) {
+Opengl::openGlRenderSetColor(const ColorRgb *rgb) {
     ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
@@ -62,7 +62,7 @@ openGlRenderSetColor(const ColorRgb *rgb) {
 Renders a convex polygon flat shaded in the current color
 */
 void
-openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
+Opengl::openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -76,11 +76,11 @@ openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices) {
 Renders a convex polygon with Gouraud shading
 */
 void
-openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors) {
+Opengl::openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        openGlRenderSetColor(&verticesColors[i]);
+        Opengl::openGlRenderSetColor(&verticesColors[i]);
         glVertex3fv(reinterpret_cast<GLfloat *>(&vertices[i]));
     }
     glEnd();
@@ -89,9 +89,9 @@ openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const Color
 
 #ifdef OPEN_GL_ENABLED
 
-static void
-openGlRenderPatchFlat(const Patch *patch) {
-    openGlRenderSetColor(&patch->color);
+void
+Opengl::openGlRenderPatchFlat(const Patch *patch) {
+    Opengl::openGlRenderSetColor(&patch->color);
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -117,35 +117,35 @@ openGlRenderPatchFlat(const Patch *patch) {
     }
 }
 
-static void
-openGlRenderPatchSmooth(const Patch *patch) {
+void
+Opengl::openGlRenderPatchSmooth(const Patch *patch) {
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            openGlRenderSetColor(&patch->vertex[0]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[0]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            openGlRenderSetColor(&patch->vertex[1]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[1]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            openGlRenderSetColor(&patch->vertex[2]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[2]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            openGlRenderSetColor(&patch->vertex[0]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[0]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            openGlRenderSetColor(&patch->vertex[1]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[1]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            openGlRenderSetColor(&patch->vertex[2]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[2]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
-            openGlRenderSetColor(&patch->vertex[3]->color);
+            Opengl::openGlRenderSetColor(&patch->vertex[3]->color);
             glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[3]->point));
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
             for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-                openGlRenderSetColor(&patch->vertex[i]->color);
+                Opengl::openGlRenderSetColor(&patch->vertex[i]->color);
                 glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[i]->point));
             }
             glEnd();
@@ -157,7 +157,7 @@ openGlRenderPatchSmooth(const Patch *patch) {
 Renders the patch outline in the current color
 */
 void
-openGlRenderPatchOutline(const Patch *patch) {
+Opengl::openGlRenderPatchOutline(const Patch *patch) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_LINE_LOOP);
     for ( int i = 0; i < patch->numberOfVertices; i++ ) {
@@ -168,8 +168,8 @@ openGlRenderPatchOutline(const Patch *patch) {
 }
 
 #ifdef OPEN_GL_ENABLED
-static void
-openGlInvokeRenderPatch(
+void
+Opengl::openGlInvokeRenderPatch(
     const OpenGlRenderTraversalCallback &renderPatch,
     const Patch *patch,
     const Camera *camera,
@@ -182,8 +182,8 @@ openGlInvokeRenderPatch(
     }
 }
 
-static void
-openGlReallyRenderOctreeLeaf(
+void
+Opengl::openGlReallyRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatch,
@@ -191,22 +191,22 @@ openGlReallyRenderOctreeLeaf(
 {
     const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
-        openGlInvokeRenderPatch(renderPatch, patchList->get(i), camera, renderOptions);
+        Opengl::openGlInvokeRenderPatch(renderPatch, patchList->get(i), camera, renderOptions);
     }
 }
 
-static void
-openGlRenderOctreeLeaf(
+void
+Opengl::openGlRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
     const RenderOptions *renderOptions)
 {
-    openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
+    Opengl::openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
 }
 
-static int
-openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
+int
+Opengl::openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
@@ -218,8 +218,8 @@ openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
 /**
 Squared distance to midpoint (avoid taking square root)
 */
-static float
-openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox) {
+float
+Opengl::openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox) {
     Vector3D mid = boundingBox->center();
     Vector3D d;
     d.subtraction(mid, p);
@@ -231,8 +231,8 @@ openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox) {
 Geometry is a surface or a compound with 1 surface and up to 8 compound children geometries,
 clusteredWorldGeom is such a geometry e.g.
 */
-static void
-openGlRenderOctreeNonLeaf(
+void
+Opengl::openGlRenderOctreeNonLeaf(
     Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
@@ -253,19 +253,19 @@ openGlRenderOctreeNonLeaf(
             octree_children[i++].geometry = child;
         } else {
             // Render the patches associated with the octree node right away
-            openGlRenderOctreeLeaf(camera, child, renderPatchCallback, renderOptions);
+            Opengl::openGlRenderOctreeLeaf(camera, child, renderPatchCallback, renderOptions);
         }
     }
     int n = i; // Number of compound children
 
     // cull the non-leaf octree children geoms
     for ( i = 0; i < n; i++ ) {
-        if ( openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
+        if ( Opengl::openGlViewCullBounds(camera, &octree_children[i].geometry->boundingBox) ) {
             octree_children[i].geometry = nullptr; // culled
             octree_children[i].distance = Numeric::HUGE_FLOAT_VALUE;
         } else {
             // Not culled, compute distance from eye to midpoint of child
-            octree_children[i].distance = openGlBoundsDistance2(
+            octree_children[i].distance = Opengl::openGlBoundsDistance2(
                 camera->eyePosition, &octree_children[i].geometry->boundingBox);
         }
     }
@@ -286,7 +286,7 @@ openGlRenderOctreeNonLeaf(
         }
 
         // render it
-        openGlRenderOctreeNonLeaf(camera, octree_children[closest].geometry, renderPatchCallback, renderOptions);
+        Opengl::openGlRenderOctreeNonLeaf(camera, octree_children[closest].geometry, renderPatchCallback, renderOptions);
 
         // remove it from the list
         octree_children[closest].geometry = nullptr;
@@ -304,7 +304,7 @@ near to far) rendering. For every patch that is not culled,
 renderPatchCallback is called
 */
 void
-openGlRenderWorldOctree(
+Opengl::openGlRenderWorldOctree(
     const Scene *scene,
     OpenGlRenderPatchCallback renderPatchCallback,
     const RenderOptions *renderOptions)
@@ -315,21 +315,21 @@ openGlRenderWorldOctree(
 #ifdef OPEN_GL_ENABLED
     OpenGlRenderTraversalCallback callbackContext{};
     if ( renderPatchCallback == nullptr ) {
-        renderPatchCallback = openGlRenderPatchCallBack;
+        renderPatchCallback = Opengl::openGlRenderPatchCallBack;
     }
     callbackContext.callbackWithoutData = renderPatchCallback;
     callbackContext.callbackWithData = nullptr;
     callbackContext.callbackData = nullptr;
     if ( scene->clusteredRootGeometry->isCompound() ) {
-        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+        Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {
-        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+        Opengl::openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     }
 #endif
 }
 
 void
-openGlRenderWorldOctreeWithData(
+Opengl::openGlRenderWorldOctreeWithData(
     const Scene *scene,
     OpenGlRenderPatchCallbackWithData renderPatchCallback,
     void *callbackData,
@@ -344,9 +344,9 @@ openGlRenderWorldOctreeWithData(
     callbackContext.callbackWithData = renderPatchCallback;
     callbackContext.callbackData = callbackData;
     if ( scene->clusteredRootGeometry->isCompound() ) {
-        openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+        Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {
-        openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
+        Opengl::openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     }
 #endif
 }
@@ -355,20 +355,20 @@ openGlRenderWorldOctreeWithData(
 Renders the all the patches using default colors
 */
 void
-openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
 #ifdef OPEN_GL_ENABLED
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
-            openGlRenderPatchSmooth(patch);
+            Opengl::openGlRenderPatchSmooth(patch);
         } else {
-            openGlRenderPatchFlat(patch);
+            Opengl::openGlRenderPatchFlat(patch);
         }
     }
 
     if ( renderOptions->drawOutlines &&
          (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > Numeric::EPSILON) ) {
-        openGlRenderSetColor(&renderOptions->outlineColor);
-        openGlRenderPatchOutline(patch);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderPatchOutline(patch);
     }
 #endif
 }
@@ -377,20 +377,20 @@ openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const Render
 /**
 Sets line width for outlines, etc
 */
-static void
-openGlRenderSetLineWidth(float width) {
+void
+Opengl::openGlRenderSetLineWidth(float width) {
     glLineWidth(width);
 }
 
 void
-openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
-    openGlRenderClearWindow(camera);
+Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
+    Opengl::openGlRenderClearWindow(camera);
 
     // Use the full viewport
     glViewport(0, 0, camera->xSize, camera->ySize);
 
     // Determine distance to front- and back-clipping plane
-    renderGetNearFar(camera, sceneGeometries);
+    Render::renderGetNearFar(camera, sceneGeometries);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -406,31 +406,31 @@ openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGe
               camera->upDirection.x, camera->upDirection.y, camera->upDirection.z);
 }
 
-static void
-openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+void
+Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     glPushMatrix();
     glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
     if ( radianceMethod != nullptr ) {
         radianceMethod->renderScene(scene, renderOptions);
     } else if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctree(scene, openGlRenderPatchCallBack, renderOptions);
+        Opengl::openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
+            Opengl::openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
     glPopMatrix();
 }
 
-static void
-openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+void
+Opengl::openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     if ( renderOptions->smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
     }
 
-    openGlRenderSetCamera(scene->camera, scene->geometryList);
+    Opengl::openGlRenderSetCamera(scene->camera, scene->geometryList);
 
     if ( renderOptions->backfaceCulling ) {
         glEnable(GL_CULL_FACE);
@@ -438,14 +438,14 @@ openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, c
         glDisable(GL_CULL_FACE);
     }
 
-    openGlReallyRender(scene, radianceMethod, renderOptions);
+    Opengl::openGlReallyRender(scene, radianceMethod, renderOptions);
 
     if ( renderOptions->drawBoundingBoxes ) {
-        renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
+        Render::renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
     }
 
     if ( renderOptions->drawClusters ) {
-        renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
+        Render::renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
     }
 }
 #endif
@@ -454,25 +454,25 @@ openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, c
 Renders the whole scene
 */
 void
-openGlRenderScene(
+Opengl::openGlRenderScene(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
 #ifdef OPEN_GL_ENABLED
-    openGlRenderSetLineWidth(renderOptions->lineWidth);
+    Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
 
-    canvasPushMode();
+    Canvas::canvasPushMode();
 
     if ( !renderOptions->renderRayTracedImage ) {
-        openGlRenderRadiance(scene, radianceMethod, renderOptions);
+        Opengl::openGlRenderRadiance(scene, radianceMethod, renderOptions);
     }
 
     // Call installed render hooks, that want to render something in the scene
-    renderHooks();
+    RenderHookList::renderHooks();
 
     glFinish();
 
-    canvasPullMode();
+    Canvas::canvasPullMode();
 #endif
 }

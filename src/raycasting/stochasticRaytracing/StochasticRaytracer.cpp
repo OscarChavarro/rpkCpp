@@ -731,7 +731,7 @@ StochasticRaytracer::calcPixel(
     }
 
     // We have now the FLUX for the pixel (x N), convert it to radiance
-    double factor = (computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->samplesPerPixel));
+    double factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->samplesPerPixel));
 
     result.scale(static_cast<float>(factor));
     config->screen->add(nx, ny, result);

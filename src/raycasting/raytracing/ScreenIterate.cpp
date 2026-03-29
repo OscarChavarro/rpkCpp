@@ -1,6 +1,6 @@
 #include "java/lang/System.h"
 #include "tonemap/ToneMap.h"
-#include "render/Opengl.h"
+#include "render/Softids.h"
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
 #include "raycasting/raytracing/ScreenIterate.h"
@@ -66,7 +66,7 @@ screenIterateSequential(
             GLOBAL_raytracer_pixelCount++;
         }
 
-        softRenderPixels(width, 1, rgb);
+        SoftIds::softRenderPixels(width, 1, rgb);
     }
 
     delete[] rgb;
@@ -174,7 +174,7 @@ screenIterateProgressive(
                     if ( iState.wakeUp & wakeUpRender() ) {
                         iState.wakeUp &= static_cast<unsigned char>(~wakeUpRender());
                         if ( (yMax > 0) && (yMax > yMin) ) {
-                            softRenderPixels(width, yMax - yMin, rgb + yMin * width);
+                            SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                         }
                         yMin = java::Math::max(0, yMax - stepSize);
                     }
@@ -186,7 +186,7 @@ screenIterateProgressive(
 
             if ( yMax >= height ) {
                 if ( yMax > yMin ) {
-                    softRenderPixels(width, yMax - yMin, rgb + yMin * width);
+                    SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                 }
                 yMax = -1;
             }

@@ -16,7 +16,7 @@ Sets up a software rendering context and initialises transforms and
 viewport for the current view.
 */
 SglContext *
-setupSoftFrameBuffer(const Camera *camera) {
+SoftIds::setupSoftFrameBuffer(const Camera *camera) {
     SglContext *sgl = new SglContext(camera->xSize, camera->ySize);
     sgl->sglDepthTesting(true);
     sgl->sglClipping(true);
@@ -34,8 +34,8 @@ setupSoftFrameBuffer(const Camera *camera) {
     return sgl;
 }
 
-static void
-softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions, SglContext *sglContext) {
+void
+SoftIds::softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions, SglContext *sglContext) {
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
@@ -54,8 +54,8 @@ softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *r
     sglContext->sglPolygon(patch->numberOfVertices, vertices);
 }
 
-static void
-softRenderPatchWithContext(
+void
+SoftIds::softRenderPatchWithContext(
     const Patch *patch,
     const Camera *camera,
     const RenderOptions *renderOptions,
@@ -65,7 +65,7 @@ softRenderPatchWithContext(
     if ( sglContext == nullptr ) {
         return;
     }
-    softRenderPatch(patch, camera, renderOptions, sglContext);
+    SoftIds::softRenderPatch(patch, camera, renderOptions, sglContext);
 }
 
 /**
@@ -73,16 +73,16 @@ Renders all scenePatches in the provided sgl renderer. PatchPixel returns
 and SGL_PIXEL value for a given Patch
 */
 void
-softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext) {
+SoftIds::softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext) {
     if ( sglContext == nullptr ) {
         return;
     }
 
     if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctreeWithData(scene, softRenderPatchWithContext, sglContext, renderOptions);
+        Opengl::openGlRenderWorldOctreeWithData(scene, SoftIds::softRenderPatchWithContext, sglContext, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
+            SoftIds::softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
         }
     }
 }
@@ -95,9 +95,9 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    SglContext *currentSglContext = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, renderOptions, currentSglContext);
+SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
+    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
+    SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;
@@ -114,7 +114,7 @@ Renders in memory an image of m lines of n pixels at column x on row y (= lower
 left corner of image, relative to the lower left corner of the window)
 */
 void
-softRenderPixels(int width, int height, const ColorRgb *rgb) {
+SoftIds::softRenderPixels(int width, int height, const ColorRgb *rgb) {
     // Length of one row of RGBA image data rounded up to a multiple of 8
     const int rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
     unsigned char *c = new unsigned char[height * rowLength + 8];

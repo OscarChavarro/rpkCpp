@@ -6,7 +6,16 @@
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 
-extern void updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions);
-extern void updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions);
+class SglContext;
+
+class Potential {
+  private:
+    static void softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches);
+    static void softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions);
+
+  public:
+    static void updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions);
+    static void updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions);
+};
 
 #endif

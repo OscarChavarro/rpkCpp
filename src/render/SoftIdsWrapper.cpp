@@ -12,6 +12,6 @@ SoftIdsWrapper::~SoftIdsWrapper() {
 
 void
 SoftIdsWrapper::init(const Scene *scene, const RenderOptions *renderOptions) {
-    sgl = setupSoftFrameBuffer(scene->camera);
-    softRenderPatches(scene, renderOptions, sgl);
+    sgl = SoftIds::setupSoftFrameBuffer(scene->camera);
+    SoftIds::softRenderPatches(scene, renderOptions, sgl);
 }

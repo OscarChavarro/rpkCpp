@@ -533,7 +533,7 @@ GalerkinRadianceMethod::getStats() {
 void
 GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( renderOptions->frustumCulling ) {
-        openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
+        Opengl::openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
     } else {
         RenderOptions modifiedRenderOptions = *renderOptions;
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

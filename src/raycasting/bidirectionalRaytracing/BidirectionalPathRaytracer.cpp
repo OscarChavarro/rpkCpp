@@ -716,7 +716,7 @@ handlePath1X(
 
         config->screen->getPixel(pixX, pixY, &nx, &ny);
 
-        float factor = (computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->baseConfig->totalSamples));
+        float factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny) / static_cast<float>(config->baseConfig->totalSamples));
         f.scale(factor);
 
         addWithSpikeCheck(config, path, nx, ny, pixX, pixY, f);
@@ -871,7 +871,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
 
     config->nx = nx;
     config->ny = ny;
-    config->fluxToRadFactor = computeFluxToRadFactor(camera, nx, ny);
+    config->fluxToRadFactor = ScreenBuffer::computeFluxToRadFactor(camera, nx, ny);
 
     for ( int i = 0; i < config->baseConfig->samplesPerPixel; i++ ) {
         if ( config->eyeConfig.maxDepth > 1 ) {

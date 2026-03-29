@@ -7,36 +7,73 @@
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 
+class OpenGlRenderTraversalCallback;
+
 typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);
 typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *, const RenderOptions *, void *);
 
-extern void openGlRenderLine(Vector3D *x, Vector3D *y);
-extern void openGlRenderSetColor(const ColorRgb *rgb);
-extern void openGlRenderPatchOutline(const Patch *patch);
-extern void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
-extern void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors);
-extern void softRenderPixels(int width, int height, const ColorRgb *rgb);
-extern void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
-extern void openGlRenderClearWindow(const Camera *camera);
-extern void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
+class Opengl {
+  private:
+    static void openGlRenderPatchFlat(const Patch *patch);
+    static void openGlRenderPatchSmooth(const Patch *patch);
+    static void
+    openGlInvokeRenderPatch(
+        const OpenGlRenderTraversalCallback &renderPatch,
+        const Patch *patch,
+        const Camera *camera,
+        const RenderOptions *renderOptions);
+    static void
+    openGlReallyRenderOctreeLeaf(
+        const Camera *camera,
+        const Geometry *geometry,
+        const OpenGlRenderTraversalCallback &renderPatch,
+        const RenderOptions *renderOptions);
+    static void
+    openGlRenderOctreeLeaf(
+        const Camera *camera,
+        const Geometry *geometry,
+        const OpenGlRenderTraversalCallback &renderPatchCallback,
+        const RenderOptions *renderOptions);
+    static int openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds);
+    static float openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox);
+    static void
+    openGlRenderOctreeNonLeaf(
+        Camera *camera,
+        const Geometry *geometry,
+        const OpenGlRenderTraversalCallback &renderPatchCallback,
+        const RenderOptions *renderOptions);
+    static void openGlRenderSetLineWidth(float width);
+    static void openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    static void openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
 
-extern void
-openGlRenderWorldOctree(
-    const Scene *scene,
-    OpenGlRenderPatchCallback renderPatchCallback,
-    const RenderOptions *renderOptions);
+  public:
+    static void openGlRenderLine(Vector3D *x, Vector3D *y);
+    static void openGlRenderSetColor(const ColorRgb *rgb);
+    static void openGlRenderPatchOutline(const Patch *patch);
+    static void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
+    static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors);
+    static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
+    static void openGlRenderClearWindow(const Camera *camera);
+    static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
 
-extern void
-openGlRenderWorldOctreeWithData(
-    const Scene *scene,
-    OpenGlRenderPatchCallbackWithData renderPatchCallback,
-    void *callbackData,
-    const RenderOptions *renderOptions);
+    static void
+    openGlRenderWorldOctree(
+        const Scene *scene,
+        OpenGlRenderPatchCallback renderPatchCallback,
+        const RenderOptions *renderOptions);
 
-extern void
-openGlRenderScene(
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions);
+    static void
+    openGlRenderWorldOctreeWithData(
+        const Scene *scene,
+        OpenGlRenderPatchCallbackWithData renderPatchCallback,
+        void *callbackData,
+        const RenderOptions *renderOptions);
+
+    static void
+    openGlRenderScene(
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions);
+};
 
 #endif

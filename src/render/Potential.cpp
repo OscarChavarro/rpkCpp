@@ -19,15 +19,15 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
-    canvasPushMode();
+Potential::updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
+    Canvas::canvasPushMode();
 
     // Get the patch IDs for each pixel
     long x;
     long y;
-    unsigned long *ids = softRenderIds(&x, &y, scene, renderOptions);
+    unsigned long *ids = SoftIds::softRenderIds(&x, &y, scene, renderOptions);
 
-    canvasPullMode();
+    Canvas::canvasPullMode();
 
     if ( ids == nullptr ) {
         return;
@@ -115,8 +115,8 @@ updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
     delete[] ids;
 }
 
-static void
-softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches) {
+void
+Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scenePatches) {
     int i;
 
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -132,13 +132,13 @@ softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Patch *> *scen
     }
 }
 
-static void
-softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
+void
+Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
     const long long t = java::lang::System::nanoTime();
-    SglContext *currentSglContext = setupSoftFrameBuffer(scene->camera);
+    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
-    softRenderPatches(scene, renderOptions, currentSglContext);
-    softGetPatchPointers(currentSglContext, scene->patchList);
+    SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
+    Potential::softGetPatchPointers(currentSglContext, scene->patchList);
     delete currentSglContext;
 
     java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
@@ -149,8 +149,8 @@ softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOption
 Updates view visibility status of all patches
 */
 void
-updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
-    canvasPushMode();
-    softUpdateDirectVisibility(scene, renderOptions);
-    canvasPullMode();
+Potential::updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
+    Canvas::canvasPushMode();
+    Potential::softUpdateDirectVisibility(scene, renderOptions);
+    Canvas::canvasPullMode();
 }

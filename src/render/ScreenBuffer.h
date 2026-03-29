@@ -64,6 +64,7 @@ class ScreenBuffer {
 #ifdef RAYTRACING_ENABLED
     float getScreenXMax() const;
     float getScreenYMax() const;
+    static float computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
     ColorRgb getBiLinear(float x, float y) const;
     void scaleRadiance(float inFactor);
     void setAddScaleFactor(float inFactor);
@@ -74,9 +75,5 @@ class ScreenBuffer {
 #endif
 
 };
-
-#ifdef RAYTRACING_ENABLED
-    extern float computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
-#endif
 
 #endif

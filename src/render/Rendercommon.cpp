@@ -11,7 +11,7 @@ Computes front- and back-clipping plane distance for the current GLOBAL_scene_wo
 camera
 */
 void
-renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
+Render::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
     Vector3D minimum;
     Vector3D maximum;
@@ -65,7 +65,7 @@ renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometr
 Renders a bounding box
 */
 void
-renderBoundingBox(BoundingBox boundingBox) {
+Render::renderBoundingBox(BoundingBox boundingBox) {
     Vector3D p[8];
 
     const float minX = boundingBox.minX();
@@ -84,32 +84,32 @@ renderBoundingBox(BoundingBox boundingBox) {
     p[6].set(minX, maxY, maxZ);
     p[7].set(maxX, maxY, maxZ);
 
-    openGlRenderLine(&p[0], &p[1]);
-    openGlRenderLine(&p[1], &p[3]);
-    openGlRenderLine(&p[3], &p[2]);
-    openGlRenderLine(&p[2], &p[0]);
-    openGlRenderLine(&p[4], &p[5]);
-    openGlRenderLine(&p[5], &p[7]);
-    openGlRenderLine(&p[7], &p[6]);
-    openGlRenderLine(&p[6], &p[4]);
-    openGlRenderLine(&p[0], &p[4]);
-    openGlRenderLine(&p[1], &p[5]);
-    openGlRenderLine(&p[2], &p[6]);
-    openGlRenderLine(&p[3], &p[7]);
+    Opengl::openGlRenderLine(&p[0], &p[1]);
+    Opengl::openGlRenderLine(&p[1], &p[3]);
+    Opengl::openGlRenderLine(&p[3], &p[2]);
+    Opengl::openGlRenderLine(&p[2], &p[0]);
+    Opengl::openGlRenderLine(&p[4], &p[5]);
+    Opengl::openGlRenderLine(&p[5], &p[7]);
+    Opengl::openGlRenderLine(&p[7], &p[6]);
+    Opengl::openGlRenderLine(&p[6], &p[4]);
+    Opengl::openGlRenderLine(&p[0], &p[4]);
+    Opengl::openGlRenderLine(&p[1], &p[5]);
+    Opengl::openGlRenderLine(&p[2], &p[6]);
+    Opengl::openGlRenderLine(&p[3], &p[7]);
 }
 
-static void
-renderGeomBounds(Camera *camera, const Geometry *geometry) {
+void
+Render::renderGeomBounds(Camera *camera, const Geometry *geometry) {
     BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
-        renderBoundingBox(geometryBoundingBox);
+        Render::renderBoundingBox(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            renderGeomBounds(camera, geometryList->get(i));
+            Render::renderGeomBounds(camera, geometryList->get(i));
         }
         delete geometryList;
     }
@@ -119,10 +119,10 @@ renderGeomBounds(Camera *camera, const Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
-    openGlRenderSetColor(&renderOptions->boundingBoxColor);
+Render::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
+    Opengl::openGlRenderSetColor(&renderOptions->boundingBoxColor);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        renderGeomBounds(camera, sceneGeometries->get(i));
+        Render::renderGeomBounds(camera, sceneGeometries->get(i));
     }
 }
 
@@ -130,9 +130,9 @@ renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sc
 Renders the cluster hierarchy bounding boxes
 */
 void
-renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
-    openGlRenderSetColor(&renderOptions->clusterColor);
+Render::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
+    Opengl::openGlRenderSetColor(&renderOptions->clusterColor);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
-        renderGeomBounds(camera, clusteredGeometryList->get(i));
+        Render::renderGeomBounds(camera, clusteredGeometryList->get(i));
     }
 }

@@ -185,9 +185,9 @@ drawCallback() {
 
     if ( globalMode == 0 ) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-        openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
+        Opengl::openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
     } else if ( globalMode == 1 ) {
-        openGlRenderSetCamera(globalScene->camera, globalScene->geometryList);
+        Opengl::openGlRenderSetCamera(globalScene->camera, globalScene->geometryList);
         glPushMatrix();
         glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
         GalerkinDebugRenderer::renderGalerkinElementHierarchy(globalScene, globalRenderOptions);

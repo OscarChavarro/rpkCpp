@@ -9,7 +9,10 @@ Hooks should only depend on render.h, not on GLX or OpenGL
 
 typedef void (*RenderHookFunction)(void *data);
 
-void renderHooks();
-void removeAllRenderHooks();
+class RenderHookList {
+  public:
+    static void renderHooks();
+    static void removeAllRenderHooks();
+};
 
 #endif

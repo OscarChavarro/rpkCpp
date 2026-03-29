@@ -139,7 +139,7 @@ batchSaveRadianceImage(
         return;
     }
 
-    canvasPushMode();
+    Canvas::canvasPushMode();
 
     extension = imageFileExtension(fileName);
     if ( strncasecmp(extension, "logluv", 6) == 0 ) {
@@ -157,7 +157,7 @@ batchSaveRadianceImage(
     java::lang::System::out.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
-    canvasPullMode();
+    Canvas::canvasPullMode();
 }
 
 static void
@@ -176,7 +176,7 @@ batchSaveRadianceModel(
         return;
     }
 
-    canvasPushMode();
+    Canvas::canvasPushMode();
     java::lang::System::out.printf("Saving VRML model to file '%s' ... ", fileName);
     java::lang::System::out.flush();
     t = java::lang::System::nanoTime();
@@ -188,7 +188,7 @@ batchSaveRadianceModel(
     java::lang::System::out.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
-    canvasPullMode();
+    Canvas::canvasPullMode();
 }
 
 void
@@ -224,16 +224,16 @@ batchExecuteRadianceSimulation(
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
                    "-----------------------------------\n\n", iterationNumber);
 
-            canvasPushMode();
+            Canvas::canvasPushMode();
             done = radianceMethod->doStep(scene, renderOptions);
-            canvasPullMode();
+            Canvas::canvasPullMode();
 
             java::lang::System::out.flush();
             java::lang::System::err.flush();
 
             java::lang::System::out.printf("%s", radianceMethod->getStats());
 
-            renderGetNearFar(scene->camera, scene->geometryList);
+            Render::renderGetNearFar(scene->camera, scene->geometryList);
 
             java::lang::System::out.flush();
             java::lang::System::err.flush();

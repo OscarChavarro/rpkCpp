@@ -194,8 +194,8 @@ ShootingStrategy::propagateRadiance(const Scene *scene, GalerkinState *galerkinS
     }
 
     ColorRgb yellow = {1.0, 1.0, 0.0};
-    openGlRenderSetColor(&yellow);
-    openGlRenderPatchOutline(shootingPatch);
+    Opengl::openGlRenderSetColor(&yellow);
+    Opengl::openGlRenderPatchOutline(shootingPatch);
 
     doPropagate(
         scene,
@@ -255,8 +255,8 @@ ShootingStrategy::propagatePotential(const Scene *scene, GalerkinState *galerkin
     if ( shootingPatch ) {
         ColorRgb white = {1.0, 1.0, 1.0};
 
-        openGlRenderSetColor(&white);
-        openGlRenderPatchOutline(shootingPatch);
+        Opengl::openGlRenderSetColor(&white);
+        Opengl::openGlRenderPatchOutline(shootingPatch);
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
         java::lang::System::err.printf("No patches with un-shot potential??\n");
@@ -288,7 +288,7 @@ bool
 ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions) {
     if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
-            updateDirectPotential(scene, renderOptions);
+            Potential::updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 const Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = galerkinGetElement(patch);

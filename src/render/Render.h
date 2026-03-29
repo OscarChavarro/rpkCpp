@@ -7,9 +7,15 @@
 #include "skin/Geometry.h"
 #include "scene/Camera.h"
 
-extern void renderBoundingBox(BoundingBox boundingBox);
-extern void renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions);
-extern void renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions);
-extern void renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
+class Render {
+  private:
+    static void renderGeomBounds(Camera *camera, const Geometry *geometry);
+
+  public:
+    static void renderBoundingBox(BoundingBox boundingBox);
+    static void renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions);
+    static void renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions);
+    static void renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
+};
 
 #endif

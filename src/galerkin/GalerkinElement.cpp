@@ -574,7 +574,7 @@ void
 GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
     if ( isCluster() ) {
         if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-            renderBoundingBox(geometry->getBoundingBox());
+            Render::renderBoundingBox(geometry->getBoundingBox());
         }
         return;
     }
@@ -596,8 +596,8 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
             } else {
                 ToneMap::radianceToRgb(radiance[0], &color);
             }
-            openGlRenderSetColor(&color);
-            openGlRenderPolygonFlat(numberOfVertices, p);
+            Opengl::openGlRenderSetColor(&color);
+            Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
         } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
             ColorRgb vertRadiosity[4];
 
@@ -627,26 +627,26 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
                 ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i]);
             }
 
-            openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors);
+            Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors);
         }
     }
 
     // Draw outlines
     if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-        openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
         if ( numberOfVertices == 3 ) {
-            openGlRenderSetColor(&renderOptions->outlineColor);
-            openGlRenderLine(&p[0], &p[1]);
-            openGlRenderLine(&p[1], &p[2]);
-            openGlRenderLine(&p[2], &p[0]);
+            Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+            Opengl::openGlRenderLine(&p[0], &p[1]);
+            Opengl::openGlRenderLine(&p[1], &p[2]);
+            Opengl::openGlRenderLine(&p[2], &p[0]);
         } else {
             ColorRgb green = {0.0, 1.0, 0.0};
 
-            openGlRenderSetColor(&green);
-            openGlRenderLine(&p[0], &p[1]);
-            openGlRenderLine(&p[1], &p[2]);
-            openGlRenderLine(&p[2], &p[3]);
-            openGlRenderLine(&p[3], &p[0]);
+            Opengl::openGlRenderSetColor(&green);
+            Opengl::openGlRenderLine(&p[0], &p[1]);
+            Opengl::openGlRenderLine(&p[1], &p[2]);
+            Opengl::openGlRenderLine(&p[2], &p[3]);
+            Opengl::openGlRenderLine(&p[3], &p[0]);
         }
     }
 }

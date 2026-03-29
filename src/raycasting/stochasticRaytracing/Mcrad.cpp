@@ -189,7 +189,7 @@ void
 monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions) {
     java::lang::System::err.printf("Updating direct visibility ... \n");
 
-    updateDirectVisibility(scene, renderOptions);
+    Potential::updateDirectVisibility(scene, renderOptions);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;

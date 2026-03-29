@@ -181,7 +181,7 @@ doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod
 
     if ( GLOBAL_rayTracer != nullptr ) {
         // TODO: Verify this is not needed, has been disabled flow on May 29 2024
-        //openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
+        //Opengl::openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
     }
     delete[] globalLights;
 }

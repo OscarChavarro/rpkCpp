@@ -324,10 +324,10 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
         float factor;
 
         if ( config->currentMap == config->globalMap ) {
-            factor = (computeFluxToRadFactor(camera, nx, ny)
+            factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny)
                       / static_cast<float>(GLOBAL_photonMap_state.totalGPaths));
         } else {
-            factor = (computeFluxToRadFactor(camera, nx, ny)
+            factor = (ScreenBuffer::computeFluxToRadFactor(camera, nx, ny)
                       / static_cast<float>(GLOBAL_photonMap_state.totalCPaths));
         }
 
@@ -740,7 +740,7 @@ PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *re
         GLOBAL_photonMap_config.screen->render();
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
+            Opengl::openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
         }
     }
 }
