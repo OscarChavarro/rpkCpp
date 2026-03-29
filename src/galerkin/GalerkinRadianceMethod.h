@@ -1,7 +1,10 @@
 #ifndef __GALERKIN_RADIOSITY_METHOD__
 #define __GALERKIN_RADIOSITY_METHOD__
 
+#include <cstdarg>
+
 #include "common/RenderOptions.h"
+#include "java/lang/String.h"
 #include "scene/Background.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
@@ -15,6 +18,22 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
     static void patchInit(Patch *patch);
     static void updateCpuSecs();
+    static java::lang::String formatToString(const char *format, va_list arguments);
+    static void writeFormatted(const char *format, ...);
+    static void appendStatsText(char *buffer, int *offset, const char *format, ...);
+    static void writeVertexCoord(const Vector3D *point);
+    static void writeVertexCoords(Element *element);
+    static void writeCoords();
+    static void writeVertexColor(const ColorRgb *color);
+    static void writeVertexColors(Element *element);
+    static void writeVertexColorsTopCluster();
+    static void writeColors(const RenderOptions *renderOptions);
+    static void writeCoordIndex(int index);
+    static void writeCoordIndices(Element *element);
+    static void writeCoordIndicesTopCluster();
+    static java::io::OutputStream *vrmlOutputStream;
+    static int numberOfWrites;
+    static int vertexId;
 
     static inline ColorRgb
     galerkinGetRadiance(Patch *patch) {
@@ -41,6 +60,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
   public:
     static GalerkinState galerkinState;
+    static void freeMemory();
 
     static void recomputePatchColor(Patch *patch);
     static void galerkinRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
@@ -64,7 +84,5 @@ class GalerkinRadianceMethod final : public RadianceMethod {
         const RenderOptions *renderOptions) const final;
     void setStrategy();
 };
-
-extern void galerkinFreeMemory();
 
 #endif

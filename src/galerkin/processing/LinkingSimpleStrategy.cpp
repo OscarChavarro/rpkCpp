@@ -19,7 +19,7 @@ LinkingSimpleStrategy::createInitialLink(
 
     GalerkinElement *rcv;
     GalerkinElement *src;
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     switch ( role ) {
         case GalerkinRole::SOURCE:
             rcv = topLevelElement;

@@ -86,7 +86,7 @@ printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
     if  ( patch == nullptr || patch->radianceData == nullptr ) {
         return;
     }
-    const GalerkinElement *element = galerkinGetElement(patch);
+    const GalerkinElement *element = GalerkinElement::fromPatch(patch);
     java::lang::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
     printElementHierarchy(element, 0);
 }

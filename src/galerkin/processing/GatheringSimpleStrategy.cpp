@@ -19,7 +19,7 @@ GatheringSimpleStrategy::patchLazyCreateInteractions(
     const Patch *patch,
     const GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
 
     if ( !topLevelElement->radiance[0].isBlack()
       && !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
@@ -44,8 +44,8 @@ hierarchical representation consistent and computes a new color for the patch
 */
 void
 GatheringSimpleStrategy::patchUpdateRadiance(Patch *patch, GalerkinState *galerkinState) {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
-    basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
+    GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
     GalerkinRadianceMethod::recomputePatchColor(patch);
 }
 
@@ -61,7 +61,7 @@ GatheringSimpleStrategy::patchGather(
     const Scene *scene,
     GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
 
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance
@@ -98,7 +98,7 @@ GatheringSimpleStrategy::patchGather(
 
 void
 GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     GatheringStrategy::pushPullPotential(topLevelElement, 0.0f);
 }
 

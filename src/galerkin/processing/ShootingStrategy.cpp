@@ -81,7 +81,7 @@ ShootingStrategy::patchPropagateUnShotRadianceAndPotential(
     const Patch *patch,
     GalerkinState *galerkinState)
 {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
 
     if ( !(topLevelElement->flags & ElementFlags::INTERACTIONS_CREATED_MASK) ) {
         if ( galerkinState->clustered ) {
@@ -146,11 +146,11 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down
 
 void
 ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState) {
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     if ( galerkinState->importanceDriven ) {
         shootingPushPullPotential(topLevelElement, 0.0f);
     }
-    basisGalerkinPushPullRadiance(topLevelElement, galerkinState);
+    GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
 
     galerkinState->ambientRadiance.addScaled(
         galerkinState->ambientRadiance,
@@ -169,7 +169,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
         if ( galerkinState->importanceDriven ) {
             shootingPushPullPotential(galerkinState->topCluster, 0.0);
         }
-        basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
+        GalerkinBasis::pushPullRadiance(galerkinState->topCluster, galerkinState);
         galerkinState->ambientRadiance = galerkinState->topCluster->unShotRadiance[0];
     } else {
         galerkinState->ambientRadiance.clear();
@@ -291,7 +291,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
             Potential::updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 const Patch *patch = scene->patchList->get(i);
-                GalerkinElement *topLevelElement = galerkinGetElement(patch);
+                GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
                 float potential_increment = patch->directPotential - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }

@@ -130,7 +130,7 @@ void
 RpkApplication::freeMemory(MgfParseSession *mgfContext) {
     deleteOptionsMemory();
     mgfFreeMemory(mgfContext);
-    galerkinFreeMemory();
+    GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();
     VoxelGrid::freeVoxelGridElements();

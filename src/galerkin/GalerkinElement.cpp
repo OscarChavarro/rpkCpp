@@ -250,6 +250,23 @@ GalerkinElement::getNumberOfSurfaceElements() {
     return globalNumberOfElements - globalNumberOfClusters;
 }
 
+GalerkinElement *
+GalerkinElement::fromPatch(const Patch *patch) {
+    if ( patch == nullptr ) {
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
+        java::lang::System::exit(1);
+    }
+    if ( patch->radianceData == nullptr ) {
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
+        java::lang::System::exit(1);
+    }
+    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
+        java::lang::System::exit(1);
+    }
+    return static_cast<GalerkinElement *>(patch->radianceData);
+}
+
 /**
 Re-allocates storage for the coefficients to represent radiance, received radiance
 and un-shot radiance on the element
@@ -351,13 +368,13 @@ GalerkinElement::regularSubDivide() {
         child->childNumber = static_cast<GalerkinElementRenderMode>(i);
         child->reAllocCoefficients();
 
-        basisGalerkinPush(this, radiance, child, child->radiance);
+        GalerkinBasis::push(this, radiance, child, child->radiance);
 
         child->potential = potential;
         child->directPotential = directPotential;
 
         if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
-            basisGalerkinPush(this, unShotRadiance, child, child->unShotRadiance);
+            GalerkinBasis::push(this, unShotRadiance, child, child->unShotRadiance);
             child->unShotPotential = unShotPotential;
         }
 
@@ -602,14 +619,14 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
             ColorRgb vertRadiosity[4];
 
             if ( numberOfVertices == 3 ) {
-                vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-                vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-                vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+                vertRadiosity[0] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 0.0);
+                vertRadiosity[1] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 0.0);
+                vertRadiosity[2] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 1.0);
             } else {
-                vertRadiosity[0] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 0.0);
-                vertRadiosity[1] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 0.0);
-                vertRadiosity[2] = basisGalerkinRadianceAtPoint(this, radiance, 1.0, 1.0);
-                vertRadiosity[3] = basisGalerkinRadianceAtPoint(this, radiance, 0.0, 1.0);
+                vertRadiosity[0] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 0.0);
+                vertRadiosity[1] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 0.0);
+                vertRadiosity[2] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 1.0);
+                vertRadiosity[3] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 1.0);
             }
 
             if ( galerkinState->useAmbientRadiance ) {
@@ -672,7 +689,7 @@ GalerkinElement::render(const RenderOptions *renderOptions) const {
 }
 
 void
-basisGalerkinInitBasis() {
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, &GLOBAL_crq8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, &GLOBAL_crt8);
+GalerkinElement::initializeBasis() {
+    GalerkinBasis::computeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, &GLOBAL_crq8);
+    GalerkinBasis::computeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, &GLOBAL_crt8);
 }

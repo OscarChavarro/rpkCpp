@@ -27,14 +27,12 @@ Galerkin radiosity, with the following variants:
 static constexpr int STRING_LENGTH = 2000;
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
+java::io::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
+int GalerkinRadianceMethod::numberOfWrites = 0;
+int GalerkinRadianceMethod::vertexId = 0;
 
-// Used for VRML export
-static java::io::OutputStream *globalVrmlOutputStream;
-static int globalNumberOfWrites;
-static int globalVertexId;
-
-static java::lang::String
-formatToString(const char *format, va_list arguments) {
+java::lang::String
+GalerkinRadianceMethod::formatToString(const char *format, va_list arguments) {
     if ( format == nullptr ) {
         return java::lang::String();
     }
@@ -62,15 +60,15 @@ formatToString(const char *format, va_list arguments) {
     return result;
 }
 
-static void
-galerkinWriteFormatted(const char *format, ...) {
-    if ( globalVrmlOutputStream == nullptr || format == nullptr ) {
+void
+GalerkinRadianceMethod::writeFormatted(const char *format, ...) {
+    if ( vrmlOutputStream == nullptr || format == nullptr ) {
         return;
     }
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = formatToString(format, arguments);
+    java::lang::String text = GalerkinRadianceMethod::formatToString(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -78,20 +76,20 @@ galerkinWriteFormatted(const char *format, ...) {
     }
 
     vsdk::PersistenceElement::writeBytes(
-        *globalVrmlOutputStream,
+        *vrmlOutputStream,
         reinterpret_cast<const unsigned char *>(text.toCString()),
         text.length());
 }
 
-static void
-appendStatsText(char *buffer, int *offset, const char *format, ...) {
+void
+GalerkinRadianceMethod::appendStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {
         return;
     }
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = formatToString(format, arguments);
+    java::lang::String text = GalerkinRadianceMethod::formatToString(format, arguments);
     va_end(arguments);
 
     const int written = text.length();
@@ -108,66 +106,66 @@ appendStatsText(char *buffer, int *offset, const char *format, ...) {
     }
 }
 
-static void
-galerkinWriteVertexCoord(const Vector3D *p) {
-    if ( globalNumberOfWrites > 0 ) {
-        galerkinWriteFormatted("%s", ", ");
+void
+GalerkinRadianceMethod::writeVertexCoord(const Vector3D *p) {
+    if ( numberOfWrites > 0 ) {
+        writeFormatted("%s", ", ");
     }
-    globalNumberOfWrites++;
-    if ( globalNumberOfWrites % 4 == 0 ) {
-        galerkinWriteFormatted("%s", "\n\t  ");
+    numberOfWrites++;
+    if ( numberOfWrites % 4 == 0 ) {
+        writeFormatted("%s", "\n\t  ");
     }
-    galerkinWriteFormatted("%g %g %g", p->x, p->y, p->z);
-    globalVertexId++;
+    writeFormatted("%g %g %g", p->x, p->y, p->z);
+    vertexId++;
 }
 
-static void
-galerkinWriteVertexCoords(Element *element) {
+void
+GalerkinRadianceMethod::writeVertexCoords(Element *element) {
     const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     Vector3D v[8];
     int numberOfVertices = galerkinElement->vertices(v);
     for ( int i = 0; i < numberOfVertices; i++ ) {
-        galerkinWriteVertexCoord(&v[i]);
+        writeVertexCoord(&v[i]);
     }
 }
 
-static void
-galerkinWriteCoords() {
-    globalNumberOfWrites = globalVertexId = 0;
-    galerkinWriteFormatted("%s", "\tcoord Coordinate {\n\t  point [ ");
-    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteVertexCoords);
-    galerkinWriteFormatted("%s", " ] ");
-    galerkinWriteFormatted("%s", "\n\t}\n");
+void
+GalerkinRadianceMethod::writeCoords() {
+    numberOfWrites = vertexId = 0;
+    writeFormatted("%s", "\tcoord Coordinate {\n\t  point [ ");
+    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(writeVertexCoords);
+    writeFormatted("%s", " ] ");
+    writeFormatted("%s", "\n\t}\n");
 }
 
-static void
-galerkinWriteVertexColor(const ColorRgb *color) {
-    if ( globalNumberOfWrites > 0 ) {
-        galerkinWriteFormatted("%s", ", ");
+void
+GalerkinRadianceMethod::writeVertexColor(const ColorRgb *color) {
+    if ( numberOfWrites > 0 ) {
+        writeFormatted("%s", ", ");
     }
-    globalNumberOfWrites++;
-    if ( globalNumberOfWrites % 4 == 0 ) {
-        galerkinWriteFormatted("%s", "\n\t  ");
+    numberOfWrites++;
+    if ( numberOfWrites % 4 == 0 ) {
+        writeFormatted("%s", "\n\t  ");
     }
-    galerkinWriteFormatted("%.3g %.3g %.3g", color->r, color->g, color->b);
-    globalVertexId++;
+    writeFormatted("%.3g %.3g %.3g", color->r, color->g, color->b);
+    vertexId++;
 }
 
-static void
-galerkinWriteVertexColors(Element *element) {
+void
+GalerkinRadianceMethod::writeVertexColors(Element *element) {
     const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
     ColorRgb vertexRadiosity[4];
     int i;
 
     if ( galerkinElement->patch->numberOfVertices == 3 ) {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
+        vertexRadiosity[0] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     } else {
-        vertexRadiosity[0] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
-        vertexRadiosity[1] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
-        vertexRadiosity[2] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 1.0);
-        vertexRadiosity[3] = basisGalerkinRadianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
+        vertexRadiosity[0] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
+        vertexRadiosity[1] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
+        vertexRadiosity[2] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 1.0);
+        vertexRadiosity[3] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
     }
 
     if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
@@ -183,57 +181,57 @@ galerkinWriteVertexColors(Element *element) {
     for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         ColorRgb col{};
         ToneMap::radianceToRgb(vertexRadiosity[i], &col);
-        galerkinWriteVertexColor(&col);
+        writeVertexColor(&col);
     }
-}
-
-static void
-galerkinWriteVertexColorsTopCluster() {
-    globalVertexId = globalNumberOfWrites = 0;
-    galerkinWriteFormatted("%s", "\tcolor Color {\n\t  color [ ");
-    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteVertexColors);
-    galerkinWriteFormatted("%s", " ] ");
-    galerkinWriteFormatted("%s", "\n\t}\n");
-}
-
-static void
-galerkinWriteColors(const RenderOptions *renderOptions) {
-    if ( !renderOptions->smoothShading ) {
-        Error::warning(nullptr, "I assume you want a smooth shaded model ...");
-    }
-    galerkinWriteFormatted("\tcolorPerVertex %s\n", "TRUE");
-    galerkinWriteVertexColorsTopCluster();
-}
-
-static void
-galerkinWriteCoordIndex(int index) {
-    globalNumberOfWrites++;
-    if ( globalNumberOfWrites % 20 == 0 ) {
-        galerkinWriteFormatted("%s", "\n\t  ");
-    }
-    galerkinWriteFormatted("%d ", index);
-}
-
-static void
-galerkinWriteCoordIndices(Element *element) {
-    const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
-    for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
-        galerkinWriteCoordIndex(globalVertexId);
-        globalVertexId++;
-    }
-    galerkinWriteCoordIndex(-1);
-}
-
-static void
-galerkinWriteCoordIndicesTopCluster() {
-    globalVertexId = globalNumberOfWrites = 0;
-    galerkinWriteFormatted("%s", "\tcoordIndex [ ");
-    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(galerkinWriteCoordIndices);
-    galerkinWriteFormatted("%s", " ]\n");
 }
 
 void
-galerkinFreeMemory() {
+GalerkinRadianceMethod::writeVertexColorsTopCluster() {
+    vertexId = numberOfWrites = 0;
+    writeFormatted("%s", "\tcolor Color {\n\t  color [ ");
+    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(writeVertexColors);
+    writeFormatted("%s", " ] ");
+    writeFormatted("%s", "\n\t}\n");
+}
+
+void
+GalerkinRadianceMethod::writeColors(const RenderOptions *renderOptions) {
+    if ( !renderOptions->smoothShading ) {
+        Error::warning(nullptr, "I assume you want a smooth shaded model ...");
+    }
+    writeFormatted("\tcolorPerVertex %s\n", "TRUE");
+    writeVertexColorsTopCluster();
+}
+
+void
+GalerkinRadianceMethod::writeCoordIndex(int index) {
+    numberOfWrites++;
+    if ( numberOfWrites % 20 == 0 ) {
+        writeFormatted("%s", "\n\t  ");
+    }
+    writeFormatted("%d ", index);
+}
+
+void
+GalerkinRadianceMethod::writeCoordIndices(Element *element) {
+    const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
+    for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
+        writeCoordIndex(vertexId);
+        vertexId++;
+    }
+    writeCoordIndex(-1);
+}
+
+void
+GalerkinRadianceMethod::writeCoordIndicesTopCluster() {
+    vertexId = numberOfWrites = 0;
+    writeFormatted("%s", "\tcoordIndex [ ");
+    GalerkinRadianceMethod::galerkinState.topCluster->traverseAllLeafElements(writeCoordIndices);
+    writeFormatted("%s", " ]\n");
+}
+
+void
+GalerkinRadianceMethod::freeMemory() {
     if ( GalerkinRadianceMethod::galerkinState.scratch != nullptr ) {
         delete GalerkinRadianceMethod::galerkinState.scratch;
         GalerkinRadianceMethod::galerkinState.scratch = nullptr;
@@ -268,7 +266,7 @@ GalerkinRadianceMethod::renderElementHierarchy(const GalerkinElement *element, c
 
 void
 GalerkinRadianceMethod::galerkinRenderPatch(const Patch *patch, const Camera * /*camera*/, const RenderOptions *renderOptions) {
-    renderElementHierarchy(galerkinGetElement(patch), renderOptions);
+    renderElementHierarchy(GalerkinElement::fromPatch(patch), renderOptions);
 }
 
 /**
@@ -361,7 +359,7 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
     galerkinState.iterationNumber = 0;
     galerkinState.cpuSeconds = 0.0;
 
-    basisGalerkinInitBasis();
+    GalerkinElement::initializeBasis();
 
     galerkinState.constantRadiance = GLOBAL_statistics.estimatedAverageRadiance;
     if ( galerkinState.useConstantRadiance ) {
@@ -460,10 +458,10 @@ GalerkinRadianceMethod::getRadiance(
         patch->biLinearToUniform(&u, &v);
     }
 
-    GalerkinElement *topLevelElement = galerkinGetElement(patch);
+    GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     leaf = topLevelElement->regularLeafAtPoint(&u, &v);
 
-    rad = basisGalerkinRadianceAtPoint(leaf, leaf->radiance, u, v);
+    rad = GalerkinBasis::radianceAtPoint(leaf, leaf->radiance, u, v);
 
     if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
@@ -567,10 +565,10 @@ GalerkinRadianceMethod::writeVRML(
     }
     VrmlWriter::writeHeader(camera, outputStream, renderOptions);
 
-    globalVrmlOutputStream = outputStream;
-    galerkinWriteCoords();
-    galerkinWriteColors(renderOptions);
-    galerkinWriteCoordIndicesTopCluster();
+    vrmlOutputStream = outputStream;
+    writeCoords();
+    writeColors(renderOptions);
+    writeCoordIndicesTopCluster();
 
     VrmlWriter::writeTrailer(outputStream);
 }

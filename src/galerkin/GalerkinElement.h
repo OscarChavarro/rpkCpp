@@ -52,6 +52,8 @@ class GalerkinElement final : public Element {
     static int getNumberOfElements();
     static int getNumberOfClusters();
     static int getNumberOfSurfaceElements();
+    static GalerkinElement *fromPatch(const Patch *patch);
+    static void initializeBasis();
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
@@ -72,25 +74,6 @@ of the same point on the parent element
 */
 extern Matrix2x2 globalQuadToParentTransformMatrix[4];
 extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
-
-inline GalerkinElement*
-galerkinGetElement(const Patch *patch) {
-    if ( patch == nullptr ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
-        java::lang::System::exit(1);
-    }
-    if ( patch->radianceData == nullptr ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
-        java::lang::System::exit(1);
-    }
-    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
-        java::lang::System::exit(1);
-    }
-    return static_cast<GalerkinElement *>(patch->radianceData);
-}
-
-extern void basisGalerkinInitBasis();
 
 #include "galerkin/GalerkinState.h"
 #endif

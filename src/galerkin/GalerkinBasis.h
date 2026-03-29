@@ -26,31 +26,56 @@ class GalerkinBasis {
     // basis function beta on the regular sub-element with index
     // sigma. See PushRadiance() and PullRadiance() in basis.c
     double regularFilter[4][MAX_BASIS_SIZE][MAX_BASIS_SIZE];
+
+    static ColorRgb
+    radianceAtPoint(
+        const GalerkinElement *element,
+        const ColorRgb *coefficients,
+        double u,
+        double v);
+
+    static void
+    push(
+        const GalerkinElement *element,
+        const ColorRgb *parentCoefficients,
+        const GalerkinElement *child,
+        ColorRgb *childCoefficients);
+
+    static void pushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState);
+
+    static void
+    computeRegularFilterCoefficients(
+        GalerkinBasis *basis,
+        const Matrix2x2 upTransform[],
+        const CubatureRule *cubaRule);
+
+  private:
+    static void
+    pull(
+        const GalerkinElement *parent,
+        ColorRgb *parentCoefficients,
+        const GalerkinElement *child,
+        const ColorRgb *childCoefficients);
+
+    static void
+    pushPullRadianceRecursive(
+        GalerkinElement *element,
+        ColorRgb *Bdown,
+        ColorRgb *Bup,
+        GalerkinState *galerkinState);
+
+    static void
+    computeFilterCoefficients(
+        const GalerkinBasis *parentBasis,
+        int parentSize,
+        const GalerkinBasis *childBasis,
+        int childSize,
+        const Matrix2x2 *upTransform,
+        const CubatureRule *cubatureRule,
+        double filter[MAX_BASIS_SIZE][MAX_BASIS_SIZE]);
 };
 
 extern GalerkinBasis GLOBAL_galerkin_quadBasis;
 extern GalerkinBasis GLOBAL_galerkin_triBasis;
-
-extern ColorRgb
-basisGalerkinRadianceAtPoint(
-    const GalerkinElement *element,
-    const ColorRgb *coefficients,
-    double u,
-    double v);
-
-extern void
-basisGalerkinPush(
-    const GalerkinElement *element,
-    const ColorRgb *parentCoefficients,
-    const GalerkinElement *child,
-    ColorRgb *childCoefficients);
-
-extern void basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *basisGalerkinPushPullRadiance);
-
-extern void
-basisGalerkinComputeRegularFilterCoefficients(
-        GalerkinBasis *basis,
-        const Matrix2x2 upTransform[],
-        const CubatureRule *cubaRule);
 
 #endif

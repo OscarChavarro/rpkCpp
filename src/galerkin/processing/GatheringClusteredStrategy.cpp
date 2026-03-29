@@ -81,7 +81,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
     // it is multiplied with the reflectivity and the self-emitted radiance added,
     // and finally pulls back up for a consistent multi-resolution representation
     // of radiance over all levels
-    basisGalerkinPushPullRadiance(galerkinState->topCluster, galerkinState);
+    GalerkinBasis::pushPullRadiance(galerkinState->topCluster, galerkinState);
 
     if ( galerkinState->importanceDriven ) {
         GatheringStrategy::pushPullPotential(galerkinState->topCluster, 0.0);
