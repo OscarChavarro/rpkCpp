@@ -1,7 +1,7 @@
 #include "io/context/ColorRepository.h"
 
 ColorRepository::ColorRepository():
-    colorLookUpTable(new LookUpTable(LookUpBehaviors::owningCString())),
+    colorLookUpTable(new LookUpTable(LookUpBehaviors::OWNING)),
     unNamedColorContext(new ColorContext()),
     currentColor(unNamedColorContext)
 {

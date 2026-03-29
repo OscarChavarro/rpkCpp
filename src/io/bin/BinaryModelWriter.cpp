@@ -34,14 +34,12 @@ const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
 };
 const int BinaryModelWriter::BINARY_MODEL_VERSION = 1;
 
-namespace {
 const char *
-safeLabel(const char *text) {
+BinaryModelWriter::safeLabel(const char *text) {
     if ( text == nullptr ) {
         return "(null)";
     }
     return text;
-}
 }
 
 bool

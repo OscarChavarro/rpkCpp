@@ -1,8 +1,7 @@
 #include "io/context/MaterialRepository.h"
 
-namespace {
 MgfMaterialContext
-createDefaultMgfMaterialContext() {
+MaterialRepository::createDefaultMgfMaterialContext() {
     return {
         1,
         false,
@@ -22,11 +21,10 @@ createDefaultMgfMaterialContext() {
         0.0f
     };
 }
-}
 
 MaterialRepository::MaterialRepository():
-    materialLookUpTable(new LookUpTable(LookUpBehaviors::owningCString())),
-    defaultMaterialContext(createDefaultMgfMaterialContext()),
+    materialLookUpTable(new LookUpTable(LookUpBehaviors::OWNING)),
+    defaultMaterialContext(MaterialRepository::createDefaultMgfMaterialContext()),
     unNamedMaterialContext(defaultMaterialContext),
     currentMaterialContext(&unNamedMaterialContext)
 {

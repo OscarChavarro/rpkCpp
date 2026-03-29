@@ -34,6 +34,7 @@ class BinaryModelWriter {
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
     static const int BINARY_MODEL_VERSION;
+    static const char *safeLabel(const char *text);
 
     static bool writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length);
     static void writeTag(java::io::OutputStream &output, const char tag[4]);

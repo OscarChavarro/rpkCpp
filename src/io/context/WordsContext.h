@@ -10,6 +10,8 @@ class WordsContext {
     static int isName(const char *text);
 
   private:
+    static bool isAsciiCode(int value);
+    static bool isAsciiGraph(int value);
     static const char *skipInt(const char *text);
     static const char *skipFloat(const char *text);
 };

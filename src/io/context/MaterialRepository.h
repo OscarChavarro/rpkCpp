@@ -18,6 +18,9 @@ class MaterialRepository {
 
     MaterialRepository(const MaterialRepository &) = delete;
     MaterialRepository &operator=(const MaterialRepository &) = delete;
+
+  private:
+    static MgfMaterialContext createDefaultMgfMaterialContext();
 };
 
 #endif

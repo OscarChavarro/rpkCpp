@@ -1,11 +1,14 @@
 #ifndef __PIPE_INPUT_STREAM__
 #define __PIPE_INPUT_STREAM__
 
+#include <cstdio>
+
 #include "java/io/InputStream.h"
 
 class PipeInputStream : public java::io::InputStream {
   private:
     void *pipeHandle;
+    static FILE *toFileHandle(void *handle);
 
   public:
     explicit PipeInputStream(const char *command);

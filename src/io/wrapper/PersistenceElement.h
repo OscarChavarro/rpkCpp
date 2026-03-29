@@ -128,6 +128,7 @@ class PersistenceElement {
 
     static void signedInt2byteArrayDirect(unsigned char *arr, int start, long num);
     static void signedInt2byteArrayInvert(unsigned char *arr, int start, long num);
+    static int signedByte2unsignedInteger(unsigned char value);
 
     static float byteArray2floatDirect(const unsigned char *arr, int start);
     static double byteArray2doubleDirect(const unsigned char *arr, int start);

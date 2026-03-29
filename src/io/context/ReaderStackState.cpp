@@ -6,7 +6,7 @@
 ReaderStackState::ReaderStackState():
     entityNames(),
     errorCodeMessages(),
-    entityLookUpTable(LookUpBehaviors::nonOwningCString()),
+    entityLookUpTable(LookUpBehaviors::NON_OWNING),
     nextFileContextId(0),
     readerContext(nullptr),
     handleCallbacks(),

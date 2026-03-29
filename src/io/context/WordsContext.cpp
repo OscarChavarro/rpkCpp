@@ -3,16 +3,14 @@
 #include "java/lang/Character.h"
 #include "io/context/WordsContext.h"
 
-namespace {
-inline bool
-isAsciiCode(int value) {
+bool
+WordsContext::isAsciiCode(int value) {
     return value >= 0 && value <= 127;
 }
 
-inline bool
-isAsciiGraph(int value) {
+bool
+WordsContext::isAsciiGraph(int value) {
     return value >= 33 && value <= 126;
-}
 }
 
 /**
@@ -121,12 +119,12 @@ WordsContext::isName(const char *text)
         // skip leading underscores
         index++;
     }
-    if ( !isAsciiCode(text[index]) || !java::Character::isLetter(text[index]) ) {
+    if ( !WordsContext::isAsciiCode(text[index]) || !java::Character::isLetter(text[index]) ) {
         // start with a letter
         return 0;
     }
     int tokenIndex = index + 1;
-    while ( isAsciiCode(text[tokenIndex]) && isAsciiGraph(text[tokenIndex]) ) {
+    while ( WordsContext::isAsciiCode(text[tokenIndex]) && WordsContext::isAsciiGraph(text[tokenIndex]) ) {
         // all visible characters
         tokenIndex++;
     }

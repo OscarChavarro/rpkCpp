@@ -164,3 +164,19 @@ such optimizations by removing the following line on `CMakeLists.txt`:
 ```
 add_compile_options(-ffast-math -O3)
 ```
+
+## Running under profiler control (linux + gprof)
+
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-pg" -DCMAKE_C_FLAGS="-pg"
+cmake --build build
+```
+
+Then run any rpk command. After the run a `gmon.out` binary data files will be generated, from which
+
+```bash
+gprof ./build/rpk gmon.out > analysis.txt
+less analysis.txt
+```
+
+will help on optimizing code.

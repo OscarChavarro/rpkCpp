@@ -2,11 +2,9 @@
 
 #include "io/wrapper/PipeOutputStream.h"
 
-namespace {
-static FILE *
-toFileHandle(void *handle) {
+FILE *
+PipeOutputStream::toFileHandle(void *handle) {
     return static_cast<FILE *>(handle);
-}
 }
 
 PipeOutputStream::PipeOutputStream(const char *command):

@@ -15,8 +15,8 @@ unsigned char PersistenceElement::byteBuffer4byte[4] = {0, 0, 0, 0};
 unsigned char PersistenceElement::byteBuffer8byte[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 unsigned char PersistenceElement::bytesForLong[4] = {0, 0, 0, 0};
 
-static int
-signedByte2unsignedInteger(unsigned char value) {
+int
+PersistenceElement::signedByte2unsignedInteger(unsigned char value) {
     return static_cast<int>(value);
 }
 

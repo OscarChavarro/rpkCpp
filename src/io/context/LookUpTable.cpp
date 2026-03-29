@@ -7,12 +7,11 @@ Table lookup routines
 #include "io/context/LookUpEntity.h"
 #include "io/context/LookUpTable.h"
 
-namespace {
 /**
 Hash a null-terminated string
 */
 long
-lookUpShuffleHash(const char *text) {
+LookUpTable::lookUpShuffleHash(const char *text) {
     static const unsigned char globalShuffle[256] = {
         0, 157, 58, 215, 116, 17, 174, 75, 232, 133, 34, 191, 92, 249, 150, 51,
         208, 109, 10, 167, 68, 225, 126, 27, 184, 85, 242, 143, 44, 201, 102, 3,
@@ -42,51 +41,14 @@ lookUpShuffleHash(const char *text) {
 
     return hash;
 }
-}
-
-long
-StringLookUpBehavior::hash(const char *key) const {
-    return lookUpShuffleHash(key);
-}
-
-bool
-StringLookUpBehavior::keysEqual(const char *left, const char *right) const {
-    return std::strcmp(left, right) == 0;
-}
-
-void
-OwningCStringLookUpBehavior::freeKey(const char *key) const {
-    delete[] key;
-}
-
-void
-OwningCStringLookUpBehavior::freeData(const char *data) const {
-    delete[] data;
-}
-
-namespace LookUpBehaviors {
-const LookUpBehavior &
-nonOwningCString() {
-    // Process-lifetime singleton avoids static destruction order issues.
-    static const LookUpBehavior *behavior = new StringLookUpBehavior();
-    return *behavior;
-}
-
-const LookUpBehavior &
-owningCString() {
-    // Process-lifetime singleton avoids static destruction order issues.
-    static const LookUpBehavior *behavior = new OwningCStringLookUpBehavior();
-    return *behavior;
-}
-}
 
 LookUpTable::LookUpTable():
-    LookUpTable(LookUpBehaviors::nonOwningCString())
+    LookUpTable(LookUpBehaviors::NON_OWNING)
 {
 }
 
-LookUpTable::LookUpTable(const LookUpBehavior &behavior):
-    behavior(behavior),
+LookUpTable::LookUpTable(LookUpBehaviors behaviorType):
+    behaviorType(behaviorType),
     currentTableSize(0),
     table(nullptr),
     numberOfDeletedEntries(0)
@@ -101,6 +63,25 @@ int
 LookUpTable::getCurrentTableSize() const
 {
     return currentTableSize;
+}
+
+bool
+LookUpTable::keysEqual(const char *left, const char *right) const {
+    return std::strcmp(left, right) == 0;
+}
+
+void
+LookUpTable::freeKey(const char *key) const {
+    if ( behaviorType == LookUpBehaviors::OWNING ) {
+        delete[] key;
+    }
+}
+
+void
+LookUpTable::freeData(const char *data) const {
+    if ( behaviorType == LookUpBehaviors::OWNING ) {
+        delete[] data;
+    }
 }
 
 /**
@@ -173,7 +154,7 @@ LookUpTable::lookUpFind(const char *key) {
         }
     }
 
-    const long hashValue = behavior.hash(key);
+    const long hashValue = lookUpShuffleHash(key);
 
     do {
         int index = static_cast<int>(hashValue % currentTableSize);
@@ -185,7 +166,7 @@ LookUpTable::lookUpFind(const char *key) {
                 entry->value = hashValue;
                 return entry;
             }
-            if ( entry->value == hashValue && behavior.keysEqual(entry->key, key) ) {
+            if ( entry->value == hashValue && keysEqual(entry->key, key) ) {
                 return entry;
             }
 
@@ -220,9 +201,9 @@ LookUpTable::lookUpDone() {
     for ( int i = currentTableSize - 1; i >= 0; i-- ) {
         const LookUpEntity *entry = &table[i];
         if ( entry->key != nullptr ) {
-            behavior.freeKey(entry->key);
+            freeKey(entry->key);
             if ( entry->data != nullptr ) {
-                behavior.freeData(entry->data);
+                freeData(entry->data);
             }
         }
     }
@@ -265,7 +246,7 @@ LookUpTable::lookUpReAlloc(int nel) {
             }
             *newEntry = entry;
         } else {
-            behavior.freeKey(entry.key);
+            freeKey(entry.key);
         }
     }
     delete[] oldTable;

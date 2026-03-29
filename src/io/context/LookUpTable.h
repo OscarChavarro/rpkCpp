@@ -1,24 +1,14 @@
 #ifndef __LOOKUP_TABLE__
 #define __LOOKUP_TABLE__
 
-#include "io/context/LookUpBehavior.h"
-#include "io/context/StringLookUpBehavior.h"
-#include "io/context/OwningCStringLookUpBehavior.h"
+#include "io/context/LookUpBehaviors.h"
 
 class LookUpEntity;
-
-namespace LookUpBehaviors {
-const LookUpBehavior &
-nonOwningCString();
-
-const LookUpBehavior &
-owningCString();
-}
 
 class LookUpTable {
   public:
     LookUpTable();
-    explicit LookUpTable(const LookUpBehavior &behavior);
+    explicit LookUpTable(LookUpBehaviors behaviorType);
     ~LookUpTable();
 
     LookUpTable(const LookUpTable &) = delete;
@@ -37,10 +27,15 @@ class LookUpTable {
     lookUpDone();
 
   private:
+    static long lookUpShuffleHash(const char *text);
+    bool keysEqual(const char *left, const char *right) const;
+    void freeKey(const char *key) const;
+    void freeData(const char *data) const;
+
     int
     lookUpReAlloc(int nel);
 
-    const LookUpBehavior &behavior;
+    LookUpBehaviors behaviorType;
     int currentTableSize;
     LookUpEntity *table;
     int numberOfDeletedEntries;
