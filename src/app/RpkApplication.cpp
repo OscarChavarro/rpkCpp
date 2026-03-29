@@ -129,7 +129,7 @@ RpkApplication::executeRendering(const char *rayTracerName) {
 void
 RpkApplication::freeMemory(MgfParseSession *mgfContext) {
     deleteOptionsMemory();
-    mgfFreeMemory(mgfContext);
+    MgfReader::mgfFreeMemory(mgfContext);
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();

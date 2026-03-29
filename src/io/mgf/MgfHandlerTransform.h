@@ -4,6 +4,11 @@
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/context/MgfParseSession.h"
 
+class Matrix4x4d;
+class TransformArray;
+class TransformContext;
+class TransformStackContext;
+
 /**
 The transformation handler should do most of the work that needs
 doing. Just globalPass it any xf entities, then use the associated
@@ -16,9 +21,23 @@ The routines mgfTransformPoint and mgfTransformVector takes two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, const char **av, MgfParseSession * /*context*/);
-extern void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform point
-extern void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform vector
-extern void mgfTransformFreeMemory(MgfParseSession *context);
+class MgfHandlerTransform {
+  public:
+    static int handleTransformationEntity(int ac, const char **av, MgfParseSession *context);
+    static void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform point
+    static void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform vector
+    static void mgfTransformFreeMemory(MgfParseSession *context);
+
+  private:
+    static long computeUniqueId(const Matrix4x4d *xfm);
+    static double d2r(double a);
+    static int checkForBadArguments(int ac, char **av, const char *fl);
+    static bool checkArgument(int a, const char *l, int ac, char **av, int i);
+    static int transformName(const TransformArray *ap, MgfParseSession *context);
+    static TransformStackContext *newTransform(int ac, const char **av, MgfParseSession *context);
+    static void finish(int count, TransformContext *ret, const Matrix4x4d *transformMatrix, double scaTransform);
+    static int xf(TransformContext *ret, int ac, char **av);
+    static bool compactTransformArguments(MgfParseSession *context, const TransformStackContext *stackContext);
+};
 
 #endif

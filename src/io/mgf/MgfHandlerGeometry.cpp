@@ -13,8 +13,8 @@
 
 static constexpr int MAXIMUM_FACE_VERTICES = 100;
 
-static long
-TRANSFORM_XID(const TransformStackContext *xf) {
+long
+MgfHandlerGeometry::transformXid(const TransformStackContext *xf) {
     return xf == nullptr ? 0L : xf->xid;
 }
 
@@ -25,53 +25,53 @@ are internal (declared static in parse.c and no reference to them in parser.h).
 The parser was changed so we can call them in order not to have to duplicate
 the code
 */
-static int
-doDiscreteConic(int argc, const char **argv, MgfParseSession *context) {
-    int en = mgfEntity(argv[0], context);
+int
+MgfHandlerGeometry::doDiscreteConic(int argc, const char **argv, MgfParseSession *context) {
+    int en = MgfDefinitions::mgfEntity(argv[0], context);
 
     switch ( en ) {
         case EntityContext::SPHERE:
-            return mgfEntitySphere(argc, argv, context);
+            return MgfGeometry::mgfEntitySphere(argc, argv, context);
         case EntityContext::TORUS:
-            return mgfEntityTorus(argc, argv, context);
+            return MgfGeometry::mgfEntityTorus(argc, argv, context);
         case EntityContext::CYLINDER:
-            return mgfEntityCylinder(argc, argv, context);
+            return MgfGeometry::mgfEntityCylinder(argc, argv, context);
         case EntityContext::RING:
-            return mgfEntityRing(argc, argv, context);
+            return MgfGeometry::mgfEntityRing(argc, argv, context);
         case EntityContext::CONE:
-            return mgfEntityCone(argc, argv, context);
+            return MgfGeometry::mgfEntityCone(argc, argv, context);
         case EntityContext::PRISM:
-            return mgfEntityPrism(argc, argv, context);
+            return MgfGeometry::mgfEntityPrism(argc, argv, context);
         default:
             Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
     }
 }
 
-static Vector3D *
-installPoint(float x, float y, float z, const MgfParseSession *context) {
+Vector3D *
+MgfHandlerGeometry::installPoint(float x, float y, float z, const MgfParseSession *context) {
     Vector3D *coord = new Vector3D(x, y, z);
     context->currentPointList->add(coord);
     return coord;
 }
 
-static Vector3D *
-installNormal(float x, float y, float z, const MgfParseSession *context) {
+Vector3D *
+MgfHandlerGeometry::installNormal(float x, float y, float z, const MgfParseSession *context) {
     Vector3D *norm = new Vector3D(x, y, z);
     context->currentNormalList->add(norm);
     return norm;
 }
 
-static Vertex *
-installVertex(Vector3D *coord, Vector3D *norm, const MgfParseSession *context) {
+Vertex *
+MgfHandlerGeometry::installVertex(Vector3D *coord, Vector3D *norm, const MgfParseSession *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
     return v;
 }
 
-static Vertex *
-getVertex(const char *name, MgfParseSession *context) {
-    MgfVertexContext *vp = getNamedVertex(name, context);
+Vertex *
+MgfHandlerGeometry::getVertex(const char *name, MgfParseSession *context) {
+    MgfVertexContext *vp = MgfHandlerGeometry::getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
     }
@@ -79,7 +79,7 @@ getVertex(const char *name, MgfParseSession *context) {
     Vertex *theVertex = vp->vertex;
     if ( !theVertex
          || vp->clock >= 1
-         || vp->xid != TRANSFORM_XID(context->transformContext)
+         || vp->xid != MgfHandlerGeometry::transformXid(context->transformContext)
          || vp->n.isNull(Numeric::EPSILON) ) {
         // New vertex, or updated vertex or same vertex, but other transform, or
         // vertex without normal: create a new Vertex
@@ -87,17 +87,17 @@ getVertex(const char *name, MgfParseSession *context) {
         Vector3Dd norm;
         Vector3D *theNormal;
 
-        mgfTransformPoint(&vert, &vp->p, context);
+        MgfHandlerTransform::mgfTransformPoint(&vert, &vp->p, context);
         Vector3D *thePoint = installPoint(static_cast<float>(vert.x), static_cast<float>(vert.y), static_cast<float>(vert.z), context);
         if ( vp->n.isNull(Numeric::EPSILON) ) {
             theNormal = nullptr;
         } else {
-            mgfTransformVector(&norm, &vp->n, context);
+            MgfHandlerTransform::mgfTransformVector(&norm, &vp->n, context);
             theNormal = installNormal(static_cast<float>(norm.x), static_cast<float>(norm.y), static_cast<float>(norm.z), context);
         }
         theVertex = installVertex(thePoint, theNormal, context);
         vp->vertex = theVertex;
-        vp->xid = TRANSFORM_XID(context->transformContext);
+        vp->xid = MgfHandlerGeometry::transformXid(context->transformContext);
     }
     vp->clock = 0;
 
@@ -108,8 +108,8 @@ getVertex(const char *name, MgfParseSession *context) {
 Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
-static Vertex *
-getBackFaceVertex(Vertex *v, const MgfParseSession *context) {
+Vertex *
+MgfHandlerGeometry::getBackFaceVertex(Vertex *v, const MgfParseSession *context) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -126,8 +126,8 @@ getBackFaceVertex(Vertex *v, const MgfParseSession *context) {
     return back;
 }
 
-static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const MgfParseSession *context) {
+Patch *
+MgfHandlerGeometry::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const MgfParseSession *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -154,8 +154,8 @@ newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const MgfParseSession *c
 /**
 Computes the normal to the patch plane
 */
-static Vector3D *
-faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
+Vector3D *
+MgfHandlerGeometry::faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
     Vector3D cur;
     Vector3D n;
 
@@ -184,8 +184,8 @@ faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
 Given a vector p in 3D space and an index i, which is X, Y
 or Z, projects the vector on the YZ, XZ or XY plane respectively
 */
-static void
-vectorProject(Vector2D &r, const Vector3D &p, const CoordinateAxis i) {
+void
+MgfHandlerGeometry::vectorProject(Vector2D &r, const Vector3D &p, const CoordinateAxis i) {
     switch ( i ) {
         case CoordinateAxis::X:
             r.u = p.y;
@@ -209,8 +209,8 @@ Tests whether the polygon is convex or concave. This is accomplished by projecti
 onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
-static int
-faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
+int
+MgfHandlerGeometry::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
     Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
     Vector2D p;
     Vector2D c;
@@ -243,8 +243,8 @@ faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
 /**
 Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
-static int
-pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
+int
+MgfHandlerGeometry::pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
     // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
     double u0 = p->u - p1->u;
     double v0 = p->v - p1->v;
@@ -282,8 +282,8 @@ pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2,
 /**
 Returns true if the 2D segments p1-p2 and p3-p4 intersect
 */
-static int
-segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4) {
+int
+MgfHandlerGeometry::segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4) {
     double a;
     double b;
     double c;
@@ -352,8 +352,8 @@ ANSI-C version of face2tri, but I changed it a lot to make it more robust.
 Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
-static void
-doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfParseSession *context) {
+void
+MgfHandlerGeometry::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfParseSession *context) {
     Vector3D center;
 
     center.set(0.0, 0.0, 0.0);
@@ -452,7 +452,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfParse
         } while ( d > 1.0 || !good );
 
         if ( p0 == start ) {
-            doError("mis-built polygonal face", context);
+            MgfDefinitions::doError("mis-built polygonal face", context);
             return; // Don't stop parsing the input however
         }
 
@@ -474,25 +474,25 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfParse
 }
 
 int
-handleFaceEntity(int argc, const char **argv, MgfParseSession *context) {
+MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, MgfParseSession *context) {
     if ( argc < 4 ) {
-        doError("too few vertices in face", context);
+        MgfDefinitions::doError("too few vertices in face", context);
         return ErrorCodeContext::MGF_OK; // Don't stop parsing the input
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
-        doWarning(
+        MgfDefinitions::doWarning(
             "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf",
             context);
         return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
     }
 
-    if ( !context->inComplex && mgfMaterialChanged(context->currentMaterial, context) ) {
+    if ( !context->inComplex && MgfHandlerMaterial::mgfMaterialChanged(context->currentMaterial, context) ) {
         if ( context->inSurface ) {
-            mgfObjectSurfaceDone(context);
+            MgfHandlerObject::mgfObjectSurfaceDone(context);
         }
-        mgfObjectNewSurface(context);
-        mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
+        MgfHandlerObject::mgfObjectNewSurface(context);
+        MgfHandlerMaterial::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
     }
 
     Vertex *v[MAXIMUM_FACE_VERTICES + 1];
@@ -512,7 +512,7 @@ handleFaceEntity(int argc, const char **argv, MgfParseSession *context) {
     Vector3D normal;
 
     if ( !faceNormal(argc - 1, v, &normal) ) {
-        doWarning("degenerate face", context);
+        MgfDefinitions::doWarning("degenerate face", context);
         return ErrorCodeContext::MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
@@ -560,21 +560,21 @@ handleFaceEntity(int argc, const char **argv, MgfParseSession *context) {
 }
 
 int
-handleSurfaceEntity(int argc, const char **argv, MgfParseSession *context) {
+MgfHandlerGeometry::handleSurfaceEntity(int argc, const char **argv, MgfParseSession *context) {
     if ( context->inComplex ) {
         // mgfEntitySphere calls mgfEntityCone
         return doDiscreteConic(argc, argv, context);
     } else {
         context->inComplex = true;
         if ( context->inSurface ) {
-            mgfObjectSurfaceDone(context);
+            MgfHandlerObject::mgfObjectSurfaceDone(context);
         }
-        mgfObjectNewSurface(context);
-        mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
+        MgfHandlerObject::mgfObjectNewSurface(context);
+        MgfHandlerMaterial::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
 
         int errcode = doDiscreteConic(argc, argv, context);
 
-        mgfObjectSurfaceDone(context);
+        MgfHandlerObject::mgfObjectSurfaceDone(context);
         context->inComplex = false;
 
         return errcode;
@@ -584,10 +584,10 @@ handleSurfaceEntity(int argc, const char **argv, MgfParseSession *context) {
 /**
 Eliminates the holes by creating seems to the nearest vertex
 on another contour. Creates an argument list for the face
-without hole entity handling routine handleFaceEntity() and calls it
+without hole entity handling routine MgfHandlerGeometry::handleFaceEntity() and calls it
 */
 int
-handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context) {
+MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context) {
     Vector3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     const char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
                                             // without hole entity handler
@@ -598,7 +598,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context)
     int i;
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
-        doWarning(
+        MgfDefinitions::doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
         return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
     }
@@ -612,12 +612,12 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context)
             continue;
         }
 
-        const MgfVertexContext *vp = getNamedVertex(argv[i], context);
+        const MgfVertexContext *vp = MgfHandlerGeometry::getNamedVertex(argv[i], context);
         if ( !vp ) {
             // Undefined vertex
             return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
         }
-        mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
+        MgfHandlerTransform::mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
 
         copied[i] = false; // Vertex not yet copied to argumentsToFaceWithoutHoles
     }
@@ -684,7 +684,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context)
 
         // Create num+2 extra vertices in new contour
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
-            doWarning(
+            MgfDefinitions::doWarning(
                     "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
             return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
         }
@@ -729,19 +729,19 @@ handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context)
     }
 
     // And handle the face without holes
-    return handleFaceEntity(numberOfVerticesInNewContour + 1, argumentsToFaceWithoutHoles, context);
+    return MgfHandlerGeometry::handleFaceEntity(numberOfVerticesInNewContour + 1, argumentsToFaceWithoutHoles, context);
 }
 
 /**
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerGeometry::handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
     LookUpEntity *lp;
     MgfVertexContext *&currentVertexContext = context->vertexRepository.currentVertex;
     LookUpTable *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
 
-    switch ( mgfEntity(av[0], context) ) {
+    switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
         case EntityContext::VERTEX:
             // get/set vertex context
             if ( ac > 4 ) {
@@ -841,7 +841,7 @@ handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
 Get a named vertex
 */
 MgfVertexContext *
-getNamedVertex(const char *name, MgfParseSession *context) {
+MgfHandlerGeometry::getNamedVertex(const char *name, MgfParseSession *context) {
     LookUpEntity *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
@@ -851,7 +851,7 @@ getNamedVertex(const char *name, MgfParseSession *context) {
 }
 
 void
-initGeometryContextTables(MgfParseSession *context) {
+MgfHandlerGeometry::initGeometryContextTables(MgfParseSession *context) {
     context->vertexRepository.reset();
     context->currentVertexName = nullptr;
 }

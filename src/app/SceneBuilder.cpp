@@ -403,7 +403,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
             sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
         }
     } else {
-        mgfModel = readMgf(fileName, mgfContext);
+        mgfModel = MgfReader::readMgf(fileName, mgfContext);
         if ( mgfModel != nullptr
              && batchOptions != nullptr
              && batchOptions->exportBinary

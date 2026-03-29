@@ -5,20 +5,31 @@
 #include "io/mgf/MgfHandlerType.h"
 #include "io/mgf/MgfEntityHandler.h"
 
+namespace java {
+namespace io {
+class InputStream;
+}
+}
+
 class FilePositionContext;
 
-extern MgfEntityHandler *mgfHandlerFromType(MgfParseSession *context, MgfHandlerType handlerType);
-extern bool mgfHandlerMatches(const MgfEntityHandler *handler, MgfHandlerType handlerType);
+class MgfDefinitions {
+  public:
+    static int mgfOpen(ReaderContext *readerContext, const char *functionCallback, MgfParseSession *context);
+    static void mgfClose(MgfParseSession *context);
+    static void doError(const char *errmsg, MgfParseSession *context);
+    static void doWarning(const char *errmsg, MgfParseSession *context);
+    static void mgfGetFilePosition(FilePositionContext *pos, MgfParseSession *context);
+    static int mgfGoToFilePosition(const FilePositionContext *pos, MgfParseSession *context);
+    static int mgfEntity(const char *name, MgfParseSession *context);
+    static int mgfHandle(int entityIndex, int argc, const char **argv, MgfParseSession *context);
+    static void mgfLookUpFreeMemory(MgfParseSession *context);
 
-extern int mgfOpen(ReaderContext *readerContext, const char *functionCallback, MgfParseSession *context);
-extern void mgfClose(MgfParseSession *context);
-extern void doError(const char *errmsg, MgfParseSession *context);
-extern void doWarning(const char *errmsg, MgfParseSession *context);
-extern void mgfGetFilePosition(FilePositionContext *pos, MgfParseSession *context);
-extern int mgfGoToFilePosition(const FilePositionContext *pos, MgfParseSession *context);
-extern int mgfEntity(const char *name, MgfParseSession *context);
-extern int mgfHandle(int entityIndex, int argc, const char **argv, MgfParseSession * /*context*/);
-extern void mgfLookUpFreeMemory(MgfParseSession *context);
+  private:
+    static const char *standardInputPath();
+    static bool skipLines(java::io::InputStream *inputStream, int lineCount);
+    static int mgfDefaultHandlerForUnknownEntities(int ac, const char **av, const MgfParseSession *context);
+};
 
 #include "io/context/TransformStackContext.h"
 

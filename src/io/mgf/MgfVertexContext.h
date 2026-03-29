@@ -28,6 +28,4 @@ class MgfVertexContext {
     };
 };
 
-extern MgfVertexContext *getNamedVertex(const char *name, MgfParseSession *context);
-
 #endif

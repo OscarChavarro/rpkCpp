@@ -3,7 +3,10 @@
 
 #include "io/context/MgfParseSession.h"
 
-extern void initColorContextTables(MgfParseSession *context);
-extern int handleColorEntity(int ac, const char **av, MgfParseSession * /*context*/);
+class MgfHandlerColor {
+  public:
+    static void initColorContextTables(MgfParseSession *context);
+    static int handleColorEntity(int ac, const char **av, MgfParseSession *context);
+};
 
 #endif
