@@ -46,13 +46,19 @@ class Background {
     virtual ColorRgb
     power(Vector3D *position) const;
 
-    Patch *bkgPatch; // Virtual patch for background
-};
-
 #ifdef RAYTRACING_ENABLED
-    extern ColorRgb backgroundRadiance(Background *bkg, Vector3D *position, Vector3D *direction, float *probabilityDensityFunction);
+    static ColorRgb
+    backgroundRadiance(
+        Background *bkg,
+        Vector3D *position,
+        Vector3D *direction,
+        float *probabilityDensityFunction);
 #endif
 
-extern ColorRgb backgroundPower(Background *bkg, Vector3D *position);
+    static ColorRgb
+    backgroundPower(Background *bkg, Vector3D *position);
+
+    Patch *bkgPatch; // Virtual patch for background
+};
 
 #endif

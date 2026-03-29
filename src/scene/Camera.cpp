@@ -29,21 +29,21 @@ Camera::Camera(): background() {
     pixelHeightTangent = 0.0f;
 }
 
-static void
-cameraComputeClippingPlanes(Camera *camera) {
-    float x = camera->pixelWidthTangent * camera->viewDistance; // Half the width of the virtual screen in 3D space
-    float y = camera->pixelHeightTangent * camera->viewDistance; // Half the height of the virtual screen
+void
+Camera::computeClippingPlanes() {
+    float x = pixelWidthTangent * viewDistance; // Half the width of the virtual screen in 3D space
+    float y = pixelHeightTangent * viewDistance; // Half the height of the virtual screen
     Vector3D vScreen[4];
 
-    vScreen[0].combine3(camera->lookPosition, x, camera->X, -y, camera->Y); // Upper right corner: Y axis positions down!
-    vScreen[1].combine3(camera->lookPosition, x, camera->X, y, camera->Y); // Lower right
-    vScreen[2].combine3(camera->lookPosition, -x, camera->X, y, camera->Y); // Lower left
-    vScreen[3].combine3(camera->lookPosition, -x, camera->X, -y, camera->Y); // Upper left
+    vScreen[0].combine3(lookPosition, x, X, -y, Y); // Upper right corner: Y axis positions down!
+    vScreen[1].combine3(lookPosition, x, X, y, Y); // Lower right
+    vScreen[2].combine3(lookPosition, -x, X, y, Y); // Lower left
+    vScreen[3].combine3(lookPosition, -x, X, -y, Y); // Upper left
 
     for ( int i = 0; i < 4; i++ ) {
-        camera->viewPlanes[i].normal.tripleCrossProduct(vScreen[(i + 1) % 4], camera->eyePosition, vScreen[i]);
-        camera->viewPlanes[i].normal.normalize(Numeric::EPSILON_FLOAT);
-        camera->viewPlanes[i].d = -camera->viewPlanes[i].normal.dotProduct(camera->eyePosition);
+        viewPlanes[i].normal.tripleCrossProduct(vScreen[(i + 1) % 4], eyePosition, vScreen[i]);
+        viewPlanes[i].normal.normalize(Numeric::EPSILON_FLOAT);
+        viewPlanes[i].d = -viewPlanes[i].normal.dotProduct(eyePosition);
     }
 }
 
@@ -52,58 +52,58 @@ Computes camera coordinate system and horizontal and vertical fov depending
 on filled in fov value and aspect ratio of the view window. Returns
 nullptr if this fails, and a pointer to the camera arg if success
 */
-static Camera *
-cameraComplete(Camera *camera) {
+Camera *
+Camera::complete() {
     // Compute viewing direction ==> Z axis of eye coordinate system
-    camera->Z.subtraction(camera->lookPosition, camera->eyePosition);
+    Z.subtraction(lookPosition, eyePosition);
 
     // Distance from virtual camera position to focus point
-    camera->viewDistance = camera->Z.norm();
-    if ( camera->viewDistance < Numeric::EPSILON ) {
+    viewDistance = Z.norm();
+    if ( viewDistance < Numeric::EPSILON ) {
         Error::error("SetCamera", "eye point and look-point coincide");
         return nullptr;
     }
-    camera->Z.inverseScaledCopy(camera->viewDistance, camera->Z, Numeric::EPSILON_FLOAT);
+    Z.inverseScaledCopy(viewDistance, Z, Numeric::EPSILON_FLOAT);
 
     // camera->X is a direction pointing to the right in the window
-    camera->X.crossProduct(camera->Z, camera->upDirection);
-    const float n = camera->X.norm();
+    X.crossProduct(Z, upDirection);
+    const float n = X.norm();
     if ( n < Numeric::EPSILON ) {
         Error::error("SetCamera", "up-direction and viewing direction coincide");
         return nullptr;
     }
-    camera->X.inverseScaledCopy(n, camera->X, Numeric::EPSILON_FLOAT);
+    X.inverseScaledCopy(n, X, Numeric::EPSILON_FLOAT);
 
     // camera->Y is a direction pointing down in the window
-    camera->Y.crossProduct(camera->Z, camera->X);
-    camera->Y.normalize(Numeric::EPSILON_FLOAT);
+    Y.crossProduct(Z, X);
+    Y.normalize(Numeric::EPSILON_FLOAT);
 
     // Compute horizontal and vertical field of view angle from the specified one
-    if ( camera->xSize < camera->ySize ) {
-        camera->horizontalFov = camera->fieldOfVision;
-        camera->verticalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                                                  static_cast<float>(camera->ySize) / static_cast<float>(camera->xSize))) * 180.0f / static_cast<float>(M_PI);
+    if ( xSize < ySize ) {
+        horizontalFov = fieldOfVision;
+        verticalFov = static_cast<float>(java::Math::atan(tan(fieldOfVision * M_PI / 180.0) *
+                                                                  static_cast<float>(ySize) / static_cast<float>(xSize))) * 180.0f / static_cast<float>(M_PI);
     } else {
-        camera->verticalFov = camera->fieldOfVision;
-        camera->horizontalFov = static_cast<float>(java::Math::atan(tan(camera->fieldOfVision * M_PI / 180.0) *
-                                                                    static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize))) * 180.0f / static_cast<float>(M_PI);
+        verticalFov = fieldOfVision;
+        horizontalFov = static_cast<float>(java::Math::atan(tan(fieldOfVision * M_PI / 180.0) *
+                                                                    static_cast<float>(xSize) / static_cast<float>(ySize))) * 180.0f / static_cast<float>(M_PI);
     }
 
     // Default near and far clipping plane distance, will be set to a more reasonable
     // value when setting the camera for rendering
-    camera->near = Numeric::EPSILON_FLOAT;
-    camera->far = 2.0f * camera->viewDistance;
+    near = Numeric::EPSILON_FLOAT;
+    far = 2.0f * viewDistance;
 
     // Compute some extra frequently used quantities
-    camera->pixelWidthTangent = static_cast<float>(java::Math::tan(camera->horizontalFov * M_PI / 180.0));
-    camera->pixelHeightTangent = static_cast<float>(java::Math::tan(camera->verticalFov * M_PI / 180.0));
+    pixelWidthTangent = static_cast<float>(java::Math::tan(horizontalFov * M_PI / 180.0));
+    pixelHeightTangent = static_cast<float>(java::Math::tan(verticalFov * M_PI / 180.0));
 
-    camera->pixelWidth = 2.0f * camera->pixelWidthTangent / static_cast<float>(camera->xSize);
-    camera->pixelHeight = 2.0f * camera->pixelHeightTangent / static_cast<float>(camera->ySize);
+    pixelWidth = 2.0f * pixelWidthTangent / static_cast<float>(xSize);
+    pixelHeight = 2.0f * pixelHeightTangent / static_cast<float>(ySize);
 
-    cameraComputeClippingPlanes(camera);
+    computeClippingPlanes();
 
-    return camera;
+    return this;
 }
 
 /**
@@ -130,7 +130,7 @@ Camera::set(
     ySize = inYSize;
     background = *inBackground;
     changed = true;
-    cameraComplete(this);
+    complete();
 }
 
 /**

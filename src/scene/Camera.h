@@ -54,6 +54,10 @@ class Camera {
     void setFieldOfView(float fieldOfView);
     static void transformBoundingBox(const BoundingBox &sourceBoundingBox, const Matrix4x4 &transform, BoundingBox *transformedBoundingBox);
     static Matrix4x4 projectionMatrixFromBoundingBox(const BoundingBox &boundingBox);
+
+  private:
+    void computeClippingPlanes();
+    Camera *complete();
 };
 
 #endif

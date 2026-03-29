@@ -76,7 +76,7 @@ sceneBuilderComputeStats(Scene *scene) {
             GLOBAL_statistics.totalEmittedPower);
 
     // Include background radiation
-    BP = backgroundPower(scene->background, &zero);
+    BP = Background::backgroundPower(scene->background, &zero);
     BP.scale(1.0f / (4.0f * static_cast<float>(M_PI)));
     GLOBAL_statistics.totalEmittedPower.add(GLOBAL_statistics.totalEmittedPower, BP);
     GLOBAL_statistics.estimatedAverageRadiance.add(GLOBAL_statistics.estimatedAverageRadiance, BP);

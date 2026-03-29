@@ -432,7 +432,7 @@ handlePathX0(
 
             path->m_pdfLNE = pdfLNE;
         } else if ( hasEnvironmentBackground ) {
-            eyeEndNode->m_bsdfEval = backgroundRadiance(
+            eyeEndNode->m_bsdfEval = Background::backgroundRadiance(
                 sceneBackground,
                 nullptr,
                 &eyeEndNode->m_inDirF,

@@ -518,7 +518,7 @@ stochasticRaytracerGetRadiance(
         }
 
         Vector3D position = thisNode->previous()->m_hit.getPoint();
-        result = backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), nullptr);
+        result = Background::backgroundRadiance(sceneBackground, &position, &(thisNode->m_inDirF), nullptr);
 
         result.scale(static_cast<float>(weight));
     } else {

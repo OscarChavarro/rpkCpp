@@ -49,7 +49,7 @@ Background::power(Vector3D * /*position*/) const {
 }
 
 ColorRgb
-backgroundPower(Background *bkg, Vector3D *position) {
+Background::backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg ) {
         ColorRgb black;
         black.setMonochrome(0.0);
@@ -61,7 +61,7 @@ backgroundPower(Background *bkg, Vector3D *position) {
 
 #ifdef RAYTRACING_ENABLED
 ColorRgb
-backgroundRadiance(
+Background::backgroundRadiance(
         Background *bkg,
         Vector3D *position,
         Vector3D *direction,
