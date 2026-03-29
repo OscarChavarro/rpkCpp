@@ -221,7 +221,7 @@ chooseFresnelDirection(
         if ( flags & BRDF_SPECULAR_COMPONENT ) {
             // Hack !?
             F = 1.0;
-            reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
+            reflectedDir = Xxdf::idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
             cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
             if ( cosI < 0 ) {
@@ -231,12 +231,12 @@ chooseFresnelDirection(
             F = 0;
         }
     } else {
-        refractedDir = idealRefractedDirection(&thisNode->m_inDirT,
+        refractedDir = Xxdf::idealRefractedDirection(&thisNode->m_inDirT,
                                                &thisNode->m_normal,
                                                nc_in, nc_out, &tir);
 
         if ( !tir ) {
-            reflectedDir = idealReflectedDirection(&thisNode->m_inDirT,
+            reflectedDir = Xxdf::idealReflectedDirection(&thisNode->m_inDirT,
                                                    &thisNode->m_normal);
         }
 

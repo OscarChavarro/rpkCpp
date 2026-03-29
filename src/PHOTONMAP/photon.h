@@ -9,7 +9,7 @@ Data structure for individual photons
 
 #include "common/ColorRgb.h"
 
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 #include "PHOTONMAP/pmapoptions.h"
 

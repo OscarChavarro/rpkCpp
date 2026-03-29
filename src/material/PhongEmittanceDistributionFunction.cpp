@@ -2,7 +2,7 @@
 
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 bool
 PhongEmittanceDistributionFunction::isSpecular() const {

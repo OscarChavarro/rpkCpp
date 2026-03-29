@@ -29,15 +29,15 @@ CSpecularSampler::sample(
     reflectance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-            &thisNode->m_hit,
-            getBrdfFlags(flags));
+                &thisNode->m_hit,
+                BsdfComponentFlag::getBrdfFlags(flags));
     }
     ColorRgb transmittance;
     transmittance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-            &thisNode->m_hit,
-            getBtdfFlags(flags));
+                &thisNode->m_hit,
+                BsdfComponentFlag::getBtdfFlags(flags));
     }
 
     float avgReflectance = reflectance.average();
@@ -54,7 +54,7 @@ CSpecularSampler::sample(
         reflect = true;
         pdfDir *= avgReflectance / avgScattering;
 
-        dir = idealReflectedDirection(&thisNode->m_inDirT, &thisNode->m_normal);
+        dir = Xxdf::idealReflectedDirection(&thisNode->m_inDirT, &thisNode->m_normal);
     } else {
         // REFRACT
         bool dummyBoolean;
@@ -76,7 +76,7 @@ CSpecularSampler::sample(
             thisNode->m_outBsdf->indexOfRefraction(&outIndex);
         }
 
-        dir = idealRefractedDirection(
+        dir = Xxdf::idealRefractedDirection(
             &thisNode->m_inDirT,
             &thisNode->m_normal,
             inIndex,

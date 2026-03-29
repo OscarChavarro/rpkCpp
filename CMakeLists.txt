@@ -55,7 +55,7 @@ set(MAIN_SRC
     src/common/dataStructures/KDTree.cpp
     src/material/RefractionIndex.cpp
     src/material/Texture.cpp
-    src/material/xxdf.cpp
+    src/material/Xxdf.cpp
     src/material/PhongEmittanceDistributionFunction.cpp
     src/material/PhongBidirectionalReflectanceDistributionFunction.cpp
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp

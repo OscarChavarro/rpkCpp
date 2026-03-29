@@ -1,7 +1,7 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 /**
 The BRDF here is a modified phong-brdf. It satisfies the requirements of symmetry and energy conservation.
@@ -116,7 +116,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     }
 
     if ( (flags & nonDiffuseFlag) && (avgKs > 0.0) ) {
-        Vector3D idealReflected = idealReflectedDirection(&inRev, normal);
+        Vector3D idealReflected = Xxdf::idealReflectedDirection(&inRev, normal);
         float localDotProduct = idealReflected.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
@@ -189,7 +189,7 @@ PhongBidirectionalReflectanceDistributionFunction::sample(
         x1 /= scatteredPower;
     }
 
-    Vector3D idealDir = idealReflectedDirection(&inRev, normal);
+    Vector3D idealDir = Xxdf::idealReflectedDirection(&inRev, normal);
     CoordinateSystem coord;
     double diffPdf;
     double nonDiffPdf;
@@ -303,7 +303,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluateProbabilityDensityFun
     // Glossy or specular
     double nonDiffPdf = 0.0;
     if ( avgKs > 0 ) {
-        const Vector3D idealDir = idealReflectedDirection(&inRev, &goodNormal);
+        const Vector3D idealDir = Xxdf::idealReflectedDirection(&inRev, &goodNormal);
 
         const double cosAlpha = idealDir.dotProduct(*out);
 

@@ -2,7 +2,7 @@
 Some general functions regarding edf, brdf, btdf, bsdf
 */
 
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 /**
 Phong exponent making the difference between glossy and highly specular reflection/transmission.
@@ -14,7 +14,7 @@ const float PHONG_LOWEST_SPECULAR_EXP = 250.0f;
 Calculate the ideal reflected ray direction (independent of the brdf)
 */
 Vector3D
-idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
+Xxdf::idealReflectedDirection(const Vector3D *in, const Vector3D *normal) {
     double tmp = 2 * normal->dotProduct(*in);
     Vector3D result;
 
@@ -31,7 +31,7 @@ Sets totalInternalReflection to true or false accordingly.
 Cfr. [GLAS1989] An Introduction to Raytracing (Glassner)
 */
 Vector3D
-idealRefractedDirection(
+Xxdf::idealRefractedDirection(
     const Vector3D *in,
     const Vector3D *normal,
     const RefractionIndex inIndex,

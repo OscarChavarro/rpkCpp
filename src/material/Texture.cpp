@@ -37,8 +37,8 @@ Texture::~Texture() {
     data = nullptr;
 }
 
-inline void
-rgbSetMonochrome(ColorRgb rgb, float val) {
+void
+Texture::setMonochrome(ColorRgb rgb, float val) {
     rgb.set(val, val, val);
 }
 
@@ -94,10 +94,10 @@ Texture::evaluateColor(float u, float v) const {
 
     switch ( channels ) {
         case 1:
-            rgbSetMonochrome(rgb00, channelValue(pixelIndex00, 0));
-            rgbSetMonochrome(rgb10, channelValue(pixelIndex10, 0));
-            rgbSetMonochrome(rgb01, channelValue(pixelIndex01, 0));
-            rgbSetMonochrome(rgb11, channelValue(pixelIndex11, 0));
+            setMonochrome(rgb00, channelValue(pixelIndex00, 0));
+            setMonochrome(rgb10, channelValue(pixelIndex10, 0));
+            setMonochrome(rgb01, channelValue(pixelIndex01, 0));
+            setMonochrome(rgb11, channelValue(pixelIndex11, 0));
             break;
         case 3:
         case 4: {

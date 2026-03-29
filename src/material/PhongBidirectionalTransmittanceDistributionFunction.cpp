@@ -7,7 +7,7 @@
 
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 /**
 All components of the Btdf
@@ -116,7 +116,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     if ( (flags & nonDiffuseFlag) && (avgKs > 0) ) {
         // Specular part
         bool totalIR;
-        Vector3D idealRefracted = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
+        Vector3D idealRefracted = Xxdf::idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
         float localDotProduct = idealRefracted.dotProduct(*out);
 
         if ( localDotProduct > 0 ) {
@@ -195,7 +195,7 @@ PhongBidirectionalTransmittanceDistributionFunction::sample(
         x1 /= scatteredPower;
     }
 
-    idealDir = idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
+    idealDir = Xxdf::idealRefractedDirection(&inRev, normal, inIndex, outIndex, &totalIR);
     invNormal.scaledCopy(-1, *normal);
 
     if ( x1 < (localAverageKd / scatteredPower) ) {
@@ -314,11 +314,11 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluateProbabilityDensityF
         bool totalIR;
 
         if ( cosIn >= 0 ) {
-            idealDir = idealRefractedDirection(&inRev, &goodNormal, inIndex,
+            idealDir = Xxdf::idealRefractedDirection(&inRev, &goodNormal, inIndex,
                                                outIndex, &totalIR);
         } else {
             // Normal was inverted, so materialSides switch also
-            idealDir = idealRefractedDirection(&inRev, &goodNormal, outIndex,
+            idealDir = Xxdf::idealRefractedDirection(&inRev, &goodNormal, outIndex,
                                                inIndex, &totalIR);
         }
 

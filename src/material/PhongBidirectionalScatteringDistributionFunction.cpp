@@ -109,7 +109,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit
     }
 
     if ( btdf != nullptr ) {
-        ColorRgb transmitted = btdf->transmittance(getBtdfFlags(flags));
+        ColorRgb transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
         albedo.add(albedo, transmitted);
     }
 
@@ -174,8 +174,8 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
         flags &= ~TEXTURED_COMPONENT;
     }
 
-    *brdfFlags = getBrdfFlags(flags);
-    *btdfFlags = getBtdfFlags(flags);
+    *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
+    *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
     ColorRgb reflectance;
     if ( brdf == nullptr ) {
@@ -416,7 +416,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     // Just add brdf and btdf contributions, the eval routines handle the direction of out.
     // Note that out * normal is computed more than once :-(
     if ( brdf != nullptr ) {
-        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, getBrdfFlags(flags));
+        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
         result.add(result, reflectionCol);
 
         RefractionIndex inIndex{};
@@ -435,7 +435,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
             refractionCol.clear();
         } else {
             refractionCol = btdf->evaluate(
-                    inIndex, outIndex, in, out, &normal, getBtdfFlags(flags));
+                    inIndex, outIndex, in, out, &normal, BsdfComponentFlag::getBtdfFlags(flags));
         }
 
         result.add(result, refractionCol);
@@ -555,7 +555,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
     result.clear();
 
     for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
-        thisFlag = static_cast<char>(bsdfIndexToComp(i));
+        thisFlag = static_cast<char>(BsdfComponentFlag::bsdfIndexToComp(i));
 
         if ( flags & thisFlag ) {
             colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(

@@ -14,7 +14,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/RayHit.h"
 #include "material/Texture.h"
-#include "material/xxdf.h"
+#include "material/Xxdf.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "material/SplitBSDFSamplingMode.h"
