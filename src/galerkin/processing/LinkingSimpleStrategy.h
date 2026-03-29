@@ -8,6 +8,7 @@
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinRole.h"
 #include "galerkin/GalerkinState.h"
+
 class LinkingSimpleStrategy {
   private:
     static void

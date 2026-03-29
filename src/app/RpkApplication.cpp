@@ -20,8 +20,8 @@
 #include "app/SceneBuilder.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "app/Raytrace.h"
+    #include "raycasting/bidirectionalRaytracing/LightList.h"
+    #include "app/Raytrace.h"
 #endif
 
 static constexpr bool DEFAULT_MONOCHROME = false;

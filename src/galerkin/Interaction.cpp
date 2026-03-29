@@ -1,5 +1,6 @@
 #include "common/Error.h"
 #include "galerkin/Interaction.h"
+
 int Interaction::totalInteractions = 0;
 int Interaction::ccInteractions = 0;
 int Interaction::csInteractions = 0;

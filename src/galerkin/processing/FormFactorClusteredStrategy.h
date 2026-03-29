@@ -6,6 +6,7 @@
 #include "numericalAnalysis/CubatureRule.h"
 #include "galerkin/Interaction.h"
 #include "galerkin/ShadowCache.h"
+
 class FormFactorClusteredStrategy {
   public:
     static void

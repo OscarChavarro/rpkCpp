@@ -2,6 +2,7 @@
 #include "common/Error.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/processing/LinkingClusteredStrategy.h"
+
 /**
 Creates an initial link between the given element and the top cluster
 */

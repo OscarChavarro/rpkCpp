@@ -15,7 +15,7 @@
 #include "app/Raytrace.h"
 #include "app/CommandLine.h"
 
- void
+void
 Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
     java::util::Formatter::format(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
@@ -29,14 +29,14 @@ Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
 /**
 This routine sets the current raytracing method to be used
 */
- void
+void
 Raytrace::rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
     if ( rayTracer != nullptr ) {
         rayTracer->initialize(lightSourcePatches);
     }
 }
 
- RayTracer *
+RayTracer *
 Raytrace::rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     RayTracer *newRaytracer;
     if ( strcmp(rayTracerName, "RayMatting") == 0 ) {

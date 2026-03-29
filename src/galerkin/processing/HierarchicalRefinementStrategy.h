@@ -6,6 +6,7 @@
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinState.h"
 #include "galerkin/processing/InteractionEvaluationCode.h"
+
 /**
 Shaft culling stuff for hierarchical refinement
 */

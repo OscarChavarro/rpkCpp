@@ -1,4 +1,5 @@
 #include "galerkin/processing/visitors/PowerAccumulatorVisitor.h"
+
 PowerAccumulatorVisitor::PowerAccumulatorVisitor(
     ColorRgb inSourceRadiance,
     Vector3D inSamplePoint)

@@ -4,6 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "galerkin/GalerkinState.h"
+
 /**
 Reference:
 [COHE1993] Cohen, M. Wallace, J. "Radiosity and Realistic Image Synthesis",

@@ -2,8 +2,8 @@
 #define __BINARY_MODEL_READER_CLEANUP__
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 }
 
 class Geometry;

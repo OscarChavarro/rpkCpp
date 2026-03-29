@@ -2,8 +2,9 @@
 #define __PROJECTED_AREA_ACCUMULATOR_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
+
 class ProjectedAreaAccumulatorVisitor final : public ClusterLeafVisitor {
-private:
+  private:
     double totalProjectedArea;
 
   public:

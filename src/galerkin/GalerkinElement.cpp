@@ -7,6 +7,7 @@
 #include "render/Render.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinElement.h"
+
 static int globalNumberOfElements = 0;
 static int globalNumberOfClusters = 0;
 

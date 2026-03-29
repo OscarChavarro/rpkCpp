@@ -2,6 +2,7 @@
 #define __POWER_ACCUMULATOR_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
+
 class PowerAccumulatorVisitor final : public ClusterLeafVisitor {
   private:
     ColorRgb sourceRadiance;
@@ -10,10 +11,7 @@ class PowerAccumulatorVisitor final : public ClusterLeafVisitor {
 
   public:
     explicit
-    PowerAccumulatorVisitor(
-        ColorRgb inSourceRadiance,
-        Vector3D inSamplePoint);
-
+    PowerAccumulatorVisitor(ColorRgb inSourceRadiance, Vector3D inSamplePoint);
     ~PowerAccumulatorVisitor() final;
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;
     ColorRgb getAccumulatedRadiance() const;

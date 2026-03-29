@@ -5,6 +5,7 @@
 #include "galerkin/processing/GatheringClusteredStrategy.h"
 #include "galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "galerkin/processing/LinkingClusteredStrategy.h"
+
 GatheringClusteredStrategy::GatheringClusteredStrategy() {
 }
 

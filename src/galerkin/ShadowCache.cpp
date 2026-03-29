@@ -1,4 +1,5 @@
 #include "galerkin/ShadowCache.h"
+
 /**
 Initialize/empty the shadow cache
 */

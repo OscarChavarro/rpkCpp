@@ -21,7 +21,7 @@
 #include "app/Radiance.h"
 #include "app/SceneBuilder.h"
 
- void
+void
 SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
@@ -36,7 +36,7 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     GLOBAL_statistics.maxSelfEmittedPower.maximum(power, GLOBAL_statistics.maxSelfEmittedPower);
 }
 
- void
+void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     Vector3D zero;
     ColorRgb one;
@@ -83,7 +83,7 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
 /**
 Adds the background to the global light source patch list
 */
- void
+void
 SceneBuilder::sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
     if ( scene->background != nullptr && scene->background->bkgPatch != nullptr ) {
         scene->lightSourcePatchList->add(scene->background->bkgPatch);
@@ -95,7 +95,7 @@ SceneBuilder::sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
 Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
- void
+void
 SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
          && patch->material != nullptr
@@ -108,7 +108,7 @@ SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList
 /**
 Build the global light source patch list
 */
- void
+void
 SceneBuilder::sceneBuilderFillLightSourcePatchList(Scene *scene) {
     java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
@@ -129,7 +129,7 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
- Geometry *
+Geometry *
 SceneBuilder::sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
     PatchClusterOctreeNode *rootCluster;
     Geometry *rootGeometry;
@@ -152,7 +152,7 @@ SceneBuilder::sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> 
 Builds a linear list of patches making up all the geometries in the list, whether
 they are primitive or not
 */
- void
+void
 SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
@@ -174,7 +174,7 @@ SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryL
     }
 }
 
- void
+void
 SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList) {
     if ( geometryList == nullptr ) {
         return;
@@ -195,7 +195,7 @@ SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *
     }
 }
 
- void
+void
 SceneBuilder::sceneBuilderCollectGeometriesRecursive(
     const java::ArrayList<Geometry *> *source,
     java::ArrayList<Geometry *> *target)
@@ -228,7 +228,7 @@ SceneBuilder::sceneBuilderCollectGeometriesRecursive(
     }
 }
 
- void
+void
 SceneBuilder::sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneModel *mgfModel) {
     if ( mgfContext == nullptr || mgfModel == nullptr ) {
         return;
@@ -277,7 +277,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, Pe
     }
 }
 
- void
+void
 SceneBuilder::removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
@@ -299,7 +299,7 @@ SceneBuilder::removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayLi
     }
 }
 
- bool
+bool
 SceneBuilder::sceneBuilderValidateReadableFile(
     const char *fileName,
     const char *fileRole)
@@ -350,7 +350,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
 Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
- bool
+bool
 SceneBuilder::sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *scene) {
     const BatchOptions *batchOptions = Batch::batchGetOptions();
     const bool importBinary =

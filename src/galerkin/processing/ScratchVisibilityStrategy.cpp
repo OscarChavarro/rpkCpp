@@ -7,6 +7,7 @@ with a Z-buffer visibility algorithm in software
 #include "galerkin/processing/ClusterTraversalStrategy.h"
 #include "galerkin/processing/ScratchVisibilityStrategy.h"
 #include "galerkin/processing/visitors/ScratchRendererVisitor.h"
+
 /**
 Src is a toplevel surface element. Render the corresponding patch
 with pixel value a pointer to the element.

@@ -12,8 +12,7 @@
 #include "render/Opengl.h"
 
 static constexpr int TOTAL_DEBUG_OPERATION_MODES = 2;
-static int globalMode = 0
-        ;
+static int globalMode = 0;
 static int globalWidth = 1920;
 static int globalHeight = 1200;
 static Scene *globalScene;
@@ -22,13 +21,13 @@ static RenderOptions *globalRenderOptions;
 static void (*globalMemoryFreeCallBack)(MgfParseSession *mgfContext);
 static MgfParseSession *globalMgfContext;
 
- void
+void
 GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
     globalWidth = newWidth;
     globalHeight = newHeight;
 }
 
- void
+void
 GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level) {
     switch ( level ) {
         case 0:
@@ -76,7 +75,7 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
     }
 }
 
- void
+void
 GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
     java::lang::System::out.printf("================================================================================\n");
     if ( scene->patchList == nullptr || patchIndex >= scene->patchList->size() ) {
@@ -91,7 +90,7 @@ GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex)
     GlutDebugTools::printElementHierarchy(element, 0);
 }
 
- void
+void
 GlutDebugTools::keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     switch ( keyChar ) {
         case 27:
@@ -145,7 +144,7 @@ GlutDebugTools::keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     glutPostRedisplay();
 }
 
- void
+void
 GlutDebugTools::extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
     switch ( keyCode ) {
         case GLUT_KEY_F2:
@@ -173,7 +172,7 @@ GlutDebugTools::extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
     glutPostRedisplay();
 }
 
- void
+void
 GlutDebugTools::drawCallback() {
     globalScene->camera->xSize = globalWidth;
     globalScene->camera->ySize = globalHeight;

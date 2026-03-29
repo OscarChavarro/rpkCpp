@@ -6,13 +6,14 @@
 #include "scene/ConstantColorBackground.h"
 #include "tonemap/ToneMap.h"
 #include "galerkin/GalerkinRadianceMethod.h"
+
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatter.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/stochasticRaytracing/Hierarchy.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "photonMap/PhotonMapState.h"
+    #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+    #include "raycasting/stochasticRaytracing/Hierarchy.h"
+    #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+    #include "photonMap/PhotonMapState.h"
 #endif
 
 #include "app/BackgroundMode.h"
@@ -53,7 +54,7 @@ CommandLine::commandLineCreateBackground() {
     return nullptr;
 }
 
- bool
+bool
 CommandLine::commandLineParseFloat(const char *text, float *value) {
     if ( text == nullptr || value == nullptr ) {
         return false;
@@ -69,7 +70,7 @@ CommandLine::commandLineParseFloat(const char *text, float *value) {
     return true;
 }
 
- bool
+bool
 CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
     float red = 0.0f;
     float green = 0.0f;
@@ -88,7 +89,7 @@ CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg,
     return true;
 }
 
- void
+void
 CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
     int writeIndex = 0;
     int readIndex = 0;
@@ -142,22 +143,22 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
     *argc = writeIndex;
 }
 
- void
+void
 CommandLine::mainForceOneSidedOption(void *value) {
     globalFileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
 }
 
- void
+void
 CommandLine::mainMonochromeOption(void *value) {
     globalNumberOfQuarterCircleDivisions = *static_cast<int *>(value);
 }
 
- void
+void
 CommandLine::commandLineImageWidthOption(void *value) {
     globalOutputImageWidth = *static_cast<int *>(value);
 }
 
- void
+void
 CommandLine::commandLineImageHeightOption(void *value) {
     globalOutputImageHeight = *static_cast<int *>(value);
 }
@@ -204,25 +205,26 @@ CommandLine::commandLineGeneralProgramParseOptions(
     *imageOutputHeight = globalOutputImageHeight;
 }
 
- void
+void
 CommandLine::cameraSetEyePositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setEyePosition(v->x, v->y, v->z);
 }
 
- void
+void
 CommandLine::cameraSetLookPositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setLookPosition(v->x, v->y, v->z);
 }
 
- void
+void
 CommandLine::cameraSetUpDirectionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setUpDirection(v->x, v->y, v->z);
 }
 
-void CommandLine::cameraSetFieldOfViewOption(void *val) {
+void
+CommandLine::cameraSetFieldOfViewOption(void *val) {
     const float *v = static_cast<float *>(val);
     globalCamera.setFieldOfView(*v);
 }
@@ -239,7 +241,7 @@ static CommandLineOptionDescription globalCameraOptions[] = {
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
- void
+void
 CommandLine::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
     Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
     Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
@@ -267,7 +269,7 @@ CommandLine::cameraParseOptions(int *argc, char **argv, Camera *camera, int imag
 static int globalTrue = true;
 static int globalFalse = false;
 
- void
+void
 CommandLine::iterationMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
@@ -282,7 +284,7 @@ CommandLine::iterationMethodOption(void *value) {
     }
 }
 
- void
+void
 CommandLine::hierarchicalOption(void *value) {
     int yesno = *static_cast<int *>(value);
 
@@ -293,58 +295,58 @@ CommandLine::hierarchicalOption(void *value) {
     }
 }
 
- void
+void
 CommandLine::lazyOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
 }
 
- void
+void
 CommandLine::clusteringOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.clustered = yesno;
 }
 
- void
+void
 CommandLine::importanceOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
 }
 
- void
+void
 CommandLine::ambientOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
-        {"-gr-iteration-method", 6, OPTIONS_TYPE_STRING, nullptr, CommandLine::iterationMethodOption,
-                                                "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::hierarchicalOption,
-                                                "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::hierarchicalOption,
-                                                "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::lazyOption,
-                                                "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::lazyOption,
-                                                "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::clusteringOption,
-                                                "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::clusteringOption,
-                                                "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::importanceOption,
-                                                "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::importanceOption,
-                                                "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::ambientOption,
-                                                "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::ambientOption,
-                                                "-gr-no-ambient      \t: do visualisation without ambient term"},
-        {"-gr-link-error-threshold", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
-                                                "-gr-link-error-threshold <float>: Relative link error threshold"},
-        {"-gr-min-elem-area", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
-                                                "-gr-min-elem-area <float> \t: Relative element area threshold"},
-        {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
+    {"-gr-iteration-method", 6, OPTIONS_TYPE_STRING, nullptr, CommandLine::iterationMethodOption,
+    "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
+    {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::hierarchicalOption,
+    "-gr-hierarchical    \t: do hierarchical refinement"},
+    {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::hierarchicalOption,
+    "-gr-not-hierarchical\t: don't do hierarchical refinement"},
+    {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::lazyOption,
+    "-gr-lazy-linking    \t: do lazy linking"},
+    {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::lazyOption,
+    "-gr-no-lazy-linking \t: don't do lazy linking"},
+    {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::clusteringOption,
+    "-gr-clustering      \t: do clustering"},
+    {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::clusteringOption,
+    "-gr-no-clustering   \t: don't do clustering"},
+    {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::importanceOption,
+    "-gr-importance      \t: do view-potential driven computations"},
+    {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::importanceOption,
+    "-gr-no-importance   \t: don't use view-potential"},
+    {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::ambientOption,
+    "-gr-ambient         \t: do visualisation with ambient term"},
+    {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::ambientOption,
+    "-gr-no-ambient      \t: do visualisation without ambient term"},
+    {"-gr-link-error-threshold", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
+    "-gr-link-error-threshold <float>: Relative link error threshold"},
+    {"-gr-min-elem-area", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relMinElemArea, nullptr,
+    "-gr-min-elem-area <float> \t: Relative element area threshold"},
+    {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
 void
@@ -373,19 +375,19 @@ CommandLine::makeToneMappingMethodsString() {
 
 static char *globalToneMapName;
 
- void
+void
 CommandLine::toneMappingMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
     strcpy(globalToneMapName, name);
 }
 
- void
+void
 CommandLine::brightnessAdjustOption(void * /*val*/) {
     GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 }
 
- void
+void
 CommandLine::chromaOption(void *value) {
     const float *chroma = static_cast<float *>(value);
     if ( chroma == globalRxy ) {
@@ -411,7 +413,7 @@ CommandLine::chromaOption(void *value) {
         GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 }
 
- void
+void
 CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
@@ -424,7 +426,7 @@ CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     }
 }
 
- void
+void
 CommandLine::gammaOption(void *value) {
     float gam = *static_cast<float *>(value);
     GLOBAL_toneMap_options.gamma.set(gam, gam, gam);
@@ -481,22 +483,22 @@ CommandLine::radianceMethodParseOptions(int *argc, char **argv, char *radianceMe
 static RenderOptions globalRenderOptions;
 static ColorRgb globalOutlineColor;
 
- void
+void
 CommandLine::flatOption(void * /*value*/) {
     globalRenderOptions.smoothShading = false;
 }
 
- void
+void
 CommandLine::noCullingOption(void * /*value*/) {
     globalRenderOptions.backfaceCulling = false;
 }
 
- void
+void
 CommandLine::outlinesOption(void * /*value*/) {
     globalRenderOptions.drawOutlines = true;
 }
 
- void
+void
 CommandLine::traceOption(void * /*value*/) {
     globalRenderOptions.trace = true;
 }
@@ -529,14 +531,14 @@ CommandLine::renderParseOptions(int *argc, char **argv, RenderOptions *renderOpt
 
 static BatchOptions globalBatchOptions;
 
- void
+void
 CommandLine::binaryOutputOption(void * /*value*/) {
     globalBatchOptions.exportBinary =
         globalBatchOptions.binaryOutputFilename != nullptr
         && globalBatchOptions.binaryOutputFilename[0] != '\0';
 }
 
- void
+void
 CommandLine::binaryInputOption(void * /*value*/) {
     globalBatchOptions.importBinary =
         globalBatchOptions.binaryInputFilename != nullptr
@@ -828,7 +830,7 @@ CommandLine::biDirectionalPathParseOptions(int *argc, char **argv) {
 static char *globalRaytracingMethodsString;
 static char *globalRayTracerName;
 
- void
+void
 CommandLine::mainRayTracingOption(void *value) {
     const char *name = *static_cast<char **>(value);
     strcpy(globalRayTracerName, name);

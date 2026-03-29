@@ -3,6 +3,7 @@
 
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
+
 class SglContext;
 
 class ScratchRendererVisitor final: public ClusterLeafVisitor {

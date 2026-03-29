@@ -32,7 +32,7 @@ Batch::generalParseOptions(int *argc, char **argv) {
 /**
 Saves a RGB image in the front buffer
 */
- void
+void
 Batch::openGlSaveScreen(
     const char *fileName,
     java::io::OutputStream *outputStream,
@@ -80,7 +80,7 @@ Batch::openGlSaveScreen(
 }
 
 #ifdef RAYTRACING_ENABLED
- void
+void
 Batch::batchRayTraceSaveImage(
     const char *fileName,
     java::io::OutputStream *outputStream,
@@ -104,7 +104,7 @@ Batch::batchRayTraceSaveImage(
 /**
 This routine was copied from uit.c, leaving out all interface related things
 */
- void
+void
 Batch::batchProcessFile(
     const char *fileName,
     void (*processFileCallback)(const char *fileName, java::io::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
@@ -122,7 +122,7 @@ Batch::batchProcessFile(
     FileUncompressWrapper::closeOutputStream(outputStream);
 }
 
- void
+void
 Batch::batchSaveRadianceImage(
     const char *fileName,
     java::io::OutputStream *outputStream,
@@ -160,7 +160,7 @@ Batch::batchSaveRadianceImage(
     Canvas::canvasPullMode();
 }
 
- void
+void
 Batch::batchSaveRadianceModel(
     const char *fileName,
     java::io::OutputStream *outputStream,

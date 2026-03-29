@@ -3,6 +3,7 @@
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
+
 void
 LinkingSimpleStrategy::createInitialLink(
     const Scene *scene,

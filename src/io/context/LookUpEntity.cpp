@@ -6,10 +6,3 @@ LookUpEntity::LookUpEntity():
     data(nullptr)
 {
 }
-
-LookUpEntity::LookUpEntity(char *key, long value, char *data):
-    key(key),
-    value(value),
-    data(data)
-{
-}

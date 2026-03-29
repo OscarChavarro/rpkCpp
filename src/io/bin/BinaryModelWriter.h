@@ -2,15 +2,15 @@
 #define __BINARY_MODEL_WRITTER__
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 
-template <class K, class V>
-class HashMap;
+    template <class K, class V>
+    class HashMap;
 
-namespace io {
-class OutputStream;
-}
+    namespace io {
+        class OutputStream;
+    }
 }
 
 class BoundingBox;

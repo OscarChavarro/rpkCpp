@@ -12,6 +12,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 #include "galerkin/processing/LinkingClusteredStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/processing/ShootingStrategy.h"
+
 /**
 Returns the patch with highest un-shot power, weighted with indirect
 importance if importance-driven (see Bekaert & Willems, "Importance-driven

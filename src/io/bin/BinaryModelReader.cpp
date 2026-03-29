@@ -1,5 +1,3 @@
-#include <cstring>
-
 #include "java/io/BufferedInputStream.h"
 #include "java/io/FileInputStream.h"
 #include "java/lang/Integer.h"
@@ -23,7 +21,6 @@
 #include "skin/Patch.h"
 #include "skin/PatchSet.h"
 #include "skin/Vertex.h"
-#include "io/wrapper/PersistenceElement.h"
 #include "io/context/ColorContext.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
@@ -31,7 +28,6 @@
 #include "io/context/TransformStackContext.h"
 #include "io/bin/BinaryModelReader.h"
 #include "io/bin/ScopedArray.h"
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
 #include "io/bin/BinaryModelReaderVertexRecord.h"
 #include "io/bin/BinaryModelReaderPatchRecord.h"
 #include "io/bin/BinaryModelReaderGeometryRecord.h"

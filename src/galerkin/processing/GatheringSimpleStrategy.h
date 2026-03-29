@@ -2,6 +2,7 @@
 #define __GATHERING_SIMPLE_STRATEGY__
 
 #include "galerkin/processing/GatheringStrategy.h"
+
 class GatheringSimpleStrategy final: public GatheringStrategy {
   private:
     static void patchUpdatePotential(const Patch *patch);

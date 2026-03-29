@@ -4,6 +4,7 @@
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/processing/FormFactorClusteredStrategy.h"
 #include "galerkin/ShadowCache.h"
+
 /**
 Like above, but with a constant approximation on both the receiver and source
 element, which makes things slightly simpler

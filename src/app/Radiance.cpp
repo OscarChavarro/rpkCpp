@@ -11,8 +11,8 @@ Stuff common to all radiance methods
 
 #ifdef RAYTRACING_ENABLED
     #include "photonMap/PhotonMapRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
+    #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+    #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
 // Composes explanation for -radiance command line option
@@ -38,7 +38,7 @@ Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
     }
 }
 
- void
+void
 Radiance::selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     bool getNext = false;
     const char *name = nullptr;

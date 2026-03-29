@@ -13,13 +13,12 @@
 #include "io/bin/BinaryModelReaderModelRecord.h"
 #include "io/bin/BinaryModelReaderSupport.h"
 
-namespace {
 const unsigned char BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
     'B', 'I', 'N', '_', '1', 0, 0, 0
 };
+
 const int BINARY_MODEL_VERSION = 1;
-}
 
 bool
 BinaryModelReaderSupport::reportReadError(const char *routine, const char *message) {

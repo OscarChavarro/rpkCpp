@@ -5,12 +5,12 @@
 #include "io/bin/BinaryModelReaderIndexListRecord.h"
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 
-namespace io {
-class InputStream;
-}
+    namespace io {
+        class InputStream;
+    }
 }
 
 class BoundingBox;

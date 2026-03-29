@@ -2,6 +2,7 @@
 #define __GALERKIN_CLUSTER_CREATION__
 
 #include "galerkin/GalerkinElement.h"
+
 class ClusterCreationStrategy {
   private:
     static java::ArrayList<GalerkinElement *> *irregularElementsToDelete;

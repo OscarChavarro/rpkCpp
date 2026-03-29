@@ -3,6 +3,7 @@
 
 #include "scene/Scene.h"
 #include "galerkin/GalerkinState.h"
+
 /**
 Reference:
 [COHE1993] Cohen, M. Wallace, J. "Radiosity and Realistic Image Synthesis",

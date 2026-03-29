@@ -17,11 +17,12 @@ static LuminanceArea *globalLumArea;
 static int globalLumAreaIndex;
 static float globalLumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 static float globalLumMax = 0.0;
+static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = nullptr;
 
 /**
 A-priori estimate of a patch's radiance
 */
- ColorRgb
+ColorRgb
 Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
@@ -32,9 +33,7 @@ Adaptation::initRadianceEstimate(Patch *patch) {
     return radiance;
 }
 
-static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = nullptr;
-
- int
+int
 Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
     float l1 = static_cast<const LuminanceArea *>(la1)->luminance;
     float l2 = static_cast<const LuminanceArea *>(la2)->luminance;
@@ -46,7 +45,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
     return l1 == l2 ? 0 : -1;
 }
 
- float
+float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = PatchRadianceEstimate(patch);
     float brightness = radiance.luminance();
@@ -56,14 +55,14 @@ Adaptation::patchBrightnessEstimate(Patch *patch) {
     return brightness;
 }
 
- void
+void
 Adaptation::patchComputeLogAreaLum(Patch *patch) {
     float brightness = Adaptation::patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     globalLogAreaLum += patch->area * java::Math::log(brightness);
 }
 
- void
+void
 Adaptation::patchFillLumArea(Patch *patch) {
     float brightness = Adaptation::patchBrightnessEstimate(patch);
 
@@ -82,7 +81,7 @@ Adaptation::patchFillLumArea(Patch *patch) {
 Computes the static adaptation luminance value choosing the median value
 of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_totalArea".
 */
- float
+float
 Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     if ( numPairs <= 0 ) {
         return 0.0f;
@@ -111,7 +110,7 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 'patch_radiance' is a pointer to a routine that computes the radiance
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
- void
+void
 Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 

@@ -32,6 +32,7 @@ const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
     'B', 'I', 'N', '_', '1', 0, 0, 0
 };
+
 const int BinaryModelWriter::BINARY_MODEL_VERSION = 1;
 
 const char *

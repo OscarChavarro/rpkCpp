@@ -3,6 +3,7 @@
 
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinRole.h"
+
 class LinkingClusteredStrategy {
   public:
     static void

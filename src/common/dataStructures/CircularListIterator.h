@@ -5,7 +5,7 @@ template<class T> class CircularList;
 
 template<class T>
 class CircularListIterator final : private CircularListBaseIterator {
-public:
+  public:
     explicit CircularListIterator(CircularList<T> &list);
     ~CircularListIterator() final;
     T *nextOnSequence();

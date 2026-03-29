@@ -4,6 +4,7 @@
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinState.h"
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
+
 class ClusterTraversalStrategy {
   public:
     static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *receiverElement);

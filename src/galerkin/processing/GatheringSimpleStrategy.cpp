@@ -6,6 +6,7 @@
 #include "galerkin/processing/GatheringSimpleStrategy.h"
 #include "galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
+
 /**
 Lazy linking: delay creating the initial links for a patch until it has
 radiance to distribute in the environment. Leads to faster feedback to the

@@ -4,8 +4,8 @@
 constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 }
 
 class Geometry;

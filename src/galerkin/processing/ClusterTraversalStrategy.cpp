@@ -16,6 +16,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 #include "galerkin/processing/visitors/OrientedGathererVisitor.h"
 #include "galerkin/processing/visitors/PowerAccumulatorVisitor.h"
 #include "galerkin/processing/visitors/ProjectedAreaAccumulatorVisitor.h"
+
 /**
 Executes func for every surface element in the cluster
 */

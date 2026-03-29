@@ -2,8 +2,8 @@
 #define __MATERIAL_STATE__
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 }
 
 class Material;

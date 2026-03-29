@@ -7,6 +7,7 @@ with a Z-buffer visibility algorithm in software
 #define __SCRATCH_VISIBILITY_STRATEGY__
 
 #include "galerkin/GalerkinState.h"
+
 class ScratchVisibilityStrategy {
   public:
     static void scratchInit(GalerkinState *galerkinState);

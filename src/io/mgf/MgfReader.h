@@ -7,9 +7,9 @@
 #include "io/mgf/MgfHandlerType.h"
 
 namespace java {
-namespace io {
-class InputStream;
-}
+    namespace io {
+        class InputStream;
+    }
 }
 
 class MgfReader {

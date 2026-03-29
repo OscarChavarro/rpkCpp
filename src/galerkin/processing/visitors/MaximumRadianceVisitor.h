@@ -2,6 +2,7 @@
 #define __MAXIMUM_RADIANCE_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
+
 class MaximumRadianceVisitor final : public ClusterLeafVisitor {
   private:
     ColorRgb accumulatedRadiance;

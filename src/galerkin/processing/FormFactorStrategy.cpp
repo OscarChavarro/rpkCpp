@@ -3,6 +3,7 @@
 #include "common/Statistics.h"
 #include "galerkin/processing/FormFactorClusteredStrategy.h"
 #include "galerkin/processing/FormFactorStrategy.h"
+
 /**
 References:
 - [BEKA1996] Ph. Bekaert, Y. D. Willems, "Error Control for Radiosity", Euro-graphics

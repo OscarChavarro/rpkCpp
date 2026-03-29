@@ -12,6 +12,7 @@ All kind of form factor computations
 #include "galerkin/GalerkinRole.h"
 #include "galerkin/Interaction.h"
 #include "galerkin/ShadowCache.h"
+
 class FormFactorStrategy {
   private:
     // Global variables used for form factor computation optimisation

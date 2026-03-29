@@ -20,22 +20,22 @@ Matrix4x4::Matrix4x4(): m() {
 }
 
 Matrix4x4::Matrix4x4(
-        float a,
-        float b,
-        float c,
-        float d,
-        float e,
-        float f,
-        float g,
-        float h,
-        float i,
-        float j,
-        float k,
-        float l,
-        float m,
-        float n,
-        float o,
-        float p
+    float a,
+    float b,
+    float c,
+    float d,
+    float e,
+    float f,
+    float g,
+    float h,
+    float i,
+    float j,
+    float k,
+    float l,
+    float m,
+    float n,
+    float o,
+    float p
 ): m() {
     this->m[0][0] = a;
     this->m[0][1] = b;

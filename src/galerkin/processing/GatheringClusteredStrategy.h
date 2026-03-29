@@ -2,6 +2,7 @@
 #define __GATHERING_CLUSTERED_STRATEGY__
 
 #include "galerkin/processing/GatheringStrategy.h"
+
 class GatheringClusteredStrategy final : public GatheringStrategy {
   private:
     static float updatePotential(GalerkinElement *cluster);

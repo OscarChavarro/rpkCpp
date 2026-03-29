@@ -1,5 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "galerkin/processing/ClusterCreationStrategy.h"
+
 java::ArrayList<GalerkinElement *> *ClusterCreationStrategy::irregularElementsToDelete = nullptr;
 java::ArrayList<GalerkinElement *> *ClusterCreationStrategy::hierarchyElements = nullptr;
 

@@ -5,9 +5,9 @@ constexpr int MGF_MAXIMUM_INPUT_LINE_LENGTH = 4096;
 constexpr int MGF_MAXIMUM_ARGUMENT_COUNT = (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4);
 
 namespace java {
-namespace io {
-class InputStream;
-}
+    namespace io {
+        class InputStream;
+    }
 }
 
 class ReaderContext {

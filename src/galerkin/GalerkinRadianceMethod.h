@@ -12,6 +12,7 @@
 #include "numericalAnalysis/CubatureRule.h"
 #include "galerkin/GalerkinState.h"
 #include "galerkin/processing/GatheringStrategy.h"
+
 class GalerkinRadianceMethod final : public RadianceMethod {
   private:
     GatheringStrategy *gatheringStrategy;

@@ -10,6 +10,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "scene/Polygon.h"
 #include "galerkin/GalerkinElementRenderMode.h"
 #include "galerkin/Interaction.h"
+
 class GalerkinState;
 
 /**
@@ -76,4 +77,5 @@ extern Matrix2x2 globalQuadToParentTransformMatrix[4];
 extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
 
 #include "galerkin/GalerkinState.h"
+
 #endif

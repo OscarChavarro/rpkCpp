@@ -4,7 +4,6 @@
 class LookUpEntity {
   public:
     LookUpEntity();
-    LookUpEntity(char *key, long value, char *data);
 
     char *key; // Key name
     long value; // Key hash value (for efficiency)

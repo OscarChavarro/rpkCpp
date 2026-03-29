@@ -9,6 +9,7 @@ Hierarchical refinement
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "galerkin/Shaft.h"
+
 /**
 Does shaft-culling between elements in a interaction (if the user asked for it).
 Updates the *candidatesList. Returns the old candidate list, so it can be restored

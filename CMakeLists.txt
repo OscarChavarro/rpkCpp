@@ -113,8 +113,6 @@ set(MAIN_SRC
     src/io/context/ReaderStackState.cpp
     src/io/context/GeometryBuildState.cpp
     src/io/context/MaterialState.cpp
-    src/io/context/ColorState.cpp
-    src/io/context/TransformState.cpp
     src/io/context/ColorRepository.cpp
     src/io/context/MaterialRepository.cpp
     src/io/context/VertexRepository.cpp
@@ -258,6 +256,7 @@ set(MAIN_SRC
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/Main.cpp)
+
 add_executable(rpk ${MAIN_SRC})
 
 target_link_libraries(rpk GLU GL glut)

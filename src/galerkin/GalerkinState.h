@@ -12,6 +12,7 @@
 #include "galerkin/GalerkinIterationMethod.h"
 #include "galerkin/GalerkinShaftCullMode.h"
 #include "galerkin/ShaftCullStrategy.h"
+
 class GalerkinState {
   public:
     int iterationNumber;

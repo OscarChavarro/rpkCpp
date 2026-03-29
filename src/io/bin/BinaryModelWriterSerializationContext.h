@@ -2,11 +2,11 @@
 #define __BINARY_MODEL_WRITER_SERIALIZATION_CONTEXT__
 
 namespace java {
-template <class T>
-class ArrayList;
+    template <class T>
+    class ArrayList;
 
-template <class K, class V>
-class HashMap;
+    template <class K, class V>
+    class HashMap;
 }
 
 class ColorContext;
