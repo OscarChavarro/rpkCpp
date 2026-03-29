@@ -52,7 +52,7 @@ openGlRenderSetColor(const ColorRgb *rgb) {
     ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
-    toneMappingGammaCorrection(correctedRgb);
+    ToneMap::toneMappingGammaCorrection(correctedRgb);
 #ifdef OPEN_GL_ENABLED
     glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif

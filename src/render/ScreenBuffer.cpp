@@ -185,7 +185,7 @@ ScreenBuffer::sync() {
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
         tmpRad.scaledCopy(factor, radiance[i]);
         if ( !isRgbImage() ) {
-            radianceToRgb(tmpRad, &rgbColor[i]);
+            ToneMap::radianceToRgb(tmpRad, &rgbColor[i]);
         } else {
             tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
         }
@@ -202,7 +202,7 @@ ScreenBuffer::syncLine(int lineNumber) {
     for ( int i = 0; i < camera.xSize; i++ ) {
         tmpRad.scaledCopy(factor, radiance[lineNumber * camera.xSize + i]);
         if ( !isRgbImage() ) {
-            radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i]);
+            ToneMap::radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i]);
         } else {
             tmpRad = rgbColor[lineNumber * camera.xSize + i];
         }

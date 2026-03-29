@@ -182,7 +182,7 @@ galerkinWriteVertexColors(Element *element) {
 
     for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         ColorRgb col{};
-        radianceToRgb(vertexRadiosity[i], &col);
+        ToneMap::radianceToRgb(vertexRadiosity[i], &col);
         galerkinWriteVertexColor(&col);
     }
 }
@@ -331,9 +331,9 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
     if ( galerkinState.useAmbientRadiance ) {
         radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
-        radianceToRgb(radVis, &patch->color);
+        ToneMap::radianceToRgb(radVis, &patch->color);
     } else {
-        radianceToRgb(galerkinGetRadiance(patch), &patch->color);
+        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patch->color);
     }
     patch->computeVertexColors();
 }

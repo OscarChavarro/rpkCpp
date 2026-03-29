@@ -62,7 +62,7 @@ screenIterateSequential(
     for ( int i = 0; i < height; i++ ) {
         for ( int j = 0; j < width; j++ ) {
             col = callback(camera, sceneVoxelGrid, sceneBackground, j, i, data);
-            radianceToRgb(col, &rgb[j]);
+            ToneMap::radianceToRgb(col, &rgb[j]);
             GLOBAL_raytracer_pixelCount++;
         }
 
@@ -166,7 +166,7 @@ screenIterateProgressive(
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
                     col = callback(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
-                    radianceToRgb(col, &pixelRGB);
+                    ToneMap::radianceToRgb(col, &pixelRGB);
                     fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
                     GLOBAL_raytracer_pixelCount++;

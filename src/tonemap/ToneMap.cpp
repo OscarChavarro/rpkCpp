@@ -1,6 +1,5 @@
 #include "java/util/ArrayList.txx"
 #include "common/linealAlgebra/Numeric.h"
-#include "tonemap/IdentityToneMap.h"
 #include "tonemap/ToneMap.h"
 
 ToneMap::ToneMap() {
@@ -9,8 +8,35 @@ ToneMap::ToneMap() {
 ToneMap::~ToneMap() {
 }
 
-static void
-recomputeGammaTable(int index, double gamma) {
+int
+ToneMap::gammaTableEntry(float x) {
+    return static_cast<int>(x * static_cast<float>(1 << GAMMA_TABLE_BITS));
+}
+
+void
+ToneMap::toneMappingGammaCorrection(ColorRgb &rgb) {
+    rgb.r = GLOBAL_toneMap_options.gammaTab[0][gammaTableEntry(rgb.r)];
+    rgb.g = GLOBAL_toneMap_options.gammaTab[1][gammaTableEntry(rgb.g)];
+    rgb.b = GLOBAL_toneMap_options.gammaTab[2][gammaTableEntry(rgb.b)];
+}
+
+ColorRgb
+ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
+    return GLOBAL_toneMap_options.selectedToneMap->scaleForDisplay(radiance);
+}
+
+float
+ToneMap::tmoCandelaLambert(float a) {
+    return a * static_cast<float>(java::Math::PI) * 1e-4f;
+}
+
+float
+ToneMap::tmoLambertCandela(float a) {
+    return a / (static_cast<float>(java::Math::PI) * 1e-4f);
+}
+
+void
+ToneMap::recomputeGammaTable(int index, double gamma) {
     if ( gamma <= Numeric::EPSILON ) {
         gamma = 1.0;
     }
@@ -25,19 +51,19 @@ recomputeGammaTable(int index, double gamma) {
 Recomputes gamma tables for the given gamma values for red, green and blue
 */
 void
-recomputeGammaTables(ColorRgb gamma) {
-    recomputeGammaTable(0, gamma.r);
-    recomputeGammaTable(1, gamma.g);
-    recomputeGammaTable(2, gamma.b);
+ToneMap::recomputeGammaTables(ColorRgb gamma) {
+    ToneMap::recomputeGammaTable(0, gamma.r);
+    ToneMap::recomputeGammaTable(1, gamma.g);
+    ToneMap::recomputeGammaTable(2, gamma.b);
 }
 
 /**
 Rescale real world radiance using properly set up tone mapping algorithm
 */
 ColorRgb *
-rescaleRadiance(ColorRgb in, ColorRgb *out) {
+ToneMap::rescaleRadiance(ColorRgb in, ColorRgb *out) {
     in.scale(GLOBAL_toneMap_options.pow_bright_adjust);
-    *out = toneMapScaleForDisplay(in);
+    *out = ToneMap::toneMapScaleForDisplay(in);
     return out;
 }
 
@@ -50,8 +76,8 @@ Does most to convert radiance to display RGB color
 3) clipping of RGB values to the range [0,1].
 */
 ColorRgb *
-radianceToRgb(ColorRgb color, ColorRgb *rgb) {
-    rescaleRadiance(color, &color);
+ToneMap::radianceToRgb(ColorRgb color, ColorRgb *rgb) {
+    ToneMap::rescaleRadiance(color, &color);
     rgb->set(color.r, color.g, color.b);
     rgb->clip();
     return rgb;

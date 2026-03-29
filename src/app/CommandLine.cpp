@@ -462,7 +462,7 @@ toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
     globalToneMapName = toneMapName;
     makeToneMappingMethodsString();
     parseGeneralOptions(globalToneMappingOptions, argc, argv);
-    recomputeGammaTables(GLOBAL_toneMap_options.gamma);
+    ToneMap::recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 }
 
 static char *globalRadianceMethodsString;

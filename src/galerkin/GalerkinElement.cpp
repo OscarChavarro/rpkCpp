@@ -592,9 +592,9 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
                 ColorRgb radVis;
                 radVis.scalarProduct(rho, galerkinState->ambientRadiance);
                 radVis.add(radVis, radiance[0]);
-                radianceToRgb(radVis, &color);
+                ToneMap::radianceToRgb(radVis, &color);
             } else {
-                radianceToRgb(radiance[0], &color);
+                ToneMap::radianceToRgb(radiance[0], &color);
             }
             openGlRenderSetColor(&color);
             openGlRenderPolygonFlat(numberOfVertices, p);
@@ -624,7 +624,7 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
 
             ColorRgb vertexColors[4];
             for ( int i = 0; i < numberOfVertices; i++ ) {
-                radianceToRgb(vertRadiosity[i], &vertexColors[i]);
+                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i]);
             }
 
             openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors);

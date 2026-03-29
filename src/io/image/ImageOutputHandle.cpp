@@ -57,7 +57,7 @@ ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         ColorRgb displayRgb{};
-        radianceToRgb(rgbRadiance[i], &displayRgb);
+        ToneMap::radianceToRgb(rgbRadiance[i], &displayRgb);
 
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);

@@ -46,7 +46,7 @@ ToneMappingContext::ToneMappingContext():
     Cie::computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
     gamma.set(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
-    recomputeGammaTables(gamma);
+    ToneMap::recomputeGammaTables(gamma);
 }
 
 ToneMappingContext::~ToneMappingContext() {

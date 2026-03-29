@@ -124,7 +124,7 @@ softRenderPixels(int width, int height, const ColorRgb *rgb) {
         const int rowStart = j * rowLength;
         for ( int i = 0; i < width; i++ ) {
             ColorRgb corrected_rgb = rgb[rowRgbStart + i];
-            toneMappingGammaCorrection(corrected_rgb);
+            ToneMap::toneMappingGammaCorrection(corrected_rgb);
             const int pixelOffset = rowStart + 4 * i;
             c[pixelOffset] = static_cast<unsigned char>(corrected_rgb.r * 255.0);
             c[pixelOffset + 1] = static_cast<unsigned char>(corrected_rgb.g * 255.0);

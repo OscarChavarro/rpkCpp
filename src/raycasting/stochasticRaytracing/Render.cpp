@@ -23,7 +23,7 @@ stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            radianceToRgb(stochasticRadiosityElementDisplayRadiance(element), &color);
+            ToneMap::radianceToRgb(stochasticRadiosityElementDisplayRadiance(element), &color);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray;
@@ -106,7 +106,7 @@ vertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            radianceToRgb(vertexRadiance(v), &v->color);
+            ToneMap::radianceToRgb(vertexRadiance(v), &v->color);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray = vertexImportance(v);
