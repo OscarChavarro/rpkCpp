@@ -12,7 +12,7 @@
 #include "numericalAnalysis/PatchVisitor.h"
 #include "io/bin/BinaryModelReader.h"
 #include "io/bin/BinaryModelWriter.h"
-#include "io/mgf/Readmgf.h"
+#include "io/mgf/MgfReader.h"
 #include "render/RenderHookList.h"
 #include "render/ScreenBuffer.h"
 #include "app/Adaptation.h"

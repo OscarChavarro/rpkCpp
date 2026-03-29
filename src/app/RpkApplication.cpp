@@ -8,7 +8,7 @@
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
-#include "io/mgf/Readmgf.h"
+#include "io/mgf/MgfReader.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -137,7 +137,7 @@ RpkApplication::freeMemory(MgfParseSession *mgfContext) {
     if ( mgfContext->radianceMethod != nullptr ) {
         delete mgfContext->radianceMethod;
     }
-    dkColorFreeBuffer();
+    DkColor::freeBuffer();
 #ifdef RAYTRACING_ENABLED
     if ( GLOBAL_lightList != nullptr ) {
         delete GLOBAL_lightList;

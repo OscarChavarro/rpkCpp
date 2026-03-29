@@ -11,7 +11,7 @@ Initializes an ImageOutputHandle taking into account the image filename extensio
 and performs raytracing
 */
 void
-rayTrace(
+RayTracer::rayTrace(
     const char *fileName,
     java::io::OutputStream *stream,
     int isPipe,
@@ -23,7 +23,7 @@ rayTrace(
     ImageOutputHandle *img = nullptr;
 
     if ( stream != nullptr ) {
-        img = createRadianceImageOutputHandle(
+        img = ImageOutputHandle::createRadianceImageOutputHandle(
             fileName,
             stream,
             isPipe,
@@ -39,6 +39,6 @@ rayTrace(
     }
 
     if ( img ) {
-        deleteImageOutputHandle(img);
+        ImageOutputHandle::deleteImageOutputHandle(img);
     }
 }

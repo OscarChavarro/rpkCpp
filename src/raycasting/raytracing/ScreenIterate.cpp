@@ -5,43 +5,43 @@
 #include "raycasting/raytracing/ScreenIterateState.h"
 #include "raycasting/raytracing/ScreenIterate.h"
 
-static inline unsigned char
-wakeUpRender() {
+inline unsigned char
+ScreenIterate::wakeUpRender() {
     return static_cast<unsigned char>(1u << 1);
 }
 
-static ScreenIterateState iState;
+ScreenIterateState ScreenIterate::state;
 
 /**
 For counting how much CPU time was used for the computations
 */
-static void
-screenIterateUpdateCpuSecs() {
+void
+ScreenIterate::updateCpuSecs() {
     const long long now = java::lang::System::nanoTime();
-    GLOBAL_raytracer_totalTime += static_cast<double>(now - iState.lastTime) / 1000000000.0;
-    iState.lastTime = now;
+    GLOBAL_raytracer_totalTime += static_cast<double>(now - state.lastTime) / 1000000000.0;
+    state.lastTime = now;
 }
 
 // ScreenIterateInit : initialise statistics and timers
 void
-ScreenIterateInit() {
+ScreenIterate::init() {
 #ifndef NO_EVENT_TIMER
-    iState.wakeUp = 0;
+    state.wakeUp = 0;
 #endif
 
     // initialize for statistics etc.
-    iState.lastTime = java::lang::System::nanoTime();
+    state.lastTime = java::lang::System::nanoTime();
     GLOBAL_raytracer_totalTime = 0.0;
     GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }
 
 void
-ScreenIterateFinish() {
-    screenIterateUpdateCpuSecs();
+ScreenIterate::finish() {
+    updateCpuSecs();
 }
 
 void
-screenIterateSequential(
+ScreenIterate::sequential(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -52,7 +52,7 @@ screenIterateSequential(
     ColorRgb col;
     ColorRgb *rgb;
 
-    ScreenIterateInit();
+    init();
 
     width = camera->xSize;
     height = camera->ySize;
@@ -71,14 +71,14 @@ screenIterateSequential(
 
     delete[] rgb;
 
-    ScreenIterateFinish();
+    finish();
 }
 
 /**
 Some utility routines for progressive tracing
 */
-static inline void
-fillRect(
+inline void
+ScreenIterate::fillRect(
     const Camera *camera,
     int x0,
     int y0,
@@ -95,7 +95,7 @@ fillRect(
 }
 
 void
-screenIterateProgressive(
+ScreenIterate::progressive(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -120,7 +120,7 @@ screenIterateProgressive(
     int yMin;
     int yMax;
 
-    ScreenIterateInit();
+    init();
 
     width = camera->xSize;
     height = camera->ySize;
@@ -171,8 +171,8 @@ screenIterateProgressive(
 
                     GLOBAL_raytracer_pixelCount++;
 
-                    if ( iState.wakeUp & wakeUpRender() ) {
-                        iState.wakeUp &= static_cast<unsigned char>(~wakeUpRender());
+                    if ( state.wakeUp & wakeUpRender() ) {
+                        state.wakeUp &= static_cast<unsigned char>(~wakeUpRender());
                         if ( (yMax > 0) && (yMax > yMin) ) {
                             SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width);
                         }
@@ -202,5 +202,5 @@ screenIterateProgressive(
 
     delete[] rgb;
 
-    ScreenIterateFinish();
+    finish();
 }

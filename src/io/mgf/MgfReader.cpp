@@ -15,7 +15,7 @@
 #include "io/mgf/MgfHandlerObject.h"
 #include "io/mgf/MgfHandlerTransform.h"
 #include "io/mgf/MgfStaticHandler.h"
-#include "io/mgf/Readmgf.h"
+#include "io/mgf/MgfReader.h"
 
 /**
 The parser follows the following process:

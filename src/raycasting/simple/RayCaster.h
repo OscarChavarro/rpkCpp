@@ -44,15 +44,15 @@ class RayCaster final : public RayTracer {
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const;
-};
 
-extern void
-rayCast(
-    const char *fileName,
-    java::io::OutputStream *stream,
-    int isPipe,
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions);
+    static void
+    rayCast(
+        const char *fileName,
+        java::io::OutputStream *stream,
+        int isPipe,
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions);
+};
 
 #endif

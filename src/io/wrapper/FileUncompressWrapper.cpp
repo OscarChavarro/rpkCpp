@@ -9,23 +9,21 @@
 #include "io/wrapper/PipeOutputStream.h"
 #include "io/wrapper/StreamOpenMode.h"
 
-namespace {
-
-static const char *
-modeToLogAction(StreamOpenMode mode) {
+const char *
+FileUncompressWrapper::modeToLogAction(StreamOpenMode mode) {
     return mode == StreamOpenMode::READ ? "reading" : "writing";
 }
 
-static bool
-isInvalidFileName(const char *fileName) {
+bool
+FileUncompressWrapper::isInvalidFileName(const char *fileName) {
     if ( fileName == nullptr || fileName[0] == '\0' || fileName[strlen(fileName) - 1] == '/' ) {
         return true;
     }
     return false;
 }
 
-static int
-buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength) {
+int
+FileUncompressWrapper::buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength) {
     if ( fileName == nullptr || command == nullptr || commandLength <= 0 ) {
         return 0;
     }
@@ -66,8 +64,8 @@ buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, i
     return 1;
 }
 
-static java::io::InputStream *
-openPipeInputStream(const char *command) {
+java::io::InputStream *
+FileUncompressWrapper::openPipeInputStream(const char *command) {
     PipeInputStream *pipeStream = new PipeInputStream(command);
     if ( !pipeStream->isOpen() ) {
         delete pipeStream;
@@ -76,8 +74,8 @@ openPipeInputStream(const char *command) {
     return pipeStream;
 }
 
-static java::io::OutputStream *
-openPipeOutputStream(const char *command) {
+java::io::OutputStream *
+FileUncompressWrapper::openPipeOutputStream(const char *command) {
     PipeOutputStream *pipeStream = new PipeOutputStream(command);
     if ( !pipeStream->isOpen() ) {
         delete pipeStream;
@@ -86,10 +84,8 @@ openPipeOutputStream(const char *command) {
     return pipeStream;
 }
 
-} // namespace
-
 java::io::InputStream *
-openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
+FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( isPipe != nullptr ) {
         *isPipe = 0;
     }
@@ -127,7 +123,7 @@ openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
 }
 
 java::io::OutputStream *
-openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
+FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( isPipe != nullptr ) {
         *isPipe = 0;
     }
@@ -165,7 +161,7 @@ openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
 }
 
 void
-closeInputStream(java::io::InputStream *stream) {
+FileUncompressWrapper::closeInputStream(java::io::InputStream *stream) {
     if ( stream == nullptr ) {
         return;
     }
@@ -174,7 +170,7 @@ closeInputStream(java::io::InputStream *stream) {
 }
 
 void
-closeOutputStream(java::io::OutputStream *stream) {
+FileUncompressWrapper::closeOutputStream(java::io::OutputStream *stream) {
     if ( stream == nullptr ) {
         return;
     }

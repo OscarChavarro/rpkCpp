@@ -20,7 +20,7 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 }
 
 inline void
-gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
+ImageOutputHandle::gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
   rgb.r = gamma[0] == 1.0 ? rgb.r : java::Math::pow(rgb.r, 1.0f / gamma[0]);
   rgb.g = gamma[1] == 1.0 ? rgb.g : java::Math::pow(rgb.g, 1.0f / gamma[1]);
   rgb.b = gamma[2] == 1.0 ? rgb.b : java::Math::pow(rgb.b, 1.0f / gamma[2]);
@@ -80,7 +80,7 @@ Returns file name extension. Understands extra suffixes ".Z", ".gz",
 ".bz", and ".bz2".
 */
 const char *
-imageFileExtension(const char *fileName) {
+ImageOutputHandle::imageFileExtension(const char *fileName) {
     const int fileNameLength = static_cast<int>(strlen(fileName));
     if ( fileNameLength <= 0 ) {
         return fileName;
@@ -114,7 +114,7 @@ Examines filename extension in order to decide what file format to
 use to write radiance image
 */
 ImageOutputHandle *
-createRadianceImageOutputHandle(
+ImageOutputHandle::createRadianceImageOutputHandle(
     const char *fileName,
     java::io::OutputStream *outputStream,
     int isPipe,
@@ -150,7 +150,7 @@ createRadianceImageOutputHandle(
 Same, but for writing "normal" display RGB images instead radiance image
 */
 ImageOutputHandle *
-createImageOutputHandle(
+ImageOutputHandle::createImageOutputHandle(
     const char *fileName,
     java::io::OutputStream *outputStream,
     const int isPipe,
@@ -177,7 +177,7 @@ Write a scanline of display RGB, RGB radiance or CIE XYZ radiance data.
 3 samples per pixel: RGB order for RGB data and XYZ order for CIE XYZ data
 */
 int
-writeDisplayRGB(ImageOutputHandle *img, unsigned char *data) {
+ImageOutputHandle::writeDisplayRGB(ImageOutputHandle *img, unsigned char *data) {
     return img->writeDisplayRGB(data);
 }
 
@@ -185,6 +185,6 @@ writeDisplayRGB(ImageOutputHandle *img, unsigned char *data) {
 Finish writing the image
 */
 void
-deleteImageOutputHandle(ImageOutputHandle *img) {
+ImageOutputHandle::deleteImageOutputHandle(ImageOutputHandle *img) {
     delete img;
 }

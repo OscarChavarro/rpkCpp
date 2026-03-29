@@ -12,27 +12,42 @@ Some utility routines for ray intersections and for statistics
 #include "scene/VoxelGrid.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 
-extern RayHit *
-findRayIntersection(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    Ray *ray,
-    Patch *patch,
-    const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
-    RayHit *hitStore);
+class RayTools {
+  public:
+    static RayHit *
+    findRayIntersection(
+        const VoxelGrid *sceneWorldVoxelGrid,
+        Ray *ray,
+        Patch *patch,
+        const PhongBidirectionalScatteringDistributionFunction *currentBsdf,
+        RayHit *hitStore);
 
-extern bool
-pathNodesVisible(
-    const VoxelGrid *sceneWorldVoxelGrid,
-    const SimpleRaytracingPathNode *node1,
-    const SimpleRaytracingPathNode *node2);
+    static bool
+    pathNodesVisible(
+        const VoxelGrid *sceneWorldVoxelGrid,
+        const SimpleRaytracingPathNode *node1,
+        const SimpleRaytracingPathNode *node2);
 
-extern bool
-eyeNodeVisible(
-    const Camera *camera,
-    const VoxelGrid *sceneWorldVoxelGrid,
-    const SimpleRaytracingPathNode *eyeNode,
-    const SimpleRaytracingPathNode *node,
-    float *pixX,
-    float *pixY);
+    static bool
+    eyeNodeVisible(
+        const Camera *camera,
+        const VoxelGrid *sceneWorldVoxelGrid,
+        const SimpleRaytracingPathNode *eyeNode,
+        const SimpleRaytracingPathNode *node,
+        float *pixX,
+        float *pixY);
+
+  private:
+    static int pathFrontHitFlags();
+
+    static RayHit *
+    traceWorld(
+        const VoxelGrid *sceneWorldVoxelGrid,
+        Ray *ray,
+        Patch *patch,
+        unsigned int flags,
+        Patch *extraPatch,
+        RayHit *hitStore);
+};
 
 #endif

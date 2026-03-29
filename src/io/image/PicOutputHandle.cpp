@@ -5,10 +5,8 @@
 #include "io/image/Dkcolor.h"
 #include "io/image/PicOutputHandle.h"
 
-namespace {
-
-static java::lang::String
-formatToString(const char *format, va_list arguments) {
+java::lang::String
+PicOutputHandle::formatToString(const char *format, va_list arguments) {
     if ( format == nullptr ) {
         return java::lang::String();
     }
@@ -36,10 +34,8 @@ formatToString(const char *format, va_list arguments) {
     return result;
 }
 
-}
-
-static void
-picWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+void
+PicOutputHandle::writeFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
     if ( outputStream == nullptr || format == nullptr ) {
         return;
     }
@@ -88,7 +84,7 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != nullptr ) {
-        result = dkColorWriteScan(reinterpret_cast<DK_COLOR *>(rgbRadiance), width, outputStream);
+        result = DkColor::writeScan(reinterpret_cast<DK_COLOR *>(rgbRadiance), width, outputStream);
     }
 
     if ( result ) {
@@ -102,9 +98,9 @@ PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
 void
 PicOutputHandle::writeHeader() {
     // Simple RADIANCE header
-    picWriteFormatted(outputStream, "#?RADIANCE\n");
-    picWriteFormatted(outputStream, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
-    picWriteFormatted(outputStream, "FORMAT=32-bit_rle_rgbe\n");
-    picWriteFormatted(outputStream, "\n");
-    picWriteFormatted(outputStream, "-Y %d +X %d\n", height, width);
+    writeFormatted(outputStream, "#?RADIANCE\n");
+    writeFormatted(outputStream, "#RPK PicOutputHandler (compiled %s)\n", __DATE__);
+    writeFormatted(outputStream, "FORMAT=32-bit_rle_rgbe\n");
+    writeFormatted(outputStream, "\n");
+    writeFormatted(outputStream, "-Y %d +X %d\n", height, width);
 }

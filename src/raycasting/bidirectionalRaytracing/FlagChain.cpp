@@ -41,7 +41,7 @@ FlagChain::init(const int inLength, bool const inSubtract) {
 }
 
 bool
-FlagChainCompare(const FlagChain *c1,
+FlagChain::compare(const FlagChain *c1,
                       const FlagChain *c2) {
     // Determine if equal
 
@@ -70,7 +70,7 @@ FlagChainCompare(const FlagChain *c1,
 }
 
 FlagChain *
-FlagChainCombine(const FlagChain *c1, const FlagChain *c2) {
+FlagChain::combine(const FlagChain *c1, const FlagChain *c2) {
     // Determine if combinable
     int nrDifferent = 0;
     int diffIndex = 0;
@@ -200,7 +200,7 @@ FlagChainList::addDisjoint(const FlagChain &chain) {
     bool found = false;
 
     while ((tmpChain = iter.nextOnSequence()) && !found ) {
-        found = FlagChainCompare(tmpChain, &chain);
+        found = FlagChain::compare(tmpChain, &chain);
     }
 
     if ( !found ) {
@@ -246,7 +246,7 @@ FlagChainList::simplify() {
 
     if ( c1 ) {
         while ( (c2 = iter.nextOnSequence()) != nullptr ) {
-            cCombined = FlagChainCombine(c1, c2);
+            cCombined = FlagChain::combine(c1, c2);
             if ( cCombined ) {
                 c1 = cCombined; // Combined
             } else {

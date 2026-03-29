@@ -13,14 +13,6 @@ and contain necessary information for raytracing-like algorithms
 #include "raycasting/common/BsdfComp.h"
 #include "raycasting/common/PathRayType.h"
 
-/**
-Heuristic for multiple Importance sampling / weighting
-*/
-inline double
-multipleImportanceSampling(double a) {
-    return a * a;
-}
-
 // Type definitions used in CPathNode
 
 // -- TODO clean up, additional functions that are now duplicated
@@ -29,6 +21,14 @@ multipleImportanceSampling(double a) {
 
 class SimpleRaytracingPathNode {
   public:
+    /**
+    Heuristic for multiple Importance sampling / weighting
+    */
+    inline static double
+    multipleImportanceSampling(double a) {
+        return a * a;
+    }
+
     RayHit m_hit;
     Vector3D m_inDirT; // towards the patch
     Vector3D m_inDirF; // from the patch

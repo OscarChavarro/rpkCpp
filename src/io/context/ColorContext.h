@@ -10,18 +10,7 @@ COLOR_MAXIMUM_WAVE_LENGTH = 780
 
 constexpr int NUMBER_OF_SPECTRAL_SAMPLES = 41; // Number of spectral samples
 
-inline constexpr float
-colorWaveLengthDeltaI() {
-    return static_cast<float>(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
-           static_cast<float>(NUMBER_OF_SPECTRAL_SAMPLES - 1);
-}
-
 constexpr int COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE = 10000;
-
-inline constexpr double
-colorPeakLumensPerWatt() {
-    return 683.0 / COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE;
-}
 
 enum {
 COLOR_SPECTRUM_IS_SET_FLAG = 01,
@@ -39,6 +28,17 @@ constexpr double C2 = 1.4388e-2;
 
 class ColorContext {
   private:
+    inline static constexpr float
+    colorWaveLengthDeltaI() {
+        return static_cast<float>(COLOR_MAXIMUM_WAVE_LENGTH - COLOR_MINIMUM_WAVE_LENGTH) /
+               static_cast<float>(NUMBER_OF_SPECTRAL_SAMPLES - 1);
+    }
+
+    inline static constexpr double
+    colorPeakLumensPerWatt() {
+        return 683.0 / COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE;
+    }
+
     inline static double
     bBlm(double t) {
         return C2 / 5.0 / t;

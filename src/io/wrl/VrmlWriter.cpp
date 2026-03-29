@@ -10,8 +10,8 @@ const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/rese
 Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
 Camera *VrmlWriter::globalCameraStackPtr = VrmlWriter::globalCameraStack;
 
-static void
-vrmlWriteFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+void
+VrmlWriter::writeFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
     if ( outputStream == nullptr || format == nullptr ) {
         return;
     }
@@ -123,7 +123,7 @@ VrmlWriter::writeViewPoint(
     // Apply model transform to eye point
     modelTransform->transformPoint3D(camera->eyePosition, eyePosition);
 
-    vrmlWriteFormatted(
+    writeFormatted(
         outputStream,
         "Viewpoint {\n  position %g %g %g\n  orientation %g %g %g %g\n  fieldOfView %g\n  description \"%s\"\n}\n\n",
         eyePosition.x,
@@ -167,20 +167,20 @@ VrmlWriter::writeHeader(
     Vector3D modelRotationAxis;
     float modelRotationAngle;
 
-    vrmlWriteFormatted(outputStream, "#VRML V2.0 utf8\n\n");
+    writeFormatted(outputStream, "#VRML V2.0 utf8\n\n");
 
-    vrmlWriteFormatted(
+    writeFormatted(
         outputStream,
         "WorldInfo {\n  title \"%s\"\n  info [ \"Created using RenderPark (%s)\" ]\n}\n\n",
         "Some nice model",
         RPK_HOME);
 
-    vrmlWriteFormatted(outputStream, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
+    writeFormatted(outputStream, "NavigationInfo {\n type \"WALK\"\n headlight FALSE\n}\n\n");
 
     const Matrix4x4 modelTransform = transformModel(camera, &modelRotationAxis, &modelRotationAngle);
     writeViewPoints(camera, outputStream, &modelTransform);
 
-    vrmlWriteFormatted(
+    writeFormatted(
         outputStream,
         "Transform {\n  rotation %g %g %g %g\n  children [\n    Shape {\n      geometry IndexedFaceSet {\n",
         modelRotationAxis.x,
@@ -188,10 +188,10 @@ VrmlWriter::writeHeader(
         modelRotationAxis.z,
         modelRotationAngle);
 
-    vrmlWriteFormatted(outputStream, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
+    writeFormatted(outputStream, "\tsolid %s\n", renderOptions->backfaceCulling ? "TRUE" : "FALSE");
 }
 
 void
 VrmlWriter::writeTrailer(java::io::OutputStream *outputStream) {
-    vrmlWriteFormatted(outputStream, "      }\n    }\n  ]\n}\n\n");
+    writeFormatted(outputStream, "      }\n    }\n  ]\n}\n\n");
 }

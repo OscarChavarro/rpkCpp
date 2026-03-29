@@ -43,13 +43,13 @@ openGlSaveScreen(
 {
     // RayCast() saves the current picture in display-mapped (!) real values
     if ( renderOptions->trace ) {
-        rayCast(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
+        RayCaster::rayCast(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
         return;
     }
 
     long x = scene->camera->xSize;
     long y = scene->camera->ySize;
-    ImageOutputHandle *image = createImageOutputHandle(fileName, outputStream, isPipe, static_cast<int>(x), static_cast<int>(y));
+    ImageOutputHandle *image = ImageOutputHandle::createImageOutputHandle(fileName, outputStream, isPipe, static_cast<int>(x), static_cast<int>(y));
     if ( image == nullptr ) {
         return;
     }
@@ -71,7 +71,7 @@ openGlSaveScreen(
             buffer[bufferOffset + 1] = screen[pixelOffset + 1];
             buffer[bufferOffset + 2] = screen[pixelOffset + 2];
         }
-        writeDisplayRGB(image, buffer);
+        ImageOutputHandle::writeDisplayRGB(image, buffer);
     }
 
     delete[] buffer;
@@ -114,12 +114,12 @@ batchProcessFile(
     const RenderOptions *renderOptions)
 {
     int isPipe;
-    java::io::OutputStream *outputStream = openOutputStreamCompressWrapper(fileName, &isPipe);
+    java::io::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
 
     // Call the user supplied procedure to process the file
     processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, renderOptions);
 
-    closeOutputStream(outputStream);
+    FileUncompressWrapper::closeOutputStream(outputStream);
 }
 
 static void
@@ -141,7 +141,7 @@ batchSaveRadianceImage(
 
     Canvas::canvasPushMode();
 
-    extension = imageFileExtension(fileName);
+    extension = ImageOutputHandle::imageFileExtension(fileName);
     if ( strncasecmp(extension, "logluv", 6) == 0 ) {
         java::lang::System::out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {

@@ -204,7 +204,7 @@ and saved into the file with given name and output stream. 'isPipe'
 reflects whether this output stream is backed by a pipe or not.
 */
 void
-rayCast(
+RayCaster::rayCast(
     const char *fileName,
     java::io::OutputStream *stream,
     const int isPipe,
@@ -214,7 +214,7 @@ rayCast(
     ImageOutputHandle *img = nullptr;
 
     if ( stream != nullptr ) {
-        img = createRadianceImageOutputHandle(
+        img = ImageOutputHandle::createRadianceImageOutputHandle(
             fileName,
             stream,
             isPipe,
@@ -234,6 +234,6 @@ rayCast(
     delete rc;
 
     if ( img ) {
-        deleteImageOutputHandle(img);
+        ImageOutputHandle::deleteImageOutputHandle(img);
     }
 }

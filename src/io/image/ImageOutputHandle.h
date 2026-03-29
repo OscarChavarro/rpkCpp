@@ -14,6 +14,7 @@ class ImageOutputHandle {
     int height;
 
     void init(const char *_name, int _width, int _height);
+    static void gammaCorrect(ColorRgb &rgb, const float gamma[3]);
 
   public:
     ImageOutputHandle();
@@ -33,6 +34,26 @@ class ImageOutputHandle {
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
     virtual int writeRadianceRGB(ColorRgb *rgbRadiance);
+
+    static ImageOutputHandle *
+    createRadianceImageOutputHandle(
+        const char *fileName,
+        java::io::OutputStream *outputStream,
+        int isPipe,
+        int width,
+        int height);
+
+    static ImageOutputHandle *
+    createImageOutputHandle(
+        const char *fileName,
+        java::io::OutputStream *outputStream,
+        int isPipe,
+        int width,
+        int height);
+
+    static const char *imageFileExtension(const char *fileName);
+    static int writeDisplayRGB(ImageOutputHandle *img, unsigned char *data);
+    static void deleteImageOutputHandle(ImageOutputHandle *img);
 };
 
 inline void
@@ -45,29 +66,9 @@ ImageOutputHandle::init(const char *_name, int _width, int _height) {
     gamma[2] = 1.0;
 }
 
-extern ImageOutputHandle *
-createRadianceImageOutputHandle(
-    const char *fileName,
-    java::io::OutputStream *outputStream,
-    int isPipe,
-    int width,
-    int height);
-
-extern ImageOutputHandle *
-createImageOutputHandle(
-    const char *fileName,
-    java::io::OutputStream *outputStream,
-    int isPipe,
-    int width,
-    int height);
-
 /**
 The following ImageOutputHandle constructors are only needed if you want to specify
 yourself what format to use
 */
-
-extern const char *imageFileExtension(const char *fileName);
-extern int writeDisplayRGB(ImageOutputHandle *img, unsigned char *data);
-extern void deleteImageOutputHandle(ImageOutputHandle *img);
 
 #endif

@@ -14,6 +14,8 @@ procedure of a monte carlo ray tracing like algorithm
 #include "raycasting/raytracing/PixelSampler.h"
 #include "raycasting/raytracing/SampleConnectionFlags.h"
 
+typedef int CONNECT_FLAGS;
+
 class SamplerConfig {
   public:
     Sampler *pointSampler;  // Samples first point
@@ -76,6 +78,18 @@ class SamplerConfig {
 
     // Generate two random numbers. Depth needed for QMC sampling
     void getRand(int depth, double *x1, double *x2) const;
+
+    static double
+    pathNodeConnect(
+        Camera *camera,
+        SimpleRaytracingPathNode *nodeX,
+        SimpleRaytracingPathNode *nodeY,
+        SamplerConfig *eyeConfig,
+        SamplerConfig *lightConfig,
+        CONNECT_FLAGS flags,
+        char bsdfFlagsE = BSDF_ALL_COMPONENTS,
+        char bsdfFlagsL = BSDF_ALL_COMPONENTS,
+        Vector3D *pDirEl = nullptr);
 
 };
 
@@ -145,20 +159,6 @@ IN : 2 nodes are needed. nodeE and nodeL are going to be connected
 OUT : geometry factor is returned (not filled in cause it would overwrite
       other geometries !)
 */
-typedef int CONNECT_FLAGS;
-
-double
-pathNodeConnect(
-    Camera *camera,
-    SimpleRaytracingPathNode *nodeX,
-    SimpleRaytracingPathNode *nodeY,
-    SamplerConfig *eyeConfig,
-    SamplerConfig *lightConfig,
-    CONNECT_FLAGS flags,
-    char bsdfFlagsE = BSDF_ALL_COMPONENTS,
-    char bsdfFlagsL = BSDF_ALL_COMPONENTS,
-    Vector3D *pDirEl = nullptr);
-
 #endif
 
 #endif

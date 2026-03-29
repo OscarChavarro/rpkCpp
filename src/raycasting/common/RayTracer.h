@@ -40,21 +40,21 @@ class RayTracer {
 
     // Terminate raytracing computations
     virtual void terminate() const = 0;
+
+    static void
+    rayTrace(
+        const char *fileName,
+        java::io::OutputStream *stream,
+        int isPipe,
+        const RayTracer *rayTracer,
+        Scene *scene,
+        RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions);
 };
 
 extern RayTracer *GLOBAL_rayTracer;
 extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
 extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced
 extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
-
-extern void
-rayTrace(
-    const char *fileName,
-    java::io::OutputStream *stream,
-    int isPipe,
-    const RayTracer *rayTracer,
-    Scene *scene,
-    RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions);
 
 #endif

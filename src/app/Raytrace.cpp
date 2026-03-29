@@ -87,7 +87,7 @@ rayTraceSaveImage(
 
     t = java::lang::System::nanoTime();
 
-    ImageOutputHandle *img = createRadianceImageOutputHandle(
+    ImageOutputHandle *img = ImageOutputHandle::createRadianceImageOutputHandle(
         fileName,
         stream,
         isPipe,
@@ -103,7 +103,7 @@ rayTraceSaveImage(
         Error::warning(nullptr, "No previous %s image available", rayTracer->getName());
     }
 
-    deleteImageOutputHandle(img);
+    ImageOutputHandle::deleteImageOutputHandle(img);
 
     java::lang::System::out.printf(
         "Raytrace save image: %g secs.\n",
@@ -133,7 +133,7 @@ rayTraceExecute(
     scene->camera->changed = false;
 
     Canvas::canvasPushMode();
-    rayTrace(
+    RayTracer::rayTrace(
         filename,
         stream,
         isPipe,

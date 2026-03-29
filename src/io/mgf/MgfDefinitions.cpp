@@ -87,14 +87,14 @@ mgfGoToFilePosition(const FilePositionContext *pos, MgfParseSession *context) {
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
     int pipeFlag = 0;
-    java::io::InputStream *inputStream = openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
+    java::io::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
     if ( inputStream == nullptr || pipeFlag != 0 ) {
-        closeInputStream(inputStream);
+        FileUncompressWrapper::closeInputStream(inputStream);
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
 
     if ( !skipLines(inputStream, pos->lineNumber) ) {
-        closeInputStream(inputStream);
+        FileUncompressWrapper::closeInputStream(inputStream);
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
 
@@ -196,7 +196,7 @@ mgfOpen(ReaderContext *readerContext, const char *functionCallback, MgfParseSess
     }
 
     int pipeFlag = false;
-    java::io::InputStream *inputStream = openInputStreamCompressWrapper(readerContext->fileName, &pipeFlag);
+    java::io::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(readerContext->fileName, &pipeFlag);
     if ( inputStream == nullptr ) {
         return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }

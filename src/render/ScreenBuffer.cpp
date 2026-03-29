@@ -391,7 +391,7 @@ ScreenBuffer::writeFile(const char *fileName, java::io::OutputStream *outputStre
         return;
     }
 
-    ImageOutputHandle *ip = createRadianceImageOutputHandle(
+    ImageOutputHandle *ip = ImageOutputHandle::createRadianceImageOutputHandle(
         fileName,
         outputStream,
         isPipe,
@@ -400,20 +400,20 @@ ScreenBuffer::writeFile(const char *fileName, java::io::OutputStream *outputStre
 
     writeFile(ip);
     if ( ip != nullptr ) {
-        deleteImageOutputHandle(ip);
+        ImageOutputHandle::deleteImageOutputHandle(ip);
     }
 }
 
 void
 ScreenBuffer::writeFile(const char *fileName) {
     int isPipe = 0;
-    java::io::OutputStream *outputStream = openOutputStreamCompressWrapper(fileName, &isPipe);
+    java::io::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
     if ( outputStream == nullptr ) {
         return;
     }
 
     writeFile(fileName, outputStream, isPipe);
-    closeOutputStream(outputStream);
+    FileUncompressWrapper::closeOutputStream(outputStream);
 }
 
 #endif

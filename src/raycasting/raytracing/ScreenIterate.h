@@ -10,23 +10,44 @@ Several functions are provided for different iterating schemes
 
 #include "common/ColorRgb.h"
 #include "scene/Background.h"
+#include "raycasting/raytracing/ScreenIterateState.h"
 
 typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Camera *, VoxelGrid *, Background *, int, int, void *);
 
-void
-screenIterateSequential(
-    Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
-    SCREEN_ITERATE_CALLBACK callback,
-    void *data);
+class ScreenIterate {
+  public:
+    static void
+    sequential(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        SCREEN_ITERATE_CALLBACK callback,
+        void *data);
 
-void
-screenIterateProgressive(
-    Camera *camera,
-    VoxelGrid *sceneVoxelGrid,
-    Background *sceneBackground,
-    SCREEN_ITERATE_CALLBACK callback,
-    void *data);
+    static void
+    progressive(
+        Camera *camera,
+        VoxelGrid *sceneVoxelGrid,
+        Background *sceneBackground,
+        SCREEN_ITERATE_CALLBACK callback,
+        void *data);
+
+  private:
+    static ScreenIterateState state;
+
+    static unsigned char wakeUpRender();
+    static void init();
+    static void finish();
+    static void updateCpuSecs();
+    static void
+    fillRect(
+        const Camera *camera,
+        int x0,
+        int y0,
+        int x1,
+        int y1,
+        ColorRgb col,
+        ColorRgb *rgb);
+};
 
 #endif

@@ -185,14 +185,14 @@ BidirectionalPathRaytracer::execute(
     } else if ( config.baseConfig->doDensityEstimation ) {
         doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
     } else if ( !GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing ) {
-        screenIterateSequential(
+        ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
                 BidirectionalPathRaytracer::bpCalcPixel,
                 &config);
     } else {
-        screenIterateProgressive(
+        ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
@@ -252,8 +252,8 @@ BidirectionalPathRaytracer::terminate() const {
     GLOBAL_rayTracing_biDirectionalPath.lastScreen = nullptr;
 }
 
-static bool
-spikeCheck(ColorRgb color) {
+bool
+BidirectionalPathRaytracer::spikeCheck(ColorRgb color) {
     double colAvg = color.average();
 
     if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
@@ -269,8 +269,8 @@ spikeCheck(ColorRgb color) {
     return false;
 }
 
-static void
-addWithSpikeCheck(
+void
+BidirectionalPathRaytracer::addWithSpikeCheck(
     BidirectionalPathTracingConfiguration *config,
     const BiPath * /*path*/,
     int nx,
@@ -278,7 +278,7 @@ addWithSpikeCheck(
     float pix_x,
     float pix_y,
     ColorRgb f,
-    bool radSample = false)
+    bool radSample)
 {
     if ( config->baseConfig->doDensityEstimation ) {
         const ScreenBuffer *rs;
@@ -337,7 +337,7 @@ addWithSpikeCheck(
 }
 
 void
-handlePathX0(
+BidirectionalPathRaytracer::handlePathX0(
     Camera *camera,
     Background *sceneBackground,
     BidirectionalPathTracingConfiguration *config,
@@ -486,13 +486,13 @@ handlePathX0(
 }
 
 ColorRgb
-computeNeFluxEstimate(
+BidirectionalPathRaytracer::computeNeFluxEstimate(
     Camera *camera,
     BidirectionalPathTracingConfiguration *config,
     BiPath *path,
-    float *pPdf = nullptr,
-    float *pWeight = nullptr,
-    ColorRgb *fRad = nullptr)
+    float *pPdf,
+    float *pWeight,
+    ColorRgb *fRad)
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
@@ -543,7 +543,7 @@ computeNeFluxEstimate(
 
     // Connect the sub-paths
     path->m_geomConnect =
-            pathNodeConnect(camera, eyeEndNode, lightEndNode,
+            SamplerConfig::pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
@@ -590,8 +590,8 @@ computeNeFluxEstimate(
 handlePathXx : handle a path with eyeSize >= 2 and
 light size >= 1
 */
-static void
-handlePathXx(
+void
+BidirectionalPathRaytracer::handlePathXx(
     Camera *camera,
     VoxelGrid *sceneWorldVoxelGrid,
     Background *sceneBackground,
@@ -652,7 +652,7 @@ handlePathXx(
         path->m_lightEndNode = &newLightNode;
     }
 
-    if ( pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
+    if ( RayTools::pathNodesVisible(sceneWorldVoxelGrid, path->m_eyeEndNode, path->m_lightEndNode) ) {
         f = computeNeFluxEstimate(camera, config, path, &pdf, &weight, &fRad);
 
         float factor = static_cast<float>(config->fluxToRadFactor) / static_cast<float>(config->baseConfig->samplesPerPixel);
@@ -676,8 +676,8 @@ handlePathXx(
     }
 }
 
-static void
-handlePath1X(
+void
+BidirectionalPathRaytracer::handlePath1X(
     Camera *camera,
     const VoxelGrid *sceneVoxelGrid,
     BidirectionalPathTracingConfiguration *config,
@@ -697,7 +697,7 @@ handlePath1X(
     // the camera. At the same time the pixel hit is computed
     float pixX;
     float pixY;
-    if ( eyeNodeVisible(
+    if ( RayTools::eyeNodeVisible(
             camera,
             sceneVoxelGrid,
             path->m_eyeEndNode,
@@ -731,8 +731,8 @@ handlePath1X(
     path->m_pdfLNE = oldPdfLNE;
 }
 
-static void
-bpCombinePaths(
+void
+BidirectionalPathRaytracer::bpCombinePaths(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
@@ -989,7 +989,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
         config->baseConfig->samplesPerPixel = currentSamples;
         config->baseConfig->totalSamples = currentSamples * camera->xSize * camera->ySize;
 
-        screenIterateSequential(
+        ScreenIterate::sequential(
             camera,
             sceneVoxelGrid,
             sceneBackground,
@@ -1060,7 +1060,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     config->deStoreHits = true;
 
     // Do the run
-    screenIterateSequential(
+    ScreenIterate::sequential(
         camera,
         sceneVoxelGrid,
         sceneBackground,
@@ -1147,7 +1147,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
 
         // Iterate screen : nNew - nOld, using an appropriate scale factor
 
-        screenIterateSequential(
+        ScreenIterate::sequential(
             camera,
             sceneVoxelGrid,
             sceneBackground,

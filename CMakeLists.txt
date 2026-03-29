@@ -129,12 +129,11 @@ set(MAIN_SRC
     src/io/mgf/MgfGeometry.cpp
     src/io/mgf/MgfHandlerGeometry.cpp
     src/io/mgf/MgfHandlerObject.cpp
-    src/io/mgf/Badarg.cpp
     src/io/mgf/MgfHandlerTransform.cpp
     src/io/mgf/MgfHandlerColor.cpp
     src/io/mgf/MgfHandlerMaterial.cpp
     src/io/mgf/MgfStaticHandler.cpp
-    src/io/mgf/Readmgf.cpp
+    src/io/mgf/MgfReader.cpp
     src/io/bin/BinaryModelWriter.cpp
     src/io/bin/BinaryModelWriterSerializationContext.cpp
     src/io/bin/BinaryModelReader.cpp

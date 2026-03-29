@@ -21,8 +21,8 @@ static constexpr int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
 static constexpr int MINIMUM_RUN_LENGTH = 4;
 static BYTE *globalTempBuffer = nullptr;
 
-static inline void
-dkColorWriteByte(java::io::OutputStream *stream, int value) {
+void
+DkColor::writeByte(java::io::OutputStream *stream, int value) {
     if ( stream == nullptr ) {
         return;
     }
@@ -32,8 +32,8 @@ dkColorWriteByte(java::io::OutputStream *stream, int value) {
 /**
 Get a temporary buffer
 */
-static BYTE *
-dkColorTempBuffer(unsigned int length) {
+BYTE *
+DkColor::tempBuffer(unsigned int length) {
     static unsigned tempBufferLength = 0;
 
     if ( length > tempBufferLength ) {
@@ -53,8 +53,8 @@ dkColorTempBuffer(unsigned int length) {
 /**
 Write out a byte color scanline
 */
-static int
-dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *outputStream) {
+int
+DkColor::writeByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *outputStream) {
     int cnt = 0;
     int c2;
 
@@ -72,10 +72,10 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *ou
     }
 
     // Put magic header
-    dkColorWriteByte(outputStream, 2);
-    dkColorWriteByte(outputStream, 2);
-    dkColorWriteByte(outputStream, len >> 8);
-    dkColorWriteByte(outputStream, len & 255);
+    writeByte(outputStream, 2);
+    writeByte(outputStream, 2);
+    writeByte(outputStream, len >> 8);
+    writeByte(outputStream, len & 255);
 
     // Put components separately
     for ( int i = 0; i < 4; i++ ) {
@@ -96,8 +96,8 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *ou
                 while ( scanline[c2++][i] == scanline[j][i] ) {
                     if ( c2 == beg ) {
                         // Short run
-                        dkColorWriteByte(outputStream, 128 + beg - j);
-                        dkColorWriteByte(outputStream, scanline[j][i]);
+                        writeByte(outputStream, 128 + beg - j);
+                        writeByte(outputStream, scanline[j][i]);
                         j = beg;
                         break;
                     }
@@ -108,15 +108,15 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *ou
                 if ( (c2 = beg - j) > 128 ) {
                     c2 = 128;
                 }
-                dkColorWriteByte(outputStream, c2);
+                writeByte(outputStream, c2);
                 while ( c2-- ) {
-                    dkColorWriteByte(outputStream, scanline[j++][i]);
+                    writeByte(outputStream, scanline[j++][i]);
                 }
             }
             if ( cnt >= MINIMUM_RUN_LENGTH ) {
                 // Write out run
-                dkColorWriteByte(outputStream, 128 + cnt);
-                dkColorWriteByte(outputStream, scanline[beg][i]);
+                writeByte(outputStream, 128 + cnt);
+                writeByte(outputStream, scanline[beg][i]);
             } else {
                 cnt = 0;
             }
@@ -128,8 +128,8 @@ dkColorWriteByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *ou
 /**
 Assign a short color value
 */
-static void
-dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
+void
+DkColor::setByteColors(BYTE_COLOR color, double r, double g, double b)
 {
     double d = r > g ? r : g;
     if ( b > d ) {
@@ -158,10 +158,10 @@ dkColorSetByteColors(BYTE_COLOR color, double r, double g, double b)
 Write out a scanline
 */
 int
-dkColorWriteScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream)
+DkColor::writeScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream)
 {
     // Get scanline buffer
-    BYTE *byteArray = dkColorTempBuffer(len * sizeof(BYTE_COLOR));
+    BYTE *byteArray = tempBuffer(len * sizeof(BYTE_COLOR));
     BYTE_COLOR *sp = reinterpret_cast<BYTE_COLOR *>(byteArray);
     if ( sp == nullptr ) {
         return -1;
@@ -170,13 +170,13 @@ dkColorWriteScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStre
 
     // Convert scanline
     for ( int n = 0; n < len; n++ ) {
-        dkColorSetByteColors(sp[n], scanline[n][RED], scanline[n][GREEN], scanline[n][BLUE]);
+        setByteColors(sp[n], scanline[n][RED], scanline[n][GREEN], scanline[n][BLUE]);
     }
-    return dkColorWriteByteColors(colorScan, len, outputStream);
+    return writeByteColors(colorScan, len, outputStream);
 }
 
 void
-dkColorFreeBuffer() {
+DkColor::freeBuffer() {
     if ( globalTempBuffer != nullptr ) {
         delete[] globalTempBuffer;
         globalTempBuffer = nullptr;

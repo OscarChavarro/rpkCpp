@@ -2,6 +2,8 @@
 #define __PIC_OUTPUT_HANDLE__
 
 #include "java/io/OutputStream.h"
+#include "java/lang/String.h"
+#include <cstdarg>
 #include "io/image/ImageOutputHandle.h"
 
 /**
@@ -13,6 +15,8 @@ class PicOutputHandle final : public ImageOutputHandle {
   private:
     java::io::OutputStream *outputStream;
 
+    static java::lang::String formatToString(const char *format, va_list arguments);
+    static void writeFormatted(java::io::OutputStream *outputStream, const char *format, ...);
     void writeHeader();
 
   public:

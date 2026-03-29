@@ -5,19 +5,19 @@
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/common/Raytools.h"
 
-static inline int
-pathFrontHitFlags() {
+int
+RayTools::pathFrontHitFlags() {
     return RayHitFlag::FRONT | RayHitFlag::POINT | RayHitFlag::MATERIAL;
 }
 
-static RayHit *
-traceWorld(
+RayHit *
+RayTools::traceWorld(
     const VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
     unsigned int flags,
-    Patch *extraPatch = nullptr,
-    RayHit *hitStore = nullptr)
+    Patch *extraPatch,
+    RayHit *hitStore)
 {
     static RayHit myHitStore;
     float dist;
@@ -41,7 +41,7 @@ traceWorld(
 }
 
 RayHit *
-findRayIntersection(
+RayTools::findRayIntersection(
     const VoxelGrid *sceneWorldVoxelGrid,
     Ray *ray,
     Patch *patch,
@@ -79,7 +79,7 @@ findRayIntersection(
 pathNodesVisible : send a shadow ray
 */
 bool
-pathNodesVisible(
+RayTools::pathNodesVisible(
     const VoxelGrid *sceneWorldVoxelGrid,
     const SimpleRaytracingPathNode *node1,
     const SimpleRaytracingPathNode *node2)
@@ -174,7 +174,7 @@ pathNodesVisible(
 Can the eye see the node ?  If so, pix_x and pix_y are filled in
 */
 bool
-eyeNodeVisible(
+RayTools::eyeNodeVisible(
     const Camera *camera,
     const VoxelGrid *sceneWorldVoxelGrid,
     const SimpleRaytracingPathNode *eyeNode,

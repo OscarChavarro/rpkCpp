@@ -159,7 +159,7 @@ SamplerConfig::tracePath(
 }
 
 double
-pathNodeConnect(
+SamplerConfig::pathNodeConnect(
     Camera *camera,
     SimpleRaytracingPathNode *nodeX,
     SimpleRaytracingPathNode *nodeY,

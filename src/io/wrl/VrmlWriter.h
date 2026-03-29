@@ -44,6 +44,8 @@ class VrmlWriter {
         const Camera *camera,
         java::io::OutputStream *outputStream,
         const Matrix4x4 *modelTransform);
+
+    static void writeFormatted(java::io::OutputStream *outputStream, const char *format, ...);
 };
 
 #endif

@@ -244,7 +244,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
 
     // Connect the sub-paths
     bp->m_geomConnect =
-            pathNodeConnect(camera, eyeEndNode, lightEndNode,
+            SamplerConfig::pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE,
                             BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
@@ -309,7 +309,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
 
     // First we need to determine if the lightEndNode can be seen from
     // the camera. At the same time the pixel hit is computed
-    if ( eyeNodeVisible(
+    if ( RayTools::eyeNodeVisible(
             camera,
             sceneWorldVoxelGrid,
             bp->m_eyeEndNode,

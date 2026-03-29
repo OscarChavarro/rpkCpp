@@ -100,14 +100,14 @@ StochasticRaytracer::execute(
     }
 
     if ( !GLOBAL_raytracing_state.progressiveTracing ) {
-        screenIterateSequential(
+        ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
                 StochasticRaytracer::calcPixel,
                 &callbackData);
     } else {
-        screenIterateProgressive(
+        ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
@@ -368,7 +368,7 @@ srGetDirectRadiance(
                     x2,
                     true,
                     BSDF_ALL_COMPONENTS)
-                    && ( pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) ) {
+                    && ( RayTools::pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) ) {
                     // Now connect for all applicable scatter-info's
                     // If no weighting between reflection sampling and
                     // next event estimation were used, only one connect
@@ -399,7 +399,7 @@ srGetDirectRadiance(
 
                         if ( doSi ) {
                             // Connect using correct flags
-                            geom = pathNodeConnect(
+                            geom = SamplerConfig::pathNodeConnect(
                                 camera,
                             prevNode,
                             &lightNode,
@@ -416,7 +416,7 @@ srGetDirectRadiance(
                                 weight = 1.0;
                             } else {
                                 // N direct * pdf  for the n.e.e.
-                                cl = multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
+                                cl = SimpleRaytracingPathNode::multipleImportanceSampling(config->nextEventSamples * lightNode.m_pdfFromPrev);
 
                                 // N scatter * pdf  for possible scattering
                                 if ( si->DoneSomePreviousBounce(prevNode) ) {
@@ -425,11 +425,11 @@ srGetDirectRadiance(
                                     nrs = si->nrSamplesBefore;
                                 }
 
-                                cr = multipleImportanceSampling(nrs * lightNode.m_pdfFromNext);
+                                cr = SimpleRaytracingPathNode::multipleImportanceSampling(nrs * lightNode.m_pdfFromNext);
 
                                 // Are we deep enough to do russian roulette
                                 if ( lightNode.m_depth >= config->samplerConfig.minDepth ) {
-                                    cr *= multipleImportanceSampling(lightNode.m_rrPdfFromNext);
+                                    cr *= SimpleRaytracingPathNode::multipleImportanceSampling(lightNode.m_rrPdfFromNext);
                                 }
 
                                 weight = cl / (cl + cr);
@@ -502,9 +502,9 @@ stochasticRaytracerGetRadiance(
         if ( doWeight ) {
             cl = config->nextEventSamples *
                  config->samplerConfig.neSampler->evalPDF(camera, thisNode->previous(), thisNode);
-            cl = multipleImportanceSampling(cl);
+            cl = SimpleRaytracingPathNode::multipleImportanceSampling(cl);
             cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-            cr = multipleImportanceSampling(cr);
+            cr = SimpleRaytracingPathNode::multipleImportanceSampling(cr);
             weight = cr / (cr + cl);
         }
 
@@ -625,9 +625,9 @@ stochasticRaytracerGetRadiance(
             if ( doWeight ) {
                 cl = config->nextEventSamples *
                      config->samplerConfig.neSampler->evalPDF(camera, thisNode->previous(), thisNode);
-                cl = multipleImportanceSampling(cl);
+                cl = SimpleRaytracingPathNode::multipleImportanceSampling(cl);
                 cr = usedScatterSamples * thisNode->m_pdfFromPrev;
-                cr = multipleImportanceSampling(cr);
+                cr = SimpleRaytracingPathNode::multipleImportanceSampling(cr);
 
                 weight = cr / (cr + cl);
             } else {

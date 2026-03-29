@@ -30,7 +30,7 @@ Sampler::sampleTransfer(
     // Fill in depth
     newNode->m_depth = thisNode->m_depth + 1;
     newNode->m_rayType = PathRayType::STOPS;
-    const RayHit *hit = findRayIntersection(
+    const RayHit *hit = RayTools::findRayIntersection(
         sceneVoxelGrid,
         &ray,
         thisNode->m_hit.getPatch(),

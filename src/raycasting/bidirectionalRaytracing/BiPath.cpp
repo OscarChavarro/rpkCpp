@@ -134,7 +134,7 @@ BiPath::evalPdfAndWeight(
         realPdf = pdfAcc;
     }
 
-    weight = multipleImportanceSampling(c * realPdf); // Still needs to be divided by the sum
+    weight = SimpleRaytracingPathNode::multipleImportanceSampling(c * realPdf); // Still needs to be divided by the sum
     pdfSum = weight;
 
     // To the light
@@ -167,7 +167,7 @@ BiPath::evalPdfAndWeight(
             tmpPdf = newPdf;
         }
 
-        pdfSum += multipleImportanceSampling(c * tmpPdf);
+        pdfSum += SimpleRaytracingPathNode::multipleImportanceSampling(c * tmpPdf);
 
         currentPdf = newPdf;
         nextNode = nextNode->previous();
@@ -206,7 +206,7 @@ BiPath::evalPdfAndWeight(
         }
 
 
-        pdfSum += multipleImportanceSampling(c * tmpPdf);
+        pdfSum += SimpleRaytracingPathNode::multipleImportanceSampling(c * tmpPdf);
 
         currentPdf = newPdf;
         nextNode = nextNode->previous();

@@ -140,7 +140,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
                 ray.direction.normalize(Numeric::EPSILON_FLOAT);
 
                 // Check if hit
-                if ( findRayIntersection(sceneWorldVoxelGrid, &ray, nullptr, nullptr, nullptr) != nullptr ) {
+                if ( RayTools::findRayIntersection(sceneWorldVoxelGrid, &ray, nullptr, nullptr, nullptr) != nullptr ) {
                     hits++;
                 }
             }

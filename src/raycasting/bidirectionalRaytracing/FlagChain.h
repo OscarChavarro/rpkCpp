@@ -29,17 +29,9 @@ class FlagChain {
     ~FlagChain();
 
     ColorRgb compute(BiPath *path) const;
+    static bool compare(const FlagChain *c1, const FlagChain *c2);
+    static FlagChain *combine(const FlagChain *chain1, const FlagChain *chain2);
 };
-
-
-// Compare two flag chains
-bool
-FlagChainCompare(const FlagChain *c1, const FlagChain *c2);
-
-// try to combine two flag chains into one equivalent chain
-// Only one element in the chain may differ.
-FlagChain *
-FlagChainCombine(const FlagChain *chain1, const FlagChain *chain2);
 
 #include "raycasting/bidirectionalRaytracing/FlagChainList.h"
 #include "raycasting/bidirectionalRaytracing/ContribHandler.h"
