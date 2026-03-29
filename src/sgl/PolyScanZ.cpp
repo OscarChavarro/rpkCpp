@@ -16,8 +16,8 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 incrementalizeY: put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
-static void
-incrementalizeY(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
+void
+Poly::incrementalizeYZ(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
     double dy = p2.sy - p1.sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
@@ -31,8 +31,8 @@ incrementalizeY(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex 
     p->sz = p1.sz + dp->sz * frac;
 }
 
-static void
-increment(PolygonVertex *p, const PolygonVertex &dp) {
+void
+Poly::incrementZ(PolygonVertex *p, const PolygonVertex &dp) {
     // Increment only sx and sz
     p->sx += dp.sx;
     p->sz += dp.sz;
@@ -41,8 +41,8 @@ increment(PolygonVertex *p, const PolygonVertex &dp) {
 /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
-static void
-scanline(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+void
+Poly::scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -104,7 +104,7 @@ except sx and sy. If they were computed, they would have values
 sx = x + 0.5 and sy = y + 0.5, since sampling is done at pixel centers.
 */
 void
-polyScanZ(SglContext *sglContext, Polygon *p,  const Window *window)
+Poly::scanZ(SglContext *sglContext, Polygon *p,  const Window *window)
 {
     int i;
 
@@ -140,7 +140,7 @@ polyScanZ(SglContext *sglContext, Polygon *p,  const Window *window)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalizeY(p->vertices[li], p->vertices[i], &l, &dl, y);
+            Poly::incrementalizeYZ(p->vertices[li], p->vertices[i], &l, &dl, y);
             ly = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             li = i;
         }
@@ -151,7 +151,7 @@ polyScanZ(SglContext *sglContext, Polygon *p,  const Window *window)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalizeY(p->vertices[ri], p->vertices[i], &r, &dr, y);
+            Poly::incrementalizeYZ(p->vertices[ri], p->vertices[i], &r, &dr, y);
             ry = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             ri = i;
         }
@@ -160,14 +160,14 @@ polyScanZ(SglContext *sglContext, Polygon *p,  const Window *window)
             // Do scan lines till end of l or r edge
             if ( y >= window->y0 && y <= window->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    scanline(sglContext, y, &l, &r, window);
+                    Poly::scanlineZ(sglContext, y, &l, &r, window);
                 } else {
-                    scanline(sglContext, y, &r, &l, window);
+                    Poly::scanlineZ(sglContext, y, &r, &l, window);
                 }
             }
             y++;
-            increment(&l, dl);
-            increment(&r, dr);
+            Poly::incrementZ(&l, dl);
+            Poly::incrementZ(&r, dr);
         }
     }
 }

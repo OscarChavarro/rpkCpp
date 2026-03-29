@@ -70,8 +70,8 @@ SglContext::~SglContext() {
     }
 }
 
-static void
-sglClearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor) {
+void
+SglContext::clearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor) {
     const int viewportOrigin = sglContext->vp_y * sglContext->width + sglContext->vp_x;
     for ( int j = 0; j < sglContext->vp_height; j++ ) {
         const int rowStart = viewportOrigin + j * sglContext->width;
@@ -97,7 +97,7 @@ SglContext::sglClearZBuffer(const SGL_Z_VALUE defZVal) const {
 
 void
 SglContext::sglClear(SGL_PIXEL backgroundColor, SGL_Z_VALUE defZVal) {
-    sglClearFrameBuffer(this, backgroundColor);
+    SglContext::clearFrameBuffer(this, backgroundColor);
     sglClearZBuffer(defZVal);
 }
 
@@ -185,11 +185,11 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     pol.mask = 0;
 
     if ( clipping ) {
-        pol.mask = polyMask(offsetof(PolygonVertex, sx)) |
-                   polyMask(offsetof(PolygonVertex, sy)) |
-                   polyMask(offsetof(PolygonVertex, sz)) |
-                   polyMask(offsetof(PolygonVertex, sw));
-        if ( polyClipToBox(&pol, &clip_box) == POLY_CLIP_OUT ) {
+        pol.mask = Poly::mask(offsetof(PolygonVertex, sx)) |
+                   Poly::mask(offsetof(PolygonVertex, sy)) |
+                   Poly::mask(offsetof(PolygonVertex, sz)) |
+                   Poly::mask(offsetof(PolygonVertex, sw));
+        if ( Poly::clipToBox(&pol, &clip_box) == POLY_CLIP_OUT ) {
             return;
         }
     }
@@ -210,8 +210,8 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
 
     // Scan convert the polygon: use optimized version for flat shading with or without Z buffering
     if ( depthBuffer != nullptr ) {
-        polyScanZ(this, &pol, &win);
+        Poly::scanZ(this, &pol, &win);
     } else {
-        polyScanFlat(this, &pol, &win);
+        Poly::scanFlat(this, &pol, &win);
     }
 }

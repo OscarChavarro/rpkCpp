@@ -18,8 +18,8 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 Put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
 */
-static void
-incrementalizeY(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
+void
+Poly::incrementalizeYFlat(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex *p, PolygonVertex *dp, int y) {
     double dy = p2.sy - p1.sy;
     if ( dy == 0.0 ) {
         dy = 1.0;
@@ -31,8 +31,8 @@ incrementalizeY(const PolygonVertex &p1, const PolygonVertex &p2, PolygonVertex 
     p->sx = p1.sx + dp->sx * frac;
 }
 
-static void
-increment(PolygonVertex *p, const PolygonVertex &dp) {
+void
+Poly::incrementFlat(PolygonVertex *p, const PolygonVertex &dp) {
     // Interpolate only sx
     p->sx += dp.sx;
 }
@@ -40,8 +40,8 @@ increment(PolygonVertex *p, const PolygonVertex &dp) {
 /**
 Output scanline by sampling polygon at Y = y + 0.5
 */
-static void
-scanline(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
+void
+Poly::scanlineFlat(const SglContext *sglContext, int y, const PolygonVertex *l, const PolygonVertex *r, const Window *win) {
     int lx = static_cast<int>(java::Math::ceil(l->sx - 0.5));
     if ( lx < win->x0 ) {
         lx = win->x0;
@@ -90,7 +90,7 @@ p: polygon
 win: 2-D screen space clipping window
 */
 void
-polyScanFlat(SglContext *sglContext, Polygon *p, const Window *win)
+Poly::scanFlat(SglContext *sglContext, Polygon *p, const Window *win)
 {
     int i;
     int ri;
@@ -126,7 +126,7 @@ polyScanFlat(SglContext *sglContext, Polygon *p, const Window *win)
             if ( i < 0 ) {
                 i = p->n - 1;
             }
-            incrementalizeY(p->vertices[li], p->vertices[i], &l, &dl, y);
+            Poly::incrementalizeYFlat(p->vertices[li], p->vertices[i], &l, &dl, y);
             ly = static_cast<int>(java::Math::floor(p->vertices[i].sy + 0.5));
             li = i;
         }
@@ -137,7 +137,7 @@ polyScanFlat(SglContext *sglContext, Polygon *p, const Window *win)
             if ( i >= p->n ) {
                 i = 0;
             }
-            incrementalizeY(p->vertices[ri], p->vertices[i], &r, &dr, y);
+            Poly::incrementalizeYFlat(p->vertices[ri], p->vertices[i], &r, &dr, y);
             ry = static_cast<int>(java::Math::floor(p->vertices[i].sy + .5));
             ri = i;
         }
@@ -146,14 +146,14 @@ polyScanFlat(SglContext *sglContext, Polygon *p, const Window *win)
             // Do scan lines till end of l or r edge
             if ( y >= win->y0 && y <= win->y1 ) {
                 if ( l.sx <= r.sx ) {
-                    scanline(sglContext, y, &l, &r, win);
+                    Poly::scanlineFlat(sglContext, y, &l, &r, win);
                 } else {
-                    scanline(sglContext, y, &r, &l, win);
+                    Poly::scanlineFlat(sglContext, y, &r, &l, win);
                 }
             }
             y++;
-            increment(&l, dl);
-            increment(&r, dr);
+            Poly::incrementFlat(&l, dl);
+            Poly::incrementFlat(&r, dr);
         }
     }
 }

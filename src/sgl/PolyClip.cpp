@@ -12,8 +12,8 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 
 #include "java/lang/System.h"
 #include "sgl/Poly.h"
-static inline void
-polygonSwap(Polygon *a, Polygon *b) {
+void
+Poly::polygonSwap(Polygon *a, Polygon *b) {
     Polygon temporary = *a;
     *a = *b;
     *b = temporary;
@@ -29,8 +29,8 @@ polyClipToHalfSpace(p, q, X_INDEX, -1.0, -xMin);
 and to clip against xMax, use
 polyClipToHalfSpace(p, q, X_INDEX, 1.0,  xMax);
 */
-static inline void
-setPolygonVertexCoord(PolygonVertex *vertex, int index, double value) {
+void
+Poly::setPolygonVertexCoord(PolygonVertex *vertex, int index, double value) {
     switch ( index ) {
         case 0:
             vertex->sx = value;
@@ -73,8 +73,8 @@ setPolygonVertexCoord(PolygonVertex *vertex, int index, double value) {
     }
 }
 
-static void
-polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
+void
+Poly::clipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     q->n = 0;
     q->mask = p->mask;
 
@@ -96,7 +96,7 @@ polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
                 if ( maskBits & 1UL ) {
                     const double uCoord = u.getCoord(attributeIndex);
                     const double vCoord = v.getCoord(attributeIndex);
-                    setPolygonVertexCoord(w, attributeIndex, uCoord + t * (vCoord - uCoord));
+                    Poly::setPolygonVertexCoord(w, attributeIndex, uCoord + t * (vCoord - uCoord));
                 }
             }
             q->n++;
@@ -110,13 +110,13 @@ polyClipToHalfSpace(Polygon *p, Polygon *q, int index, double sign, double k) {
     }
 }
 
-static inline void
-polygonClipAndSwap(int elementIndex, double sign, double k, Polygon *p, Polygon *q, Polygon *p1) {
-    polyClipToHalfSpace(p, q, elementIndex, sign, sign * k);
+void
+Poly::clipAndSwap(int elementIndex, double sign, double k, Polygon *p, Polygon *q, Polygon *p1) {
+    Poly::clipToHalfSpace(p, q, elementIndex, sign, sign * k);
     if ( q->n == 0 ) {
         p1->n = 0;
     }
-    polygonSwap(p, q);
+    Poly::polygonSwap(p, q);
 }
 
 /**
@@ -133,7 +133,7 @@ Given an n-gon as input, clipping against 6 planes could generate an
 (n+6)gon, so POLY_N_MAX in poly.h must be big enough to allow that.
 */
 int
-polyClipToBox(Polygon *p1, const PolygonBox *box) {
+Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
     int x0out = 0;
     int x1out = 0;
     int y0out = 0;
@@ -194,22 +194,22 @@ polyClipToBox(Polygon *p1, const PolygonBox *box) {
     Polygon *p = p1;
     Polygon *q = &p2;
     if ( x0out ) {
-        polygonClipAndSwap(0 /*sx*/, -1.0, box->x0, p, q, p1);
+        Poly::clipAndSwap(0 /*sx*/, -1.0, box->x0, p, q, p1);
     }
     if ( x1out ) {
-        polygonClipAndSwap(0 /*sx*/, 1.0, box->x1, p, q, p1);
+        Poly::clipAndSwap(0 /*sx*/, 1.0, box->x1, p, q, p1);
     }
     if ( y0out ) {
-        polygonClipAndSwap(1 /*sy*/, -1.0, box->y0, p, q, p1);
+        Poly::clipAndSwap(1 /*sy*/, -1.0, box->y0, p, q, p1);
     }
     if ( y1out ) {
-        polygonClipAndSwap(1 /*sy*/, 1.0, box->y1, p, q, p1);
+        Poly::clipAndSwap(1 /*sy*/, 1.0, box->y1, p, q, p1);
     }
     if ( z0out ) {
-        polygonClipAndSwap(2 /*sz*/, -1.0, box->z0, p, q, p1);
+        Poly::clipAndSwap(2 /*sz*/, -1.0, box->z0, p, q, p1);
     }
     if ( z1out ) {
-        polygonClipAndSwap(2 /*sz*/, 1.0, box->z1, p, q, p1);
+        Poly::clipAndSwap(2 /*sz*/, 1.0, box->z1, p, q, p1);
     }
 
     // If result ended up in p2 then copy it to p1

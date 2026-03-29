@@ -13,7 +13,10 @@ typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
 
 class SglContext {
-public:
+  private:
+    static void clearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor);
+
+  public:
     Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack
     Matrix4x4 *currentTransform;
     bool clipping; // Whether to do clipping or not
