@@ -22,14 +22,14 @@ static RenderOptions *globalRenderOptions;
 static void (*globalMemoryFreeCallBack)(MgfParseSession *mgfContext);
 static MgfParseSession *globalMgfContext;
 
-static void
-resizeCallback(int newWidth, int newHeight) {
+ void
+GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
     globalWidth = newWidth;
     globalHeight = newHeight;
 }
 
-static void
-printElementHierarchy(const GalerkinElement *element, int level) {
+ void
+GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level) {
     switch ( level ) {
         case 0:
             break;
@@ -70,14 +70,14 @@ printElementHierarchy(const GalerkinElement *element, int level) {
         for ( int i = 0; i < 4; i++ ) {
             const GalerkinElement *child = static_cast<GalerkinElement *>(element->regularSubElements[i]);
             if ( child != nullptr ) {
-                printElementHierarchy(child, level + 1);
+                GlutDebugTools::printElementHierarchy(child, level + 1);
             }
         }
     }
 }
 
-static void
-printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
+ void
+GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
     java::lang::System::out.printf("================================================================================\n");
     if ( scene->patchList == nullptr || patchIndex >= scene->patchList->size() ) {
         return;
@@ -88,11 +88,11 @@ printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
     }
     const GalerkinElement *element = GalerkinElement::fromPatch(patch);
     java::lang::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
-    printElementHierarchy(element, 0);
+    GlutDebugTools::printElementHierarchy(element, 0);
 }
 
-static void
-keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
+ void
+GlutDebugTools::keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     switch ( keyChar ) {
         case 27:
             globalMemoryFreeCallBack(globalMgfContext);
@@ -127,7 +127,7 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
             globalRadianceMethod->doStep(globalScene, globalRenderOptions);
             break;
         case 'e':
-            printGalerkinElementForPatch(globalScene, GLOBAL_render_glutDebugState.selectedPatch);
+            GlutDebugTools::printGalerkinElementForPatch(globalScene, GLOBAL_render_glutDebugState.selectedPatch);
             break;
         case 'p':
             globalScene->print();
@@ -145,8 +145,8 @@ keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
     glutPostRedisplay();
 }
 
-static void
-extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
+ void
+GlutDebugTools::extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
     switch ( keyCode ) {
         case GLUT_KEY_F2:
             globalRenderOptions->drawOutlines = !globalRenderOptions->drawOutlines;
@@ -173,8 +173,8 @@ extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
     glutPostRedisplay();
 }
 
-static void
-drawCallback() {
+ void
+GlutDebugTools::drawCallback() {
     globalScene->camera->xSize = globalWidth;
     globalScene->camera->ySize = globalHeight;
 
@@ -198,7 +198,7 @@ drawCallback() {
 }
 
 void
-executeGlutGui(
+GlutDebugTools::executeGlutGui(
     int argc,
     char *argv[],
     Scene *scene,
@@ -225,10 +225,10 @@ executeGlutGui(
 
     renderOptions->frustumCulling = false;
 
-    glutReshapeFunc(resizeCallback);
-    glutKeyboardFunc(keypressCallback);
-    glutSpecialFunc(extendedKeypressCallback);
-    glutDisplayFunc(drawCallback);
+    glutReshapeFunc(GlutDebugTools::resizeCallback);
+    glutKeyboardFunc(GlutDebugTools::keypressCallback);
+    glutSpecialFunc(GlutDebugTools::extendedKeypressCallback);
+    glutDisplayFunc(GlutDebugTools::drawCallback);
     glutMainLoop();
 }
 

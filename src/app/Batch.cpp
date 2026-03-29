@@ -20,20 +20,20 @@
 static BatchOptions globalBatchOptions;
 
 const BatchOptions *
-batchGetOptions() {
+Batch::batchGetOptions() {
     return &globalBatchOptions;
 }
 
 void
-generalParseOptions(int *argc, char **argv) {
-    batchParseOptions(argc, argv, &globalBatchOptions);
+Batch::generalParseOptions(int *argc, char **argv) {
+    CommandLine::batchParseOptions(argc, argv, &globalBatchOptions);
 }
 
 /**
 Saves a RGB image in the front buffer
 */
-static void
-openGlSaveScreen(
+ void
+Batch::openGlSaveScreen(
     const char *fileName,
     java::io::OutputStream *outputStream,
     const int isPipe,
@@ -80,8 +80,8 @@ openGlSaveScreen(
 }
 
 #ifdef RAYTRACING_ENABLED
-static void
-batchRayTraceSaveImage(
+ void
+Batch::batchRayTraceSaveImage(
     const char *fileName,
     java::io::OutputStream *outputStream,
     const int isPipe,
@@ -90,7 +90,7 @@ batchRayTraceSaveImage(
     const RayTracer *rayTracer,
     const RenderOptions *renderOptions)
 {
-    rayTraceSaveImage(
+    Raytrace::rayTraceSaveImage(
         fileName,
         outputStream,
         isPipe,
@@ -104,8 +104,8 @@ batchRayTraceSaveImage(
 /**
 This routine was copied from uit.c, leaving out all interface related things
 */
-static void
-batchProcessFile(
+ void
+Batch::batchProcessFile(
     const char *fileName,
     void (*processFileCallback)(const char *fileName, java::io::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
     const Scene *scene,
@@ -122,8 +122,8 @@ batchProcessFile(
     FileUncompressWrapper::closeOutputStream(outputStream);
 }
 
-static void
-batchSaveRadianceImage(
+ void
+Batch::batchSaveRadianceImage(
     const char *fileName,
     java::io::OutputStream *outputStream,
     const int isPipe,
@@ -152,7 +152,7 @@ batchSaveRadianceImage(
     t = java::lang::System::nanoTime();
 
     // No OpenGL really if renderOptions->trace is true
-    openGlSaveScreen(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
+    Batch::openGlSaveScreen(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
 
     java::lang::System::out.printf(
         "%g secs.\n",
@@ -160,8 +160,8 @@ batchSaveRadianceImage(
     Canvas::canvasPullMode();
 }
 
-static void
-batchSaveRadianceModel(
+ void
+Batch::batchSaveRadianceModel(
     const char *fileName,
     java::io::OutputStream *outputStream,
     const int /*isPipe*/,
@@ -192,7 +192,7 @@ batchSaveRadianceModel(
 }
 
 void
-batchExecuteRadianceSimulation(
+Batch::batchExecuteRadianceSimulation(
     Scene *scene,
     RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
@@ -248,9 +248,9 @@ batchExecuteRadianceSimulation(
                     n,
                     globalBatchOptions.radianceImageFileNameFormat,
                     iterationNumber);
-                batchProcessFile(
+                Batch::batchProcessFile(
                     fileName,
-                    batchSaveRadianceImage,
+                    Batch::batchSaveRadianceImage,
                     scene,
                     radianceMethod,
                     rayTracer,
@@ -266,9 +266,9 @@ batchExecuteRadianceSimulation(
                     n,
                     globalBatchOptions.radianceModelFileNameFormat,
                     iterationNumber);
-                batchProcessFile(
+                Batch::batchProcessFile(
                     fileName,
-                    batchSaveRadianceModel,
+                    Batch::batchSaveRadianceModel,
                     scene,
                     radianceMethod,
                     rayTracer,
@@ -296,7 +296,7 @@ batchExecuteRadianceSimulation(
             java::lang::System::out.printf("Doing %s ...\n", rayTracer->getName());
 
             startTime = java::lang::System::nanoTime();
-            rayTraceExecute(
+            Raytrace::rayTraceExecute(
                 nullptr,
                 nullptr,
                 false,
@@ -310,9 +310,9 @@ batchExecuteRadianceSimulation(
                         static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - startTime) / 1000000000.0));
             }
 
-            batchProcessFile(
+            Batch::batchProcessFile(
                 globalBatchOptions.raytracingImageFileName,
-                batchRayTraceSaveImage,
+                Batch::batchRayTraceSaveImage,
                 scene,
                 radianceMethod,
                 rayTracer,

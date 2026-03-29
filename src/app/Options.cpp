@@ -33,15 +33,15 @@ static java::ArrayList<int *> *globalStringLengthsToDelete = new java::ArrayList
 /**
 Initializes the global variables above
 */
-static void
-optionsInitArguments(int *argc, char **argv) {
+ void
+Options::optionsInitArguments(int *argc, char **argv) {
     globalArgumentCount = argc;
     globalArguments = argv;
     globalCurrentArgumentIndex = 0;
 }
 
-static const char *
-optionsCurrentArgumentValue() {
+ const char *
+Options::optionsCurrentArgumentValue() {
     if ( globalArguments == nullptr || globalArgumentCount == nullptr ) {
         return nullptr;
     }
@@ -54,24 +54,24 @@ optionsCurrentArgumentValue() {
 /**
 Tests whether arguments remain
 */
-static bool
-optionsArgumentsRemaining() {
+ bool
+Options::optionsArgumentsRemaining() {
     return globalCurrentArgumentIndex < *globalArgumentCount;
 }
 
 /**
 Skips to next argument value
 */
-static void
-optionsNextArgument() {
+ void
+Options::optionsNextArgument() {
     globalCurrentArgumentIndex++;
 }
 
 /**
 Consumes the current argument value, that is: removes it from the list
 */
-static void
-optionsConsumeArgument() {
+ void
+Options::optionsConsumeArgument() {
     for ( int i = globalCurrentArgumentIndex; i < *globalArgumentCount - 1; i++ ) {
         globalArguments[i] = globalArguments[i + 1];
     }
@@ -82,9 +82,9 @@ optionsConsumeArgument() {
 /**
 Scans the current argument value for a value of given format
 */
-static bool
-optionsGetArgumentIntValue(int *res) {
-    const char *currentArgument = optionsCurrentArgumentValue();
+ bool
+Options::optionsGetArgumentIntValue(int *res) {
+    const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( currentArgument == nullptr ) {
         return false;
     }
@@ -107,9 +107,9 @@ optionsGetArgumentIntValue(int *res) {
 /**
 Scans the current argument value for a value of given format
 */
-static bool
-optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
-    const char *currentArgument = optionsCurrentArgumentValue();
+ bool
+Options::optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
+    const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( currentArgument == nullptr || res == nullptr ) {
         return false;
     }
@@ -127,18 +127,18 @@ optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
 /**
 Integer option values
 */
-static int
-optionsGetInt(void *value, void * /*data*/) {
+ int
+Options::optionsGetInt(void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
-    if ( !optionsGetArgumentIntValue(n) ) {
-        java::lang::System::err.printf("'%s' is not a valid integer value\n", optionsCurrentArgumentValue());
+    if ( !Options::optionsGetArgumentIntValue(n) ) {
+        java::lang::System::err.printf("'%s' is not a valid integer value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
     return true;
 }
 
-static void
-optionsPrintInt(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintInt(java::io::PrintStream *stream, void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
     if ( stream != nullptr ) {
         stream->printf("%d", *n);
@@ -146,8 +146,8 @@ optionsPrintInt(java::io::PrintStream *stream, void *value, void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_intType = {
-    optionsGetInt,
-    optionsPrintInt,
+    Options::optionsGetInt,
+    Options::optionsPrintInt,
     static_cast<void *>(&globalDummyInt),
     nullptr
 };
@@ -155,10 +155,10 @@ CommandLineOptions GLOBAL_options_intType = {
 /**
 String option values
 */
-static int
-optionsGetString(void *value, void * /*data*/) {
+ int
+Options::optionsGetString(void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
-    const char *currentArgument = optionsCurrentArgumentValue();
+    const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( currentArgument == nullptr ) {
         return false;
     }
@@ -172,8 +172,8 @@ optionsGetString(void *value, void * /*data*/) {
     return true;
 }
 
-static void
-optionsPrintString(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintString(java::io::PrintStream *stream, void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
     if ( stream != nullptr ) {
         stream->printf("'%s'", *s ? *s : "");
@@ -181,8 +181,8 @@ optionsPrintString(java::io::PrintStream *stream, void *value, void * /*data*/) 
 }
 
 CommandLineOptions GLOBAL_options_stringType = {
-    optionsGetString,
-    optionsPrintString,
+    Options::optionsGetString,
+    Options::optionsPrintString,
     static_cast<void *>(&globalDummyString),
     nullptr
 };
@@ -191,10 +191,10 @@ CommandLineOptions GLOBAL_options_stringType = {
 Copied string (maxlength n) option values
 */
 int
-optionsStringGet(void *value, void *data) {
+Options::optionsStringGet(void *value, void *data) {
     char *s = static_cast<char *>(value);
     int *nPointer = static_cast<int *>(data);
-    const char *currentArgument = optionsCurrentArgumentValue();
+    const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( s != nullptr && currentArgument != nullptr && nPointer != nullptr && *nPointer > 0 ) {
         const int n = *nPointer;
         strncpy(s, currentArgument, n);
@@ -205,7 +205,7 @@ optionsStringGet(void *value, void *data) {
 }
 
 int *
-optionsCreateStringLengthStorage(int n) {
+Options::optionsCreateStringLengthStorage(int n) {
     int *storage = new int(n);
     if ( globalStringLengthsToDelete != nullptr ) {
         globalStringLengthsToDelete->add(storage);
@@ -214,7 +214,7 @@ optionsCreateStringLengthStorage(int n) {
 }
 
 void
-optionsStringPrint(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsStringPrint(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const char *s = static_cast<const char *>(value);
     if ( stream != nullptr ) {
         stream->printf("'%s'", s ? s : "");
@@ -224,19 +224,19 @@ optionsStringPrint(java::io::PrintStream *stream, void *value, void * /*data*/) 
 /**
 Enumerated type option values
 */
-static void
-optionsPrintEnumValues(const EnumDesc *tab) {
+ void
+Options::optionsPrintEnumValues(const EnumDesc *tab) {
     for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
         java::lang::System::err.printf("\t%s\n", tab[i].name);
     }
 }
 
 int
-optionsEnumGet(void *value, void *data) {
+Options::optionsEnumGet(void *value, void *data) {
     int *v = static_cast<int *>(value);
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
     const EnumDesc *tabSave = tab;
-    const char *currentArgument = optionsCurrentArgumentValue();
+    const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( currentArgument == nullptr ) {
         return false;
     }
@@ -247,12 +247,12 @@ optionsEnumGet(void *value, void *data) {
         }
     }
     java::lang::System::err.printf("Invalid option argument '%s'. Should be one of:\n", currentArgument);
-    optionsPrintEnumValues(tabSave);
+    Options::optionsPrintEnumValues(tabSave);
     return false;
 }
 
 void
-optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data) {
+Options::optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data) {
     const int *v = static_cast<const int *>(value);
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
     if ( stream == nullptr ) {
@@ -279,16 +279,16 @@ static EnumDesc boolTable[] = {
 };
 
 CommandLineOptions GLOBAL_options_boolType = {
-    optionsEnumGet,
-    optionsEnumPrint,
+    Options::optionsEnumGet,
+    Options::optionsEnumPrint,
     static_cast<void *>(&GLOBAL_options_dummyVal),
     static_cast<void *>(boolTable)
 };
 
 /* ------------------- set true/false option values --------------------- */
 
-static int
-optionsSetTrue(void *value, void * /*data*/) {
+ int
+Options::optionsSetTrue(void *value, void * /*data*/) {
     int *x = static_cast<int *>(value);
     // No option expected on command line, nothing consumed
 
@@ -296,8 +296,8 @@ optionsSetTrue(void *value, void * /*data*/) {
     return true;
 }
 
-static int
-optionsSetFalse(void *value, void * /*data*/) {
+ int
+Options::optionsSetFalse(void *value, void * /*data*/) {
     int *x = static_cast<int *>(value);
     /* No option expected on command line, nothing consumed */
 
@@ -305,8 +305,8 @@ optionsSetFalse(void *value, void * /*data*/) {
     return true;
 }
 
-static void
-optionsPrintOther(java::io::PrintStream *stream, void * /*x*/, void * /*data*/) {
+ void
+Options::optionsPrintOther(java::io::PrintStream *stream, void * /*x*/, void * /*data*/) {
     if ( stream != nullptr ) {
         stream->printf("%s", "other");
     }
@@ -314,32 +314,32 @@ optionsPrintOther(java::io::PrintStream *stream, void * /*x*/, void * /*data*/) 
 
 
 CommandLineOptions GLOBAL_options_setTrueType = {
-    optionsSetTrue,
-    optionsPrintOther,
+    Options::optionsSetTrue,
+    Options::optionsPrintOther,
     static_cast<void *>(&globalDummyTrue),
     nullptr
 };
 
 CommandLineOptions GLOBAL_options_setFalseType = {
-    optionsSetFalse,
-    optionsPrintOther,
+    Options::optionsSetFalse,
+    Options::optionsPrintOther,
     static_cast<void *>(&globalDummyFalse),
     nullptr
 };
 
 /* ------------------- float option values --------------------- */
-static int
-optionsGetfloat(void *value, void * /*data*/) {
+ int
+Options::optionsGetfloat(void *value, void * /*data*/) {
     float *x = static_cast<float *>(value);
-    if ( !optionsGetArgumentFloatValue("%f", x) ) {
-        java::lang::System::err.printf("'%s' is not a valid floating point value\n", optionsCurrentArgumentValue());
+    if ( !Options::optionsGetArgumentFloatValue("%f", x) ) {
+        java::lang::System::err.printf("'%s' is not a valid floating point value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
     return true;
 }
 
-static void
-optionsPrintFloat(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintFloat(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const float *x = static_cast<const float *>(value);
     if ( stream != nullptr ) {
         stream->printf("%g", *x);
@@ -347,8 +347,8 @@ optionsPrintFloat(java::io::PrintStream *stream, void *value, void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_floatType = {
-        optionsGetfloat,
-        optionsPrintFloat,
+        Options::optionsGetfloat,
+        Options::optionsPrintFloat,
         static_cast<void *>(&globalDummyFloat),
         nullptr
 };
@@ -356,17 +356,17 @@ CommandLineOptions GLOBAL_options_floatType = {
 /**
 Vector3D option values
 */
-static int
-optionsGetVector(void *value, void * /*data*/) {
+ int
+Options::optionsGetVector(void *value, void * /*data*/) {
     Vector3D *v = static_cast<Vector3D *>(value);
-    int ok = optionsGetArgumentFloatValue("%f", &v->x);
+    int ok = Options::optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
-        optionsConsumeArgument();
-        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &v->y);
+        Options::optionsConsumeArgument();
+        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->y);
     }
     if ( ok ) {
-        optionsConsumeArgument();
-        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &v->z);
+        Options::optionsConsumeArgument();
+        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->z);
     }
     if ( !ok ) {
         java::lang::System::err.printf("invalid vector argument value");
@@ -375,8 +375,8 @@ optionsGetVector(void *value, void * /*data*/) {
     return ok;
 }
 
-static void
-optionsPrintVector(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintVector(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const Vector3D *v = static_cast<const Vector3D *>(value);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->x, v->y, v->z);
@@ -384,8 +384,8 @@ optionsPrintVector(java::io::PrintStream *stream, void *value, void * /*data*/) 
 }
 
 CommandLineOptions GLOBAL_options_vectorType = {
-    optionsGetVector,
-    optionsPrintVector,
+    Options::optionsGetVector,
+    Options::optionsPrintVector,
     static_cast<void *>(&globalDummyVector3D),
     nullptr
 };
@@ -393,17 +393,17 @@ CommandLineOptions GLOBAL_options_vectorType = {
 /**
 RGB option values
 */
-static int
-optionsGetRgb(void *value, void * /*data*/) {
+ int
+Options::optionsGetRgb(void *value, void * /*data*/) {
     ColorRgb *c = static_cast<ColorRgb *>(value);
-    int ok = optionsGetArgumentFloatValue("%f", &c->r);
+    int ok = Options::optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
-        optionsConsumeArgument();
-        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c->g);
+        Options::optionsConsumeArgument();
+        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->g);
     }
     if ( ok ) {
-        optionsConsumeArgument();
-        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c->b);
+        Options::optionsConsumeArgument();
+        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->b);
     }
     if ( !ok ) {
         java::lang::System::err.printf("invalid RGB color argument value");
@@ -412,8 +412,8 @@ optionsGetRgb(void *value, void * /*data*/) {
     return ok;
 }
 
-static void
-optionsPrintRgb(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintRgb(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const ColorRgb *v = static_cast<const ColorRgb *>(value);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->r, v->g, v->b);
@@ -421,8 +421,8 @@ optionsPrintRgb(java::io::PrintStream *stream, void *value, void * /*data*/) {
 }
 
 CommandLineOptions GLOBAL_options_rgbType = {
-    optionsGetRgb,
-    optionsPrintRgb,
+    Options::optionsGetRgb,
+    Options::optionsPrintRgb,
     static_cast<void *>(&globalDummyRgb),
     nullptr
 };
@@ -431,13 +431,13 @@ CommandLineOptions GLOBAL_options_rgbType = {
 CIE xy option values
 */
 
-static int
-optionsGetCieXy(void *value, void * /*data*/) {
+ int
+Options::optionsGetCieXy(void *value, void * /*data*/) {
     float *c = static_cast<float *>(value);
-    int ok = optionsGetArgumentFloatValue("%f", &c[0]);
+    int ok = Options::optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
-        optionsConsumeArgument();
-        ok &= optionsArgumentsRemaining() && optionsGetArgumentFloatValue("%f", &c[1]);
+        Options::optionsConsumeArgument();
+        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c[1]);
     }
     if ( !ok ) {
         java::lang::System::err.printf("invalid CIE xy color argument value");
@@ -446,8 +446,8 @@ optionsGetCieXy(void *value, void * /*data*/) {
     return ok;
 }
 
-static void
-optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void * /*data*/) {
+ void
+Options::optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void * /*data*/) {
     const float *c = static_cast<const float *>(value);
     if ( stream != nullptr && c != nullptr ) {
         stream->printf("%g %g", c[0], c[1]);
@@ -455,8 +455,8 @@ optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void * /*d
 }
 
 CommandLineOptions GLOBAL_options_xyType = {
-    optionsGetCieXy,
-    optionsPrintCieXyCallBack,
+    Options::optionsGetCieXy,
+    Options::optionsPrintCieXyCallBack,
     static_cast<void *>(&globalDummyCieXy),
     nullptr
 };
@@ -475,20 +475,20 @@ void (*const DEFAULT_ACTION)(void *) = nullptr;
 Argument parsing
 */
 
-static unsigned long
-unsignedLongMax(unsigned long a, unsigned long b) {
+ unsigned long
+Options::unsignedLongMax(unsigned long a, unsigned long b) {
     return a > b ? a : b;
 }
 
-static CommandLineOptionDescription *
-optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
+ CommandLineOptionDescription *
+Options::optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
     if ( s == nullptr ) {
         return nullptr;
     }
     for ( int i = 0; options[i].name != nullptr; i++ ) {
         CommandLineOptionDescription *opt = &options[i];
         if ( strncmp(s, opt->name,
-             unsignedLongMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
+             Options::unsignedLongMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
              0 ) {
             return opt;
         }
@@ -496,9 +496,9 @@ optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
     return nullptr;
 }
 
-static void
-optionsProcessArguments(CommandLineOptionDescription *options) {
-    CommandLineOptionDescription *opt = optionsLookupOption(optionsCurrentArgumentValue(), options);
+ void
+Options::optionsProcessArguments(CommandLineOptionDescription *options) {
+    CommandLineOptionDescription *opt = Options::optionsLookupOption(Options::optionsCurrentArgumentValue(), options);
     if ( opt ) {
         int ok = true;
         if ( opt->type ) {
@@ -508,8 +508,8 @@ optionsProcessArguments(CommandLineOptionDescription *options) {
                     ok = false;
                 }
             } else {
-                optionsConsumeArgument();
-                if ( optionsArgumentsRemaining() ) {
+                Options::optionsConsumeArgument();
+                if ( Options::optionsArgumentsRemaining() ) {
                     if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data) ) {
                         ok = false;
                     }
@@ -526,8 +526,8 @@ optionsProcessArguments(CommandLineOptionDescription *options) {
                 opt->action(opt->type ? opt->type->dummy : nullptr);
             }
         }
-        optionsConsumeArgument();
-    } else optionsNextArgument();
+        Options::optionsConsumeArgument();
+    } else Options::optionsNextArgument();
 }
 
 /**
@@ -536,15 +536,15 @@ list, parses their value, executes their associated actions, and
 removes them from the argv list (decreasing argc)
 */
 void
-parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
-    optionsInitArguments(argc, argv);
-    while ( optionsArgumentsRemaining() ) {
-        optionsProcessArguments(options);
+Options::parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
+    Options::optionsInitArguments(argc, argv);
+    while ( Options::optionsArgumentsRemaining() ) {
+        Options::optionsProcessArguments(options);
     }
 }
 
 void
-deleteOptionsMemory() {
+Options::deleteOptionsMemory() {
     if ( globalStringLengthsToDelete != nullptr ) {
         for ( int i = 0; i < globalStringLengthsToDelete->size(); i++ ) {
             delete globalStringLengthsToDelete->get(i);

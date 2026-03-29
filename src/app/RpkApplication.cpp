@@ -87,23 +87,23 @@ Processes command line arguments
 */
 void
 RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName) {
-    commandLineGeneralProgramParseOptions(
+    CommandLine::commandLineGeneralProgramParseOptions(
         argc,
         argv,
         &mgfContext->singleSided,
         &mgfContext->numberOfQuarterCircleDivisions,
         &imageOutputWidth,
         &imageOutputHeight);
-    renderParseOptions(argc, argv, renderOptions);
-    toneMapParseOptions(argc, argv, toneMapName);
-    cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
-    radianceParseOptions(argc, argv, &selectedRadianceMethod);
+    CommandLine::renderParseOptions(argc, argv, renderOptions);
+    CommandLine::toneMapParseOptions(argc, argv, toneMapName);
+    CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
+    Radiance::radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
 #ifdef RAYTRACING_ENABLED
-    rayTraceParseOptions(argc, argv, rayTracerName);
+    Raytrace::rayTraceParseOptions(argc, argv, rayTracerName);
 #endif
 
-    generalParseOptions(argc, argv);
+    Batch::generalParseOptions(argc, argv);
 }
 
 void
@@ -119,16 +119,16 @@ RpkApplication::executeRendering(const char *rayTracerName) {
     mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
-        rayTracer = rayTraceCreate(scene, rayTracerName);
+        rayTracer = Raytrace::rayTraceCreate(scene, rayTracerName);
         GLOBAL_rayTracer = rayTracer;
     #endif
 
-    batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
+    Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
 }
 
 void
 RpkApplication::freeMemory(MgfParseSession *mgfContext) {
-    deleteOptionsMemory();
+    Options::deleteOptionsMemory();
     MgfReader::mgfFreeMemory(mgfContext);
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
@@ -161,7 +161,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
     selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
-    sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
+    SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
     selectToneMapByName(renderToneMapName);
 
     // 4. Run main radiosity simulation and export result

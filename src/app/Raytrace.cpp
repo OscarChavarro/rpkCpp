@@ -15,8 +15,8 @@
 #include "app/Raytrace.h"
 #include "app/CommandLine.h"
 
-static void
-rayTraceMakeMethodsHelpMessage(char *str) {
+ void
+Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
     java::util::Formatter::format(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
@@ -29,15 +29,15 @@ rayTraceMakeMethodsHelpMessage(char *str) {
 /**
 This routine sets the current raytracing method to be used
 */
-static void
-rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
+ void
+Raytrace::rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
     if ( rayTracer != nullptr ) {
         rayTracer->initialize(lightSourcePatches);
     }
 }
 
-static RayTracer *
-rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
+ RayTracer *
+Raytrace::rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     RayTracer *newRaytracer;
     if ( strcmp(rayTracerName, "RayMatting") == 0 ) {
         newRaytracer = new RayMatter(nullptr, scene->camera);
@@ -50,7 +50,7 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     } else {
         newRaytracer = nullptr;
     }
-    rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
+    Raytrace::rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
 
     if ( newRaytracer == nullptr && strncasecmp(rayTracerName, "none", 4) != 0 ) {
         Error::error(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
@@ -60,8 +60,8 @@ rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
 }
 
 RayTracer *
-rayTraceCreate(const Scene *scene, const char *rayTracerName) {
-    RayTracer *rayTracer = rayTraceCreateRayTracerFromName(rayTracerName, scene);
+Raytrace::rayTraceCreate(const Scene *scene, const char *rayTracerName) {
+    RayTracer *rayTracer = Raytrace::rayTraceCreateRayTracerFromName(rayTracerName, scene);
 
     if ( rayTracer != nullptr ) {
         rayTracer->defaults();
@@ -70,7 +70,7 @@ rayTraceCreate(const Scene *scene, const char *rayTracerName) {
 }
 
 void
-rayTraceSaveImage(
+Raytrace::rayTraceSaveImage(
     const char *fileName,
     java::io::OutputStream *stream,
     int isPipe,
@@ -111,16 +111,16 @@ rayTraceSaveImage(
 }
 
 void
-rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
+Raytrace::rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
     char helpMessage[1000];
 
-    rayTraceMakeMethodsHelpMessage(helpMessage);
+    Raytrace::rayTraceMakeMethodsHelpMessage(helpMessage);
     strcpy(rayTracerName, "none");
-    rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
+    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
 }
 
 void
-rayTraceExecute(
+Raytrace::rayTraceExecute(
     const char *filename,
     java::io::OutputStream *stream,
     int isPipe,

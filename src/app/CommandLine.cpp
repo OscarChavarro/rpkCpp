@@ -41,20 +41,20 @@ static BackgroundMode globalBackgroundMode = BackgroundMode::NONE;
 static ColorRgb globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
 
 ColorRgb
-commandLineDefaultBackgroundColor() {
+CommandLine::commandLineDefaultBackgroundColor() {
     return DEFAULT_BACKGROUND_COLOR;
 }
 
 Background *
-commandLineCreateBackground() {
+CommandLine::commandLineCreateBackground() {
     if ( globalBackgroundMode == BackgroundMode::SOLID ) {
         return new ConstantColorBackground(globalBackgroundColor);
     }
     return nullptr;
 }
 
-static bool
-commandLineParseFloat(const char *text, float *value) {
+ bool
+CommandLine::commandLineParseFloat(const char *text, float *value) {
     if ( text == nullptr || value == nullptr ) {
         return false;
     }
@@ -69,14 +69,14 @@ commandLineParseFloat(const char *text, float *value) {
     return true;
 }
 
-static bool
-commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
+ bool
+CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
     float red = 0.0f;
     float green = 0.0f;
     float blue = 0.0f;
-    if ( !commandLineParseFloat(rArg, &red)
-         || !commandLineParseFloat(gArg, &green)
-         || !commandLineParseFloat(bArg, &blue) ) {
+    if ( !CommandLine::commandLineParseFloat(rArg, &red)
+         || !CommandLine::commandLineParseFloat(gArg, &green)
+         || !CommandLine::commandLineParseFloat(bArg, &blue) ) {
         return false;
     }
 
@@ -88,8 +88,8 @@ commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *
     return true;
 }
 
-static void
-commandLineParseBackgroundOption(int *argc, char **argv) {
+ void
+CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
     int writeIndex = 0;
     int readIndex = 0;
     while ( readIndex < *argc ) {
@@ -122,7 +122,7 @@ commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         ColorRgb parsedColor;
-        if ( !commandLineParseBackgroundColor(
+        if ( !CommandLine::commandLineParseBackgroundColor(
                  argv[readIndex + 2],
                  argv[readIndex + 3],
                  argv[readIndex + 4],
@@ -142,44 +142,44 @@ commandLineParseBackgroundOption(int *argc, char **argv) {
     *argc = writeIndex;
 }
 
-static void
-mainForceOneSidedOption(void *value) {
+ void
+CommandLine::mainForceOneSidedOption(void *value) {
     globalFileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
 }
 
-static void
-mainMonochromeOption(void *value) {
+ void
+CommandLine::mainMonochromeOption(void *value) {
     globalNumberOfQuarterCircleDivisions = *static_cast<int *>(value);
 }
 
-static void
-commandLineImageWidthOption(void *value) {
+ void
+CommandLine::commandLineImageWidthOption(void *value) {
     globalOutputImageWidth = *static_cast<int *>(value);
 }
 
-static void
-commandLineImageHeightOption(void *value) {
+ void
+CommandLine::commandLineImageHeightOption(void *value) {
     globalOutputImageHeight = *static_cast<int *>(value);
 }
 
 static CommandLineOptionDescription globalOptions[] = {
     {"-nqcdivs", 3, &GLOBAL_options_intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
      "-nqcdivs <integer>\t: number of quarter circle divisions"},
-    {"-force-onesided", 10, nullptr, &globalYes, mainForceOneSidedOption,
+    {"-force-onesided", 10, nullptr, &globalYes, CommandLine::mainForceOneSidedOption,
      "-force-onesided\t\t: force one-sided surfaces"},
-    {"-dont-force-onesided", 14, nullptr, &globalNo, mainForceOneSidedOption,
+    {"-dont-force-onesided", 14, nullptr, &globalNo, CommandLine::mainForceOneSidedOption,
      "-dont-force-onesided\t: allow two-sided surfaces"},
-    {"-monochromatic", 5, nullptr, &globalYes, mainMonochromeOption,
+    {"-monochromatic", 5, nullptr, &globalYes, CommandLine::mainMonochromeOption,
      "-monochromatic \t\t: convert colors to shades of grey"},
-    {"-width", 5, &GLOBAL_options_intType, &globalOutputImageWidth, commandLineImageWidthOption,
+    {"-width", 5, &GLOBAL_options_intType, &globalOutputImageWidth, CommandLine::commandLineImageWidthOption,
             "-width \t\t: image output width in pixels"},
-    {"-height", 6, &GLOBAL_options_intType, &globalOutputImageHeight, commandLineImageHeightOption,
+    {"-height", 6, &GLOBAL_options_intType, &globalOutputImageHeight, CommandLine::commandLineImageHeightOption,
             "-width \t\t: image output width in pixels"},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
-commandLineGeneralProgramParseOptions(
+CommandLine::commandLineGeneralProgramParseOptions(
     int *argc,
     char **argv,
     bool *oneSidedSurfaces,
@@ -191,8 +191,8 @@ commandLineGeneralProgramParseOptions(
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     globalBackgroundMode = BackgroundMode::NONE;
     globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
-    commandLineParseBackgroundOption(argc, argv);
-    parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
+    CommandLine::commandLineParseBackgroundOption(argc, argv);
+    Options::parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
 
     if ( globalFileOptionsForceOneSidedSurfaces != 0 ) {
         *oneSidedSurfaces = true;
@@ -204,43 +204,43 @@ commandLineGeneralProgramParseOptions(
     *imageOutputHeight = globalOutputImageHeight;
 }
 
-static void
-cameraSetEyePositionOption(void *val) {
+ void
+CommandLine::cameraSetEyePositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setEyePosition(v->x, v->y, v->z);
 }
 
-static void
-cameraSetLookPositionOption(void *val) {
+ void
+CommandLine::cameraSetLookPositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setLookPosition(v->x, v->y, v->z);
 }
 
-static void
-cameraSetUpDirectionOption(void *val) {
+ void
+CommandLine::cameraSetUpDirectionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
     globalCamera.setUpDirection(v->x, v->y, v->z);
 }
 
-static void cameraSetFieldOfViewOption(void *val) {
+void CommandLine::cameraSetFieldOfViewOption(void *val) {
     const float *v = static_cast<float *>(val);
     globalCamera.setFieldOfView(*v);
 }
 
 static CommandLineOptionDescription globalCameraOptions[] = {
-    {"-eyepoint", 4, OPTIONS_TYPE_VECTOR, &globalCamera.eyePosition, cameraSetEyePositionOption,
+    {"-eyepoint", 4, OPTIONS_TYPE_VECTOR, &globalCamera.eyePosition, CommandLine::cameraSetEyePositionOption,
      "-eyepoint  <vector>\t: viewing position"},
-    {"-center", 4, OPTIONS_TYPE_VECTOR, &globalCamera.lookPosition, cameraSetLookPositionOption,
+    {"-center", 4, OPTIONS_TYPE_VECTOR, &globalCamera.lookPosition, CommandLine::cameraSetLookPositionOption,
      "-center    <vector>\t: point looked at"},
-    {"-updir", 3, OPTIONS_TYPE_VECTOR, &globalCamera.upDirection, cameraSetUpDirectionOption,
+    {"-updir", 3, OPTIONS_TYPE_VECTOR, &globalCamera.upDirection, CommandLine::cameraSetUpDirectionOption,
      "-updir     <vector>\t: direction pointing up"},
-    {"-fov", 4, OPTIONS_TYPE_FLOAT,  &globalCamera.fieldOfVision, cameraSetFieldOfViewOption,
+    {"-fov", 4, OPTIONS_TYPE_FLOAT,  &globalCamera.fieldOfVision, CommandLine::cameraSetFieldOfViewOption,
      "-fov       <float> \t: field of view angle"},
     {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
 };
 
-static void
-cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
+ void
+CommandLine::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
     Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
     Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
     Vector3D upDirection = DEFAULT_CAMERA_UP_DIRECTION;
@@ -257,9 +257,9 @@ cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
 }
 
 void
-cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight) {
-    cameraDefaults(&globalCamera, imageWidth, imageHeight);
-    parseGeneralOptions(globalCameraOptions, argc, argv);
+CommandLine::cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight) {
+    CommandLine::cameraDefaults(&globalCamera, imageWidth, imageHeight);
+    Options::parseGeneralOptions(globalCameraOptions, argc, argv);
     *camera = globalCamera;
 }
 
@@ -267,8 +267,8 @@ cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int i
 static int globalTrue = true;
 static int globalFalse = false;
 
-static void
-iterationMethodOption(void *value) {
+ void
+CommandLine::iterationMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
@@ -282,8 +282,8 @@ iterationMethodOption(void *value) {
     }
 }
 
-static void
-hierarchicalOption(void *value) {
+ void
+CommandLine::hierarchicalOption(void *value) {
     int yesno = *static_cast<int *>(value);
 
     if ( yesno != 0 ) {
@@ -293,52 +293,52 @@ hierarchicalOption(void *value) {
     }
 }
 
-static void
-lazyOption(void *value) {
+ void
+CommandLine::lazyOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
 }
 
-static void
-clusteringOption(void *value) {
+ void
+CommandLine::clusteringOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.clustered = yesno;
 }
 
-static void
-importanceOption(void *value) {
+ void
+CommandLine::importanceOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
 }
 
-static void
-ambientOption(void *value) {
+ void
+CommandLine::ambientOption(void *value) {
     int yesno = *static_cast<int *>(value);
     GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
 }
 
 static CommandLineOptionDescription galerkinOptions[] = {
-        {"-gr-iteration-method", 6, OPTIONS_TYPE_STRING, nullptr, iterationMethodOption,
+        {"-gr-iteration-method", 6, OPTIONS_TYPE_STRING, nullptr, CommandLine::iterationMethodOption,
                                                 "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), hierarchicalOption,
+        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::hierarchicalOption,
                                                 "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), hierarchicalOption,
+        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::hierarchicalOption,
                                                 "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), lazyOption,
+        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::lazyOption,
                                                 "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), lazyOption,
+        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::lazyOption,
                                                 "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), clusteringOption,
+        {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::clusteringOption,
                                                 "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), clusteringOption,
+        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::clusteringOption,
                                                 "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), importanceOption,
+        {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::importanceOption,
                                                 "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), importanceOption,
+        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::importanceOption,
                                                 "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), ambientOption,
+        {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::ambientOption,
                                                 "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), ambientOption,
+        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::ambientOption,
                                                 "-gr-no-ambient      \t: do visualisation without ambient term"},
         {"-gr-link-error-threshold", 6, OPTIONS_TYPE_FLOAT, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
                                                 "-gr-link-error-threshold <float>: Relative link error threshold"},
@@ -348,8 +348,8 @@ static CommandLineOptionDescription galerkinOptions[] = {
 };
 
 void
-galerkinParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(galerkinOptions, argc, argv);
+CommandLine::galerkinParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(galerkinOptions, argc, argv);
 }
 
 // Composes explanation for -tonemapping command line option
@@ -360,8 +360,8 @@ static float globalGxy[2];
 static float globalBxy[2];
 static float globalWxy[2];
 
-static void
-makeToneMappingMethodsString() {
+ void
+CommandLine::makeToneMappingMethodsString() {
     strcpy(globalToneMappingMethodsString,
        "-tonemapping <method>: Set tone mapping method\n"
        "\tmethods: Lightness            Lightness Mapping (default)\n"
@@ -373,20 +373,20 @@ makeToneMappingMethodsString() {
 
 static char *globalToneMapName;
 
-static void
-toneMappingMethodOption(void *value) {
+ void
+CommandLine::toneMappingMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
     strcpy(globalToneMapName, name);
 }
 
-static void
-brightnessAdjustOption(void * /*val*/) {
+ void
+CommandLine::brightnessAdjustOption(void * /*val*/) {
     GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
 }
 
-static void
-chromaOption(void *value) {
+ void
+CommandLine::chromaOption(void *value) {
     const float *chroma = static_cast<float *>(value);
     if ( chroma == globalRxy ) {
         GLOBAL_toneMap_options.xr = chroma[0];
@@ -401,7 +401,7 @@ chromaOption(void *value) {
         GLOBAL_toneMap_options.xw = chroma[0];
         GLOBAL_toneMap_options.yw = chroma[1];
     } else {
-        Error::fatal(-1, "chromaOption", "invalid value pointer");
+        Error::fatal(-1, "CommandLine::chromaOption", "invalid value pointer");
     }
 
     Cie::computeColorConversionTransforms(
@@ -411,8 +411,8 @@ chromaOption(void *value) {
         GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
 }
 
-static void
-toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
+ void
+CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
@@ -424,17 +424,17 @@ toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
     }
 }
 
-static void
-gammaOption(void *value) {
+ void
+CommandLine::gammaOption(void *value) {
     float gam = *static_cast<float *>(value);
     GLOBAL_toneMap_options.gamma.set(gam, gam, gam);
 }
 
 static CommandLineOptionDescription globalToneMappingOptions[] = {
-    {"-tonemapping", 4, OPTIONS_TYPE_STRING, nullptr, toneMappingMethodOption, globalToneMappingMethodsString},
-    {"-brightness-adjust", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.brightness_adjust, brightnessAdjustOption,
+    {"-tonemapping", 4, OPTIONS_TYPE_STRING, nullptr, CommandLine::toneMappingMethodOption, globalToneMappingMethodsString},
+    {"-brightness-adjust", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.brightness_adjust, CommandLine::brightnessAdjustOption,
      "-brightness-adjust <float> : brightness adjustment factor"},
-    {"-adapt", 5, OPTIONS_TYPE_STRING, nullptr, toneMappingCommandLineOptionDescAdaptMethodOption,
+    {"-adapt", 5, OPTIONS_TYPE_STRING, nullptr, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption,
     "-adapt <method>  \t: adaptation estimation method\n\tmethods: \"average\", \"median\""},
     {"-lwa", 3, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.realWorldAdaptionLuminance, DEFAULT_ACTION,
      "-lwa <float>\t\t: real world adaptation luminance"},
@@ -442,26 +442,26 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
      "-ldmax <float>\t\t: maximum diaply luminance"},
     {"-cmax", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.maximumDisplayContrast, DEFAULT_ACTION,
      "-cmax <float>\t\t: maximum displayable contrast"},
-    {"-gamma", 4, OPTIONS_TYPE_FLOAT, nullptr, gammaOption,
+    {"-gamma", 4, OPTIONS_TYPE_FLOAT, nullptr, CommandLine::gammaOption,
      "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
     {"-rgbgamma", 4, OPTIONS_TYPE_RGB, &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
      "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
-    {"-red", 4, OPTIONS_TYPE_XY, globalRxy, chromaOption,
+    {"-red", 4, OPTIONS_TYPE_XY, globalRxy, CommandLine::chromaOption,
      "-red <xy>            \t: CIE xy chromaticity of monitor red"},
-    {"-green", 4, OPTIONS_TYPE_XY, globalGxy, chromaOption,
+    {"-green", 4, OPTIONS_TYPE_XY, globalGxy, CommandLine::chromaOption,
      "-green <xy>          \t: CIE xy chromaticity of monitor green"},
-    {"-blue", 4, OPTIONS_TYPE_XY, globalBxy, chromaOption,
+    {"-blue", 4, OPTIONS_TYPE_XY, globalBxy, CommandLine::chromaOption,
      "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
-    {"-white", 4, OPTIONS_TYPE_XY, globalWxy, chromaOption,
+    {"-white", 4, OPTIONS_TYPE_XY, globalWxy, CommandLine::chromaOption,
      "-white <xy>          \t: CIE xy chromaticity of monitor white"},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
-toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
+CommandLine::toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
     globalToneMapName = toneMapName;
-    makeToneMappingMethodsString();
-    parseGeneralOptions(globalToneMappingOptions, argc, argv);
+    CommandLine::makeToneMappingMethodsString();
+    Options::parseGeneralOptions(globalToneMappingOptions, argc, argv);
     ToneMap::recomputeGammaTables(GLOBAL_toneMap_options.gamma);
 }
 
@@ -473,42 +473,42 @@ static CommandLineOptionDescription globalRadianceOptions[] = {
 };
 
 void
-radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString) {
+CommandLine::radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString) {
     globalRadianceMethodsString = radianceMethodsString;
-    parseGeneralOptions(globalRadianceOptions, argc, argv);
+    Options::parseGeneralOptions(globalRadianceOptions, argc, argv);
 }
 
 static RenderOptions globalRenderOptions;
 static ColorRgb globalOutlineColor;
 
-static void
-flatOption(void * /*value*/) {
+ void
+CommandLine::flatOption(void * /*value*/) {
     globalRenderOptions.smoothShading = false;
 }
 
-static void
-noCullingOption(void * /*value*/) {
+ void
+CommandLine::noCullingOption(void * /*value*/) {
     globalRenderOptions.backfaceCulling = false;
 }
 
-static void
-outlinesOption(void * /*value*/) {
+ void
+CommandLine::outlinesOption(void * /*value*/) {
     globalRenderOptions.drawOutlines = true;
 }
 
-static void
-traceOption(void * /*value*/) {
+ void
+CommandLine::traceOption(void * /*value*/) {
     globalRenderOptions.trace = true;
 }
 
 static CommandLineOptionDescription renderingOptions[] = {
-    {"-flat-shading", 5, nullptr, nullptr, flatOption,
+    {"-flat-shading", 5, nullptr, nullptr, CommandLine::flatOption,
     "-flat-shading\t\t: render without Gouraud (color) interpolation"},
-    {"-raycast", 5, nullptr, nullptr, traceOption,
+    {"-raycast", 5, nullptr, nullptr, CommandLine::traceOption,
     "-raycast\t\t: save raycasted scene view as a high dynamic range image"},
-    {"-no-culling", 5, nullptr, nullptr, noCullingOption,
+    {"-no-culling", 5, nullptr, nullptr, CommandLine::noCullingOption,
     "-no-culling\t\t: don't use backface culling"},
-    {"-outlines", 5, nullptr, nullptr, outlinesOption,
+    {"-outlines", 5, nullptr, nullptr, CommandLine::outlinesOption,
     "-outlines\t\t: draw polygon outlines"},
     {"-outline-color", 10, OPTIONS_TYPE_RGB, &globalOutlineColor, DEFAULT_ACTION,
     "-outline-color <rgb> \t: color for polygon outlines"},
@@ -516,10 +516,10 @@ static CommandLineOptionDescription renderingOptions[] = {
 };
 
 void
-renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
+CommandLine::renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
     globalRenderOptions = *renderOptions;
 
-    parseGeneralOptions(renderingOptions, argc, argv);
+    Options::parseGeneralOptions(renderingOptions, argc, argv);
 
     *renderOptions = globalRenderOptions;
     renderOptions->outlineColor.r = globalOutlineColor.r;
@@ -529,15 +529,15 @@ renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions) {
 
 static BatchOptions globalBatchOptions;
 
-static void
-binaryOutputOption(void * /*value*/) {
+ void
+CommandLine::binaryOutputOption(void * /*value*/) {
     globalBatchOptions.exportBinary =
         globalBatchOptions.binaryOutputFilename != nullptr
         && globalBatchOptions.binaryOutputFilename[0] != '\0';
 }
 
-static void
-binaryInputOption(void * /*value*/) {
+ void
+CommandLine::binaryInputOption(void * /*value*/) {
     globalBatchOptions.importBinary =
         globalBatchOptions.binaryInputFilename != nullptr
         && globalBatchOptions.binaryInputFilename[0] != '\0';
@@ -546,9 +546,9 @@ binaryInputOption(void * /*value*/) {
 static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
     {"-iterations", 3, &GLOBAL_options_intType, &globalBatchOptions.iterations, DEFAULT_ACTION,
     "-iterations <integer>\t: world-space radiance iterations"},
-    {"-obf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryOutputFilename, binaryOutputOption,
+    {"-obf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryOutputFilename, CommandLine::binaryOutputOption,
      "-obf <output.bin>\t: export loaded PersistedSceneModel snapshot to binary file"},
-    {"-ibf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryInputFilename, binaryInputOption,
+    {"-ibf", 4, OPTIONS_TYPE_STRING, &globalBatchOptions.binaryInputFilename, CommandLine::binaryInputOption,
      "-ibf <input.bin>\t: import PersistedSceneModel snapshot from binary file (skips MGF read)"},
     {"-radiance-image-savefile", 12, OPTIONS_TYPE_STRING, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
      "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,\n\tfirst '%%d' will be substituted by iteration number"},
@@ -565,11 +565,11 @@ static CommandLineOptionDescription globalCommandLineBatchOptions[] = {
 };
 
 void
-batchParseOptions(int *argc, char **argv, BatchOptions *options) {
+CommandLine::batchParseOptions(int *argc, char **argv, BatchOptions *options) {
     globalBatchOptions = *options;
     globalBatchOptions.exportBinary = false;
     globalBatchOptions.importBinary = false;
-    parseGeneralOptions(globalCommandLineBatchOptions, argc, argv);
+    Options::parseGeneralOptions(globalCommandLineBatchOptions, argc, argv);
     *options = globalBatchOptions;
 }
 
@@ -583,7 +583,7 @@ static EnumDesc globalApproximateValues[] = {
     {StochasticRaytracingApproximation::CUBIC, "cubic", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions approxTypeStruct = makeEnumOptTypeStruct(globalApproximateValues);
+static CommandLineOptions approxTypeStruct = Options::makeEnumOptTypeStruct(globalApproximateValues);
 
 static EnumDesc clusteringVals[] = {
     {HierarchyClusteringMode::NO_CLUSTERING, "none", 2},
@@ -591,7 +591,7 @@ static EnumDesc clusteringVals[] = {
     {HierarchyClusteringMode::ORIENTED_CLUSTERING, "oriented",  2},
     {0, nullptr, 0}
 };
-static CommandLineOptions clusteringTypeStruct = makeEnumOptTypeStruct(clusteringVals);
+static CommandLineOptions clusteringTypeStruct = Options::makeEnumOptTypeStruct(clusteringVals);
 
 static EnumDesc sequenceVals[] = {
     {Sampler4DSequence::RANDOM, "PseudoRandom", 2},
@@ -599,14 +599,14 @@ static EnumDesc sequenceVals[] = {
     {Sampler4DSequence::NIEDERREITER, "Niederreiter", 2}, // TODO: Not able to select all available sequences...
     {0, nullptr, 0}
 };
-static CommandLineOptions sequenceTypeStruct = makeEnumOptTypeStruct(sequenceVals);
+static CommandLineOptions sequenceTypeStruct = Options::makeEnumOptTypeStruct(sequenceVals);
 
 static EnumDesc estTypeVals[] = {
     {RandomWalkEstimatorType::RW_SHOOTING, "Shooting", 2},
     {RandomWalkEstimatorType::RW_GATHERING, "Gathering", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions estTypeTypeStruct = makeEnumOptTypeStruct(estTypeVals);
+static CommandLineOptions estTypeTypeStruct = Options::makeEnumOptTypeStruct(estTypeVals);
 
 static EnumDesc globalEstKindValues[] = {
     {RandomWalkEstimatorKind::RW_COLLISION, "Collision", 2},
@@ -616,7 +616,7 @@ static EnumDesc globalEstKindValues[] = {
     {RandomWalkEstimatorKind::RW_N_LAST, "Last-N", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions estKindTypeStruct = makeEnumOptTypeStruct(globalEstKindValues);
+static CommandLineOptions estKindTypeStruct = Options::makeEnumOptTypeStruct(globalEstKindValues);
 
 static EnumDesc showWhatVals[] = {
     {WhatToShow::SHOW_TOTAL_RADIANCE, "total-radiance", 2},
@@ -624,7 +624,7 @@ static EnumDesc showWhatVals[] = {
     {WhatToShow::SHOW_IMPORTANCE, "importance", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions showWhatTypeStruct = makeEnumOptTypeStruct(showWhatVals);
+static CommandLineOptions showWhatTypeStruct = Options::makeEnumOptTypeStruct(showWhatVals);
 
 static CommandLineOptionDescription srrOptions[] = {
     {"-srr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt, DEFAULT_ACTION,
@@ -687,13 +687,13 @@ static CommandLineOptionDescription rwrOptions[] = {
 };
 
 void
-stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(srrOptions, argc, argv);
+CommandLine::stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(srrOptions, argc, argv);
 }
 
 void
-randomWalkRadiosityParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(rwrOptions, argc, argv);
+CommandLine::randomWalkRadiosityParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(rwrOptions, argc, argv);
 }
 
 static EnumDesc globalRayMatterPixelFilters[] = {
@@ -703,7 +703,7 @@ static EnumDesc globalRayMatterPixelFilters[] = {
     {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions rmPixelFilterTypeStruct = makeEnumOptTypeStruct(globalRayMatterPixelFilters);
+static CommandLineOptions rmPixelFilterTypeStruct = Options::makeEnumOptTypeStruct(globalRayMatterPixelFilters);
 
 static CommandLineOptionDescription globalRayMatterOptions[] =
 {
@@ -715,8 +715,8 @@ static CommandLineOptionDescription globalRayMatterOptions[] =
 };
 
 void
-rayMattingParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalRayMatterOptions, argc, argv);
+CommandLine::rayMattingParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(globalRayMatterOptions, argc, argv);
 }
 
 /*** Enum Option types ***/
@@ -729,7 +729,7 @@ static EnumDesc globalRadModeValues[] = {
     {0, nullptr, 0}
 };
 
-static CommandLineOptions radModeTypeStruct = makeEnumOptTypeStruct(globalRadModeValues);
+static CommandLineOptions radModeTypeStruct = Options::makeEnumOptTypeStruct(globalRadModeValues);
 
 static EnumDesc globalLightModeValues[] = {
     {RayTracingLightMode::POWER_LIGHTS, "power", 2},
@@ -738,14 +738,14 @@ static EnumDesc globalLightModeValues[] = {
     {0, nullptr, 0}
 };
 
-static CommandLineOptions lightModeTypeStruct = makeEnumOptTypeStruct(globalLightModeValues);
+static CommandLineOptions lightModeTypeStruct = Options::makeEnumOptTypeStruct(globalLightModeValues);
 
 static EnumDesc globalSamplingModeValues[] = {
     {RayTracingSamplingMode::BRDF_SAMPLING, "bsdf", 2},
     {RayTracingSamplingMode::CLASSICAL_SAMPLING, "classical", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions samplingModeTypeStruct = makeEnumOptTypeStruct(globalSamplingModeValues);
+static CommandLineOptions samplingModeTypeStruct = Options::makeEnumOptTypeStruct(globalSamplingModeValues);
 
 static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
     {"-rts-samples-per-pixel", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.samplesPerPixel, DEFAULT_ACTION,
@@ -782,11 +782,11 @@ static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
 };
 
 void
-stochasticRayTracerParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
+CommandLine::stochasticRayTracerParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
 }
 
-static CommandLineOptions RegExpStringType = makeNStringTypeStruct(MAX_REGEXP_SIZE);
+static CommandLineOptions RegExpStringType = Options::makeNStringTypeStruct(MAX_REGEXP_SIZE);
 
 static CommandLineOptionDescription globalBiDirectionalOptions[] = {
     {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel, DEFAULT_ACTION,
@@ -821,33 +821,33 @@ static CommandLineOptionDescription globalBiDirectionalOptions[] = {
 };
 
 void
-biDirectionalPathParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
+CommandLine::biDirectionalPathParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
 }
 
 static char *globalRaytracingMethodsString;
 static char *globalRayTracerName;
 
-static void
-mainRayTracingOption(void *value) {
+ void
+CommandLine::mainRayTracingOption(void *value) {
     const char *name = *static_cast<char **>(value);
     strcpy(globalRayTracerName, name);
 }
 
 static CommandLineOptionDescription globalRaytracingOptions[] = {
-    {"-raytracing-method", 4, OPTIONS_TYPE_STRING,  nullptr, mainRayTracingOption, globalRaytracingMethodsString},
+    {"-raytracing-method", 4, OPTIONS_TYPE_STRING,  nullptr, CommandLine::mainRayTracingOption, globalRaytracingMethodsString},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
 void
-rayTracingParseOptions(
+CommandLine::rayTracingParseOptions(
     int *argc,
     char **argv,
     char raytracingMethodsString[],
     char *rayTracerName) {
     globalRayTracerName = rayTracerName;
     globalRaytracingMethodsString = raytracingMethodsString;
-    parseGeneralOptions(globalRaytracingOptions, argc, argv);
+    Options::parseGeneralOptions(globalRaytracingOptions, argc, argv);
 }
 
 // Command line options
@@ -876,8 +876,8 @@ static CommandLineOptionDescription globalPhotonMapOptions[] = {
 };
 
 void
-photonMapParseOptions(int *argc, char **argv) {
-    parseGeneralOptions(globalPhotonMapOptions, argc, argv);
+CommandLine::photonMapParseOptions(int *argc, char **argv) {
+    Options::parseGeneralOptions(globalPhotonMapOptions, argc, argv);
 }
 
 #endif

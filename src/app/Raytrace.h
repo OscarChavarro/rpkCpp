@@ -8,20 +8,18 @@
 #include "raycasting/common/RayTracer.h"
 
 #ifdef RAYTRACING_ENABLED
-    extern RayTracer * rayTraceCreate(const Scene *scene, const char *rayTracerName);
-
-    extern void
-    rayTraceSaveImage(
+class Raytrace final {
+  public:
+    static RayTracer *rayTraceCreate(const Scene *scene, const char *rayTracerName);
+    static void rayTraceSaveImage(
         const char *fileName,
         java::io::OutputStream *stream,
         int isPipe,
         const Scene *scene,
-        const RadianceMethod *,
+        const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
-        const RenderOptions *);
-
-    extern void
-    rayTraceExecute(
+        const RenderOptions *renderOptions);
+    static void rayTraceExecute(
         const char *filename,
         java::io::OutputStream *stream,
         int isPipe,
@@ -29,8 +27,13 @@
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         RenderOptions *renderOptions);
+    static void rayTraceParseOptions(int *argc, char **argv, char *rayTracerName);
 
-    extern void rayTraceParseOptions(int *argc, char **argv, char *rayTracerName);
+  private:
+    static void rayTraceMakeMethodsHelpMessage(char *str);
+    static void rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches);
+    static RayTracer *rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene);
+};
 #endif
 
 #endif

@@ -21,8 +21,8 @@
 #include "app/Radiance.h"
 #include "app/SceneBuilder.h"
 
-static void
-sceneBuilderPatchAccumulateStats(Patch *patch) {
+ void
+SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb power;
@@ -36,8 +36,8 @@ sceneBuilderPatchAccumulateStats(Patch *patch) {
     GLOBAL_statistics.maxSelfEmittedPower.maximum(power, GLOBAL_statistics.maxSelfEmittedPower);
 }
 
-static void
-sceneBuilderComputeStats(Scene *scene) {
+ void
+SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     Vector3D zero;
     ColorRgb one;
     ColorRgb averageAbsorption;
@@ -55,7 +55,7 @@ sceneBuilderComputeStats(Scene *scene) {
 
     // Accumulate
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
-        sceneBuilderPatchAccumulateStats(scene->patchList->get(i));
+        SceneBuilder::sceneBuilderPatchAccumulateStats(scene->patchList->get(i));
     }
 
     // Averages
@@ -83,8 +83,8 @@ sceneBuilderComputeStats(Scene *scene) {
 /**
 Adds the background to the global light source patch list
 */
-static void
-sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
+ void
+SceneBuilder::sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
     if ( scene->background != nullptr && scene->background->bkgPatch != nullptr ) {
         scene->lightSourcePatchList->add(scene->background->bkgPatch);
         GLOBAL_statistics.numberOfLightSources++;
@@ -95,8 +95,8 @@ sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
 Adds the patch to the global light source patch list if the patch is on
 a light source (i.e. when the surfaces material has a non-null edf)
 */
-static void
-sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
+ void
+SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
          && patch->material != nullptr
          && patch->material->getEdf() != nullptr ) {
@@ -108,16 +108,16 @@ sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lig
 /**
 Build the global light source patch list
 */
-static void
-sceneBuilderFillLightSourcePatchList(Scene *scene) {
+ void
+SceneBuilder::sceneBuilderFillLightSourcePatchList(Scene *scene) {
     java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
     GLOBAL_statistics.numberOfLightSources = 0;
 
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
-        sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
+        SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
     }
 
-    sceneBuilderAddBackgroundToLightSourceList(scene);
+    SceneBuilder::sceneBuilderAddBackgroundToLightSourceList(scene);
     scene->lightSourcePatchList = lights;
 }
 
@@ -129,8 +129,8 @@ algorithm described in
 This hierarchy is often much more efficient for tracing rays and clustering radiosity algorithms
 than the given hierarchy of bounding boxes. A pointer to the toplevel "cluster" is returned
 */
-static Geometry *
-sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
+ Geometry *
+SceneBuilder::sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
     PatchClusterOctreeNode *rootCluster;
     Geometry *rootGeometry;
 
@@ -152,14 +152,14 @@ sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> *patches) {
 Builds a linear list of patches making up all the geometries in the list, whether
 they are primitive or not
 */
-static void
-sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
+ void
+SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
             const Compound *compound = static_cast<const Compound *>(geometry);
-            sceneBuilderPatchList(compound->children, patchList);
+            SceneBuilder::sceneBuilderPatchList(compound->children, patchList);
         } else {
             // Trivial case
             const java::ArrayList<Patch *> *patchesFromNonCompounds = Geometry::patchListReference(geometry);
@@ -174,8 +174,8 @@ sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::Arr
     }
 }
 
-static void
-sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList) {
+ void
+SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryList) {
     if ( geometryList == nullptr ) {
         return;
     }
@@ -186,7 +186,7 @@ sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryLis
         }
         if ( geometry->isCompound() ) {
             const Compound *compound = static_cast<const Compound *>(geometry);
-            sceneBuilderFillFacesBackPointers(compound->children);
+            SceneBuilder::sceneBuilderFillFacesBackPointers(compound->children);
             continue;
         }
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
@@ -195,8 +195,8 @@ sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *> *geometryLis
     }
 }
 
-static void
-sceneBuilderCollectGeometriesRecursive(
+ void
+SceneBuilder::sceneBuilderCollectGeometriesRecursive(
     const java::ArrayList<Geometry *> *source,
     java::ArrayList<Geometry *> *target)
 {
@@ -223,13 +223,13 @@ sceneBuilderCollectGeometriesRecursive(
 
         if ( geometry->isCompound() ) {
             const Compound *compound = static_cast<const Compound *>(geometry);
-            sceneBuilderCollectGeometriesRecursive(compound->children, target);
+            SceneBuilder::sceneBuilderCollectGeometriesRecursive(compound->children, target);
         }
     }
 }
 
-static void
-sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneModel *mgfModel) {
+ void
+SceneBuilder::sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneModel *mgfModel) {
     if ( mgfContext == nullptr || mgfModel == nullptr ) {
         return;
     }
@@ -271,14 +271,14 @@ sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneMo
         delete mgfContext->allGeometries;
     }
     mgfContext->allGeometries = new java::ArrayList<Geometry *>();
-    sceneBuilderCollectGeometriesRecursive(mgfModel->currentGeometryList, mgfContext->allGeometries);
+    SceneBuilder::sceneBuilderCollectGeometriesRecursive(mgfModel->currentGeometryList, mgfContext->allGeometries);
     if ( mgfModel->geometries != mgfModel->currentGeometryList ) {
-        sceneBuilderCollectGeometriesRecursive(mgfModel->geometries, mgfContext->allGeometries);
+        SceneBuilder::sceneBuilderCollectGeometriesRecursive(mgfModel->geometries, mgfContext->allGeometries);
     }
 }
 
-static void
-removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+ void
+SceneBuilder::removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
@@ -299,15 +299,15 @@ removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *>
     }
 }
 
-static bool
-sceneBuilderValidateReadableFile(
+ bool
+SceneBuilder::sceneBuilderValidateReadableFile(
     const char *fileName,
     const char *fileRole)
 {
     java::io::File file(fileName);
     if ( !file.exists() ) {
         Error::error(
-            "sceneBuilderReadFile",
+            "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' does not exist",
             fileRole,
             fileName);
@@ -315,7 +315,7 @@ sceneBuilderValidateReadableFile(
     }
     if ( !file.isFile() ) {
         Error::error(
-            "sceneBuilderReadFile",
+            "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is not a regular file",
             fileRole,
             fileName);
@@ -323,7 +323,7 @@ sceneBuilderValidateReadableFile(
     }
     if ( !file.canRead() ) {
         Error::error(
-            "sceneBuilderReadFile",
+            "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is not readable",
             fileRole,
             fileName);
@@ -336,7 +336,7 @@ sceneBuilderValidateReadableFile(
 
     if ( firstByte < 0 ) {
         Error::error(
-            "sceneBuilderReadFile",
+            "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is empty",
             fileRole,
             fileName);
@@ -350,9 +350,9 @@ sceneBuilderValidateReadableFile(
 Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
-static bool
-sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *scene) {
-    const BatchOptions *batchOptions = batchGetOptions();
+ bool
+SceneBuilder::sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *scene) {
+    const BatchOptions *batchOptions = Batch::batchGetOptions();
     const bool importBinary =
         batchOptions != nullptr
         && batchOptions->importBinary
@@ -361,12 +361,12 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     const char *inputName = importBinary ? batchOptions->binaryInputFilename : fileName;
 
     // Check whether the file can be opened/read
-    if ( importBinary && !sceneBuilderValidateReadableFile(inputName, "binary model") ) {
+    if ( importBinary && !SceneBuilder::sceneBuilderValidateReadableFile(inputName, "binary model") ) {
         return false;
     }
 
     if ( !importBinary && fileName[0] != '#' ) {
-        if ( !sceneBuilderValidateReadableFile(fileName, "scene") ) {
+        if ( !SceneBuilder::sceneBuilderValidateReadableFile(fileName, "scene") ) {
             return false;
         }
     }
@@ -390,7 +390,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     if ( scene->background != nullptr ) {
         delete scene->background;
     }
-    scene->background = commandLineCreateBackground();
+    scene->background = CommandLine::commandLineCreateBackground();
 
     // Read the source scene description into a PersistedSceneModel snapshot
     java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
@@ -400,7 +400,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     if ( importBinary ) {
         mgfModel = BinaryModelReader::read(inputName);
         if ( mgfModel != nullptr ) {
-            sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
+            SceneBuilder::sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
         }
     } else {
         mgfModel = MgfReader::readMgf(fileName, mgfContext);
@@ -421,7 +421,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
             } else {
                 java::lang::System::err.printf("failed.\n");
                 Error::error(
-                    "sceneBuilderReadFile",
+                    "SceneBuilder::sceneBuilderReadFile",
                     "Could not export PersistedSceneModel binary to '%s'",
                     batchOptions->binaryOutputFilename);
             }
@@ -429,7 +429,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     }
 
     scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
-    sceneBuilderFillFacesBackPointers(scene->geometryList);
+    SceneBuilder::sceneBuilderFillFacesBackPointers(scene->geometryList);
 
     long long t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -451,7 +451,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.flush();
 
     scene->patchList = new java::ArrayList<Patch *>();
-    sceneBuilderPatchList(scene->geometryList, scene->patchList);
+    SceneBuilder::sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
     t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -463,7 +463,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.printf("Building light source patch list ... ");
     java::lang::System::err.flush();
 
-    sceneBuilderFillLightSourcePatchList(scene);
+    SceneBuilder::sceneBuilderFillLightSourcePatchList(scene);
 
     t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -475,7 +475,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.printf("Building cluster hierarchy ... ");
     java::lang::System::err.flush();
 
-    scene->clusteredRootGeometry = sceneBuilderCreateClusterHierarchy(scene->patchList);
+    scene->clusteredRootGeometry = SceneBuilder::sceneBuilderCreateClusterHierarchy(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className != GeometryClassId::COMPOUND ) {
         Error::warning(nullptr, "Strange clusters for this world ...");
@@ -501,7 +501,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.flush();
 
     GLOBAL_statistics.numberOfPatches = GLOBAL_statistics.numberOfElements;
-    sceneBuilderComputeStats(scene);
+    SceneBuilder::sceneBuilderComputeStats(scene);
     GLOBAL_statistics.referenceLuminance = 5.42 * ((1.0 - GLOBAL_statistics.averageReflectivity.gray()) *
                                                    GLOBAL_statistics.estimatedAverageRadiance.luminance());
 
@@ -515,7 +515,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.printf("Initializing tone mapping ... ");
     java::lang::System::err.flush();
 
-    initSceneAdaptation(scene->patchList);
+    Adaptation::initSceneAdaptation(scene->patchList);
 
     t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -544,7 +544,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     java::lang::System::err.printf("Initializing radiance method ... ");
     java::lang::System::err.flush();
 
-    setRadianceMethod(mgfContext->radianceMethod, scene);
+    Radiance::setRadianceMethod(mgfContext->radianceMethod, scene);
 
     t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -554,7 +554,7 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
     // Remove possible render hooks
     RenderHookList::removeAllRenderHooks();
 
-    removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
+    SceneBuilder::removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
 
     java::lang::System::err.printf("Initialisations done.\n");
 
@@ -562,18 +562,18 @@ sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *s
 }
 
 void
-sceneBuilderCreateModel(
+SceneBuilder::sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
     MgfParseSession *mgfContext,
     Scene *scene)
 {
-    const BatchOptions *batchOptions = batchGetOptions();
+    const BatchOptions *batchOptions = Batch::batchGetOptions();
     if ( batchOptions != nullptr
          && batchOptions->importBinary
          && batchOptions->binaryInputFilename != nullptr
          && batchOptions->binaryInputFilename[0] != '\0' ) {
-        if ( !sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene) ) {
+        if ( !SceneBuilder::sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene) ) {
             java::lang::System::exit(1);
         }
         return;
@@ -583,7 +583,7 @@ sceneBuilderCreateModel(
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             Error::error(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
+        } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
             java::lang::System::exit(1);
         }
     }

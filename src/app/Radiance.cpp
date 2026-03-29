@@ -23,7 +23,7 @@ static char globalRadianceMethodsString[STRING_LENGTH];
 This routine sets the current radiance method to be used + initializes
 */
 void
-setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
+Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
     if ( radianceMethod != nullptr ) {
         radianceMethod->terminate(scene->patchList);
         // Until we have radiance data convertors, we dispose of the old data and
@@ -38,8 +38,8 @@ setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
     }
 }
 
-static void
-selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
+ void
+Radiance::selectRadianceMethod(const int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     bool getNext = false;
     const char *name = nullptr;
     for ( int i = 0; i < *argc; i++ ) {
@@ -78,20 +78,20 @@ Parses (and consumes) command line options for radiance
 computation
 */
 void
-radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
-    selectRadianceMethod(argc, argv, newRadianceMethod);
-    radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
+Radiance::radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
+    Radiance::selectRadianceMethod(argc, argv, newRadianceMethod);
+    CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
 
 #ifdef RAYTRACING_ENABLED
-    stochasticRelaxationRadiosityParseOptions(argc, argv);
-    randomWalkRadiosityParseOptions(argc, argv);
-    rayMattingParseOptions(argc, argv);
-    biDirectionalPathParseOptions(argc, argv);
-    stochasticRayTracerParseOptions(argc, argv);
-    photonMapParseOptions(argc, argv);
+    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv);
+    CommandLine::randomWalkRadiosityParseOptions(argc, argv);
+    CommandLine::rayMattingParseOptions(argc, argv);
+    CommandLine::biDirectionalPathParseOptions(argc, argv);
+    CommandLine::stochasticRayTracerParseOptions(argc, argv);
+    CommandLine::photonMapParseOptions(argc, argv);
 #endif
 
-    galerkinParseOptions(argc, argv);
+    CommandLine::galerkinParseOptions(argc, argv);
 
     if ( *newRadianceMethod != nullptr ) {
         if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {

@@ -21,8 +21,8 @@ static float globalLumMax = 0.0;
 /**
 A-priori estimate of a patch's radiance
 */
-static ColorRgb
-initRadianceEstimate(Patch *patch) {
+ ColorRgb
+Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
@@ -32,10 +32,10 @@ initRadianceEstimate(Patch *patch) {
     return radiance;
 }
 
-static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = initRadianceEstimate;
+static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = nullptr;
 
-static int
-adaptationLumAreaComp(const void *la1, const void *la2) {
+ int
+Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
     float l1 = static_cast<const LuminanceArea *>(la1)->luminance;
     float l2 = static_cast<const LuminanceArea *>(la2)->luminance;
 
@@ -46,8 +46,8 @@ adaptationLumAreaComp(const void *la1, const void *la2) {
     return l1 == l2 ? 0 : -1;
 }
 
-static float
-patchBrightnessEstimate(Patch *patch) {
+ float
+Adaptation::patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = PatchRadianceEstimate(patch);
     float brightness = radiance.luminance();
     if ( brightness < Numeric::EPSILON_FLOAT ) {
@@ -56,16 +56,16 @@ patchBrightnessEstimate(Patch *patch) {
     return brightness;
 }
 
-static void
-patchComputeLogAreaLum(Patch *patch) {
-    float brightness = patchBrightnessEstimate(patch);
+ void
+Adaptation::patchComputeLogAreaLum(Patch *patch) {
+    float brightness = Adaptation::patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     globalLogAreaLum += patch->area * java::Math::log(brightness);
 }
 
-static void
-patchFillLumArea(Patch *patch) {
-    float brightness = patchBrightnessEstimate(patch);
+ void
+Adaptation::patchFillLumArea(Patch *patch) {
+    float brightness = Adaptation::patchBrightnessEstimate(patch);
 
     LuminanceArea &entry = globalLumArea[globalLumAreaIndex];
     entry.luminance = brightness;
@@ -82,8 +82,8 @@ patchFillLumArea(Patch *patch) {
 Computes the static adaptation luminance value choosing the median value
 of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_totalArea".
 */
-static float
-meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
+ float
+Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     if ( numPairs <= 0 ) {
         return 0.0f;
     }
@@ -92,7 +92,7 @@ meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     float areaCnt = 0.0;
     int pairIndex = 0;
 
-    qsort(pairs, numPairs, sizeof(LuminanceArea), adaptationLumAreaComp);
+    qsort(pairs, numPairs, sizeof(LuminanceArea), Adaptation::adaptationLumAreaComp);
 
     while ( pairIndex < numPairs && areaCnt < areaMax ) {
         areaCnt += pairs[pairIndex].area;
@@ -111,8 +111,8 @@ adaption estimation method in GLOBAL_toneMap_options.statadapt
 'patch_radiance' is a pointer to a routine that computes the radiance
 emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
 */
-static void
-estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayList<Patch *> *scenePatches) {
+ void
+Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayList<Patch *> *scenePatches) {
     PatchRadianceEstimate = patch_radiance;
 
     switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {
@@ -122,7 +122,7 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             // Gibson's static adaptation after [TUMB1999b]
             globalLogAreaLum = 0.0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                patchComputeLogAreaLum(scenePatches->get(i));
+                Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
             GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / GLOBAL_statistics.totalArea + 0.84f);
@@ -136,9 +136,9 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
             globalLumAreaIndex = 0;
             globalNumEntries = 0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-                patchFillLumArea(scenePatches->get(i));
+                Adaptation::patchFillLumArea(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = meanAreaWeightedLuminance(la, GLOBAL_statistics.numberOfPatches);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, GLOBAL_statistics.numberOfPatches);
 
             delete[] la;
             break;
@@ -149,10 +149,10 @@ estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayLi
 }
 
 /**
-Same as estimateSceneAdaptation, but uses some a-priori estimate for the radiance emitted by a patch.
+Same as Adaptation::estimateSceneAdaptation, but uses some a-priori estimate for the radiance emitted by a patch.
 Used when loading a new scene
 */
 void
-initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches) {
-    estimateSceneAdaptation(initRadianceEstimate, scenePatches);
+Adaptation::initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches) {
+    Adaptation::estimateSceneAdaptation(Adaptation::initRadianceEstimate, scenePatches);
 }
