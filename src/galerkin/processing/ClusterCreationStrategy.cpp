@@ -63,7 +63,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
     galerkinElement->area = 0.0;
     galerkinElement->numberOfPatches = 0;
     galerkinElement->minimumArea = Numeric::HUGE_FLOAT_VALUE;
-    colorsArrayClear(galerkinElement->radiance, galerkinElement->basisSize);
+    ColorRgb::arrayClear(galerkinElement->radiance, galerkinElement->basisSize);
     for ( int i = 0;
           galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
           i++ ) {
@@ -82,7 +82,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-        colorsArrayClear(galerkinElement->unShotRadiance, galerkinElement->basisSize);
+        ColorRgb::arrayClear(galerkinElement->unShotRadiance, galerkinElement->basisSize);
         for ( int i = 0;
               galerkinElement->irregularSubElements != nullptr && i < galerkinElement->irregularSubElements->size();
               i++ ) {

@@ -350,31 +350,31 @@ Patch::triangleUv(const Vector3D *point, Vector2Dd *uv) const {
         case CoordinateAxis::X:
             u0 = vertex[vertexIndex]->point->y;
             v0 = vertex[vertexIndex]->point->z;
-            vector2DSet(p0, point->y - u0, point->z - v0);
+            Vector2Dd::set(p0, point->y - u0, point->z - v0);
             vertexIndex++;
-            vector2DSet(p1, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
+            Vector2Dd::set(p1, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             vertexIndex++;
-            vector2DSet(p2, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
+            Vector2Dd::set(p2, vertex[vertexIndex]->point->y - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case CoordinateAxis::Y:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->z;
-            vector2DSet(p0, point->x - u0, point->z - v0);
+            Vector2Dd::set(p0, point->x - u0, point->z - v0);
             vertexIndex++;
-            vector2DSet(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
+            Vector2Dd::set(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             vertexIndex++;
-            vector2DSet(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
+            Vector2Dd::set(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->z - v0);
             break;
 
         case CoordinateAxis::Z:
             u0 = vertex[vertexIndex]->point->x;
             v0 = vertex[vertexIndex]->point->y;
-            vector2DSet(p0, point->x - u0, point->y - v0);
+            Vector2Dd::set(p0, point->x - u0, point->y - v0);
             vertexIndex++;
-            vector2DSet(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
+            Vector2Dd::set(p1, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
             vertexIndex++;
-            vector2DSet(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
+            Vector2Dd::set(p2, vertex[vertexIndex]->point->x - u0, vertex[vertexIndex]->point->y - v0);
             break;
 
         default:
@@ -432,79 +432,79 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     int vertexIndex = 0;
     switch ( patch->index ) {
         case X:
-            vector2DSet(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(B, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(C, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(D, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
-            vector2DSet(M, point->y, point->z);
+            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(M, point->y, point->z);
             break;
 
         case Y:
-            vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
-            vector2DSet(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
-            vector2DSet(M, point->x, point->z);
+            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(M, point->x, point->z);
             break;
 
         case Z:
-            vector2DSet(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
             vertexIndex++;
-            vector2DSet(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
             vertexIndex++;
-            vector2DSet(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
             vertexIndex++;
-            vector2DSet(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
-            vector2DSet(M, point->x, point->y);
+            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(M, point->x, point->y);
             break;
 
         default:
             break;
     }
 
-    vector2DSubtract(B, A, AB);
-    vector2DSubtract(C, B, BC);
-    vector2DSubtract(D, C, CD);
-    vector2DSubtract(D, A, AD);
-    vector2DAdd(CD, AB, AE);
-    vector2DNegate(AE);
-    vector2DSubtract(M, A, AM);
+    Vector2Dd::subtract(B, A, AB);
+    Vector2Dd::subtract(C, B, BC);
+    Vector2Dd::subtract(D, C, CD);
+    Vector2Dd::subtract(D, A, AD);
+    Vector2Dd::add(CD, AB, AE);
+    Vector2Dd::negate(AE);
+    Vector2Dd::subtract(M, A, AM);
 
     double a; // Quadratic equation
     double b;
     double c;
 
-    if ( java::Math::abs(vector2DDeterminant(AB, CD)) < Numeric::EPSILON ) {
+    if ( java::Math::abs(Vector2Dd::determinant(AB, CD)) < Numeric::EPSILON ) {
         // Case AB // CD
-        vector2DSubtract(AB, CD, Vector);
-        v = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AD, Vector);
+        Vector2Dd::subtract(AB, CD, Vector);
+        v = Vector2Dd::determinant(AM, Vector) / Vector2Dd::determinant(AD, Vector);
         if ( (v >= 0.0) && (v <= 1.0) ) {
-            b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
-            c = vector2DDeterminant(AM, AD);
+            b = Vector2Dd::determinant(AB, AD) - Vector2Dd::determinant(AM, AE);
+            c = Vector2Dd::determinant(AM, AD);
             u = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((u >= 0.0) && (u <= 1.0));
         }
-    } else if ( java::Math::abs(vector2DDeterminant(BC, AD)) < Numeric::EPSILON ) {
+    } else if ( java::Math::abs(Vector2Dd::determinant(BC, AD)) < Numeric::EPSILON ) {
         // Case AD // BC
-        vector2DAdd(AD, BC, Vector);
-        u = vector2DDeterminant(AM, Vector) / vector2DDeterminant(AB, Vector);
+        Vector2Dd::add(AD, BC, Vector);
+        u = Vector2Dd::determinant(AM, Vector) / Vector2Dd::determinant(AB, Vector);
         if ( (u >= 0.0) && (u <= 1.0) ) {
-            b = vector2DDeterminant(AD, AB) - vector2DDeterminant(AM, AE);
-            c = vector2DDeterminant(AM, AB);
+            b = Vector2Dd::determinant(AD, AB) - Vector2Dd::determinant(AM, AE);
+            c = Vector2Dd::determinant(AM, AB);
             v = java::Math::abs(b) < Numeric::EPSILON ? -1 : c / b;
             isInside = ((v >= 0.0) && (v <= 1.0));
         }
     } else {
         // General case
-        a = vector2DDeterminant(AB, AE);
-        c = -vector2DDeterminant(AM, AD);
-        b = vector2DDeterminant(AB, AD) - vector2DDeterminant(AM, AE);
+        a = Vector2Dd::determinant(AB, AE);
+        c = -Vector2Dd::determinant(AM, AD);
+        b = Vector2Dd::determinant(AB, AD) - Vector2Dd::determinant(AM, AE);
         a = -0.5 / a;
         b *= a;
         c *= (a + a);

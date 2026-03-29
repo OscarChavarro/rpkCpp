@@ -66,7 +66,7 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
         }
     }
 
-    dist = sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
+    dist = ::sqrDistance3D(static_cast<float *>(node.m_data), qdat_s.point);
 
     // Normal constraint
     if ( dist < qdat_s.maximumDistance &&

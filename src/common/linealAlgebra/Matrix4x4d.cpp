@@ -60,7 +60,7 @@ Matrix4x4d::identity() {
 Multiply m4b X m4c and put into m4a
 */
 void
-multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c)
+Matrix4x4d::multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c)
 {
     Matrix4x4d tmp;
     for ( int i = 3; i >= 0; i-- ) {

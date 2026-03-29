@@ -7,6 +7,12 @@ class Vector2Dd {
     double v;
 
     Vector2Dd();
+
+    static void set(Vector2Dd &v, double a, double b);
+    static void subtract(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r);
+    static void add(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r);
+    static void negate(Vector2Dd &p);
+    static double determinant(const Vector2Dd &A, const Vector2Dd &B);
 };
 
 inline
@@ -16,31 +22,31 @@ Vector2Dd::Vector2Dd() {
 }
 
 inline
-void vector2DSet(Vector2Dd &v, double a, double b) {
+void Vector2Dd::set(Vector2Dd &v, double a, double b) {
     v.u = a;
     v.v = b;
 }
 
 inline void
-vector2DSubtract(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
+Vector2Dd::subtract(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
     r.u = p.u - q.u;
     r.v = p.v - q.v;
 }
 
 inline void
-vector2DAdd(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
+Vector2Dd::add(const Vector2Dd &p, const Vector2Dd &q, Vector2Dd &r) {
     r.u = p.u + q.u;
     r.v = p.v + q.v;
 }
 
 inline void
-vector2DNegate(Vector2Dd &p) {
+Vector2Dd::negate(Vector2Dd &p) {
     p.u = -p.u;
     p.v = -p.v;
 }
 
 inline double
-vector2DDeterminant(const Vector2Dd &A, const Vector2Dd &B) {
+Vector2Dd::determinant(const Vector2Dd &A, const Vector2Dd &B) {
     return (A.u * B.v - A.v * B.u);
 }
 

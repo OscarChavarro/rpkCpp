@@ -16,21 +16,21 @@ ColorRgb::abs() {
 }
 
 void
-colorsArrayCopy(ColorRgb *result, const ColorRgb *source, const char n) {
+ColorRgb::arrayCopy(ColorRgb *result, const ColorRgb *source, const char n) {
     for ( int i = 0; i < n; i++ ) {
         result[i] = source[i];
     }
 }
 
 void
-colorsArrayAdd(ColorRgb *result, const ColorRgb *source, const char n) {
+ColorRgb::arrayAdd(ColorRgb *result, const ColorRgb *source, const char n) {
     for ( int i = 0; i < n; i++ ) {
         result[i].add(result[i], source[i]);
     }
 }
 
 void
-colorsArrayClear(ColorRgb *color, const char n) {
+ColorRgb::arrayClear(ColorRgb *color, const char n) {
     for ( int i = 0; i < n; i++ ) {
         color[i].clear();
     }

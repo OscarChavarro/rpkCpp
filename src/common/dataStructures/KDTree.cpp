@@ -234,8 +234,8 @@ KDTree::query(
 /**
 Distance calculation
 */
-inline static float
-sqrDistance3D(const float *a, const float *b) {
+inline float
+KDTree::sqrDistance3D(const float *a, const float *b) {
     float result;
     float tmp;
 
@@ -255,8 +255,8 @@ sqrDistance3D(const float *a, const float *b) {
 Max heap stuff, using static GLOBAL_qDatS (fastest !!)
 Adapted from patched POVRAY (megasrc), who took it from Sejwick
 */
-inline static void
-fixUp() {
+inline void
+KDTree::fixUp() {
     // Ripple the node (qdat_s.foundN) upward. There are qdat_s.foundN + 1 nodes
     // in the tree
     int son;
@@ -282,12 +282,12 @@ fixUp() {
     }
 }
 
-inline static void
-mhInsert(float *data, float dist) {
+inline void
+KDTree::mhInsert(float *data, float dist) {
     GLOBAL_qDatS.distances[GLOBAL_qDatS.foundN] = dist;
     GLOBAL_qDatS.results[GLOBAL_qDatS.foundN] = data;
 
-    fixUp();
+    KDTree::fixUp();
 
     // If all the photons are filled, we can use the actual maximum distance
     if ( ++GLOBAL_qDatS.foundN == GLOBAL_qDatS.wantedN ) {
@@ -296,8 +296,8 @@ mhInsert(float *data, float dist) {
     }
 }
 
-inline static void
-fixDown() {
+inline void
+KDTree::fixDown() {
     // Ripple the top node, which may not be max anymore downwards
     // There are qdat_s.foundN nodes in the tree, starting at index 0
     int son;
@@ -336,15 +336,15 @@ fixDown() {
     }
 }
 
-inline static void
-mhReplaceMax(float *data, float dist) {
+inline void
+KDTree::mhReplaceMax(float *data, float dist) {
     // Top = maximum element. Replace it with new and ripple down
     // The heap is full (foundN == wantedN), but this is not required
 
     *GLOBAL_qDatS.distances = dist; // Top
     *GLOBAL_qDatS.results = data;
 
-    fixDown();
+    KDTree::fixDown();
 
     GLOBAL_qDatS.maximumDistance = *GLOBAL_qDatS.distances; // Max = top of heap
 }
@@ -474,30 +474,30 @@ This Quick select routine is adapted from the algorithm described in
 "Numerical recipes in C", Second Edition,
 Cambridge University Press, 1992, Section 8.5, ISBN 0-521-43108-5
 */
-static inline void
-bkdswap(BalancedKDTreeNode root[], int a, int b) {
+inline void
+KDTree::bkdswap(BalancedKDTreeNode root[], int a, int b) {
     BalancedKDTreeNode tmp = root[a];
     root[a] = root[b];
     root[b] = tmp;
 }
 
-static inline float
-bkdval(BalancedKDTreeNode root[], int index, int discr) {
+inline float
+KDTree::bkdval(BalancedKDTreeNode root[], int index, int discr) {
     return static_cast<float *>(root[index].m_data)[discr];
 }
 
-static inline void
-eSwap(BalancedKDTreeNode broot[], int a, int b) {
-    bkdswap(broot, a, b);
+inline void
+KDTree::eSwap(BalancedKDTreeNode broot[], int a, int b) {
+    KDTree::bkdswap(broot, a, b);
 }
 
-static inline float
-eVal(BalancedKDTreeNode broot[], int index, int discr) {
-    return bkdval(broot, index, discr);
+inline float
+KDTree::eVal(BalancedKDTreeNode broot[], int index, int discr) {
+    return KDTree::bkdval(broot, index, discr);
 }
 
 int
-getBalancedMedian(int low, int high) {
+KDTree::getBalancedMedian(int low, int high) {
     int N = high - low + 1;  // High inclusive
 
     if ( N <= 1 ) {
@@ -528,14 +528,14 @@ getBalancedMedian(int low, int high) {
 /**
 Return index of median element
 */
-static int
-quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
+int
+KDTree::quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
     int median;
     int middle;
     int ll;
     int hh;
 
-    median = getBalancedMedian(low, high);
+    median = KDTree::getBalancedMedian(low, high);
 
     for ( ;; ) {
         if ( high <= low ) {
@@ -600,17 +600,17 @@ quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr) {
 /**
 Balance the kd tree
 */
-static void
-copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
+void
+KDTree::copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex) {
     if ( node ) {
         broot[(*pindex)++].copy(*node);
-        copyUnbalancedRec(node->loson, broot, pindex);
-        copyUnbalancedRec(node->hison, broot, pindex);
+        KDTree::copyUnbalancedRec(node->loson, broot, pindex);
+        KDTree::copyUnbalancedRec(node->hison, broot, pindex);
     }
 }
 
-static int
-bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
+int
+KDTree::bestDiscriminator(BalancedKDTreeNode broot[], int low, int high) {
     float bMin[3] = {Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE};
     float bMax[3] = {-Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE};
     float tmp;

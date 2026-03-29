@@ -43,6 +43,10 @@ class ColorRgb {
     void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
     void clip();
     void print(java::io::PrintStream *stream) const;
+
+    static void arrayCopy(ColorRgb *result, const ColorRgb *source, char n);
+    static void arrayAdd(ColorRgb *result, const ColorRgb *source, char n);
+    static void arrayClear(ColorRgb *color, char n);
 };
 
 inline ColorRgb::ColorRgb() {
@@ -115,9 +119,5 @@ ColorRgb::scalarProductScaled(const ColorRgb s, const float a, const ColorRgb t)
     g = s.g * a * t.g;
     b = s.b * a * t.b;
 }
-
-extern void colorsArrayCopy(ColorRgb *result, const ColorRgb *source, char n);
-extern void colorsArrayAdd(ColorRgb *result, const ColorRgb *source, char n);
-extern void colorsArrayClear(ColorRgb *color, char n);
 
 #endif

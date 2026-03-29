@@ -33,12 +33,12 @@ basisGalerkinPull(
     if ( parent->isCluster() ) {
         // Clusters only have irregular sub-elements and a constant
         // radiance approximation is used on them
-        colorsArrayClear(parent_coefficients, parent->basisSize);
+        ColorRgb::arrayClear(parent_coefficients, parent->basisSize);
         parent_coefficients[0].scaledCopy(child->area / parent->area, childCoefficients[0]);
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Error::error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
-            colorsArrayClear(parent_coefficients, parent->basisSize);
+            ColorRgb::arrayClear(parent_coefficients, parent->basisSize);
             parent_coefficients[0] = childCoefficients[0];
             return;
         }
@@ -71,7 +71,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
         element->receivedRadiance[i].clear();
     }
 
-    colorsArrayClear(Bup, element->basisSize);
+    ColorRgb::arrayClear(Bup, element->basisSize);
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
@@ -106,7 +106,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             basisGalerkinPull(element, Bup2, static_cast<GalerkinElement *>(element->regularSubElements[i]), Btmp);
 
             // 4. Add to Bup
-            colorsArrayAdd(Bup, Bup2, element->basisSize);
+            ColorRgb::arrayAdd(Bup, Bup2, element->basisSize);
         }
     }
 
@@ -123,7 +123,7 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             if ( element->isCluster() ) {
                 basisGalerkinPush(element, Bdown, subElement, Bdown2);
             } else {
-                colorsArrayClear(Bdown2, element->basisSize);
+                ColorRgb::arrayClear(Bdown2, element->basisSize);
             }
 
             // 2. Recursive call the push-pull for the sub-element
@@ -133,18 +133,18 @@ basisGalerkinPushPullRadianceRecursive(GalerkinElement *element, ColorRgb *Bdown
             basisGalerkinPull(element, Bup2, subElement, Btmp);
 
             // 4. Add to Bup
-            colorsArrayAdd(Bup, Bup2, element->basisSize);
+            ColorRgb::arrayAdd(Bup, Bup2, element->basisSize);
         }
     }
 
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI
       || galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
         // Gathering method: Bup is new approximation of the total radiance at this level of detail
-        colorsArrayCopy(element->radiance, Bup, element->basisSize);
+        ColorRgb::arrayCopy(element->radiance, Bup, element->basisSize);
     } else {
         // Shooting: add Bup to the total and un-shot radiance at this level
-        colorsArrayAdd(element->radiance, Bup, element->basisSize);
-        colorsArrayAdd(element->unShotRadiance, Bup, element->basisSize);
+        ColorRgb::arrayAdd(element->radiance, Bup, element->basisSize);
+        ColorRgb::arrayAdd(element->unShotRadiance, Bup, element->basisSize);
     }
 }
 
@@ -252,12 +252,12 @@ basisGalerkinPush(
     if ( element->isCluster() ) {
         // Clusters have only irregular sub-elements and a constant
         // approximation is used on them
-        colorsArrayClear(childCoefficients, child->basisSize);
+        ColorRgb::arrayClear(childCoefficients, child->basisSize);
         childCoefficients[0] = parentCoefficients[0];
     } else {
         if ( sigma < 0 || sigma > 3 ) {
             Error::error("stochasticJacobiPush", "Not yet implemented for non-regular subdivision");
-            colorsArrayClear(childCoefficients, child->basisSize);
+            ColorRgb::arrayClear(childCoefficients, child->basisSize);
             childCoefficients[0] = parentCoefficients[0];
             return;
         }
@@ -287,7 +287,7 @@ void
 basisGalerkinPushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState) {
     ColorRgb bDown[MAX_BASIS_SIZE];
     ColorRgb Bup[MAX_BASIS_SIZE];
-    colorsArrayClear(bDown, top->basisSize);
+    ColorRgb::arrayClear(bDown, top->basisSize);
     basisGalerkinPushPullRadianceRecursive(top, bDown, Bup, galerkinState);
 }
 

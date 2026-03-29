@@ -14,8 +14,8 @@ class Matrix4x4d {
 
     void copy(const Matrix4x4d *source);
     void identity();
-};
 
-extern void multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c);
+    static void multiplyMatrix4(Matrix4x4d *m4a, const Matrix4x4d *m4b, const Matrix4x4d *m4c);
+};
 
 #endif

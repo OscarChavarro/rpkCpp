@@ -44,8 +44,8 @@ Kernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
     float tp;
 
     // Find distance
-    vector2DDifference(point, center, aux);
-    tp = vector2DNorm2(aux);
+    Vector2D::difference(point, center, aux);
+    tp = Vector2D::norm2(aux);
 
     if ( tp < m_h2 ) {
         // Point inside kernel

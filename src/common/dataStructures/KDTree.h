@@ -70,6 +70,20 @@ class KDTree {
     static float *distances;
 
   private:
+    static float sqrDistance3D(const float *a, const float *b);
+    static void fixUp();
+    static void mhInsert(float *data, float dist);
+    static void fixDown();
+    static void mhReplaceMax(float *data, float dist);
+    static void bkdswap(BalancedKDTreeNode root[], int a, int b);
+    static float bkdval(BalancedKDTreeNode root[], int index, int discr);
+    static void eSwap(BalancedKDTreeNode broot[], int a, int b);
+    static float eVal(BalancedKDTreeNode broot[], int index, int discr);
+    static int getBalancedMedian(int low, int high);
+    static int quickSelect(BalancedKDTreeNode broot[], int low, int high, int discr);
+    static void copyUnbalancedRec(KDTreeNode *node, BalancedKDTreeNode *broot, int *pindex);
+    static int bestDiscriminator(BalancedKDTreeNode broot[], int low, int high);
+
     void *assignData(void *data) const;
     void deleteNodes(KDTreeNode *node, bool deleteData);
     void deleteBNodes(bool deleteData);

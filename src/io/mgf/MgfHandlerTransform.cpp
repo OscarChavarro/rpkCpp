@@ -198,7 +198,7 @@ mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *co
 static void
 finish(int count, TransformContext *ret, const Matrix4x4d *transformMatrix, double scaTransform) {
     while ( count-- > 0 ) {
-        multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, transformMatrix);
+        Matrix4x4d::multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, transformMatrix);
         ret->scaleFactor *= scaTransform;
     }
 }
@@ -397,7 +397,7 @@ xf(TransformContext *ret, int ac, char **av) {
                     return i;
                 }
                 while ( counter-- > 0 ) {
-                    multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, &transformMatrix);
+                    Matrix4x4d::multiplyMatrix4(&ret->transformMatrix, &ret->transformMatrix, &transformMatrix);
                     ret->scaleFactor *= scaTransform;
                 }
                 counter = static_cast<int>(strtol(av[++i], nullptr, 10));
@@ -410,7 +410,7 @@ xf(TransformContext *ret, int ac, char **av) {
                 return i;
 
         }
-        multiplyMatrix4(&transformMatrix, &transformMatrix, &m4);
+        Matrix4x4d::multiplyMatrix4(&transformMatrix, &transformMatrix, &m4);
     }
 
     finish(counter, ret, &transformMatrix, scaTransform);
@@ -496,7 +496,7 @@ handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
 
     // Compute total transformation
     if ( spec->prev != nullptr) {
-        multiplyMatrix4(&spec->xf.transformMatrix, &spec->xf.transformMatrix, &spec->prev->xf.transformMatrix);
+        Matrix4x4d::multiplyMatrix4(&spec->xf.transformMatrix, &spec->xf.transformMatrix, &spec->prev->xf.transformMatrix);
         spec->xf.scaleFactor *= spec->prev->xf.scaleFactor;
         spec->rev = static_cast<short>(spec->rev ^ spec->prev->rev);
     }

@@ -281,27 +281,27 @@ GalerkinElement::reAllocCoefficients() {
     }
 
     ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
-    colorsArrayClear(defaultRadiance, localBasisSize);
+    ColorRgb::arrayClear(defaultRadiance, localBasisSize);
     if ( radiance != nullptr ) {
-        colorsArrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgb::arrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
 
     ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
-    colorsArrayClear(defaultReceivedRadiance, localBasisSize);
+    ColorRgb::arrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance != nullptr ) {
-        colorsArrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgb::arrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
         ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
-        colorsArrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgb::arrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                colorsArrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
+                ColorRgb::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->material != nullptr ) {
                 defaultUnShotRadiance[0] = patch->radianceData->Ed;
