@@ -1,0 +1,14 @@
+#ifndef __XXDF_COMPONENT_FLAG__
+#define __XXDF_COMPONENT_FLAG__
+
+enum XxdfComponentFlag {
+    DIFFUSE_COMPONENT = 1,
+    GLOSSY_COMPONENT = 2,
+    SPECULAR_COMPONENT = 4
+};
+
+constexpr int XXDF_COMPONENTS = 3;
+constexpr int NO_COMPONENTS = 0;
+constexpr int ALL_COMPONENTS = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
+
+#endif

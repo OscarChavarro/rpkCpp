@@ -8,13 +8,8 @@
 #include "raycasting/common/PixelFilter.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/Raytracer.h"
+#include "raycasting/simple/RayMatterState.h"
 #include "raycasting/simple/RayMatterFilterType.h"
-
-class RayMatterState {
-  public:
-    int samplesPerPixel; // Pixel sampling
-    RayMatterFilterType filter; // Pixel filter
-};
 
 extern RayMatterState GLOBAL_rayCasting_rayMatterState;
 

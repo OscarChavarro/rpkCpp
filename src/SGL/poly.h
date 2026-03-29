@@ -6,64 +6,11 @@ Definitions for polygon package
 #define __POLY_HDR__
 
 #include "SGL/PolygonConstants.h"
+#include "SGL/PolygonVertex.h"
+#include "SGL/Polygon.h"
+#include "SGL/PolygonBox.h"
+#include "SGL/Window.h"
 #include "SGL/sgl.h"
-
-class PolygonVertex {
-  public:
-    double sx; // Screen space position (sometimes homo)
-    double sy;
-    double sz;
-    double sw;
-    double x; // World space position
-    double y;
-    double z;
-    double u; // Texture position (sometimes homogeneous)
-    double v;
-    double r; // (red,green,blue) color
-    double g;
-    double b;
-
-    inline double
-    getCoord(int i) const {
-        switch ( i ) {
-            case 0:
-                return sx;
-            case 1:
-                return sy;
-            case 2:
-                return sz;
-            case 3:
-                return sw;
-            case 4:
-                return x;
-            case 5:
-                return y;
-            case 6:
-                return z;
-            case 7:
-                return u;
-            case 8:
-                return v;
-            case 9:
-                return r;
-            case 10:
-                return g;
-            case 11:
-                return b;
-            default:
-                return 0.0;
-        }
-    }
-};
-
-// Note: don't put > 32 doubles in Poly_vert, or mask will overflow
-
-class Polygon {
-  public:
-    int n; // Number of sides
-    unsigned long mask; // Interpolation mask for vertex elems
-    PolygonVertex vertices[MAXIMUM_SIDES_PER_POLYGON];
-};
 
 /**
 Mask is an interpolation mask whose kth bit indicates whether the kth
@@ -73,26 +20,6 @@ mask = polyMask(offsetof(PolygonVertex, sx)) |
        polyMask(offsetof(PolygonVertex, sy)) |
        polyMask(offsetof(PolygonVertex, sz));
 */
-
-// A BOX (TYPICALLY IN SCREEN SPACE)
-class PolygonBox {
-  public:
-    double x0; // Left and right
-    double x1;
-    double y0; // Top and bottom
-    double y1;
-    double z0; // Near and far
-    double z1;
-};
-
-// WINDOW: A DISCRETE 2-D RECTANGLE
-class Window {
-  public:
-    int x0; // x-min and y-min
-    int y0;
-    int x1; // x-max and y-max (inclusive)
-    int y1;
-};
 
 inline constexpr unsigned long
 polyMask(std::size_t elementOffset) {

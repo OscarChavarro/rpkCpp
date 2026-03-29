@@ -20,6 +20,7 @@
 #endif
 
 #include "app/options.h"
+#include "app/BatchOptions.h"
 #include "app/commandLine.h"
 
 // Default scene level configuration

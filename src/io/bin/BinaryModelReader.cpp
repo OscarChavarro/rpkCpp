@@ -36,6 +36,12 @@
 #include "io/context/TransformStackContext.h"
 
 #include "io/bin/BinaryModelReader.h"
+#include "io/bin/ScopedArray.h"
+#include "io/bin/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/BinaryModelReaderVertexRecord.h"
+#include "io/bin/BinaryModelReaderPatchRecord.h"
+#include "io/bin/BinaryModelReaderGeometryRecord.h"
+#include "io/bin/BinaryModelReaderModelRecord.h"
 
 const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
@@ -44,164 +50,12 @@ const unsigned char BinaryModelReader::BINARY_MODEL_MAGIC[16] = {
 const int BinaryModelReader::BINARY_MODEL_VERSION = 1;
 
 namespace {
-template <typename T>
-class ScopedArray {
-  private:
-    T *value;
-
-  public:
-    explicit ScopedArray(T *initialValue = nullptr):
-        value(initialValue)
-    {
-    }
-
-    ~ScopedArray() {
-        delete[] value;
-        value = nullptr;
-    }
-
-    ScopedArray(const ScopedArray &) = delete;
-    ScopedArray &operator=(const ScopedArray &) = delete;
-
-    void
-    reset(T *newValue = nullptr) {
-        if ( value != newValue ) {
-            delete[] value;
-            value = newValue;
-        }
-    }
-
-    T *
-    get() const {
-        return value;
-    }
-};
-
 bool
 reportReadError(const char *routine, const char *message) {
     Error::error(routine, "%s", message);
     return false;
 }
 }
-
-class BinaryModelReader::IndexListRecord {
-  public:
-    bool isNull;
-    java::ArrayList<int> *indices;
-
-    IndexListRecord():
-        isNull(true),
-        indices(nullptr)
-    {
-    }
-};
-
-class BinaryModelReader::VertexRecord {
-  public:
-    int id;
-    int pointIndex;
-    int normalIndex;
-    int textureCoordinateIndex;
-    ColorRgb color;
-    int backIndex;
-    int tmp;
-    bool hasRadianceData;
-    IndexListRecord patchIndices;
-};
-
-class BinaryModelReader::PatchRecord {
-  public:
-    int id;
-    int twinIndex;
-    int numberOfVertices;
-    int vertexIndices[MAXIMUM_VERTICES_PER_PATCH];
-    bool hasBoundingBox;
-    float boundingBoxCoordinates[6];
-    Vector3D normal;
-    float planeConstant;
-    float tolerance;
-    float area;
-    Vector3D midPoint;
-    bool hasJacobian;
-    float jacobianA;
-    float jacobianB;
-    float jacobianC;
-    float directPotential;
-    int dominantIndex;
-    bool omit;
-    unsigned char flags;
-    ColorRgb color;
-    int materialIndex;
-    bool hasRadianceData;
-};
-
-class BinaryModelReader::GeometryRecord {
-  public:
-    int classId;
-    int id;
-    int itemCount;
-    bool bounded;
-    bool shaftCullGeometry;
-    bool omit;
-    bool isDuplicate;
-    float boundingBoxCoordinates[6];
-    bool hasRayIntersectionBox;
-    bool hasRadianceData;
-
-    bool hasObjectName;
-    char *objectName;
-    int meshId;
-    int materialIndex;
-    IndexListRecord positions;
-    IndexListRecord normals;
-    IndexListRecord vertices;
-    IndexListRecord faces;
-
-    IndexListRecord children;
-    IndexListRecord patchSetPatches;
-};
-
-class BinaryModelReader::ModelRecord {
-  public:
-    int currentColorIndex;
-    bool hasCurrentMaterialName;
-    char *currentMaterialName;
-    bool hasCurrentObjectName;
-    char *currentObjectName;
-    bool hasCurrentVertexName;
-    char *currentVertexName;
-    int geometryStackHeadIndex;
-    bool inComplex;
-    bool inSurface;
-    bool monochrome;
-    int readerContextIndex;
-    int transformContextIndex;
-
-    IndexListRecord currentFaceList;
-    IndexListRecord currentGeometryList;
-    IndexListRecord currentNormalList;
-    IndexListRecord currentPointList;
-    IndexListRecord currentVertexList;
-    IndexListRecord geometries;
-    IndexListRecord materials;
-
-    ModelRecord():
-        currentColorIndex(0),
-        hasCurrentMaterialName(false),
-        currentMaterialName(nullptr),
-        hasCurrentObjectName(false),
-        currentObjectName(nullptr),
-        hasCurrentVertexName(false),
-        currentVertexName(nullptr),
-        geometryStackHeadIndex(0),
-        inComplex(false),
-        inSurface(false),
-        monochrome(false),
-        readerContextIndex(0),
-        transformContextIndex(0)
-    {
-    }
-};
 
 template <typename T>
 bool

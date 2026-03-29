@@ -10,14 +10,9 @@ this class can be used for sampling lights
 
 #include "common/dataStructures/CircularList.h"
 
-#include "skin/Patch.h"
+#include "raycasting/bidirectionalRaytracing/LightInfo.h"
 
-class LightInfo {
-public:
-    float emittedFlux;
-    float importance; // Cumulative probability : for importance sampling
-    Patch *light;
-};
+#include "skin/Patch.h"
 
 class LightListIterator;
 
@@ -87,39 +82,9 @@ class LightList final : private CircularList<LightInfo> {
     friend class LightListIterator;
 };
 
-class LightListIterator {
-  private:
-    CircularListIterator<LightInfo> iterator;
-  public:
-    explicit LightListIterator(LightList &list) : iterator(list) {}
-
-    Patch *First(LightList &list);
-    Patch *Next();
-};
-
-inline Patch *
-LightListIterator::First(LightList &list) {
-    iterator.init(list);
-
-    LightInfo *li = iterator.nextOnSequence();
-    if ( li != nullptr ) {
-        return li->light;
-    } else {
-        return nullptr;
-    }
-}
-
-inline Patch *
-LightListIterator::Next() {
-    LightInfo *li = iterator.nextOnSequence();
-    if ( li ) {
-        return li->light;
-    } else {
-        return nullptr;
-    }
-}
-
 // Global var for the scene light list
 extern LightList *GLOBAL_lightList;
+
+#include "raycasting/bidirectionalRaytracing/LightListIterator.h"
 
 #endif

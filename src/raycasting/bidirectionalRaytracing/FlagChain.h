@@ -45,45 +45,7 @@ FlagChainCompare(const FlagChain *c1, const FlagChain *c2);
 FlagChain *
 FlagChainCombine(const FlagChain *chain1, const FlagChain *chain2);
 
-// A linked list of flag chains.
-// Chains in the list are of fixed length !
-
-class FlagChainList final : private CircularList<FlagChain> {
-  public:
-    int length;
-    int count;
-
-    FlagChainList();
-    ~FlagChainList() final;
-    void add(const FlagChain &chain) final;
-    void add(FlagChainList *list);
-    void addDisjoint(const FlagChain &chain);
-    ColorRgb compute(CBiPath *path);
-    FlagChainList *simplify();
-};
-
-typedef CircularListIterator<FlagChain> FlagChainIterator;
-
-/**
-An array of chain lists indexed by length
-*/
-class ContribHandler {
-  public:
-    FlagChainList *array;
-    int maxLength;
-
-    ContribHandler();
-    virtual void init(int paramMaxLength);
-    virtual ~ContribHandler();
-    virtual void addRegExp(char *regExp);
-    virtual ColorRgb compute(CBiPath *path);
-
-  protected:
-    virtual void doRegExp(char *regExp, bool subtract);
-    void doSyntaxError(const char *errString);
-    bool getFlags(const char *regExp, int *pos, char *flags);
-    bool getToken(const char *regExp, int *pos, char *token, char *flags);
-    void doRegExpGeneral(const char *regExp, bool subtract);
-};
+#include "raycasting/bidirectionalRaytracing/FlagChainList.h"
+#include "raycasting/bidirectionalRaytracing/ContribHandler.h"
 
 #endif

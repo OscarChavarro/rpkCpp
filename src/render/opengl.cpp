@@ -12,14 +12,10 @@
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMap.h"
 #include "render/canvas.h"
+#include "render/OctreeChild.h"
+#include "render/OpenGlRenderTraversalCallback.h"
 #include "render/opengl.h"
 #include "render/render.h"
-
-class OctreeChild {
-  public:
-    Geometry *geometry;
-    float distance;
-};
 
 #ifdef OPEN_GL_ENABLED
 void
@@ -172,13 +168,6 @@ openGlRenderPatchOutline(const Patch *patch) {
 }
 
 #ifdef OPEN_GL_ENABLED
-class OpenGlRenderTraversalCallback {
-  public:
-    OpenGlRenderPatchCallback callbackWithoutData;
-    OpenGlRenderPatchCallbackWithData callbackWithData;
-    void *callbackData;
-};
-
 static void
 openGlInvokeRenderPatch(
     const OpenGlRenderTraversalCallback &renderPatch,

@@ -1,0 +1,17 @@
+#ifndef __SPAR_CONFIG__
+#define __SPAR_CONFIG__
+
+class BidirectionalPathRaytracerConfig;
+class Spar;
+
+// Spar Config stores handy config params
+class SparConfig {
+  public:
+    BidirectionalPathRaytracerConfig *baseConfig;
+
+    // Needed in weighted multi-pass methods
+    Spar *leSpar;
+    Spar *ldSpar;
+};
+
+#endif

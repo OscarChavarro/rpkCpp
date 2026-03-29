@@ -51,54 +51,11 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #ifndef __K_D_TREE__
 #define __K_D_TREE__
 
+#include "common/dataStructures/KDTreeNode.h"
+#include "common/dataStructures/BalancedKDTreeNode.h"
+
 // Not HUGE_DOUBLE_VALUE, since we need to square it
 extern const float KD_MAX_RADIUS;
-
-class KDTreeNode {
-  public:
-    KDTreeNode *loson;
-    KDTreeNode *hison;
-
-    // Flags can be used to exclude certain nodes from a query
-    // 4 LOWER BITS ARE RESERVED !!
-    int m_flags;
-    void *m_data;
-    void findMinMaxDepth(int depth, int *minDepth, int *maxDepth) const;
-
-    inline int discriminator() const {
-        return (m_flags & 0xF);
-    }
-
-    inline void setDiscriminator(int discriminator) {
-        m_flags = (m_flags & 0xFFF0) | discriminator;
-    }
-    inline int flags() const {
-        return (m_flags & 0xFFF0);
-    }
-};
-
-/**
-Node for a balanced kd tree, nodes are placed in arrays
-and no loson, hison pointers are necessary
-*/
-class BalancedKDTreeNode {
-  public:
-    void *m_data;
-    int m_flags;
-
-    inline void copy(const KDTreeNode &kdNode) {
-        m_data = kdNode.m_data;
-        m_flags = kdNode.flags();
-    }
-
-    inline int discriminator() const {
-	    return (m_flags & 0xF);
-    }
-
-    inline void setDiscriminator(int discr) {
-	    m_flags = (m_flags & 0xFFF0) | discr;
-    }
-};
 
 class KDTree {
   protected:

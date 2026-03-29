@@ -6,35 +6,8 @@ Random walk generation
 #define __TRACE_PATH__
 
 #include "java/util/ArrayList.h"
-
-/**
-Path node: contains all necessary data for computing the score afterwards
-*/
-class StochasticRaytracingPathNode {
-  public:
-    Patch *patch;
-    double probability;
-    Vector3D inPoint;
-    Vector3D outpoint;
-
-    StochasticRaytracingPathNode();
-};
-
-/**
-A full path, basically an array of 'numberOfNodes' path nodes
-*/
-class PATH {
-  public:
-    int numberOfNodes;
-    int nodesAllocated;
-    StochasticRaytracingPathNode *nodes;
-
-    PATH();
-};
-
-inline
-PATH::PATH(): numberOfNodes(), nodesAllocated(), nodes() {
-}
+#include "raycasting/stochasticRaytracing/StochasticRaytracingPathNode.h"
+#include "raycasting/stochasticRaytracing/PATH.h"
 
 extern void
 tracePaths(

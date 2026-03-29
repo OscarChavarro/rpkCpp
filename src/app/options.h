@@ -5,18 +5,9 @@ Command line options and defaults
 #ifndef __OPTIONS__
 #define __OPTIONS__
 
-#include "java/io/PrintStream.h"
-
-/**
-Command line option value type structures
-*/
-class CommandLineOptions {
-  public:
-    int (*get)(void *value, void *data); // Retrieves a argument value
-    void (*print)(java::io::PrintStream *stream, void *value, void *data); // Prints an argument value
-    void *dummy; // Pointer to "dummy" argument value storage
-    void *data; // Pointer to additional data
-};
+#include "app/CommandLineOptions.h"
+#include "app/CommandLineOptionDescription.h"
+#include "app/ENUMDESC.h"
 
 extern CommandLineOptions GLOBAL_options_intType;
 extern CommandLineOptions GLOBAL_options_boolType;
@@ -46,18 +37,6 @@ extern CommandLineOptions *const OPTIONS_TYPE_XY;
 // Default action; no action.
 extern void (*const DEFAULT_ACTION)(void *);
 
-class CommandLineOptionDescription {
-  public:
-    const char *name; // Command line options name
-    int abbreviationLength; // Minimum number of characters in command ine option name abbreviation or
-				 // 0 if no abbreviation is allowed
-    CommandLineOptions *type; // Value type, or TYPELESS
-    void *value; // Pointer to value, or nullptr if TYPELESS option or to store value in temporary variable
-    void (*action)(void *); // Action called after parsing the value, can be a nullptr pointer. A pointer to the
-				 // parsed option value (or nullptr if TYPELESS option) is passed as the argument
-    const char *description; // Short description of the option. For printing command line option usage
-};
-
 extern void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
 
 /**
@@ -66,13 +45,6 @@ of ENUMDESC entries. These entries describe the integer options values and
 their names. abbrev indicates the minimum number of characters in abbreviations
 of the names. The last entry shall be {0, nullptr, 0} (sentinel)
 */
-class ENUMDESC {
-  public:
-    int value;
-    const char *name;
-    int abbrev;
-};
-
 extern int optionsEnumGet(void *value, void *data);
 extern void optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data);
 

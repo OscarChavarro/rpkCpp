@@ -1,42 +1,11 @@
 #ifndef __LOOKUP_TABLE__
 #define __LOOKUP_TABLE__
 
+#include "io/context/LookUpBehavior.h"
+#include "io/context/CStringLookUpBehavior.h"
+#include "io/context/OwningCStringLookUpBehavior.h"
+
 class LookUpEntity;
-
-class LookUpBehavior {
-  public:
-    virtual ~LookUpBehavior() {}
-
-    virtual long
-    hash(const char *key) const = 0;
-
-    virtual bool
-    keysEqual(const char *left, const char *right) const = 0;
-
-    virtual void
-    freeKey(const char * /*key*/) const {}
-
-    virtual void
-    freeData(const char * /*data*/) const {}
-};
-
-class CStringLookUpBehavior : public LookUpBehavior {
-  public:
-    long
-    hash(const char *key) const override;
-
-    bool
-    keysEqual(const char *left, const char *right) const override;
-};
-
-class OwningCStringLookUpBehavior : public CStringLookUpBehavior {
-  public:
-    void
-    freeKey(const char *key) const override;
-
-    void
-    freeData(const char *data) const override;
-};
 
 namespace LookUpBehaviors {
 const LookUpBehavior &

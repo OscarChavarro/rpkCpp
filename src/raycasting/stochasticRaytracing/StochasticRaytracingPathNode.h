@@ -1,0 +1,21 @@
+#ifndef __STOCHASTIC_RAYTRACING_PATH_NODE__
+#define __STOCHASTIC_RAYTRACING_PATH_NODE__
+
+#include "common/linealAlgebra/Vector3D.h"
+
+class Patch;
+
+/**
+Path node: contains all necessary data for computing the score afterwards
+*/
+class StochasticRaytracingPathNode {
+  public:
+    Patch *patch;
+    double probability;
+    Vector3D inPoint;
+    Vector3D outpoint;
+
+    StochasticRaytracingPathNode();
+};
+
+#endif

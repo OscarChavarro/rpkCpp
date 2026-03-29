@@ -8,6 +8,33 @@
 
 LightList *GLOBAL_lightList = nullptr;
 
+LightListIterator::LightListIterator(LightList &list):
+    iterator(list)
+{
+}
+
+Patch *
+LightListIterator::First(LightList &list) {
+    iterator.init(list);
+
+    LightInfo *li = iterator.nextOnSequence();
+    if ( li != nullptr ) {
+        return li->light;
+    } else {
+        return nullptr;
+    }
+}
+
+Patch *
+LightListIterator::Next() {
+    LightInfo *li = iterator.nextOnSequence();
+    if ( li ) {
+        return li->light;
+    } else {
+        return nullptr;
+    }
+}
+
 LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     LightInfo info{};
     ColorRgb lightColor;
