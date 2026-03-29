@@ -7,14 +7,13 @@
 namespace java {
 namespace io {
 
-namespace {
-static bool
-isValidPath(const char *rawPath) {
+bool
+File::isValidPath(const char *rawPath) {
     return rawPath != nullptr && rawPath[0] != '\0';
 }
 
-static bool
-canOpenWithMode(const char *rawPath, const char *mode, int *errorCode = nullptr) {
+bool
+File::canOpenWithMode(const char *rawPath, const char *mode, int *errorCode) {
     errno = 0;
     FILE *probe = std::fopen(rawPath, mode);
     if ( probe == nullptr ) {
@@ -30,8 +29,8 @@ canOpenWithMode(const char *rawPath, const char *mode, int *errorCode = nullptr)
     return true;
 }
 
-static bool
-isDirectoryByReadProbe(const char *rawPath) {
+bool
+File::isDirectoryByReadProbe(const char *rawPath) {
     int openError = 0;
     if ( canOpenWithMode(rawPath, "rb", &openError) ) {
         errno = 0;
@@ -64,7 +63,6 @@ isDirectoryByReadProbe(const char *rawPath) {
         return true;
     }
     return slashError == EISDIR || slashError == EACCES || slashError == EPERM;
-}
 }
 
 File::File():

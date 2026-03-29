@@ -12,8 +12,8 @@ PrintStream::PrintStream(OutputStream *stream):
 {
 }
 
-static void
-writeText(OutputStream *stream, const char *text) {
+void
+PrintStream::writeText(OutputStream *stream, const char *text) {
     if ( stream == nullptr || text == nullptr ) {
         return;
     }
@@ -24,8 +24,8 @@ writeText(OutputStream *stream, const char *text) {
     stream->write(reinterpret_cast<const unsigned char *>(text), 0, length);
 }
 
-static void
-writeFormatted(OutputStream *stream, const char *format, va_list arguments) {
+void
+PrintStream::writeFormatted(OutputStream *stream, const char *format, va_list arguments) {
     if ( stream == nullptr || format == nullptr ) {
         return;
     }

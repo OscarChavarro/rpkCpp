@@ -36,6 +36,12 @@ class Formatter {
     vformat(char *buffer, int bufferSize, const char *format, va_list arguments);
 
   private:
+    static java::lang::String
+    appendText(const java::lang::String &left, const java::lang::String &right);
+
+    static java::lang::String
+    formatToString(const char *formatText, va_list arguments);
+
     java::io::OutputStream *outputStream;
     java::lang::String content;
     bool closed;

@@ -1,6 +1,8 @@
 #ifndef __JAVA_IO_FILE_OUTPUT_STREAM__
 #define __JAVA_IO_FILE_OUTPUT_STREAM__
 
+#include <cstdio>
+
 #include "java/io/File.h"
 #include "java/io/OutputStream.h"
 
@@ -10,6 +12,9 @@ namespace io {
 class FileOutputStream : public OutputStream {
   private:
     void *stream;
+
+    static FILE *
+    toFileHandle(void *handle);
 
   public:
     explicit FileOutputStream(const char *fileName);

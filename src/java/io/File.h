@@ -10,6 +10,15 @@ class File {
   private:
     java::lang::String path;
 
+    static bool
+    isValidPath(const char *rawPath);
+
+    static bool
+    canOpenWithMode(const char *rawPath, const char *mode, int *errorCode = nullptr);
+
+    static bool
+    isDirectoryByReadProbe(const char *rawPath);
+
   public:
     File();
     explicit File(const char *path);

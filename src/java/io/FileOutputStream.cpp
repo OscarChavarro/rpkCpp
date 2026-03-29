@@ -5,11 +5,9 @@
 namespace java {
 namespace io {
 
-namespace {
-static FILE *
-toFileHandle(void *handle) {
+FILE *
+FileOutputStream::toFileHandle(void *handle) {
     return static_cast<FILE *>(handle);
-}
 }
 
 FileOutputStream::FileOutputStream(const char *fileName):

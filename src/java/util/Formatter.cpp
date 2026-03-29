@@ -8,9 +8,8 @@
 namespace java {
 namespace util {
 
-namespace {
-static java::lang::String
-appendText(const java::lang::String &left, const java::lang::String &right) {
+java::lang::String
+Formatter::appendText(const java::lang::String &left, const java::lang::String &right) {
     const char *leftRaw = left.toCString();
     const char *rightRaw = right.toCString();
     const std::size_t leftLength = std::strlen(leftRaw);
@@ -26,8 +25,8 @@ appendText(const java::lang::String &left, const java::lang::String &right) {
     return result;
 }
 
-static java::lang::String
-formatToString(const char *formatText, va_list arguments) {
+java::lang::String
+Formatter::formatToString(const char *formatText, va_list arguments) {
     if ( formatText == nullptr ) {
         return java::lang::String();
     }
@@ -53,7 +52,6 @@ formatToString(const char *formatText, va_list arguments) {
     java::lang::String result(dynamicBuffer);
     delete[] dynamicBuffer;
     return result;
-}
 }
 
 Formatter::Formatter():
