@@ -2,7 +2,7 @@
 #define __LOOKUP_TABLE__
 
 #include "io/context/LookUpBehavior.h"
-#include "io/context/CStringLookUpBehavior.h"
+#include "io/context/StringLookUpBehavior.h"
 #include "io/context/OwningCStringLookUpBehavior.h"
 
 class LookUpEntity;

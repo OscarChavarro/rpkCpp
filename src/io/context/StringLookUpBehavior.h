@@ -1,9 +1,9 @@
-#ifndef __CSTRING_LOOKUP_BEHAVIOR__
-#define __CSTRING_LOOKUP_BEHAVIOR__
+#ifndef __STRING_LOOK_UP_BEHAVIOR__
+#define __STRING_LOOK_UP_BEHAVIOR__
 
 #include "io/context/LookUpBehavior.h"
 
-class CStringLookUpBehavior : public LookUpBehavior {
+class StringLookUpBehavior : public LookUpBehavior {
   public:
     long
     hash(const char *key) const override;

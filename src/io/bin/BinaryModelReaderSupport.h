@@ -1,0 +1,134 @@
+#ifndef __BINARY_MODEL_READER_SUPPORT__
+#define __BINARY_MODEL_READER_SUPPORT__
+
+#include "common/Error.h"
+#include "io/bin/BinaryModelReaderIndexListRecord.h"
+
+namespace java {
+template <class T>
+class ArrayList;
+
+namespace io {
+class InputStream;
+}
+}
+
+class BoundingBox;
+class ColorRgb;
+class PersistedSceneModel;
+class Vector3D;
+class BinaryModelReaderModelRecord;
+
+class BinaryModelReaderSupport {
+  public:
+    static bool reportReadError(const char *routine, const char *message);
+
+    template <typename T>
+    static bool initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what);
+
+    static void releaseIndexListRecord(BinaryModelReaderIndexListRecord *record);
+    static void readBytes(java::io::InputStream &input, unsigned char *buffer, int length);
+    static bool readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length);
+    static unsigned char readByte(java::io::InputStream &input);
+    static bool readBool(java::io::InputStream &input);
+    static short readInt16LE(java::io::InputStream &input);
+    static int readInt32LE(java::io::InputStream &input);
+    static long long readInt64LE(java::io::InputStream &input);
+    static float readFloatLE(java::io::InputStream &input);
+    static double readDoubleLE(java::io::InputStream &input);
+    static bool expectTag(java::io::InputStream &input, const char expected[4]);
+    static bool readNonNegativeCount(java::io::InputStream &input, const char *what, int *count);
+    static bool readNullableString(java::io::InputStream &input, char **value, bool *hasValue);
+    static bool duplicateNullableString(bool hasValue, const char *value, char **text);
+    static bool readColor(java::io::InputStream &input, ColorRgb *color);
+    static bool readVector(java::io::InputStream &input, Vector3D *vector);
+    static bool readBoundingBoxCoordinates(java::io::InputStream &input, float coordinates[6]);
+    static bool setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]);
+    static bool readIndexList(java::io::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record);
+
+    template <typename T>
+    static bool pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result);
+
+    template <typename T>
+    static bool arrayListFromIndices(
+        const BinaryModelReaderIndexListRecord &record,
+        const java::ArrayList<T *> &values,
+        const char *what,
+        java::ArrayList<T *> **result);
+
+    static bool validateBinaryHeader(java::io::InputStream &input);
+    static bool populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record);
+};
+
+template <typename T>
+inline bool
+BinaryModelReaderSupport::initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what) {
+    if ( list == nullptr ) {
+        return reportReadError("BinaryModelReaderSupport::initializeArrayList", "Null list pointer");
+    }
+    if ( count < 0 ) {
+        Error::error("BinaryModelReaderSupport::initializeArrayList", "Negative count while reading binary model (%s)", what);
+        return false;
+    }
+    for ( int i = 0; i < count; i++ ) {
+        if ( !list->add(initialValue) ) {
+            Error::error("BinaryModelReaderSupport::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
+            return false;
+        }
+    }
+    return true;
+}
+
+template <typename T>
+inline bool
+BinaryModelReaderSupport::pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result) {
+    if ( result == nullptr ) {
+        return reportReadError("BinaryModelReaderSupport::pointerFromIndex", "Null output pointer");
+    }
+    *result = nullptr;
+    if ( index == -1 ) {
+        return true;
+    }
+    if ( index < 0 || static_cast<long int>(index) >= values.size() ) {
+        Error::error("BinaryModelReaderSupport::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+        return false;
+    }
+    *result = values.get(static_cast<long int>(index));
+    return true;
+}
+
+template <typename T>
+inline bool
+BinaryModelReaderSupport::arrayListFromIndices(
+    const BinaryModelReaderIndexListRecord &record,
+    const java::ArrayList<T *> &values,
+    const char *what,
+    java::ArrayList<T *> **result)
+{
+    if ( result == nullptr ) {
+        return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Null output pointer");
+    }
+    *result = nullptr;
+    if ( record.isNull ) {
+        return true;
+    }
+    if ( record.indices == nullptr ) {
+        return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Missing index list while reading binary model");
+    }
+    java::ArrayList<T *> *list = new java::ArrayList<T *>();
+    for ( long int i = 0; i < record.indices->size(); i++ ) {
+        T *element = nullptr;
+        if ( !pointerFromIndex(values, record.indices->get(i), what, &element) ) {
+            delete list;
+            return false;
+        }
+        if ( !list->add(element) ) {
+            delete list;
+            return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Failed to allocate output list while reading binary model");
+        }
+    }
+    *result = list;
+    return true;
+}
+
+#endif

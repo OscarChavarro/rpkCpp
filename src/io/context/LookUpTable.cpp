@@ -45,12 +45,12 @@ lookUpShuffleHash(const char *text) {
 }
 
 long
-CStringLookUpBehavior::hash(const char *key) const {
+StringLookUpBehavior::hash(const char *key) const {
     return lookUpShuffleHash(key);
 }
 
 bool
-CStringLookUpBehavior::keysEqual(const char *left, const char *right) const {
+StringLookUpBehavior::keysEqual(const char *left, const char *right) const {
     return std::strcmp(left, right) == 0;
 }
 
@@ -68,7 +68,7 @@ namespace LookUpBehaviors {
 const LookUpBehavior &
 nonOwningCString() {
     // Process-lifetime singleton avoids static destruction order issues.
-    static const LookUpBehavior *behavior = new CStringLookUpBehavior();
+    static const LookUpBehavior *behavior = new StringLookUpBehavior();
     return *behavior;
 }
 

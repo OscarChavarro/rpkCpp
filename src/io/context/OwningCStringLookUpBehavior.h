@@ -1,9 +1,9 @@
 #ifndef __OWNING_CSTRING_LOOKUP_BEHAVIOR__
 #define __OWNING_CSTRING_LOOKUP_BEHAVIOR__
 
-#include "io/context/CStringLookUpBehavior.h"
+#include "io/context/StringLookUpBehavior.h"
 
-class OwningCStringLookUpBehavior : public CStringLookUpBehavior {
+class OwningCStringLookUpBehavior : public StringLookUpBehavior {
   public:
     void
     freeKey(const char *key) const override;

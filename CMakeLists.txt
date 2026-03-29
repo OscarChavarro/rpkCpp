@@ -127,6 +127,8 @@ set(MAIN_SRC
     src/io/bin/BinaryModelWriter.cpp
     src/io/bin/BinaryModelWriterSerializationContext.cpp
     src/io/bin/BinaryModelReader.cpp
+    src/io/bin/BinaryModelReaderSupport.cpp
+    src/io/bin/BinaryModelReaderCleanup.cpp
     src/io/bin/BinaryModelReaderIndexListRecord.cpp
     src/io/bin/BinaryModelReaderVertexRecord.cpp
     src/io/bin/BinaryModelReaderPatchRecord.cpp
