@@ -11,7 +11,7 @@ static LookUpTable globalColorTable(LookUpBehaviors::owningCString());
 Handle color entity
 */
 int
-handleColorEntity(int ac, const char **av, BaseContext *context) {
+handleColorEntity(int ac, const char **av, MgfParseSession *context) {
     int i;
     double wSum;
     LookUpEntity *lp;
@@ -167,7 +167,7 @@ handleColorEntity(int ac, const char **av, BaseContext *context) {
 Empty context tables
 */
 void
-initColorContextTables(BaseContext *context) {
+initColorContextTables(MgfParseSession *context) {
     *(context->unNamedColorContext) = DEFAULT_COLOR_CONTEXT;
     context->currentColor = context->unNamedColorContext;
     globalColorTable.lookUpDone();

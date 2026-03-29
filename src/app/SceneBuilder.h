@@ -2,13 +2,13 @@
 #define __SCENE_BUILDER__
 
 #include "scene/Scene.h"
-#include "io/context/BaseContext.h"
+#include "io/context/MgfParseSession.h"
 
 extern void
 sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    BaseContext *mgfContext,
+    MgfParseSession *mgfContext,
     Scene *scene);
 
 #endif

@@ -1,4 +1,5 @@
-#include "io/context/BaseContext.h"
+#include "common/linealAlgebra/Numeric.h"
+#include "io/context/ErrorCodeContext.h"
 #include "io/context/ColorContext.h"
 #include "io/context/WordsContext.h"
 

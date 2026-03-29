@@ -35,7 +35,7 @@ The parser was changed so we can call them in order not to have to duplicate
 the code
 */
 static int
-doDiscreteConic(int argc, const char **argv, BaseContext *context) {
+doDiscreteConic(int argc, const char **argv, MgfParseSession *context) {
     int en = mgfEntity(argv[0], context);
 
     switch ( en ) {
@@ -57,21 +57,21 @@ doDiscreteConic(int argc, const char **argv, BaseContext *context) {
 }
 
 static Vector3D *
-installPoint(float x, float y, float z, const BaseContext *context) {
+installPoint(float x, float y, float z, const MgfParseSession *context) {
     Vector3D *coord = new Vector3D(x, y, z);
     context->currentPointList->add(coord);
     return coord;
 }
 
 static Vector3D *
-installNormal(float x, float y, float z, const BaseContext *context) {
+installNormal(float x, float y, float z, const MgfParseSession *context) {
     Vector3D *norm = new Vector3D(x, y, z);
     context->currentNormalList->add(norm);
     return norm;
 }
 
 static Vertex *
-installVertex(Vector3D *coord, Vector3D *norm, const BaseContext *context) {
+installVertex(Vector3D *coord, Vector3D *norm, const MgfParseSession *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
@@ -79,7 +79,7 @@ installVertex(Vector3D *coord, Vector3D *norm, const BaseContext *context) {
 }
 
 static Vertex *
-getVertex(const char *name, BaseContext *context) {
+getVertex(const char *name, MgfParseSession *context) {
     MgfVertexContext *vp = getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
@@ -118,7 +118,7 @@ Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
 static Vertex *
-getBackFaceVertex(Vertex *v, const BaseContext *context) {
+getBackFaceVertex(Vertex *v, const MgfParseSession *context) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -136,7 +136,7 @@ getBackFaceVertex(Vertex *v, const BaseContext *context) {
 }
 
 static Patch *
-newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const BaseContext *context) {
+newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const MgfParseSession *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -362,7 +362,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 static void
-doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, BaseContext *context) {
+doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, MgfParseSession *context) {
     Vector3D center;
 
     center.set(0.0, 0.0, 0.0);
@@ -483,7 +483,7 @@ doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, BaseCont
 }
 
 int
-handleFaceEntity(int argc, const char **argv, BaseContext *context) {
+handleFaceEntity(int argc, const char **argv, MgfParseSession *context) {
     if ( argc < 4 ) {
         doError("too few vertices in face", context);
         return ErrorCodeContext::MGF_OK; // Don't stop parsing the input
@@ -569,7 +569,7 @@ handleFaceEntity(int argc, const char **argv, BaseContext *context) {
 }
 
 int
-handleSurfaceEntity(int argc, const char **argv, BaseContext *context) {
+handleSurfaceEntity(int argc, const char **argv, MgfParseSession *context) {
     if ( context->inComplex ) {
         // mgfEntitySphere calls mgfEntityCone
         return doDiscreteConic(argc, argv, context);
@@ -596,7 +596,7 @@ on another contour. Creates an argument list for the face
 without hole entity handling routine handleFaceEntity() and calls it
 */
 int
-handleFaceWithHolesEntity(int argc, const char **argv, BaseContext *context) {
+handleFaceWithHolesEntity(int argc, const char **argv, MgfParseSession *context) {
     Vector3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     const char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
                                             // without hole entity handler
@@ -745,7 +745,7 @@ handleFaceWithHolesEntity(int argc, const char **argv, BaseContext *context) {
 Handle a vertex entity
 */
 int
-handleVertexEntity(int ac, const char **av, BaseContext *context) {
+handleVertexEntity(int ac, const char **av, MgfParseSession *context) {
     LookUpEntity *lp;
 
     switch ( mgfEntity(av[0], context) ) {
@@ -848,7 +848,7 @@ handleVertexEntity(int ac, const char **av, BaseContext *context) {
 Get a named vertex
 */
 MgfVertexContext *
-getNamedVertex(const char *name, BaseContext *context) {
+getNamedVertex(const char *name, MgfParseSession *context) {
     LookUpEntity *lp = context->vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
@@ -858,7 +858,7 @@ getNamedVertex(const char *name, BaseContext *context) {
 }
 
 void
-initGeometryContextTables(BaseContext *context) {
+initGeometryContextTables(MgfParseSession *context) {
     globalMgfVertexContext = globalMgfDefaultVertexContext;
     globalMgfCurrentVertex = &globalMgfVertexContext;
     context->currentVertexName = nullptr;

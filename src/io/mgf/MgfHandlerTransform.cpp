@@ -88,7 +88,7 @@ checkArgument(int a, const char *l, int ac, char **av, int i) {
 Put out name for this instance
 */
 static int
-transformName(const TransformArray *ap, BaseContext *context) {
+transformName(const TransformArray *ap, MgfParseSession *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static const char *oav[3] = {
         context->entityNames[EntityContext::OBJECT], oName
@@ -113,7 +113,7 @@ transformName(const TransformArray *ap, BaseContext *context) {
 Allocate new transform structure
 */
 static TransformStackContext *
-newTransform(int ac, const char **av, BaseContext *context) {
+newTransform(int ac, const char **av, MgfParseSession *context) {
     int nDim = 0;
     const int previousArgumentCount = transformArgumentCount(context->transformContext);
 
@@ -210,7 +210,7 @@ newTransform(int ac, const char **av, BaseContext *context) {
 Transform a point by the current matrix
 */
 void
-mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const BaseContext *context) {
+mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -222,7 +222,7 @@ mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const BaseContext *context
 Transform a vector using current matrix
 */
 void
-mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const BaseContext *context) {
+mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -480,7 +480,7 @@ compactTransformArguments(const TransformStackContext *context) {
 Handle xf entity
 */
 int
-handleTransformationEntity(int ac, const char **av, BaseContext *context) {
+handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
     TransformStackContext *spec;
     int n;
 

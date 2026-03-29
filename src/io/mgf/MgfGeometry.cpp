@@ -14,7 +14,7 @@ static bool globalWarpConeEnds; // Hack for generating good normals
 Expand a sphere into cones
 */
 int
-mgfEntitySphere(int ac, const char **av, BaseContext *context) {
+mgfEntitySphere(int ac, const char **av, MgfParseSession *context) {
     char p2x[24];
     char p2y[24];
     char p2z[24];
@@ -97,7 +97,7 @@ mgfEntitySphere(int ac, const char **av, BaseContext *context) {
 Expand a torus into cones
 */
 int
-mgfEntityTorus(int ac, const char **av, BaseContext *context) {
+mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
     char p2[3][24];
     char r1[24];
     char r2[24];
@@ -235,7 +235,7 @@ mgfEntityTorus(int ac, const char **av, BaseContext *context) {
 Replace a cylinder with equivalent cone
 */
 int
-mgfEntityCylinder(int ac, const char **av, BaseContext *context) {
+mgfEntityCylinder(int ac, const char **av, MgfParseSession *context) {
     const char *newArgV[6] = {context->entityNames[EntityContext::CONE]};
 
     if ( ac != 4 ) {
@@ -284,7 +284,7 @@ mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon)
 Turn a ring into polygons
 */
 int
-mgfEntityRing(int ac, const char **av, BaseContext *context) {
+mgfEntityRing(int ac, const char **av, MgfParseSession *context) {
     char p3[3][24];
     char p4[3][24];
     const char *namesEntity[5] = {
@@ -482,7 +482,7 @@ mgfEntityRing(int ac, const char **av, BaseContext *context) {
 Turn a cone into polygons
 */
 int
-mgfEntityCone(int ac, const char **av, BaseContext *context) {
+mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
     char p3[3][24];
     char p4[3][24];
     char n3[3][24];
@@ -826,7 +826,7 @@ mgfEntityCone(int ac, const char **av, BaseContext *context) {
 Turn a prism into polygons
 */
 int
-mgfEntityPrism(int ac, const char **av, BaseContext *context) {
+mgfEntityPrism(int ac, const char **av, MgfParseSession *context) {
     char p[3][24];
     const char *vent[5] = {
         context->entityNames[EntityContext::VERTEX],
@@ -988,7 +988,7 @@ mgfEntityPrism(int ac, const char **av, BaseContext *context) {
 Replace face + holes with single contour
 */
 int
-mgfEntityFaceWithHoles(int ac, const char **av, BaseContext *context) {
+mgfEntityFaceWithHoles(int ac, const char **av, MgfParseSession *context) {
     const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 

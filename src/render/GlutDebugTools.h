@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "io/context/BaseContext.h"
+#include "io/context/MgfParseSession.h"
 #include "render/GlutDebugState.h"
 
 extern void
@@ -14,7 +14,7 @@ executeGlutGui(
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions,
-    void (*memoryFreeCallBack)(BaseContext *mgfContext),
-    BaseContext *mgfContext);
+    void (*memoryFreeCallBack)(MgfParseSession *mgfContext),
+    MgfParseSession *mgfContext);
 
 #endif

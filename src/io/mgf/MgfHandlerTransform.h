@@ -2,7 +2,7 @@
 #define __MGF_HANDLER_TRANSFORM__
 
 #include "common/linealAlgebra/Vector3Dd.h"
-#include "io/context/BaseContext.h"
+#include "io/context/MgfParseSession.h"
 
 /**
 The transformation handler should do most of the work that needs
@@ -16,9 +16,9 @@ The routines mgfTransformPoint and mgfTransformVector takes two
 puts the result into the first.
 */
 
-extern int handleTransformationEntity(int ac, const char **av, BaseContext * /*context*/);
-extern void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const BaseContext *context); // Transform point
-extern void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const BaseContext *context); // Transform vector
+extern int handleTransformationEntity(int ac, const char **av, MgfParseSession * /*context*/);
+extern void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform point
+extern void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context); // Transform vector
 extern void mgfTransformFreeMemory();
 
 #endif

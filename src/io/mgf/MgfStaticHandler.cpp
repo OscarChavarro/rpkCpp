@@ -10,7 +10,7 @@ MgfStaticHandler::MgfStaticHandler(
 }
 
 int
-MgfStaticHandler::handle(int argc, const char **argv, BaseContext *context) const {
+MgfStaticHandler::handle(int argc, const char **argv, MgfParseSession *context) const {
     if ( handlerFunction == nullptr ) {
         return ErrorCodeContext::MGF_OK;
     }

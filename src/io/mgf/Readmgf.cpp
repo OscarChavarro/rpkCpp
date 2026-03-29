@@ -76,7 +76,7 @@ readInputLine(java::io::InputStream *inputStream, char *readBuffer, int maxLengt
 }
 
 static int
-mgfReadNextLine(const BaseContext *context) {
+mgfReadNextLine(const MgfParseSession *context) {
     if ( context->readerContext->inputStream == nullptr ) {
         return 0;
     }
@@ -127,7 +127,7 @@ mgfReadNextLine(const BaseContext *context) {
 Parse current input line
 */
 static int
-mgfParseCurrentLine(BaseContext *context) {
+mgfParseCurrentLine(MgfParseSession *context) {
     const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
     java::lang::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
     int argc = 0;
@@ -185,7 +185,7 @@ mgfParseCurrentLine(BaseContext *context) {
 Clear parser history
 */
 static void
-mgfClear(BaseContext *context) {
+mgfClear(MgfParseSession *context) {
     initColorContextTables(context);
     initGeometryContextTables(context);
     initMaterialContextTables(context);
@@ -210,7 +210,7 @@ mgfSetNrQuartCircDivs(int divs) {
 If yesno is true, all materials will be converted to be monochrome
 */
 static void
-mgfSetMonochrome(bool yesno, BaseContext *context) {
+mgfSetMonochrome(bool yesno, MgfParseSession *context) {
     context->monochrome = yesno;
 }
 
@@ -218,7 +218,7 @@ mgfSetMonochrome(bool yesno, BaseContext *context) {
 Discard unneeded/unwanted entity
 */
 static int
-mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, BaseContext * /*context*/) {
+mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, MgfParseSession * /*context*/) {
     return ErrorCodeContext::MGF_OK;
 }
 
@@ -226,7 +226,7 @@ mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, BaseContext * /*conte
 Put out current color spectrum
 */
 static int
-mgfPutCSpec(BaseContext *context)
+mgfPutCSpec(MgfParseSession *context)
 {
     char wl[2][6];
     char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
@@ -256,7 +256,7 @@ mgfPutCSpec(BaseContext *context)
 Put out current xy chromatic values
 */
 static int
-mgfPutCxy(BaseContext *context) {
+mgfPutCxy(MgfParseSession *context) {
     static char xBuffer[24];
     static char yBuffer[24];
     static const char *cCom[4] = {
@@ -274,7 +274,7 @@ mgfPutCxy(BaseContext *context) {
 Handle spectral color
 */
 static int
-mgfECSpec(int /*ac*/, const char ** /*av*/, BaseContext *context) {
+mgfECSpec(int /*ac*/, const char ** /*av*/, MgfParseSession *context) {
     // Convert to xy chromaticity
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
@@ -294,7 +294,7 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 static int
-mgfECMix(int /*ac*/, const char ** /*av*/, BaseContext *context) {
+mgfECMix(int /*ac*/, const char ** /*av*/, MgfParseSession *context) {
     if ( mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], MgfHandlerType::COLOR_SPEC_HELPER) ) {
         context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
@@ -310,7 +310,7 @@ mgfECMix(int /*ac*/, const char ** /*av*/, BaseContext *context) {
 Handle color temperature
 */
 static int
-mgfColorTemperature(int /*ac*/, const char ** /*av*/, BaseContext *context) {
+mgfColorTemperature(int /*ac*/, const char ** /*av*/, MgfParseSession *context) {
     // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
@@ -326,7 +326,7 @@ mgfColorTemperature(int /*ac*/, const char ** /*av*/, BaseContext *context) {
 }
 
 static int
-handleIncludedFile(int ac, const char **av, BaseContext *context) {
+handleIncludedFile(int ac, const char **av, MgfParseSession *context) {
     const char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
     ReaderContext readerContext{};
     const TransformStackContext *originTransform = context->transformContext;
@@ -427,7 +427,7 @@ rayCasterInitialize alternate entity handlers
 static void
 mgfAlternativeInit(
     MgfEntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES],
-    BaseContext *context)
+    MgfParseSession *context)
 {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
@@ -555,7 +555,7 @@ mgfAlternativeInit(
 }
 
 static void
-initMgf(BaseContext *context) {
+initMgf(MgfParseSession *context) {
     // Related to ColorContext
     context->handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
     context->handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(MgfHandlerType::HANDLE_COLOR);
@@ -594,7 +594,7 @@ initMgf(BaseContext *context) {
 }
 
 static PersistedSceneModel *
-mgfBuildModel(BaseContext *context) {
+mgfBuildModel(MgfParseSession *context) {
     if ( context == nullptr ) {
         return nullptr;
     }
@@ -633,7 +633,7 @@ snapshot with parser outputs/state pointers is returned.
 Note: this is an implementation of MGF file format with major version number 2.
 */
 PersistedSceneModel *
-readMgf(const char *filename, BaseContext *context) {
+readMgf(const char *filename, MgfParseSession *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
 
@@ -681,7 +681,7 @@ readMgf(const char *filename, BaseContext *context) {
 }
 
 void
-mgfFreeMemory(BaseContext *context) {
+mgfFreeMemory(MgfParseSession *context) {
     if ( context->currentGeometryList != nullptr ) {
         java::lang::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;

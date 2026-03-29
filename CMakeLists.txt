@@ -108,7 +108,13 @@ set(MAIN_SRC
     src/io/wrapper/PipeOutputStream.cpp
     src/io/wrapper/FileUncompressWrapper.cpp
     src/io/context/TransformContext.cpp
-    src/io/context/BaseContext.cpp
+    src/io/context/MgfParseSession.cpp
+    src/io/context/ParserConfig.cpp
+    src/io/context/ReaderStackState.cpp
+    src/io/context/GeometryBuildState.cpp
+    src/io/context/MaterialState.cpp
+    src/io/context/ColorState.cpp
+    src/io/context/TransformState.cpp
     src/io/context/LookUpEntity.cpp
     src/io/context/LookUpTable.cpp
     src/io/context/ColorContext.cpp

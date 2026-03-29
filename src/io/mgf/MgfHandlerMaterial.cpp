@@ -38,7 +38,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 static Material *
-materialLookup(const char *name, const BaseContext *context) {
+materialLookup(const char *name, const MgfParseSession *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
@@ -52,7 +52,7 @@ materialLookup(const char *name, const BaseContext *context) {
 Translates mgf color into out color representation
 */
 static void
-mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, BaseContext *context) {
+mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, MgfParseSession *context) {
     float xyz[3];
     float rgb[3];
 
@@ -121,7 +121,7 @@ creates a new MATERIAL, which is added to the global material library.
 The routine returns true if the material being used has changed
 */
 int
-mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, BaseContext *context) {
+mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSession *context) {
     ColorRgb Ed;
     ColorRgb Es;
     ColorRgb Rd;
@@ -244,7 +244,7 @@ mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, BaseContext *c
 }
 
 void
-initMaterialContextTables(BaseContext *context) {
+initMaterialContextTables(MgfParseSession *context) {
     globalUnNamedMaterialContext = globalDefaultMgfMaterial;
     globalMgfCurrentMaterial = &globalUnNamedMaterialContext;
     globalMaterialLookUpTable.lookUpDone();
@@ -255,7 +255,7 @@ initMaterialContextTables(BaseContext *context) {
 This routine returns true if the current material has changed
 */
 int
-mgfMaterialChanged(const Material *material, const BaseContext *context) {
+mgfMaterialChanged(const Material *material, const MgfParseSession *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -274,7 +274,7 @@ mgfMaterialChanged(const Material *material, const BaseContext *context) {
 Handle material entity
 */
 int
-handleMaterialEntity(int ac, const char **av, BaseContext *context) {
+handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
     int i;
     LookUpEntity *lp;
 

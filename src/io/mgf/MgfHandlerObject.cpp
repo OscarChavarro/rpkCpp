@@ -20,7 +20,7 @@ static int globalObjectNames; // Depth of name hierarchy
 static constexpr int ALLOC_INC = 16;
 
 static void
-disposeCurrentSurfaceLists(BaseContext *context) {
+disposeCurrentSurfaceLists(MgfParseSession *context) {
     if ( context->currentPointList != nullptr ) {
         for ( int i = 0; i < context->currentPointList->size(); i++ ) {
             delete context->currentPointList->get(i);
@@ -56,7 +56,7 @@ disposeCurrentSurfaceLists(BaseContext *context) {
 }
 
 static void
-pushCurrentGeometryList(BaseContext *context) {
+pushCurrentGeometryList(MgfParseSession *context) {
     if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
@@ -68,7 +68,7 @@ pushCurrentGeometryList(BaseContext *context) {
 }
 
 static void
-popCurrentGeometryList(BaseContext *context) {
+popCurrentGeometryList(MgfParseSession *context) {
     if ( context->geometryStackHeadIndex < 0 ) {
         doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         context->currentGeometryList = nullptr;
@@ -80,9 +80,9 @@ popCurrentGeometryList(BaseContext *context) {
 }
 
 void
-mgfObjectNewSurface(BaseContext *context) {
+mgfObjectNewSurface(MgfParseSession *context) {
     // Note: lists created here will be transferred to new MeshSurface,
-    // should not be deleted from BaseContext
+    // should not be deleted from MgfParseSession
     context->currentPointList = new java::ArrayList<Vector3D *>();
     context->currentNormalList = new java::ArrayList<Vector3D *>();
     context->currentVertexList = new java::ArrayList<Vertex *>();
@@ -143,7 +143,7 @@ handleObject2Entity(int ac, const char **av) {
 }
 
 void
-mgfObjectSurfaceDone(BaseContext *context) {
+mgfObjectSurfaceDone(MgfParseSession *context) {
     if ( context->currentGeometryList == nullptr ) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
@@ -189,7 +189,7 @@ mgfObjectSurfaceDone(BaseContext *context) {
 }
 
 int
-handleObjectEntity(int argc, const char **argv, BaseContext *context) {
+handleObjectEntity(int argc, const char **argv, MgfParseSession *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
         if ( context->inSurface ) {

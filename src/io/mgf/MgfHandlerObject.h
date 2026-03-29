@@ -1,11 +1,11 @@
 #ifndef __MGF_HANDLER_OBJECT__
 #define __MGF_HANDLER_OBJECT__
 
-#include "io/context/BaseContext.h"
+#include "io/context/MgfParseSession.h"
 
-extern int handleObjectEntity(int argc, const char **argv, BaseContext * /*context*/);
-extern void mgfObjectNewSurface(BaseContext *context);
-extern void mgfObjectSurfaceDone(BaseContext *context);
+extern int handleObjectEntity(int argc, const char **argv, MgfParseSession * /*context*/);
+extern void mgfObjectNewSurface(MgfParseSession *context);
+extern void mgfObjectSurfaceDone(MgfParseSession *context);
 extern void mgfObjectFreeMemory();
 
 #endif

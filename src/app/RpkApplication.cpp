@@ -35,7 +35,7 @@ RpkApplication::RpkApplication():
     rayTracer()
 {
     scene = new Scene();
-    mgfContext = new BaseContext();
+    mgfContext = new MgfParseSession();
     renderOptions = new RenderOptions();
 }
 
@@ -127,7 +127,7 @@ RpkApplication::executeRendering(const char *rayTracerName) {
 }
 
 void
-RpkApplication::freeMemory(BaseContext *mgfContext) {
+RpkApplication::freeMemory(MgfParseSession *mgfContext) {
     deleteOptionsMemory();
     mgfFreeMemory(mgfContext);
     galerkinFreeMemory();
