@@ -1,4 +1,6 @@
-#include "render/GlutDebugTools.h"
+#include "render/visualDebugTools/GlutDebugTools.h"
+#include "render/visualDebugTools/GlutDebugToolsModel.h"
+#include "render/visualDebugTools/GlutDebugToolsKeyControl.h"
 #include "app/GalerkinDebugRenderer.h"
 
 #ifdef OPEN_GL_ENABLED
@@ -10,23 +12,16 @@
     #include <GL/glut.h>
 #endif
 
+#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "render/Opengl.h"
 
-static constexpr int TOTAL_DEBUG_OPERATION_MODES = 2;
-static int globalMode = 0;
-static int globalWidth = 1920;
-static int globalHeight = 1200;
-static Scene *globalScene;
-static RadianceMethod *globalRadianceMethod;
-static RenderOptions *globalRenderOptions;
-static void (*globalMemoryFreeCallBack)(ParseSession *mgfContext);
-static ParseSession *globalMgfContext;
+static GlutDebugToolsModel globalModel;
 
 void
 GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
-    globalWidth = newWidth;
-    globalHeight = newHeight;
+    globalModel.width = newWidth;
+    globalModel.height = newHeight;
 }
 
 void
@@ -94,104 +89,43 @@ GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex)
 
 void
 GlutDebugTools::keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
-    switch ( keyChar ) {
-        case 27:
-            globalMemoryFreeCallBack(globalMgfContext);
-            java::lang::System::exit(1);
-        case '0':
-            if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-                GLOBAL_render_glutDebugState.showSelectedPathOnly = false;
-            } else {
-                GLOBAL_render_glutDebugState.showSelectedPathOnly = true;
-            }
-            break;
-        case '1':
-            GLOBAL_render_glutDebugState.selectedPatch--;
-            if ( GLOBAL_render_glutDebugState.selectedPatch < 0 ) {
-                GLOBAL_render_glutDebugState.selectedPatch = 0;
-            }
-            break;
-        case '2':
-            GLOBAL_render_glutDebugState.selectedPatch++;
-            if ( GLOBAL_render_glutDebugState.selectedPatch >= globalScene->patchList->size() ) {
-                GLOBAL_render_glutDebugState.selectedPatch = static_cast<int>(globalScene->patchList->size() - 1);
-            }
-            break;
-        case 'm':
-            globalMode++;
-            if ( globalMode >= TOTAL_DEBUG_OPERATION_MODES ) {
-                globalMode = 0;
-            }
-            java::lang::System::out.printf("MODE: %d\n", globalMode);
-            break;
-        case ' ':
-            globalRadianceMethod->doStep(globalScene, globalRenderOptions);
-            break;
-        case 'e':
-            GlutDebugTools::printGalerkinElementForPatch(globalScene, GLOBAL_render_glutDebugState.selectedPatch);
-            break;
-        case 'p':
-            globalScene->print();
-            break;
-        default:
-            return;
+    if ( GlutDebugToolsKeyControl::handleKeypress(
+             keyChar,
+             globalModel,
+             GlutDebugTools::printGalerkinElementForPatch) ) {
+        glutPostRedisplay();
     }
-
-    if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-        java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.selectedPatch);
-    } else {
-        java::lang::System::out.printf("Selected patch: ALL\n");
-    }
-
-    glutPostRedisplay();
 }
 
 void
 GlutDebugTools::extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
-    switch ( keyCode ) {
-        case GLUT_KEY_F2:
-            globalRenderOptions->drawOutlines = !globalRenderOptions->drawOutlines;
-            break;
-        case GLUT_KEY_F3:
-            globalRenderOptions->drawSurfaces = !globalRenderOptions->drawSurfaces;
-            break;
-        case GLUT_KEY_F4:
-            globalRenderOptions->drawBoundingBoxes = !globalRenderOptions->drawBoundingBoxes;
-            break;
-        case GLUT_KEY_F5:
-            globalRenderOptions->drawClusters = !globalRenderOptions->drawClusters;
-            break;
-        case GLUT_KEY_LEFT:
-            GLOBAL_render_glutDebugState.angle += 1.0f;
-            break;
-        case GLUT_KEY_RIGHT:
-            GLOBAL_render_glutDebugState.angle -= 1.0f;
-            break;
-        default:
-            return;
+    if ( GlutDebugToolsKeyControl::handleExtendedKeypress(keyCode, globalModel) ) {
+        glutPostRedisplay();
     }
-
-    glutPostRedisplay();
 }
 
 void
 GlutDebugTools::drawCallback() {
-    globalScene->camera->xSize = globalWidth;
-    globalScene->camera->ySize = globalHeight;
+    if ( globalModel.scene == nullptr || globalModel.renderOptions == nullptr ) {
+        return;
+    }
+
+    globalModel.scene->camera->xSize = globalModel.width;
+    globalModel.scene->camera->ySize = globalModel.height;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-    glViewport(0, 0, globalWidth, globalHeight);
+    glViewport(0, 0, globalModel.width, globalModel.height);
 
-    if ( globalMode == 0 ) {
+    if ( globalModel.mode == GlutDebugMode::RADIANCE_SCENE ) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
-        Opengl::openGlRenderScene(globalScene, globalRadianceMethod, globalRenderOptions);
-    } else if ( globalMode == 1 ) {
-        Opengl::openGlRenderSetCamera(globalScene->camera, globalScene->geometryList);
+        Opengl::openGlRenderScene(globalModel.scene, globalModel.radianceMethod, globalModel.renderOptions);
+    } else if ( globalModel.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+        Opengl::openGlRenderSetCamera(globalModel.scene->camera, globalModel.scene->geometryList);
         glPushMatrix();
         glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
-        GalerkinDebugRenderer::renderGalerkinElementHierarchy(globalScene, globalRenderOptions);
+        GalerkinDebugRenderer::renderGalerkinElementHierarchy(globalModel.scene, globalModel.renderOptions);
         glPopMatrix();
     }
 
@@ -208,15 +142,18 @@ GlutDebugTools::executeGlutGui(
     void (*memoryFreeCallBack)(ParseSession *mgfContext),
     ParseSession *mgfContext)
 {
-    globalScene = scene;
-    globalRadianceMethod = radianceMethod;
-    globalRenderOptions = renderOptions;
-    globalMemoryFreeCallBack = memoryFreeCallBack;
-    globalMgfContext = mgfContext;
+    globalModel.mode = GlutDebugMode::RADIANCE_SCENE;
+    globalModel.width = 1920;
+    globalModel.height = 1200;
+    globalModel.scene = scene;
+    globalModel.radianceMethod = radianceMethod;
+    globalModel.renderOptions = renderOptions;
+    globalModel.memoryFreeCallBack = memoryFreeCallBack;
+    globalModel.mgfContext = mgfContext;
 
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
-    glutInitWindowSize(globalWidth, globalHeight);
+    glutInitWindowSize(globalModel.width, globalModel.height);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     int windowHandle = glutCreateWindow("RPK");
     if ( windowHandle == GL_FALSE ) {
@@ -224,7 +161,7 @@ GlutDebugTools::executeGlutGui(
         java::lang::System::exit(1);
     }
 
-    renderOptions->frustumCulling = false;
+    globalModel.renderOptions->frustumCulling = false;
 
     glutReshapeFunc(GlutDebugTools::resizeCallback);
     glutKeyboardFunc(GlutDebugTools::keypressCallback);

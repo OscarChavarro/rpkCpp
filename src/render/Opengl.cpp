@@ -1,4 +1,5 @@
 #include "common/RenderOptions.h"
+#include "common/Error.h"
 
 #ifdef OPEN_GL_ENABLED
     #ifdef __APPLE__
@@ -7,9 +8,8 @@
         #include <GL/glu.h>
     #endif
 
-    #include "common/Error.h"
-#include "render/RenderHookList.h"
-#include "render/GlutDebugTools.h"
+    #include "render/RenderHookList.h"
+    #include "render/visualDebugTools/GlutDebugTools.h"
 #endif
 
 #include "java/util/ArrayList.txx"

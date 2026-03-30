@@ -18,7 +18,10 @@
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
-#include "render/GlutDebugTools.h"
+
+#ifdef OPEN_GL_ENABLED
+    #include "render/visualDebugTools/GlutDebugTools.h"
+#endif
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/bidirectionalRaytracing/LightList.h"
@@ -178,16 +181,18 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
-    if ( glutDebugEnabled ) {
-        GlutDebugTools::executeGlutGui(
-            argc,
-            argv,
-            scene,
-            mgfContext->radianceMethod,
-            renderOptions,
-            RpkApplication::freeMemory,
-            mgfContext);
-    }
+    #ifdef OPEN_GL_ENABLED
+        if ( glutDebugEnabled ) {
+            GlutDebugTools::executeGlutGui(
+                argc,
+                argv,
+                scene,
+                mgfContext->radianceMethod,
+                renderOptions,
+                RpkApplication::freeMemory,
+                mgfContext);
+        }
+    #endif
 
     // 5. Free used memory
     freeMemory(mgfContext);

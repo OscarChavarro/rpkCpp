@@ -1,5 +1,5 @@
-#ifndef __GLUT__
-#define __GLUT__
+#ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
+#define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"

@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "scene/ConstantColorBackground.h"
@@ -209,6 +210,15 @@ CommandLine::commandLineGeneralProgramParseOptions(
     *imageOutputWidth = globalOutputImageWidth;
     *imageOutputHeight = globalOutputImageHeight;
     *glutDebugEnabled = globalGlutDebugEnabled;
+
+#ifndef OPEN_GL_ENABLED
+    if ( globalGlutDebugEnabled ) {
+        java::lang::System::err.printf(
+            "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
+        java::lang::System::err.flush();
+        java::lang::System::exit(1);
+    }
+#endif
 }
 
 void

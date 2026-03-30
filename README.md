@@ -101,6 +101,30 @@ cd ..
 
 Generated images will be written at `./output` folder, reading models from `./etc`.
 
+## Optional OpenGL/GLUT support
+
+OpenGL support is controlled from CMake with `OPEN_GL_ENABLED` (default: `ON`).
+
+- If `OPEN_GL_ENABLED=OFF`, OpenGL-dependent modules are not compiled and not linked into `rpk`.
+- If `OPEN_GL_ENABLED=ON` but required OpenGL/GLUT libraries are not found, CMake automatically disables OpenGL support for that build.
+- The runtime debug window option `-glutDebug` requires OpenGL support.
+
+Examples:
+
+```bash
+# Build with OpenGL/GLUT support (default)
+cmake -S . -B build -DOPEN_GL_ENABLED=ON
+cmake --build build -j
+```
+
+```bash
+# Build without OpenGL/GLUT support
+cmake -S . -B build -DOPEN_GL_ENABLED=OFF
+cmake --build build -j
+```
+
+If a binary compiled without OpenGL support is run with `-glutDebug`, the program exits with an error message asking to recompile with `-DOPEN_GL_ENABLED=ON`.
+
 ## Selecting Niederreiter variant (31-bit vs 63-bit)
 
 The quasi-Monte-Carlo Niederreiter implementation provides:

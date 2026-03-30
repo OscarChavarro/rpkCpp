@@ -1,14 +1,34 @@
 cmake_minimum_required(VERSION 3.10)
 project(rpk)
 
+option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
+option(OPEN_GL_ENABLED "Enable OpenGL modules" ON)
+
 if(UNIX AND NOT APPLE)
     add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
 endif()
 
 if(APPLE)
     add_compile_options(-std=c++17 -Wall -pedantic)
-    find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
-    find_library(GLUT_FRAMEWORK GLUT REQUIRED)
+endif()
+
+if(OPEN_GL_ENABLED)
+    if(APPLE)
+        find_library(OPENGL_FRAMEWORK OpenGL)
+        find_library(GLUT_FRAMEWORK GLUT)
+        if(NOT OPENGL_FRAMEWORK OR NOT GLUT_FRAMEWORK)
+            message(WARNING "OpenGL support requested, but OpenGL/GLUT frameworks were not found. Building without OpenGL support.")
+            set(OPEN_GL_ENABLED OFF)
+        endif()
+    else()
+        find_library(RPK_OPENGL_GL_LIBRARY GL)
+        find_library(RPK_OPENGL_GLU_LIBRARY GLU)
+        find_library(RPK_OPENGL_GLUT_LIBRARY glut)
+        if(NOT RPK_OPENGL_GL_LIBRARY OR NOT RPK_OPENGL_GLU_LIBRARY OR NOT RPK_OPENGL_GLUT_LIBRARY)
+            message(WARNING "OpenGL support requested, but GL/GLU/GLUT libraries were not found. Building without OpenGL support.")
+            set(OPEN_GL_ENABLED OFF)
+        endif()
+    endif()
 endif()
 
 add_compile_options(-ffast-math -O3)
@@ -246,23 +266,42 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/Basisquadmcrad.cpp
     src/app/Adaptation.cpp
     src/app/Options.cpp
-    src/app/GlutDebugTools.cpp
     src/app/Radiance.cpp
     src/app/Raytrace.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp
     src/app/CommandLine.cpp
-    src/app/GalerkinDebugRenderer.cpp
     src/app/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/Main.cpp)
 
+set(OPEN_GL_SRC
+    src/render/visualDebugTools/GlutDebugMode.cpp
+    src/render/visualDebugTools/GlutDebugToolsModel.cpp
+    src/render/visualDebugTools/GlutDebugToolsKeyControl.cpp
+    src/render/visualDebugTools/GlutDebugTools.cpp
+    src/app/GalerkinDebugRenderer.cpp)
+
 add_executable(rpk ${MAIN_SRC})
 
-if(APPLE)
-    message(STATUS "Using native macOS frameworks: ${OPENGL_FRAMEWORK}, ${GLUT_FRAMEWORK}")
-    target_compile_definitions(rpk PRIVATE GL_SILENCE_DEPRECATION)
-    target_link_libraries(rpk ${OPENGL_FRAMEWORK} ${GLUT_FRAMEWORK})
-else()
-    target_link_libraries(rpk GLU GL glut)
+if(OPEN_GL_ENABLED)
+    target_sources(rpk PRIVATE ${OPEN_GL_SRC})
+endif()
+
+if(RAYTRACING_ENABLED)
+    target_compile_definitions(rpk PRIVATE RAYTRACING_ENABLED)
+endif()
+
+if(OPEN_GL_ENABLED)
+    target_compile_definitions(rpk PRIVATE OPEN_GL_ENABLED)
+endif()
+
+if(OPEN_GL_ENABLED)
+    if(APPLE)
+        message(STATUS "Using native macOS frameworks: ${OPENGL_FRAMEWORK}, ${GLUT_FRAMEWORK}")
+        target_compile_definitions(rpk PRIVATE GL_SILENCE_DEPRECATION)
+        target_link_libraries(rpk ${OPENGL_FRAMEWORK} ${GLUT_FRAMEWORK})
+    else()
+        target_link_libraries(rpk ${RPK_OPENGL_GLU_LIBRARY} ${RPK_OPENGL_GL_LIBRARY} ${RPK_OPENGL_GLUT_LIBRARY})
+    endif()
 endif()

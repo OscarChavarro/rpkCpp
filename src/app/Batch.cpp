@@ -1,8 +1,11 @@
 #include <cstring>
-#ifdef __APPLE__
-    #include <OpenGL/gl.h>
-#else
-    #include <GL/gl.h>
+
+#ifdef OPEN_GL_ENABLED
+    #ifdef __APPLE__
+        #include <OpenGL/gl.h>
+    #else
+        #include <GL/gl.h>
+    #endif
 #endif
 
 #include "java/lang/System.h"
@@ -18,7 +21,6 @@
 
 #ifdef RAYTRACING_ENABLED
     #include "app/Raytrace.h"
-#include "render/Opengl.h"
 #endif
 
 static BatchOptions globalBatchOptions;
@@ -58,7 +60,7 @@ Batch::openGlSaveScreen(
         return;
     }
 
-    GLubyte *screen = new GLubyte[x * y * 4];
+    unsigned char *screen = new unsigned char[x * y * 4];
     unsigned char *buffer = new unsigned char[3 * x];
 
 #ifdef OPEN_GL_ENABLED

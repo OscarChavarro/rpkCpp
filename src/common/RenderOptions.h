@@ -7,10 +7,9 @@
 If this is undefined, the raytracing code can be trimmed as follows:
 - PHOTON MAP module can be removed
 - All of the ray-casting module can be removed except the RayCaster class
-*/
-#define RAYTRACING_ENABLED
 
-#define OPEN_GL_ENABLED
+Build-time feature flags are configured from CMake.
+*/
 
 class ToneMappingContext;
 

@@ -15,7 +15,7 @@ Galerkin radiosity, with the following variants:
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
-#include "render/GlutDebugTools.h"
+#include "render/visualDebugTools/GlutDebugTools.h"
 #include "render/Opengl.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRadianceMethod.h"
