@@ -3,7 +3,7 @@
 
 #include "io/context/ColorContext.h"
 
-class MgfMaterialContext {
+class MaterialContext {
   public:
     int clock; // Incremented each change -- resettable
     bool sided; // true if surface is 1-sided, false for 2-sided

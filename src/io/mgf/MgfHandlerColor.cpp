@@ -9,7 +9,7 @@
 Handle color entity
 */
 int
-MgfHandlerColor::handleColorEntity(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseSession *context) {
     int i;
     double wSum;
     LookUpEntity *lp;
@@ -165,6 +165,6 @@ MgfHandlerColor::handleColorEntity(int ac, const char **av, MgfParseSession *con
 Empty context tables
 */
 void
-MgfHandlerColor::initColorContextTables(MgfParseSession *context) {
+MgfHandlerColor::initColorContextTables(ParseSession *context) {
     context->colorRepository.reset();
 }

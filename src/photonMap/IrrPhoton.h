@@ -1,9 +1,9 @@
-#ifndef __C_IRR_PHOTON__
-#define __C_IRR_PHOTON__
+#ifndef __IRR_PHOTON__
+#define __IRR_PHOTON__
 
-#include "photonMap/CPhoton.h"
-// CIrrPhoton: photon with extra irradiance info
-class CIrrPhoton : public CPhoton {
+#include "photonMap/PhotonClass.h"
+// IrrPhoton: photon with extra irradiance info
+class IrrPhoton : public Photon {
   public:
     Vector3D m_normal;
     ColorRgb m_irradiance;
@@ -15,7 +15,7 @@ class CIrrPhoton : public CPhoton {
     inline void SetIrradiance(const ColorRgb &irr) { m_irradiance = irr; }
 
     inline void
-    copy(const CPhoton &photon) {
+    copy(const Photon &photon) {
         m_pos = photon.pos();
         m_power = photon.power();
         m_dir = photon.dir();

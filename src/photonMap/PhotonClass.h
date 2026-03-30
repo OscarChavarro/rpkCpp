@@ -1,12 +1,13 @@
-#ifndef __C_PHOTON__
-#define __C_PHOTON__
+#ifndef __PHOTON_CLASS__
+#define __PHOTON_CLASS__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/ColorRgb.h"
 #include "material/Xxdf.h"
 #include "photonMap/PhotonMapState.h"
+
 // Non-compact photon representation
-class CPhoton {
+class Photon {
   protected:
     Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
     ColorRgb m_power;  // power represented by this photon
@@ -14,9 +15,9 @@ class CPhoton {
     Vector3D m_dir;  // Direction
 
   public:
-    CPhoton() {};
+    Photon() {};
 
-    CPhoton(Vector3D pos, const ColorRgb &power, const Vector3D &dir)
+    Photon(Vector3D pos, const ColorRgb &power, const Vector3D &dir)
             : m_pos(pos), m_power(power), m_dir(dir) {  }
 
     inline Vector3D

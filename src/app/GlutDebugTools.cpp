@@ -18,8 +18,8 @@ static int globalHeight = 1200;
 static Scene *globalScene;
 static RadianceMethod *globalRadianceMethod;
 static RenderOptions *globalRenderOptions;
-static void (*globalMemoryFreeCallBack)(MgfParseSession *mgfContext);
-static MgfParseSession *globalMgfContext;
+static void (*globalMemoryFreeCallBack)(ParseSession *mgfContext);
+static ParseSession *globalMgfContext;
 
 void
 GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
@@ -203,8 +203,8 @@ GlutDebugTools::executeGlutGui(
     Scene *scene,
     RadianceMethod *radianceMethod,
     RenderOptions *renderOptions,
-    void (*memoryFreeCallBack)(MgfParseSession *mgfContext),
-    MgfParseSession *mgfContext)
+    void (*memoryFreeCallBack)(ParseSession *mgfContext),
+    ParseSession *mgfContext)
 {
     globalScene = scene;
     globalRadianceMethod = radianceMethod;

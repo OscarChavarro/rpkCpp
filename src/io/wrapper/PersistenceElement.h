@@ -95,9 +95,6 @@ class PersistenceElement {
     static void writeUtf8String(java::io::OutputStream &writer, const char *cad);
     static void writeAsciiLine(java::io::OutputStream &writer, const char *cad);
     static void writeUtf8Line(java::io::OutputStream &writer, const char *cad);
-
-    static bool verifyLibrary(const char *libname);
-
     static bool checkDirectory(const char *dirName);
 
   protected:
@@ -144,7 +141,6 @@ class PersistenceElement {
     static bool startsWithCString(const char *text, const char *prefix);
     static bool endsWithCString(const char *text, const char *suffix);
     static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
-    static char *mapLibraryName(const char *libname);
 };
 
 }

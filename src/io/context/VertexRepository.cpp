@@ -1,8 +1,6 @@
 #include "io/context/VertexRepository.h"
 
-namespace {
 const Vector3Dd ZERO_VECTOR(0.0, 0.0, 0.0);
-}
 
 VertexRepository::VertexRepository():
     vertexLookUpTable(new LookUpTable(LookUpBehaviors::OWNING)),

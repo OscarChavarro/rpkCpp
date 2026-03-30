@@ -14,7 +14,7 @@ static constexpr char globalFloatFormat[] = "%.12g";
 Expand a sphere into cones
 */
 int
-MgfGeometry::mgfEntitySphere(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntitySphere(int ac, const char **av, ParseSession *context) {
     char p2x[24];
     char p2y[24];
     char p2z[24];
@@ -43,7 +43,7 @@ MgfGeometry::mgfEntitySphere(int ac, const char **av, MgfParseSession *context) 
     if ( ac != 3 ) {
         return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    const MgfVertexContext *cv = MgfHandlerGeometry::getNamedVertex(av[1], context);
+    const VertexContext *cv = MgfHandlerGeometry::getNamedVertex(av[1], context);
     if ( cv == nullptr) {
         return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -97,7 +97,7 @@ MgfGeometry::mgfEntitySphere(int ac, const char **av, MgfParseSession *context) 
 Expand a torus into cones
 */
 int
-MgfGeometry::mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityTorus(int ac, const char **av, ParseSession *context) {
     char p2[3][24];
     char r1[24];
     char r2[24];
@@ -125,7 +125,7 @@ MgfGeometry::mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
         "_tv2",
         r2
     };
-    const MgfVertexContext *cv;
+    const VertexContext *cv;
     double avgRad;
     double theta;
 
@@ -235,7 +235,7 @@ MgfGeometry::mgfEntityTorus(int ac, const char **av, MgfParseSession *context) {
 Replace a cylinder with equivalent cone
 */
 int
-MgfGeometry::mgfEntityCylinder(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityCylinder(int ac, const char **av, ParseSession *context) {
     const char *newArgV[6] = {context->entityNames[EntityContext::CONE]};
 
     if ( ac != 4 ) {
@@ -284,7 +284,7 @@ MgfGeometry::mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double 
 Turn a ring into polygons
 */
 int
-MgfGeometry::mgfEntityRing(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityRing(int ac, const char **av, ParseSession *context) {
     char p3[3][24];
     char p4[3][24];
     const char *namesEntity[5] = {
@@ -339,7 +339,7 @@ MgfGeometry::mgfEntityRing(int ac, const char **av, MgfParseSession *context) {
         return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
-    const MgfVertexContext *vertexContext = MgfHandlerGeometry::getNamedVertex(av[1], context);
+    const VertexContext *vertexContext = MgfHandlerGeometry::getNamedVertex(av[1], context);
     if ( vertexContext == nullptr) {
         return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -482,7 +482,7 @@ MgfGeometry::mgfEntityRing(int ac, const char **av, MgfParseSession *context) {
 Turn a cone into polygons
 */
 int
-MgfGeometry::mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityCone(int ac, const char **av, ParseSession *context) {
     char p3[3][24];
     char p4[3][24];
     char n3[3][24];
@@ -531,8 +531,8 @@ MgfGeometry::mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
         "_cv4"
     };
     const char *v1n;
-    MgfVertexContext *cv1;
-    MgfVertexContext *cv2;
+    VertexContext *cv1;
+    VertexContext *cv2;
     double n1off;
     double n2off;
     double d;
@@ -571,7 +571,7 @@ MgfGeometry::mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
         }
     } else {
         // Swap
-        MgfVertexContext *cv;
+        VertexContext *cv;
 
         cv = cv1;
         cv1 = cv2;
@@ -826,7 +826,7 @@ MgfGeometry::mgfEntityCone(int ac, const char **av, MgfParseSession *context) {
 Turn a prism into polygons
 */
 int
-MgfGeometry::mgfEntityPrism(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityPrism(int ac, const char **av, ParseSession *context) {
     char p[3][24];
     const char *vent[5] = {
         context->entityNames[EntityContext::VERTEX],
@@ -847,7 +847,7 @@ MgfGeometry::mgfEntityPrism(int ac, const char **av, MgfParseSession *context) {
     };
     const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][MGF_PV_SIZE];
-    const MgfVertexContext *cv;
+    const VertexContext *cv;
     int rv;
     int i;
 
@@ -864,7 +864,7 @@ MgfGeometry::mgfEntityPrism(int ac, const char **av, MgfParseSession *context) {
     }
 
     // Compute face normal
-    const MgfVertexContext *cv0 = MgfHandlerGeometry::getNamedVertex(av[1], context);
+    const VertexContext *cv0 = MgfHandlerGeometry::getNamedVertex(av[1], context);
     if ( cv0 == nullptr ) {
         return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -988,7 +988,7 @@ MgfGeometry::mgfEntityPrism(int ac, const char **av, MgfParseSession *context) {
 Replace face + holes with single contour
 */
 int
-MgfGeometry::mgfEntityFaceWithHoles(int ac, const char **av, MgfParseSession *context) {
+MgfGeometry::mgfEntityFaceWithHoles(int ac, const char **av, ParseSession *context) {
     const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 

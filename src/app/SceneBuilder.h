@@ -2,14 +2,14 @@
 #define __SCENE_BUILDER__
 
 #include "scene/Scene.h"
-#include "io/context/MgfParseSession.h"
+#include "io/context/ParseSession.h"
 
 class SceneBuilder final {
   public:
     static void sceneBuilderCreateModel(
         const int *argc,
         char *const *argv,
-        MgfParseSession *mgfContext,
+        ParseSession *mgfContext,
         Scene *scene);
 
   private:
@@ -24,10 +24,10 @@ class SceneBuilder final {
     static void sceneBuilderCollectGeometriesRecursive(
         const java::ArrayList<Geometry *> *source,
         java::ArrayList<Geometry *> *target);
-    static void sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneModel *mgfModel);
-    static void removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList);
+    static void sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, PersistedSceneModel *mgfModel);
+    static void removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList);
     static bool sceneBuilderValidateReadableFile(const char *fileName, const char *fileRole);
-    static bool sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *scene);
+    static bool sceneBuilderReadFile(const char *fileName, ParseSession *mgfContext, Scene *scene);
 };
 
 #endif

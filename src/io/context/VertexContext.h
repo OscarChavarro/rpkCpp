@@ -4,9 +4,9 @@
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "skin/Vertex.h"
 
-class MgfParseSession;
+class ParseSession;
 
-class MgfVertexContext {
+class VertexContext {
   public:
     Vector3Dd p; // Point
     Vector3Dd n; // Normal
@@ -14,11 +14,11 @@ class MgfVertexContext {
     int clock; // Incremented each change -- resettable
     Vertex *vertex;
 
-    MgfVertexContext():
+    VertexContext():
         p(), n(), xid(), clock(), vertex() {
     }
 
-    MgfVertexContext(const Vector3Dd &inP, const Vector3Dd &inN, long inXid, int inClock, Vertex *inVertex):
+    VertexContext(const Vector3Dd &inP, const Vector3Dd &inN, long inXid, int inClock, Vertex *inVertex):
         p(), n(), xid(), clock(), vertex() {
         p = inP;
         n = inN;

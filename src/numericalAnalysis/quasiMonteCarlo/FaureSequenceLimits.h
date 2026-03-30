@@ -1,0 +1,10 @@
+#ifndef __FAURE_SEQUENCE_LIMITS__
+#define __FAURE_SEQUENCE_LIMITS__
+
+enum FaureSequenceLimits {
+    FAURE_MAX_DIMENSION = 10,
+    FAURE_MAX_PRIME_DIGITS = 30,
+    FAURE_MAX_SEED = 2147483647
+};
+
+#endif

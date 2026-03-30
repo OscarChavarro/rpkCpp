@@ -1,7 +1,7 @@
-#include "io/context/MgfParseSession.h"
+#include "io/context/ParseSession.h"
 #include "io/context/PersistedSceneModel.h"
 
-MgfParseSession::MgfParseSession():
+ParseSession::ParseSession():
     parserConfig(),
     readerStackState(),
     geometryBuildState(),
@@ -47,7 +47,7 @@ MgfParseSession::MgfParseSession():
 {
 }
 
-MgfParseSession::~MgfParseSession() {
+ParseSession::~ParseSession() {
     if ( model != nullptr ) {
         delete model;
         model = nullptr;

@@ -1,19 +1,19 @@
 #ifndef __MGF_STATIC_HANDLER__
 #define __MGF_STATIC_HANDLER__
 
-#include "io/mgf/MgfEntityHandler.h"
+#include "io/context/EntityHandler.h"
 
-class MgfStaticHandler final : public MgfEntityHandler {
+class MgfStaticHandler final : public EntityHandler {
   public:
-    using HandlerFunction = int (*)(int argc, const char **argv, MgfParseSession *context);
+    using HandlerFunction = int (*)(int argc, const char **argv, ParseSession *context);
 
-    MgfStaticHandler(MgfHandlerType handlerType, HandlerFunction handlerFunction);
+    MgfStaticHandler(HandlerType handlerType, HandlerFunction handlerFunction);
 
-    int handle(int argc, const char **argv, MgfParseSession *context) const override;
-    MgfHandlerType type() const override;
+    int handle(int argc, const char **argv, ParseSession *context) const override;
+    HandlerType type() const override;
 
   private:
-    MgfHandlerType handlerType;
+    HandlerType handlerType;
     HandlerFunction handlerFunction;
 };
 

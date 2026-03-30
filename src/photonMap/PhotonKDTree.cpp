@@ -70,10 +70,10 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
 
     // Normal constraint
     if ( dist < qdat_s.maximumDistance &&
-         (static_cast<CIrrPhoton *>(node.m_data)->Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
+         (static_cast<IrrPhoton *>(node.m_data)->Normal().dotProduct(qdat_s.normal) > qdat_s.threshold ) ) {
         // Replace point if distance < maxdist AND normal is similar
         qdat_s.maximumDistance = dist;
-        qdat_s.photon = static_cast<CIrrPhoton *>(node.m_data);
+        qdat_s.photon = static_cast<IrrPhoton *>(node.m_data);
     }
 }
 
@@ -81,7 +81,7 @@ PhotonKDTree::NormalBQuery_rec(const int index) {
 Find the nearest photon with a similar normal constraint
 returns nullptr is no appropriate photon was found (should barely ever happen)
 */
-CIrrPhoton *
+IrrPhoton *
 PhotonKDTree::normalPhotonQuery(
     Vector3D *position,
     const Vector3D *normal,

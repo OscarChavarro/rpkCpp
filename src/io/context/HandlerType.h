@@ -1,7 +1,7 @@
 #ifndef __MGF_HANDLER_TYPE__
 #define __MGF_HANDLER_TYPE__
 
-enum class MgfHandlerType {
+enum class HandlerType {
     DISCARD_UNNEEDED,
     INCLUDE_FILE,
     ENTITY_SPHERE,

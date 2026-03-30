@@ -5,7 +5,7 @@
 #include "io/context/WordsContext.h"
 #include "io/mgf/MgfDefinitions.h"
 #include "io/mgf/MgfHandlerMaterial.h"
-#include "io/mgf/MgfMaterialContext.h"
+#include "io/context/MaterialContext.h"
 
 static constexpr int NUMBER_OF_SAMPLES = 3;
 
@@ -14,7 +14,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 Material *
-MgfHandlerMaterial::materialLookup(const char *name, const MgfParseSession *context) {
+MgfHandlerMaterial::materialLookup(const char *name, const ParseSession *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
@@ -28,7 +28,7 @@ MgfHandlerMaterial::materialLookup(const char *name, const MgfParseSession *cont
 Translates mgf color into out color representation
 */
 void
-MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, MgfParseSession *context) {
+MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseSession *context) {
     float xyz[3];
     float rgb[3];
 
@@ -97,7 +97,7 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 int
-MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, MgfParseSession *context) {
+MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context) {
     ColorRgb Ed;
     ColorRgb Es;
     ColorRgb Rd;
@@ -105,7 +105,7 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
     ColorRgb Rs;
     ColorRgb Ts;
     ColorRgb A;
-    MgfMaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
+    MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
         // This might cause strcmp to crash!
@@ -221,7 +221,7 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
 }
 
 void
-MgfHandlerMaterial::initMaterialContextTables(MgfParseSession *context) {
+MgfHandlerMaterial::initMaterialContextTables(ParseSession *context) {
     context->materialRepository.reset();
     context->currentMaterialName = nullptr;
 }
@@ -230,7 +230,7 @@ MgfHandlerMaterial::initMaterialContextTables(MgfParseSession *context) {
 This routine returns true if the current material has changed
 */
 int
-MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const MgfParseSession *context) {
+MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseSession *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -250,10 +250,10 @@ MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const MgfParseS
 Handle material entity
 */
 int
-MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *context) {
     int i;
     LookUpEntity *lp;
-    MgfMaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
+    MaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
     LookUpTable *materialLookUpTable = context->materialRepository.materialLookUpTable;
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
@@ -279,7 +279,7 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, MgfParseSessio
                 return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
-            currentMaterialContext = reinterpret_cast<MgfMaterialContext *>(lp->data);
+            currentMaterialContext = reinterpret_cast<MaterialContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( currentMaterialContext == nullptr) {
@@ -297,12 +297,12 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, MgfParseSessio
                     return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
-                lp->data = new char[sizeof(MgfMaterialContext)];
+                lp->data = new char[sizeof(MaterialContext)];
                 if ( lp->data == nullptr) {
                     return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
-                currentMaterialContext = reinterpret_cast<MgfMaterialContext *>(lp->data);
+                currentMaterialContext = reinterpret_cast<MaterialContext *>(lp->data);
                 currentMaterialContext->clock = 0;
             }
             i = currentMaterialContext->clock;
@@ -320,7 +320,7 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, MgfParseSessio
             if ( lp->data == nullptr ) {
                 return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
-            *currentMaterialContext = *reinterpret_cast<MgfMaterialContext *>(lp->data);
+            *currentMaterialContext = *reinterpret_cast<MaterialContext *>(lp->data);
             currentMaterialContext->clock = i + 1;
             return ErrorCodeContext::MGF_OK;
 

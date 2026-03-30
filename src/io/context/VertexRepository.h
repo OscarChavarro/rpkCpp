@@ -2,14 +2,14 @@
 #define __VERTEX_REPOSITORY__
 
 #include "io/context/LookUpTable.h"
-#include "io/mgf/MgfVertexContext.h"
+#include "VertexContext.h"
 
 class VertexRepository {
   public:
     LookUpTable *vertexLookUpTable;
-    MgfVertexContext defaultVertexContext;
-    MgfVertexContext unNamedVertexContext;
-    MgfVertexContext *currentVertex;
+    VertexContext defaultVertexContext;
+    VertexContext unNamedVertexContext;
+    VertexContext *currentVertex;
 
     VertexRepository();
     ~VertexRepository();

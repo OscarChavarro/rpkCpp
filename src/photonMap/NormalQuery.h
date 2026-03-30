@@ -2,11 +2,11 @@
 #define __NORMAL_QUERY__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "photonMap/CIrrPhoton.h"
+#include "photonMap/IrrPhoton.h"
 
 class NormalQuery {
   public:
-    CIrrPhoton *photon;
+    IrrPhoton *photon;
     float *point;
     Vector3D normal;
     float threshold;

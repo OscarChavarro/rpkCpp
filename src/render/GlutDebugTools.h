@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "io/context/MgfParseSession.h"
+#include "io/context/ParseSession.h"
 #include "render/GlutDebugState.h"
 
 class GalerkinElement;
@@ -17,8 +17,8 @@ class GlutDebugTools final {
         Scene *scene,
         RadianceMethod *radianceMethod,
         RenderOptions *renderOptions,
-        void (*memoryFreeCallBack)(MgfParseSession *mgfContext),
-        MgfParseSession *mgfContext);
+        void (*memoryFreeCallBack)(ParseSession *mgfContext),
+        ParseSession *mgfContext);
 
   private:
     static void resizeCallback(int newWidth, int newHeight);

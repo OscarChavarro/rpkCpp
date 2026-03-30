@@ -5,11 +5,11 @@
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/LookUpTable.h"
 #include "io/context/ReaderContext.h"
-#include "io/mgf/MgfHandlerType.h"
+#include "HandlerType.h"
 
-class MgfEntityHandler;
+class EntityHandler;
 
-constexpr int TOTAL_MGF_HANDLER_TYPES = static_cast<int>(MgfHandlerType::HANDLE_OBJECT) + 1;
+constexpr int TOTAL_MGF_HANDLER_TYPES = static_cast<int>(HandlerType::HANDLE_OBJECT) + 1;
 
 class ReaderStackState {
   public:
@@ -18,9 +18,9 @@ class ReaderStackState {
     LookUpTable entityLookUpTable;
     int nextFileContextId;
     ReaderContext *readerContext;
-    MgfEntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES];
-    MgfEntityHandler *supportCallbacks[TOTAL_NUMBER_OF_ENTITIES];
-    MgfEntityHandler *handlerByType[TOTAL_MGF_HANDLER_TYPES];
+    EntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES];
+    EntityHandler *supportCallbacks[TOTAL_NUMBER_OF_ENTITIES];
+    EntityHandler *handlerByType[TOTAL_MGF_HANDLER_TYPES];
 
     ReaderStackState();
     ~ReaderStackState();

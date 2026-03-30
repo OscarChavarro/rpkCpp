@@ -1,6 +1,6 @@
 #include "io/context/MaterialRepository.h"
 
-MgfMaterialContext
+MaterialContext
 MaterialRepository::createDefaultMgfMaterialContext() {
     return {
         1,

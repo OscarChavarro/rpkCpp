@@ -5,7 +5,7 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "photonMap/Photon.h"
+#include "photonMap/PhotonClass.h"
 #include "photonMap/PhotonKDTree.h"
 #include "photonMap/PhotonMapState.h"
 #include "photonMap/SampleGrid2D.h"
@@ -40,7 +40,7 @@ class PhotonMap {
 			direction * normal > 0, where normal is
 			the supplied reconstruction normal. */
 
-    CPhoton **m_photons;
+    Photon **m_photons;
     float *m_distances;
     float *m_cosines; // photon dir * reconstruction normal
     bool m_cosinesOk; // indicates if cosines are computed
@@ -68,7 +68,7 @@ class PhotonMap {
                                m_photons, m_distances, static_cast<float>(GetMaxR2()));
     }
 
-    CIrrPhoton *
+    IrrPhoton *
     DoIrradianceQuery(Vector3D *position, const Vector3D *normal, float maxR2 = Numeric::HUGE_FLOAT_VALUE) {
         return m_kdtree->normalPhotonQuery(position, normal, 0.8f, maxR2);
     }
@@ -77,7 +77,7 @@ class PhotonMap {
     void computeCosines(Vector3D normal);
 
     // Add a photon taking possible irrPhoton into account
-    void doAddPhoton(CPhoton &photon, Vector3D normal, short flags);
+    void doAddPhoton(Photon &photon, Vector3D normal, short flags);
 
   private:
     static float getFalseMonochrome(float val);
@@ -96,12 +96,12 @@ class PhotonMap {
 
     void setTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }
 
-    virtual bool addPhoton(CPhoton &photon, Vector3D normal, short flags);
+    virtual bool addPhoton(Photon &photon, Vector3D normal, short flags);
 
-    bool DC_AddPhoton(CPhoton &photon, RayHit &hit,
+    bool DC_AddPhoton(Photon &photon, RayHit &hit,
                       float requiredD, short flags = 0);
 
-    void redistribute(const CPhoton &photon) const;
+    void redistribute(const Photon &photon) const;
 
     // Get a maximum radius^2 for locating the nearest photons
     virtual double GetMaxR2();
@@ -110,7 +110,7 @@ class PhotonMap {
     virtual void precomputeIrradiance();
 
     // For 1 specific photon
-    virtual void photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon);
+    virtual void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon);
 
     // reconstruct
     virtual ColorRgb reconstruct(RayHit *hit, Vector3D &outDir,

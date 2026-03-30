@@ -32,9 +32,9 @@ class ImportanceMap: public PhotonMap {
     }
 
     // Override some photon map functions
-    bool addPhoton(CPhoton &photon, Vector3D normal, short flags) override;
+    bool addPhoton(Photon &photon, Vector3D normal, short flags) override;
 
-    void photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) override;
+    void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) override;
     void precomputeIrradiance() override;
 
     // New functions

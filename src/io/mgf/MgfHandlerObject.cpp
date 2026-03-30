@@ -11,7 +11,7 @@ Hierarchical object names tracking
 #include "io/mgf/MgfHandlerObject.h"
 
 void
-MgfHandlerObject::disposeCurrentSurfaceLists(MgfParseSession *context) {
+MgfHandlerObject::disposeCurrentSurfaceLists(ParseSession *context) {
     if ( context->currentPointList != nullptr ) {
         for ( int i = 0; i < context->currentPointList->size(); i++ ) {
             delete context->currentPointList->get(i);
@@ -47,7 +47,7 @@ MgfHandlerObject::disposeCurrentSurfaceLists(MgfParseSession *context) {
 }
 
 void
-MgfHandlerObject::pushCurrentGeometryList(MgfParseSession *context) {
+MgfHandlerObject::pushCurrentGeometryList(ParseSession *context) {
     if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
         MgfDefinitions::doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
@@ -59,7 +59,7 @@ MgfHandlerObject::pushCurrentGeometryList(MgfParseSession *context) {
 }
 
 void
-MgfHandlerObject::popCurrentGeometryList(MgfParseSession *context) {
+MgfHandlerObject::popCurrentGeometryList(ParseSession *context) {
     if ( context->geometryStackHeadIndex < 0 ) {
         MgfDefinitions::doError("Object stack underflow ... unbalanced 'o' contexts?", context);
         context->currentGeometryList = nullptr;
@@ -71,7 +71,7 @@ MgfHandlerObject::popCurrentGeometryList(MgfParseSession *context) {
 }
 
 void
-MgfHandlerObject::mgfObjectNewSurface(MgfParseSession *context) {
+MgfHandlerObject::mgfObjectNewSurface(ParseSession *context) {
     // Note: lists created here will be transferred to new MeshSurface,
     // should not be deleted from MgfParseSession
     context->currentPointList = new java::ArrayList<Vector3D *>();
@@ -85,7 +85,7 @@ MgfHandlerObject::mgfObjectNewSurface(MgfParseSession *context) {
 Handle an object entity statement
 */
 int
-MgfHandlerObject::handleObject2Entity(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerObject::handleObject2Entity(int ac, const char **av, ParseSession *context) {
     if ( ac == 1 ) {
         // Just pop top object
         return context->objectHierarchyState.popName();
@@ -100,7 +100,7 @@ MgfHandlerObject::handleObject2Entity(int ac, const char **av, MgfParseSession *
 }
 
 void
-MgfHandlerObject::mgfObjectSurfaceDone(MgfParseSession *context) {
+MgfHandlerObject::mgfObjectSurfaceDone(ParseSession *context) {
     if ( context->currentGeometryList == nullptr ) {
         context->currentGeometryList = new java::ArrayList<Geometry *>();
     }
@@ -146,7 +146,7 @@ MgfHandlerObject::mgfObjectSurfaceDone(MgfParseSession *context) {
 }
 
 int
-MgfHandlerObject::handleObjectEntity(int argc, const char **argv, MgfParseSession *context) {
+MgfHandlerObject::handleObjectEntity(int argc, const char **argv, ParseSession *context) {
     if ( argc > 1 ) {
         // Beginning of a new object
         if ( context->inSurface ) {
@@ -187,7 +187,7 @@ MgfHandlerObject::handleObjectEntity(int argc, const char **argv, MgfParseSessio
 }
 
 void
-MgfHandlerObject::mgfObjectFreeMemory(MgfParseSession *context) {
+MgfHandlerObject::mgfObjectFreeMemory(ParseSession *context) {
     if ( context != nullptr ) {
         context->objectHierarchyState.clear();
     }

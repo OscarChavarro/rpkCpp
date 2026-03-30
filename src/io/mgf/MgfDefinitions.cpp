@@ -8,11 +8,7 @@
 
 const char *
 MgfDefinitions::standardInputPath() {
-#if defined(_WIN32)
-    return "CONIN$";
-#else
     return "/dev/stdin";
-#endif
 }
 
 bool
@@ -43,18 +39,18 @@ MgfDefinitions::skipLines(java::io::InputStream *inputStream, int lineCount) {
 Default handler for unknown entities
 */
 int
-MgfDefinitions::mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const MgfParseSession * /*context*/) {
+MgfDefinitions::mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const ParseSession * /*context*/) {
     // Just ignore line
     return ErrorCodeContext::MGF_OK;
 }
 
 void
-MgfDefinitions::doError(const char *errmsg, MgfParseSession *context) {
+MgfDefinitions::doError(const char *errmsg, ParseSession *context) {
     Error::error(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
-MgfDefinitions::doWarning(const char *errmsg, MgfParseSession *context) {
+MgfDefinitions::doWarning(const char *errmsg, ParseSession *context) {
     Error::warning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
@@ -62,7 +58,7 @@ MgfDefinitions::doWarning(const char *errmsg, MgfParseSession *context) {
 Get current position in input file
 */
 void
-MgfDefinitions::mgfGetFilePosition(FilePositionContext *pos, MgfParseSession *context) {
+MgfDefinitions::mgfGetFilePosition(FilePositionContext *pos, ParseSession *context) {
     pos->fileId = context->readerContext->fileContextId;
     pos->lineNumber = context->readerContext->lineNumber;
     pos->offset = -1;
@@ -72,7 +68,7 @@ MgfDefinitions::mgfGetFilePosition(FilePositionContext *pos, MgfParseSession *co
 Reposition input file pointer
 */
 int
-MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, MgfParseSession *context) {
+MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, ParseSession *context) {
     if ( pos->fileId != context->readerContext->fileContextId ) {
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -109,7 +105,7 @@ MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, MgfParseSess
 Get entity number from its name
 */
 int
-MgfDefinitions::mgfEntity(const char *name, MgfParseSession *context) {
+MgfDefinitions::mgfEntity(const char *name, ParseSession *context) {
     if ( !context->entityLookUpTable.getCurrentTableSize() ) {
         // Initialize hash table
         if ( !context->entityLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
@@ -138,7 +134,7 @@ MgfDefinitions::mgfEntity(const char *name, MgfParseSession *context) {
 Pass entity to appropriate handler
 */
 int
-MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, MgfParseSession *context) {
+MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, ParseSession *context) {
     entityIndex = MgfDefinitions::mgfEntity(argv[0], context);
     if ( entityIndex < 0 ) {
         // Unknown entity
@@ -158,7 +154,7 @@ MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, MgfParse
 shaftCullOpen new input file
 */
 int
-MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallback, MgfParseSession *context) {
+MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallback, ParseSession *context) {
     readerContext->fileContextId = ++context->nextFileContextId;
     readerContext->lineNumber = 0;
     readerContext->isPipe = 0;
@@ -212,7 +208,7 @@ MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallba
 Close input file
 */
 void
-MgfDefinitions::mgfClose(MgfParseSession *context) {
+MgfDefinitions::mgfClose(ParseSession *context) {
     if ( context == nullptr || context->readerContext == nullptr ) {
         return;
     }
@@ -228,7 +224,7 @@ MgfDefinitions::mgfClose(MgfParseSession *context) {
 }
 
 void
-MgfDefinitions::mgfLookUpFreeMemory(MgfParseSession *context) {
+MgfDefinitions::mgfLookUpFreeMemory(ParseSession *context) {
     if ( context != nullptr ) {
         context->entityLookUpTable.lookUpDone();
     }

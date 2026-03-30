@@ -6,7 +6,9 @@ General definitions for edf, brdf, btdf, etc.
 #define __XXDF__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "material/BsdfComponentFlags.h"
+#include "material/XxdfComponentFlag.h"
+#include "material/BsdfComponent.h"
+#include "material/BsdfComponentFlag.h"
 #include "material/RefractionIndex.h"
 
 extern const float PHONG_LOWEST_SPECULAR_EXP;

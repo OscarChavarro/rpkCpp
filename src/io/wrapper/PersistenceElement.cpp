@@ -924,36 +924,6 @@ PersistenceElement::endsWithCString(const char *text, const char *suffix) {
     return std::strncmp(text + textLength - suffixLength, suffix, suffixLength) == 0;
 }
 
-char *
-PersistenceElement::mapLibraryName(const char *libname) {
-    const char *text = libname == nullptr ? "" : libname;
-    if ( text[0] == '\0' ) {
-        return duplicateCString("");
-    }
-#if defined(_WIN32)
-    if ( endsWithCString(text, ".dll") ) {
-        return duplicateCString(text);
-    }
-    return joinCString2(text, ".dll");
-#elif defined(__APPLE__)
-    if ( containsCString(text, ".dylib") || containsCString(text, ".so") ) {
-        return duplicateCString(text);
-    }
-    if ( startsWithCString(text, "lib") ) {
-        return joinCString2(text, ".dylib");
-    }
-    return joinCString3("lib", text, ".dylib");
-#else
-    if ( containsCString(text, ".so") ) {
-        return duplicateCString(text);
-    }
-    if ( startsWithCString(text, "lib") ) {
-        return joinCString2(text, ".so");
-    }
-    return joinCString3("lib", text, ".so");
-#endif
-}
-
 bool
 PersistenceElement::containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname) {
     if ( pathList == nullptr || nativeLibname == nullptr || nativeLibname[0] == '\0' ) {
@@ -995,46 +965,6 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
     }
 
     return false;
-}
-
-/**
-Given the name of a native library, this method tries to determine
-whether it is available or not.  Takes into account the cross-platform
-differences, and it is supposed to check if a System.loadLibrary
-call for given library will succeed or not.
-
-Use this method to anticipate any problem before it fails, so a better
-user feedback instruction can be given instead of waiting for an exception
-to be thrown.  Some libraries, as JOGL fails to return to the application
-the exception of a failed System.loadLibrary, so this method is useful
-in bettering the user feedback for this kind of circumstance.
-@param libname
-@return true if library is available
-*/
-bool
-PersistenceElement::verifyLibrary(const char *libname) {
-    char *nativeLibname = mapLibraryName(libname);
-    if ( nativeLibname == nullptr ) {
-        return false;
-    }
-
-#if defined(_WIN32)
-    char pathSeparator = ';';
-    const char *envPath = std::getenv("Path");
-    const bool found = containsExistingLibrary(envPath, pathSeparator, nativeLibname);
-#else
-    char pathSeparator = ':';
-    const char *envPath = std::getenv("LD_LIBRARY_PATH");
-    bool found = containsExistingLibrary(envPath, pathSeparator, nativeLibname);
-    if ( !found ) {
-        static const char *fallbackPaths =
-            "/lib:/usr/lib:/usr/local/lib:/usr/X11R6/lib:/usr/X11R6/lib64:/usr/openwin/lib:/usr/dt/lib:/lib64:/usr/lib64:/usr/local/lib64";
-        found = containsExistingLibrary(fallbackPaths, pathSeparator, nativeLibname);
-    }
-#endif
-
-    std::free(nativeLibname);
-    return found;
 }
 
 bool

@@ -7,11 +7,12 @@ Implementation of the special importance map functions
 #ifdef RAYTRACING_ENABLED
 
 #include "photonMap/ImportanceMap.h"
+#include "photonMap/Importon.h"
 #include "common/Error.h"
 
 bool
 ImportanceMap::addPhoton(
-    CPhoton &photon,
+    Photon &photon,
     Vector3D normal,
     short flags)
 {
@@ -32,7 +33,7 @@ ImportanceMap::reconstructImportance(Vector3D /*pos*/, const Vector3D &normal) c
     maxDistance = m_distances[0];
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
-        const CImporton *importon = static_cast<CImporton *>(m_photons[i]);
+        const Importon *importon = static_cast<Importon *>(m_photons[i]);
 
         Vector3D dir = importon->dir();
 
@@ -85,7 +86,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
         if ( !m_irradianceComputed || (m_preReconPhotons != *m_estimate_nrp))
             precomputeIrradiance();
 
-        const CImporton *photon = static_cast<CImporton *>(DoIrradianceQuery(&pos, &normal, m_totalMaxDistance));
+        const Importon *photon = static_cast<Importon *>(DoIrradianceQuery(&pos, &normal, m_totalMaxDistance));
 
         if ( photon ) {
             switch ( GLOBAL_photonMap_state.importanceOption ) {
@@ -145,7 +146,7 @@ ImportanceMap::ComputeAllRequiredDensities(
 }
 
 void
-ImportanceMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
+ImportanceMap::photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) {
     float imp;
     float pot;
     float diff{};
@@ -158,7 +159,7 @@ ImportanceMap::photonPrecomputeIrradiance(Camera *camera, CIrrPhoton *photon) {
     pot = m_distances[0]; // Only valid since max heap is used in kd-tree
     m_totalMaxDistance = java::Math::max(pot, m_totalMaxDistance);
 
-    static_cast<CImporton *>(photon)->PSetAll(imp, pot, diff);
+    static_cast<Importon *>(photon)->PSetAll(imp, pot, diff);
     if ( imp > m_maxImp ) {
         m_maxImp = imp;
     }

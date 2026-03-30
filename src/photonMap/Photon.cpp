@@ -1,7 +1,7 @@
 #include "common/Error.h"
-#include "photonMap/Photon.h"
+#include "photonMap/PhotonClass.h"
 void
-CPhoton::findRS(
+Photon::findRS(
     double *r,
     double *s,
     const CoordinateSystem *coord,
@@ -23,6 +23,6 @@ CPhoton::findRS(
         *s = phi / (2 * M_PI);
         *r = java::Math::pow(java::Math::cos(theta), static_cast<double>(n) + 1.0);
     } else {
-        Error::error("CPhoton::findRS", "Component %i not implemented yet", flag);
+        Error::error("Photon::findRS", "Component %i not implemented yet", flag);
     }
 }

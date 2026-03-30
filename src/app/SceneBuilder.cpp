@@ -229,7 +229,7 @@ SceneBuilder::sceneBuilderCollectGeometriesRecursive(
 }
 
 void
-SceneBuilder::sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, PersistedSceneModel *mgfModel) {
+SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, PersistedSceneModel *mgfModel) {
     if ( mgfContext == nullptr || mgfModel == nullptr ) {
         return;
     }
@@ -278,7 +278,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(MgfParseSession *mgfContext, Pe
 }
 
 void
-SceneBuilder::removeEmptyMeshSurfaces(MgfParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+SceneBuilder::removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
@@ -351,7 +351,7 @@ Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
 bool
-SceneBuilder::sceneBuilderReadFile(const char *fileName, MgfParseSession *mgfContext, Scene *scene) {
+SceneBuilder::sceneBuilderReadFile(const char *fileName, ParseSession *mgfContext, Scene *scene) {
     const BatchOptions *batchOptions = Batch::batchGetOptions();
     const bool importBinary =
         batchOptions != nullptr
@@ -565,7 +565,7 @@ void
 SceneBuilder::sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    MgfParseSession *mgfContext,
+    ParseSession *mgfContext,
     Scene *scene)
 {
     const BatchOptions *batchOptions = Batch::batchGetOptions();

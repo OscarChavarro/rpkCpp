@@ -8,6 +8,7 @@ Importon tracing
 #include "common/RenderOptions.h"
 #include "photonMap/PhotonMapImportance.h"
 #include "photonMap/PhotonMapConfig.h"
+#include "photonMap/Importon.h"
 #include "photonMap/ScreenSampler.h"
 /**
 Store a importon/poton. Some acceptance tests are performed first
@@ -37,7 +38,7 @@ PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathN
         // Compute footprint
         float footprintF = 1.0;
 
-        CImporton importon(node->m_hit.getPoint(), importanceF, potentialF, footprintF, node->m_inDirF);
+        Importon importon(node->m_hit.getPoint(), importanceF, potentialF, footprintF, node->m_inDirF);
 
         return map->addPhoton(importon, node->m_hit.getNormal(), 0);
     } else {

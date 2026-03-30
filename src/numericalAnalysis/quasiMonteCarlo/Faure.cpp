@@ -4,23 +4,18 @@ Faure's quasiMonteCarlo sequences
 
 #include "java/lang/Math.h"
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
+#include "numericalAnalysis/quasiMonteCarlo/FaureSequenceLimits.h"
 
-enum {
-MAX_DIM = 10,
-PR_DIM = 30,
-MAX_SEED = 2147483647
-};
-
-static int globalIx[MAX_DIM][PR_DIM];  // PR part presentation of x
+static int globalIx[FAURE_MAX_DIMENSION][FAURE_MAX_PRIME_DIGITS];  // PR part presentation of x
 static int globalDim;
 static int globalPR;
-static int globalPrime[MAX_DIM] = {2, 3, 5, 5, 7, 7, 11, 11, 11, 11};
+static int globalPrime[FAURE_MAX_DIMENSION] = {2, 3, 5, 5, 7, 7, 11, 11, 11, 11};
 
 // diameter[s] is 1e diameter >s
 static int globalNextN;
 static int globalSkip;
 static int globalNDigits;
-static int C[MAX_DIM][PR_DIM][PR_DIM]; // generator matrix
+static int C[FAURE_MAX_DIMENSION][FAURE_MAX_PRIME_DIGITS][FAURE_MAX_PRIME_DIGITS]; // generator matrix
 
 int
 Faure::setFaureC() {
@@ -50,7 +45,7 @@ Faure::setFaureC() {
 
 int
 Faure::setGFaureC() {
-    unsigned P[PR_DIM][PR_DIM];
+    unsigned P[FAURE_MAX_PRIME_DIGITS][FAURE_MAX_PRIME_DIGITS];
 
     // Pascal matrix
     for ( int j = 0; j < globalNDigits; j++ ) {
@@ -92,7 +87,7 @@ seed to it's Gray code
 double *
 Faure::nextFaure() {
     int save;
-    static double x[MAX_DIM];
+    static double x[FAURE_MAX_DIMENSION];
     double xx;
 
     save = globalNextN;
@@ -101,10 +96,10 @@ Faure::nextFaure() {
         k = k + 1;
         save = save / globalPR;
     }
-    for ( int i = 0; i < globalDim && i < MAX_DIM; i++ ) {
+    for ( int i = 0; i < globalDim && i < FAURE_MAX_DIMENSION; i++ ) {
         xx = 0;
         for ( int j = globalNDigits - 1; j >= 0; j-- ) {
-            if ( j < PR_DIM ) {
+            if ( j < FAURE_MAX_PRIME_DIGITS ) {
                 globalIx[i][j] = (globalIx[i][j] + C[i][j][k - 1]) % globalPR;
                 xx = xx / globalPR + globalIx[i][j];
             }
@@ -121,7 +116,7 @@ Return sample with given index
 double *
 Faure::faure(int seed) {
     int save;
-    static double x[MAX_DIM];
+    static double x[FAURE_MAX_DIMENSION];
     double xx;
 
     globalNextN = seed + globalSkip + 1;
@@ -149,7 +144,7 @@ Faure::initOriginalFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
+    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(FAURE_MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
     Faure::setFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {
@@ -172,7 +167,7 @@ Faure::initGeneralizedFaureSequence(int iDim) {
     globalDim = iDim;
     globalNextN = 0;
     globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
+    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(FAURE_MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
     Faure::setGFaureC();
     for ( int i = 0; i < globalDim; i++ ) {
         for ( int j = 0; j < globalNDigits; j++ ) {

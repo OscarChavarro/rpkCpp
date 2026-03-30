@@ -2,7 +2,7 @@
 #include "io/mgf/MgfStaticHandler.h"
 
 MgfStaticHandler::MgfStaticHandler(
-    const MgfHandlerType handlerType,
+    const HandlerType handlerType,
     const HandlerFunction handlerFunction):
     handlerType(handlerType),
     handlerFunction(handlerFunction)
@@ -10,14 +10,14 @@ MgfStaticHandler::MgfStaticHandler(
 }
 
 int
-MgfStaticHandler::handle(int argc, const char **argv, MgfParseSession *context) const {
+MgfStaticHandler::handle(int argc, const char **argv, ParseSession *context) const {
     if ( handlerFunction == nullptr ) {
         return ErrorCodeContext::MGF_OK;
     }
     return handlerFunction(argc, argv, context);
 }
 
-MgfHandlerType
+HandlerType
 MgfStaticHandler::type() const {
     return handlerType;
 }

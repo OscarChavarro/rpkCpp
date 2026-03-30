@@ -6,6 +6,7 @@
 #include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/Statistics.h"
+#include "photonMap/Photon.h"
 #include "photonMap/PhotonMap.h"
 bool
 PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
@@ -86,9 +87,9 @@ PhotonMap::PhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
     m_irradianceComputed = false;
 
     if ( doPrecomputeIrradiance ) {
-        m_kdtree = new PhotonKDTree(sizeof(CIrrPhoton), true);
+        m_kdtree = new PhotonKDTree(sizeof(IrrPhoton), true);
     } else {
-        m_kdtree = new PhotonKDTree(sizeof(CPhoton), true);
+        m_kdtree = new PhotonKDTree(sizeof(Photon), true);
     }
 
     m_totalPaths = 0;
@@ -98,7 +99,7 @@ PhotonMap::PhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
     m_grid = new SampleGrid2D(2, 4);
     m_sampleLastPos.set(Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE);
 
-    m_photons = new CPhoton *[MAXIMUM_RECON_PHOTONS];
+    m_photons = new Photon *[MAXIMUM_RECON_PHOTONS];
     m_distances = new float[MAXIMUM_RECON_PHOTONS];
     m_cosines = new float[MAXIMUM_RECON_PHOTONS];
 
@@ -147,12 +148,12 @@ PhotonMap::computeCosines(const Vector3D normal) {
 // Adding photons
 void
 PhotonMap::doAddPhoton(
-    CPhoton &photon,
+    Photon &photon,
     Vector3D normal,
     short flags)
 {
     if ( m_precomputeIrradiance ) {
-        CIrrPhoton irrPhoton;
+        IrrPhoton irrPhoton;
         irrPhoton.copy(photon);
         irrPhoton.setNormal(normal);
         m_kdtree->addPoint(&irrPhoton, flags);
@@ -165,7 +166,7 @@ PhotonMap::doAddPhoton(
 Adding photons, returns if photon was added
 */
 bool
-PhotonMap::addPhoton(CPhoton &photon, Vector3D normal, short flags) {
+PhotonMap::addPhoton(Photon &photon, Vector3D normal, short flags) {
     drand48(); // Just to keep in sync with density controlled storage
 
     doAddPhoton(photon, normal, flags);
@@ -198,7 +199,7 @@ PhotonMap::computeAcceptProb(float currentD, float requiredD) {
 }
 
 void
-PhotonMap::redistribute(const CPhoton &photon) const {
+PhotonMap::redistribute(const Photon &photon) const {
     // redistribute this photon over the nearest neighbours
     // m_distances, m_photons and m_cosines should be filled correctly!
     // only photons are used for which direction * normal > 0
@@ -221,7 +222,7 @@ PhotonMap::redistribute(const CPhoton &photon) const {
 
 bool
 PhotonMap::DC_AddPhoton(
-    CPhoton &photon,
+    Photon &photon,
     RayHit &hit,
     float requiredD,
     short flags)
@@ -282,7 +283,7 @@ PhotonMap::GetMaxR2() {
 
 // Precompute Irradiance
 void
-PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, CIrrPhoton *photon) {
+PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
     ColorRgb irradiance;
     irradiance.clear();
 
@@ -314,7 +315,7 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, CIrrPhoton *photon) {
 void
 PhotonMap::precomputeIrradianceCallback(void *data, void *nodeData) {
     PhotonMap *map = static_cast<PhotonMap *>(data);
-    CIrrPhoton *photon = static_cast<CIrrPhoton *>(nodeData);
+    IrrPhoton *photon = static_cast<IrrPhoton *>(nodeData);
     map->photonPrecomputeIrradiance(nullptr, photon);
 }
 
@@ -340,7 +341,7 @@ PhotonMap::irradianceReconstruct(
 
     Vector3D normal = hit->getNormal();
     Vector3D position = hit->getPoint();
-    const CIrrPhoton *photon = DoIrradianceQuery(&position, &normal);
+    const IrrPhoton *photon = DoIrradianceQuery(&position, &normal);
     hit->setNormal(&normal);
 
     if ( photon ) {

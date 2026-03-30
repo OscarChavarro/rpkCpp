@@ -14,6 +14,7 @@
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
 #include "photonMap/PhotonMapSampler.h"
 #include "photonMap/ScreenSampler.h"
+#include "photonMap/Photon.h"
 #include "photonMap/PhotonMapRadianceMethod.h"
 #include "photonMap/PhotonMapConfig.h"
 #include "photonMap/PhotonMapImportance.h"
@@ -355,7 +356,7 @@ PhotonMapRadianceMethod::photonMapDoPhotonStore(
         bsdf = node->m_hit.getPatch()->material->getBsdf();
 
         if ( !PhotonMap::zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
-            CPhoton photon(node->m_hit.getPoint(), power, node->m_inDirF);
+            Photon photon(node->m_hit.getPoint(), power, node->m_inDirF);
 
             // Determine photon flags
             short flags = 0;

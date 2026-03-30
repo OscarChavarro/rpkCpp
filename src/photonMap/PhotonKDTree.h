@@ -6,7 +6,7 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 #define __PHOTON_K_D_TREE__
 
 #include "common/dataStructures/KDTree.h"
-#include "photonMap/Photon.h"
+#include "photonMap/IrrPhoton.h"
 class PhotonKDTree final : public KDTree {
   private:
     static float sqrDistance3D(const float *a, const float *b);
@@ -15,7 +15,7 @@ class PhotonKDTree final : public KDTree {
   public:
     explicit PhotonKDTree(int dataSize, bool copyData = true);
 
-    CIrrPhoton *
+    IrrPhoton *
     normalPhotonQuery(
         Vector3D *position,
         const Vector3D *normal,

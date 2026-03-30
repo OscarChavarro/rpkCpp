@@ -23,14 +23,14 @@ namespace java {
 
 class Geometry;
 class Material;
-class MgfEntityHandler;
+class EntityHandler;
 class Patch;
 class PersistedSceneModel;
 class ReaderContext;
 class Vector3D;
 class Vertex;
 
-class MgfParseSession {
+class ParseSession {
   public:
     ParserConfig parserConfig;
     ReaderStackState readerStackState;
@@ -48,7 +48,7 @@ class MgfParseSession {
     // migrate to explicit sub-state access.
     using EntityNamesArray = char[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     using ErrorMessagesArray = const char *[ErrorCodeContext::MGF_NUMBER_OF_ERRORS];
-    using HandlerArray = MgfEntityHandler *[TOTAL_NUMBER_OF_ENTITIES];
+    using HandlerArray = EntityHandler *[TOTAL_NUMBER_OF_ENTITIES];
     using GeometryStackArray = java::ArrayList<Geometry *> *[MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     RadianceMethod *&radianceMethod;
@@ -84,11 +84,11 @@ class MgfParseSession {
     java::ArrayList<Geometry *> *&geometries;
     java::ArrayList<Material *> *&materials;
 
-    MgfParseSession();
-    ~MgfParseSession();
+    ParseSession();
+    ~ParseSession();
 
-    MgfParseSession(const MgfParseSession &) = delete;
-    MgfParseSession &operator=(const MgfParseSession &) = delete;
+    ParseSession(const ParseSession &) = delete;
+    ParseSession &operator=(const ParseSession &) = delete;
 };
 
 #endif

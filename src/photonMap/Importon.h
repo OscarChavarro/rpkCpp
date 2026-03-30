@@ -1,9 +1,10 @@
-#ifndef __C_IMPORTON__
-#define __C_IMPORTON__
+#ifndef __IMPORTON__
+#define __IMPORTON__
 
-#include "photonMap/CIrrPhoton.h"
-// CImporton: identical to CIrrPhoton, but with some extra functions
-class CImporton : public CIrrPhoton {
+#include "photonMap/IrrPhoton.h"
+
+// Importon: identical to IrrPhoton, but with some extra functions
+class Importon : public IrrPhoton {
   public:
     inline void
     SetAll(float imp, float /*pot*/, float /*foot*/) {
@@ -19,7 +20,7 @@ class CImporton : public CIrrPhoton {
         m_irradiance.r = imp;
     }
 
-    CImporton(
+    Importon(
         Vector3D pos,
         float importance,
         float potential,

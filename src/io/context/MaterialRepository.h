@@ -2,14 +2,14 @@
 #define __MATERIAL_REPOSITORY__
 
 #include "io/context/LookUpTable.h"
-#include "io/mgf/MgfMaterialContext.h"
+#include "MaterialContext.h"
 
 class MaterialRepository {
   public:
     LookUpTable *materialLookUpTable;
-    MgfMaterialContext defaultMaterialContext;
-    MgfMaterialContext unNamedMaterialContext;
-    MgfMaterialContext *currentMaterialContext;
+    MaterialContext defaultMaterialContext;
+    MaterialContext unNamedMaterialContext;
+    MaterialContext *currentMaterialContext;
 
     MaterialRepository();
     ~MaterialRepository();
@@ -20,7 +20,7 @@ class MaterialRepository {
     MaterialRepository &operator=(const MaterialRepository &) = delete;
 
   private:
-    static MgfMaterialContext createDefaultMgfMaterialContext();
+    static MaterialContext createDefaultMgfMaterialContext();
 };
 
 #endif

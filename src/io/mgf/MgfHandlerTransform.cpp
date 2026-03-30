@@ -90,7 +90,7 @@ MgfHandlerTransform::checkArgument(int a, const char *l, int ac, char **av, int 
 Put out name for this instance
 */
 int
-MgfHandlerTransform::transformName(const TransformArray *ap, MgfParseSession *context) {
+MgfHandlerTransform::transformName(const TransformArray *ap, ParseSession *context) {
     static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
     static const char *oav[3] = {
         context->entityNames[EntityContext::OBJECT], oName
@@ -115,7 +115,7 @@ MgfHandlerTransform::transformName(const TransformArray *ap, MgfParseSession *co
 Allocate new transform structure
 */
 TransformStackContext *
-MgfHandlerTransform::newTransform(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerTransform::newTransform(int ac, const char **av, ParseSession *context) {
     TransformStack &stack = context->transformStack;
     int nDim = 0;
     const int previousArgumentCount = stack.argumentCountFor(context->transformContext);
@@ -213,7 +213,7 @@ MgfHandlerTransform::newTransform(int ac, const char **av, MgfParseSession *cont
 Transform a point by the current matrix
 */
 void
-MgfHandlerTransform::mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context) {
+MgfHandlerTransform::mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseSession *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -225,7 +225,7 @@ MgfHandlerTransform::mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const
 Transform a vector using current matrix
 */
 void
-MgfHandlerTransform::mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const MgfParseSession *context) {
+MgfHandlerTransform::mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const ParseSession *context) {
     if ( context->transformContext == nullptr) {
         v1->copy(v2);
         return;
@@ -456,7 +456,7 @@ MgfHandlerTransform::xf(TransformContext *ret, int ac, char **av) {
 }
 
 bool
-MgfHandlerTransform::compactTransformArguments(MgfParseSession *context, const TransformStackContext *stackContext) {
+MgfHandlerTransform::compactTransformArguments(ParseSession *context, const TransformStackContext *stackContext) {
     return context->transformStack.compactTo(stackContext);
 }
 
@@ -464,7 +464,7 @@ MgfHandlerTransform::compactTransformArguments(MgfParseSession *context, const T
 Handle xf entity
 */
 int
-MgfHandlerTransform::handleTransformationEntity(int ac, const char **av, MgfParseSession *context) {
+MgfHandlerTransform::handleTransformationEntity(int ac, const char **av, ParseSession *context) {
     TransformStack &stack = context->transformStack;
     TransformStackContext *spec;
     int n;
@@ -543,7 +543,7 @@ MgfHandlerTransform::handleTransformationEntity(int ac, const char **av, MgfPars
 }
 
 void
-MgfHandlerTransform::mgfTransformFreeMemory(MgfParseSession *context) {
+MgfHandlerTransform::mgfTransformFreeMemory(ParseSession *context) {
     if ( context != nullptr ) {
         context->transformStack.clearArguments();
     }
