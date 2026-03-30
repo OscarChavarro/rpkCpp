@@ -2,6 +2,7 @@
 #include "render/visualDebugTools/GlutDebugToolsModel.h"
 #include "render/visualDebugTools/GlutDebugToolsKeyControl.h"
 #include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "render/visualDebugTools/GlutHudConsole.h"
 #include "galerkin/GalerkinElement.h"
 
 #ifdef OPEN_GL_ENABLED
@@ -12,6 +13,8 @@
 #else
     #include <GL/glut.h>
 #endif
+
+#include <cstdio>
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
@@ -134,6 +137,14 @@ GlutDebugTools::drawCallback() {
             globalModel.selectedHierarchyLevel);
         glPopMatrix();
     }
+
+    char hudModeText[256];
+    std::snprintf(
+        hudModeText,
+        sizeof(hudModeText),
+        "MODE: %s [m]",
+        glutDebugModeName(globalModel.mode));
+    GlutHudConsole::printTextLine(hudModeText, 0, 0, globalModel.width, globalModel.height);
 
     glutSwapBuffers();
 }

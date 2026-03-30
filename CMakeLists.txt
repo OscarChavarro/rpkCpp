@@ -214,6 +214,7 @@ set(MAIN_SRC
     src/app/Main.cpp)
 
 set(OPEN_GL_SRC
+    src/render/visualDebugTools/GlutHudConsole.cpp
     src/render/visualDebugTools/GlutDebugPatchHierarchy.cpp
     src/render/visualDebugTools/GlutDebugMode.cpp
     src/render/visualDebugTools/GlutDebugToolsModel.cpp
