@@ -17,7 +17,11 @@
 void
 GlutDebugToolsKeyControl::printSelectedPatchState() {
     if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-        java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.selectedPatch);
+        if ( GLOBAL_render_glutDebugState.primarySelectedPatch < 0 ) {
+            java::lang::System::out.printf("Selected patch: none\n");
+        } else {
+            java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.primarySelectedPatch);
+        }
     } else {
         java::lang::System::out.printf("Selected patch: ALL\n");
     }
@@ -30,7 +34,7 @@ GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(const GlutDebugToolsMod
     }
     return GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
         model.scene,
-        GLOBAL_render_glutDebugState.selectedPatch);
+        GLOBAL_render_glutDebugState.primarySelectedPatch);
 }
 
 void
@@ -61,18 +65,25 @@ GlutDebugToolsKeyControl::handleKeypress(
             GLOBAL_render_glutDebugState.showSelectedPathOnly = !GLOBAL_render_glutDebugState.showSelectedPathOnly;
             break;
         case '1':
-            GLOBAL_render_glutDebugState.selectedPatch--;
-            if ( GLOBAL_render_glutDebugState.selectedPatch < 0 ) {
-                GLOBAL_render_glutDebugState.selectedPatch = 0;
+            if ( GLOBAL_render_glutDebugState.primarySelectedPatch > -1 ) {
+                GLOBAL_render_glutDebugState.primarySelectedPatch--;
+            }
+            if ( GLOBAL_render_glutDebugState.primarySelectedPatch < -1 ) {
+                GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
             }
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case '2':
-            GLOBAL_render_glutDebugState.selectedPatch++;
-            if ( model.scene != nullptr
-                 && model.scene->patchList != nullptr
-                 && GLOBAL_render_glutDebugState.selectedPatch >= model.scene->patchList->size() ) {
-                GLOBAL_render_glutDebugState.selectedPatch = static_cast<int>(model.scene->patchList->size() - 1);
+            if ( model.scene == nullptr || model.scene->patchList == nullptr || model.scene->patchList->size() <= 0 ) {
+                GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
+            } else {
+                if ( GLOBAL_render_glutDebugState.primarySelectedPatch < -1 ) {
+                    GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
+                }
+                GLOBAL_render_glutDebugState.primarySelectedPatch++;
+                if ( GLOBAL_render_glutDebugState.primarySelectedPatch >= model.scene->patchList->size() ) {
+                    GLOBAL_render_glutDebugState.primarySelectedPatch = static_cast<int>(model.scene->patchList->size() - 1);
+                }
             }
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
@@ -109,7 +120,7 @@ GlutDebugToolsKeyControl::handleKeypress(
             break;
         case 'e':
             if ( printGalerkinElementForPatch != nullptr && model.scene != nullptr ) {
-                printGalerkinElementForPatch(model.scene, GLOBAL_render_glutDebugState.selectedPatch);
+                printGalerkinElementForPatch(model.scene, GLOBAL_render_glutDebugState.primarySelectedPatch);
             }
             break;
         case 'p':

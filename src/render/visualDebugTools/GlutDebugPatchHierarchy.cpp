@@ -302,15 +302,19 @@ GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
     int patchIndex,
     int hierarchyLevel)
 {
+    if ( renderOptions == nullptr ) {
+        return;
+    }
+
+    renderNonSelectedPatchesGray(scene, renderOptions, patchIndex);
+
     const GalerkinElement *topLevelElement = selectedPatchRoot(scene, patchIndex);
-    if ( topLevelElement == nullptr || renderOptions == nullptr ) {
+    if ( topLevelElement == nullptr ) {
         return;
     }
 
     const int maxLevel = maxLevelFromElement(topLevelElement);
     const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
-
-    renderNonSelectedPatchesGray(scene, renderOptions, patchIndex);
 
     RenderOptions selectedRenderOptions = *renderOptions;
     selectedRenderOptions.drawSurfaces = true;

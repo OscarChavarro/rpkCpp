@@ -26,6 +26,8 @@ class GlutDebugTools final {
     static void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
     static void keypressCallback(unsigned char keyChar, int x, int y);
     static void extendedKeypressCallback(int keyCode, int x, int y);
+    static void mouseButtonCallback(int button, int state, int x, int y);
+    static void mouseMotionCallback(int x, int y);
     static void drawCallback();
 };
 

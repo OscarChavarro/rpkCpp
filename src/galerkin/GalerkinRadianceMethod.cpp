@@ -542,7 +542,7 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
         RenderOptions modifiedRenderOptions = *renderOptions;
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-                if ( i == GLOBAL_render_glutDebugState.selectedPatch ) {
+                if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
                     modifiedRenderOptions.drawOutlines = true;
                     modifiedRenderOptions.outlineColor = ColorRgb(1.0f, 0.0f, 0.0f);
                 } else {
@@ -551,7 +551,7 @@ GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *ren
                 galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
             } else {
                 modifiedRenderOptions.outlineColor = ColorRgb(0.4f, 0.1f, 0.1f);
-                if ( i == GLOBAL_render_glutDebugState.selectedPatch ) {
+                if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
                     modifiedRenderOptions.outlineColor = ColorRgb(0.0f, 0.0f, 1.0f);
                 }
                 galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);

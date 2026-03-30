@@ -3,9 +3,9 @@
 GlutDebugState GLOBAL_render_glutDebugState;
 
 GlutDebugState::GlutDebugState():
-    selectedPatch(0),
-    showSelectedPathOnly(false),
-    angleAroundViewportU(0.0f),
-    angleAroundViewportV(0.0f)
+        primarySelectedPatch(0),
+        showSelectedPathOnly(true),
+        angleAroundViewportU(0.0f),
+        angleAroundViewportV(0.0f)
 {
 }
