@@ -12,8 +12,6 @@ const float KD_MAX_RADIUS = 1e10;
 // KD Tree with one data element per node
 float *KDTree::distances = nullptr;
 
-static KDQuery GLOBAL_qDatS;
-
 KDTree::KDTree(int inDataSize, bool CopyData) {
     dataSize = inDataSize;
     numberOfNodes = 0;
@@ -190,6 +188,7 @@ KDTree::query(
     float radius,
     short excludeFlags)
 {
+    KDQuery queryData;
     int numberFound;
     float *usedDistances;
 
@@ -204,28 +203,28 @@ KDTree::query(
     }
 
     // Fill in static class data
-    GLOBAL_qDatS.point = point;
-    GLOBAL_qDatS.wantedN = N;
-    GLOBAL_qDatS.foundN = 0;
-    GLOBAL_qDatS.results = static_cast<float **>(results);
-    GLOBAL_qDatS.distances = usedDistances;
-    GLOBAL_qDatS.maximumDistance = radius;
-    GLOBAL_qDatS.sqrRadius = radius;
-    GLOBAL_qDatS.excludeFlags = excludeFlags;
-    GLOBAL_qDatS.notFilled = true;
+    queryData.point = point;
+    queryData.wantedN = N;
+    queryData.foundN = 0;
+    queryData.results = static_cast<float **>(results);
+    queryData.distances = usedDistances;
+    queryData.maximumDistance = radius;
+    queryData.sqrRadius = radius;
+    queryData.excludeFlags = excludeFlags;
+    queryData.notFilled = true;
 
     // First query balanced part
     if ( balancedRootNode != nullptr ) {
-        balancedQueryRec(0);
+        balancedQueryRec(0, queryData);
     }
 
     // Now query unbalanced part using the already found nodes
     // from the balanced part
     if ( root ) {
-        queryRec(root);
+        queryRec(root, queryData);
     }
 
-    numberFound = GLOBAL_qDatS.foundN;
+    numberFound = queryData.foundN;
 
     return numberFound;
 }
@@ -251,11 +250,11 @@ KDTree::sqrDistance3D(const float *a, const float *b) {
 }
 
 /**
-Max heap stuff, using static GLOBAL_qDatS (fastest !!)
+Max heap stuff
 Adapted from patched POVRAY (megasrc), who took it from Sejwick
 */
 inline void
-KDTree::fixUp() {
+KDTree::fixUp(KDQuery &queryData) {
     // Ripple the node (qdat_s.foundN) upward. There are qdat_s.foundN + 1 nodes
     // in the tree
     int son;
@@ -263,18 +262,18 @@ KDTree::fixUp() {
     float tmpDist;
     float *tmpData;
 
-    son = GLOBAL_qDatS.foundN;
+    son = queryData.foundN;
     parent = (son - 1) >> 1;  // Root of tree == index 0 so parent = any son - 1 / 2
 
-    while ( (son > 0) && GLOBAL_qDatS.distances[parent] < GLOBAL_qDatS.distances[son] ) {
-        tmpDist = GLOBAL_qDatS.distances[parent];
-        tmpData = GLOBAL_qDatS.results[parent];
+    while ( (son > 0) && queryData.distances[parent] < queryData.distances[son] ) {
+        tmpDist = queryData.distances[parent];
+        tmpData = queryData.results[parent];
 
-        GLOBAL_qDatS.distances[parent] = GLOBAL_qDatS.distances[son];
-        GLOBAL_qDatS.results[parent] = GLOBAL_qDatS.results[son];
+        queryData.distances[parent] = queryData.distances[son];
+        queryData.results[parent] = queryData.results[son];
 
-        GLOBAL_qDatS.distances[son] = tmpDist;
-        GLOBAL_qDatS.results[son] = tmpData;
+        queryData.distances[son] = tmpDist;
+        queryData.results[son] = tmpData;
 
         son = parent;
         parent = (son - 1) >> 1;
@@ -282,21 +281,21 @@ KDTree::fixUp() {
 }
 
 inline void
-KDTree::mhInsert(float *data, float dist) {
-    GLOBAL_qDatS.distances[GLOBAL_qDatS.foundN] = dist;
-    GLOBAL_qDatS.results[GLOBAL_qDatS.foundN] = data;
+KDTree::mhInsert(KDQuery &queryData, float *data, float dist) {
+    queryData.distances[queryData.foundN] = dist;
+    queryData.results[queryData.foundN] = data;
 
-    KDTree::fixUp();
+    KDTree::fixUp(queryData);
 
     // If all the photons are filled, we can use the actual maximum distance
-    if ( ++GLOBAL_qDatS.foundN == GLOBAL_qDatS.wantedN ) {
-        GLOBAL_qDatS.maximumDistance = GLOBAL_qDatS.distances[0];
-        GLOBAL_qDatS.notFilled = false;
+    if ( ++queryData.foundN == queryData.wantedN ) {
+        queryData.maximumDistance = queryData.distances[0];
+        queryData.notFilled = false;
     }
 }
 
 inline void
-KDTree::fixDown() {
+KDTree::fixDown(KDQuery &queryData) {
     // Ripple the top node, which may not be max anymore downwards
     // There are qdat_s.foundN nodes in the tree, starting at index 0
     int son;
@@ -304,31 +303,31 @@ KDTree::fixDown() {
     float tmpDist;
     float *tmpData;
 
-    int max = GLOBAL_qDatS.foundN;
+    int max = queryData.foundN;
 
     parent = 0;
     son = 1;
 
     while ( son < max ) {
-        if ( GLOBAL_qDatS.distances[son] <= GLOBAL_qDatS.distances[parent] ) {
-            if ((++son >= max) || GLOBAL_qDatS.distances[son] <= GLOBAL_qDatS.distances[parent] ) {
+        if ( queryData.distances[son] <= queryData.distances[parent] ) {
+            if ((++son >= max) || queryData.distances[son] <= queryData.distances[parent] ) {
                 return; // Node in place, left son and right son smaller
             }
         } else {
-            if ((son + 1 < max) && GLOBAL_qDatS.distances[son + 1] > GLOBAL_qDatS.distances[son] ) {
+            if ((son + 1 < max) && queryData.distances[son + 1] > queryData.distances[son] ) {
                 son++; // Take maximum of the two sons
             }
         }
 
         // Swap because son > parent
-        tmpDist = GLOBAL_qDatS.distances[parent];
-        tmpData = GLOBAL_qDatS.results[parent];
+        tmpDist = queryData.distances[parent];
+        tmpData = queryData.results[parent];
 
-        GLOBAL_qDatS.distances[parent] = GLOBAL_qDatS.distances[son];
-        GLOBAL_qDatS.results[parent] = GLOBAL_qDatS.results[son];
+        queryData.distances[parent] = queryData.distances[son];
+        queryData.results[parent] = queryData.results[son];
 
-        GLOBAL_qDatS.distances[son] = tmpDist;
-        GLOBAL_qDatS.results[son] = tmpData;
+        queryData.distances[son] = tmpDist;
+        queryData.results[son] = tmpData;
 
         parent = son;
         son = (parent << 1) + 1;
@@ -336,44 +335,44 @@ KDTree::fixDown() {
 }
 
 inline void
-KDTree::mhReplaceMax(float *data, float dist) {
+KDTree::mhReplaceMax(KDQuery &queryData, float *data, float dist) {
     // Top = maximum element. Replace it with new and ripple down
     // The heap is full (foundN == wantedN), but this is not required
 
-    *GLOBAL_qDatS.distances = dist; // Top
-    *GLOBAL_qDatS.results = data;
+    *queryData.distances = dist; // Top
+    *queryData.results = data;
 
-    KDTree::fixDown();
+    KDTree::fixDown(queryData);
 
-    GLOBAL_qDatS.maximumDistance = *GLOBAL_qDatS.distances; // Max = top of heap
+    queryData.maximumDistance = *queryData.distances; // Max = top of heap
 }
 
 /**
 Query_rec for the unbalanced kd tree part
 */
 void
-KDTree::queryRec(const KDTreeNode *node) {
+KDTree::queryRec(const KDTreeNode *node, KDQuery &queryData) {
     int discriminator = node->discriminator();
     float dist;
     const KDTreeNode *nearNode;
     const KDTreeNode *farNode;
 
-    dist = sqrDistance3D(static_cast<float *>(node->m_data), GLOBAL_qDatS.point);
+    dist = sqrDistance3D(static_cast<float *>(node->m_data), queryData.point);
 
-    if ( dist < GLOBAL_qDatS.maximumDistance ) {
-        if ( GLOBAL_qDatS.notFilled ) {
+    if ( dist < queryData.maximumDistance ) {
+        if ( queryData.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert(static_cast<float *>(node->m_data), dist);
+            mhInsert(queryData, static_cast<float *>(node->m_data), dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax(static_cast<float *>(node->m_data), dist);
+            mhReplaceMax(queryData, static_cast<float *>(node->m_data), dist);
         }
     }
 
     // Reuse distance
-    dist = static_cast<float *>(node->m_data)[discriminator] - GLOBAL_qDatS.point[discriminator];
+    dist = static_cast<float *>(node->m_data)[discriminator] - queryData.point[discriminator];
 
     if ( dist >= 0.0 ) {
         nearNode = node->loson;
@@ -385,16 +384,16 @@ KDTree::queryRec(const KDTreeNode *node) {
 
     // Always call near node recursively
     if ( nearNode ) {
-        queryRec(nearNode);
+        queryRec(nearNode, queryData);
     }
 
     dist *= dist; // Square distance to the separator plane
-    if ( farNode && (((GLOBAL_qDatS.foundN < GLOBAL_qDatS.wantedN) &&
-        (dist < GLOBAL_qDatS.sqrRadius)) ||
-        (dist < GLOBAL_qDatS.maximumDistance)) ) {
+    if ( farNode && (((queryData.foundN < queryData.wantedN) &&
+        (dist < queryData.sqrRadius)) ||
+        (dist < queryData.maximumDistance)) ) {
         // Discriminator line closer than maximumDistance : nearer positions can lie
         // on the far side. Or there are still not enough nodes found
-        queryRec(farNode);
+        queryRec(farNode, queryData);
     }
 }
 
@@ -402,7 +401,7 @@ KDTree::queryRec(const KDTreeNode *node) {
 Query_rec for the unbalanced kd tree part
 */
 void
-KDTree::balancedQueryRec(int index) {
+KDTree::balancedQueryRec(int index, KDQuery &queryData) {
     const BalancedKDTreeNode &node = balancedRootNode[index];
     int discr = node.discriminator();
     float dist;
@@ -413,7 +412,7 @@ KDTree::balancedQueryRec(int index) {
 
     // Test discr (reuse distance)
     if ( index < firstLeaf ) {
-        dist = static_cast<float *>(node.m_data)[discr] - GLOBAL_qDatS.point[discr];
+        dist = static_cast<float *>(node.m_data)[discr] - queryData.point[discr];
 
         if ( dist >= 0.0 ) {
             nearIndex = (index << 1) + 1; // node loson
@@ -425,30 +424,30 @@ KDTree::balancedQueryRec(int index) {
 
         // Always call near node recursively
         if ( nearIndex < numBalanced ) {
-            balancedQueryRec(nearIndex);
+            balancedQueryRec(nearIndex, queryData);
         }
 
         dist *= dist; // Square distance to the separator plane
-        if ((farIndex < numBalanced) && (((GLOBAL_qDatS.notFilled) && // qdat_s.foundN < qdat_s.wantedN
-                                            (dist < GLOBAL_qDatS.sqrRadius)) ||
-                                         (dist < GLOBAL_qDatS.maximumDistance)) ) {
+        if ((farIndex < numBalanced) && (((queryData.notFilled) && // qdat_s.foundN < qdat_s.wantedN
+                                            (dist < queryData.sqrRadius)) ||
+                                         (dist < queryData.maximumDistance)) ) {
             // Discriminator line closer than maximumDistance : nearer positions can lie
             // on the far side. Or there are still not enough nodes found
-            balancedQueryRec(farIndex);
+            balancedQueryRec(farIndex, queryData);
         }
     }
 
-    dist = sqrDistance3D(static_cast<float *>(node.m_data), GLOBAL_qDatS.point);
+    dist = sqrDistance3D(static_cast<float *>(node.m_data), queryData.point);
 
-    if ( dist < GLOBAL_qDatS.maximumDistance ) {
-        if ( GLOBAL_qDatS.notFilled ) {
+    if ( dist < queryData.maximumDistance ) {
+        if ( queryData.notFilled ) {
             // Add this point anyway, because we haven't got enough positions yet.
             // We have to check for the radius only here, since if N positions
             // are added, maximumDistance <= radius
-            mhInsert(static_cast<float *>(node.m_data), dist);
+            mhInsert(queryData, static_cast<float *>(node.m_data), dist);
         } else {
             // Add point if distance < maximumDistance
-            mhReplaceMax(static_cast<float *>(node.m_data), dist);
+            mhReplaceMax(queryData, static_cast<float *>(node.m_data), dist);
         }
     }
 }

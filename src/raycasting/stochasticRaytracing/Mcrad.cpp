@@ -256,10 +256,10 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
         qSortFloatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
-    for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < GLOBAL_statistics.totalArea * 0.1; i-- ) {
+    for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < Statistics::instance().totalArea * 0.1; i-- ) {
         cumulative += areas[i];
     }
-    areaFrac = (i >= 0 && areas[i] > 0.0) ? GLOBAL_statistics.totalArea / areas[i] : static_cast<float>(GLOBAL_statistics.numberOfPatches);
+    areaFrac = (i >= 0 && areas[i] > 0.0) ? Statistics::instance().totalArea / areas[i] : static_cast<float>(Statistics::instance().numberOfPatches);
 
     delete[] areas;
 

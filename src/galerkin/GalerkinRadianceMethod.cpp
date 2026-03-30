@@ -362,11 +362,11 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 
     GalerkinElement::initializeBasis();
 
-    galerkinState.constantRadiance = GLOBAL_statistics.estimatedAverageRadiance;
+    galerkinState.constantRadiance = Statistics::instance().estimatedAverageRadiance;
     if ( galerkinState.useConstantRadiance ) {
         galerkinState.ambientRadiance.clear();
     } else {
-        galerkinState.ambientRadiance = GLOBAL_statistics.estimatedAverageRadiance;
+        galerkinState.ambientRadiance = Statistics::instance().estimatedAverageRadiance;
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -514,16 +514,16 @@ GalerkinRadianceMethod::getStats() {
     appendStatsText(stats, &statsOffset, "cluster to surface: %d\n", Interaction::getNumberOfClusterToSurfaceInteractions());
     appendStatsText(stats, &statsOffset, "surface to cluster: %d\n", Interaction::getNumberOfSurfaceToClusterInteractions());
     appendStatsText(stats, &statsOffset, "surface to surface: %d\n", Interaction::getNumberOfSurfaceToSurfaceInteractions());
-    appendStatsText(stats, &statsOffset, "shadow hits: %d\n", GLOBAL_statistics.numberOfShadowRays);
-    appendStatsText(stats, &statsOffset, "shadow hits cached: %d\n", GLOBAL_statistics.numberOfShadowCacheHits);
+    appendStatsText(stats, &statsOffset, "shadow hits: %d\n", Statistics::instance().numberOfShadowRays);
+    appendStatsText(stats, &statsOffset, "shadow hits cached: %d\n", Statistics::instance().numberOfShadowCacheHits);
     appendStatsText(stats, &statsOffset, "CPU time: %g secs.\n", galerkinState.cpuSeconds);
-    appendStatsText(stats, &statsOffset, "Minimum element area: %g m^2\n", GLOBAL_statistics.totalArea * static_cast<double>(galerkinState.relMinElemArea));
+    appendStatsText(stats, &statsOffset, "Minimum element area: %g m^2\n", Statistics::instance().totalArea * static_cast<double>(galerkinState.relMinElemArea));
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           GLOBAL_statistics.maxSelfEmittedRadiance.luminance()) :
+                           Statistics::instance().maxSelfEmittedRadiance.luminance()) :
                    galerkinState.relLinkErrorThreshold *
-                   GLOBAL_statistics.maxSelfEmittedPower.luminance()),
+                   Statistics::instance().maxSelfEmittedPower.luminance()),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

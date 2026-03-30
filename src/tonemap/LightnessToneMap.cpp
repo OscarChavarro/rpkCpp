@@ -38,11 +38,11 @@ LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
 
 float
 LightnessToneMap::lightness(float luminance) {
-    if ( GLOBAL_statistics.referenceLuminance == 0.0 ) {
+    if ( Statistics::instance().referenceLuminance == 0.0 ) {
         return 0.0f;
     }
 
-    float relativeLuminance = luminance / static_cast<float>(GLOBAL_statistics.referenceLuminance);
+    float relativeLuminance = luminance / static_cast<float>(Statistics::instance().referenceLuminance);
     if ( relativeLuminance > 0.008856 ) {
         return 1.16f * java::Math::pow(relativeLuminance, 0.33f) - 0.16f;
     } else {

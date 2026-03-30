@@ -30,7 +30,7 @@ methods
 Geometry::Geometry(
     GeometryClassId inClassName)
 {
-    GLOBAL_statistics.numberOfGeometries++;
+    Statistics::instance().numberOfGeometries++;
     id = nextGeometryId;
     nextGeometryId++;
     className = inClassName;
@@ -81,7 +81,7 @@ Geometry::destroy(Geometry *geometry) {
         return;
     }
     delete geometry;
-    GLOBAL_statistics.numberOfGeometries--;
+    Statistics::instance().numberOfGeometries--;
 }
 
 /**
@@ -143,7 +143,7 @@ Geometry::clone() const {
     }
 
     PatchSet *newPatchSet = new PatchSet(Geometry::patchListReference(this));
-    newPatchSet->id = GLOBAL_statistics.numberOfGeometries;
+    newPatchSet->id = Statistics::instance().numberOfGeometries;
     newPatchSet->boundingBox = boundingBox;
     newPatchSet->radianceData = radianceData;
     newPatchSet->itemCount = itemCount;
@@ -153,7 +153,7 @@ Geometry::clone() const {
     newPatchSet->className = className;
     newPatchSet->isDuplicate = true;
 
-    GLOBAL_statistics.numberOfGeometries++;
+    Statistics::instance().numberOfGeometries++;
 
     return newPatchSet;
 }

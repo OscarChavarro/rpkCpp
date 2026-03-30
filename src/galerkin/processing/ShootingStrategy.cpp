@@ -177,7 +177,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             patchUpdateRadianceAndPotential(scene->patchList->get(i), galerkinState);
         }
-        galerkinState->ambientRadiance.scale(1.0f / GLOBAL_statistics.totalArea);
+        galerkinState->ambientRadiance.scale(1.0f / Statistics::instance().totalArea);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

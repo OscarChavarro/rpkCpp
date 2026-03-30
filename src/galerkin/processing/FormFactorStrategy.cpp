@@ -33,10 +33,10 @@ FormFactorStrategy::shadowTestDiscretization(
     bool isSceneGeometry,
     bool isClusteredGeometry)
 {
-    GLOBAL_statistics.numberOfShadowRays++;
+    Statistics::instance().numberOfShadowRays++;
     RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore);
     if ( hit != nullptr ) {
-        GLOBAL_statistics.numberOfShadowCacheHits++;
+        Statistics::instance().numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = Geometry::listDiscretizationIntersect(
@@ -223,7 +223,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
-            * static_cast<float>(java::Math::sqrt(GLOBAL_statistics.totalArea * galerkinState->relMinElemArea / M_PI));
+            * static_cast<float>(java::Math::sqrt(Statistics::instance().totalArea * galerkinState->relMinElemArea / M_PI));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }

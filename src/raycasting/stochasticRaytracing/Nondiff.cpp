@@ -24,7 +24,7 @@ static double globalTotalFlux;
 void
 Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
-    globalNumberOfLights = GLOBAL_statistics.numberOfLightSources;
+    globalNumberOfLights = Statistics::instance().numberOfLightSources;
     globalLights = new LightSourceTable[globalNumberOfLights];
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {

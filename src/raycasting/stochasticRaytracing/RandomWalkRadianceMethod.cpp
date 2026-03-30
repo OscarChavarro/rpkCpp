@@ -101,7 +101,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityPrintStats() {
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
     }
     java::lang::System::err.printf("\n");
 }
@@ -295,13 +295,13 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].
             basis_size, 1. / (1. -
-                              GLOBAL_statistics.averageReflectivity.maximumComponent())));
+                              Statistics::instance().averageReflectivity.maximumComponent())));
     }
 
     java::lang::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
-                                                               (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
+                                                               (1.0 - Statistics::instance().averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,
@@ -436,7 +436,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
         numberOfWalks *= static_cast<long>(java::Math::pow(
             GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].
             basis_size,
-            1.0 / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent())));
+            1.0 / (1.0 - Statistics::instance().averageReflectivity.maximumComponent())));
     }
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
@@ -447,7 +447,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
 
     java::lang::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
-        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - GLOBAL_statistics.averageReflectivity.maximumComponent()))));
+        numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
         sceneWorldVoxelGrid,

@@ -27,9 +27,7 @@ class Statistics {
     ColorRgb averageReflectivity;
 
     Statistics();
+    static Statistics &instance();
 };
-
-// General statistics about the current scene
-extern Statistics GLOBAL_statistics;
 
 #endif

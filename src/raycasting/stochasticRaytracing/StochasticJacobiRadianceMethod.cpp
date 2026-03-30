@@ -283,7 +283,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementImp
  void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
     java::lang::System::err.printf("%g secs., importance rays = %ld, un-shot importance = %g, total importance = %g, total area = %g\n",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
 }
 
  void
@@ -394,7 +394,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintRegularStats()
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, GLOBAL_statistics.totalArea);
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
     }
     java::lang::System::err.printf("\n");
 }

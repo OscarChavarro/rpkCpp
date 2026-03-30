@@ -57,6 +57,8 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 // Not HUGE_DOUBLE_VALUE, since we need to square it
 extern const float KD_MAX_RADIUS;
 
+class KDQuery;
+
 class KDTree {
   protected:
     int numberOfNodes;
@@ -71,10 +73,10 @@ class KDTree {
 
   private:
     static float sqrDistance3D(const float *a, const float *b);
-    static void fixUp();
-    static void mhInsert(float *data, float dist);
-    static void fixDown();
-    static void mhReplaceMax(float *data, float dist);
+    static void fixUp(KDQuery &queryData);
+    static void mhInsert(KDQuery &queryData, float *data, float dist);
+    static void fixDown(KDQuery &queryData);
+    static void mhReplaceMax(KDQuery &queryData, float *data, float dist);
     static void bkdswap(BalancedKDTreeNode root[], int a, int b);
     static float bkdval(BalancedKDTreeNode root[], int index, int discr);
     static void eSwap(BalancedKDTreeNode broot[], int a, int b);
@@ -87,8 +89,8 @@ class KDTree {
     void *assignData(void *data) const;
     void deleteNodes(KDTreeNode *node, bool deleteData);
     void deleteBNodes(bool deleteData);
-    void queryRec(const KDTreeNode *node); // Unbalanced part
-    void balancedQueryRec(int node); // Balanced part
+    void queryRec(const KDTreeNode *node, KDQuery &queryData); // Unbalanced part
+    void balancedQueryRec(int node, KDQuery &queryData); // Balanced part
 
   public:
     explicit KDTree(int dataSize, bool CopyData = true);

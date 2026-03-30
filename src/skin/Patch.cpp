@@ -629,7 +629,7 @@ Patch::Patch(
         java::lang::System::exit(2);
     }
 
-    GLOBAL_statistics.numberOfElements++;
+    Statistics::instance().numberOfElements++;
     twin = nullptr;
     id = globalPatchId;
     globalPatchId++;
@@ -651,7 +651,7 @@ Patch::Patch(
 
     // Compute normal
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
-        GLOBAL_statistics.numberOfElements--;
+        Statistics::instance().numberOfElements--;
         Error::error("Patch::Patch", "Error computing patch normal");
         java::lang::System::exit(3);
     }

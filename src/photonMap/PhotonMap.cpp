@@ -275,7 +275,7 @@ PhotonMap::GetMaxR2() {
      */
     const double radFraction = 0.03;
 
-    double maxr2 = (static_cast<double>(*m_estimate_nrp) * GLOBAL_statistics.totalArea /
+    double maxr2 = (static_cast<double>(*m_estimate_nrp) * Statistics::instance().totalArea /
                     (M_PI * static_cast<double>(m_totalPaths) * radFraction));
 
     return maxr2;

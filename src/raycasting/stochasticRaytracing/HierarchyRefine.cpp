@@ -167,7 +167,7 @@ REFINE_ACTION
 Hierarchy::powerOracle(const Link *link) {
     if ( selfLink(link) ) {
         return static_cast<REFINE_ACTION>(Hierarchy::subdivideReceiverCallBack);
-    } else if ( lowPowerLink(link, &GLOBAL_statistics) ) {
+    } else if ( lowPowerLink(link, &Statistics::instance()) ) {
         return static_cast<REFINE_ACTION>(Hierarchy::dontRefineCallBack);
     } else {
         return subDivideLargest(link);

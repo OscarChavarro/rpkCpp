@@ -115,11 +115,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
     switch ( galerkinState->errorNorm ) {
         case GalerkinErrorNorm::RADIANCE_ERROR:
             threshold = hierarchicRefinementColorToError(
-                GLOBAL_statistics.maxSelfEmittedRadiance) * galerkinState->relLinkErrorThreshold;
+                Statistics::instance().maxSelfEmittedRadiance) * galerkinState->relLinkErrorThreshold;
             break;
         case GalerkinErrorNorm::POWER_ERROR:
             threshold = hierarchicRefinementColorToError(
-                GLOBAL_statistics.maxSelfEmittedPower) * galerkinState->relLinkErrorThreshold / (M_PI * receiverArea);
+                Statistics::instance().maxSelfEmittedPower) * galerkinState->relLinkErrorThreshold / (M_PI * receiverArea);
             break;
         default:
             Error::fatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
@@ -134,7 +134,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
     if ( galerkinState->importanceDriven &&
          (galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ||
           galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL) ) {
-        threshold /= 2.0 * interaction->receiverElement->potential / GLOBAL_statistics.maxDirectPotential;
+        threshold /= 2.0 * interaction->receiverElement->potential / Statistics::instance().maxDirectPotential;
     }
 
     return threshold;
@@ -198,11 +198,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
                 switch ( galerkinState->errorNorm ) {
                     case GalerkinErrorNorm::RADIANCE_ERROR:
                         approxError2 *= hierarchicRefinementColorToError(
-                            GLOBAL_statistics.maxSelfEmittedRadiance) / GLOBAL_statistics.maxDirectPotential;
+                            Statistics::instance().maxSelfEmittedRadiance) / Statistics::instance().maxDirectPotential;
                         break;
                     case GalerkinErrorNorm::POWER_ERROR:
                         approxError2 *= hierarchicRefinementColorToError(
-                            GLOBAL_statistics.maxSelfEmittedPower) / M_PI / GLOBAL_statistics.maxDirectImportance;
+                            Statistics::instance().maxSelfEmittedPower) / M_PI / Statistics::instance().maxDirectImportance;
                         break;
                 }
                 if ( approxError2 > approxError ) {
@@ -307,7 +307,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     }
 
     // Minimal element area for which subdivision is allowed
-    minimumArea = GLOBAL_statistics.totalArea * galerkinState->relMinElemArea;
+    minimumArea = Statistics::instance().totalArea * galerkinState->relMinElemArea;
 
     code = InteractionEvaluationCode::ACCURATE_ENOUGH;
     if ( error > threshold ) {

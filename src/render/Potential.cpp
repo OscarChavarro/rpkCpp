@@ -89,26 +89,26 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
         Error::warning(nullptr, "%d lost pixels", lostPixels);
     }
 
-    GLOBAL_statistics.averageDirectPotential = GLOBAL_statistics.totalDirectPotential =
-    GLOBAL_statistics.maxDirectPotential = GLOBAL_statistics.maxDirectImportance = 0.0;
+    Statistics::instance().averageDirectPotential = Statistics::instance().totalDirectPotential =
+    Statistics::instance().maxDirectPotential = Statistics::instance().maxDirectImportance = 0.0;
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 
         if ( patch != nullptr ) {
             patch->directPotential = newDirectImportance[i] / patch->area;
 
-            if ( patch->directPotential > GLOBAL_statistics.maxDirectPotential ) {
-                GLOBAL_statistics.maxDirectPotential = patch->directPotential;
+            if ( patch->directPotential > Statistics::instance().maxDirectPotential ) {
+                Statistics::instance().maxDirectPotential = patch->directPotential;
             }
-            GLOBAL_statistics.totalDirectPotential += newDirectImportance[i];
-            GLOBAL_statistics.averageDirectPotential += newDirectImportance[i];
+            Statistics::instance().totalDirectPotential += newDirectImportance[i];
+            Statistics::instance().averageDirectPotential += newDirectImportance[i];
 
-            if ( newDirectImportance[i] > GLOBAL_statistics.maxDirectImportance ) {
-                GLOBAL_statistics.maxDirectImportance = newDirectImportance[i];
+            if ( newDirectImportance[i] > Statistics::instance().maxDirectImportance ) {
+                Statistics::instance().maxDirectImportance = newDirectImportance[i];
             }
         }
     }
-    GLOBAL_statistics.averageDirectPotential /= GLOBAL_statistics.totalArea;
+    Statistics::instance().averageDirectPotential /= Statistics::instance().totalArea;
 
     delete[] newDirectImportance;
     delete[] id2patch;

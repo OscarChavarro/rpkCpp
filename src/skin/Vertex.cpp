@@ -17,7 +17,7 @@ Vertex::Vertex(
     color(),
     tmp()
 {
-    id = GLOBAL_statistics.numberOfVertices++;
+    id = Statistics::instance().numberOfVertices++;
     point = inPoint;
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
@@ -32,7 +32,7 @@ Destroys the vertex. Does not destroy the coordinate vector and
 normal vector, neither the patches sharing the vertex
 */
 Vertex::~Vertex() {
-    GLOBAL_statistics.numberOfVertices--;
+    Statistics::instance().numberOfVertices--;
     delete patches;
 }
 

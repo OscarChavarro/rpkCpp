@@ -67,7 +67,7 @@ GatheringSimpleStrategy::patchGather(
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance
     if ( galerkinState->importanceDriven &&
-         topLevelElement->potential < GLOBAL_statistics.maxDirectPotential * Numeric::EPSILON ) {
+         topLevelElement->potential < Statistics::instance().maxDirectPotential * Numeric::EPSILON ) {
         return;
     }
 

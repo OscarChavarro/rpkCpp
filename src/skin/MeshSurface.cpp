@@ -23,7 +23,7 @@ MeshSurface::MeshSurface(
     java::ArrayList<Patch *> *inFaces,
     MaterialColorFlags inFlags)
 {
-    GLOBAL_statistics.numberOfSurfaces++;
+    Statistics::instance().numberOfSurfaces++;
 
     id = nextGeometryId;
     nextGeometryId++;

@@ -28,7 +28,7 @@ Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
-    radiance.scalarProduct(R, GLOBAL_statistics.estimatedAverageRadiance);
+    radiance.scalarProduct(R, Statistics::instance().estimatedAverageRadiance);
     radiance.addScaled(radiance, (1.0f / static_cast<float>(M_PI)), E);
     return radiance;
 }
@@ -87,7 +87,7 @@ Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
         return 0.0f;
     }
 
-    float areaMax = GLOBAL_statistics.totalArea / 2.0f;
+    float areaMax = Statistics::instance().totalArea / 2.0f;
     float areaCnt = 0.0;
     int pairIndex = 0;
 
@@ -124,12 +124,12 @@ Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const j
                 Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / GLOBAL_statistics.totalArea + 0.84f);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().totalArea + 0.84f);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
-            LuminanceArea *la = new LuminanceArea[GLOBAL_statistics.numberOfPatches];
+            LuminanceArea *la = new LuminanceArea[Statistics::instance().numberOfPatches];
 
             globalLumArea = la;
             globalLumAreaIndex = 0;
@@ -137,7 +137,7 @@ Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const j
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Adaptation::patchFillLumArea(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, GLOBAL_statistics.numberOfPatches);
+            GLOBAL_toneMap_options.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().numberOfPatches);
 
             delete[] la;
             break;

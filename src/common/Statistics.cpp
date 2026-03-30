@@ -1,5 +1,6 @@
 #include "common/Statistics.h"
 
+// Note this class is a singleton
 Statistics::Statistics():
     totalArea(0.0),
     maxSelfEmittedRadiance(),
@@ -24,4 +25,8 @@ Statistics::Statistics():
 {
 }
 
-Statistics GLOBAL_statistics;
+Statistics &
+Statistics::instance() {
+    static Statistics instanceValue;
+    return instanceValue;
+}
