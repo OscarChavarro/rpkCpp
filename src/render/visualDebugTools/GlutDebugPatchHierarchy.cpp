@@ -3,9 +3,45 @@
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "galerkin/GalerkinElement.h"
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "render/Opengl.h"
 #include "scene/Scene.h"
+#include "tonemap/ToneMap.h"
+
+#ifdef __APPLE__
+    #include <OpenGL/gl.h>
+#else
+    #include <GL/gl.h>
+#endif
+
+namespace {
+
+static constexpr float GRAY_DARKEN_FACTOR = 0.42f;
+static constexpr float GRAY_CONTRAST_GAMMA = 1.20f;
+static constexpr float OUTLINE_MIN_GRAY = 0.05f;
+static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65f;
+
+float
+clamp01(float value) {
+    if ( value < 0.0f ) {
+        return 0.0f;
+    }
+    if ( value > 1.0f ) {
+        return 1.0f;
+    }
+    return value;
+}
+
+float
+toneMappedGrayAndDarkened(float value01) {
+    float adjusted = clamp01(value01);
+    adjusted = static_cast<float>(java::Math::pow(adjusted, GRAY_CONTRAST_GAMMA));
+    adjusted *= GRAY_DARKEN_FACTOR;
+    return clamp01(adjusted);
+}
+
+}
 
 int
 GlutDebugPatchHierarchy::clampLevel(int level, int maxLevel) {
@@ -53,6 +89,99 @@ GlutDebugPatchHierarchy::maxLevelFromElement(const GalerkinElement *element) {
         }
     }
     return maxDepth;
+}
+
+void
+GlutDebugPatchHierarchy::renderElementGray(
+    const GalerkinElement *element,
+    const RenderOptions *renderOptions)
+{
+    if ( element == nullptr || renderOptions == nullptr ) {
+        return;
+    }
+    if ( renderOptions->toneMapOptions == nullptr ) {
+        return;
+    }
+    if ( element->isCluster() ) {
+        return;
+    }
+
+    Vector3D vertices[4];
+    const int numberOfVertices = element->vertices(vertices);
+    if ( numberOfVertices < 3 ) {
+        return;
+    }
+
+    float grayValue = OUTLINE_MIN_GRAY;
+
+    if ( renderOptions->drawSurfaces ) {
+        ColorRgb radianceSample{};
+        if ( element->radiance != nullptr ) {
+            radianceSample = element->radiance[0];
+        }
+
+        if ( element->galerkinState != nullptr
+             && element->galerkinState->useAmbientRadiance
+             && element->patch != nullptr
+             && element->patch->radianceData != nullptr ) {
+            ColorRgb ambient;
+            ambient.scalarProduct(
+                element->patch->radianceData->Rd,
+                element->galerkinState->ambientRadiance);
+            radianceSample.add(radianceSample, ambient);
+        }
+
+        ColorRgb rgbColor{};
+        ToneMap::radianceToRgb(radianceSample, &rgbColor, *renderOptions->toneMapOptions);
+        grayValue = toneMappedGrayAndDarkened(rgbColor.luminance());
+        glColor3f(grayValue, grayValue, grayValue);
+        Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
+    }
+
+    float outlineGray = grayValue;
+    if ( renderOptions->drawSurfaces ) {
+        outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
+    } else {
+        outlineGray = toneMappedGrayAndDarkened(renderOptions->outlineColor.luminance());
+    }
+    outlineGray = clamp01(outlineGray);
+    if ( outlineGray < OUTLINE_MIN_GRAY ) {
+        outlineGray = OUTLINE_MIN_GRAY;
+    }
+
+    glColor3f(outlineGray, outlineGray, outlineGray);
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        const int nextIndex = (i + 1) % numberOfVertices;
+        Opengl::openGlRenderLine(&vertices[i], &vertices[nextIndex]);
+    }
+}
+
+void
+GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
+    const Scene *scene,
+    const RenderOptions *renderOptions,
+    int selectedPatchIndex)
+{
+    if ( scene == nullptr || renderOptions == nullptr || scene->patchList == nullptr ) {
+        return;
+    }
+
+    for ( int patchIndex = 0; patchIndex < scene->patchList->size(); patchIndex++ ) {
+        if ( patchIndex == selectedPatchIndex ) {
+            continue;
+        }
+
+        const Patch *patch = scene->patchList->get(patchIndex);
+        if ( patch == nullptr || patch->radianceData == nullptr ) {
+            continue;
+        }
+        if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+            continue;
+        }
+
+        const GalerkinElement *element = static_cast<const GalerkinElement *>(patch->radianceData);
+        renderElementGray(element, renderOptions);
+    }
 }
 
 void
@@ -181,10 +310,12 @@ GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
     const int maxLevel = maxLevelFromElement(topLevelElement);
     const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
 
-    RenderOptions localRenderOptions = *renderOptions;
-    localRenderOptions.drawSurfaces = true;
-    localRenderOptions.drawOutlines = true;
+    renderNonSelectedPatchesGray(scene, renderOptions, patchIndex);
 
-    renderElementAtLevel(topLevelElement, clampedLevel, &localRenderOptions);
+    RenderOptions selectedRenderOptions = *renderOptions;
+    selectedRenderOptions.drawSurfaces = true;
+    selectedRenderOptions.drawOutlines = true;
+
+    renderElementAtLevel(topLevelElement, clampedLevel, &selectedRenderOptions);
     drawSelectedPatchCenterMarker(topLevelElement, renderOptions);
 }

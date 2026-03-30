@@ -102,6 +102,84 @@ Opengl::openGlRenderPolygonGouraud(
 
 #ifdef OPEN_GL_ENABLED
 
+Vector3D
+Opengl::sceneRotationPivot(const Scene *scene) {
+    if ( scene == nullptr ) {
+        return Vector3D(0.0f, 0.0f, 0.0f);
+    }
+
+    if ( scene->clusteredRootGeometry != nullptr && scene->clusteredRootGeometry->bounded ) {
+        return scene->clusteredRootGeometry->boundingBox.center();
+    }
+
+    if ( scene->geometryList != nullptr && scene->geometryList->size() > 0 ) {
+        BoundingBox sceneBounds;
+        Geometry::listBounds(scene->geometryList, &sceneBounds);
+        return sceneBounds.center();
+    }
+
+    return Vector3D(0.0f, 0.0f, 0.0f);
+}
+
+void
+Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV) {
+    if ( axisU == nullptr || axisV == nullptr ) {
+        return;
+    }
+
+    axisU->set(1.0f, 0.0f, 0.0f);
+    axisV->set(0.0f, 1.0f, 0.0f);
+
+    if ( scene == nullptr || scene->camera == nullptr ) {
+        return;
+    }
+
+    const Camera *camera = scene->camera;
+
+    Vector3D cameraU;
+    cameraU.copy(camera->X);
+    Vector3D cameraV;
+    cameraV.copy(camera->Y);
+
+    if ( cameraU.norm2() < Numeric::EPSILON_FLOAT || cameraV.norm2() < Numeric::EPSILON_FLOAT ) {
+        Vector3D viewDirection;
+        viewDirection.subtraction(camera->lookPosition, camera->eyePosition);
+        if ( viewDirection.norm2() < Numeric::EPSILON_FLOAT ) {
+            return;
+        }
+        viewDirection.normalize(Numeric::EPSILON_FLOAT);
+
+        Vector3D upDirection;
+        upDirection.copy(camera->upDirection);
+        if ( upDirection.norm2() < Numeric::EPSILON_FLOAT ) {
+            upDirection.set(0.0f, 0.0f, 1.0f);
+        } else {
+            upDirection.normalize(Numeric::EPSILON_FLOAT);
+        }
+
+        cameraU.crossProduct(viewDirection, upDirection);
+        if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
+            upDirection.set(0.0f, 1.0f, 0.0f);
+            cameraU.crossProduct(viewDirection, upDirection);
+        }
+        if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
+            return;
+        }
+        cameraU.normalize(Numeric::EPSILON_FLOAT);
+        cameraV.crossProduct(viewDirection, cameraU);
+    }
+
+    if ( cameraU.norm2() < Numeric::EPSILON_FLOAT || cameraV.norm2() < Numeric::EPSILON_FLOAT ) {
+        return;
+    }
+
+    cameraU.normalize(Numeric::EPSILON_FLOAT);
+    cameraV.normalize(Numeric::EPSILON_FLOAT);
+
+    axisU->copy(cameraU);
+    axisV->copy(cameraV);
+}
+
 void
 Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions) {
     Opengl::openGlRenderSetColor(&patch->color, renderOptions);
@@ -420,9 +498,29 @@ Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> 
 }
 
 void
+Opengl::openGlApplyDebugSceneRotation(const Scene *scene) {
+    const bool hasRotation =
+        GLOBAL_render_glutDebugState.angleAroundViewportU != 0.0f ||
+        GLOBAL_render_glutDebugState.angleAroundViewportV != 0.0f;
+    if ( !hasRotation ) {
+        return;
+    }
+
+    const Vector3D pivot = Opengl::sceneRotationPivot(scene);
+    Vector3D axisU;
+    Vector3D axisV;
+    Opengl::viewportAxesInWorld(scene, &axisU, &axisV);
+
+    glTranslated(pivot.x, pivot.y, pivot.z);
+    glRotated(GLOBAL_render_glutDebugState.angleAroundViewportU, axisU.x, axisU.y, axisU.z);
+    glRotated(GLOBAL_render_glutDebugState.angleAroundViewportV, axisV.x, axisV.y, axisV.z);
+    glTranslated(-pivot.x, -pivot.y, -pivot.z);
+}
+
+void
 Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
     glPushMatrix();
-    glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
+    Opengl::openGlApplyDebugSceneRotation(scene);
     if ( radianceMethod != nullptr ) {
         radianceMethod->renderScene(scene, renderOptions);
     } else if ( renderOptions->frustumCulling ) {

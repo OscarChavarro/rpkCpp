@@ -11,9 +11,12 @@ class ParseSession;
 class GlutDebugToolsModel {
   public:
     GlutDebugMode mode;
+    bool fullScreen;
     int selectedHierarchyLevel;
     int width;
     int height;
+    int windowedWidth;
+    int windowedHeight;
     Scene *scene;
     RadianceMethod *radianceMethod;
     RenderOptions *renderOptions;

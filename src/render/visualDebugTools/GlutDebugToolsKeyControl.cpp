@@ -98,6 +98,10 @@ GlutDebugToolsKeyControl::handleKeypress(
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             java::lang::System::out.printf("MODE: %s\n", glutDebugModeName(model.mode));
             break;
+        case 'f':
+            model.fullScreen = !model.fullScreen;
+            java::lang::System::out.printf("Fullscreen: %s\n", model.fullScreen ? "ON" : "OFF");
+            break;
         case ' ':
             if ( model.radianceMethod != nullptr && model.scene != nullptr && model.renderOptions != nullptr ) {
                 model.radianceMethod->doStep(model.scene, model.renderOptions);
@@ -148,10 +152,16 @@ GlutDebugToolsKeyControl::handleExtendedKeypress(int keyCode, GlutDebugToolsMode
             model.renderOptions->drawClusters = !model.renderOptions->drawClusters;
             break;
         case GLUT_KEY_LEFT:
-            GLOBAL_render_glutDebugState.angle += 1.0f;
+            GLOBAL_render_glutDebugState.angleAroundViewportV += 1.0f;
             break;
         case GLUT_KEY_RIGHT:
-            GLOBAL_render_glutDebugState.angle -= 1.0f;
+            GLOBAL_render_glutDebugState.angleAroundViewportV -= 1.0f;
+            break;
+        case GLUT_KEY_DOWN:
+            GLOBAL_render_glutDebugState.angleAroundViewportU += 1.0f;
+            break;
+        case GLUT_KEY_UP:
+            GLOBAL_render_glutDebugState.angleAroundViewportU -= 1.0f;
             break;
         default:
             return false;

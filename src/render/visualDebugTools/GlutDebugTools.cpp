@@ -21,11 +21,16 @@
 #include "render/Opengl.h"
 
 static GlutDebugToolsModel globalModel;
+static bool globalFullScreenApplied = false;
 
 void
 GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
     globalModel.width = newWidth;
     globalModel.height = newHeight;
+    if ( !globalModel.fullScreen ) {
+        globalModel.windowedWidth = newWidth;
+        globalModel.windowedHeight = newHeight;
+    }
 }
 
 void
@@ -114,6 +119,17 @@ GlutDebugTools::drawCallback() {
         return;
     }
 
+    if ( globalModel.fullScreen != globalFullScreenApplied ) {
+        if ( globalModel.fullScreen ) {
+            glutFullScreen();
+            globalFullScreenApplied = true;
+        } else {
+            glutPositionWindow(0, 0);
+            glutReshapeWindow(globalModel.windowedWidth, globalModel.windowedHeight);
+            globalFullScreenApplied = false;
+        }
+    }
+
     globalModel.scene->camera->xSize = globalModel.width;
     globalModel.scene->camera->ySize = globalModel.height;
 
@@ -129,7 +145,7 @@ GlutDebugTools::drawCallback() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         Opengl::openGlRenderSetCamera(globalModel.scene->camera, globalModel.scene->geometryList);
         glPushMatrix();
-        glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
+        Opengl::openGlApplyDebugSceneRotation(globalModel.scene);
         GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
             globalModel.scene,
             globalModel.renderOptions,
@@ -146,6 +162,69 @@ GlutDebugTools::drawCallback() {
         glutDebugModeName(globalModel.mode));
     GlutHudConsole::printTextLine(hudModeText, 0, 0, globalModel.width, globalModel.height);
 
+    int totalElements = 0;
+    int selectedElement = 0;
+    if ( globalModel.scene != nullptr && globalModel.scene->patchList != nullptr ) {
+        totalElements = globalModel.scene->patchList->size();
+        if ( totalElements > 0 ) {
+            int clampedSelectedPatch = GLOBAL_render_glutDebugState.selectedPatch;
+            if ( clampedSelectedPatch < 0 ) {
+                clampedSelectedPatch = 0;
+            }
+            if ( clampedSelectedPatch >= totalElements ) {
+                clampedSelectedPatch = totalElements - 1;
+            }
+            selectedElement = clampedSelectedPatch + 1;
+        }
+    }
+
+    char hudSelectedElementText[256];
+    std::snprintf(
+        hudSelectedElementText,
+        sizeof(hudSelectedElementText),
+        "Element %d/%d [1, 2]",
+        selectedElement,
+        totalElements);
+    GlutHudConsole::printTextLine(hudSelectedElementText, 0, 1, globalModel.width, globalModel.height);
+
+    if ( globalModel.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+        int selectedPatchIndex = -1;
+        if ( totalElements > 0 ) {
+            selectedPatchIndex = selectedElement - 1;
+        }
+
+        int maxHierarchyLevel = 0;
+        if ( selectedPatchIndex >= 0 && globalModel.scene != nullptr ) {
+            maxHierarchyLevel = GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
+                globalModel.scene,
+                selectedPatchIndex);
+        }
+
+        int currentHierarchyLevel = globalModel.selectedHierarchyLevel;
+        if ( currentHierarchyLevel < 0 ) {
+            currentHierarchyLevel = 0;
+        }
+        if ( currentHierarchyLevel > maxHierarchyLevel ) {
+            currentHierarchyLevel = maxHierarchyLevel;
+        }
+
+        char currentLevelLabel[32];
+        if ( currentHierarchyLevel == 0 ) {
+            std::snprintf(currentLevelLabel, sizeof(currentLevelLabel), "base");
+        } else {
+            std::snprintf(currentLevelLabel, sizeof(currentLevelLabel), "%d", currentHierarchyLevel);
+        }
+
+        char hudSubdivisionText[256];
+        std::snprintf(
+            hudSubdivisionText,
+            sizeof(hudSubdivisionText),
+            "Patch subdivision level: %s/%d",
+            currentLevelLabel,
+            maxHierarchyLevel);
+        GlutHudConsole::printTextLine(hudSubdivisionText, 0, 2, globalModel.width, globalModel.height);
+    }
+
     glutSwapBuffers();
 }
 
@@ -160,9 +239,13 @@ GlutDebugTools::executeGlutGui(
     ParseSession *mgfContext)
 {
     globalModel.mode = GlutDebugMode::RADIANCE_SCENE;
+    globalModel.fullScreen = false;
     globalModel.selectedHierarchyLevel = 0;
     globalModel.width = 1920;
     globalModel.height = 1200;
+    globalModel.windowedWidth = globalModel.width;
+    globalModel.windowedHeight = globalModel.height;
+    globalFullScreenApplied = false;
     globalModel.scene = scene;
     globalModel.radianceMethod = radianceMethod;
     globalModel.renderOptions = renderOptions;

@@ -17,6 +17,8 @@ class GlutDebugPatchHierarchy final {
 
   private:
     static int clampLevel(int level, int maxLevel);
+    static void renderNonSelectedPatchesGray(const Scene *scene, const RenderOptions *renderOptions, int selectedPatchIndex);
+    static void renderElementGray(const GalerkinElement *element, const RenderOptions *renderOptions);
     static const GalerkinElement *selectedPatchRoot(const Scene *scene, int patchIndex);
     static int maxLevelFromElement(const GalerkinElement *element);
     static void renderElementAtLevel(const GalerkinElement *element, int hierarchyLevel, const RenderOptions *renderOptions);

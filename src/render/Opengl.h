@@ -45,6 +45,8 @@ class Opengl {
     static void openGlRenderSetLineWidth(float width);
     static void openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
     static void openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    static Vector3D sceneRotationPivot(const Scene *scene);
+    static void viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV);
 
   public:
     static void openGlRenderLine(Vector3D *x, Vector3D *y);
@@ -60,6 +62,7 @@ class Opengl {
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void openGlRenderClearWindow(const Camera *camera);
     static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
+    static void openGlApplyDebugSceneRotation(const Scene *scene);
 
     static void
     openGlRenderWorldOctree(

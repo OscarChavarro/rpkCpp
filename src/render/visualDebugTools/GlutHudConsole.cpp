@@ -6,15 +6,11 @@
     #include <GL/glut.h>
 #endif
 
-namespace {
-
 static constexpr int HUD_CHAR_WIDTH = 9;
 static constexpr int HUD_LINE_HEIGHT = 15;
 static constexpr int HUD_PADDING_X = 4;
 static constexpr int HUD_PADDING_Y = 4;
 static constexpr int HUD_BASELINE_OFFSET = 12;
-
-}
 
 void
 GlutHudConsole::printTextLine(
