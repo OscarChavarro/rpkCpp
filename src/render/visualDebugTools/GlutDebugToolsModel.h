@@ -11,6 +11,7 @@ class ParseSession;
 class GlutDebugToolsModel {
   public:
     GlutDebugMode mode;
+    int selectedHierarchyLevel;
     int width;
     int height;
     Scene *scene;

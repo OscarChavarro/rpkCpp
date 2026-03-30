@@ -128,7 +128,7 @@ set(MAIN_SRC
     src/io/wrapper/PipeOutputStream.cpp
     src/io/wrapper/FileUncompressWrapper.cpp
     src/io/context/TransformContext.cpp
-        src/io/context/ParseSession.cpp
+    src/io/context/ParseSession.cpp
     src/io/context/ParserConfig.cpp
     src/io/context/ReaderStackState.cpp
     src/io/context/GeometryBuildState.cpp
@@ -168,7 +168,7 @@ set(MAIN_SRC
     src/io/image/ImageOutputHandle.cpp
     src/io/image/PPMOutputHandle.cpp
     src/render/Potential.cpp
-    src/render/GlutDebugState.cpp
+    src/render/visualDebugTools/GlutDebugState.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/Softids.cpp
     src/render/Opengl.cpp
@@ -203,6 +203,24 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/ProjectedAreaAccumulatorVisitor.cpp
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
+    src/app/Adaptation.cpp
+    src/app/Options.cpp
+    src/app/Radiance.cpp
+    src/app/SceneBuilder.cpp
+    src/app/Batch.cpp
+    src/app/CommandLine.cpp
+    src/app/BatchOptions.cpp
+    src/app/RpkApplication.cpp
+    src/app/Main.cpp)
+
+set(OPEN_GL_SRC
+    src/render/visualDebugTools/GlutDebugPatchHierarchy.cpp
+    src/render/visualDebugTools/GlutDebugMode.cpp
+    src/render/visualDebugTools/GlutDebugToolsModel.cpp
+    src/render/visualDebugTools/GlutDebugToolsKeyControl.cpp
+    src/render/visualDebugTools/GlutDebugTools.cpp)
+
+set(RAYTRACING_SRC
     src/raycasting/common/RayTracer.cpp
     src/raycasting/common/SimpleRaytracingPathNode.cpp
     src/raycasting/common/Raytools.cpp
@@ -264,28 +282,16 @@ set(MAIN_SRC
     src/raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.cpp
     src/raycasting/stochasticRaytracing/HierarchyRefine.cpp
     src/raycasting/stochasticRaytracing/Basisquadmcrad.cpp
-    src/app/Adaptation.cpp
-    src/app/Options.cpp
-    src/app/Radiance.cpp
-    src/app/Raytrace.cpp
-    src/app/SceneBuilder.cpp
-    src/app/Batch.cpp
-    src/app/CommandLine.cpp
-    src/app/BatchOptions.cpp
-    src/app/RpkApplication.cpp
-    src/app/Main.cpp)
-
-set(OPEN_GL_SRC
-    src/render/visualDebugTools/GlutDebugMode.cpp
-    src/render/visualDebugTools/GlutDebugToolsModel.cpp
-    src/render/visualDebugTools/GlutDebugToolsKeyControl.cpp
-    src/render/visualDebugTools/GlutDebugTools.cpp
-    src/app/GalerkinDebugRenderer.cpp)
+    src/app/Raytrace.cpp)
 
 add_executable(rpk ${MAIN_SRC})
 
 if(OPEN_GL_ENABLED)
     target_sources(rpk PRIVATE ${OPEN_GL_SRC})
+endif()
+
+if(RAYTRACING_ENABLED)
+    target_sources(rpk PRIVATE ${RAYTRACING_SRC})
 endif()
 
 if(RAYTRACING_ENABLED)

@@ -16,6 +16,8 @@ class GlutDebugToolsKeyControl final {
 
   private:
     static void printSelectedPatchState();
+    static int selectedPatchMaxHierarchyLevel(const GlutDebugToolsModel &model);
+    static void clampHierarchyLevel(GlutDebugToolsModel &model);
 };
 
 #endif

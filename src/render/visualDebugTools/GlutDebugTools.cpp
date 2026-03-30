@@ -1,7 +1,8 @@
 #include "render/visualDebugTools/GlutDebugTools.h"
 #include "render/visualDebugTools/GlutDebugToolsModel.h"
 #include "render/visualDebugTools/GlutDebugToolsKeyControl.h"
-#include "app/GalerkinDebugRenderer.h"
+#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "galerkin/GalerkinElement.h"
 
 #ifdef OPEN_GL_ENABLED
 
@@ -122,10 +123,15 @@ GlutDebugTools::drawCallback() {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
         Opengl::openGlRenderScene(globalModel.scene, globalModel.radianceMethod, globalModel.renderOptions);
     } else if ( globalModel.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         Opengl::openGlRenderSetCamera(globalModel.scene->camera, globalModel.scene->geometryList);
         glPushMatrix();
         glRotated(GLOBAL_render_glutDebugState.angle, 0, 0, 1);
-        GalerkinDebugRenderer::renderGalerkinElementHierarchy(globalModel.scene, globalModel.renderOptions);
+        GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
+            globalModel.scene,
+            globalModel.renderOptions,
+            GLOBAL_render_glutDebugState.selectedPatch,
+            globalModel.selectedHierarchyLevel);
         glPopMatrix();
     }
 
@@ -143,6 +149,7 @@ GlutDebugTools::executeGlutGui(
     ParseSession *mgfContext)
 {
     globalModel.mode = GlutDebugMode::RADIANCE_SCENE;
+    globalModel.selectedHierarchyLevel = 0;
     globalModel.width = 1920;
     globalModel.height = 1200;
     globalModel.scene = scene;

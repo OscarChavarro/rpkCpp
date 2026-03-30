@@ -1,4 +1,4 @@
-#include "render/GlutDebugState.h"
+#include "render/visualDebugTools/GlutDebugState.h"
 
 GlutDebugState GLOBAL_render_glutDebugState;
 

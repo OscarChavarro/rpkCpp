@@ -8,6 +8,7 @@
 #include "app/BatchOptions.h"
 
 class RayTracer;
+class RadianceMethod;
 
 class Batch final {
   public:

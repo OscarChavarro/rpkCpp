@@ -15,9 +15,12 @@
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
 #include "render/Render.h"
-#include "raycasting/simple/RayCaster.h"
 #include "app/Batch.h"
 #include "app/CommandLine.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/simple/RayCaster.h"
+#endif
 
 #ifdef RAYTRACING_ENABLED
     #include "app/Raytrace.h"
@@ -48,10 +51,19 @@ Batch::openGlSaveScreen(
     const RenderOptions *renderOptions)
 {
     // RayCast() saves the current picture in display-mapped (!) real values
+#ifdef RAYTRACING_ENABLED
     if ( renderOptions->trace ) {
         RayCaster::rayCast(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
         return;
     }
+#else
+    if ( renderOptions->trace ) {
+        java::lang::System::err.printf(
+            "ERROR: Trace output requires raytracing support. Recompile with -DRAYTRACING_ENABLED=ON.\n");
+        java::lang::System::err.flush();
+        return;
+    }
+#endif
 
     long x = scene->camera->xSize;
     long y = scene->camera->ySize;

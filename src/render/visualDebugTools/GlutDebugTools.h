@@ -5,7 +5,7 @@
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "io/context/ParseSession.h"
-#include "render/GlutDebugState.h"
+#include "render/visualDebugTools/GlutDebugState.h"
 
 class GalerkinElement;
 

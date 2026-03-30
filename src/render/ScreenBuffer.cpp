@@ -299,6 +299,8 @@ ScreenBuffer::getVRes() const {
     return camera.ySize;
 }
 
+#ifdef RAYTRACING_ENABLED
+
 float
 ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     Vector3D dir;
@@ -323,8 +325,6 @@ ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
 
     return static_cast<float>(factor);
 }
-
-#ifdef RAYTRACING_ENABLED
 
 float
 ScreenBuffer::getScreenXMax() const {

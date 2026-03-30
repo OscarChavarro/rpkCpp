@@ -10,8 +10,9 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
-#include "render/GlutDebugState.h"
+#include "render/visualDebugTools/GlutDebugState.h"
 #include "render/visualDebugTools/GlutDebugMode.h"
+#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 void
 GlutDebugToolsKeyControl::printSelectedPatchState() {
@@ -19,6 +20,27 @@ GlutDebugToolsKeyControl::printSelectedPatchState() {
         java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.selectedPatch);
     } else {
         java::lang::System::out.printf("Selected patch: ALL\n");
+    }
+}
+
+int
+GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(const GlutDebugToolsModel &model) {
+    if ( model.scene == nullptr ) {
+        return 0;
+    }
+    return GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
+        model.scene,
+        GLOBAL_render_glutDebugState.selectedPatch);
+}
+
+void
+GlutDebugToolsKeyControl::clampHierarchyLevel(GlutDebugToolsModel &model) {
+    const int maxHierarchyLevel = GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(model);
+    if ( model.selectedHierarchyLevel < 0 ) {
+        model.selectedHierarchyLevel = 0;
+    }
+    if ( model.selectedHierarchyLevel > maxHierarchyLevel ) {
+        model.selectedHierarchyLevel = maxHierarchyLevel;
     }
 }
 
@@ -43,6 +65,7 @@ GlutDebugToolsKeyControl::handleKeypress(
             if ( GLOBAL_render_glutDebugState.selectedPatch < 0 ) {
                 GLOBAL_render_glutDebugState.selectedPatch = 0;
             }
+            GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case '2':
             GLOBAL_render_glutDebugState.selectedPatch++;
@@ -51,9 +74,28 @@ GlutDebugToolsKeyControl::handleKeypress(
                  && GLOBAL_render_glutDebugState.selectedPatch >= model.scene->patchList->size() ) {
                 GLOBAL_render_glutDebugState.selectedPatch = static_cast<int>(model.scene->patchList->size() - 1);
             }
+            GlutDebugToolsKeyControl::clampHierarchyLevel(model);
+            break;
+        case '3':
+            if ( model.mode != GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+                return false;
+            }
+            if ( model.selectedHierarchyLevel > 0 ) {
+                model.selectedHierarchyLevel--;
+            }
+            break;
+        case '4':
+            if ( model.mode != GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+                return false;
+            }
+            GlutDebugToolsKeyControl::clampHierarchyLevel(model);
+            if ( model.selectedHierarchyLevel < GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(model) ) {
+                model.selectedHierarchyLevel++;
+            }
             break;
         case 'm':
             model.mode = nextGlutDebugMode(model.mode);
+            GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             java::lang::System::out.printf("MODE: %s\n", glutDebugModeName(model.mode));
             break;
         case ' ':
@@ -76,6 +118,13 @@ GlutDebugToolsKeyControl::handleKeypress(
     }
 
     GlutDebugToolsKeyControl::printSelectedPatchState();
+    if ( model.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+        const int maxHierarchyLevel = GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(model);
+        java::lang::System::out.printf(
+            "Hierarchy level: %d/%d\n",
+            model.selectedHierarchyLevel,
+            maxHierarchyLevel);
+    }
     return true;
 }
 

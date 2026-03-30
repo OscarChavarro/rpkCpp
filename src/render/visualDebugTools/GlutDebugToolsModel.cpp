@@ -2,6 +2,7 @@
 
 GlutDebugToolsModel::GlutDebugToolsModel():
     mode(GlutDebugMode::RADIANCE_SCENE),
+    selectedHierarchyLevel(0),
     width(1920),
     height(1200),
     scene(nullptr),
