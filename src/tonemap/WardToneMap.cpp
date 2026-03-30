@@ -14,9 +14,9 @@ WardToneMap::~WardToneMap() {
 }
 
 void
-WardToneMap::init() {
-    float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+WardToneMap::init(const ToneMappingContext &toneMapOptions) {
+    float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0f;
 
     float p1 = java::Math::pow(lda, 0.4f);

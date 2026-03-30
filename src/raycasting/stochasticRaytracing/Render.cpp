@@ -23,7 +23,10 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            ToneMap::radianceToRgb(StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(element), &color);
+            ToneMap::radianceToRgb(
+                StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(element),
+                &color,
+                *GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray;
@@ -106,7 +109,10 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
     switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
-            ToneMap::radianceToRgb(vertexRadiance(v), &v->color);
+            ToneMap::radianceToRgb(
+                vertexRadiance(v),
+                &v->color,
+                *GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray = vertexImportance(v);
@@ -178,10 +184,10 @@ StochasticRadiosityElement::renderTriangle(const Vertex *v1, const Vertex *v2, c
     col[1] = v2->color;
     vert[2] = *(v3->point);
     col[2] = v3->color;
-    Opengl::openGlRenderPolygonGouraud(3, vert, col);
+    Opengl::openGlRenderPolygonGouraud(3, vert, col, renderOptions);
 
     if ( renderOptions->drawOutlines ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
         Opengl::openGlRenderLine(&vert[0], &vert[1]);
         Opengl::openGlRenderLine(&vert[1], &vert[2]);
         Opengl::openGlRenderLine(&vert[2], &vert[0]);
@@ -201,10 +207,10 @@ StochasticRadiosityElement::renderQuadrilateral(const Vertex *v1, const Vertex *
     col[2] = v3->color;
     vert[3] = *(v4->point);
     col[3] = v4->color;
-    Opengl::openGlRenderPolygonGouraud(4, vert, col);
+    Opengl::openGlRenderPolygonGouraud(4, vert, col, renderOptions);
 
     if ( renderOptions->drawOutlines ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
         Opengl::openGlRenderLine(&vert[0], &vert[1]);
         Opengl::openGlRenderLine(&vert[1], &vert[2]);
         Opengl::openGlRenderLine(&vert[2], &vert[3]);
@@ -362,7 +368,7 @@ StochasticRadiosityElement::renderQuadrilateralElement(Vertex **v, Vertex **m, i
 StochasticRadiosityElement::stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions) {
     Vector3D vertices[4];
 
-    Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+    Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
     Opengl::openGlRenderLine(&vertices[0], &vertices[1]);
     Opengl::openGlRenderLine(&vertices[1], &vertices[2]);
     if ( elem->numberOfVertices == 3 ) {
@@ -412,11 +418,15 @@ StochasticRadiosityElement::stochasticRadiosityElementRender(Element *element, c
             vertexColors[3] = stochasticRadiosityElement->vertices[3]->color;
         }
 
-        Opengl::openGlRenderPolygonGouraud(stochasticRadiosityElement->numberOfVertices, vertices, vertexColors);
+        Opengl::openGlRenderPolygonGouraud(
+            stochasticRadiosityElement->numberOfVertices,
+            vertices,
+            vertexColors,
+            renderOptions);
     } else {
         ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
 
-        Opengl::openGlRenderSetColor(&color);
+        Opengl::openGlRenderSetColor(&color, renderOptions);
         Opengl::openGlRenderPolygonFlat(stochasticRadiosityElement->numberOfVertices, vertices);
     }
 

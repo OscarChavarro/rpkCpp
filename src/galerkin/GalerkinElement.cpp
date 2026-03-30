@@ -610,11 +610,11 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
                 ColorRgb radVis;
                 radVis.scalarProduct(rho, galerkinState->ambientRadiance);
                 radVis.add(radVis, radiance[0]);
-                ToneMap::radianceToRgb(radVis, &color);
+                ToneMap::radianceToRgb(radVis, &color, *renderOptions->toneMapOptions);
             } else {
-                ToneMap::radianceToRgb(radiance[0], &color);
+                ToneMap::radianceToRgb(radiance[0], &color, *renderOptions->toneMapOptions);
             }
-            Opengl::openGlRenderSetColor(&color);
+            Opengl::openGlRenderSetColor(&color, renderOptions);
             Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
         } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
             ColorRgb vertRadiosity[4];
@@ -642,25 +642,25 @@ GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
 
             ColorRgb vertexColors[4];
             for ( int i = 0; i < numberOfVertices; i++ ) {
-                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i]);
+                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *renderOptions->toneMapOptions);
             }
 
-            Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors);
+            Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors, renderOptions);
         }
     }
 
     // Draw outlines
     if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
         if ( numberOfVertices == 3 ) {
-            Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+            Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);
             Opengl::openGlRenderLine(&p[1], &p[2]);
             Opengl::openGlRenderLine(&p[2], &p[0]);
         } else {
             ColorRgb green = {0.0, 1.0, 0.0};
 
-            Opengl::openGlRenderSetColor(&green);
+            Opengl::openGlRenderSetColor(&green, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);
             Opengl::openGlRenderLine(&p[1], &p[2]);
             Opengl::openGlRenderLine(&p[2], &p[3]);

@@ -14,8 +14,8 @@ typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *,
 
 class Opengl {
   private:
-    static void openGlRenderPatchFlat(const Patch *patch);
-    static void openGlRenderPatchSmooth(const Patch *patch);
+    static void openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions);
+    static void openGlRenderPatchSmooth(const Patch *patch, const RenderOptions *renderOptions);
     static void
     openGlInvokeRenderPatch(
         const OpenGlRenderTraversalCallback &renderPatch,
@@ -48,10 +48,15 @@ class Opengl {
 
   public:
     static void openGlRenderLine(Vector3D *x, Vector3D *y);
-    static void openGlRenderSetColor(const ColorRgb *rgb);
+    static void openGlRenderSetColor(const ColorRgb *rgb, const RenderOptions *renderOptions);
     static void openGlRenderPatchOutline(const Patch *patch);
     static void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
-    static void openGlRenderPolygonGouraud(int numberOfVertices, Vector3D *vertices, const ColorRgb *verticesColors);
+    static void
+    openGlRenderPolygonGouraud(
+        int numberOfVertices,
+        Vector3D *vertices,
+        const ColorRgb *verticesColors,
+        const RenderOptions *renderOptions);
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void openGlRenderClearWindow(const Camera *camera);
     static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);

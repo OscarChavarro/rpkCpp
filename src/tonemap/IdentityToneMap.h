@@ -8,7 +8,7 @@ class IdentityToneMap final : public ToneMap {
     IdentityToneMap();
     ~IdentityToneMap() final;
 
-    void init() final;
+    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(ColorRgb radiance) const final;
     ColorRgb scaleForDisplay(ColorRgb radiance) const final;
 };

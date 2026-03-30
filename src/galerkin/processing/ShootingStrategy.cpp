@@ -186,7 +186,11 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
 }
 
 bool
-ShootingStrategy::propagateRadiance(const Scene *scene, GalerkinState *galerkinState) {
+ShootingStrategy::propagateRadiance(
+    const Scene *scene,
+    GalerkinState *galerkinState,
+    const RenderOptions *renderOptions)
+{
     // Choose a shooting patch. also accumulates the total un-shot power into
     // galerkinState->ambientRadiance
     const Patch *shootingPatch = chooseRadianceShootingPatch(scene->patchList, galerkinState);
@@ -195,7 +199,7 @@ ShootingStrategy::propagateRadiance(const Scene *scene, GalerkinState *galerkinS
     }
 
     ColorRgb yellow = {1.0, 1.0, 0.0};
-    Opengl::openGlRenderSetColor(&yellow);
+    Opengl::openGlRenderSetColor(&yellow, renderOptions);
     Opengl::openGlRenderPatchOutline(shootingPatch);
 
     doPropagate(
@@ -249,14 +253,18 @@ ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *s
 }
 
 void
-ShootingStrategy::propagatePotential(const Scene *scene, GalerkinState *galerkinState) {
+ShootingStrategy::propagatePotential(
+    const Scene *scene,
+    GalerkinState *galerkinState,
+    const RenderOptions *renderOptions)
+{
     const Patch *shootingPatch;
 
     shootingPatch = choosePotentialShootingPatch(scene->patchList);
     if ( shootingPatch ) {
         ColorRgb white = {1.0, 1.0, 1.0};
 
-        Opengl::openGlRenderSetColor(&white);
+        Opengl::openGlRenderSetColor(&white, renderOptions);
         Opengl::openGlRenderPatchOutline(shootingPatch);
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
@@ -287,7 +295,7 @@ Returns true when converged and false if not
 */
 bool
 ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions) {
-    if ( galerkinState->importanceDriven ) {
+        if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             Potential::updateDirectPotential(scene, renderOptions);
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -301,7 +309,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scene, galerkinState);
+        propagatePotential(scene, galerkinState, renderOptions);
     }
-    return propagateRadiance(scene, galerkinState);
+    return propagateRadiance(scene, galerkinState, renderOptions);
 }

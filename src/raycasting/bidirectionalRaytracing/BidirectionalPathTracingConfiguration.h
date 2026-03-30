@@ -12,6 +12,8 @@
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
+class ToneMappingContext;
+
 /**
 Bidirectional path tracing configuration structure.
 non persistently used each time an image is rendered
@@ -26,6 +28,7 @@ class BidirectionalPathTracingConfiguration {
 
     // Internal vars
     ScreenBuffer *screen;
+    ToneMappingContext *toneMapOptions;
     double fluxToRadFactor;
     int nx;
     int ny;

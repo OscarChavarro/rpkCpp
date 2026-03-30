@@ -45,7 +45,9 @@ ScreenIterate::sequential(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    SCREEN_ITERATE_CALLBACK callback, void *data)
+    SCREEN_ITERATE_CALLBACK callback,
+    void *data,
+    const ToneMappingContext &toneMapOptions)
 {
     int width;
     int height;
@@ -62,11 +64,11 @@ ScreenIterate::sequential(
     for ( int i = 0; i < height; i++ ) {
         for ( int j = 0; j < width; j++ ) {
             col = callback(camera, sceneVoxelGrid, sceneBackground, j, i, data);
-            ToneMap::radianceToRgb(col, &rgb[j]);
+            ToneMap::radianceToRgb(col, &rgb[j], toneMapOptions);
             GLOBAL_raytracer_pixelCount++;
         }
 
-        SoftIds::softRenderPixels(width, 1, rgb);
+        SoftIds::softRenderPixels(width, 1, rgb, toneMapOptions);
     }
 
     delete[] rgb;
@@ -100,7 +102,8 @@ ScreenIterate::progressive(
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
     SCREEN_ITERATE_CALLBACK callback,
-    void *data)
+    void *data,
+    const ToneMappingContext &toneMapOptions)
 {
     int width;
     int height;
@@ -166,7 +169,7 @@ ScreenIterate::progressive(
 
                 if ( !skip || (ySteps & 1) || (xSteps & 1) ) {
                     col = callback(camera, sceneVoxelGrid, sceneBackground, x0, height - y0 - 1, data);
-                    ToneMap::radianceToRgb(col, &pixelRGB);
+                    ToneMap::radianceToRgb(col, &pixelRGB, toneMapOptions);
                     fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
                     GLOBAL_raytracer_pixelCount++;
@@ -174,7 +177,7 @@ ScreenIterate::progressive(
                     if ( state.wakeUp & wakeUpRender() ) {
                         state.wakeUp &= static_cast<unsigned char>(~wakeUpRender());
                         if ( (yMax > 0) && (yMax > yMin) ) {
-                            SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width);
+                            SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width, toneMapOptions);
                         }
                         yMin = java::Math::max(0, yMax - stepSize);
                     }
@@ -186,7 +189,7 @@ ScreenIterate::progressive(
 
             if ( yMax >= height ) {
                 if ( yMax > yMin ) {
-                    SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width);
+                    SoftIds::softRenderPixels(width, yMax - yMin, rgb + yMin * width, toneMapOptions);
                 }
                 yMax = -1;
             }

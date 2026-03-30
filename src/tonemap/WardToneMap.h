@@ -1,7 +1,7 @@
 #ifndef __WARD_TONE_MAP__
 #define __WARD_TONE_MAP__
 
-#include "tonemap/ToneMappingContext.h"
+#include "tonemap/ToneMap.h"
 
 class WardToneMap final : public ToneMap {
   private:
@@ -13,7 +13,7 @@ class WardToneMap final : public ToneMap {
     WardToneMap();
     ~WardToneMap() final;
 
-    void init() final;
+    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(ColorRgb radiance) const final;
     ColorRgb scaleForDisplay(ColorRgb radiance) const final;
 };

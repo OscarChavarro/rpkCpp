@@ -46,6 +46,8 @@ StochasticRelaxation::StochasticRelaxation():
     doNonDiffuseFirstShot(),
     initialLightSourceSamples(),
     lastClock(),
-    cpuSeconds()
+    cpuSeconds(),
+    toneMapOptions()
 {
+    toneMapOptions = nullptr;
 }

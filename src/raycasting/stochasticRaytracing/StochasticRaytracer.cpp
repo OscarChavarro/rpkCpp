@@ -2,6 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
+#include "common/Error.h"
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "photonMap/PhotonMapRadianceMethod.h"
@@ -87,7 +88,17 @@ StochasticRaytracer::execute(
     RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) const
 {
-    StochasticRaytracingConfiguration config(scene->camera, GLOBAL_raytracing_state, scene->lightSourcePatchList, radianceMethod); // config filled in by constructor
+    ToneMappingContext *toneMapOptions = renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions;
+    if ( toneMapOptions == nullptr ) {
+        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not set in render options");
+    }
+
+    StochasticRaytracingConfiguration config(
+        scene->camera,
+        GLOBAL_raytracing_state,
+        scene->lightSourcePatchList,
+        radianceMethod,
+        toneMapOptions); // config filled in by constructor
     StochasticRaytracerCallbackData callbackData = {
         &config,
         radianceMethod,
@@ -105,14 +116,16 @@ StochasticRaytracer::execute(
                 scene->voxelGrid,
                 scene->background,
                 StochasticRaytracer::calcPixel,
-                &callbackData);
+                &callbackData,
+                *toneMapOptions);
     } else {
         ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
                 StochasticRaytracer::calcPixel,
-                &callbackData);
+                &callbackData,
+                *toneMapOptions);
     }
 
     config.screen->render();

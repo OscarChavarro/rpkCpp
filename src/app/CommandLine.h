@@ -3,6 +3,7 @@
 
 #include "raycasting/common/RayTracer.h"
 #include "app/BatchOptions.h"
+class ToneMappingContext;
 
 class CommandLine final {
   public:
@@ -23,7 +24,7 @@ class CommandLine final {
     static void stochasticRayTracerParseOptions(int *argc, char **argv);
     static void biDirectionalPathParseOptions(int *argc, char **argv);
     static void photonMapParseOptions(int *argc, char **argv);
-    static void toneMapParseOptions(int *argc, char **argv, char *toneMapName);
+    static void toneMapParseOptions(int *argc, char **argv, char *toneMapName, ToneMappingContext &toneMapOptions);
     static void radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString);
     static void renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions);
     static void batchParseOptions(int *argc, char **argv, BatchOptions *batchOptions);

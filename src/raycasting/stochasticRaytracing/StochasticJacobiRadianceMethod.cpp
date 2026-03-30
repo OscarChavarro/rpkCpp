@@ -89,7 +89,11 @@ StochasticJacobiRadianceMethod::writeVRML(
 }
 
 void
-StochasticJacobiRadianceMethod::initialize(Scene */*scene*/) {
+StochasticJacobiRadianceMethod::initialize(Scene *scene) {
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
+    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions == nullptr ) {
+        Error::fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not set in scene");
+    }
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
 }

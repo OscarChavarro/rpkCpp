@@ -7,7 +7,7 @@ IdentityToneMap::~IdentityToneMap() {
 }
 
 void
-IdentityToneMap::init() {
+IdentityToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
 ColorRgb

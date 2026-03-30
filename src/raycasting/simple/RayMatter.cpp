@@ -19,12 +19,13 @@ RayMatterState GLOBAL_rayCasting_rayMatterState;
 
 char RayMatter::name[12] = "Ray Matting";
 
-RayMatter::RayMatter(ScreenBuffer *screen, const Camera *camera) {
+RayMatter::RayMatter(ScreenBuffer *screen, const Camera *camera, ToneMappingContext *toneMapOptions) {
     if ( screen == nullptr ) {
-        screenBuffer = new ScreenBuffer(nullptr, camera);
+        screenBuffer = new ScreenBuffer(nullptr, camera, toneMapOptions);
         doDeleteScreen = false;
     } else {
         screenBuffer = screen;
+        screenBuffer->setToneMappingContext(toneMapOptions);
         doDeleteScreen = false;
     }
 
@@ -61,12 +62,12 @@ RayMatter::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod */*radianceMethod*/,
-    const RenderOptions */*renderOptions*/) const
+    const RenderOptions *renderOptions) const
 {
     if ( globalRayMatter != nullptr ) {
         delete globalRayMatter;
     }
-    globalRayMatter = new RayMatter(nullptr, scene->camera);
+    globalRayMatter = new RayMatter(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
     globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
     if ( ip && globalRayMatter != nullptr ) {
         globalRayMatter->save(ip);

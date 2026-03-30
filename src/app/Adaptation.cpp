@@ -106,15 +106,19 @@ Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
 
 /**
 Estimates adaptation luminance in the current scene using the current
-adaption estimation method in GLOBAL_toneMap_options.statadapt
+adaption estimation method in toneMapOptions.staticAdaptationMethod
 'patch_radiance' is a pointer to a routine that computes the radiance
-emitted by a patch. The result is filled in GLOBAL_toneMap_options.lwa
+emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLuminance
 */
 void
-Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const java::ArrayList<Patch *> *scenePatches) {
+Adaptation::estimateSceneAdaptation(
+    ColorRgb (*patch_radiance)(Patch *),
+    const java::ArrayList<Patch *> *scenePatches,
+    ToneMappingContext &toneMapOptions)
+{
     PatchRadianceEstimate = patch_radiance;
 
-    switch ( GLOBAL_toneMap_options.staticAdaptationMethod ) {
+    switch ( toneMapOptions.staticAdaptationMethod ) {
         case ToneMapAdaptationMethod::TMA_NONE:
             break;
         case ToneMapAdaptationMethod::TMA_AVERAGE: {
@@ -124,7 +128,7 @@ Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const j
                 Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().totalArea + 0.84f);
+            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().totalArea + 0.84f);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {
@@ -137,13 +141,13 @@ Adaptation::estimateSceneAdaptation(ColorRgb (*patch_radiance)(Patch *), const j
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Adaptation::patchFillLumArea(scenePatches->get(i));
             }
-            GLOBAL_toneMap_options.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().numberOfPatches);
+            toneMapOptions.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().numberOfPatches);
 
             delete[] la;
             break;
         }
         default:
-            Error::error("sceneBuilderComputeStats", "unknown static adaptation method %d", GLOBAL_toneMap_options.staticAdaptationMethod);
+            Error::error("sceneBuilderComputeStats", "unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod);
     }
 }
 
@@ -152,6 +156,9 @@ Same as Adaptation::estimateSceneAdaptation, but uses some a-priori estimate for
 Used when loading a new scene
 */
 void
-Adaptation::initSceneAdaptation(const java::ArrayList<Patch *> *scenePatches) {
-    Adaptation::estimateSceneAdaptation(Adaptation::initRadianceEstimate, scenePatches);
+Adaptation::initSceneAdaptation(
+    const java::ArrayList<Patch *> *scenePatches,
+    ToneMappingContext &toneMapOptions)
+{
+    Adaptation::estimateSceneAdaptation(Adaptation::initRadianceEstimate, scenePatches, toneMapOptions);
 }

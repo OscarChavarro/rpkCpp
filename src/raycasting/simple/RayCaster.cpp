@@ -14,12 +14,13 @@ char RayCaster::name[12] = "Ray Casting";
 
 static RayCaster *globalRayCaster = nullptr;
 
-RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera) {
+RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions) {
     if ( inScreen == nullptr ) {
-        screenBuffer = new ScreenBuffer(nullptr, defaultCamera);
+        screenBuffer = new ScreenBuffer(nullptr, defaultCamera, toneMapOptions);
         doDeleteScreen = true;
     } else {
         screenBuffer = inScreen;
+        screenBuffer->setToneMappingContext(toneMapOptions);
         doDeleteScreen = true;
     }
 }
@@ -53,7 +54,7 @@ RayCaster::execute(
     if ( globalRayCaster != nullptr ) {
         delete globalRayCaster;
     }
-    globalRayCaster = new RayCaster(nullptr, scene->camera);
+    globalRayCaster = new RayCaster(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
     globalRayCaster->render(scene, radianceMethod, renderOptions);
     if ( globalRayCaster != nullptr && ip != nullptr ) {
         globalRayCaster->save(ip);
@@ -153,6 +154,7 @@ RayCaster::render(
     const RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions)
 {
+    screenBuffer->setToneMappingContext(renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
 #ifdef RAYTRACING_ENABLED
     long long t = java::lang::System::nanoTime();
 #endif
@@ -226,7 +228,7 @@ RayCaster::rayCast(
         }
     }
 
-    RayCaster *rc = new RayCaster(nullptr, scene->camera);
+    RayCaster *rc = new RayCaster(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
     rc->render(scene, radianceMethod, renderOptions);
     if ( img != nullptr ) {
         rc->save(img);

@@ -797,7 +797,7 @@ StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(Stochast
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m2, m1, v2, nullptr);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, m1, m2, m0, nullptr);
 
-    Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+    Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
     Opengl::openGlRenderLine(v0->point, v1->point);
     Opengl::openGlRenderLine(v1->point, v2->point);
     Opengl::openGlRenderLine(v2->point, v0->point);
@@ -825,7 +825,7 @@ StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideQuad(StochasticRa
     monteCarloRadiosityCreateSurfaceSubElement(element, 2, m3, mm, m2, v3);
     monteCarloRadiosityCreateSurfaceSubElement(element, 3, mm, m1, v2, m2);
 
-    Opengl::openGlRenderSetColor(&renderOptions->outlineColor);
+    Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
     Opengl::openGlRenderLine(v0->point, v1->point);
     Opengl::openGlRenderLine(v1->point, v2->point);
     Opengl::openGlRenderLine(v2->point, v3->point);

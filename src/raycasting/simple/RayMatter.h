@@ -21,7 +21,7 @@ class RayMatter final : public RayTracer {
     bool doDeleteScreen;
 
   public:
-    explicit RayMatter(ScreenBuffer *screen, const Camera *camera);
+    explicit RayMatter(ScreenBuffer *screen, const Camera *camera, ToneMappingContext *toneMapOptions = nullptr);
     ~RayMatter() final;
 
     void createFilter();

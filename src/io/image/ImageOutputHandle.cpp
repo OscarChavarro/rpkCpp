@@ -10,7 +10,12 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 #include "io/image/PicOutputHandle.h"
 #include "io/image/PPMOutputHandle.h"
 
-ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma() {
+ImageOutputHandle::ImageOutputHandle(): width(), height(), driverName(), gamma(), toneMapOptions() {
+}
+
+void
+ImageOutputHandle::setToneMappingContext(const ToneMappingContext *inToneMapOptions) {
+    toneMapOptions = inToneMapOptions;
 }
 
 int
@@ -53,11 +58,15 @@ returns the number of pixels written
 */
 int
 ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
+    if ( toneMapOptions == nullptr ) {
+        Error::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+    }
+
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
         ColorRgb displayRgb{};
-        ToneMap::radianceToRgb(rgbRadiance[i], &displayRgb);
+        ToneMap::radianceToRgb(rgbRadiance[i], &displayRgb, *toneMapOptions);
 
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);

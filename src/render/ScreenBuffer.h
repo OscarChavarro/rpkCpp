@@ -8,6 +8,8 @@
 #include "scene/Camera.h"
 #include "io/image/ImageOutputHandle.h"
 
+class ToneMappingContext;
+
 /**
 Class for storing pixel radiance/fluxes
 and an associated RGB framebuffer
@@ -29,14 +31,16 @@ class ScreenBuffer {
     float factor;
     float addFactor;
     bool rgbImage; // Indicates an RGB image ( = no radiance conversion!)
+    ToneMappingContext *toneMapOptions;
 
     void init(const Camera *inCamera, const Camera *defaultCamera);
 
   protected:
     void syncLine(int lineNumber);
+    const ToneMappingContext &requireToneMappingContext() const;
 
   public:
-    explicit ScreenBuffer(const Camera *camera, const Camera *defaultCamera); // Also calls mainInitApplication()
+    explicit ScreenBuffer(const Camera *camera, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = nullptr); // Also calls mainInitApplication()
     ~ScreenBuffer();
     bool isRgbImage() const;
     void copy(const ScreenBuffer *source, const Camera *defaultCamera);
@@ -60,6 +64,7 @@ class ScreenBuffer {
     void writeFile(ImageOutputHandle *ip);
     void add(int x, int y, ColorRgb inRadiance);
     void sync();
+    void setToneMappingContext(ToneMappingContext *inToneMapOptions);
 
 #ifdef RAYTRACING_ENABLED
     float getScreenXMax() const;

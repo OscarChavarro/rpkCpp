@@ -9,7 +9,7 @@ LightnessToneMap::~LightnessToneMap() {
 }
 
 void
-LightnessToneMap::init() {
+LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
 ColorRgb

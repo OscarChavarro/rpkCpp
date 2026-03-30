@@ -11,9 +11,9 @@ Most of the functions have similar meaning as for a radiance or ray-tracing meth
 class ToneMap {
   private:
     static int gammaTableEntry(float x);
-    static void recomputeGammaTable(int index, double gamma);
-    static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
-    static ColorRgb *rescaleRadiance(ColorRgb in, ColorRgb *out);
+    static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
+    static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance, const ToneMappingContext &toneMapOptions);
+    static ColorRgb *rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions);
 
   protected:
     /**
@@ -33,7 +33,7 @@ class ToneMap {
   public:
     ToneMap();
     virtual ~ToneMap();
-    virtual void init() = 0;
+    virtual void init(const ToneMappingContext &toneMapOptions) = 0;
 
     /**
     Knowing the display luminance "dl" this function determines the
@@ -49,9 +49,9 @@ class ToneMap {
     */
     virtual ColorRgb scaleForDisplay(ColorRgb radiance) const = 0;
 
-    static void toneMappingGammaCorrection(ColorRgb &rgb);
-    static void recomputeGammaTables(ColorRgb gamma);
-    static ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb);
+    static void toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions);
+    static void recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma);
+    static ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions);
 };
 
 #endif

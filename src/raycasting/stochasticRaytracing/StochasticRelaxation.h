@@ -9,6 +9,8 @@
 #include "raycasting/stochasticRaytracing/StochasticRaytracingMethod.h"
 #include "raycasting/stochasticRaytracing/WhatToShow.h"
 
+class ToneMappingContext;
+
 /**
 Used for stochastic relaxation and for random walk radiosity
 */
@@ -57,6 +59,7 @@ class StochasticRelaxation {
     int initialLightSourceSamples; // Initial shot samples per light source
     long long lastClock; // For computation timings (nanoseconds)
     float cpuSeconds; // CPU time spent in calculations
+    ToneMappingContext *toneMapOptions;
 
     StochasticRelaxation();
 };

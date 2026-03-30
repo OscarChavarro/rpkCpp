@@ -21,7 +21,7 @@ class FerwerdaToneMap final : public ToneMap {
     FerwerdaToneMap();
     ~FerwerdaToneMap() final;
 
-    void init() final;
+    void init(const ToneMappingContext &toneMapOptions) final;
     ColorRgb scaleForComputations(ColorRgb radiance) const final;
     ColorRgb scaleForDisplay(ColorRgb radiance) const final;
 };

@@ -13,6 +13,8 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StorageReadout.h"
 
+class ToneMappingContext;
+
 class StochasticRaytracingConfiguration {
   public:
     int samplesPerPixel;
@@ -33,6 +35,7 @@ class StochasticRaytracingConfiguration {
 
     // Independent variables
     ScreenBuffer *screen;
+    ToneMappingContext *toneMapOptions;
 
     // Variables derived from user options
     // All variables must not change during raytracing...
@@ -58,14 +61,16 @@ public:
         const Camera *defaultCamera,
         const StochasticRayTracingState &state,
         const java::ArrayList<Patch *> *lightList,
-        const RadianceMethod *radianceMethod);
+        const RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions);
 
     // Constructors
     StochasticRaytracingConfiguration(
             Camera *defaultCamera,
             StochasticRayTracingState &state,
             java::ArrayList<Patch *> *lightList,
-            RadianceMethod *radianceMethod):
+            RadianceMethod *radianceMethod,
+            ToneMappingContext *inToneMapOptions):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),
@@ -78,6 +83,7 @@ public:
             backgroundDirect(),
             backgroundSampling(),
             screen(),
+            toneMapOptions(),
             samplerConfig(),
             seedConfig(),
             siStorage(),
@@ -85,7 +91,7 @@ public:
             siOthersCount(),
             initialReadout()
         {
-        init(defaultCamera, state, lightList, radianceMethod);
+        init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions);
     }
 
     ~StochasticRaytracingConfiguration() {

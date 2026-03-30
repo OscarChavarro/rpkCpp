@@ -13,6 +13,8 @@
 #include "galerkin/GalerkinShaftCullMode.h"
 #include "galerkin/ShaftCullStrategy.h"
 
+class ToneMappingContext;
+
 class GalerkinState {
   public:
     int iterationNumber;
@@ -64,6 +66,7 @@ class GalerkinState {
     float cpuSeconds;
 
     ShaftCullStrategy shaftCullStrategy;
+    ToneMappingContext *toneMapOptions;
 
     GalerkinState();
 };

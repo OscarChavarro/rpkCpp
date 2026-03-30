@@ -22,9 +22,9 @@ FerwerdaToneMap::~FerwerdaToneMap() {
 }
 
 void
-FerwerdaToneMap::init() {
-    float realWorldAdaptionLuminance = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
+FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
+    float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0f;
 
     // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)

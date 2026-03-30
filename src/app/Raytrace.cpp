@@ -40,9 +40,9 @@ RayTracer *
 Raytrace::rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
     RayTracer *newRaytracer;
     if ( strcmp(rayTracerName, "RayMatting") == 0 ) {
-        newRaytracer = new RayMatter(nullptr, scene->camera);
+        newRaytracer = new RayMatter(nullptr, scene->camera, scene->toneMapOptions);
     } else if ( strcmp(rayTracerName, "RayCasting") == 0 ) {
-        newRaytracer = new RayCaster(nullptr, scene->camera);
+        newRaytracer = new RayCaster(nullptr, scene->camera, scene->toneMapOptions);
     } else if ( strcmp(rayTracerName, "BidirectionalPathTracing") == 0 ) {
         newRaytracer = new BidirectionalPathRaytracer();
     } else if ( strcmp(rayTracerName, "StochasticRaytracing") == 0 ) {

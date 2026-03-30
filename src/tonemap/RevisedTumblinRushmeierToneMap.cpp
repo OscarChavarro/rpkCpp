@@ -20,10 +20,10 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 }
 
 void
-RevisedTumblinRushmeierToneMap::init() {
-    float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
+RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
+    float lwa = toneMapOptions.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
     ldaRTR = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     // Equation [TUMB1999b](17): exponent gw/gd

@@ -8,6 +8,8 @@ Interface for writing image data in different file formats
 #include "java/io/OutputStream.h"
 #include "common/ColorRgb.h"
 
+class ToneMappingContext;
+
 class ImageOutputHandle {
   protected:
     int width;
@@ -26,6 +28,7 @@ class ImageOutputHandle {
 
     // Gamma correction factors for red, green and blue  used by default
     float gamma[3];
+    const ToneMappingContext *toneMapOptions;
 
     // Writes a scanline of gamma-corrected display RGB pixels
     // returns the number of pixels written
@@ -34,6 +37,7 @@ class ImageOutputHandle {
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
     virtual int writeRadianceRGB(ColorRgb *rgbRadiance);
+    void setToneMappingContext(const ToneMappingContext *inToneMapOptions);
 
     static ImageOutputHandle *
     createRadianceImageOutputHandle(
@@ -64,6 +68,7 @@ ImageOutputHandle::init(const char *_name, int _width, int _height) {
     gamma[0] = 1.0;
     gamma[1] = 1.0;
     gamma[2] = 1.0;
+    toneMapOptions = nullptr;
 }
 
 /**

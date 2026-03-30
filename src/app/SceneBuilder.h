@@ -4,13 +4,16 @@
 #include "scene/Scene.h"
 #include "io/context/ParseSession.h"
 
+class ToneMappingContext;
+
 class SceneBuilder final {
   public:
     static void sceneBuilderCreateModel(
         const int *argc,
         char *const *argv,
         ParseSession *mgfContext,
-        Scene *scene);
+        Scene *scene,
+        ToneMappingContext &toneMapOptions);
 
   private:
     static void sceneBuilderPatchAccumulateStats(Patch *patch);
@@ -27,7 +30,11 @@ class SceneBuilder final {
     static void sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, PersistedSceneModel *mgfModel);
     static void removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList);
     static bool sceneBuilderValidateReadableFile(const char *fileName, const char *fileRole);
-    static bool sceneBuilderReadFile(const char *fileName, ParseSession *mgfContext, Scene *scene);
+    static bool sceneBuilderReadFile(
+        const char *fileName,
+        ParseSession *mgfContext,
+        Scene *scene,
+        ToneMappingContext &toneMapOptions);
 };
 
 #endif

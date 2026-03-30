@@ -351,7 +351,12 @@ Tries to read the scene in the given file. Returns false if not successful.
 Returns true if successful
 */
 bool
-SceneBuilder::sceneBuilderReadFile(const char *fileName, ParseSession *mgfContext, Scene *scene) {
+SceneBuilder::sceneBuilderReadFile(
+    const char *fileName,
+    ParseSession *mgfContext,
+    Scene *scene,
+    ToneMappingContext &toneMapOptions)
+{
     const BatchOptions *batchOptions = Batch::batchGetOptions();
     const bool importBinary =
         batchOptions != nullptr
@@ -515,7 +520,7 @@ SceneBuilder::sceneBuilderReadFile(const char *fileName, ParseSession *mgfContex
     java::lang::System::err.printf("Initializing tone mapping ... ");
     java::lang::System::err.flush();
 
-    Adaptation::initSceneAdaptation(scene->patchList);
+    Adaptation::initSceneAdaptation(scene->patchList, toneMapOptions);
 
     t = java::lang::System::nanoTime();
     java::lang::System::err.printf(
@@ -529,14 +534,14 @@ SceneBuilder::sceneBuilderReadFile(const char *fileName, ParseSession *mgfContex
            "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
            "         Statistics::instance().maxSelfEmittedRadiance ...........: %f W / sr\n"
            "         Statistics::instance().maxSelfEmittedPower ..............: %f W\n"
-           "         GLOBAL_toneMap_options.lwa (adaptationLuminance) ...: %f cd / m2\n"
+           "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
            "         GLOBAL_statistics_totalArea ........................: %f m2\n",
            Statistics::instance().totalEmittedPower.gray(),
            Statistics::instance().estimatedAverageRadiance.gray(),
            Statistics::instance().averageReflectivity.gray(),
            Statistics::instance().maxSelfEmittedRadiance.gray(),
            Statistics::instance().maxSelfEmittedPower.gray(),
-           GLOBAL_toneMap_options.realWorldAdaptionLuminance,
+           toneMapOptions.realWorldAdaptionLuminance,
            Statistics::instance().totalArea);
     //scene->print();
 
@@ -566,14 +571,15 @@ SceneBuilder::sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
     ParseSession *mgfContext,
-    Scene *scene)
+    Scene *scene,
+    ToneMappingContext &toneMapOptions)
 {
     const BatchOptions *batchOptions = Batch::batchGetOptions();
     if ( batchOptions != nullptr
          && batchOptions->importBinary
          && batchOptions->binaryInputFilename != nullptr
          && batchOptions->binaryInputFilename[0] != '\0' ) {
-        if ( !SceneBuilder::sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene) ) {
+        if ( !SceneBuilder::sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene, toneMapOptions) ) {
             java::lang::System::exit(1);
         }
         return;
@@ -583,7 +589,7 @@ SceneBuilder::sceneBuilderCreateModel(
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
             Error::error(nullptr, "Unrecognized option '%s'", argv[1]);
-        } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene) ) {
+        } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
             java::lang::System::exit(1);
         }
     }

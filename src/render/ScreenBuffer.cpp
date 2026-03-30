@@ -11,9 +11,10 @@
 /**
 Constructor : make an screen buffer from a camera definition
 */
-ScreenBuffer::ScreenBuffer(const Camera *camera, const Camera *defaultCamera) {
+ScreenBuffer::ScreenBuffer(const Camera *camera, const Camera *defaultCamera, ToneMappingContext *inToneMapOptions) {
     radiance = nullptr;
     rgbColor = nullptr;
+    toneMapOptions = inToneMapOptions;
     init(camera, defaultCamera);
     synced = false;
     factor = 1.0;
@@ -137,7 +138,7 @@ ScreenBuffer::render() {
         sync();
     }
 
-    SoftIds::softRenderPixels(camera.xSize, camera.ySize, rgbColor);
+    SoftIds::softRenderPixels(camera.xSize, camera.ySize, rgbColor, requireToneMappingContext());
 }
 
 void
@@ -152,9 +153,11 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
     java::lang::System::err.printf("Writing %s file ... ", ip->driverName);
 
-    ip->gamma[0] = GLOBAL_toneMap_options.gamma.r; // For default radiance -> display RGB
-    ip->gamma[1] = GLOBAL_toneMap_options.gamma.g;
-    ip->gamma[2] = GLOBAL_toneMap_options.gamma.b;
+    const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
+    ip->setToneMappingContext(&activeToneMapOptions);
+    ip->gamma[0] = activeToneMapOptions.gamma.r; // For default radiance -> display RGB
+    ip->gamma[1] = activeToneMapOptions.gamma.g;
+    ip->gamma[2] = activeToneMapOptions.gamma.b;
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
@@ -175,17 +178,18 @@ ScreenBuffer::renderScanline(int y) {
         syncLine(y);
     }
 
-    SoftIds::softRenderPixels(camera.xSize, 1, &rgbColor[y * camera.xSize]);
+    SoftIds::softRenderPixels(camera.xSize, 1, &rgbColor[y * camera.xSize], requireToneMappingContext());
 }
 
 void
 ScreenBuffer::sync() {
     ColorRgb tmpRad{};
+    const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
 
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
         tmpRad.scaledCopy(factor, radiance[i]);
         if ( !isRgbImage() ) {
-            ToneMap::radianceToRgb(tmpRad, &rgbColor[i]);
+            ToneMap::radianceToRgb(tmpRad, &rgbColor[i], activeToneMapOptions);
         } else {
             tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
         }
@@ -198,15 +202,29 @@ ScreenBuffer::sync() {
 void
 ScreenBuffer::syncLine(int lineNumber) {
     ColorRgb tmpRad{};
+    const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
 
     for ( int i = 0; i < camera.xSize; i++ ) {
         tmpRad.scaledCopy(factor, radiance[lineNumber * camera.xSize + i]);
         if ( !isRgbImage() ) {
-            ToneMap::radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i]);
+            ToneMap::radianceToRgb(tmpRad, &rgbColor[lineNumber * camera.xSize + i], activeToneMapOptions);
         } else {
             tmpRad = rgbColor[lineNumber * camera.xSize + i];
         }
     }
+}
+
+const ToneMappingContext &
+ScreenBuffer::requireToneMappingContext() const {
+    if ( toneMapOptions == nullptr ) {
+        Error::fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+    }
+    return *toneMapOptions;
+}
+
+void
+ScreenBuffer::setToneMappingContext(ToneMappingContext *inToneMapOptions) {
+    toneMapOptions = inToneMapOptions;
 }
 
 float

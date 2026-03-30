@@ -16,7 +16,8 @@ StochasticRaytracingConfiguration::init(
     const Camera *defaultCamera,
     const StochasticRayTracingState &state,
     const java::ArrayList<Patch *> *lightList,
-    const RadianceMethod *radianceMethod)
+    const RadianceMethod *radianceMethod,
+    ToneMappingContext *inToneMapOptions)
 {
     // Copy state options
 
@@ -69,7 +70,12 @@ StochasticRaytracingConfiguration::init(
     samplerConfig.minDepth = state.minPathDepth;
     samplerConfig.maxDepth = state.maxPathDepth;
 
-    screen = new ScreenBuffer(nullptr, defaultCamera);
+    toneMapOptions = inToneMapOptions;
+    if ( toneMapOptions == nullptr ) {
+        Error::fatal(-1, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
+    }
+
+    screen = new ScreenBuffer(nullptr, defaultCamera, toneMapOptions);
     screen->setFactor(1.0); // We're storing plain radiance
 
     initDependentVars(lightList, radianceMethod);

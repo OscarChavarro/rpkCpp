@@ -13,6 +13,8 @@ due to frame buffer formats, etc.
 #include "scene/Scene.h"
 #include "sgl/SglContext.h"
 
+class ToneMappingContext;
+
 class SoftIds {
   private:
     static void softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions, SglContext *sglContext);
@@ -27,7 +29,7 @@ class SoftIds {
     static SglContext *setupSoftFrameBuffer(const Camera *camera);
     static void softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext);
     static unsigned long *softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions);
-    static void softRenderPixels(int width, int height, const ColorRgb *rgb);
+    static void softRenderPixels(int width, int height, const ColorRgb *rgb, const ToneMappingContext &toneMapOptions);
 };
 
 #endif

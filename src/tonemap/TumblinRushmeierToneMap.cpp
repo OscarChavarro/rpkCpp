@@ -20,10 +20,10 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 }
 
 void
-TumblinRushmeierToneMap::init() {
-    float lwa = GLOBAL_toneMap_options.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = GLOBAL_toneMap_options.maximumDisplayLuminance;
-    float maximumDisplayContrast = GLOBAL_toneMap_options.maximumDisplayContrast;
+TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
+    float lwa = toneMapOptions.realWorldAdaptionLuminance;
+    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
     lda = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     // Equation [COHE1993](9.16): alpha(L_w), beta(L_w) (Tumblin/Rushmeier model)

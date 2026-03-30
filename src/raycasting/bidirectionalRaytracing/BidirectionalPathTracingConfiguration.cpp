@@ -9,6 +9,7 @@ BidirectionalPathTracingConfiguration::BidirectionalPathTracingConfiguration():
     eyeConfig(),
     lightConfig(),
     screen(),
+    toneMapOptions(),
     fluxToRadFactor(),
     nx(),
     ny(),

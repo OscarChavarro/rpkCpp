@@ -127,7 +127,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
     if ( GLOBAL_photonMap_config.screen ) {
         delete GLOBAL_photonMap_config.screen;
     }
-    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, scene->camera);
+    GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, scene->camera, scene->toneMapOptions);
 
     // mainInitApplication samplers
 

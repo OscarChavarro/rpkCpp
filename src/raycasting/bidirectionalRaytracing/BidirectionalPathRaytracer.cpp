@@ -7,6 +7,7 @@
 #include <cstring>
 
 #include "java/lang/System.h"
+#include "common/Error.h"
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
@@ -104,10 +105,14 @@ BidirectionalPathRaytracer::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
-    const RenderOptions */*renderOptions*/) const
+    const RenderOptions *renderOptions) const
 {
     // Install the samplers to be used in the state
     BidirectionalPathTracingConfiguration config;
+    config.toneMapOptions = renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions;
+    if ( config.toneMapOptions == nullptr ) {
+        Error::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not set in render options");
+    }
 
     // Copy base config (so that rendering is independent of GUI)
     config.baseConfig = new BidirectionalPathRaytracerConfig;
@@ -149,7 +154,7 @@ BidirectionalPathRaytracer::execute(
     config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumLightPathDepth;
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
-    config.screen = new ScreenBuffer(nullptr, scene->camera);
+    config.screen = new ScreenBuffer(nullptr, scene->camera, config.toneMapOptions);
     config.screen->setFactor(1.0); // We're storing plain radiance
 
     config.eyePath = nullptr;
@@ -190,14 +195,16 @@ BidirectionalPathRaytracer::execute(
                 scene->voxelGrid,
                 scene->background,
                 BidirectionalPathRaytracer::bpCalcPixel,
-                &config);
+                &config,
+                *config.toneMapOptions);
     } else {
         ScreenIterate::progressive(
                 scene->camera,
                 scene->voxelGrid,
                 scene->background,
                 BidirectionalPathRaytracer::bpCalcPixel,
-                &config);
+                &config,
+                *config.toneMapOptions);
     }
 
     config.screen->render();
@@ -994,7 +1001,8 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
             sceneVoxelGrid,
             sceneBackground,
             BidirectionalPathRaytracer::bpCalcPixel,
-            config);
+            config,
+            *config->toneMapOptions);
 
         config->screen->render();
 
@@ -1030,8 +1038,8 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     char *fileName = new char[STRINGS_SIZE];
 
     // mainInitApplication the screens, one reference one destination
-    config->ref = new ScreenBuffer(nullptr, camera);
-    config->dest = new ScreenBuffer(nullptr, camera);
+    config->ref = new ScreenBuffer(nullptr, camera, config->toneMapOptions);
+    config->dest = new ScreenBuffer(nullptr, camera, config->toneMapOptions);
 
     config->ref->setFactor(1.0);
     config->dest->setFactor(1.0);
@@ -1039,8 +1047,8 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     config->dBuffer = new DensityBuffer(config->ref, config->baseConfig);
 
     if ( config->baseConfig->useSpars ) {
-        config->ref2 = new ScreenBuffer(nullptr, camera);
-        config->dest2 = new ScreenBuffer(nullptr, camera);
+        config->ref2 = new ScreenBuffer(nullptr, camera, config->toneMapOptions);
+        config->dest2 = new ScreenBuffer(nullptr, camera, config->toneMapOptions);
 
         config->ref2->setFactor(1.0);
         config->dest2->setFactor(1.0);
@@ -1065,7 +1073,8 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         sceneVoxelGrid,
         sceneBackground,
         BidirectionalPathRaytracer::bpCalcPixel,
-        config);
+        config,
+        *config->toneMapOptions);
 
     // Now we have a noisy screen in dest and hits in double buffer
 
@@ -1152,7 +1161,8 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
             sceneVoxelGrid,
             sceneBackground,
             BidirectionalPathRaytracer::bpCalcPixel,
-            config);
+            config,
+            *config->toneMapOptions);
 
         // Render screen & write
 

@@ -25,7 +25,7 @@ class RayCaster final : public RayTracer {
         const RenderOptions *renderOptions) const;
 
   public:
-    explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera);
+    explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = nullptr);
     ~RayCaster() final;
     void render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
     void display();

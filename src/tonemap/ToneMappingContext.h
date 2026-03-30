@@ -40,8 +40,5 @@ class ToneMappingContext {
     ToneMappingContext();
     ~ToneMappingContext();
 };
-extern ToneMappingContext GLOBAL_toneMap_options;
-
-#include "tonemap/ToneMap.h"
 
 #endif

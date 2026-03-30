@@ -32,11 +32,14 @@ RpkApplication::RpkApplication():
     imageOutputWidth(),
     imageOutputHeight(),
     selectedRadianceMethod(),
+    toneMapOptions(),
     rayTracer()
 {
     scene = new Scene();
     mgfContext = new ParseSession();
     renderOptions = new RenderOptions();
+    scene->toneMapOptions = &toneMapOptions;
+    renderOptions->toneMapOptions = &toneMapOptions;
 }
 
 RpkApplication::~RpkApplication() {
@@ -78,8 +81,11 @@ RpkApplication::selectToneMapByName(const char *name) {
         newMap = new LightnessToneMap();
     }
 
-    GLOBAL_toneMap_options.selectedToneMap = newMap;
-    newMap->init();
+    if ( toneMapOptions.selectedToneMap != nullptr ) {
+        delete toneMapOptions.selectedToneMap;
+    }
+    toneMapOptions.selectedToneMap = newMap;
+    newMap->init(toneMapOptions);
 }
 
 /**
@@ -95,7 +101,8 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
         &imageOutputWidth,
         &imageOutputHeight);
     CommandLine::renderParseOptions(argc, argv, renderOptions);
-    CommandLine::toneMapParseOptions(argc, argv, toneMapName);
+    renderOptions->toneMapOptions = &toneMapOptions;
+    CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions);
     CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
     Radiance::radianceParseOptions(argc, argv, &selectedRadianceMethod);
 
@@ -161,7 +168,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     mgfContext->monochrome = DEFAULT_MONOCHROME;
     mgfContext->currentMaterial = &defaultMaterial;
     selectToneMapByName(initializationToneMapName); // Note this is used for basic Galerkin model initialization
-    SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene);
+    SceneBuilder::sceneBuilderCreateModel(&argc, argv, mgfContext, scene, toneMapOptions);
     selectToneMapByName(renderToneMapName);
 
     // 4. Run main radiosity simulation and export result

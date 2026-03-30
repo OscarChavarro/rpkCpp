@@ -5,6 +5,8 @@
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
 
+class ToneMappingContext;
+
 class Scene {
   private:
     static const char *printGeometryType(GeometryClassId id);
@@ -30,6 +32,7 @@ public:
 
     // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
     java::ArrayList<Patch *> *lightSourcePatchList;
+    ToneMappingContext *toneMapOptions; // Owned by the application, shared scene-level reference
 
     Scene();
     ~Scene();

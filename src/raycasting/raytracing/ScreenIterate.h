@@ -12,6 +12,8 @@ Several functions are provided for different iterating schemes
 #include "scene/Background.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
 
+class ToneMappingContext;
+
 typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Camera *, VoxelGrid *, Background *, int, int, void *);
 
 class ScreenIterate {
@@ -22,7 +24,8 @@ class ScreenIterate {
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
-        void *data);
+        void *data,
+        const ToneMappingContext &toneMapOptions);
 
     static void
     progressive(
@@ -30,7 +33,8 @@ class ScreenIterate {
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SCREEN_ITERATE_CALLBACK callback,
-        void *data);
+        void *data,
+        const ToneMappingContext &toneMapOptions);
 
   private:
     static ScreenIterateState state;

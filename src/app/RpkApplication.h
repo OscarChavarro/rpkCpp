@@ -4,6 +4,7 @@
 #include "scene/Scene.h"
 #include "io/context/ParseSession.h"
 #include "raycasting/common/RayTracer.h"
+#include "tonemap/ToneMappingContext.h"
 
 class RpkApplication {
   private:
@@ -13,10 +14,11 @@ class RpkApplication {
     Scene *scene;
     ParseSession *mgfContext;
     RadianceMethod *selectedRadianceMethod;
+    ToneMappingContext toneMapOptions;
     RenderOptions *renderOptions;
     RayTracer *rayTracer;
 
-    static void selectToneMapByName(const char *name);
+    void selectToneMapByName(const char *name);
     static void mainInitApplication();
     void mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName);
     void mainCreateOffscreenCanvasWindow() const;

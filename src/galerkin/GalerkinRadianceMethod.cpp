@@ -181,7 +181,7 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
 
     for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
         ColorRgb col{};
-        ToneMap::radianceToRgb(vertexRadiosity[i], &col);
+        ToneMap::radianceToRgb(vertexRadiosity[i], &col, *GalerkinRadianceMethod::galerkinState.toneMapOptions);
         writeVertexColor(&col);
     }
 }
@@ -330,9 +330,9 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
     if ( galerkinState.useAmbientRadiance ) {
         radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
-        ToneMap::radianceToRgb(radVis, &patch->color);
+        ToneMap::radianceToRgb(radVis, &patch->color, *galerkinState.toneMapOptions);
     } else {
-        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patch->color);
+        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patch->color, *galerkinState.toneMapOptions);
     }
     patch->computeVertexColors();
 }
@@ -357,6 +357,11 @@ GalerkinRadianceMethod::parseOptions(int * /*argc*/, char ** /*argv*/) {
 
 void
 GalerkinRadianceMethod::initialize(Scene *scene) {
+    galerkinState.toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
+    if ( galerkinState.toneMapOptions == nullptr ) {
+        Error::fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not set in scene");
+    }
+
     galerkinState.iterationNumber = 0;
     galerkinState.cpuSeconds = 0.0;
 

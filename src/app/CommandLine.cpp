@@ -374,6 +374,7 @@ CommandLine::makeToneMappingMethodsString() {
 }
 
 static char *globalToneMapName;
+static ToneMappingContext *globalToneMapOptions = nullptr;
 
 void
 CommandLine::toneMappingMethodOption(void *value) {
@@ -384,43 +385,52 @@ CommandLine::toneMappingMethodOption(void *value) {
 
 void
 CommandLine::brightnessAdjustOption(void * /*val*/) {
-    GLOBAL_toneMap_options.pow_bright_adjust = java::Math::pow(2.0f, GLOBAL_toneMap_options.brightness_adjust);
+    if ( globalToneMapOptions == nullptr ) {
+        Error::fatal(-1, "CommandLine::brightnessAdjustOption", "ToneMappingContext not set");
+    }
+    (*globalToneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*globalToneMapOptions).brightness_adjust);
 }
 
 void
 CommandLine::chromaOption(void *value) {
+    if ( globalToneMapOptions == nullptr ) {
+        Error::fatal(-1, "CommandLine::chromaOption", "ToneMappingContext not set");
+    }
     const float *chroma = static_cast<float *>(value);
     if ( chroma == globalRxy ) {
-        GLOBAL_toneMap_options.xr = chroma[0];
-        GLOBAL_toneMap_options.yr = chroma[1];
+        (*globalToneMapOptions).xr = chroma[0];
+        (*globalToneMapOptions).yr = chroma[1];
     } else if ( chroma == globalGxy ) {
-        GLOBAL_toneMap_options.xg = chroma[0];
-        GLOBAL_toneMap_options.yg = chroma[1];
+        (*globalToneMapOptions).xg = chroma[0];
+        (*globalToneMapOptions).yg = chroma[1];
     } else if ( chroma == globalBxy ) {
-        GLOBAL_toneMap_options.xb = chroma[0];
-        GLOBAL_toneMap_options.yb = chroma[1];
+        (*globalToneMapOptions).xb = chroma[0];
+        (*globalToneMapOptions).yb = chroma[1];
     } else if ( chroma == globalWxy ) {
-        GLOBAL_toneMap_options.xw = chroma[0];
-        GLOBAL_toneMap_options.yw = chroma[1];
+        (*globalToneMapOptions).xw = chroma[0];
+        (*globalToneMapOptions).yw = chroma[1];
     } else {
         Error::fatal(-1, "CommandLine::chromaOption", "invalid value pointer");
     }
 
     Cie::computeColorConversionTransforms(
-        GLOBAL_toneMap_options.xr, GLOBAL_toneMap_options.yr,
-        GLOBAL_toneMap_options.xg, GLOBAL_toneMap_options.yg,
-        GLOBAL_toneMap_options.xb, GLOBAL_toneMap_options.yb,
-        GLOBAL_toneMap_options.xw, GLOBAL_toneMap_options.yw);
+        (*globalToneMapOptions).xr, (*globalToneMapOptions).yr,
+        (*globalToneMapOptions).xg, (*globalToneMapOptions).yg,
+        (*globalToneMapOptions).xb, (*globalToneMapOptions).yb,
+        (*globalToneMapOptions).xw, (*globalToneMapOptions).yw);
 }
 
 void
 CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
+    if ( globalToneMapOptions == nullptr ) {
+        Error::fatal(-1, "CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
+    }
     char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
-        GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
+        (*globalToneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        GLOBAL_toneMap_options.staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
+        (*globalToneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     } else {
         Error::error(nullptr, "Invalid adaptation estimate method '%s'", name);
     }
@@ -428,25 +438,28 @@ CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 
 void
 CommandLine::gammaOption(void *value) {
+    if ( globalToneMapOptions == nullptr ) {
+        Error::fatal(-1, "CommandLine::gammaOption", "ToneMappingContext not set");
+    }
     float gam = *static_cast<float *>(value);
-    GLOBAL_toneMap_options.gamma.set(gam, gam, gam);
+    (*globalToneMapOptions).gamma.set(gam, gam, gam);
 }
 
 static CommandLineOptionDescription globalToneMappingOptions[] = {
     {"-tonemapping", 4, OPTIONS_TYPE_STRING, nullptr, CommandLine::toneMappingMethodOption, globalToneMappingMethodsString},
-    {"-brightness-adjust", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.brightness_adjust, CommandLine::brightnessAdjustOption,
+    {"-brightness-adjust", 4, OPTIONS_TYPE_FLOAT, nullptr, CommandLine::brightnessAdjustOption,
      "-brightness-adjust <float> : brightness adjustment factor"},
     {"-adapt", 5, OPTIONS_TYPE_STRING, nullptr, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption,
     "-adapt <method>  \t: adaptation estimation method\n\tmethods: \"average\", \"median\""},
-    {"-lwa", 3, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.realWorldAdaptionLuminance, DEFAULT_ACTION,
+    {"-lwa", 3, OPTIONS_TYPE_FLOAT, nullptr, DEFAULT_ACTION,
      "-lwa <float>\t\t: real world adaptation luminance"},
-    {"-ldmax", 5, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.maximumDisplayLuminance, DEFAULT_ACTION,
+    {"-ldmax", 5, OPTIONS_TYPE_FLOAT, nullptr, DEFAULT_ACTION,
      "-ldmax <float>\t\t: maximum diaply luminance"},
-    {"-cmax", 4, OPTIONS_TYPE_FLOAT, &GLOBAL_toneMap_options.maximumDisplayContrast, DEFAULT_ACTION,
+    {"-cmax", 4, OPTIONS_TYPE_FLOAT, nullptr, DEFAULT_ACTION,
      "-cmax <float>\t\t: maximum displayable contrast"},
     {"-gamma", 4, OPTIONS_TYPE_FLOAT, nullptr, CommandLine::gammaOption,
      "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
-    {"-rgbgamma", 4, OPTIONS_TYPE_RGB, &GLOBAL_toneMap_options.gamma, DEFAULT_ACTION,
+    {"-rgbgamma", 4, OPTIONS_TYPE_RGB, nullptr, DEFAULT_ACTION,
      "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
     {"-red", 4, OPTIONS_TYPE_XY, globalRxy, CommandLine::chromaOption,
      "-red <xy>            \t: CIE xy chromaticity of monitor red"},
@@ -460,11 +473,19 @@ static CommandLineOptionDescription globalToneMappingOptions[] = {
 };
 
 void
-CommandLine::toneMapParseOptions(int *argc, char **argv, char *toneMapName) {
+CommandLine::toneMapParseOptions(int *argc, char **argv, char *toneMapName, ToneMappingContext &toneMapOptions) {
     globalToneMapName = toneMapName;
+    globalToneMapOptions = &toneMapOptions;
+    globalToneMappingOptions[1].value = &(*globalToneMapOptions).brightness_adjust;
+    globalToneMappingOptions[3].value = &(*globalToneMapOptions).realWorldAdaptionLuminance;
+    globalToneMappingOptions[4].value = &(*globalToneMapOptions).maximumDisplayLuminance;
+    globalToneMappingOptions[5].value = &(*globalToneMapOptions).maximumDisplayContrast;
+    globalToneMappingOptions[7].value = &(*globalToneMapOptions).gamma;
     CommandLine::makeToneMappingMethodsString();
     Options::parseGeneralOptions(globalToneMappingOptions, argc, argv);
-    ToneMap::recomputeGammaTables(GLOBAL_toneMap_options.gamma);
+    ToneMap::recomputeGammaTables(toneMapOptions, (*globalToneMapOptions).gamma);
+    globalToneMapOptions = nullptr;
+    globalToneMapName = nullptr;
 }
 
 static char *globalRadianceMethodsString;
