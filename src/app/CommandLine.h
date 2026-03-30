@@ -17,7 +17,8 @@ class CommandLine final {
         bool *oneSidedSurfaces,
         int *conicSubDivisions,
         int *imageOutputWidth,
-        int *imageOutputHeight);
+        int *imageOutputHeight,
+        bool *glutDebugEnabled);
     static void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
     static void randomWalkRadiosityParseOptions(int *argc, char **argv);
     static void rayMattingParseOptions(int *argc, char **argv);

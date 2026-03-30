@@ -18,6 +18,7 @@
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
+#include "render/GlutDebugTools.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/bidirectionalRaytracing/LightList.h"
@@ -33,7 +34,8 @@ RpkApplication::RpkApplication():
     imageOutputHeight(),
     selectedRadianceMethod(),
     toneMapOptions(),
-    rayTracer()
+    rayTracer(),
+    glutDebugEnabled(false)
 {
     scene = new Scene();
     mgfContext = new ParseSession();
@@ -99,7 +101,8 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
         &mgfContext->singleSided,
         &mgfContext->numberOfQuarterCircleDivisions,
         &imageOutputWidth,
-        &imageOutputHeight);
+        &imageOutputHeight,
+        &glutDebugEnabled);
     CommandLine::renderParseOptions(argc, argv, renderOptions);
     renderOptions->toneMapOptions = &toneMapOptions;
     CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions);
@@ -175,7 +178,16 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     executeRendering(rayTracerName);
 
     // X. Interactive visual debug GUI tool
-    //executeGlutGui(argc, argv, scene, mgfContext->radianceMethod, renderOptions, RpkApplication::freeMemory, mgfContext);
+    if ( glutDebugEnabled ) {
+        GlutDebugTools::executeGlutGui(
+            argc,
+            argv,
+            scene,
+            mgfContext->radianceMethod,
+            renderOptions,
+            RpkApplication::freeMemory,
+            mgfContext);
+    }
 
     // 5. Free used memory
     freeMemory(mgfContext);

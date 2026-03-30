@@ -4,9 +4,11 @@
 #ifdef OPEN_GL_ENABLED
 
 
-#define GL_SILENCE_DEPRECATION
-
-#include <GL/glut.h>
+#ifdef __APPLE__
+    #include <GLUT/glut.h>
+#else
+    #include <GL/glut.h>
+#endif
 
 #include "java/util/ArrayList.txx"
 #include "render/Opengl.h"
@@ -177,7 +179,7 @@ GlutDebugTools::drawCallback() {
     globalScene->camera->xSize = globalWidth;
     globalScene->camera->ySize = globalHeight;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BITS);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
     glViewport(0, 0, globalWidth, globalHeight);
@@ -215,10 +217,10 @@ GlutDebugTools::executeGlutGui(
     glutInit(&argc, argv);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(globalWidth, globalHeight);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     int windowHandle = glutCreateWindow("RPK");
     if ( windowHandle == GL_FALSE ) {
-        java::lang::System::out.printf("ERROR: Can not open GLUT window, check X11 setup!\n");
+        java::lang::System::out.printf("ERROR: Can not open GLUT window, check OpenGL/GLUT setup.\n");
         java::lang::System::exit(1);
     }
 

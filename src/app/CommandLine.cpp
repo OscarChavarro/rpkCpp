@@ -37,6 +37,7 @@ static int globalYes = 1;
 static int globalNo = 0;
 static int globalOutputImageWidth = 1920;
 static int globalOutputImageHeight = 1080;
+static int globalGlutDebugEnabled = false;
 static Camera globalCamera;
 static BackgroundMode globalBackgroundMode = BackgroundMode::NONE;
 static ColorRgb globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
@@ -176,6 +177,8 @@ static CommandLineOptionDescription globalOptions[] = {
             "-width \t\t: image output width in pixels"},
     {"-height", 6, &GLOBAL_options_intType, &globalOutputImageHeight, CommandLine::commandLineImageHeightOption,
             "-width \t\t: image output width in pixels"},
+    {"-glutDebug", 6, OPTIONS_TYPE_SET_TRUE, &globalGlutDebugEnabled, DEFAULT_ACTION,
+            "-glutDebug\t\t: open interactive GLUT debug window after rendering"},
     {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
 };
 
@@ -186,12 +189,14 @@ CommandLine::commandLineGeneralProgramParseOptions(
     bool *oneSidedSurfaces,
     int *conicSubDivisions,
     int *imageOutputWidth,
-    int *imageOutputHeight)
+    int *imageOutputHeight,
+    bool *glutDebugEnabled)
 {
     globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     globalBackgroundMode = BackgroundMode::NONE;
     globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
+    globalGlutDebugEnabled = false;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
     Options::parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
 
@@ -203,6 +208,7 @@ CommandLine::commandLineGeneralProgramParseOptions(
     *conicSubDivisions = globalNumberOfQuarterCircleDivisions;
     *imageOutputWidth = globalOutputImageWidth;
     *imageOutputHeight = globalOutputImageHeight;
+    *glutDebugEnabled = globalGlutDebugEnabled;
 }
 
 void

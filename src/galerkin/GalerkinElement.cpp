@@ -503,21 +503,27 @@ GalerkinElement::vertices(Vector3D *p) const {
         }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        uv.u = 0.0f;
-        uv.v = 1.0f;
-        if ( transformToParent != nullptr ) {
-            topTrans.transformPoint2D(uv, uv);
-        }
-        patch->uniformPoint(uv.u, uv.v, &p[2]);
-
         if ( patch->numberOfVertices == 4 ) {
             uv.u = 1.0f;
             uv.v = 1.0f;
             if ( transformToParent != nullptr ) {
                 topTrans.transformPoint2D(uv, uv);
             }
+            patch->uniformPoint(uv.u, uv.v, &p[2]);
+
+            uv.u = 0.0f;
+            uv.v = 1.0f;
+            if ( transformToParent != nullptr ) {
+                topTrans.transformPoint2D(uv, uv);
+            }
             patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
+            uv.u = 0.0f;
+            uv.v = 1.0f;
+            if ( transformToParent != nullptr ) {
+                topTrans.transformPoint2D(uv, uv);
+            }
+            patch->uniformPoint(uv.u, uv.v, &p[2]);
             p[3].set(0.0f, 0.0f, 0.0f);
         }
 

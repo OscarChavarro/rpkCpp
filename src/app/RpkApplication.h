@@ -17,6 +17,7 @@ class RpkApplication {
     ToneMappingContext toneMapOptions;
     RenderOptions *renderOptions;
     RayTracer *rayTracer;
+    bool glutDebugEnabled;
 
     void selectToneMapByName(const char *name);
     static void mainInitApplication();

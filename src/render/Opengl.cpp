@@ -1,7 +1,11 @@
 #include "common/RenderOptions.h"
 
 #ifdef OPEN_GL_ENABLED
-    #include <GL/glu.h>
+    #ifdef __APPLE__
+        #include <OpenGL/glu.h>
+    #else
+        #include <GL/glu.h>
+    #endif
 
     #include "common/Error.h"
 #include "render/RenderHookList.h"

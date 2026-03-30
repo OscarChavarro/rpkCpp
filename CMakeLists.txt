@@ -7,8 +7,8 @@ endif()
 
 if(APPLE)
     add_compile_options(-std=c++17 -Wall -pedantic)
-    include_directories(/opt/X11/include)
-    link_directories(/opt/X11/lib)
+    find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
+    find_library(GLUT_FRAMEWORK GLUT REQUIRED)
 endif()
 
 add_compile_options(-ffast-math -O3)
@@ -259,4 +259,10 @@ set(MAIN_SRC
 
 add_executable(rpk ${MAIN_SRC})
 
-target_link_libraries(rpk GLU GL glut)
+if(APPLE)
+    message(STATUS "Using native macOS frameworks: ${OPENGL_FRAMEWORK}, ${GLUT_FRAMEWORK}")
+    target_compile_definitions(rpk PRIVATE GL_SILENCE_DEPRECATION)
+    target_link_libraries(rpk ${OPENGL_FRAMEWORK} ${GLUT_FRAMEWORK})
+else()
+    target_link_libraries(rpk GLU GL glut)
+endif()
