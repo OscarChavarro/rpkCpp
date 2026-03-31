@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "common/linealAlgebra/Numeric.h"
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/ColorContext.h"

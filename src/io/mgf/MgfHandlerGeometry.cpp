@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"

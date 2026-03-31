@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
 

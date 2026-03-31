@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"

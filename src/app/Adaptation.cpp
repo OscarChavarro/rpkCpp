@@ -2,6 +2,8 @@
 Estimate static adaptation for tone mapping
 */
 
+#include <cstdlib>
+
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"

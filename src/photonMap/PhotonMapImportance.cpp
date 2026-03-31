@@ -1,3 +1,5 @@
+#include <cstdlib>
+
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED

@@ -1,6 +1,9 @@
 /**
 Random walk generation
 */
+
+#include <cstdlib>
+
 #include "java/lang/System.h"
 #include "common/RenderOptions.h"
 
