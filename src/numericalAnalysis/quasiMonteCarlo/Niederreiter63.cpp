@@ -17,7 +17,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Tue Nov 7 2000
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter63.h"
 #include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
-static unsigned long long cj[DIMEN][NBITS] = {
+const unsigned long long Niederreiter63::directionNumbers[Niederreiter63::DIMEN][Niederreiter63::NBITS] = {
     {
         0x4000000000000000uLL, 0x2000000000000000uLL, 0x1000000000000000uLL, 0x0800000000000000uLL,
         0x0400000000000000uLL, 0x0200000000000000uLL, 0x0100000000000000uLL, 0x0080000000000000uLL,
@@ -92,11 +92,15 @@ static unsigned long long cj[DIMEN][NBITS] = {
     }
 };
 
-static NiederreiterCore<unsigned long long, DIMEN, NBITS> globalNiederreiter63(cj, SKIP, NBITS_POW, NBITS_POW1);
+NiederreiterCore<unsigned long long, Niederreiter63::DIMEN, Niederreiter63::NBITS> Niederreiter63::core(
+    Niederreiter63::directionNumbers,
+    Niederreiter63::SKIP,
+    Niederreiter63::NBITS_POW,
+    Niederreiter63::NBITS_POW1);
 
 unsigned long long *
 Niederreiter63::Nied63(unsigned long long index) {
-    return globalNiederreiter63.sample(index);
+    return core.sample(index);
 }
 
 unsigned long long *
@@ -107,17 +111,17 @@ Niederreiter63::NextNiedInRange63(
     unsigned long long msb1,
     unsigned long long rmsb2)
 {
-    return globalNiederreiter63.nextInRange(idx, dir, nmsb, msb1, rmsb2);
+    return core.nextInRange(idx, dir, nmsb, msb1, rmsb2);
 }
 
 unsigned long long
 Niederreiter63::radicalInverse63(unsigned long long n) {
-    return globalNiederreiter63.radicalInverse(n);
+    return core.radicalInverse(n);
 }
 
 void
 Niederreiter63::foldSample63(unsigned long long *xi1, unsigned long long *xi2) {
-    globalNiederreiter63.foldSample(xi1, xi2);
+    core.foldSample(xi1, xi2);
 }
 
 #endif

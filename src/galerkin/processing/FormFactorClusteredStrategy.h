@@ -14,7 +14,7 @@ class FormFactorClusteredStrategy {
         Interaction *link,
         const CubatureRule *cubatureRuleRcv,
         const CubatureRule *cubatureRuleSrc,
-        double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES]);
+        double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES]);
 
     static double
     geomListMultiResolutionVisibility(

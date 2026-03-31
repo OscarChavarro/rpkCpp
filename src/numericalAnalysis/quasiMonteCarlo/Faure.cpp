@@ -6,36 +6,36 @@ Faure's quasiMonteCarlo sequences
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 #include "numericalAnalysis/quasiMonteCarlo/FaureSequenceLimits.h"
 
-static int globalIx[FAURE_MAX_DIMENSION][FAURE_MAX_PRIME_DIGITS];  // PR part presentation of x
-static int globalDim;
-static int globalPR;
-static int globalPrime[FAURE_MAX_DIMENSION] = {2, 3, 5, 5, 7, 7, 11, 11, 11, 11};
+constexpr int Faure::prime[FaureSequenceLimits::MAX_DIMENSION];
+int Faure::ix[FaureSequenceLimits::MAX_DIMENSION][FaureSequenceLimits::MAX_PRIME_DIGITS] = {};  // PR part representation of x
+int Faure::dimension = 0;
+int Faure::primeBase = 0;
 
-// diameter[s] is 1e diameter >s
-static int globalNextN;
-static int globalSkip;
-static int globalNDigits;
-static int C[FAURE_MAX_DIMENSION][FAURE_MAX_PRIME_DIGITS][FAURE_MAX_PRIME_DIGITS]; // generator matrix
+// diameter[s] is 1e diameter > s
+int Faure::nextN = 0;
+int Faure::skip = 0;
+int Faure::nDigits = 0;
+int Faure::generatorMatrix[FaureSequenceLimits::MAX_DIMENSION][FaureSequenceLimits::MAX_PRIME_DIGITS][FaureSequenceLimits::MAX_PRIME_DIGITS] = {};
 
 int
 Faure::setFaureC() {
-    // First set up C[0][][] (transposed Pascal matrix)
-    for ( int j = 0; j < globalNDigits; j++ ) {
-        for ( int k = j; k < globalNDigits; k++ ) {
+    // First set up generatorMatrix[0][][] (transposed Pascal matrix)
+    for ( int j = 0; j < nDigits; j++ ) {
+        for ( int k = j; k < nDigits; k++ ) {
             if ( j == 0 || j == k ) {
-                C[0][j][k] = 1;
+                generatorMatrix[0][j][k] = 1;
             } else {
-                C[0][j][k] = (C[0][j][k - 1] + C[0][j - 1][k - 1]) % globalPR;
+                generatorMatrix[0][j][k] = (generatorMatrix[0][j][k - 1] + generatorMatrix[0][j - 1][k - 1]) % primeBase;
             }
         }
     }
 
-    // Use C[0][][] to compose C[i][][]
-    // C[0] is overwritten if i=0 -> becomes unit matrix
-    for ( int i = globalDim - 1; i >= 0; i-- ) {
-        for ( int j = 0; j < globalNDigits; j++ ) {
-            for ( int k = j; k < globalNDigits; k++ ) {
-                C[i][j][k] = (C[0][j][k] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(k - j)))) % globalPR;
+    // Use generatorMatrix[0][][] to compose generatorMatrix[i][][]
+    // generatorMatrix[0] is overwritten if i=0 -> becomes unit matrix
+    for ( int i = dimension - 1; i >= 0; i-- ) {
+        for ( int j = 0; j < nDigits; j++ ) {
+            for ( int k = j; k < nDigits; k++ ) {
+                generatorMatrix[i][j][k] = (generatorMatrix[0][j][k] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(k - j)))) % primeBase;
             }
         }
     }
@@ -45,32 +45,32 @@ Faure::setFaureC() {
 
 int
 Faure::setGFaureC() {
-    unsigned P[FAURE_MAX_PRIME_DIGITS][FAURE_MAX_PRIME_DIGITS];
+    unsigned P[FaureSequenceLimits::MAX_PRIME_DIGITS][FaureSequenceLimits::MAX_PRIME_DIGITS];
 
     // Pascal matrix
-    for ( int j = 0; j < globalNDigits; j++ ) {
+    for ( int j = 0; j < nDigits; j++ ) {
         P[j][0] = 1;
         P[j][j] = 1;
     }
 
-    for ( int j = 1; j < globalNDigits; j++ ) {
+    for ( int j = 1; j < nDigits; j++ ) {
         for ( int k = 1; k < j; k++ ) {
-            P[j][k] = (P[j - 1][k - 1] + P[j - 1][k]) % globalPR;
+            P[j][k] = (P[j - 1][k - 1] + P[j - 1][k]) % primeBase;
         }
-        for ( int k = j + 1; k < globalNDigits; k++ ) {
+        for ( int k = j + 1; k < nDigits; k++ ) {
             P[j][k] = 0;
         }
     }
 
     // [Tezuka95, p179-180]
-    for ( int i = 0; i < globalDim; i++ ) {
-        // Compute C[i]
-        for ( int m = 0; m < globalNDigits; m++ ) {
-            for ( int n = 0; n < globalNDigits; n++ ) {
+    for ( int i = 0; i < dimension; i++ ) {
+        // Compute generatorMatrix[i]
+        for ( int m = 0; m < nDigits; m++ ) {
+            for ( int n = 0; n < nDigits; n++ ) {
                 int Q = m < n ? m : n;
-                C[i][m][n] = 0;
+                generatorMatrix[i][m][n] = 0;
                 for ( int q = 0; q <= Q; q++ ) {
-                    C[i][m][n] = static_cast<int>(C[i][m][n] + P[m][q] * P[n][q] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(m + n - 2 * q)))) % globalPR;
+                    generatorMatrix[i][m][n] = static_cast<int>(generatorMatrix[i][m][n] + P[m][q] * P[n][q] * static_cast<int>(java::Math::pow(static_cast<float>(i), static_cast<float>(m + n - 2 * q)))) % primeBase;
                 }
             }
         }
@@ -87,26 +87,26 @@ seed to it's Gray code
 double *
 Faure::nextFaure() {
     int save;
-    static double x[FAURE_MAX_DIMENSION];
+    static double x[FaureSequenceLimits::MAX_DIMENSION];
     double xx;
 
-    save = globalNextN;
+    save = nextN;
     int k = 1;
-    while ( (save % globalPR) == (globalPR - 1) ) {
+    while ( (save % primeBase) == (primeBase - 1) ) {
         k = k + 1;
-        save = save / globalPR;
+        save = save / primeBase;
     }
-    for ( int i = 0; i < globalDim && i < FAURE_MAX_DIMENSION; i++ ) {
+    for ( int i = 0; i < dimension && i < FaureSequenceLimits::MAX_DIMENSION; i++ ) {
         xx = 0;
-        for ( int j = globalNDigits - 1; j >= 0; j-- ) {
-            if ( j < FAURE_MAX_PRIME_DIGITS ) {
-                globalIx[i][j] = (globalIx[i][j] + C[i][j][k - 1]) % globalPR;
-                xx = xx / globalPR + globalIx[i][j];
+        for ( int j = nDigits - 1; j >= 0; j-- ) {
+            if ( j < FaureSequenceLimits::MAX_PRIME_DIGITS ) {
+                ix[i][j] = (ix[i][j] + generatorMatrix[i][j][k - 1]) % primeBase;
+                xx = xx / primeBase + ix[i][j];
             }
         }
-        x[i] = xx / globalPR;
+        x[i] = xx / primeBase;
     }
-    globalNextN += 1;
+    nextN += 1;
     return x;
 }
 
@@ -116,22 +116,22 @@ Return sample with given index
 double *
 Faure::faure(int seed) {
     int save;
-    static double x[FAURE_MAX_DIMENSION];
+    static double x[FaureSequenceLimits::MAX_DIMENSION];
     double xx;
 
-    globalNextN = seed + globalSkip + 1;
-    for ( int i = 0; i < globalDim; i++ ) {
+    nextN = seed + skip + 1;
+    for ( int i = 0; i < dimension; i++ ) {
         xx = 0;
-        for ( int j = globalNDigits - 1; j >= 0; j-- ) {
-            save = globalNextN;
-            globalIx[i][j] = 0;
-            for ( int k = 0; k < globalNDigits; k++ ) {
-                globalIx[i][j] = (globalIx[i][j] + C[i][j][k] * save) % globalPR;
-                save /= globalPR;
+        for ( int j = nDigits - 1; j >= 0; j-- ) {
+            save = nextN;
+            ix[i][j] = 0;
+            for ( int k = 0; k < nDigits; k++ ) {
+                ix[i][j] = (ix[i][j] + generatorMatrix[i][j][k] * save) % primeBase;
+                save /= primeBase;
             }
-            xx = xx / globalPR + globalIx[i][j];
+            xx = xx / primeBase + ix[i][j];
         }
-        x[i] = xx / globalPR;
+        x[i] = xx / primeBase;
     }
     return x;
 }
@@ -141,19 +141,19 @@ Initialize for Original Faure sequence
 */
 void
 Faure::initOriginalFaureSequence(int iDim) {
-    globalDim = iDim;
-    globalNextN = 0;
-    globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(FAURE_MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
+    dimension = iDim;
+    nextN = 0;
+    primeBase = prime[dimension - 1];
+    nDigits = static_cast<int>(java::Math::log(static_cast<double>(FaureSequenceLimits::MAX_SEED)) / java::Math::log(static_cast<double>(primeBase)) + 1);
     Faure::setFaureC();
-    for ( int i = 0; i < globalDim; i++ ) {
-        for ( int j = 0; j < globalNDigits; j++ ) {
-            globalIx[i][j] = 0;
+    for ( int i = 0; i < dimension; i++ ) {
+        for ( int j = 0; j < nDigits; j++ ) {
+            ix[i][j] = 0;
         }
     }
 
-    globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f)) - 1;
-    for ( int i = 1; i <= globalSkip; i++ ) {
+    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0f)) - 1;
+    for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();
     }
@@ -164,19 +164,19 @@ Initialize for generalized Faure sequence
 */
 void
 Faure::initGeneralizedFaureSequence(int iDim) {
-    globalDim = iDim;
-    globalNextN = 0;
-    globalPR = globalPrime[globalDim - 1];
-    globalNDigits = static_cast<int>(java::Math::log(static_cast<double>(FAURE_MAX_SEED)) / java::Math::log(static_cast<double>(globalPR)) + 1);
+    dimension = iDim;
+    nextN = 0;
+    primeBase = prime[dimension - 1];
+    nDigits = static_cast<int>(java::Math::log(static_cast<double>(FaureSequenceLimits::MAX_SEED)) / java::Math::log(static_cast<double>(primeBase)) + 1);
     Faure::setGFaureC();
-    for ( int i = 0; i < globalDim; i++ ) {
-        for ( int j = 0; j < globalNDigits; j++ ) {
-            globalIx[i][j] = 0;
+    for ( int i = 0; i < dimension; i++ ) {
+        for ( int j = 0; j < nDigits; j++ ) {
+            ix[i][j] = 0;
         }
     }
 
-    globalSkip = static_cast<int>(java::Math::pow(static_cast<float>(globalPR), 4.0f) - 1);
-    for ( int i = 1; i <= globalSkip; i++ ) {
+    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0f) - 1);
+    for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();
     }

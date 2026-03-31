@@ -2,7 +2,7 @@
 #define __VERTEX_REPOSITORY__
 
 #include "io/context/LookUpTable.h"
-#include "VertexContext.h"
+#include "io/context/VertexContext.h"
 
 class VertexRepository {
   public:

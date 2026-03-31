@@ -40,8 +40,8 @@ SamplerConfig::getRand(int depth, double *x1, double *x2) const {
             *x2 = drand48();
         } else if ( depth == 1 ) {
             const unsigned *nrs = Niederreiter31::niederreiter31(m_qmcSeed[1]++);
-            *x1 = nrs[0] * RECIP;
-            *x2 = nrs[1] * RECIP;
+            *x1 = nrs[0] * Niederreiter31::RECIP;
+            *x2 = nrs[1] * Niederreiter31::RECIP;
         } else {
             java::lang::System::out.printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
             *x1 = drand48();

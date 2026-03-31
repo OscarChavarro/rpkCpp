@@ -9,31 +9,39 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4
     #error "Niederreiter63.h and Niederreiter31.h cannot be included in the same source file"
 #endif
 
-// Number of samples to be skipped from the beginning of the series in order to
-// deal with the "initial zeroes" phenomenon
-constexpr unsigned SKIP = 4096;
-
-// Dimension of the samples generated
-constexpr unsigned DIMEN = 4;
-
-// Number of bits in an integer, excluding the sign bit
-constexpr unsigned NBITS = 31;
-
-// 1/2^NBITS
-constexpr double RECIP = 1.0 / 2147483648.0;
-
-// 2^NBITS
-constexpr double RECIP1 = 2147483648.0;
-
-// 2^NBITS
-constexpr unsigned NBITS_POW = (1u << NBITS);
-
-// 2^(NBITS-1)
-constexpr unsigned NBITS_POW1 = (1u << (NBITS - 1));
-
 typedef unsigned NiederreiterIndex;
 
+template<typename IndexType, unsigned Dimension, unsigned NumberOfBits>
+class NiederreiterCore;
+
 class Niederreiter31 {
+  public:
+    // Number of samples to be skipped from the beginning of the series in order to
+    // deal with the "initial zeroes" phenomenon
+    static constexpr unsigned SKIP = 4096;
+
+    // Dimension of the samples generated
+    static constexpr unsigned DIMEN = 4;
+
+    // Number of bits in an integer, excluding the sign bit
+    static constexpr unsigned NBITS = 31;
+
+    // 1/2^NBITS
+    static constexpr double RECIP = 1.0 / 2147483648.0;
+
+    // 2^NBITS
+    static constexpr double RECIP1 = 2147483648.0;
+
+    // 2^NBITS
+    static constexpr unsigned NBITS_POW = (1u << NBITS);
+
+    // 2^(NBITS-1)
+    static constexpr unsigned NBITS_POW1 = (1u << (NBITS - 1));
+
+  private:
+    static const unsigned directionNumbers[DIMEN][NBITS];
+    static NiederreiterCore<unsigned, DIMEN, NBITS> core;
+
   public:
     static unsigned *niederreiter31(unsigned index);
 

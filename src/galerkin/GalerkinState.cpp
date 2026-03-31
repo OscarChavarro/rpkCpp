@@ -85,5 +85,5 @@ GalerkinState::GalerkinState():
     TriangleCubatureRule::setTriangleCubatureRules(&sourceTriangleCubatureRule, sourceDegree);
     QuadCubatureRule::setQuadCubatureRules(&receiverQuadCubatureRule, receiverDegree);
     QuadCubatureRule::setQuadCubatureRules(&sourceQuadCubatureRule, sourceDegree);
-    clusterRule = &GLOBAL_crv1;
+    clusterRule = QuadCubatureRule::degree1BoxRule();
 }

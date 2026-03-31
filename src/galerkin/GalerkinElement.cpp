@@ -3,6 +3,7 @@
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/TriangleCubatureRule.h"
 #include "render/Opengl.h"
 #include "render/Render.h"
 #include "galerkin/GalerkinBasis.h"
@@ -697,6 +698,8 @@ GalerkinElement::render(const RenderOptions *renderOptions) const {
 
 void
 GalerkinElement::initializeBasis() {
-    GalerkinBasis::computeRegularFilterCoefficients(&GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, &GLOBAL_crq8);
-    GalerkinBasis::computeRegularFilterCoefficients(&GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, &GLOBAL_crt8);
+    GalerkinBasis::computeRegularFilterCoefficients(
+        &GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, QuadCubatureRule::degree8QuadrilateralRule());
+    GalerkinBasis::computeRegularFilterCoefficients(
+        &GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, TriangleCubatureRule::degree8Rule());
 }

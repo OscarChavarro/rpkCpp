@@ -356,7 +356,7 @@ StochasticRadiosityElement::stochasticRadiosityElementRange(
     while ( elem->childNumber >= 0 ) {
         nb++;
         b1 = (b1 << 1) | static_cast<unsigned long long>(elem->childNumber & 1);
-        b2 = (b2 >> 1) | (static_cast<unsigned long long>(elem->childNumber & 2) << (NBITS - 2));
+        b2 = (b2 >> 1) | (static_cast<unsigned long long>(elem->childNumber & 2) << (Niederreiter::NBITS - 2));
         elem = static_cast<StochasticRadiosityElement *>(elem->parent);
     }
 
@@ -695,7 +695,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     for ( int i = 0; i < numberOfSamples; i++, n++ ) {
         ColorRgb sample;
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
-        hit.setUv(static_cast<double>(xi[0]) * RECIP, static_cast<double>(xi[1]) * RECIP);
+        hit.setUv(static_cast<double>(xi[0]) * Niederreiter::RECIP, static_cast<double>(xi[1]) * Niederreiter::RECIP);
         unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();

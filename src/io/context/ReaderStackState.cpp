@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "io/context/ReaderStackState.h"
-#include "EntityHandler.h"
+#include "io/context/EntityHandler.h"
 
 ReaderStackState::ReaderStackState():
     entityNames(),

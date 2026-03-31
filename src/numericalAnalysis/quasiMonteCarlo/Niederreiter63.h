@@ -13,31 +13,39 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 63 bits, skip 4
 
 /** All this makes no sense if you don't have 64-bit integers */
 
-// Number of samples to be skipped from the beginning of the
-// series in order to deal with the "initial zeroes" phenomenon
-constexpr unsigned SKIP = 4096;
-
-// Dimension of the samples generated
-constexpr unsigned DIMEN = 4;
-
-// Number of bits in an integer, excluding the sign bit
-constexpr unsigned NBITS = 63;
-
-// 2 ^ NBITS
-constexpr unsigned long long NBITS_POW = (1uLL << NBITS);
-
-// 2 ^ (NBITS - 1)
-constexpr unsigned long long NBITS_POW1 = (1uLL << (NBITS - 1));
-
-// 1 / 2^NBITS
-constexpr double RECIP = 1.0 / 9223372036854775808.0;
-
-// 2 ^ NBITS
-constexpr double RECIP1 = 9223372036854775808.0;
-
 typedef unsigned long long NiederreiterIndex;
 
+template<typename IndexType, unsigned Dimension, unsigned NumberOfBits>
+class NiederreiterCore;
+
 class Niederreiter63 {
+  public:
+    // Number of samples to be skipped from the beginning of the
+    // series in order to deal with the "initial zeroes" phenomenon
+    static constexpr unsigned SKIP = 4096;
+
+    // Dimension of the samples generated
+    static constexpr unsigned DIMEN = 4;
+
+    // Number of bits in an integer, excluding the sign bit
+    static constexpr unsigned NBITS = 63;
+
+    // 2 ^ NBITS
+    static constexpr unsigned long long NBITS_POW = (1uLL << NBITS);
+
+    // 2 ^ (NBITS - 1)
+    static constexpr unsigned long long NBITS_POW1 = (1uLL << (NBITS - 1));
+
+    // 1 / 2^NBITS
+    static constexpr double RECIP = 1.0 / 9223372036854775808.0;
+
+    // 2 ^ NBITS
+    static constexpr double RECIP1 = 9223372036854775808.0;
+
+  private:
+    static const unsigned long long directionNumbers[DIMEN][NBITS];
+    static NiederreiterCore<unsigned long long, DIMEN, NBITS> core;
+
   public:
     static unsigned long long *
     Nied63(unsigned long long index);

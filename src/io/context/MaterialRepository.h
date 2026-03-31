@@ -2,7 +2,7 @@
 #define __MATERIAL_REPOSITORY__
 
 #include "io/context/LookUpTable.h"
-#include "MaterialContext.h"
+#include "io/context/MaterialContext.h"
 
 class MaterialRepository {
   public:

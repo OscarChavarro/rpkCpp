@@ -1,15 +1,12 @@
 #include "java/lang/Math.h"
 #include "numericalAnalysis/quasiMonteCarlo/Sobol.h"
 
-static constexpr int MAX_DIM = 5;
-static constexpr int V_MAX = 30;
-
-static int dim;
-static int nextN;
-static int x[MAX_DIM];
-static int v[MAX_DIM][V_MAX];
-static int skip;
-static double RECIP;
+int Sobol::dim = 0;
+int Sobol::nextN = 0;
+int Sobol::x[Sobol::MAX_DIM] = {};
+int Sobol::v[Sobol::MAX_DIM][Sobol::V_MAX] = {};
+int Sobol::skip = 0;
+double Sobol::recip = 0.0;
 
 double *
 Sobol::nextSobol() {
@@ -23,7 +20,7 @@ Sobol::nextSobol() {
     }
     for ( int i = 0; i < dim; i++ ) {
         x[i] = x[i] ^ (v[i][c - 1] << (V_MAX - c));
-        xx[i] = x[i] * RECIP;
+        xx[i] = x[i] * recip;
     }
     nextN += 1;
 
@@ -53,7 +50,7 @@ Sobol::sobol(int seed) {
             gray >>= 1;
         }
 
-        xx[i] = x[i] * RECIP;
+        xx[i] = x[i] * recip;
     }
 
     return xx;
@@ -66,7 +63,7 @@ Sobol::initSobol(int iDim) {
 
     nextN = 0;
     dim = iDim;
-    RECIP = 1.0 / java::Math::pow(2.0, V_MAX);
+    recip = 1.0 / java::Math::pow(2.0, V_MAX);
 
     // Reading primitive polynomials
     POLY[0] = 3;

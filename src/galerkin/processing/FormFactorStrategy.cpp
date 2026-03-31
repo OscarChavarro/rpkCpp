@@ -74,7 +74,7 @@ FormFactorStrategy::determineNodes(
         const GalerkinRole role,
         const GalerkinState *galerkinState,
         CubatureRule **cr,
-        Vector3D x[CUBATURE_MAXIMUM_NODES])
+        Vector3D x[CubatureRule::MAXIMUM_NODES])
 {
     Matrix2x2 topTransform{};
 
@@ -235,7 +235,7 @@ inline void
 FormFactorStrategy::computeInteractionFormFactor(
     const CubatureRule *receiverCubatureRule,
     const CubatureRule *sourceCubatureRule,
-    const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+    const double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES],
     const GalerkinElement *sourceElement,
     const GalerkinElement *receiverElement,
     const GalerkinBasis *sourceBasis,
@@ -248,7 +248,7 @@ FormFactorStrategy::computeInteractionFormFactor(
 {
     // 1. Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     //    receiver patch for all basis functions \alpha
-    double receiverPhi[MAX_BASIS_SIZE][CUBATURE_MAXIMUM_NODES]{};
+    double receiverPhi[MAX_BASIS_SIZE][CubatureRule::MAXIMUM_NODES]{};
 
     for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
         if ( receiverElement->isCluster() ) {
@@ -266,9 +266,9 @@ FormFactorStrategy::computeInteractionFormFactor(
     }
 
     // 2. Start with clean deltaRadiance
-    double sourcePhi[CUBATURE_MAXIMUM_NODES]{};
+    double sourcePhi[CubatureRule::MAXIMUM_NODES]{};
 
-    for ( int i = 0; i < CUBATURE_MAXIMUM_NODES; i++ ) {
+    for ( int i = 0; i < CubatureRule::MAXIMUM_NODES; i++ ) {
         sourcePhi[i] = 0.0;
     }
 
@@ -293,8 +293,8 @@ FormFactorStrategy::computeInteractionFormFactor(
             }
         }
 
-        double gBeta[CUBATURE_MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
-        double deltaBeta[CUBATURE_MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
+        double gBeta[CubatureRule::MAXIMUM_NODES]; // G_beta[k] = G_{j,\beta}(x_k)
+        double deltaBeta[CubatureRule::MAXIMUM_NODES]; // delta_beta[k] = \delta_{j,\beta}(x_k)
 
         for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
             // Compute point-to-patch form factors for positions x_k on receiver and
@@ -385,7 +385,7 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     Interaction *twoPatchesInteraction,
     const CubatureRule *receiverCubatureRule,
     const CubatureRule *sourceCubatureRule,
-    const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+    const double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES],
     const GalerkinState *galerkinState)
 {
     // 1. Receiver and source basis description
@@ -412,7 +412,7 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
     // 2. Compute form factor (sets K)
     const ColorRgb *sourceRadiance = (galerkinState->galerkinIterationMethod == SOUTH_WELL) ?
          sourceElement->unShotRadiance : sourceElement->radiance;
-    ColorRgb deltaRadiance[CUBATURE_MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
+    ColorRgb deltaRadiance[CubatureRule::MAXIMUM_NODES]; // See Bekaert & Willems, p159 bottom
     double gMin = Numeric::HUGE_DOUBLE_VALUE;
     double gMax = -Numeric::HUGE_DOUBLE_VALUE;
 
@@ -489,8 +489,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // in order to prevent re-computation
     static CubatureRule *receiveCubatureRule = nullptr; // Cubature rules to be used over the
     static CubatureRule *sourceCubatureRule = nullptr; // Receiving patch and source patch
-    static Vector3D x[CUBATURE_MAXIMUM_NODES];
-    static Vector3D y[CUBATURE_MAXIMUM_NODES];
+    static Vector3D x[CubatureRule::MAXIMUM_NODES];
+    static Vector3D y[CubatureRule::MAXIMUM_NODES];
 
     // TODO: To make this re-entrant, should use the class as instanced objects,
     // one per thread, and move static global variables to usual class attributes
@@ -569,7 +569,7 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     // and the receiver element if at least receiver or source changed since
     // last time
     double maximumKernelValue = 0.0;
-    double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES];
+    double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES];
     unsigned visibilityCount = 0; // Number of rays that "pass" occluders
 
         if ( receiverElement != formFactorLastReceived || sourceElement != formFactorLastSource ) {

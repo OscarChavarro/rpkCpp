@@ -6,9 +6,7 @@
     #include <GL/glut.h>
 #endif
 
-#include <cmath>
 #include <cstdlib>
-#include <vector>
 
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "java/util/ArrayList.txx"
@@ -311,8 +309,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
     Ray ray;
     buildPickRay(model, x, y, &ray);
 
-    std::vector<PatchHitCandidate> hitCandidates;
-    hitCandidates.reserve(model.scene->patchList->size());
+    java::ArrayList<PatchHitCandidate> hitCandidates(model.scene->patchList->size());
 
     for ( int i = 0; i < model.scene->patchList->size(); i++ ) {
         Patch *patch = model.scene->patchList->get(i);
@@ -334,11 +331,11 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         if ( intersection != nullptr ) {
             const unsigned int flags = hit.getFlags();
             const bool frontFacing = (flags & RayHitFlag::FRONT) != 0;
-            hitCandidates.push_back(PatchHitCandidate{i, maxDistance, frontFacing});
+            hitCandidates.add(PatchHitCandidate{i, maxDistance, frontFacing});
         }
     }
 
-    if ( hitCandidates.empty() ) {
+    if ( hitCandidates.size() <= 0 ) {
         return false;
     }
 
@@ -347,7 +344,8 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
     float nearestBackDistance = Numeric::HUGE_FLOAT_VALUE;
     int nearestBackPatchIndex = -1;
 
-    for ( const PatchHitCandidate &candidate : hitCandidates ) {
+    for ( int i = 0; i < hitCandidates.size(); i++ ) {
+        const PatchHitCandidate candidate = hitCandidates.get(i);
         if ( candidate.frontFacing ) {
             if ( candidate.distance < nearestFrontDistance ) {
                 nearestFrontDistance = candidate.distance;

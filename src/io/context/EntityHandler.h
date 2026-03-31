@@ -2,7 +2,7 @@
 #define __MGF_ENTITY_HANDLER__
 
 #include "io/context/ParseSession.h"
-#include "HandlerType.h"
+#include "io/context/HandlerType.h"
 
 class EntityHandler {
   public:

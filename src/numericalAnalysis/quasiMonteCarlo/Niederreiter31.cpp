@@ -13,7 +13,7 @@ Philippe.Bekaert@cs.kuleuven.ac.be, Thu Oct 23 1997
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
-static unsigned cj[DIMEN][NBITS] = {
+const unsigned Niederreiter31::directionNumbers[Niederreiter31::DIMEN][Niederreiter31::NBITS] = {
     {
         0x40000000, 0x20000000, 0x10000000, 0x08000000,
         0x04000000, 0x02000000, 0x01000000, 0x00800000,
@@ -56,11 +56,15 @@ static unsigned cj[DIMEN][NBITS] = {
     }
 };
 
-static NiederreiterCore<unsigned, DIMEN, NBITS> globalNiederreiter31(cj, SKIP, NBITS_POW, NBITS_POW1);
+NiederreiterCore<unsigned, Niederreiter31::DIMEN, Niederreiter31::NBITS> Niederreiter31::core(
+    Niederreiter31::directionNumbers,
+    Niederreiter31::SKIP,
+    Niederreiter31::NBITS_POW,
+    Niederreiter31::NBITS_POW1);
 
 unsigned *
 Niederreiter31::niederreiter31(unsigned index) {
-    return globalNiederreiter31.sample(index);
+    return core.sample(index);
 }
 
 unsigned *
@@ -71,15 +75,15 @@ Niederreiter31::NextNiedInRange31(
     unsigned msb1,
     unsigned rmsb2)
 {
-    return globalNiederreiter31.nextInRange(idx, dir, nmsb, msb1, rmsb2);
+    return core.nextInRange(idx, dir, nmsb, msb1, rmsb2);
 }
 
 unsigned
 Niederreiter31::radicalInverse31(unsigned n) {
-    return globalNiederreiter31.radicalInverse(n);
+    return core.radicalInverse(n);
 }
 
 void
 Niederreiter31::foldSample31(unsigned *xi1, unsigned *xi2) {
-    globalNiederreiter31.foldSample(xi1, xi2);
+    core.foldSample(xi1, xi2);
 }

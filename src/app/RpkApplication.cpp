@@ -62,8 +62,6 @@ Global initializations
 */
 void
 RpkApplication::mainInitApplication() {
-    QuadCubatureRule::fixCubatureRules();
-
     // Default vertex compare flags: both location and normal is relevant. Two
     // vertices without normal, but at the same location, are to be considered
     // different

@@ -113,10 +113,10 @@ Sample4d::sample4D(unsigned seed) {
             break;
         case Sampler4DSequence::NIEDERREITER:
             zeta = Niederreiter31::niederreiter31(seed);
-            xi[0] = zeta[0] * RECIP;
-            xi[1] = zeta[1] * RECIP;
-            xi[2] = zeta[2] * RECIP;
-            xi[3] = zeta[3] * RECIP;
+            xi[0] = zeta[0] * Niederreiter31::RECIP;
+            xi[1] = zeta[1] * Niederreiter31::RECIP;
+            xi[2] = zeta[2] * Niederreiter31::RECIP;
+            xi[3] = zeta[3] * Niederreiter31::RECIP;
             break;
         default:
             Error::fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
@@ -141,9 +141,9 @@ Sample4d::foldSampleU(unsigned *xi1, unsigned *xi2) {
 
 void
 Sample4d::foldSampleF(double *xi1, double *xi2) {
-    unsigned zeta1 = static_cast<unsigned>(*xi1 * RECIP1);
-    unsigned zeta2 = static_cast<unsigned>(*xi2 * RECIP1);
+    unsigned zeta1 = static_cast<unsigned>(*xi1 * Niederreiter31::RECIP1);
+    unsigned zeta2 = static_cast<unsigned>(*xi2 * Niederreiter31::RECIP1);
     Sample4d::foldSampleU(&zeta1, &zeta2);
-    *xi1 = zeta1 * RECIP;
-    *xi2 = zeta2 * RECIP;
+    *xi1 = zeta1 * Niederreiter31::RECIP;
+    *xi2 = zeta2 * Niederreiter31::RECIP;
 }

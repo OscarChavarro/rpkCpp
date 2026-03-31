@@ -5,7 +5,7 @@
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/LookUpTable.h"
 #include "io/context/ReaderContext.h"
-#include "HandlerType.h"
+#include "io/context/HandlerType.h"
 
 class EntityHandler;
 

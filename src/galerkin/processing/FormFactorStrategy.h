@@ -36,7 +36,7 @@ class FormFactorStrategy {
         GalerkinRole role,
         const GalerkinState *galerkinState,
         CubatureRule **cr,
-        Vector3D x[CUBATURE_MAXIMUM_NODES]);
+        Vector3D x[CubatureRule::MAXIMUM_NODES]);
 
     static double
     evaluatePointsPairKernel(
@@ -56,7 +56,7 @@ class FormFactorStrategy {
         Interaction *twoPatchesInteraction,
         const CubatureRule *receiverCubatureRule,
         const CubatureRule *sourceCubatureRule,
-        const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+        const double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES],
         const GalerkinState *galerkinState);
 
     static inline void
@@ -73,7 +73,7 @@ class FormFactorStrategy {
     computeInteractionFormFactor(
         const CubatureRule *receiverCubatureRule,
         const CubatureRule *sourceCubatureRule,
-        const double Gxy[CUBATURE_MAXIMUM_NODES][CUBATURE_MAXIMUM_NODES],
+        const double Gxy[CubatureRule::MAXIMUM_NODES][CubatureRule::MAXIMUM_NODES],
         const GalerkinElement *sourceElement,
         const GalerkinElement *receiverElement,
         const GalerkinBasis *sourceBasis,

@@ -514,10 +514,10 @@ Stochjacobi::stochasticJacobiNextSample(
     if ( elem->numberOfVertices == 3 ) {
         Niederreiter::foldSample(&u, &v);
     }
-    zeta[0] = static_cast<double>(u) * RECIP;
-    zeta[1] = static_cast<double>(v) * RECIP;
-    zeta[2] = static_cast<double>(xi[2]) * RECIP;
-    zeta[3] = static_cast<double>(xi[3]) * RECIP;
+    zeta[0] = static_cast<double>(u) * Niederreiter::RECIP;
+    zeta[1] = static_cast<double>(v) * Niederreiter::RECIP;
+    zeta[2] = static_cast<double>(xi[2]) * Niederreiter::RECIP;
+    zeta[3] = static_cast<double>(xi[3]) * Niederreiter::RECIP;
     return zeta;
 }
 

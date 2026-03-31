@@ -19,15 +19,15 @@ The header files above define NiederreiterIndex as either 'unsigned' or
 'unsigned long long', depending on whether you have
 integers on your system or not
 
-The header files above also declare the following constants:
-DIMEN   4		dimension of the samples generated.
-NBITS   63 or 31     number of bits in an integer, excluding the sign bit
-RECIP   1 / 2^NBITS  multiply niedindex values by this to get
-                     floating point values in the range 0..1
-RECIP1  2^NBITS      multiply floating point values in the range 0..1
-                     by this factor in order to convert to niedindex
-NBITS_POW  (1<<NBITS)       2^NBITS niedindex value
-NBITS_POW1 (1<<(NBITS-1))   2^(NBITS-1) niedindex value
+The class below exposes the following constants:
+Niederreiter::DIMEN      4         dimension of the samples generated.
+Niederreiter::NBITS      63 or 31  number of bits in an integer, excluding the sign bit
+Niederreiter::RECIP      1/2^NBITS multiply niedindex values by this to get
+                                   floating point values in the range 0..1
+Niederreiter::RECIP1     2^NBITS   multiply floating point values in the range 0..1
+                                   by this factor in order to convert to niedindex
+Niederreiter::NBITS_POW  (1<<NBITS)     2^NBITS niedindex value
+Niederreiter::NBITS_POW1 (1<<(NBITS-1)) 2^(NBITS-1) niedindex value
 */
 
 /**
@@ -40,6 +40,24 @@ k * Do not modify the returned ints
 */
 class Niederreiter {
   public:
+#ifndef NOINT64
+    static constexpr unsigned DIMEN = Niederreiter63::DIMEN;
+    static constexpr unsigned NBITS = Niederreiter63::NBITS;
+    static constexpr NiederreiterIndex SKIP = Niederreiter63::SKIP;
+    static constexpr NiederreiterIndex NBITS_POW = Niederreiter63::NBITS_POW;
+    static constexpr NiederreiterIndex NBITS_POW1 = Niederreiter63::NBITS_POW1;
+    static constexpr double RECIP = Niederreiter63::RECIP;
+    static constexpr double RECIP1 = Niederreiter63::RECIP1;
+#else
+    static constexpr unsigned DIMEN = Niederreiter31::DIMEN;
+    static constexpr unsigned NBITS = Niederreiter31::NBITS;
+    static constexpr NiederreiterIndex SKIP = Niederreiter31::SKIP;
+    static constexpr NiederreiterIndex NBITS_POW = Niederreiter31::NBITS_POW;
+    static constexpr NiederreiterIndex NBITS_POW1 = Niederreiter31::NBITS_POW1;
+    static constexpr double RECIP = Niederreiter31::RECIP;
+    static constexpr double RECIP1 = Niederreiter31::RECIP1;
+#endif
+
     static inline NiederreiterIndex *
     Nied(NiederreiterIndex n) {
 #ifndef NOINT64

@@ -1,6 +1,7 @@
 #include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
+#include "numericalAnalysis/TriangleCubatureRule.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -145,8 +146,14 @@ Basismcrad::monteCarloRadiosityInitBasis() {
         return;
     }
 
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_triBasis, GLOBAL_stochasticRaytracing_triangleUpTransform, &GLOBAL_crt8);
-    basisGalerkinComputeRegularFilterCoefficients(&GLOBAL_stochasticRadiosity_quadBasis, GLOBAL_stochasticRaytracing_quadUpTransform, &GLOBAL_crq8);
+    basisGalerkinComputeRegularFilterCoefficients(
+        &GLOBAL_stochasticRadiosity_triBasis,
+        GLOBAL_stochasticRaytracing_triangleUpTransform,
+        TriangleCubatureRule::degree8Rule());
+    basisGalerkinComputeRegularFilterCoefficients(
+        &GLOBAL_stochasticRadiosity_quadBasis,
+        GLOBAL_stochasticRaytracing_quadUpTransform,
+        QuadCubatureRule::degree8QuadrilateralRule());
 
     for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
         for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )

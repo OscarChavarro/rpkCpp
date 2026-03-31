@@ -3,17 +3,27 @@
 
 #include "numericalAnalysis/CubatureRule.h"
 
-extern CubatureRule GLOBAL_crq8; // quads, degree 8, 16 nodes
-extern CubatureRule GLOBAL_crt8; // triangles, degree 8, 16 nodes
-extern CubatureRule GLOBAL_crv1; // boxes, degree 1,  8 nodes (the corners)
-
 class QuadCubatureRule {
   private:
-    static void cubatureTransformQuadRule(CubatureRule *rule);
-    static void cubatureTransformCubeRule(CubatureRule *rule);
+    static CubatureRule crq1;
+    static CubatureRule crq2;
+    static CubatureRule crq3;
+    static CubatureRule crq3Pg;
+    static CubatureRule crq4;
+    static CubatureRule crq5;
+    static CubatureRule crq5Pg;
+    static CubatureRule crq6;
+    static CubatureRule crq7;
+    static CubatureRule crq7Pg;
+    static CubatureRule crq9;
+    static CubatureRule crv3Pg;
+
+    static CubatureRule *const quadProductRule[3];
+    static CubatureRule *const boxesProductRule[1];
 
   public:
-    static void fixCubatureRules();
+    static CubatureRule *degree8QuadrilateralRule();
+    static CubatureRule *degree1BoxRule();
     static void setQuadCubatureRules(CubatureRule **quadRule, CubatureDegree degree);
 };
 

@@ -4,11 +4,10 @@ Scrambled halton quasiMonteCarlo sample sequence
 
 #include "numericalAnalysis/quasiMonteCarlo/ScrambledHalton.h"
 
-static constexpr int MAX_DIM = 10;
+const int ScrambledHalton::prime[ScrambledHalton::MAX_DIM] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
 
 double *
 ScrambledHalton::scrambledHalton(unsigned nextN, int dim) {
-    static int prime[MAX_DIM] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
     static double sample[MAX_DIM];
 
     for ( int i = 0; i < dim; i++ ) {
