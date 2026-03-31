@@ -22,6 +22,8 @@ class GlutDebugTools final {
 
   private:
     static void resizeCallback(int newWidth, int newHeight);
+    static void syncModelWindowSizeFromGlut();
+    static void syncCameraToViewport();
     static void printElementHierarchy(const GalerkinElement *element, int level);
     static void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
     static void keypressCallback(unsigned char keyChar, int x, int y);

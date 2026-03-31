@@ -26,12 +26,58 @@ static bool globalFullScreenApplied = false;
 
 void
 GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
+    if ( newWidth <= 0 || newHeight <= 0 ) {
+        return;
+    }
     globalModel.width = newWidth;
     globalModel.height = newHeight;
     if ( !globalModel.fullScreen ) {
         globalModel.windowedWidth = newWidth;
         globalModel.windowedHeight = newHeight;
     }
+}
+
+void
+GlutDebugTools::syncModelWindowSizeFromGlut() {
+    const int currentWidth = glutGet(GLUT_WINDOW_WIDTH);
+    const int currentHeight = glutGet(GLUT_WINDOW_HEIGHT);
+    if ( currentWidth <= 0 || currentHeight <= 0 ) {
+        return;
+    }
+
+    globalModel.width = currentWidth;
+    globalModel.height = currentHeight;
+    if ( !globalModel.fullScreen ) {
+        globalModel.windowedWidth = currentWidth;
+        globalModel.windowedHeight = currentHeight;
+    }
+}
+
+void
+GlutDebugTools::syncCameraToViewport() {
+    if ( globalModel.scene == nullptr || globalModel.scene->camera == nullptr ) {
+        return;
+    }
+    if ( globalModel.width <= 0 || globalModel.height <= 0 ) {
+        return;
+    }
+
+    Camera *camera = globalModel.scene->camera;
+    if ( camera->xSize == globalModel.width &&
+         camera->ySize == globalModel.height &&
+         camera->pixelWidth > Numeric::EPSILON_FLOAT &&
+         camera->pixelHeight > Numeric::EPSILON_FLOAT ) {
+        return;
+    }
+
+    camera->set(
+        &camera->eyePosition,
+        &camera->lookPosition,
+        &camera->upDirection,
+        camera->fieldOfVision,
+        globalModel.width,
+        globalModel.height,
+        &camera->background);
 }
 
 void
@@ -116,6 +162,8 @@ GlutDebugTools::extendedKeypressCallback(int keyCode, int /*x*/, int /*y*/) {
 
 void
 GlutDebugTools::mouseButtonCallback(int button, int state, int x, int y) {
+    GlutDebugTools::syncModelWindowSizeFromGlut();
+    GlutDebugTools::syncCameraToViewport();
     if ( GlutDebugToolsMouseControl::handleMouseButton(button, state, x, y, globalModel) ) {
         glutPostRedisplay();
     }
@@ -123,6 +171,8 @@ GlutDebugTools::mouseButtonCallback(int button, int state, int x, int y) {
 
 void
 GlutDebugTools::mouseMotionCallback(int x, int y) {
+    GlutDebugTools::syncModelWindowSizeFromGlut();
+    GlutDebugTools::syncCameraToViewport();
     if ( GlutDebugToolsMouseControl::handleMouseMotion(x, y, globalModel) ) {
         glutPostRedisplay();
     }
@@ -133,6 +183,9 @@ GlutDebugTools::drawCallback() {
     if ( globalModel.scene == nullptr || globalModel.renderOptions == nullptr ) {
         return;
     }
+
+    GlutDebugTools::syncModelWindowSizeFromGlut();
+    GlutDebugTools::syncCameraToViewport();
 
     if ( globalModel.fullScreen != globalFullScreenApplied ) {
         if ( globalModel.fullScreen ) {
@@ -145,13 +198,33 @@ GlutDebugTools::drawCallback() {
         }
     }
 
-    globalModel.scene->camera->xSize = globalModel.width;
-    globalModel.scene->camera->ySize = globalModel.height;
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
     glViewport(0, 0, globalModel.width, globalModel.height);
+
+    int totalElements = 0;
+    int selectedPatchIndex = GLOBAL_render_glutDebugState.primarySelectedPatch;
+    int secondarySelectedPatchIndex = GLOBAL_render_glutDebugState.selectedSelectedPatch;
+    if ( selectedPatchIndex < -1 ) {
+        selectedPatchIndex = -1;
+    }
+    if ( secondarySelectedPatchIndex < -1 ) {
+        secondarySelectedPatchIndex = -1;
+    }
+    if ( globalModel.scene->patchList != nullptr ) {
+        totalElements = globalModel.scene->patchList->size();
+        if ( selectedPatchIndex >= totalElements ) {
+            selectedPatchIndex = totalElements - 1;
+        }
+        if ( secondarySelectedPatchIndex >= totalElements ) {
+            secondarySelectedPatchIndex = totalElements - 1;
+        }
+        if ( totalElements <= 0 ) {
+            selectedPatchIndex = -1;
+            secondarySelectedPatchIndex = -1;
+        }
+    }
 
     if ( globalModel.mode == GlutDebugMode::RADIANCE_SCENE ) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
@@ -164,8 +237,13 @@ GlutDebugTools::drawCallback() {
         GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
             globalModel.scene,
             globalModel.renderOptions,
-            GLOBAL_render_glutDebugState.primarySelectedPatch,
+            selectedPatchIndex,
+            secondarySelectedPatchIndex,
             globalModel.selectedHierarchyLevel);
+        GlutDebugPatchHierarchy::renderSecondarySelectedPatchMarker(
+            globalModel.scene,
+            globalModel.renderOptions,
+            secondarySelectedPatchIndex);
         glPopMatrix();
     }
 
@@ -176,21 +254,6 @@ GlutDebugTools::drawCallback() {
         "MODE: %s [m]",
         glutDebugModeName(globalModel.mode));
     GlutHudConsole::printTextLine(hudModeText, 0, 0, globalModel.width, globalModel.height);
-
-    int totalElements = 0;
-    int selectedPatchIndex = GLOBAL_render_glutDebugState.primarySelectedPatch;
-    if ( selectedPatchIndex < -1 ) {
-        selectedPatchIndex = -1;
-    }
-    if ( globalModel.scene != nullptr && globalModel.scene->patchList != nullptr ) {
-        totalElements = globalModel.scene->patchList->size();
-        if ( selectedPatchIndex >= totalElements ) {
-            selectedPatchIndex = totalElements - 1;
-        }
-        if ( totalElements <= 0 ) {
-            selectedPatchIndex = -1;
-        }
-    }
 
     char hudSelectedElementText[256];
     if ( selectedPatchIndex >= 0 ) {
@@ -210,6 +273,23 @@ GlutDebugTools::drawCallback() {
     GlutHudConsole::printTextLine(hudSelectedElementText, 0, 1, globalModel.width, globalModel.height);
 
     if ( globalModel.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
+        char hudSecondarySelectedElementText[256];
+        if ( secondarySelectedPatchIndex >= 0 ) {
+            std::snprintf(
+                hudSecondarySelectedElementText,
+                sizeof(hudSecondarySelectedElementText),
+                "Secondary element %d/%d [5, 6, shift-click]",
+                secondarySelectedPatchIndex + 1,
+                totalElements);
+        } else {
+            std::snprintf(
+                hudSecondarySelectedElementText,
+                sizeof(hudSecondarySelectedElementText),
+                "Secondary element none/%d [5, 6, shift-click]",
+                totalElements);
+        }
+        GlutHudConsole::printTextLine(hudSecondarySelectedElementText, 0, 2, globalModel.width, globalModel.height);
+
         int maxHierarchyLevel = 0;
         if ( selectedPatchIndex >= 0 && globalModel.scene != nullptr ) {
             maxHierarchyLevel = GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
@@ -241,7 +321,7 @@ GlutDebugTools::drawCallback() {
             "Patch subdivision level: %s/%d",
             currentLevelLabel,
             maxHierarchyLevel);
-        GlutHudConsole::printTextLine(hudSubdivisionText, 0, 2, globalModel.width, globalModel.height);
+        GlutHudConsole::printTextLine(hudSubdivisionText, 0, 3, globalModel.width, globalModel.height);
     }
 
     glutSwapBuffers();

@@ -12,17 +12,29 @@ class GlutDebugPatchHierarchy final {
     static void renderSelectedPatchAtLevel(
         const Scene *scene,
         const RenderOptions *renderOptions,
-        int patchIndex,
+        int primaryPatchIndex,
+        int secondaryPatchIndex,
         int hierarchyLevel);
+    static void renderSecondarySelectedPatchMarker(
+        const Scene *scene,
+        const RenderOptions *renderOptions,
+        int secondaryPatchIndex);
 
   private:
     static int clampLevel(int level, int maxLevel);
-    static void renderNonSelectedPatchesGray(const Scene *scene, const RenderOptions *renderOptions, int selectedPatchIndex);
+    static void renderNonSelectedPatchesGray(
+        const Scene *scene,
+        const RenderOptions *renderOptions,
+        int primaryPatchIndex,
+        int secondaryPatchIndex);
     static void renderElementGray(const GalerkinElement *element, const RenderOptions *renderOptions);
     static const GalerkinElement *selectedPatchRoot(const Scene *scene, int patchIndex);
     static int maxLevelFromElement(const GalerkinElement *element);
     static void renderElementAtLevel(const GalerkinElement *element, int hierarchyLevel, const RenderOptions *renderOptions);
     static void drawSelectedPatchCenterMarker(const GalerkinElement *topLevelElement, const RenderOptions *renderOptions);
+    static void drawSecondarySelectedPatchMarker(
+        const GalerkinElement *topLevelElement,
+        const RenderOptions *renderOptions);
 };
 
 #endif

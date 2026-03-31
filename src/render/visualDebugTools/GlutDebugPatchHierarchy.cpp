@@ -160,14 +160,15 @@ void
 GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
     const Scene *scene,
     const RenderOptions *renderOptions,
-    int selectedPatchIndex)
+    int primaryPatchIndex,
+    int secondaryPatchIndex)
 {
     if ( scene == nullptr || renderOptions == nullptr || scene->patchList == nullptr ) {
         return;
     }
 
     for ( int patchIndex = 0; patchIndex < scene->patchList->size(); patchIndex++ ) {
-        if ( patchIndex == selectedPatchIndex ) {
+        if ( patchIndex == primaryPatchIndex || patchIndex == secondaryPatchIndex ) {
             continue;
         }
 
@@ -289,6 +290,35 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
     Opengl::openGlRenderLine(&markerVertices[3], &markerVertices[0]);
 }
 
+void
+GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
+    const GalerkinElement *topLevelElement,
+    const RenderOptions *renderOptions)
+{
+    if ( topLevelElement == nullptr || renderOptions == nullptr || topLevelElement->isCluster() ) {
+        return;
+    }
+
+    const int secondaryHierarchyLevel = 0;
+
+    RenderOptions secondaryRenderOptions = *renderOptions;
+    secondaryRenderOptions.drawSurfaces = true;
+    secondaryRenderOptions.drawOutlines = true;
+    secondaryRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
+
+    GLint previousDepthFunc = GL_LESS;
+    glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
+    GLfloat previousLineWidth = 1.0f;
+    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
+    glDepthFunc(GL_LEQUAL);
+    glLineWidth(2.0f);
+
+    renderElementAtLevel(topLevelElement, secondaryHierarchyLevel, &secondaryRenderOptions);
+
+    glLineWidth(previousLineWidth);
+    glDepthFunc(previousDepthFunc);
+}
+
 int
 GlutDebugPatchHierarchy::maxLevelForSelectedPatch(const Scene *scene, int patchIndex) {
     const GalerkinElement *topLevelElement = selectedPatchRoot(scene, patchIndex);
@@ -299,27 +329,40 @@ void
 GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
     const Scene *scene,
     const RenderOptions *renderOptions,
-    int patchIndex,
+    int primaryPatchIndex,
+    int secondaryPatchIndex,
     int hierarchyLevel)
 {
     if ( renderOptions == nullptr ) {
         return;
     }
 
-    renderNonSelectedPatchesGray(scene, renderOptions, patchIndex);
+    renderNonSelectedPatchesGray(scene, renderOptions, primaryPatchIndex, secondaryPatchIndex);
 
-    const GalerkinElement *topLevelElement = selectedPatchRoot(scene, patchIndex);
-    if ( topLevelElement == nullptr ) {
+    const GalerkinElement *primaryTopLevelElement = selectedPatchRoot(scene, primaryPatchIndex);
+    if ( primaryTopLevelElement != nullptr ) {
+        const int maxLevel = maxLevelFromElement(primaryTopLevelElement);
+        const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
+
+        RenderOptions selectedRenderOptions = *renderOptions;
+        selectedRenderOptions.drawSurfaces = true;
+        selectedRenderOptions.drawOutlines = true;
+
+        renderElementAtLevel(primaryTopLevelElement, clampedLevel, &selectedRenderOptions);
+        drawSelectedPatchCenterMarker(primaryTopLevelElement, renderOptions);
+    }
+}
+
+void
+GlutDebugPatchHierarchy::renderSecondarySelectedPatchMarker(
+    const Scene *scene,
+    const RenderOptions *renderOptions,
+    int secondaryPatchIndex)
+{
+    if ( scene == nullptr || renderOptions == nullptr ) {
         return;
     }
 
-    const int maxLevel = maxLevelFromElement(topLevelElement);
-    const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
-
-    RenderOptions selectedRenderOptions = *renderOptions;
-    selectedRenderOptions.drawSurfaces = true;
-    selectedRenderOptions.drawOutlines = true;
-
-    renderElementAtLevel(topLevelElement, clampedLevel, &selectedRenderOptions);
-    drawSelectedPatchCenterMarker(topLevelElement, renderOptions);
+    const GalerkinElement *secondaryTopLevelElement = selectedPatchRoot(scene, secondaryPatchIndex);
+    drawSecondarySelectedPatchMarker(secondaryTopLevelElement, renderOptions);
 }

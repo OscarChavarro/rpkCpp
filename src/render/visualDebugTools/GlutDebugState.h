@@ -4,6 +4,7 @@
 class GlutDebugState {
   public:
     int primarySelectedPatch;
+    int selectedSelectedPatch;
     bool showSelectedPathOnly;
     float angleAroundViewportU;
     float angleAroundViewportV;

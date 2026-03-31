@@ -10,20 +10,79 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
+#include "skin/Patch.h"
 #include "render/visualDebugTools/GlutDebugState.h"
 #include "render/visualDebugTools/GlutDebugMode.h"
 #include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
 
+namespace {
+
+bool
+isGalerkinPatchIndex(const Scene *scene, int patchIndex) {
+    if ( scene == nullptr || scene->patchList == nullptr ) {
+        return false;
+    }
+    if ( patchIndex < 0 || patchIndex >= scene->patchList->size() ) {
+        return false;
+    }
+
+    const Patch *patch = scene->patchList->get(patchIndex);
+    if ( patch == nullptr || patch->radianceData == nullptr ) {
+        return false;
+    }
+
+    return patch->radianceData->className == ElementTypes::ELEMENT_GALERKIN;
+}
+
+}
+
 void
-GlutDebugToolsKeyControl::printSelectedPatchState() {
-    if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-        if ( GLOBAL_render_glutDebugState.primarySelectedPatch < 0 ) {
-            java::lang::System::out.printf("Selected patch: none\n");
-        } else {
-            java::lang::System::out.printf("Selected patch: %d\n", GLOBAL_render_glutDebugState.primarySelectedPatch);
+GlutDebugToolsKeyControl::stepSelectedPatchIndex(
+    int *selectedPatchIndex,
+    int delta,
+    const Scene *scene)
+{
+    if ( selectedPatchIndex == nullptr ) {
+        return;
+    }
+    if ( delta == 0 ) {
+        return;
+    }
+
+    if ( scene == nullptr || scene->patchList == nullptr || scene->patchList->size() <= 0 ) {
+        *selectedPatchIndex = -1;
+        return;
+    }
+
+    const int patchCount = scene->patchList->size();
+    int nextPatchIndex = *selectedPatchIndex;
+    if ( nextPatchIndex < -1 ) {
+        nextPatchIndex = -1;
+    }
+
+    const int step = delta < 0 ? -1 : 1;
+    while ( true ) {
+        nextPatchIndex += step;
+        if ( nextPatchIndex < 0 ) {
+            *selectedPatchIndex = -1;
+            return;
         }
-    } else {
-        java::lang::System::out.printf("Selected patch: ALL\n");
+        if ( nextPatchIndex >= patchCount ) {
+            if ( isGalerkinPatchIndex(scene, *selectedPatchIndex) ) {
+                return;
+            }
+
+            int fallback = patchCount - 1;
+            while ( fallback >= 0 && !isGalerkinPatchIndex(scene, fallback) ) {
+                fallback--;
+            }
+            *selectedPatchIndex = fallback;
+            return;
+        }
+        if ( isGalerkinPatchIndex(scene, nextPatchIndex) ) {
+            *selectedPatchIndex = nextPatchIndex;
+            return;
+        }
     }
 }
 
@@ -65,27 +124,18 @@ GlutDebugToolsKeyControl::handleKeypress(
             GLOBAL_render_glutDebugState.showSelectedPathOnly = !GLOBAL_render_glutDebugState.showSelectedPathOnly;
             break;
         case '1':
-            if ( GLOBAL_render_glutDebugState.primarySelectedPatch > -1 ) {
-                GLOBAL_render_glutDebugState.primarySelectedPatch--;
-            }
-            if ( GLOBAL_render_glutDebugState.primarySelectedPatch < -1 ) {
-                GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
-            }
+            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.primarySelectedPatch, -1, model.scene);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case '2':
-            if ( model.scene == nullptr || model.scene->patchList == nullptr || model.scene->patchList->size() <= 0 ) {
-                GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
-            } else {
-                if ( GLOBAL_render_glutDebugState.primarySelectedPatch < -1 ) {
-                    GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
-                }
-                GLOBAL_render_glutDebugState.primarySelectedPatch++;
-                if ( GLOBAL_render_glutDebugState.primarySelectedPatch >= model.scene->patchList->size() ) {
-                    GLOBAL_render_glutDebugState.primarySelectedPatch = static_cast<int>(model.scene->patchList->size() - 1);
-                }
-            }
+            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.primarySelectedPatch, 1, model.scene);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
+            break;
+        case '5':
+            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.selectedSelectedPatch, -1, model.scene);
+            break;
+        case '6':
+            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.selectedSelectedPatch, 1, model.scene);
             break;
         case '3':
             if ( model.mode != GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
@@ -107,11 +157,9 @@ GlutDebugToolsKeyControl::handleKeypress(
         case 'm':
             model.mode = nextGlutDebugMode(model.mode);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
-            java::lang::System::out.printf("MODE: %s\n", glutDebugModeName(model.mode));
             break;
         case 'f':
             model.fullScreen = !model.fullScreen;
-            java::lang::System::out.printf("Fullscreen: %s\n", model.fullScreen ? "ON" : "OFF");
             break;
         case ' ':
             if ( model.radianceMethod != nullptr && model.scene != nullptr && model.renderOptions != nullptr ) {
@@ -132,14 +180,6 @@ GlutDebugToolsKeyControl::handleKeypress(
             return false;
     }
 
-    GlutDebugToolsKeyControl::printSelectedPatchState();
-    if ( model.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
-        const int maxHierarchyLevel = GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(model);
-        java::lang::System::out.printf(
-            "Hierarchy level: %d/%d\n",
-            model.selectedHierarchyLevel,
-            maxHierarchyLevel);
-    }
     return true;
 }
 

@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "material/RayHit.h"
 #include "material/RayHitFlag.h"
@@ -30,6 +29,7 @@ static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846f / 180.0f;
 
 static bool globalLeftButtonDown = false;
 static bool globalDragging = false;
+static bool globalPressWithShift = false;
 static int globalPressX = 0;
 static int globalPressY = 0;
 static int globalLastX = 0;
@@ -40,6 +40,59 @@ struct PatchHitCandidate {
     float distance;
     bool frontFacing;
 };
+
+bool
+applyPatchSelection(
+    int pickedPatchIndex,
+    int *selectedPatch)
+{
+    if ( selectedPatch == nullptr ) {
+        return false;
+    }
+
+    if ( pickedPatchIndex < 0 ) {
+        if ( *selectedPatch == -1 ) {
+            return false;
+        }
+        *selectedPatch = -1;
+        return true;
+    }
+
+    if ( *selectedPatch == pickedPatchIndex ) {
+        *selectedPatch = -1;
+        return true;
+    }
+
+    *selectedPatch = pickedPatchIndex;
+    return true;
+}
+
+void
+syncCameraToViewport(const GlutDebugToolsModel &model) {
+    if ( model.scene == nullptr || model.scene->camera == nullptr ) {
+        return;
+    }
+    if ( model.width <= 0 || model.height <= 0 ) {
+        return;
+    }
+
+    Camera *camera = model.scene->camera;
+    if ( camera->xSize == model.width &&
+         camera->ySize == model.height &&
+         camera->pixelWidth > Numeric::EPSILON_FLOAT &&
+         camera->pixelHeight > Numeric::EPSILON_FLOAT ) {
+        return;
+    }
+
+    camera->set(
+        &camera->eyePosition,
+        &camera->lookPosition,
+        &camera->upDirection,
+        camera->fieldOfVision,
+        model.width,
+        model.height,
+        &camera->background);
+}
 
 }
 
@@ -202,10 +255,9 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
         return;
     }
 
-    Camera *camera = model.scene->camera;
+    syncCameraToViewport(model);
 
-    camera->xSize = model.width;
-    camera->ySize = model.height;
+    Camera *camera = model.scene->camera;
     Render::renderGetNearFar(camera, model.scene->geometryList);
 
     float nearDistance = camera->near;
@@ -265,6 +317,9 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
     for ( int i = 0; i < model.scene->patchList->size(); i++ ) {
         Patch *patch = model.scene->patchList->get(i);
         if ( patch == nullptr ) {
+            continue;
+        }
+        if ( patch->radianceData == nullptr || patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
         }
 
@@ -333,6 +388,8 @@ GlutDebugToolsMouseControl::handleMouseButton(
     const int clampedY = clampCoord(y, model.height);
 
     if ( state == GLUT_DOWN ) {
+        const int modifiers = glutGetModifiers();
+        globalPressWithShift = (modifiers & GLUT_ACTIVE_SHIFT) != 0;
         globalLeftButtonDown = true;
         globalDragging = false;
         globalPressX = clampedX;
@@ -356,25 +413,22 @@ GlutDebugToolsMouseControl::handleMouseButton(
 
     int patchIndex = -1;
     if ( !pickPatchAtMousePosition(model, clampedX, clampedY, &patchIndex) ) {
-        if ( GLOBAL_render_glutDebugState.primarySelectedPatch == -1 ) {
-            return false;
-        }
-        GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
-        clampSelectedHierarchyLevel(model);
-        java::lang::System::out.printf("Selected patch: none\n");
-        return true;
+        patchIndex = -1;
     }
 
-    if ( GLOBAL_render_glutDebugState.primarySelectedPatch == patchIndex ) {
-        GLOBAL_render_glutDebugState.primarySelectedPatch = -1;
-        clampSelectedHierarchyLevel(model);
-        java::lang::System::out.printf("Selected patch: none\n");
-        return true;
+    int *targetSelection = &GLOBAL_render_glutDebugState.primarySelectedPatch;
+    const bool isPrimarySelection = !globalPressWithShift;
+    if ( globalPressWithShift ) {
+        targetSelection = &GLOBAL_render_glutDebugState.selectedSelectedPatch;
     }
 
-    GLOBAL_render_glutDebugState.primarySelectedPatch = patchIndex;
-    clampSelectedHierarchyLevel(model);
-    java::lang::System::out.printf("Selected patch: %d\n", patchIndex);
+    if ( !applyPatchSelection(patchIndex, targetSelection) ) {
+        return false;
+    }
+    if ( isPrimarySelection ) {
+        clampSelectedHierarchyLevel(model);
+    }
+
     return true;
 }
 
