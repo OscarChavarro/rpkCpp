@@ -5,6 +5,7 @@
 #include "galerkin/GalerkinElement.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
+#include "render/GalerkinOpenGLRenderer.h"
 #include "render/Opengl.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMap.h"
@@ -196,7 +197,7 @@ GlutDebugPatchHierarchy::renderElementAtLevel(
     }
 
     if ( hierarchyLevel <= 0 || element->regularSubElements == nullptr ) {
-        element->render(renderOptions);
+        GalerkinOpenGLRenderer::drawElement(element, GalerkinElement::renderMode(renderOptions), renderOptions);
         return;
     }
 

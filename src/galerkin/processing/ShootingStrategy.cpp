@@ -4,7 +4,6 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 
 #include "java/util/ArrayList.txx"
 #include "common/Statistics.h"
-#include "render/Opengl.h"
 #include "render/Potential.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRadianceMethod.h"
@@ -199,8 +198,6 @@ ShootingStrategy::propagateRadiance(
     }
 
     ColorRgb yellow = {1.0, 1.0, 0.0};
-    Opengl::openGlRenderSetColor(&yellow, renderOptions);
-    Opengl::openGlRenderPatchOutline(shootingPatch);
 
     doPropagate(
         scene,
@@ -264,8 +261,6 @@ ShootingStrategy::propagatePotential(
     if ( shootingPatch ) {
         ColorRgb white = {1.0, 1.0, 1.0};
 
-        Opengl::openGlRenderSetColor(&white, renderOptions);
-        Opengl::openGlRenderPatchOutline(shootingPatch);
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
         java::lang::System::err.printf("No patches with un-shot potential??\n");

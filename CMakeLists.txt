@@ -167,6 +167,7 @@ set(MAIN_SRC
     src/io/image/Dkcolor.cpp
     src/io/image/ImageOutputHandle.cpp
     src/io/image/PPMOutputHandle.cpp
+    src/render/GalerkinOpenGLRenderer.cpp
     src/render/Potential.cpp
     src/render/visualDebugTools/GlutDebugState.cpp
     src/render/SoftIdsWrapper.cpp

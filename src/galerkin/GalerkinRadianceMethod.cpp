@@ -15,8 +15,6 @@ Galerkin radiosity, with the following variants:
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
-#include "render/visualDebugTools/GlutDebugTools.h"
-#include "render/Opengl.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -252,22 +250,6 @@ GalerkinRadianceMethod::~GalerkinRadianceMethod() {
         delete gatheringStrategy;
         gatheringStrategy = nullptr;
     }
-}
-
-void
-GalerkinRadianceMethod::renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions) {
-    if ( element->regularSubElements == nullptr ) {
-        element->render(renderOptions);
-    } else {
-        for ( int i = 0; i < 4; i++ ) {
-            renderElementHierarchy(static_cast<GalerkinElement *>(element->regularSubElements[i]), renderOptions);
-        }
-    }
-}
-
-void
-GalerkinRadianceMethod::galerkinRenderPatch(const Patch *patch, const Camera * /*camera*/, const RenderOptions *renderOptions) {
-    renderElementHierarchy(GalerkinElement::fromPatch(patch), renderOptions);
 }
 
 /**
@@ -532,32 +514,6 @@ GalerkinRadianceMethod::getStats() {
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;
-}
-
-void
-GalerkinRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
-    if ( renderOptions->frustumCulling ) {
-        Opengl::openGlRenderWorldOctree(scene, galerkinRenderPatch, renderOptions);
-    } else {
-        RenderOptions modifiedRenderOptions = *renderOptions;
-        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-                if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
-                    modifiedRenderOptions.drawOutlines = true;
-                    modifiedRenderOptions.outlineColor = ColorRgb(1.0f, 0.0f, 0.0f);
-                } else {
-                    modifiedRenderOptions.drawOutlines = false;
-                }
-                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
-            } else {
-                modifiedRenderOptions.outlineColor = ColorRgb(0.4f, 0.1f, 0.1f);
-                if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
-                    modifiedRenderOptions.outlineColor = ColorRgb(0.0f, 0.0f, 1.0f);
-                }
-                galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
-            }
-        }
-    }
 }
 
 void

@@ -12,6 +12,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 #include "galerkin/Interaction.h"
 
 class GalerkinState;
+class RenderOptions;
 
 /**
 The Galerkin radiosity specific data to be kept with every surface or
@@ -55,11 +56,10 @@ class GalerkinElement final : public Element {
     static int getNumberOfSurfaceElements();
     static GalerkinElement *fromPatch(const Patch *patch);
     static void initializeBasis();
+    static int renderMode(const RenderOptions *renderOptions);
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
-    void draw(int mode, const RenderOptions *renderOptions) const;
-    void render(const RenderOptions *renderOptions) const;
     int vertices(Vector3D *p) const;
     BoundingBox *bounds(BoundingBox *boundingBox) const;
     Vector3D midPoint() const;

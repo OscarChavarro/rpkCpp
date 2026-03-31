@@ -7,8 +7,6 @@ formats, etc.
 
 #include "java/util/ArrayList.txx"
 #include "tonemap/ToneMap.h"
-#include "render/Opengl.h"
-#include "render/Render.h"
 #include "render/Softids.h"
 
 /**
@@ -35,11 +33,20 @@ SoftIds::setupSoftFrameBuffer(const Camera *camera) {
 }
 
 void
-SoftIds::softRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions, SglContext *sglContext) {
+SoftIds::softRenderPatch(
+    const Patch *patch,
+    const Camera *camera,
+    const RenderOptions *renderOptions,
+    SglContext *sglContext)
+{
+    if ( patch == nullptr || camera == nullptr || renderOptions == nullptr || sglContext == nullptr ) {
+        return;
+    }
+
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
-        patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < Numeric::EPSILON ) {
+         patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < Numeric::EPSILON ) {
         return;
     }
 
@@ -55,35 +62,13 @@ SoftIds::softRenderPatch(const Patch *patch, const Camera *camera, const RenderO
 }
 
 void
-SoftIds::softRenderPatchWithContext(
-    const Patch *patch,
-    const Camera *camera,
-    const RenderOptions *renderOptions,
-    void *callbackData)
-{
-    auto *sglContext = static_cast<SglContext *>(callbackData);
-    if ( sglContext == nullptr ) {
-        return;
-    }
-    SoftIds::softRenderPatch(patch, camera, renderOptions, sglContext);
-}
-
-/**
-Renders all scenePatches in the provided sgl renderer. PatchPixel returns
-and SGL_PIXEL value for a given Patch
-*/
-void
 SoftIds::softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext) {
-    if ( sglContext == nullptr ) {
+    if ( scene == nullptr || renderOptions == nullptr || sglContext == nullptr ) {
         return;
     }
 
-    if ( renderOptions->frustumCulling ) {
-        Opengl::openGlRenderWorldOctreeWithData(scene, SoftIds::softRenderPatchWithContext, sglContext, renderOptions);
-    } else {
-        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            SoftIds::softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
-        }
+    for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+        SoftIds::softRenderPatch(scene->patchList->get(i), scene->camera, renderOptions, sglContext);
     }
 }
 

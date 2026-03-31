@@ -16,6 +16,7 @@
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMap.h"
 #include "render/Canvas.h"
+#include "render/GalerkinOpenGLRenderer.h"
 #include "render/OctreeChild.h"
 #include "render/OpenGlRenderTraversalCallback.h"
 #include "render/Opengl.h"
@@ -522,7 +523,11 @@ Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMet
     glPushMatrix();
     Opengl::openGlApplyDebugSceneRotation(scene);
     if ( radianceMethod != nullptr ) {
-        radianceMethod->renderScene(scene, renderOptions);
+        if ( radianceMethod->className == GALERKIN ) {
+            GalerkinOpenGLRenderer::renderScene(scene, renderOptions);
+        } else {
+            radianceMethod->renderScene(scene, renderOptions);
+        }
     } else if ( renderOptions->frustumCulling ) {
         Opengl::openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);
     } else {

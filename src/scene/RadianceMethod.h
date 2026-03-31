@@ -51,7 +51,7 @@ class RadianceMethod {
     // a nullptr pointer. In that case, the default hardware assisted rendering
     // method (in render.c) is used: render all the patches with the RGB color
     // triplet they were assigned
-    virtual void renderScene(const Scene *scene, const RenderOptions *renderOptions) const = 0;
+    virtual void renderScene(const Scene *scene, const RenderOptions *renderOptions) const;
 
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will

@@ -56,7 +56,6 @@ class GalerkinRadianceMethod final : public RadianceMethod {
         static_cast<GalerkinElement *>(patch->radianceData)->unShotPotential = value;
     }
 
-    static void renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions);
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);
 
   public:
@@ -64,7 +63,6 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static void freeMemory();
 
     static void recomputePatchColor(Patch *patch);
-    static void galerkinRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
 
     GalerkinRadianceMethod();
     ~GalerkinRadianceMethod() final;
@@ -77,7 +75,6 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() final;
-    void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
     void
     writeVRML(
         const Camera *camera,

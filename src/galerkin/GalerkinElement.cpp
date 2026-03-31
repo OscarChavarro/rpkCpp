@@ -1,11 +1,8 @@
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "tonemap/ToneMap.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
 #include "numericalAnalysis/TriangleCubatureRule.h"
-#include "render/Opengl.h"
-#include "render/Render.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinElement.h"
 
@@ -267,6 +264,25 @@ GalerkinElement::fromPatch(const Patch *patch) {
         java::lang::System::exit(1);
     }
     return static_cast<GalerkinElement *>(patch->radianceData);
+}
+
+int
+GalerkinElement::renderMode(const RenderOptions *renderOptions) {
+    if ( renderOptions == nullptr ) {
+        return GalerkinElementRenderMode::FLAT;
+    }
+
+    int renderCode = 0;
+    if ( renderOptions->drawOutlines ) {
+        renderCode |= GalerkinElementRenderMode::OUTLINE;
+    }
+    if ( renderOptions->smoothShading ) {
+        renderCode |= GalerkinElementRenderMode::GOURAUD;
+    } else {
+        renderCode |= GalerkinElementRenderMode::FLAT;
+    }
+
+    return renderCode;
 }
 
 /**
@@ -593,107 +609,6 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
         polygon->bounds.enlargeToIncludePoint(&polygon->vertex[i]);
     }
-}
-
-void
-GalerkinElement::draw(int mode, const RenderOptions *renderOptions) const {
-    if ( isCluster() ) {
-        if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-            Render::renderBoundingBox(geometry->getBoundingBox());
-        }
-        return;
-    }
-
-    Vector3D p[4];
-    int numberOfVertices = vertices(p);
-
-    // Draw surfaces
-    if ( renderOptions->drawSurfaces ) {
-        if ( mode & GalerkinElementRenderMode::FLAT ) {
-            ColorRgb color{};
-            ColorRgb rho = patch->radianceData->Rd;
-
-            if ( galerkinState->useAmbientRadiance ) {
-                ColorRgb radVis;
-                radVis.scalarProduct(rho, galerkinState->ambientRadiance);
-                radVis.add(radVis, radiance[0]);
-                ToneMap::radianceToRgb(radVis, &color, *renderOptions->toneMapOptions);
-            } else {
-                ToneMap::radianceToRgb(radiance[0], &color, *renderOptions->toneMapOptions);
-            }
-            Opengl::openGlRenderSetColor(&color, renderOptions);
-            Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
-        } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
-            ColorRgb vertRadiosity[4];
-
-            if ( numberOfVertices == 3 ) {
-                vertRadiosity[0] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 0.0);
-                vertRadiosity[1] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 0.0);
-                vertRadiosity[2] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 1.0);
-            } else {
-                vertRadiosity[0] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 0.0);
-                vertRadiosity[1] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 0.0);
-                vertRadiosity[2] = GalerkinBasis::radianceAtPoint(this, radiance, 1.0, 1.0);
-                vertRadiosity[3] = GalerkinBasis::radianceAtPoint(this, radiance, 0.0, 1.0);
-            }
-
-            if ( galerkinState->useAmbientRadiance ) {
-                ColorRgb reflectivity = patch->radianceData->Rd;
-                ColorRgb ambient;
-
-                ambient.scalarProduct(reflectivity, galerkinState->ambientRadiance);
-                for ( int i = 0; i < numberOfVertices; i++ ) {
-                    vertRadiosity[i].add(vertRadiosity[i], ambient);
-                }
-            }
-
-            ColorRgb vertexColors[4];
-            for ( int i = 0; i < numberOfVertices; i++ ) {
-                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *renderOptions->toneMapOptions);
-            }
-
-            Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors, renderOptions);
-        }
-    }
-
-    // Draw outlines
-    if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
-        if ( numberOfVertices == 3 ) {
-            Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
-            Opengl::openGlRenderLine(&p[0], &p[1]);
-            Opengl::openGlRenderLine(&p[1], &p[2]);
-            Opengl::openGlRenderLine(&p[2], &p[0]);
-        } else {
-            ColorRgb green = {0.0, 1.0, 0.0};
-
-            Opengl::openGlRenderSetColor(&green, renderOptions);
-            Opengl::openGlRenderLine(&p[0], &p[1]);
-            Opengl::openGlRenderLine(&p[1], &p[2]);
-            Opengl::openGlRenderLine(&p[2], &p[3]);
-            Opengl::openGlRenderLine(&p[3], &p[0]);
-        }
-    }
-}
-
-/**
-Renders a surface element flat shaded based on its radiance
-*/
-void
-GalerkinElement::render(const RenderOptions *renderOptions) const {
-    int renderCode = 0;
-
-    if ( renderOptions->drawOutlines ) {
-        renderCode |= GalerkinElementRenderMode::OUTLINE;
-    }
-
-    if ( renderOptions->smoothShading ) {
-        renderCode |= GalerkinElementRenderMode::GOURAUD;
-    } else {
-        renderCode |= GalerkinElementRenderMode::FLAT;
-    }
-
-    draw(renderCode, renderOptions);
 }
 
 void
