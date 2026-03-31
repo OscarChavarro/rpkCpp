@@ -4,6 +4,7 @@ Stuff common to all radiance methods
 #include <cstring>
 
 #include "java/util/ArrayList.txx"
+#include "java/lang/System.h"
 #include "common/RenderOptions.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "app/CommandLine.h"
@@ -81,6 +82,20 @@ void
 Radiance::radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
     Radiance::selectRadianceMethod(argc, argv, newRadianceMethod);
     CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
+
+    if ( *newRadianceMethod == nullptr ) {
+#ifdef RAYTRACING_ENABLED
+        java::lang::System::err.printf(
+            "ERROR: You must select a radiance mode using '-radiance-method'. "
+            "Supported values: Galerkin, PMAP, StochJacobi, RandomWalk.\n");
+#else
+        java::lang::System::err.printf(
+            "ERROR: You must select a radiance mode using '-radiance-method'. "
+            "Supported value: Galerkin.\n");
+#endif
+        java::lang::System::err.flush();
+        java::lang::System::exit(1);
+    }
 
 #ifdef RAYTRACING_ENABLED
     CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv);

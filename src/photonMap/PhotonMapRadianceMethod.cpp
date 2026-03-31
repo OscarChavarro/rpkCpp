@@ -8,7 +8,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "render/Opengl.h"
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
@@ -741,10 +740,6 @@ void
 PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
-    } else {
-        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            Opengl::openGlRenderPatchCallBack(scene->patchList->get(i), scene->camera, renderOptions);
-        }
     }
 }
 
