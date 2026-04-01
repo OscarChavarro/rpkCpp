@@ -9,17 +9,17 @@
     #endif
 
     #include "render/RenderHookList.h"
-    #include "render/visualDebugTools/GlutDebugTools.h"
+    #include "render/opengl/visualDebugTools/GlutDebugTools.h"
 #endif
 
 #include "java/util/ArrayList.txx"
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMap.h"
 #include "render/Canvas.h"
-#include "render/GalerkinOpenGLRenderer.h"
+#include "render/opengl/GalerkinOpenGLRenderer.h"
 #include "render/OctreeChild.h"
 #include "render/OpenGlRenderTraversalCallback.h"
-#include "render/Opengl.h"
+#include "render/opengl/Opengl.h"
 #include "render/Render.h"
 #include "java/lang/System.h"
 

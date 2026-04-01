@@ -1,9 +1,9 @@
-#include "render/visualDebugTools/GlutDebugTools.h"
-#include "render/visualDebugTools/GlutDebugToolsModel.h"
-#include "render/visualDebugTools/GlutDebugToolsKeyControl.h"
-#include "render/visualDebugTools/GlutDebugToolsMouseControl.h"
-#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
-#include "render/visualDebugTools/GlutHudConsole.h"
+#include "render/opengl/visualDebugTools/GlutDebugTools.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsKeyControl.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsMouseControl.h"
+#include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "render/opengl/visualDebugTools/GlutHudConsole.h"
 #include "galerkin/GalerkinElement.h"
 
 #ifdef OPEN_GL_ENABLED
@@ -19,7 +19,7 @@
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "render/Opengl.h"
+#include "render/opengl/Opengl.h"
 
 static GlutDebugToolsModel globalModel;
 static bool globalFullScreenApplied = false;

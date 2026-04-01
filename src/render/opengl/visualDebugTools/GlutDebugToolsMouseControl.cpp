@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/GlutDebugToolsMouseControl.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsMouseControl.h"
 
 #ifdef __APPLE__
     #include <GLUT/glut.h>
@@ -13,9 +13,9 @@
 #include "material/RayHit.h"
 #include "material/RayHitFlag.h"
 #include "render/Render.h"
-#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
-#include "render/visualDebugTools/GlutDebugState.h"
-#include "render/visualDebugTools/PatchHitCandidate.h"
+#include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
+#include "render/opengl/visualDebugTools/PatchHitCandidate.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 #include "skin/Patch.h"

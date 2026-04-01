@@ -1,7 +1,7 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 
-#include "render/visualDebugTools/GlutDebugMode.h"
+#include "render/opengl/visualDebugTools/GlutDebugMode.h"
 
 class Scene;
 class RadianceMethod;

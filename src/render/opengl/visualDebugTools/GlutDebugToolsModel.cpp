@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/GlutDebugToolsModel.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
 
 GlutDebugToolsModel::GlutDebugToolsModel():
     mode(GlutDebugMode::RADIANCE_SCENE),

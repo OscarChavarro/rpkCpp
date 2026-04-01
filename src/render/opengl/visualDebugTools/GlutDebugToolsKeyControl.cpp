@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/GlutDebugToolsKeyControl.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsKeyControl.h"
 
 #ifdef __APPLE__
     #include <GLUT/glut.h>
@@ -11,9 +11,9 @@
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
 #include "skin/Patch.h"
-#include "render/visualDebugTools/GlutDebugState.h"
-#include "render/visualDebugTools/GlutDebugMode.h"
-#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
+#include "render/opengl/visualDebugTools/GlutDebugMode.h"
+#include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 bool
 GlutDebugToolsKeyControl::isGalerkinPatchIndex(const Scene *scene, int patchIndex) {

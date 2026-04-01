@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/GlutDebugMode.h"
+#include "render/opengl/visualDebugTools/GlutDebugMode.h"
 
 GlutDebugMode
 nextGlutDebugMode(GlutDebugMode mode) {

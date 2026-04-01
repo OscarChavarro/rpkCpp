@@ -10,9 +10,12 @@
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
+#include "io/context/PersistedSceneModel.h"
 #include "io/bin/reader/BinaryModelReader.h"
 #include "io/bin/writer/BinaryModelWriter.h"
-#include "io/mgf/MgfReader.h"
+#ifdef MGF_ENABLED
+    #include "io/mgf/MgfReader.h"
+#endif
 #include "render/RenderHookList.h"
 #include "render/ScreenBuffer.h"
 #include "app/Adaptation.h"
@@ -300,6 +303,52 @@ SceneBuilder::removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<
 }
 
 bool
+SceneBuilder::sceneBuilderHasExtension(const char *fileName, const char *extension) {
+    if ( fileName == nullptr || extension == nullptr ) {
+        return false;
+    }
+
+    const size_t fileNameLength = strlen(fileName);
+    const size_t extensionLength = strlen(extension);
+    if ( fileNameLength < extensionLength ) {
+        return false;
+    }
+
+    return strcasecmp(fileName + fileNameLength - extensionLength, extension) == 0;
+}
+
+char *
+SceneBuilder::sceneBuilderBuildBinaryFallbackPath(const char *mgfFileName) {
+    if ( !sceneBuilderHasExtension(mgfFileName, ".mgf") ) {
+        return nullptr;
+    }
+
+    const size_t length = strlen(mgfFileName);
+    char *fallbackFileName = new char[length + 1];
+    memcpy(fallbackFileName, mgfFileName, length + 1);
+    memcpy(fallbackFileName + length - 4, ".bin", 5);
+
+    return fallbackFileName;
+}
+
+bool
+SceneBuilder::sceneBuilderIsReadableRegularFile(const char *fileName) {
+    if ( fileName == nullptr || fileName[0] == '\0' ) {
+        return false;
+    }
+
+    java::File file(fileName);
+    if ( !file.exists() || !file.isFile() || !file.canRead() ) {
+        return false;
+    }
+
+    java::FileInputStream input(fileName);
+    const int firstByte = input.read();
+    input.close();
+    return firstByte >= 0;
+}
+
+bool
 SceneBuilder::sceneBuilderValidateReadableFile(
     const char *fileName,
     const char *fileRole)
@@ -358,20 +407,70 @@ SceneBuilder::sceneBuilderReadFile(
     ToneMappingContext &toneMapOptions)
 {
     const BatchOptions *batchOptions = Batch::batchGetOptions();
-    const bool importBinary =
+    const bool importBinaryOption =
         batchOptions != nullptr
         && batchOptions->importBinary
         && batchOptions->binaryInputFilename != nullptr
         && batchOptions->binaryInputFilename[0] != '\0';
-    const char *inputName = importBinary ? batchOptions->binaryInputFilename : fileName;
+    const char *requestedInputName = importBinaryOption ? batchOptions->binaryInputFilename : fileName;
+
+    bool readBinaryModel =
+        importBinaryOption
+        || SceneBuilder::sceneBuilderHasExtension(requestedInputName, ".bin");
+
+    char *fallbackBinaryInputName = nullptr;
+    const char *inputName = requestedInputName;
+
+#ifdef MGF_ENABLED
+    if ( !readBinaryModel
+         && SceneBuilder::sceneBuilderHasExtension(requestedInputName, ".mgf")
+         && !SceneBuilder::sceneBuilderIsReadableRegularFile(requestedInputName) ) {
+        fallbackBinaryInputName = SceneBuilder::sceneBuilderBuildBinaryFallbackPath(requestedInputName);
+        if ( fallbackBinaryInputName != nullptr
+             && SceneBuilder::sceneBuilderIsReadableRegularFile(fallbackBinaryInputName) ) {
+            readBinaryModel = true;
+            inputName = fallbackBinaryInputName;
+        }
+    }
+#else
+    if ( !readBinaryModel ) {
+        if ( SceneBuilder::sceneBuilderHasExtension(requestedInputName, ".mgf") ) {
+            fallbackBinaryInputName = SceneBuilder::sceneBuilderBuildBinaryFallbackPath(requestedInputName);
+            if ( fallbackBinaryInputName != nullptr
+                 && SceneBuilder::sceneBuilderIsReadableRegularFile(fallbackBinaryInputName) ) {
+                readBinaryModel = true;
+                inputName = fallbackBinaryInputName;
+            } else {
+                java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+                java::System::err.flush();
+                Error::error(
+                    "SceneBuilder::sceneBuilderReadFile",
+                    "MGF_ENABLED was OFF at compile time. Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
+                    requestedInputName,
+                    fallbackBinaryInputName != nullptr ? fallbackBinaryInputName : "(not derivable)");
+                delete[] fallbackBinaryInputName;
+                return false;
+            }
+        } else {
+            java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+            java::System::err.flush();
+            Error::error(
+                "SceneBuilder::sceneBuilderReadFile",
+                "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+            return false;
+        }
+    }
+#endif
 
     // Check whether the file can be opened/read
-    if ( importBinary && !SceneBuilder::sceneBuilderValidateReadableFile(inputName, "binary model") ) {
+    if ( readBinaryModel && !SceneBuilder::sceneBuilderValidateReadableFile(inputName, "binary model") ) {
+        delete[] fallbackBinaryInputName;
         return false;
     }
 
-    if ( !importBinary && fileName[0] != '#' ) {
+    if ( !readBinaryModel && fileName[0] != '#' ) {
         if ( !SceneBuilder::sceneBuilderValidateReadableFile(fileName, "scene") ) {
+            delete[] fallbackBinaryInputName;
             return false;
         }
     }
@@ -402,12 +501,13 @@ SceneBuilder::sceneBuilderReadFile(
     long long last = java::System::nanoTime();
     PersistedSceneModel *mgfModel = nullptr;
 
-    if ( importBinary ) {
+    if ( readBinaryModel ) {
         mgfModel = BinaryModelReader::read(inputName);
         if ( mgfModel != nullptr ) {
             SceneBuilder::sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
         }
     } else {
+#ifdef MGF_ENABLED
         mgfModel = MgfReader::readMgf(fileName, mgfContext);
         if ( mgfModel != nullptr
              && batchOptions != nullptr
@@ -431,6 +531,13 @@ SceneBuilder::sceneBuilderReadFile(
                     batchOptions->binaryOutputFilename);
             }
         }
+#else
+        java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+        java::System::err.flush();
+        Error::error(
+            "SceneBuilder::sceneBuilderReadFile",
+            "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+#endif
     }
 
     scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
@@ -443,6 +550,7 @@ SceneBuilder::sceneBuilderReadFile(
     last = t;
 
     delete[] currentDirectory;
+    delete[] fallbackBinaryInputName;
 
     // Check for errors
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {

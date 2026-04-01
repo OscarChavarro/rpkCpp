@@ -29,6 +29,9 @@ class SceneBuilder final {
         java::ArrayList<Geometry *> *target);
     static void sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, PersistedSceneModel *mgfModel);
     static void removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList);
+    static bool sceneBuilderHasExtension(const char *fileName, const char *extension);
+    static char *sceneBuilderBuildBinaryFallbackPath(const char *mgfFileName);
+    static bool sceneBuilderIsReadableRegularFile(const char *fileName);
     static bool sceneBuilderValidateReadableFile(const char *fileName, const char *fileRole);
     static bool sceneBuilderReadFile(
         const char *fileName,

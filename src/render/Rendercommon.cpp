@@ -3,7 +3,7 @@ Rendering stuff independent of the graphics library being used
 */
 
 #include "java/util/ArrayList.txx"
-#include "render/Opengl.h"
+#include "render/opengl/Opengl.h"
 #include "render/Render.h"
 
 /**

@@ -1,11 +1,11 @@
-#include "render/GalerkinOpenGLRenderer.h"
+#include "render/opengl/GalerkinOpenGLRenderer.h"
 
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinElement.h"
 #include "java/util/ArrayList.txx"
 #include "render/Render.h"
-#include "render/Opengl.h"
-#include "render/visualDebugTools/GlutDebugState.h"
+#include "render/opengl/Opengl.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "tonemap/ToneMap.h"
 
 void

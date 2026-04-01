@@ -1,12 +1,12 @@
-#include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
+#include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "galerkin/GalerkinElement.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "render/GalerkinOpenGLRenderer.h"
-#include "render/Opengl.h"
+#include "render/opengl/GalerkinOpenGLRenderer.h"
+#include "render/opengl/Opengl.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMap.h"
 

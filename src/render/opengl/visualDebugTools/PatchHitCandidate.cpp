@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/PatchHitCandidate.h"
+#include "render/opengl/visualDebugTools/PatchHitCandidate.h"
 
 PatchHitCandidate::PatchHitCandidate():
     patchIndex(-1),

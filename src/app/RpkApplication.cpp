@@ -9,7 +9,6 @@
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
-#include "io/mgf/MgfReader.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -21,7 +20,11 @@
 #include "app/SceneBuilder.h"
 
 #ifdef OPEN_GL_ENABLED
-    #include "render/visualDebugTools/GlutDebugTools.h"
+    #include "render/opengl/visualDebugTools/GlutDebugTools.h"
+#endif
+
+#ifdef MGF_ENABLED
+    #include "io/mgf/MgfReader.h"
 #endif
 
 #ifdef RAYTRACING_ENABLED
@@ -141,7 +144,9 @@ RpkApplication::executeRendering(const char *rayTracerName) {
 void
 RpkApplication::freeMemory(ParseSession *mgfContext) {
     Options::deleteOptionsMemory();
+#ifdef MGF_ENABLED
     MgfReader::mgfFreeMemory(mgfContext);
+#endif
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();
     ClusterCreationStrategy::freeClusterElements();

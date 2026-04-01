@@ -3,6 +3,7 @@ project(rpk)
 
 option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
 option(OPEN_GL_ENABLED "Enable OpenGL modules" ON)
+option(MGF_ENABLED "Enable MGF reader modules" ON)
 
 if(UNIX AND NOT APPLE)
     add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
@@ -148,15 +149,6 @@ set(MAIN_SRC
     src/io/context/ColorContext.cpp
     src/io/context/WordsContext.cpp
     src/io/context/PersistedSceneModel.cpp
-    src/io/mgf/MgfDefinitions.cpp
-    src/io/mgf/MgfGeometry.cpp
-    src/io/mgf/MgfHandlerGeometry.cpp
-    src/io/mgf/MgfHandlerObject.cpp
-    src/io/mgf/MgfHandlerTransform.cpp
-    src/io/mgf/MgfHandlerColor.cpp
-    src/io/mgf/MgfHandlerMaterial.cpp
-    src/io/mgf/MgfStaticHandler.cpp
-    src/io/mgf/MgfReader.cpp
     src/io/bin/writer/BinaryModelWriter.cpp
     src/io/bin/writer/BinaryModelWriterSerializationContext.cpp
     src/io/bin/reader/BinaryModelReader.cpp
@@ -172,13 +164,10 @@ set(MAIN_SRC
     src/io/image/Dkcolor.cpp
     src/io/image/ImageOutputHandle.cpp
     src/io/image/PPMOutputHandle.cpp
-    src/render/GalerkinOpenGLRenderer.cpp
     src/render/Potential.cpp
-    src/render/visualDebugTools/GlutDebugState.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/Softids.cpp
     src/render/RadianceImageExporter.cpp
-    src/render/Opengl.cpp
     src/render/RenderHookList.cpp
     src/render/Canvas.cpp
     src/render/Rendercommon.cpp
@@ -221,14 +210,28 @@ set(MAIN_SRC
     src/app/Main.cpp)
 
 set(OPEN_GL_SRC
-    src/render/visualDebugTools/GlutHudConsole.cpp
-    src/render/visualDebugTools/GlutDebugPatchHierarchy.cpp
-    src/render/visualDebugTools/GlutDebugMode.cpp
-    src/render/visualDebugTools/GlutDebugToolsModel.cpp
-    src/render/visualDebugTools/GlutDebugToolsKeyControl.cpp
-    src/render/visualDebugTools/PatchHitCandidate.cpp
-    src/render/visualDebugTools/GlutDebugToolsMouseControl.cpp
-    src/render/visualDebugTools/GlutDebugTools.cpp)
+    src/render/opengl/Opengl.cpp
+    src/render/opengl/GalerkinOpenGLRenderer.cpp
+    src/render/opengl/visualDebugTools/GlutDebugState.cpp
+    src/render/opengl/visualDebugTools/GlutHudConsole.cpp
+    src/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.cpp
+    src/render/opengl/visualDebugTools/GlutDebugMode.cpp
+    src/render/opengl/visualDebugTools/GlutDebugToolsModel.cpp
+    src/render/opengl/visualDebugTools/GlutDebugToolsKeyControl.cpp
+    src/render/opengl/visualDebugTools/PatchHitCandidate.cpp
+    src/render/opengl/visualDebugTools/GlutDebugToolsMouseControl.cpp
+    src/render/opengl/visualDebugTools/GlutDebugTools.cpp)
+
+set(MGF_SRC
+    src/io/mgf/MgfDefinitions.cpp
+    src/io/mgf/MgfGeometry.cpp
+    src/io/mgf/MgfHandlerGeometry.cpp
+    src/io/mgf/MgfHandlerObject.cpp
+    src/io/mgf/MgfHandlerTransform.cpp
+    src/io/mgf/MgfHandlerColor.cpp
+    src/io/mgf/MgfHandlerMaterial.cpp
+    src/io/mgf/MgfStaticHandler.cpp
+    src/io/mgf/MgfReader.cpp)
 
 set(RAYTRACING_SRC
     src/raycasting/common/RayTracer.cpp
@@ -300,6 +303,10 @@ if(OPEN_GL_ENABLED)
     target_sources(rpk PRIVATE ${OPEN_GL_SRC})
 endif()
 
+if(MGF_ENABLED)
+    target_sources(rpk PRIVATE ${MGF_SRC})
+endif()
+
 if(RAYTRACING_ENABLED)
     target_sources(rpk PRIVATE ${RAYTRACING_SRC})
 endif()
@@ -310,6 +317,10 @@ endif()
 
 if(OPEN_GL_ENABLED)
     target_compile_definitions(rpk PRIVATE OPEN_GL_ENABLED)
+endif()
+
+if(MGF_ENABLED)
+    target_compile_definitions(rpk PRIVATE MGF_ENABLED)
 endif()
 
 if(OPEN_GL_ENABLED)

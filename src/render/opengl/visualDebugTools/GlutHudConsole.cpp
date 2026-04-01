@@ -1,4 +1,4 @@
-#include "render/visualDebugTools/GlutHudConsole.h"
+#include "render/opengl/visualDebugTools/GlutHudConsole.h"
 
 #ifdef __APPLE__
     #include <GLUT/glut.h>

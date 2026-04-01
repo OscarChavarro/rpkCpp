@@ -1,7 +1,7 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_KEY_CONTROL__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_KEY_CONTROL__
 
-#include "render/visualDebugTools/GlutDebugToolsModel.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
 
 class Scene;
 
