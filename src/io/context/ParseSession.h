@@ -16,11 +16,6 @@
 #include "io/context/ObjectHierarchyState.h"
 #include "io/context/TransformStack.h"
 
-namespace java {
-    template <class T>
-    class ArrayList;
-}
-
 class Geometry;
 class Material;
 class EntityHandler;

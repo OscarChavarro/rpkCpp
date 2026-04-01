@@ -1,11 +1,6 @@
 #ifndef __BINARY_MODEL_READER_CLEANUP__
 #define __BINARY_MODEL_READER_CLEANUP__
 
-namespace java {
-    template <class T>
-    class ArrayList;
-}
-
 class Geometry;
 class Material;
 class ColorContext;

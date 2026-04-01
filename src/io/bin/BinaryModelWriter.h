@@ -1,15 +1,7 @@
 #ifndef __BINARY_MODEL_WRITTER__
 #define __BINARY_MODEL_WRITTER__
 
-namespace java {
-    template <class T>
-    class ArrayList;
-
-    template <class K, class V>
-    class HashMap;
-
-    class OutputStream;
-}
+#include "java/util/HashMap.h"
 
 class BoundingBox;
 class ColorRgb;

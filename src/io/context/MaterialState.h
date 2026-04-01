@@ -1,10 +1,7 @@
 #ifndef __MATERIAL_STATE__
 #define __MATERIAL_STATE__
 
-namespace java {
-    template <class T>
-    class ArrayList;
-}
+#include "java/util/ArrayList.h"
 
 class Material;
 

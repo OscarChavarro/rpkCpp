@@ -3,11 +3,6 @@
 
 constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
 
-namespace java {
-    template <class T>
-    class ArrayList;
-}
-
 class Geometry;
 class Patch;
 class Vector3D;

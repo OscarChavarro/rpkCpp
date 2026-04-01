@@ -15,7 +15,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 /**
 Returns the patch with highest un-shot power, weighted with indirect
 importance if importance-driven (see Bekaert & Willems, "Importance-driven
-Progressive refinement radiosity", EGRW'95, Dublin
+Progressive refinement radiosity", EGRW'95, Dublin).
 */
 Patch *
 ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *scenePatches, const GalerkinState *galerkinState) {
@@ -187,8 +187,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
 bool
 ShootingStrategy::propagateRadiance(
     const Scene *scene,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     // Choose a shooting patch. also accumulates the total un-shot power into
     // galerkinState->ambientRadiance
@@ -196,8 +195,6 @@ ShootingStrategy::propagateRadiance(
     if ( !shootingPatch ) {
         return true;
     }
-
-    ColorRgb yellow = {1.0, 1.0, 0.0};
 
     doPropagate(
         scene,
@@ -252,15 +249,12 @@ ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *s
 void
 ShootingStrategy::propagatePotential(
     const Scene *scene,
-    GalerkinState *galerkinState,
-    const RenderOptions *renderOptions)
+    GalerkinState *galerkinState)
 {
     const Patch *shootingPatch;
 
     shootingPatch = choosePotentialShootingPatch(scene->patchList);
     if ( shootingPatch ) {
-        ColorRgb white = {1.0, 1.0, 1.0};
-
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
         java::System::err.printf("No patches with un-shot potential??\n");
@@ -304,7 +298,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
                 clusterUpdatePotential(galerkinState->topCluster);
             }
         }
-        propagatePotential(scene, galerkinState, renderOptions);
+        propagatePotential(scene, galerkinState);
     }
-    return propagateRadiance(scene, galerkinState, renderOptions);
+    return propagateRadiance(scene, galerkinState);
 }

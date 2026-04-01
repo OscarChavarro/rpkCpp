@@ -1,12 +1,10 @@
 #ifndef __READER_CONTEXT__
 #define __READER_CONTEXT__
 
+#include "java/io/InputStream.h"
+
 constexpr int MGF_MAXIMUM_INPUT_LINE_LENGTH = 4096;
 constexpr int MGF_MAXIMUM_ARGUMENT_COUNT = (MGF_MAXIMUM_INPUT_LINE_LENGTH / 4);
-
-namespace java {
-class InputStream;
-}
 
 class ReaderContext {
   public:

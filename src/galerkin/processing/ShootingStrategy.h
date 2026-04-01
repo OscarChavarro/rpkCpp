@@ -48,7 +48,7 @@ class ShootingStrategy {
     doPropagate(const Scene *scene, const Patch *shootingPatch, GalerkinState *galerkinState);
 
     static bool
-    propagateRadiance(const Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions);
+    propagateRadiance(const Scene *scene, GalerkinState *galerkinState);
 
     static void
     clusterUpdatePotential(GalerkinElement *clusterElement);
@@ -56,7 +56,7 @@ class ShootingStrategy {
     static Patch *
     choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches);
 
-    static void propagatePotential(const Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions);
+    static void propagatePotential(const Scene *scene, GalerkinState *galerkinState);
 
     static void
     shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);

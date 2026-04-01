@@ -5,10 +5,6 @@
 #include "io/context/HandlerType.h"
 #include "io/context/EntityHandler.h"
 
-namespace java {
-class InputStream;
-}
-
 class FilePositionContext;
 
 class MgfDefinitions {
