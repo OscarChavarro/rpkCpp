@@ -69,7 +69,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
-    char *getStats() final;
+    char *getStats() const final;
     void
     writeVRML(
         const Camera *camera,

@@ -13,12 +13,12 @@ class BoundingBox {
     float coordinates[6];
 
     static void inline
-    setIfLess(float &a, const float &b) {
+    setIfLess(float &a, float b) {
         a = a < b ? a : b;
     }
 
     static void inline
-    setIfGreater(float &a, const float &b) {
+    setIfGreater(float &a, float b) {
         a = a > b ? a : b;
     }
 

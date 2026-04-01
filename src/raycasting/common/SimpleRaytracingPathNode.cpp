@@ -69,13 +69,11 @@ Helper routine, searches the corresponding 'Enters' node for this node
 */
 
 SimpleRaytracingPathNode *
-SimpleRaytracingPathNode::GetMatchingNode() {
-    const PhongBidirectionalScatteringDistributionFunction *thisBsdf;
+SimpleRaytracingPathNode::GetMatchingNode() const {
+    const PhongBidirectionalScatteringDistributionFunction *const thisBsdf = m_useBsdf;
     int backHits;
     SimpleRaytracingPathNode *tmpNode = previous();
     SimpleRaytracingPathNode *matchedNode = nullptr;
-
-    thisBsdf = m_useBsdf;
     backHits = 1;
 
     while ( tmpNode && backHits > 0 ) {
@@ -108,9 +106,7 @@ SimpleRaytracingPathNode::GetMatchingNode() {
 }
 
 PhongBidirectionalScatteringDistributionFunction *
-SimpleRaytracingPathNode::getPreviousBsdf() {
-    SimpleRaytracingPathNode *matchedNode;
-
+SimpleRaytracingPathNode::getPreviousBsdf() const {
     if ( !(m_hit.getFlags() & RayHitFlag::BACK) ) {
         Error::error("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return m_inBsdf;  // Should not happen
@@ -121,7 +117,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() {
     }
 
     // Find the corresponding ray that enters the material
-    matchedNode = GetMatchingNode();
+    SimpleRaytracingPathNode *const matchedNode = GetMatchingNode();
 
     if ( matchedNode == nullptr ) {
         Error::warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");

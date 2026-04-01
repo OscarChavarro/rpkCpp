@@ -15,7 +15,7 @@ class DensityHitArray {
     ~DensityHitArray();
     bool add(const DensityHit &hit);
     DensityHit operator[](int i) const;
-    DensityHitArray * getNext();
+    DensityHitArray * getNext() const;
     void setNext(DensityHitArray *inNext);
 };
 
@@ -46,7 +46,7 @@ DensityHitArray::operator[](int i) const {
 }
 
 inline DensityHitArray *
-DensityHitArray::getNext() {
+DensityHitArray::getNext() const {
     return next;
 }
 

@@ -75,7 +75,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     ColorRgb getRadiance(Camera *, Patch *patch, double u, double v, Vector3D, const RenderOptions *) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
-    char *getStats() final;
+    char *getStats() const final;
     void
     writeVRML(
         const Camera *camera,

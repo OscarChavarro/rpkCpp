@@ -45,7 +45,7 @@ class RadianceMethod {
     virtual void destroyPatchData(Patch *patch) = 0;
 
     // Returns a string with statistics information about the current run so far
-    virtual char *getStats() = 0;
+    virtual char *getStats() const = 0;
 
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will

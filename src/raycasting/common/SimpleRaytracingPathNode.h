@@ -67,14 +67,14 @@ class SimpleRaytracingPathNode {
     ~SimpleRaytracingPathNode();
 
     // Navigation in a path
-    SimpleRaytracingPathNode *next();
-    SimpleRaytracingPathNode *previous();
+    SimpleRaytracingPathNode *next() const;
+    SimpleRaytracingPathNode *previous() const;
     void setNext(SimpleRaytracingPathNode *node);
     void setPrevious(SimpleRaytracingPathNode *node);
     void attach(SimpleRaytracingPathNode *node);
     void ensureNext();
 
-    PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
+    PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf() const; // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
     void print(java::PrintStream *out) const;
@@ -82,16 +82,16 @@ class SimpleRaytracingPathNode {
     bool ends() const;
 
   protected:
-    SimpleRaytracingPathNode *GetMatchingNode();
+    SimpleRaytracingPathNode *GetMatchingNode() const;
 };
 
 inline SimpleRaytracingPathNode *
-SimpleRaytracingPathNode::next() {
+SimpleRaytracingPathNode::next() const {
     return m_next;
 }
 
 inline SimpleRaytracingPathNode *
-SimpleRaytracingPathNode::previous() {
+SimpleRaytracingPathNode::previous() const {
     return m_previous;
 }
 

@@ -99,7 +99,7 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene) {
 }
 
 char *
-StochasticJacobiRadianceMethod::getStats() {
+StochasticJacobiRadianceMethod::getStats() const {
     static char stats[STRING_LENGTH];
     int statsOffset = 0;
 

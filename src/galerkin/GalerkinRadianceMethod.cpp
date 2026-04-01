@@ -488,7 +488,7 @@ GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 char *
-GalerkinRadianceMethod::getStats() {
+GalerkinRadianceMethod::getStats() const {
     static char stats[STRING_LENGTH]{};
 
     for ( int i = 0 ; i < STRING_LENGTH; i++ ) {

@@ -515,7 +515,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 }
 
 char *
-RandomWalkRadianceMethod::getStats() {
+RandomWalkRadianceMethod::getStats() const {
     static char stats[STRING_LENGTH];
     int statsOffset = 0;
 

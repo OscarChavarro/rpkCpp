@@ -737,7 +737,7 @@ PhotonMapRadianceMethod::getRadiance(
 }
 
 char *
-PhotonMapRadianceMethod::getStats() {
+PhotonMapRadianceMethod::getStats() const {
     static char stats[STRING_LENGTH];
     int statsOffset = 0;
 

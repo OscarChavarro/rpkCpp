@@ -14,7 +14,7 @@ class BsdfComp {
     operator ColorRgb *();
     void Clear(const char flags);
     void Fill(const ColorRgb col, const char flags);
-    ColorRgb Sum(const char flags);
+    ColorRgb Sum(const char flags) const;
 };
 
 inline BsdfComp::BsdfComp():comp() {}
@@ -48,7 +48,7 @@ BsdfComp::Fill(const ColorRgb col, const char flags = BSDF_ALL_COMPONENTS) {
 }
 
 inline ColorRgb
-BsdfComp::Sum(const char flags = BSDF_ALL_COMPONENTS) {
+BsdfComp::Sum(const char flags = BSDF_ALL_COMPONENTS) const {
     ColorRgb result;
 
     result.clear();
