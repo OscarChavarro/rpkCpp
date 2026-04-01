@@ -17,7 +17,8 @@ StochasticRaytracingConfiguration::init(
     const StochasticRayTracingState &state,
     const java::ArrayList<Patch *> *lightList,
     const RadianceMethod *radianceMethod,
-    ToneMappingContext *inToneMapOptions)
+    ToneMappingContext *inToneMapOptions,
+    LightList *&rayTracingLightList)
 {
     // Copy state options
 
@@ -28,6 +29,9 @@ StochasticRaytracingConfiguration::init(
     backgroundIndirect = state.backgroundIndirect;
     backgroundDirect = state.backgroundDirect;
     backgroundSampling = state.backgroundSampling;
+    doFrameCoherent = state.doFrameCoherent;
+    doCorrelatedSampling = state.doCorrelatedSampling;
+    baseSeed = state.baseSeed;
 
     if ( radMode != RayTracingRadMode::STORED_NONE ) {
         if ( radianceMethod == nullptr ) {
@@ -78,13 +82,14 @@ StochasticRaytracingConfiguration::init(
     screen = new ScreenBuffer(nullptr, defaultCamera, toneMapOptions);
     screen->setFactor(1.0); // We're storing plain radiance
 
-    initDependentVars(lightList, radianceMethod);
+    initDependentVars(lightList, radianceMethod, rayTracingLightList);
 }
 
 void
 StochasticRaytracingConfiguration::initDependentVars(
     const java::ArrayList<Patch *> *lightList,
-    const RadianceMethod *radianceMethod)
+    const RadianceMethod *radianceMethod,
+    LightList *&rayTracingLightList)
 {
     // Sampler configuration
     samplerConfig.pointSampler = new EyeSampler;
@@ -103,13 +108,6 @@ StochasticRaytracingConfiguration::initDependentVars(
         default:
             Error::error("SR CONFIG::initDependentVars", "Wrong sampling mode");
     }
-
-    if ( lightMode == RayTracingLightMode::IMPORTANT_LIGHTS ) {
-        samplerConfig.neSampler = new ImportantLightSampler;
-    } else {
-        samplerConfig.neSampler = new UniformLightSampler;
-    }
-
 
     // Scatter info blocks
     // Storage block
@@ -231,11 +229,17 @@ StochasticRaytracingConfiguration::initDependentVars(
     siOthersCount = siIndex;
 
     // Main init the light list
-    if ( GLOBAL_lightList ) {
-        delete GLOBAL_lightList;
+    if ( rayTracingLightList != nullptr ) {
+        delete rayTracingLightList;
     }
 
-    GLOBAL_lightList = new LightList(lightList, backgroundSampling);
+    rayTracingLightList = new LightList(lightList, backgroundSampling);
+
+    if ( lightMode == RayTracingLightMode::IMPORTANT_LIGHTS ) {
+        samplerConfig.neSampler = new ImportantLightSampler(rayTracingLightList);
+    } else {
+        samplerConfig.neSampler = new UniformLightSampler(rayTracingLightList);
+    }
 
     // Main init the seed config
     seedConfig.init(samplerConfig.maxDepth);

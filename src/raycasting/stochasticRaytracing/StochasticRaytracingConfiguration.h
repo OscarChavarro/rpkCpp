@@ -14,6 +14,7 @@
 #include "raycasting/stochasticRaytracing/StorageReadout.h"
 
 class ToneMappingContext;
+class LightList;
 
 class StochasticRaytracingConfiguration {
   public:
@@ -32,6 +33,9 @@ class StochasticRaytracingConfiguration {
     bool backgroundIndirect; // Use background in reflections (indirect)
     bool backgroundDirect; // Use background when no surface is hit (direct)
     bool backgroundSampling; // Use light sampling
+    int doFrameCoherent;
+    int doCorrelatedSampling;
+    long int baseSeed;
 
     // Independent variables
     ScreenBuffer *screen;
@@ -62,7 +66,8 @@ public:
         const StochasticRayTracingState &state,
         const java::ArrayList<Patch *> *lightList,
         const RadianceMethod *radianceMethod,
-        ToneMappingContext *toneMapOptions);
+        ToneMappingContext *toneMapOptions,
+        LightList *&rayTracingLightList);
 
     // Constructors
     StochasticRaytracingConfiguration(
@@ -70,7 +75,8 @@ public:
             StochasticRayTracingState &state,
             java::ArrayList<Patch *> *lightList,
             RadianceMethod *radianceMethod,
-            ToneMappingContext *inToneMapOptions):
+            ToneMappingContext *inToneMapOptions,
+            LightList *&rayTracingLightList):
             samplesPerPixel(),
             nextEventSamples(),
             lightMode(),
@@ -82,6 +88,9 @@ public:
             backgroundIndirect(),
             backgroundDirect(),
             backgroundSampling(),
+            doFrameCoherent(),
+            doCorrelatedSampling(),
+            baseSeed(),
             screen(),
             toneMapOptions(),
             samplerConfig(),
@@ -91,7 +100,7 @@ public:
             siOthersCount(),
             initialReadout()
         {
-        init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions);
+        init(defaultCamera, state, lightList, radianceMethod, inToneMapOptions, rayTracingLightList);
     }
 
     ~StochasticRaytracingConfiguration() {
@@ -99,7 +108,11 @@ public:
     };
 
 private:
-    void initDependentVars(const java::ArrayList<Patch *> *lightList, const RadianceMethod *radianceMethod);
+    void
+    initDependentVars(
+        const java::ArrayList<Patch *> *lightList,
+        const RadianceMethod *radianceMethod,
+        LightList *&rayTracingLightList);
 };
 
 #endif

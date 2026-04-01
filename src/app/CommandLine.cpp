@@ -9,7 +9,7 @@
 #include "galerkin/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "raycasting/simple/RayMatter.h"
+    #include "raycasting/simple/RayMatterState.h"
     #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
     #include "raycasting/stochasticRaytracing/Hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
@@ -744,18 +744,18 @@ static EnumDesc globalRayMatterPixelFilters[] = {
 };
 static CommandLineOptions rmPixelFilterTypeStruct = Options::makeEnumOptTypeStruct(globalRayMatterPixelFilters);
 
-static CommandLineOptionDescription globalRayMatterOptions[] =
-{
-    {"-rm-samples-per-pixel", 6, &GLOBAL_options_intType, &GLOBAL_rayCasting_rayMatterState.samplesPerPixel, DEFAULT_ACTION,
-     "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
-    {"-rm-pixel-filter", 7, &rmPixelFilterTypeStruct, &GLOBAL_rayCasting_rayMatterState.filter, DEFAULT_ACTION,
-     "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
-    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 void
-CommandLine::rayMattingParseOptions(int *argc, char **argv) {
-    Options::parseGeneralOptions(globalRayMatterOptions, argc, argv);
+CommandLine::rayMattingParseOptions(int *argc, char **argv, RayMatterState &rayMatterState) {
+    CommandLineOptionDescription rayMatterOptions[] =
+    {
+        {"-rm-samples-per-pixel", 6, &GLOBAL_options_intType, &rayMatterState.samplesPerPixel, DEFAULT_ACTION,
+         "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
+        {"-rm-pixel-filter", 7, &rmPixelFilterTypeStruct, &rayMatterState.filter, DEFAULT_ACTION,
+         "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    };
+
+    Options::parseGeneralOptions(rayMatterOptions, argc, argv);
 }
 
 /*** Enum Option types ***/
@@ -786,82 +786,86 @@ static EnumDesc globalSamplingModeValues[] = {
 };
 static CommandLineOptions samplingModeTypeStruct = Options::makeEnumOptTypeStruct(globalSamplingModeValues);
 
-static CommandLineOptionDescription globalStochasticRatTracerOptions[] = {
-    {"-rts-samples-per-pixel", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.samplesPerPixel, DEFAULT_ACTION,
-     "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
-    {"-rts-no-progressive", 9, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.progressiveTracing, DEFAULT_ACTION,
-     "-rts-no-progressive\t: don't do progressive image refinement"},
-    {"-rts-rad-mode", 8, &radModeTypeStruct, &GLOBAL_raytracing_state.radMode, DEFAULT_ACTION,
-     "-rts-rad-mode <type>\t: Stored radiance usage - \"none\", \"direct\", \"indirect\", \"photonmap\""},
-    {"-rts-no-lightsampling", 9, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.nextEvent, DEFAULT_ACTION,
-     "-rts-no-lightsampling\t: don't do explicit light sampling"},
-    {"-rts-l-mode", 8, &lightModeTypeStruct, &GLOBAL_raytracing_state.lightMode, DEFAULT_ACTION,
-     "-rts-l-mode <type>\t: Light sampling mode - \"power\", \"important\", \"all\""},
-    {"-rts-l-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.nextEventSamples, DEFAULT_ACTION,
-     "-rts-l-samples <number>\t: explicit light source samples at each hit"},
-    {"-rts-scatter-samples", 7, &GLOBAL_options_intType, &GLOBAL_raytracing_state.scatterSamples, DEFAULT_ACTION,
-     "-rts-scatter-samples <number>\t: scattered rays at each bounce"},
-    {"-rts-do-fdg", 0, OPTIONS_TYPE_SET_TRUE, &GLOBAL_raytracing_state.differentFirstDG, DEFAULT_ACTION,
-     "-rts-do-fdg\t: use different nr. of scatter samples for first diffuse/glossy bounce"},
-    {"-rts-fdg-samples", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.firstDGSamples, DEFAULT_ACTION,
-     "-rts-fdg-samples <number>\t: scattered rays at first diffuse/glossy bounce"},
-    {"-rts-separate-specular", 8, OPTIONS_TYPE_SET_TRUE, &GLOBAL_raytracing_state.separateSpecular, DEFAULT_ACTION,
-     "-rts-separate-specular\t: always shoot separate rays for specular scattering"},
-    {"-rts-s-mode", 9, &samplingModeTypeStruct, &GLOBAL_raytracing_state.reflectionSampling, DEFAULT_ACTION,
-     "-rts-s-mode <type>\t: Sampling mode - \"bsdf\", \"classical\""},
-    {"-rts-min-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.minPathDepth, DEFAULT_ACTION,
-     "-rts-min-path-length <number>\t: minimum path length before Russian roulette"},
-    {"-rts-max-path-length", 8, &GLOBAL_options_intType, &GLOBAL_raytracing_state.maxPathDepth, DEFAULT_ACTION,
-     "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
-    {"-rts-NOdirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.backgroundDirect, DEFAULT_ACTION,
-     "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
-    {"-rts-NOindirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &GLOBAL_raytracing_state.backgroundIndirect, DEFAULT_ACTION,
-     "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
-    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 void
-CommandLine::stochasticRayTracerParseOptions(int *argc, char **argv) {
-    Options::parseGeneralOptions(globalStochasticRatTracerOptions, argc, argv);
+CommandLine::stochasticRayTracerParseOptions(
+    int *argc,
+    char **argv,
+    StochasticRayTracingState &stochasticRayTracingState)
+{
+    CommandLineOptionDescription stochasticRatTracerOptions[] = {
+        {"-rts-samples-per-pixel", 7, &GLOBAL_options_intType, &stochasticRayTracingState.samplesPerPixel, DEFAULT_ACTION,
+         "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
+        {"-rts-no-progressive", 9, OPTIONS_TYPE_SET_FALSE, &stochasticRayTracingState.progressiveTracing, DEFAULT_ACTION,
+         "-rts-no-progressive\t: don't do progressive image refinement"},
+        {"-rts-rad-mode", 8, &radModeTypeStruct, &stochasticRayTracingState.radMode, DEFAULT_ACTION,
+         "-rts-rad-mode <type>\t: Stored radiance usage - \"none\", \"direct\", \"indirect\", \"photonmap\""},
+        {"-rts-no-lightsampling", 9, OPTIONS_TYPE_SET_FALSE, &stochasticRayTracingState.nextEvent, DEFAULT_ACTION,
+         "-rts-no-lightsampling\t: don't do explicit light sampling"},
+        {"-rts-l-mode", 8, &lightModeTypeStruct, &stochasticRayTracingState.lightMode, DEFAULT_ACTION,
+         "-rts-l-mode <type>\t: Light sampling mode - \"power\", \"important\", \"all\""},
+        {"-rts-l-samples", 8, &GLOBAL_options_intType, &stochasticRayTracingState.nextEventSamples, DEFAULT_ACTION,
+         "-rts-l-samples <number>\t: explicit light source samples at each hit"},
+        {"-rts-scatter-samples", 7, &GLOBAL_options_intType, &stochasticRayTracingState.scatterSamples, DEFAULT_ACTION,
+         "-rts-scatter-samples <number>\t: scattered rays at each bounce"},
+        {"-rts-do-fdg", 0, OPTIONS_TYPE_SET_TRUE, &stochasticRayTracingState.differentFirstDG, DEFAULT_ACTION,
+         "-rts-do-fdg\t: use different nr. of scatter samples for first diffuse/glossy bounce"},
+        {"-rts-fdg-samples", 8, &GLOBAL_options_intType, &stochasticRayTracingState.firstDGSamples, DEFAULT_ACTION,
+         "-rts-fdg-samples <number>\t: scattered rays at first diffuse/glossy bounce"},
+        {"-rts-separate-specular", 8, OPTIONS_TYPE_SET_TRUE, &stochasticRayTracingState.separateSpecular, DEFAULT_ACTION,
+         "-rts-separate-specular\t: always shoot separate rays for specular scattering"},
+        {"-rts-s-mode", 9, &samplingModeTypeStruct, &stochasticRayTracingState.reflectionSampling, DEFAULT_ACTION,
+         "-rts-s-mode <type>\t: Sampling mode - \"bsdf\", \"classical\""},
+        {"-rts-min-path-length", 8, &GLOBAL_options_intType, &stochasticRayTracingState.minPathDepth, DEFAULT_ACTION,
+         "-rts-min-path-length <number>\t: minimum path length before Russian roulette"},
+        {"-rts-max-path-length", 8, &GLOBAL_options_intType, &stochasticRayTracingState.maxPathDepth, DEFAULT_ACTION,
+         "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
+        {"-rts-NOdirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &stochasticRayTracingState.backgroundDirect, DEFAULT_ACTION,
+         "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
+        {"-rts-NOindirect-background-rad", 8, OPTIONS_TYPE_SET_FALSE, &stochasticRayTracingState.backgroundIndirect, DEFAULT_ACTION,
+         "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    };
+
+    Options::parseGeneralOptions(stochasticRatTracerOptions, argc, argv);
 }
 
 static CommandLineOptions RegExpStringType = Options::makeNStringTypeStruct(MAX_REGEXP_SIZE);
 
-static CommandLineOptionDescription globalBiDirectionalOptions[] = {
-    {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel, DEFAULT_ACTION,
-    "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
-    {"-bidir-no-progressive", 11, OPTIONS_TYPE_SET_FALSE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing, DEFAULT_ACTION,
-    "-bidir-no-progressive          \t: don't do progressive image refinement"},
-    {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth, DEFAULT_ACTION,
-    "-bidir-max-eye-path-length <number>: maximum eye path length"},
-    {"-bidir-max-light-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumLightPathDepth, DEFAULT_ACTION,
-    "-bidir-max-light-path-length <number>: maximum light path length"},
-    {"-bidir-max-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumPathDepth, DEFAULT_ACTION,
-    "-bidir-max-path-length <number>\t: maximum combined path length"},
-    {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth, DEFAULT_ACTION,
-    "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
-    {"-bidir-no-light-importance", 11, OPTIONS_TYPE_SET_FALSE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights, DEFAULT_ACTION,
-    "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
-    {"-bidir-use-regexp", 12, OPTIONS_TYPE_SET_TRUE, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars, DEFAULT_ACTION,
-    "-bidir-use-regexp\t: use regular expressions for path evaluation"},
-    {"-bidir-use-emitted", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLe, DEFAULT_ACTION,
-    "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
-    {"-bidir-rexp-emitted", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp, DEFAULT_ACTION,
-    "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
-    {"-bidir-reg-direct", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLD, DEFAULT_ACTION,
-    "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
-    {"-bidir-rexp-direct", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp, DEFAULT_ACTION,
-    "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
-    {"-bidir-reg-indirect", 12, OPTIONS_TYPE_BOOL, &GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLI, DEFAULT_ACTION,
-    "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
-    {"-bidir-rexp-indirect", 13, &RegExpStringType, GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp, DEFAULT_ACTION,
-    "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
-    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 void
-CommandLine::biDirectionalPathParseOptions(int *argc, char **argv) {
-    Options::parseGeneralOptions(globalBiDirectionalOptions, argc, argv);
+CommandLine::biDirectionalPathParseOptions(int *argc, char **argv, BidirectionalPathTracingState &bidirectionalPathState) {
+    CommandLineOptionDescription bidirectionalOptions[] = {
+        {"-bidir-samples-per-pixel", 8, &GLOBAL_options_intType, &bidirectionalPathState.baseConfig.samplesPerPixel, DEFAULT_ACTION,
+        "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
+        {"-bidir-no-progressive", 11, OPTIONS_TYPE_SET_FALSE, &bidirectionalPathState.baseConfig.progressiveTracing, DEFAULT_ACTION,
+        "-bidir-no-progressive          \t: don't do progressive image refinement"},
+        {"-bidir-max-eye-path-length", 12, &GLOBAL_options_intType, &bidirectionalPathState.baseConfig.maximumEyePathDepth, DEFAULT_ACTION,
+        "-bidir-max-eye-path-length <number>: maximum eye path length"},
+        {"-bidir-max-light-path-length", 12, &GLOBAL_options_intType, &bidirectionalPathState.baseConfig.maximumLightPathDepth, DEFAULT_ACTION,
+        "-bidir-max-light-path-length <number>: maximum light path length"},
+        {"-bidir-max-path-length", 12, &GLOBAL_options_intType, &bidirectionalPathState.baseConfig.maximumPathDepth, DEFAULT_ACTION,
+        "-bidir-max-path-length <number>\t: maximum combined path length"},
+        {"-bidir-min-path-length", 12, &GLOBAL_options_intType, &bidirectionalPathState.baseConfig.minimumPathDepth, DEFAULT_ACTION,
+        "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
+        {"-bidir-no-light-importance", 11, OPTIONS_TYPE_SET_FALSE, &bidirectionalPathState.baseConfig.sampleImportantLights, DEFAULT_ACTION,
+        "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
+        {"-bidir-use-regexp", 12, OPTIONS_TYPE_SET_TRUE, &bidirectionalPathState.baseConfig.useSpars, DEFAULT_ACTION,
+        "-bidir-use-regexp\t: use regular expressions for path evaluation"},
+        {"-bidir-use-emitted", 12, OPTIONS_TYPE_BOOL, &bidirectionalPathState.baseConfig.doLe, DEFAULT_ACTION,
+        "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
+        {"-bidir-rexp-emitted", 13, &RegExpStringType, bidirectionalPathState.baseConfig.leRegExp, DEFAULT_ACTION,
+        "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
+        {"-bidir-reg-direct", 12, OPTIONS_TYPE_BOOL, &bidirectionalPathState.baseConfig.doLD, DEFAULT_ACTION,
+        "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
+        {"-bidir-rexp-direct", 13, &RegExpStringType, bidirectionalPathState.baseConfig.ldRegExp, DEFAULT_ACTION,
+        "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
+        {"-bidir-reg-indirect", 12, OPTIONS_TYPE_BOOL, &bidirectionalPathState.baseConfig.doLI, DEFAULT_ACTION,
+        "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
+        {"-bidir-rexp-indirect", 13, &RegExpStringType, bidirectionalPathState.baseConfig.liRegExp, DEFAULT_ACTION,
+        "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    };
+
+    Options::parseGeneralOptions(bidirectionalOptions, argc, argv);
 }
 
 static char *globalRaytracingMethodsString;

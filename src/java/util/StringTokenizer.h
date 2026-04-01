@@ -21,7 +21,7 @@ class StringTokenizer {
     findTokenEnd(int from) const;
 
   public:
-    StringTokenizer(const java::String &text, const char *delimiters = " \t\n\r\f");
+    explicit StringTokenizer(const java::String &text, const char *delimiters = " \t\n\r\f");
     ~StringTokenizer();
 
     void

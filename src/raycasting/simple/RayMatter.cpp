@@ -18,11 +18,16 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/simple/RayMatter.h"
 
 static RayMatter *globalRayMatter = nullptr;
-RayMatterState GLOBAL_rayCasting_rayMatterState;
 
 char RayMatter::name[12] = "Ray Matting";
 
-RayMatter::RayMatter(ScreenBuffer *screen, const Camera *camera, ToneMappingContext *toneMapOptions) {
+RayMatter::RayMatter(
+    ScreenBuffer *screen,
+    const Camera *camera,
+    RayMatterState &inRayMatterState,
+    ToneMappingContext *toneMapOptions):
+    rayMatterState(inRayMatterState)
+{
     if ( screen == nullptr ) {
         screenBuffer = new ScreenBuffer(nullptr, camera, toneMapOptions);
         doDeleteScreen = false;
@@ -47,8 +52,7 @@ RayMatter::~RayMatter() {
 
 void
 RayMatter::defaults() {
-    GLOBAL_rayCasting_rayMatterState.filter = TENT_FILTER;
-    GLOBAL_rayCasting_rayMatterState.samplesPerPixel = 8;
+    // Defaults are owned by the caller-provided RayMatterState instance.
 }
 
 const char *
@@ -70,7 +74,11 @@ RayMatter::execute(
     if ( globalRayMatter != nullptr ) {
         delete globalRayMatter;
     }
-    globalRayMatter = new RayMatter(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
+    globalRayMatter = new RayMatter(
+        nullptr,
+        scene->camera,
+        rayMatterState,
+        renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
     globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
     if ( ip && globalRayMatter != nullptr ) {
         globalRayMatter->save(ip);
@@ -102,16 +110,16 @@ RayMatter::createFilter() {
         pixelFilter = nullptr;
     }
 
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::BOX_FILTER ) {
+    if ( rayMatterState.filter == RayMatterFilterType::BOX_FILTER ) {
         pixelFilter = new BoxFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::TENT_FILTER ) {
+    if ( rayMatterState.filter == RayMatterFilterType::TENT_FILTER ) {
         pixelFilter = new TentFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::GAUSS_FILTER ) {
+    if ( rayMatterState.filter == RayMatterFilterType::GAUSS_FILTER ) {
         pixelFilter = new NormalFilter;
     }
-    if ( GLOBAL_rayCasting_rayMatterState.filter == RayMatterFilterType::GAUSS2_FILTER ) {
+    if ( rayMatterState.filter == RayMatterFilterType::GAUSS2_FILTER ) {
         pixelFilter = new NormalFilter(0.5, 1.5);
     }
 }
@@ -127,7 +135,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
         for ( int x = 0; x < camera->xSize; x++ ) {
             float hits = 0;
 
-            for ( int i = 0; i < GLOBAL_rayCasting_rayMatterState.samplesPerPixel; i++ ) {
+            for ( int i = 0; i < rayMatterState.samplesPerPixel; i++ ) {
                 // Uniform random var
                 double dx = drand48();
                 double dy = drand48();
@@ -150,7 +158,7 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
             }
 
             // Add matte value to screen buffer
-            float value = (hits / static_cast<float>(GLOBAL_rayCasting_rayMatterState.samplesPerPixel));
+            float value = (hits / static_cast<float>(rayMatterState.samplesPerPixel));
             if ( value > 1.0 ) {
                 value = 1.0;
             }

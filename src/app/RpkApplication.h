@@ -6,6 +6,11 @@
 #include "raycasting/common/RayTracer.h"
 #include "tonemap/ToneMappingContext.h"
 
+class RayMatterState;
+class BidirectionalPathTracingState;
+class StochasticRayTracingState;
+class LightList;
+
 class RpkApplication {
   private:
     static Material defaultMaterial;
@@ -21,9 +26,21 @@ class RpkApplication {
 
     void selectToneMapByName(const char *name);
     static void mainInitApplication();
-    void mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName);
+    void mainParseOptions(
+        int *argc,
+        char **argv,
+        char *rayTracerName,
+        char *toneMapName,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState);
     void mainCreateOffscreenCanvasWindow() const;
-    void executeRendering(const char *rayTracerName);
+    void executeRendering(
+        const char *rayTracerName,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState,
+        LightList *&lightList);
     static void freeMemory(ParseSession *mgfContext);
 
   public:

@@ -79,7 +79,14 @@ Parses (and consumes) command line options for radiance
 computation
 */
 void
-Radiance::radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadianceMethod) {
+Radiance::radianceParseOptions(
+    int *argc,
+    char **argv,
+    RadianceMethod **newRadianceMethod,
+    RayMatterState &rayMatterState,
+    BidirectionalPathTracingState &bidirectionalPathState,
+    StochasticRayTracingState &stochasticRayTracingState)
+{
     Radiance::selectRadianceMethod(argc, argv, newRadianceMethod);
     CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
 
@@ -100,10 +107,14 @@ Radiance::radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadia
 #ifdef RAYTRACING_ENABLED
     CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv);
     CommandLine::randomWalkRadiosityParseOptions(argc, argv);
-    CommandLine::rayMattingParseOptions(argc, argv);
-    CommandLine::biDirectionalPathParseOptions(argc, argv);
-    CommandLine::stochasticRayTracerParseOptions(argc, argv);
+    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
+    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState);
+    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState);
     CommandLine::photonMapParseOptions(argc, argv);
+#else
+    (void) rayMatterState;
+    (void) bidirectionalPathState;
+    (void) stochasticRayTracingState;
 #endif
 
     CommandLine::galerkinParseOptions(argc, argv);

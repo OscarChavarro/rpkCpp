@@ -22,10 +22,12 @@ static constexpr int STRINGS_SIZE = 300;
 
 char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
 
-// Persistent biDirPath state, contains actual GUI state and some other stuff
-BidirectionalPathTracingState GLOBAL_rayTracing_biDirectionalPath;
-
-BidirectionalPathRaytracer::BidirectionalPathRaytracer() {
+BidirectionalPathRaytracer::BidirectionalPathRaytracer(
+    BidirectionalPathTracingState &inBidirectionalPathState,
+    LightList *&inLightList):
+    bidirectionalPathState(inBidirectionalPathState),
+    lightList(inLightList)
+{
 }
 
 BidirectionalPathRaytracer::~BidirectionalPathRaytracer() {
@@ -33,52 +35,7 @@ BidirectionalPathRaytracer::~BidirectionalPathRaytracer() {
 
 void
 BidirectionalPathRaytracer::defaults() {
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel = 1;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing = true;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth = 2;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumPathDepth = 7;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth = 7;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumLightPathDepth = 7;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights = true;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars = false;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLe = true;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLD = false;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.doLI = false;
-
-    // Weighted not in UI
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.doWeighted = false;
-
-    java::Formatter::format(
-        GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp,
-        MAX_REGEXP_SIZE,
-        "%s",
-        "(LX)(X)*(EX)");
-    java::Formatter::format(
-        GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp,
-        MAX_REGEXP_SIZE,
-        "%s",
-        "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    java::Formatter::format(
-        GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp,
-        MAX_REGEXP_SIZE,
-        "%s",
-        "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    java::Formatter::format(
-        GLOBAL_rayTracing_biDirectionalPath.baseConfig.wleRegExp,
-        MAX_REGEXP_SIZE,
-        "%s",
-        "(LX)(DR)(X)*(EX)");
-    java::Formatter::format(
-        GLOBAL_rayTracing_biDirectionalPath.baseConfig.wldRegExp,
-        MAX_REGEXP_SIZE,
-        "%s",
-        "(LX)(X)*(EX)");
-
-    // Not in UI yet
-    GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages = false;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.eliminateSpikes = false;
-    GLOBAL_rayTracing_biDirectionalPath.baseConfig.doDensityEstimation = false; // TODO: Include option flag to configure this!
-    GLOBAL_rayTracing_biDirectionalPath.baseFilename[0] = '\0';
+    // Defaults are owned by the caller-provided BidirectionalPathTracingState instance.
 }
 
 const char *
@@ -89,10 +46,10 @@ BidirectionalPathRaytracer::getName() const {
 void
 BidirectionalPathRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) const {
     // mainInitApplication the light list
-    if ( GLOBAL_lightList ) {
-        delete GLOBAL_lightList;
+    if ( lightList ) {
+        delete lightList;
     }
-    GLOBAL_lightList = new LightList(lightPatches);
+    lightList = new LightList(lightPatches);
 }
 
 /**
@@ -116,9 +73,9 @@ BidirectionalPathRaytracer::execute(
 
     // Copy base config (so that rendering is independent of GUI)
     config.baseConfig = new BidirectionalPathRaytracerConfig;
-    *(config.baseConfig) = GLOBAL_rayTracing_biDirectionalPath.baseConfig;
+    *(config.baseConfig) = bidirectionalPathState.baseConfig;
     config.baseConfig->totalSamples =
-            GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel * scene->camera->xSize * scene->camera->ySize;
+            bidirectionalPathState.baseConfig.samplesPerPixel * scene->camera->xSize * scene->camera->ySize;
 
     config.dBuffer = nullptr;
 
@@ -127,31 +84,31 @@ BidirectionalPathRaytracer::execute(
     config.eyeConfig.dirSampler = new PixelSampler;
     config.eyeConfig.surfaceSampler = new BsdfSampler;
     config.eyeConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars);
+    config.eyeConfig.surfaceSampler->SetComputeBsdfComponents(bidirectionalPathState.baseConfig.useSpars);
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.sampleImportantLights ) {
-        config.eyeConfig.neSampler = new ImportantLightSampler;
+    if ( bidirectionalPathState.baseConfig.sampleImportantLights ) {
+        config.eyeConfig.neSampler = new ImportantLightSampler(lightList);
     } else {
-        config.eyeConfig.neSampler = new UniformLightSampler;
+        config.eyeConfig.neSampler = new UniformLightSampler(lightList);
     }
 
-    config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth;
+    config.eyeConfig.minDepth = bidirectionalPathState.baseConfig.minimumPathDepth;
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth < 1 ) {
+    if ( bidirectionalPathState.baseConfig.maximumEyePathDepth < 1 ) {
         java::System::err.printf("Maximum Eye Path Length too small (<1), using 1\n");
         config.eyeConfig.maxDepth = 1;
     } else {
-        config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth;
+        config.eyeConfig.maxDepth = bidirectionalPathState.baseConfig.maximumEyePathDepth;
     }
 
-    config.lightConfig.pointSampler = new UniformLightSampler;
+    config.lightConfig.pointSampler = new UniformLightSampler(lightList);
     config.lightConfig.dirSampler = new LightDirSampler;
     config.lightConfig.surfaceSampler = new BsdfSampler;
     config.lightConfig.surfaceSampler->SetComputeFromNextPdf(true);
-    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars);
+    config.lightConfig.surfaceSampler->SetComputeBsdfComponents(bidirectionalPathState.baseConfig.useSpars);
 
-    config.lightConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth;
-    config.lightConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumLightPathDepth;
+    config.lightConfig.minDepth = bidirectionalPathState.baseConfig.minimumPathDepth;
+    config.lightConfig.maxDepth = bidirectionalPathState.baseConfig.maximumLightPathDepth;
     config.lightConfig.neSampler = nullptr; // eyeSampler ?
 
     config.screen = new ScreenBuffer(nullptr, scene->camera, config.toneMapOptions);
@@ -165,7 +122,7 @@ BidirectionalPathRaytracer::execute(
     LeSpar *leSpar = nullptr;
     LDSpar *ldSpar = nullptr;
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars ) {
+    if ( bidirectionalPathState.baseConfig.useSpars ) {
         SparConfig *sc = &config.sparConfig;
 
         sc->baseConfig = config.baseConfig; // Share base config options
@@ -185,11 +142,11 @@ BidirectionalPathRaytracer::execute(
         config.sparList->add(ldSpar);
     }
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.saveSubsequentImages ) {
+    if ( bidirectionalPathState.saveSubsequentImages ) {
         doBptAndSubsequentImages(scene->camera, scene->voxelGrid, scene->background, &config);
     } else if ( config.baseConfig->doDensityEstimation ) {
         doBptDensityEstimation(scene->camera, scene->voxelGrid, scene->background, &config);
-    } else if ( !GLOBAL_rayTracing_biDirectionalPath.baseConfig.progressiveTracing ) {
+    } else if ( !bidirectionalPathState.baseConfig.progressiveTracing ) {
         ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
@@ -213,12 +170,12 @@ BidirectionalPathRaytracer::execute(
         config.screen->writeFile(ip);
     }
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastScreen ) {
-        delete GLOBAL_rayTracing_biDirectionalPath.lastScreen;
+    if ( bidirectionalPathState.lastScreen ) {
+        delete bidirectionalPathState.lastScreen;
     }
-    GLOBAL_rayTracing_biDirectionalPath.lastScreen = config.screen;
+    bidirectionalPathState.lastScreen = config.screen;
 
-    if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.useSpars ) {
+    if ( bidirectionalPathState.baseConfig.useSpars ) {
         delete config.sparList;
         delete leSpar;
         delete ldSpar;
@@ -242,9 +199,9 @@ BidirectionalPathRaytracer::execute(
 
 bool
 BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( imageOutputHandle && GLOBAL_rayTracing_biDirectionalPath.lastScreen ) {
-        GLOBAL_rayTracing_biDirectionalPath.lastScreen->sync();
-        GLOBAL_rayTracing_biDirectionalPath.lastScreen->writeFile(imageOutputHandle);
+    if ( imageOutputHandle && bidirectionalPathState.lastScreen ) {
+        bidirectionalPathState.lastScreen->sync();
+        bidirectionalPathState.lastScreen->writeFile(imageOutputHandle);
         return true;
     } else {
         return false;
@@ -253,10 +210,14 @@ BidirectionalPathRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) cons
 
 void
 BidirectionalPathRaytracer::terminate() const {
-    if ( GLOBAL_rayTracing_biDirectionalPath.lastScreen ) {
-        delete GLOBAL_rayTracing_biDirectionalPath.lastScreen;
+    if ( bidirectionalPathState.lastScreen ) {
+        delete bidirectionalPathState.lastScreen;
     }
-    GLOBAL_rayTracing_biDirectionalPath.lastScreen = nullptr;
+    bidirectionalPathState.lastScreen = nullptr;
+    if ( lightList != nullptr ) {
+        delete lightList;
+        lightList = nullptr;
+    }
 }
 
 bool
@@ -930,7 +891,7 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    BidirectionalPathTracingConfiguration *config)
+    BidirectionalPathTracingConfiguration *config) const
 {
     int maxSamples;
     int nrIterations;
@@ -942,35 +903,35 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     // number of samples per pixel.
 
     // Get the highest power of two < number of samples
-    nrIterations = static_cast<int>(java::Math::log(static_cast<double>(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel)) /
+    nrIterations = static_cast<int>(java::Math::log(static_cast<double>(bidirectionalPathState.baseConfig.samplesPerPixel)) /
                                     java::Math::log(2.0));
     maxSamples = static_cast<int>(java::Math::pow(2.0, nrIterations));
 
     nrIterations += 1; // First two are 1 and 1
 
     java::System::out.printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
-           maxSamples, GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel);
+           maxSamples, bidirectionalPathState.baseConfig.samplesPerPixel);
 
-    java::System::out.printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+    java::System::out.printf("Base name '%s'\n", bidirectionalPathState.baseFilename);
 
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
     // are saved.
-    const char *lastOcc = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
+    const char *lastOcc = strrchr(bidirectionalPathState.baseFilename, '.');
 
     if ( lastOcc == nullptr ) {
         java::Formatter::format(
             format1,
             STRINGS_SIZE,
             "%s%%i.tif",
-            GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+            bidirectionalPathState.baseFilename);
         java::Formatter::format(
             format2,
             STRINGS_SIZE,
             "%s%%i.ppm.gz",
-            GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+            bidirectionalPathState.baseFilename);
     } else {
-        strncpy(format1, GLOBAL_rayTracing_biDirectionalPath.baseFilename, lastOcc - GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+        strncpy(format1, bidirectionalPathState.baseFilename, lastOcc - bidirectionalPathState.baseFilename);
         strcat(format1, "%i");
         strcat(format1, lastOcc);
         format2[0] = '\0';
@@ -1033,7 +994,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    BidirectionalPathTracingConfiguration *config)
+    BidirectionalPathTracingConfiguration *config) const
 {
     char *fileName = new char[STRINGS_SIZE];
 
@@ -1111,7 +1072,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
 
     int numberOfIterations =
         static_cast<int>(java::Math::floor(
-            java::Math::log(static_cast<double>(GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel)) /
+            java::Math::log(static_cast<double>(bidirectionalPathState.baseConfig.samplesPerPixel)) /
             java::Math::log(2.0)));
     int maxSamples = static_cast<int>(java::Math::pow(2.0, numberOfIterations));
 

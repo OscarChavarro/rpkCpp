@@ -15,7 +15,7 @@ class String {
   public:
     String();
     String(const String &other);
-    String(const char *text);
+    explicit String(const char *text);
     ~String();
 
     void

@@ -10,6 +10,7 @@
 #include "render/Canvas.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/Raytrace.h"
@@ -30,27 +31,39 @@ Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
 This routine sets the current raytracing method to be used
 */
 void
-Raytrace::rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches) {
+Raytrace::rayTraceSetMethod(
+    const RayTracer *rayTracer,
+    const java::ArrayList<Patch *> *lightSourcePatches,
+    LightList *&lightList)
+{
+    (void) lightList;
     if ( rayTracer != nullptr ) {
         rayTracer->initialize(lightSourcePatches);
     }
 }
 
 RayTracer *
-Raytrace::rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene) {
+Raytrace::rayTraceCreateRayTracerFromName(
+    const char *rayTracerName,
+    const Scene *scene,
+    RayMatterState &rayMatterState,
+    BidirectionalPathTracingState &bidirectionalPathState,
+    StochasticRayTracingState &stochasticRayTracingState,
+    LightList *&lightList)
+{
     RayTracer *newRaytracer;
     if ( strcmp(rayTracerName, "RayMatting") == 0 ) {
-        newRaytracer = new RayMatter(nullptr, scene->camera, scene->toneMapOptions);
+        newRaytracer = new RayMatter(nullptr, scene->camera, rayMatterState, scene->toneMapOptions);
     } else if ( strcmp(rayTracerName, "RayCasting") == 0 ) {
         newRaytracer = new RayCaster(nullptr, scene->camera, scene->toneMapOptions);
     } else if ( strcmp(rayTracerName, "BidirectionalPathTracing") == 0 ) {
-        newRaytracer = new BidirectionalPathRaytracer();
+        newRaytracer = new BidirectionalPathRaytracer(bidirectionalPathState, lightList);
     } else if ( strcmp(rayTracerName, "StochasticRaytracing") == 0 ) {
-        newRaytracer = new StochasticRaytracer();
+        newRaytracer = new StochasticRaytracer(lightList, stochasticRayTracingState);
     } else {
         newRaytracer = nullptr;
     }
-    Raytrace::rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList);
+    Raytrace::rayTraceSetMethod(newRaytracer, scene->lightSourcePatchList, lightList);
 
     if ( newRaytracer == nullptr && strncasecmp(rayTracerName, "none", 4) != 0 ) {
         Error::error(nullptr, "Invalid raytracing method name '%s'", rayTracerName);
@@ -60,8 +73,21 @@ Raytrace::rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene
 }
 
 RayTracer *
-Raytrace::rayTraceCreate(const Scene *scene, const char *rayTracerName) {
-    RayTracer *rayTracer = Raytrace::rayTraceCreateRayTracerFromName(rayTracerName, scene);
+Raytrace::rayTraceCreate(
+    const Scene *scene,
+    const char *rayTracerName,
+    RayMatterState &rayMatterState,
+    BidirectionalPathTracingState &bidirectionalPathState,
+    StochasticRayTracingState &stochasticRayTracingState,
+    LightList *&lightList)
+{
+    RayTracer *rayTracer = Raytrace::rayTraceCreateRayTracerFromName(
+        rayTracerName,
+        scene,
+        rayMatterState,
+        bidirectionalPathState,
+        stochasticRayTracingState,
+        lightList);
 
     if ( rayTracer != nullptr ) {
         rayTracer->defaults();

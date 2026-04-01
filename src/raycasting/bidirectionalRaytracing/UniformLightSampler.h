@@ -10,11 +10,13 @@
 
 class UniformLightSampler final : public CNextEventSampler {
   private:
+    LightList *lightList;
     LightListIterator *iterator;
     Patch *currentPatch;
     bool unitsActive;
   public:
-    UniformLightSampler();
+    explicit UniformLightSampler(LightList *inLightList);
+    ~UniformLightSampler() final;
 
     bool ActivateFirstUnit() final;
 

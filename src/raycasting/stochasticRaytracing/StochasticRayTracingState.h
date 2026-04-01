@@ -1,5 +1,5 @@
 /**
-Options and global state vars for stochastic raytracing
+Options and runtime state for stochastic raytracing.
 */
 
 #ifndef __STOCHASTIC_RAYTRACER_OPTIONS__
@@ -12,6 +12,30 @@ Options and global state vars for stochastic raytracing
 
 class StochasticRayTracingState {
   public:
+    StochasticRayTracingState():
+        samplesPerPixel(1),
+        progressiveTracing(true),
+        doFrameCoherent(false),
+        doCorrelatedSampling(false),
+        baseSeed(0xFE062134),
+        radMode(RayTracingRadMode::STORED_NONE),
+        nextEvent(true),
+        nextEventSamples(1),
+        lightMode(RayTracingLightMode::ALL_LIGHTS),
+        backgroundDirect(false),
+        backgroundIndirect(true),
+        backgroundSampling(false),
+        scatterSamples(1),
+        differentFirstDG(false),
+        firstDGSamples(36),
+        separateSpecular(false),
+        reflectionSampling(RayTracingSamplingMode::BRDF_SAMPLING),
+        minPathDepth(5),
+        maxPathDepth(7),
+        lastScreen(nullptr)
+    {
+    }
+
     // Pixel sampling
     int samplesPerPixel;
     int progressiveTracing;
@@ -45,7 +69,5 @@ class StochasticRayTracingState {
 
     ScreenBuffer *lastScreen;
 };
-
-extern StochasticRayTracingState GLOBAL_raytracing_state;
 
 #endif

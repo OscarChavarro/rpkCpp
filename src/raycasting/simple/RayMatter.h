@@ -11,17 +11,20 @@
 #include "raycasting/simple/RayMatterState.h"
 #include "raycasting/simple/RayMatterFilterType.h"
 
-extern RayMatterState GLOBAL_rayCasting_rayMatterState;
-
 class RayMatter final : public RayTracer {
   private:
     static char name[];
     ScreenBuffer *screenBuffer;
     PixelFilter *pixelFilter;
     bool doDeleteScreen;
+    RayMatterState &rayMatterState;
 
   public:
-    explicit RayMatter(ScreenBuffer *screen, const Camera *camera, ToneMappingContext *toneMapOptions = nullptr);
+    explicit RayMatter(
+        ScreenBuffer *screen,
+        const Camera *camera,
+        RayMatterState &inRayMatterState,
+        ToneMappingContext *toneMapOptions = nullptr);
     ~RayMatter() final;
 
     void createFilter();

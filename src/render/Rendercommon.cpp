@@ -7,8 +7,9 @@ Rendering stuff independent of the graphics library being used
 #include "render/Render.h"
 
 /**
-Computes front- and back-clipping plane distance for the current GLOBAL_scene_world and
-camera
+Computes the camera near and far clipping distances from the bounding box of
+the provided scene geometries, projected onto the camera Z axis.
+Adds a small safety margin and fallback defaults for empty or non-positive ranges.
 */
 void
 Render::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {

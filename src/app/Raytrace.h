@@ -8,9 +8,20 @@
 #include "raycasting/common/RayTracer.h"
 
 #ifdef RAYTRACING_ENABLED
+class RayMatterState;
+class BidirectionalPathTracingState;
+class StochasticRayTracingState;
+class LightList;
+
 class Raytrace final {
   public:
-    static RayTracer *rayTraceCreate(const Scene *scene, const char *rayTracerName);
+    static RayTracer *rayTraceCreate(
+        const Scene *scene,
+        const char *rayTracerName,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState,
+        LightList *&lightList);
     static void rayTraceSaveImage(
         const char *fileName,
         java::OutputStream *stream,
@@ -29,8 +40,18 @@ class Raytrace final {
 
   private:
     static void rayTraceMakeMethodsHelpMessage(char *str);
-    static void rayTraceSetMethod(const RayTracer *rayTracer, const java::ArrayList<Patch *> *lightSourcePatches);
-    static RayTracer *rayTraceCreateRayTracerFromName(const char *rayTracerName, const Scene *scene);
+    static void
+    rayTraceSetMethod(
+        const RayTracer *rayTracer,
+        const java::ArrayList<Patch *> *lightSourcePatches,
+        LightList *&lightList);
+    static RayTracer *rayTraceCreateRayTracerFromName(
+        const char *rayTracerName,
+        const Scene *scene,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState,
+        LightList *&lightList);
 };
 #endif
 

@@ -4,6 +4,9 @@
 #include "raycasting/common/RayTracer.h"
 #include "app/BatchOptions.h"
 class ToneMappingContext;
+class RayMatterState;
+class BidirectionalPathTracingState;
+class StochasticRayTracingState;
 
 class CommandLine final {
   public:
@@ -21,9 +24,12 @@ class CommandLine final {
         bool *glutDebugEnabled);
     static void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
     static void randomWalkRadiosityParseOptions(int *argc, char **argv);
-    static void rayMattingParseOptions(int *argc, char **argv);
-    static void stochasticRayTracerParseOptions(int *argc, char **argv);
-    static void biDirectionalPathParseOptions(int *argc, char **argv);
+    static void rayMattingParseOptions(int *argc, char **argv, RayMatterState &rayMatterState);
+    static void stochasticRayTracerParseOptions(
+        int *argc,
+        char **argv,
+        StochasticRayTracingState &stochasticRayTracingState);
+    static void biDirectionalPathParseOptions(int *argc, char **argv, BidirectionalPathTracingState &bidirectionalPathState);
     static void photonMapParseOptions(int *argc, char **argv);
     static void toneMapParseOptions(int *argc, char **argv, char *toneMapName, ToneMappingContext &toneMapOptions);
     static void radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString);

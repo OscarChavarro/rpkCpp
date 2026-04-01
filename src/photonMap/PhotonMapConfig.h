@@ -11,6 +11,8 @@ Photon map configuration structure, used during construction
 #include "photonMap/ImportanceMap.h"
 #include "photonMap/PhotonMap.h"
 
+class LightList;
+
 class PhotonMapConfig {
   public:
     SamplerConfig lightConfig;
@@ -26,12 +28,14 @@ class PhotonMapConfig {
     ImportanceMap *currentImpMap; // Importance Map in current use: global or caustic
 
     ScreenBuffer *screen;
+    LightList *lightList;
 
     PhotonMapConfig(): lightConfig(), eyeConfig(), biPath(),
                        importanceMap(), importanceCMap(), globalMap(),
-                       causticMap(), currentMap(), currentImpMap(), screen() {
+                       causticMap(), currentMap(), currentImpMap(), screen(), lightList() {
         screen = nullptr;
         currentMap = nullptr;
+        lightList = nullptr;
     }
 };
 

@@ -3,8 +3,6 @@
 #include "numericalAnalysis/PatchVisitor.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 
-LightList *GLOBAL_lightList = nullptr;
-
 LightListIterator::LightListIterator(LightList &list):
     iterator(list)
 {

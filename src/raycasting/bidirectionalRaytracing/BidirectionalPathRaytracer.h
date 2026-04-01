@@ -8,23 +8,28 @@
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 
+class BidirectionalPathTracingState;
+class LightList;
+
 class BidirectionalPathRaytracer final : public RayTracer {
   private:
     static char name[];
+    BidirectionalPathTracingState &bidirectionalPathState;
+    LightList *&lightList;
 
-    static void
+    void
     doBptAndSubsequentImages(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
-        BidirectionalPathTracingConfiguration *config);
+        BidirectionalPathTracingConfiguration *config) const;
 
-    static void
+    void
     doBptDensityEstimation(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
-        BidirectionalPathTracingConfiguration *config);
+        BidirectionalPathTracingConfiguration *config) const;
 
     static ColorRgb
     bpCalcPixel(
@@ -87,7 +92,9 @@ class BidirectionalPathRaytracer final : public RayTracer {
         BidirectionalPathTracingConfiguration *config);
 
   public:
-    BidirectionalPathRaytracer();
+    BidirectionalPathRaytracer(
+        BidirectionalPathTracingState &inBidirectionalPathState,
+        LightList *&inLightList);
     ~BidirectionalPathRaytracer() final;
 
     void defaults() final;

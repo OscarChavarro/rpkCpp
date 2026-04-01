@@ -130,6 +130,12 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
     }
     GLOBAL_photonMap_config.screen = new ScreenBuffer(nullptr, scene->camera, scene->toneMapOptions);
 
+    if ( GLOBAL_photonMap_config.lightList ) {
+        delete GLOBAL_photonMap_config.lightList;
+        GLOBAL_photonMap_config.lightList = nullptr;
+    }
+    GLOBAL_photonMap_config.lightList = new LightList(scene->lightSourcePatchList);
+
     // mainInitApplication samplers
 
     GLOBAL_photonMap_config.lightConfig.releaseVars();
@@ -150,7 +156,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
 
     cfg = &GLOBAL_photonMap_config.lightConfig;
 
-    cfg->pointSampler = new UniformLightSampler;
+    cfg->pointSampler = new UniformLightSampler(GLOBAL_photonMap_config.lightList);
     cfg->dirSampler = new LightDirSampler;
     PhotonMapRadianceMethod::photonMapChooseSurfaceSampler(&cfg->surfaceSampler);
     // cfg->surfaceSampler = new PhotonMapSampler; //new BsdfSampler;
@@ -627,6 +633,11 @@ PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
     if ( GLOBAL_photonMap_config.causticMap ) {
         delete GLOBAL_photonMap_config.causticMap;
         GLOBAL_photonMap_config.causticMap = nullptr;
+    }
+
+    if ( GLOBAL_photonMap_config.lightList ) {
+        delete GLOBAL_photonMap_config.lightList;
+        GLOBAL_photonMap_config.lightList = nullptr;
     }
 }
 

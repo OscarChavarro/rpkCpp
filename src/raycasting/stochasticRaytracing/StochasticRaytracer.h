@@ -8,9 +8,13 @@
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 
+class LightList;
+
 class StochasticRaytracer final : public RayTracer {
   private:
     static char name[];
+    LightList *&lightList;
+    StochasticRayTracingState &rayTracingState;
 
     static ColorRgb
     calcPixel(
@@ -48,7 +52,9 @@ class StochasticRaytracer final : public RayTracer {
         RenderOptions *renderOptions);
 
   public:
-    StochasticRaytracer();
+    StochasticRaytracer(
+        LightList *&inLightList,
+        StochasticRayTracingState &inRayTracingState);
     ~StochasticRaytracer() final;
 
     void defaults() final;

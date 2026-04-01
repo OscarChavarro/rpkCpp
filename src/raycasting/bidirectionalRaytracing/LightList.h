@@ -79,9 +79,6 @@ class LightList final : private CircularList<LightInfo> {
     friend class LightListIterator;
 };
 
-// Global var for the scene light list
-extern LightList *GLOBAL_lightList;
-
 #include "raycasting/bidirectionalRaytracing/LightListIterator.h"
 
 #endif

@@ -9,7 +9,12 @@
 #include "raycasting/raytracing/Sampler.h"
 
 class ImportantLightSampler final : public CNextEventSampler {
+  private:
+    LightList *lightList;
+
   public:
+    explicit ImportantLightSampler(LightList *inLightList);
+
     // Sample : newNode gets filled, others may change
     bool
     sample(

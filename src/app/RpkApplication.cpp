@@ -8,6 +8,9 @@
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -100,7 +103,15 @@ RpkApplication::selectToneMapByName(const char *name) {
 Processes command line arguments
 */
 void
-RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, char *toneMapName) {
+RpkApplication::mainParseOptions(
+    int *argc,
+    char **argv,
+    char *rayTracerName,
+    char *toneMapName,
+    RayMatterState &rayMatterState,
+    BidirectionalPathTracingState &bidirectionalPathState,
+    StochasticRayTracingState &stochasticRayTracingState)
+{
     CommandLine::commandLineGeneralProgramParseOptions(
         argc,
         argv,
@@ -113,7 +124,13 @@ RpkApplication::mainParseOptions(int *argc, char **argv, char *rayTracerName, ch
     renderOptions->toneMapOptions = &toneMapOptions;
     CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions);
     CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
-    Radiance::radianceParseOptions(argc, argv, &selectedRadianceMethod);
+    Radiance::radianceParseOptions(
+        argc,
+        argv,
+        &selectedRadianceMethod,
+        rayMatterState,
+        bidirectionalPathState,
+        stochasticRayTracingState);
 
 #ifdef RAYTRACING_ENABLED
     Raytrace::rayTraceParseOptions(argc, argv, rayTracerName);
@@ -130,13 +147,31 @@ RpkApplication::mainCreateOffscreenCanvasWindow() const {
 }
 
 void
-RpkApplication::executeRendering(const char *rayTracerName) {
+RpkApplication::executeRendering(
+    const char *rayTracerName,
+    RayMatterState &rayMatterState,
+    BidirectionalPathTracingState &bidirectionalPathState,
+    StochasticRayTracingState &stochasticRayTracingState,
+    LightList *&lightList)
+{
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow();
 
     #ifdef RAYTRACING_ENABLED
-        rayTracer = Raytrace::rayTraceCreate(scene, rayTracerName);
+        rayTracer = Raytrace::rayTraceCreate(
+            scene,
+            rayTracerName,
+            rayMatterState,
+            bidirectionalPathState,
+            stochasticRayTracingState,
+            lightList);
         Statistics::instance().rayTracer.currentRayTracer = rayTracer;
+    #else
+        (void) rayTracerName;
+        (void) rayMatterState;
+        (void) bidirectionalPathState;
+        (void) stochasticRayTracingState;
+        (void) lightList;
     #endif
 
     Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
@@ -156,11 +191,6 @@ RpkApplication::freeMemory(ParseSession *mgfContext) {
         delete mgfContext->radianceMethod;
     }
     DkColor::freeBuffer();
-#ifdef RAYTRACING_ENABLED
-    if ( GLOBAL_lightList != nullptr ) {
-        delete GLOBAL_lightList;
-    }
-#endif
 }
 
 int
@@ -168,11 +198,23 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
     mainInitApplication();
 
+    RayMatterState rayMatterState;
+    BidirectionalPathTracingState bidirectionalPathState;
+    StochasticRayTracingState stochasticRayTracingState;
+    LightList *lightList = nullptr;
+
     // 2. Set model elements from command line options
     char rayTracerName[256];
     char initializationToneMapName[256] = "Lightness";
     char renderToneMapName[256] = "Lightness";
-    mainParseOptions(&argc, argv, rayTracerName, renderToneMapName);
+    mainParseOptions(
+        &argc,
+        argv,
+        rayTracerName,
+        renderToneMapName,
+        rayMatterState,
+        bidirectionalPathState,
+        stochasticRayTracingState);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;
@@ -183,7 +225,12 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     selectToneMapByName(renderToneMapName);
 
     // 4. Run main radiosity simulation and export result
-    executeRendering(rayTracerName);
+    executeRendering(
+        rayTracerName,
+        rayMatterState,
+        bidirectionalPathState,
+        stochasticRayTracingState,
+        lightList);
 
     // X. Interactive visual debug GUI tool
     #ifdef OPEN_GL_ENABLED
@@ -205,6 +252,19 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
 
     // 5. Free used memory
     freeMemory(mgfContext);
+
+#ifdef RAYTRACING_ENABLED
+    if ( rayTracer != nullptr ) {
+        rayTracer->terminate();
+        delete rayTracer;
+        rayTracer = nullptr;
+        Statistics::instance().rayTracer.currentRayTracer = nullptr;
+    }
+    if ( lightList != nullptr ) {
+        delete lightList;
+        lightList = nullptr;
+    }
+#endif
 
     return 0;
 }

@@ -18,9 +18,12 @@ char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";
 const float PHOTON_MAP_MIN_DIST = 0.02f;
 const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
 
-StochasticRayTracingState GLOBAL_raytracing_state;
-
-StochasticRaytracer::StochasticRaytracer() {
+StochasticRaytracer::StochasticRaytracer(
+    LightList *&inLightList,
+    StochasticRayTracingState &inRayTracingState):
+    lightList(inLightList),
+    rayTracingState(inRayTracingState)
+{
 }
 
 StochasticRaytracer::~StochasticRaytracer() {
@@ -28,38 +31,7 @@ StochasticRaytracer::~StochasticRaytracer() {
 
 void
 StochasticRaytracer::defaults() {
-    // Normal
-    if ( GLOBAL_raytracing_state.samplesPerPixel == 0 ) {
-        GLOBAL_raytracing_state.samplesPerPixel = 1;
-    }
-    GLOBAL_raytracing_state.progressiveTracing = true;
-
-    GLOBAL_raytracing_state.doFrameCoherent = false;
-    GLOBAL_raytracing_state.doCorrelatedSampling = false;
-    GLOBAL_raytracing_state.baseSeed = 0xFE062134;
-
-    GLOBAL_raytracing_state.radMode = RayTracingRadMode::STORED_NONE;
-
-    GLOBAL_raytracing_state.nextEvent = true;
-    GLOBAL_raytracing_state.nextEventSamples = 1;
-    GLOBAL_raytracing_state.lightMode = RayTracingLightMode::ALL_LIGHTS;
-
-    GLOBAL_raytracing_state.backgroundDirect = false;
-    GLOBAL_raytracing_state.backgroundIndirect = true;
-    GLOBAL_raytracing_state.backgroundSampling = false;
-
-    GLOBAL_raytracing_state.scatterSamples = 1;
-    GLOBAL_raytracing_state.differentFirstDG = false;
-    GLOBAL_raytracing_state.firstDGSamples = 36;
-    GLOBAL_raytracing_state.separateSpecular = false;
-
-    GLOBAL_raytracing_state.reflectionSampling = RayTracingSamplingMode::BRDF_SAMPLING;
-
-    GLOBAL_raytracing_state.minPathDepth = 5;
-    GLOBAL_raytracing_state.maxPathDepth = 7;
-
-    // Common
-    GLOBAL_raytracing_state.lastScreen = nullptr;
+    // Defaults are owned by the caller-provided StochasticRayTracingState instance.
 }
 
 const char *
@@ -69,11 +41,7 @@ StochasticRaytracer::getName() const {
 
 void
 StochasticRaytracer::initialize(const java::ArrayList<Patch *> *lightPatches) const {
-    // mainInitApplication the light list
-    if ( GLOBAL_lightList ) {
-        delete GLOBAL_lightList;
-    }
-    GLOBAL_lightList = new LightList(lightPatches);
+    (void) lightPatches;
 }
 
 /**
@@ -95,10 +63,11 @@ StochasticRaytracer::execute(
 
     StochasticRaytracingConfiguration config(
         scene->camera,
-        GLOBAL_raytracing_state,
+        rayTracingState,
         scene->lightSourcePatchList,
         radianceMethod,
-        toneMapOptions); // config filled in by constructor
+        toneMapOptions,
+        lightList); // config filled in by constructor
     StochasticRaytracerCallbackData callbackData = {
         &config,
         radianceMethod,
@@ -106,11 +75,11 @@ StochasticRaytracer::execute(
     };
 
     // Frame Coherent sampling : init fixed seed
-    if ( GLOBAL_raytracing_state.doFrameCoherent ) {
-        srand48(GLOBAL_raytracing_state.baseSeed);
+    if ( rayTracingState.doFrameCoherent ) {
+        srand48(rayTracingState.baseSeed);
     }
 
-    if ( !GLOBAL_raytracing_state.progressiveTracing ) {
+    if ( !rayTracingState.progressiveTracing ) {
         ScreenIterate::sequential(
                 scene->camera,
                 scene->voxelGrid,
@@ -134,18 +103,18 @@ StochasticRaytracer::execute(
         config.screen->writeFile(ip);
     }
 
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        delete GLOBAL_raytracing_state.lastScreen;
+    if ( rayTracingState.lastScreen ) {
+        delete rayTracingState.lastScreen;
     }
-    GLOBAL_raytracing_state.lastScreen = config.screen;
+    rayTracingState.lastScreen = config.screen;
     config.screen = nullptr;
 }
 
 bool
 StochasticRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( imageOutputHandle && GLOBAL_raytracing_state.lastScreen ) {
-        GLOBAL_raytracing_state.lastScreen->sync();
-        GLOBAL_raytracing_state.lastScreen->writeFile(imageOutputHandle);
+    if ( imageOutputHandle && rayTracingState.lastScreen ) {
+        rayTracingState.lastScreen->sync();
+        rayTracingState.lastScreen->writeFile(imageOutputHandle);
         return true;
     } else {
         return false;
@@ -154,13 +123,13 @@ StochasticRaytracer::saveImage(ImageOutputHandle *imageOutputHandle) const {
 
 void
 StochasticRaytracer::terminate() const {
-    if ( GLOBAL_raytracing_state.lastScreen ) {
-        delete GLOBAL_raytracing_state.lastScreen;
+    if ( rayTracingState.lastScreen ) {
+        delete rayTracingState.lastScreen;
     }
-    GLOBAL_raytracing_state.lastScreen = nullptr;
-    if ( GLOBAL_lightList != nullptr ) {
-        delete GLOBAL_lightList;
-        GLOBAL_lightList = nullptr;
+    rayTracingState.lastScreen = nullptr;
+    if ( lightList != nullptr ) {
+        delete lightList;
+        lightList = nullptr;
     }
 }
 
@@ -254,7 +223,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
                     }
 
                     // Frame coherent & correlated sampling
-                    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+                    if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
                         config->seedConfig.save(newNode.m_depth);
                     }
 
@@ -285,7 +254,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
                     }
 
                     // Frame coherent & correlated sampling
-                    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+                    if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
                         config->seedConfig.Restore(newNode.m_depth);
                     }
 
@@ -673,10 +642,10 @@ StochasticRaytracer::calcPixel(
     result.clear();
 
     // Frame coherent & correlated sampling
-    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
-        if ( GLOBAL_raytracing_state.doCorrelatedSampling ) {
+    if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
+        if ( config->doCorrelatedSampling ) {
             // Correlated : start each pixel with same seed
-            srand48(GLOBAL_raytracing_state.baseSeed);
+            srand48(config->baseSeed);
         }
         drand48(); // (randomize seed, gives new seed for uncorrelated sampling)
         config->seedConfig.save(0);
@@ -699,7 +668,7 @@ StochasticRaytracer::calcPixel(
             pixelNode.assignBsdfAndNormal();
 
             // Frame coherent & correlated sampling
-            if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+            if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
                 config->seedConfig.save(pixelNode.m_depth);
             }
 
@@ -715,7 +684,7 @@ StochasticRaytracer::calcPixel(
                     renderOptions);
 
             // Frame coherent & correlated sampling
-            if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+            if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
                 config->seedConfig.Restore(pixelNode.m_depth);
             }
 
@@ -738,7 +707,7 @@ StochasticRaytracer::calcPixel(
     config->screen->add(nx, ny, result);
 
     // Frame coherent & correlated sampling
-    if ( GLOBAL_raytracing_state.doFrameCoherent || GLOBAL_raytracing_state.doCorrelatedSampling ) {
+    if ( config->doFrameCoherent || config->doCorrelatedSampling ) {
         config->seedConfig.Restore(0);
     }
 

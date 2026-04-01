@@ -5,7 +5,9 @@
 #include "common/Error.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 
-UniformLightSampler::UniformLightSampler() {
+UniformLightSampler::UniformLightSampler(LightList *inLightList):
+    lightList(inLightList)
+{
     // if(gLightList)
     // iterator = new CLightList_Iter(*gLightList);
     iterator = nullptr;
@@ -13,17 +15,24 @@ UniformLightSampler::UniformLightSampler() {
     unitsActive = false;
 }
 
+UniformLightSampler::~UniformLightSampler() {
+    if ( iterator != nullptr ) {
+        delete iterator;
+        iterator = nullptr;
+    }
+}
+
 bool
 UniformLightSampler::ActivateFirstUnit() {
-    if ( !iterator ) {
-        if ( GLOBAL_lightList ) {
-            iterator = new LightListIterator(*GLOBAL_lightList);
-        } else {
-            return false;
-        }
+    if ( lightList == nullptr ) {
+        return false;
     }
 
-    currentPatch = iterator->First(*GLOBAL_lightList);
+    if ( !iterator ) {
+        iterator = new LightListIterator(*lightList);
+    }
+
+    currentPatch = iterator->First(*lightList);
 
     if ( currentPatch != nullptr ) {
         unitsActive = true;
@@ -79,7 +88,11 @@ UniformLightSampler::sample(
             return false;
         }
     } else {
-        light = GLOBAL_lightList->sample(&x1, &pdfLight);
+        if ( lightList == nullptr ) {
+            Error::warning("FillLightNode", "No light list available");
+            return false;
+        }
+        light = lightList->sample(&x1, &pdfLight);
 
         if ( light == nullptr ) {
             Error::warning("FillLightNode", "No light found");
@@ -145,8 +158,11 @@ UniformLightSampler::evalPDF(
     if ( unitsActive ) {
         pdf = 1.0;
     } else {
+        if ( lightList == nullptr ) {
+            return 0.0;
+        }
         Vector3D position = newNode->m_hit.getPoint();
-        pdf = GLOBAL_lightList->evalPdf(newNode->m_hit.getPatch(), &position);
+        pdf = lightList->evalPdf(newNode->m_hit.getPatch(), &position);
     }
 
     // Prob for choosing this point(/direction)
@@ -179,6 +195,11 @@ UniformLightSampler::evalPDF(
 /**
 Important light sampler : attach weights to each lamp
 */
+ImportantLightSampler::ImportantLightSampler(LightList *inLightList):
+    lightList(inLightList)
+{
+}
+
 bool
 ImportantLightSampler::sample(
     Camera */*camera*/,
@@ -209,6 +230,9 @@ ImportantLightSampler::sample(
     newNode->m_G = 1.0;
 
     // Choose light
+    if ( lightList == nullptr ) {
+        return false;
+    }
 
     if ( thisNode->m_hit.getFlags() & RayHitFlag::BACK ) {
         if ( thisNode->m_outBsdf == nullptr ) {
@@ -217,8 +241,7 @@ ImportantLightSampler::sample(
             invNormal.scaledCopy(-1, thisNode->m_normal);
 
             Vector3D position = thisNode->m_hit.getPoint();
-            light = GLOBAL_lightList->sampleImportant(&position,
-                                                      &invNormal, &x1, &pdfLight);
+            light = lightList->sampleImportant(&position, &invNormal, &x1, &pdfLight);
         } else {
             // No (important) light sampling inside a material
             light = nullptr;
@@ -226,9 +249,7 @@ ImportantLightSampler::sample(
     } else {
         if ( thisNode->m_inBsdf == nullptr ) {
             Vector3D position = thisNode->m_hit.getPoint();
-            light = GLOBAL_lightList->sampleImportant(&position,
-                                                      &thisNode->m_normal,
-                                                      &x1, &pdfLight);
+            light = lightList->sampleImportant(&position, &thisNode->m_normal, &x1, &pdfLight);
         } else {
             light = nullptr;
         }
@@ -293,13 +314,16 @@ ImportantLightSampler::evalPDF(
     double pdfDir;
 
     // The light point is in NEW NODE !!
+    if ( lightList == nullptr ) {
+        return 0.0;
+    }
     Vector3D newPosition = newNode->m_hit.getPoint();
     Vector3D thisPosition = thisNode->m_hit.getPoint();
-    pdf = GLOBAL_lightList->evalPdfImportant(
-    newNode->m_hit.getPatch(),
-    &newPosition,
-    &thisPosition,
-    &thisNode->m_normal);
+    pdf = lightList->evalPdfImportant(
+        newNode->m_hit.getPatch(),
+        &newPosition,
+        &thisPosition,
+        &thisNode->m_normal);
 
     // Prob for choosing this point(/direction)
     if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
