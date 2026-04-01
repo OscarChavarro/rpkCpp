@@ -75,9 +75,7 @@ Raytrace::rayTraceSaveImage(
     java::OutputStream *stream,
     int isPipe,
     const Scene *scene,
-    const RadianceMethod * /*radianceMethod*/,
-    const RayTracer *rayTracer,
-    const RenderOptions * /*renderOptions*/)
+    const RayTracer *rayTracer)
 {
     long long t;
 

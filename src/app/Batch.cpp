@@ -35,18 +35,16 @@ Batch::batchRayTraceSaveImage(
     java::OutputStream *outputStream,
     const int isPipe,
     const Scene *scene,
-    const RadianceMethod *radianceMethod,
+    const RadianceMethod * /*radianceMethod*/,
     const RayTracer *rayTracer,
-    const RenderOptions *renderOptions)
+    const RenderOptions * /*renderOptions*/)
 {
     Raytrace::rayTraceSaveImage(
         fileName,
         outputStream,
         isPipe,
         scene,
-        radianceMethod,
-        rayTracer,
-        renderOptions);
+        rayTracer);
 }
 #endif
 

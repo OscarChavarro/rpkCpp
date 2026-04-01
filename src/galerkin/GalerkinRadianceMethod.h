@@ -16,6 +16,7 @@
 class GalerkinRadianceMethod final : public RadianceMethod {
   private:
     GatheringStrategy *gatheringStrategy;
+    ColorRgb computePatchRadiance(Patch *patch, double u, double v) const;
 
     static void patchInit(Patch *patch);
     static void updateCpuSecs();
@@ -71,7 +72,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene) final;
     bool doStep(Scene *scene, RenderOptions *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const final;
+    ColorRgb getRadiance(Camera *, Patch *patch, double u, double v, Vector3D, const RenderOptions *) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() final;

@@ -16,9 +16,7 @@ class Raytrace final {
         java::OutputStream *stream,
         int isPipe,
         const Scene *scene,
-        const RadianceMethod *radianceMethod,
-        const RayTracer *rayTracer,
-        const RenderOptions *renderOptions);
+        const RayTracer *rayTracer);
     static void rayTraceExecute(
         const char *filename,
         java::OutputStream *stream,
