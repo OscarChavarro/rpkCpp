@@ -18,7 +18,6 @@ extern CommandLineOptions GLOBAL_options_floatType;
 extern CommandLineOptions GLOBAL_options_vectorType;
 extern CommandLineOptions GLOBAL_options_rgbType;
 extern CommandLineOptions GLOBAL_options_xyType;
-extern int GLOBAL_options_dummyVal;
 extern char *GLOBAL_option_dummyVal;
 
 /**
@@ -39,6 +38,7 @@ extern void (*const DEFAULT_ACTION)(void *);
 
 class Options final {
   public:
+    static void setDummyIntValueReference(int &dummyValue);
     static void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
     static bool optionsEnumGet(void *value, void *data);
     static void optionsEnumPrint(java::PrintStream *stream, void *value, void *data);
@@ -78,7 +78,7 @@ class Options final {
         CommandLineOptions optionsType = {
             Options::optionsEnumGet,
             Options::optionsEnumPrint,
-            static_cast<void *>(&GLOBAL_options_dummyVal),
+            nullptr,
             static_cast<void *>(enumvaltab)
         };
         return optionsType;

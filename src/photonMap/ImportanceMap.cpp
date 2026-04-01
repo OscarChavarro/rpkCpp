@@ -75,7 +75,7 @@ ImportanceMap::getImpReqDensity(const Camera *camera, const Vector3D &pos, const
 float
 ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D normal) {
     if ( m_nrPhotons == 0 ) {
-        return GLOBAL_photonMap_state.constantRD;
+        return photonMapState.constantRD;
     }  // Safety, if no importance map was constructed
 
     float density;
@@ -89,7 +89,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
         const Importon *photon = static_cast<Importon *>(DoIrradianceQuery(&pos, &normal, m_totalMaxDistance));
 
         if ( photon ) {
-            switch ( GLOBAL_photonMap_state.importanceOption ) {
+            switch ( photonMapState.importanceOption ) {
                 case USE_IMPORTANCE:
                     density = photon->PImportance();
                     density *= *m_impScalePtr;
@@ -109,7 +109,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
         if ( m_nrpFound < 3 )
             return 0; // State for minimumImpRD
 
-        switch ( GLOBAL_photonMap_state.importanceOption ) {
+        switch ( photonMapState.importanceOption ) {
             case USE_IMPORTANCE:
                 density = getImpReqDensity(camera, pos, normal);
                 density *= *m_impScalePtr;
@@ -121,8 +121,8 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
     }
 
     // Minimum required density
-    if ( density < GLOBAL_photonMap_state.minimumImpRD )
-        density = GLOBAL_photonMap_state.minimumImpRD;
+    if ( density < photonMapState.minimumImpRD )
+        density = photonMapState.minimumImpRD;
     return density;
 }
 

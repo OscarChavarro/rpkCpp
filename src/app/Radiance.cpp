@@ -47,7 +47,9 @@ Radiance::selectRadianceMethod(
     RadianceMethod **newRadianceMethod,
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
-    StochasticRadiosityBasisState &stochasticRadiosityBasisState)
+    StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+    PhotonMapState &photonMapState,
+    PhotonMapConfig &photonMapConfig)
 {
     bool getNext = false;
     const char *name = nullptr;
@@ -72,7 +74,7 @@ Radiance::selectRadianceMethod(
         }
 #ifdef RAYTRACING_ENABLED
         else if ( strncasecmp(name, "PMAP", 4) == 0 ) {
-            *newRadianceMethod = new PhotonMapRadianceMethod();
+            *newRadianceMethod = new PhotonMapRadianceMethod(photonMapState, photonMapConfig);
         } else if ( strncasecmp(name, "StochJacobi", 4) == 0 ) {
             *newRadianceMethod = new StochasticJacobiRadianceMethod(
                 stochasticRelaxationState,
@@ -100,6 +102,8 @@ Radiance::radianceParseOptions(
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
     StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+    PhotonMapState &photonMapState,
+    PhotonMapConfig &photonMapConfig,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
     StochasticRayTracingState &stochasticRayTracingState)
@@ -110,7 +114,9 @@ Radiance::radianceParseOptions(
         newRadianceMethod,
         stochasticRelaxationState,
         elementHierarchyState,
-        stochasticRadiosityBasisState);
+        stochasticRadiosityBasisState,
+        photonMapState,
+        photonMapConfig);
     CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
 
     if ( *newRadianceMethod == nullptr ) {
@@ -133,8 +139,10 @@ Radiance::radianceParseOptions(
     CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
     CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState);
     CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState);
-    CommandLine::photonMapParseOptions(argc, argv);
+    CommandLine::photonMapParseOptions(argc, argv, photonMapState);
 #else
+    (void) photonMapState;
+    (void) photonMapConfig;
     (void) rayMatterState;
     (void) bidirectionalPathState;
     (void) stochasticRayTracingState;

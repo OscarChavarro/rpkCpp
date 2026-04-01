@@ -21,8 +21,8 @@ class ImportanceMap: public PhotonMap {
 
   public:
     // Constructor: always use irradiance per computation
-    ImportanceMap(int *estimate_nrp, float *impScalePtr) :
-        PhotonMap(estimate_nrp, true),
+    ImportanceMap(PhotonMapState &photonMapState, int *estimate_nrp, float *impScalePtr) :
+        PhotonMap(photonMapState, estimate_nrp, true),
         m_maxImp(),
         m_avgImp(),
         m_totalMaxDistance(),

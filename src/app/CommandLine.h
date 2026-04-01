@@ -9,6 +9,7 @@ class BidirectionalPathTracingState;
 class StochasticRayTracingState;
 class StochasticRelaxation;
 class ElementHierarchyState;
+class PhotonMapState;
 
 class CommandLine final {
   public:
@@ -39,7 +40,7 @@ class CommandLine final {
         char **argv,
         StochasticRayTracingState &stochasticRayTracingState);
     static void biDirectionalPathParseOptions(int *argc, char **argv, BidirectionalPathTracingState &bidirectionalPathState);
-    static void photonMapParseOptions(int *argc, char **argv);
+    static void photonMapParseOptions(int *argc, char **argv, PhotonMapState &photonMapState);
     static void toneMapParseOptions(int *argc, char **argv, char *toneMapName, ToneMappingContext &toneMapOptions);
     static void radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString);
     static void renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions);

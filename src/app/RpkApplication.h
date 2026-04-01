@@ -12,6 +12,8 @@ class StochasticRayTracingState;
 class StochasticRelaxation;
 class ElementHierarchyState;
 class StochasticRadiosityBasisState;
+class PhotonMapState;
+class PhotonMapConfig;
 class LightList;
 
 class RpkApplication {
@@ -37,6 +39,8 @@ class RpkApplication {
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,
         StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState);

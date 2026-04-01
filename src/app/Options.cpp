@@ -14,12 +14,12 @@ Command line options and defaults
 #include "app/Options.h"
 
 char *GLOBAL_option_dummyVal = nullptr;
-int GLOBAL_options_dummyVal = 0;
 
 static int *globalArgumentCount;
 static char **globalArguments = nullptr;
 static int globalCurrentArgumentIndex = 0;
 static int globalDummyInt = 0;
+static int *globalDummyIntReference = &globalDummyInt;
 static char *globalDummyString = nullptr;
 static int globalDummyTrue = true;
 static int globalDummyFalse = false;
@@ -281,7 +281,7 @@ static EnumDesc boolTable[] = {
 CommandLineOptions GLOBAL_options_boolType = {
     Options::optionsEnumGet,
     Options::optionsEnumPrint,
-    static_cast<void *>(&GLOBAL_options_dummyVal),
+    nullptr,
     static_cast<void *>(boolTable)
 };
 
@@ -497,6 +497,28 @@ Options::optionsLookupOption(const char *s, CommandLineOptionDescription *option
 }
 
 void
+Options::setDummyIntValueReference(int &dummyValue) {
+    globalDummyIntReference = &dummyValue;
+}
+
+static void *
+optionsValueOrDummy(CommandLineOptionDescription *opt) {
+    if ( opt == nullptr ) {
+        return nullptr;
+    }
+    if ( opt->value != nullptr ) {
+        return opt->value;
+    }
+    if ( opt->type != nullptr ) {
+        if ( opt->type->dummy != nullptr ) {
+            return opt->type->dummy;
+        }
+        return static_cast<void *>(globalDummyIntReference);
+    }
+    return nullptr;
+}
+
+void
 Options::optionsProcessArguments(CommandLineOptionDescription *options) {
     CommandLineOptionDescription *opt = Options::optionsLookupOption(Options::optionsCurrentArgumentValue(), options);
     if ( opt ) {
@@ -504,13 +526,13 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
         if ( opt->type ) {
             if ((opt->type == &GLOBAL_options_setTrueType) ||
                 (opt->type == &GLOBAL_options_setFalseType) ) {
-                if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data) ) {
+                if ( !opt->type->get(optionsValueOrDummy(opt), opt->type->data) ) {
                     ok = false;
                 }
             } else {
                 Options::optionsConsumeArgument();
                 if ( Options::optionsArgumentsRemaining() ) {
-                    if ( !opt->type->get(opt->value ? opt->value : opt->type->dummy, opt->type->data) ) {
+                    if ( !opt->type->get(optionsValueOrDummy(opt), opt->type->data) ) {
                         ok = false;
                     }
                 } else {
@@ -523,7 +545,7 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
             if ( opt->value != nullptr ) {
                 opt->action(opt->value);
             } else {
-                opt->action(opt->type ? opt->type->dummy : nullptr);
+                opt->action(optionsValueOrDummy(opt));
             }
         }
         Options::optionsConsumeArgument();

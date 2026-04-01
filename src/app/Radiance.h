@@ -9,6 +9,8 @@ class StochasticRayTracingState;
 class StochasticRelaxation;
 class ElementHierarchyState;
 class StochasticRadiosityBasisState;
+class PhotonMapState;
+class PhotonMapConfig;
 
 class Radiance final {
   public:
@@ -19,6 +21,8 @@ class Radiance final {
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,
         StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState);
@@ -31,7 +35,9 @@ class Radiance final {
         RadianceMethod **newRadianceMethod,
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,
-        StochasticRadiosityBasisState &stochasticRadiosityBasisState);
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig);
 };
 
 #endif

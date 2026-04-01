@@ -637,13 +637,13 @@ SceneBuilder::sceneBuilderReadFile(
     last = t;
 
     // Print statistics report
-    java::System::out.printf("\nStats: Statistics::instance().radiance.totalEmittedPower ................: %f W\n"
-           "         Statistics::instance().radiance.estimatedAverageRadiance .........: %f W / sr\n"
-           "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
-           "         Statistics::instance().radiance.maxSelfEmittedRadiance ...........: %f W / sr\n"
-           "         Statistics::instance().radiance.maxSelfEmittedPower ..............: %f W\n"
+    java::System::out.printf("\nStats: radiance.totalEmittedPower ................: %f W\n"
+           "         radiance.estimatedAverageRadiance .........: %f W / sr\n"
+           "         averageReflectivity ..............: %f\n"
+           "         radiance.maxSelfEmittedRadiance ...........: %f W / sr\n"
+           "         radiance.maxSelfEmittedPower ..............: %f W\n"
            "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
-           "         GLOBAL_statistics_totalArea ........................: %f m2\n",
+           "         totalArea ........................: %f m2\n",
            Statistics::instance().radiance.totalEmittedPower.gray(),
            Statistics::instance().radiance.estimatedAverageRadiance.gray(),
            Statistics::instance().radiance.averageReflectivity.gray(),

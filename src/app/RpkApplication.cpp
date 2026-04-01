@@ -14,6 +14,8 @@
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "photonMap/PhotonMapState.h"
+#include "photonMap/PhotonMapConfig.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -114,6 +116,8 @@ RpkApplication::mainParseOptions(
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
     StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+    PhotonMapState &photonMapState,
+    PhotonMapConfig &photonMapConfig,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
     StochasticRayTracingState &stochasticRayTracingState)
@@ -137,6 +141,8 @@ RpkApplication::mainParseOptions(
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
+        photonMapState,
+        photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState);
@@ -206,6 +212,8 @@ int
 RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
     mainInitApplication();
+    int optionsDummyVal = 0;
+    Options::setDummyIntValueReference(optionsDummyVal);
 
     RayMatterState rayMatterState;
     BidirectionalPathTracingState bidirectionalPathState;
@@ -213,6 +221,8 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     StochasticRelaxation stochasticRelaxationState;
     ElementHierarchyState elementHierarchyState;
     StochasticRadiosityBasisState stochasticRadiosityBasisState;
+    PhotonMapState photonMapState;
+    PhotonMapConfig photonMapConfig;
     LightList *lightList = nullptr;
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
@@ -230,6 +240,8 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
+        photonMapState,
+        photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState);

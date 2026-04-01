@@ -8,50 +8,55 @@
 
 class SurfaceSampler;
 class PhotonMapConfig;
+class PhotonMapState;
 
 class PhotonMapRadianceMethod final : public RadianceMethod {
   private:
+    PhotonMapState &photonMapState;
+    PhotonMapConfig &photonMapConfig;
+
     static void appendStatsText(char *buffer, int *offset, const char *format, ...);
-    static void photonMapRadiosityUpdateCpuSecs();
-    static void photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr);
-    static ColorRgb
+    void photonMapRadiosityUpdateCpuSecs();
+    void photonMapChooseSurfaceSampler(SurfaceSampler **samplerPtr);
+    ColorRgb
     photonMapDoComputePixelFluxEstimate(
         Camera *camera,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
-    static void
+    void
     photonMapDoScreenNEE(
         Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
-    static bool
+    bool
     photonMapDoPhotonStore(
         const Camera *camera,
         SimpleRaytracingPathNode *node,
         ColorRgb power);
-    static void
+    void
     photonMapHandlePath(
         Camera *camera,
         const VoxelGrid *sceneWorldVoxelGrid,
         PhotonMapConfig *config,
         const RadianceMethod *radianceMethod);
-    static void
+    void
     photonMapTracePath(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         PhotonMapConfig *config,
         char bsdfFlags);
-    static void
+    void
     photonMapTracePaths(
         Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
         Background *sceneBackground,
+        PhotonMapConfig *config,
         int numberOfPaths,
         char bsdfFlags = BSDF_ALL_COMPONENTS,
         const RadianceMethod *radianceMethod = nullptr);
-    static void
+    void
     photonMapBRRealIteration(
         Camera *camera,
         VoxelGrid *sceneWorldVoxelGrid,
@@ -59,7 +64,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
         const RadianceMethod *radianceMethod);
 
   public:
-    PhotonMapRadianceMethod();
+    explicit PhotonMapRadianceMethod(PhotonMapState &photonMapState, PhotonMapConfig &photonMapConfig);
     ~PhotonMapRadianceMethod() final;
     const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
@@ -76,8 +81,8 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
         java::OutputStream *outputStream,
         const RenderOptions *renderOptions) const final;
 
-    static ColorRgb getNodeGRadiance(SimpleRaytracingPathNode *node);
-    static ColorRgb getNodeCRadiance(SimpleRaytracingPathNode *node);
+    ColorRgb getNodeGRadiance(SimpleRaytracingPathNode *node) const;
+    ColorRgb getNodeCRadiance(SimpleRaytracingPathNode *node) const;
 };
 
 #endif

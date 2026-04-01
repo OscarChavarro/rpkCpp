@@ -1,5 +1,4 @@
 #include "photonMap/PhotonMapState.h"
-PhotonMapState GLOBAL_photonMap_state;
 
 PhotonMapState::PhotonMapState():
         doGlobalMap(), gPathsPerIteration(), precomputeGIrradiance(), doCausticMap(), cPathsPerIteration(),

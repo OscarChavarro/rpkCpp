@@ -39,6 +39,4 @@ class PhotonMapConfig {
     }
 };
 
-extern PhotonMapConfig GLOBAL_photonMap_config;
-
 #endif

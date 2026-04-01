@@ -57,6 +57,4 @@ class PhotonMapState
     virtual void setDefaults();
 };
 
-extern PhotonMapState GLOBAL_photonMap_state;
-
 #endif

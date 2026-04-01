@@ -168,8 +168,8 @@ Batch::batchExecuteRadianceSimulation(
               iterationNumber < globalBatchOptions.iterations && !done;
               iterationNumber++ ) {
             java::System::out.printf("-----------------------------------\n"
-                   "GLOBAL_scene_world-space radiance iteration %04d\n"
-                   "-----------------------------------\n\n", iterationNumber);
+               "radiance iteration %04d\n"
+               "-----------------------------------\n\n", iterationNumber);
 
             Canvas::canvasPushMode();
             done = radianceMethod->doStep(scene, renderOptions);

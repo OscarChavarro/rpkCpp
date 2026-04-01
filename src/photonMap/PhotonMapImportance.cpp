@@ -54,17 +54,18 @@ PhotonMapImportance::tracePotentialPath(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    PhotonMapConfig *config)
+    PhotonMapState &photonMapState,
+    PhotonMapConfig &photonMapConfig)
 {
-    SimpleRaytracingPathNode *path = config->biPath.m_eyePath;
-    const SamplerConfig &scfg = config->eyeConfig;
+    SimpleRaytracingPathNode *path = photonMapConfig.biPath.m_eyePath;
+    const SamplerConfig &scfg = photonMapConfig.eyeConfig;
 
     // Eye node
     path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
-    config->biPath.m_eyePath = path;  // In case no nodes were present
+    photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
     ColorRgb accImportance;  // Track importance along the ray
     accImportance.setMonochrome(1.0);
@@ -101,7 +102,7 @@ PhotonMapImportance::tracePotentialPath(
 
         // Determine scatter type
         bool didDG = PhotonMapImportance::bounceDiffuseOrGlossy(prev);
-        bool tooClose = (node->m_G > GLOBAL_photonMap_state.gThreshold);
+        bool tooClose = (node->m_G > photonMapState.gThreshold);
 
         if ( didDG && !tooClose ) {
             indirectImportance = true;
@@ -113,8 +114,8 @@ PhotonMapImportance::tracePotentialPath(
         accImportance.scale(factor);
 
         // Store in map
-        ImportanceMap *imap = (indirectImportance ? config->importanceMap :
-                                config->importanceCMap);
+        ImportanceMap *imap = (indirectImportance ? photonMapConfig.importanceMap :
+                                photonMapConfig.importanceCMap);
         if ( imap ) {
             PhotonMapImportance::doImportanceStore(imap, node, accImportance);
         }
@@ -134,18 +135,25 @@ PhotonMapImportance::tracePotentialPaths(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
     Background *sceneBackground,
-    int numberOfPaths)
+    int numberOfPaths,
+    PhotonMapState &photonMapState,
+    PhotonMapConfig &photonMapConfig)
 {
     // Fill in config structures
-    GLOBAL_photonMap_config.eyeConfig.maxDepth = 7; // Maximum of 4 specular bounces
-    GLOBAL_photonMap_config.eyeConfig.minDepth = 3;
+    photonMapConfig.eyeConfig.maxDepth = 7; // Maximum of 4 specular bounces
+    photonMapConfig.eyeConfig.minDepth = 3;
 
     for ( int i = 0; i < numberOfPaths; i++ ) {
-        PhotonMapImportance::tracePotentialPath(camera, sceneVoxelGrid, sceneBackground, &GLOBAL_photonMap_config);
+        PhotonMapImportance::tracePotentialPath(
+            camera,
+            sceneVoxelGrid,
+            sceneBackground,
+            photonMapState,
+            photonMapConfig);
     }
 
-    GLOBAL_photonMap_config.eyeConfig.maxDepth = 1; // Back to NEE state
-    GLOBAL_photonMap_config.eyeConfig.minDepth = 1;
+    photonMapConfig.eyeConfig.maxDepth = 1; // Back to NEE state
+    photonMapConfig.eyeConfig.minDepth = 1;
 }
 
 #endif

@@ -81,7 +81,8 @@ Adaptation::patchFillLumArea(Patch *patch) {
 
 /**
 Computes the static adaptation luminance value choosing the median value
-of area-weighted luminance values. Needs correct value of "GLOBAL_statistics_totalArea".
+of area-weighted luminance values. Needs a correct
+Statistics::instance().radiance.totalArea.
 */
 float
 Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {

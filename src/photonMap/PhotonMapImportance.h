@@ -9,6 +9,7 @@
 class ImportanceMap;
 class SimpleRaytracingPathNode;
 class PhotonMapConfig;
+class PhotonMapState;
 
 class PhotonMapImportance {
   private:
@@ -20,7 +21,8 @@ class PhotonMapImportance {
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
-        PhotonMapConfig *config);
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig);
 
   public:
     static void
@@ -28,7 +30,9 @@ class PhotonMapImportance {
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
-        int numberOfPaths);
+        int numberOfPaths,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig);
 };
 
 #endif

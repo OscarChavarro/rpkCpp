@@ -12,6 +12,7 @@
 
 class PhotonMap {
   protected:
+    PhotonMapState &photonMapState;
     bool m_balanced;
     bool m_doBalancing;
 
@@ -80,8 +81,11 @@ class PhotonMap {
     void doAddPhoton(Photon &photon, Vector3D normal, short flags);
 
   private:
-    static float getFalseMonochrome(float val);
-    static double computeAcceptProb(float currentD, float requiredD);
+    static float getFalseMonochrome(float val, const PhotonMapState &photonMapState);
+    static double computeAcceptProb(
+        float currentD,
+        float requiredD,
+        const PhotonMapState &photonMapState);
     static void precomputeIrradianceCallback(void *data, void *nodeData);
 
   public:
@@ -89,9 +93,9 @@ class PhotonMap {
     zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
 
     // Convert a value val given a maximum into some nice color
-    static ColorRgb getFalseColor(float val);
+    static ColorRgb getFalseColor(float val, const PhotonMapState &photonMapState);
 
-    explicit PhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance = false);
+    explicit PhotonMap(PhotonMapState &photonMapState, int *estimate_nrp, bool doPrecomputeIrradiance = false);
     virtual ~PhotonMap();
 
     void setTotalPaths(long totalPaths) { m_totalPaths = totalPaths; }

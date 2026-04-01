@@ -22,10 +22,10 @@ PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bs
 }
 
 float
-PhotonMap::getFalseMonochrome(float val) {
-    float max = GLOBAL_photonMap_state.falseColMax;
+PhotonMap::getFalseMonochrome(float val, const PhotonMapState &photonMapState) {
+    float max = photonMapState.falseColMax;
 
-    if ( GLOBAL_photonMap_state.falseColLog ) {
+    if ( photonMapState.falseColLog ) {
         max = static_cast<float>(java::Math::log(1.0 + max));
         val = static_cast<float>(java::Math::log(1.0 + val));
     }
@@ -37,22 +37,22 @@ PhotonMap::getFalseMonochrome(float val) {
 }
 
 ColorRgb
-PhotonMap::getFalseColor(float val) {
+PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
     ColorRgb col;
     float tmp;
     float r = 0;
     float g = 0;
     float b = 0;
 
-    if ( GLOBAL_photonMap_state.falseColMono ) {
-        tmp = PhotonMap::getFalseMonochrome(val);
+    if ( photonMapState.falseColMono ) {
+        tmp = PhotonMap::getFalseMonochrome(val, photonMapState);
         col.set(tmp, tmp, tmp);
         return col;
     }
 
-    float max = GLOBAL_photonMap_state.falseColMax;
+    float max = photonMapState.falseColMax;
 
-    if ( GLOBAL_photonMap_state.falseColLog ) {
+    if ( photonMapState.falseColLog ) {
         max = static_cast<float>(java::Math::log(1.0 + max));
         val = static_cast<float>(java::Math::log(1.0 + val));
     }
@@ -77,7 +77,11 @@ PhotonMap::getFalseColor(float val) {
     return col;
 }
 
-PhotonMap::PhotonMap(int *estimate_nrp, bool doPrecomputeIrradiance):
+PhotonMap::PhotonMap(
+    PhotonMapState &inPhotonMapState,
+    int *estimate_nrp,
+    bool doPrecomputeIrradiance):
+    photonMapState(inPhotonMapState),
     m_sample_nrp(), m_nrpCosinePos()
 {
     m_balanced = true;
@@ -181,15 +185,18 @@ PhotonMap::addPhoton(Photon &photon, Vector3D normal, short flags) {
 }
 
 double
-PhotonMap::computeAcceptProb(float currentD, float requiredD) {
+PhotonMap::computeAcceptProb(
+    float currentD,
+    float requiredD,
+    const PhotonMapState &photonMapState) {
     // Step function
-    if ( GLOBAL_photonMap_state.acceptPdfType == PhotonMapDCAcceptPDFType::STEP ) {
+    if ( photonMapState.acceptPdfType == PhotonMapDCAcceptPDFType::STEP ) {
         if ( currentD > requiredD ) {
             return 0.0;
         } else {
             return 1.0;
         }
-    } else if ( GLOBAL_photonMap_state.acceptPdfType == PhotonMapDCAcceptPDFType::TRANS_COSINE ) {
+    } else if ( photonMapState.acceptPdfType == PhotonMapDCAcceptPDFType::TRANS_COSINE ) {
         // Translated cosine
         double ratio = java::Math::min(1.0, currentD / requiredD); // in [0,1]
 
@@ -233,12 +240,12 @@ PhotonMap::DC_AddPhoton(
     // Vector3D pos = photon.Pos();
     bool stored;
 
-    float currentD = getCurrentDensity(hit, GLOBAL_photonMap_state.distribPhotons);
+    float currentD = getCurrentDensity(hit, photonMapState.distribPhotons);
     // m_photons and m_distances is valid now !!
 
     // Compute acceptance probability
 
-    double acceptProb = PhotonMap::computeAcceptProb(currentD, requiredD);
+    double acceptProb = PhotonMap::computeAcceptProb(currentD, requiredD, photonMapState);
 
     // Debug trace for acceptance probability and density values.
 
@@ -271,7 +278,8 @@ PhotonMap::GetMaxR2() {
      * than a fraction of the radiance contribution when
      * taking into account all the stored photons (N_all) (some kind
      * of ambient radiance). R_all is the radius including all photons.
-     * R_all^2 / N_all is approximated by GLOBAL_statistics_totalArea / M_PI * m_totalPaths
+     * R_all^2 / N_all is approximated by
+     * Statistics::instance().radiance.totalArea / M_PI * m_totalPaths
      * (This is an over estimation, which is ok for a maxr estimate)
      * BRDF eval are approximated by 1.
      */
@@ -473,7 +481,7 @@ ColorRgb
 PhotonMap::getDensityColor(RayHit &hit) {
     float density = getCurrentDensity(hit, 0);
 
-    ColorRgb result = PhotonMap::getFalseColor(density);
+    ColorRgb result = PhotonMap::getFalseColor(density, photonMapState);
 
     return result;
 }

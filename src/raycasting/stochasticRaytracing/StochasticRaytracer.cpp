@@ -492,20 +492,21 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
         if ( (readout == StorageReadout::READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
             if ( radianceMethod->className == PHOTON_MAP ) {
+                const PhotonMapRadianceMethod *photonMapMethod = static_cast<const PhotonMapRadianceMethod *>(radianceMethod);
                 if ( config->radMode == RayTracingRadMode::STORED_PHOTON_MAP ) {
                     // Check if the distance to the previous point is big enough
                     // otherwise we need more scattering...
                     float dist2 = thisNode->m_hit.getPoint().distance2(thisNode->previous()->m_hit.getPoint());
 
                     if ( dist2 > PHOTON_MAP_MIN_DIST2 ) {
-                        radiance = PhotonMapRadianceMethod::getNodeGRadiance(thisNode);
+                        radiance = photonMapMethod->getNodeGRadiance(thisNode);
                         // This does not include Le (self emitted light)
                     } else {
                         radiance.clear();
                         readout = StorageReadout::SCATTER; // This ensures extra scattering, direct light and c-map
                     }
                 } else {
-                    radiance = PhotonMapRadianceMethod::getNodeGRadiance(thisNode);
+                    radiance = photonMapMethod->getNodeGRadiance(thisNode);
                     // This does not include Le (self emitted light)
                 }
             } else {
@@ -541,7 +542,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
 
         // Stored caustic maps
         if ( (config->radMode == RayTracingRadMode::STORED_PHOTON_MAP) && readout == StorageReadout::SCATTER ) {
-            radiance = PhotonMapRadianceMethod::getNodeCRadiance(thisNode);
+            const PhotonMapRadianceMethod *photonMapMethod = static_cast<const PhotonMapRadianceMethod *>(radianceMethod);
+            radiance = photonMapMethod->getNodeCRadiance(thisNode);
             result.add(result, radiance);
         }
 
