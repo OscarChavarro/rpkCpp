@@ -12,8 +12,6 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "common/Error.h"
 #include "common/Statistics.h"
 #include "render/Render.h"
-#include "render/Opengl.h"
-#include "raycasting/common/RayTracer.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/Stochjacobi.h"
@@ -494,30 +492,17 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDiscardIncremental(
     stochasticRelaxationRadiosityElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 }
 
- void
+void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         McradP::topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(
             StochasticRadiosityOpenGLRenderer::renderElement,
             renderOptions);
-    } else {
-        // Not yet initialized
-        Opengl::openGlRenderPatchCallBack(patch, camera, renderOptions);
     }
 }
 
 void
 StochasticJacobiRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
-    if ( renderOptions->frustumCulling ) {
-        Opengl::openGlRenderWorldOctree(
-            scene,
-            stochasticRelaxationRadiosityRenderPatch,
-            renderOptions);
-    } else {
-        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-            stochasticRelaxationRadiosityRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
-        }
-    }
 }
 
 bool

@@ -737,7 +737,7 @@ PhotonMapRadianceMethod::getRadiance(
 }
 
 void
-PhotonMapRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
+PhotonMapRadianceMethod::renderScene(const Scene * /*scene*/, const RenderOptions * /*renderOptions*/) const {
     if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
         GLOBAL_photonMap_config.screen->render();
     }
