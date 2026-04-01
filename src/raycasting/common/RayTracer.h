@@ -52,9 +52,4 @@ class RayTracer {
         const RenderOptions *renderOptions);
 };
 
-extern RayTracer *GLOBAL_rayTracer;
-extern double GLOBAL_raytracer_totalTime; // Statistics: raytracing time
-extern long GLOBAL_raytracer_rayCount; // Statistics: number of rays traced
-extern long GLOBAL_raytracer_pixelCount; // Statistics: number of pixels drawn
-
 #endif

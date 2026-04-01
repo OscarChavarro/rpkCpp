@@ -10,9 +10,8 @@ Non diffuse first shot
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "raycasting/common/RayTracer.h"
 #include "raycasting/stochasticRaytracing/LightSourceTable.h"
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
@@ -27,7 +26,7 @@ static double globalTotalFlux;
 void
 Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
     globalTotalFlux = 0.0;
-    globalNumberOfLights = Statistics::instance().numberOfLightSources;
+    globalNumberOfLights = Statistics::instance().reader.numberOfLightSources;
     globalLights = new LightSourceTable[globalNumberOfLights];
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
@@ -182,11 +181,6 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
         scene->voxelGrid,
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
     summarize(scene->patchList);
-
-    if ( GLOBAL_rayTracer != nullptr ) {
-        // TODO: Verify this is not needed, has been disabled flow on May 29 2024
-        //Opengl::openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
-    }
     delete[] globalLights;
 }
 

@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "galerkin/processing/FormFactorClusteredStrategy.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 
@@ -33,10 +33,10 @@ FormFactorStrategy::shadowTestDiscretization(
     bool isSceneGeometry,
     bool isClusteredGeometry)
 {
-    Statistics::instance().numberOfShadowRays++;
+    Statistics::instance().shadow.numberOfShadowRays++;
     RayHit *hit = shadowCache->cacheHit(ray, &minimumDistance, hitStore);
     if ( hit != nullptr ) {
-        Statistics::instance().numberOfShadowCacheHits++;
+        Statistics::instance().shadow.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
             hit = Geometry::listDiscretizationIntersect(
@@ -223,7 +223,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     } else {
         // Case never used if clustering disabled
         float minimumFeatureSize = 2.0f
-            * static_cast<float>(java::Math::sqrt(Statistics::instance().totalArea * galerkinState->relMinElemArea / M_PI));
+            * static_cast<float>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
     }

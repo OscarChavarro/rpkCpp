@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelReaderPatchRecord.h"
+#include "io/bin/reader/BinaryModelReaderPatchRecord.h"
 
 BinaryModelReaderPatchRecord::BinaryModelReaderPatchRecord():
     id(0),

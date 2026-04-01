@@ -2,7 +2,7 @@
 #define __BINARY_MODEL_READER_VERTEX_RECORD__
 
 #include "common/ColorRgb.h"
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 
 class BinaryModelReaderVertexRecord {
   public:

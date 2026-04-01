@@ -1,7 +1,7 @@
 #include "java/lang/System.h"
+#include "common/statistics/Statistics.h"
 #include "tonemap/ToneMap.h"
 #include "render/Softids.h"
-#include "raycasting/common/RayTracer.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
 #include "raycasting/raytracing/ScreenIterate.h"
 
@@ -18,7 +18,7 @@ For counting how much CPU time was used for the computations
 void
 ScreenIterate::updateCpuSecs() {
     const long long now = java::System::nanoTime();
-    GLOBAL_raytracer_totalTime += static_cast<double>(now - state.lastTime) / 1000000000.0;
+    Statistics::instance().rayTracer.totalTime += static_cast<double>(now - state.lastTime) / 1000000000.0;
     state.lastTime = now;
 }
 
@@ -31,8 +31,7 @@ ScreenIterate::init() {
 
     // initialize for statistics etc.
     state.lastTime = java::System::nanoTime();
-    GLOBAL_raytracer_totalTime = 0.0;
-    GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
+    Statistics::instance().rayTracer.resetCounters();
 }
 
 void
@@ -65,7 +64,7 @@ ScreenIterate::sequential(
         for ( int j = 0; j < width; j++ ) {
             col = callback(camera, sceneVoxelGrid, sceneBackground, j, i, data);
             ToneMap::radianceToRgb(col, &rgb[j], toneMapOptions);
-            GLOBAL_raytracer_pixelCount++;
+            Statistics::instance().rayTracer.pixelCount++;
         }
 
         SoftIds::softRenderPixels(width, 1, rgb, toneMapOptions);
@@ -172,7 +171,7 @@ ScreenIterate::progressive(
                     ToneMap::radianceToRgb(col, &pixelRGB, toneMapOptions);
                     fillRect(camera, x0, y0, x1, y1, pixelRGB, rgb);
 
-                    GLOBAL_raytracer_pixelCount++;
+                    Statistics::instance().rayTracer.pixelCount++;
 
                     if ( state.wakeUp & wakeUpRender() ) {
                         state.wakeUp &= static_cast<unsigned char>(~wakeUpRender());

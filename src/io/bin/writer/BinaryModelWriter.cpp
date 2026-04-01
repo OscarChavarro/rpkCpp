@@ -25,8 +25,8 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/BinaryModelWriter.h"
-#include "io/bin/BinaryModelWriterSerializationContext.h"
+#include "io/bin/writer/BinaryModelWriter.h"
+#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
 
 const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',

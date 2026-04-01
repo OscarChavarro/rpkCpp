@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "skin/Compound.h"
 
 /**
@@ -9,7 +9,7 @@ Actually, it just counts the number of compounds in the scene and
 returns the geometry list
 */
 Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(GeometryClassId::COMPOUND) {
-    Statistics::instance().numberOfCompounds++;
+    Statistics::instance().reader.numberOfCompounds++;
     children = geometryList;
     Geometry::listBounds(children, &boundingBox);
     boundingBox.enlargeTinyBit();
@@ -17,7 +17,7 @@ Compound::Compound(java::ArrayList<Geometry *> *geometryList): Geometry(Geometry
 }
 
 Compound::~Compound() {
-    Statistics::instance().numberOfCompounds--;
+    Statistics::instance().reader.numberOfCompounds--;
     if ( children != nullptr ) {
         delete children;
         children = nullptr;

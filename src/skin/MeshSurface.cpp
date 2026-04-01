@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "skin/MeshSurface.h"
 
 int MeshSurface::nextSurfaceId = 0;
@@ -23,7 +23,7 @@ MeshSurface::MeshSurface(
     java::ArrayList<Patch *> *inFaces,
     MaterialColorFlags inFlags)
 {
-    Statistics::instance().numberOfSurfaces++;
+    Statistics::instance().reader.numberOfSurfaces++;
 
     id = nextGeometryId;
     nextGeometryId++;

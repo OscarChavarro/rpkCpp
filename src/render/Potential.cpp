@@ -5,7 +5,7 @@ Routines dealing with view potential
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/Canvas.h"
 #include "render/Potential.h"
 #include "render/Softids.h"
@@ -89,26 +89,26 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
         Error::warning(nullptr, "%d lost pixels", lostPixels);
     }
 
-    Statistics::instance().averageDirectPotential = Statistics::instance().totalDirectPotential =
-    Statistics::instance().maxDirectPotential = Statistics::instance().maxDirectImportance = 0.0;
+    Statistics::instance().potential.averageDirectPotential = Statistics::instance().potential.totalDirectPotential =
+    Statistics::instance().potential.maxDirectPotential = Statistics::instance().potential.maxDirectImportance = 0.0;
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
         Patch *patch = id2patch[i];
 
         if ( patch != nullptr ) {
             patch->directPotential = newDirectImportance[i] / patch->area;
 
-            if ( patch->directPotential > Statistics::instance().maxDirectPotential ) {
-                Statistics::instance().maxDirectPotential = patch->directPotential;
+            if ( patch->directPotential > Statistics::instance().potential.maxDirectPotential ) {
+                Statistics::instance().potential.maxDirectPotential = patch->directPotential;
             }
-            Statistics::instance().totalDirectPotential += newDirectImportance[i];
-            Statistics::instance().averageDirectPotential += newDirectImportance[i];
+            Statistics::instance().potential.totalDirectPotential += newDirectImportance[i];
+            Statistics::instance().potential.averageDirectPotential += newDirectImportance[i];
 
-            if ( newDirectImportance[i] > Statistics::instance().maxDirectImportance ) {
-                Statistics::instance().maxDirectImportance = newDirectImportance[i];
+            if ( newDirectImportance[i] > Statistics::instance().potential.maxDirectImportance ) {
+                Statistics::instance().potential.maxDirectImportance = newDirectImportance[i];
             }
         }
     }
-    Statistics::instance().averageDirectPotential /= Statistics::instance().totalArea;
+    Statistics::instance().potential.averageDirectPotential /= Statistics::instance().radiance.totalArea;
 
     delete[] newDirectImportance;
     delete[] id2patch;

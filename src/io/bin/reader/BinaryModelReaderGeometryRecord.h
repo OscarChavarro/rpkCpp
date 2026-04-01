@@ -1,7 +1,7 @@
 #ifndef __BINARY_MODEL_READER_GEOMETRY_RECORD__
 #define __BINARY_MODEL_READER_GEOMETRY_RECORD__
 
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 
 class BinaryModelReaderGeometryRecord {
   public:

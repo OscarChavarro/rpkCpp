@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 
 BinaryModelReaderIndexListRecord::BinaryModelReaderIndexListRecord():
     isNull(true),

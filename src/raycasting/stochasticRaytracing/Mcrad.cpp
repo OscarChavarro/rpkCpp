@@ -12,7 +12,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/Potential.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
@@ -258,10 +258,10 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
         qSortFloatCompare);
 
     // Find the patch such that 10% of the total surface area is filled by smaller patches
-    for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < Statistics::instance().totalArea * 0.1; i-- ) {
+    for ( i = numberOfPatchIds - 1, cumulative = 0.0; i >= 0 && cumulative < Statistics::instance().radiance.totalArea * 0.1; i-- ) {
         cumulative += areas[i];
     }
-    areaFrac = (i >= 0 && areas[i] > 0.0) ? Statistics::instance().totalArea / areas[i] : static_cast<float>(Statistics::instance().numberOfPatches);
+    areaFrac = (i >= 0 && areas[i] > 0.0) ? Statistics::instance().radiance.totalArea / areas[i] : static_cast<float>(Statistics::instance().reader.numberOfPatches);
 
     delete[] areas;
 

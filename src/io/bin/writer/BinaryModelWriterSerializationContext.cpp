@@ -15,7 +15,7 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/BinaryModelWriterSerializationContext.h"
+#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
 
 bool
 BinaryModelWriterSerializationContext::ensureVector(const Vector3D *value) {

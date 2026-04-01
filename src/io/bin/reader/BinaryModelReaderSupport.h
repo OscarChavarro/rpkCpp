@@ -2,7 +2,7 @@
 #define __BINARY_MODEL_READER_SUPPORT__
 
 #include "common/Error.h"
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 
 class BoundingBox;
 class ColorRgb;

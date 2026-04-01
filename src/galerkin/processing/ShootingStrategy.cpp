@@ -3,7 +3,7 @@ Southwell Galerkin radiosity (progressive refinement radiosity)
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/Potential.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRadianceMethod.h"
@@ -176,7 +176,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             patchUpdateRadianceAndPotential(scene->patchList->get(i), galerkinState);
         }
-        galerkinState->ambientRadiance.scale(1.0f / Statistics::instance().totalArea);
+        galerkinState->ambientRadiance.scale(1.0f / Statistics::instance().radiance.totalArea);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {

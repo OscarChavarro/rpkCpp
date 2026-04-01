@@ -10,7 +10,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/Render.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
@@ -281,7 +281,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementImp
 void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintIncrementalImportanceStats() {
     java::System::err.printf("%g secs., importance rays = %ld, un-shot importance = %g, total importance = %g, total area = %g\n",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
+            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().radiance.totalArea);
 }
 
 void
@@ -392,7 +392,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityPrintRegularStats()
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         java::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
+                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().radiance.totalArea);
     }
     java::System::err.printf("\n");
 }

@@ -8,7 +8,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "raycasting/common/RayTracer.h"
+#include "common/statistics/Statistics.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
@@ -159,7 +159,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
     cfg->minDepth = GLOBAL_photonMap_state.minimumLightPathDepth;
     cfg->maxDepth = GLOBAL_photonMap_state.maximumLightPathDepth;
 
-    GLOBAL_raytracer_rayCount = 0;
+    Statistics::instance().rayTracer.rayCount = 0;
 
     // mainInitApplication the photon map
 
@@ -531,7 +531,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 
         java::System::err.printf("Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
-                GLOBAL_raytracer_rayCount);
+                Statistics::instance().rayTracer.rayCount);
     }
 
     // Global map
@@ -742,7 +742,7 @@ PhotonMapRadianceMethod::getStats() {
     int statsOffset = 0;
 
     PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Photon map Statistics:\n\n");
-    PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Ray count %li\n", GLOBAL_raytracer_rayCount);
+    PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Ray count %li\n", Statistics::instance().rayTracer.rayCount);
     PhotonMapRadianceMethod::appendStatsText(stats, &statsOffset, "Time %g\n", GLOBAL_photonMap_state.cpuSecs);
 
     if ( GLOBAL_photonMap_config.globalMap ) {

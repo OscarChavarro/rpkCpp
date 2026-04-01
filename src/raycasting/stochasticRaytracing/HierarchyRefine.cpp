@@ -11,7 +11,7 @@ References:
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -136,7 +136,7 @@ Hierarchy::lowPowerLink(
         rhoSrcRad.selfScalarProduct(Rd);
     }
 
-    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * statistics->maxSelfEmittedPower.maximumComponent();
+    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
     propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
         propagatedPower *= rcv->importance;

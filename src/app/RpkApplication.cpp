@@ -1,6 +1,7 @@
 #include <cstring>
 
 #include "common/RenderOptions.h"
+#include "common/statistics/Statistics.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
@@ -131,7 +132,7 @@ RpkApplication::executeRendering(const char *rayTracerName) {
 
     #ifdef RAYTRACING_ENABLED
         rayTracer = Raytrace::rayTraceCreate(scene, rayTracerName);
-        GLOBAL_rayTracer = rayTracer;
+        Statistics::instance().rayTracer.currentRayTracer = rayTracer;
     #endif
 
     Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);

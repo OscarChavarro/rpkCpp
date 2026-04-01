@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelReaderGeometryRecord.h"
+#include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
 
 BinaryModelReaderGeometryRecord::BinaryModelReaderGeometryRecord():
     classId(0),

@@ -2,7 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "skin/Patch.h"
 
 static constexpr double TOLERANCE = 1e-5;
@@ -629,7 +629,7 @@ Patch::Patch(
         java::System::exit(2);
     }
 
-    Statistics::instance().numberOfElements++;
+    Statistics::instance().reader.numberOfElements++;
     twin = nullptr;
     id = globalPatchId;
     globalPatchId++;
@@ -651,7 +651,7 @@ Patch::Patch(
 
     // Compute normal
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
-        Statistics::instance().numberOfElements--;
+        Statistics::instance().reader.numberOfElements--;
         Error::error("Patch::Patch", "Error computing patch normal");
         java::System::exit(3);
     }

@@ -5,13 +5,13 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "io/bin/BinaryModelReader.h"
-#include "io/bin/BinaryModelWriter.h"
+#include "io/bin/reader/BinaryModelReader.h"
+#include "io/bin/writer/BinaryModelWriter.h"
 #include "io/mgf/MgfReader.h"
 #include "render/RenderHookList.h"
 #include "render/ScreenBuffer.h"
@@ -27,13 +27,13 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb power;
 
-    Statistics::instance().totalArea += patch->area;
+    Statistics::instance().radiance.totalArea += patch->area;
     power.scaledCopy(patch->area, E);
-    Statistics::instance().totalEmittedPower.add(Statistics::instance().totalEmittedPower, power);
-    Statistics::instance().averageReflectivity.addScaled(Statistics::instance().averageReflectivity, patch->area, R);
+    Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, power);
+    Statistics::instance().radiance.averageReflectivity.addScaled(Statistics::instance().radiance.averageReflectivity, patch->area, R);
     E.scale(1.0f / static_cast<float>(M_PI));
-    Statistics::instance().maxSelfEmittedRadiance.maximum(E, Statistics::instance().maxSelfEmittedRadiance);
-    Statistics::instance().maxSelfEmittedPower.maximum(power, Statistics::instance().maxSelfEmittedPower);
+    Statistics::instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics::instance().radiance.maxSelfEmittedRadiance);
+    Statistics::instance().radiance.maxSelfEmittedPower.maximum(power, Statistics::instance().radiance.maxSelfEmittedPower);
 }
 
 void
@@ -47,11 +47,11 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     zero.set(0, 0, 0);
 
     // Initialize
-    Statistics::instance().totalEmittedPower.clear();
-    Statistics::instance().averageReflectivity.clear();
-    Statistics::instance().maxSelfEmittedRadiance.clear();
-    Statistics::instance().maxSelfEmittedPower.clear();
-    Statistics::instance().totalArea = 0.0;
+    Statistics::instance().radiance.totalEmittedPower.clear();
+    Statistics::instance().radiance.averageReflectivity.clear();
+    Statistics::instance().radiance.maxSelfEmittedRadiance.clear();
+    Statistics::instance().radiance.maxSelfEmittedPower.clear();
+    Statistics::instance().radiance.totalArea = 0.0;
 
     // Accumulate
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
@@ -59,25 +59,25 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     }
 
     // Averages
-    Statistics::instance().averageReflectivity.scaleInverse(
-            Statistics::instance().totalArea,
-            Statistics::instance().averageReflectivity);
-    averageAbsorption.subtract(one, Statistics::instance().averageReflectivity);
-    Statistics::instance().estimatedAverageRadiance.scaleInverse(
-            static_cast<float>(M_PI) * Statistics::instance().totalArea,
-            Statistics::instance().totalEmittedPower);
+    Statistics::instance().radiance.averageReflectivity.scaleInverse(
+            Statistics::instance().radiance.totalArea,
+            Statistics::instance().radiance.averageReflectivity);
+    averageAbsorption.subtract(one, Statistics::instance().radiance.averageReflectivity);
+    Statistics::instance().radiance.estimatedAverageRadiance.scaleInverse(
+            static_cast<float>(M_PI) * Statistics::instance().radiance.totalArea,
+            Statistics::instance().radiance.totalEmittedPower);
 
     // Include background radiation
     BP = Background::backgroundPower(scene->background, &zero);
     BP.scale(1.0f / (4.0f * static_cast<float>(M_PI)));
-    Statistics::instance().totalEmittedPower.add(Statistics::instance().totalEmittedPower, BP);
-    Statistics::instance().estimatedAverageRadiance.add(Statistics::instance().estimatedAverageRadiance, BP);
-    Statistics::instance().estimatedAverageRadiance.divide(Statistics::instance().estimatedAverageRadiance, averageAbsorption);
+    Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, BP);
+    Statistics::instance().radiance.estimatedAverageRadiance.add(Statistics::instance().radiance.estimatedAverageRadiance, BP);
+    Statistics::instance().radiance.estimatedAverageRadiance.divide(Statistics::instance().radiance.estimatedAverageRadiance, averageAbsorption);
 
-    Statistics::instance().totalDirectPotential = 0.0;
-    Statistics::instance().maxDirectPotential = 0.0;
-    Statistics::instance().averageDirectPotential = 0.0;
-    Statistics::instance().maxDirectImportance = 0.0;
+    Statistics::instance().potential.totalDirectPotential = 0.0;
+    Statistics::instance().potential.maxDirectPotential = 0.0;
+    Statistics::instance().potential.averageDirectPotential = 0.0;
+    Statistics::instance().potential.maxDirectImportance = 0.0;
 }
 
 /**
@@ -87,7 +87,7 @@ void
 SceneBuilder::sceneBuilderAddBackgroundToLightSourceList(Scene *scene) {
     if ( scene->background != nullptr && scene->background->bkgPatch != nullptr ) {
         scene->lightSourcePatchList->add(scene->background->bkgPatch);
-        Statistics::instance().numberOfLightSources++;
+        Statistics::instance().reader.numberOfLightSources++;
     }
 }
 
@@ -101,7 +101,7 @@ SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList
          && patch->material != nullptr
          && patch->material->getEdf() != nullptr ) {
         lights->add(patch);
-        Statistics::instance().numberOfLightSources++;
+        Statistics::instance().reader.numberOfLightSources++;
     }
 }
 
@@ -111,7 +111,7 @@ Build the global light source patch list
 void
 SceneBuilder::sceneBuilderFillLightSourcePatchList(Scene *scene) {
     java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
-    Statistics::instance().numberOfLightSources = 0;
+    Statistics::instance().reader.numberOfLightSources = 0;
 
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
         SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(lights, scene->patchList->get(i));
@@ -505,10 +505,10 @@ SceneBuilder::sceneBuilderReadFile(
     java::System::err.printf("Computing some scene statistics ... ");
     java::System::err.flush();
 
-    Statistics::instance().numberOfPatches = Statistics::instance().numberOfElements;
+    Statistics::instance().reader.numberOfPatches = Statistics::instance().reader.numberOfElements;
     SceneBuilder::sceneBuilderComputeStats(scene);
-    Statistics::instance().referenceLuminance = 5.42 * ((1.0 - Statistics::instance().averageReflectivity.gray()) *
-                                                   Statistics::instance().estimatedAverageRadiance.luminance());
+    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - Statistics::instance().radiance.averageReflectivity.gray()) *
+                                                   Statistics::instance().radiance.estimatedAverageRadiance.luminance());
 
     t = java::System::nanoTime();
     java::System::err.printf(
@@ -529,20 +529,20 @@ SceneBuilder::sceneBuilderReadFile(
     last = t;
 
     // Print statistics report
-    java::System::out.printf("\nStats: Statistics::instance().totalEmittedPower ................: %f W\n"
-           "         Statistics::instance().estimatedAverageRadiance .........: %f W / sr\n"
+    java::System::out.printf("\nStats: Statistics::instance().radiance.totalEmittedPower ................: %f W\n"
+           "         Statistics::instance().radiance.estimatedAverageRadiance .........: %f W / sr\n"
            "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
-           "         Statistics::instance().maxSelfEmittedRadiance ...........: %f W / sr\n"
-           "         Statistics::instance().maxSelfEmittedPower ..............: %f W\n"
+           "         Statistics::instance().radiance.maxSelfEmittedRadiance ...........: %f W / sr\n"
+           "         Statistics::instance().radiance.maxSelfEmittedPower ..............: %f W\n"
            "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
            "         GLOBAL_statistics_totalArea ........................: %f m2\n",
-           Statistics::instance().totalEmittedPower.gray(),
-           Statistics::instance().estimatedAverageRadiance.gray(),
-           Statistics::instance().averageReflectivity.gray(),
-           Statistics::instance().maxSelfEmittedRadiance.gray(),
-           Statistics::instance().maxSelfEmittedPower.gray(),
+           Statistics::instance().radiance.totalEmittedPower.gray(),
+           Statistics::instance().radiance.estimatedAverageRadiance.gray(),
+           Statistics::instance().radiance.averageReflectivity.gray(),
+           Statistics::instance().radiance.maxSelfEmittedRadiance.gray(),
+           Statistics::instance().radiance.maxSelfEmittedPower.gray(),
            toneMapOptions.realWorldAdaptionLuminance,
-           Statistics::instance().totalArea);
+           Statistics::instance().radiance.totalArea);
     //scene->print();
 
     // Initialize radiance for the freshly loaded scene

@@ -9,6 +9,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
+#include "common/statistics/Statistics.h"
 #include "java/lang/System.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/common/BoxFilter.h"
@@ -162,9 +163,9 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
         screenBuffer->renderScanline(y);
     }
 
-    GLOBAL_raytracer_totalTime = static_cast<double>(java::System::nanoTime() - t) / 1000000000.0;
-    GLOBAL_raytracer_rayCount = 0;
-    GLOBAL_raytracer_pixelCount = 0;
+    Statistics::instance().rayTracer.totalTime = static_cast<double>(java::System::nanoTime() - t) / 1000000000.0;
+    Statistics::instance().rayTracer.rayCount = 0;
+    Statistics::instance().rayTracer.pixelCount = 0;
 }
 
 void

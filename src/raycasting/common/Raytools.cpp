@@ -2,7 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "raycasting/common/RayTracer.h"
+#include "common/statistics/Statistics.h"
 #include "raycasting/common/Raytools.h"
 
 int
@@ -60,7 +60,7 @@ RayTools::findRayIntersection(
 
     // Trace the ray
     newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, nullptr, hitStore);
-    GLOBAL_raytracer_rayCount++; // statistics
+    Statistics::instance().rayTracer.rayCount++; // statistics
 
     // Robustness test : If a back is hit, check the current
     // bsdf and the bsdf of the material hit. If they
@@ -69,7 +69,7 @@ RayTools::findRayIntersection(
          newHit->getPatch()->material->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
         newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->getPatch(), hitStore);
-        GLOBAL_raytracer_rayCount++; // Statistics
+        Statistics::instance().rayTracer.rayCount++; // Statistics
     }
 
     return newHit;
@@ -162,7 +162,7 @@ RayTools::pathNodesVisible(
         Patch::dontIntersect0();
         visible = (hit == nullptr);
 
-        GLOBAL_raytracer_rayCount++; // Statistics
+        Statistics::instance().rayTracer.rayCount++; // Statistics
     } else {
         visible = false;
     }

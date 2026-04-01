@@ -6,7 +6,7 @@ a software frame buffer directly.
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
@@ -184,9 +184,9 @@ RayCaster::render(
     delete idRenderer;
 
 #ifdef RAYTRACING_ENABLED
-    GLOBAL_raytracer_totalTime = static_cast<double>(java::System::nanoTime() - t) / 1000000000.0;
-    GLOBAL_raytracer_rayCount = 0;
-    GLOBAL_raytracer_pixelCount = 0;
+    Statistics::instance().rayTracer.totalTime = static_cast<double>(java::System::nanoTime() - t) / 1000000000.0;
+    Statistics::instance().rayTracer.rayCount = 0;
+    Statistics::instance().rayTracer.pixelCount = 0;
 #endif
 }
 

@@ -4,6 +4,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
+#include "common/statistics/Statistics.h"
 #include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
@@ -238,7 +239,7 @@ Batch::batchExecuteRadianceSimulation(
     }
 
     #ifdef RAYTRACING_ENABLED
-        if ( GLOBAL_rayTracer != nullptr ) {
+        if ( Statistics::instance().rayTracer.currentRayTracer != nullptr ) {
             java::System::out.printf("Doing %s ...\n", rayTracer->getName());
 
             startTime = java::System::nanoTime();

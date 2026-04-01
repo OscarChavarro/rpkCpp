@@ -9,9 +9,9 @@
 #include "skin/MinMaxBox.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/wrapper/PersistenceElement.h"
-#include "io/bin/BinaryModelReaderIndexListRecord.h"
-#include "io/bin/BinaryModelReaderModelRecord.h"
-#include "io/bin/BinaryModelReaderSupport.h"
+#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelReaderSupport.h"
 
 const unsigned char BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',

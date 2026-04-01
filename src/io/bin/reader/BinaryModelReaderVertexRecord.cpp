@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelReaderVertexRecord.h"
+#include "io/bin/reader/BinaryModelReaderVertexRecord.h"
 
 BinaryModelReaderVertexRecord::BinaryModelReaderVertexRecord():
     id(0),

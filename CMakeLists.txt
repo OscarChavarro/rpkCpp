@@ -60,7 +60,12 @@ set(MAIN_SRC
     src/common/Cie.cpp
     src/common/RenderOptions.cpp
     src/common/StratifiedSampling2D.cpp
-    src/common/Statistics.cpp
+    src/common/statistics/Statistics.cpp
+    src/common/statistics/ReaderStatistics.cpp
+    src/common/statistics/RadianceStatistics.cpp
+    src/common/statistics/PotentialStatistics.cpp
+    src/common/statistics/ShadowStatistics.cpp
+    src/common/statistics/RayTracerStatistics.cpp
     src/common/linealAlgebra/Numeric.cpp
     src/common/linealAlgebra/Matrix2x2.cpp
     src/common/linealAlgebra/Vector3D.cpp
@@ -152,16 +157,16 @@ set(MAIN_SRC
     src/io/mgf/MgfHandlerMaterial.cpp
     src/io/mgf/MgfStaticHandler.cpp
     src/io/mgf/MgfReader.cpp
-    src/io/bin/BinaryModelWriter.cpp
-    src/io/bin/BinaryModelWriterSerializationContext.cpp
-    src/io/bin/BinaryModelReader.cpp
-    src/io/bin/BinaryModelReaderSupport.cpp
-    src/io/bin/BinaryModelReaderCleanup.cpp
-    src/io/bin/BinaryModelReaderIndexListRecord.cpp
-    src/io/bin/BinaryModelReaderVertexRecord.cpp
-    src/io/bin/BinaryModelReaderPatchRecord.cpp
-    src/io/bin/BinaryModelReaderGeometryRecord.cpp
-    src/io/bin/BinaryModelReaderModelRecord.cpp
+    src/io/bin/writer/BinaryModelWriter.cpp
+    src/io/bin/writer/BinaryModelWriterSerializationContext.cpp
+    src/io/bin/reader/BinaryModelReader.cpp
+    src/io/bin/reader/BinaryModelReaderSupport.cpp
+    src/io/bin/reader/BinaryModelReaderCleanup.cpp
+    src/io/bin/reader/BinaryModelReaderIndexListRecord.cpp
+    src/io/bin/reader/BinaryModelReaderVertexRecord.cpp
+    src/io/bin/reader/BinaryModelReaderPatchRecord.cpp
+    src/io/bin/reader/BinaryModelReaderGeometryRecord.cpp
+    src/io/bin/reader/BinaryModelReaderModelRecord.cpp
     src/io/wrl/VrmlWriter.cpp
     src/io/image/PicOutputHandle.cpp
     src/io/image/Dkcolor.cpp

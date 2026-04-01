@@ -7,7 +7,7 @@ Estimate static adaptation for tone mapping
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "app/Adaptation.h"
@@ -30,7 +30,7 @@ Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
-    radiance.scalarProduct(R, Statistics::instance().estimatedAverageRadiance);
+    radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
     radiance.addScaled(radiance, (1.0f / static_cast<float>(M_PI)), E);
     return radiance;
 }
@@ -89,7 +89,7 @@ Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
         return 0.0f;
     }
 
-    float areaMax = Statistics::instance().totalArea / 2.0f;
+    float areaMax = Statistics::instance().radiance.totalArea / 2.0f;
     float areaCnt = 0.0;
     int pairIndex = 0;
 
@@ -130,12 +130,12 @@ Adaptation::estimateSceneAdaptation(
                 Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().totalArea + 0.84f);
+            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().radiance.totalArea + 0.84f);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
-            LuminanceArea *la = new LuminanceArea[Statistics::instance().numberOfPatches];
+            LuminanceArea *la = new LuminanceArea[Statistics::instance().reader.numberOfPatches];
 
             globalLumArea = la;
             globalLumAreaIndex = 0;
@@ -143,7 +143,7 @@ Adaptation::estimateSceneAdaptation(
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Adaptation::patchFillLumArea(scenePatches->get(i));
             }
-            toneMapOptions.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().numberOfPatches);
+            toneMapOptions.realWorldAdaptionLuminance = Adaptation::meanAreaWeightedLuminance(la, Statistics::instance().reader.numberOfPatches);
 
             delete[] la;
             break;

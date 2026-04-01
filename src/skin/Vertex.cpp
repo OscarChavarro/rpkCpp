@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "skin/Vertex.h"
 
 unsigned int Vertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VERTEX_COMPARE_TEXTURE_COORDINATE;
@@ -17,7 +17,7 @@ Vertex::Vertex(
     color(),
     tmp()
 {
-    id = Statistics::instance().numberOfVertices++;
+    id = Statistics::instance().reader.numberOfVertices++;
     point = inPoint;
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
@@ -32,7 +32,7 @@ Destroys the vertex. Does not destroy the coordinate vector and
 normal vector, neither the patches sharing the vertex
 */
 Vertex::~Vertex() {
-    Statistics::instance().numberOfVertices--;
+    Statistics::instance().reader.numberOfVertices--;
     delete patches;
 }
 

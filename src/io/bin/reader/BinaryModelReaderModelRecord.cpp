@@ -1,4 +1,4 @@
-#include "io/bin/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelReaderModelRecord.h"
 
 BinaryModelReaderModelRecord::BinaryModelReaderModelRecord():
     currentColorIndex(0),

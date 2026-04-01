@@ -7,7 +7,7 @@
 
 #include "java/lang/System.h"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "photonMap/Photon.h"
 #include "photonMap/PhotonMap.h"
 bool
@@ -277,7 +277,7 @@ PhotonMap::GetMaxR2() {
      */
     const double radFraction = 0.03;
 
-    double maxr2 = (static_cast<double>(*m_estimate_nrp) * Statistics::instance().totalArea /
+    double maxr2 = (static_cast<double>(*m_estimate_nrp) * Statistics::instance().radiance.totalArea /
                     (M_PI * static_cast<double>(m_totalPaths) * radFraction));
 
     return maxr2;

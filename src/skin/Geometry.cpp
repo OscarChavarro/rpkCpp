@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "skin/Geometry.h"
 #include "skin/MinMaxBox.h"
 
@@ -30,7 +30,7 @@ methods
 Geometry::Geometry(
     GeometryClassId inClassName)
 {
-    Statistics::instance().numberOfGeometries++;
+    Statistics::instance().reader.numberOfGeometries++;
     id = nextGeometryId;
     nextGeometryId++;
     className = inClassName;
@@ -81,7 +81,7 @@ Geometry::destroy(Geometry *geometry) {
         return;
     }
     delete geometry;
-    Statistics::instance().numberOfGeometries--;
+    Statistics::instance().reader.numberOfGeometries--;
 }
 
 /**
@@ -143,7 +143,7 @@ Geometry::clone() const {
     }
 
     PatchSet *newPatchSet = new PatchSet(Geometry::patchListReference(this));
-    newPatchSet->id = Statistics::instance().numberOfGeometries;
+    newPatchSet->id = Statistics::instance().reader.numberOfGeometries;
     newPatchSet->boundingBox = boundingBox;
     newPatchSet->radianceData = radianceData;
     newPatchSet->itemCount = itemCount;
@@ -153,7 +153,7 @@ Geometry::clone() const {
     newPatchSet->className = className;
     newPatchSet->isDuplicate = true;
 
-    Statistics::instance().numberOfGeometries++;
+    Statistics::instance().reader.numberOfGeometries++;
 
     return newPatchSet;
 }

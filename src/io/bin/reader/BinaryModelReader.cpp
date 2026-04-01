@@ -26,14 +26,14 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformArray.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/BinaryModelReader.h"
-#include "io/bin/ScopedArray.h"
-#include "io/bin/BinaryModelReaderVertexRecord.h"
-#include "io/bin/BinaryModelReaderPatchRecord.h"
-#include "io/bin/BinaryModelReaderGeometryRecord.h"
-#include "io/bin/BinaryModelReaderModelRecord.h"
-#include "io/bin/BinaryModelReaderSupport.h"
-#include "io/bin/BinaryModelReaderCleanup.h"
+#include "io/bin/reader/BinaryModelReader.h"
+#include "io/bin/reader/ScopedArray.h"
+#include "io/bin/reader/BinaryModelReaderVertexRecord.h"
+#include "io/bin/reader/BinaryModelReaderPatchRecord.h"
+#include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
+#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelReaderSupport.h"
+#include "io/bin/reader/BinaryModelReaderCleanup.h"
 
 PersistedSceneModel *
 BinaryModelReader::read(const char *fileName) {

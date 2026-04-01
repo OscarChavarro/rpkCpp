@@ -11,7 +11,7 @@ Galerkin radiosity, with the following variants:
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/Error.h"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
@@ -349,11 +349,11 @@ GalerkinRadianceMethod::initialize(Scene *scene) {
 
     GalerkinElement::initializeBasis();
 
-    galerkinState.constantRadiance = Statistics::instance().estimatedAverageRadiance;
+    galerkinState.constantRadiance = Statistics::instance().radiance.estimatedAverageRadiance;
     if ( galerkinState.useConstantRadiance ) {
         galerkinState.ambientRadiance.clear();
     } else {
-        galerkinState.ambientRadiance = Statistics::instance().estimatedAverageRadiance;
+        galerkinState.ambientRadiance = Statistics::instance().radiance.estimatedAverageRadiance;
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -507,16 +507,16 @@ GalerkinRadianceMethod::getStats() {
     appendStatsText(stats, &statsOffset, "cluster to surface: %d\n", Interaction::getNumberOfClusterToSurfaceInteractions());
     appendStatsText(stats, &statsOffset, "surface to cluster: %d\n", Interaction::getNumberOfSurfaceToClusterInteractions());
     appendStatsText(stats, &statsOffset, "surface to surface: %d\n", Interaction::getNumberOfSurfaceToSurfaceInteractions());
-    appendStatsText(stats, &statsOffset, "shadow hits: %d\n", Statistics::instance().numberOfShadowRays);
-    appendStatsText(stats, &statsOffset, "shadow hits cached: %d\n", Statistics::instance().numberOfShadowCacheHits);
+    appendStatsText(stats, &statsOffset, "shadow hits: %d\n", Statistics::instance().shadow.numberOfShadowRays);
+    appendStatsText(stats, &statsOffset, "shadow hits cached: %d\n", Statistics::instance().shadow.numberOfShadowCacheHits);
     appendStatsText(stats, &statsOffset, "CPU time: %g secs.\n", galerkinState.cpuSeconds);
-    appendStatsText(stats, &statsOffset, "Minimum element area: %g m^2\n", Statistics::instance().totalArea * static_cast<double>(galerkinState.relMinElemArea));
+    appendStatsText(stats, &statsOffset, "Minimum element area: %g m^2\n", Statistics::instance().radiance.totalArea * static_cast<double>(galerkinState.relMinElemArea));
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Statistics::instance().maxSelfEmittedRadiance.luminance()) :
+                           Statistics::instance().radiance.maxSelfEmittedRadiance.luminance()) :
                    galerkinState.relLinkErrorThreshold *
-                   Statistics::instance().maxSelfEmittedPower.luminance()),
+                   Statistics::instance().radiance.maxSelfEmittedPower.luminance()),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

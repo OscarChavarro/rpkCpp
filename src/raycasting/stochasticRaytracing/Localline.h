@@ -8,6 +8,9 @@ Generate and trace a local line
 #include "common/linealAlgebra/Ray.h"
 
 class CoordinateSystem;
+class Patch;
+class RayHit;
+class VoxelGrid;
 
 class Localline final {
   public:

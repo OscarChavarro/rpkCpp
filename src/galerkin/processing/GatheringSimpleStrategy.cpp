@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Statistics.h"
+#include "common/statistics/Statistics.h"
 #include "render/Potential.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRadianceMethod.h"
@@ -67,7 +67,7 @@ GatheringSimpleStrategy::patchGather(
     // Don't gather to patches without importance. This optimisation can not
     // be combined with lazy linking based on radiance
     if ( galerkinState->importanceDriven &&
-         topLevelElement->potential < Statistics::instance().maxDirectPotential * Numeric::EPSILON ) {
+         topLevelElement->potential < Statistics::instance().potential.maxDirectPotential * Numeric::EPSILON ) {
         return;
     }
 
