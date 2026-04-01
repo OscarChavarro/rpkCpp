@@ -269,7 +269,6 @@ set(RAYTRACING_SRC
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
     src/raycasting/stochasticRaytracing/Hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp
-    src/raycasting/stochasticRaytracing/StochasticRadiosityOpenGLRenderer.cpp
     src/raycasting/stochasticRaytracing/Render.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.cpp
     src/raycasting/stochasticRaytracing/Coefficientsgalerkin.cpp

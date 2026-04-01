@@ -61,10 +61,6 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         RenderOptions *renderOptions);
     static void stochasticRelaxationRadiosityElementDiscardIncremental(Element *element);
     static void stochasticRelaxationRadiosityDiscardIncremental();
-    static void stochasticRelaxationRadiosityRenderPatch(
-        const Patch *patch,
-        const Camera *camera,
-        const RenderOptions *renderOptions);
 };
 
 #endif
