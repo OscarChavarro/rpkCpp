@@ -60,7 +60,7 @@ In order to let the user have the impression that the computations are proceedin
 */
 void
 Localline::someFeedback() {
-    if ( (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays + GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays) % 1000 == 0 ) {
+    if ( (StochasticRelaxation::activeState().tracedRays + StochasticRelaxation::activeState().importanceTracedRays) % 1000 == 0 ) {
         java::System::err.print(".");
     }
 }

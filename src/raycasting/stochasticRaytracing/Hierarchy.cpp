@@ -3,6 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
+#include "common/Error.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 
@@ -12,36 +13,71 @@ static constexpr bool DEFAULT_EH_HIERARCHICAL_MESHING = true;
 static constexpr bool DEFAULT_EH_T_VERTEX_ELIMINATION = true;
 static constexpr HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyClusteringMode::ORIENTED_CLUSTERING;
 
-ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
+ElementHierarchyState::ElementHierarchyState():
+    epsilon(),
+    do_h_meshing(),
+    minimumArea(),
+    nr_elements(),
+    nr_clusters(),
+    tvertex_elimination(),
+    clustering(),
+    oracle(),
+    topCluster(),
+    coords(),
+    normals(),
+    texCoords(),
+    vertices()
+{
+}
+
+void
+ElementHierarchyState::setActiveState(ElementHierarchyState &state) {
+    activeStatePtr() = &state;
+}
+
+ElementHierarchyState &
+ElementHierarchyState::activeState() {
+    ElementHierarchyState *state = activeStatePtr();
+    if ( state == nullptr ) {
+        Error::fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+    }
+    return *state;
+}
+
+ElementHierarchyState *&
+ElementHierarchyState::activeStatePtr() {
+    static ElementHierarchyState *activeState = nullptr;
+    return activeState;
+}
 
 void
 Hierarchy::elementHierarchyDefaults() {
-    GLOBAL_stochasticRaytracing_hierarchy.epsilon = DEFAULT_EH_EPSILON;
-    GLOBAL_stochasticRaytracing_hierarchy.minimumArea = DEFAULT_EH_MINIMUM_AREA;
-    GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
-    GLOBAL_stochasticRaytracing_hierarchy.clustering = DEFAULT_EH_CLUSTERING;
-    GLOBAL_stochasticRaytracing_hierarchy.tvertex_elimination = DEFAULT_EH_T_VERTEX_ELIMINATION;
-    GLOBAL_stochasticRaytracing_hierarchy.oracle = Hierarchy::powerOracle;
-    GLOBAL_stochasticRaytracing_hierarchy.nr_elements = 0;
-    GLOBAL_stochasticRaytracing_hierarchy.nr_clusters = 0;
+    ElementHierarchyState::activeState().epsilon = DEFAULT_EH_EPSILON;
+    ElementHierarchyState::activeState().minimumArea = DEFAULT_EH_MINIMUM_AREA;
+    ElementHierarchyState::activeState().do_h_meshing = DEFAULT_EH_HIERARCHICAL_MESHING;
+    ElementHierarchyState::activeState().clustering = DEFAULT_EH_CLUSTERING;
+    ElementHierarchyState::activeState().tvertex_elimination = DEFAULT_EH_T_VERTEX_ELIMINATION;
+    ElementHierarchyState::activeState().oracle = Hierarchy::powerOracle;
+    ElementHierarchyState::activeState().nr_elements = 0;
+    ElementHierarchyState::activeState().nr_clusters = 0;
 }
 
 void
 Hierarchy::elementHierarchyInit(Geometry *clusteredWorldGeometry) {
     // These lists hold vertices created during hierarchical refinement
-    GLOBAL_stochasticRaytracing_hierarchy.coords = new java::ArrayList<Vector3D *>();
-    GLOBAL_stochasticRaytracing_hierarchy.normals = new java::ArrayList<Vector3D *>();
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords = new java::ArrayList<Vector3D *>();
-    GLOBAL_stochasticRaytracing_hierarchy.vertices = new java::ArrayList<Vertex *>();
-    GLOBAL_stochasticRaytracing_hierarchy.topCluster =
+    ElementHierarchyState::activeState().coords = new java::ArrayList<Vector3D *>();
+    ElementHierarchyState::activeState().normals = new java::ArrayList<Vector3D *>();
+    ElementHierarchyState::activeState().texCoords = new java::ArrayList<Vector3D *>();
+    ElementHierarchyState::activeState().vertices = new java::ArrayList<Vertex *>();
+    ElementHierarchyState::activeState().topCluster =
         StochasticRadiosityElement::stochasticRadiosityElementCreateFromGeometry(clusteredWorldGeometry);
 }
 
 void
 Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches) {
     // Destroy clusters
-    StochasticRadiosityElement::stochasticRadiosityElementDestroyClusterHierarchy(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
-    GLOBAL_stochasticRaytracing_hierarchy.topCluster = nullptr;
+    StochasticRadiosityElement::stochasticRadiosityElementDestroyClusterHierarchy(ElementHierarchyState::activeState().topCluster);
+    ElementHierarchyState::activeState().topCluster = nullptr;
 
     // Destroy surface elements
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -52,7 +88,7 @@ Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatche
     }
 
     // Delete vertices
-    java::ArrayList<Vertex *> *vertices = GLOBAL_stochasticRaytracing_hierarchy.vertices;
+    java::ArrayList<Vertex *> *vertices = ElementHierarchyState::activeState().vertices;
     if ( vertices != nullptr ) {
         for ( int i = 0; i < vertices->size(); i++ ) {
             delete vertices->get(i);
@@ -62,37 +98,37 @@ Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatche
 
     // Delete positions
     for ( int i = 0;
-        GLOBAL_stochasticRaytracing_hierarchy.coords != nullptr &&
-        i < GLOBAL_stochasticRaytracing_hierarchy.coords->size();
+        ElementHierarchyState::activeState().coords != nullptr &&
+        i < ElementHierarchyState::activeState().coords->size();
         i++) {
-        delete GLOBAL_stochasticRaytracing_hierarchy.coords->get(i);
+        delete ElementHierarchyState::activeState().coords->get(i);
     }
 
-    delete GLOBAL_stochasticRaytracing_hierarchy.coords;
-    GLOBAL_stochasticRaytracing_hierarchy.coords = nullptr;
+    delete ElementHierarchyState::activeState().coords;
+    ElementHierarchyState::activeState().coords = nullptr;
 
     // Delete normals
     for ( int i = 0;
-          GLOBAL_stochasticRaytracing_hierarchy.normals != nullptr &&
-          i < GLOBAL_stochasticRaytracing_hierarchy.normals->size();
+          ElementHierarchyState::activeState().normals != nullptr &&
+          i < ElementHierarchyState::activeState().normals->size();
           i++ ) {
-        delete GLOBAL_stochasticRaytracing_hierarchy.normals->get(i);
+        delete ElementHierarchyState::activeState().normals->get(i);
     }
 
-    delete GLOBAL_stochasticRaytracing_hierarchy.normals;
-    GLOBAL_stochasticRaytracing_hierarchy.normals = nullptr;
+    delete ElementHierarchyState::activeState().normals;
+    ElementHierarchyState::activeState().normals = nullptr;
 
     // Delete texture coordinates
     for ( int i = 0;
-          GLOBAL_stochasticRaytracing_hierarchy.texCoords != nullptr &&
-          i < GLOBAL_stochasticRaytracing_hierarchy.texCoords->size();
+          ElementHierarchyState::activeState().texCoords != nullptr &&
+          i < ElementHierarchyState::activeState().texCoords->size();
           i++ ) {
-        Vector3D *texCoord = GLOBAL_stochasticRaytracing_hierarchy.texCoords->get(i);
+        Vector3D *texCoord = ElementHierarchyState::activeState().texCoords->get(i);
         delete texCoord;
     }
 
-    delete GLOBAL_stochasticRaytracing_hierarchy.texCoords;
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords = nullptr;
+    delete ElementHierarchyState::activeState().texCoords;
+    ElementHierarchyState::activeState().texCoords = nullptr;
 }
 
 #endif

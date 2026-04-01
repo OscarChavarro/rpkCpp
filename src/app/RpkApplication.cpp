@@ -11,6 +11,9 @@
 #include "raycasting/simple/RayMatterState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -108,6 +111,9 @@ RpkApplication::mainParseOptions(
     char **argv,
     char *rayTracerName,
     char *toneMapName,
+    StochasticRelaxation &stochasticRelaxationState,
+    ElementHierarchyState &elementHierarchyState,
+    StochasticRadiosityBasisState &stochasticRadiosityBasisState,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
     StochasticRayTracingState &stochasticRayTracingState)
@@ -128,6 +134,9 @@ RpkApplication::mainParseOptions(
         argc,
         argv,
         &selectedRadianceMethod,
+        stochasticRelaxationState,
+        elementHierarchyState,
+        stochasticRadiosityBasisState,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState);
@@ -201,7 +210,13 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     RayMatterState rayMatterState;
     BidirectionalPathTracingState bidirectionalPathState;
     StochasticRayTracingState stochasticRayTracingState;
+    StochasticRelaxation stochasticRelaxationState;
+    ElementHierarchyState elementHierarchyState;
+    StochasticRadiosityBasisState stochasticRadiosityBasisState;
     LightList *lightList = nullptr;
+    StochasticRelaxation::setActiveState(stochasticRelaxationState);
+    ElementHierarchyState::setActiveState(elementHierarchyState);
+    StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
 
     // 2. Set model elements from command line options
     char rayTracerName[256];
@@ -212,6 +227,9 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         argv,
         rayTracerName,
         renderToneMapName,
+        stochasticRelaxationState,
+        elementHierarchyState,
+        stochasticRadiosityBasisState,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState);

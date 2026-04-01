@@ -9,65 +9,117 @@
 #include <cstring>
 
 #include "common/Error.h"
-#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
-
-GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
-GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis = {
-    "dummy basis",
-    0, nullptr, nullptr, nullptr
-};
-
-static int inited = false;
 
 double
 Basismcrad::oneBasis(double /*u*/, double /*v*/) {
     return 1;
 }
 
-static double (*f[1])(double, double) = {
+static double (*oneBasisTable[1])(double, double) = {
     Basismcrad::oneBasis
 };
 
-GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis = {
-    "cluster basis",
-    1,
-    f,
-    f,
-    nullptr
-};
+StochasticRadiosityBasisState::StochasticRadiosityBasisState():
+    approxDesc(),
+    basis(),
+    triBasis(stochasticRadiosityCreateTriBasis()),
+    quadBasis(stochasticRadiosityCreateQuadBasis()),
+    dummyBasis(),
+    clusterBasis(),
+    quadUpTransform(),
+    triangleUpTransform(),
+    inited(false)
+{
+    approxDesc[0] = {"constant", 1};
+    approxDesc[1] = {"linear", 3};
+    approxDesc[2] = {"bilinear", 4};
+    approxDesc[3] = {"quadratic", 6};
+    approxDesc[4] = {"cubic", 10};
 
-ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APPROXIMATION_TYPES] = {
-    {"constant",  1},
-    {"linear",    3},
-    {"bilinear",  4},
-    {"quadratic", 6},
-    {"cubic",     10}
-};
+    dummyBasis = {
+        "dummy basis",
+        0,
+        nullptr,
+        nullptr,
+        nullptr
+    };
+
+    clusterBasis = {
+        "cluster basis",
+        1,
+        oneBasisTable,
+        oneBasisTable,
+        nullptr
+    };
+
+    quadUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
+    quadUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
+    quadUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
+    quadUpTransform[3] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f);
+
+    triangleUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
+    triangleUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
+    triangleUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
+    triangleUpTransform[3] = createTransform(-0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f);
+}
+
+void
+StochasticRadiosityBasisState::setActiveState(StochasticRadiosityBasisState &state) {
+    activeStatePtr() = &state;
+}
+
+StochasticRadiosityBasisState &
+StochasticRadiosityBasisState::activeState() {
+    StochasticRadiosityBasisState *state = activeStatePtr();
+    if ( state == nullptr ) {
+        Error::fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+    }
+    return *state;
+}
+
+StochasticRadiosityBasisState *&
+StochasticRadiosityBasisState::activeStatePtr() {
+    static StochasticRadiosityBasisState *activeState = nullptr;
+    return activeState;
+}
+
+Matrix2x2
+StochasticRadiosityBasisState::createTransform(float m00, float m01, float m10, float m11, float t0, float t1) {
+    Matrix2x2 transform{};
+    transform.m[0][0] = m00;
+    transform.m[0][1] = m01;
+    transform.m[1][0] = m10;
+    transform.m[1][1] = m11;
+    transform.t[0] = t0;
+    transform.t[1] = t1;
+    return transform;
+}
 
 GalerkinBasis
 Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApproximation at) {
-    GalerkinBasis basis = GLOBAL_stochasticRadiosity_quadBasis;
+    StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
+    GalerkinBasis basis = basisState.quadBasis;
     char desc[100];
     const char *elem;
 
     switch ( et ) {
         case ET_TRIANGLE:
-            basis = GLOBAL_stochasticRadiosity_triBasis;
+            basis = basisState.triBasis;
             elem = "triangles";
             break;
         case ET_QUAD:
-            basis = GLOBAL_stochasticRadiosity_quadBasis;
+            basis = basisState.quadBasis;
             elem = "quadrilaterals";
             break;
         default:
             Error::fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
     }
 
-    basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
+    basis.size = basisState.approxDesc[at].basis_size;
 
     java::Formatter::format(
-        desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
+        desc, 100, "%s orthonormal basis for %s", basisState.approxDesc[at].name, elem);
     basis.description = strdup(desc);
 
     return basis;
@@ -142,24 +194,25 @@ Initialises table of bases
 */
 void
 Basismcrad::monteCarloRadiosityInitBasis() {
-    if ( inited ) {
+    StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
+    if ( basisState.inited ) {
         return;
     }
 
     basisGalerkinComputeRegularFilterCoefficients(
-        &GLOBAL_stochasticRadiosity_triBasis,
-        GLOBAL_stochasticRaytracing_triangleUpTransform,
+        &basisState.triBasis,
+        basisState.triangleUpTransform,
         TriangleCubatureRule::degree8Rule());
     basisGalerkinComputeRegularFilterCoefficients(
-        &GLOBAL_stochasticRadiosity_quadBasis,
-        GLOBAL_stochasticRaytracing_quadUpTransform,
+        &basisState.quadBasis,
+        basisState.quadUpTransform,
         QuadCubatureRule::degree8QuadrilateralRule());
 
     for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
         for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )
-            GLOBAL_stochasticRadiosity_basis[et][at] = makeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
+            basisState.basis[et][at] = makeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
     }
-    inited = true;
+    basisState.inited = true;
 }
 
 /**

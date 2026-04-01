@@ -40,6 +40,13 @@ class ElementHierarchyState {
     java::ArrayList<Vector3D *> *normals; // Created during element subdivision
     java::ArrayList<Vector3D *> *texCoords; // Created during element subdivision
     java::ArrayList<Vertex *> *vertices;
+
+    ElementHierarchyState();
+    static void setActiveState(ElementHierarchyState &state);
+    static ElementHierarchyState &activeState();
+
+  private:
+    static ElementHierarchyState *&activeStatePtr();
 };
 
 #endif

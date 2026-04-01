@@ -7,6 +7,8 @@ class ToneMappingContext;
 class RayMatterState;
 class BidirectionalPathTracingState;
 class StochasticRayTracingState;
+class StochasticRelaxation;
+class ElementHierarchyState;
 
 class CommandLine final {
   public:
@@ -22,8 +24,15 @@ class CommandLine final {
         int *imageOutputWidth,
         int *imageOutputHeight,
         bool *glutDebugEnabled);
-    static void stochasticRelaxationRadiosityParseOptions(int *argc, char **argv);
-    static void randomWalkRadiosityParseOptions(int *argc, char **argv);
+    static void stochasticRelaxationRadiosityParseOptions(
+        int *argc,
+        char **argv,
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState);
+    static void randomWalkRadiosityParseOptions(
+        int *argc,
+        char **argv,
+        StochasticRelaxation &stochasticRelaxationState);
     static void rayMattingParseOptions(int *argc, char **argv, RayMatterState &rayMatterState);
     static void stochasticRayTracerParseOptions(
         int *argc,

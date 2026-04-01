@@ -9,6 +9,9 @@
 class RayMatterState;
 class BidirectionalPathTracingState;
 class StochasticRayTracingState;
+class StochasticRelaxation;
+class ElementHierarchyState;
+class StochasticRadiosityBasisState;
 class LightList;
 
 class RpkApplication {
@@ -31,6 +34,9 @@ class RpkApplication {
         char **argv,
         char *rayTracerName,
         char *toneMapName,
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState,
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState);

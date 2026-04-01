@@ -16,13 +16,13 @@ ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
     ColorRgb color{};
 
-    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
+    switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
             ToneMap::radianceToRgb(
                 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(element),
                 &color,
-                *GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions);
+                *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray;
@@ -40,8 +40,8 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
             Error::fatal(
                 -1,
                 "stochasticRadiosityElementColor",
-                "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
+                "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
+                StochasticRelaxation::activeState().show);
     }
 
     return color;
@@ -102,13 +102,13 @@ StochasticRadiosityElement::vertexImportance(const Vertex *v) {
 
 ColorRgb
 StochasticRadiosityElement::vertexColor(Vertex *v) {
-    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show ) {
+    switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
         case WhatToShow::SHOW_INDIRECT_RADIANCE:
             ToneMap::radianceToRgb(
                 vertexRadiance(v),
                 &v->color,
-                *GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions);
+                *StochasticRelaxation::activeState().toneMapOptions);
             break;
         case WhatToShow::SHOW_IMPORTANCE: {
             float gray = vertexImportance(v);
@@ -123,8 +123,8 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
         }
         default:
             Error::fatal(-1, "vertexColor",
-                     "Don't know what to display (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = %d)",
-                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show);
+                     "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
+                     StochasticRelaxation::activeState().show);
     }
 
     return v->color;
@@ -174,11 +174,11 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const Stoc
     ColorRgb radiance;
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
-        // Source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
-        // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only */
+    if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
+        // sourceRad is self-emitted radiance when indirect-only is disabled.
+        // Otherwise it represents direct illumination.
         radiance.add(radiance, elem->sourceRad);
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
+        if ( StochasticRelaxation::activeState().indirectOnly || StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             // Add self-emitted radiance
             radiance.add(radiance, elem->Ed);
         }
@@ -214,7 +214,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(con
     } else {
         // Higher order approximations
         radiance = Basismcrad::colorAtUv(elem->basis, elem->radiance, u, v);
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show == WhatToShow::SHOW_INDIRECT_RADIANCE ) {
+        if ( StochasticRelaxation::activeState().show == WhatToShow::SHOW_INDIRECT_RADIANCE ) {
             radiance.subtract(radiance, elem->sourceRad);
         }
     }

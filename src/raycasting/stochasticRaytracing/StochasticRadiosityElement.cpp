@@ -1,7 +1,6 @@
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
@@ -11,101 +10,15 @@
 
 /**
 Orientation and position of regular sub-elements is fully determined by the
-following transformations. A uniform mapping of parameter domain to the
-elements is supposed (i.o.w. use uniformPoint() to map (u,v) coordinates
-on the toplevel element to a 3D point on the patch). The sub-elements
-have equal area. No explicit Jacobian stuff needed to compute integrals etc..
-etc.
+transformations stored in StochasticRadiosityBasisState. A uniform mapping of
+parameter domain to the elements is supposed (i.o.w. use uniformPoint() to map
+(u,v) coordinates on the toplevel element to a 3D point on the patch). The
+sub-elements have equal area. No explicit Jacobian stuff needed to compute
+integrals etc.. etc.
 
 Do not change the conventions below without knowing VERY well what
 you are doing.
 */
-
-/**
-Up-transforms for regular quadrilateral sub-elements:
-
-  (v)
-
-   1 +---------+---------+
-     |         |         |
-     |         |         |
-     | 2       | 3       |
- 0.5 +---------+---------+
-     |         |         |
-     |         |         |
-     | 0       | 1       |
-   0 +---------+---------+
-     0        0.5        1   (u)
-*/
-Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4] = {
-        // South-west [0, 0.5] x [0, 0.5]
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.0}},
-
-        // South-east: [0.5, 1] x [0, 0.5]
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.0}},
-
-        // North-west: [0, 0.5] x [0.5, 1]
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.0, 0.5}},
-
-        // North-east: [0.5, 1] x [0.5, 1]
-        {{{0.5, 0.0}, {0.0, 0.5}}, {0.5, 0.5}}
-};
-
-/**
-Up-transforms for triangular sub-elements:
-
- (v)
-
-  1 +
-    | \
-    |   \
-    |     \
-    | 2     \
-0.5 +---------+
-    | \     3 | \
-    |   \     |   \
-    |     \   |     \
-    | 0     \ | 1     \
-  0 +---------+---------+
-    0        0.5        1  (u)
-*/
-Matrix2x2 GLOBAL_stochasticRaytracing_triangleUpTransform[4] = {
-    // Left: [0, 0], [0.5, 0], [0, 0.5]
-    {
-        {
-            {0.5,  0.0},
-            {0.0, 0.5}
-        },
-        {0.0, 0.0}
-    },
-
-    // Right: [0.5, 0], [1, 0], [0.5, 0.5]
-    {
-        {
-            {0.5,  0.0},
-            {0.0, 0.5}
-        },
-        {0.5, 0.0}
-    },
-
-    // Top: [0, 0.5], [0.5, 0.5], [0, 1]
-    {
-        {
-            {0.5,  0.0},
-            {0.0, 0.5}
-        },
-        {0.0, 0.5}
-    },
-
-    // Middle: [0.5, 0.5], [0, 0.5], [0.5, 0]
-    {
-        {
-            {-0.5, 0.0},
-            {0.0, -0.5}
-        },
-        {0.5, 0.5}
-    }
-};
 
 static int globalCoefficientPoolsInitialized = false;
 
@@ -130,7 +43,7 @@ Coefficientsmcrad::initCoefficients(StochasticRadiosityElement *elem) {
     elem->radiance = nullptr;
     elem->unShotRadiance = nullptr;
     elem->receivedRadiance = nullptr;
-    elem->basis = &GLOBAL_stochasticRadiosity_dummyBasis;
+    elem->basis = &StochasticRadiosityBasisState::activeState().dummyBasis;
 }
 
 StochasticRadiosityElement::StochasticRadiosityElement():
@@ -185,7 +98,7 @@ StochasticRadiosityElement::createElement() {
     elem->numberOfVertices = 0;
     elem->flags = 0x00;
 
-    GLOBAL_stochasticRaytracing_hierarchy.nr_elements++;
+    ElementHierarchyState::activeState().nr_elements++;
 
     return elem;
 }
@@ -239,7 +152,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry)
     elem->unShotImportance = 0.0;
     elem->receivedImportance = 0.0;
 
-    GLOBAL_stochasticRaytracing_hierarchy.nr_clusters++;
+    ElementHierarchyState::activeState().nr_clusters++;
 
     return elem;
 }
@@ -453,21 +366,21 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
  Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallCoordinate(const Vector3D *coord) {
     Vector3D *v = new Vector3D(coord->x, coord->y, coord->z);
-    GLOBAL_stochasticRaytracing_hierarchy.coords->add(v);
+    ElementHierarchyState::activeState().coords->add(v);
     return v;
 }
 
  Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallNormal(const Vector3D *norm) {
     Vector3D *v = new Vector3D(norm->x, norm->y, norm->z);
-    GLOBAL_stochasticRaytracing_hierarchy.normals->add(v);
+    ElementHierarchyState::activeState().normals->add(v);
     return v;
 }
 
  Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3D *texCoord) {
     Vector3D *t = new Vector3D(texCoord->x, texCoord->y, texCoord->z);
-    GLOBAL_stochasticRaytracing_hierarchy.texCoords->add(t);
+    ElementHierarchyState::activeState().texCoords->add(t);
     return t;
 }
 
@@ -475,7 +388,7 @@ StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3D *t
 StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, texCoord, newPatchList);
-    GLOBAL_stochasticRaytracing_hierarchy.vertices->add(v);
+    ElementHierarchyState::activeState().vertices->add(v);
     return v;
 }
 
@@ -509,11 +422,16 @@ StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadio
 }
 
 /**
-Find the neighbouring element of the given element at the edgeNumber-th edge.
-The edgeNumber-th edge is the edge connecting the edgeNumber-th vertex to the
-(edgeNumber + 1 modulo GLOBAL_statistics_numberOfVertices)-th vertex
+Finds the surface element adjacent to 'elem' across the edge with index
+'edgeNumber'. That edge is defined by:
+  elem->vertices[edgeNumber]
+  elem->vertices[(edgeNumber + 1) % elem->numberOfVertices]
+The method searches the stochastic radiosity elements attached to the second
+vertex and returns the first element (different from 'elem') that contains the
+same edge with opposite orientation. Returns nullptr when no neighbour is
+found.
 */
- StochasticRadiosityElement *
+StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityElementNeighbour(const StochasticRadiosityElement *elem, int edgeNumber) {
     const Vertex *from = elem->vertices[edgeNumber];
     const Vertex *to = elem->vertices[(edgeNumber + 1) % elem->numberOfVertices];
@@ -749,6 +667,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
         Vertex *v2,
         Vertex *v3)
 {
+    StochasticRadiosityBasisState &basisState = StochasticRadiosityBasisState::activeState();
     StochasticRadiosityElement *elem = createElement();
     parent->regularSubElements[childNumber] = elem;
 
@@ -767,7 +686,9 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
 
     elem->parent = parent;
     elem->childNumber = static_cast<char>(childNumber);
-    elem->transformToParent = elem->numberOfVertices == 3 ? &GLOBAL_stochasticRaytracing_triangleUpTransform[childNumber] : &GLOBAL_stochasticRaytracing_quadUpTransform[childNumber];
+    elem->transformToParent = elem->numberOfVertices == 3
+                              ? &basisState.triangleUpTransform[childNumber]
+                              : &basisState.quadUpTransform[childNumber];
 
     Coefficientsmcrad::allocCoefficients(elem);
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->radiance, elem->basis);
@@ -868,9 +789,9 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
  void
 StochasticRadiosityElement::monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
-        GLOBAL_stochasticRaytracing_hierarchy.nr_clusters--;
+        ElementHierarchyState::activeState().nr_clusters--;
     }
-    GLOBAL_stochasticRaytracing_hierarchy.nr_elements--;
+    ElementHierarchyState::activeState().nr_elements--;
 
     if ( elem->irregularSubElements ) {
         for ( int j = 0; elem->irregularSubElements != nullptr && j < elem->irregularSubElements->size(); j++ ) {

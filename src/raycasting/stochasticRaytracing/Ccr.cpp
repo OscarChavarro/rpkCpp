@@ -31,8 +31,8 @@ Ccr::initialControlRadiosityRecursive(
         // Trivial case
         ColorRgb rad = globalGetRadiance(element)[0];
         float weightedArea = element->area;
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
+        if ( StochasticRelaxation::activeState().importanceDriven &&
+             StochasticRelaxation::activeState().method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
         }
         // factor M_PI is omitted everywhere
@@ -151,8 +151,8 @@ Ccr::refineControlRadiosityRecursive(
         ColorRgb B = globalGetRadiance(element)[0];
         ColorRgb s = globalGetScaling ? globalGetScaling(element) : *colorOne;
         float weightedArea = element->area;
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven &&
-             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method !=
+        if ( StochasticRelaxation::activeState().importanceDriven &&
+             StochasticRelaxation::activeState().method !=
              StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }

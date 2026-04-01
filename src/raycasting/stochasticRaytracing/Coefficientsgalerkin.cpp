@@ -10,7 +10,7 @@ Disposes previously allocated coefficients
 */
 void
 Coefficientsmcrad::disposeCoefficients(StochasticRadiosityElement *elem) {
-    if ( elem->basis && elem->basis != &GLOBAL_stochasticRadiosity_dummyBasis && elem->radiance ) {
+    if ( elem->basis && elem->basis != &StochasticRadiosityBasisState::activeState().dummyBasis && elem->radiance ) {
         delete[] elem->radiance;
         delete[] elem->unShotRadiance;
         delete[] elem->receivedRadiance;
@@ -24,9 +24,9 @@ Determines basis based on element type and currently desired approximation
 GalerkinBasis *
 Coefficientsmcrad::actualBasis(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
-        return &GLOBAL_stochasticRadiosity_clusterBasis;
+        return &StochasticRadiosityBasisState::activeState().clusterBasis;
     } else {
-        return &GLOBAL_stochasticRadiosity_basis[McradP::numberOfVertices(elem) == 3 ? ET_TRIANGLE : ET_QUAD][GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType];
+        return &StochasticRadiosityBasisState::activeState().basis[McradP::numberOfVertices(elem) == 3 ? ET_TRIANGLE : ET_QUAD][StochasticRelaxation::activeState().approximationOrderType];
     }
 }
 

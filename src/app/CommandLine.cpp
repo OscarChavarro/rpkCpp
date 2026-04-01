@@ -665,73 +665,82 @@ static EnumDesc showWhatVals[] = {
 };
 static CommandLineOptions showWhatTypeStruct = Options::makeEnumOptTypeStruct(showWhatVals);
 
-static CommandLineOptionDescription srrOptions[] = {
-    {"-srr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt, DEFAULT_ACTION,
-     "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
-    {"-srr-bidirectional", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers, DEFAULT_ACTION,
-     "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
-    {"-srr-control-variate", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
-     "-srr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-    {"-srr-indirect-only", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
-     "-srr-indirect-only <y|n>    : Compute indirect illumination only"},
-    {"-srr-importance-driven", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven, DEFAULT_ACTION,
-     "-srr-importance-driven <y|n>: Use view-importance"},
-    {"-srr-sampling-sequence", 7, &sequenceTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence, DEFAULT_ACTION,
-     "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
-    {"-srr-approximation", 7, &approxTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
-     "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-    {"-srr-hierarchical", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing, DEFAULT_ACTION,
-     "-srr-hierarchical <y|n>     : hierarchical refinement"},
-    {"-srr-clustering", 7, &clusteringTypeStruct, &GLOBAL_stochasticRaytracing_hierarchy.clustering, DEFAULT_ACTION,
-     "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
-    {"-srr-epsilon", 7, OPTIONS_TYPE_FLOAT, &GLOBAL_stochasticRaytracing_hierarchy.epsilon, DEFAULT_ACTION,
-     "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
-    {"-srr-minarea", 7, OPTIONS_TYPE_FLOAT, &GLOBAL_stochasticRaytracing_hierarchy.minimumArea, DEFAULT_ACTION,
-     "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
-    {"-srr-display", 7, &showWhatTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show, DEFAULT_ACTION,
-     "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
-    {"-srr-discard-incremental", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental, DEFAULT_ACTION,
-     "-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps)"},
-    {"-srr-incremental-uses-importance", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance, DEFAULT_ACTION,
-     "-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps)"},
-    {"-srr-naive-merging", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging, DEFAULT_ACTION,
-     "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
-    {"-srr-nondiffuse-first-shot", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot, DEFAULT_ACTION,
-     "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
-    {"-srr-initial-ls-samples", 7, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples, DEFAULT_ACTION,
-     "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
-    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
-};
-
-static CommandLineOptionDescription rwrOptions[] = {
-    {"-rwr-ray-units", 8, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt, DEFAULT_ACTION,
-     "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
-    {"-rwr-continuous", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk, DEFAULT_ACTION,
-     "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
-    {"-rwr-control-variate", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate, DEFAULT_ACTION,
-     "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-    {"-rwr-indirect-only", 7, OPTIONS_TYPE_BOOL, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly, DEFAULT_ACTION,
-     "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
-    {"-rwr-sampling-sequence", 7, &estTypeTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence, DEFAULT_ACTION,
-     "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
-    {"-rwr-approximation", 7, &approxTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType, DEFAULT_ACTION,
-     "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-    {"-rwr-estimator", 7, &estTypeTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType, DEFAULT_ACTION,
-     "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
-    {"-rwr-score", 7, &estKindTypeStruct, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind, DEFAULT_ACTION,
-     "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
-    {"-rwr-numlast", 12, &GLOBAL_options_intType, &GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast, DEFAULT_ACTION,
-     "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
-    {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
-};
-
 void
-CommandLine::stochasticRelaxationRadiosityParseOptions(int *argc, char **argv) {
+CommandLine::stochasticRelaxationRadiosityParseOptions(
+    int *argc,
+    char **argv,
+    StochasticRelaxation &stochasticRelaxationState,
+    ElementHierarchyState &elementHierarchyState)
+{
+    CommandLineOptionDescription srrOptions[] = {
+        {"-srr-ray-units", 8, &GLOBAL_options_intType, &stochasticRelaxationState.rayUnitsPerIt, DEFAULT_ACTION,
+         "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
+        {"-srr-bidirectional", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.bidirectionalTransfers, DEFAULT_ACTION,
+         "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
+        {"-srr-control-variate", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.constantControlVariate, DEFAULT_ACTION,
+         "-srr-control-variate <y|n>  : Constant Control Variate variance reduction"},
+        {"-srr-indirect-only", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.indirectOnly, DEFAULT_ACTION,
+         "-srr-indirect-only <y|n>    : Compute indirect illumination only"},
+        {"-srr-importance-driven", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.importanceDriven, DEFAULT_ACTION,
+         "-srr-importance-driven <y|n>: Use view-importance"},
+        {"-srr-sampling-sequence", 7, &sequenceTypeStruct, &stochasticRelaxationState.sequence, DEFAULT_ACTION,
+         "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
+        {"-srr-approximation", 7, &approxTypeStruct, &stochasticRelaxationState.approximationOrderType, DEFAULT_ACTION,
+         "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
+        {"-srr-hierarchical", 7, OPTIONS_TYPE_BOOL, &elementHierarchyState.do_h_meshing, DEFAULT_ACTION,
+         "-srr-hierarchical <y|n>     : hierarchical refinement"},
+        {"-srr-clustering", 7, &clusteringTypeStruct, &elementHierarchyState.clustering, DEFAULT_ACTION,
+         "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
+        {"-srr-epsilon", 7, OPTIONS_TYPE_FLOAT, &elementHierarchyState.epsilon, DEFAULT_ACTION,
+         "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
+        {"-srr-minarea", 7, OPTIONS_TYPE_FLOAT, &elementHierarchyState.minimumArea, DEFAULT_ACTION,
+         "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
+        {"-srr-display", 7, &showWhatTypeStruct, &stochasticRelaxationState.show, DEFAULT_ACTION,
+         "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
+        {"-srr-discard-incremental", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.discardIncremental, DEFAULT_ACTION,
+         "-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps)"},
+        {"-srr-incremental-uses-importance", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.incrementalUsesImportance, DEFAULT_ACTION,
+         "-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps)"},
+        {"-srr-naive-merging", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.naiveMerging, DEFAULT_ACTION,
+         "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
+        {"-srr-nondiffuse-first-shot", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.doNonDiffuseFirstShot, DEFAULT_ACTION,
+         "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
+        {"-srr-initial-ls-samples", 7, &GLOBAL_options_intType, &stochasticRelaxationState.initialLightSourceSamples, DEFAULT_ACTION,
+         "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    };
+
     Options::parseGeneralOptions(srrOptions, argc, argv);
 }
 
 void
-CommandLine::randomWalkRadiosityParseOptions(int *argc, char **argv) {
+CommandLine::randomWalkRadiosityParseOptions(
+    int *argc,
+    char **argv,
+    StochasticRelaxation &stochasticRelaxationState)
+{
+    CommandLineOptionDescription rwrOptions[] = {
+        {"-rwr-ray-units", 8, &GLOBAL_options_intType, &stochasticRelaxationState.rayUnitsPerIt, DEFAULT_ACTION,
+         "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
+        {"-rwr-continuous", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.continuousRandomWalk, DEFAULT_ACTION,
+         "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
+        {"-rwr-control-variate", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.constantControlVariate, DEFAULT_ACTION,
+         "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
+        {"-rwr-indirect-only", 7, OPTIONS_TYPE_BOOL, &stochasticRelaxationState.indirectOnly, DEFAULT_ACTION,
+         "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
+        {"-rwr-sampling-sequence", 7, &estTypeTypeStruct, &stochasticRelaxationState.sequence, DEFAULT_ACTION,
+         "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
+        {"-rwr-approximation", 7, &approxTypeStruct, &stochasticRelaxationState.approximationOrderType, DEFAULT_ACTION,
+         "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
+        {"-rwr-estimator", 7, &estTypeTypeStruct, &stochasticRelaxationState.randomWalkEstimatorType, DEFAULT_ACTION,
+         "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
+        {"-rwr-score", 7, &estKindTypeStruct, &stochasticRelaxationState.randomWalkEstimatorKind, DEFAULT_ACTION,
+         "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
+        {"-rwr-numlast", 12, &GLOBAL_options_intType, &stochasticRelaxationState.randomWalkNumLast, DEFAULT_ACTION,
+         "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
+        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    };
+
     Options::parseGeneralOptions(rwrOptions, argc, argv);
 }
 

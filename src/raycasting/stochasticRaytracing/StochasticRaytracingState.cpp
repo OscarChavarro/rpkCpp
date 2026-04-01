@@ -1,7 +1,6 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "common/Error.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-
-StochasticRelaxation GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
 
 StochasticRelaxation::StochasticRelaxation():
     method(),
@@ -50,4 +49,24 @@ StochasticRelaxation::StochasticRelaxation():
     toneMapOptions()
 {
     toneMapOptions = nullptr;
+}
+
+void
+StochasticRelaxation::setActiveState(StochasticRelaxation &state) {
+    activeStatePtr() = &state;
+}
+
+StochasticRelaxation &
+StochasticRelaxation::activeState() {
+    StochasticRelaxation *state = activeStatePtr();
+    if ( state == nullptr ) {
+        Error::fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+    }
+    return *state;
+}
+
+StochasticRelaxation *&
+StochasticRelaxation::activeStatePtr() {
+    static StochasticRelaxation *activeState = nullptr;
+    return activeState;
 }

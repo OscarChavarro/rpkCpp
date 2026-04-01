@@ -49,33 +49,33 @@ Stochjacobi::stochasticJacobiInitGlobals(
     globalGetImportanceCallback = GetImportance;
     globalReflectCallback = Update;
     // Only use control variates for propagating radiance, not for importance
-    globalDoControlVariate = (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && getRadianceCallBack);
+    globalDoControlVariate = (StochasticRelaxation::activeState().constantControlVariate && getRadianceCallBack);
 
     if ( globalGetRadianceCallback ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
+        StochasticRelaxation::activeState().prevTracedRays = StochasticRelaxation::activeState().tracedRays;
     }
     if ( globalGetImportanceCallback ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays;
+        StochasticRelaxation::activeState().prevImportanceTracedRays = StochasticRelaxation::activeState().importanceTracedRays;
     }
 }
 
  void
 Stochjacobi::stochasticJacobiPrintMessage(long nr_rays) {
     java::System::err.printf("%s-directional ",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ? "Bi" : "Uni");
+            StochasticRelaxation::activeState().bidirectionalTransfers ? "Bi" : "Uni");
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
         java::System::err.printf("combined ");
     }
     if ( globalGetRadianceCallback ) {
         java::System::err.printf("%s radiance ",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ? "importance-driven " : "");
+                StochasticRelaxation::activeState().importanceDriven ? "importance-driven " : "");
     }
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
         java::System::err.printf("and ");
     }
     if ( globalGetImportanceCallback ) {
         java::System::err.printf("%s importance ",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ? "radiance-driven " : "");
+                StochasticRelaxation::activeState().radianceDriven ? "radiance-driven " : "");
     }
     java::System::err.printf("propagation");
     if ( globalDoControlVariate ) {
@@ -94,22 +94,22 @@ Stochjacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem)
     if ( globalGetRadianceCallback ) {
         // Probability proportional to power to be propagated
         ColorRgb radiance = globalGetRadianceCallback(elem)[0];
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
-            radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+        if ( StochasticRelaxation::activeState().constantControlVariate ) {
+            radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
         }
         prob = elem->area * radiance.sumAbsComponents();
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+        if ( StochasticRelaxation::activeState().importanceDriven ) {
             // Weight with received importance
             float w = elem->importance - elem->sourceImportance;
             prob *= ((w > 0.0) ? w : 0.0);
         }
     }
 
-    if ( globalGetImportanceCallback && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+    if ( globalGetImportanceCallback && StochasticRelaxation::activeState().importanceDriven ) {
         double prob2 = elem->area * java::Math::abs(globalGetImportanceCallback(elem)) *
                 StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(elem);
 
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ) {
+        if ( StochasticRelaxation::activeState().radianceDriven ) {
             // Received-radiance weighted importance transport
             ColorRgb receivedRadiance;
             receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
@@ -119,7 +119,7 @@ Stochjacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem)
         // Equal weight to importance and radiance propagation for constant approximation,
         // but higher weight to radiance for higher order approximations. Still OK
         // if only propagating importance
-        prob = prob * GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size + prob2;
+        prob = prob * StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size + prob2;
     }
 
     return prob;
@@ -172,13 +172,13 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
  bool
 Stochjacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
+    StochasticRelaxation::activeState().controlRadiance.clear();
     if ( globalDoControlVariate ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = Ccr::determineControlRadiosity(globalGetRadianceCallback, nullptr, scenePatches);
+        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(globalGetRadianceCallback, nullptr, scenePatches);
     }
 
     globalSumOfProbabilities = 0.0;
-    stochasticJacobiElementSetup(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    stochasticJacobiElementSetup(ElementHierarchyState::activeState().topCluster);
 
     if ( globalSumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
         Error::warning("Iteration", "No sources");
@@ -345,15 +345,15 @@ Stochjacobi::stochasticJacobiPropagateRadiance(
     }
 
     radiance = stochasticJacobiGetSourceRadiance(src, us, vs);
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
-        radiance.subtract(radiance, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+    if ( StochasticRelaxation::activeState().constantControlVariate ) {
+        radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
     }
     rayPower.scaledCopy(static_cast<float>(weight), radiance);
 
     if ( !rcv->isCluster() ) {
         stochasticJacobiPropagateRadianceToSurface(rcv, ur, vr, rayPower, src, fraction, weight);
     } else {
-        switch ( GLOBAL_stochasticRaytracing_hierarchy.clustering ) {
+        switch ( ElementHierarchyState::activeState().clustering ) {
             case HierarchyClusteringMode::NO_CLUSTERING:
                 Error::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
 
@@ -368,7 +368,7 @@ Stochjacobi::stochasticJacobiPropagateRadiance(
                 }
                 break;
             default:
-                Error::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(GLOBAL_stochasticRaytracing_hierarchy.clustering));
+                Error::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(ElementHierarchyState::activeState().clustering));
         }
     }
 }
@@ -392,8 +392,8 @@ Stochjacobi::stochasticJacobiPropagateImportance(
     double w = globalSumOfProbabilities / (src_prob + rcv_prob) / rcv->area / static_cast<double>(globalNumberOfRays);
     rcv->receivedImportance += static_cast<float>(w * StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(src) * globalGetImportanceCallback(src));
 
-    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ||
-         GLOBAL_stochasticRaytracing_hierarchy.clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
+    if ( ElementHierarchyState::activeState().do_h_meshing ||
+         ElementHierarchyState::activeState().clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
         Error::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
@@ -422,7 +422,7 @@ Stochjacobi::stochasticJacobiRefineAndPropagateRadiance(
 {
     Link link{};
     link = Hierarchy::topLink(Q, P);
-    Hierarchy::hierarchyRefine(&link, Q, &uq, &vq, P, &up, &vp, GLOBAL_stochasticRaytracing_hierarchy.oracle, renderOptions);
+    Hierarchy::hierarchyRefine(&link, Q, &uq, &vq, P, &up, &vp, ElementHierarchyState::activeState().oracle, renderOptions);
     // Propagate from the leaf element src to the admissible receiver element containing/contained by Q
     stochasticJacobiPropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
 }
@@ -467,7 +467,7 @@ Stochjacobi::stochasticJacobiRefineAndPropagate(
     double vs = vp;
     const StochasticRadiosityElement *src = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(P, &us, &vs);
     src_prob = static_cast<double>(src->samplingProbability) / static_cast<double>(src->area);
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ) {
+    if ( StochasticRelaxation::activeState().bidirectionalTransfers ) {
         double rcv_prob;
         double ur = uq;
         double vr = vq;
@@ -567,11 +567,11 @@ Stochjacobi::stochasticJacobiElementShootRay(
     const RenderOptions *renderOptions)
 {
     if ( globalGetRadianceCallback != nullptr ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
+        StochasticRelaxation::activeState().tracedRays++;
     }
 
     if ( globalGetImportanceCallback != nullptr ) {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays++;
+        StochasticRelaxation::activeState().importanceTracedRays++;
     }
 
     double zeta[4];
@@ -588,7 +588,7 @@ Stochjacobi::stochasticJacobiElementShootRay(
         stochasticJacobiRefineAndPropagate(McradP::topLevelStochasticRadiosityElement(src->patch), zeta[0], zeta[1],
                                            McradP::topLevelStochasticRadiosityElement(hit->getPatch()), uHit, vHit, &ray, renderOptions);
     } else {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses++;
+        StochasticRelaxation::activeState().numberOfMisses++;
     }
 }
 
@@ -703,7 +703,7 @@ Stochjacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
         if ( globalDoControlVariate ) {
             // Add constant radiosity contribution to received flux
             elem->receivedRadiance[0].add(
-                elem->receivedRadiance[0], GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+                elem->receivedRadiance[0], StochasticRelaxation::activeState().controlRadiance);
         }
         // Multiply with reflectivity on leaf elements only
         Coefficientsmcrad::stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->receivedRadiance, elem->basis);
@@ -711,20 +711,20 @@ Stochjacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
 
     globalReflectCallback(elem, static_cast<double>(globalNumberOfRays) / globalSumOfProbabilities);
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+    StochasticRelaxation::activeState().unShotFlux.addScaled(
+        StochasticRelaxation::activeState().unShotFlux,
         static_cast<float>(M_PI) * elem->area,
         elem->unShotRadiance[0]);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+    StochasticRelaxation::activeState().totalFlux.addScaled(
+        StochasticRelaxation::activeState().totalFlux,
         static_cast<float>(M_PI) * elem->area,
         elem->radiance[0]);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
         static_cast<float>(M_PI) * elem->area * (elem->importance - elem->sourceImportance),
         elem->unShotRadiance[0]);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += (elem->area * java::Math::abs(elem->unShotImportance));
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
+    StochasticRelaxation::activeState().unShotYmp += (elem->area * java::Math::abs(elem->unShotImportance));
+    StochasticRelaxation::activeState().totalYmp += elem->area * elem->importance;
 }
 
  void
@@ -822,17 +822,17 @@ Stochjacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) {
  void
 Stochjacobi::stochasticJacobiPushUpdatePullSweep() {
     // Update radiance, compute new total and un-shot flux
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalYmp = 0.0;
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.clear();
 
     // Update reflectances and emittances (refinement yields more accurate estimates
     // on textured surfaces)
-    stochasticJacobiPullRdEd(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    stochasticJacobiPullRdEd(ElementHierarchyState::activeState().topCluster);
 
-    stochasticJacobiPushUpdatePull(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    stochasticJacobiPushUpdatePull(ElementHierarchyState::activeState().topCluster);
 }
 
 /**
@@ -845,11 +845,12 @@ required.
 - updateCallBack: routine updating total, un-shot and source radiance and/or
 importance based on result received during the iteration.
 
-The operation of this routine is further controlled by global parameters
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
+The operation of this routine is further controlled by stochastic relaxation
+state parameters:
+- constantControlVariate: perform constant control variate variance reduction
+- bidirectionalTransfers: use lines bidirectionally
+- importanceDriven: importance-driven radiance propagation
+- radianceDriven: radiance-driven importance propagation
 - hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
 
 This routine updates global ray counts and total/un-shot power/importance statistics.

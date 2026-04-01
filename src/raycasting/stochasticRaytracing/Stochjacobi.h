@@ -19,11 +19,12 @@ required.
 - updateCallBack: routine updating total, un-shot and source radiance and/or
 importance based on result received during the iteration.
 
-The operation of this routine is further controlled by global parameters
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.do_control_radiosity: perform constant control variate variance reduction
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers: for using lines bidirectionally
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven: importance-driven radiance propagation
-- GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven: radiance-driven importance propagation
+The operation of this routine is further controlled by stochastic relaxation
+state parameters:
+- constantControlVariate: perform constant control variate variance reduction
+- bidirectionalTransfers: use lines bidirectionally
+- importanceDriven: importance-driven radiance propagation
+- radianceDriven: radiance-driven importance propagation
 - hierarchy.do_h_meshing, hierarchy.clustering: hierarchical refinement/clustering
 
 This routine updates global ray counts and total/un-shot power/importance statistics.

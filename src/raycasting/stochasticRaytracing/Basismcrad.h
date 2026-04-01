@@ -6,6 +6,7 @@ Higher order approximations for Galerkin radiosity
 #define __BASIS__
 
 #include "common/ColorRgb.h"
+#include "common/linealAlgebra/Matrix2x2.h"
 #include "raycasting/stochasticRaytracing/Mcrad.h"
 #include "raycasting/stochasticRaytracing/GalerkinBasis.h"
 #include "raycasting/stochasticRaytracing/ApproximationTypeDescription.h"
@@ -14,18 +15,31 @@ Higher order approximations for Galerkin radiosity
 
 class CubatureRule;
 
-// Bases for quadrilaterals and triangles, implemented in basis[quad|tri].cpp
-extern GalerkinBasis GLOBAL_stochasticRadiosity_triBasis;
-extern GalerkinBasis GLOBAL_stochasticRadiosity_quadBasis;
-extern GalerkinBasis GLOBAL_stochasticRadiosity_clusterBasis;
+GalerkinBasis stochasticRadiosityCreateTriBasis();
+GalerkinBasis stochasticRadiosityCreateQuadBasis();
 
 constexpr int NUMBER_OF_APPROXIMATION_TYPES = 5;
 
-extern ApproximationTypeDescription GLOBAL_stochasticRadiosity_approxDesc[NUMBER_OF_APPROXIMATION_TYPES];
+class StochasticRadiosityBasisState {
+  public:
+    ApproximationTypeDescription approxDesc[NUMBER_OF_APPROXIMATION_TYPES];
+    GalerkinBasis basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
+    GalerkinBasis triBasis;
+    GalerkinBasis quadBasis;
+    GalerkinBasis dummyBasis;
+    GalerkinBasis clusterBasis;
+    Matrix2x2 quadUpTransform[4];
+    Matrix2x2 triangleUpTransform[4];
+    bool inited;
 
-// Orthonormal canonical basis of given order for given type of elements
-extern GalerkinBasis GLOBAL_stochasticRadiosity_basis[NUMBER_OF_ELEMENT_TYPES][NUMBER_OF_APPROXIMATION_TYPES];
-extern GalerkinBasis GLOBAL_stochasticRadiosity_dummyBasis;
+    StochasticRadiosityBasisState();
+    static void setActiveState(StochasticRadiosityBasisState &state);
+    static StochasticRadiosityBasisState &activeState();
+
+  private:
+    static StochasticRadiosityBasisState *&activeStatePtr();
+    static Matrix2x2 createTransform(float m00, float m01, float m10, float m11, float t0, float t1);
+};
 
 class Basismcrad final {
   public:

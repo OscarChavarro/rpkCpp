@@ -62,8 +62,11 @@ class StochasticRelaxation {
     ToneMappingContext *toneMapOptions;
 
     StochasticRelaxation();
-};
+    static void setActiveState(StochasticRelaxation &state);
+    static StochasticRelaxation &activeState();
 
-extern StochasticRelaxation GLOBAL_stochasticRaytracing_monteCarloRadiosityState;
+  private:
+    static StochasticRelaxation *&activeStatePtr();
+};
 
 #endif

@@ -6,11 +6,17 @@
 
 class Path;
 class StochasticRadiosityElement;
+class StochasticRelaxation;
+class ElementHierarchyState;
+class StochasticRadiosityBasisState;
 class VoxelGrid;
 
 class RandomWalkRadianceMethod final : public RadianceMethod {
   public:
-    RandomWalkRadianceMethod();
+    explicit RandomWalkRadianceMethod(
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState,
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState);
     ~RandomWalkRadianceMethod() final;
     const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
@@ -28,6 +34,10 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
         const RenderOptions *renderOptions) const final;
 
   private:
+    StochasticRelaxation &stochasticRelaxationState;
+    ElementHierarchyState &elementHierarchyState;
+    StochasticRadiosityBasisState &stochasticRadiosityBasisState;
+
     static void appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...);
     static void randomWalkRadiosityPrintStats();
     static double randomWalkRadiosityPatchArea(const Patch *patch);

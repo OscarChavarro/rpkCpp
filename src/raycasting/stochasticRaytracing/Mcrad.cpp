@@ -23,29 +23,29 @@ Common routines for stochastic relaxation and random walks
 */
 void
 Mcrad::monteCarloRadiosityDefaults() {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt = 10;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence = Sampler4DSequence::NIEDERREITER;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType = StochasticRaytracingApproximation::CONSTANT;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven = true;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType = RandomWalkEstimatorType::RW_SHOOTING;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind = RandomWalkEstimatorKind::RW_COLLISION;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast = 1;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.weightedSampling = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.discardIncremental = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.incrementalUsesImportance = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.naiveMerging = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show = WhatToShow::SHOW_TOTAL_RADIANCE;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot = false;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples = 1000;
+    StochasticRelaxation::activeState().inited = false;
+    StochasticRelaxation::activeState().rayUnitsPerIt = 10;
+    StochasticRelaxation::activeState().bidirectionalTransfers = false;
+    StochasticRelaxation::activeState().constantControlVariate = false;
+    StochasticRelaxation::activeState().controlRadiance.clear();
+    StochasticRelaxation::activeState().indirectOnly = false;
+    StochasticRelaxation::activeState().sequence = Sampler4DSequence::NIEDERREITER;
+    StochasticRelaxation::activeState().approximationOrderType = StochasticRaytracingApproximation::CONSTANT;
+    StochasticRelaxation::activeState().importanceDriven = false;
+    StochasticRelaxation::activeState().radianceDriven = true;
+    StochasticRelaxation::activeState().importanceUpdated = false;
+    StochasticRelaxation::activeState().importanceUpdatedFromScratch = false;
+    StochasticRelaxation::activeState().continuousRandomWalk = false;
+    StochasticRelaxation::activeState().randomWalkEstimatorType = RandomWalkEstimatorType::RW_SHOOTING;
+    StochasticRelaxation::activeState().randomWalkEstimatorKind = RandomWalkEstimatorKind::RW_COLLISION;
+    StochasticRelaxation::activeState().randomWalkNumLast = 1;
+    StochasticRelaxation::activeState().weightedSampling = false;
+    StochasticRelaxation::activeState().discardIncremental = false;
+    StochasticRelaxation::activeState().incrementalUsesImportance = false;
+    StochasticRelaxation::activeState().naiveMerging = false;
+    StochasticRelaxation::activeState().show = WhatToShow::SHOW_TOTAL_RADIANCE;
+    StochasticRelaxation::activeState().doNonDiffuseFirstShot = false;
+    StochasticRelaxation::activeState().initialLightSourceSamples = 1000;
 
     Hierarchy::elementHierarchyDefaults();
     Basismcrad::monteCarloRadiosityInitBasis();
@@ -57,9 +57,9 @@ For counting how much CPU time was used for the computations
 void
 Mcrad::monteCarloRadiosityUpdateCpuSecs() {
     const long long t = java::System::nanoTime();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += static_cast<float>(
-        static_cast<double>(t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / 1000000000.0);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
+    StochasticRelaxation::activeState().cpuSeconds += static_cast<float>(
+        static_cast<double>(t - StochasticRelaxation::activeState().lastClock) / 1000000000.0);
+    StochasticRelaxation::activeState().lastClock = t;
 }
 
 Element *
@@ -92,7 +92,7 @@ are delayed to just before the first iteration step, see ReInit() below
 */
 void
 Mcrad::monteCarloRadiosityInit() {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
+    StochasticRelaxation::activeState().inited = false;
 }
 
 /**
@@ -133,9 +133,9 @@ Mcrad::monteCarloRadiosityPullImportances(Element *element) {
 
  void
 Mcrad::monteCarloRadiosityAccumulateImportances(const StochasticRadiosityElement *elem) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += elem->area * elem->importance;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += elem->area * elem->sourceImportance;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += elem->area * java::Math::abs(elem->unShotImportance);
+    StochasticRelaxation::activeState().totalYmp += elem->area * elem->importance;
+    StochasticRelaxation::activeState().sourceYmp += elem->area * elem->sourceImportance;
+    StochasticRelaxation::activeState().unShotYmp += elem->area * java::Math::abs(elem->unShotImportance);
 }
 
 /**
@@ -193,28 +193,28 @@ Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions
 
     Potential::updateDirectVisibility(scene, renderOptions);
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+    StochasticRelaxation::activeState().sourceYmp = 0.0;
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalYmp = 0.0;
+    monteCarloRadiosityUpdateImportance(ElementHierarchyState::activeState().topCluster);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
+    if ( StochasticRelaxation::activeState().unShotYmp < StochasticRelaxation::activeState().sourceYmp ) {
         java::System::err.printf("Importance will be recomputed incrementally.\n");
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
+        StochasticRelaxation::activeState().importanceUpdatedFromScratch = false;
     } else {
         java::System::err.printf("Importance will be recomputed from scratch.\n");
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
+        StochasticRelaxation::activeState().importanceUpdatedFromScratch = true;
 
         // Re-compute from scratch
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp = 0.0;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-        monteCarloRadiosityReInitImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
+        StochasticRelaxation::activeState().sourceYmp = 0.0;
+        StochasticRelaxation::activeState().unShotYmp = 0.0;
+        StochasticRelaxation::activeState().totalYmp = 0.0;
+        monteCarloRadiosityReInitImportance(ElementHierarchyState::activeState().topCluster);
     }
 
     scene->camera->changed = false; // Indicate that direct importance has been computed for this view already
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = 0; // Start over
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdated = true;
+    StochasticRelaxation::activeState().importanceTracedRays = 0; // Start over
+    StochasticRelaxation::activeState().importanceUpdated = true;
 }
 
 /**
@@ -285,7 +285,7 @@ Mcrad::monteCarloRadiosityDetermineInitialNrRays(
     const java::ArrayList<Geometry *> *sceneGeometries)
 {
     double areaFrac = monteCarloRadiosityDetermineAreaFraction(scenePatches, sceneGeometries);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays = static_cast<long>(static_cast<double>(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.rayUnitsPerIt) * areaFrac);
+    StochasticRelaxation::activeState().initialNumberOfRays = static_cast<long>(static_cast<double>(StochasticRelaxation::activeState().rayUnitsPerIt) * areaFrac);
 }
 
 /**
@@ -293,48 +293,48 @@ Really initialises: before the first iteration step
 */
 void
 Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions) {
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
+    if ( StochasticRelaxation::activeState().inited ) {
         return;
     }
 
     java::System::err.printf("Initialising Monte Carlo radiosity ...\n");
 
-    Sample4d::setSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
+    Sample4d::setSequence4D(StochasticRelaxation::activeState().sequence);
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::System::nanoTime();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration = 0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses = 0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = 0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.setSource = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths = 0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();
+    StochasticRelaxation::activeState().inited = true;
+    StochasticRelaxation::activeState().cpuSeconds = 0.0;
+    StochasticRelaxation::activeState().lastClock = java::System::nanoTime();
+    StochasticRelaxation::activeState().currentIteration = 0;
+    StochasticRelaxation::activeState().tracedRays = StochasticRelaxation::activeState().prevTracedRays = StochasticRelaxation::activeState().numberOfMisses = 0;
+    StochasticRelaxation::activeState().importanceTracedRays = StochasticRelaxation::activeState().prevImportanceTracedRays = 0;
+    StochasticRelaxation::activeState().setSource = StochasticRelaxation::activeState().indirectOnly;
+    StochasticRelaxation::activeState().tracedPaths = 0;
+    StochasticRelaxation::activeState().controlRadiance.clear();
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalYmp = 0.0;
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.clear();
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         Patch *patch = scene->patchList->get(i);
         monteCarloRadiosityInitPatch(patch);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+        StochasticRelaxation::activeState().unShotFlux.addScaled(
+            StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+        StochasticRelaxation::activeState().totalFlux.addScaled(
+            StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
+            StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
             static_cast<float>(M_PI) * patch->area *
             (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
+        StochasticRelaxation::activeState().unShotYmp += patch->area * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
+        StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
+        StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
         Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
@@ -342,23 +342,23 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOption
 
     Hierarchy::elementHierarchyInit(scene->clusteredRootGeometry);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+    if ( StochasticRelaxation::activeState().importanceDriven ) {
         Mcrad::monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
+        StochasticRelaxation::activeState().importanceUpdatedFromScratch = true;
     }
 }
 
 void
 Mcrad::monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions) {
-    if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
+    if ( !StochasticRelaxation::activeState().inited ) {
         Mcrad::monteCarloRadiosityReInit(scene, renderOptions);
     }
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven && scene->camera->changed ) {
+    if ( StochasticRelaxation::activeState().importanceDriven && scene->camera->changed ) {
         Mcrad::monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::System::nanoTime();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration++;
+    StochasticRelaxation::activeState().lastClock = java::System::nanoTime();
+    StochasticRelaxation::activeState().currentIteration++;
 }
 
 /**
@@ -367,7 +367,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
 void
 Mcrad::monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches) {
     Hierarchy::elementHierarchyTerminate(scenePatches);
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = false;
+    StochasticRelaxation::activeState().inited = false;
 }
 
  ColorRgb
@@ -457,13 +457,13 @@ Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D
     sourceRad.clear();
 
     // Subtract source radiance
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
-        // source_rad is self-emitted radiance if !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly. It is direct
-        // illumination if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.direct_only
-        if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
+    if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
+        // sourceRad is self-emitted radiance when indirect-only is disabled.
+        // Otherwise it represents direct illumination.
+        if ( !StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             sourceRad = leaf->sourceRad;
         }
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly || GLOBAL_stochasticRaytracing_monteCarloRadiosityState.doNonDiffuseFirstShot ) {
+        if ( StochasticRelaxation::activeState().indirectOnly || StochasticRelaxation::activeState().doNonDiffuseFirstShot ) {
             // Subtract self-emitted radiance
             sourceRad.add(sourceRad, leaf->Ed);
         }

@@ -73,9 +73,12 @@ static double (*f[MAX_BASIS_SIZE])(double, double) =
 
 static FILTER_TABLE h; // push-pull filter: computed in basis.c
 
-GalerkinBasis GLOBAL_stochasticRadiosity_triBasis = {
+GalerkinBasis
+stochasticRadiosityCreateTriBasis() {
+    return {
         "orthonormal basis on the standard triangle", // description
         MAX_BASIS_SIZE, // size
         f, f,
         &h
-};
+    };
+}

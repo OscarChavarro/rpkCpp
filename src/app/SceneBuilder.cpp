@@ -144,7 +144,7 @@ SceneBuilder::sceneBuilderCreateClusterHierarchy(const java::ArrayList<Patch *> 
     rootCluster->splitCluster();
     //rootCluster->print(0);
 
-    // Convert to a Geometry GLOBAL_stochasticRaytracing_hierarchy, disposing of the clusters
+    // Convert to a geometry hierarchy, disposing of clusters
     rootGeometry = rootCluster->convertClusterToGeometry();
 
     delete rootCluster;

@@ -50,7 +50,7 @@ class StochasticRaytracingConfiguration {
 
     // Scattering info for the part of light
     // transport that is used from storage
-    // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for GLOBAL_photonMapMethods)
+    // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for photon map methods)
     CScatterInfo siStorage;
 
     // Maximum 1 scattering block per component

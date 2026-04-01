@@ -101,7 +101,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
     RayHit hitStore;
     const RayHit *hit;
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
+    StochasticRelaxation::activeState().tracedRays++;
     hit = Localline::mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
@@ -143,30 +143,30 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSa
 
 void
 Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.clear();
+    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalYmp = 0.0;
+    StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.clear();
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+        StochasticRelaxation::activeState().unShotFlux.addScaled(
+            StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+        StochasticRelaxation::activeState().totalFlux.addScaled(
+            StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectImportanceWeightedUnShotFlux,
+        StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
+            StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
             static_cast<float>(M_PI) * patch->area * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
                                                       McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
               McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp += patch->area * java::Math::abs(
+        StochasticRelaxation::activeState().unShotYmp += patch->area * java::Math::abs(
                 McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
+        StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
+        StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
         Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
     }
 }
@@ -179,7 +179,7 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialLightSourceSamples * globalNumberOfLights);
+        StochasticRelaxation::activeState().initialLightSourceSamples * globalNumberOfLights);
     summarize(scene->patchList);
     delete[] globalLights;
 }

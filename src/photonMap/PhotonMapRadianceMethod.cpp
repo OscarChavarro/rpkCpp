@@ -518,7 +518,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 {
     GLOBAL_photonMap_state.iterationNumber++;
 
-    java::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", static_cast<long>(GLOBAL_photonMap_state.iterationNumber));
+    java::System::err.printf("PhotonMapRadianceMethod Iteration %li\n", static_cast<long>(GLOBAL_photonMap_state.iterationNumber));
 
     if ( (GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap) ) {
         float scaleFactor = (static_cast<float>(GLOBAL_photonMap_state.iterationNumber) - 1.0f) / static_cast<float>(GLOBAL_photonMap_state.iterationNumber);

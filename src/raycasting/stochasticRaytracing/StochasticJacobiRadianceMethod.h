@@ -5,11 +5,17 @@
 #include "scene/RadianceMethod.h"
 
 class StochasticRadiosityElement;
+class StochasticRelaxation;
+class ElementHierarchyState;
+class StochasticRadiosityBasisState;
 class VoxelGrid;
 
 class StochasticJacobiRadianceMethod final : public RadianceMethod {
   public:
-    StochasticJacobiRadianceMethod();
+    explicit StochasticJacobiRadianceMethod(
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState,
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState);
     ~StochasticJacobiRadianceMethod() final;
     const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
@@ -27,6 +33,10 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         const RenderOptions *renderOptions) const final;
 
   private:
+    StochasticRelaxation &stochasticRelaxationState;
+    ElementHierarchyState &elementHierarchyState;
+    StochasticRadiosityBasisState &stochasticRadiosityBasisState;
+
     static void appendStochasticStatsText(char *buffer, int *offset, const char *format, ...);
     static long stochasticRelaxationRadiosityRandomRound(float x);
     static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches);

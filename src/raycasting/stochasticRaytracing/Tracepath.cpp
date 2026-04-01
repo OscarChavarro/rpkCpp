@@ -108,14 +108,14 @@ Tracepath::tracePath(
     const RayHit *hit;
     RayHit hitStore;
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedPaths++;
+    StochasticRelaxation::activeState().tracedPaths++;
     clearPath(path);
     pathAddNode(path, origin, birth_prob, inPoint, outpoint);
     do {
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays++;
+        StochasticRelaxation::activeState().tracedRays++;
         ray = Localline::mcrGenerateLocalLine(P, Sample4d::sample4D(static_cast<unsigned int>(McradP::topLevelStochasticRadiosityElement(P)->rayIndex)));
         McradP::topLevelStochasticRadiosityElement(P)->rayIndex++;
-        if ( path->numberOfNodes > 1 && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+        if ( path->numberOfNodes > 1 && StochasticRelaxation::activeState().continuousRandomWalk ) {
             // Scattered ray originates at point of incidence of previous ray
             ray.position = path->nodes[path->numberOfNodes - 1].inPoint;
         }
@@ -158,7 +158,7 @@ Tracepath::tracePaths(
     long pathCount;
     Path path{};
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays;
+    StochasticRelaxation::activeState().prevTracedRays = StochasticRelaxation::activeState().tracedRays;
     globalBirthProbability = birthProbabilityCallBack;
 
     // Compute sampling probability normalisation factor
@@ -194,20 +194,20 @@ Tracepath::tracePaths(
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.clear();
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp = 0.0;
+    StochasticRelaxation::activeState().unShotFlux.clear();
+    StochasticRelaxation::activeState().unShotYmp = 0.0;
+    StochasticRelaxation::activeState().totalFlux.clear();
+    StochasticRelaxation::activeState().totalYmp = 0.0;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
         updateCallBack(patch, static_cast<double>(numberOfPaths) / globalSumProbabilities);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotFlux,
+        StochasticRelaxation::activeState().unShotFlux.addScaled(
+            StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.addScaled(
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux,
+        StochasticRelaxation::activeState().totalFlux.addScaled(
+            StochasticRelaxation::activeState().totalFlux,
             static_cast<float>(M_PI) * patch->area,
             McradP::getTopLevelPatchRad(patch)[0]);
     }

@@ -66,9 +66,12 @@ static double (*f[MAX_BASIS_SIZE])(double, double) =
 
 static FILTER_TABLE h;  /* push-pull filter: computed in basis.c */
 
-GalerkinBasis GLOBAL_stochasticRadiosity_quadBasis = {
-    "orthonormal basis on the unit square", // Description
-    MAX_BASIS_SIZE, // Size
-    f, f, // Primary and dual canonical basis functions are equal
-    &h // Push-pull filter coefficients
-};
+GalerkinBasis
+stochasticRadiosityCreateQuadBasis() {
+    return {
+        "orthonormal basis on the unit square", // Description
+        MAX_BASIS_SIZE, // Size
+        f, f, // Primary and dual canonical basis functions are equal
+        &h // Push-pull filter coefficients
+    };
+}

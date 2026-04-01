@@ -66,6 +66,4 @@ class Hierarchy final {
     static REFINE_ACTION subDivideLargest(const Link *link);
 };
 
-extern ElementHierarchyState GLOBAL_stochasticRaytracing_hierarchy;
-
 #endif

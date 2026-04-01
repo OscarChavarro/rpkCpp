@@ -136,9 +136,9 @@ Hierarchy::lowPowerLink(
         rhoSrcRad.selfScalarProduct(Rd);
     }
 
-    threshold = GLOBAL_stochasticRaytracing_hierarchy.epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
+    threshold = ElementHierarchyState::activeState().epsilon * statistics->radiance.maxSelfEmittedPower.maximumComponent();
     propagatedPower = rcv->area * ff * rhoSrcRad.maximumComponent();
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
+    if ( StochasticRelaxation::activeState().importanceDriven ) {
         propagatedPower *= rcv->importance;
         if ( !rcv->isCluster() ) {
             propagatedPower *= StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(rcv);
@@ -152,7 +152,7 @@ REFINE_ACTION
 Hierarchy::subDivideLargest(const Link *link) {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
-    if ( rcv->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea && src->area < GLOBAL_stochasticRaytracing_hierarchy.minimumArea ) {
+    if ( rcv->area < ElementHierarchyState::activeState().minimumArea && src->area < ElementHierarchyState::activeState().minimumArea ) {
         return static_cast<REFINE_ACTION>(Hierarchy::dontRefineCallBack);
     } else {
         return (rcv->area > src->area) ? Hierarchy::subdivideReceiverCallBack : Hierarchy::subdivideSourceCallBack;
@@ -161,7 +161,7 @@ Hierarchy::subDivideLargest(const Link *link) {
 
 /**
 Well known power-based refinement oracle ([HANR1992] Hanrahan'91, with importance
-a la [SMIT1992] Smits'92 if GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven is true)
+a la [SMIT1992] Smits'92 when importance-driven sampling is enabled)
 */
 REFINE_ACTION
 Hierarchy::powerOracle(const Link *link) {
@@ -187,9 +187,9 @@ Hierarchy::topLink(StochasticRadiosityElement *rcvTop, StochasticRadiosityElemen
     StochasticRadiosityElement *src;
     Link link{};
 
-    if ( GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing
-      && GLOBAL_stochasticRaytracing_hierarchy.clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
-        src = rcv = GLOBAL_stochasticRaytracing_hierarchy.topCluster;
+    if ( ElementHierarchyState::activeState().do_h_meshing
+      && ElementHierarchyState::activeState().clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
+        src = rcv = ElementHierarchyState::activeState().topCluster;
     } else {
         src = srcTop;
         rcv = rcvTop;
@@ -226,7 +226,7 @@ Hierarchy::hierarchyRefine(
     ORACLE evaluateLink,
     const RenderOptions *renderOptions)
 {
-    if ( !GLOBAL_stochasticRaytracing_hierarchy.do_h_meshing ) {
+    if ( !ElementHierarchyState::activeState().do_h_meshing ) {
         link->rcv = rcvTop;
         link->src = srcTop;
     } else {

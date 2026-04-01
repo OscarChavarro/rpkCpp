@@ -4,6 +4,8 @@
 #include "common/Error.h"
 #include "common/RenderOptions.h"
 #include "common/statistics/Statistics.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -36,7 +38,17 @@ RandomWalkRadianceMethod::appendRandomWalkStatsText(char *buffer, int *offset, c
     }
 }
 
-RandomWalkRadianceMethod::RandomWalkRadianceMethod() {
+RandomWalkRadianceMethod::RandomWalkRadianceMethod(
+    StochasticRelaxation &inStochasticRelaxationState,
+    ElementHierarchyState &inElementHierarchyState,
+    StochasticRadiosityBasisState &inStochasticRadiosityBasisState):
+    stochasticRelaxationState(inStochasticRelaxationState),
+    elementHierarchyState(inElementHierarchyState),
+    stochasticRadiosityBasisState(inStochasticRadiosityBasisState)
+{
+    StochasticRelaxation::setActiveState(stochasticRelaxationState);
+    ElementHierarchyState::setActiveState(elementHierarchyState);
+    StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
     Mcrad::monteCarloRadiosityDefaults();
     className = RANDOM_WALK;
 }
@@ -62,6 +74,9 @@ RandomWalkRadianceMethod::getRadiance(
     Vector3D dir,
     const RenderOptions *renderOptions) const
 {
+    StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
+    ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
+    StochasticRadiosityBasisState::setActiveState(const_cast<StochasticRadiosityBasisState &>(stochasticRadiosityBasisState));
     return Mcrad::monteCarloRadiosityGetRadiance(patch, u, v, dir, renderOptions);
 }
 
@@ -85,23 +100,26 @@ RandomWalkRadianceMethod::writeVRML(
 
 void
 RandomWalkRadianceMethod::initialize(Scene *scene) {
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.toneMapOptions == nullptr ) {
+    StochasticRelaxation::setActiveState(stochasticRelaxationState);
+    ElementHierarchyState::setActiveState(elementHierarchyState);
+    StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
+    StochasticRelaxation::activeState().toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
+    if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
         Error::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not set in scene");
     }
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
+    StochasticRelaxation::activeState().method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
 }
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityPrintStats() {
     java::System::err.printf("%g secs., total radiance rays = %ld",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
+            StochasticRelaxation::activeState().cpuSeconds, StochasticRelaxation::activeState().tracedRays);
     java::System::err.printf(", total flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::System::err);
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        java::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
-                GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().radiance.totalArea);
+    StochasticRelaxation::activeState().totalFlux.print(&java::System::err);
+    if ( StochasticRelaxation::activeState().importanceDriven ) {
+        java::System::err.printf("\ntotal importance rays = %ld, total importance = %g, total area = %g",
+                StochasticRelaxation::activeState().importanceTracedRays, StochasticRelaxation::activeState().totalYmp, Statistics::instance().radiance.totalArea);
     }
     java::System::err.printf("\n");
 }
@@ -153,7 +171,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<
         newSourceRadiance.setMonochrome(1.0);
         rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd; // Reflectance
         newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
-        newSourceRadiance.selfScalarProduct(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance); // (1-rho) * beta
+        newSourceRadiance.selfScalarProduct(StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
         newSourceRadiance.subtract(McradP::topLevelStochasticRadiosityElement(patch)->sourceRad, newSourceRadiance); // E - (1-rho) * beta
         McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = newSourceRadiance;
     }
@@ -162,9 +180,9 @@ RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<
  double
 RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n) {
     double w = 0.0;
-    int t = path->numberOfNodes - ((GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast > 0) ? GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkNumLast : 1);
+    int t = path->numberOfNodes - ((StochasticRelaxation::activeState().randomWalkNumLast > 0) ? StochasticRelaxation::activeState().randomWalkNumLast : 1);
 
-    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind ) {
+    switch ( StochasticRelaxation::activeState().randomWalkEstimatorKind ) {
         case RandomWalkEstimatorKind::RW_COLLISION:
             w = 1.0;
             break;
@@ -201,7 +219,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n
             break;
         default:
             Error::fatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
-                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorKind);
+                     StochasticRelaxation::activeState().randomWalkEstimatorKind);
     }
     return w;
 }
@@ -226,7 +244,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
         accumPow.scalarProduct(accumPow, Rd);
 
         P->uniformUv(&node.inPoint, &uin, &vin);
-        if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+        if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
             r = 0.0;
             if ( n < path->numberOfNodes - 1 ) {
                 // Not continuous random walk and not node of absorption
@@ -243,7 +261,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
                 static_cast<float>(w * dual / static_cast<double>(nr_paths)),
                 accumPow);
 
-            if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+            if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uOut, vOut);
                 r += dual * P->area * basf;
             }
@@ -288,18 +306,18 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
 {
     long numberOfWalks;
 
-    numberOfWalks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-        numberOfWalks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+    numberOfWalks = StochasticRelaxation::activeState().initialNumberOfRays;
+    if ( StochasticRelaxation::activeState().continuousRandomWalk ) {
+        numberOfWalks *= StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     } else {
         numberOfWalks *= static_cast<long>(java::Math::pow(
-            GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].
+            StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size, 1. / (1. -
                               Statistics::instance().radiance.averageReflectivity.maximumComponent())));
     }
 
     java::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
-            GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
+            StochasticRelaxation::activeState().currentIteration,
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
                                                                (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
@@ -370,7 +388,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path 
         accumRad.selfScalarProduct(Rd);
 
         P->uniformUv(&node.outpoint, &uOut, &vOut);
-        if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+        if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
             r = 0.0;
             if ( n > 0 ) {
                 // Not continuous random walk and not birth node
@@ -382,7 +400,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path 
             double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uOut, vOut); // = dual basis f * area
             McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(McradP::getTopLevelPatchReceivedRad(P)[i], static_cast<float>(dual), accumRad);
 
-            if ( !GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
+            if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uin, vin);
                 r += basf * dual;
             }
@@ -408,12 +426,12 @@ RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate(const Patch *P, dou
     // Add source radiance (source term estimation suppression!)
     McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate ) {
+    if ( StochasticRelaxation::activeState().constantControlVariate ) {
         // Add constant control radiosity value
-        ColorRgb cr = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance;
-        if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
+        ColorRgb cr = StochasticRelaxation::activeState().controlRadiance;
+        if ( StochasticRelaxation::activeState().indirectOnly ) {
             ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(P)->Rd;
-            cr.scalarProduct(Rd, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance);
+            cr.scalarProduct(Rd, StochasticRelaxation::activeState().controlRadiance);
         }
         McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], cr);
     }
@@ -429,24 +447,24 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
     const VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    long numberOfWalks = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays;
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.continuousRandomWalk ) {
-        numberOfWalks *= GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+    long numberOfWalks = StochasticRelaxation::activeState().initialNumberOfRays;
+    if ( StochasticRelaxation::activeState().continuousRandomWalk ) {
+        numberOfWalks *= StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     } else {
         numberOfWalks *= static_cast<long>(java::Math::pow(
-            GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].
+            StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].
             basis_size,
             1.0 / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent())));
     }
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.constantControlVariate && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1 ) {
+    if ( StochasticRelaxation::activeState().constantControlVariate && StochasticRelaxation::activeState().currentIteration == 1 ) {
         // Constant control variate for gathering random walk radiosity
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches);
+        StochasticRelaxation::activeState().controlRadiance = randomWalkRadiosityDetermineGatheringControlRadiosity(scenePatches);
         randomWalkRadiosityReduceSource(scenePatches); // Do this only once!
     }
 
     java::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
-        GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
+        StochasticRelaxation::activeState().currentIteration,
         numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().radiance.averageReflectivity.maximumComponent()))));
 
     Tracepath::tracePaths(
@@ -473,8 +491,8 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {
-    long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
-        GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
+    long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
+        StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     java::System::err.printf("First shot (%ld rays):\n", numberOfRays);
     Stochjacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
@@ -483,19 +501,25 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
 
 void
 RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
+    StochasticRelaxation::setActiveState(stochasticRelaxationState);
+    ElementHierarchyState::setActiveState(elementHierarchyState);
+    StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
     Mcrad::monteCarloRadiosityTerminate(scenePatches);
 }
 
 bool
 RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
+    StochasticRelaxation::setActiveState(stochasticRelaxationState);
+    ElementHierarchyState::setActiveState(elementHierarchyState);
+    StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
     Mcrad::monteCarloRadiosityPreStep(scene, renderOptions);
 
-    if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration == 1
-        && GLOBAL_stochasticRaytracing_monteCarloRadiosityState.indirectOnly ) {
+    if ( StochasticRelaxation::activeState().currentIteration == 1
+        && StochasticRelaxation::activeState().indirectOnly ) {
         randomWalkRadiosityDoFirstShot(scene->voxelGrid, scene->patchList, renderOptions);
     }
 
-    switch ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType ) {
+    switch ( StochasticRelaxation::activeState().randomWalkEstimatorType ) {
         case RandomWalkEstimatorType::RW_SHOOTING:
             randomWalkRadiosityDoShootingIteration(scene->voxelGrid, scene->patchList);
             break;
@@ -504,7 +528,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
             break;
         default:
             Error::fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
-                     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.randomWalkEstimatorType);
+                     StochasticRelaxation::activeState().randomWalkEstimatorType);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -516,18 +540,21 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
 
 char *
 RandomWalkRadianceMethod::getStats() const {
+    StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
+    ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
+    StochasticRadiosityBasisState::setActiveState(const_cast<StochasticRadiosityBasisState &>(stochasticRadiosityBasisState));
     static char stats[STRING_LENGTH];
     int statsOffset = 0;
 
     appendRandomWalkStatsText(stats, &statsOffset, "Random Walk Radiosity\nStatistics\n\n");
     appendRandomWalkStatsText(stats, &statsOffset, "Iteration nr: %d\n",
-                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration);
+                              StochasticRelaxation::activeState().currentIteration);
     appendRandomWalkStatsText(stats, &statsOffset, "CPU time: %g secs\n",
-                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds);
+                              StochasticRelaxation::activeState().cpuSeconds);
     appendRandomWalkStatsText(stats, &statsOffset, "Radiance rays: %ld\n",
-                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
+                              StochasticRelaxation::activeState().tracedRays);
     appendRandomWalkStatsText(stats, &statsOffset, "Importance rays: %ld\n",
-                              GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays);
+                              StochasticRelaxation::activeState().importanceTracedRays);
 
     return stats;
 }
