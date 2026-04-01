@@ -47,12 +47,6 @@ class RadianceMethod {
     // Returns a string with statistics information about the current run so far
     virtual char *getStats() = 0;
 
-    // Renders the scene using the specific data. This routine can be
-    // a nullptr pointer. In that case, the default hardware assisted rendering
-    // method (in render.c) is used: render all the patches with the RGB color
-    // triplet they were assigned
-    virtual void renderScene(const Scene *scene, const RenderOptions *renderOptions) const;
-
     // If defined, this routine will save the current model in VRML format.
     // If not defined, the default method implemented in write vrml.[ch] will
     // be used

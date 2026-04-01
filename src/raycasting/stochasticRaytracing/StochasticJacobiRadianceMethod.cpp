@@ -20,7 +20,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 
 static constexpr int STRING_LENGTH = 2000;
 
- void
+void
 StochasticJacobiRadianceMethod::appendStochasticStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {
         return;
@@ -489,10 +489,6 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDiscardIncremental(
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = 0;
 
     stochasticRelaxationRadiosityElementDiscardIncremental(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
-}
-
-void
-StochasticJacobiRadianceMethod::renderScene(const Scene *scene, const RenderOptions *renderOptions) const {
 }
 
 bool

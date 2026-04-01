@@ -736,13 +736,6 @@ PhotonMapRadianceMethod::getRadiance(
     return radiance;
 }
 
-void
-PhotonMapRadianceMethod::renderScene(const Scene * /*scene*/, const RenderOptions * /*renderOptions*/) const {
-    if ( GLOBAL_photonMap_config.screen && GLOBAL_photonMap_state.renderImage ) {
-        GLOBAL_photonMap_config.screen->render();
-    }
-}
-
 char *
 PhotonMapRadianceMethod::getStats() {
     static char stats[STRING_LENGTH];

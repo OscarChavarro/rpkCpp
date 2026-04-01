@@ -76,10 +76,6 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 }
 
 void
-RandomWalkRadianceMethod::renderScene(const Scene * /*scene*/, const RenderOptions * /*renderOptions*/) const {
-}
-
-void
 RandomWalkRadianceMethod::writeVRML(
     const Camera * /*camera*/,
     java::io::OutputStream * /*outputStream*/,

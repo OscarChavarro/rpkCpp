@@ -21,7 +21,6 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() final;
-    void renderScene(const Scene *scene, const RenderOptions *renderOptions) const final;
     void
     writeVRML(
         const Camera *camera,
