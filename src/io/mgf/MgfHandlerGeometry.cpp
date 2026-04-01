@@ -210,7 +210,7 @@ Tests whether the polygon is convex or concave. This is accomplished by projecti
 onto the coordinate plane "most parallel" to the polygon and checking the signs
 the cross product of succeeding edges: the signs are all equal for a convex polygon
 */
-int
+bool
 MgfHandlerGeometry::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
     Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
     Vector2D p;
@@ -244,7 +244,7 @@ MgfHandlerGeometry::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3
 /**
 Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
 */
-int
+bool
 MgfHandlerGeometry::pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
     // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
     double u0 = p->u - p1->u;
@@ -283,12 +283,12 @@ MgfHandlerGeometry::pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1,
 /**
 Returns true if the 2D segments p1-p2 and p3-p4 intersect
 */
-int
+bool
 MgfHandlerGeometry::segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4) {
     double a;
     double b;
     double c;
-    int coLinear = false;
+    bool coLinear = false;
 
     // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
     double du = java::Math::abs(p2->u - p1->u);

@@ -31,9 +31,9 @@ class MgfHandlerGeometry {
     static Patch *newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseSession *context);
     static Vector3D *faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal);
     static void vectorProject(Vector2D &r, const Vector3D &p, CoordinateAxis i);
-    static int faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal);
-    static int pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3);
-    static int segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4);
+    static bool faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal);
+    static bool pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3);
+    static bool segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4);
     static void doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseSession *context);
 };
 

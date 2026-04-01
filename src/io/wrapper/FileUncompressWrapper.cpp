@@ -22,15 +22,15 @@ FileUncompressWrapper::isInvalidFileName(const char *fileName) {
     return false;
 }
 
-int
+bool
 FileUncompressWrapper::buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength) {
     if ( fileName == nullptr || command == nullptr || commandLength <= 0 ) {
-        return 0;
+        return false;
     }
 
     if ( fileName[0] == '|' ) {
         java::Formatter::format(command, commandLength, "%s", &fileName[1]);
-        return 1;
+        return true;
     }
 
     const char *ext = strrchr(fileName, '.');
@@ -59,9 +59,9 @@ FileUncompressWrapper::buildPipeCommand(const char *fileName, StreamOpenMode ope
             java::Formatter::format(command, commandLength, "bzip2 > %s", fileName);
         }
     } else {
-        return 0;
+        return false;
     }
-    return 1;
+    return true;
 }
 
 java::InputStream *
@@ -95,10 +95,10 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
 
     const int commandLength = static_cast<int>(strlen(fileName)) + 20;
     char *command = new char[commandLength];
-    const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::READ, command, commandLength);
+    const bool pipeFlag = buildPipeCommand(fileName, StreamOpenMode::READ, command, commandLength);
 
     java::InputStream *stream = nullptr;
-    if ( pipeFlag != 0 ) {
+    if ( pipeFlag ) {
         stream = openPipeInputStream(command);
     } else {
         java::File file(fileName);
@@ -117,7 +117,7 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
     }
 
     if ( isPipe != nullptr ) {
-        *isPipe = pipeFlag;
+        *isPipe = pipeFlag ? 1 : 0;
     }
     return stream;
 }
@@ -133,10 +133,10 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
 
     const int commandLength = static_cast<int>(strlen(fileName)) + 20;
     char *command = new char[commandLength];
-    const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::WRITE, command, commandLength);
+    const bool pipeFlag = buildPipeCommand(fileName, StreamOpenMode::WRITE, command, commandLength);
 
     java::OutputStream *stream = nullptr;
-    if ( pipeFlag != 0 ) {
+    if ( pipeFlag ) {
         stream = openPipeOutputStream(command);
     } else {
         java::File file(fileName);
@@ -155,7 +155,7 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
     }
 
     if ( isPipe != nullptr ) {
-        *isPipe = pipeFlag;
+        *isPipe = pipeFlag ? 1 : 0;
     }
     return stream;
 }

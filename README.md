@@ -68,6 +68,21 @@ Some clean code and SOLID object oriented programming (OOP) principles and best 
   - Basic operating system, filesystem and other operations where abstracted in a Java-like organization targeted to migrate this program to other languages easily.
   - There are no system #include classes in headers outside "java" abstraction. This means all classes are "pure" business logic.
 
+## Re-entrant code
+
+Basic original code has been carefully converted to re-entrant code:
+- All variables are class members (attributes)
+- There are no global variables in the project, and no global variables on the module scope
+- There are no static variables
+- Immutable variables are annotated as const
+- Code does not depend on external libraries, so re-entrant issues and share resource issues are minimized.
+- Basic non re-entrant basic functions as such `strtok` are not used.
+- Methods are idempotent? (pending to check)
+
+Note that operations does not use `mutex` or other sync methods, that responsibilities are on higher level in the using application.
+
+Input/output package is not re-entrant.
+
 ## Annotated math in code with respect to references
 
 Papers to understand the code are included in [doc/references](doc/references). Where identified, key equations in code are annotated with citations to original papers or book chapters.

@@ -97,7 +97,7 @@ changed, this routine converts to our representation of materials and
 creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
-int
+bool
 MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context) {
     ColorRgb Ed;
     ColorRgb Es;
@@ -230,7 +230,7 @@ MgfHandlerMaterial::initMaterialContextTables(ParseSession *context) {
 /**
 This routine returns true if the current material has changed
 */
-int
+bool
 MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseSession *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {

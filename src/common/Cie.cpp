@@ -205,14 +205,14 @@ Cie::transformColorFromXYZ2RGB(const float *xyz, float *rgb) {
 Returns TRUE if the color was desaturated during clipping against the
 monitor gamut
 */
-int
+bool
 Cie::clipGamut(float *rgb) {
     // Really SHOULD desaturate instead of just clipping!
-    int desaturated = 0;
+    bool desaturated = false;
     for ( int i = 0; i < 3; i++ ) {
         if ( rgb[i] < 0.0 ) {
             rgb[i] = 0.0;
-            desaturated = 1;
+            desaturated = true;
         }
     }
     return desaturated;

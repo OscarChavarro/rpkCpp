@@ -298,7 +298,7 @@ Opengl::openGlRenderOctreeLeaf(
     Opengl::openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
 }
 
-int
+bool
 Opengl::openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
     for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {

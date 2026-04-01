@@ -3,11 +3,11 @@
 
 class WordsContext {
   public:
-    static int isIntDelimited(const char *text, const char *delimiters);
-    static int isFloatDelimited(const char *text, const char *delimiters);
-    static int isFloat(const char *text);
-    static int isInt(const char *text);
-    static int isName(const char *text);
+    static bool isIntDelimited(const char *text, const char *delimiters);
+    static bool isFloatDelimited(const char *text, const char *delimiters);
+    static bool isFloat(const char *text);
+    static bool isInt(const char *text);
+    static bool isName(const char *text);
 
   private:
     static bool isAsciiCode(int value);

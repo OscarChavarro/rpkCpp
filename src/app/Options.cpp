@@ -127,7 +127,7 @@ Options::optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
 /**
 Integer option values
 */
-int
+bool
 Options::optionsGetInt(void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
     if ( !Options::optionsGetArgumentIntValue(n) ) {
@@ -155,7 +155,7 @@ CommandLineOptions GLOBAL_options_intType = {
 /**
 String option values
 */
-int
+bool
 Options::optionsGetString(void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
     const char *currentArgument = Options::optionsCurrentArgumentValue();
@@ -190,7 +190,7 @@ CommandLineOptions GLOBAL_options_stringType = {
 /**
 Copied string (maxlength n) option values
 */
-int
+bool
 Options::optionsStringGet(void *value, void *data) {
     char *s = static_cast<char *>(value);
     int *nPointer = static_cast<int *>(data);
@@ -231,7 +231,7 @@ Options::optionsPrintEnumValues(const EnumDesc *tab) {
     }
 }
 
-int
+bool
 Options::optionsEnumGet(void *value, void *data) {
     int *v = static_cast<int *>(value);
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
@@ -287,7 +287,7 @@ CommandLineOptions GLOBAL_options_boolType = {
 
 /* ------------------- set true/false option values --------------------- */
 
-int
+bool
 Options::optionsSetTrue(void *value, void * /*data*/) {
     int *x = static_cast<int *>(value);
     // No option expected on command line, nothing consumed
@@ -296,7 +296,7 @@ Options::optionsSetTrue(void *value, void * /*data*/) {
     return true;
 }
 
-int
+bool
 Options::optionsSetFalse(void *value, void * /*data*/) {
     int *x = static_cast<int *>(value);
     /* No option expected on command line, nothing consumed */
@@ -328,7 +328,7 @@ CommandLineOptions GLOBAL_options_setFalseType = {
 };
 
 /* ------------------- float option values --------------------- */
-int
+bool
 Options::optionsGetfloat(void *value, void * /*data*/) {
     float *x = static_cast<float *>(value);
     if ( !Options::optionsGetArgumentFloatValue("%f", x) ) {
@@ -356,10 +356,10 @@ CommandLineOptions GLOBAL_options_floatType = {
 /**
 Vector3D option values
 */
-int
+bool
 Options::optionsGetVector(void *value, void * /*data*/) {
     Vector3D *v = static_cast<Vector3D *>(value);
-    int ok = Options::optionsGetArgumentFloatValue("%f", &v->x);
+    bool ok = Options::optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
         Options::optionsConsumeArgument();
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->y);
@@ -393,10 +393,10 @@ CommandLineOptions GLOBAL_options_vectorType = {
 /**
 RGB option values
 */
-int
+bool
 Options::optionsGetRgb(void *value, void * /*data*/) {
     ColorRgb *c = static_cast<ColorRgb *>(value);
-    int ok = Options::optionsGetArgumentFloatValue("%f", &c->r);
+    bool ok = Options::optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
         Options::optionsConsumeArgument();
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->g);
@@ -431,10 +431,10 @@ CommandLineOptions GLOBAL_options_rgbType = {
 CIE xy option values
 */
 
-int
+bool
 Options::optionsGetCieXy(void *value, void * /*data*/) {
     float *c = static_cast<float *>(value);
-    int ok = Options::optionsGetArgumentFloatValue("%f", &c[0]);
+    bool ok = Options::optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
         Options::optionsConsumeArgument();
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c[1]);
@@ -500,7 +500,7 @@ void
 Options::optionsProcessArguments(CommandLineOptionDescription *options) {
     CommandLineOptionDescription *opt = Options::optionsLookupOption(Options::optionsCurrentArgumentValue(), options);
     if ( opt ) {
-        int ok = true;
+        bool ok = true;
         if ( opt->type ) {
             if ((opt->type == &GLOBAL_options_setTrueType) ||
                 (opt->type == &GLOBAL_options_setFalseType) ) {

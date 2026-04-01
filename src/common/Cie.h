@@ -44,7 +44,7 @@ class Cie final {
     static const float WHITE_EFFICACY;
 
     static void transformColorFromXYZ2RGB(const float *xyz, float *rgb);
-    static int clipGamut(float *rgb);
+    static bool clipGamut(float *rgb);
 
     static void computeColorConversionTransforms(
         float xr, float yr,

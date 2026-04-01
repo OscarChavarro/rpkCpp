@@ -133,6 +133,8 @@ set(MAIN_SRC
     src/io/wrapper/PipeInputStream.cpp
     src/io/wrapper/PipeOutputStream.cpp
     src/io/wrapper/FileUncompressWrapper.cpp
+    src/io/wrapper/Vector3DPrinter.cpp
+    src/io/wrapper/Matrix2x2Printer.cpp
     src/io/context/TransformContext.cpp
     src/io/context/ParseSession.cpp
     src/io/context/ParserConfig.cpp

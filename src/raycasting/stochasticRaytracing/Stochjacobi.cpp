@@ -169,7 +169,7 @@ Stochjacobi::stochasticJacobiElementSetup(Element *element) {
 /**
 Returns true if success, that is: sum of sampling probabilities is nonzero
 */
- int
+ bool
 Stochjacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.controlRadiance.clear();

@@ -55,7 +55,7 @@ class VoxelGrid {
         int *step,
         int *out) const;
 
-    int
+    bool
     gridBoundsIntersect(
         const Ray *ray,
         float minimumDistance,

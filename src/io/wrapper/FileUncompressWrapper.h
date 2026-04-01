@@ -15,7 +15,7 @@ class FileUncompressWrapper {
   private:
     static const char *modeToLogAction(StreamOpenMode mode);
     static bool isInvalidFileName(const char *fileName);
-    static int buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength);
+    static bool buildPipeCommand(const char *fileName, StreamOpenMode openMode, char *command, int commandLength);
     static java::InputStream *openPipeInputStream(const char *command);
     static java::OutputStream *openPipeOutputStream(const char *command);
 };

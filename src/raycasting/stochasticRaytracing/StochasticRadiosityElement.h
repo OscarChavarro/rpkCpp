@@ -56,7 +56,7 @@ class StochasticRadiosityElement final : public Element {
         double *v);
     static Vertex *stochasticRadiosityElementEdgeMidpointVertex(const StochasticRadiosityElement *elem, int edgeNumber);
 
-    static int stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem);
+    static bool stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem);
     static float stochasticRadiosityElementScalarReflectance(const StochasticRadiosityElement *elem);
     static void stochasticRadiosityElementPushRadiance(
         const StochasticRadiosityElement *parent,

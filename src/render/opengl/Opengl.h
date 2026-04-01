@@ -34,7 +34,7 @@ class Opengl {
         const Geometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RenderOptions *renderOptions);
-    static int openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds);
+    static bool openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds);
     static float openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox);
     static void
     openGlRenderOctreeNonLeaf(

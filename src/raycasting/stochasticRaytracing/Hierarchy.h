@@ -60,9 +60,9 @@ class Hierarchy final {
         double *us,
         double *vs,
         const RenderOptions *renderOptions);
-    static int selfLink(const Link *link);
+    static bool selfLink(const Link *link);
     static float formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
-    static int lowPowerLink(const Link *link, const Statistics *statistics);
+    static bool lowPowerLink(const Link *link, const Statistics *statistics);
     static REFINE_ACTION subDivideLargest(const Link *link);
 };
 

@@ -617,7 +617,7 @@ Shaft::shaftPatchTest(Patch *patch) {
 /**
 Returns true if the geometry is not to be enclosed in the shaft
 */
-int
+bool
 Shaft::patchIsOnOmitSet(const unsigned id) const {
     for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
         if ( patchIdsToOmit[i] == id ) {

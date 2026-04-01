@@ -82,7 +82,7 @@ public:
         const Vector3D *Z);
 
     ColorRgb splitBsdfScatteredPower(RayHit *hit, char flags) const;
-    int splitBsdfIsTextured() const;
+    bool splitBsdfIsTextured() const;
 
 #ifdef RAYTRACING_ENABLED
     void indexOfRefraction(RefractionIndex *index) const;

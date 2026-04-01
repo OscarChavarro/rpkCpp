@@ -114,7 +114,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(RayHit
     return albedo;
 }
 
-int
+bool
 PhongBidirectionalScatteringDistributionFunction::splitBsdfIsTextured() const {
     return texture != nullptr;
 }

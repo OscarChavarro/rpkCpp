@@ -9,7 +9,7 @@ class Numeric {
     static const float EPSILON_FLOAT;
 
     static bool doubleEqual(double a, double b, double tolerance);
-    static int floatCompare(const float *x, const float *y);
+    static bool floatCompare(float x, float y);
     static void roundDeltaToZero(double &x, double epsilon);
 };
 

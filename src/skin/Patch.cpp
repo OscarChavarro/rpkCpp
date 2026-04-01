@@ -120,7 +120,7 @@ has no real solutions, both solutions are in the interval [0,1] or
 none of them is. In case of problems, best guess solution
 is returned. Problems seem to be due to numerical inaccuracy
 */
-int
+bool
 Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
     double D = B * B - 4.0 * A * C;
     double x1;
@@ -410,7 +410,7 @@ Christophe Schlick and Gilles Subrenat (15 May 1994)
 "Ray Intersection of Tessellated Surfaces : Quadrangles versus Triangles"
 in Graphics Gems V (edited by A. Paeth), Academic Press, pages 232-241
 */
-int
+bool
 Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     Vector2Dd A; // Projected vertices
     Vector2Dd B;
@@ -426,7 +426,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     double u = -1.0; // Parametric coordinates
     double v = -1.0;
     Vector2Dd Vector; // Temporary 2D-vector
-    int isInside = false;
+    bool isInside = false;
 
     // Projection on the plane that is most parallel to the facet
     int vertexIndex = 0;
@@ -585,7 +585,7 @@ Patch::patchNormal(const Patch *patch, Vector3D *normal) {
 /**
 Return true if patch is virtual
 */
-int
+bool
 Patch::hasZeroVertices() const {
     return numberOfVertices == 0;
 }
@@ -1028,7 +1028,7 @@ not.
 WARNING: The (u, v) coordinates are correctly computed only for positions inside
 the patch. For positions outside, they can be garbage!
 */
-int
+bool
 Patch::uv(const Vector3D *point, double *u, double *v) const {
     Vector2Dd uv;
     bool inside = false;
@@ -1093,9 +1093,9 @@ Patch::facing(const Patch *other) const {
 /**
 Like 'uv', but returns uniform coordinates (inverse of uniformPoint())
 */
-int
+bool
 Patch::uniformUv(const Vector3D *point, double *u, double *v) const {
-    int inside = uv(point, u, v);
+    bool inside = uv(point, u, v);
     if ( jacobian != nullptr ) {
         biLinearToUniform(u, v);
     }

@@ -281,7 +281,7 @@ Compute t0, ray's minimal intersection with the whole grid and
 position P of this intersection. Returns true if the grid getBoundingBox are
 intersected and false if the ray passes along the voxel grid
 */
-int
+bool
 VoxelGrid::gridBoundsIntersect(
     const Ray *ray,
     float minimumDistance,

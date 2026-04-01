@@ -50,8 +50,8 @@ class Patch {
     unsigned char flags; // Other flags
 
     static double clipToUnitInterval(double x);
-    static int solveQuadraticUnitInterval(double A, double B, double C, double *x);
-    static int quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
+    static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
+    static bool quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv);
     static Vector3D *patchNormal(const Patch *patch, Vector3D *normal);
 
     void uniformToBiLinear(double *u, double *v) const;
@@ -109,10 +109,10 @@ class Patch {
     void setInvisible();
     void setFlags(unsigned char newFlags);
     unsigned char getFlags() const;
-    int hasZeroVertices() const;
+    bool hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
-    int uv(const Vector3D *point, double *u, double *v) const;
+    bool uv(const Vector3D *point, double *u, double *v) const;
     void biLinearToUniform(double *u, double *v) const;
     void interpolatedFrameAtUv(double u, double v, Vector3D *X, Vector3D *Y, Vector3D *Z) const;
     Vector3D textureCoordAtUv(double u, double v) const;
@@ -124,7 +124,7 @@ class Patch {
 
 #ifdef RAYTRACING_ENABLED
     bool isVisible() const;
-    int uniformUv(const Vector3D *point, double *u, double *v) const;
+    bool uniformUv(const Vector3D *point, double *u, double *v) const;
 
 #endif
 

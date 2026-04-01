@@ -89,7 +89,7 @@ Hierarchy::subdivideSourceCallBack(
     return link;
 }
 
-int
+bool
 Hierarchy::selfLink(const Link *link) {
     return (link->rcv == link->src);
 }
@@ -117,7 +117,7 @@ Hierarchy::formFactorEstimate(const StochasticRadiosityElement *rcv, const Stoch
     return static_cast<float>(f * c1 * c2);
 }
 
-int
+bool
 Hierarchy::lowPowerLink(
     const Link *link,
     const Statistics *statistics)

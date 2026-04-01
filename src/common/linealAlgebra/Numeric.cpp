@@ -7,13 +7,9 @@ const double Numeric::EPSILON = 1e-6;
 const float Numeric::EPSILON_FLOAT = 1e-6f;
 
 /**
-Compares two double floating point values pointed to by v1 and v2
+Returns whether the first floating point value is greater than the second one.
 */
-int
-Numeric::floatCompare(const float *x, const float *y) {
-    if ( x > y ) {
-        return 1;
-    } else {
-        return (x < y) ? -1 : 0;
-    }
+bool
+Numeric::floatCompare(const float x, const float y) {
+    return x > y;
 }

@@ -233,7 +233,15 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
     int i;
 
     auto qSortFloatCompare = [](const void *a, const void *b) -> int {
-        return Numeric::floatCompare(static_cast<const float *>(a), static_cast<const float *>(b));
+        const float left = *static_cast<const float *>(a);
+        const float right = *static_cast<const float *>(b);
+        if ( Numeric::floatCompare(left, right) ) {
+            return 1;
+        }
+        if ( Numeric::floatCompare(right, left) ) {
+            return -1;
+        }
+        return 0;
     };
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {

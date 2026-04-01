@@ -637,7 +637,7 @@ StochasticRadiosityElement::galerkinElementMidpoint(StochasticRadiosityElement *
 /**
 Only for surface elements
 */
-int
+bool
 StochasticRadiosityElement::stochasticRadiosityElementIsTextured(const StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         Error::fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
@@ -674,7 +674,7 @@ Computes average reflectance and emittance of a surface sub-element
 StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadiosityElement *elem) {
     Patch *patch = elem->patch;
     int numberOfSamples;
-    int isTextured;
+    bool isTextured;
     int nbits;
     NiederreiterIndex msb1;
     NiederreiterIndex rMostSignificantBit2;

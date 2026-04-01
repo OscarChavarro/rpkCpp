@@ -38,15 +38,15 @@ class RayHit {
 public:
     RayHit();
 
-    int
+    bool
     init(
         Patch *inPatch,
         const Vector3D *inPoint,
         const Vector3D *inGeometryNormal,
         Material *inMaterial);
 
-    int getTexCoord(Vector3D *outTexCoord);
-    int shadingNormal(Vector3D *inNormal);
+    bool getTexCoord(Vector3D *outTexCoord);
+    bool shadingNormal(Vector3D *inNormal);
 
     Patch *getPatch() const;
     void setPatch(Patch *inPatch);

@@ -6,10 +6,10 @@
 
 namespace java {
 
-java::FileOutputStream globalSystemOutStream("/dev/stdout");
-java::FileOutputStream globalSystemErrStream("/dev/stderr");
-java::PrintStream System::out(&globalSystemOutStream);
-java::PrintStream System::err(&globalSystemErrStream);
+java::FileOutputStream standardOutput("/dev/stdout");
+java::FileOutputStream standardError("/dev/stderr");
+java::PrintStream System::out(&standardOutput);
+java::PrintStream System::err(&standardError);
 
 [[noreturn]] void
 System::exit(int status) {

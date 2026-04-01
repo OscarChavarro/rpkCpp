@@ -52,7 +52,7 @@ class Stochjacobi final {
     static double stochasticJacobiProbability(const StochasticRadiosityElement *elem);
     static void stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem);
     static void stochasticJacobiElementSetup(Element *element);
-    static int stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches);
+    static bool stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches);
     static ColorRgb stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs);
     static void stochasticJacobiPropagateRadianceToSurface(
         StochasticRadiosityElement *rcv,

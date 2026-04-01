@@ -71,7 +71,7 @@ WordsContext::skipFloat(const char *text)
 /**
 Check integer format
 */
-int
+bool
 WordsContext::isInt(const char *text)
 {
     const char *cp = skipInt(text);
@@ -81,7 +81,7 @@ WordsContext::isInt(const char *text)
 /**
 Check integer format with delimiter set
 */
-int
+bool
 WordsContext::isIntDelimited(const char *text, const char *delimiters)
 {
     const char *cp = skipInt(text);
@@ -91,7 +91,7 @@ WordsContext::isIntDelimited(const char *text, const char *delimiters)
 /**
 Check float format
 */
-int
+bool
 WordsContext::isFloat(const char *text)
 {
     const char *cp = skipFloat(text);
@@ -101,7 +101,7 @@ WordsContext::isFloat(const char *text)
 /**
 Check integer format with delimiter set
 */
-int
+bool
 WordsContext::isFloatDelimited(const char *text, const char *delimiters)
 {
     const char *cp = skipFloat(text);
@@ -111,7 +111,7 @@ WordsContext::isFloatDelimited(const char *text, const char *delimiters)
 /**
 Check for legal identifier name
 */
-int
+bool
 WordsContext::isName(const char *text)
 {
     int index = 0;
@@ -121,7 +121,7 @@ WordsContext::isName(const char *text)
     }
     if ( !WordsContext::isAsciiCode(text[index]) || !java::Character::isLetter(text[index]) ) {
         // start with a letter
-        return 0;
+        return false;
     }
     int tokenIndex = index + 1;
     while ( WordsContext::isAsciiCode(text[tokenIndex]) && WordsContext::isAsciiGraph(text[tokenIndex]) ) {

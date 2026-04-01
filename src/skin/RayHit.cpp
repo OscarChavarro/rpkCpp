@@ -35,7 +35,7 @@ TRUE if the structure is properly initialised and FALSE if not.
 This routine can be used in order to construct BSDF queries at other positions
 than hit positions returned by ray intersection routines
 */
-int
+bool
 RayHit::init(
     Patch *inPatch,
     const Vector3D *inPoint,
@@ -93,7 +93,7 @@ RayHit::computeUv(Vector2Dd *inUv) {
 /**
 Fills in/computes texture coordinates of hit point
 */
-int
+bool
 RayHit::getTexCoord(Vector3D *outTexCoord) {
     if ( flags & RayHitFlag::TEXTURE_COORDINATE ) {
         *outTexCoord = texCoord;
@@ -118,7 +118,7 @@ RayHit::getTexCoord(Vector3D *outTexCoord) {
 Fills in shading normal (Z axis of shading frame) only, avoiding computation
 of shading X and Y axis if possible
 */
-int
+bool
 RayHit::shadingNormal(Vector3D *inNormal) {
     if ( flags & RayHitFlag::SHADING_FRAME || flags & RayHitFlag::NORMAL ) {
         *inNormal = shadingFrame.getZ();
@@ -144,7 +144,7 @@ possibly avoiding computations of the X and Y axis
 */
 bool
 RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
-    int success = false;
+    bool success = false;
 
     if ( !hitInitialised() ) {
         Error::warning("pointShadingFrame", "uninitialised hit structure");

@@ -11,8 +11,8 @@ class MgfHandlerMaterial {
   public:
     static int handleMaterialEntity(int ac, const char **av, ParseSession *context);
     static void initMaterialContextTables(ParseSession *context);
-    static int mgfMaterialChanged(const Material *material, const ParseSession *context);
-    static int mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context);
+    static bool mgfMaterialChanged(const Material *material, const ParseSession *context);
+    static bool mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context);
 
   private:
     static Material *materialLookup(const char *name, const ParseSession *context);

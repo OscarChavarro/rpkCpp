@@ -10,6 +10,7 @@ and contain necessary information for raytracing-like algorithms
 #include "common/RenderOptions.h"
 #include "common/Error.h"
 #include "skin/Patch.h"
+#include "io/wrapper/Vector3DPrinter.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 
 SimpleRaytracingPathNode::SimpleRaytracingPathNode():
@@ -33,21 +34,21 @@ SimpleRaytracingPathNode::print(java::PrintStream *out) const {
 
     out->printf("Path node at depth %i\n", m_depth);
     out->printf("Pos : ");
-    m_hit.getPoint().print(out);
+    Vector3DPrinter::print(m_hit.getPoint(), out);
     out->printf("\n");
     out->printf("Norm: ");
-    m_normal.print(out);
+    Vector3DPrinter::print(m_normal, out);
     out->printf("\n");
     if ( m_previous ) {
         out->printf("InF: ");
-        m_inDirF.print(out);
+        Vector3DPrinter::print(m_inDirF, out);
         out->printf("\n");
         out->printf("Cos in  %f\n", m_normal.dotProduct(m_inDirF));
         out->printf("GCos in %f\n", m_hit.getPatch()->normal.dotProduct(m_inDirF));
     }
     if ( m_next ) {
         out->printf("OutF: ");
-        m_next->m_inDirT.print(out);
+        Vector3DPrinter::print(m_next->m_inDirT, out);
         out->printf("\n");
         out->printf("Cos out %f\n", m_normal.dotProduct(m_next->m_inDirT));
         out->printf("GCos out %f\n", m_hit.getPatch()->normal.dotProduct(m_next->m_inDirT));
