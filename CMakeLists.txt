@@ -172,6 +172,7 @@ set(MAIN_SRC
     src/render/visualDebugTools/GlutDebugState.cpp
     src/render/SoftIdsWrapper.cpp
     src/render/Softids.cpp
+    src/render/RadianceImageExporter.cpp
     src/render/Opengl.cpp
     src/render/RenderHookList.cpp
     src/render/Canvas.cpp

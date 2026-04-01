@@ -4,15 +4,13 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
+#include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
 #include "render/Render.h"
+#include "render/RadianceImageExporter.h"
 #include "app/Batch.h"
 #include "app/CommandLine.h"
-
-#ifdef RAYTRACING_ENABLED
-    #include "raycasting/simple/RayCaster.h"
-#endif
 
 #ifdef RAYTRACING_ENABLED
     #include "app/Raytrace.h"
@@ -77,11 +75,11 @@ void
 Batch::batchSaveRadianceImage(
     const char *fileName,
     java::OutputStream *outputStream,
-    const int /*isPipe*/,
-    const Scene * /*scene*/,
-    const RadianceMethod * /*radianceMethod*/,
+    const int isPipe,
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
     const RayTracer * /*rayTracer*/,
-    const RenderOptions * /*renderOptions*/)
+    const RenderOptions *renderOptions)
 {
     long long t;
     const char *extension;
@@ -101,6 +99,8 @@ Batch::batchSaveRadianceImage(
     java::System::out.flush();
 
     t = java::System::nanoTime();
+
+    RadianceImageExporter::exportImage(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
 
     java::System::out.printf(
         "%g secs.\n",
