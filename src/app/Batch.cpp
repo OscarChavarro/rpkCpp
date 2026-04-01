@@ -1,13 +1,5 @@
 #include <cstring>
 
-#ifdef OPEN_GL_ENABLED
-    #ifdef __APPLE__
-        #include <OpenGL/gl.h>
-    #else
-        #include <GL/gl.h>
-    #endif
-#endif
-
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
@@ -36,65 +28,6 @@ Batch::batchGetOptions() {
 void
 Batch::generalParseOptions(int *argc, char **argv) {
     CommandLine::batchParseOptions(argc, argv, &globalBatchOptions);
-}
-
-/**
-Saves a RGB image in the front buffer
-*/
-void
-Batch::openGlSaveScreen(
-    const char *fileName,
-    java::io::OutputStream *outputStream,
-    const int isPipe,
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions)
-{
-    // RayCast() saves the current picture in display-mapped (!) real values
-#ifdef RAYTRACING_ENABLED
-    if ( renderOptions->trace ) {
-        RayCaster::rayCast(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
-        return;
-    }
-#else
-    if ( renderOptions->trace ) {
-        java::lang::System::err.printf(
-            "ERROR: Trace output requires raytracing support. Recompile with -DRAYTRACING_ENABLED=ON.\n");
-        java::lang::System::err.flush();
-        return;
-    }
-#endif
-
-    long x = scene->camera->xSize;
-    long y = scene->camera->ySize;
-    ImageOutputHandle *image = ImageOutputHandle::createImageOutputHandle(fileName, outputStream, isPipe, static_cast<int>(x), static_cast<int>(y));
-    if ( image == nullptr ) {
-        return;
-    }
-
-    unsigned char *screen = new unsigned char[x * y * 4];
-    unsigned char *buffer = new unsigned char[3 * x];
-
-#ifdef OPEN_GL_ENABLED
-    glReadBuffer(GL_FRONT);
-    glReadPixels(0, 0, static_cast<int>(x), static_cast<int>(y), GL_RGBA, GL_UNSIGNED_BYTE, screen);
-#endif
-
-    for ( long j = y - 1; j >= 0; j-- ) {
-        const long screenRowStart = j * x * 4;
-        for ( long i = 0; i < x; i++ ) {
-            const long pixelOffset = screenRowStart + i * 4;
-            const long bufferOffset = i * 3;
-            buffer[bufferOffset] = screen[pixelOffset];
-            buffer[bufferOffset + 1] = screen[pixelOffset + 1];
-            buffer[bufferOffset + 2] = screen[pixelOffset + 2];
-        }
-        ImageOutputHandle::writeDisplayRGB(image, buffer);
-    }
-
-    delete[] buffer;
-    delete[] screen;
-    delete image;
 }
 
 #ifdef RAYTRACING_ENABLED
@@ -144,11 +77,11 @@ void
 Batch::batchSaveRadianceImage(
     const char *fileName,
     java::io::OutputStream *outputStream,
-    const int isPipe,
-    const Scene *scene,
-    const RadianceMethod *radianceMethod,
+    const int /*isPipe*/,
+    const Scene * /*scene*/,
+    const RadianceMethod * /*radianceMethod*/,
     const RayTracer * /*rayTracer*/,
-    const RenderOptions *renderOptions)
+    const RenderOptions * /*renderOptions*/)
 {
     long long t;
     const char *extension;
@@ -168,9 +101,6 @@ Batch::batchSaveRadianceImage(
     java::lang::System::out.flush();
 
     t = java::lang::System::nanoTime();
-
-    // No OpenGL really if renderOptions->trace is true
-    Batch::openGlSaveScreen(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
 
     java::lang::System::out.printf(
         "%g secs.\n",

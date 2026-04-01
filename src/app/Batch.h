@@ -21,13 +21,6 @@ class Batch final {
     static const BatchOptions *batchGetOptions();
 
   private:
-    static void openGlSaveScreen(
-        const char *fileName,
-        java::io::OutputStream *outputStream,
-        int isPipe,
-        const Scene *scene,
-        const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
 #ifdef RAYTRACING_ENABLED
     static void batchRayTraceSaveImage(
         const char *fileName,
