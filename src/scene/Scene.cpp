@@ -70,19 +70,19 @@ Scene::printGeometryType(GeometryClassId id) {
 void
 Scene::printPatchSet(const PatchSet *patchSet) {
     if ( patchSet->getPatchList() != nullptr ) {
-        java::lang::System::out.printf("  - Patches: %ld\n", patchSet->getPatchList()->size());
+        java::System::out.printf("  - Patches: %ld\n", patchSet->getPatchList()->size());
     } else {
-        java::lang::System::out.printf("  - Patches: null list!\n");
+        java::System::out.printf("  - Patches: null list!\n");
     }
 }
 
 void
 Scene::printCompound(const Compound *compound) {
     if ( compound->children != nullptr ) {
-        java::lang::System::out.printf("    . Outer children: %ld\n", compound->children->size());
+        java::System::out.printf("    . Outer children: %ld\n", compound->children->size());
         for ( int i = 0; i < compound->children->size(); i++ ) {
             const Geometry *child = compound->children->get(i);
-            java::lang::System::out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
+            java::System::out.printf("    . Child [%d] / [%s]\n", i, printGeometryType(child->className));
             if ( child->className == GeometryClassId::SURFACE_MESH ) {
                 printSurfaceMesh(static_cast<const MeshSurface *>(child), 6);
             }
@@ -100,11 +100,11 @@ Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
     }
     spaces[i] = '\0';
 
-    java::lang::System::out.printf("%s  - Object name: %s\n", spaces, mesh->objectName);
-    java::lang::System::out.printf("%s  - Type: SurfaceMesh\n", spaces);
-    java::lang::System::out.printf("%s    . Id: %d\n", spaces, mesh->id);
-    java::lang::System::out.printf("%s    . Inner id: %d\n", spaces, mesh->meshId);
-    java::lang::System::out.printf("%s    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
+    java::System::out.printf("%s  - Object name: %s\n", spaces, mesh->objectName);
+    java::System::out.printf("%s  - Type: SurfaceMesh\n", spaces);
+    java::System::out.printf("%s    . Id: %d\n", spaces, mesh->id);
+    java::System::out.printf("%s    . Inner id: %d\n", spaces, mesh->meshId);
+    java::System::out.printf("%s    . Vertices: %ld, positions: %ld, normals: %ld, faces: %ld\n",
        spaces, mesh->vertices->size(), mesh->positions->size(), mesh->normals->size(), mesh->faces->size());
 
     delete[] spaces;
@@ -112,13 +112,13 @@ Scene::printSurfaceMesh(const MeshSurface *mesh, int level) {
 
 void
 Scene::printGeometries() const {
-    java::lang::System::out.printf("= geometryList ================================================================\n");
-    java::lang::System::out.printf("Geometries on list: %ld\n", geometryList->size());
+    java::System::out.printf("= geometryList ================================================================\n");
+    java::System::out.printf("Geometries on list: %ld\n", geometryList->size());
     for ( int i = 0; i < geometryList->size(); i++ ) {
         Geometry *geometry = geometryList->get(i);
-        java::lang::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, geometryList->size(), printGeometryType(geometry->className));
-        java::lang::System::out.printf("    . Id: %d\n", geometry->id);
-        java::lang::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
+        java::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, geometryList->size(), printGeometryType(geometry->className));
+        java::System::out.printf("    . Id: %d\n", geometry->id);
+        java::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             // Note that empty meshes are being removed, this case will usually not show on Galerkin
@@ -133,13 +133,13 @@ Scene::printGeometries() const {
 
 void
 Scene::printClusteredGeometries() const {
-    java::lang::System::out.printf("= clusteredGeometryList ================================================================\n");
-    java::lang::System::out.printf("Geometry clusters on list: %ld\n", clusteredGeometryList->size());
+    java::System::out.printf("= clusteredGeometryList ================================================================\n");
+    java::System::out.printf("Geometry clusters on list: %ld\n", clusteredGeometryList->size());
     for ( int i = 0; i < clusteredGeometryList->size(); i++ ) {
         Geometry *geometry = clusteredGeometryList->get(i);
-        java::lang::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, clusteredGeometryList->size(), printGeometryType(geometry->className));
-        java::lang::System::out.printf("    . Id: %d\n", geometry->id);
-        java::lang::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
+        java::System::out.printf("  - Index: [%d of %ld] / [%s]\n", i + 1, clusteredGeometryList->size(), printGeometryType(geometry->className));
+        java::System::out.printf("    . Id: %d\n", geometry->id);
+        java::System::out.printf("    . %s\n", geometry->isDuplicate ? "Duplicate" : "Original");
 
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
             // Note that empty meshes are being removed, this case will usually not show on Galerkin
@@ -154,15 +154,15 @@ Scene::printClusteredGeometries() const {
 
 void
 Scene::printPatches() const {
-    java::lang::System::out.printf("= patchList ================================================================\n");
+    java::System::out.printf("= patchList ================================================================\n");
     if ( patchList == nullptr ) {
-        java::lang::System::out.printf("Patches on top level scene list: NULL\n");
+        java::System::out.printf("Patches on top level scene list: NULL\n");
         return;
     }
-    java::lang::System::out.printf("Patches on top level scene list: %ld\n", patchList->size());
+    java::System::out.printf("Patches on top level scene list: %ld\n", patchList->size());
     for ( int i = 0; i < patchList->size(); i++ ) {
         const Patch *patch = patchList->get(i);
-        java::lang::System::out.printf("  - patch[%d]: vertices: %d, area: %03f\n",
+        java::System::out.printf("  - patch[%d]: vertices: %d, area: %03f\n",
            i, patch->numberOfVertices, patch->area);
     }
 }
@@ -170,35 +170,35 @@ Scene::printPatches() const {
 void
 Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount) {
     if ( level == 0 ) {
-        java::lang::System::out.printf("= clusteredRootGeometry ================================================================\n");
+        java::System::out.printf("= clusteredRootGeometry ================================================================\n");
     }
     switch ( level ) {
         case 0:
             break;
         case 1:
-            java::lang::System::out.printf("* ");
+            java::System::out.printf("* ");
             break;
         case 2:
-            java::lang::System::out.printf("  - ");
+            java::System::out.printf("  - ");
             break;
         case 3:
-            java::lang::System::out.printf("    . ");
+            java::System::out.printf("    . ");
             break;
         default:
-            java::lang::System::out.printf("   ");
+            java::System::out.printf("   ");
             for ( int j = 0; j < level; j++ ) {
-                java::lang::System::out.printf(" ");
+                java::System::out.printf(" ");
             }
-            java::lang::System::out.printf("[%d] ", level);
+            java::System::out.printf("[%d] ", level);
             break;
     }
     if ( node->className == GeometryClassId::SURFACE_MESH ) {
         // Note that empty meshes are being removed, this case will usually not show on Galerkin
-        java::lang::System::out.printf("Mesh (%d)\n", *elementCount);
+        java::System::out.printf("Mesh (%d)\n", *elementCount);
         (*elementCount)++;
     } else if ( node->className == GeometryClassId::COMPOUND ) {
         const Compound *compound = static_cast<const Compound *>(node);
-        java::lang::System::out.printf("Compound %d (%d)\n", compound->id, *elementCount);
+        java::System::out.printf("Compound %d (%d)\n", compound->id, *elementCount);
         (*elementCount)++;
         for ( int i = 0;
               compound->children != nullptr && i < compound->children->size();
@@ -209,9 +209,9 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
     } else if ( node->className == GeometryClassId::PATCH_SET ) {
         const PatchSet *patchSet = static_cast<const PatchSet *>(node);
         if ( patchSet->getPatchList() == nullptr ) {
-            java::lang::System::out.printf("empty PatchSet (%d)\n", *elementCount);
+            java::System::out.printf("empty PatchSet (%d)\n", *elementCount);
         } else {
-            java::lang::System::out.printf("PatchSet %d with %ld patches (%d)\n", patchSet->id, patchSet->getPatchList()->size(), *elementCount);
+            java::System::out.printf("PatchSet %d with %ld patches (%d)\n", patchSet->id, patchSet->getPatchList()->size(), *elementCount);
         }
         (*elementCount)++;
     }
@@ -219,7 +219,7 @@ Scene::printClusterHierarchy(const Geometry *node, int level, int *elementCount)
 
 void
 Scene::printVoxelGrid() const {
-    java::lang::System::out.printf("= voxelGrid ================================================================\n");
+    java::System::out.printf("= voxelGrid ================================================================\n");
     voxelGrid->print();
 }
 
@@ -231,5 +231,5 @@ Scene::print() const {
     int elementCount = 0;
     printClusterHierarchy(clusteredRootGeometry, 0, &elementCount);
     printVoxelGrid();
-    java::lang::System::out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
+    java::System::out.printf("*** Total number of geometry elements on cluster hierarchy: %d\n", elementCount);
 }

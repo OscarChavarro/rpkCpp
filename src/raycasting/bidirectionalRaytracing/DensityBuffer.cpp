@@ -29,7 +29,7 @@ DensityBuffer::DensityBuffer(ScreenBuffer *screen, BidirectionalPathRaytracerCon
     yMinimum = screenBuffer->getScreenYMin();
     yMaximum = screenBuffer->getScreenYMax();
 
-    java::lang::System::out.printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
+    java::System::out.printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
            xMinimum, yMinimum, xMaximum, yMaximum);
 
 }
@@ -66,7 +66,7 @@ DensityBuffer::reconstruct() {
     float h = 8.0f * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
               / java::Math::sqrt(static_cast<float>(baseConfig->samplesPerPixel));
 
-    java::lang::System::out.printf("h = %f\n", h);
+    java::System::out.printf("h = %f\n", h);
 
     screenBuffer->scaleRadiance(0.0); // Hack!
 

@@ -73,7 +73,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
     void
     writeVRML(
         const Camera *camera,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const RenderOptions *renderOptions) const final;
 
     static ColorRgb getNodeGRadiance(SimpleRaytracingPathNode *node);

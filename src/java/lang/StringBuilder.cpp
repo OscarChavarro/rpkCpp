@@ -3,7 +3,6 @@
 #include "java/lang/StringBuilder.h"
 
 namespace java {
-namespace lang {
 
 void
 StringBuilder::ensureCapacity(int requiredLength) {
@@ -148,5 +147,4 @@ StringBuilder::toString() const {
     return String(value);
 }
 
-}
 }

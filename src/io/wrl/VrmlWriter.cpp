@@ -11,7 +11,7 @@ Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
 Camera *VrmlWriter::globalCameraStackPtr = VrmlWriter::globalCameraStack;
 
 void
-VrmlWriter::writeFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+VrmlWriter::writeFormatted(java::OutputStream *outputStream, const char *format, ...) {
     if ( outputStream == nullptr || format == nullptr ) {
         return;
     }
@@ -21,19 +21,19 @@ VrmlWriter::writeFormatted(java::io::OutputStream *outputStream, const char *for
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    const int required = java::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
     va_end(argumentsCopy);
 
-    java::lang::String text;
+    java::String text;
     if ( required >= 0 ) {
         if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-            text = java::lang::String(localBuffer);
+            text = java::String(localBuffer);
         } else {
             char *dynamicBuffer = new char[required + 1];
             va_copy(argumentsCopy, arguments);
-            java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+            java::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
             va_end(argumentsCopy);
-            text = java::lang::String(dynamicBuffer);
+            text = java::String(dynamicBuffer);
             delete[] dynamicBuffer;
         }
     }
@@ -90,7 +90,7 @@ Write VRML ViewPoint node for the given camera position
 */
 void
 VrmlWriter::writeViewPoint(
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const Matrix4x4 *modelTransform,
     const Camera *camera,
     const char *viewPointName)
@@ -140,7 +140,7 @@ VrmlWriter::writeViewPoint(
 void
 VrmlWriter::writeViewPoints(
     const Camera *camera,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const Matrix4x4 *modelTransform)
 {
     Camera *localCamera = nullptr;
@@ -149,8 +149,8 @@ VrmlWriter::writeViewPoints(
     while ( (localCamera = nextSavedCamera(localCamera)) != nullptr ) {
         count++;
         char viewPointNameBuffer[32];
-        java::util::Formatter::format(viewPointNameBuffer, static_cast<int>(sizeof(viewPointNameBuffer)), "ViewPoint %d", count);
-        const java::lang::String viewPointName(viewPointNameBuffer);
+        java::Formatter::format(viewPointNameBuffer, static_cast<int>(sizeof(viewPointNameBuffer)), "ViewPoint %d", count);
+        const java::String viewPointName(viewPointNameBuffer);
         writeViewPoint(outputStream, modelTransform, localCamera, viewPointName.toCString());
     }
 }
@@ -161,7 +161,7 @@ Can also be used by radiance-method specific VRML savers.
 void
 VrmlWriter::writeHeader(
     const Camera *camera,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const RenderOptions *renderOptions)
 {
     Vector3D modelRotationAxis;
@@ -192,6 +192,6 @@ VrmlWriter::writeHeader(
 }
 
 void
-VrmlWriter::writeTrailer(java::io::OutputStream *outputStream) {
+VrmlWriter::writeTrailer(java::OutputStream *outputStream) {
     writeFormatted(outputStream, "      }\n    }\n  ]\n}\n\n");
 }

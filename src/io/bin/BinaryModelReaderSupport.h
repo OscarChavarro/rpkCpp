@@ -4,15 +4,6 @@
 #include "common/Error.h"
 #include "io/bin/BinaryModelReaderIndexListRecord.h"
 
-namespace java {
-    template <class T>
-    class ArrayList;
-
-    namespace io {
-        class InputStream;
-    }
-}
-
 class BoundingBox;
 class ColorRgb;
 class PersistedSceneModel;
@@ -27,24 +18,24 @@ class BinaryModelReaderSupport {
     static bool initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what);
 
     static void releaseIndexListRecord(BinaryModelReaderIndexListRecord *record);
-    static void readBytes(java::io::InputStream &input, unsigned char *buffer, int length);
-    static bool readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length);
-    static unsigned char readByte(java::io::InputStream &input);
-    static bool readBool(java::io::InputStream &input);
-    static short readInt16LE(java::io::InputStream &input);
-    static int readInt32LE(java::io::InputStream &input);
-    static long long readInt64LE(java::io::InputStream &input);
-    static float readFloatLE(java::io::InputStream &input);
-    static double readDoubleLE(java::io::InputStream &input);
-    static bool expectTag(java::io::InputStream &input, const char expected[4]);
-    static bool readNonNegativeCount(java::io::InputStream &input, const char *what, int *count);
-    static bool readNullableString(java::io::InputStream &input, char **value, bool *hasValue);
+    static void readBytes(java::InputStream &input, unsigned char *buffer, int length);
+    static bool readBytesChunked(java::InputStream &input, unsigned char *buffer, long long length);
+    static unsigned char readByte(java::InputStream &input);
+    static bool readBool(java::InputStream &input);
+    static short readInt16LE(java::InputStream &input);
+    static int readInt32LE(java::InputStream &input);
+    static long long readInt64LE(java::InputStream &input);
+    static float readFloatLE(java::InputStream &input);
+    static double readDoubleLE(java::InputStream &input);
+    static bool expectTag(java::InputStream &input, const char expected[4]);
+    static bool readNonNegativeCount(java::InputStream &input, const char *what, int *count);
+    static bool readNullableString(java::InputStream &input, char **value, bool *hasValue);
     static bool duplicateNullableString(bool hasValue, const char *value, char **text);
-    static bool readColor(java::io::InputStream &input, ColorRgb *color);
-    static bool readVector(java::io::InputStream &input, Vector3D *vector);
-    static bool readBoundingBoxCoordinates(java::io::InputStream &input, float coordinates[6]);
+    static bool readColor(java::InputStream &input, ColorRgb *color);
+    static bool readVector(java::InputStream &input, Vector3D *vector);
+    static bool readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]);
     static bool setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]);
-    static bool readIndexList(java::io::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record);
+    static bool readIndexList(java::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record);
 
     template <typename T>
     static bool pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result);
@@ -56,7 +47,7 @@ class BinaryModelReaderSupport {
         const char *what,
         java::ArrayList<T *> **result);
 
-    static bool validateBinaryHeader(java::io::InputStream &input);
+    static bool validateBinaryHeader(java::InputStream &input);
     static bool populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record);
 };
 

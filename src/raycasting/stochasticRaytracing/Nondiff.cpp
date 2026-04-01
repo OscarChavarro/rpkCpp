@@ -124,8 +124,8 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSa
     int count = 0;
     double pCumulative = 0.0;
     globalNumberOfSamples = numberOfSamples;
-    java::lang::System::err.printf("Shooting %d light rays ", globalNumberOfSamples);
-    java::lang::System::err.flush();
+    java::System::err.printf("Shooting %d light rays ", globalNumberOfSamples);
+    java::System::err.flush();
     for ( int i = 0; i < globalNumberOfLights; i++ ) {
         double p = globalLights[i].flux / globalTotalFlux;
         int samples_this_light =
@@ -139,7 +139,7 @@ Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSa
         count += samples_this_light;
     }
 
-    java::lang::System::err.println();
+    java::System::err.println();
 }
 
 void

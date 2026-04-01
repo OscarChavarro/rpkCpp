@@ -37,14 +37,14 @@ class PersistenceElement {
   public:
     PersistenceElement() = delete;
 
-    static int readByteInt(java::io::InputStream &is);
-    static int readByteUnsignedInt(java::io::InputStream &is);
-    static void writeByte(java::io::OutputStream &os, unsigned char value);
-    static void writeBool(java::io::OutputStream &os, bool value);
+    static int readByteInt(java::InputStream &is);
+    static int readByteUnsignedInt(java::InputStream &is);
+    static void writeByte(java::OutputStream &os, unsigned char value);
+    static void writeBool(java::OutputStream &os, bool value);
 
-    static void readBytes(java::io::InputStream &is, unsigned char *bytesBuffer, int length);
+    static void readBytes(java::InputStream &is, unsigned char *bytesBuffer, int length);
 
-    static void writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length);
+    static void writeBytes(java::OutputStream &os, const unsigned char *bytesBuffer, int length);
 
     static int byteArray2signedShortBE(const unsigned char *arr, int start);
     static void signedShort2byteArrayBE(unsigned char *arr, int start, int num);
@@ -62,43 +62,43 @@ class PersistenceElement {
     static double byteArray2doubleLE(const unsigned char *arr, int start);
     static double byteArray2doubleBE(const unsigned char *arr, int start);
 
-    static int readSignedShortLE(java::io::InputStream &is);
-    static int readSignedShortBE(java::io::InputStream &is);
-    static void writeSignedShortBE(java::io::OutputStream &os, int num);
-    static void writeSignedShortLE(java::io::OutputStream &os, int num);
+    static int readSignedShortLE(java::InputStream &is);
+    static int readSignedShortBE(java::InputStream &is);
+    static void writeSignedShortBE(java::OutputStream &os, int num);
+    static void writeSignedShortLE(java::OutputStream &os, int num);
 
-    static long readLongLE(java::io::InputStream &is);
-    static void writeInt32LE(java::io::OutputStream &os, int num);
-    static void writeInt64LE(java::io::OutputStream &os, long long num);
-    static void writeDoubleLE(java::io::OutputStream &os, double num);
+    static long readLongLE(java::InputStream &is);
+    static void writeInt32LE(java::OutputStream &os, int num);
+    static void writeInt64LE(java::OutputStream &os, long long num);
+    static void writeDoubleLE(java::OutputStream &os, double num);
 
-    static long readLongBE(java::io::InputStream &is);
+    static long readLongBE(java::InputStream &is);
 
-    static float readFloatLE(java::io::InputStream &is);
-    static double readDoubleLE(java::io::InputStream &is);
-    static double readDoubleBE(java::io::InputStream &is);
-    static float readFloatBE(java::io::InputStream &is);
+    static float readFloatLE(java::InputStream &is);
+    static double readDoubleLE(java::InputStream &is);
+    static double readDoubleBE(java::InputStream &is);
+    static float readFloatBE(java::InputStream &is);
 
-    static void writeFloatBE(java::io::OutputStream &os, float num);
-    static void writeFloatLE(java::io::OutputStream &os, float num);
-    static void writeLongBE(java::io::OutputStream &os, long num);
-    static void writeLongLE(java::io::OutputStream &os, long num);
+    static void writeFloatBE(java::OutputStream &os, float num);
+    static void writeFloatLE(java::OutputStream &os, float num);
+    static void writeLongBE(java::OutputStream &os, long num);
+    static void writeLongLE(java::OutputStream &os, long num);
 
-    static char *readAsciiFixedSizeString(java::io::InputStream &is, int size);
-    static char *readAsciiString(java::io::InputStream &is);
-    static char *readUtf8String(java::io::InputStream &is);
-    static char *readUtf8Line(java::io::InputStream &is);
-    static char *readAsciiLine(java::io::InputStream &is);
-    static char *readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength);
+    static char *readAsciiFixedSizeString(java::InputStream &is, int size);
+    static char *readAsciiString(java::InputStream &is);
+    static char *readUtf8String(java::InputStream &is);
+    static char *readUtf8Line(java::InputStream &is);
+    static char *readAsciiLine(java::InputStream &is);
+    static char *readAsciiToken(java::InputStream &is, const unsigned char *separators, int separatorsLength);
 
-    static void writeAsciiString(java::io::OutputStream &writer, const char *cad);
-    static void writeUtf8String(java::io::OutputStream &writer, const char *cad);
-    static void writeAsciiLine(java::io::OutputStream &writer, const char *cad);
-    static void writeUtf8Line(java::io::OutputStream &writer, const char *cad);
+    static void writeAsciiString(java::OutputStream &writer, const char *cad);
+    static void writeUtf8String(java::OutputStream &writer, const char *cad);
+    static void writeAsciiLine(java::OutputStream &writer, const char *cad);
+    static void writeUtf8Line(java::OutputStream &writer, const char *cad);
     static bool checkDirectory(const char *dirName);
 
   protected:
-    static char *extractExtensionFromFile(const java::io::File &fd);
+    static char *extractExtensionFromFile(const java::File &fd);
 
   private:
     static const bool bigEndianArchitecture;

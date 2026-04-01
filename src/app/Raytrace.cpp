@@ -17,7 +17,7 @@
 
 void
 Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
-    java::util::Formatter::format(str, 1000,
+    java::Formatter::format(str, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
          "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"
@@ -72,7 +72,7 @@ Raytrace::rayTraceCreate(const Scene *scene, const char *rayTracerName) {
 void
 Raytrace::rayTraceSaveImage(
     const char *fileName,
-    java::io::OutputStream *stream,
+    java::OutputStream *stream,
     int isPipe,
     const Scene *scene,
     const RadianceMethod * /*radianceMethod*/,
@@ -85,7 +85,7 @@ Raytrace::rayTraceSaveImage(
         return;
     }
 
-    t = java::lang::System::nanoTime();
+    t = java::System::nanoTime();
 
     ImageOutputHandle *img = ImageOutputHandle::createRadianceImageOutputHandle(
         fileName,
@@ -105,9 +105,9 @@ Raytrace::rayTraceSaveImage(
 
     ImageOutputHandle::deleteImageOutputHandle(img);
 
-    java::lang::System::out.printf(
+    java::System::out.printf(
         "Raytrace save image: %g secs.\n",
-        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
+        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
 }
 
 void
@@ -122,7 +122,7 @@ Raytrace::rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
 void
 Raytrace::rayTraceExecute(
     const char *filename,
-    java::io::OutputStream *stream,
+    java::OutputStream *stream,
     int isPipe,
     Scene *scene,
     RadianceMethod *radianceMethod,

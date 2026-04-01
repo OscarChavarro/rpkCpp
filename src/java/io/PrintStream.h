@@ -6,7 +6,6 @@
 #include "java/io/OutputStream.h"
 
 namespace java {
-namespace io {
 
 class PrintStream {
   private:
@@ -37,7 +36,6 @@ class PrintStream {
     flush() const;
 };
 
-}
 }
 
 #endif

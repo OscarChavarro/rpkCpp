@@ -35,7 +35,7 @@ PhotonMapRadianceMethod::appendStatsText(char *buffer, int *offset, const char *
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = java::util::Formatter::vformat(&buffer[*offset], available, format, arguments);
+    const int written = java::Formatter::vformat(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {
@@ -68,7 +68,7 @@ PhotonMapRadianceMethod::parseOptions(int */*argc*/, char **/*argv*/) {
 void
 PhotonMapRadianceMethod::writeVRML(
     const Camera */*camera*/,
-    java::io::OutputStream */*outputStream*/,
+    java::OutputStream */*outputStream*/,
     const RenderOptions */*renderOptions*/) const
 {
 }
@@ -78,7 +78,7 @@ For counting how much CPU time was used for the computations
 */
 void
 PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
-    const long long t = java::lang::System::nanoTime();
+    const long long t = java::System::nanoTime();
     GLOBAL_photonMap_state.cpuSecs += static_cast<float>(
         static_cast<double>(t - GLOBAL_photonMap_state.lastClock) / 1000000000.0);
     GLOBAL_photonMap_state.lastClock = t;
@@ -112,9 +112,9 @@ Initializes the computations for the current scene (if any)
 */
 void
 PhotonMapRadianceMethod::initialize(Scene *scene) {
-    java::lang::System::err.printf("Photon map activated\n");
+    java::System::err.printf("Photon map activated\n");
 
-    GLOBAL_photonMap_state.lastClock = java::lang::System::nanoTime();
+    GLOBAL_photonMap_state.lastClock = java::System::nanoTime();
     GLOBAL_photonMap_state.cpuSecs = 0.0;
     GLOBAL_photonMap_state.gIterationNumber = 0;
     GLOBAL_photonMap_state.cIterationNumber = 0;
@@ -512,7 +512,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 {
     GLOBAL_photonMap_state.iterationNumber++;
 
-    java::lang::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", static_cast<long>(GLOBAL_photonMap_state.iterationNumber));
+    java::System::err.printf("GLOBAL_photonMapMethods Iteration %li\n", static_cast<long>(GLOBAL_photonMap_state.iterationNumber));
 
     if ( (GLOBAL_photonMap_state.iterationNumber > 1) && (GLOBAL_photonMap_state.doGlobalMap || GLOBAL_photonMap_state.doCausticMap) ) {
         float scaleFactor = (static_cast<float>(GLOBAL_photonMap_state.iterationNumber) - 1.0f) / static_cast<float>(GLOBAL_photonMap_state.iterationNumber);
@@ -529,7 +529,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
 
         PhotonMapImportance::tracePotentialPaths(camera, sceneWorldVoxelGrid, sceneBackground, static_cast<int>(GLOBAL_photonMap_state.iPathsPerIteration));
 
-        java::lang::System::err.printf("Total potential paths : %li, Total rays %li\n",
+        java::System::err.printf("Total potential paths : %li, Total rays %li\n",
                 GLOBAL_photonMap_state.totalIPaths,
                 GLOBAL_raytracer_rayCount);
     }
@@ -552,8 +552,8 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
                 BSDF_ALL_COMPONENTS,
                 radianceMethod);
 
-        java::lang::System::err.printf("Global map: ");
-        GLOBAL_photonMap_config.globalMap->printStats(&java::lang::System::err);
+        java::System::err.printf("Global map: ");
+        GLOBAL_photonMap_config.globalMap->printStats(&java::System::err);
     }
 
     // Caustic map
@@ -573,8 +573,8 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
             static_cast<int>(GLOBAL_photonMap_state.cPathsPerIteration),
             BSDF_SPECULAR_COMPONENT);
 
-        java::lang::System::err.printf("Caustic map: ");
-        GLOBAL_photonMap_config.causticMap->printStats(&java::lang::System::err);
+        java::System::err.printf("Caustic map: ");
+        GLOBAL_photonMap_config.causticMap->printStats(&java::System::err);
     }
 }
 
@@ -586,7 +586,7 @@ method is not updated in this file
 */
 bool
 PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions */*renderOptions*/) {
-    GLOBAL_photonMap_state.lastClock = java::lang::System::nanoTime();
+    GLOBAL_photonMap_state.lastClock = java::System::nanoTime();
 
     PhotonMapRadianceMethod::photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
     PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs();

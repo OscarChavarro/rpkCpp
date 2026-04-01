@@ -4,7 +4,6 @@
 #include "java/lang/String.h"
 
 namespace java {
-namespace lang {
 
 class StringBuilder {
   private:
@@ -55,7 +54,6 @@ class StringBuilder {
     toString() const;
 };
 
-}
 }
 
 #endif

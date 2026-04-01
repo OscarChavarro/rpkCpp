@@ -15,6 +15,7 @@ class GlutDebugToolsKeyControl final {
     static bool handleExtendedKeypress(int keyCode, GlutDebugToolsModel &model);
 
   private:
+    static bool isGalerkinPatchIndex(const Scene *scene, int patchIndex);
     static int selectedPatchMaxHierarchyLevel(const GlutDebugToolsModel &model);
     static void clampHierarchyLevel(GlutDebugToolsModel &model);
     static void stepSelectedPatchIndex(int *selectedPatchIndex, int delta, const Scene *scene);

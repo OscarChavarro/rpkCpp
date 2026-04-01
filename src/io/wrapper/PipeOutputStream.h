@@ -5,7 +5,7 @@
 
 #include "java/io/OutputStream.h"
 
-class PipeOutputStream : public java::io::OutputStream {
+class PipeOutputStream : public java::OutputStream {
   private:
     void *pipeHandle;
     static FILE *toFileHandle(void *handle);

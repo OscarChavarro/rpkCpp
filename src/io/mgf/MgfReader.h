@@ -6,19 +6,13 @@
 #include "io/context/EntityHandler.h"
 #include "io/context/HandlerType.h"
 
-namespace java {
-    namespace io {
-        class InputStream;
-    }
-}
-
 class MgfReader {
   public:
     static PersistedSceneModel *readMgf(const char *filename, ParseSession *context);
     static void mgfFreeMemory(ParseSession *context);
 
   private:
-    static int readInputLine(java::io::InputStream *inputStream, char *readBuffer, int maxLength);
+    static int readInputLine(java::InputStream *inputStream, char *readBuffer, int maxLength);
     static int mgfReadNextLine(const ParseSession *context);
     static int mgfParseCurrentLine(ParseSession *context);
     static void mgfClear(ParseSession *context);

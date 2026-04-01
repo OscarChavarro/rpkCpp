@@ -143,9 +143,9 @@ Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
     Polygon p2{};
 
     if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
-        java::lang::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
+        java::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
                 p1->n, MAXIMUM_SIDES_PER_POLYGON);
-        java::lang::System::exit(1);
+        java::System::exit(1);
     }
 
     // Count vertices "outside" with respect to each of the six planes

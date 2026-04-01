@@ -15,10 +15,8 @@
 #include "render/visualDebugTools/GlutDebugMode.h"
 #include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
 
-namespace {
-
 bool
-isGalerkinPatchIndex(const Scene *scene, int patchIndex) {
+GlutDebugToolsKeyControl::isGalerkinPatchIndex(const Scene *scene, int patchIndex) {
     if ( scene == nullptr || scene->patchList == nullptr ) {
         return false;
     }
@@ -32,8 +30,6 @@ isGalerkinPatchIndex(const Scene *scene, int patchIndex) {
     }
 
     return patch->radianceData->className == ElementTypes::ELEMENT_GALERKIN;
-}
-
 }
 
 void
@@ -68,18 +64,18 @@ GlutDebugToolsKeyControl::stepSelectedPatchIndex(
             return;
         }
         if ( nextPatchIndex >= patchCount ) {
-            if ( isGalerkinPatchIndex(scene, *selectedPatchIndex) ) {
+            if ( GlutDebugToolsKeyControl::isGalerkinPatchIndex(scene, *selectedPatchIndex) ) {
                 return;
             }
 
             int fallback = patchCount - 1;
-            while ( fallback >= 0 && !isGalerkinPatchIndex(scene, fallback) ) {
+            while ( fallback >= 0 && !GlutDebugToolsKeyControl::isGalerkinPatchIndex(scene, fallback) ) {
                 fallback--;
             }
             *selectedPatchIndex = fallback;
             return;
         }
-        if ( isGalerkinPatchIndex(scene, nextPatchIndex) ) {
+        if ( GlutDebugToolsKeyControl::isGalerkinPatchIndex(scene, nextPatchIndex) ) {
             *selectedPatchIndex = nextPatchIndex;
             return;
         }
@@ -118,7 +114,7 @@ GlutDebugToolsKeyControl::handleKeypress(
             if ( model.memoryFreeCallBack != nullptr ) {
                 model.memoryFreeCallBack(model.mgfContext);
             }
-            java::lang::System::exit(1);
+            java::System::exit(1);
             return false;
         case '0':
             GLOBAL_render_glutDebugState.showSelectedPathOnly = !GLOBAL_render_glutDebugState.showSelectedPathOnly;

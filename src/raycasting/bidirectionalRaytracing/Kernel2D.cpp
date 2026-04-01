@@ -131,7 +131,7 @@ Kernel2D::varCover(
         const float maxRatio = 20; // ???
         h = Bn * maxRatio * screenScale;
 
-        java::lang::System::out.printf("MaxRatio... h = %f\n", h / screenScale);
+        java::System::out.printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
     h = java::Math::max(1.0f * screenScale, h); // We want to cover at least one pixel...

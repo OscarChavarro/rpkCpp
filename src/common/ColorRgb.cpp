@@ -160,7 +160,7 @@ ColorRgb::clip() {
 }
 
 void
-ColorRgb::print(java::io::PrintStream *stream) const {
+ColorRgb::print(java::PrintStream *stream) const {
     if ( stream == nullptr ) {
         return;
     }

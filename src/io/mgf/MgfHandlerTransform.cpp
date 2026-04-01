@@ -494,7 +494,7 @@ MgfHandlerTransform::handleTransformationEntity(int ac, const char **av, ParseSe
                 if ( rv != ErrorCodeContext::MGF_OK ) {
                     return rv;
                 }
-                java::util::Formatter::format(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
+                java::Formatter::format(ap->transformArguments[n].arg, 8, "%d", ap->transformArguments[n].i);
                 transformName(ap, context);
             }
         }

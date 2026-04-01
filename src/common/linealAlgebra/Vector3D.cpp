@@ -22,7 +22,7 @@ Vector3D::dominantCoordinate() const {
 }
 
 void
-Vector3D::print(java::io::PrintStream *stream) const {
+Vector3D::print(java::PrintStream *stream) const {
     if ( stream == nullptr ) {
         return;
     }

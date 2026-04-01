@@ -190,7 +190,7 @@ Tracepath::tracePaths(
         pathCount += paths_this_patch;
     }
 
-    java::lang::System::err.printf("\n");
+    java::System::err.printf("\n");
     freePathNodes(&path);
 
     // updateCallBack radiance, compute new total and un-shot flux

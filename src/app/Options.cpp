@@ -131,14 +131,14 @@ int
 Options::optionsGetInt(void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
     if ( !Options::optionsGetArgumentIntValue(n) ) {
-        java::lang::System::err.printf("'%s' is not a valid integer value\n", Options::optionsCurrentArgumentValue());
+        java::System::err.printf("'%s' is not a valid integer value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
     return true;
 }
 
 void
-Options::optionsPrintInt(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintInt(java::PrintStream *stream, void *value, void * /*data*/) {
     int *n = static_cast<int *>(value);
     if ( stream != nullptr ) {
         stream->printf("%d", *n);
@@ -168,12 +168,12 @@ Options::optionsGetString(void *value, void * /*data*/) {
     if ( globalStringsToDelete != nullptr ) {
         globalStringsToDelete->add(*s);
     }
-    java::util::Formatter::format(*s, static_cast<int>(n), "%s", currentArgument);
+    java::Formatter::format(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
 }
 
 void
-Options::optionsPrintString(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintString(java::PrintStream *stream, void *value, void * /*data*/) {
     char **s = static_cast<char **>(value);
     if ( stream != nullptr ) {
         stream->printf("'%s'", *s ? *s : "");
@@ -214,7 +214,7 @@ Options::optionsCreateStringLengthStorage(int n) {
 }
 
 void
-Options::optionsStringPrint(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsStringPrint(java::PrintStream *stream, void *value, void * /*data*/) {
     const char *s = static_cast<const char *>(value);
     if ( stream != nullptr ) {
         stream->printf("'%s'", s ? s : "");
@@ -227,7 +227,7 @@ Enumerated type option values
 void
 Options::optionsPrintEnumValues(const EnumDesc *tab) {
     for ( int i = 0; tab != nullptr && tab[i].name != nullptr; i++ ) {
-        java::lang::System::err.printf("\t%s\n", tab[i].name);
+        java::System::err.printf("\t%s\n", tab[i].name);
     }
 }
 
@@ -246,13 +246,13 @@ Options::optionsEnumGet(void *value, void *data) {
             return true;
         }
     }
-    java::lang::System::err.printf("Invalid option argument '%s'. Should be one of:\n", currentArgument);
+    java::System::err.printf("Invalid option argument '%s'. Should be one of:\n", currentArgument);
     Options::optionsPrintEnumValues(tabSave);
     return false;
 }
 
 void
-Options::optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data) {
+Options::optionsEnumPrint(java::PrintStream *stream, void *value, void *data) {
     const int *v = static_cast<const int *>(value);
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
     if ( stream == nullptr ) {
@@ -306,7 +306,7 @@ Options::optionsSetFalse(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintOther(java::io::PrintStream *stream, void * /*x*/, void * /*data*/) {
+Options::optionsPrintOther(java::PrintStream *stream, void * /*x*/, void * /*data*/) {
     if ( stream != nullptr ) {
         stream->printf("%s", "other");
     }
@@ -332,14 +332,14 @@ int
 Options::optionsGetfloat(void *value, void * /*data*/) {
     float *x = static_cast<float *>(value);
     if ( !Options::optionsGetArgumentFloatValue("%f", x) ) {
-        java::lang::System::err.printf("'%s' is not a valid floating point value\n", Options::optionsCurrentArgumentValue());
+        java::System::err.printf("'%s' is not a valid floating point value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
     return true;
 }
 
 void
-Options::optionsPrintFloat(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintFloat(java::PrintStream *stream, void *value, void * /*data*/) {
     const float *x = static_cast<const float *>(value);
     if ( stream != nullptr ) {
         stream->printf("%g", *x);
@@ -369,14 +369,14 @@ Options::optionsGetVector(void *value, void * /*data*/) {
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->z);
     }
     if ( !ok ) {
-        java::lang::System::err.printf("invalid vector argument value");
+        java::System::err.printf("invalid vector argument value");
     }
 
     return ok;
 }
 
 void
-Options::optionsPrintVector(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintVector(java::PrintStream *stream, void *value, void * /*data*/) {
     const Vector3D *v = static_cast<const Vector3D *>(value);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->x, v->y, v->z);
@@ -406,14 +406,14 @@ Options::optionsGetRgb(void *value, void * /*data*/) {
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->b);
     }
     if ( !ok ) {
-        java::lang::System::err.printf("invalid RGB color argument value");
+        java::System::err.printf("invalid RGB color argument value");
     }
 
     return ok;
 }
 
 void
-Options::optionsPrintRgb(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintRgb(java::PrintStream *stream, void *value, void * /*data*/) {
     const ColorRgb *v = static_cast<const ColorRgb *>(value);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->r, v->g, v->b);
@@ -440,14 +440,14 @@ Options::optionsGetCieXy(void *value, void * /*data*/) {
         ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c[1]);
     }
     if ( !ok ) {
-        java::lang::System::err.printf("invalid CIE xy color argument value");
+        java::System::err.printf("invalid CIE xy color argument value");
     }
 
     return ok;
 }
 
 void
-Options::optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void * /*data*/) {
+Options::optionsPrintCieXyCallBack(java::PrintStream *stream, void *value, void * /*data*/) {
     const float *c = static_cast<const float *>(value);
     if ( stream != nullptr && c != nullptr ) {
         stream->printf("%g %g", c[0], c[1]);
@@ -514,7 +514,7 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
                         ok = false;
                     }
                 } else {
-                    java::lang::System::err.printf("Option argument missing.\n");
+                    java::System::err.printf("Option argument missing.\n");
                     ok = false;
                 }
             }

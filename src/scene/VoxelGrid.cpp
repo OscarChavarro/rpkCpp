@@ -51,7 +51,7 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
 
     const double p = java::Math::pow(geometry->itemCount, 0.33333) + 1;
     const short gridSize = static_cast<short>(java::Math::floor(p));
-    java::lang::System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
+    java::System::err.printf("Setting %d volumeListsOfItems in %d^3 cells level %d voxel grid ... \n", geometry->itemCount, gridSize, level);
     level++;
 
     putGeometryInsideVoxelGrid(geometry, gridSize, gridSize, gridSize);
@@ -244,7 +244,7 @@ void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
         Error::error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
-        java::lang::System::exit(1);
+        java::System::exit(1);
     }
 
     // Enlarge the getBoundingBox by a small amount
@@ -509,23 +509,23 @@ VoxelGrid::gridIntersect(
 
 void
 VoxelGrid::print() const {
-    java::lang::System::out.printf("DX: %d, DY: %d, DZ: %d\n", xSize, ySize, zSize);
+    java::System::out.printf("DX: %d, DY: %d, DZ: %d\n", xSize, ySize, zSize);
 
     for ( short z = 0; z < zSize; z++ ) {
-        java::lang::System::out.printf("Z level %d of %d\n", z + 1, zSize);
+        java::System::out.printf("Z level %d of %d\n", z + 1, zSize);
 
         for ( short y = 0; y < ySize; y++ ) {
-            java::lang::System::out.printf("  | ");
+            java::System::out.printf("  | ");
             for ( short x = 0; x < xSize; x++ ) {
                 const java::ArrayList<VoxelData *> *list = volumeListsOfItems[cellIndexAddress(z, y, x)];
                 if ( list == nullptr ) {
-                    java::lang::System::out.printf("[  ]");
+                    java::System::out.printf("[  ]");
                 } else {
-                    java::lang::System::out.printf("(%2ld)", list->size());
+                    java::System::out.printf("(%2ld)", list->size());
                 }
-                java::lang::System::out.printf(" ");
+                java::System::out.printf(" ");
             }
-            java::lang::System::out.printf(" |\n");
+            java::System::out.printf(" |\n");
         }
     }
 }

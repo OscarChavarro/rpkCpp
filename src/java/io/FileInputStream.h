@@ -7,7 +7,6 @@
 #include "java/io/InputStream.h"
 
 namespace java {
-namespace io {
 
 class FileInputStream : public InputStream {
   private:
@@ -33,7 +32,6 @@ class FileInputStream : public InputStream {
     dispose() override;
 };
 
-}
 }
 
 #endif

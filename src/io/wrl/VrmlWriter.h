@@ -15,10 +15,10 @@ class VrmlWriter {
     static void
     writeHeader(
         const Camera *camera,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const RenderOptions *renderOptions);
 
-    static void writeTrailer(java::io::OutputStream *outputStream);
+    static void writeTrailer(java::OutputStream *outputStream);
 
   private:
     static constexpr int MAXIMUM_CAMERA_STACK = 20;
@@ -35,17 +35,17 @@ class VrmlWriter {
         float *modelRotationAngle);
 
     static void writeViewPoint(
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const Matrix4x4 *modelTransform,
         const Camera *camera,
         const char *viewPointName);
 
     static void writeViewPoints(
         const Camera *camera,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const Matrix4x4 *modelTransform);
 
-    static void writeFormatted(java::io::OutputStream *outputStream, const char *format, ...);
+    static void writeFormatted(java::OutputStream *outputStream, const char *format, ...);
 };
 
 #endif

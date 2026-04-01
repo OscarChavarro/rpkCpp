@@ -13,10 +13,10 @@ Olaf Appeltants, March 2000
 */
 class PicOutputHandle final : public ImageOutputHandle {
   private:
-    java::io::OutputStream *outputStream;
+    java::OutputStream *outputStream;
 
-    static java::lang::String formatToString(const char *format, va_list arguments);
-    static void writeFormatted(java::io::OutputStream *outputStream, const char *format, ...);
+    static java::String formatToString(const char *format, va_list arguments);
+    static void writeFormatted(java::OutputStream *outputStream, const char *format, ...);
     void writeHeader();
 
   public:

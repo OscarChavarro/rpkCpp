@@ -4,11 +4,10 @@
 #include "java/lang/String.h"
 
 namespace java {
-namespace io {
 
 class File {
   private:
-    java::lang::String path;
+    java::String path;
 
     static bool
     isValidPath(const char *rawPath);
@@ -22,13 +21,13 @@ class File {
   public:
     File();
     explicit File(const char *path);
-    explicit File(const java::lang::String &path);
+    explicit File(const java::String &path);
     ~File();
 
     void
     dispose();
 
-    java::lang::String
+    java::String
     getName() const;
 
     bool
@@ -47,7 +46,6 @@ class File {
     canWrite() const;
 };
 
-}
 }
 
 #endif

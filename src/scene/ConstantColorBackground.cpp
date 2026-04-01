@@ -1,10 +1,5 @@
 #include "scene/ConstantColorBackground.h"
 
-namespace {
-static constexpr float FOUR_PI = 4.0f * static_cast<float>(java::Math::PI);
-static constexpr float INV_FOUR_PI = 1.0f / FOUR_PI;
-}
-
 ConstantColorBackground::ConstantColorBackground():
     color()
 {
@@ -33,7 +28,7 @@ ConstantColorBackground::radiance(
     float *probabilityDensityFunction) const
 {
     if ( probabilityDensityFunction != nullptr ) {
-        *probabilityDensityFunction = INV_FOUR_PI;
+        *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
     }
     return color;
 }
@@ -55,7 +50,7 @@ ConstantColorBackground::sample(
         *radianceValue = color;
     }
     if ( probabilityDensityFunction != nullptr ) {
-        *probabilityDensityFunction = INV_FOUR_PI;
+        *probabilityDensityFunction = ConstantColorBackground::INV_FOUR_PI;
     }
 
     Vector3D direction;
@@ -69,6 +64,6 @@ ConstantColorBackground::sample(
 ColorRgb
 ConstantColorBackground::power(Vector3D * /*position*/) const {
     ColorRgb emittedPower;
-    emittedPower.scaledCopy(FOUR_PI, color);
+    emittedPower.scaledCopy(ConstantColorBackground::FOUR_PI, color);
     return emittedPower;
 }

@@ -21,24 +21,24 @@ PersistenceElement::signedByte2unsignedInteger(unsigned char value) {
 }
 
 int
-PersistenceElement::readByteInt(java::io::InputStream &is) {
+PersistenceElement::readByteInt(java::InputStream &is) {
     readBytes(is, byteBuffer1byte, 1);
     return static_cast<int>(static_cast<signed char>(byteBuffer1byte[0]));
 }
 
 int
-PersistenceElement::readByteUnsignedInt(java::io::InputStream &is) {
+PersistenceElement::readByteUnsignedInt(java::InputStream &is) {
     readBytes(is, byteBuffer1byte, 1);
     return signedByte2unsignedInteger(byteBuffer1byte[0]);
 }
 
 void
-PersistenceElement::writeByte(java::io::OutputStream &os, unsigned char value) {
+PersistenceElement::writeByte(java::OutputStream &os, unsigned char value) {
     writeBytes(os, &value, 1);
 }
 
 void
-PersistenceElement::writeBool(java::io::OutputStream &os, bool value) {
+PersistenceElement::writeBool(java::OutputStream &os, bool value) {
     writeByte(os, static_cast<unsigned char>(value ? 1 : 0));
 }
 
@@ -50,7 +50,7 @@ enough information to read, this method generates an Exception.
 @param bytesBuffer
 */
 void
-PersistenceElement::readBytes(java::io::InputStream &is, unsigned char *bytesBuffer, int length) {
+PersistenceElement::readBytes(java::InputStream &is, unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
         Error::error("PersistenceElement::readBytes", "%s", "invalid buffer");
         return;
@@ -79,7 +79,7 @@ enough information to read, this method generates an Exception.
 @param bytesBuffer
 */
 void
-PersistenceElement::writeBytes(java::io::OutputStream &os, const unsigned char *bytesBuffer, int length) {
+PersistenceElement::writeBytes(java::OutputStream &os, const unsigned char *bytesBuffer, int length) {
     if ( bytesBuffer == nullptr || length < 0 ) {
         Error::error("PersistenceElement::writeBytes", "%s", "invalid arguments");
         return;
@@ -435,26 +435,26 @@ PersistenceElement::byteArray2doubleBE(const unsigned char *arr, int start) {
 }
 
 int
-PersistenceElement::readSignedShortLE(java::io::InputStream &is) {
+PersistenceElement::readSignedShortLE(java::InputStream &is) {
     readBytes(is, byteBuffer2byte, 2);
     return byteArray2signedShortLE(byteBuffer2byte, 0);
 }
 
 int
-PersistenceElement::readSignedShortBE(java::io::InputStream &is) {
+PersistenceElement::readSignedShortBE(java::InputStream &is) {
     unsigned char arr[2] = {0, 0};
     readBytes(is, arr, 2);
     return byteArray2signedShortBE(arr, 0);
 }
 
 void
-PersistenceElement::writeSignedShortBE(java::io::OutputStream &os, int num) {
+PersistenceElement::writeSignedShortBE(java::OutputStream &os, int num) {
     signedShort2byteArrayBE(byteBuffer2byte, 0, num);
     writeBytes(os, byteBuffer2byte, 2);
 }
 
 void
-PersistenceElement::writeSignedShortLE(java::io::OutputStream &os, int num) {
+PersistenceElement::writeSignedShortLE(java::OutputStream &os, int num) {
     signedShort2byteArrayLE(byteBuffer2byte, 0, num);
     writeBytes(os, byteBuffer2byte, 2);
 }
@@ -465,18 +465,18 @@ Pending to check. Is this really managing 64 bit long integers?
 @return
 */
 long
-PersistenceElement::readLongLE(java::io::InputStream &is) {
+PersistenceElement::readLongLE(java::InputStream &is) {
     readBytes(is, bytesForLong, 4);
     return byteArray2longLE(bytesForLong, 0);
 }
 
 void
-PersistenceElement::writeInt32LE(java::io::OutputStream &os, int num) {
+PersistenceElement::writeInt32LE(java::OutputStream &os, int num) {
     writeLongLE(os, static_cast<long>(num));
 }
 
 void
-PersistenceElement::writeInt64LE(java::io::OutputStream &os, long long num) {
+PersistenceElement::writeInt64LE(java::OutputStream &os, long long num) {
     const unsigned long long bits = static_cast<unsigned long long>(num);
     const int low = static_cast<int>(bits & 0xFFFFFFFFULL);
     const int high = static_cast<int>((bits >> 32) & 0xFFFFFFFFULL);
@@ -485,7 +485,7 @@ PersistenceElement::writeInt64LE(java::io::OutputStream &os, long long num) {
 }
 
 void
-PersistenceElement::writeDoubleLE(java::io::OutputStream &os, double num) {
+PersistenceElement::writeDoubleLE(java::OutputStream &os, double num) {
     unsigned long long bits = 0;
     std::memcpy(&bits, &num, sizeof(double));
     writeInt64LE(os, static_cast<long long>(bits));
@@ -497,31 +497,31 @@ Pending to check. Is this really managing 64 bit long integers?
 @return
 */
 long
-PersistenceElement::readLongBE(java::io::InputStream &is) {
+PersistenceElement::readLongBE(java::InputStream &is) {
     readBytes(is, bytesForLong, 4);
     return byteArray2longBE(bytesForLong, 0);
 }
 
 float
-PersistenceElement::readFloatLE(java::io::InputStream &is) {
+PersistenceElement::readFloatLE(java::InputStream &is) {
     readBytes(is, byteBuffer4byte, 4);
     return byteArray2floatLE(byteBuffer4byte, 0);
 }
 
 double
-PersistenceElement::readDoubleLE(java::io::InputStream &is) {
+PersistenceElement::readDoubleLE(java::InputStream &is) {
     readBytes(is, byteBuffer8byte, 8);
     return byteArray2doubleLE(byteBuffer8byte, 0);
 }
 
 double
-PersistenceElement::readDoubleBE(java::io::InputStream &is) {
+PersistenceElement::readDoubleBE(java::InputStream &is) {
     readBytes(is, byteBuffer8byte, 8);
     return byteArray2doubleBE(byteBuffer8byte, 0);
 }
 
 float
-PersistenceElement::readFloatBE(java::io::InputStream &is) {
+PersistenceElement::readFloatBE(java::InputStream &is) {
     readBytes(is, byteBuffer4byte, 4);
     const long i = byteArray2longBE(byteBuffer4byte, 0);
     const unsigned int j = static_cast<unsigned int>(i);
@@ -531,19 +531,19 @@ PersistenceElement::readFloatBE(java::io::InputStream &is) {
 }
 
 void
-PersistenceElement::writeFloatBE(java::io::OutputStream &os, float num) {
+PersistenceElement::writeFloatBE(java::OutputStream &os, float num) {
     float2byteArrayBE(byteBuffer4byte, 0, num);
     writeBytes(os, byteBuffer4byte, 4);
 }
 
 void
-PersistenceElement::writeFloatLE(java::io::OutputStream &os, float num) {
+PersistenceElement::writeFloatLE(java::OutputStream &os, float num) {
     float2byteArrayLE(byteBuffer4byte, 0, num);
     writeBytes(os, byteBuffer4byte, 4);
 }
 
 void
-PersistenceElement::writeLongBE(java::io::OutputStream &os, long num) {
+PersistenceElement::writeLongBE(java::OutputStream &os, long num) {
     if ( bigEndianArchitecture ) {
         signedInt2byteArrayDirect(bytesForLong, 0, num);
     }
@@ -552,7 +552,7 @@ PersistenceElement::writeLongBE(java::io::OutputStream &os, long num) {
 }
 
 void
-PersistenceElement::writeLongLE(java::io::OutputStream &os, long num) {
+PersistenceElement::writeLongLE(java::OutputStream &os, long num) {
     if ( bigEndianArchitecture ) {
         signedInt2byteArrayInvert(bytesForLong, 0, num);
     }
@@ -561,7 +561,7 @@ PersistenceElement::writeLongLE(java::io::OutputStream &os, long num) {
 }
 
 char *
-PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size) {
+PersistenceElement::readAsciiFixedSizeString(java::InputStream &is, int size) {
     if ( size <= 0 ) {
         return duplicateCString("");
     }
@@ -584,7 +584,7 @@ PersistenceElement::readAsciiFixedSizeString(java::io::InputStream &is, int size
 }
 
 char *
-PersistenceElement::readAsciiString(java::io::InputStream &is) {
+PersistenceElement::readAsciiString(java::InputStream &is) {
     unsigned char character[1] = {0};
     java::ArrayList<unsigned char> bytes(64);
 
@@ -626,7 +626,7 @@ PersistenceElement::buildUtf8Char(const unsigned char arr[2], unsigned char outB
 }
 
 char *
-PersistenceElement::readUtf8String(java::io::InputStream &is) {
+PersistenceElement::readUtf8String(java::InputStream &is) {
     unsigned char character[1] = {0};
     unsigned char pair[2] = {0, 0};
     unsigned char utf8Char[2] = {0, 0};
@@ -653,7 +653,7 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
                     return duplicateCString("");
                 }
             } else {
-                java::lang::System::err.print("* UNHANDLED UTF sequence while reading UTF-8 string\n");
+                java::System::err.print("* UNHANDLED UTF sequence while reading UTF-8 string\n");
             }
         }
     } while ( character[0] != 0x00 );
@@ -672,7 +672,7 @@ PersistenceElement::readUtf8String(java::io::InputStream &is) {
 }
 
 char *
-PersistenceElement::readUtf8Line(java::io::InputStream &is) {
+PersistenceElement::readUtf8Line(java::InputStream &is) {
     unsigned char character[1] = {0};
     unsigned char pair[2] = {0, 0};
     unsigned char utf8Char[2] = {0, 0};
@@ -719,7 +719,7 @@ PersistenceElement::readUtf8Line(java::io::InputStream &is) {
 }
 
 char *
-PersistenceElement::readAsciiLine(java::io::InputStream &is) {
+PersistenceElement::readAsciiLine(java::InputStream &is) {
     unsigned char character[1] = {0};
     java::ArrayList<unsigned char> bytes(64);
 
@@ -765,7 +765,7 @@ PersistenceElement::isInSet(unsigned char key, const unsigned char *set, int set
 }
 
 char *
-PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned char *separators, int separatorsLength) {
+PersistenceElement::readAsciiToken(java::InputStream &is, const unsigned char *separators, int separatorsLength) {
     unsigned char character[1] = {0};
     java::ArrayList<unsigned char> bytes(64);
 
@@ -796,7 +796,7 @@ PersistenceElement::readAsciiToken(java::io::InputStream &is, const unsigned cha
 }
 
 void
-PersistenceElement::writeAsciiString(java::io::OutputStream &writer, const char *cad) {
+PersistenceElement::writeAsciiString(java::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -807,7 +807,7 @@ PersistenceElement::writeAsciiString(java::io::OutputStream &writer, const char 
 }
 
 void
-PersistenceElement::writeUtf8String(java::io::OutputStream &writer, const char *cad) {
+PersistenceElement::writeUtf8String(java::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -818,7 +818,7 @@ PersistenceElement::writeUtf8String(java::io::OutputStream &writer, const char *
 }
 
 void
-PersistenceElement::writeAsciiLine(java::io::OutputStream &writer, const char *cad) {
+PersistenceElement::writeAsciiLine(java::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -829,7 +829,7 @@ PersistenceElement::writeAsciiLine(java::io::OutputStream &writer, const char *c
 }
 
 void
-PersistenceElement::writeUtf8Line(java::io::OutputStream &writer, const char *cad) {
+PersistenceElement::writeUtf8Line(java::OutputStream &writer, const char *cad) {
     const char *text = cad == nullptr ? "" : cad;
     const int textLength = static_cast<int>(std::strlen(text));
     if ( textLength > 0 ) {
@@ -946,7 +946,7 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 
                 char *fullPath = joinCString3(token, "/", nativeLibname);
                 if ( fullPath != nullptr ) {
-                    java::io::File candidate(fullPath);
+                    java::File candidate(fullPath);
                     if ( candidate.exists() && candidate.canRead() && candidate.isFile() ) {
                         std::free(fullPath);
                         std::free(token);
@@ -970,13 +970,13 @@ PersistenceElement::containsExistingLibrary(const char *pathList, char pathSepar
 bool
 PersistenceElement::checkDirectory(const char *dirName) {
     if ( dirName == nullptr || dirName[0] == '\0' ) {
-        java::lang::System::err.print("Directory name is empty.\n");
+        java::System::err.print("Directory name is empty.\n");
         return false;
     }
 
-    java::io::File directory(dirName);
+    java::File directory(dirName);
     if ( !directory.exists() || !directory.isDirectory() || !directory.canRead() || !directory.canWrite() ) {
-        java::lang::System::err.printf(
+        java::System::err.printf(
             "Directory %s is not accessible and automatic creation is disabled.\n",
             dirName);
         return false;
@@ -993,8 +993,8 @@ more than one dot.  Needs to be fixed.
 @return file extension
 */
 char *
-PersistenceElement::extractExtensionFromFile(const java::io::File &fd) {
-    java::lang::String javaFilename = fd.getName();
+PersistenceElement::extractExtensionFromFile(const java::File &fd) {
+    java::String javaFilename = fd.getName();
     const char *raw = javaFilename.toCString();
     if ( raw == nullptr || raw[0] == '\0' ) {
         javaFilename.dispose();

@@ -42,7 +42,7 @@ class ImageOutputHandle {
     static ImageOutputHandle *
     createRadianceImageOutputHandle(
         const char *fileName,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         int isPipe,
         int width,
         int height);
@@ -50,7 +50,7 @@ class ImageOutputHandle {
     static ImageOutputHandle *
     createImageOutputHandle(
         const char *fileName,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         int isPipe,
         int width,
         int height);

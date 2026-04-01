@@ -2,10 +2,9 @@
 
 namespace java {
 
-namespace {
-
+template <class K, class V>
 inline size_t
-hashFNV1a(const unsigned char *bytes, size_t length) {
+HashMap<K, V>::hashFNV1a(const unsigned char *bytes, size_t length) {
     const size_t offset = static_cast<size_t>(1469598103934665603ULL);
     const size_t prime = static_cast<size_t>(1099511628211ULL);
     size_t hash = offset;
@@ -16,24 +15,25 @@ hashFNV1a(const unsigned char *bytes, size_t length) {
     return hash;
 }
 
+template <class K, class V>
 template <class T>
 inline size_t
-hashKeyValue(const T &value) {
-    return hashFNV1a(reinterpret_cast<const unsigned char *>(&value), sizeof(T));
+HashMap<K, V>::hashKeyValue(const T &value) {
+    return HashMap<K, V>::hashFNV1a(reinterpret_cast<const unsigned char *>(&value), sizeof(T));
 }
 
+template <class K, class V>
 template <class T>
 inline size_t
-hashKeyValue(T *const &value) {
+HashMap<K, V>::hashKeyValue(T *const &value) {
     return reinterpret_cast<size_t>(value);
 }
 
+template <class K, class V>
 template <class T>
 inline size_t
-hashKeyValue(const T *const &value) {
+HashMap<K, V>::hashKeyValue(const T *const &value) {
     return reinterpret_cast<size_t>(value);
-}
-
 }
 
 template <class K, class V>

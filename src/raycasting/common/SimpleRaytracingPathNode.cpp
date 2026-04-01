@@ -26,7 +26,7 @@ SimpleRaytracingPathNode::~SimpleRaytracingPathNode() {
 }
 
 void
-SimpleRaytracingPathNode::print(java::io::PrintStream *out) const {
+SimpleRaytracingPathNode::print(java::PrintStream *out) const {
     if ( out == nullptr ) {
         return;
     }

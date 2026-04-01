@@ -527,8 +527,8 @@ Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMet
         if ( radianceMethod->className == GALERKIN ) {
             GalerkinOpenGLRenderer::renderScene(scene, renderOptions);
         } else {
-            java::lang::System::err.println("OpenGL supports only rendering of Galerkin patches");
-            java::lang::System::exit(1);
+            java::System::err.println("OpenGL supports only rendering of Galerkin patches");
+            java::System::exit(1);
         }
     } else if ( renderOptions->frustumCulling ) {
         Opengl::openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);

@@ -10,18 +10,18 @@ void
 Error::error(const char *routine, const char *text, ...) {
     va_list variableList;
 
-    java::lang::System::err.printf("Error: ");
+    java::System::err.printf("Error: ");
     if ( routine ) {
-        java::lang::System::err.printf("%s(): ", routine);
+        java::System::err.printf("%s(): ", routine);
     }
 
     va_start(variableList, text);
-    const java::lang::String message = java::lang::String::formatCStringToJavaString(text, variableList);
+    const java::String message = java::String::formatCStringToJavaString(text, variableList);
     va_end(variableList);
-    java::lang::System::err.print(message.toCString());
+    java::System::err.print(message.toCString());
 
-    java::lang::System::err.printf(".\n");
-    java::lang::System::err.flush();
+    java::System::err.printf(".\n");
+    java::System::err.flush();
 }
 
 /**
@@ -33,20 +33,20 @@ First argument is a return code. We use negative return codes for
 Error::fatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 
-    java::lang::System::err.printf("logFatal error: ");
+    java::System::err.printf("logFatal error: ");
     if ( routine ) {
-        java::lang::System::err.printf("%s(): ", routine);
+        java::System::err.printf("%s(): ", routine);
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::lang::String::formatCStringToJavaString(text, pvar);
+    const java::String message = java::String::formatCStringToJavaString(text, pvar);
     va_end(pvar);
-    java::lang::System::err.print(message.toCString());
+    java::System::err.print(message.toCString());
 
-    java::lang::System::err.printf(".\n");
-    java::lang::System::err.flush();
+    java::System::err.printf(".\n");
+    java::System::err.flush();
 
-    java::lang::System::exit(errcode);
+    java::System::exit(errcode);
 }
 
 /**
@@ -56,16 +56,16 @@ void
 Error::warning(const char *routine, const char *text, ...) {
     va_list pvar;
 
-    java::lang::System::err.printf("Warning: ");
+    java::System::err.printf("Warning: ");
     if ( routine ) {
-        java::lang::System::err.printf("%s(): ", routine);
+        java::System::err.printf("%s(): ", routine);
     }
 
     va_start(pvar, text);
-    const java::lang::String message = java::lang::String::formatCStringToJavaString(text, pvar);
+    const java::String message = java::String::formatCStringToJavaString(text, pvar);
     va_end(pvar);
-    java::lang::System::err.print(message.toCString());
+    java::System::err.print(message.toCString());
 
-    java::lang::System::err.printf(".\n");
-    java::lang::System::err.flush();
+    java::System::err.printf(".\n");
+    java::System::err.flush();
 }

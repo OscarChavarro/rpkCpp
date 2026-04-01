@@ -29,6 +29,9 @@ class ConstantColorBackground : public Background {
     power(Vector3D *position) const override;
 
   private:
+    static constexpr float FOUR_PI = 12.56637061435917295385f;
+    static constexpr float INV_FOUR_PI = 0.07957747154594766788f;
+
     ColorRgb color;
 };
 

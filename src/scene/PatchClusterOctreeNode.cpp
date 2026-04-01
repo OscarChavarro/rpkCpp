@@ -248,27 +248,27 @@ void
 PatchClusterOctreeNode::print(const int level) const {
     switch ( level ) {
         case 0:
-            java::lang::System::out.printf("= PatchClusterOctreeNode ================================================================\n");
+            java::System::out.printf("= PatchClusterOctreeNode ================================================================\n");
             break;
         case 1:
-            java::lang::System::out.printf("  - ");
+            java::System::out.printf("  - ");
             break;
         case 2:
-            java::lang::System::out.printf("    . ");
+            java::System::out.printf("    . ");
             break;
         default:
-            java::lang::System::out.printf("      (%d) ", level);
+            java::System::out.printf("      (%d) ", level);
             for ( int i = 3; i < level; i++ ) {
-                java::lang::System::out.printf(" ");
+                java::System::out.printf(" ");
             }
-            java::lang::System::out.printf("-> ");
+            java::System::out.printf("-> ");
             break;
     }
-    java::lang::System::out.printf("%ld patches: ", patches->size());
+    java::System::out.printf("%ld patches: ", patches->size());
     for ( int i = 0; i < patches->size(); i++ ) {
-        java::lang::System::out.printf("[%d]", patches->get(i)->id);
+        java::System::out.printf("[%d]", patches->get(i)->id);
     }
-    java::lang::System::out.printf("\n");
+    java::System::out.printf("\n");
     for ( int i = 0; i < 8; i++ ) {
         if ( children[i] != nullptr ) {
             children[i]->print(level + 1);

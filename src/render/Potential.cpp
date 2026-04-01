@@ -134,15 +134,15 @@ Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Pat
 
 void
 Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
-    const long long t = java::lang::System::nanoTime();
+    const long long t = java::System::nanoTime();
     SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
     SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
     Potential::softGetPatchPointers(currentSglContext, scene->patchList);
     delete currentSglContext;
 
-    java::lang::System::err.printf("Determining visible patches in software took %g sec\n",
-        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
+    java::System::err.printf("Determining visible patches in software took %g sec\n",
+        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
 }
 
 /**

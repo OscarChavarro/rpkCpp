@@ -1,7 +1,6 @@
 #include "java/io/OutputStream.h"
 
 namespace java {
-namespace io {
 
 void
 OutputStream::flush() {
@@ -14,5 +13,4 @@ OutputStream::dispose() {
 
 OutputStream::~OutputStream() = default;
 
-}
 }

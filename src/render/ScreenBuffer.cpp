@@ -151,7 +151,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         sync();
     }
 
-    java::lang::System::err.printf("Writing %s file ... ", ip->driverName);
+    java::System::err.printf("Writing %s file ... ", ip->driverName);
 
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
     ip->setToneMappingContext(&activeToneMapOptions);
@@ -167,7 +167,7 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         }
     }
 
-    java::lang::System::err.printf("done.\n");
+    java::System::err.printf("done.\n");
 }
 
 void
@@ -404,7 +404,7 @@ ScreenBuffer::setRgbImage(bool isRGB) {
 }
 
 void
-ScreenBuffer::writeFile(const char *fileName, java::io::OutputStream *outputStream, int isPipe) {
+ScreenBuffer::writeFile(const char *fileName, java::OutputStream *outputStream, int isPipe) {
     if ( outputStream == nullptr ) {
         return;
     }
@@ -425,7 +425,7 @@ ScreenBuffer::writeFile(const char *fileName, java::io::OutputStream *outputStre
 void
 ScreenBuffer::writeFile(const char *fileName) {
     int isPipe = 0;
-    java::io::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
+    java::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
     if ( outputStream == nullptr ) {
         return;
     }

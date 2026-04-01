@@ -13,6 +13,20 @@ class GlutDebugToolsMouseControl final {
     static bool handleMouseMotion(int x, int y, GlutDebugToolsModel &model);
 
   private:
+    static constexpr int DRAG_START_THRESHOLD_PIXELS = 3;
+    static constexpr float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25f;
+    static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846f / 180.0f;
+
+    static bool leftButtonDown;
+    static bool dragging;
+    static bool pressWithShift;
+    static int pressX;
+    static int pressY;
+    static int lastX;
+    static int lastY;
+
+    static bool applyPatchSelection(int pickedPatchIndex, int *selectedPatch);
+    static void syncCameraToViewport(const GlutDebugToolsModel &model);
     static void buildPickRay(const GlutDebugToolsModel &model, int x, int y, Ray *ray);
     static bool pickPatchAtMousePosition(const GlutDebugToolsModel &model, int x, int y, int *patchIndex);
     static void applyInverseDebugRotationToRay(const GlutDebugToolsModel &model, Ray *ray);

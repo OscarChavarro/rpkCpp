@@ -56,7 +56,7 @@ parallel support handlers to assist in this effort.
 Read next line from file
 */
 int
-MgfReader::readInputLine(java::io::InputStream *inputStream, char *readBuffer, int maxLength) {
+MgfReader::readInputLine(java::InputStream *inputStream, char *readBuffer, int maxLength) {
     if ( inputStream == nullptr || readBuffer == nullptr || maxLength <= 0 ) {
         return 0;
     }
@@ -82,7 +82,7 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
     }
 
     int len = 0;
-    java::lang::StringBuilder lineBuilder;
+    java::StringBuilder lineBuilder;
     char readBuffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
 
     do {
@@ -93,7 +93,7 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
         }
         const int readLength = readInputLine(context->readerContext->inputStream, readBuffer, maxLength);
         if ( readLength <= 0 ) {
-            java::lang::String line = lineBuilder.toString();
+            java::String line = lineBuilder.toString();
             strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
             context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             line.dispose();
@@ -104,7 +104,7 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
         lineBuilder.append(readBuffer, readLength);
         len = lineBuilder.length();
         if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-            java::lang::String line = lineBuilder.toString();
+            java::String line = lineBuilder.toString();
             strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
             context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             line.dispose();
@@ -114,7 +114,7 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
         context->readerContext->lineNumber++;
     } while ( len > 1 && lineBuilder.charAt(len - 2) == '\\' );
 
-    java::lang::String line = lineBuilder.toString();
+    java::String line = lineBuilder.toString();
     strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
     context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
     line.dispose();
@@ -129,12 +129,12 @@ Parse current input line
 int
 MgfReader::mgfParseCurrentLine(ParseSession *context) {
     const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
-    java::lang::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
+    java::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
     int argc = 0;
 
     // Copy line, removing escape chars
-    java::lang::StringBuilder buffer;
-    java::lang::String inputLine(context->readerContext->inputLine);
+    java::StringBuilder buffer;
+    java::String inputLine(context->readerContext->inputLine);
     for ( int i = 0; i < inputLine.length(); i++ ) {
         const char current = inputLine.charAt(i);
         const char next = inputLine.charAt(i + 1);
@@ -144,7 +144,7 @@ MgfReader::mgfParseCurrentLine(ParseSession *context) {
         buffer.append(current);
     }
 
-    java::util::StringTokenizer tokenizer(buffer.toString(), " \t\r\n\f\v");
+    java::StringTokenizer tokenizer(buffer.toString(), " \t\r\n\f\v");
     while ( tokenizer.hasMoreTokens() ) {
         if ( argc >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
             for ( int i = 0; i < argc; i++ ) {
@@ -233,14 +233,14 @@ MgfReader::mgfPutCSpec(ParseSession *context)
     const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
     if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
-        java::util::Formatter::format(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
-        java::util::Formatter::format(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
+        java::Formatter::format(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
+        java::Formatter::format(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[EntityContext::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         const double sf = static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
         for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            java::util::Formatter::format(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
+            java::Formatter::format(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
@@ -265,8 +265,8 @@ MgfReader::mgfPutCxy(ParseSession *context) {
         yBuffer
     };
 
-    java::util::Formatter::format(xBuffer, 24, "%.4f", context->currentColor->cx);
-    java::util::Formatter::format(yBuffer, 24, "%.4f", context->currentColor->cy);
+    java::Formatter::format(xBuffer, 24, "%.4f", context->currentColor->cx);
+    java::Formatter::format(yBuffer, 24, "%.4f", context->currentColor->cy);
     return MgfDefinitions::mgfHandle(EntityContext::CXY, 3, cCom, context);
 }
 
@@ -354,14 +354,14 @@ MgfReader::handleIncludedFile(int ac, const char **av, ParseSession *context) {
     do {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
-                java::lang::System::err.printf("%s: %d: %s\n", readerContext.fileName,
+                java::System::err.printf("%s: %d: %s\n", readerContext.fileName,
                     readerContext.lineNumber, context->errorCodeMessages[ErrorCodeContext::MGF_ERROR_LINE_TOO_LONG]);
                 MgfDefinitions::mgfClose(context);
                 return ErrorCodeContext::MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
             if ( rv != ErrorCodeContext::MGF_OK ) {
-                java::lang::System::err.printf("%s: %d: %s:\n%s", readerContext.fileName,
+                java::System::err.printf("%s: %d: %s:\n%s", readerContext.fileName,
                         readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
                 MgfDefinitions::mgfClose(context);
@@ -527,9 +527,9 @@ MgfReader::mgfAlternativeInit(
     }
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
-            java::lang::System::err.printf("Missing support for \"%s\" entity\n",
+            java::System::err.printf("Missing support for \"%s\" entity\n",
                 context->entityNames[i]);
-            java::lang::System::exit(1);
+            java::System::exit(1);
         }
     }
 
@@ -696,7 +696,7 @@ MgfReader::readMgf(const char *filename, ParseSession *context) {
 void
 MgfReader::mgfFreeMemory(ParseSession *context) {
     if ( context->currentGeometryList != nullptr ) {
-        java::lang::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
+        java::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;
         long patchSets = 0;
         long compounds = 0;
@@ -719,13 +719,13 @@ MgfReader::mgfFreeMemory(ParseSession *context) {
                 unknowns++;
             }
         }
-        java::lang::System::out.printf("  - MeshSurfaces: %ld\n", surfaces);
-        java::lang::System::out.printf("  - Patch sets: %ld\n", patchSets);
-        java::lang::System::out.printf("  - Compounds: %ld\n", compounds);
-        java::lang::System::out.printf("    . Children: %ld\n", compoundChildren);
-        java::lang::System::out.printf("    . Inner children: %ld\n", innerCompoundChildren);
-        java::lang::System::out.printf("  - Unknowns: %ld\n", unknowns);
-        java::lang::System::out.flush();
+        java::System::out.printf("  - MeshSurfaces: %ld\n", surfaces);
+        java::System::out.printf("  - Patch sets: %ld\n", patchSets);
+        java::System::out.printf("  - Compounds: %ld\n", compounds);
+        java::System::out.printf("    . Children: %ld\n", compoundChildren);
+        java::System::out.printf("    . Inner children: %ld\n", innerCompoundChildren);
+        java::System::out.printf("  - Unknowns: %ld\n", unknowns);
+        java::System::out.flush();
     }
 
     if ( context->allGeometries != nullptr ) {

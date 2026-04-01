@@ -48,7 +48,7 @@ class RayCaster final : public RayTracer {
     static void
     rayCast(
         const char *fileName,
-        java::io::OutputStream *stream,
+        java::OutputStream *stream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,

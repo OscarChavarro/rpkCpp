@@ -26,35 +26,35 @@ Galerkin radiosity, with the following variants:
 static constexpr int STRING_LENGTH = 2000;
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
-java::io::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
+java::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
 int GalerkinRadianceMethod::numberOfWrites = 0;
 int GalerkinRadianceMethod::vertexId = 0;
 
-java::lang::String
+java::String
 GalerkinRadianceMethod::formatToString(const char *format, va_list arguments) {
     if ( format == nullptr ) {
-        return java::lang::String();
+        return java::String();
     }
 
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    const int required = java::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
     va_end(argumentsCopy);
 
     if ( required < 0 ) {
-        return java::lang::String();
+        return java::String();
     }
     if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        return java::lang::String(localBuffer);
+        return java::String(localBuffer);
     }
 
     char *dynamicBuffer = new char[required + 1];
     va_copy(argumentsCopy, arguments);
-    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    java::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
     va_end(argumentsCopy);
 
-    java::lang::String result(dynamicBuffer);
+    java::String result(dynamicBuffer);
     delete[] dynamicBuffer;
     return result;
 }
@@ -67,7 +67,7 @@ GalerkinRadianceMethod::writeFormatted(const char *format, ...) {
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = GalerkinRadianceMethod::formatToString(format, arguments);
+    java::String text = GalerkinRadianceMethod::formatToString(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -88,7 +88,7 @@ GalerkinRadianceMethod::appendStatsText(char *buffer, int *offset, const char *f
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = GalerkinRadianceMethod::formatToString(format, arguments);
+    java::String text = GalerkinRadianceMethod::formatToString(format, arguments);
     va_end(arguments);
 
     const int written = text.length();
@@ -257,7 +257,7 @@ For counting how much CPU time was used for the computations
 */
 void
 GalerkinRadianceMethod::updateCpuSecs() {
-    const long long t = java::lang::System::nanoTime();
+    const long long t = java::System::nanoTime();
     galerkinState.cpuSeconds += static_cast<float>(static_cast<double>(t - galerkinState.lastClock) / 1000000000.0);
     galerkinState.lastClock = t;
 }
@@ -381,7 +381,7 @@ GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
     }
 
     galerkinState.iterationNumber++;
-    galerkinState.lastClock = java::lang::System::nanoTime();
+    galerkinState.lastClock = java::System::nanoTime();
 
     // And now the real work
     int done;
@@ -519,7 +519,7 @@ GalerkinRadianceMethod::getStats() {
 void
 GalerkinRadianceMethod::writeVRML(
     const Camera *camera,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const RenderOptions *renderOptions) const
 {
     if ( outputStream == nullptr ) {

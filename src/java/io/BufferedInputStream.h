@@ -5,7 +5,6 @@
 #include "java/io/InputStream.h"
 
 namespace java {
-namespace io {
 
 class BufferedInputStream : public InputStream {
   protected:
@@ -28,7 +27,6 @@ class BufferedInputStream : public InputStream {
     dispose() override;
 };
 
-}
 }
 
 #endif

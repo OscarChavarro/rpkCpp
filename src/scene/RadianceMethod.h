@@ -53,7 +53,7 @@ class RadianceMethod {
     virtual void
     writeVRML(
         const Camera *camera,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const RenderOptions *renderOptions) const = 0;
 };
 

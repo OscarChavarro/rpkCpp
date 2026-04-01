@@ -300,7 +300,7 @@ Ccr::determineControlRadiosity(
         return beta;
     }
 
-    java::lang::System::err.printf("Determining optimal control radiosity value ... ");
+    java::System::err.printf("Determining optimal control radiosity value ... ");
     initialControlRadiosity(&minRad, &maxRad, &fMin, &fMax, scenePatches);
 
     delta.subtract(fMax, fMin);
@@ -314,9 +314,9 @@ Ccr::determineControlRadiosity(
 
     beta.add(minRad, maxRad);
     beta.scale(0.5);
-    beta.print(&java::lang::System::err);
-    java::lang::System::err.printf(" (%g lux)", M_PI * beta.luminance());
-    java::lang::System::err.printf("\n");
+    beta.print(&java::System::err);
+    java::System::err.printf(" (%g lux)", M_PI * beta.luminance());
+    java::System::err.printf("\n");
     return beta;
 }
 

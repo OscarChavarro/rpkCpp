@@ -44,7 +44,7 @@ BinaryModelWriter::safeLabel(const char *text) {
 }
 
 bool
-BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsigned char *data, long long length) {
+BinaryModelWriter::writeBytesChunked(java::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
         Error::error("BinaryModelWriter::writeBytesChunked", "Negative block length");
         return false;
@@ -61,7 +61,7 @@ BinaryModelWriter::writeBytesChunked(java::io::OutputStream &output, const unsig
 }
 
 void
-BinaryModelWriter::writeTag(java::io::OutputStream &output, const char tag[4]) {
+BinaryModelWriter::writeTag(java::OutputStream &output, const char tag[4]) {
     vsdk::PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(tag),
@@ -80,7 +80,7 @@ BinaryModelWriter::checkedLongToInt32(long value, const char *what, int &result)
 }
 
 bool
-BinaryModelWriter::writeString(java::io::OutputStream &output, const char *text) {
+BinaryModelWriter::writeString(java::OutputStream &output, const char *text) {
     if ( text == nullptr ) {
         vsdk::PersistenceElement::writeInt32LE(output, -1);
         return true;
@@ -101,21 +101,21 @@ BinaryModelWriter::writeString(java::io::OutputStream &output, const char *text)
 }
 
 void
-BinaryModelWriter::writeColor(java::io::OutputStream &output, const ColorRgb &color) {
+BinaryModelWriter::writeColor(java::OutputStream &output, const ColorRgb &color) {
     vsdk::PersistenceElement::writeFloatLE(output, color.r);
     vsdk::PersistenceElement::writeFloatLE(output, color.g);
     vsdk::PersistenceElement::writeFloatLE(output, color.b);
 }
 
 void
-BinaryModelWriter::writeVector(java::io::OutputStream &output, const Vector3D &vector) {
+BinaryModelWriter::writeVector(java::OutputStream &output, const Vector3D &vector) {
     vsdk::PersistenceElement::writeFloatLE(output, vector.x);
     vsdk::PersistenceElement::writeFloatLE(output, vector.y);
     vsdk::PersistenceElement::writeFloatLE(output, vector.z);
 }
 
 void
-BinaryModelWriter::writeBoundingBox(java::io::OutputStream &output, const BoundingBox &boundingBox) {
+BinaryModelWriter::writeBoundingBox(java::OutputStream &output, const BoundingBox &boundingBox) {
     for ( int i = 0; i < 6; i++ ) {
         vsdk::PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
     }
@@ -145,7 +145,7 @@ BinaryModelWriter::indexOfPointer(
 template <typename T>
 bool
 BinaryModelWriter::writeIndexList(
-    java::io::OutputStream &output,
+    java::OutputStream &output,
     const java::ArrayList<T *> *list,
     const java::HashMap<const T *, int> &indices,
     const char *what)
@@ -172,7 +172,7 @@ BinaryModelWriter::writeIndexList(
 }
 
 bool
-BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Material *material) {
+BinaryModelWriter::writeMaterialRecord(java::OutputStream &output, const Material *material) {
     if ( !writeString(output, material->getName()) ) {
         return false;
     }
@@ -245,7 +245,7 @@ BinaryModelWriter::writeMaterialRecord(java::io::OutputStream &output, const Mat
 }
 
 void
-BinaryModelWriter::writeColorContextRecord(java::io::OutputStream &output, const ColorContext *colorContext) {
+BinaryModelWriter::writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext) {
     vsdk::PersistenceElement::writeInt32LE(output, colorContext->clock);
     vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->flags);
     for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
@@ -259,7 +259,7 @@ BinaryModelWriter::writeColorContextRecord(java::io::OutputStream &output, const
 
 bool
 BinaryModelWriter::writeReaderContextRecord(
-    java::io::OutputStream &output,
+    java::OutputStream &output,
     const ReaderContext *readerContext,
     const BinaryModelWriterSerializationContext &context)
 {
@@ -285,7 +285,7 @@ BinaryModelWriter::writeReaderContextRecord(
 }
 
 void
-BinaryModelWriter::writeTransformArrayRecord(java::io::OutputStream &output, const TransformArray *transformArray) {
+BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const TransformArray *transformArray) {
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
@@ -302,7 +302,7 @@ BinaryModelWriter::writeTransformArrayRecord(java::io::OutputStream &output, con
 
 bool
 BinaryModelWriter::writeTransformContextRecord(
-    java::io::OutputStream &output,
+    java::OutputStream &output,
     const TransformStackContext *transformContext,
     const BinaryModelWriterSerializationContext &context)
 {
@@ -336,7 +336,7 @@ BinaryModelWriter::writeTransformContextRecord(
 }
 
 bool
-BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context) {
+BinaryModelWriter::writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
 
     int pointIndex = -1;
@@ -371,7 +371,7 @@ BinaryModelWriter::writeVertexRecord(java::io::OutputStream &output, const Verte
 }
 
 bool
-BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context) {
+BinaryModelWriter::writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->id));
 
     int twinIndex = -1;
@@ -424,7 +424,7 @@ BinaryModelWriter::writePatchRecord(java::io::OutputStream &output, const Patch 
 }
 
 bool
-BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context) {
+BinaryModelWriter::writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
@@ -479,7 +479,7 @@ BinaryModelWriter::writeGeometryRecord(java::io::OutputStream &output, const Geo
 }
 
 bool
-BinaryModelWriter::writeModelRecord(java::io::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context) {
+BinaryModelWriter::writeModelRecord(java::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context) {
     int currentColorIndex = -1;
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
@@ -543,13 +543,13 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
         Error::error("BinaryModelWriter::write", "Invalid model or fileName");
         return false;
     }
-    java::io::File file(fileName);
+    java::File file(fileName);
     if ( !file.canWrite() || file.isDirectory() ) {
         Error::error("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
         return false;
     }
 
-    java::io::FileOutputStream output(fileName);
+    java::FileOutputStream output(fileName);
 
     BinaryModelWriterSerializationContext context;
     if ( !context.collectModel(model) ) {

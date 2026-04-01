@@ -6,10 +6,9 @@
 #include "java/util/Formatter.h"
 
 namespace java {
-namespace util {
 
-java::lang::String
-Formatter::appendText(const java::lang::String &left, const java::lang::String &right) {
+java::String
+Formatter::appendText(const java::String &left, const java::String &right) {
     const char *leftRaw = left.toCString();
     const char *rightRaw = right.toCString();
     const std::size_t leftLength = std::strlen(leftRaw);
@@ -20,15 +19,15 @@ Formatter::appendText(const java::lang::String &left, const java::lang::String &
     std::memcpy(joined + leftLength, rightRaw, rightLength);
     joined[leftLength + rightLength] = '\0';
 
-    java::lang::String result(joined);
+    java::String result(joined);
     delete[] joined;
     return result;
 }
 
-java::lang::String
+java::String
 Formatter::formatToString(const char *formatText, va_list arguments) {
     if ( formatText == nullptr ) {
-        return java::lang::String();
+        return java::String();
     }
 
     char localBuffer[256];
@@ -38,10 +37,10 @@ Formatter::formatToString(const char *formatText, va_list arguments) {
     va_end(argumentsCopy);
 
     if ( required < 0 ) {
-        return java::lang::String();
+        return java::String();
     }
     if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        return java::lang::String(localBuffer);
+        return java::String(localBuffer);
     }
 
     char *dynamicBuffer = new char[required + 1];
@@ -49,7 +48,7 @@ Formatter::formatToString(const char *formatText, va_list arguments) {
     Formatter::vformat(dynamicBuffer, required + 1, formatText, argumentsCopy);
     va_end(argumentsCopy);
 
-    java::lang::String result(dynamicBuffer);
+    java::String result(dynamicBuffer);
     delete[] dynamicBuffer;
     return result;
 }
@@ -61,7 +60,7 @@ Formatter::Formatter():
 {
 }
 
-Formatter::Formatter(java::io::OutputStream *outputStream):
+Formatter::Formatter(java::OutputStream *outputStream):
     outputStream(outputStream),
     content(),
     closed(false)
@@ -72,7 +71,7 @@ Formatter::~Formatter() {
     close();
 }
 
-java::io::OutputStream *
+java::OutputStream *
 Formatter::out() const {
     return outputStream;
 }
@@ -103,7 +102,7 @@ Formatter::format(const char *formatText, ...) {
 
     va_list arguments;
     va_start(arguments, formatText);
-    const java::lang::String text = formatToString(formatText, arguments);
+    const java::String text = formatToString(formatText, arguments);
     va_end(arguments);
 
     content = appendText(content, text);
@@ -135,5 +134,4 @@ Formatter::vformat(char *buffer, int bufferSize, const char *formatText, va_list
     return written;
 }
 
-}
 }

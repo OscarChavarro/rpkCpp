@@ -61,7 +61,7 @@ In order to let the user have the impression that the computations are proceedin
 void
 Localline::someFeedback() {
     if ( (GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays + GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays) % 1000 == 0 ) {
-        java::lang::System::err.print(".");
+        java::System::err.print(".");
     }
 }
 

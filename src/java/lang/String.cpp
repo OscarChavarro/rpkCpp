@@ -5,7 +5,6 @@
 #include "java/util/Formatter.h"
 
 namespace java {
-namespace lang {
 
 void
 String::assignText(const char *text) {
@@ -166,7 +165,7 @@ String::formatCStringToJavaString(const char *format, va_list arguments) {
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = java::util::Formatter::vformat(
+    const int required = java::Formatter::vformat(
         localBuffer,
         static_cast<int>(sizeof(localBuffer)),
         format,
@@ -182,7 +181,7 @@ String::formatCStringToJavaString(const char *format, va_list arguments) {
 
     char *dynamicBuffer = new char[required + 1];
     va_copy(argumentsCopy, arguments);
-    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    java::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
     va_end(argumentsCopy);
 
     String result(dynamicBuffer);
@@ -190,5 +189,4 @@ String::formatCStringToJavaString(const char *format, va_list arguments) {
     return result;
 }
 
-}
 }

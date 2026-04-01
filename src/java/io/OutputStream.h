@@ -2,7 +2,6 @@
 #define __JAVA_IO_OUTPUT_STREAM__
 
 namespace java {
-namespace io {
 
 class OutputStream {
   public:
@@ -14,7 +13,6 @@ class OutputStream {
     virtual ~OutputStream();
 };
 
-}
 }
 
 #endif

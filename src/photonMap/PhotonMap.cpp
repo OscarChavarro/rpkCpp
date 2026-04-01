@@ -117,7 +117,7 @@ PhotonMap::~PhotonMap() {
 }
 
 void
-PhotonMap::printStats(java::io::PrintStream *stream) const {
+PhotonMap::printStats(java::PrintStream *stream) const {
     if ( stream == nullptr ) {
         return;
     }
@@ -126,7 +126,7 @@ PhotonMap::printStats(java::io::PrintStream *stream) const {
 
 void
 PhotonMap::getStats(char *p, int n) const {
-    java::util::Formatter::format(
+    java::Formatter::format(
         p, n, "%i stored photons, %i total, %li paths\n", m_nrPhotons, m_totalPhotons, m_totalPaths);
 }
 
@@ -323,7 +323,7 @@ PhotonMap::precomputeIrradianceCallback(void *data, void *nodeData) {
 
 void
 PhotonMap::precomputeIrradiance() {
-    java::lang::System::err.printf("PhotonMap::precomputeIrradiance\n");
+    java::System::err.printf("PhotonMap::precomputeIrradiance\n");
     if ( m_precomputeIrradiance && !m_irradianceComputed ) {
         m_kdtree->iterateNodes(PhotonMap::precomputeIrradianceCallback, this);
         m_irradianceComputed = true;

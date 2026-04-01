@@ -4,7 +4,6 @@
 #include "java/lang/String.h"
 
 namespace java {
-namespace util {
 
 class StringTokenizer {
   private:
@@ -22,7 +21,7 @@ class StringTokenizer {
     findTokenEnd(int from) const;
 
   public:
-    StringTokenizer(const java::lang::String &text, const char *delimiters = " \t\n\r\f");
+    StringTokenizer(const java::String &text, const char *delimiters = " \t\n\r\f");
     ~StringTokenizer();
 
     void
@@ -31,11 +30,10 @@ class StringTokenizer {
     bool
     hasMoreTokens() const;
 
-    java::lang::String
+    java::String
     nextToken();
 };
 
-}
 }
 
 #endif

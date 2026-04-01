@@ -263,7 +263,7 @@ ShootingStrategy::propagatePotential(
 
         doPropagate(scene, shootingPatch, galerkinState);
     } else {
-        java::lang::System::err.printf("No patches with un-shot potential??\n");
+        java::System::err.printf("No patches with un-shot potential??\n");
     }
 }
 

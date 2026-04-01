@@ -293,7 +293,7 @@ Patch::computeRandomWalkRadiosityArea() {
     }
 
     if ( this->area < Numeric::EPSILON * Numeric::EPSILON ) {
-        java::lang::System::err.printf("Warning: very small patch id %d area = %g\n", this->id, this->area);
+        java::System::err.printf("Warning: very small patch id %d area = %g\n", this->id, this->area);
     }
 
     return this->area;
@@ -620,13 +620,13 @@ Patch::Patch(
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         Error::error("Patch::Patch", "Null vertex!");
-        java::lang::System::exit(1);
+        java::System::exit(1);
     }
 
     // It's sad but it's true
     if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
         Error::error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
-        java::lang::System::exit(2);
+        java::System::exit(2);
     }
 
     Statistics::instance().numberOfElements++;
@@ -653,7 +653,7 @@ Patch::Patch(
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
         Statistics::instance().numberOfElements--;
         Error::error("Patch::Patch", "Error computing patch normal");
-        java::lang::System::exit(3);
+        java::System::exit(3);
     }
 
     // Also computes the jacobian

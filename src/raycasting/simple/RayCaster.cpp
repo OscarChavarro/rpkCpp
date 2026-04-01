@@ -156,7 +156,7 @@ RayCaster::render(
 {
     screenBuffer->setToneMappingContext(renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
 #ifdef RAYTRACING_ENABLED
-    long long t = java::lang::System::nanoTime();
+    long long t = java::System::nanoTime();
 #endif
 
     SoftIdsWrapper *idRenderer = new SoftIdsWrapper(scene, renderOptions);
@@ -184,7 +184,7 @@ RayCaster::render(
     delete idRenderer;
 
 #ifdef RAYTRACING_ENABLED
-    GLOBAL_raytracer_totalTime = static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0;
+    GLOBAL_raytracer_totalTime = static_cast<double>(java::System::nanoTime() - t) / 1000000000.0;
     GLOBAL_raytracer_rayCount = 0;
     GLOBAL_raytracer_pixelCount = 0;
 #endif
@@ -208,7 +208,7 @@ reflects whether this output stream is backed by a pipe or not.
 void
 RayCaster::rayCast(
     const char *fileName,
-    java::io::OutputStream *stream,
+    java::OutputStream *stream,
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,

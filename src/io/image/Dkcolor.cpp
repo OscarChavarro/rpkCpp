@@ -22,7 +22,7 @@ static constexpr int MINIMUM_RUN_LENGTH = 4;
 static BYTE *globalTempBuffer = nullptr;
 
 void
-DkColor::writeByte(java::io::OutputStream *stream, int value) {
+DkColor::writeByte(java::OutputStream *stream, int value) {
     if ( stream == nullptr ) {
         return;
     }
@@ -54,7 +54,7 @@ DkColor::tempBuffer(unsigned int length) {
 Write out a byte color scanline
 */
 int
-DkColor::writeByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *outputStream) {
+DkColor::writeByteColors(BYTE_COLOR *scanline, int len, java::OutputStream *outputStream) {
     int cnt = 0;
     int c2;
 
@@ -158,7 +158,7 @@ DkColor::setByteColors(BYTE_COLOR color, double r, double g, double b)
 Write out a scanline
 */
 int
-DkColor::writeScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream)
+DkColor::writeScan(DK_COLOR *scanline, int len, java::OutputStream *outputStream)
 {
     // Get scanline buffer
     BYTE *byteArray = tempBuffer(len * sizeof(BYTE_COLOR));

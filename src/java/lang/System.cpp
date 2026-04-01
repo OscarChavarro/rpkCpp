@@ -5,12 +5,11 @@
 #include "java/lang/System.h"
 
 namespace java {
-namespace lang {
 
-java::io::FileOutputStream globalSystemOutStream("/dev/stdout");
-java::io::FileOutputStream globalSystemErrStream("/dev/stderr");
-java::io::PrintStream System::out(&globalSystemOutStream);
-java::io::PrintStream System::err(&globalSystemErrStream);
+java::FileOutputStream globalSystemOutStream("/dev/stdout");
+java::FileOutputStream globalSystemErrStream("/dev/stderr");
+java::PrintStream System::out(&globalSystemOutStream);
+java::PrintStream System::err(&globalSystemErrStream);
 
 [[noreturn]] void
 System::exit(int status) {
@@ -23,5 +22,4 @@ System::nanoTime() {
     return std::chrono::duration_cast<std::chrono::nanoseconds>(now).count();
 }
 
-}
 }

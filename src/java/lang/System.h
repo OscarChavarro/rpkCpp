@@ -4,17 +4,15 @@
 #include "java/io/PrintStream.h"
 
 namespace java {
-namespace lang {
 
 class System {
   public:
-    static java::io::PrintStream out;
-    static java::io::PrintStream err;
+    static java::PrintStream out;
+    static java::PrintStream err;
     [[noreturn]] static void exit(int status);
     static long long nanoTime();
 };
 
-}
 }
 
 #endif

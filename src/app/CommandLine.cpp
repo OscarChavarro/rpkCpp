@@ -103,14 +103,14 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         if ( readIndex + 1 >= *argc ) {
-            java::lang::System::err.printf("Option '-background' requires a mode. Supported mode: solid.\n");
+            java::System::err.printf("Option '-background' requires a mode. Supported mode: solid.\n");
             readIndex += 1;
             continue;
         }
 
         const char *mode = argv[readIndex + 1];
         if ( strcasecmp(mode, "solid") != 0 ) {
-            java::lang::System::err.printf(
+            java::System::err.printf(
                 "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",
                 mode);
             readIndex += 2;
@@ -118,7 +118,7 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         if ( readIndex + 4 >= *argc ) {
-            java::lang::System::err.printf(
+            java::System::err.printf(
                 "Option '-background solid' requires three values in range [0.0, 1.0].\n");
             readIndex += 2;
             continue;
@@ -130,7 +130,7 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
                  argv[readIndex + 3],
                  argv[readIndex + 4],
                  &parsedColor) ) {
-            java::lang::System::err.printf(
+            java::System::err.printf(
                 "Invalid '-background solid' color. Use '-background solid <r> <g> <b>' with values in [0.0, 1.0].\n");
         } else {
             globalBackgroundMode = BackgroundMode::SOLID;
@@ -213,10 +213,10 @@ CommandLine::commandLineGeneralProgramParseOptions(
 
 #ifndef OPEN_GL_ENABLED
     if ( globalGlutDebugEnabled ) {
-        java::lang::System::err.printf(
+        java::System::err.printf(
             "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
-        java::lang::System::err.flush();
-        java::lang::System::exit(1);
+        java::System::err.flush();
+        java::System::exit(1);
     }
 #endif
 }

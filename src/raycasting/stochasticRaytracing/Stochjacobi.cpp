@@ -61,27 +61,27 @@ Stochjacobi::stochasticJacobiInitGlobals(
 
  void
 Stochjacobi::stochasticJacobiPrintMessage(long nr_rays) {
-    java::lang::System::err.printf("%s-directional ",
+    java::System::err.printf("%s-directional ",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.bidirectionalTransfers ? "Bi" : "Uni");
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
-        java::lang::System::err.printf("combined ");
+        java::System::err.printf("combined ");
     }
     if ( globalGetRadianceCallback ) {
-        java::lang::System::err.printf("%s radiance ",
+        java::System::err.printf("%s radiance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ? "importance-driven " : "");
     }
     if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
-        java::lang::System::err.printf("and ");
+        java::System::err.printf("and ");
     }
     if ( globalGetImportanceCallback ) {
-        java::lang::System::err.printf("%s importance ",
+        java::System::err.printf("%s importance ",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.radianceDriven ? "radiance-driven " : "");
     }
-    java::lang::System::err.printf("propagation");
+    java::System::err.printf("propagation");
     if ( globalDoControlVariate ) {
-        java::lang::System::err.printf("using a constant control variate ");
+        java::System::err.printf("using a constant control variate ");
     }
-    java::lang::System::err.printf("(%ld rays):\n", nr_rays);
+    java::System::err.printf("(%ld rays):\n", nr_rays);
 }
 
 /**
@@ -690,7 +690,7 @@ Stochjacobi::stochasticJacobiShootRays(
             renderOptions);
     }
 
-    java::lang::System::err.printf("\n");
+    java::System::err.printf("\n");
 }
 
 /**

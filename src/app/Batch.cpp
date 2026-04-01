@@ -34,7 +34,7 @@ Batch::generalParseOptions(int *argc, char **argv) {
 void
 Batch::batchRayTraceSaveImage(
     const char *fileName,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
@@ -58,14 +58,14 @@ This routine was copied from uit.c, leaving out all interface related things
 void
 Batch::batchProcessFile(
     const char *fileName,
-    void (*processFileCallback)(const char *fileName, java::io::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
+    void (*processFileCallback)(const char *fileName, java::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
     const RenderOptions *renderOptions)
 {
     int isPipe;
-    java::io::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
+    java::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
 
     // Call the user supplied procedure to process the file
     processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, renderOptions);
@@ -76,7 +76,7 @@ Batch::batchProcessFile(
 void
 Batch::batchSaveRadianceImage(
     const char *fileName,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const int /*isPipe*/,
     const Scene * /*scene*/,
     const RadianceMethod * /*radianceMethod*/,
@@ -94,24 +94,24 @@ Batch::batchSaveRadianceImage(
 
     extension = ImageOutputHandle::imageFileExtension(fileName);
     if ( strncasecmp(extension, "logluv", 6) == 0 ) {
-        java::lang::System::out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
+        java::System::out.printf("Saving LOGLUV image to file '%s' ....... ", fileName);
     } else {
-        java::lang::System::out.printf("Saving RGB image to file '%s' .......... ", fileName);
+        java::System::out.printf("Saving RGB image to file '%s' .......... ", fileName);
     }
-    java::lang::System::out.flush();
+    java::System::out.flush();
 
-    t = java::lang::System::nanoTime();
+    t = java::System::nanoTime();
 
-    java::lang::System::out.printf(
+    java::System::out.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
+        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
     Canvas::canvasPullMode();
 }
 
 void
 Batch::batchSaveRadianceModel(
     const char *fileName,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const int /*isPipe*/,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
@@ -125,17 +125,17 @@ Batch::batchSaveRadianceModel(
     }
 
     Canvas::canvasPushMode();
-    java::lang::System::out.printf("Saving VRML model to file '%s' ... ", fileName);
-    java::lang::System::out.flush();
-    t = java::lang::System::nanoTime();
+    java::System::out.printf("Saving VRML model to file '%s' ... ", fileName);
+    java::System::out.flush();
+    t = java::System::nanoTime();
 
     if ( radianceMethod != nullptr ) {
         radianceMethod->writeVRML(scene->camera, outputStream, renderOptions);
     }
 
-    java::lang::System::out.printf(
+    java::System::out.printf(
         "%g secs.\n",
-        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - t) / 1000000000.0));
+        static_cast<float>(static_cast<double>(java::System::nanoTime() - t) / 1000000000.0));
     Canvas::canvasPullMode();
 }
 
@@ -151,24 +151,24 @@ Batch::batchExecuteRadianceSimulation(
     float wastedSecs;
 
     if ( scene->geometryList == nullptr || scene->geometryList->size() == 0 ) {
-        java::lang::System::out.printf("Empty world? Missing argument to some command line parameter option?\n");
+        java::System::out.printf("Empty world? Missing argument to some command line parameter option?\n");
         return;
     }
 
-    startTime = java::lang::System::nanoTime();
+    startTime = java::System::nanoTime();
     wastedSecs = 0.0;
 
     if ( radianceMethod != nullptr ) {
-        java::lang::System::out.printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
+        java::System::out.printf("Doing %s ...\n", radianceMethod->getRadianceMethodName());
 
-        java::lang::System::out.flush();
-        java::lang::System::err.flush();
+        java::System::out.flush();
+        java::System::err.flush();
 
         bool done = false;
         for ( int iterationNumber = 0;
               iterationNumber < globalBatchOptions.iterations && !done;
               iterationNumber++ ) {
-            java::lang::System::out.printf("-----------------------------------\n"
+            java::System::out.printf("-----------------------------------\n"
                    "GLOBAL_scene_world-space radiance iteration %04d\n"
                    "-----------------------------------\n\n", iterationNumber);
 
@@ -176,22 +176,22 @@ Batch::batchExecuteRadianceSimulation(
             done = radianceMethod->doStep(scene, renderOptions);
             Canvas::canvasPullMode();
 
-            java::lang::System::out.flush();
-            java::lang::System::err.flush();
+            java::System::out.flush();
+            java::System::err.flush();
 
-            java::lang::System::out.printf("%s", radianceMethod->getStats());
+            java::System::out.printf("%s", radianceMethod->getStats());
 
             Render::renderGetNearFar(scene->camera, scene->geometryList);
 
-            java::lang::System::out.flush();
-            java::lang::System::err.flush();
+            java::System::out.flush();
+            java::System::err.flush();
 
-            wasted_start = java::lang::System::nanoTime();
+            wasted_start = java::System::nanoTime();
 
             if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                java::util::Formatter::format(
+                java::Formatter::format(
                     fileName,
                     n,
                     globalBatchOptions.radianceImageFileNameFormat,
@@ -209,7 +209,7 @@ Batch::batchExecuteRadianceSimulation(
             if ( *globalBatchOptions.radianceModelFileNameFormat ) {
                 int n = static_cast<int>(strlen(globalBatchOptions.radianceModelFileNameFormat)) + 1;
                 char *fileName = new char[n];
-                java::util::Formatter::format(
+                java::Formatter::format(
                     fileName,
                     n,
                     globalBatchOptions.radianceModelFileNameFormat,
@@ -225,25 +225,25 @@ Batch::batchExecuteRadianceSimulation(
             }
 
             wastedSecs += static_cast<float>(
-                static_cast<double>(wasted_start - java::lang::System::nanoTime()) / 1000000000.0);
+                static_cast<double>(wasted_start - java::System::nanoTime()) / 1000000000.0);
 
-            java::lang::System::out.flush();
-            java::lang::System::err.flush();
+            java::System::out.flush();
+            java::System::err.flush();
         }
     } else {
-        java::lang::System::out.printf("(No world-space radiance computations are being done)\n");
+        java::System::out.printf("(No world-space radiance computations are being done)\n");
     }
 
     if ( globalBatchOptions.timings ) {
-        java::lang::System::out.printf("Radiance total time %g secs.\n",
-                static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
+        java::System::out.printf("Radiance total time %g secs.\n",
+                static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
     }
 
     #ifdef RAYTRACING_ENABLED
         if ( GLOBAL_rayTracer != nullptr ) {
-            java::lang::System::out.printf("Doing %s ...\n", rayTracer->getName());
+            java::System::out.printf("Doing %s ...\n", rayTracer->getName());
 
-            startTime = java::lang::System::nanoTime();
+            startTime = java::System::nanoTime();
             Raytrace::rayTraceExecute(
                 nullptr,
                 nullptr,
@@ -254,8 +254,8 @@ Batch::batchExecuteRadianceSimulation(
                 renderOptions);
 
             if ( globalBatchOptions.timings ) {
-                java::lang::System::out.printf("Raytracing total time %g secs.\n",
-                        static_cast<float>(static_cast<double>(java::lang::System::nanoTime() - startTime) / 1000000000.0));
+                java::System::out.printf("Raytracing total time %g secs.\n",
+                        static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0));
             }
 
             Batch::batchProcessFile(
@@ -266,9 +266,9 @@ Batch::batchExecuteRadianceSimulation(
                 rayTracer,
                 renderOptions);
         } else {
-            java::lang::System::out.printf("(No pixel-based radiance computations are being done)\n");
+            java::System::out.printf("(No pixel-based radiance computations are being done)\n");
         }
     #endif
 
-    java::lang::System::out.printf("Computations finished.\n");
+    java::System::out.printf("Computations finished.\n");
 }

@@ -304,7 +304,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
     const char *fileName,
     const char *fileRole)
 {
-    java::io::File file(fileName);
+    java::File file(fileName);
     if ( !file.exists() ) {
         Error::error(
             "SceneBuilder::sceneBuilderReadFile",
@@ -330,7 +330,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
         return false;
     }
 
-    java::io::FileInputStream input(fileName);
+    java::FileInputStream input(fileName);
     const int firstByte = input.read();
     input.close();
 
@@ -380,7 +380,7 @@ SceneBuilder::sceneBuilderReadFile(
     unsigned long n = strlen(inputName) + 1;
 
     char *currentDirectory = new char[n];
-    java::util::Formatter::format(currentDirectory, static_cast<int>(n), "%s", inputName);
+    java::Formatter::format(currentDirectory, static_cast<int>(n), "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {
         *slash = '\0';
@@ -398,8 +398,8 @@ SceneBuilder::sceneBuilderReadFile(
     scene->background = CommandLine::commandLineCreateBackground();
 
     // Read the source scene description into a PersistedSceneModel snapshot
-    java::lang::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
-    long long last = java::lang::System::nanoTime();
+    java::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
+    long long last = java::System::nanoTime();
     PersistedSceneModel *mgfModel = nullptr;
 
     if ( importBinary ) {
@@ -414,17 +414,17 @@ SceneBuilder::sceneBuilderReadFile(
              && batchOptions->exportBinary
              && batchOptions->binaryOutputFilename != nullptr
              && batchOptions->binaryOutputFilename[0] != '\0' ) {
-            java::lang::System::err.printf(
+            java::System::err.printf(
                 "Exporting loaded PersistedSceneModel to binary '%s' ... ",
                 batchOptions->binaryOutputFilename);
-            java::lang::System::err.flush();
+            java::System::err.flush();
             const bool binarySaved = BinaryModelWriter::write(
                 mgfModel,
                 batchOptions->binaryOutputFilename);
             if ( binarySaved ) {
-                java::lang::System::err.printf("done.\n");
+                java::System::err.printf("done.\n");
             } else {
-                java::lang::System::err.printf("failed.\n");
+                java::System::err.printf("failed.\n");
                 Error::error(
                     "SceneBuilder::sceneBuilderReadFile",
                     "Could not export PersistedSceneModel binary to '%s'",
@@ -436,8 +436,8 @@ SceneBuilder::sceneBuilderReadFile(
     scene->geometryList = mgfModel == nullptr ? nullptr : mgfModel->geometries;
     SceneBuilder::sceneBuilderFillFacesBackPointers(scene->geometryList);
 
-    long long t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    long long t = java::System::nanoTime();
+    java::System::err.printf(
         "Reading took %g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
@@ -452,33 +452,33 @@ SceneBuilder::sceneBuilderReadFile(
     // Build the new patch list, this is duplicating already available
     // information and as such potentially dangerous, but we need it
     // so many times
-    java::lang::System::err.printf("Building patch list ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Building patch list ... ");
+    java::System::err.flush();
 
     scene->patchList = new java::ArrayList<Patch *>();
     SceneBuilder::sceneBuilderPatchList(scene->geometryList, scene->patchList);
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build the list of patches on light sources from the patch list
-    java::lang::System::err.printf("Building light source patch list ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Building light source patch list ... ");
+    java::System::err.flush();
 
     SceneBuilder::sceneBuilderFillLightSourcePatchList(scene);
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Build a cluster hierarchy for the new scene
-    java::lang::System::err.printf("Building cluster hierarchy ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Building cluster hierarchy ... ");
+    java::System::err.flush();
 
     scene->clusteredRootGeometry = SceneBuilder::sceneBuilderCreateClusterHierarchy(scene->patchList);
 
@@ -486,8 +486,8 @@ SceneBuilder::sceneBuilderReadFile(
         Error::warning(nullptr, "Strange clusters for this world ...");
     }
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
@@ -495,41 +495,41 @@ SceneBuilder::sceneBuilderReadFile(
     // Create the scene level voxel grid
     scene->voxelGrid = new VoxelGrid(scene->clusteredRootGeometry);
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "Voxel grid creation took %g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Estimate average radiance, for radiance to display RGB conversion
-    java::lang::System::err.printf("Computing some scene statistics ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Computing some scene statistics ... ");
+    java::System::err.flush();
 
     Statistics::instance().numberOfPatches = Statistics::instance().numberOfElements;
     SceneBuilder::sceneBuilderComputeStats(scene);
     Statistics::instance().referenceLuminance = 5.42 * ((1.0 - Statistics::instance().averageReflectivity.gray()) *
                                                    Statistics::instance().estimatedAverageRadiance.luminance());
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Initialize tone mapping
-    java::lang::System::err.printf("Initializing tone mapping ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Initializing tone mapping ... ");
+    java::System::err.flush();
 
     Adaptation::initSceneAdaptation(scene->patchList, toneMapOptions);
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
     last = t;
 
     // Print statistics report
-    java::lang::System::out.printf("\nStats: Statistics::instance().totalEmittedPower ................: %f W\n"
+    java::System::out.printf("\nStats: Statistics::instance().totalEmittedPower ................: %f W\n"
            "         Statistics::instance().estimatedAverageRadiance .........: %f W / sr\n"
            "         GLOBAL_statistics_averageReflectivity ..............: %f\n"
            "         Statistics::instance().maxSelfEmittedRadiance ...........: %f W / sr\n"
@@ -546,13 +546,13 @@ SceneBuilder::sceneBuilderReadFile(
     //scene->print();
 
     // Initialize radiance for the freshly loaded scene
-    java::lang::System::err.printf("Initializing radiance method ... ");
-    java::lang::System::err.flush();
+    java::System::err.printf("Initializing radiance method ... ");
+    java::System::err.flush();
 
     Radiance::setRadianceMethod(mgfContext->radianceMethod, scene);
 
-    t = java::lang::System::nanoTime();
-    java::lang::System::err.printf(
+    t = java::System::nanoTime();
+    java::System::err.printf(
         "%g secs.\n",
         static_cast<float>(static_cast<double>(t - last) / 1000000000.0));
 
@@ -561,7 +561,7 @@ SceneBuilder::sceneBuilderReadFile(
 
     SceneBuilder::removeEmptyMeshSurfaces(mgfContext, scene->geometryList);
 
-    java::lang::System::err.printf("Initialisations done.\n");
+    java::System::err.printf("Initialisations done.\n");
 
     return true;
 }
@@ -580,7 +580,7 @@ SceneBuilder::sceneBuilderCreateModel(
          && batchOptions->binaryInputFilename != nullptr
          && batchOptions->binaryInputFilename[0] != '\0' ) {
         if ( !SceneBuilder::sceneBuilderReadFile(batchOptions->binaryInputFilename, mgfContext, scene, toneMapOptions) ) {
-            java::lang::System::exit(1);
+            java::System::exit(1);
         }
         return;
     }
@@ -590,7 +590,7 @@ SceneBuilder::sceneBuilderCreateModel(
         if ( *argv[1] == '-' ) {
             Error::error(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
-            java::lang::System::exit(1);
+            java::System::exit(1);
         }
     }
 }

@@ -85,16 +85,16 @@ Radiance::radianceParseOptions(int *argc, char **argv, RadianceMethod **newRadia
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED
-        java::lang::System::err.printf(
+        java::System::err.printf(
             "ERROR: You must select a radiance mode using '-radiance-method'. "
             "Supported values: Galerkin, PMAP, StochJacobi, RandomWalk.\n");
 #else
-        java::lang::System::err.printf(
+        java::System::err.printf(
             "ERROR: You must select a radiance mode using '-radiance-method'. "
             "Supported value: Galerkin.\n");
 #endif
-        java::lang::System::err.flush();
-        java::lang::System::exit(1);
+        java::System::err.flush();
+        java::System::exit(1);
     }
 
 #ifdef RAYTRACING_ENABLED

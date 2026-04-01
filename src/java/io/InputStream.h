@@ -2,7 +2,6 @@
 #define __JAVA_IO_INPUT_STREAM__
 
 namespace java {
-namespace io {
 
 class InputStream {
   public:
@@ -13,7 +12,6 @@ class InputStream {
     virtual ~InputStream();
 };
 
-}
 }
 
 #endif

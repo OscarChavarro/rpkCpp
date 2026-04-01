@@ -104,7 +104,7 @@ class NiederreiterCore {
             c = i;
             i += step;
             if ( i >= nBitsPow_ ) {
-                java::lang::System::err.printf(
+                java::System::err.printf(
                     "\nOverflow in Niederreiter sequence. A %u-bit sequence is not enough???\n",
                     NumberOfBits);
                 return nullptr;

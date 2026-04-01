@@ -29,34 +29,34 @@ FileUncompressWrapper::buildPipeCommand(const char *fileName, StreamOpenMode ope
     }
 
     if ( fileName[0] == '|' ) {
-        java::util::Formatter::format(command, commandLength, "%s", &fileName[1]);
+        java::Formatter::format(command, commandLength, "%s", &fileName[1]);
         return 1;
     }
 
     const char *ext = strrchr(fileName, '.');
     if ( ext && std::strcmp(ext, ".gz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::format(command, commandLength, "gunzip < %s", fileName);
+            java::Formatter::format(command, commandLength, "gunzip < %s", fileName);
         } else {
-            java::util::Formatter::format(command, commandLength, "gzip > %s", fileName);
+            java::Formatter::format(command, commandLength, "gzip > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".Z") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::format(command, commandLength, "uncompress < %s", fileName);
+            java::Formatter::format(command, commandLength, "uncompress < %s", fileName);
         } else {
-            java::util::Formatter::format(command, commandLength, "compress > %s", fileName);
+            java::Formatter::format(command, commandLength, "compress > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".bz") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::format(command, commandLength, "bunzip < %s", fileName);
+            java::Formatter::format(command, commandLength, "bunzip < %s", fileName);
         } else {
-            java::util::Formatter::format(command, commandLength, "bzip > %s", fileName);
+            java::Formatter::format(command, commandLength, "bzip > %s", fileName);
         }
     } else if ( ext && std::strcmp(ext, ".bz2") == 0 ) {
         if ( openMode == StreamOpenMode::READ ) {
-            java::util::Formatter::format(command, commandLength, "bunzip2 < %s", fileName);
+            java::Formatter::format(command, commandLength, "bunzip2 < %s", fileName);
         } else {
-            java::util::Formatter::format(command, commandLength, "bzip2 > %s", fileName);
+            java::Formatter::format(command, commandLength, "bzip2 > %s", fileName);
         }
     } else {
         return 0;
@@ -64,7 +64,7 @@ FileUncompressWrapper::buildPipeCommand(const char *fileName, StreamOpenMode ope
     return 1;
 }
 
-java::io::InputStream *
+java::InputStream *
 FileUncompressWrapper::openPipeInputStream(const char *command) {
     PipeInputStream *pipeStream = new PipeInputStream(command);
     if ( !pipeStream->isOpen() ) {
@@ -74,7 +74,7 @@ FileUncompressWrapper::openPipeInputStream(const char *command) {
     return pipeStream;
 }
 
-java::io::OutputStream *
+java::OutputStream *
 FileUncompressWrapper::openPipeOutputStream(const char *command) {
     PipeOutputStream *pipeStream = new PipeOutputStream(command);
     if ( !pipeStream->isOpen() ) {
@@ -84,7 +84,7 @@ FileUncompressWrapper::openPipeOutputStream(const char *command) {
     return pipeStream;
 }
 
-java::io::InputStream *
+java::InputStream *
 FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( isPipe != nullptr ) {
         *isPipe = 0;
@@ -97,13 +97,13 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
     char *command = new char[commandLength];
     const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::READ, command, commandLength);
 
-    java::io::InputStream *stream = nullptr;
+    java::InputStream *stream = nullptr;
     if ( pipeFlag != 0 ) {
         stream = openPipeInputStream(command);
     } else {
-        java::io::File file(fileName);
+        java::File file(fileName);
         if ( file.exists() && file.canRead() && file.isFile() ) {
-            stream = new java::io::FileInputStream(fileName);
+            stream = new java::FileInputStream(fileName);
         }
     }
     delete[] command;
@@ -122,7 +122,7 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
     return stream;
 }
 
-java::io::OutputStream *
+java::OutputStream *
 FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int *isPipe) {
     if ( isPipe != nullptr ) {
         *isPipe = 0;
@@ -135,13 +135,13 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
     char *command = new char[commandLength];
     const int pipeFlag = buildPipeCommand(fileName, StreamOpenMode::WRITE, command, commandLength);
 
-    java::io::OutputStream *stream = nullptr;
+    java::OutputStream *stream = nullptr;
     if ( pipeFlag != 0 ) {
         stream = openPipeOutputStream(command);
     } else {
-        java::io::File file(fileName);
+        java::File file(fileName);
         if ( file.canWrite() && !file.isDirectory() ) {
-            stream = new java::io::FileOutputStream(fileName);
+            stream = new java::FileOutputStream(fileName);
         }
     }
     delete[] command;
@@ -161,7 +161,7 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
 }
 
 void
-FileUncompressWrapper::closeInputStream(java::io::InputStream *stream) {
+FileUncompressWrapper::closeInputStream(java::InputStream *stream) {
     if ( stream == nullptr ) {
         return;
     }
@@ -170,7 +170,7 @@ FileUncompressWrapper::closeInputStream(java::io::InputStream *stream) {
 }
 
 void
-FileUncompressWrapper::closeOutputStream(java::io::OutputStream *stream) {
+FileUncompressWrapper::closeOutputStream(java::OutputStream *stream) {
     if ( stream == nullptr ) {
         return;
     }

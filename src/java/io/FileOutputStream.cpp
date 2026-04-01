@@ -3,7 +3,6 @@
 #include "java/io/FileOutputStream.h"
 
 namespace java {
-namespace io {
 
 FILE *
 FileOutputStream::toFileHandle(void *handle) {
@@ -67,5 +66,4 @@ FileOutputStream::dispose() {
     close();
 }
 
-}
 }

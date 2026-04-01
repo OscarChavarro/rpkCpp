@@ -16,9 +16,9 @@ KDQuery::KDQuery():
 
 void
 KDQuery::print() const {
-    java::lang::System::out.printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
-    java::lang::System::out.printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
-    java::lang::System::out.printf("maximumDistance %g\n", maximumDistance);
-    java::lang::System::out.printf("sqrRadius %g\n", sqrRadius);
-    java::lang::System::out.printf("excludeFlags %x\n", static_cast<int>(excludeFlags));
+    java::System::out.printf("Point X %g, Y %g, Z %g\n", point[0], point[1], point[2]);
+    java::System::out.printf("Wanted N: %i, found N: %i\n", wantedN, foundN);
+    java::System::out.printf("maximumDistance %g\n", maximumDistance);
+    java::System::out.printf("sqrRadius %g\n", sqrRadius);
+    java::System::out.printf("excludeFlags %x\n", static_cast<int>(excludeFlags));
 }

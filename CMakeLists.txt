@@ -220,6 +220,7 @@ set(OPEN_GL_SRC
     src/render/visualDebugTools/GlutDebugMode.cpp
     src/render/visualDebugTools/GlutDebugToolsModel.cpp
     src/render/visualDebugTools/GlutDebugToolsKeyControl.cpp
+    src/render/visualDebugTools/PatchHitCandidate.cpp
     src/render/visualDebugTools/GlutDebugToolsMouseControl.cpp
     src/render/visualDebugTools/GlutDebugTools.cpp)
 

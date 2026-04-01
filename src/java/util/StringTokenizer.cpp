@@ -3,9 +3,8 @@
 #include "java/util/StringTokenizer.h"
 
 namespace java {
-namespace util {
 
-StringTokenizer::StringTokenizer(const java::lang::String &text, const char *delimiters):
+StringTokenizer::StringTokenizer(const java::String &text, const char *delimiters):
     text(nullptr),
     delimiters(nullptr),
     cursor(0)
@@ -79,11 +78,11 @@ StringTokenizer::hasMoreTokens() const {
     return findTokenStart(cursor) >= 0;
 }
 
-java::lang::String
+java::String
 StringTokenizer::nextToken() {
     const int tokenStart = findTokenStart(cursor);
     if ( tokenStart < 0 ) {
-        return java::lang::String();
+        return java::String();
     }
     const int tokenEnd = findTokenEnd(tokenStart);
     const int sourceLength = static_cast<int>(std::strlen(text));
@@ -95,10 +94,9 @@ StringTokenizer::nextToken() {
     }
     token[tokenLength] = '\0';
     cursor = (tokenEnd < 0) ? sourceLength : tokenEnd + 1;
-    java::lang::String result(token);
+    java::String result(token);
     delete[] token;
     return result;
 }
 
-}
 }

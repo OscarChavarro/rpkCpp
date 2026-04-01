@@ -6,10 +6,10 @@
 
 class PPMOutputHandle final : public ImageOutputHandle {
   private:
-    java::io::OutputStream *outputStream;
+    java::OutputStream *outputStream;
 
   public:
-    PPMOutputHandle(java::io::OutputStream *_outputStream, int _width, int _height);
+    PPMOutputHandle(java::OutputStream *_outputStream, int _width, int _height);
     int writeDisplayRGB(unsigned char *rgb) final;
 };
 

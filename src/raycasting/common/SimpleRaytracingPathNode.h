@@ -77,7 +77,7 @@ class SimpleRaytracingPathNode {
     PhongBidirectionalScatteringDistributionFunction *getPreviousBsdf(); // Searches backwards for matching node
     void assignBsdfAndNormal(); // Assigns outgoing bsdf for a filled node
 
-    void print(java::io::PrintStream *out) const;
+    void print(java::PrintStream *out) const;
 
     bool ends() const;
 

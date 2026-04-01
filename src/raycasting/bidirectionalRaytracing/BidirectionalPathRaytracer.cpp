@@ -48,27 +48,27 @@ BidirectionalPathRaytracer::defaults() {
     // Weighted not in UI
     GLOBAL_rayTracing_biDirectionalPath.baseConfig.doWeighted = false;
 
-    java::util::Formatter::format(
+    java::Formatter::format(
         GLOBAL_rayTracing_biDirectionalPath.baseConfig.leRegExp,
         MAX_REGEXP_SIZE,
         "%s",
         "(LX)(X)*(EX)");
-    java::util::Formatter::format(
+    java::Formatter::format(
         GLOBAL_rayTracing_biDirectionalPath.baseConfig.ldRegExp,
         MAX_REGEXP_SIZE,
         "%s",
         "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    java::util::Formatter::format(
+    java::Formatter::format(
         GLOBAL_rayTracing_biDirectionalPath.baseConfig.liRegExp,
         MAX_REGEXP_SIZE,
         "%s",
         "(LX)(G|S)(X)*(EX),(LX)(EX)");
-    java::util::Formatter::format(
+    java::Formatter::format(
         GLOBAL_rayTracing_biDirectionalPath.baseConfig.wleRegExp,
         MAX_REGEXP_SIZE,
         "%s",
         "(LX)(DR)(X)*(EX)");
-    java::util::Formatter::format(
+    java::Formatter::format(
         GLOBAL_rayTracing_biDirectionalPath.baseConfig.wldRegExp,
         MAX_REGEXP_SIZE,
         "%s",
@@ -138,7 +138,7 @@ BidirectionalPathRaytracer::execute(
     config.eyeConfig.minDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.minimumPathDepth;
 
     if ( GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth < 1 ) {
-        java::lang::System::err.printf("Maximum Eye Path Length too small (<1), using 1\n");
+        java::System::err.printf("Maximum Eye Path Length too small (<1), using 1\n");
         config.eyeConfig.maxDepth = 1;
     } else {
         config.eyeConfig.maxDepth = GLOBAL_rayTracing_biDirectionalPath.baseConfig.maximumEyePathDepth;
@@ -264,12 +264,12 @@ BidirectionalPathRaytracer::spikeCheck(ColorRgb color) {
     double colAvg = color.average();
 
     if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
-        java::lang::System::out.printf("Spike\n");
+        java::System::out.printf("Spike\n");
         return true;
     }
 
     if ( colAvg < 0 ) {
-        java::lang::System::out.printf("Negative");
+        java::System::out.printf("Negative");
         return true;
     }
 
@@ -948,10 +948,10 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
 
     nrIterations += 1; // First two are 1 and 1
 
-    java::lang::System::out.printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
+    java::System::out.printf("nrIter %i, maxSamples %i, origSamples %i\n", nrIterations,
            maxSamples, GLOBAL_rayTracing_biDirectionalPath.baseConfig.samplesPerPixel);
 
-    java::lang::System::out.printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
+    java::System::out.printf("Base name '%s'\n", GLOBAL_rayTracing_biDirectionalPath.baseFilename);
 
     // Numbers are placed after the last point. If
     // no point is given, both ppm.gz and tif images
@@ -959,12 +959,12 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
     const char *lastOcc = strrchr(GLOBAL_rayTracing_biDirectionalPath.baseFilename, '.');
 
     if ( lastOcc == nullptr ) {
-        java::util::Formatter::format(
+        java::Formatter::format(
             format1,
             STRINGS_SIZE,
             "%s%%i.tif",
             GLOBAL_rayTracing_biDirectionalPath.baseFilename);
-        java::util::Formatter::format(
+        java::Formatter::format(
             format2,
             STRINGS_SIZE,
             "%s%%i.ppm.gz",
@@ -976,8 +976,8 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
         format2[0] = '\0';
     }
 
-    java::lang::System::out.printf("Format 1 '%s'\n", format1);
-    java::lang::System::out.printf("Format 2 '%s'\n", format2);
+    java::System::out.printf("Format 1 '%s'\n", format1);
+    java::System::out.printf("Format 2 '%s'\n", format2);
 
     // Now trace the screen several times, each time
     // with twice the number of samples as the previous
@@ -1008,11 +1008,11 @@ BidirectionalPathRaytracer::doBptAndSubsequentImages(
 
         // Save images
         if ( format1[0] != '\0' ) {
-            java::util::Formatter::format(filename, STRINGS_SIZE, format1, totalSamples);
+            java::Formatter::format(filename, STRINGS_SIZE, format1, totalSamples);
             config->screen->writeFile(filename);
         }
         if ( format2[0] != '\0' ) {
-            java::util::Formatter::format(filename, STRINGS_SIZE, format2, totalSamples);
+            java::Formatter::format(filename, STRINGS_SIZE, format2, totalSamples);
             config->screen->writeFile(filename);
         }
 
@@ -1115,7 +1115,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
             java::Math::log(2.0)));
     int maxSamples = static_cast<int>(java::Math::pow(2.0, numberOfIterations));
 
-    java::lang::System::out.printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
+    java::System::out.printf("Doing %i iterations, thus %i samples per pixel\n", numberOfIterations, maxSamples);
 
     int oldSPP = config->baseConfig->samplesPerPixel; // These were stored
     int newSPP = oldSPP;
@@ -1123,7 +1123,7 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
     int newTotalSPP = oldTotalSPP + newSPP;
 
     for ( int i = 1; i <= numberOfIterations; i++ ) {
-        java::lang::System::out.printf("Doing run with %i samples, %i samples already done\n", newSPP, oldTotalSPP);
+        java::System::out.printf("Doing run with %i samples, %i samples already done\n", newSPP, oldTotalSPP);
 
         // copy dest to ref
 
@@ -1167,16 +1167,16 @@ BidirectionalPathRaytracer::doBptDensityEstimation(
         // Render screen & write
 
         config->dest->render();
-        java::util::Formatter::format(fileName, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
+        java::Formatter::format(fileName, STRINGS_SIZE, "deScreen%i.ppm.gz", newTotalSPP);
 
         if ( config->dest2 ) {
             config->dest2->render();
-            java::util::Formatter::format(fileName, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
+            java::Formatter::format(fileName, STRINGS_SIZE, "de2Screen%i.ppm.gz", newTotalSPP);
 
             // Merge two images (just add!) into screen
             config->screen->merge(config->dest, config->dest2, camera);
             config->screen->render();
-            java::util::Formatter::format(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
+            java::Formatter::format(fileName, STRINGS_SIZE, "deMRGScreen%i.ppm.gz", newTotalSPP);
         } else {
             config->screen->copy(config->dest, camera);
         }

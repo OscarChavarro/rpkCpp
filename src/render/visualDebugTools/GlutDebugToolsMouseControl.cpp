@@ -15,32 +15,21 @@
 #include "render/Render.h"
 #include "render/visualDebugTools/GlutDebugPatchHierarchy.h"
 #include "render/visualDebugTools/GlutDebugState.h"
+#include "render/visualDebugTools/PatchHitCandidate.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 #include "skin/Patch.h"
 
-namespace {
-
-static constexpr int DRAG_START_THRESHOLD_PIXELS = 3;
-static constexpr float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25f;
-static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846f / 180.0f;
-
-static bool globalLeftButtonDown = false;
-static bool globalDragging = false;
-static bool globalPressWithShift = false;
-static int globalPressX = 0;
-static int globalPressY = 0;
-static int globalLastX = 0;
-static int globalLastY = 0;
-
-struct PatchHitCandidate {
-    int patchIndex;
-    float distance;
-    bool frontFacing;
-};
+bool GlutDebugToolsMouseControl::leftButtonDown = false;
+bool GlutDebugToolsMouseControl::dragging = false;
+bool GlutDebugToolsMouseControl::pressWithShift = false;
+int GlutDebugToolsMouseControl::pressX = 0;
+int GlutDebugToolsMouseControl::pressY = 0;
+int GlutDebugToolsMouseControl::lastX = 0;
+int GlutDebugToolsMouseControl::lastY = 0;
 
 bool
-applyPatchSelection(
+GlutDebugToolsMouseControl::applyPatchSelection(
     int pickedPatchIndex,
     int *selectedPatch)
 {
@@ -66,7 +55,7 @@ applyPatchSelection(
 }
 
 void
-syncCameraToViewport(const GlutDebugToolsModel &model) {
+GlutDebugToolsMouseControl::syncCameraToViewport(const GlutDebugToolsModel &model) {
     if ( model.scene == nullptr || model.scene->camera == nullptr ) {
         return;
     }
@@ -90,8 +79,6 @@ syncCameraToViewport(const GlutDebugToolsModel &model) {
         model.width,
         model.height,
         &camera->background);
-}
-
 }
 
 int
@@ -331,7 +318,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         if ( intersection != nullptr ) {
             const unsigned int flags = hit.getFlags();
             const bool frontFacing = (flags & RayHitFlag::FRONT) != 0;
-            hitCandidates.add(PatchHitCandidate{i, maxDistance, frontFacing});
+            hitCandidates.add(PatchHitCandidate(i, maxDistance, frontFacing));
         }
     }
 
@@ -387,23 +374,23 @@ GlutDebugToolsMouseControl::handleMouseButton(
 
     if ( state == GLUT_DOWN ) {
         const int modifiers = glutGetModifiers();
-        globalPressWithShift = (modifiers & GLUT_ACTIVE_SHIFT) != 0;
-        globalLeftButtonDown = true;
-        globalDragging = false;
-        globalPressX = clampedX;
-        globalPressY = clampedY;
-        globalLastX = clampedX;
-        globalLastY = clampedY;
+        GlutDebugToolsMouseControl::pressWithShift = (modifiers & GLUT_ACTIVE_SHIFT) != 0;
+        GlutDebugToolsMouseControl::leftButtonDown = true;
+        GlutDebugToolsMouseControl::dragging = false;
+        GlutDebugToolsMouseControl::pressX = clampedX;
+        GlutDebugToolsMouseControl::pressY = clampedY;
+        GlutDebugToolsMouseControl::lastX = clampedX;
+        GlutDebugToolsMouseControl::lastY = clampedY;
         return false;
     }
 
-    if ( state != GLUT_UP || !globalLeftButtonDown ) {
+    if ( state != GLUT_UP || !GlutDebugToolsMouseControl::leftButtonDown ) {
         return false;
     }
 
-    globalLeftButtonDown = false;
-    const bool shouldSelectPatch = !globalDragging;
-    globalDragging = false;
+    GlutDebugToolsMouseControl::leftButtonDown = false;
+    const bool shouldSelectPatch = !GlutDebugToolsMouseControl::dragging;
+    GlutDebugToolsMouseControl::dragging = false;
 
     if ( !shouldSelectPatch ) {
         return false;
@@ -415,12 +402,12 @@ GlutDebugToolsMouseControl::handleMouseButton(
     }
 
     int *targetSelection = &GLOBAL_render_glutDebugState.primarySelectedPatch;
-    const bool isPrimarySelection = !globalPressWithShift;
-    if ( globalPressWithShift ) {
+    const bool isPrimarySelection = !GlutDebugToolsMouseControl::pressWithShift;
+    if ( GlutDebugToolsMouseControl::pressWithShift ) {
         targetSelection = &GLOBAL_render_glutDebugState.selectedSelectedPatch;
     }
 
-    if ( !applyPatchSelection(patchIndex, targetSelection) ) {
+    if ( !GlutDebugToolsMouseControl::applyPatchSelection(patchIndex, targetSelection) ) {
         return false;
     }
     if ( isPrimarySelection ) {
@@ -432,31 +419,31 @@ GlutDebugToolsMouseControl::handleMouseButton(
 
 bool
 GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel &model) {
-    if ( !globalLeftButtonDown ) {
+    if ( !GlutDebugToolsMouseControl::leftButtonDown ) {
         return false;
     }
 
     const int clampedX = clampCoord(x, model.width);
     const int clampedY = clampCoord(y, model.height);
 
-    const int deltaX = clampedX - globalLastX;
-    const int deltaY = clampedY - globalLastY;
-    globalLastX = clampedX;
-    globalLastY = clampedY;
+    const int deltaX = clampedX - GlutDebugToolsMouseControl::lastX;
+    const int deltaY = clampedY - GlutDebugToolsMouseControl::lastY;
+    GlutDebugToolsMouseControl::lastX = clampedX;
+    GlutDebugToolsMouseControl::lastY = clampedY;
 
     if ( deltaX == 0 && deltaY == 0 ) {
         return false;
     }
 
-    if ( !globalDragging ) {
-        const int fromPressX = std::abs(clampedX - globalPressX);
-        const int fromPressY = std::abs(clampedY - globalPressY);
+    if ( !GlutDebugToolsMouseControl::dragging ) {
+        const int fromPressX = std::abs(clampedX - GlutDebugToolsMouseControl::pressX);
+        const int fromPressY = std::abs(clampedY - GlutDebugToolsMouseControl::pressY);
         if ( fromPressX >= DRAG_START_THRESHOLD_PIXELS || fromPressY >= DRAG_START_THRESHOLD_PIXELS ) {
-            globalDragging = true;
+            GlutDebugToolsMouseControl::dragging = true;
         }
     }
 
-    if ( !globalDragging ) {
+    if ( !GlutDebugToolsMouseControl::dragging ) {
         return false;
     }
 

@@ -44,7 +44,7 @@ class RayTracer {
     static void
     rayTrace(
         const char *fileName,
-        java::io::OutputStream *stream,
+        java::OutputStream *stream,
         int isPipe,
         const RayTracer *rayTracer,
         Scene *scene,

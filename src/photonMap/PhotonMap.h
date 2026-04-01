@@ -143,7 +143,7 @@ class PhotonMap {
 
     // Utility functions
 
-    void printStats(java::io::PrintStream *stream) const;
+    void printStats(java::PrintStream *stream) const;
 
     void getStats(char *p, int n) const;
 

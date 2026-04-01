@@ -86,17 +86,17 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
         case 0:
             break;
         case 1:
-            java::lang::System::out.printf("  - ");
+            java::System::out.printf("  - ");
             break;
         case 2:
-            java::lang::System::out.printf("    . ");
+            java::System::out.printf("    . ");
             break;
         default:
-            java::lang::System::out.printf("      (%d) ", level);
+            java::System::out.printf("      (%d) ", level);
             for ( int i = 3; i < level; i++ ) {
-                java::lang::System::out.printf(" ");
+                java::System::out.printf(" ");
             }
-            java::lang::System::out.printf("-> ");
+            java::System::out.printf("-> ");
             break;
     }
     const ColorRgb *c = element->radiance;
@@ -107,16 +107,16 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
 
     if ( element->regularSubElements == nullptr ) {
         if ( c == nullptr ) {
-            java::lang::System::out.printf("Child element no radiance\n");
+            java::System::out.printf("Child element no radiance\n");
         } else {
-            java::lang::System::out.printf("Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::System::out.printf("Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
     } else {
         if ( c == nullptr ) {
-            java::lang::System::out.printf("Container element no radiance\n");
+            java::System::out.printf("Container element no radiance\n");
         } else {
-            java::lang::System::out.printf("Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::System::out.printf("Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
         for ( int i = 0; i < 4; i++ ) {
@@ -130,7 +130,7 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
 
 void
 GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex) {
-    java::lang::System::out.printf("================================================================================\n");
+    java::System::out.printf("================================================================================\n");
     if ( patchIndex < 0 || scene->patchList == nullptr || patchIndex >= scene->patchList->size() ) {
         return;
     }
@@ -139,7 +139,7 @@ GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex)
         return;
     }
     const GalerkinElement *element = GalerkinElement::fromPatch(patch);
-    java::lang::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
+    java::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
     GlutDebugTools::printElementHierarchy(element, 0);
 }
 
@@ -357,8 +357,8 @@ GlutDebugTools::executeGlutGui(
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     int windowHandle = glutCreateWindow("RPK");
     if ( windowHandle == GL_FALSE ) {
-        java::lang::System::out.printf("ERROR: Can not open GLUT window, check OpenGL/GLUT setup.\n");
-        java::lang::System::exit(1);
+        java::System::out.printf("ERROR: Can not open GLUT window, check OpenGL/GLUT setup.\n");
+        java::System::exit(1);
     }
 
     globalModel.renderOptions->frustumCulling = false;

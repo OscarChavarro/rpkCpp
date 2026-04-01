@@ -1,6 +1,8 @@
 #ifndef __HashMap__
 #define __HashMap__
 
+#include <cstddef>
+
 #include "java/lang/Object.h"
 
 namespace java {
@@ -17,6 +19,16 @@ class HashMap final: public Object {
     void initialize(long initialBucketCount);
     void rehash(long newBucketCount);
     long bucketIndexFor(const K &key) const;
+    static size_t hashFNV1a(const unsigned char *bytes, size_t length);
+
+    template <class T>
+    static size_t hashKeyValue(const T &value);
+
+    template <class T>
+    static size_t hashKeyValue(T *const &value);
+
+    template <class T>
+    static size_t hashKeyValue(const T *const &value);
 
   public:
     HashMap();

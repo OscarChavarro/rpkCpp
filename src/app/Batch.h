@@ -24,7 +24,7 @@ class Batch final {
 #ifdef RAYTRACING_ENABLED
     static void batchRayTraceSaveImage(
         const char *fileName,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,
@@ -35,7 +35,7 @@ class Batch final {
         const char *fileName,
         void (*processFileCallback)(
             const char *fileName,
-            java::io::OutputStream *outputStream,
+            java::OutputStream *outputStream,
             int isPipe,
             const Scene *scene,
             const RadianceMethod *radianceMethod,
@@ -47,7 +47,7 @@ class Batch final {
         const RenderOptions *renderOptions);
     static void batchSaveRadianceImage(
         const char *fileName,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,
@@ -55,7 +55,7 @@ class Batch final {
         const RenderOptions *renderOptions);
     static void batchSaveRadianceModel(
         const char *fileName,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,

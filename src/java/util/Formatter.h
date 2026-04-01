@@ -6,18 +6,15 @@
 #include "java/lang/String.h"
 
 namespace java {
-namespace io {
 class OutputStream;
-}
-namespace util {
 
 class Formatter {
   public:
     Formatter();
-    explicit Formatter(java::io::OutputStream *outputStream);
+    explicit Formatter(java::OutputStream *outputStream);
     ~Formatter();
 
-    java::io::OutputStream *
+    java::OutputStream *
     out() const;
 
     void
@@ -36,18 +33,17 @@ class Formatter {
     vformat(char *buffer, int bufferSize, const char *format, va_list arguments);
 
   private:
-    static java::lang::String
-    appendText(const java::lang::String &left, const java::lang::String &right);
+    static java::String
+    appendText(const java::String &left, const java::String &right);
 
-    static java::lang::String
+    static java::String
     formatToString(const char *formatText, va_list arguments);
 
-    java::io::OutputStream *outputStream;
-    java::lang::String content;
+    java::OutputStream *outputStream;
+    java::String content;
     bool closed;
 };
 
-}
 }
 
 #endif

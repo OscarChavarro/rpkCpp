@@ -5,44 +5,44 @@
 #include "io/image/Dkcolor.h"
 #include "io/image/PicOutputHandle.h"
 
-java::lang::String
+java::String
 PicOutputHandle::formatToString(const char *format, va_list arguments) {
     if ( format == nullptr ) {
-        return java::lang::String();
+        return java::String();
     }
 
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    const int required = java::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
     va_end(argumentsCopy);
 
     if ( required < 0 ) {
-        return java::lang::String();
+        return java::String();
     }
     if ( required < static_cast<int>(sizeof(localBuffer)) ) {
-        return java::lang::String(localBuffer);
+        return java::String(localBuffer);
     }
 
     char *dynamicBuffer = new char[required + 1];
     va_copy(argumentsCopy, arguments);
-    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    java::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
     va_end(argumentsCopy);
 
-    java::lang::String result(dynamicBuffer);
+    java::String result(dynamicBuffer);
     delete[] dynamicBuffer;
     return result;
 }
 
 void
-PicOutputHandle::writeFormatted(java::io::OutputStream *outputStream, const char *format, ...) {
+PicOutputHandle::writeFormatted(java::OutputStream *outputStream, const char *format, ...) {
     if ( outputStream == nullptr || format == nullptr ) {
         return;
     }
 
     va_list arguments;
     va_start(arguments, format);
-    java::lang::String text = formatToString(format, arguments);
+    java::String text = formatToString(format, arguments);
     va_end(arguments);
 
     if ( text.isEmpty() ) {
@@ -57,13 +57,13 @@ PicOutputHandle::writeFormatted(java::io::OutputStream *outputStream, const char
 PicOutputHandle::PicOutputHandle(const char *filename, int w, int h) {
     ImageOutputHandle::init("high dynamic range PIC", w, h);
 
-    java::io::File file(filename);
+    java::File file(filename);
     if ( !file.canWrite() || file.isDirectory() ) {
         outputStream = nullptr;
-        java::lang::System::err.printf("Can't open PIC output");
+        java::System::err.printf("Can't open PIC output");
         return;
     }
-    outputStream = new java::io::FileOutputStream(filename);
+    outputStream = new java::FileOutputStream(filename);
 
     writeHeader();
 }

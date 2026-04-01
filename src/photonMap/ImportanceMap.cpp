@@ -169,7 +169,7 @@ ImportanceMap::photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon) {
 
 void
 ImportanceMap::precomputeIrradiance() {
-    java::lang::System::err.printf("ImportanceMap::precomputeIrradiance\n");
+    java::System::err.printf("ImportanceMap::precomputeIrradiance\n");
     m_maxImp = 0;
     m_avgImp = 0;
     m_preReconPhotons = *m_estimate_nrp;

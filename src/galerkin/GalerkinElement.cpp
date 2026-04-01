@@ -252,16 +252,16 @@ GalerkinElement::getNumberOfSurfaceElements() {
 GalerkinElement *
 GalerkinElement::fromPatch(const Patch *patch) {
     if ( patch == nullptr ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
-        java::lang::System::exit(1);
+        java::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
+        java::System::exit(1);
     }
     if ( patch->radianceData == nullptr ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
-        java::lang::System::exit(1);
+        java::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
+        java::System::exit(1);
     }
     if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
-        java::lang::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
-        java::lang::System::exit(1);
+        java::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
+        java::System::exit(1);
     }
     return static_cast<GalerkinElement *>(patch->radianceData);
 }

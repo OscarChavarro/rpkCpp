@@ -19,13 +19,13 @@ typedef float DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
 
 class DkColor {
   public:
-    static int writeScan(DK_COLOR *scanline, int len, java::io::OutputStream *outputStream);
+    static int writeScan(DK_COLOR *scanline, int len, java::OutputStream *outputStream);
     static void freeBuffer();
 
   private:
-    static void writeByte(java::io::OutputStream *stream, int value);
+    static void writeByte(java::OutputStream *stream, int value);
     static BYTE *tempBuffer(unsigned int length);
-    static int writeByteColors(BYTE_COLOR *scanline, int len, java::io::OutputStream *outputStream);
+    static int writeByteColors(BYTE_COLOR *scanline, int len, java::OutputStream *outputStream);
     static void setByteColors(BYTE_COLOR color, double r, double g, double b);
 };
 

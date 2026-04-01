@@ -23,7 +23,7 @@ RandomWalkRadianceMethod::appendRandomWalkStatsText(char *buffer, int *offset, c
     va_list arguments;
     va_start(arguments, format);
     const int available = STRING_LENGTH - *offset;
-    const int written = java::util::Formatter::vformat(&buffer[*offset], available, format, arguments);
+    const int written = java::Formatter::vformat(&buffer[*offset], available, format, arguments);
     va_end(arguments);
 
     if ( written <= 0 ) {
@@ -78,7 +78,7 @@ RandomWalkRadianceMethod::destroyPatchData(Patch *patch) {
 void
 RandomWalkRadianceMethod::writeVRML(
     const Camera * /*camera*/,
-    java::io::OutputStream * /*outputStream*/,
+    java::OutputStream * /*outputStream*/,
     const RenderOptions * /*renderOptions*/) const
 {
 }
@@ -95,15 +95,15 @@ RandomWalkRadianceMethod::initialize(Scene *scene) {
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityPrintStats() {
-    java::lang::System::err.printf("%g secs., total radiance rays = %ld",
+    java::System::err.printf("%g secs., total radiance rays = %ld",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays);
-    java::lang::System::err.printf(", total flux = ");
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::lang::System::err);
+    java::System::err.printf(", total flux = ");
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalFlux.print(&java::System::err);
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceDriven ) {
-        java::lang::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
+        java::System::err.printf("\ntotal importance rays = %ld, total importance = %g, GLOBAL_statistics_totalArea = %g",
                 GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays, GLOBAL_stochasticRaytracing_monteCarloRadiosityState.totalYmp, Statistics::instance().totalArea);
     }
-    java::lang::System::err.printf("\n");
+    java::System::err.printf("\n");
 }
 
 /**
@@ -298,7 +298,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoShootingIteration(
                               Statistics::instance().averageReflectivity.maximumComponent())));
     }
 
-    java::lang::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
+    java::System::err.printf("Shooting iteration %d (%ld paths, approximately %ld rays)\n",
             GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
             numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) /
                                                                (1.0 - Statistics::instance().averageReflectivity.maximumComponent()))));
@@ -346,9 +346,9 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
     }
 
     cr.divide(c1, c2);
-    java::lang::System::err.printf("Control radiosity value = ");
-    cr.print(&java::lang::System::err);
-    java::lang::System::err.printf(", luminosity = %g\n", cr.luminance());
+    java::System::err.printf("Control radiosity value = ");
+    cr.print(&java::System::err);
+    java::System::err.printf(", luminosity = %g\n", cr.luminance());
 
     return cr;
 }
@@ -445,7 +445,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoGatheringIteration(
         randomWalkRadiosityReduceSource(scenePatches); // Do this only once!
     }
 
-    java::lang::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
+    java::System::err.printf("Collision gathering iteration %d (%ld paths, approximately %ld rays)\n",
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration,
         numberOfWalks, static_cast<long>(java::Math::floor(static_cast<double>(numberOfWalks) / (1.0 - Statistics::instance().averageReflectivity.maximumComponent()))));
 
@@ -475,7 +475,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
 {
     long numberOfRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.initialNumberOfRays *
         GLOBAL_stochasticRadiosity_approxDesc[GLOBAL_stochasticRaytracing_monteCarloRadiosityState.approximationOrderType].basis_size;
-    java::lang::System::err.printf("First shot (%ld rays):\n", numberOfRays);
+    java::System::err.printf("First shot (%ld rays):\n", numberOfRays);
     Stochjacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();

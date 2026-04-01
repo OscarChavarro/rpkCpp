@@ -4,7 +4,6 @@
 #include <cstdarg>
 
 namespace java {
-namespace lang {
 
 class String {
   private:
@@ -59,7 +58,6 @@ class String {
     formatCStringToJavaString(const char *format, va_list arguments);
 };
 
-}
 }
 
 #endif

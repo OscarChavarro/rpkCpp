@@ -1,7 +1,6 @@
 #include "java/io/InputStream.h"
 
 namespace java {
-namespace io {
 
 void
 InputStream::dispose() {
@@ -10,5 +9,4 @@ InputStream::dispose() {
 
 InputStream::~InputStream() = default;
 
-}
 }

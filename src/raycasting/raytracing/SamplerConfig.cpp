@@ -19,7 +19,7 @@ SamplerConfig::init(bool useQMC, int qmcDepth) {
 
         for ( int i = 0; i < m_qmcDepth; i++ ) {
             m_qmcSeed[i] = static_cast<unsigned int>(lrand48());
-            java::lang::System::out.printf("Seed %i\n", m_qmcSeed[i]);
+            java::System::out.printf("Seed %i\n", m_qmcSeed[i]);
 
             // Every possible path depth gets its own qmc seed to prevent correlation
         }
@@ -43,7 +43,7 @@ SamplerConfig::getRand(int depth, double *x1, double *x2) const {
             *x1 = nrs[0] * Niederreiter31::RECIP;
             *x2 = nrs[1] * Niederreiter31::RECIP;
         } else {
-            java::lang::System::out.printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
+            java::System::out.printf("Hmmmm MD %i D%i\n", m_qmcDepth, depth);
             *x1 = drand48();
             *x2 = drand48();
         }

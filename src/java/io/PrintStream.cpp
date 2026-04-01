@@ -5,7 +5,6 @@
 #include "java/util/Formatter.h"
 
 namespace java {
-namespace io {
 
 PrintStream::PrintStream(OutputStream *stream):
     stream(stream)
@@ -33,7 +32,7 @@ PrintStream::writeFormatted(OutputStream *stream, const char *format, va_list ar
     char localBuffer[256];
     va_list argumentsCopy;
     va_copy(argumentsCopy, arguments);
-    const int required = java::util::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
+    const int required = java::Formatter::vformat(localBuffer, static_cast<int>(sizeof(localBuffer)), format, argumentsCopy);
     va_end(argumentsCopy);
     if ( required <= 0 ) {
         return;
@@ -46,7 +45,7 @@ PrintStream::writeFormatted(OutputStream *stream, const char *format, va_list ar
 
     char *dynamicBuffer = new char[required + 1];
     va_copy(argumentsCopy, arguments);
-    java::util::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
+    java::Formatter::vformat(dynamicBuffer, required + 1, format, argumentsCopy);
     va_end(argumentsCopy);
     writeText(stream, dynamicBuffer);
     delete[] dynamicBuffer;
@@ -94,5 +93,4 @@ PrintStream::flush() const {
     stream->flush();
 }
 
-}
 }

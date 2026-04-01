@@ -17,7 +17,7 @@ For counting how much CPU time was used for the computations
 */
 void
 ScreenIterate::updateCpuSecs() {
-    const long long now = java::lang::System::nanoTime();
+    const long long now = java::System::nanoTime();
     GLOBAL_raytracer_totalTime += static_cast<double>(now - state.lastTime) / 1000000000.0;
     state.lastTime = now;
 }
@@ -30,7 +30,7 @@ ScreenIterate::init() {
 #endif
 
     // initialize for statistics etc.
-    state.lastTime = java::lang::System::nanoTime();
+    state.lastTime = java::System::nanoTime();
     GLOBAL_raytracer_totalTime = 0.0;
     GLOBAL_raytracer_rayCount = GLOBAL_raytracer_pixelCount = 0;
 }

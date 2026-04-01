@@ -20,7 +20,7 @@ ImageOutputHandle::setToneMappingContext(const ToneMappingContext *inToneMapOpti
 
 int
 ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
-    java::lang::System::err.printf("%s does not support display RGB output.\n", driverName);
+    java::System::err.printf("%s does not support display RGB output.\n", driverName);
     return 0;
 }
 
@@ -125,7 +125,7 @@ use to write radiance image
 ImageOutputHandle *
 ImageOutputHandle::createRadianceImageOutputHandle(
     const char *fileName,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     int isPipe,
     int width,
     int height)
@@ -161,7 +161,7 @@ Same, but for writing "normal" display RGB images instead radiance image
 ImageOutputHandle *
 ImageOutputHandle::createImageOutputHandle(
     const char *fileName,
-    java::io::OutputStream *outputStream,
+    java::OutputStream *outputStream,
     const int isPipe,
     const int width,
     const int height)

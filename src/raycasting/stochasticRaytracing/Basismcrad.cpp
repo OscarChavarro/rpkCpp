@@ -66,7 +66,7 @@ Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApp
 
     basis.size = GLOBAL_stochasticRadiosity_approxDesc[at].basis_size;
 
-    java::util::Formatter::format(
+    java::Formatter::format(
         desc, 100, "%s orthonormal basis for %s", GLOBAL_stochasticRadiosity_approxDesc[at].name, elem);
     basis.description = strdup(desc);
 

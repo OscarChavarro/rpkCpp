@@ -5,7 +5,6 @@
 #include "java/io/File.h"
 
 namespace java {
-namespace io {
 
 bool
 File::isValidPath(const char *rawPath) {
@@ -75,7 +74,7 @@ File::File(const char *path):
 {
 }
 
-File::File(const java::lang::String &path):
+File::File(const java::String &path):
     path(path)
 {
 }
@@ -89,7 +88,7 @@ File::dispose() {
     path.dispose();
 }
 
-java::lang::String
+java::String
 File::getName() const {
     const int separator = path.indexOf('/');
     if ( separator < 0 ) {
@@ -162,5 +161,4 @@ File::canWrite() const {
     return canOpenWithMode(rawPath, "ab");
 }
 
-}
 }

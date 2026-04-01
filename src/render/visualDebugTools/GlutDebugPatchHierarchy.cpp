@@ -16,15 +16,8 @@
     #include <GL/gl.h>
 #endif
 
-namespace {
-
-static constexpr float GRAY_DARKEN_FACTOR = 0.42f;
-static constexpr float GRAY_CONTRAST_GAMMA = 1.20f;
-static constexpr float OUTLINE_MIN_GRAY = 0.05f;
-static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65f;
-
 float
-clamp01(float value) {
+GlutDebugPatchHierarchy::clamp01(float value) {
     if ( value < 0.0f ) {
         return 0.0f;
     }
@@ -35,13 +28,11 @@ clamp01(float value) {
 }
 
 float
-toneMappedGrayAndDarkened(float value01) {
-    float adjusted = clamp01(value01);
-    adjusted = static_cast<float>(java::Math::pow(adjusted, GRAY_CONTRAST_GAMMA));
-    adjusted *= GRAY_DARKEN_FACTOR;
-    return clamp01(adjusted);
-}
-
+GlutDebugPatchHierarchy::toneMappedGrayAndDarkened(float value01) {
+    float adjusted = GlutDebugPatchHierarchy::clamp01(value01);
+    adjusted = static_cast<float>(java::Math::pow(adjusted, GlutDebugPatchHierarchy::GRAY_CONTRAST_GAMMA));
+    adjusted *= GlutDebugPatchHierarchy::GRAY_DARKEN_FACTOR;
+    return GlutDebugPatchHierarchy::clamp01(adjusted);
 }
 
 int

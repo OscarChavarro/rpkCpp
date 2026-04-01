@@ -75,7 +75,7 @@ class ScreenBuffer {
     void setAddScaleFactor(float inFactor);
     void setFactor(float inFactor);
     void setRgbImage(bool isRGB);
-    void writeFile(const char *fileName, java::io::OutputStream *outputStream, int isPipe);
+    void writeFile(const char *fileName, java::OutputStream *outputStream, int isPipe);
     void writeFile(const char *fileName);
 #endif
 

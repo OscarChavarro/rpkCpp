@@ -21,6 +21,13 @@ class GlutDebugPatchHierarchy final {
         int secondaryPatchIndex);
 
   private:
+    static constexpr float GRAY_DARKEN_FACTOR = 0.42f;
+    static constexpr float GRAY_CONTRAST_GAMMA = 1.20f;
+    static constexpr float OUTLINE_MIN_GRAY = 0.05f;
+    static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65f;
+
+    static float clamp01(float value);
+    static float toneMappedGrayAndDarkened(float value01);
     static int clampLevel(int level, int maxLevel);
     static void renderNonSelectedPatchesGray(
         const Scene *scene,

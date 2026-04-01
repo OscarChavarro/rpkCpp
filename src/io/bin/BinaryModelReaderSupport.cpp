@@ -39,7 +39,7 @@ BinaryModelReaderSupport::releaseIndexListRecord(BinaryModelReaderIndexListRecor
 }
 
 void
-BinaryModelReaderSupport::readBytes(java::io::InputStream &input, unsigned char *buffer, int length) {
+BinaryModelReaderSupport::readBytes(java::InputStream &input, unsigned char *buffer, int length) {
     if ( length <= 0 ) {
         return;
     }
@@ -47,7 +47,7 @@ BinaryModelReaderSupport::readBytes(java::io::InputStream &input, unsigned char 
 }
 
 bool
-BinaryModelReaderSupport::readBytesChunked(java::io::InputStream &input, unsigned char *buffer, long long length) {
+BinaryModelReaderSupport::readBytesChunked(java::InputStream &input, unsigned char *buffer, long long length) {
     if ( length <= 0 ) {
         return true;
     }
@@ -64,28 +64,28 @@ BinaryModelReaderSupport::readBytesChunked(java::io::InputStream &input, unsigne
 }
 
 unsigned char
-BinaryModelReaderSupport::readByte(java::io::InputStream &input) {
+BinaryModelReaderSupport::readByte(java::InputStream &input) {
     return static_cast<unsigned char>(vsdk::PersistenceElement::readByteUnsignedInt(input));
 }
 
 bool
-BinaryModelReaderSupport::readBool(java::io::InputStream &input) {
+BinaryModelReaderSupport::readBool(java::InputStream &input) {
     return readByte(input) != 0;
 }
 
 short
-BinaryModelReaderSupport::readInt16LE(java::io::InputStream &input) {
+BinaryModelReaderSupport::readInt16LE(java::InputStream &input) {
     return static_cast<short>(vsdk::PersistenceElement::readSignedShortLE(input));
 }
 
 int
-BinaryModelReaderSupport::readInt32LE(java::io::InputStream &input) {
+BinaryModelReaderSupport::readInt32LE(java::InputStream &input) {
     const long value = vsdk::PersistenceElement::readLongLE(input);
     return static_cast<int>(value);
 }
 
 long long
-BinaryModelReaderSupport::readInt64LE(java::io::InputStream &input) {
+BinaryModelReaderSupport::readInt64LE(java::InputStream &input) {
     unsigned char bytes[8] = {0, 0, 0, 0, 0, 0, 0, 0};
     readBytes(input, bytes, 8);
     unsigned long long value = 0;
@@ -96,17 +96,17 @@ BinaryModelReaderSupport::readInt64LE(java::io::InputStream &input) {
 }
 
 float
-BinaryModelReaderSupport::readFloatLE(java::io::InputStream &input) {
+BinaryModelReaderSupport::readFloatLE(java::InputStream &input) {
     return vsdk::PersistenceElement::readFloatLE(input);
 }
 
 double
-BinaryModelReaderSupport::readDoubleLE(java::io::InputStream &input) {
+BinaryModelReaderSupport::readDoubleLE(java::InputStream &input) {
     return vsdk::PersistenceElement::readDoubleLE(input);
 }
 
 bool
-BinaryModelReaderSupport::expectTag(java::io::InputStream &input, const char expected[4]) {
+BinaryModelReaderSupport::expectTag(java::InputStream &input, const char expected[4]) {
     unsigned char tag[4] = {0, 0, 0, 0};
     readBytes(input, tag, 4);
     if ( tag[0] != static_cast<unsigned char>(expected[0])
@@ -119,7 +119,7 @@ BinaryModelReaderSupport::expectTag(java::io::InputStream &input, const char exp
 }
 
 bool
-BinaryModelReaderSupport::readNonNegativeCount(java::io::InputStream &input, const char *what, int *count) {
+BinaryModelReaderSupport::readNonNegativeCount(java::InputStream &input, const char *what, int *count) {
     if ( count == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readNonNegativeCount", "Null output count pointer");
     }
@@ -132,7 +132,7 @@ BinaryModelReaderSupport::readNonNegativeCount(java::io::InputStream &input, con
 }
 
 bool
-BinaryModelReaderSupport::readNullableString(java::io::InputStream &input, char **value, bool *hasValue) {
+BinaryModelReaderSupport::readNullableString(java::InputStream &input, char **value, bool *hasValue) {
     if ( value == nullptr || hasValue == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readNullableString", "Null string output pointer");
     }
@@ -179,7 +179,7 @@ BinaryModelReaderSupport::duplicateNullableString(bool hasValue, const char *val
 }
 
 bool
-BinaryModelReaderSupport::readColor(java::io::InputStream &input, ColorRgb *color) {
+BinaryModelReaderSupport::readColor(java::InputStream &input, ColorRgb *color) {
     if ( color == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readColor", "Null color output pointer");
     }
@@ -190,7 +190,7 @@ BinaryModelReaderSupport::readColor(java::io::InputStream &input, ColorRgb *colo
 }
 
 bool
-BinaryModelReaderSupport::readVector(java::io::InputStream &input, Vector3D *vector) {
+BinaryModelReaderSupport::readVector(java::InputStream &input, Vector3D *vector) {
     if ( vector == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readVector", "Null vector output pointer");
     }
@@ -201,7 +201,7 @@ BinaryModelReaderSupport::readVector(java::io::InputStream &input, Vector3D *vec
 }
 
 bool
-BinaryModelReaderSupport::readBoundingBoxCoordinates(java::io::InputStream &input, float coordinates[6]) {
+BinaryModelReaderSupport::readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]) {
     if ( coordinates == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readBoundingBoxCoordinates", "Null bounding box coordinate buffer");
     }
@@ -228,7 +228,7 @@ BinaryModelReaderSupport::setBoundingBoxFromCoordinates(BoundingBox *boundingBox
 }
 
 bool
-BinaryModelReaderSupport::readIndexList(java::io::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record) {
+BinaryModelReaderSupport::readIndexList(java::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record) {
     if ( record == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::readIndexList", "Null output record");
     }
@@ -259,7 +259,7 @@ BinaryModelReaderSupport::readIndexList(java::io::InputStream &input, const char
 }
 
 bool
-BinaryModelReaderSupport::validateBinaryHeader(java::io::InputStream &input) {
+BinaryModelReaderSupport::validateBinaryHeader(java::InputStream &input) {
     unsigned char magic[16] = {0};
     readBytes(input, magic, 16);
     if ( std::memcmp(magic, BINARY_MODEL_MAGIC, 16) != 0 ) {

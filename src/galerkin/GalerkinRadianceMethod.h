@@ -19,7 +19,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
     static void patchInit(Patch *patch);
     static void updateCpuSecs();
-    static java::lang::String formatToString(const char *format, va_list arguments);
+    static java::String formatToString(const char *format, va_list arguments);
     static void writeFormatted(const char *format, ...);
     static void appendStatsText(char *buffer, int *offset, const char *format, ...);
     static void writeVertexCoord(const Vector3D *point);
@@ -32,7 +32,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static void writeCoordIndex(int index);
     static void writeCoordIndices(Element *element);
     static void writeCoordIndicesTopCluster();
-    static java::io::OutputStream *vrmlOutputStream;
+    static java::OutputStream *vrmlOutputStream;
     static int numberOfWrites;
     static int vertexId;
 
@@ -78,7 +78,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     void
     writeVRML(
         const Camera *camera,
-        java::io::OutputStream *outputStream,
+        java::OutputStream *outputStream,
         const RenderOptions *renderOptions) const final;
     void setStrategy();
 };

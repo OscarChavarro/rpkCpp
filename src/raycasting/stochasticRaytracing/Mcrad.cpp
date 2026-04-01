@@ -56,7 +56,7 @@ For counting how much CPU time was used for the computations
 */
 void
 Mcrad::monteCarloRadiosityUpdateCpuSecs() {
-    const long long t = java::lang::System::nanoTime();
+    const long long t = java::System::nanoTime();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds += static_cast<float>(
         static_cast<double>(t - GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock) / 1000000000.0);
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = t;
@@ -189,7 +189,7 @@ Mcrad::monteCarloRadiosityReInitImportance(Element *element) {
 
 void
 Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions) {
-    java::lang::System::err.printf("Updating direct visibility ... \n");
+    java::System::err.printf("Updating direct visibility ... \n");
 
     Potential::updateDirectVisibility(scene, renderOptions);
 
@@ -199,10 +199,10 @@ Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions
     monteCarloRadiosityUpdateImportance(GLOBAL_stochasticRaytracing_hierarchy.topCluster);
 
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.unShotYmp < GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sourceYmp ) {
-        java::lang::System::err.printf("Importance will be recomputed incrementally.\n");
+        java::System::err.printf("Importance will be recomputed incrementally.\n");
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = false;
     } else {
-        java::lang::System::err.printf("Importance will be recomputed from scratch.\n");
+        java::System::err.printf("Importance will be recomputed from scratch.\n");
         GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceUpdatedFromScratch = true;
 
         // Re-compute from scratch
@@ -289,13 +289,13 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOption
         return;
     }
 
-    java::lang::System::err.printf("Initialising Monte Carlo radiosity ...\n");
+    java::System::err.printf("Initialising Monte Carlo radiosity ...\n");
 
     Sample4d::setSequence4D(GLOBAL_stochasticRaytracing_monteCarloRadiosityState.sequence);
 
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited = true;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.cpuSeconds = 0.0;
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::lang::System::nanoTime();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::System::nanoTime();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.tracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.numberOfMisses = 0;
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.importanceTracedRays = GLOBAL_stochasticRaytracing_monteCarloRadiosityState.prevImportanceTracedRays = 0;
@@ -349,7 +349,7 @@ Mcrad::monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptio
         Mcrad::monteCarloRadiosityUpdateViewImportance(scene, renderOptions);
     }
 
-    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::lang::System::nanoTime();
+    GLOBAL_stochasticRaytracing_monteCarloRadiosityState.lastClock = java::System::nanoTime();
     GLOBAL_stochasticRaytracing_monteCarloRadiosityState.currentIteration++;
 }
 

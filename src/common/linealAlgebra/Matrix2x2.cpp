@@ -1,7 +1,7 @@
 #include "common/linealAlgebra/Matrix2x2.h"
 
 void
-Matrix2x2::print(java::io::PrintStream *stream) const {
+Matrix2x2::print(java::PrintStream *stream) const {
     if ( stream == nullptr ) {
         return;
     }

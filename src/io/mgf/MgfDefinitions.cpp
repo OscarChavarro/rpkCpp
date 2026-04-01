@@ -12,7 +12,7 @@ MgfDefinitions::standardInputPath() {
 }
 
 bool
-MgfDefinitions::skipLines(java::io::InputStream *inputStream, int lineCount) {
+MgfDefinitions::skipLines(java::InputStream *inputStream, int lineCount) {
     if ( inputStream == nullptr || lineCount < 0 ) {
         return false;
     }
@@ -83,7 +83,7 @@ MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, ParseSession
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
     int pipeFlag = 0;
-    java::io::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
+    java::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(context->readerContext->fileName, &pipeFlag);
     if ( inputStream == nullptr || pipeFlag != 0 ) {
         FileUncompressWrapper::closeInputStream(inputStream);
         return ErrorCodeContext::MGF_ERROR_FILE_SEEK_ERROR;
@@ -161,11 +161,11 @@ MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallba
     readerContext->inputStream = nullptr;
     if ( functionCallback == nullptr ) {
         strcpy(readerContext->fileName, "<stdin>");
-        java::io::File standardInputFile(standardInputPath());
+        java::File standardInputFile(standardInputPath());
         if ( !standardInputFile.exists() || !standardInputFile.canRead() ) {
             return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
         }
-        java::io::FileInputStream *fileInputStream = new java::io::FileInputStream(standardInputPath());
+        java::FileInputStream *fileInputStream = new java::FileInputStream(standardInputPath());
         readerContext->inputStream = fileInputStream;
         readerContext->prev = context->readerContext;
         context->readerContext = readerContext;
@@ -192,7 +192,7 @@ MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallba
     }
 
     int pipeFlag = false;
-    java::io::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(readerContext->fileName, &pipeFlag);
+    java::InputStream *inputStream = FileUncompressWrapper::openInputStreamCompressWrapper(readerContext->fileName, &pipeFlag);
     if ( inputStream == nullptr ) {
         return ErrorCodeContext::MGF_ERROR_CAN_NOT_OPEN_INPUT_FILE;
     }

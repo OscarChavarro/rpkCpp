@@ -6,9 +6,7 @@
 #include "io/context/EntityHandler.h"
 
 namespace java {
-namespace io {
 class InputStream;
-}
 }
 
 class FilePositionContext;
@@ -27,7 +25,7 @@ class MgfDefinitions {
 
   private:
     static const char *standardInputPath();
-    static bool skipLines(java::io::InputStream *inputStream, int lineCount);
+    static bool skipLines(java::InputStream *inputStream, int lineCount);
     static int mgfDefaultHandlerForUnknownEntities(int ac, const char **av, const ParseSession *context);
 };
 

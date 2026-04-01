@@ -1,7 +1,6 @@
 #include "java/io/BufferedInputStream.h"
 
 namespace java {
-namespace io {
 
 BufferedInputStream::BufferedInputStream(InputStream *inputStream):
     inputStream(inputStream)
@@ -42,5 +41,4 @@ BufferedInputStream::dispose() {
     inputStream = nullptr;
 }
 
-}
 }

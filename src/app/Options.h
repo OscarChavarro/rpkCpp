@@ -41,24 +41,24 @@ class Options final {
   public:
     static void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
     static int optionsEnumGet(void *value, void *data);
-    static void optionsEnumPrint(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsEnumPrint(java::PrintStream *stream, void *value, void *data);
     static int optionsStringGet(void *value, void *data);
-    static void optionsStringPrint(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsStringPrint(java::PrintStream *stream, void *value, void *data);
     static int optionsGetInt(void *value, void *data);
-    static void optionsPrintInt(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintInt(java::PrintStream *stream, void *value, void *data);
     static int optionsGetString(void *value, void *data);
-    static void optionsPrintString(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintString(java::PrintStream *stream, void *value, void *data);
     static int optionsSetTrue(void *value, void *data);
     static int optionsSetFalse(void *value, void *data);
-    static void optionsPrintOther(java::io::PrintStream *stream, void *x, void *data);
+    static void optionsPrintOther(java::PrintStream *stream, void *x, void *data);
     static int optionsGetfloat(void *value, void *data);
-    static void optionsPrintFloat(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintFloat(java::PrintStream *stream, void *value, void *data);
     static int optionsGetVector(void *value, void *data);
-    static void optionsPrintVector(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintVector(java::PrintStream *stream, void *value, void *data);
     static int optionsGetRgb(void *value, void *data);
-    static void optionsPrintRgb(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintRgb(java::PrintStream *stream, void *value, void *data);
     static int optionsGetCieXy(void *value, void *data);
-    static void optionsPrintCieXyCallBack(java::io::PrintStream *stream, void *value, void *data);
+    static void optionsPrintCieXyCallBack(java::PrintStream *stream, void *value, void *data);
     static int *optionsCreateStringLengthStorage(int n);
     static void deleteOptionsMemory();
 

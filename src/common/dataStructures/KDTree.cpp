@@ -702,7 +702,7 @@ KDTree::balance() {
         return;
     }
 
-    java::lang::System::err.printf("Balancing kd-tree: %i nodes...\n", numberOfNodes);
+    java::System::err.printf("Balancing kd-tree: %i nodes...\n", numberOfNodes);
 
     BalancedKDTreeNode *broot = new BalancedKDTreeNode[numberOfNodes + 1];
 
@@ -740,5 +740,5 @@ KDTree::balance() {
 
     firstLeaf = (numBalanced + 1) / 2;
 
-    java::lang::System::err.printf("done\n");
+    java::System::err.printf("done\n");
 }

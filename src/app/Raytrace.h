@@ -13,7 +13,7 @@ class Raytrace final {
     static RayTracer *rayTraceCreate(const Scene *scene, const char *rayTracerName);
     static void rayTraceSaveImage(
         const char *fileName,
-        java::io::OutputStream *stream,
+        java::OutputStream *stream,
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,
@@ -21,7 +21,7 @@ class Raytrace final {
         const RenderOptions *renderOptions);
     static void rayTraceExecute(
         const char *filename,
-        java::io::OutputStream *stream,
+        java::OutputStream *stream,
         int isPipe,
         Scene *scene,
         RadianceMethod *radianceMethod,
