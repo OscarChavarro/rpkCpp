@@ -18,6 +18,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/Stochjacobi.h"
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityOpenGLRenderer.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 static constexpr int STRING_LENGTH = 2000;
@@ -261,12 +262,6 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
         stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
         if ( unShotFraction > 0.3 ) {
             stochasticRelaxationRadiosityRecomputeDisplayColors(scene->patchList);
-
-            if ( GLOBAL_rayTracer != nullptr ) {
-                // TODO: Verify this is not needed, has been disabled flow on May 29 2024
-                //openGlRenderNewDisplayList(scene->clusteredRootGeometry, renderOptions);
-                //Opengl::openGlRenderScene(scene, GLOBAL_rayTracer, radianceMethod, renderOptions);
-            }
         }
     }
 
@@ -503,7 +498,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDiscardIncremental(
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityRenderPatch(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
     if ( GLOBAL_stochasticRaytracing_monteCarloRadiosityState.inited ) {
         McradP::topLevelStochasticRadiosityElement(patch)->traverseQuadTreeLeafs(
-            StochasticRadiosityElement::stochasticRadiosityElementRender,
+            StochasticRadiosityOpenGLRenderer::renderElement,
             renderOptions);
     } else {
         // Not yet initialized

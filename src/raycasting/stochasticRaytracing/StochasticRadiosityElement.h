@@ -81,7 +81,6 @@ class StochasticRadiosityElement final : public Element {
         double u,
         double v,
         const RenderOptions *renderOptions);
-    static void stochasticRadiosityElementRender(Element *element, const RenderOptions *renderOptions);
     static void stochasticRadiosityElementComputeNewVertexColors(Element *element);
     static void stochasticRadiosityElementAdjustTVertexColors(Element *element);
     static ColorRgb stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
@@ -132,29 +131,6 @@ class StochasticRadiosityElement final : public Element {
     static ColorRgb vertexRadiance(const Vertex *vertex);
     static float vertexImportance(const Vertex *vertex);
     static ColorRgb vertexColor(Vertex *vertex);
-    static void renderTriangle(const Vertex *v1, const Vertex *v2, const Vertex *v3, const RenderOptions *renderOptions);
-    static void renderQuadrilateral(
-        const Vertex *v1,
-        const Vertex *v2,
-        const Vertex *v3,
-        const Vertex *v4,
-        const RenderOptions *renderOptions);
-    static void triangleTVertexElimination(
-        Vertex **vertices,
-        Vertex **midpoints,
-        int numberOfTVertices,
-        void (*doTriangleCallback)(const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
-        const RenderOptions *renderOptions);
-    static void quadrilateralTVertexElimination(
-        Vertex **vertices,
-        Vertex **midpoints,
-        int numberOfTVertices,
-        void (*doTriangleCallback)(const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
-        void (*doQuadrilateralCallback)(const Vertex *, const Vertex *, const Vertex *, const Vertex *, const RenderOptions *),
-        const RenderOptions *renderOptions);
-    static void renderTriangularElement(Vertex **vertices, Vertex **midpoints, int numberOfTVertices, const RenderOptions *renderOptions);
-    static void renderQuadrilateralElement(Vertex **vertices, Vertex **midpoints, int numberOfTVertices, const RenderOptions *renderOptions);
-    static void stochasticRadiosityElementRenderOutline(const StochasticRadiosityElement *elem, const RenderOptions *renderOptions);
 };
 
 extern Matrix2x2 GLOBAL_stochasticRaytracing_quadUpTransform[4];
