@@ -179,9 +179,9 @@ set(MAIN_SRC
     src/galerkin/GalerkinRadianceMethod.cpp
     src/galerkin/Shaft.cpp
     src/galerkin/GalerkinElement.cpp
-    src/galerkin/Basistrigalerkin.cpp
+    src/galerkin/BasisTriGalerkin.cpp
     src/galerkin/Interaction.cpp
-    src/galerkin/Basisquadgalerkin.cpp
+    src/galerkin/BasisQuadGalerkin.cpp
     src/galerkin/ShadowCache.cpp
     src/galerkin/processing/ScratchVisibilityStrategy.cpp
     src/galerkin/processing/ClusterTraversalStrategy.cpp

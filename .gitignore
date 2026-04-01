@@ -33,6 +33,7 @@
 
 # Cmake
 build
+build_*
 cmake*
 !CMakeLists.txt
 !**/CMakeLists.txt

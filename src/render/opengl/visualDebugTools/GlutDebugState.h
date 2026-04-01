@@ -12,6 +12,4 @@ class GlutDebugState {
     GlutDebugState();
 };
 
-extern GlutDebugState GLOBAL_render_glutDebugState;
-
 #endif

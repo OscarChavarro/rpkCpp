@@ -8,7 +8,6 @@
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
-#include "numericalAnalysis/QuadCubatureRule.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -21,6 +20,8 @@
 
 #ifdef OPEN_GL_ENABLED
     #include "render/opengl/visualDebugTools/GlutDebugTools.h"
+    #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
+    #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #endif
 
 #ifdef MGF_ENABLED
@@ -187,14 +188,18 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     // X. Interactive visual debug GUI tool
     #ifdef OPEN_GL_ENABLED
         if ( glutDebugEnabled ) {
-            GlutDebugTools::executeGlutGui(
-                argc,
-                argv,
-                scene,
-                mgfContext->radianceMethod,
-                renderOptions,
-                RpkApplication::freeMemory,
-                mgfContext);
+            GlutDebugState debugState;
+            GlutDebugToolsModel debugToolsModel;
+            debugToolsModel.scene = scene;
+            debugToolsModel.radianceMethod = mgfContext->radianceMethod;
+            debugToolsModel.renderOptions = renderOptions;
+            debugToolsModel.debugState = &debugState;
+            debugToolsModel.memoryFreeCallBack = RpkApplication::freeMemory;
+            debugToolsModel.mgfContext = mgfContext;
+
+            GlutDebugTools *glutDebugTools = new GlutDebugTools(debugToolsModel);
+            glutDebugTools->executeGlutGui(argc, argv);
+            delete glutDebugTools;
         }
     #endif
 

@@ -1,11 +1,11 @@
 /**
 Clusters of patches. A hierarchy of clusters is automatically built after loading a scene.
 
-Patch cluster hierarchies: after loading a scene, a hierarchy of clusters
-containing patches is built. Since only the position and size of the patches is
-relevant for constructing this GLOBAL_stochasticRaytracing_hierarchy (and not e.g. the material of the patches or
-the geometry to which they belong ...), this automatically constructed GLOBAL_stochasticRaytracing_hierarchy
-is often more efficient for tracing rays and for use in a clustering radiosity method etc.
+Patch cluster hierarchies: after loading a scene, an octree hierarchy of patch
+clusters is built. Since only patch position and size are relevant for
+constructing this hierarchy (and not, for example, material properties or the
+original geometry ownership), the generated structure is often more efficient
+for ray traversal and clustering-based radiosity routines.
 
 Reference:
 - Per Christensen, PhD Thesis "Hierarchical Techniques for Glossy Global Illumination",
@@ -208,10 +208,9 @@ PatchClusterOctreeNode::splitCluster() {
 }
 
 /**
-Converts a cluster GLOBAL_stochasticRaytracing_hierarchy to a "normal" Geometry.
-The "normal" routines for raytracing can be used to trace a ray through the cluster
-GLOBAL_stochasticRaytracing_hierarchy and shaft culling and such can be done on clusters
-without extra code and such
+Converts a cluster hierarchy to a regular Geometry tree.
+This lets the standard ray traversal code operate on clusters, including
+operations such as shaft culling, without specialized traversal code.
 */
 Geometry *
 PatchClusterOctreeNode::convertClusterToGeometry() const {

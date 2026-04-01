@@ -7,11 +7,13 @@ class Scene;
 class RadianceMethod;
 class RenderOptions;
 class ParseSession;
+class GlutDebugState;
 
 class GlutDebugToolsModel {
   public:
     GlutDebugMode mode;
     bool fullScreen;
+    bool fullScreenApplied;
     int selectedHierarchyLevel;
     int width;
     int height;
@@ -20,6 +22,7 @@ class GlutDebugToolsModel {
     Scene *scene;
     RadianceMethod *radianceMethod;
     RenderOptions *renderOptions;
+    GlutDebugState *debugState;
     void (*memoryFreeCallBack)(ParseSession *mgfContext);
     ParseSession *mgfContext;
 

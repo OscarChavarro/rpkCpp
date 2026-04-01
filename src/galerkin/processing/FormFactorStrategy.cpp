@@ -398,15 +398,13 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
         // No basis description for clusters: we always use a constant approximation on clusters
         receiverBasis = nullptr;
     } else {
-        receiverBasis =
-            (receiverElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        receiverBasis = GalerkinBasis::basisForVertexCount(receiverElement->patch->numberOfVertices);
     }
 
     if ( sourceElement->isCluster() ) {
         sourceBasis = nullptr;
     } else {
-        sourceBasis =
-            (sourceElement->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis);
+        sourceBasis = GalerkinBasis::basisForVertexCount(sourceElement->patch->numberOfVertices);
     }
 
     // 2. Compute form factor (sets K)

@@ -614,7 +614,11 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
 void
 GalerkinElement::initializeBasis() {
     GalerkinBasis::computeRegularFilterCoefficients(
-        &GLOBAL_galerkin_quadBasis, globalQuadToParentTransformMatrix, QuadCubatureRule::degree8QuadrilateralRule());
+        GalerkinBasis::mutableBasisForVertexCount(4),
+        globalQuadToParentTransformMatrix,
+        QuadCubatureRule::degree8QuadrilateralRule());
     GalerkinBasis::computeRegularFilterCoefficients(
-        &GLOBAL_galerkin_triBasis, globalTriangleToParentTransformMatrix, TriangleCubatureRule::degree8Rule());
+        GalerkinBasis::mutableBasisForVertexCount(3),
+        globalTriangleToParentTransformMatrix,
+        TriangleCubatureRule::degree8Rule());
 }

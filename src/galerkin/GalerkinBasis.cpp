@@ -4,6 +4,8 @@ Higher order approximations for Galerkin radiosity
 
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
+#include "galerkin/BasisQuadGalerkin.h"
+#include "galerkin/BasisTriGalerkin.h"
 #include "galerkin/GalerkinBasis.h"
 
 /**
@@ -44,7 +46,7 @@ GalerkinBasis::pull(
         }
 
         // Parent and child basis should be the same
-        basis = child->patch->numberOfVertices == 3 ? &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+        basis = GalerkinBasis::basisForVertexCount(child->patch->numberOfVertices);
         for ( int alpha = 0; alpha < parent->basisSize; alpha++ ) {
             parentCoefficients[alpha].clear();
             for ( int beta = 0; beta < child->basisSize; beta++ ) {
@@ -268,8 +270,7 @@ GalerkinBasis::push(
         }
 
         // Parent and child basis should be the same
-        const GalerkinBasis *basis = child->patch->numberOfVertices == 3 ?
-            &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+        const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(child->patch->numberOfVertices);
         for ( int beta = 0; beta < child->basisSize; beta++ ) {
             childCoefficients[beta].clear();
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
@@ -310,8 +311,7 @@ GalerkinBasis::radianceAtPoint(
     const double u,
     const double v)
 {
-    const GalerkinBasis *basis = element->patch->numberOfVertices == 3 ?
-        &GLOBAL_galerkin_triBasis : &GLOBAL_galerkin_quadBasis;
+    const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(element->patch->numberOfVertices);
 
     ColorRgb rad;
     rad.clear();
@@ -325,4 +325,14 @@ GalerkinBasis::radianceAtPoint(
     }
 
     return rad;
+}
+
+const GalerkinBasis *
+GalerkinBasis::basisForVertexCount(const int numberOfVertices) {
+    return numberOfVertices == 3 ? &BasisTriGalerkin::instance() : &BasisQuadGalerkin::instance();
+}
+
+GalerkinBasis *
+GalerkinBasis::mutableBasisForVertexCount(const int numberOfVertices) {
+    return numberOfVertices == 3 ? &BasisTriGalerkin::instance() : &BasisQuadGalerkin::instance();
 }

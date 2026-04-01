@@ -49,6 +49,9 @@ class GalerkinBasis {
         const Matrix2x2 upTransform[],
         const CubatureRule *cubaRule);
 
+    static const GalerkinBasis *basisForVertexCount(int numberOfVertices);
+    static GalerkinBasis *mutableBasisForVertexCount(int numberOfVertices);
+
   private:
     static void
     pull(
@@ -74,8 +77,5 @@ class GalerkinBasis {
         const CubatureRule *cubatureRule,
         double filter[MAX_BASIS_SIZE][MAX_BASIS_SIZE]);
 };
-
-extern GalerkinBasis GLOBAL_galerkin_quadBasis;
-extern GalerkinBasis GLOBAL_galerkin_triBasis;
 
 #endif

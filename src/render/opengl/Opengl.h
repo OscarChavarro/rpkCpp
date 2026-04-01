@@ -8,6 +8,7 @@
 #include "scene/Scene.h"
 
 class OpenGlRenderTraversalCallback;
+class GlutDebugState;
 
 typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);
 typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *, const RenderOptions *, void *);
@@ -43,8 +44,18 @@ class Opengl {
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RenderOptions *renderOptions);
     static void openGlRenderSetLineWidth(float width);
-    static void openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
-    static void openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    static void
+    openGlReallyRender(
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions,
+        const GlutDebugState *debugState);
+    static void
+    openGlRenderRadiance(
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        const RenderOptions *renderOptions,
+        const GlutDebugState *debugState);
     static Vector3D sceneRotationPivot(const Scene *scene);
     static void viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV);
 
@@ -62,7 +73,7 @@ class Opengl {
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions);
     static void openGlRenderClearWindow(const Camera *camera);
     static void openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries);
-    static void openGlApplyDebugSceneRotation(const Scene *scene);
+    static void openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *debugState);
 
     static void
     openGlRenderWorldOctree(
@@ -81,7 +92,8 @@ class Opengl {
     openGlRenderScene(
         const Scene *scene,
         const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
+        const RenderOptions *renderOptions,
+        const GlutDebugState *debugState = nullptr);
 };
 
 #endif

@@ -97,9 +97,13 @@ GlutDebugToolsMouseControl::clampCoord(int value, int maxExclusive) {
 
 void
 GlutDebugToolsMouseControl::clampSelectedHierarchyLevel(GlutDebugToolsModel &model) {
+    if ( model.debugState == nullptr ) {
+        return;
+    }
+
     const int maxHierarchyLevel = GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
         model.scene,
-        GLOBAL_render_glutDebugState.primarySelectedPatch);
+        model.debugState->primarySelectedPatch);
 
     if ( model.selectedHierarchyLevel < 0 ) {
         model.selectedHierarchyLevel = 0;
@@ -204,9 +208,12 @@ GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsM
     if ( ray == nullptr ) {
         return;
     }
+    if ( model.debugState == nullptr ) {
+        return;
+    }
 
-    const float angleAroundU = GLOBAL_render_glutDebugState.angleAroundViewportU;
-    const float angleAroundV = GLOBAL_render_glutDebugState.angleAroundViewportV;
+    const float angleAroundU = model.debugState->angleAroundViewportU;
+    const float angleAroundV = model.debugState->angleAroundViewportV;
     if ( angleAroundU == 0.0f && angleAroundV == 0.0f ) {
         return;
     }
@@ -395,16 +402,19 @@ GlutDebugToolsMouseControl::handleMouseButton(
     if ( !shouldSelectPatch ) {
         return false;
     }
+    if ( model.debugState == nullptr ) {
+        return false;
+    }
 
     int patchIndex = -1;
     if ( !pickPatchAtMousePosition(model, clampedX, clampedY, &patchIndex) ) {
         patchIndex = -1;
     }
 
-    int *targetSelection = &GLOBAL_render_glutDebugState.primarySelectedPatch;
+    int *targetSelection = &model.debugState->primarySelectedPatch;
     const bool isPrimarySelection = !GlutDebugToolsMouseControl::pressWithShift;
     if ( GlutDebugToolsMouseControl::pressWithShift ) {
-        targetSelection = &GLOBAL_render_glutDebugState.selectedSelectedPatch;
+        targetSelection = &model.debugState->selectedSelectedPatch;
     }
 
     if ( !GlutDebugToolsMouseControl::applyPatchSelection(patchIndex, targetSelection) ) {
@@ -446,8 +456,11 @@ GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel 
     if ( !GlutDebugToolsMouseControl::dragging ) {
         return false;
     }
+    if ( model.debugState == nullptr ) {
+        return false;
+    }
 
-    GLOBAL_render_glutDebugState.angleAroundViewportV -= static_cast<float>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
-    GLOBAL_render_glutDebugState.angleAroundViewportU += static_cast<float>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+    model.debugState->angleAroundViewportV -= static_cast<float>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+    model.debugState->angleAroundViewportU += static_cast<float>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
     return true;
 }

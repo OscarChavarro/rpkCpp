@@ -84,12 +84,12 @@ GlutDebugToolsKeyControl::stepSelectedPatchIndex(
 
 int
 GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(const GlutDebugToolsModel &model) {
-    if ( model.scene == nullptr ) {
+    if ( model.scene == nullptr || model.debugState == nullptr ) {
         return 0;
     }
     return GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
         model.scene,
-        GLOBAL_render_glutDebugState.primarySelectedPatch);
+        model.debugState->primarySelectedPatch);
 }
 
 void
@@ -109,6 +109,8 @@ GlutDebugToolsKeyControl::handleKeypress(
     GlutDebugToolsModel &model,
     void (*printGalerkinElementForPatch)(const Scene *scene, int patchIndex))
 {
+    GlutDebugState *const debugState = model.debugState;
+
     switch ( keyChar ) {
         case 27:
             if ( model.memoryFreeCallBack != nullptr ) {
@@ -117,21 +119,36 @@ GlutDebugToolsKeyControl::handleKeypress(
             java::System::exit(1);
             return false;
         case '0':
-            GLOBAL_render_glutDebugState.showSelectedPathOnly = !GLOBAL_render_glutDebugState.showSelectedPathOnly;
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            debugState->showSelectedPathOnly = !debugState->showSelectedPathOnly;
             break;
         case '1':
-            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.primarySelectedPatch, -1, model.scene);
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            stepSelectedPatchIndex(&debugState->primarySelectedPatch, -1, model.scene);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case '2':
-            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.primarySelectedPatch, 1, model.scene);
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            stepSelectedPatchIndex(&debugState->primarySelectedPatch, 1, model.scene);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case '5':
-            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.selectedSelectedPatch, -1, model.scene);
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            stepSelectedPatchIndex(&debugState->selectedSelectedPatch, -1, model.scene);
             break;
         case '6':
-            stepSelectedPatchIndex(&GLOBAL_render_glutDebugState.selectedSelectedPatch, 1, model.scene);
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            stepSelectedPatchIndex(&debugState->selectedSelectedPatch, 1, model.scene);
             break;
         case '3':
             if ( model.mode != GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {
@@ -163,8 +180,8 @@ GlutDebugToolsKeyControl::handleKeypress(
             }
             break;
         case 'e':
-            if ( printGalerkinElementForPatch != nullptr && model.scene != nullptr ) {
-                printGalerkinElementForPatch(model.scene, GLOBAL_render_glutDebugState.primarySelectedPatch);
+            if ( printGalerkinElementForPatch != nullptr && model.scene != nullptr && debugState != nullptr ) {
+                printGalerkinElementForPatch(model.scene, debugState->primarySelectedPatch);
             }
             break;
         case 'p':
@@ -185,6 +202,8 @@ GlutDebugToolsKeyControl::handleExtendedKeypress(int keyCode, GlutDebugToolsMode
         return false;
     }
 
+    GlutDebugState *const debugState = model.debugState;
+
     switch ( keyCode ) {
         case GLUT_KEY_F2:
             model.renderOptions->drawOutlines = !model.renderOptions->drawOutlines;
@@ -199,16 +218,28 @@ GlutDebugToolsKeyControl::handleExtendedKeypress(int keyCode, GlutDebugToolsMode
             model.renderOptions->drawClusters = !model.renderOptions->drawClusters;
             break;
         case GLUT_KEY_LEFT:
-            GLOBAL_render_glutDebugState.angleAroundViewportV += 1.0f;
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            debugState->angleAroundViewportV += 1.0f;
             break;
         case GLUT_KEY_RIGHT:
-            GLOBAL_render_glutDebugState.angleAroundViewportV -= 1.0f;
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            debugState->angleAroundViewportV -= 1.0f;
             break;
         case GLUT_KEY_DOWN:
-            GLOBAL_render_glutDebugState.angleAroundViewportU += 1.0f;
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            debugState->angleAroundViewportU += 1.0f;
             break;
         case GLUT_KEY_UP:
-            GLOBAL_render_glutDebugState.angleAroundViewportU -= 1.0f;
+            if ( debugState == nullptr ) {
+                return false;
+            }
+            debugState->angleAroundViewportU -= 1.0f;
             break;
         default:
             return false;

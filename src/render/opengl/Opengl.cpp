@@ -9,7 +9,7 @@
     #endif
 
     #include "render/RenderHookList.h"
-    #include "render/opengl/visualDebugTools/GlutDebugTools.h"
+    #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #endif
 
 #include "java/util/ArrayList.txx"
@@ -500,10 +500,14 @@ Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> 
 }
 
 void
-Opengl::openGlApplyDebugSceneRotation(const Scene *scene) {
+Opengl::openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *debugState) {
+    if ( debugState == nullptr ) {
+        return;
+    }
+
     const bool hasRotation =
-        GLOBAL_render_glutDebugState.angleAroundViewportU != 0.0f ||
-        GLOBAL_render_glutDebugState.angleAroundViewportV != 0.0f;
+        debugState->angleAroundViewportU != 0.0f ||
+        debugState->angleAroundViewportV != 0.0f;
     if ( !hasRotation ) {
         return;
     }
@@ -514,18 +518,23 @@ Opengl::openGlApplyDebugSceneRotation(const Scene *scene) {
     Opengl::viewportAxesInWorld(scene, &axisU, &axisV);
 
     glTranslated(pivot.x, pivot.y, pivot.z);
-    glRotated(GLOBAL_render_glutDebugState.angleAroundViewportU, axisU.x, axisU.y, axisU.z);
-    glRotated(GLOBAL_render_glutDebugState.angleAroundViewportV, axisV.x, axisV.y, axisV.z);
+    glRotated(debugState->angleAroundViewportU, axisU.x, axisU.y, axisU.z);
+    glRotated(debugState->angleAroundViewportV, axisV.x, axisV.y, axisV.z);
     glTranslated(-pivot.x, -pivot.y, -pivot.z);
 }
 
 void
-Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+Opengl::openGlReallyRender(
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions,
+    const GlutDebugState *debugState)
+{
     glPushMatrix();
-    Opengl::openGlApplyDebugSceneRotation(scene);
+    Opengl::openGlApplyDebugSceneRotation(scene, debugState);
     if ( radianceMethod != nullptr ) {
         if ( radianceMethod->className == GALERKIN ) {
-            GalerkinOpenGLRenderer::renderScene(scene, renderOptions);
+            GalerkinOpenGLRenderer::renderScene(scene, renderOptions, debugState);
         } else {
             java::System::err.println("OpenGL supports only rendering of Galerkin patches");
             java::System::exit(1);
@@ -541,7 +550,12 @@ Opengl::openGlReallyRender(const Scene *scene, const RadianceMethod *radianceMet
 }
 
 void
-Opengl::openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions) {
+Opengl::openGlRenderRadiance(
+    const Scene *scene,
+    const RadianceMethod *radianceMethod,
+    const RenderOptions *renderOptions,
+    const GlutDebugState *debugState)
+{
     if ( renderOptions->smoothShading ) {
         glShadeModel(GL_SMOOTH);
     } else {
@@ -556,7 +570,7 @@ Opengl::openGlRenderRadiance(const Scene *scene, const RadianceMethod *radianceM
         glDisable(GL_CULL_FACE);
     }
 
-    Opengl::openGlReallyRender(scene, radianceMethod, renderOptions);
+    Opengl::openGlReallyRender(scene, radianceMethod, renderOptions, debugState);
 
     if ( renderOptions->drawBoundingBoxes ) {
         Render::renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
@@ -575,7 +589,8 @@ void
 Opengl::openGlRenderScene(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions)
+    const RenderOptions *renderOptions,
+    const GlutDebugState *debugState)
 {
 #ifdef OPEN_GL_ENABLED
     Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
@@ -583,7 +598,7 @@ Opengl::openGlRenderScene(
     Canvas::canvasPushMode();
 
     if ( !renderOptions->renderRayTracedImage ) {
-        Opengl::openGlRenderRadiance(scene, radianceMethod, renderOptions);
+        Opengl::openGlRenderRadiance(scene, radianceMethod, renderOptions, debugState);
     }
 
     // Call installed render hooks, that want to render something in the scene

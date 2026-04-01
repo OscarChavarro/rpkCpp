@@ -124,7 +124,8 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 void
 GalerkinOpenGLRenderer::renderScene(
     const Scene *scene,
-    const RenderOptions *renderOptions)
+    const RenderOptions *renderOptions,
+    const GlutDebugState *debugState)
 {
     if ( scene == nullptr || renderOptions == nullptr ) {
         return;
@@ -135,10 +136,17 @@ GalerkinOpenGLRenderer::renderScene(
         return;
     }
 
+    if ( debugState == nullptr ) {
+        for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
+            GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, renderOptions);
+        }
+        return;
+    }
+
     RenderOptions modifiedRenderOptions = *renderOptions;
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        if ( GLOBAL_render_glutDebugState.showSelectedPathOnly ) {
-            if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
+        if ( debugState->showSelectedPathOnly ) {
+            if ( i == debugState->primarySelectedPatch ) {
                 modifiedRenderOptions.drawOutlines = true;
                 modifiedRenderOptions.outlineColor = ColorRgb(1.0f, 0.0f, 0.0f);
             } else {
@@ -147,7 +155,7 @@ GalerkinOpenGLRenderer::renderScene(
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         } else {
             modifiedRenderOptions.outlineColor = ColorRgb(0.4f, 0.1f, 0.1f);
-            if ( i == GLOBAL_render_glutDebugState.primarySelectedPatch ) {
+            if ( i == debugState->primarySelectedPatch ) {
                 modifiedRenderOptions.outlineColor = ColorRgb(0.0f, 0.0f, 1.0f);
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);

@@ -1,36 +1,41 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 
-#include "java/util/ArrayList.h"
-#include "scene/RadianceMethod.h"
-#include "scene/Scene.h"
-#include "io/context/ParseSession.h"
-#include "render/opengl/visualDebugTools/GlutDebugState.h"
+#include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
 
 class GalerkinElement;
+class Scene;
 
 class GlutDebugTools final {
   public:
-    static void executeGlutGui(
-        int argc,
-        char *argv[],
-        Scene *scene,
-        RadianceMethod *radianceMethod,
-        RenderOptions *renderOptions,
-        void (*memoryFreeCallBack)(ParseSession *mgfContext),
-        ParseSession *mgfContext);
+    explicit GlutDebugTools(const GlutDebugToolsModel &initialModel);
+    ~GlutDebugTools() = default;
+
+    void executeGlutGui(int argc, char *argv[]);
 
   private:
-    static void resizeCallback(int newWidth, int newHeight);
-    static void syncModelWindowSizeFromGlut();
-    static void syncCameraToViewport();
-    static void printElementHierarchy(const GalerkinElement *element, int level);
-    static void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
-    static void keypressCallback(unsigned char keyChar, int x, int y);
-    static void extendedKeypressCallback(int keyCode, int x, int y);
-    static void mouseButtonCallback(int button, int state, int x, int y);
-    static void mouseMotionCallback(int x, int y);
-    static void drawCallback();
+    GlutDebugToolsModel model;
+
+    void resizeCallback(int newWidth, int newHeight);
+    void keypressCallback(unsigned char keyChar, int x, int y);
+    void extendedKeypressCallback(int keyCode, int x, int y);
+    void mouseButtonCallback(int button, int state, int x, int y);
+    void mouseMotionCallback(int x, int y);
+    void drawCallback();
+    void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
+
+    static GlutDebugTools *&activeGlutDebugToolsInstance();
+    static void resizeCallbackBridge(int newWidth, int newHeight);
+    static void keypressCallbackBridge(unsigned char keyChar, int x, int y);
+    static void extendedKeypressCallbackBridge(int keyCode, int x, int y);
+    static void mouseButtonCallbackBridge(int button, int state, int x, int y);
+    static void mouseMotionCallbackBridge(int x, int y);
+    static void drawCallbackBridge();
+    static void printGalerkinElementForPatchBridge(const Scene *scene, int patchIndex);
+
+    void syncModelWindowSizeFromGlut();
+    void syncCameraToViewport();
+    void printElementHierarchy(const GalerkinElement *element, int level);
 };
 
 #endif

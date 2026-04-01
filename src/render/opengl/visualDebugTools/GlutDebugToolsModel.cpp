@@ -3,6 +3,7 @@
 GlutDebugToolsModel::GlutDebugToolsModel():
     mode(GlutDebugMode::RADIANCE_SCENE),
     fullScreen(false),
+    fullScreenApplied(false),
     selectedHierarchyLevel(0),
     width(1920),
     height(1200),
@@ -11,6 +12,7 @@ GlutDebugToolsModel::GlutDebugToolsModel():
     scene(nullptr),
     radianceMethod(nullptr),
     renderOptions(nullptr),
+    debugState(nullptr),
     memoryFreeCallBack(nullptr),
     mgfContext(nullptr)
 {
