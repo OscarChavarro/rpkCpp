@@ -537,6 +537,80 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
 }
 
 /**
+Fast inside/outside test that avoids UV computation. Used for shadow rays
+that only need to know whether there is an occluder.
+*/
+bool
+Patch::hitPointInPatchNoUv(const Vector3D *point) const {
+    double pointU;
+    double pointV;
+    double verticesU[MAXIMUM_VERTICES_PER_PATCH];
+    double verticesV[MAXIMUM_VERTICES_PER_PATCH];
+
+    switch ( index ) {
+        case CoordinateAxis::X:
+            pointU = point->y;
+            pointV = point->z;
+            for ( int i = 0; i < numberOfVertices; i++ ) {
+                verticesU[i] = vertex[i]->point->y;
+                verticesV[i] = vertex[i]->point->z;
+            }
+            break;
+        case CoordinateAxis::Y:
+            pointU = point->x;
+            pointV = point->z;
+            for ( int i = 0; i < numberOfVertices; i++ ) {
+                verticesU[i] = vertex[i]->point->x;
+                verticesV[i] = vertex[i]->point->z;
+            }
+            break;
+        case CoordinateAxis::Z:
+            pointU = point->x;
+            pointV = point->y;
+            for ( int i = 0; i < numberOfVertices; i++ ) {
+                verticesU[i] = vertex[i]->point->x;
+                verticesV[i] = vertex[i]->point->y;
+            }
+            break;
+        default:
+            return false;
+    }
+
+    bool inside = false;
+    for ( int i = 0, j = numberOfVertices - 1; i < numberOfVertices; j = i++ ) {
+        const double ui = verticesU[i];
+        const double vi = verticesV[i];
+        const double uj = verticesU[j];
+        const double vj = verticesV[j];
+
+        const double edgeU = uj - ui;
+        const double edgeV = vj - vi;
+        const double pointEdgeU = pointU - ui;
+        const double pointEdgeV = pointV - vi;
+        const double cross = edgeU * pointEdgeV - edgeV * pointEdgeU;
+
+        if ( java::Math::abs(cross) <= Numeric::EPSILON ) {
+            const double minU = ui < uj ? ui : uj;
+            const double maxU = ui > uj ? ui : uj;
+            const double minV = vi < vj ? vi : vj;
+            const double maxV = vi > vj ? vi : vj;
+            if ( pointU >= minU - Numeric::EPSILON && pointU <= maxU + Numeric::EPSILON
+                && pointV >= minV - Numeric::EPSILON && pointV <= maxV + Numeric::EPSILON ) {
+                return true;
+            }
+        }
+
+        const bool rayCrossesEdge = ((vi > pointV) != (vj > pointV))
+            && (pointU < edgeU * (pointV - vi) / (vj - vi) + ui);
+        if ( rayCrossesEdge ) {
+            inside = !inside;
+        }
+    }
+
+    return inside;
+}
+
+/**
 Badouels and Schlicks method from graphics gems: slower, but consumes less storage and computes
 (u,v) parameters as a side result
 */
@@ -897,6 +971,30 @@ Patch::intersect(
     // Intersection point of ray with plane of patch
     Vector3D position;
     position.sumScaled(ray->position, distance, ray->direction);
+
+    const int requiresDetailedHit = RayHitFlag::UV
+        | RayHitFlag::TEXTURE_COORDINATE
+        | RayHitFlag::SHADING_FRAME
+        | RayHitFlag::NORMAL
+        | RayHitFlag::MATERIAL
+        | RayHitFlag::GEOMETRIC_NORMAL;
+    if ( (hitFlags & RayHitFlag::ANY) && !(hitFlags & requiresDetailedHit) ) {
+        // Fast path for shadow rays: no UV/material/normal work.
+        if ( !hitPointInPatchNoUv(&position) ) {
+            return nullptr;
+        }
+        hit.setPoint(&position);
+        hit.setPatch(this);
+        unsigned int newFlags = hit.getFlags()
+            | RayHitFlag::PATCH
+            | RayHitFlag::POINT
+            | RayHitFlag::DISTANCE;
+        hit.setFlags(newFlags);
+        *hitStore = hit;
+        *maximumDistance = distance;
+        return hitStore;
+    }
+
     hit.setPoint(&position);
 
     // Test whether it lays inside or outside the patch
