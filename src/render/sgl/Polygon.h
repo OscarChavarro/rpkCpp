@@ -3,6 +3,7 @@
 
 #include "render/sgl/PolygonClipResult.h"
 #include "render/sgl/PolygonVertex.h"
+
 // Note: don't put > 32 doubles in Poly_vert, or mask will overflow
 class Polygon {
   public:

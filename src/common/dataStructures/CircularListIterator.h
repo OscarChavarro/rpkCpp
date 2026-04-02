@@ -13,7 +13,7 @@ class CircularListIterator final : private CircularListBaseIterator {
 };
 
 template<class T>
-CircularListIterator<T>::CircularListIterator(CircularList<T> &list) : CircularListBaseIterator(list) {
+CircularListIterator<T>::CircularListIterator(CircularList<T> &list) : CircularListBaseIterator(list.baseList()) {
 }
 
 template<class T>
@@ -28,7 +28,7 @@ inline T *CircularListIterator<T>::nextOnSequence() {
 
 template<class T>
 inline void CircularListIterator<T>::init(CircularList<T> &list) {
-    CircularListBaseIterator::init(list);
+    CircularListBaseIterator::init(list.baseList());
 }
 
 #endif

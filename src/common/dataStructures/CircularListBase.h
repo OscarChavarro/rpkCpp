@@ -14,8 +14,7 @@ class CircularListBase {
     virtual void appendLink(CircularListLink *data);
     virtual CircularListLink *remove();
     virtual void clear();
-
-    friend class CircularListBaseIterator;
+    CircularListLink *lastLink() const;
 };
 
 #endif

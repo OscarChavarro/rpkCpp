@@ -68,6 +68,7 @@ Some clean code and SOLID object-oriented programming (OOP) principles and best 
   - Basic operating system, filesystem and other operations where abstracted in a Java-like organization targeted to migrate this program to other languages easily.
   - There are no system #include classes in headers outside "java" abstraction. This means all classes are "pure" business logic.
 - No friend classes or methods
+- Keyword `using` instead of old-fashioned `typedef`
 
 ## Re-entrant code
 

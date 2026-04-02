@@ -31,6 +31,11 @@ CircularListBase::clear() {
     last = nullptr;
 }
 
+CircularListLink *
+CircularListBase::lastLink() const {
+    return last;
+}
+
 /**
 Add an element to the head of the list
 */

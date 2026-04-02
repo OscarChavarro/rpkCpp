@@ -21,6 +21,16 @@ you are doing.
 */
 int StochasticRadiosityElement::coefficientPoolsInitialized = false;
 
+bool
+StochasticRadiosityElement::coefficientPoolsAreInitialized() {
+    return coefficientPoolsInitialized;
+}
+
+void
+StochasticRadiosityElement::markCoefficientPoolsInitialized() {
+    coefficientPoolsInitialized = true;
+}
+
 void
 StochasticRadiosityElement::vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
@@ -35,8 +45,8 @@ Basically sets rad to nullptr
 */
 void
 Coefficientsmcrad::initCoefficients(StochasticRadiosityElement *elem) {
-    if ( !StochasticRadiosityElement::coefficientPoolsInitialized ) {
-        StochasticRadiosityElement::coefficientPoolsInitialized = true;
+    if ( !StochasticRadiosityElement::coefficientPoolsAreInitialized() ) {
+        StochasticRadiosityElement::markCoefficientPoolsInitialized();
     }
 
     elem->radiance = nullptr;

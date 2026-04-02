@@ -10,7 +10,7 @@ CircularListBaseIterator::~CircularListBaseIterator() {
 void
 CircularListBaseIterator::init(CircularListBase &list) {
     currentList = &list;
-    currentElement = currentList->last;
+    currentElement = currentList->lastLink();
 }
 
 CircularListLink *
@@ -24,7 +24,7 @@ CircularListBaseIterator::next() {
         response = currentElement;
     }
 
-    if ( currentElement == currentList->last ) {
+    if ( currentElement == currentList->lastLink() ) {
         currentElement = nullptr;
     }
 

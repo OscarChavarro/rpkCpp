@@ -4,7 +4,7 @@
 enum SglPixelContent {
     PIXEL,
     PATCH_POINTER,
-    GALERKIN_ELEMENT_POINTER
+    ELEMENT_POINTER
 };
 
 #endif

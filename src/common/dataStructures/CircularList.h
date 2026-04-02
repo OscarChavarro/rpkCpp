@@ -17,8 +17,7 @@ class CircularList : protected CircularListBase {
     virtual void append(const T &data);
     void removeAll();
     void clear() override;
-
-    friend class CircularListIterator<T>;
+    CircularListBase &baseList();
 };
 
 template<class T>
@@ -48,6 +47,12 @@ inline void CircularList<T>::removeAll() {
 template<class T>
 inline void CircularList<T>::clear() {
     CircularListBase::clear();
+}
+
+template<class T>
+inline CircularListBase &
+CircularList<T>::baseList() {
+    return *this;
 }
 
 #endif

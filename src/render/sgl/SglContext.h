@@ -9,10 +9,11 @@ Small Graphics Library
 #include "skin/Patch.h"
 #include "render/sgl/SglConstants.h"
 #include "render/sgl/SglPixelContent.h"
+
 using SGL_PIXEL = unsigned long;
 using SGL_Z_VALUE = unsigned long;
 
-class GalerkinElement;
+class Element;
 
 class SglContext {
   private:
@@ -32,11 +33,11 @@ class SglContext {
     SglPixelContent pixelData;
     SGL_PIXEL *frameBuffer;
     Patch **patchBuffer;
-    GalerkinElement **galerkinElementBuffer;
+    Element **galerkinElementBuffer;
 
     SGL_PIXEL currentPixel;
     const Patch *currentPatch;
-    const GalerkinElement *currentGalerkinElement;
+    const Element *currentGalerkinElement;
 
     SGL_Z_VALUE *depthBuffer; // Z buffer
 
@@ -56,7 +57,7 @@ class SglContext {
     void sglMultiplyMatrix(const Matrix4x4 *xf) const;
     void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(const Patch *col);
-    void sglSetGalerkinElement(const GalerkinElement *galerkinElement);
+    void sglSetGalerkinElement(const Element *galerkinElement);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
     void sglPolygon(int numberOfVertices, const Vector3D *vertices);
 };

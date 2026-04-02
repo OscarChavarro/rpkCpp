@@ -4,13 +4,13 @@
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 
 LightListIterator::LightListIterator(LightList &list):
-    iterator(list)
+    iterator(list.entries())
 {
 }
 
 Patch *
 LightListIterator::First(LightList &list) {
-    iterator.init(list);
+    iterator.init(list.entries());
 
     LightInfo *li = iterator.nextOnSequence();
     if ( li != nullptr ) {
@@ -68,6 +68,11 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
 
 LightList::~LightList() {
     removeAll();
+}
+
+CircularList<LightInfo> &
+LightList::entries() {
+    return *this;
 }
 
 /**

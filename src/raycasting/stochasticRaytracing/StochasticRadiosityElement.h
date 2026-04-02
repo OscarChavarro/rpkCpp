@@ -86,12 +86,13 @@ class StochasticRadiosityElement final : public Element {
     static void stochasticRadiosityElementComputeNewVertexColors(Element *element);
     static void stochasticRadiosityElementAdjustTVertexColors(Element *element);
     static ColorRgb stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
+    static bool coefficientPoolsAreInitialized();
+    static void markCoefficientPoolsInitialized();
 
     StochasticRadiosityElement();
     ~StochasticRadiosityElement() final;
 
   private:
-    friend class Coefficientsmcrad;
     static int coefficientPoolsInitialized;
 
     static void vertexAttachElement(Vertex *vertex, StochasticRadiosityElement *elem);

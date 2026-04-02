@@ -29,6 +29,7 @@ class LightList final : private CircularList<LightInfo> {
     explicit LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPatches = false);
 
     ~LightList() final;
+    CircularList<LightInfo> &entries();
 
     // Normal sampling : uniform over emitted power
     Patch *sample(double *x1, double *pdf);
@@ -73,8 +74,6 @@ class LightList final : private CircularList<LightInfo> {
     double evalPdfVirtual(const Patch *light, const Vector3D *) const;
 
     double evalPdfReal(Patch *light, const Vector3D *) const;
-
-    friend class LightListIterator;
 };
 
 #include "raycasting/bidirectionalRaytracing/LightListIterator.h"

@@ -107,8 +107,9 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         const int rowStart = j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
-            const GalerkinElement *element = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
-            if ( element != nullptr ) {
+            const Element *elementBase = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
+            if ( elementBase != nullptr ) {
+                const auto *element = static_cast<const GalerkinElement *>(elementBase);
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
                      galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
                     rad.add(rad, element->radiance[0]);
@@ -135,8 +136,8 @@ ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galer
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         const int rowStart = j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
-            const GalerkinElement *elem = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
-            if ( elem ) {
+            const Element *elementBase = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
+            if ( elementBase != nullptr ) {
                 nonBackGround++;
             }
         }
@@ -154,8 +155,9 @@ ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkin
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
         const int rowStart = i * galerkinState->scratch->width;
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++ ) {
-            GalerkinElement *elem = galerkinState->scratch->galerkinElementBuffer[rowStart + j];
-            if ( elem != nullptr ) {
+            Element *elementBase = galerkinState->scratch->galerkinElementBuffer[rowStart + j];
+            if ( elementBase != nullptr ) {
+                auto *elem = static_cast<GalerkinElement *>(elementBase);
                 elem->scratchVisibilityUsageCounter++;
             }
         }

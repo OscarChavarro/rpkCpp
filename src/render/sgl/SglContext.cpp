@@ -33,7 +33,7 @@ SglContext::SglContext(int width, int height):
     this->height = height;
     frameBuffer = new SGL_PIXEL[width * height];
     patchBuffer = new Patch *[width * height];
-    galerkinElementBuffer = new GalerkinElement *[width * height];
+    galerkinElementBuffer = new Element *[width * height];
 
     for ( int i = 0; i < width * height; i++ ) {
         frameBuffer[i] = 0;
@@ -163,8 +163,8 @@ SglContext::sglSetPatch(const Patch *patch) {
 }
 
 void
-SglContext::sglSetGalerkinElement(const GalerkinElement *galerkinElement) {
-    pixelData = SglPixelContent::GALERKIN_ELEMENT_POINTER;
+SglContext::sglSetGalerkinElement(const Element *galerkinElement) {
+    pixelData = SglPixelContent::ELEMENT_POINTER;
     currentGalerkinElement = galerkinElement;
 }
 

@@ -73,9 +73,9 @@ Poly::scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, con
         if ( z <= sglContext->depthBuffer[pixelIndex] ) {
             if ( sglContext->pixelData == SglPixelContent::PATCH_POINTER ) {
                 sglContext->patchBuffer[pixelIndex] = const_cast<Patch *>(sglContext->currentPatch);
-            } else if ( sglContext->pixelData == SglPixelContent::GALERKIN_ELEMENT_POINTER ) {
+            } else if ( sglContext->pixelData == SglPixelContent::ELEMENT_POINTER ) {
                 sglContext->galerkinElementBuffer[pixelIndex] =
-                    const_cast<GalerkinElement *>(sglContext->currentGalerkinElement);
+                    const_cast<Element *>(sglContext->currentGalerkinElement);
             } else {
                 sglContext->frameBuffer[pixelIndex] = sglContext->currentPixel;
             }
