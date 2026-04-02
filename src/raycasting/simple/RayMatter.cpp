@@ -69,7 +69,7 @@ RayMatter::execute(
     Scene *scene,
     RadianceMethod */*radianceMethod*/,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions) const
+    const RenderOptions * /*renderOptions*/) const
 {
     if ( rayMatter != nullptr ) {
         delete rayMatter;

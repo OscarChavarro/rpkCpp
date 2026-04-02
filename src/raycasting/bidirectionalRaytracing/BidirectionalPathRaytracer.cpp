@@ -61,7 +61,7 @@ BidirectionalPathRaytracer::execute(
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions) const
+    const RenderOptions * /*renderOptions*/) const
 {
     // Install the samplers to be used in the state
     BidirectionalPathTracingConfiguration config;

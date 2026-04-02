@@ -4,12 +4,13 @@
 #include <cstddef>
 
 #include "java/lang/Object.h"
+#include "java/util/HashMapEntry.h"
 
 namespace java {
 template <class K, class V>
 class HashMap final: public Object {
   private:
-    class Entry;
+    using Entry = HashMapEntry<K, V>;
 
     Entry **buckets;
     long bucketCount;

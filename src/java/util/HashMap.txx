@@ -37,21 +37,6 @@ HashMap<K, V>::hashKeyValue(const T *const &value) {
 }
 
 template <class K, class V>
-class HashMap<K, V>::Entry {
-  public:
-    K key;
-    V value;
-    Entry *next;
-
-    Entry(const K &inKey, const V &inValue, Entry *inNext):
-        key(inKey),
-        value(inValue),
-        next(inNext)
-    {
-    }
-};
-
-template <class K, class V>
 HashMap<K, V>::HashMap():
     buckets(nullptr),
     bucketCount(0),
