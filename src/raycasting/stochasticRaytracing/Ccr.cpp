@@ -11,8 +11,8 @@ Determination of constant control radiosity value
 #include "raycasting/stochasticRaytracing/Ccr.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-ColorRgb *(*Ccr::getRadianceCallback)(const StochasticRadiosityElement *) = nullptr;
-ColorRgb (*Ccr::getScalingCallback)(StochasticRadiosityElement *) = nullptr;
+Ccr::GetRadianceCallback Ccr::getRadianceCallback = nullptr;
+Ccr::GetScalingCallback Ccr::getScalingCallback = nullptr;
 
 void
 Ccr::initialControlRadiosityRecursive(
@@ -278,8 +278,8 @@ random walk radiosity
 */
 ColorRgb
 Ccr::determineControlRadiosity(
-    ColorRgb *(*getRadiance)(const StochasticRadiosityElement *),
-    ColorRgb (*getScaling)(StochasticRadiosityElement *),
+    GetRadianceCallback getRadiance,
+    GetScalingCallback getScaling,
     const java::ArrayList<Patch *> *scenePatches)
 {
     ColorRgb minRad;

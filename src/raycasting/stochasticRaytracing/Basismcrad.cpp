@@ -17,7 +17,7 @@ Basismcrad::oneBasis(double /*u*/, double /*v*/) {
     return 1;
 }
 
-double (*StochasticRadiosityBasisState::oneBasisTable[1])(double, double) = {
+StochasticRadiosityBasisState::BasisFunction StochasticRadiosityBasisState::oneBasisTable[1] = {
     Basismcrad::oneBasis
 };
 

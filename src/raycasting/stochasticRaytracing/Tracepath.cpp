@@ -16,7 +16,7 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-double (*Tracepath::birthProbability)(const Patch *) = nullptr;
+Tracepath::PatchProbabilityCallback Tracepath::birthProbability = nullptr;
 double Tracepath::sumProbabilities = 0.0;
 
 /**
@@ -93,8 +93,8 @@ Path *
 Tracepath::tracePath(
     const VoxelGrid * sceneWorldVoxelGrid,
     Patch *origin,
-    double birth_prob,
-    double (*survivalProbabilityCallBack)(const Patch *P),
+    double birthProb,
+    PatchProbabilityCallback survivalProbabilityCallBack,
     Path *path)
 {
     Vector3D inPoint = {0.0, 0.0, 0.0};
@@ -107,7 +107,7 @@ Tracepath::tracePath(
 
     StochasticRelaxation::activeState().tracedPaths++;
     clearPath(path);
-    pathAddNode(path, origin, birth_prob, inPoint, outpoint);
+    pathAddNode(path, origin, birthProb, inPoint, outpoint);
     do {
         StochasticRelaxation::activeState().tracedRays++;
         ray = Localline::mcrGenerateLocalLine(P, Sample4d::sample4D(static_cast<unsigned int>(McradP::topLevelStochasticRadiosityElement(P)->rayIndex)));
@@ -144,10 +144,10 @@ void
 Tracepath::tracePaths(
     const VoxelGrid *sceneWorldVoxelGrid,
     long numberOfPaths,
-    double (*birthProbabilityCallBack)(const Patch *P),
-    double (*survivalProbabilityCallBack)(const Patch *P),
-    void (*scorePathCallBack)(const Path *, long numberOfPaths, double (*birthProb)(const Patch *)),
-    void (*updateCallBack)(const Patch *P, double w),
+    PatchProbabilityCallback birthProbabilityCallBack,
+    PatchProbabilityCallback survivalProbabilityCallBack,
+    ScorePathCallback scorePathCallBack,
+    UpdatePatchCallback updateCallBack,
     const java::ArrayList<Patch *> *scenePatches)
 {
     double rnd;

@@ -19,13 +19,15 @@ class Adaptation final {
         ToneMappingContext &toneMapOptions);
 
   private:
+    using PatchRadianceEstimateFn = ColorRgb (*)(Patch *);
+
     static int numEntries;
     static double logAreaLum;
     static LuminanceArea *lumArea;
     static int lumAreaIndex;
     static float lumMin;
     static float lumMax;
-    static ColorRgb (*patchRadianceEstimate)(Patch *);
+    static PatchRadianceEstimateFn patchRadianceEstimate;
 
     static ColorRgb initRadianceEstimate(Patch *patch);
     static int adaptationLumAreaComp(const void *la1, const void *la2);
@@ -34,7 +36,7 @@ class Adaptation final {
     static void patchFillLumArea(Patch *patch);
     static float meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs);
     static void estimateSceneAdaptation(
-        ColorRgb (*patchRadiance)(Patch *),
+        PatchRadianceEstimateFn patchRadiance,
         const java::ArrayList<Patch *> *scenePatches,
         ToneMappingContext &toneMapOptions);
 };

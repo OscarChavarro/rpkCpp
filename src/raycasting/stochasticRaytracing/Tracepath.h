@@ -10,8 +10,13 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/Path.h"
 
 class Tracepath final {
+  public:
+    using PatchProbabilityCallback = double (*)(const Patch *patch);
+    using ScorePathCallback = void (*)(const Path *, long numberOfPaths, PatchProbabilityCallback birthProb);
+    using UpdatePatchCallback = void (*)(const Patch *patch, double w);
+
   private:
-    static double (*birthProbability)(const Patch *);
+    static PatchProbabilityCallback birthProbability;
     static double sumProbabilities;
 
     static void initPath(Path *path);
@@ -21,8 +26,8 @@ class Tracepath final {
     static Path *tracePath(
         const VoxelGrid *sceneWorldVoxelGrid,
         Patch *origin,
-        double birthProbability,
-        double (*survivalProbabilityCallBack)(const Patch *patch),
+        double birthProb,
+        PatchProbabilityCallback survivalProbabilityCallBack,
         Path *path);
     static double patchNormalisedBirthProbability(const Patch *patch);
 
@@ -30,10 +35,10 @@ class Tracepath final {
     static void tracePaths(
         const VoxelGrid *sceneWorldVoxelGrid,
         long numberOfPaths,
-        double (*birthProbabilityCallBack)(const Patch *patch),
-        double (*survivalProbabilityCallBack)(const Patch *patch),
-        void (*scorePathCallBack)(const Path *, long numberOfPaths, double (*birthProb)(const Patch *)),
-        void (*updateCallBack)(const Patch *patch, double w),
+        PatchProbabilityCallback birthProbabilityCallBack,
+        PatchProbabilityCallback survivalProbabilityCallBack,
+        ScorePathCallback scorePathCallBack,
+        UpdatePatchCallback updateCallBack,
         const java::ArrayList<Patch *> *scenePatches);
 };
 

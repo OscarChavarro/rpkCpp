@@ -19,7 +19,7 @@ LuminanceArea *Adaptation::lumArea = nullptr;
 int Adaptation::lumAreaIndex = 0;
 float Adaptation::lumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
 float Adaptation::lumMax = 0.0;
-ColorRgb (*Adaptation::patchRadianceEstimate)(Patch *) = nullptr;
+Adaptation::PatchRadianceEstimateFn Adaptation::patchRadianceEstimate = nullptr;
 
 /**
 A-priori estimate of a patch's radiance
@@ -115,11 +115,11 @@ emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLumi
 */
 void
 Adaptation::estimateSceneAdaptation(
-    ColorRgb (*patch_radiance)(Patch *),
+    PatchRadianceEstimateFn patchRadiance,
     const java::ArrayList<Patch *> *scenePatches,
     ToneMappingContext &toneMapOptions)
 {
-    patchRadianceEstimate = patch_radiance;
+    patchRadianceEstimate = patchRadiance;
 
     switch ( toneMapOptions.staticAdaptationMethod ) {
         case ToneMapAdaptationMethod::TMA_NONE:

@@ -34,28 +34,32 @@ propagation of importance and radiance does not work yet.
 */
 class StochasticJacobi final {
   public:
+    using GetRadianceCallback = ColorRgb *(*)(const StochasticRadiosityElement *);
+    using GetImportanceCallback = float (*)(const StochasticRadiosityElement *);
+    using UpdateCallback = void (*)(StochasticRadiosityElement *elem, double w);
+
     static void doStochasticJacobiIteration(
         VoxelGrid *sceneWorldVoxelGrid,
         long numberOfRays,
-        ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
-        float (*getImportanceCallBack)(const StochasticRadiosityElement *),
-        void updateCallBack(StochasticRadiosityElement *elem, double w),
+        GetRadianceCallback getRadianceCallBack,
+        GetImportanceCallback getImportanceCallBack,
+        UpdateCallback updateCallBack,
         const java::ArrayList<Patch *> *scenePatches,
         RenderOptions *renderOptions);
 
   private:
-    static ColorRgb *(*getRadianceCallback)(const StochasticRadiosityElement *);
-    static float (*getImportanceCallback)(const StochasticRadiosityElement *);
-    static void (*reflectCallback)(StochasticRadiosityElement *, double);
+    static GetRadianceCallback getRadianceCallback;
+    static GetImportanceCallback getImportanceCallback;
+    static UpdateCallback reflectCallback;
     static int useControlVariate;
     static int numberOfRaysToShoot;
     static double sumOfProbabilities;
 
     static void stochasticJacobiInitGlobals(
         int numberOfRays,
-        ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
-        float (*getImportanceCallBack)(const StochasticRadiosityElement *),
-        void (*updateCallBack)(StochasticRadiosityElement *elem, double w));
+        GetRadianceCallback getRadianceCallBack,
+        GetImportanceCallback getImportanceCallBack,
+        UpdateCallback updateCallBack);
     static void stochasticJacobiPrintMessage(long numberOfRays);
     static double stochasticJacobiProbability(const StochasticRadiosityElement *elem);
     static void stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem);

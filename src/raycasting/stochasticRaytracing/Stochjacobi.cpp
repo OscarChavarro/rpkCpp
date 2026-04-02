@@ -24,9 +24,9 @@ TODO: lines and line bundles.
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-ColorRgb *(*StochasticJacobi::getRadianceCallback)(const StochasticRadiosityElement *) = nullptr;
-float (*StochasticJacobi::getImportanceCallback)(const StochasticRadiosityElement *) = nullptr;
-void (*StochasticJacobi::reflectCallback)(StochasticRadiosityElement *, double) = nullptr;
+StochasticJacobi::GetRadianceCallback StochasticJacobi::getRadianceCallback = nullptr;
+StochasticJacobi::GetImportanceCallback StochasticJacobi::getImportanceCallback = nullptr;
+StochasticJacobi::UpdateCallback StochasticJacobi::reflectCallback = nullptr;
 int StochasticJacobi::useControlVariate = 0; // If uses a constant control variate
 int StochasticJacobi::numberOfRaysToShoot = 0; // Number of rays to shoot in the iteration
 double StochasticJacobi::sumOfProbabilities = 0.0; // Sum of un-normalised sampling "probabilities"
@@ -34,14 +34,14 @@ double StochasticJacobi::sumOfProbabilities = 0.0; // Sum of un-normalised sampl
 void
 StochasticJacobi::stochasticJacobiInitGlobals(
     int numberOfRays,
-    ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
-    float (*GetImportance)(const StochasticRadiosityElement *),
-    void (*Update)(StochasticRadiosityElement *P, double w))
+    GetRadianceCallback getRadianceCallBack,
+    GetImportanceCallback getImportanceCallBack,
+    UpdateCallback updateCallBack)
 {
     numberOfRaysToShoot = numberOfRays;
     getRadianceCallback = getRadianceCallBack;
-    getImportanceCallback = GetImportance;
-    reflectCallback = Update;
+    getImportanceCallback = getImportanceCallBack;
+    reflectCallback = updateCallBack;
     // Only use control variates for propagating radiance, not for importance
     useControlVariate = (StochasticRelaxation::activeState().constantControlVariate && getRadianceCallBack);
 
@@ -856,9 +856,9 @@ void
 StochasticJacobi::doStochasticJacobiIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     long numberOfRays,
-    ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
-    float (*getImportanceCallBack)(const StochasticRadiosityElement *),
-    void (*updateCallBack)(StochasticRadiosityElement *P, double w),
+    GetRadianceCallback getRadianceCallBack,
+    GetImportanceCallback getImportanceCallBack,
+    UpdateCallback updateCallBack,
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
 {

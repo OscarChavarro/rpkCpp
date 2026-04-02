@@ -34,7 +34,8 @@ class StochasticRadiosityBasisState {
     static StochasticRadiosityBasisState &activeState();
 
   private:
-    static double (*oneBasisTable[1])(double, double);
+    using BasisFunction = double (*)(double, double);
+    static BasisFunction oneBasisTable[1];
     static GalerkinBasis stochasticRadiosityCreateQuadBasis();
     static StochasticRadiosityBasisState *&activeStatePtr();
     static Matrix2x2 createTransform(float m00, float m01, float m10, float m11, float t0, float t1);

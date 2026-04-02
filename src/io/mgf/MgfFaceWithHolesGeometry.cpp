@@ -1,0 +1,42 @@
+#include "io/mgf/MgfDefinitions.h"
+#include "io/mgf/MgfFaceWithHolesGeometry.h"
+
+/**
+Replace face + holes with single contour
+*/
+int
+MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseSession *context) {
+    const char *newArgumentValues[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
+    int lastPerimeterIndex = 0;
+
+    newArgumentValues[0] = context->entityNames[EntityContext::FACE];
+    int i;
+    for ( i = 1; i < argumentCount; i++ ) {
+        if ( argumentValues[i][0] == '-' ) {
+            if ( i < 4 ) {
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            }
+            if ( i >= argumentCount - 1 ) {
+                break;
+            }
+            if ( !lastPerimeterIndex ) {
+                lastPerimeterIndex = i - 1;
+            }
+            int j;
+            for ( j = i + 1; j < argumentCount - 1 && argumentValues[j + 1][0] != '-'; j++ ) {}
+            if ( j - i < 3 ) {
+                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            }
+            newArgumentValues[i] = argumentValues[j]; // Connect hole loop
+        } else {
+            // Hole or perimeter vertex
+            newArgumentValues[i] = argumentValues[i];
+        }
+    }
+    if ( lastPerimeterIndex ) {
+        // Finish seam to outside
+        newArgumentValues[i++] = argumentValues[lastPerimeterIndex];
+    }
+    newArgumentValues[i] = nullptr;
+    return MgfDefinitions::mgfHandle(EntityContext::FACE, i, newArgumentValues, context);
+}

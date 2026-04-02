@@ -6,6 +6,11 @@ Cubic orthonormal basis for the unit square [0, 1] ^ 2
 
 class Basisquadmcrad final {
   public:
+    using BasisFunction = double (*)(double, double);
+    static BasisFunction *basisFunctions();
+    static GalerkinBasis::FILTER_TABLE *filterTable();
+
+  private:
     static double qm0(double u, double v);
     static double qm1(double u, double v);
     static double qm2(double u, double v);
@@ -16,7 +21,7 @@ class Basisquadmcrad final {
     static double qm7(double u, double v);
     static double qm8(double u, double v);
     static double qm9(double u, double v);
-    static double (*f[GalerkinBasis::MAX_BASIS_SIZE])(double, double);
+    static BasisFunction f[GalerkinBasis::MAX_BASIS_SIZE];
     static GalerkinBasis::FILTER_TABLE h;
 };
 
@@ -62,18 +67,28 @@ double Basisquadmcrad::qm9(double /*u*/, double v) {
     return -2.645751311064409 + 31.749015732781054 * v + -79.372539331951486 * v * v + 52.915026221299712 * v * v * v;
 }
 
-double (*Basisquadmcrad::f[GalerkinBasis::MAX_BASIS_SIZE])(double, double) =
+Basisquadmcrad::BasisFunction Basisquadmcrad::f[GalerkinBasis::MAX_BASIS_SIZE] =
         {Basisquadmcrad::qm0, Basisquadmcrad::qm1, Basisquadmcrad::qm2, Basisquadmcrad::qm3, Basisquadmcrad::qm4,
          Basisquadmcrad::qm5, Basisquadmcrad::qm6, Basisquadmcrad::qm7, Basisquadmcrad::qm8, Basisquadmcrad::qm9}; // Functions
 
 GalerkinBasis::FILTER_TABLE Basisquadmcrad::h;  /* push-pull filter: computed in basis.c */
+
+Basisquadmcrad::BasisFunction *
+Basisquadmcrad::basisFunctions() {
+    return Basisquadmcrad::f;
+}
+
+GalerkinBasis::FILTER_TABLE *
+Basisquadmcrad::filterTable() {
+    return &Basisquadmcrad::h;
+}
 
 GalerkinBasis
 StochasticRadiosityBasisState::stochasticRadiosityCreateQuadBasis() {
     return {
         "orthonormal basis on the unit square", // Description
         GalerkinBasis::MAX_BASIS_SIZE, // Size
-        Basisquadmcrad::f, Basisquadmcrad::f, // Primary and dual canonical basis functions are equal
-        &Basisquadmcrad::h // Push-pull filter coefficients
+        Basisquadmcrad::basisFunctions(), Basisquadmcrad::basisFunctions(), // Primary and dual canonical basis functions are equal
+        Basisquadmcrad::filterTable() // Push-pull filter coefficients
     };
 }

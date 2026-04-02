@@ -8,13 +8,19 @@
 #include "java/util/StringTokenizer.h"
 #include "common/Error.h"
 #include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfGeometry.h"
+#include "io/mgf/MgfConeGeometry.h"
+#include "io/mgf/MgfCylinderGeometry.h"
+#include "io/mgf/MgfFaceWithHolesGeometry.h"
 #include "io/mgf/MgfHandlerColor.h"
 #include "io/mgf/MgfHandlerGeometry.h"
 #include "io/mgf/MgfHandlerMaterial.h"
 #include "io/mgf/MgfHandlerObject.h"
+#include "io/mgf/MgfPrismGeometry.h"
+#include "io/mgf/MgfRingGeometry.h"
+#include "io/mgf/MgfSphereGeometry.h"
 #include "io/mgf/MgfHandlerTransform.h"
 #include "io/mgf/MgfStaticHandler.h"
+#include "io/mgf/MgfTorusGeometry.h"
 #include "io/mgf/MgfReader.h"
 
 /**
@@ -393,13 +399,13 @@ MgfReader::ensureSessionHandlerRegistry(ParseSession *context) {
 
     handlers[static_cast<int>(HandlerType::DISCARD_UNNEEDED)] = new MgfStaticHandler(HandlerType::DISCARD_UNNEEDED, MgfReader::mgfDiscardUnNeededEntity);
     handlers[static_cast<int>(HandlerType::INCLUDE_FILE)] = new MgfStaticHandler(HandlerType::INCLUDE_FILE, MgfReader::handleIncludedFile);
-    handlers[static_cast<int>(HandlerType::ENTITY_SPHERE)] = new MgfStaticHandler(HandlerType::ENTITY_SPHERE, MgfGeometry::mgfEntitySphere);
-    handlers[static_cast<int>(HandlerType::ENTITY_TORUS)] = new MgfStaticHandler(HandlerType::ENTITY_TORUS, MgfGeometry::mgfEntityTorus);
-    handlers[static_cast<int>(HandlerType::ENTITY_CYLINDER)] = new MgfStaticHandler(HandlerType::ENTITY_CYLINDER, MgfGeometry::mgfEntityCylinder);
-    handlers[static_cast<int>(HandlerType::ENTITY_RING)] = new MgfStaticHandler(HandlerType::ENTITY_RING, MgfGeometry::mgfEntityRing);
-    handlers[static_cast<int>(HandlerType::ENTITY_CONE)] = new MgfStaticHandler(HandlerType::ENTITY_CONE, MgfGeometry::mgfEntityCone);
-    handlers[static_cast<int>(HandlerType::ENTITY_PRISM)] = new MgfStaticHandler(HandlerType::ENTITY_PRISM, MgfGeometry::mgfEntityPrism);
-    handlers[static_cast<int>(HandlerType::ENTITY_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerType::ENTITY_FACE_WITH_HOLES, MgfGeometry::mgfEntityFaceWithHoles);
+    handlers[static_cast<int>(HandlerType::ENTITY_SPHERE)] = new MgfStaticHandler(HandlerType::ENTITY_SPHERE, MgfSphereGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_TORUS)] = new MgfStaticHandler(HandlerType::ENTITY_TORUS, MgfTorusGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_CYLINDER)] = new MgfStaticHandler(HandlerType::ENTITY_CYLINDER, MgfCylinderGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_RING)] = new MgfStaticHandler(HandlerType::ENTITY_RING, MgfRingGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_CONE)] = new MgfStaticHandler(HandlerType::ENTITY_CONE, MgfConeGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_PRISM)] = new MgfStaticHandler(HandlerType::ENTITY_PRISM, MgfPrismGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerType::ENTITY_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerType::ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesGeometry::handleEntity);
     handlers[static_cast<int>(HandlerType::COLOR_SPEC_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_SPEC_HELPER, MgfReader::mgfECSpec);
     handlers[static_cast<int>(HandlerType::COLOR_MIX_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_MIX_HELPER, MgfReader::mgfECMix);
     handlers[static_cast<int>(HandlerType::COLOR_TEMPERATURE_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_TEMPERATURE_HELPER, MgfReader::mgfColorTemperature);
@@ -418,7 +424,7 @@ MgfReader::mgfHandlerFromType(ParseSession *context, HandlerType handlerType) {
     ensureSessionHandlerRegistry(context);
 
     const int handlerIndex = static_cast<int>(handlerType);
-    if ( handlerIndex < 0 || handlerIndex >= TOTAL_MGF_HANDLER_TYPES ) {
+    if ( handlerIndex < 0 || handlerIndex >= ReaderStackState::handlerTypeCount() ) {
         Error::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
     }
 

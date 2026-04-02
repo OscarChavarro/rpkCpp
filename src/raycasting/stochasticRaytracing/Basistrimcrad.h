@@ -22,7 +22,8 @@ class Basistrimcrad final {
     static double tm9(double u, double v);
 
   private:
-    static double (*f[GalerkinBasis::MAX_BASIS_SIZE])(double, double);
+    using BasisFunction = double (*)(double, double);
+    static BasisFunction f[GalerkinBasis::MAX_BASIS_SIZE];
     static GalerkinBasis::FILTER_TABLE h;
     static GalerkinBasis stochasticRadiosityCreateTriBasis();
 };

@@ -228,6 +228,13 @@ set(OPEN_GL_SRC
 set(MGF_SRC
     src/io/mgf/MgfDefinitions.cpp
     src/io/mgf/MgfGeometry.cpp
+    src/io/mgf/MgfSphereGeometry.cpp
+    src/io/mgf/MgfTorusGeometry.cpp
+    src/io/mgf/MgfCylinderGeometry.cpp
+    src/io/mgf/MgfRingGeometry.cpp
+    src/io/mgf/MgfConeGeometry.cpp
+    src/io/mgf/MgfPrismGeometry.cpp
+    src/io/mgf/MgfFaceWithHolesGeometry.cpp
     src/io/mgf/MgfHandlerGeometry.cpp
     src/io/mgf/MgfHandlerObject.cpp
     src/io/mgf/MgfHandlerTransform.cpp

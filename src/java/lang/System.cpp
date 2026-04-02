@@ -1,15 +1,14 @@
 #include <cstdlib>
 #include <chrono>
 
-#include "java/io/FileOutputStream.h"
 #include "java/lang/System.h"
 
 namespace java {
 
-java::FileOutputStream standardOutput("/dev/stdout");
-java::FileOutputStream standardError("/dev/stderr");
-java::PrintStream System::out(&standardOutput);
-java::PrintStream System::err(&standardError);
+java::FileOutputStream System::standardOutput("/dev/stdout");
+java::FileOutputStream System::standardError("/dev/stderr");
+java::PrintStream System::out(&System::standardOutput);
+java::PrintStream System::err(&System::standardError);
 
 [[noreturn]] void
 System::exit(int status) {

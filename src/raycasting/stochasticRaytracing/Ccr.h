@@ -13,15 +13,18 @@ class Patch;
 
 class Ccr final {
   public:
+    using GetRadianceCallback = ColorRgb *(*)(const StochasticRadiosityElement *);
+    using GetScalingCallback = ColorRgb (*)(StochasticRadiosityElement *);
+
     static ColorRgb determineControlRadiosity(
-        ColorRgb *(*getRadiance)(const StochasticRadiosityElement *),
-        ColorRgb (*getScaling)(StochasticRadiosityElement *),
+        GetRadianceCallback getRadiance,
+        GetScalingCallback getScaling,
         const java::ArrayList<Patch *> *scenePatches);
 
   private:
     static constexpr int NUMBER_OF_INTERVALS = 10;
-    static ColorRgb *(*getRadianceCallback)(const StochasticRadiosityElement *);
-    static ColorRgb (*getScalingCallback)(StochasticRadiosityElement *);
+    static GetRadianceCallback getRadianceCallback;
+    static GetScalingCallback getScalingCallback;
 
     static void initialControlRadiosityRecursive(
         const StochasticRadiosityElement *element,

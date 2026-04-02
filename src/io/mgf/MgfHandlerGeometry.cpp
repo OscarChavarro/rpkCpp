@@ -5,12 +5,17 @@
 #include "common/Error.h"
 #include "io/context/LookUpEntity.h"
 #include "io/context/WordsContext.h"
+#include "io/mgf/MgfConeGeometry.h"
+#include "io/mgf/MgfCylinderGeometry.h"
 #include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfGeometry.h"
+#include "io/mgf/MgfPrismGeometry.h"
+#include "io/mgf/MgfRingGeometry.h"
+#include "io/mgf/MgfSphereGeometry.h"
 #include "io/mgf/MgfHandlerGeometry.h"
 #include "io/mgf/MgfHandlerMaterial.h"
 #include "io/mgf/MgfHandlerObject.h"
 #include "io/mgf/MgfHandlerTransform.h"
+#include "io/mgf/MgfTorusGeometry.h"
 
 long
 MgfHandlerGeometry::transformXid(const TransformStackContext *xf) {
@@ -30,17 +35,17 @@ MgfHandlerGeometry::doDiscreteConic(int argc, const char **argv, ParseSession *c
 
     switch ( en ) {
         case EntityContext::SPHERE:
-            return MgfGeometry::mgfEntitySphere(argc, argv, context);
+            return MgfSphereGeometry::handleEntity(argc, argv, context);
         case EntityContext::TORUS:
-            return MgfGeometry::mgfEntityTorus(argc, argv, context);
+            return MgfTorusGeometry::handleEntity(argc, argv, context);
         case EntityContext::CYLINDER:
-            return MgfGeometry::mgfEntityCylinder(argc, argv, context);
+            return MgfCylinderGeometry::handleEntity(argc, argv, context);
         case EntityContext::RING:
-            return MgfGeometry::mgfEntityRing(argc, argv, context);
+            return MgfRingGeometry::handleEntity(argc, argv, context);
         case EntityContext::CONE:
-            return MgfGeometry::mgfEntityCone(argc, argv, context);
+            return MgfConeGeometry::handleEntity(argc, argv, context);
         case EntityContext::PRISM:
-            return MgfGeometry::mgfEntityPrism(argc, argv, context);
+            return MgfPrismGeometry::handleEntity(argc, argv, context);
         default:
             Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
     }

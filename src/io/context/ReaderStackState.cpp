@@ -59,7 +59,7 @@ ReaderStackState::ReaderStackState():
 }
 
 ReaderStackState::~ReaderStackState() {
-    for ( int i = 0; i < TOTAL_MGF_HANDLER_TYPES; i++ ) {
+    for ( int i = 0; i < ReaderStackState::handlerTypeCount(); i++ ) {
         if ( handlerByType[i] != nullptr ) {
             delete handlerByType[i];
             handlerByType[i] = nullptr;
