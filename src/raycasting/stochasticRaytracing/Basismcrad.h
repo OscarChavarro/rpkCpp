@@ -15,7 +15,6 @@ Higher order approximations for Galerkin radiosity
 
 class CubatureRule;
 
-GalerkinBasis stochasticRadiosityCreateTriBasis();
 GalerkinBasis stochasticRadiosityCreateQuadBasis();
 
 constexpr int NUMBER_OF_APPROXIMATION_TYPES = 5;

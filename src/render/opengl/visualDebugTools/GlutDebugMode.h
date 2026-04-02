@@ -6,7 +6,14 @@ enum class GlutDebugMode {
     GALERKIN_ELEMENT_HIERARCHY
 };
 
-GlutDebugMode nextGlutDebugMode(GlutDebugMode mode);
-const char *glutDebugModeName(GlutDebugMode mode);
+class GlutDebugModeTools final {
+  public:
+    static GlutDebugMode nextMode(GlutDebugMode mode);
+    static const char *modeName(GlutDebugMode mode);
+
+  private:
+    static GlutDebugMode nextGlutDebugMode(GlutDebugMode mode);
+    static const char *glutDebugModeName(GlutDebugMode mode);
+};
 
 #endif

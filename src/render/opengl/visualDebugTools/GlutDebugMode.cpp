@@ -1,7 +1,17 @@
 #include "render/opengl/visualDebugTools/GlutDebugMode.h"
 
 GlutDebugMode
-nextGlutDebugMode(GlutDebugMode mode) {
+GlutDebugModeTools::nextMode(GlutDebugMode mode) {
+    return GlutDebugModeTools::nextGlutDebugMode(mode);
+}
+
+const char *
+GlutDebugModeTools::modeName(GlutDebugMode mode) {
+    return GlutDebugModeTools::glutDebugModeName(mode);
+}
+
+GlutDebugMode
+GlutDebugModeTools::nextGlutDebugMode(GlutDebugMode mode) {
     switch ( mode ) {
         case GlutDebugMode::RADIANCE_SCENE:
             return GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY;
@@ -13,7 +23,7 @@ nextGlutDebugMode(GlutDebugMode mode) {
 }
 
 const char *
-glutDebugModeName(GlutDebugMode mode) {
+GlutDebugModeTools::glutDebugModeName(GlutDebugMode mode) {
     switch ( mode ) {
         case GlutDebugMode::RADIANCE_SCENE:
             return "RADIANCE_SCENE";

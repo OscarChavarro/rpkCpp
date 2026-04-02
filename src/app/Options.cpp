@@ -402,8 +402,8 @@ Options::optionsLookupOption(const char *s, CommandLineOptionDescription *option
     return nullptr;
 }
 
-static void *
-optionsValueOrDummy(CommandLineOptionDescription *opt) {
+void *
+Options::optionsValueOrDummy(CommandLineOptionDescription *opt) {
     if ( opt == nullptr ) {
         return nullptr;
     }
@@ -416,8 +416,8 @@ optionsValueOrDummy(CommandLineOptionDescription *opt) {
     return nullptr;
 }
 
-static bool
-optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type) {
+bool
+Options::optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type) {
     if ( type == nullptr || type->get == nullptr ) {
         return false;
     }
@@ -430,14 +430,14 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
     if ( opt ) {
         bool ok = true;
         if ( opt->type ) {
-            if ( !optionsTypeConsumesCommandLineArgument(opt->type) ) {
-                if ( !opt->type->get(optionsValueOrDummy(opt), opt->type->data) ) {
+            if ( !Options::optionsTypeConsumesCommandLineArgument(opt->type) ) {
+                if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
                     ok = false;
                 }
             } else {
                 Options::optionsConsumeArgument();
                 if ( Options::optionsArgumentsRemaining() ) {
-                    if ( !opt->type->get(optionsValueOrDummy(opt), opt->type->data) ) {
+                    if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
                         ok = false;
                     }
                 } else {
@@ -450,7 +450,7 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
             if ( opt->value != nullptr ) {
                 opt->action(opt->value);
             } else {
-                opt->action(optionsValueOrDummy(opt));
+                opt->action(Options::optionsValueOrDummy(opt));
             }
         }
         Options::optionsConsumeArgument();

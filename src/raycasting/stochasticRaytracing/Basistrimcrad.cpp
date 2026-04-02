@@ -2,21 +2,7 @@
 Orthonormal basis for the standard triangle (0, 0), (1, 0), (0, 1)
 */
 
-#include "raycasting/stochasticRaytracing/Basismcrad.h"
-
-class Basistrimcrad final {
-  public:
-    static double tm0(double u, double v);
-    static double tm1(double u, double v);
-    static double tm2(double u, double v);
-    static double tm3(double u, double v);
-    static double tm4(double u, double v);
-    static double tm5(double u, double v);
-    static double tm6(double u, double v);
-    static double tm7(double u, double v);
-    static double tm8(double u, double v);
-    static double tm9(double u, double v);
-};
+#include "raycasting/stochasticRaytracing/Basistrimcrad.h"
 
 double Basistrimcrad::tm0(double /*u*/, double /*v*/) {
     return 1.0;
@@ -74,7 +60,12 @@ static double (*f[MAX_BASIS_SIZE])(double, double) =
 static FILTER_TABLE h; // push-pull filter: computed in basis.c
 
 GalerkinBasis
-stochasticRadiosityCreateTriBasis() {
+Basistrimcrad::createBasis() {
+    return Basistrimcrad::stochasticRadiosityCreateTriBasis();
+}
+
+GalerkinBasis
+Basistrimcrad::stochasticRadiosityCreateTriBasis() {
     return {
         "orthonormal basis on the standard triangle", // description
         MAX_BASIS_SIZE, // size

@@ -168,7 +168,7 @@ GlutDebugToolsKeyControl::handleKeypress(
             }
             break;
         case 'm':
-            model.mode = nextGlutDebugMode(model.mode);
+            model.mode = GlutDebugModeTools::nextMode(model.mode);
             GlutDebugToolsKeyControl::clampHierarchyLevel(model);
             break;
         case 'f':

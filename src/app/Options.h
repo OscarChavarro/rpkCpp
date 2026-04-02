@@ -86,6 +86,8 @@ class Options final {
     static void optionsPrintEnumValues(const EnumDesc *tab);
     static unsigned long unsignedLongMax(unsigned long a, unsigned long b);
     static CommandLineOptionDescription *optionsLookupOption(const char *s, CommandLineOptionDescription *options);
+    static void *optionsValueOrDummy(CommandLineOptionDescription *opt);
+    static bool optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type);
     static void optionsProcessArguments(CommandLineOptionDescription *options);
 };
 

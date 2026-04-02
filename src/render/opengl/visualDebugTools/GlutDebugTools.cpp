@@ -323,7 +323,7 @@ GlutDebugTools::drawCallback() {
         hudModeText,
         sizeof(hudModeText),
         "MODE: %s [m]",
-        glutDebugModeName(model.mode));
+        GlutDebugModeTools::modeName(model.mode));
     GlutHudConsole::printTextLine(hudModeText, 0, 0, model.width, model.height);
 
     char hudSelectedElementText[256];

@@ -3,6 +3,7 @@
 #include "numericalAnalysis/QuadCubatureRule.h"
 #include "numericalAnalysis/TriangleCubatureRule.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/Basistrimcrad.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -23,7 +24,7 @@ static double (*oneBasisTable[1])(double, double) = {
 StochasticRadiosityBasisState::StochasticRadiosityBasisState():
     approxDesc(),
     basis(),
-    triBasis(stochasticRadiosityCreateTriBasis()),
+    triBasis(Basistrimcrad::createBasis()),
     quadBasis(stochasticRadiosityCreateQuadBasis()),
     dummyBasis(),
     clusterBasis(),
