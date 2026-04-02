@@ -23,7 +23,7 @@ patch if the ray does intersect one or more geometries. Intersections
 further away than minimumDistance are ignored.
 */
 RayHit *
-FormFactorStrategy::shadowTestDiscretization(
+FormFactorStrategy::shadowTestDiscretizationFull(
     Ray *ray,
     const java::ArrayList<Geometry *> *geometrySceneList,
     const VoxelGrid *voxelGrid,
@@ -60,6 +60,32 @@ FormFactorStrategy::shadowTestDiscretization(
     }
 
     return hit;
+}
+
+/**
+Boolean shadow test helper: separates the hot-path visibility check from the
+full intersection record path.
+*/
+bool
+FormFactorStrategy::shadowTestDiscretizationOccluded(
+    Ray *ray,
+    const java::ArrayList<Geometry *> *geometrySceneList,
+    const VoxelGrid *voxelGrid,
+    ShadowCache *shadowCache,
+    float minimumDistance,
+    bool isSceneGeometry,
+    bool isClusteredGeometry)
+{
+    RayHit hitStore;
+    return shadowTestDiscretizationFull(
+        ray,
+        geometrySceneList,
+        voxelGrid,
+        shadowCache,
+        minimumDistance,
+        &hitStore,
+        isSceneGeometry,
+        isClusteredGeometry) != nullptr;
 }
 
 /**
@@ -197,35 +223,31 @@ FormFactorStrategy::evaluatePointsPairKernel(
     float shortenedDistance = static_cast<float>(distance * (1.0f - Numeric::EPSILON));
 
     // Determine transmissivity (visibility)
-    RayHit hitStore;
     double visibilityFactor; // Will be 0.0 or 1.0
 
     if ( !shadowGeometryList || shadowGeometryList->size() == 0 ) {
         visibilityFactor = 1.0;
     } else if ( !galerkinState->multiResolutionVisibility ) {
-        if ( shadowTestDiscretization(
-                &ray,
-                shadowGeometryList,
-                sceneWorldVoxelGrid,
-                shadowCache,
-                shortenedDistance,
-                &hitStore,
-                isSceneGeometry,
-                isClusteredGeometry) == nullptr ) {
-            // No intersection with occluders means no shadow, so full visibility
-            visibilityFactor = 1.0;
-        } else {
-            // If intersection with occluders found, there is shadow, so no visibility
-            visibilityFactor = 0.0;
-        }
-    } else if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore) ) {
-        visibilityFactor = 0.0;
+        const bool isOccluded = shadowTestDiscretizationOccluded(
+            &ray,
+            shadowGeometryList,
+            sceneWorldVoxelGrid,
+            shadowCache,
+            shortenedDistance,
+            isSceneGeometry,
+            isClusteredGeometry);
+        visibilityFactor = isOccluded ? 0.0 : 1.0;
     } else {
-        // Case never used if clustering disabled
-        float minimumFeatureSize = 2.0f
-            * static_cast<float>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
-        visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-            shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
+        RayHit hitStore;
+        if ( shadowCache->cacheHit(&ray, &shortenedDistance, &hitStore) ) {
+            visibilityFactor = 0.0;
+        } else {
+            // Case never used if clustering disabled
+            float minimumFeatureSize = 2.0f
+                * static_cast<float>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
+            visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
+                shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
+        }
     }
 
     return formFactorKernelTerm * visibilityFactor;
