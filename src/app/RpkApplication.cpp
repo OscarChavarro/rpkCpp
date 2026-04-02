@@ -20,9 +20,9 @@
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
 #include "app/Batch.h"
-#include "app/CommandLine.h"
-#include "app/Options.h"
-#include "app/OptionsType.h"
+#include "app/options/CoreOptionsParser.h"
+#include "app/options/Options.h"
+#include "app/options/OptionsType.h"
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
@@ -122,19 +122,18 @@ RpkApplication::mainParseOptions(
         StochasticRayTracingState &stochasticRayTracingState,
         OptionsType &optionTypes)
 {
-    CommandLine::commandLineGeneralProgramParseOptions(
+    CoreOptionsParser::parse(
         argc,
         argv,
-        &mgfContext->singleSided,
-        &mgfContext->numberOfQuarterCircleDivisions,
-        &imageOutputWidth,
-        &imageOutputHeight,
-        &glutDebugEnabled,
+        *mgfContext,
+        *scene,
+        *renderOptions,
+        toneMapOptions,
+        imageOutputWidth,
+        imageOutputHeight,
+        glutDebugEnabled,
+        toneMapName,
         optionTypes);
-    CommandLine::renderParseOptions(argc, argv, renderOptions, optionTypes);
-    renderOptions->toneMapOptions = &toneMapOptions;
-    CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions, optionTypes);
-    CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight, optionTypes);
     Radiance::radianceParseOptions(
         argc,
         argv,

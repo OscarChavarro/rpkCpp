@@ -11,7 +11,7 @@
 #include "render/Render.h"
 #include "render/RadianceImageExporter.h"
 #include "app/Batch.h"
-#include "app/CommandLine.h"
+#include "app/options/BatchOptionsParser.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "app/Raytrace.h"
@@ -26,7 +26,7 @@ Batch::batchGetOptions() {
 
 void
 Batch::generalParseOptions(int *argc, char **argv, OptionsType &optionTypes) {
-    CommandLine::batchParseOptions(argc, argv, &batchOptions, optionTypes);
+    BatchOptionsParser::parse(argc, argv, batchOptions, optionTypes);
 }
 
 #ifdef RAYTRACING_ENABLED

@@ -29,20 +29,6 @@ class Radiance final {
             StochasticRayTracingState &stochasticRayTracingState,
             OptionsType &optionTypes);
     static void setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene);
-
-  private:
-    static constexpr int STRING_LENGTH = 1000;
-    static char radianceMethodsString[STRING_LENGTH];
-
-    static void selectRadianceMethod(
-        const int *argc,
-        char **argv,
-        RadianceMethod **newRadianceMethod,
-        StochasticRelaxation &stochasticRelaxationState,
-        ElementHierarchyState &elementHierarchyState,
-        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
-        PhotonMapState &photonMapState,
-        PhotonMapConfig &photonMapConfig);
 };
 
 #endif

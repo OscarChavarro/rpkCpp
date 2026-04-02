@@ -3,10 +3,10 @@
 
 #include "raycasting/common/RayTracer.h"
 #include "common/RenderOptions.h"
-#include "app/BatchOptions.h"
-#include "app/BackgroundMode.h"
-#include "app/EnumDesc.h"
-#include "app/CommandLineOptions.h"
+#include "app/options/BatchOptions.h"
+#include "app/options/BackgroundMode.h"
+#include "app/options/EnumDesc.h"
+#include "app/options/CommandLineOptions.h"
 
 class ToneMappingContext;
 class RayMatterState;

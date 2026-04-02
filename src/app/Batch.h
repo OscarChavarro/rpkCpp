@@ -5,7 +5,7 @@
 #include "java/util/ArrayList.h"
 #include "skin/Patch.h"
 #include "scene/Scene.h"
-#include "app/BatchOptions.h"
+#include "app/options/BatchOptions.h"
 
 class RayTracer;
 class RadianceMethod;

@@ -1,4 +1,4 @@
-#include "app/BatchOptions.h"
+#include "app/options/BatchOptions.h"
 
 BatchOptions::BatchOptions() {
     exportBinary = false;

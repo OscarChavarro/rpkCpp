@@ -1,4 +1,3 @@
-#include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -14,18 +13,7 @@
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/Raytrace.h"
-#include "app/CommandLine.h"
-
-void
-Raytrace::rayTraceMakeMethodsHelpMessage(char *str) {
-    java::Formatter::format(str, 1000,
-         "-raytracing-method <method>: set pixel-based radiance computation method\n"
-         "\tmethods: none                 no pixel-based radiance computation\n"
-         "\t         StochasticRaytracing Stochastic Raytracing & Final Gathers (default)\n"
-         "\t         BidirectionalPathTra Bidirectional Path Tracing\n"
-         "\t         RayCasting           Ray Casting\n"
-         "\t         RayMatting           Ray Matting");
-}
+#include "app/options/RaytraceOptionsParser.h"
 
 /**
 This routine sets the current raytracing method to be used
@@ -141,11 +129,7 @@ Raytrace::rayTraceParseOptions(
         char *rayTracerName,
         OptionsType &optionTypes)
 {
-    char helpMessage[1000];
-
-    Raytrace::rayTraceMakeMethodsHelpMessage(helpMessage);
-    strcpy(rayTracerName, "none");
-    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName, optionTypes);
+    RaytraceOptionsParser::parse(argc, argv, rayTracerName, optionTypes);
 }
 
 void

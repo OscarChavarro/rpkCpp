@@ -5,8 +5,8 @@ Command line options type registry
 #ifndef __OPTIONS_TYPE__
 #define __OPTIONS_TYPE__
 
-#include "app/CommandLineOptions.h"
-#include "app/EnumDesc.h"
+#include "app/options/CommandLineOptions.h"
+#include "app/options/EnumDesc.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 

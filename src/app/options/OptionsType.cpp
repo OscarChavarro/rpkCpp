@@ -2,9 +2,9 @@
 Command line options type registry
 */
 
-#include "app/EnumDesc.h"
-#include "app/Options.h"
-#include "app/OptionsType.h"
+#include "app/options/EnumDesc.h"
+#include "app/options/Options.h"
+#include "app/options/OptionsType.h"
 
 /* ------------------- boolean (yes|no) option values-------------------- */
 /* implemented as an enumeration type */

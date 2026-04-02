@@ -202,13 +202,17 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
-    src/app/OptionsType.cpp
-    src/app/Options.cpp
+    src/app/options/OptionsType.cpp
+    src/app/options/Options.cpp
+    src/app/options/CoreOptionsParser.cpp
+    src/app/options/RadianceOptionsParser.cpp
+    src/app/options/BatchOptionsParser.cpp
+    src/app/options/RaytraceOptionsParser.cpp
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp
-    src/app/CommandLine.cpp
-    src/app/BatchOptions.cpp
+    src/app/options/CommandLine.cpp
+    src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/Main.cpp)
 

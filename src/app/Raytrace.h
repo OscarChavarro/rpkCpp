@@ -44,7 +44,6 @@ class Raytrace final {
             OptionsType &optionTypes);
 
   private:
-    static void rayTraceMakeMethodsHelpMessage(char *str);
     static void
     rayTraceSetMethod(
         const RayTracer *rayTracer,

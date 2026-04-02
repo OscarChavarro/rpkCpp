@@ -5,9 +5,9 @@ Command line options and defaults
 #ifndef __OPTIONS__
 #define __OPTIONS__
 
-#include "app/CommandLineOptions.h"
-#include "app/CommandLineOptionDescription.h"
-#include "app/EnumDesc.h"
+#include "app/options/CommandLineOptions.h"
+#include "app/options/CommandLineOptionDescription.h"
+#include "app/options/EnumDesc.h"
 #include "java/util/ArrayList.h"
 
 class Options final {

@@ -11,7 +11,7 @@ Command line options and defaults
 #include "java/util/Formatter.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
-#include "app/Options.h"
+#include "app/options/Options.h"
 
 int *Options::argumentCount;
 char **Options::arguments = nullptr;

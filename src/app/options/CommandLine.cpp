@@ -17,11 +17,11 @@
     #include "photonMap/PhotonMapState.h"
 #endif
 
-#include "app/BackgroundMode.h"
-#include "app/Options.h"
-#include "app/OptionsType.h"
-#include "app/BatchOptions.h"
-#include "app/CommandLine.h"
+#include "app/options/BackgroundMode.h"
+#include "app/options/Options.h"
+#include "app/options/OptionsType.h"
+#include "app/options/BatchOptions.h"
+#include "app/options/CommandLine.h"
 
 const Vector3D CommandLine::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
 const Vector3D CommandLine::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
