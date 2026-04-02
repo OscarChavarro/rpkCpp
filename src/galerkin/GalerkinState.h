@@ -4,7 +4,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 #include "numericalAnalysis/CubatureRule.h"
-#include "sgl/SglContext.h"
+#include "render/sgl/SglContext.h"
 #include "galerkin/GalerkinBasisType.h"
 #include "galerkin/GalerkinClusteringStrategy.h"
 #include "galerkin/GalerkinElement.h"

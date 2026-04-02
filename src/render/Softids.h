@@ -11,7 +11,7 @@ due to frame buffer formats, etc.
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
-#include "sgl/SglContext.h"
+#include "render/sgl/SglContext.h"
 
 class ToneMappingContext;
 

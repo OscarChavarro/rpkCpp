@@ -7,10 +7,12 @@ Small Graphics Library
 
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "skin/Patch.h"
-#include "sgl/SglConstants.h"
-#include "sgl/SglPixelContent.h"
+#include "render/sgl/SglConstants.h"
+#include "render/sgl/SglPixelContent.h"
 typedef unsigned long SGL_PIXEL;
 typedef unsigned long SGL_Z_VALUE;
+
+class GalerkinElement;
 
 class SglContext {
   private:
@@ -30,11 +32,11 @@ class SglContext {
     SglPixelContent pixelData;
     SGL_PIXEL *frameBuffer;
     Patch **patchBuffer;
-    Element **elementBuffer;
+    GalerkinElement **galerkinElementBuffer;
 
     SGL_PIXEL currentPixel;
     const Patch *currentPatch;
-    Element *currentElement;
+    const GalerkinElement *currentGalerkinElement;
 
     SGL_Z_VALUE *depthBuffer; // Z buffer
 
@@ -54,6 +56,7 @@ class SglContext {
     void sglMultiplyMatrix(const Matrix4x4 *xf) const;
     void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(const Patch *col);
+    void sglSetGalerkinElement(const GalerkinElement *galerkinElement);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);
     void sglPolygon(int numberOfVertices, const Vector3D *vertices);
 };

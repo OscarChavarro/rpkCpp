@@ -98,10 +98,10 @@ set(MAIN_SRC
     src/skin/MeshSurface.cpp
     src/skin/Vertex.cpp
     src/skin/Element.cpp
-    src/sgl/PolyClip.cpp
-    src/sgl/PolyScanZ.cpp
-    src/sgl/SglContext.cpp
-    src/sgl/PolyScanFlat.cpp
+    src/render/sgl/PolyClip.cpp
+    src/render/sgl/PolyScanZ.cpp
+    src/render/sgl/SglContext.cpp
+    src/render/sgl/PolyScanFlat.cpp
     src/scene/Background.cpp
     src/scene/ConstantColorBackground.cpp
     src/scene/Plane.cpp

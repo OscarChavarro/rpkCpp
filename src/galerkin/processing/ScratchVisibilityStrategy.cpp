@@ -107,7 +107,7 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         const int rowStart = j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
-            const GalerkinElement *element = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + i]);
+            const GalerkinElement *element = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
             if ( element != nullptr ) {
                 if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
                      galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
@@ -135,7 +135,7 @@ ScratchVisibilityStrategy::scratchNonBackgroundPixels(const GalerkinState *galer
     for ( int j = 0; j < galerkinState->scratch->vp_height; j++ ) {
         const int rowStart = j * galerkinState->scratch->width;
         for ( int i = 0; i < galerkinState->scratch->vp_width; i++ ) {
-            const GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + i]);
+            const GalerkinElement *elem = galerkinState->scratch->galerkinElementBuffer[rowStart + i];
             if ( elem ) {
                 nonBackGround++;
             }
@@ -154,7 +154,7 @@ ScratchVisibilityStrategy::scratchPixelsPerElement(const GalerkinState *galerkin
     for ( int i = 0; i < galerkinState->scratch->vp_height; i++ ) {
         const int rowStart = i * galerkinState->scratch->width;
         for ( int j = 0; j < galerkinState->scratch->vp_width; j++ ) {
-            GalerkinElement *elem = reinterpret_cast<GalerkinElement *>(galerkinState->scratch->frameBuffer[rowStart + j]);
+            GalerkinElement *elem = galerkinState->scratch->galerkinElementBuffer[rowStart + j];
             if ( elem != nullptr ) {
                 elem->scratchVisibilityUsageCounter++;
             }

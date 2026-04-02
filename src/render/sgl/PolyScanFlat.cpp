@@ -13,7 +13,7 @@ Note that original algorithm is available at
 https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
-#include "sgl/Poly.h"
+#include "render/sgl/Poly.h"
 /**
 Put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
@@ -58,10 +58,14 @@ Poly::scanlineFlat(const SglContext *sglContext, int y, const PolygonVertex *l, 
     const int rowStart = y * sglContext->width;
     for ( int x = lx; x <= rx; x++ ) {
         // Scan in x, generating pixels
+        const int pixelIndex = rowStart + x;
         if ( sglContext->pixelData == SglPixelContent::PATCH_POINTER ) {
-            sglContext->patchBuffer[rowStart + x] = const_cast<Patch *>(sglContext->currentPatch);
+            sglContext->patchBuffer[pixelIndex] = const_cast<Patch *>(sglContext->currentPatch);
+        } else if ( sglContext->pixelData == SglPixelContent::GALERKIN_ELEMENT_POINTER ) {
+            sglContext->galerkinElementBuffer[pixelIndex] =
+                const_cast<GalerkinElement *>(sglContext->currentGalerkinElement);
         } else {
-            sglContext->frameBuffer[rowStart + x] = sglContext->currentPixel;
+            sglContext->frameBuffer[pixelIndex] = sglContext->currentPixel;
         }
     }
 }

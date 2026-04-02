@@ -11,7 +11,7 @@ Note that original algorithm is available at
 https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 */
 
-#include "sgl/Poly.h"
+#include "render/sgl/Poly.h"
 /**
 incrementalizeY: put intersection of line Y = y + 0.5 with edge between positions
 p1 and p2 in p, put change with respect to y in dp
@@ -73,6 +73,9 @@ Poly::scanlineZ(const SglContext *sglContext, int y, const PolygonVertex *l, con
         if ( z <= sglContext->depthBuffer[pixelIndex] ) {
             if ( sglContext->pixelData == SglPixelContent::PATCH_POINTER ) {
                 sglContext->patchBuffer[pixelIndex] = const_cast<Patch *>(sglContext->currentPatch);
+            } else if ( sglContext->pixelData == SglPixelContent::GALERKIN_ELEMENT_POINTER ) {
+                sglContext->galerkinElementBuffer[pixelIndex] =
+                    const_cast<GalerkinElement *>(sglContext->currentGalerkinElement);
             } else {
                 sglContext->frameBuffer[pixelIndex] = sglContext->currentPixel;
             }

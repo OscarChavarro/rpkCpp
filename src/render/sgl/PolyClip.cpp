@@ -11,7 +11,7 @@ https://github.com/erich666/GraphicsGems/tree/master/gems/PolyScan
 #include <cstring>
 
 #include "java/lang/System.h"
-#include "sgl/Poly.h"
+#include "render/sgl/Poly.h"
 void
 Poly::polygonSwap(Polygon *a, Polygon *b) {
     Polygon temporary = *a;

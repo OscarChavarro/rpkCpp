@@ -7,12 +7,12 @@ Definitions for polygon package
 
 #include <cstddef>
 
-#include "sgl/PolygonClipResult.h"
-#include "sgl/PolygonVertex.h"
-#include "sgl/Polygon.h"
-#include "sgl/PolygonBox.h"
-#include "sgl/Window.h"
-#include "sgl/SglContext.h"
+#include "render/sgl/PolygonClipResult.h"
+#include "render/sgl/PolygonVertex.h"
+#include "render/sgl/Polygon.h"
+#include "render/sgl/PolygonBox.h"
+#include "render/sgl/Window.h"
+#include "render/sgl/SglContext.h"
 /**
 Mask is an interpolation mask whose kth bit indicates whether the kth
 double in a Poly_vert is relevant.

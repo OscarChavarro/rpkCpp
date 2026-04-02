@@ -30,7 +30,6 @@ ScratchRendererVisitor::visit(
         return;
     }
 
-    // TODO: Extend SglContext to support Element*
-    sglContext->sglSetColor(reinterpret_cast<SGL_PIXEL>(galerkinElement));
+    sglContext->sglSetGalerkinElement(galerkinElement);
     sglContext->sglPolygon(patch->numberOfVertices, v);
 }

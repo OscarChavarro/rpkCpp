@@ -6,8 +6,8 @@ of patches needs to be ID rendered very often
 #include <cstddef>
 
 #include "common/Error.h"
-#include "sgl/Poly.h"
-#include "sgl/SglContext.h"
+#include "render/sgl/Poly.h"
+#include "render/sgl/SglContext.h"
 
 const Matrix4x4 &
 SglContext::identityMatrix() {
@@ -25,17 +25,20 @@ Creates and destroys an SGL rendering context.
 */
 SglContext::SglContext(int width, int height):
     transformStack(),
-    elementBuffer(),
-    currentElement()
+    galerkinElementBuffer(),
+    currentGalerkinElement()
 {
     // Frame buffer
     this->width = width;
     this->height = height;
     frameBuffer = new SGL_PIXEL[width * height];
     patchBuffer = new Patch *[width * height];
+    galerkinElementBuffer = new GalerkinElement *[width * height];
 
     for ( int i = 0; i < width * height; i++ ) {
+        frameBuffer[i] = 0;
         patchBuffer[i] = nullptr;
+        galerkinElementBuffer[i] = nullptr;
     }
 
     pixelData = SglPixelContent::PIXEL;
@@ -49,6 +52,7 @@ SglContext::SglContext(int width, int height):
 
     currentPixel = 0;
     currentPatch = nullptr;
+    currentGalerkinElement = nullptr;
 
     clipping = true;
 
@@ -70,6 +74,10 @@ SglContext::~SglContext() {
         delete []patchBuffer;
     }
 
+    if ( galerkinElementBuffer != nullptr ) {
+        delete []galerkinElementBuffer;
+    }
+
     if ( depthBuffer != nullptr ) {
         delete[] depthBuffer;
     }
@@ -81,7 +89,10 @@ SglContext::clearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor) 
     for ( int j = 0; j < sglContext->vp_height; j++ ) {
         const int rowStart = viewportOrigin + j * sglContext->width;
         for ( int i = 0; i < sglContext->vp_width; i++ ) {
-            sglContext->frameBuffer[rowStart + i] = backgroundColor;
+            const int pixelIndex = rowStart + i;
+            sglContext->frameBuffer[pixelIndex] = backgroundColor;
+            sglContext->patchBuffer[pixelIndex] = nullptr;
+            sglContext->galerkinElementBuffer[pixelIndex] = nullptr;
         }
     }
 }
@@ -141,6 +152,7 @@ SglContext::sglMultiplyMatrix(const Matrix4x4 *xf) const {
 
 void
 SglContext::sglSetColor(SGL_PIXEL col) {
+    pixelData = SglPixelContent::PIXEL;
     currentPixel = col;
 }
 
@@ -148,6 +160,12 @@ void
 SglContext::sglSetPatch(const Patch *patch) {
     pixelData = SglPixelContent::PATCH_POINTER;
     currentPatch = patch;
+}
+
+void
+SglContext::sglSetGalerkinElement(const GalerkinElement *galerkinElement) {
+    pixelData = SglPixelContent::GALERKIN_ELEMENT_POINTER;
+    currentGalerkinElement = galerkinElement;
 }
 
 void
