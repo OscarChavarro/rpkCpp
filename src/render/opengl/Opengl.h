@@ -2,19 +2,20 @@
 #define __OPENGL__
 
 #include "common/RenderOptions.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 
 class OpenGlRenderTraversalCallback;
-class GlutDebugState;
 
 typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);
 typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *, const RenderOptions *, void *);
 
 class Opengl {
   private:
+    static const ToneMappingContext *activeToneMapOptions;
     static void openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions);
     static void openGlRenderPatchSmooth(const Patch *patch, const RenderOptions *renderOptions);
     static void

@@ -5,10 +5,9 @@
 
 #ifdef RAYTRACING_ENABLED
 
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
-
-class LightList;
 
 class StochasticRaytracer final : public RayTracer {
   private:

@@ -13,7 +13,6 @@ used as a parameter for BSDF/EDF queries
 #include "material/RayHitFlag.h"
 
 class Patch; // TODO: this is coupling RayHit with skin level classes :(
-
 class Material;
 
 /**

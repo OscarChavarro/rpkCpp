@@ -2,10 +2,10 @@
 #define __VOXEL_DATA__
 
 #include "scene/VoxelDataFlags.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
 
 class VoxelGrid;
-class Geometry;
-class Patch;
 
 class VoxelData {
   private:
@@ -53,9 +53,5 @@ inline bool
 VoxelData::isGrid() const {
     return flags & VOXEL_DATA_GRID_MASK;
 }
-
-#include "scene/VoxelGrid.h"
-#include "skin/Geometry.h"
-#include "skin/Patch.h"
 
 #endif

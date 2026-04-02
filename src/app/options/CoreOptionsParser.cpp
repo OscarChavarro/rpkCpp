@@ -31,7 +31,6 @@ CoreOptionsParser::parse(
         optionTypes);
 
     CommandLine::renderParseOptions(argc, argv, &renderOptions, optionTypes);
-    renderOptions.toneMapOptions = &toneMapOptions;
     CommandLine::toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions, optionTypes);
     CommandLine::cameraParseOptions(argc, argv, scene.camera, imageOutputWidth, imageOutputHeight, optionTypes);
 }

@@ -1,7 +1,7 @@
 #ifndef __OPENGL_OCTREE_CHILD__
 #define __OPENGL_OCTREE_CHILD__
 
-class Geometry;
+#include "skin/Geometry.h"
 
 class OctreeChild {
   public:

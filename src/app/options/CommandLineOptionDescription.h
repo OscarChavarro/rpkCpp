@@ -1,7 +1,7 @@
 #ifndef __COMMAND_LINE_OPTION_DESCRIPTION__
 #define __COMMAND_LINE_OPTION_DESCRIPTION__
 
-class CommandLineOptions;
+#include "app/options/CommandLineOptions.h"
 
 class CommandLineOptionDescription {
   public:

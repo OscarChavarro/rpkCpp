@@ -2,10 +2,9 @@
 #define __MGF_DEFINITIONS__
 
 #include "io/context/ParseSession.h"
+#include "io/context/FilePositionContext.h"
 #include "io/context/HandlerType.h"
 #include "io/context/EntityHandler.h"
-
-class FilePositionContext;
 
 class MgfDefinitions {
   public:

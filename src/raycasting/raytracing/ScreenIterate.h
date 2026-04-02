@@ -10,9 +10,8 @@ Several functions are provided for different iterating schemes
 
 #include "common/ColorRgb.h"
 #include "scene/Background.h"
+#include "tonemap/ToneMappingContext.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
-
-class ToneMappingContext;
 
 typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Camera *, VoxelGrid *, Background *, int, int, void *);
 

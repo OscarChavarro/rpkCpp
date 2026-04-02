@@ -7,8 +7,7 @@
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
 #include "io/image/ImageOutputHandle.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 /**
 Class for storing pixel radiance/fluxes

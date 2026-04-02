@@ -2,12 +2,11 @@
 #define __READER_STACK_STATE__
 
 #include "io/context/EntityContext.h"
+#include "io/context/EntityHandler.h"
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/LookUpTable.h"
 #include "io/context/ReaderContext.h"
 #include "io/context/HandlerType.h"
-
-class EntityHandler;
 
 class ReaderStackState {
   private:

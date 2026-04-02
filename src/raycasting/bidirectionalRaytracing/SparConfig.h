@@ -1,7 +1,7 @@
 #ifndef __SPAR_CONFIG__
 #define __SPAR_CONFIG__
 
-class BidirectionalPathRaytracerConfig;
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 class Spar;
 
 // Spar Config stores handy config params

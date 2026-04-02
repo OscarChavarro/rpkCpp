@@ -1,7 +1,6 @@
 #include <cstring>
 
 #include "common/RenderOptions.h"
-#include "common/statistics/Statistics.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
@@ -56,7 +55,6 @@ RpkApplication::RpkApplication():
     mgfContext = new ParseSession();
     renderOptions = new RenderOptions();
     scene->toneMapOptions = &toneMapOptions;
-    renderOptions->toneMapOptions = &toneMapOptions;
 }
 
 RpkApplication::~RpkApplication() {
@@ -181,7 +179,6 @@ RpkApplication::executeRendering(
             bidirectionalPathState,
             stochasticRayTracingState,
             lightList);
-        Statistics::instance().rayTracer.currentRayTracer = rayTracer;
     #else
         (void) rayTracerName;
         (void) rayMatterState;
@@ -289,7 +286,6 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         rayTracer->terminate();
         delete rayTracer;
         rayTracer = nullptr;
-        Statistics::instance().rayTracer.currentRayTracer = nullptr;
     }
     if ( lightList != nullptr ) {
         delete lightList;

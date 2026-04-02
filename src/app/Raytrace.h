@@ -6,14 +6,13 @@
 #include "common/RenderOptions.h"
 #include "scene/Scene.h"
 #include "raycasting/common/RayTracer.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
+#include "app/options/OptionsType.h"
 
 #ifdef RAYTRACING_ENABLED
-class RayMatterState;
-class BidirectionalPathTracingState;
-class StochasticRayTracingState;
-class LightList;
-class OptionsType;
-
 class Raytrace final {
   public:
     static RayTracer *rayTraceCreate(

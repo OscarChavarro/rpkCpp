@@ -1,7 +1,7 @@
 #ifndef __LIGHT_SOURCE_TABLE__
 #define __LIGHT_SOURCE_TABLE__
 
-class Patch;
+#include "skin/Patch.h"
 
 class LightSourceTable {
   public:

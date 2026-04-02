@@ -2,14 +2,13 @@
 #define __RADIANCE_IMAGE_EXPORTER__
 
 #include "java/io/OutputStream.h"
-
-class Scene;
-class RadianceMethod;
-class RenderOptions;
-class ScreenBuffer;
-class Camera;
-class Patch;
-class ColorRgb;
+#include "common/ColorRgb.h"
+#include "common/RenderOptions.h"
+#include "scene/Camera.h"
+#include "scene/RadianceMethod.h"
+#include "scene/Scene.h"
+#include "skin/Patch.h"
+#include "render/ScreenBuffer.h"
 
 class RadianceImageExporter final {
   public:

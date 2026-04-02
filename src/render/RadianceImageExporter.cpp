@@ -20,9 +20,6 @@ RadianceImageExporter::exportImage(
     }
 
     ToneMappingContext *toneMapOptions = scene->toneMapOptions;
-    if ( renderOptions != nullptr && renderOptions->toneMapOptions != nullptr ) {
-        toneMapOptions = renderOptions->toneMapOptions;
-    }
     if ( toneMapOptions == nullptr ) {
         Error::error("RadianceImageExporter::exportImage", "Tone mapping context not available for image export");
         return;

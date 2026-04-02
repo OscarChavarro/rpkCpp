@@ -6,15 +6,14 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/SamplerConfig.h"
 #include "raycasting/stochasticRaytracing/CSeed.h"
 #include "raycasting/stochasticRaytracing/CSeedConfig.h"
 #include "raycasting/stochasticRaytracing/CScatterInfo.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StorageReadout.h"
-
-class ToneMappingContext;
-class LightList;
+#include "tonemap/ToneMappingContext.h"
 
 class StochasticRaytracingConfiguration {
   public:

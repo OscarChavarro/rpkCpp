@@ -2,9 +2,13 @@
 #define __MGF_PARSE_SESSION__
 
 #include "scene/RadianceMethod.h"
+#include "common/linealAlgebra/Vector3D.h"
 #include "io/context/TransformStackContext.h"
 #include "io/context/ColorContext.h"
+#include "io/context/EntityHandler.h"
 #include "io/context/LookUpTable.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
 
 #include "io/context/ParserConfig.h"
 #include "io/context/ReaderStackState.h"
@@ -15,15 +19,10 @@
 #include "io/context/VertexRepository.h"
 #include "io/context/ObjectHierarchyState.h"
 #include "io/context/TransformStack.h"
-
-class Geometry;
-class Material;
-class EntityHandler;
-class Patch;
-class PersistedSceneModel;
-class ReaderContext;
-class Vector3D;
-class Vertex;
+#include "material/Material.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class ParseSession {
   public:

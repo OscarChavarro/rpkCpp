@@ -1,9 +1,9 @@
 #ifndef __STOCHASTIC_RAYTRACER_CALLBACK_DATA__
 #define __STOCHASTIC_RAYTRACER_CALLBACK_DATA__
 
-class StochasticRaytracingConfiguration;
-class RadianceMethod;
-class RenderOptions;
+#include "common/RenderOptions.h"
+#include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
+#include "scene/RadianceMethod.h"
 
 class StochasticRaytracerCallbackData {
   public:

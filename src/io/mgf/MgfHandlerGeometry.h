@@ -2,14 +2,13 @@
 #define __MGF_HANDLER_GEOMETRY__
 
 #include "common/linealAlgebra/CoordinateAxis.h"
+#include "common/linealAlgebra/Vector2D.h"
+#include "common/linealAlgebra/Vector3D.h"
 #include "io/context/ParseSession.h"
+#include "io/context/TransformStackContext.h"
 #include "io/context/VertexContext.h"
-
-class Patch;
-class TransformStackContext;
-class Vector2D;
-class Vector3D;
-class Vertex;
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class MgfHandlerGeometry {
   public:

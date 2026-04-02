@@ -1,9 +1,9 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
 
-class Scene;
-class RenderOptions;
-class GalerkinElement;
+#include "common/RenderOptions.h"
+#include "galerkin/GalerkinElement.h"
+#include "scene/Scene.h"
 
 class GlutDebugPatchHierarchy final {
   public:

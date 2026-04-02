@@ -91,7 +91,9 @@ GlutDebugPatchHierarchy::renderElementGray(
     if ( element == nullptr || renderOptions == nullptr ) {
         return;
     }
-    if ( renderOptions->toneMapOptions == nullptr ) {
+    const ToneMappingContext *toneMapOptions =
+        element->galerkinState == nullptr ? nullptr : element->galerkinState->toneMapOptions;
+    if ( toneMapOptions == nullptr ) {
         return;
     }
     if ( element->isCluster() ) {
@@ -124,7 +126,7 @@ GlutDebugPatchHierarchy::renderElementGray(
         }
 
         ColorRgb rgbColor{};
-        ToneMap::radianceToRgb(radianceSample, &rgbColor, *renderOptions->toneMapOptions);
+        ToneMap::radianceToRgb(radianceSample, &rgbColor, *toneMapOptions);
         grayValue = toneMappedGrayAndDarkened(rgbColor.luminance());
         glColor3f(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);

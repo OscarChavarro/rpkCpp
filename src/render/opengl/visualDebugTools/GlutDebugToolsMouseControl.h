@@ -4,8 +4,7 @@
 #include "common/linealAlgebra/Ray.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
-
-class Scene;
+#include "scene/Scene.h"
 
 class GlutDebugToolsMouseControl final {
   public:

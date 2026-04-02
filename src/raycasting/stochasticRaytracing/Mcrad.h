@@ -8,15 +8,15 @@ Monte Carlo radiosity
 #include "java/util/ArrayList.h"
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
+#include "common/RenderOptions.h"
+#include "skin/Element.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
 
-class Element;
-class Geometry;
-class Patch;
-class RenderOptions;
 class StochasticRadiosityElement;
-class Vertex;
 
 class Mcrad final {
   public:

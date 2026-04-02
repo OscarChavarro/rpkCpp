@@ -8,8 +8,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingMethod.h"
 #include "raycasting/stochasticRaytracing/WhatToShow.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 /**
 Used for stochastic relaxation and for random walk radiosity

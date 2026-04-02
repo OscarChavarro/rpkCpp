@@ -54,6 +54,12 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
     // Draw surfaces
     if ( renderOptions->drawSurfaces ) {
+        const ToneMappingContext *toneMapOptions =
+            element->galerkinState == nullptr ? nullptr : element->galerkinState->toneMapOptions;
+        if ( toneMapOptions == nullptr ) {
+            return;
+        }
+
         if ( mode & GalerkinElementRenderMode::FLAT ) {
             ColorRgb color{};
             ColorRgb rho = element->patch->radianceData->Rd;
@@ -62,9 +68,9 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
                 ColorRgb radVis;
                 radVis.scalarProduct(rho, element->galerkinState->ambientRadiance);
                 radVis.add(radVis, element->radiance[0]);
-                ToneMap::radianceToRgb(radVis, &color, *renderOptions->toneMapOptions);
+                ToneMap::radianceToRgb(radVis, &color, *toneMapOptions);
             } else {
-                ToneMap::radianceToRgb(element->radiance[0], &color, *renderOptions->toneMapOptions);
+                ToneMap::radianceToRgb(element->radiance[0], &color, *toneMapOptions);
             }
             Opengl::openGlRenderSetColor(&color, renderOptions);
             Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
@@ -94,7 +100,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
             ColorRgb vertexColors[4];
             for ( int i = 0; i < numberOfVertices; i++ ) {
-                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *renderOptions->toneMapOptions);
+                ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *toneMapOptions);
             }
 
             Opengl::openGlRenderPolygonGouraud(numberOfVertices, p, vertexColors, renderOptions);

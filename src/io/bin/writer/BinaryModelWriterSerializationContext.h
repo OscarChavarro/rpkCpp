@@ -1,16 +1,18 @@
 #ifndef __BINARY_MODEL_WRITER_SERIALIZATION_CONTEXT__
 #define __BINARY_MODEL_WRITER_SERIALIZATION_CONTEXT__
 
-class ColorContext;
-class Geometry;
-class Material;
-class Patch;
-class PersistedSceneModel;
-class ReaderContext;
-class TransformArray;
-class TransformStackContext;
-class Vector3D;
-class Vertex;
+#include "java/util/ArrayList.h"
+#include "java/util/HashMap.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "io/context/ColorContext.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformStackContext.h"
+#include "material/Material.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class BinaryModelWriterSerializationContext {
   public:

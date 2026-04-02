@@ -3,13 +3,12 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
+#include "raycasting/common/RayTracer.h"
+#include "scene/RadianceMethod.h"
 #include "skin/Patch.h"
 #include "scene/Scene.h"
 #include "app/options/BatchOptions.h"
-
-class RayTracer;
-class RadianceMethod;
-class OptionsType;
+#include "app/options/OptionsType.h"
 
 class Batch final {
   public:
@@ -23,6 +22,7 @@ class Batch final {
 
   private:
     static BatchOptions batchOptions;
+    static const RayTracer *currentRayTracer;
 
 #ifdef RAYTRACING_ENABLED
     static void batchRayTraceSaveImage(

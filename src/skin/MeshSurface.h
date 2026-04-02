@@ -9,8 +9,7 @@ Surfaces are basically a list of patches representing a simple object with given
 #include "material/Material.h"
 #include "skin/Geometry.h"
 #include "skin/MaterialColorFlags.h"
-
-class Vertex;
+#include "skin/Vertex.h"
 
 class MeshSurface final : public Geometry {
   private:

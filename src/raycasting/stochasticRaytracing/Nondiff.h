@@ -3,14 +3,13 @@
 
 #include "java/util/ArrayList.h"
 #include "common/ColorRgb.h"
+#include "common/linealAlgebra/Ray.h"
 #include "common/RenderOptions.h"
+#include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-
-class LightSourceTable;
-class Patch;
-class RadianceMethod;
-class Ray;
-class VoxelGrid;
+#include "scene/VoxelGrid.h"
+#include "raycasting/stochasticRaytracing/LightSourceTable.h"
+#include "skin/Patch.h"
 
 class Nondiff final {
   public:

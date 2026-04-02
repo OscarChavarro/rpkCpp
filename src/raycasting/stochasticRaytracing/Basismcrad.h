@@ -7,13 +7,12 @@ Higher order approximations for Galerkin radiosity
 
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Matrix2x2.h"
+#include "numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/Mcrad.h"
 #include "raycasting/stochasticRaytracing/GalerkinBasis.h"
 #include "raycasting/stochasticRaytracing/ApproximationTypeDescription.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElementType.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
-
-class CubatureRule;
 
 class StochasticRadiosityBasisState {
   public:

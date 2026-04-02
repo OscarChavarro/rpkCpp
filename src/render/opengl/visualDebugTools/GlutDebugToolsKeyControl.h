@@ -2,8 +2,7 @@
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_KEY_CONTROL__
 
 #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
-
-class Scene;
+#include "scene/Scene.h"
 
 class GlutDebugToolsKeyControl final {
   public:

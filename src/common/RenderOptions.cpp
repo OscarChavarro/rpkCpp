@@ -17,8 +17,7 @@ RenderOptions::RenderOptions():
     drawClusters(),
     frustumCulling(),
     renderRayTracedImage(),
-    trace(),
-    toneMapOptions()
+    trace()
 {
     smoothShading = DEFAULT_SMOOTH_SHADING;
     backfaceCulling = DEFAULT_BACKFACE_CULLING;
@@ -33,7 +32,6 @@ RenderOptions::RenderOptions():
     noShading = false;
     lineWidth = 1.0;
     renderRayTracedImage = false;
-    toneMapOptions = nullptr;
 }
 
 RenderOptions::~RenderOptions() {

@@ -12,8 +12,7 @@
 #include "galerkin/GalerkinIterationMethod.h"
 #include "galerkin/GalerkinShaftCullMode.h"
 #include "galerkin/ShaftCullStrategy.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class GalerkinState {
   public:

@@ -58,15 +58,16 @@ This is a full rewrite with the following features:
   - Using static_cast and reinterpret_cast instead of simple old C++-style casts
   - Replacing pointer to callback functions with class hierarchies using inheritance overloaded methods
 
-## Modenized OOP design
+## Modernized OOP design
 
-Some clean code and SOLID object oriented programming (OOP) principles and best practices has been applied:
+Some clean code and SOLID object-oriented programming (OOP) principles and best practices has been applied:
 - All functions and variables where organized in to classes (methods and attributes).
 - Single class or enum per .h/.cpp module
 - Inspired in ports and adapters / hexagonal architecture:
   - Infrastructure code has been decoupled from business logic.
   - Basic operating system, filesystem and other operations where abstracted in a Java-like organization targeted to migrate this program to other languages easily.
   - There are no system #include classes in headers outside "java" abstraction. This means all classes are "pure" business logic.
+- No friend classes or methods
 
 ## Re-entrant code
 

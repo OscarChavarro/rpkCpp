@@ -11,8 +11,6 @@ If this is undefined, the raytracing code can be trimmed as follows:
 Build-time feature flags are configured from CMake.
 */
 
-class ToneMappingContext;
-
 class RenderOptions {
   public:
     ColorRgb outlineColor; // Color in which to draw outlines
@@ -29,7 +27,6 @@ class RenderOptions {
     char frustumCulling; // Frustum culling accelerates rendering of large scenes.
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff
-    ToneMappingContext *toneMapOptions; // Owned by the application, shared with render flows
 
     RenderOptions();
     virtual ~RenderOptions();

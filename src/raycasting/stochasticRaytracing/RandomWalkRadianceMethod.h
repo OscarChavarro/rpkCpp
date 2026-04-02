@@ -3,13 +3,12 @@
 
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
-
-class Path;
-class StochasticRadiosityElement;
-class StochasticRelaxation;
-class ElementHierarchyState;
-class StochasticRadiosityBasisState;
-class VoxelGrid;
+#include "scene/VoxelGrid.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/Path.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 class RandomWalkRadianceMethod final : public RadianceMethod {
   public:

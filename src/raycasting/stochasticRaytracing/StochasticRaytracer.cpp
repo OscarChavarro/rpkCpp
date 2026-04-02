@@ -51,9 +51,9 @@ StochasticRaytracer::execute(
     RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) const
 {
-    ToneMappingContext *toneMapOptions = renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions;
+    ToneMappingContext *toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not set in render options");
+        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not set in scene");
     }
 
     StochasticRaytracingConfiguration config(

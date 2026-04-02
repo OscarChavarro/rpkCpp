@@ -1,10 +1,9 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 
+#include "galerkin/GalerkinElement.h"
 #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"
-
-class GalerkinElement;
-class Scene;
+#include "scene/Scene.h"
 
 class GlutDebugTools final {
   public:

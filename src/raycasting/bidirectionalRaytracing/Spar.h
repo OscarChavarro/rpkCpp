@@ -12,9 +12,7 @@ Specification of the Stored Partial Radiance class
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 #include "raycasting/bidirectionalRaytracing/SparPathGroup.h"
 #include "raycasting/bidirectionalRaytracing/SparConfig.h"
-
-class Spar;
-class SparList;
+#include "raycasting/bidirectionalRaytracing/SparList.h"
 
 class Spar {
   public:
@@ -29,7 +27,6 @@ class Spar {
     virtual ColorRgb handlePath(SparConfig *config, BiPath *path);
 };
 
-#include "raycasting/bidirectionalRaytracing/SparList.h"
 #include "raycasting/bidirectionalRaytracing/LeSpar.h"
 #include "raycasting/bidirectionalRaytracing/LDSpar.h"
 

@@ -1,10 +1,11 @@
 #ifndef __GEOMETRY_BUILD_STATE__
 #define __GEOMETRY_BUILD_STATE__
 
-class Geometry;
-class Patch;
-class Vector3D;
-class Vertex;
+#include "java/util/ArrayList.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class GeometryBuildState {
   public:

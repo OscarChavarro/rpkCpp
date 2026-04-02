@@ -2,9 +2,8 @@
 #define __CONTRIB_HANDLER__
 
 #include "common/ColorRgb.h"
-
-class BiPath;
-class FlagChainList;
+#include "raycasting/bidirectionalRaytracing/BiPath.h"
+#include "raycasting/bidirectionalRaytracing/FlagChainList.h"
 
 /**
 An array of chain lists indexed by length

@@ -1,11 +1,10 @@
 #ifndef __MGF_HANDLER_MATERIAL__
 #define __MGF_HANDLER_MATERIAL__
 
+#include "common/ColorRgb.h"
+#include "io/context/ColorContext.h"
 #include "material/Material.h"
 #include "io/context/ParseSession.h"
-
-class ColorContext;
-class ColorRgb;
 
 class MgfHandlerMaterial {
   public:

@@ -2,15 +2,14 @@
 #define __PERSISTED_SCENE_MODEL__
 
 #include "java/util/ArrayList.h"
-
-class Geometry;
-class Material;
-class Patch;
-class Vector3D;
-class Vertex;
-class ColorContext;
-class ReaderContext;
-class TransformStackContext;
+#include "common/linealAlgebra/Vector3D.h"
+#include "io/context/ColorContext.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformStackContext.h"
+#include "material/Material.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class PersistedSceneModel {
   public:

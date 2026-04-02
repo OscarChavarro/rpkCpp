@@ -2,8 +2,7 @@
 #define __MATERIAL_STATE__
 
 #include "java/util/ArrayList.h"
-
-class Material;
+#include "material/Material.h"
 
 class MaterialState {
   public:

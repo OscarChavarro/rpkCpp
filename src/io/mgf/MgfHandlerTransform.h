@@ -1,13 +1,12 @@
 #ifndef __MGF_HANDLER_TRANSFORM__
 #define __MGF_HANDLER_TRANSFORM__
 
+#include "common/linealAlgebra/Matrix4x4d.h"
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "io/context/ParseSession.h"
-
-class Matrix4x4d;
-class TransformArray;
-class TransformContext;
-class TransformStackContext;
+#include "io/context/TransformArray.h"
+#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
 
 /**
 The transformation handler should do most of the work that needs

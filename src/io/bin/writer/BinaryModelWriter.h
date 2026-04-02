@@ -1,21 +1,22 @@
 #ifndef __BINARY_MODEL_WRITTER__
 #define __BINARY_MODEL_WRITTER__
 
+#include "java/io/OutputStream.h"
+#include "java/util/ArrayList.h"
 #include "java/util/HashMap.h"
-
-class BoundingBox;
-class ColorRgb;
-class Geometry;
-class Material;
-class ColorContext;
-class PersistedSceneModel;
-class ReaderContext;
-class TransformArray;
-class TransformStackContext;
-class Patch;
-class Vector3D;
-class Vertex;
-class BinaryModelWriterSerializationContext;
+#include "common/ColorRgb.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
+#include "io/context/ColorContext.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformStackContext.h"
+#include "material/Material.h"
+#include "skin/BoundingBox.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class BinaryModelWriter {
   public:

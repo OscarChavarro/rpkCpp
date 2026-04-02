@@ -1,8 +1,9 @@
 #ifndef __MGF_ENTITY_HANDLER__
 #define __MGF_ENTITY_HANDLER__
 
-#include "io/context/ParseSession.h"
 #include "io/context/HandlerType.h"
+
+class ParseSession;
 
 class EntityHandler {
   public:

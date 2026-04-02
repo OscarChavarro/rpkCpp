@@ -4,8 +4,7 @@
 #include "scene/Background.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class Scene {
   private:

@@ -2,11 +2,10 @@
 #define __GALERKIN_OPENGL_RENDERER__
 
 #include "common/RenderOptions.h"
+#include "galerkin/GalerkinElement.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
+#include "render/sgl/SglContext.h"
 #include "scene/Scene.h"
-
-class GalerkinElement;
-class SglContext;
-class GlutDebugState;
 
 class GalerkinOpenGLRenderer {
   public:

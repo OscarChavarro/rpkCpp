@@ -1,19 +1,20 @@
 #ifndef __BINARY_MODEL_READER_CLEANUP__
 #define __BINARY_MODEL_READER_CLEANUP__
 
-class Geometry;
-class Material;
-class ColorContext;
-class PersistedSceneModel;
-class ReaderContext;
-class TransformArray;
-class TransformStackContext;
-class Patch;
-class Vector3D;
-class Vertex;
-class BinaryModelReaderVertexRecord;
-class BinaryModelReaderGeometryRecord;
-class BinaryModelReaderModelRecord;
+#include "java/util/ArrayList.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
+#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelReaderVertexRecord.h"
+#include "io/context/ColorContext.h"
+#include "io/context/PersistedSceneModel.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformArray.h"
+#include "io/context/TransformStackContext.h"
+#include "material/Material.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
 
 class BinaryModelReaderCleanup {
   public:

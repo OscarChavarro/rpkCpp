@@ -3,8 +3,7 @@
 
 #include "scene/Scene.h"
 #include "io/context/ParseSession.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class SceneBuilder final {
   public:

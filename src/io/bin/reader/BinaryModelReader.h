@@ -1,7 +1,7 @@
 #ifndef __BINARY_MODEL_READER__
 #define __BINARY_MODEL_READER__
 
-class PersistedSceneModel;
+#include "io/context/PersistedSceneModel.h"
 
 class BinaryModelReader {
   public:

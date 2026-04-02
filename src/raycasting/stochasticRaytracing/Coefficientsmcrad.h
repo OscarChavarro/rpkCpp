@@ -3,8 +3,7 @@
 
 #include "common/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
-
-class StochasticRadiosityElement;
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 class Coefficientsmcrad final {
   public:

@@ -7,15 +7,14 @@
 #include "app/options/BackgroundMode.h"
 #include "app/options/EnumDesc.h"
 #include "app/options/CommandLineOptions.h"
-
-class ToneMappingContext;
-class RayMatterState;
-class BidirectionalPathTracingState;
-class StochasticRayTracingState;
-class StochasticRelaxation;
-class ElementHierarchyState;
-class PhotonMapState;
-class OptionsType;
+#include "app/options/OptionsType.h"
+#include "photonMap/PhotonMapState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#include "tonemap/ToneMappingContext.h"
 
 class CommandLine final {
   public:

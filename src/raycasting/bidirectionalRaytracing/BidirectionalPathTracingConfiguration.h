@@ -11,8 +11,7 @@
 #include "raycasting/bidirectionalRaytracing/Kernel2D.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 /**
 Bidirectional path tracing configuration structure.

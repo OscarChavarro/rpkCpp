@@ -77,7 +77,7 @@ RayMatter::execute(
         nullptr,
         scene->camera,
         rayMatterState,
-        renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
+        scene == nullptr ? nullptr : scene->toneMapOptions);
     rayMatter->doMatting(scene->camera, scene->voxelGrid);
     if ( ip && rayMatter != nullptr ) {
         rayMatter->save(ip);

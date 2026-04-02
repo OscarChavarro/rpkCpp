@@ -3,12 +3,11 @@
 
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"
-
-class StochasticRadiosityElement;
-class StochasticRelaxation;
-class ElementHierarchyState;
-class StochasticRadiosityBasisState;
-class VoxelGrid;
+#include "scene/VoxelGrid.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 class StochasticJacobiRadianceMethod final : public RadianceMethod {
   public:

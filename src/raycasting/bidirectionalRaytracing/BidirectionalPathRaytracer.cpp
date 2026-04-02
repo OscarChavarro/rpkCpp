@@ -64,9 +64,9 @@ BidirectionalPathRaytracer::execute(
 {
     // Install the samplers to be used in the state
     BidirectionalPathTracingConfiguration config;
-    config.toneMapOptions = renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions;
+    config.toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
     if ( config.toneMapOptions == nullptr ) {
-        Error::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not set in render options");
+        Error::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not set in scene");
     }
 
     // Copy base config (so that rendering is independent of GUI)

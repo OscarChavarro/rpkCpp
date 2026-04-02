@@ -12,8 +12,7 @@ due to frame buffer formats, etc.
 #include "scene/Camera.h"
 #include "scene/Scene.h"
 #include "render/sgl/SglContext.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class SoftIds {
   public:

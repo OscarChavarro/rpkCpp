@@ -7,8 +7,7 @@ Interface for writing image data in different file formats
 
 #include "java/io/OutputStream.h"
 #include "common/ColorRgb.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class ImageOutputHandle {
   protected:

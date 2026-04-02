@@ -2,8 +2,7 @@
 #define __BATCH_OPTIONS_PARSER__
 
 #include "app/options/BatchOptions.h"
-
-class OptionsType;
+#include "app/options/OptionsType.h"
 
 class BatchOptionsParser final {
   public:

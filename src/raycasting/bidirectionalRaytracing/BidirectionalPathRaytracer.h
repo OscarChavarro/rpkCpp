@@ -5,11 +5,10 @@
 
 #ifdef RAYTRACING_ENABLED
 
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
-
-class BidirectionalPathTracingState;
-class LightList;
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 
 class BidirectionalPathRaytracer final : public RayTracer {
   private:

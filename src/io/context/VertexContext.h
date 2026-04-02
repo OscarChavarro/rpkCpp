@@ -4,8 +4,6 @@
 #include "common/linealAlgebra/Vector3Dd.h"
 #include "skin/Vertex.h"
 
-class ParseSession;
-
 class VertexContext {
   public:
     Vector3Dd p; // Point

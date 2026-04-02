@@ -8,10 +8,9 @@ Photon map configuration structure, used during construction
 #include "render/ScreenBuffer.h"
 #include "raycasting/raytracing/SamplerConfig.h"
 #include "raycasting/bidirectionalRaytracing/BiPath.h"
+#include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "photonMap/ImportanceMap.h"
 #include "photonMap/PhotonMap.h"
-
-class LightList;
 
 class PhotonMapConfig {
   public:

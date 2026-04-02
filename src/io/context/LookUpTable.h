@@ -2,8 +2,7 @@
 #define __LOOKUP_TABLE__
 
 #include "io/context/LookUpBehaviors.h"
-
-class LookUpEntity;
+#include "io/context/LookUpEntity.h"
 
 class LookUpTable {
   public:

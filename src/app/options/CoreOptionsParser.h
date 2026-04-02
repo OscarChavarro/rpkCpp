@@ -1,12 +1,12 @@
 #ifndef __CORE_OPTIONS_PARSER__
 #define __CORE_OPTIONS_PARSER__
 
-class Background;
-class ParseSession;
-class Scene;
-class RenderOptions;
-class ToneMappingContext;
-class OptionsType;
+#include "app/options/OptionsType.h"
+#include "common/RenderOptions.h"
+#include "io/context/ParseSession.h"
+#include "scene/Background.h"
+#include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class CoreOptionsParser final {
   public:

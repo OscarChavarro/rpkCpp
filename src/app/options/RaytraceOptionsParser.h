@@ -1,7 +1,7 @@
 #ifndef __RAYTRACE_OPTIONS_PARSER__
 #define __RAYTRACE_OPTIONS_PARSER__
 
-class OptionsType;
+#include "app/options/OptionsType.h"
 
 class RaytraceOptionsParser final {
   public:

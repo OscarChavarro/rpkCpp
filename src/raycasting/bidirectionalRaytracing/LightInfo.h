@@ -1,7 +1,7 @@
 #ifndef __LIGHT_INFO__
 #define __LIGHT_INFO__
 
-class Patch;
+#include "skin/Patch.h"
 
 class LightInfo {
   public:

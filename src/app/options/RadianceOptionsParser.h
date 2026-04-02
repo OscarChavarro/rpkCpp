@@ -1,17 +1,16 @@
 #ifndef __RADIANCE_OPTIONS_PARSER__
 #define __RADIANCE_OPTIONS_PARSER__
 
+#include "app/options/OptionsType.h"
+#include "photonMap/PhotonMapConfig.h"
+#include "photonMap/PhotonMapState.h"
+#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+#include "raycasting/simple/RayMatterState.h"
+#include "raycasting/stochasticRaytracing/Basismcrad.h"
+#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/RadianceMethod.h"
-
-class RayMatterState;
-class BidirectionalPathTracingState;
-class StochasticRayTracingState;
-class StochasticRelaxation;
-class ElementHierarchyState;
-class StochasticRadiosityBasisState;
-class PhotonMapState;
-class PhotonMapConfig;
-class OptionsType;
 
 class RadianceOptionsParser final {
   public:

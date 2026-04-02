@@ -1,7 +1,7 @@
 #ifndef __PARSER_CONFIG__
 #define __PARSER_CONFIG__
 
-class RadianceMethod;
+#include "scene/RadianceMethod.h"
 
 class ParserConfig {
   public:

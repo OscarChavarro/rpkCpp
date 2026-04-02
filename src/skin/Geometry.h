@@ -20,7 +20,6 @@ contains data that is independent of geometry type.
 */
 
 class PatchSet;
-class MeshSurface;
 class Compound;
 class Element;
 class MinMaxBox;

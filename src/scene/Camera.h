@@ -2,11 +2,10 @@
 #define __CAMERA__
 
 #include "common/linealAlgebra/Vector3D.h"
+#include "common/linealAlgebra/Matrix4x4.h"
 #include "common/ColorRgb.h"
 #include "scene/Plane.h"
-
-class BoundingBox;
-class Matrix4x4;
+#include "skin/BoundingBox.h"
 
 class Camera {
   public:

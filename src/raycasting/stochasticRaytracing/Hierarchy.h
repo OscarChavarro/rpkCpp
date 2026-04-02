@@ -6,12 +6,11 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 #define __ELEMENT_HIERARCHY__
 
 #include "java/util/ArrayList.h"
+#include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/Link.h"
 #include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-
-class Statistics;
 
 class Hierarchy final {
   public:

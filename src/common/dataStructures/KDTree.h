@@ -51,10 +51,9 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #ifndef __K_D_TREE__
 #define __K_D_TREE__
 
+#include "common/dataStructures/KDQuery.h"
 #include "common/dataStructures/KDTreeNode.h"
 #include "common/dataStructures/BalancedKDTreeNode.h"
-
-class KDQuery;
 
 class KDTree {
   protected:

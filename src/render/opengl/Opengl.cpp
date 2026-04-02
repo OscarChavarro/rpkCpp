@@ -23,6 +23,8 @@
 #include "render/Render.h"
 #include "java/lang/System.h"
 
+const ToneMappingContext *Opengl::activeToneMapOptions = nullptr;
+
 #ifdef OPEN_GL_ENABLED
 void
 Opengl::openGlRenderClearWindow(const Camera *camera) {
@@ -55,14 +57,15 @@ Sets the current color for line or outline drawing
 */
 void
 Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RenderOptions *renderOptions) {
-    if ( renderOptions == nullptr || renderOptions->toneMapOptions == nullptr ) {
-        Error::fatal(-1, "Opengl::openGlRenderSetColor", "Tone mapping context not set in render options");
+    (void) renderOptions;
+    if ( Opengl::activeToneMapOptions == nullptr ) {
+        Error::fatal(-1, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene");
     }
 
     ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
-    ToneMap::toneMappingGammaCorrection(correctedRgb, *renderOptions->toneMapOptions);
+    ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
 #ifdef OPEN_GL_ENABLED
     glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif
@@ -593,6 +596,11 @@ Opengl::openGlRenderScene(
     const GlutDebugState *debugState)
 {
 #ifdef OPEN_GL_ENABLED
+    if ( scene == nullptr || scene->toneMapOptions == nullptr ) {
+        Error::fatal(-1, "Opengl::openGlRenderScene", "Tone mapping context not set in scene");
+    }
+    Opengl::activeToneMapOptions = scene->toneMapOptions;
+
     Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
 
     Canvas::canvasPushMode();
@@ -607,5 +615,6 @@ Opengl::openGlRenderScene(
     glFinish();
 
     Canvas::canvasPullMode();
+    Opengl::activeToneMapOptions = nullptr;
 #endif
 }

@@ -3,9 +3,8 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
+#include "skin/MinMaxBox.h"
 #include "scene/VoxelData.h"
-
-class MinMaxBox;
 
 class VoxelGrid {
   private:

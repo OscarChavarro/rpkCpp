@@ -4,7 +4,6 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/RenderOptions.h"
-#include "common/statistics/Statistics.h"
 #include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
@@ -18,6 +17,7 @@
 #endif
 
 BatchOptions Batch::batchOptions;
+const RayTracer *Batch::currentRayTracer = nullptr;
 
 const BatchOptions *
 Batch::batchGetOptions() {
@@ -154,6 +154,8 @@ Batch::batchExecuteRadianceSimulation(
         return;
     }
 
+    Batch::currentRayTracer = rayTracer;
+
     startTime = java::System::nanoTime();
     wastedSecs = 0.0;
 
@@ -239,8 +241,8 @@ Batch::batchExecuteRadianceSimulation(
     }
 
     #ifdef RAYTRACING_ENABLED
-        if ( Statistics::instance().rayTracer.currentRayTracer != nullptr ) {
-            java::System::out.printf("Doing %s ...\n", rayTracer->getName());
+        if ( Batch::currentRayTracer != nullptr ) {
+            java::System::out.printf("Doing %s ...\n", Batch::currentRayTracer->getName());
 
             startTime = java::System::nanoTime();
             Raytrace::rayTraceExecute(
@@ -249,7 +251,7 @@ Batch::batchExecuteRadianceSimulation(
                 false,
                 scene,
                 radianceMethod,
-                rayTracer,
+                Batch::currentRayTracer,
                 renderOptions);
 
             if ( batchOptions.timings ) {
@@ -262,7 +264,7 @@ Batch::batchExecuteRadianceSimulation(
                 Batch::batchRayTraceSaveImage,
                 scene,
                 radianceMethod,
-                rayTracer,
+                Batch::currentRayTracer,
                 renderOptions);
         } else {
             java::System::out.printf("(No pixel-based radiance computations are being done)\n");
@@ -270,4 +272,5 @@ Batch::batchExecuteRadianceSimulation(
     #endif
 
     java::System::out.printf("Computations finished.\n");
+    Batch::currentRayTracer = nullptr;
 }

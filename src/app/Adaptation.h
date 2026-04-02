@@ -9,8 +9,7 @@ Estimate static adaptation luminance in the current scene
 #include "common/ColorRgb.h"
 #include "skin/Patch.h"
 #include "app/LuminanceArea.h"
-
-class ToneMappingContext;
+#include "tonemap/ToneMappingContext.h"
 
 class Adaptation final {
   public:

@@ -2,13 +2,12 @@
 #define __ELEMENT_HIERARCHY_STATE__
 
 #include "java/util/ArrayList.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "common/RenderOptions.h"
+#include "skin/Vertex.h"
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
-
-class Link;
-class RenderOptions;
-class StochasticRadiosityElement;
-class Vector3D;
-class Vertex;
+#include "raycasting/stochasticRaytracing/Link.h"
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 typedef Link *(*REFINE_ACTION)(
     Link *link,

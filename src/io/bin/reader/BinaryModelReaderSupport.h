@@ -2,13 +2,12 @@
 #define __BINARY_MODEL_READER_SUPPORT__
 
 #include "common/Error.h"
+#include "common/ColorRgb.h"
+#include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
-
-class BoundingBox;
-class ColorRgb;
-class PersistedSceneModel;
-class Vector3D;
-class BinaryModelReaderModelRecord;
+#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/context/PersistedSceneModel.h"
+#include "skin/BoundingBox.h"
 
 class BinaryModelReaderSupport {
   public:

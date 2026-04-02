@@ -1,13 +1,12 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 
+#include "common/RenderOptions.h"
+#include "io/context/ParseSession.h"
 #include "render/opengl/visualDebugTools/GlutDebugMode.h"
-
-class Scene;
-class RadianceMethod;
-class RenderOptions;
-class ParseSession;
-class GlutDebugState;
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
+#include "scene/RadianceMethod.h"
+#include "scene/Scene.h"
 
 class GlutDebugToolsModel {
   public:

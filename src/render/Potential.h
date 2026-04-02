@@ -2,11 +2,11 @@
 #define __POTENTIAL__
 
 #include "java/util/ArrayList.h"
+#include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
-
-class SglContext;
+#include "render/sgl/SglContext.h"
 
 class Potential {
   private:

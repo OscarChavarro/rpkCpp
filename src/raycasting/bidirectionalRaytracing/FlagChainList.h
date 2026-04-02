@@ -3,8 +3,8 @@
 
 #include "common/ColorRgb.h"
 #include "common/dataStructures/CircularList.h"
+#include "raycasting/bidirectionalRaytracing/BiPath.h"
 
-class BiPath;
 class FlagChain;
 
 // A linked list of flag chains.

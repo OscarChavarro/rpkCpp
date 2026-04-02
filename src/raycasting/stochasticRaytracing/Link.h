@@ -1,7 +1,7 @@
 #ifndef __STOCHASTIC_RAYTRACING_LINK__
 #define __STOCHASTIC_RAYTRACING_LINK__
 
-class StochasticRadiosityElement;
+#include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
 class Link {
   public:
