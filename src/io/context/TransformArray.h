@@ -4,10 +4,10 @@
 #include "io/context/FilePositionContext.h"
 #include "io/context/TransformArrayContext.h"
 
-constexpr int TRANSFORM_MAXIMUM_DIMENSIONS = 8;
-
 class TransformArray {
   public:
+    static constexpr int TRANSFORM_MAXIMUM_DIMENSIONS = 8;
+
     FilePositionContext startingPosition; // Starting position on input
     int numberOfDimensions; // Number of array dimensions
     TransformArrayContext transformArguments[TRANSFORM_MAXIMUM_DIMENSIONS];

@@ -74,7 +74,7 @@ class SamplerConfig {
         VoxelGrid *sceneVoxelGrid,
         Background *sceneBackground,
         SimpleRaytracingPathNode *nextNode,
-        char flags = BSDF_ALL_COMPONENTS);
+        char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);
 
     // Generate two random numbers. Depth needed for QMC sampling
     void getRand(int depth, double *x1, double *x2) const;
@@ -87,8 +87,8 @@ class SamplerConfig {
         SamplerConfig *eyeConfig,
         SamplerConfig *lightConfig,
         CONNECT_FLAGS flags,
-        char bsdfFlagsE = BSDF_ALL_COMPONENTS,
-        char bsdfFlagsL = BSDF_ALL_COMPONENTS,
+        char bsdfFlagsE = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
+        char bsdfFlagsL = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
         Vector3D *pDirEl = nullptr);
 
 };

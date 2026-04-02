@@ -5,26 +5,26 @@
 #include "io/context/ColorContext.h"
 #include "io/context/WordsContext.h"
 
-const ColorContext DEFAULT_COLOR_CONTEXT = {
+const ColorContext ColorContext::DEFAULT_COLOR_CONTEXT = {
     1,
     COLOR_DEFINED_WITH_XY_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
-        COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+        ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE, ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE
     },
-    static_cast<long>(NUMBER_OF_SPECTRAL_SAMPLES) * COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
+    static_cast<long>(ColorContext::NUMBER_OF_SPECTRAL_SAMPLES) * ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE,
     1.0 / 3.0,
     1.0 / 3.0,
     178.006f
 };
 
 // Derived CIE 1931 Primaries (imaginary)
-static ColorContext cie_xp = {
+ColorContext ColorContext::cie_xp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {-174, -198, -195, -197, -202, -213, -235, -272, -333,
      -444, -688, -1232, -2393, -4497, -6876, -6758, -5256,
@@ -34,7 +34,7 @@ static ColorContext cie_xp = {
     127424L, 1.0f, 0.0f, 0.0f
 };
 
-static ColorContext cie_yp = {
+ColorContext ColorContext::cie_yp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {-451, -431, -431, -430, -427, -417, -399, -366, -312,
      -204, 57, 691, 2142, 4990, 8810, 9871, 9122, 7321, 5145,
@@ -44,7 +44,7 @@ static ColorContext cie_yp = {
     -23035L, 0.0f, 1.0f, 0.0f
 };
 
-static ColorContext cie_zp = {
+ColorContext ColorContext::cie_zp = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG,
     {4051, 4054, 4052, 4053, 4054, 4056, 4059, 4064, 4071,
      4074, 4056, 3967, 3677, 2933, 1492, 313, -440, -795,
@@ -55,7 +55,7 @@ static ColorContext cie_zp = {
 };
 
 // CIE 1931 Standard Observer curves
-static ColorContext cie_xf = {
+ColorContext ColorContext::cie_xf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {14, 42, 143, 435, 1344, 2839, 3483, 3362, 2908, 1954, 956,
      320, 49, 93, 633, 1655, 2904, 4334, 5945, 7621, 9163, 10263,
@@ -63,7 +63,7 @@ static ColorContext cie_xf = {
      114, 58, 29, 14, 7, 3, 2, 1, 0}, 106836L, 0.467f, 0.368f, 362.230f
 };
 
-static ColorContext cie_yf = {
+ColorContext ColorContext::cie_yf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {0, 1, 4, 12, 40, 116, 230, 380, 600, 910, 1390, 2080, 3230,
      5030, 7100, 8620, 9540, 9950, 9950, 9520, 8700, 7570, 6310,
@@ -71,7 +71,7 @@ static ColorContext cie_yf = {
      5, 2, 1, 1, 0, 0}, 106856L, 0.398f, 0.542f, 493.525f
 };
 
-static ColorContext cie_zf = {
+ColorContext ColorContext::cie_zf = {
     1, COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG | COLOR_XY_IS_SET_FLAG | COLOR_EFFICACY_FLAG,
     {65, 201, 679, 2074, 6456, 13856, 17471, 17721, 16692,
      12876, 8130, 4652, 2720, 1582, 782, 422, 203, 87, 39, 21, 17,
@@ -85,7 +85,7 @@ Convert a spectrum
 int
 ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char **av) {
     double scale;
-    float va[NUMBER_OF_SPECTRAL_SAMPLES];
+    float va[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES];
     int i;
     int pos;
     int n;
@@ -147,11 +147,11 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
     if ( scale <= Numeric::EPSILON ) {
         return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
-    scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
+    scale = ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
     spectralStraightSum = 0; // Convert to our spacing
     wl0 = wlMinimum;
     pos = 0;
-    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += static_cast<int>(colorWaveLengthDeltaI()) ) {
+    for ( i = 0, wl = COLOR_MINIMUM_WAVE_LENGTH; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++, wl += static_cast<int>(colorWaveLengthDeltaI()) ) {
         if ( wl < wlMinimum || wl > wlMaximum ) {
             straightSamples[i] = 0;
         } else {
@@ -193,9 +193,9 @@ ColorContext::setBlackBodyTemperature(double tk) {
     } else if ( wl > COLOR_MAXIMUM_WAVE_LENGTH * 1e-9 ) {
             wl = COLOR_MAXIMUM_WAVE_LENGTH * 1e-9;
         }
-    sf = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
+    sf = ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / bBsp(wl, tk);
     spectralStraightSum = 0;
-    for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+    for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         wl = (COLOR_MINIMUM_WAVE_LENGTH + static_cast<float>(i) * colorWaveLengthDeltaI()) * 1e-9;
         spectralStraightSum += straightSamples[i] = static_cast<short>(java::Math::round(sf * bBsp(wl, tk) + 0.5));
     }
@@ -221,14 +221,14 @@ ColorContext::fixColorRepresentation(int fl) {
     }
     if ( !(flags & (COLOR_XY_IS_SET_FLAG | COLOR_SPECTRUM_IS_SET_FLAG)) ) {
         // Nothing set!
-        *this = DEFAULT_COLOR_CONTEXT;
+        *this = ColorContext::DEFAULT_COLOR_CONTEXT;
     }
     if ( fl & COLOR_XY_IS_SET_FLAG ) {
         // spec -> cxy *
         x = 0.0;
         y = 0.0;
         z = 0.0;
-        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+        for ( i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             x += cie_xf.straightSamples[i] * straightSamples[i];
             y += cie_yf.straightSamples[i] * straightSamples[i];
             z += cie_zf.straightSamples[i] * straightSamples[i];
@@ -246,7 +246,7 @@ ColorContext::fixColorRepresentation(int fl) {
             y = cy;
             z = 1.0 - x - y;
             spectralStraightSum = 0;
-            for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+            for ( i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 straightSamples[i] = static_cast<short>(java::Math::round(x * cie_xp.straightSamples[i] + y * cie_yp.straightSamples[i]
                                                                           + z * cie_zp.straightSamples[i] + 0.5));
                 if ( straightSamples[i] < 0 ) {
@@ -263,7 +263,7 @@ ColorContext::fixColorRepresentation(int fl) {
         if ( flags & COLOR_SPECTRUM_IS_SET_FLAG ) {
             // From spectrum
             y = 0.0;
-            for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+            for ( i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
                 y += cie_yf.straightSamples[i] * straightSamples[i];
             }
             eff = static_cast<float>((colorPeakLumensPerWatt() * y / static_cast<double>(spectralStraightSum)));
@@ -287,7 +287,7 @@ ColorContext::mixColors(
     ColorContext *c2)
 {
     double scale;
-    float cMix[NUMBER_OF_SPECTRAL_SAMPLES];
+    float cMix[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES];
 
     if ( (c1->flags | c2->flags) & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         int i;
@@ -297,15 +297,15 @@ ColorContext::mixColors(
         w1 /= c1->eff * static_cast<float>(c1->spectralStraightSum);
         w2 /= c2->eff * static_cast<float>(c2->spectralStraightSum);
         scale = 0.0;
-        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+        for ( i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             cMix[i] = static_cast<float>(w1 * c1->straightSamples[i] + w2 * c2->straightSamples[i]);
             if ( cMix[i] > scale ) {
                 scale = cMix[i];
             }
         }
-        scale = COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
+        scale = ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
         spectralStraightSum = 0;
-        for ( i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+        for ( i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             spectralStraightSum += straightSamples[i] = static_cast<short>(java::Math::round(scale * cMix[i] + 0.5));
         }
         flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;

@@ -5,13 +5,13 @@
 #include "common/ColorRgb.h"
 #include "scene/Plane.h"
 
-constexpr int NUMBER_OF_VIEW_PLANES = 4;
-
 class BoundingBox;
 class Matrix4x4;
 
 class Camera {
   public:
+    static constexpr int NUMBER_OF_VIEW_PLANES = 4;
+
     Vector3D eyePosition; // Virtual camera position in 3D space
     Vector3D lookPosition; // Focus point of camera
     Vector3D upDirection; // Direction pointing upward

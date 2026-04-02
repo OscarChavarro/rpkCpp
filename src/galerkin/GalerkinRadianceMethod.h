@@ -15,6 +15,7 @@
 
 class GalerkinRadianceMethod final : public RadianceMethod {
   private:
+    static constexpr int STRING_LENGTH = 2000;
     GatheringStrategy *gatheringStrategy;
     ColorRgb computePatchRadiance(Patch *patch, double u, double v) const;
 

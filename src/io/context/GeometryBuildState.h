@@ -1,8 +1,6 @@
 #ifndef __GEOMETRY_BUILD_STATE__
 #define __GEOMETRY_BUILD_STATE__
 
-constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
-
 class Geometry;
 class Patch;
 class Vector3D;
@@ -10,6 +8,8 @@ class Vertex;
 
 class GeometryBuildState {
   public:
+    static constexpr int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;
+
     char *currentVertexName;
     int geometryStackHeadIndex;
     java::ArrayList<Geometry *> *geometryStack[MAXIMUM_GEOMETRY_STACK_DEPTH];

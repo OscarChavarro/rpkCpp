@@ -114,10 +114,10 @@ StochasticRaytracingConfiguration::initDependentVars(
     char storeFlags;
 
     if ((radianceMethod == nullptr) || (radMode == RayTracingRadMode::STORED_NONE) ) {
-        storeFlags = NO_COMPONENTS;
+        storeFlags = XxdfComponentFlagInfo::NO_COMPONENTS;
     } else {
         if ( radianceMethod->className == PHOTON_MAP ) {
-            storeFlags = BSDF_GLOSSY_COMPONENT | BSDF_DIFFUSE_COMPONENT;
+            storeFlags = BsdfComponentInfo::BSDF_GLOSSY_COMPONENT | BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT;
         } else {
             storeFlags = BRDF_DIFFUSE_COMPONENT;
         }
@@ -127,7 +127,7 @@ StochasticRaytracingConfiguration::initDependentVars(
 
     switch ( radMode ) {
         case RayTracingRadMode::STORED_NONE:
-            siStorage.flags = NO_COMPONENTS;
+            siStorage.flags = XxdfComponentFlagInfo::NO_COMPONENTS;
             siStorage.nrSamplesBefore = 0;
             siStorage.nrSamplesAfter = 0;
             break;
@@ -150,7 +150,7 @@ StochasticRaytracingConfiguration::initDependentVars(
     // Other blocks, this is non storage with optional
     // separation of specular components
 
-    char remainingFlags = BSDF_ALL_COMPONENTS & ~storeFlags;
+    char remainingFlags = BsdfComponentInfo::BSDF_ALL_COMPONENTS & ~storeFlags;
     int siIndex = 0;
 
     if ( separateSpecular ) {
@@ -195,7 +195,7 @@ StochasticRaytracingConfiguration::initDependentVars(
     if ( reflectionSampling != RayTracingSamplingMode::CLASSICAL_SAMPLING
        && scatterSamples != firstDGSamples ) {
         char gdFlags = static_cast<char>(remainingFlags &
-                                         (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT));
+                                         (BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT));
         if ( gdFlags ) {
             siOthers[siIndex].flags = gdFlags;
             siOthers[siIndex].nrSamplesBefore = firstDGSamples;
@@ -207,7 +207,7 @@ StochasticRaytracingConfiguration::initDependentVars(
 
     if ( reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING ) {
         // Classical: Diffuse, with no scattering
-        char dFlags = static_cast<char>(remainingFlags & BSDF_DIFFUSE_COMPONENT);
+        char dFlags = static_cast<char>(remainingFlags & BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT);
 
         if ( dFlags ) {
             siOthers[siIndex].flags = dFlags;

@@ -16,6 +16,8 @@ MAX_EXCLUDED_PATCHES = 4
 
 class Patch {
   private:
+    static constexpr double TOLERANCE = 1e-5;
+
     static void
     pointInTriangle(
         const Vector3D &v0,

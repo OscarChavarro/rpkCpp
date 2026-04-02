@@ -845,8 +845,8 @@ MgfGeometry::mgfEntityPrism(int ac, const char **av, ParseSession *context) {
         "0",
         "0"
     };
-    const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
-    char nvn[MGF_MAXIMUM_ARGUMENT_COUNT - 1][MGF_PV_SIZE];
+    const char *newArgV[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
+    char nvn[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT - 1][MGF_PV_SIZE];
     const VertexContext *cv;
     int rv;
     int i;
@@ -989,7 +989,7 @@ Replace face + holes with single contour
 */
 int
 MgfGeometry::mgfEntityFaceWithHoles(int ac, const char **av, ParseSession *context) {
-    const char *newArgV[MGF_MAXIMUM_ARGUMENT_COUNT];
+    const char *newArgV[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastP = 0;
 
     newArgV[0] = context->entityNames[EntityContext::FACE];

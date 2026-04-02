@@ -16,11 +16,6 @@ Reference:
 #include "java/util/ArrayList.txx"
 #include "scene/PatchClusterOctreeNode.h"
 
-static const int XYZ_EQUAL_MASK = 0x08;
-
-// No clusters are created with less than this number of patches
-static constexpr int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
-
 java::ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
 
 /**

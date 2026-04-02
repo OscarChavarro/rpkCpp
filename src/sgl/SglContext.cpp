@@ -164,8 +164,8 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
     Window win{};
     PolygonBox clip_box = {-1.0, 1.0, -1.0, 1.0, -1.0, 1.0};
 
-    if ( numberOfVertices > (clipping ? (MAXIMUM_SIDES_PER_POLYGON - 6) : MAXIMUM_SIDES_PER_POLYGON) ) {
-        Error::error("sglPolygon", "Too many vertices (max. %d)", MAXIMUM_SIDES_PER_POLYGON);
+    if ( numberOfVertices > (clipping ? (PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - 6) : PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON) ) {
+        Error::error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON);
         return;
     }
 
@@ -204,7 +204,7 @@ SglContext::sglPolygon(const int numberOfVertices, const Vector3D *vertices) {
         PolygonVertex &vertex = pol.vertices[i];
         vertex.sx = static_cast<double>(vp_x) + (vertex.sx / vertex.sw + 1.0) * static_cast<double>(vp_width) * 0.5;
         vertex.sy = static_cast<double>(vp_y) + (vertex.sy / vertex.sw + 1.0) * static_cast<double>(vp_height) * 0.5;
-        vertex.sz = (near + (vertex.sz / vertex.sw + 1.0) * far * 0.5) * static_cast<double>(SGL_MAXIMUM_Z);
+        vertex.sz = (near + (vertex.sz / vertex.sw + 1.0) * far * 0.5) * static_cast<double>(SglConstants::SGL_MAXIMUM_Z);
     }
 
     // Window

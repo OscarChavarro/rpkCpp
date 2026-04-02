@@ -31,7 +31,7 @@ Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, cons
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, ALL_COMPONENTS);
+        ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
         double flux = M_PI * light->area * emittedRadiance.sumAbsComponents();
         totalFlux += flux;
         lights[i] = LightSourceTable(light, flux);
@@ -81,7 +81,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
         ray.direction.z = 0.0;
         if ( patch->material->getEdf() != nullptr ) {
             ray.direction = patch->material->getEdf()->phongEdfSample(
-                &hit, ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+                &hit, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
         }
     } while ( *dirSelectionPdf == 0.0 );
 

@@ -13,11 +13,6 @@
 
 char StochasticRaytracer::name[38] = "Stochastic Raytracing & Final Gathers";
 
-// Heuristic minimum distance threshold for photon map readouts
-// should be tuned and dependent on scene size, ...
-const float PHOTON_MAP_MIN_DIST = 0.02f;
-const float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST; // squared
-
 StochasticRaytracer::StochasticRaytracer(
     LightList *&inLightList,
     StochasticRayTracingState &inRayTracingState):
@@ -159,7 +154,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
         return result;
     }
 
-    if ( (config->siStorage.flags != NO_COMPONENTS) &&
+    if ( (config->siStorage.flags != XxdfComponentFlagInfo::NO_COMPONENTS) &&
         (readout == StorageReadout::SCATTER) ) {
         // Do storage components
         si = &config->siStorage;
@@ -337,7 +332,7 @@ StochasticRaytracer::srGetDirectRadiance(
                     x1,
                     x2,
                     true,
-                    BSDF_ALL_COMPONENTS)
+                    BsdfComponentInfo::BSDF_ALL_COMPONENTS)
                     && ( RayTools::pathNodesVisible(sceneVoxelGrid, prevNode, &lightNode) ) ) {
                     // Now connect for all applicable scatter-info's
                     // If no weighting between reflection sampling and
@@ -347,7 +342,7 @@ StochasticRaytracer::srGetDirectRadiance(
                     int siCurrent;
                     const CScatterInfo *si;
 
-                    if ( (config->siStorage.flags != NO_COMPONENTS) && (readout == StorageReadout::SCATTER) ) {
+                    if ( (config->siStorage.flags != XxdfComponentFlagInfo::NO_COMPONENTS) && (readout == StorageReadout::SCATTER) ) {
                         // Do storage components
                         si = &config->siStorage;
                         siCurrent = -1;
@@ -362,7 +357,7 @@ StochasticRaytracer::srGetDirectRadiance(
 
                         if ( ((config->reflectionSampling == RayTracingSamplingMode::PHOTON_MAP_SAMPLING)
                             || (config->reflectionSampling == RayTracingSamplingMode::CLASSICAL_SAMPLING))
-                            && ( si->flags & BSDF_SPECULAR_COMPONENT ) ) {
+                            && ( si->flags & BsdfComponentInfo::BSDF_SPECULAR_COMPONENT ) ) {
                             // Perfect mirror reflection, no n.e.e.
                             doSi = false;
                         }
@@ -377,7 +372,7 @@ StochasticRaytracer::srGetDirectRadiance(
                             nullptr, // No light config
                             CONNECT_EL,
                             si->flags,
-                            BSDF_ALL_COMPONENTS,
+                            BsdfComponentInfo::BSDF_ALL_COMPONENTS,
                             &dirEL);
 
                             // Contribution of this sample (with Multiple Imp. S.)
@@ -447,7 +442,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
 {
     ColorRgb result;
     ColorRgb radiance;
-    char edfFlags = ALL_COMPONENTS;
+    char edfFlags = XxdfComponentFlagInfo::ALL_COMPONENTS;
 
     // Handle background
     if ( thisNode->m_rayType == PathRayType::ENVIRONMENT ) {
@@ -489,7 +484,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
         result.clear();
 
         // Stored radiance
-        if ( (readout == StorageReadout::READ_NOW) && (config->siStorage.flags != NO_COMPONENTS) ) {
+        if ( (readout == StorageReadout::READ_NOW) && (config->siStorage.flags != XxdfComponentFlagInfo::NO_COMPONENTS) ) {
             // Add the stored radiance being emitted from the patch
             if ( radianceMethod->className == PHOTON_MAP ) {
                 const PhotonMapRadianceMethod *photonMapMethod = static_cast<const PhotonMapRadianceMethod *>(radianceMethod);
@@ -589,7 +584,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
 
             if ( config->reflectionSampling == RayTracingSamplingMode::PHOTON_MAP_SAMPLING
               && thisNode->m_depth > 1
-              && ( thisNode->previous()->m_usedComponents & BSDF_SPECULAR_COMPONENT) ) {
+              && ( thisNode->previous()->m_usedComponents & BsdfComponentInfo::BSDF_SPECULAR_COMPONENT) ) {
                 // Perfect Specular scatter, no weighting
                 doWeight = false;
             }

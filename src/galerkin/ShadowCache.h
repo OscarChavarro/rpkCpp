@@ -3,10 +3,9 @@
 
 #include "skin/Patch.h"
 
-constexpr int MAX_CACHE = 5;
-
 class ShadowCache {
   private:
+    static constexpr int MAX_CACHE = 5;
     Patch *patchCache[MAX_CACHE];
     int numberOfCachedPatches;
   public:

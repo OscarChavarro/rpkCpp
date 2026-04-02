@@ -53,11 +53,11 @@ double Basistrimcrad::tm9(double u, double v) {
            63.498031465601095 * u * u * v + 158.745078663922413 * u * v * v + 105.830052442603559 * v * v * v;
 }
 
-static double (*f[MAX_BASIS_SIZE])(double, double) =
+double (*Basistrimcrad::f[GalerkinBasis::MAX_BASIS_SIZE])(double, double) =
         {Basistrimcrad::tm0, Basistrimcrad::tm1, Basistrimcrad::tm2, Basistrimcrad::tm3, Basistrimcrad::tm4,
          Basistrimcrad::tm5, Basistrimcrad::tm6, Basistrimcrad::tm7, Basistrimcrad::tm8, Basistrimcrad::tm9}; // Functions
 
-static FILTER_TABLE h; // push-pull filter: computed in basis.c
+GalerkinBasis::FILTER_TABLE Basistrimcrad::h; // push-pull filter: computed in basis.c
 
 GalerkinBasis
 Basistrimcrad::createBasis() {
@@ -68,8 +68,8 @@ GalerkinBasis
 Basistrimcrad::stochasticRadiosityCreateTriBasis() {
     return {
         "orthonormal basis on the standard triangle", // description
-        MAX_BASIS_SIZE, // size
-        f, f,
-        &h
+        GalerkinBasis::MAX_BASIS_SIZE, // size
+        Basistrimcrad::f, Basistrimcrad::f,
+        &Basistrimcrad::h
     };
 }

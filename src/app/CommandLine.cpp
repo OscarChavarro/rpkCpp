@@ -23,26 +23,35 @@
 #include "app/BatchOptions.h"
 #include "app/CommandLine.h"
 
-// Default scene level configuration
-static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
-static constexpr bool DEFAULT_FORCE_ONE_SIDED = true;
+const Vector3D CommandLine::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
+const Vector3D CommandLine::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
+const Vector3D CommandLine::DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
+const ColorRgb CommandLine::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 
-// Default virtual camera
-static const Vector3D DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
-static const Vector3D DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
-static const Vector3D DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
-static const ColorRgb DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
-static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
-static int globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-static int globalFileOptionsForceOneSidedSurfaces = 0;
-static int globalYes = 1;
-static int globalNo = 0;
-static int globalOutputImageWidth = 1920;
-static int globalOutputImageHeight = 1080;
-static int globalGlutDebugEnabled = false;
-static Camera globalCamera;
-static BackgroundMode globalBackgroundMode = BackgroundMode::NONE;
-static ColorRgb globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
+int CommandLine::numberOfQuarterCircleDivisions = CommandLine::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
+int CommandLine::fileOptionsForceOneSidedSurfaces = 0;
+int CommandLine::yesValue = 1;
+int CommandLine::noValue = 0;
+int CommandLine::outputImageWidth = 1920;
+int CommandLine::outputImageHeight = 1080;
+int CommandLine::glutDebugEnabled = false;
+Camera CommandLine::cameraState;
+BackgroundMode CommandLine::backgroundMode = BackgroundMode::NONE;
+ColorRgb CommandLine::backgroundColor = CommandLine::DEFAULT_BACKGROUND_COLOR;
+int CommandLine::trueValue = true;
+int CommandLine::falseValue = false;
+
+char CommandLine::toneMappingMethodsString[CommandLine::TONE_MAPPING_METHODS_STRING_LENGTH];
+float CommandLine::redChromaticity[2];
+float CommandLine::greenChromaticity[2];
+float CommandLine::blueChromaticity[2];
+float CommandLine::whiteChromaticity[2];
+char *CommandLine::toneMapName = nullptr;
+ToneMappingContext *CommandLine::toneMapOptions = nullptr;
+char *CommandLine::radianceMethodsString = nullptr;
+RenderOptions CommandLine::renderOptionsState;
+ColorRgb CommandLine::outlineColor;
+BatchOptions CommandLine::batchOptionsState;
 
 ColorRgb
 CommandLine::commandLineDefaultBackgroundColor() {
@@ -51,8 +60,8 @@ CommandLine::commandLineDefaultBackgroundColor() {
 
 Background *
 CommandLine::commandLineCreateBackground() {
-    if ( globalBackgroundMode == BackgroundMode::SOLID ) {
-        return new ConstantColorBackground(globalBackgroundColor);
+    if ( backgroundMode == BackgroundMode::SOLID ) {
+        return new ConstantColorBackground(backgroundColor);
     }
     return nullptr;
 }
@@ -134,8 +143,8 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
             java::System::err.printf(
                 "Invalid '-background solid' color. Use '-background solid <r> <g> <b>' with values in [0.0, 1.0].\n");
         } else {
-            globalBackgroundMode = BackgroundMode::SOLID;
-            globalBackgroundColor = parsedColor;
+            backgroundMode = BackgroundMode::SOLID;
+            backgroundColor = parsedColor;
         }
         readIndex += 5;
     }
@@ -148,22 +157,22 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
 
 void
 CommandLine::mainForceOneSidedOption(void *value) {
-    globalFileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
+    fileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
 }
 
 void
 CommandLine::mainMonochromeOption(void *value) {
-    globalNumberOfQuarterCircleDivisions = *static_cast<int *>(value);
+    numberOfQuarterCircleDivisions = *static_cast<int *>(value);
 }
 
 void
 CommandLine::commandLineImageWidthOption(void *value) {
-    globalOutputImageWidth = *static_cast<int *>(value);
+    outputImageWidth = *static_cast<int *>(value);
 }
 
 void
 CommandLine::commandLineImageHeightOption(void *value) {
-    globalOutputImageHeight = *static_cast<int *>(value);
+    outputImageHeight = *static_cast<int *>(value);
 }
 
 void
@@ -174,47 +183,47 @@ CommandLine::commandLineGeneralProgramParseOptions(
         int *conicSubDivisions,
         int *imageOutputWidth,
         int *imageOutputHeight,
-        bool *glutDebugEnabled,
+        bool *glutDebugEnabledOut,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalOptions[] = {
-        {"-nqcdivs", 3, &optionTypes.intType, &globalNumberOfQuarterCircleDivisions, DEFAULT_ACTION,
+    CommandLineOptionDescription options[] = {
+        {"-nqcdivs", 3, &optionTypes.intType, &numberOfQuarterCircleDivisions, Options::DEFAULT_ACTION,
          "-nqcdivs <integer>\t: number of quarter circle divisions"},
-        {"-force-onesided", 10, nullptr, &globalYes, CommandLine::mainForceOneSidedOption,
+        {"-force-onesided", 10, nullptr, &yesValue, CommandLine::mainForceOneSidedOption,
          "-force-onesided\t\t: force one-sided surfaces"},
-        {"-dont-force-onesided", 14, nullptr, &globalNo, CommandLine::mainForceOneSidedOption,
+        {"-dont-force-onesided", 14, nullptr, &noValue, CommandLine::mainForceOneSidedOption,
          "-dont-force-onesided\t: allow two-sided surfaces"},
-        {"-monochromatic", 5, nullptr, &globalYes, CommandLine::mainMonochromeOption,
+        {"-monochromatic", 5, nullptr, &yesValue, CommandLine::mainMonochromeOption,
          "-monochromatic \t\t: convert colors to shades of grey"},
-        {"-width", 5, &optionTypes.intType, &globalOutputImageWidth, CommandLine::commandLineImageWidthOption,
+        {"-width", 5, &optionTypes.intType, &outputImageWidth, CommandLine::commandLineImageWidthOption,
                 "-width \t\t: image output width in pixels"},
-        {"-height", 6, &optionTypes.intType, &globalOutputImageHeight, CommandLine::commandLineImageHeightOption,
+        {"-height", 6, &optionTypes.intType, &outputImageHeight, CommandLine::commandLineImageHeightOption,
                 "-width \t\t: image output width in pixels"},
-        {"-glutDebug", 6, &optionTypes.setTrueType, &globalGlutDebugEnabled, DEFAULT_ACTION,
+        {"-glutDebug", 6, &optionTypes.setTrueType, &CommandLine::glutDebugEnabled, Options::DEFAULT_ACTION,
                 "-glutDebug\t\t: open interactive GLUT debug window after rendering"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
-    globalFileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
-    globalNumberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-    globalBackgroundMode = BackgroundMode::NONE;
-    globalBackgroundColor = DEFAULT_BACKGROUND_COLOR;
-    globalGlutDebugEnabled = false;
+    fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
+    numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
+    backgroundMode = BackgroundMode::NONE;
+    backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    CommandLine::glutDebugEnabled = false;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
-    Options::parseGeneralOptions(globalOptions, argc, argv); // Order is important, this should be called last
+    Options::parseGeneralOptions(options, argc, argv); // Order is important, this should be called last
 
-    if ( globalFileOptionsForceOneSidedSurfaces != 0 ) {
+    if ( fileOptionsForceOneSidedSurfaces != 0 ) {
         *oneSidedSurfaces = true;
     } else {
         *oneSidedSurfaces = false;
     }
-    *conicSubDivisions = globalNumberOfQuarterCircleDivisions;
-    *imageOutputWidth = globalOutputImageWidth;
-    *imageOutputHeight = globalOutputImageHeight;
-    *glutDebugEnabled = globalGlutDebugEnabled;
+    *conicSubDivisions = numberOfQuarterCircleDivisions;
+    *imageOutputWidth = outputImageWidth;
+    *imageOutputHeight = outputImageHeight;
+    *glutDebugEnabledOut = CommandLine::glutDebugEnabled;
 
 #ifndef OPEN_GL_ENABLED
-    if ( globalGlutDebugEnabled ) {
+    if ( CommandLine::glutDebugEnabled ) {
         java::System::err.printf(
             "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
         java::System::err.flush();
@@ -226,25 +235,25 @@ CommandLine::commandLineGeneralProgramParseOptions(
 void
 CommandLine::cameraSetEyePositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
-    globalCamera.setEyePosition(v->x, v->y, v->z);
+    cameraState.setEyePosition(v->x, v->y, v->z);
 }
 
 void
 CommandLine::cameraSetLookPositionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
-    globalCamera.setLookPosition(v->x, v->y, v->z);
+    cameraState.setLookPosition(v->x, v->y, v->z);
 }
 
 void
 CommandLine::cameraSetUpDirectionOption(void *val) {
     const Vector3D *v = static_cast<Vector3D *>(val);
-    globalCamera.setUpDirection(v->x, v->y, v->z);
+    cameraState.setUpDirection(v->x, v->y, v->z);
 }
 
 void
 CommandLine::cameraSetFieldOfViewOption(void *val) {
     const float *v = static_cast<float *>(val);
-    globalCamera.setFieldOfView(*v);
+    cameraState.setFieldOfView(*v);
 }
 
 void
@@ -252,7 +261,7 @@ CommandLine::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
     Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
     Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
     Vector3D upDirection = DEFAULT_CAMERA_UP_DIRECTION;
-    ColorRgb backgroundColor = DEFAULT_BACKGROUND_COLOR;
+    ColorRgb backgroundColorSelected = DEFAULT_BACKGROUND_COLOR;
 
     camera->set(
         &eyePosition,
@@ -261,7 +270,7 @@ CommandLine::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
         DEFAULT_CAMERA_FIELD_OF_VIEW,
         imageWidth,
         imageHeight,
-        &backgroundColor);
+        &backgroundColorSelected);
 }
 
 void
@@ -273,26 +282,22 @@ CommandLine::cameraParseOptions(
         int imageHeight,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalCameraOptions[] = {
-        {"-eyepoint", 4, &optionTypes.vectorType, &globalCamera.eyePosition, CommandLine::cameraSetEyePositionOption,
+    CommandLineOptionDescription cameraOptions[] = {
+        {"-eyepoint", 4, &optionTypes.vectorType, &cameraState.eyePosition, CommandLine::cameraSetEyePositionOption,
          "-eyepoint  <vector>\t: viewing position"},
-        {"-center", 4, &optionTypes.vectorType, &globalCamera.lookPosition, CommandLine::cameraSetLookPositionOption,
+        {"-center", 4, &optionTypes.vectorType, &cameraState.lookPosition, CommandLine::cameraSetLookPositionOption,
          "-center    <vector>\t: point looked at"},
-        {"-updir", 3, &optionTypes.vectorType, &globalCamera.upDirection, CommandLine::cameraSetUpDirectionOption,
+        {"-updir", 3, &optionTypes.vectorType, &cameraState.upDirection, CommandLine::cameraSetUpDirectionOption,
          "-updir     <vector>\t: direction pointing up"},
-        {"-fov", 4, &optionTypes.floatType,  &globalCamera.fieldOfVision, CommandLine::cameraSetFieldOfViewOption,
+        {"-fov", 4, &optionTypes.floatType,  &cameraState.fieldOfVision, CommandLine::cameraSetFieldOfViewOption,
          "-fov       <float> \t: field of view angle"},
         {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
     };
 
-    CommandLine::cameraDefaults(&globalCamera, imageWidth, imageHeight);
-    Options::parseGeneralOptions(globalCameraOptions, argc, argv);
-    *camera = globalCamera;
+    CommandLine::cameraDefaults(&cameraState, imageWidth, imageHeight);
+    Options::parseGeneralOptions(cameraOptions, argc, argv);
+    *camera = cameraState;
 }
-
-// Used for option management
-static int globalTrue = true;
-static int globalFalse = false;
 
 void
 CommandLine::iterationMethodOption(void *value) {
@@ -349,25 +354,25 @@ CommandLine::galerkinParseOptions(int *argc, char **argv, OptionsType &optionTyp
     CommandLineOptionDescription galerkinOptions[] = {
         {"-gr-iteration-method", 6, &optionTypes.stringType, nullptr, CommandLine::iterationMethodOption,
         "-gr-iteration-method <methodname>: Jacobi, GaussSeidel, Southwell"},
-        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::hierarchicalOption,
+        {"-gr-hierarchical", 6, nullptr, static_cast<void *>(&trueValue), CommandLine::hierarchicalOption,
         "-gr-hierarchical    \t: do hierarchical refinement"},
-        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::hierarchicalOption,
+        {"-gr-not-hierarchical", 10, nullptr, static_cast<void *>(&falseValue), CommandLine::hierarchicalOption,
         "-gr-not-hierarchical\t: don't do hierarchical refinement"},
-        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::lazyOption,
+        {"-gr-lazy-linking", 6, nullptr, static_cast<void *>(&trueValue), CommandLine::lazyOption,
         "-gr-lazy-linking    \t: do lazy linking"},
-        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::lazyOption,
+        {"-gr-no-lazy-linking", 10, nullptr, static_cast<void *>(&falseValue), CommandLine::lazyOption,
         "-gr-no-lazy-linking \t: don't do lazy linking"},
-        {"-gr-clustering", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::clusteringOption,
+        {"-gr-clustering", 6, nullptr, static_cast<void *>(&trueValue), CommandLine::clusteringOption,
         "-gr-clustering      \t: do clustering"},
-        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::clusteringOption,
+        {"-gr-no-clustering", 10, nullptr, static_cast<void *>(&falseValue), CommandLine::clusteringOption,
         "-gr-no-clustering   \t: don't do clustering"},
-        {"-gr-importance", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::importanceOption,
+        {"-gr-importance", 6, nullptr, static_cast<void *>(&trueValue), CommandLine::importanceOption,
         "-gr-importance      \t: do view-potential driven computations"},
-        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::importanceOption,
+        {"-gr-no-importance", 10, nullptr, static_cast<void *>(&falseValue), CommandLine::importanceOption,
         "-gr-no-importance   \t: don't use view-potential"},
-        {"-gr-ambient", 6, nullptr, static_cast<void *>(&globalTrue), CommandLine::ambientOption,
+        {"-gr-ambient", 6, nullptr, static_cast<void *>(&trueValue), CommandLine::ambientOption,
         "-gr-ambient         \t: do visualisation with ambient term"},
-        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&globalFalse), CommandLine::ambientOption,
+        {"-gr-no-ambient", 10, nullptr, static_cast<void *>(&falseValue), CommandLine::ambientOption,
         "-gr-no-ambient      \t: do visualisation without ambient term"},
         {"-gr-link-error-threshold", 6, &optionTypes.floatType, &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, nullptr,
         "-gr-link-error-threshold <float>: Relative link error threshold"},
@@ -380,16 +385,9 @@ CommandLine::galerkinParseOptions(int *argc, char **argv, OptionsType &optionTyp
 }
 
 // Composes explanation for -tonemapping command line option
-static constexpr int STRING_LENGTH = 1000;
-static char globalToneMappingMethodsString[STRING_LENGTH];
-static float globalRxy[2];
-static float globalGxy[2];
-static float globalBxy[2];
-static float globalWxy[2];
-
- void
+void
 CommandLine::makeToneMappingMethodsString() {
-    strcpy(globalToneMappingMethodsString,
+    strcpy(toneMappingMethodsString,
        "-tonemapping <method>: Set tone mapping method\n"
        "\tmethods: Lightness            Lightness Mapping (default)\n"
        "\t         TumblinRushmeier     Tumblin/Rushmeier's Mapping\n"
@@ -398,64 +396,61 @@ CommandLine::makeToneMappingMethodsString() {
        "\t         Ferwerda             Partial Ferwerda's Mapping");
 }
 
-static char *globalToneMapName;
-static ToneMappingContext *globalToneMapOptions = nullptr;
-
 void
 CommandLine::toneMappingMethodOption(void *value) {
     char *name = *static_cast<char **>(value);
 
-    strcpy(globalToneMapName, name);
+    strcpy(toneMapName, name);
 }
 
 void
 CommandLine::brightnessAdjustOption(void * /*val*/) {
-    if ( globalToneMapOptions == nullptr ) {
+    if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::brightnessAdjustOption", "ToneMappingContext not set");
     }
-    (*globalToneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*globalToneMapOptions).brightness_adjust);
+    (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
 }
 
 void
 CommandLine::chromaOption(void *value) {
-    if ( globalToneMapOptions == nullptr ) {
+    if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::chromaOption", "ToneMappingContext not set");
     }
     const float *chroma = static_cast<float *>(value);
-    if ( chroma == globalRxy ) {
-        (*globalToneMapOptions).xr = chroma[0];
-        (*globalToneMapOptions).yr = chroma[1];
-    } else if ( chroma == globalGxy ) {
-        (*globalToneMapOptions).xg = chroma[0];
-        (*globalToneMapOptions).yg = chroma[1];
-    } else if ( chroma == globalBxy ) {
-        (*globalToneMapOptions).xb = chroma[0];
-        (*globalToneMapOptions).yb = chroma[1];
-    } else if ( chroma == globalWxy ) {
-        (*globalToneMapOptions).xw = chroma[0];
-        (*globalToneMapOptions).yw = chroma[1];
+    if ( chroma == redChromaticity ) {
+        (*toneMapOptions).xr = chroma[0];
+        (*toneMapOptions).yr = chroma[1];
+    } else if ( chroma == greenChromaticity ) {
+        (*toneMapOptions).xg = chroma[0];
+        (*toneMapOptions).yg = chroma[1];
+    } else if ( chroma == blueChromaticity ) {
+        (*toneMapOptions).xb = chroma[0];
+        (*toneMapOptions).yb = chroma[1];
+    } else if ( chroma == whiteChromaticity ) {
+        (*toneMapOptions).xw = chroma[0];
+        (*toneMapOptions).yw = chroma[1];
     } else {
         Error::fatal(-1, "CommandLine::chromaOption", "invalid value pointer");
     }
 
     Cie::computeColorConversionTransforms(
-        (*globalToneMapOptions).xr, (*globalToneMapOptions).yr,
-        (*globalToneMapOptions).xg, (*globalToneMapOptions).yg,
-        (*globalToneMapOptions).xb, (*globalToneMapOptions).yb,
-        (*globalToneMapOptions).xw, (*globalToneMapOptions).yw);
+        (*toneMapOptions).xr, (*toneMapOptions).yr,
+        (*toneMapOptions).xg, (*toneMapOptions).yg,
+        (*toneMapOptions).xb, (*toneMapOptions).yb,
+        (*toneMapOptions).xw, (*toneMapOptions).yw);
 }
 
 void
 CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
-    if ( globalToneMapOptions == nullptr ) {
+    if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
     }
     char *name = *static_cast<char **>(value);
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
-        (*globalToneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
+        (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        (*globalToneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
+        (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     } else {
         Error::error(nullptr, "Invalid adaptation estimate method '%s'", name);
     }
@@ -463,101 +458,96 @@ CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 
 void
 CommandLine::gammaOption(void *value) {
-    if ( globalToneMapOptions == nullptr ) {
+    if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::gammaOption", "ToneMappingContext not set");
     }
     float gam = *static_cast<float *>(value);
-    (*globalToneMapOptions).gamma.set(gam, gam, gam);
+    (*toneMapOptions).gamma.set(gam, gam, gam);
 }
 
 void
 CommandLine::toneMapParseOptions(
         int *argc,
         char **argv,
-        char *toneMapName,
-        ToneMappingContext &toneMapOptions,
+        char *toneMapNameOut,
+        ToneMappingContext &toneMapOptionsContext,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalToneMappingOptions[] = {
-        {"-tonemapping", 4, &optionTypes.stringType, nullptr, CommandLine::toneMappingMethodOption, globalToneMappingMethodsString},
+    CommandLineOptionDescription toneMappingOptions[] = {
+        {"-tonemapping", 4, &optionTypes.stringType, nullptr, CommandLine::toneMappingMethodOption, toneMappingMethodsString},
         {"-brightness-adjust", 4, &optionTypes.floatType, nullptr, CommandLine::brightnessAdjustOption,
          "-brightness-adjust <float> : brightness adjustment factor"},
         {"-adapt", 5, &optionTypes.stringType, nullptr, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption,
         "-adapt <method>  \t: adaptation estimation method\n\tmethods: \"average\", \"median\""},
-        {"-lwa", 3, &optionTypes.floatType, nullptr, DEFAULT_ACTION,
+        {"-lwa", 3, &optionTypes.floatType, nullptr, Options::DEFAULT_ACTION,
          "-lwa <float>\t\t: real world adaptation luminance"},
-        {"-ldmax", 5, &optionTypes.floatType, nullptr, DEFAULT_ACTION,
+        {"-ldmax", 5, &optionTypes.floatType, nullptr, Options::DEFAULT_ACTION,
          "-ldmax <float>\t\t: maximum diaply luminance"},
-        {"-cmax", 4, &optionTypes.floatType, nullptr, DEFAULT_ACTION,
+        {"-cmax", 4, &optionTypes.floatType, nullptr, Options::DEFAULT_ACTION,
          "-cmax <float>\t\t: maximum displayable contrast"},
         {"-gamma", 4, &optionTypes.floatType, nullptr, CommandLine::gammaOption,
          "-gamma <float>       \t: gamma correction factor (same for red, green. blue)"},
-        {"-rgbgamma", 4, &optionTypes.rgbType, nullptr, DEFAULT_ACTION,
+        {"-rgbgamma", 4, &optionTypes.rgbType, nullptr, Options::DEFAULT_ACTION,
          "-rgbgamma <r> <g> <b>\t: gamma correction factor (separate for red, green, blue)"},
-        {"-red", 4, &optionTypes.xyType, globalRxy, CommandLine::chromaOption,
+        {"-red", 4, &optionTypes.xyType, redChromaticity, CommandLine::chromaOption,
          "-red <xy>            \t: CIE xy chromaticity of monitor red"},
-        {"-green", 4, &optionTypes.xyType, globalGxy, CommandLine::chromaOption,
+        {"-green", 4, &optionTypes.xyType, greenChromaticity, CommandLine::chromaOption,
          "-green <xy>          \t: CIE xy chromaticity of monitor green"},
-        {"-blue", 4, &optionTypes.xyType, globalBxy, CommandLine::chromaOption,
+        {"-blue", 4, &optionTypes.xyType, blueChromaticity, CommandLine::chromaOption,
          "-blue <xy>           \t: CIE xy chromaticity of monitor blue"},
-        {"-white", 4, &optionTypes.xyType, globalWxy, CommandLine::chromaOption,
+        {"-white", 4, &optionTypes.xyType, whiteChromaticity, CommandLine::chromaOption,
          "-white <xy>          \t: CIE xy chromaticity of monitor white"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
-    globalToneMapName = toneMapName;
-    globalToneMapOptions = &toneMapOptions;
-    globalToneMappingOptions[1].value = &(*globalToneMapOptions).brightness_adjust;
-    globalToneMappingOptions[3].value = &(*globalToneMapOptions).realWorldAdaptionLuminance;
-    globalToneMappingOptions[4].value = &(*globalToneMapOptions).maximumDisplayLuminance;
-    globalToneMappingOptions[5].value = &(*globalToneMapOptions).maximumDisplayContrast;
-    globalToneMappingOptions[7].value = &(*globalToneMapOptions).gamma;
+    CommandLine::toneMapName = toneMapNameOut;
+    CommandLine::toneMapOptions = &toneMapOptionsContext;
+    toneMappingOptions[1].value = &(*CommandLine::toneMapOptions).brightness_adjust;
+    toneMappingOptions[3].value = &(*CommandLine::toneMapOptions).realWorldAdaptionLuminance;
+    toneMappingOptions[4].value = &(*CommandLine::toneMapOptions).maximumDisplayLuminance;
+    toneMappingOptions[5].value = &(*CommandLine::toneMapOptions).maximumDisplayContrast;
+    toneMappingOptions[7].value = &(*CommandLine::toneMapOptions).gamma;
     CommandLine::makeToneMappingMethodsString();
-    Options::parseGeneralOptions(globalToneMappingOptions, argc, argv);
-    ToneMap::recomputeGammaTables(toneMapOptions, (*globalToneMapOptions).gamma);
-    globalToneMapOptions = nullptr;
-    globalToneMapName = nullptr;
+    Options::parseGeneralOptions(toneMappingOptions, argc, argv);
+    ToneMap::recomputeGammaTables(toneMapOptionsContext, (*CommandLine::toneMapOptions).gamma);
+    CommandLine::toneMapOptions = nullptr;
+    CommandLine::toneMapName = nullptr;
 }
-
-static char *globalRadianceMethodsString;
 
 void
 CommandLine::radianceMethodParseOptions(
         int *argc,
         char **argv,
-        char *radianceMethodsString,
+        char *radianceMethodsStringOut,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalRadianceOptions[] = {
-        {"-radiance-method", 4, &optionTypes.stringType,  nullptr, DEFAULT_ACTION, globalRadianceMethodsString},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    CommandLineOptionDescription radianceOptions[] = {
+        {"-radiance-method", 4, &optionTypes.stringType,  nullptr, Options::DEFAULT_ACTION, radianceMethodsString},
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
-    globalRadianceMethodsString = radianceMethodsString;
-    Options::parseGeneralOptions(globalRadianceOptions, argc, argv);
+    CommandLine::radianceMethodsString = radianceMethodsStringOut;
+    Options::parseGeneralOptions(radianceOptions, argc, argv);
 }
-
-static RenderOptions globalRenderOptions;
-static ColorRgb globalOutlineColor;
 
 void
 CommandLine::flatOption(void * /*value*/) {
-    globalRenderOptions.smoothShading = false;
+    renderOptionsState.smoothShading = false;
 }
 
 void
 CommandLine::noCullingOption(void * /*value*/) {
-    globalRenderOptions.backfaceCulling = false;
+    renderOptionsState.backfaceCulling = false;
 }
 
 void
 CommandLine::outlinesOption(void * /*value*/) {
-    globalRenderOptions.drawOutlines = true;
+    renderOptionsState.drawOutlines = true;
 }
 
 void
 CommandLine::traceOption(void * /*value*/) {
-    globalRenderOptions.trace = true;
+    renderOptionsState.trace = true;
 }
 
 void
@@ -576,35 +566,33 @@ CommandLine::renderParseOptions(
         "-no-culling\t\t: don't use backface culling"},
         {"-outlines", 5, nullptr, nullptr, CommandLine::outlinesOption,
         "-outlines\t\t: draw polygon outlines"},
-        {"-outline-color", 10, &optionTypes.rgbType, &globalOutlineColor, DEFAULT_ACTION,
+        {"-outline-color", 10, &optionTypes.rgbType, &outlineColor, Options::DEFAULT_ACTION,
         "-outline-color <rgb> \t: color for polygon outlines"},
         {nullptr, 0, nullptr, nullptr, nullptr, nullptr}
     };
 
-    globalRenderOptions = *renderOptions;
+    renderOptionsState = *renderOptions;
 
     Options::parseGeneralOptions(renderingOptions, argc, argv);
 
-    *renderOptions = globalRenderOptions;
-    renderOptions->outlineColor.r = globalOutlineColor.r;
-    renderOptions->outlineColor.g = globalOutlineColor.g;
-    renderOptions->outlineColor.b = globalOutlineColor.b;
+    *renderOptions = renderOptionsState;
+    renderOptions->outlineColor.r = outlineColor.r;
+    renderOptions->outlineColor.g = outlineColor.g;
+    renderOptions->outlineColor.b = outlineColor.b;
 }
-
-static BatchOptions globalBatchOptions;
 
 void
 CommandLine::binaryOutputOption(void * /*value*/) {
-    globalBatchOptions.exportBinary =
-        globalBatchOptions.binaryOutputFilename != nullptr
-        && globalBatchOptions.binaryOutputFilename[0] != '\0';
+    batchOptionsState.exportBinary =
+        batchOptionsState.binaryOutputFilename != nullptr
+        && batchOptionsState.binaryOutputFilename[0] != '\0';
 }
 
 void
 CommandLine::binaryInputOption(void * /*value*/) {
-    globalBatchOptions.importBinary =
-        globalBatchOptions.binaryInputFilename != nullptr
-        && globalBatchOptions.binaryInputFilename[0] != '\0';
+    batchOptionsState.importBinary =
+        batchOptionsState.binaryInputFilename != nullptr
+        && batchOptionsState.binaryInputFilename[0] != '\0';
 }
 
 void
@@ -614,37 +602,37 @@ CommandLine::batchParseOptions(
         BatchOptions *options,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalCommandLineBatchOptions[] = {
-        {"-iterations", 3, &optionTypes.intType, &globalBatchOptions.iterations, DEFAULT_ACTION,
+    CommandLineOptionDescription batchCommandLineOptions[] = {
+        {"-iterations", 3, &optionTypes.intType, &batchOptionsState.iterations, Options::DEFAULT_ACTION,
         "-iterations <integer>\t: world-space radiance iterations"},
-        {"-obf", 4, &optionTypes.stringType, &globalBatchOptions.binaryOutputFilename, CommandLine::binaryOutputOption,
+        {"-obf", 4, &optionTypes.stringType, &batchOptionsState.binaryOutputFilename, CommandLine::binaryOutputOption,
          "-obf <output.bin>\t: export loaded PersistedSceneModel snapshot to binary file"},
-        {"-ibf", 4, &optionTypes.stringType, &globalBatchOptions.binaryInputFilename, CommandLine::binaryInputOption,
+        {"-ibf", 4, &optionTypes.stringType, &batchOptionsState.binaryInputFilename, CommandLine::binaryInputOption,
          "-ibf <input.bin>\t: import PersistedSceneModel snapshot from binary file (skips MGF read)"},
-        {"-radiance-image-savefile", 12, &optionTypes.stringType, &globalBatchOptions.radianceImageFileNameFormat, DEFAULT_ACTION,
+        {"-radiance-image-savefile", 12, &optionTypes.stringType, &batchOptionsState.radianceImageFileNameFormat, Options::DEFAULT_ACTION,
          "-radiance-image-savefile <filename>\t: radiance PPM/LOGLUV savefile name,\n\tfirst '%%d' will be substituted by iteration number"},
-        {"-radiance-model-savefile", 12, &optionTypes.stringType, &globalBatchOptions.radianceModelFileNameFormat, DEFAULT_ACTION,
+        {"-radiance-model-savefile", 12, &optionTypes.stringType, &batchOptionsState.radianceModelFileNameFormat, Options::DEFAULT_ACTION,
          "-radiance-model-savefile <filename>\t: radiance VRML model savefile name,"
          "\n\tfirst '%%d' will be substituted by iteration number"},
-        {"-save-modulo", 8, &optionTypes.intType, &globalBatchOptions.saveModulo, DEFAULT_ACTION,
+        {"-save-modulo", 8, &optionTypes.intType, &batchOptionsState.saveModulo, Options::DEFAULT_ACTION,
          "-save-modulo <integer>\t: save every n-th iteration"},
-        {"-raytracing-image-savefile", 14, &optionTypes.stringType, &globalBatchOptions.raytracingImageFileName, DEFAULT_ACTION,
+        {"-raytracing-image-savefile", 14, &optionTypes.stringType, &batchOptionsState.raytracingImageFileName, Options::DEFAULT_ACTION,
          "-raytracing-image-savefile <filename>\t: raytracing PPM savefile name"},
-        {"-timings", 3, &optionTypes.setTrueType, &globalBatchOptions.timings, DEFAULT_ACTION,
+        {"-timings", 3, &optionTypes.setTrueType, &batchOptionsState.timings, Options::DEFAULT_ACTION,
          "-timings\t: printRegularHierarchy timings for world-space radiance and raytracing methods"},
-        {nullptr, 0,  nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0,  nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
-    globalBatchOptions = *options;
-    globalBatchOptions.exportBinary = false;
-    globalBatchOptions.importBinary = false;
-    Options::parseGeneralOptions(globalCommandLineBatchOptions, argc, argv);
-    *options = globalBatchOptions;
+    batchOptionsState = *options;
+    batchOptionsState.exportBinary = false;
+    batchOptionsState.importBinary = false;
+    Options::parseGeneralOptions(batchCommandLineOptions, argc, argv);
+    *options = batchOptionsState;
 }
 
 #ifdef RAYTRACING_ENABLED
 
-static EnumDesc globalApproximateValues[] = {
+EnumDesc CommandLine::approximateValues[] = {
     {StochasticRaytracingApproximation::CONSTANT, "constant", 2},
     {StochasticRaytracingApproximation::LINEAR, "linear", 2},
     {StochasticRaytracingApproximation::BI_LINEAR, "bilinear", 2},
@@ -652,32 +640,32 @@ static EnumDesc globalApproximateValues[] = {
     {StochasticRaytracingApproximation::CUBIC, "cubic", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions approxTypeStruct = Options::makeEnumOptTypeStruct(globalApproximateValues);
+CommandLineOptions CommandLine::approximationTypeOption = Options::makeEnumOptTypeStruct(CommandLine::approximateValues);
 
-static EnumDesc clusteringVals[] = {
+EnumDesc CommandLine::clusteringValues[] = {
     {HierarchyClusteringMode::NO_CLUSTERING, "none", 2},
     {HierarchyClusteringMode::ISOTROPIC_CLUSTERING, "isotropic", 2},
     {HierarchyClusteringMode::ORIENTED_CLUSTERING, "oriented",  2},
     {0, nullptr, 0}
 };
-static CommandLineOptions clusteringTypeStruct = Options::makeEnumOptTypeStruct(clusteringVals);
+CommandLineOptions CommandLine::clusteringTypeOption = Options::makeEnumOptTypeStruct(CommandLine::clusteringValues);
 
-static EnumDesc sequenceVals[] = {
+EnumDesc CommandLine::sequenceValues[] = {
     {Sampler4DSequence::RANDOM, "PseudoRandom", 2},
     {Sampler4DSequence::HALTON,"Halton", 2},
     {Sampler4DSequence::NIEDERREITER, "Niederreiter", 2}, // TODO: Not able to select all available sequences...
     {0, nullptr, 0}
 };
-static CommandLineOptions sequenceTypeStruct = Options::makeEnumOptTypeStruct(sequenceVals);
+CommandLineOptions CommandLine::sequenceTypeOption = Options::makeEnumOptTypeStruct(CommandLine::sequenceValues);
 
-static EnumDesc estTypeVals[] = {
+EnumDesc CommandLine::estimatorTypeValues[] = {
     {RandomWalkEstimatorType::RW_SHOOTING, "Shooting", 2},
     {RandomWalkEstimatorType::RW_GATHERING, "Gathering", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions estTypeTypeStruct = Options::makeEnumOptTypeStruct(estTypeVals);
+CommandLineOptions CommandLine::estimatorTypeOption = Options::makeEnumOptTypeStruct(CommandLine::estimatorTypeValues);
 
-static EnumDesc globalEstKindValues[] = {
+EnumDesc CommandLine::estimatorKindValues[] = {
     {RandomWalkEstimatorKind::RW_COLLISION, "Collision", 2},
     {RandomWalkEstimatorKind::RW_ABSORPTION, "Absorption", 2},
     {RandomWalkEstimatorKind::RW_SURVIVAL, "Survival", 2},
@@ -685,15 +673,15 @@ static EnumDesc globalEstKindValues[] = {
     {RandomWalkEstimatorKind::RW_N_LAST, "Last-N", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions estKindTypeStruct = Options::makeEnumOptTypeStruct(globalEstKindValues);
+CommandLineOptions CommandLine::estimatorKindTypeOption = Options::makeEnumOptTypeStruct(CommandLine::estimatorKindValues);
 
-static EnumDesc showWhatVals[] = {
+EnumDesc CommandLine::showWhatValues[] = {
     {WhatToShow::SHOW_TOTAL_RADIANCE, "total-radiance", 2},
     {WhatToShow::SHOW_INDIRECT_RADIANCE, "indirect-radiance", 2},
     {WhatToShow::SHOW_IMPORTANCE, "importance", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions showWhatTypeStruct = Options::makeEnumOptTypeStruct(showWhatVals);
+CommandLineOptions CommandLine::showWhatTypeOption = Options::makeEnumOptTypeStruct(CommandLine::showWhatValues);
 
 void
 CommandLine::stochasticRelaxationRadiosityParseOptions(
@@ -704,41 +692,41 @@ CommandLine::stochasticRelaxationRadiosityParseOptions(
         OptionsType &optionTypes)
 {
     CommandLineOptionDescription srrOptions[] = {
-        {"-srr-ray-units", 8, &optionTypes.intType, &stochasticRelaxationState.rayUnitsPerIt, DEFAULT_ACTION,
+        {"-srr-ray-units", 8, &optionTypes.intType, &stochasticRelaxationState.rayUnitsPerIt, Options::DEFAULT_ACTION,
          "-srr-ray-units <n>          : To tune the amount of work in a single iteration"},
-        {"-srr-bidirectional", 7, &optionTypes.boolType, &stochasticRelaxationState.bidirectionalTransfers, DEFAULT_ACTION,
+        {"-srr-bidirectional", 7, &optionTypes.boolType, &stochasticRelaxationState.bidirectionalTransfers, Options::DEFAULT_ACTION,
          "-srr-bidirectional <yes|no> : Use lines bidirectionally"},
-        {"-srr-control-variate", 7, &optionTypes.boolType, &stochasticRelaxationState.constantControlVariate, DEFAULT_ACTION,
+        {"-srr-control-variate", 7, &optionTypes.boolType, &stochasticRelaxationState.constantControlVariate, Options::DEFAULT_ACTION,
          "-srr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-        {"-srr-indirect-only", 7, &optionTypes.boolType, &stochasticRelaxationState.indirectOnly, DEFAULT_ACTION,
+        {"-srr-indirect-only", 7, &optionTypes.boolType, &stochasticRelaxationState.indirectOnly, Options::DEFAULT_ACTION,
          "-srr-indirect-only <y|n>    : Compute indirect illumination only"},
-        {"-srr-importance-driven", 7, &optionTypes.boolType, &stochasticRelaxationState.importanceDriven, DEFAULT_ACTION,
+        {"-srr-importance-driven", 7, &optionTypes.boolType, &stochasticRelaxationState.importanceDriven, Options::DEFAULT_ACTION,
          "-srr-importance-driven <y|n>: Use view-importance"},
-        {"-srr-sampling-sequence", 7, &sequenceTypeStruct, &stochasticRelaxationState.sequence, DEFAULT_ACTION,
+        {"-srr-sampling-sequence", 7, &sequenceTypeOption, &stochasticRelaxationState.sequence, Options::DEFAULT_ACTION,
          "-srr-sampling-sequence <type>: \"PseudoRandom\", \"Niederreiter\""},
-        {"-srr-approximation", 7, &approxTypeStruct, &stochasticRelaxationState.approximationOrderType, DEFAULT_ACTION,
+        {"-srr-approximation", 7, &approximationTypeOption, &stochasticRelaxationState.approximationOrderType, Options::DEFAULT_ACTION,
          "-srr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-        {"-srr-hierarchical", 7, &optionTypes.boolType, &elementHierarchyState.do_h_meshing, DEFAULT_ACTION,
+        {"-srr-hierarchical", 7, &optionTypes.boolType, &elementHierarchyState.do_h_meshing, Options::DEFAULT_ACTION,
          "-srr-hierarchical <y|n>     : hierarchical refinement"},
-        {"-srr-clustering", 7, &clusteringTypeStruct, &elementHierarchyState.clustering, DEFAULT_ACTION,
+        {"-srr-clustering", 7, &clusteringTypeOption, &elementHierarchyState.clustering, Options::DEFAULT_ACTION,
          "-srr-clustering <mode>      : \"none\", \"isotropic\", \"oriented\""},
-        {"-srr-epsilon", 7, &optionTypes.floatType, &elementHierarchyState.epsilon, DEFAULT_ACTION,
+        {"-srr-epsilon", 7, &optionTypes.floatType, &elementHierarchyState.epsilon, Options::DEFAULT_ACTION,
          "-srr-epsilon <float>        : link power threshold (relative w.r.t. max. selfemitted power)"},
-        {"-srr-minarea", 7, &optionTypes.floatType, &elementHierarchyState.minimumArea, DEFAULT_ACTION,
+        {"-srr-minarea", 7, &optionTypes.floatType, &elementHierarchyState.minimumArea, Options::DEFAULT_ACTION,
          "-srr-minarea <float>        : minimal element area (relative w.r.t. total area)"},
-        {"-srr-display", 7, &showWhatTypeStruct, &stochasticRelaxationState.show, DEFAULT_ACTION,
+        {"-srr-display", 7, &showWhatTypeOption, &stochasticRelaxationState.show, Options::DEFAULT_ACTION,
          "-srr-display <what>         : \"total-radiance\", \"indirect-radiance\", \"weighting-gain\", \"importance\""},
-        {"-srr-discard-incremental", 7, &optionTypes.boolType, &stochasticRelaxationState.discardIncremental, DEFAULT_ACTION,
+        {"-srr-discard-incremental", 7, &optionTypes.boolType, &stochasticRelaxationState.discardIncremental, Options::DEFAULT_ACTION,
          "-srr-discard-incremenal <y|n>: Discard result of first iteration (incremental steps)"},
-        {"-srr-incremental-uses-importance", 7, &optionTypes.boolType, &stochasticRelaxationState.incrementalUsesImportance, DEFAULT_ACTION,
+        {"-srr-incremental-uses-importance", 7, &optionTypes.boolType, &stochasticRelaxationState.incrementalUsesImportance, Options::DEFAULT_ACTION,
          "-srr-incremental-uses-importance <y|n>: Use view-importance sampling already for the first iteration (incremental steps)"},
-        {"-srr-naive-merging", 7, &optionTypes.boolType, &stochasticRelaxationState.naiveMerging, DEFAULT_ACTION,
+        {"-srr-naive-merging", 7, &optionTypes.boolType, &stochasticRelaxationState.naiveMerging, Options::DEFAULT_ACTION,
          "-srr-naive-merging <y|n>    : disable intelligent merging heuristic"},
-        {"-srr-nondiffuse-first-shot", 7, &optionTypes.boolType, &stochasticRelaxationState.doNonDiffuseFirstShot, DEFAULT_ACTION,
+        {"-srr-nondiffuse-first-shot", 7, &optionTypes.boolType, &stochasticRelaxationState.doNonDiffuseFirstShot, Options::DEFAULT_ACTION,
          "-srr-nondiffuse-first-shot <y|n>: Do Non-diffuse first shot before real work"},
-        {"-srr-initial-ls-samples", 7, &optionTypes.intType, &stochasticRelaxationState.initialLightSourceSamples, DEFAULT_ACTION,
+        {"-srr-initial-ls-samples", 7, &optionTypes.intType, &stochasticRelaxationState.initialLightSourceSamples, Options::DEFAULT_ACTION,
          "-srr-initial-ls-samples <int>        : nr of samples per light source for initial shot"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
     Options::parseGeneralOptions(srrOptions, argc, argv);
@@ -752,38 +740,39 @@ CommandLine::randomWalkRadiosityParseOptions(
         OptionsType &optionTypes)
 {
     CommandLineOptionDescription rwrOptions[] = {
-        {"-rwr-ray-units", 8, &optionTypes.intType, &stochasticRelaxationState.rayUnitsPerIt, DEFAULT_ACTION,
+        {"-rwr-ray-units", 8, &optionTypes.intType, &stochasticRelaxationState.rayUnitsPerIt, Options::DEFAULT_ACTION,
          "-rwr-ray-units <n>          : To tune the amount of work in a single iteration"},
-        {"-rwr-continuous", 7, &optionTypes.boolType, &stochasticRelaxationState.continuousRandomWalk, DEFAULT_ACTION,
+        {"-rwr-continuous", 7, &optionTypes.boolType, &stochasticRelaxationState.continuousRandomWalk, Options::DEFAULT_ACTION,
          "-rwr-continuous <y|n>       : Continuous (yes) or Discrete (no) random walk"},
-        {"-rwr-control-variate", 7, &optionTypes.boolType, &stochasticRelaxationState.constantControlVariate, DEFAULT_ACTION,
+        {"-rwr-control-variate", 7, &optionTypes.boolType, &stochasticRelaxationState.constantControlVariate, Options::DEFAULT_ACTION,
          "-rwr-control-variate <y|n>  : Constant Control Variate variance reduction"},
-        {"-rwr-indirect-only", 7, &optionTypes.boolType, &stochasticRelaxationState.indirectOnly, DEFAULT_ACTION,
+        {"-rwr-indirect-only", 7, &optionTypes.boolType, &stochasticRelaxationState.indirectOnly, Options::DEFAULT_ACTION,
          "-rwr-indirect-only <y|n>    : Compute indirect illumination only"},
-        {"-rwr-sampling-sequence", 7, &estTypeTypeStruct, &stochasticRelaxationState.sequence, DEFAULT_ACTION,
+        {"-rwr-sampling-sequence", 7, &estimatorTypeOption, &stochasticRelaxationState.sequence, Options::DEFAULT_ACTION,
          "-rwr-sampling-sequence <type>: \"PseudoRandom\", \"Halton\", \"Niederreiter\""},
-        {"-rwr-approximation", 7, &approxTypeStruct, &stochasticRelaxationState.approximationOrderType, DEFAULT_ACTION,
+        {"-rwr-approximation", 7, &approximationTypeOption, &stochasticRelaxationState.approximationOrderType, Options::DEFAULT_ACTION,
          "-rwr-approximation <order>  : \"constant\", \"linear\", \"quadratic\", \"cubic\""},
-        {"-rwr-estimator", 7, &estTypeTypeStruct, &stochasticRelaxationState.randomWalkEstimatorType, DEFAULT_ACTION,
+        {"-rwr-estimator", 7, &estimatorTypeOption, &stochasticRelaxationState.randomWalkEstimatorType, Options::DEFAULT_ACTION,
          "-rwr-estimator <type>       : \"shooting\", \"gathering\""},
-        {"-rwr-score", 7, &estKindTypeStruct, &stochasticRelaxationState.randomWalkEstimatorKind, DEFAULT_ACTION,
+        {"-rwr-score", 7, &estimatorKindTypeOption, &stochasticRelaxationState.randomWalkEstimatorKind, Options::DEFAULT_ACTION,
          "-rwr-score <kind>           : \"collision\", \"absorption\", \"survival\", \"last-N\", \"last-but-N\""},
-        {"-rwr-numlast", 12, &optionTypes.intType, &stochasticRelaxationState.randomWalkNumLast, DEFAULT_ACTION,
+        {"-rwr-numlast", 12, &optionTypes.intType, &stochasticRelaxationState.randomWalkNumLast, Options::DEFAULT_ACTION,
          "-rwr-numlast <int>          : N to use in \"last-N\" and \"last-but-N\" scorers"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
     Options::parseGeneralOptions(rwrOptions, argc, argv);
 }
 
-static EnumDesc globalRayMatterPixelFilters[] = {
+EnumDesc CommandLine::rayMatterPixelFilterValues[] = {
     {RayMatterFilterType::BOX_FILTER, "box", 2},
     {RayMatterFilterType::TENT_FILTER, "tent", 2},
     {RayMatterFilterType::GAUSS_FILTER, "gaussian 1/sqrt2", 2},
     {RayMatterFilterType::GAUSS2_FILTER, "gaussian 1/2", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions rmPixelFilterTypeStruct = Options::makeEnumOptTypeStruct(globalRayMatterPixelFilters);
+CommandLineOptions CommandLine::rayMatterPixelFilterTypeOption =
+    Options::makeEnumOptTypeStruct(CommandLine::rayMatterPixelFilterValues);
 
 void
 CommandLine::rayMattingParseOptions(
@@ -794,11 +783,11 @@ CommandLine::rayMattingParseOptions(
 {
     CommandLineOptionDescription rayMatterOptions[] =
     {
-        {"-rm-samples-per-pixel", 6, &optionTypes.intType, &rayMatterState.samplesPerPixel, DEFAULT_ACTION,
+        {"-rm-samples-per-pixel", 6, &optionTypes.intType, &rayMatterState.samplesPerPixel, Options::DEFAULT_ACTION,
          "-rm-samples-per-pixel <number>\t: eye-rays per pixel"},
-        {"-rm-pixel-filter", 7, &rmPixelFilterTypeStruct, &rayMatterState.filter, DEFAULT_ACTION,
+        {"-rm-pixel-filter", 7, &rayMatterPixelFilterTypeOption, &rayMatterState.filter, Options::DEFAULT_ACTION,
          "-rm-pixel-filter <type>\t: Select filter - \"box\", \"tent\", \"gaussian 1/sqrt2\", \"gaussian 1/2\""},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
     Options::parseGeneralOptions(rayMatterOptions, argc, argv);
@@ -806,7 +795,7 @@ CommandLine::rayMattingParseOptions(
 
 /*** Enum Option types ***/
 
-static EnumDesc globalRadModeValues[] = {
+EnumDesc CommandLine::rayTracingRadianceModeValues[] = {
     {RayTracingRadMode::STORED_NONE, "none", 2},
     {RayTracingRadMode::STORED_DIRECT, "direct", 2},
     {RayTracingRadMode::STORED_INDIRECT, "indirect", 2},
@@ -814,23 +803,26 @@ static EnumDesc globalRadModeValues[] = {
     {0, nullptr, 0}
 };
 
-static CommandLineOptions radModeTypeStruct = Options::makeEnumOptTypeStruct(globalRadModeValues);
+CommandLineOptions CommandLine::rayTracingRadianceModeTypeOption =
+    Options::makeEnumOptTypeStruct(CommandLine::rayTracingRadianceModeValues);
 
-static EnumDesc globalLightModeValues[] = {
+EnumDesc CommandLine::rayTracingLightModeValues[] = {
     {RayTracingLightMode::POWER_LIGHTS, "power", 2},
     {RayTracingLightMode::IMPORTANT_LIGHTS, "important", 2},
     {RayTracingLightMode::ALL_LIGHTS, "all", 2},
     {0, nullptr, 0}
 };
 
-static CommandLineOptions lightModeTypeStruct = Options::makeEnumOptTypeStruct(globalLightModeValues);
+CommandLineOptions CommandLine::rayTracingLightModeTypeOption =
+    Options::makeEnumOptTypeStruct(CommandLine::rayTracingLightModeValues);
 
-static EnumDesc globalSamplingModeValues[] = {
+EnumDesc CommandLine::rayTracingSamplingModeValues[] = {
     {RayTracingSamplingMode::BRDF_SAMPLING, "bsdf", 2},
     {RayTracingSamplingMode::CLASSICAL_SAMPLING, "classical", 2},
     {0, nullptr, 0}
 };
-static CommandLineOptions samplingModeTypeStruct = Options::makeEnumOptTypeStruct(globalSamplingModeValues);
+CommandLineOptions CommandLine::rayTracingSamplingModeTypeOption =
+    Options::makeEnumOptTypeStruct(CommandLine::rayTracingSamplingModeValues);
 
 void
 CommandLine::stochasticRayTracerParseOptions(
@@ -840,43 +832,43 @@ CommandLine::stochasticRayTracerParseOptions(
         OptionsType &optionTypes)
 {
     CommandLineOptionDescription stochasticRatTracerOptions[] = {
-        {"-rts-samples-per-pixel", 7, &optionTypes.intType, &stochasticRayTracingState.samplesPerPixel, DEFAULT_ACTION,
+        {"-rts-samples-per-pixel", 7, &optionTypes.intType, &stochasticRayTracingState.samplesPerPixel, Options::DEFAULT_ACTION,
          "-rts-samples-per-pixel <number>\t: eye-rays per pixel"},
-        {"-rts-no-progressive", 9, &optionTypes.setFalseType, &stochasticRayTracingState.progressiveTracing, DEFAULT_ACTION,
+        {"-rts-no-progressive", 9, &optionTypes.setFalseType, &stochasticRayTracingState.progressiveTracing, Options::DEFAULT_ACTION,
          "-rts-no-progressive\t: don't do progressive image refinement"},
-        {"-rts-rad-mode", 8, &radModeTypeStruct, &stochasticRayTracingState.radMode, DEFAULT_ACTION,
+        {"-rts-rad-mode", 8, &rayTracingRadianceModeTypeOption, &stochasticRayTracingState.radMode, Options::DEFAULT_ACTION,
          "-rts-rad-mode <type>\t: Stored radiance usage - \"none\", \"direct\", \"indirect\", \"photonmap\""},
-        {"-rts-no-lightsampling", 9, &optionTypes.setFalseType, &stochasticRayTracingState.nextEvent, DEFAULT_ACTION,
+        {"-rts-no-lightsampling", 9, &optionTypes.setFalseType, &stochasticRayTracingState.nextEvent, Options::DEFAULT_ACTION,
          "-rts-no-lightsampling\t: don't do explicit light sampling"},
-        {"-rts-l-mode", 8, &lightModeTypeStruct, &stochasticRayTracingState.lightMode, DEFAULT_ACTION,
+        {"-rts-l-mode", 8, &rayTracingLightModeTypeOption, &stochasticRayTracingState.lightMode, Options::DEFAULT_ACTION,
          "-rts-l-mode <type>\t: Light sampling mode - \"power\", \"important\", \"all\""},
-        {"-rts-l-samples", 8, &optionTypes.intType, &stochasticRayTracingState.nextEventSamples, DEFAULT_ACTION,
+        {"-rts-l-samples", 8, &optionTypes.intType, &stochasticRayTracingState.nextEventSamples, Options::DEFAULT_ACTION,
          "-rts-l-samples <number>\t: explicit light source samples at each hit"},
-        {"-rts-scatter-samples", 7, &optionTypes.intType, &stochasticRayTracingState.scatterSamples, DEFAULT_ACTION,
+        {"-rts-scatter-samples", 7, &optionTypes.intType, &stochasticRayTracingState.scatterSamples, Options::DEFAULT_ACTION,
          "-rts-scatter-samples <number>\t: scattered rays at each bounce"},
-        {"-rts-do-fdg", 0, &optionTypes.setTrueType, &stochasticRayTracingState.differentFirstDG, DEFAULT_ACTION,
+        {"-rts-do-fdg", 0, &optionTypes.setTrueType, &stochasticRayTracingState.differentFirstDG, Options::DEFAULT_ACTION,
          "-rts-do-fdg\t: use different nr. of scatter samples for first diffuse/glossy bounce"},
-        {"-rts-fdg-samples", 8, &optionTypes.intType, &stochasticRayTracingState.firstDGSamples, DEFAULT_ACTION,
+        {"-rts-fdg-samples", 8, &optionTypes.intType, &stochasticRayTracingState.firstDGSamples, Options::DEFAULT_ACTION,
          "-rts-fdg-samples <number>\t: scattered rays at first diffuse/glossy bounce"},
-        {"-rts-separate-specular", 8, &optionTypes.setTrueType, &stochasticRayTracingState.separateSpecular, DEFAULT_ACTION,
+        {"-rts-separate-specular", 8, &optionTypes.setTrueType, &stochasticRayTracingState.separateSpecular, Options::DEFAULT_ACTION,
          "-rts-separate-specular\t: always shoot separate rays for specular scattering"},
-        {"-rts-s-mode", 9, &samplingModeTypeStruct, &stochasticRayTracingState.reflectionSampling, DEFAULT_ACTION,
+        {"-rts-s-mode", 9, &rayTracingSamplingModeTypeOption, &stochasticRayTracingState.reflectionSampling, Options::DEFAULT_ACTION,
          "-rts-s-mode <type>\t: Sampling mode - \"bsdf\", \"classical\""},
-        {"-rts-min-path-length", 8, &optionTypes.intType, &stochasticRayTracingState.minPathDepth, DEFAULT_ACTION,
+        {"-rts-min-path-length", 8, &optionTypes.intType, &stochasticRayTracingState.minPathDepth, Options::DEFAULT_ACTION,
          "-rts-min-path-length <number>\t: minimum path length before Russian roulette"},
-        {"-rts-max-path-length", 8, &optionTypes.intType, &stochasticRayTracingState.maxPathDepth, DEFAULT_ACTION,
+        {"-rts-max-path-length", 8, &optionTypes.intType, &stochasticRayTracingState.maxPathDepth, Options::DEFAULT_ACTION,
          "-rts-max-path-length <number>\t: maximum path length (ignoring higher orders)"},
-        {"-rts-NOdirect-background-rad", 8, &optionTypes.setFalseType, &stochasticRayTracingState.backgroundDirect, DEFAULT_ACTION,
+        {"-rts-NOdirect-background-rad", 8, &optionTypes.setFalseType, &stochasticRayTracingState.backgroundDirect, Options::DEFAULT_ACTION,
          "-rts-NOdirect-background-rad\t: patchIsOnOmitSet direct background radiance."},
-        {"-rts-NOindirect-background-rad", 8, &optionTypes.setFalseType, &stochasticRayTracingState.backgroundIndirect, DEFAULT_ACTION,
+        {"-rts-NOindirect-background-rad", 8, &optionTypes.setFalseType, &stochasticRayTracingState.backgroundIndirect, Options::DEFAULT_ACTION,
          "-rts-NOindirect-background-rad\t: patchIsOnOmitSet indirect background radiance."},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
     Options::parseGeneralOptions(stochasticRatTracerOptions, argc, argv);
 }
 
-static CommandLineOptions RegExpStringType = Options::makeNStringTypeStruct(MAX_REGEXP_SIZE);
+CommandLineOptions CommandLine::regExpStringType = Options::makeNStringTypeStruct(BidirectionalPathRaytracerConfig::MAX_REGEXP_SIZE);
 
 void
 CommandLine::biDirectionalPathParseOptions(
@@ -886,65 +878,65 @@ CommandLine::biDirectionalPathParseOptions(
         OptionsType &optionTypes)
 {
     CommandLineOptionDescription bidirectionalOptions[] = {
-        {"-bidir-samples-per-pixel", 8, &optionTypes.intType, &bidirectionalPathState.baseConfig.samplesPerPixel, DEFAULT_ACTION,
+        {"-bidir-samples-per-pixel", 8, &optionTypes.intType, &bidirectionalPathState.baseConfig.samplesPerPixel, Options::DEFAULT_ACTION,
         "-bidir-samples-per-pixel <number> : eye-rays per pixel"},
-        {"-bidir-no-progressive", 11, &optionTypes.setFalseType, &bidirectionalPathState.baseConfig.progressiveTracing, DEFAULT_ACTION,
+        {"-bidir-no-progressive", 11, &optionTypes.setFalseType, &bidirectionalPathState.baseConfig.progressiveTracing, Options::DEFAULT_ACTION,
         "-bidir-no-progressive          \t: don't do progressive image refinement"},
-        {"-bidir-max-eye-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumEyePathDepth, DEFAULT_ACTION,
+        {"-bidir-max-eye-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumEyePathDepth, Options::DEFAULT_ACTION,
         "-bidir-max-eye-path-length <number>: maximum eye path length"},
-        {"-bidir-max-light-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumLightPathDepth, DEFAULT_ACTION,
+        {"-bidir-max-light-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumLightPathDepth, Options::DEFAULT_ACTION,
         "-bidir-max-light-path-length <number>: maximum light path length"},
-        {"-bidir-max-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumPathDepth, DEFAULT_ACTION,
+        {"-bidir-max-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.maximumPathDepth, Options::DEFAULT_ACTION,
         "-bidir-max-path-length <number>\t: maximum combined path length"},
-        {"-bidir-min-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.minimumPathDepth, DEFAULT_ACTION,
+        {"-bidir-min-path-length", 12, &optionTypes.intType, &bidirectionalPathState.baseConfig.minimumPathDepth, Options::DEFAULT_ACTION,
         "-bidir-min-path-length <number>\t: minimum path length before russian roulette"},
-        {"-bidir-no-light-importance", 11, &optionTypes.setFalseType, &bidirectionalPathState.baseConfig.sampleImportantLights, DEFAULT_ACTION,
+        {"-bidir-no-light-importance", 11, &optionTypes.setFalseType, &bidirectionalPathState.baseConfig.sampleImportantLights, Options::DEFAULT_ACTION,
         "-bidir-no-light-importance     \t: sample lights based on power, ignoring their importance"},
-        {"-bidir-use-regexp", 12, &optionTypes.setTrueType, &bidirectionalPathState.baseConfig.useSpars, DEFAULT_ACTION,
+        {"-bidir-use-regexp", 12, &optionTypes.setTrueType, &bidirectionalPathState.baseConfig.useSpars, Options::DEFAULT_ACTION,
         "-bidir-use-regexp\t: use regular expressions for path evaluation"},
-        {"-bidir-use-emitted", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLe, DEFAULT_ACTION,
+        {"-bidir-use-emitted", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLe, Options::DEFAULT_ACTION,
         "-bidir-use-emitted <yes|no>\t: use reg exp for emitted radiance"},
-        {"-bidir-rexp-emitted", 13, &RegExpStringType, bidirectionalPathState.baseConfig.leRegExp, DEFAULT_ACTION,
+        {"-bidir-rexp-emitted", 13, &regExpStringType, bidirectionalPathState.baseConfig.leRegExp, Options::DEFAULT_ACTION,
         "-bidir-rexp-emitted <string>\t: reg exp for emitted radiance"},
-        {"-bidir-reg-direct", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLD, DEFAULT_ACTION,
+        {"-bidir-reg-direct", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLD, Options::DEFAULT_ACTION,
         "-bidir-reg-direct <yes|no>\t: use reg exp for stored direct illumination (galerkin!)"},
-        {"-bidir-rexp-direct", 13, &RegExpStringType, bidirectionalPathState.baseConfig.ldRegExp, DEFAULT_ACTION,
+        {"-bidir-rexp-direct", 13, &regExpStringType, bidirectionalPathState.baseConfig.ldRegExp, Options::DEFAULT_ACTION,
         "-bidir-rexp-direct <string>\t: reg exp for stored direct illumination"},
-        {"-bidir-reg-indirect", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLI, DEFAULT_ACTION,
+        {"-bidir-reg-indirect", 12, &optionTypes.boolType, &bidirectionalPathState.baseConfig.doLI, Options::DEFAULT_ACTION,
         "-bidir-reg-indirect <yes|no>\t: use reg exp for stored indirect illumination (galerkin!)"},
-        {"-bidir-rexp-indirect", 13, &RegExpStringType, bidirectionalPathState.baseConfig.liRegExp, DEFAULT_ACTION,
+        {"-bidir-rexp-indirect", 13, &regExpStringType, bidirectionalPathState.baseConfig.liRegExp, Options::DEFAULT_ACTION,
         "-bidir-rexp-indirect <string>\t: reg exp for stored indirect illumination"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
     Options::parseGeneralOptions(bidirectionalOptions, argc, argv);
 }
 
-static char *globalRaytracingMethodsString;
-static char *globalRayTracerName;
+char *CommandLine::raytracingMethodsString = nullptr;
+char *CommandLine::rayTracerName = nullptr;
 
 void
 CommandLine::mainRayTracingOption(void *value) {
     const char *name = *static_cast<char **>(value);
-    strcpy(globalRayTracerName, name);
+    strcpy(rayTracerName, name);
 }
 
 void
 CommandLine::rayTracingParseOptions(
         int *argc,
         char **argv,
-        char raytracingMethodsString[],
-        char *rayTracerName,
+        char raytracingMethodsStringOut[],
+        char *rayTracerNameOut,
         OptionsType &optionTypes)
 {
-    CommandLineOptionDescription globalRaytracingOptions[] = {
-        {"-raytracing-method", 4, &optionTypes.stringType,  nullptr, CommandLine::mainRayTracingOption, globalRaytracingMethodsString},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+    CommandLineOptionDescription raytracingOptions[] = {
+        {"-raytracing-method", 4, &optionTypes.stringType,  nullptr, CommandLine::mainRayTracingOption, raytracingMethodsString},
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
 
-    globalRayTracerName = rayTracerName;
-    globalRaytracingMethodsString = raytracingMethodsString;
-    Options::parseGeneralOptions(globalRaytracingOptions, argc, argv);
+    CommandLine::rayTracerName = rayTracerNameOut;
+    CommandLine::raytracingMethodsString = raytracingMethodsStringOut;
+    Options::parseGeneralOptions(raytracingOptions, argc, argv);
 }
 
 void
@@ -955,27 +947,27 @@ CommandLine::photonMapParseOptions(
         OptionsType &optionTypes)
 {
     CommandLineOptionDescription photonMapOptions[] = {
-        {"-pmap-do-global", 9, &optionTypes.boolType, &photonMapState.doGlobalMap, DEFAULT_ACTION,
+        {"-pmap-do-global", 9, &optionTypes.boolType, &photonMapState.doGlobalMap, Options::DEFAULT_ACTION,
          "-pmap-do-global <true|false> : Trace photons for the global map"},
-        {"-pmap-global-paths", 9, &optionTypes.intType, &photonMapState.gPathsPerIteration, DEFAULT_ACTION,
+        {"-pmap-global-paths", 9, &optionTypes.intType, &photonMapState.gPathsPerIteration, Options::DEFAULT_ACTION,
          "-pmap-global-paths <number> : Number of paths per iteration for the global map"},
-        {"-pmap-g-preirradiance", 11, &optionTypes.boolType, &photonMapState.precomputeGIrradiance, DEFAULT_ACTION,
+        {"-pmap-g-preirradiance", 11, &optionTypes.boolType, &photonMapState.precomputeGIrradiance, Options::DEFAULT_ACTION,
          "-pmap-g-preirradiance <true|false> : Use irradiance precomputation for global map"},
-        {"-pmap-do-caustic", 9, &optionTypes.boolType, &photonMapState.doCausticMap, DEFAULT_ACTION,
+        {"-pmap-do-caustic", 9, &optionTypes.boolType, &photonMapState.doCausticMap, Options::DEFAULT_ACTION,
          "-pmap-do-caustic <true|false> : Trace photons for the caustic map"},
-        {"-pmap-caustic-paths", 9,  &optionTypes.intType, &photonMapState.cPathsPerIteration, DEFAULT_ACTION,
+        {"-pmap-caustic-paths", 9,  &optionTypes.intType, &photonMapState.cPathsPerIteration, Options::DEFAULT_ACTION,
          "-pmap-caustic-paths <number> : Number of paths per iteration for the caustic map"},
-        {"-pmap-render-hits", 9, &optionTypes.setTrueType, &photonMapState.renderImage, DEFAULT_ACTION,
+        {"-pmap-render-hits", 9, &optionTypes.setTrueType, &photonMapState.renderImage, Options::DEFAULT_ACTION,
          "-pmap-render-hits: Show photon hits on screen"},
-        {"-pmap-recon-gphotons", 9, &optionTypes.intType, &photonMapState.reconGPhotons, DEFAULT_ACTION,
+        {"-pmap-recon-gphotons", 9, &optionTypes.intType, &photonMapState.reconGPhotons, Options::DEFAULT_ACTION,
          "-pmap-recon-cphotons <number> : Number of photons to use in reconstructions (global map)"},
-        {"-pmap-recon-iphotons", 9, &optionTypes.intType, &photonMapState.reconCPhotons, DEFAULT_ACTION,
+        {"-pmap-recon-iphotons", 9, &optionTypes.intType, &photonMapState.reconCPhotons, Options::DEFAULT_ACTION,
          "-pmap-recon-photons <number> : Number of photons to use in reconstructions (caustic map)"},
-        {"-pmap-recon-photons", 9, &optionTypes.intType, &photonMapState.reconIPhotons, DEFAULT_ACTION,
+        {"-pmap-recon-photons", 9, &optionTypes.intType, &photonMapState.reconIPhotons, Options::DEFAULT_ACTION,
          "-pmap-recon-photons <number> : Number of photons to use in reconstructions (importance)"},
-        {"-pmap-balancing", 9, &optionTypes.boolType, &photonMapState.balanceKDTree, DEFAULT_ACTION,
+        {"-pmap-balancing", 9, &optionTypes.boolType, &photonMapState.balanceKDTree, Options::DEFAULT_ACTION,
          "-pmap-balancing <true|false> : Balance KD Tree before raytracing"},
-        {nullptr, 0, nullptr, nullptr, DEFAULT_ACTION, nullptr}
+        {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}
     };
     Options::parseGeneralOptions(photonMapOptions, argc, argv);
 }

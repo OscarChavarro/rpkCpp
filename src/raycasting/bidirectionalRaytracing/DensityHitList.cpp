@@ -5,8 +5,6 @@
 #include "raycasting/bidirectionalRaytracing/DensityHitList.h"
 #include "common/Error.h"
 
-static constexpr int DHL_ARRAY_SIZE = 20;
-
 DensityHitList::DensityHitList(): cacheLowerLimit() {
     first = new DensityHitArray(DHL_ARRAY_SIZE);
     last = first;

@@ -5,8 +5,6 @@
 #include "common/statistics/Statistics.h"
 #include "skin/Patch.h"
 
-static constexpr double TOLERANCE = 1e-5;
-
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 

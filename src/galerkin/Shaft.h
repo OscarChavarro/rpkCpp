@@ -13,11 +13,6 @@ References:
 #include "galerkin/ShaftCullStrategy.h"
 #include "galerkin/ShaftPlane.h"
 #include "galerkin/ShaftPlanePosition.h"
-constexpr int MAX_SKIP_ELEMENTS = 2;
-
-// Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
-// maximum 2 times the total number of vertices for a patch-to-patch shaft
-constexpr int SHAFT_MAX_PLANES = 16;
 
 /**
 The shaft is the region bounded by extent and referenceItem1 and referenceItem2 (if defined)
@@ -28,6 +23,13 @@ a kind of convex envelope.
 */
 class Shaft {
   private:
+    static constexpr int MAX_SKIP_ELEMENTS = 2;
+    // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
+    // maximum 2 times the total number of vertices for a patch-to-patch shaft
+    static constexpr int SHAFT_MAX_PLANES = 16;
+    static constexpr int MIN_MAX_DIMENSIONS = 6;
+    static constexpr int NONE = -1;
+
     BoundingBox *referenceItem1; // Bounding boxes of the reference items
     BoundingBox *referenceItem2;
     BoundingBox extentBoundingBox;

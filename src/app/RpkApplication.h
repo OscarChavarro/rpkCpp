@@ -19,6 +19,7 @@ class OptionsType;
 
 class RpkApplication {
   private:
+    static constexpr bool DEFAULT_MONOCHROME = false;
     static Material defaultMaterial;
     int imageOutputWidth;
     int imageOutputHeight;

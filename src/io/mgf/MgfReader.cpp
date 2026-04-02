@@ -83,10 +83,10 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
 
     int len = 0;
     java::StringBuilder lineBuilder;
-    char readBuffer[MGF_MAXIMUM_INPUT_LINE_LENGTH];
+    char readBuffer[ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH];
 
     do {
-        const int maxLength = MGF_MAXIMUM_INPUT_LINE_LENGTH - len;
+        const int maxLength = ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - len;
         if ( maxLength <= 0 ) {
             lineBuilder.dispose();
             return len;
@@ -94,8 +94,8 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
         const int readLength = readInputLine(context->readerContext->inputStream, readBuffer, maxLength);
         if ( readLength <= 0 ) {
             java::String line = lineBuilder.toString();
-            strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
-            context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+            strncpy(context->readerContext->inputLine, line.toCString(), ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+            context->readerContext->inputLine[ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             line.dispose();
             lineBuilder.dispose();
             return len;
@@ -103,10 +103,10 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
 
         lineBuilder.append(readBuffer, readLength);
         len = lineBuilder.length();
-        if ( len >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
+        if ( len >= ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
             java::String line = lineBuilder.toString();
-            strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
-            context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+            strncpy(context->readerContext->inputLine, line.toCString(), ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+            context->readerContext->inputLine[ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             line.dispose();
             lineBuilder.dispose();
             return len;
@@ -115,8 +115,8 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
     } while ( len > 1 && lineBuilder.charAt(len - 2) == '\\' );
 
     java::String line = lineBuilder.toString();
-    strncpy(context->readerContext->inputLine, line.toCString(), MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
-    context->readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+    strncpy(context->readerContext->inputLine, line.toCString(), ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1);
+    context->readerContext->inputLine[ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
     line.dispose();
     lineBuilder.dispose();
 
@@ -128,8 +128,8 @@ Parse current input line
 */
 int
 MgfReader::mgfParseCurrentLine(ParseSession *context) {
-    const char *argv[MGF_MAXIMUM_ARGUMENT_COUNT];
-    java::String tokens[MGF_MAXIMUM_ARGUMENT_COUNT];
+    const char *argv[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
+    java::String tokens[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     int argc = 0;
 
     // Copy line, removing escape chars
@@ -146,7 +146,7 @@ MgfReader::mgfParseCurrentLine(ParseSession *context) {
 
     java::StringTokenizer tokenizer(buffer.toString(), " \t\r\n\f\v");
     while ( tokenizer.hasMoreTokens() ) {
-        if ( argc >= MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
+        if ( argc >= ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT - 1 ) {
             for ( int i = 0; i < argc; i++ ) {
                 tokens[i].dispose();
             }
@@ -229,8 +229,8 @@ int
 MgfReader::mgfPutCSpec(ParseSession *context)
 {
     char wl[2][6];
-    char buffer[NUMBER_OF_SPECTRAL_SAMPLES][24];
-    const char *newAv[NUMBER_OF_SPECTRAL_SAMPLES + 4];
+    char buffer[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES][24];
+    const char *newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
     if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
         java::Formatter::format(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
@@ -238,13 +238,13 @@ MgfReader::mgfPutCSpec(ParseSession *context)
         newAv[0] = context->entityNames[EntityContext::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
-        const double sf = static_cast<double>(NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
-        for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+        const double sf = static_cast<double>(ColorContext::NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
+        for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
             java::Formatter::format(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
-        newAv[NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
-        int status = MgfDefinitions::mgfHandle(EntityContext::C_SPEC, NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
+        newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
+        int status = MgfDefinitions::mgfHandle(EntityContext::C_SPEC, ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
         if ( status != ErrorCodeContext::MGF_OK ) {
             return status;
         }
@@ -327,7 +327,7 @@ MgfReader::mgfColorTemperature(int /*ac*/, const char ** /*av*/, ParseSession *c
 
 int
 MgfReader::handleIncludedFile(int ac, const char **av, ParseSession *context) {
-    const char *transformArgument[MGF_MAXIMUM_ARGUMENT_COUNT];
+    const char *transformArgument[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     ReaderContext readerContext{};
     const TransformStackContext *originTransform = context->transformContext;
 
@@ -353,7 +353,7 @@ MgfReader::handleIncludedFile(int ac, const char **av, ParseSession *context) {
     }
     do {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
-            if ( rv >= MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
+            if ( rv >= ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 java::System::err.printf("%s: %d: %s\n", readerContext.fileName,
                     readerContext.lineNumber, context->errorCodeMessages[ErrorCodeContext::MGF_ERROR_LINE_TOO_LONG]);
                 MgfDefinitions::mgfClose(context);

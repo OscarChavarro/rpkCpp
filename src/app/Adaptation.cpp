@@ -13,21 +13,21 @@ Estimate static adaptation for tone mapping
 #include "app/Adaptation.h"
 #include "app/LuminanceArea.h"
 
-static int globalNumEntries;
-static double globalLogAreaLum;
-static LuminanceArea *globalLumArea;
-static int globalLumAreaIndex;
-static float globalLumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
-static float globalLumMax = 0.0;
-static ColorRgb (*PatchRadianceEstimate)(Patch *globalP) = nullptr;
+int Adaptation::numEntries = 0;
+double Adaptation::logAreaLum = 0.0;
+LuminanceArea *Adaptation::lumArea = nullptr;
+int Adaptation::lumAreaIndex = 0;
+float Adaptation::lumMin = java::Float::MAX_VALUE; // Note Numeric::HUGE_FLOAT_VALUE; will cause an issue here
+float Adaptation::lumMax = 0.0;
+ColorRgb (*Adaptation::patchRadianceEstimate)(Patch *) = nullptr;
 
 /**
 A-priori estimate of a patch's radiance
 */
 ColorRgb
 Adaptation::initRadianceEstimate(Patch *patch) {
-    ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
-    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
+    ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
+    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
     radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
@@ -49,7 +49,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
-    ColorRgb radiance = PatchRadianceEstimate(patch);
+    ColorRgb radiance = patchRadianceEstimate(patch);
     float brightness = radiance.luminance();
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
@@ -61,22 +61,22 @@ void
 Adaptation::patchComputeLogAreaLum(Patch *patch) {
     float brightness = Adaptation::patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
-    globalLogAreaLum += patch->area * java::Math::log(brightness);
+    logAreaLum += patch->area * java::Math::log(brightness);
 }
 
 void
 Adaptation::patchFillLumArea(Patch *patch) {
     float brightness = Adaptation::patchBrightnessEstimate(patch);
 
-    LuminanceArea &entry = globalLumArea[globalLumAreaIndex];
+    LuminanceArea &entry = lumArea[lumAreaIndex];
     entry.luminance = brightness;
     entry.area = patch->area;
 
-    globalLumMin = java::Math::min(globalLumMin, entry.luminance);
-    globalLumMax = java::Math::max(globalLumMax, entry.luminance);
+    lumMin = java::Math::min(lumMin, entry.luminance);
+    lumMax = java::Math::max(lumMax, entry.luminance);
 
-    globalLumAreaIndex++;
-    globalNumEntries++;
+    lumAreaIndex++;
+    numEntries++;
 }
 
 /**
@@ -119,28 +119,28 @@ Adaptation::estimateSceneAdaptation(
     const java::ArrayList<Patch *> *scenePatches,
     ToneMappingContext &toneMapOptions)
 {
-    PatchRadianceEstimate = patch_radiance;
+    patchRadianceEstimate = patch_radiance;
 
     switch ( toneMapOptions.staticAdaptationMethod ) {
         case ToneMapAdaptationMethod::TMA_NONE:
             break;
         case ToneMapAdaptationMethod::TMA_AVERAGE: {
             // Gibson's static adaptation after [TUMB1999b]
-            globalLogAreaLum = 0.0;
+            logAreaLum = 0.0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(globalLogAreaLum) / Statistics::instance().radiance.totalArea + 0.84f);
+            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(logAreaLum) / Statistics::instance().radiance.totalArea + 0.84f);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
             LuminanceArea *la = new LuminanceArea[Statistics::instance().reader.numberOfPatches];
 
-            globalLumArea = la;
-            globalLumAreaIndex = 0;
-            globalNumEntries = 0;
+            lumArea = la;
+            lumAreaIndex = 0;
+            numEntries = 0;
             for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
                 Adaptation::patchFillLumArea(scenePatches->get(i));
             }

@@ -14,8 +14,6 @@
 
 #ifdef RAYTRACING_ENABLED
 
-static constexpr int STRING_LENGTH = 2000;
-
  void
 RandomWalkRadianceMethod::appendRandomWalkStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {
@@ -152,7 +150,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScalarReflectance(const Patch *P) {
 
  ColorRgb *
 RandomWalkRadianceMethod::randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem) {
-    static ColorRgb Ed[MAX_BASIS_SIZE];
+    static ColorRgb Ed[GalerkinBasis::MAX_BASIS_SIZE];
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(Ed, elem->basis);
     Ed[0] = McradP::topLevelStochasticRadiosityElement(elem->patch)->Ed; // Emittance
     return Ed;

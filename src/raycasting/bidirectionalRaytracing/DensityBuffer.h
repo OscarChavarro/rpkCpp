@@ -10,11 +10,11 @@ Density estimation on screen
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "raycasting/bidirectionalRaytracing/DensityHitList.h"
 
-const int DHA_X_RES = 50;
-const int DHA_Y_RES = 50;  // Subdivide image plane for efficient hit searches
-
 class DensityBuffer {
   private:
+    static constexpr int DHA_X_RES = 50;
+    static constexpr int DHA_Y_RES = 50; // Subdivide image plane for efficient hit searches
+
     // A matching screen buffer is kept. This one will be filled in
     // by density estimation...
     ScreenBuffer *screenBuffer;

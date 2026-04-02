@@ -69,6 +69,28 @@ class GalerkinState {
     ToneMappingContext *toneMapOptions;
 
     GalerkinState();
+
+  private:
+    static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;
+    static constexpr GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod::JACOBI;
+    static constexpr float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6f;
+    static constexpr float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5f;
+    static constexpr bool DEFAULT_GAL_IMPORTANCE_DRIVEN = false;
+    static constexpr bool DEFAULT_GAL_CLUSTERED = true;
+    static constexpr bool DEFAULT_GAL_LAZY_LINKING = true;
+    static constexpr bool DEFAULT_GAL_AMBIENT_RADIANCE = false;
+    static constexpr CubatureDegree DEFAULT_GAL_RCV_CUBATURE_DEGREE = CubatureDegree::DEGREE_5;
+    static constexpr CubatureDegree DEFAULT_GAL_SRC_CUBATURE_DEGREE = CubatureDegree::DEGREE_4;
+    static constexpr GalerkinClusteringStrategy DEFAULT_GAL_CLUSTERING_STRATEGY = GalerkinClusteringStrategy::ISOTROPIC;
+    static constexpr GalerkinShaftCullMode DEFAULT_GAL_SHAFT_CULL_MODE = GalerkinShaftCullMode::DO_SHAFT_CULLING_FOR_REFINEMENT;
+    static constexpr GalerkinErrorNorm DEFAULT_GAL_ERROR_NORM = GalerkinErrorNorm::POWER_ERROR;
+    static constexpr GalerkinBasisType DEFAULT_GAL_BASIS_TYPE = GalerkinBasisType::GALERKIN_LINEAR;
+    static constexpr bool DEFAULT_GAL_CONSTANT_RADIANCE = false;
+    static constexpr bool DEFAULT_GAL_EXACT_VISIBILITY = true;
+    static constexpr bool DEFAULT_GAL_MULTI_RESOLUTION_VISIBILITY = false;
+    static constexpr int DEFAULT_GAL_SCRATCH_FRAME_BUFFER_SIDE_SIZE_IN_PIXELS = 200;
+    static constexpr ShaftCullStrategy DEFAULT_GAL_SHAFT_CULL_STRATEGY = ShaftCullStrategy::OVERLAP_OPEN;
+    static constexpr int DEFAULT_GAL_ITERATION_NOT_INITIALIZED = -1;
 };
 
 #endif

@@ -1,11 +1,6 @@
 #include "tonemap/ToneMappingContext.h"
 #include "tonemap/ToneMap.h"
 
-static constexpr float DEFAULT_GAMMA = 1.7f;
-static constexpr float DEFAULT_TM_LWA = 10.0f;
-static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0f;
-static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0f;
-
 ToneMappingContext::ToneMappingContext():
     brightness_adjust(),
     pow_bright_adjust(),

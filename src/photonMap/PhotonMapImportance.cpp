@@ -20,7 +20,7 @@ PhotonMapImportance::hasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
     if ( node->m_hit.getPatch()->material ) {
         const PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->material->getBsdf();
         return !PhotonMap::zeroAlbedo(bsdf, &node->m_hit,
-                           BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+                           BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
     } else {
         return false;
     }
@@ -28,7 +28,7 @@ PhotonMapImportance::hasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
 
 bool
 PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node) {
-    return node->m_usedComponents & (BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+    return node->m_usedComponents & (BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
 }
 
 bool
@@ -61,7 +61,7 @@ PhotonMapImportance::tracePotentialPath(
     const SamplerConfig &scfg = photonMapConfig.eyeConfig;
 
     // Eye node
-    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BSDF_ALL_COMPONENTS);
+    path = scfg.traceNode(camera, sceneVoxelGrid, sceneBackground, path, drand48(), drand48(), BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     if ( path == nullptr ) {
         return false;
     }
@@ -95,7 +95,7 @@ PhotonMapImportance::tracePotentialPath(
             node,
             x1,
             x2,
-            static_cast<char>(indirectImportance ? BSDF_SPECULAR_COMPONENT : BSDF_ALL_COMPONENTS)
+            static_cast<char>(indirectImportance ? BsdfComponentInfo::BSDF_SPECULAR_COMPONENT : BsdfComponentInfo::BSDF_ALL_COMPONENTS)
             ) ) {
         // Successful trace
         const SimpleRaytracingPathNode *prev = node->previous();

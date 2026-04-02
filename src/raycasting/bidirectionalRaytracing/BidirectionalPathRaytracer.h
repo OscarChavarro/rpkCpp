@@ -13,6 +13,7 @@ class LightList;
 
 class BidirectionalPathRaytracer final : public RayTracer {
   private:
+    static constexpr int STRINGS_SIZE = 300;
     static char name[];
     BidirectionalPathTracingState &bidirectionalPathState;
     LightList *&lightList;

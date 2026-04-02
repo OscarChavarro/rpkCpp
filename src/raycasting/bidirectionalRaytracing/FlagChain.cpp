@@ -398,7 +398,7 @@ ContribHandler::getFlags(const char *regExp, int *pos, char *flags) {
                                    BRDF_SPECULAR_COMPONENT);
                         break;
                     default:
-                        *flags |= BSDF_ALL_COMPONENTS;
+                        *flags |= BsdfComponentInfo::BSDF_ALL_COMPONENTS;
                         break;
                 }
                 break;
@@ -408,7 +408,7 @@ ContribHandler::getFlags(const char *regExp, int *pos, char *flags) {
                     return false;
                 }
                 p++;
-                *flags = BSDF_ALL_COMPONENTS;
+                *flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS;
                 break;
             case 'E':
                 if ( regExp[p] != 'X' ) {
@@ -416,7 +416,7 @@ ContribHandler::getFlags(const char *regExp, int *pos, char *flags) {
                     return false;
                 }
                 p++;
-                *flags = BSDF_ALL_COMPONENTS;
+                *flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS;
                 break;
             case '|':
                 break;  // Do Nothing because we don't support other operators

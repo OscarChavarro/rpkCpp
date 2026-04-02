@@ -17,16 +17,16 @@
     #include "app/Raytrace.h"
 #endif
 
-static BatchOptions globalBatchOptions;
+BatchOptions Batch::batchOptions;
 
 const BatchOptions *
 Batch::batchGetOptions() {
-    return &globalBatchOptions;
+    return &batchOptions;
 }
 
 void
 Batch::generalParseOptions(int *argc, char **argv, OptionsType &optionTypes) {
-    CommandLine::batchParseOptions(argc, argv, &globalBatchOptions, optionTypes);
+    CommandLine::batchParseOptions(argc, argv, &batchOptions, optionTypes);
 }
 
 #ifdef RAYTRACING_ENABLED
@@ -165,7 +165,7 @@ Batch::batchExecuteRadianceSimulation(
 
         bool done = false;
         for ( int iterationNumber = 0;
-              iterationNumber < globalBatchOptions.iterations && !done;
+              iterationNumber < batchOptions.iterations && !done;
               iterationNumber++ ) {
             java::System::out.printf("-----------------------------------\n"
                "radiance iteration %04d\n"
@@ -187,13 +187,13 @@ Batch::batchExecuteRadianceSimulation(
 
             wasted_start = java::System::nanoTime();
 
-            if ( (!(iterationNumber % globalBatchOptions.saveModulo)) && *globalBatchOptions.radianceImageFileNameFormat ) {
-                int n = static_cast<int>(strlen(globalBatchOptions.radianceImageFileNameFormat)) + 1;
+            if ( (!(iterationNumber % batchOptions.saveModulo)) && *batchOptions.radianceImageFileNameFormat ) {
+                int n = static_cast<int>(strlen(batchOptions.radianceImageFileNameFormat)) + 1;
                 char *fileName = new char[n];
                 java::Formatter::format(
                     fileName,
                     n,
-                    globalBatchOptions.radianceImageFileNameFormat,
+                    batchOptions.radianceImageFileNameFormat,
                     iterationNumber);
                 Batch::batchProcessFile(
                     fileName,
@@ -205,13 +205,13 @@ Batch::batchExecuteRadianceSimulation(
                 delete[] fileName;
             }
 
-            if ( *globalBatchOptions.radianceModelFileNameFormat ) {
-                int n = static_cast<int>(strlen(globalBatchOptions.radianceModelFileNameFormat)) + 1;
+            if ( *batchOptions.radianceModelFileNameFormat ) {
+                int n = static_cast<int>(strlen(batchOptions.radianceModelFileNameFormat)) + 1;
                 char *fileName = new char[n];
                 java::Formatter::format(
                     fileName,
                     n,
-                    globalBatchOptions.radianceModelFileNameFormat,
+                    batchOptions.radianceModelFileNameFormat,
                     iterationNumber);
                 Batch::batchProcessFile(
                     fileName,
@@ -233,7 +233,7 @@ Batch::batchExecuteRadianceSimulation(
         java::System::out.printf("(No world-space radiance computations are being done)\n");
     }
 
-    if ( globalBatchOptions.timings ) {
+    if ( batchOptions.timings ) {
         java::System::out.printf("Radiance total time %g secs.\n",
                 static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0) - wastedSecs);
     }
@@ -252,13 +252,13 @@ Batch::batchExecuteRadianceSimulation(
                 rayTracer,
                 renderOptions);
 
-            if ( globalBatchOptions.timings ) {
+            if ( batchOptions.timings ) {
                 java::System::out.printf("Raytracing total time %g secs.\n",
                         static_cast<float>(static_cast<double>(java::System::nanoTime() - startTime) / 1000000000.0));
             }
 
             Batch::batchProcessFile(
-                globalBatchOptions.raytracingImageFileName,
+                batchOptions.raytracingImageFileName,
                 Batch::batchRayTraceSaveImage,
                 scene,
                 radianceMethod,

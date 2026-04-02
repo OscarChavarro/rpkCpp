@@ -7,8 +7,6 @@
 #include "common/dataStructures/KDQuery.h"
 #include "common/dataStructures/KDTree.h"
 
-const float KD_MAX_RADIUS = 1e10;
-
 // KD Tree with one data element per node
 float *KDTree::distances = nullptr;
 

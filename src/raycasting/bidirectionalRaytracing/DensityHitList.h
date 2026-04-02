@@ -5,6 +5,7 @@
 
 class DensityHitList {
   protected:
+    static constexpr int DHL_ARRAY_SIZE = 20;
     DensityHitArray *first;
     DensityHitArray *last;
     int numHits;

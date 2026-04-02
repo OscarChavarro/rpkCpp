@@ -63,7 +63,7 @@ GalerkinBasis &
 BasisQuadGalerkin::instance() {
     static GalerkinBasis quadBasis = {
         "orthonormal basis for the unit square", // Description
-        MAX_BASIS_SIZE, // Size
+        GalerkinBasis::MAX_BASIS_SIZE, // Size
         {
             BasisQuadGalerkin::qg0,
             BasisQuadGalerkin::qg1,

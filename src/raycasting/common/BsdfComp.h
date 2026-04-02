@@ -7,7 +7,7 @@ Some bsdf component stuff.
 
 class BsdfComp {
   public:
-    ColorRgb comp[BSDF_COMPONENTS];
+    ColorRgb comp[BsdfComponentInfo::BSDF_COMPONENTS];
 
     BsdfComp();
     ColorRgb &operator[](int index);
@@ -30,8 +30,8 @@ BsdfComp::operator ColorRgb *() {
 }
 
 inline void
-BsdfComp::Clear(const char flags = BSDF_ALL_COMPONENTS) {
-    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
+BsdfComp::Clear(const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) {
+    for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
             comp[i].clear();
         }
@@ -39,8 +39,8 @@ BsdfComp::Clear(const char flags = BSDF_ALL_COMPONENTS) {
 }
 
 inline void
-BsdfComp::Fill(const ColorRgb col, const char flags = BSDF_ALL_COMPONENTS) {
-    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
+BsdfComp::Fill(const ColorRgb col, const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) {
+    for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
             comp[i] = col;
         }
@@ -48,12 +48,12 @@ BsdfComp::Fill(const ColorRgb col, const char flags = BSDF_ALL_COMPONENTS) {
 }
 
 inline ColorRgb
-BsdfComp::Sum(const char flags = BSDF_ALL_COMPONENTS) const {
+BsdfComp::Sum(const char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS) const {
     ColorRgb result;
 
     result.clear();
 
-    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
+    for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         if ( flags & (BsdfComponentFlag::bsdfIndexToComp(i)) ) {
             result.add(result, comp[i]);
         }

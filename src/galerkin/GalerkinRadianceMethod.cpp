@@ -23,8 +23,6 @@ Galerkin radiosity, with the following variants:
 #include "galerkin/processing/ScratchVisibilityStrategy.h"
 #include "galerkin/processing/ShootingStrategy.h"
 
-static constexpr int STRING_LENGTH = 2000;
-
 GalerkinState GalerkinRadianceMethod::galerkinState;
 java::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
 int GalerkinRadianceMethod::numberOfWrites = 0;

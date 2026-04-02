@@ -54,9 +54,6 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
 #include "common/dataStructures/KDTreeNode.h"
 #include "common/dataStructures/BalancedKDTreeNode.h"
 
-// Not HUGE_DOUBLE_VALUE, since we need to square it
-extern const float KD_MAX_RADIUS;
-
 class KDQuery;
 
 class KDTree {
@@ -93,6 +90,9 @@ class KDTree {
     void balancedQueryRec(int node, KDQuery &queryData); // Balanced part
 
   public:
+    // Not HUGE_DOUBLE_VALUE, since we need to square it.
+    static constexpr float KD_MAX_RADIUS = 1e10f;
+
     explicit KDTree(int dataSize, bool CopyData = true);
     virtual ~KDTree();
 
@@ -106,7 +106,7 @@ class KDTree {
         int N,
         void *results,
         float *inDistances = nullptr,
-        float radius = KD_MAX_RADIUS,
+        float radius = KDTree::KD_MAX_RADIUS,
         short excludeFlags = 0);
 
     void

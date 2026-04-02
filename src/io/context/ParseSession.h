@@ -41,10 +41,10 @@ class ParseSession {
 
     // Transitional aliases to keep current code building while the call sites
     // migrate to explicit sub-state access.
-    using EntityNamesArray = char[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
+    using EntityNamesArray = char[TOTAL_NUMBER_OF_ENTITIES][EntityContextInfo::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     using ErrorMessagesArray = const char *[ErrorCodeContext::MGF_NUMBER_OF_ERRORS];
     using HandlerArray = EntityHandler *[TOTAL_NUMBER_OF_ENTITIES];
-    using GeometryStackArray = java::ArrayList<Geometry *> *[MAXIMUM_GEOMETRY_STACK_DEPTH];
+    using GeometryStackArray = java::ArrayList<Geometry *> *[GeometryBuildState::MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     RadianceMethod *&radianceMethod;
     bool &singleSided;

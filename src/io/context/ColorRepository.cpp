@@ -5,7 +5,7 @@ ColorRepository::ColorRepository():
     unNamedColorContext(new ColorContext()),
     currentColor(unNamedColorContext)
 {
-    *unNamedColorContext = DEFAULT_COLOR_CONTEXT;
+    *unNamedColorContext = ColorContext::DEFAULT_COLOR_CONTEXT;
 }
 
 ColorRepository::~ColorRepository() {
@@ -22,7 +22,7 @@ ColorRepository::~ColorRepository() {
 
 void
 ColorRepository::reset() {
-    *unNamedColorContext = DEFAULT_COLOR_CONTEXT;
+    *unNamedColorContext = ColorContext::DEFAULT_COLOR_CONTEXT;
     currentColor = unNamedColorContext;
     colorLookUpTable->lookUpDone();
 }

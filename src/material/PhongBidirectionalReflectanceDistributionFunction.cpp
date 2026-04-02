@@ -14,7 +14,7 @@ where:
 - ks: specular coefficient of the BRDF
 - n: specular power
     n small : glossy reflectance
-    n large : specular reflectance (>= PHONG_LOWEST_SPECULAR_EXP)
+    n large : specular reflectance (>= Xxdf::PHONG_LOWEST_SPECULAR_EXP)
 - a: angle between the out direction and the perfect mirror direction for in
 
 The variables Kd and Ks which are stored in in the PHONG_BRDF type are
@@ -40,7 +40,7 @@ The different sampling functions are commented separately.
 
 bool
 PhongBidirectionalReflectanceDistributionFunction::isSpecular() const {
-    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+    return Ns >= Xxdf::PHONG_LOWEST_SPECULAR_EXP;
 }
 
 PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectanceDistributionFunction(

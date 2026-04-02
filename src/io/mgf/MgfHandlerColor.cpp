@@ -23,7 +23,7 @@ MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseSession *contex
             }
             if ( ac == 1 ) {
                 // Set unnamed color context
-                *(context->unNamedColorContext) = DEFAULT_COLOR_CONTEXT;
+                *(context->unNamedColorContext) = ColorContext::DEFAULT_COLOR_CONTEXT;
                 context->currentColor = context->unNamedColorContext;
                 return ErrorCodeContext::MGF_OK;
             }
@@ -61,7 +61,7 @@ MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseSession *contex
             i = context->currentColor->clock;
             if ( ac == 3 ) {
                 // Use default template
-                *context->currentColor = DEFAULT_COLOR_CONTEXT;
+                *context->currentColor = ColorContext::DEFAULT_COLOR_CONTEXT;
                 context->currentColor->clock = i + 1;
                 return ErrorCodeContext::MGF_OK;
             }

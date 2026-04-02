@@ -52,7 +52,7 @@ EyeSampler::sample(
     newNode->m_outBsdf = nullptr;
 
     // Component propagation
-    newNode->m_accUsedComponents = NO_COMPONENTS; // Eye had no accumulated comps.
+    newNode->m_accUsedComponents = XxdfComponentFlagInfo::NO_COMPONENTS; // Eye had no accumulated comps.
 
     newNode->accumulatedRussianRouletteFactors = 1.0; // No russian roulette
 

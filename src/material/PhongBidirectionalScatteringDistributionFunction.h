@@ -21,6 +21,7 @@ functions that relate to brdf or btdf like reflectance etc.
 
 class PhongBidirectionalScatteringDistributionFunction {
   private:
+    static constexpr int TEXTURED_COMPONENT = BRDF_DIFFUSE_COMPONENT;
     PhongBidirectionalReflectanceDistributionFunction *brdf;
     PhongBidirectionalTransmittanceDistributionFunction *btdf;
     Texture *texture;

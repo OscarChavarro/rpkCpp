@@ -248,7 +248,7 @@ void
 BinaryModelWriter::writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext) {
     vsdk::PersistenceElement::writeInt32LE(output, colorContext->clock);
     vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->flags);
-    for ( int i = 0; i < NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
+    for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
         vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->straightSamples[i]);
     }
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(colorContext->spectralStraightSum));
@@ -272,7 +272,7 @@ BinaryModelWriter::writeReaderContextRecord(
     vsdk::PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(readerContext->inputLine),
-        MGF_MAXIMUM_INPUT_LINE_LENGTH);
+        ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH);
     vsdk::PersistenceElement::writeInt32LE(output, readerContext->lineNumber);
     vsdk::PersistenceElement::writeByte(output, static_cast<unsigned char>(readerContext->isPipe));
 
@@ -290,7 +290,7 @@ BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const T
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
-    for ( int i = 0; i < TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
+    for ( int i = 0; i < TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
         vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].i);
         vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].n);
         vsdk::PersistenceElement::writeBytes(

@@ -19,8 +19,6 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-static constexpr int STRING_LENGTH = 2000;
-
 void
 StochasticJacobiRadianceMethod::appendStochasticStatsText(char *buffer, int *offset, const char *format, ...) {
     if ( *offset >= STRING_LENGTH - 1 ) {

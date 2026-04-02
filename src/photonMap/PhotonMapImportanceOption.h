@@ -2,6 +2,10 @@
 #define __PHOTON_MAP_IMPORTANCE_OPTION__
 
 using PhotonMapImportanceOption = int;
-constexpr PhotonMapImportanceOption USE_IMPORTANCE = 0;
+
+class PhotonMapImportanceOptions final {
+  public:
+    static constexpr PhotonMapImportanceOption USE_IMPORTANCE = 0;
+};
 
 #endif

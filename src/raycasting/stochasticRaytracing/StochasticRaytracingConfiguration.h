@@ -54,7 +54,7 @@ class StochasticRaytracingConfiguration {
     CScatterInfo siStorage;
 
     // Maximum 1 scattering block per component
-    CScatterInfo siOthers[BSDF_COMPONENTS];
+    CScatterInfo siOthers[BsdfComponentInfo::BSDF_COMPONENTS];
     int siOthersCount;
 
     StorageReadout initialReadout;

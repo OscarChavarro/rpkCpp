@@ -6,12 +6,12 @@
 
 class ToneMap;
 
-// Gamma correction table
-constexpr int GAMMA_TABLE_BITS = 12;
-constexpr int GAMMA_TABLE_SIZE = (1 << GAMMA_TABLE_BITS) + 1;
-
 class ToneMappingContext {
   public:
+    // Gamma correction table
+    static constexpr int GAMMA_TABLE_BITS = 12;
+    static constexpr int GAMMA_TABLE_SIZE = (1 << GAMMA_TABLE_BITS) + 1;
+
     // Fixed radiance rescaling before tone mapping
     float brightness_adjust; // Brightness adjustment factor
     float pow_bright_adjust; // pow(2, brightness_adjust)
@@ -39,6 +39,12 @@ class ToneMappingContext {
 
     ToneMappingContext();
     ~ToneMappingContext();
+
+  private:
+    static constexpr float DEFAULT_GAMMA = 1.7f;
+    static constexpr float DEFAULT_TM_LWA = 10.0f;
+    static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0f;
+    static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0f;
 };
 
 #endif

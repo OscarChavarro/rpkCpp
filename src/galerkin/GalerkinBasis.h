@@ -7,13 +7,14 @@ Higher order approximations for Galerkin radiosity
 
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinState.h"
-constexpr int MAX_BASIS_SIZE = 10;
 
 /**
 All bases are orthonormal on their standard domain
 */
 class GalerkinBasis {
   public:
+    static constexpr int MAX_BASIS_SIZE = 10;
+
     const char *description; // For debugging
     int size; // Number of basis functions
 

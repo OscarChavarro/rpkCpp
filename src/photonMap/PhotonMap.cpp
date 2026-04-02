@@ -105,9 +105,9 @@ PhotonMap::PhotonMap(
     m_grid = new SampleGrid2D(2, 4);
     m_sampleLastPos.set(Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE);
 
-    m_photons = new Photon *[MAXIMUM_RECON_PHOTONS];
-    m_distances = new float[MAXIMUM_RECON_PHOTONS];
-    m_cosines = new float[MAXIMUM_RECON_PHOTONS];
+    m_photons = new Photon *[PhotonMapState::MAXIMUM_RECON_PHOTONS];
+    m_distances = new float[PhotonMapState::MAXIMUM_RECON_PHOTONS];
+    m_cosines = new float[PhotonMapState::MAXIMUM_RECON_PHOTONS];
 
     m_nrpFound = 0;  // No valid photons in array
     m_cosinesOk = true;
@@ -387,7 +387,7 @@ PhotonMap::reconstruct(
     if ( bsdf != nullptr ) {
         diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit, BRDF_DIFFUSE_COMPONENT);
         // -- TODO Irradiance pre-computation for diffuse transmission
-        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit, BTDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit, BTDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
     }
 
     checkNBalance();
@@ -426,7 +426,7 @@ PhotonMap::reconstruct(
             eval.clear();
         } else {
             eval = bsdf->evaluate(
-                hit, inBsdf, outBsdf, &outDir, &dir, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT);
+                hit, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
         }
         ColorRgb power = m_photons[i]->power();
 
@@ -502,7 +502,7 @@ PhotonMap::sample(
         m_grid->init();
 
         // Find the nearest photons
-        m_nrpFound = doQuery(&position, m_sample_nrp, KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
+        m_nrpFound = doQuery(&position, m_sample_nrp, KDTree::KD_MAX_RADIUS, NO_IMPSAMP_PHOTON);
 
         double pr;
         double ps;

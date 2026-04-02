@@ -40,7 +40,7 @@ LinkingClusteredStrategy::createInitialLinks(
         K = new float[1];
         K[0] = 0.0;
     } else {
-        K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
         for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
             K[i] = 0.0;
         }

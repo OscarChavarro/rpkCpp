@@ -48,8 +48,8 @@ MgfHandlerObject::disposeCurrentSurfaceLists(ParseSession *context) {
 
 void
 MgfHandlerObject::pushCurrentGeometryList(ParseSession *context) {
-    if ( context->geometryStackHeadIndex >= MAXIMUM_GEOMETRY_STACK_DEPTH ) {
-        MgfDefinitions::doError("Objects are nested too deep for this program. Recompile with larger MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
+    if ( context->geometryStackHeadIndex >= GeometryBuildState::MAXIMUM_GEOMETRY_STACK_DEPTH ) {
+        MgfDefinitions::doError("Objects are nested too deep for this program. Recompile with larger GeometryBuildState::MAXIMUM_GEOMETRY_STACK_DEPTH constant in read mgf", context);
         return;
     } else {
         context->geometryStack[context->geometryStackHeadIndex] = context->currentGeometryList;

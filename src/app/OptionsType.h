@@ -6,6 +6,7 @@ Command line options type registry
 #define __OPTIONS_TYPE__
 
 #include "app/CommandLineOptions.h"
+#include "app/EnumDesc.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 
@@ -24,6 +25,8 @@ class OptionsType final {
     CommandLineOptions xyType;
 
   private:
+    static EnumDesc boolTable[5];
+
     int dummyInt;
     char *dummyString;
     int dummyTrue;

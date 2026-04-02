@@ -18,8 +18,6 @@
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.h"
 
-static constexpr int STRINGS_SIZE = 300;
-
 char BidirectionalPathRaytracer::name[27] = "Bidirectional Path Tracing";
 
 BidirectionalPathRaytracer::BidirectionalPathRaytracer(
@@ -364,7 +362,7 @@ BidirectionalPathRaytracer::handlePathX0(
                 eyeEndNode->m_bsdfEval = endingEdf->phongEdfEval(
                     &eyeEndNode->m_hit,
                     &eyeEndNode->m_inDirF,
-                    ALL_COMPONENTS,
+                    XxdfComponentFlagInfo::ALL_COMPONENTS,
                     nullptr);
             }
             eyeEndNode->m_bsdfComp.Fill(eyeEndNode->m_bsdfEval,
@@ -514,7 +512,7 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
             SamplerConfig::pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE | FILL_OTHER_PDF,
-                            BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &path->m_dirEL);
+                            BsdfComponentInfo::BSDF_ALL_COMPONENTS, BsdfComponentInfo::BSDF_ALL_COMPONENTS, &path->m_dirEL);
 
     path->m_dirLE.scaledCopy(-1, path->m_dirEL);
 

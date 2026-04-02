@@ -66,7 +66,7 @@ GalerkinBasis &
 BasisTriGalerkin::instance() {
     static GalerkinBasis triBasis = {
         "orthonormal basis for the standard triangle", // Description
-        MAX_BASIS_SIZE, // Size
+        GalerkinBasis::MAX_BASIS_SIZE, // Size
         {
             BasisTriGalerkin::tg0,
             BasisTriGalerkin::tg1,

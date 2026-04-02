@@ -142,9 +142,9 @@ Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
     int z1out = 0;
     Polygon p2{};
 
-    if ( p1->n + 6 > MAXIMUM_SIDES_PER_POLYGON ) {
+    if ( p1->n + 6 > PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON ) {
         java::System::err.printf("polyClipToBox: too many vertices: %d (max=%d-6)\n",
-                p1->n, MAXIMUM_SIDES_PER_POLYGON);
+                p1->n, PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON);
         java::System::exit(1);
     }
 
@@ -214,7 +214,7 @@ Poly::clipToBox(Polygon *p1, const PolygonBox *box) {
 
     // If result ended up in p2 then copy it to p1
     if ( p == &p2 ) {
-        int n = static_cast<int>(sizeof(Polygon) - (MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
+        int n = static_cast<int>(sizeof(Polygon) - (PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON - p2.n) * sizeof(PolygonVertex));
         memcpy(p1, &p2, n);
     }
     return POLY_CLIP_PARTIAL;

@@ -18,6 +18,9 @@ class ObjectHierarchyState {
 
     ObjectHierarchyState(const ObjectHierarchyState &) = delete;
     ObjectHierarchyState &operator=(const ObjectHierarchyState &) = delete;
+
+  private:
+    static constexpr int OBJECT_NAMES_ALLOC_INCREMENT = 16;
 };
 
 #endif

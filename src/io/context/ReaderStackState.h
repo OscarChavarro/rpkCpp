@@ -13,7 +13,7 @@ constexpr int TOTAL_MGF_HANDLER_TYPES = static_cast<int>(HandlerType::HANDLE_OBJ
 
 class ReaderStackState {
   public:
-    char entityNames[TOTAL_NUMBER_OF_ENTITIES][MGF_MAXIMUM_ENTITY_NAME_LENGTH];
+    char entityNames[TOTAL_NUMBER_OF_ENTITIES][EntityContextInfo::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[ErrorCodeContext::MGF_NUMBER_OF_ERRORS];
     LookUpTable entityLookUpTable;
     int nextFileContextId;

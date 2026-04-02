@@ -206,7 +206,7 @@ BinaryModelReader::read(const char *fileName) {
             ColorContext *colorContext = new ColorContext();
             colorContext->clock = BinaryModelReaderSupport::readInt32LE(input);
             colorContext->flags = BinaryModelReaderSupport::readInt16LE(input);
-            for ( int j = 0; j < NUMBER_OF_SPECTRAL_SAMPLES; j++ ) {
+            for ( int j = 0; j < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; j++ ) {
                 colorContext->straightSamples[j] = BinaryModelReaderSupport::readInt16LE(input);
             }
             colorContext->spectralStraightSum = static_cast<long>(BinaryModelReaderSupport::readInt64LE(input));
@@ -234,8 +234,8 @@ BinaryModelReader::read(const char *fileName) {
             BinaryModelReaderSupport::readBytes(
                 input,
                 reinterpret_cast<unsigned char *>(readerContext->inputLine),
-                MGF_MAXIMUM_INPUT_LINE_LENGTH);
-            readerContext->inputLine[MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
+                ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH);
+            readerContext->inputLine[ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1] = '\0';
             readerContext->lineNumber = BinaryModelReaderSupport::readInt32LE(input);
             readerContext->isPipe = static_cast<char>(BinaryModelReaderSupport::readByte(input));
             readerContextPrevIndex.set(static_cast<long int>(i), BinaryModelReaderSupport::readInt32LE(input));
@@ -259,7 +259,7 @@ BinaryModelReader::read(const char *fileName) {
             transformArray->startingPosition.lineNumber = BinaryModelReaderSupport::readInt32LE(input);
             transformArray->startingPosition.offset = static_cast<long>(BinaryModelReaderSupport::readInt64LE(input));
             transformArray->numberOfDimensions = BinaryModelReaderSupport::readInt32LE(input);
-            for ( int j = 0; j < TRANSFORM_MAXIMUM_DIMENSIONS; j++ ) {
+            for ( int j = 0; j < TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS; j++ ) {
                 transformArray->transformArguments[j].i = BinaryModelReaderSupport::readInt16LE(input);
                 transformArray->transformArguments[j].n = BinaryModelReaderSupport::readInt16LE(input);
                 BinaryModelReaderSupport::readBytes(

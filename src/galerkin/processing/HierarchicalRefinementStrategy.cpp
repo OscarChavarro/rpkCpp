@@ -507,7 +507,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = static_cast<GalerkinElement *>(sourceElement->regularSubElements[i]);
         Interaction subInteraction{};
-        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
 
         if ( hierarchicRefinementCreateSubdivisionLink(
                 scene,
@@ -549,7 +549,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->regularSubElements[i]);
-        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
 
         if ( hierarchicRefinementCreateSubdivisionLink(
                 scene,
@@ -592,7 +592,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
           i++ ) {
         GalerkinElement *childElement = static_cast<GalerkinElement *>(sourceElement->irregularSubElements->get(i));
         Interaction subInteraction{};
-        subInteraction.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
 
         if ( !childElement->isCluster() ) {
             const Patch *thePatch = childElement->patch;
@@ -645,7 +645,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
           i++ ) {
         GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->irregularSubElements->get(i));
         Interaction subInteraction{};
-        subInteraction.K = new float [MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+        subInteraction.K = new float [GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
 
         if ( !child->isCluster() ) {
             const Patch *thePatch = child->patch;

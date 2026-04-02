@@ -46,7 +46,7 @@ PhotonMapState::setDefaults() {
     doImportanceMap = true;
     iPathsPerIteration = 10000;
 
-    importanceOption = USE_IMPORTANCE;
+    importanceOption = PhotonMapImportanceOptions::USE_IMPORTANCE;
 
     cImpScale = 25.0;
     gImpScale = 1.0;

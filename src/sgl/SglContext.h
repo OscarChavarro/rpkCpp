@@ -18,7 +18,7 @@ class SglContext {
     static const Matrix4x4 &identityMatrix();
 
   public:
-    Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack
+    Matrix4x4 transformStack[SglConstants::SGL_TRANSFORM_STACK_SIZE]; // Transform stack
     Matrix4x4 *currentTransform;
     bool clipping; // Whether to do clipping or not
     int vp_x; // Viewport

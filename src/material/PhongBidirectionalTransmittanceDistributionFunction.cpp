@@ -19,7 +19,7 @@ normal : leaving from patch, on the incoming side.
 
 bool
 PhongBidirectionalTransmittanceDistributionFunction::isSpecular() const {
-    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+    return Ns >= Xxdf::PHONG_LOWEST_SPECULAR_EXP;
 }
 
 PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmittanceDistributionFunction(

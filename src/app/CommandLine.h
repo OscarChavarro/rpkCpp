@@ -2,7 +2,12 @@
 #define __COMMAND_LINE_OPTIONS__
 
 #include "raycasting/common/RayTracer.h"
+#include "common/RenderOptions.h"
 #include "app/BatchOptions.h"
+#include "app/BackgroundMode.h"
+#include "app/EnumDesc.h"
+#include "app/CommandLineOptions.h"
+
 class ToneMappingContext;
 class RayMatterState;
 class BidirectionalPathTracingState;
@@ -31,7 +36,7 @@ class CommandLine final {
             int *conicSubDivisions,
             int *imageOutputWidth,
             int *imageOutputHeight,
-            bool *glutDebugEnabled,
+            bool *glutDebugEnabledOut,
             OptionsType &optionTypes);
     static void stochasticRelaxationRadiosityParseOptions(
             int *argc,
@@ -67,13 +72,13 @@ class CommandLine final {
     static void toneMapParseOptions(
             int *argc,
             char **argv,
-            char *toneMapName,
-            ToneMappingContext &toneMapOptions,
+            char *toneMapNameOut,
+            ToneMappingContext &toneMapOptionsContext,
             OptionsType &optionTypes);
     static void radianceMethodParseOptions(
             int *argc,
             char **argv,
-            char *radianceMethodsString,
+            char *radianceMethodsStringOut,
             OptionsType &optionTypes);
     static void renderParseOptions(
             int *argc,
@@ -88,8 +93,8 @@ class CommandLine final {
     static void rayTracingParseOptions(
             int *argc,
             char **argv,
-            char raytracingMethodsString[],
-            char *rayTracerName,
+            char raytracingMethodsStringOut[],
+            char *rayTracerNameOut,
             OptionsType &optionTypes);
     static void galerkinParseOptions(int *argc, char **argv, OptionsType &optionTypes);
     static void mainForceOneSidedOption(void *value);
@@ -120,6 +125,77 @@ class CommandLine final {
     static void mainRayTracingOption(void *value);
 
   private:
+    static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
+    static constexpr bool DEFAULT_FORCE_ONE_SIDED = true;
+    static const Vector3D DEFAULT_CAMERA_EYE_POSITION;
+    static const Vector3D DEFAULT_CAMERA_LOOK_POSITION;
+    static const Vector3D DEFAULT_CAMERA_UP_DIRECTION;
+    static const ColorRgb DEFAULT_BACKGROUND_COLOR;
+    static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
+    static constexpr int TONE_MAPPING_METHODS_STRING_LENGTH = 1000;
+
+    static int numberOfQuarterCircleDivisions;
+    static int fileOptionsForceOneSidedSurfaces;
+    static int yesValue;
+    static int noValue;
+    static int outputImageWidth;
+    static int outputImageHeight;
+    static int glutDebugEnabled;
+    static Camera cameraState;
+    static BackgroundMode backgroundMode;
+    static ColorRgb backgroundColor;
+    static int trueValue;
+    static int falseValue;
+
+    static char toneMappingMethodsString[TONE_MAPPING_METHODS_STRING_LENGTH];
+    static float redChromaticity[2];
+    static float greenChromaticity[2];
+    static float blueChromaticity[2];
+    static float whiteChromaticity[2];
+    static char *toneMapName;
+    static ToneMappingContext *toneMapOptions;
+    static char *radianceMethodsString;
+    static RenderOptions renderOptionsState;
+    static ColorRgb outlineColor;
+    static BatchOptions batchOptionsState;
+
+#ifdef RAYTRACING_ENABLED
+    static EnumDesc approximateValues[];
+    static CommandLineOptions approximationTypeOption;
+
+    static EnumDesc clusteringValues[];
+    static CommandLineOptions clusteringTypeOption;
+
+    static EnumDesc sequenceValues[];
+    static CommandLineOptions sequenceTypeOption;
+
+    static EnumDesc estimatorTypeValues[];
+    static CommandLineOptions estimatorTypeOption;
+
+    static EnumDesc estimatorKindValues[];
+    static CommandLineOptions estimatorKindTypeOption;
+
+    static EnumDesc showWhatValues[];
+    static CommandLineOptions showWhatTypeOption;
+
+    static EnumDesc rayMatterPixelFilterValues[];
+    static CommandLineOptions rayMatterPixelFilterTypeOption;
+
+    static EnumDesc rayTracingRadianceModeValues[];
+    static CommandLineOptions rayTracingRadianceModeTypeOption;
+
+    static EnumDesc rayTracingLightModeValues[];
+    static CommandLineOptions rayTracingLightModeTypeOption;
+
+    static EnumDesc rayTracingSamplingModeValues[];
+    static CommandLineOptions rayTracingSamplingModeTypeOption;
+
+    static CommandLineOptions regExpStringType;
+
+    static char *raytracingMethodsString;
+    static char *rayTracerName;
+#endif
+
     static bool commandLineParseFloat(const char *text, float *value);
     static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
     static void commandLineParseBackgroundOption(int *argc, char **argv);

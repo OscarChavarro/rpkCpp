@@ -11,7 +11,7 @@ ToneMap::~ToneMap() {
 
 int
 ToneMap::gammaTableEntry(float x) {
-    return static_cast<int>(x * static_cast<float>(1 << GAMMA_TABLE_BITS));
+    return static_cast<int>(x * static_cast<float>(1 << ToneMappingContext::GAMMA_TABLE_BITS));
 }
 
 void
@@ -44,9 +44,9 @@ ToneMap::recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, doub
     if ( gamma <= Numeric::EPSILON ) {
         gamma = 1.0;
     }
-    for ( int i = 0; i <= (1 << GAMMA_TABLE_BITS); i++ ) {
+    for ( int i = 0; i <= (1 << ToneMappingContext::GAMMA_TABLE_BITS); i++ ) {
         toneMapOptions.gammaTab[index][i] =
-            static_cast<float>(java::Math::pow(static_cast<double>(i) / static_cast<double>(1 << GAMMA_TABLE_BITS),
+            static_cast<float>(java::Math::pow(static_cast<double>(i) / static_cast<double>(1 << ToneMappingContext::GAMMA_TABLE_BITS),
             1.0 / gamma));
     }
 }

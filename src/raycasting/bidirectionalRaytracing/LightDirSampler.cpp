@@ -53,7 +53,7 @@ LightDirSampler::sample(
     thisNode->m_bsdfComp.Fill(thisNode->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
 
     // Component propagation
-    thisNode->m_usedComponents = NO_COMPONENTS; // the light...
+    thisNode->m_usedComponents = XxdfComponentFlagInfo::NO_COMPONENTS; // the light...
     newNode->m_accUsedComponents = static_cast<char>(
         thisNode->m_accUsedComponents | thisNode->m_usedComponents);
 

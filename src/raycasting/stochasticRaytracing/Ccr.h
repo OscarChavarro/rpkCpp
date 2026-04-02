@@ -19,6 +19,10 @@ class Ccr final {
         const java::ArrayList<Patch *> *scenePatches);
 
   private:
+    static constexpr int NUMBER_OF_INTERVALS = 10;
+    static ColorRgb *(*getRadianceCallback)(const StochasticRadiosityElement *);
+    static ColorRgb (*getScalingCallback)(StochasticRadiosityElement *);
+
     static void initialControlRadiosityRecursive(
         const StochasticRadiosityElement *element,
         ColorRgb *minRad,
@@ -44,8 +48,8 @@ class Ccr final {
     static void refineControlRadiosityRecursive(
         StochasticRadiosityElement *element,
         ColorRgb *colorOne,
-        ColorRgb rad[11],
-        ColorRgb f[11]);
+        ColorRgb rad[NUMBER_OF_INTERVALS + 1],
+        ColorRgb f[NUMBER_OF_INTERVALS + 1]);
     static void refineControlRadiosity(
         ColorRgb *minRad,
         ColorRgb *maxRad,

@@ -12,8 +12,6 @@
 #include "io/mgf/MgfHandlerObject.h"
 #include "io/mgf/MgfHandlerTransform.h"
 
-static constexpr int MAXIMUM_FACE_VERTICES = 100;
-
 long
 MgfHandlerGeometry::transformXid(const TransformStackContext *xf) {
     return xf == nullptr ? 0L : xf->xid;

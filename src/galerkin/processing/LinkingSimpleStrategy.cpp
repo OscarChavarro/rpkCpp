@@ -70,7 +70,7 @@ LinkingSimpleStrategy::createInitialLink(
     }
 
     Interaction link{};
-    link.K = new float[MAX_BASIS_SIZE * MAX_BASIS_SIZE];
+    link.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
     link.receiverElement = rcv;
     link.sourceElement = src;
 

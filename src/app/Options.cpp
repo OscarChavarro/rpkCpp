@@ -13,31 +13,31 @@ Command line options and defaults
 #include "common/ColorRgb.h"
 #include "app/Options.h"
 
-static int *globalArgumentCount;
-static char **globalArguments = nullptr;
-static int globalCurrentArgumentIndex = 0;
-static java::ArrayList<char *> *globalStringsToDelete = new java::ArrayList<char *>();
-static java::ArrayList<int *> *globalStringLengthsToDelete = new java::ArrayList<int *>();
+int *Options::argumentCount;
+char **Options::arguments = nullptr;
+int Options::currentArgumentIndex = 0;
+java::ArrayList<char *> *Options::stringsToDelete = new java::ArrayList<char *>();
+java::ArrayList<int *> *Options::stringLengthsToDelete = new java::ArrayList<int *>();
 
 /**
-Initializes the global variables above
+Initializes the class static parsing state
 */
 void
 Options::optionsInitArguments(int *argc, char **argv) {
-    globalArgumentCount = argc;
-    globalArguments = argv;
-    globalCurrentArgumentIndex = 0;
+    argumentCount = argc;
+    arguments = argv;
+    currentArgumentIndex = 0;
 }
 
 const char *
 Options::optionsCurrentArgumentValue() {
-    if ( globalArguments == nullptr || globalArgumentCount == nullptr ) {
+    if ( arguments == nullptr || argumentCount == nullptr ) {
         return nullptr;
     }
-    if ( globalCurrentArgumentIndex < 0 || globalCurrentArgumentIndex >= *globalArgumentCount ) {
+    if ( currentArgumentIndex < 0 || currentArgumentIndex >= *argumentCount ) {
         return nullptr;
     }
-    return globalArguments[globalCurrentArgumentIndex];
+    return arguments[currentArgumentIndex];
 }
 
 /**
@@ -45,7 +45,7 @@ Tests whether arguments remain
 */
 bool
 Options::optionsArgumentsRemaining() {
-    return globalCurrentArgumentIndex < *globalArgumentCount;
+    return currentArgumentIndex < *argumentCount;
 }
 
 /**
@@ -53,7 +53,7 @@ Skips to next argument value
 */
 void
 Options::optionsNextArgument() {
-    globalCurrentArgumentIndex++;
+    currentArgumentIndex++;
 }
 
 /**
@@ -61,11 +61,11 @@ Consumes the current argument value, that is: removes it from the list
 */
 void
 Options::optionsConsumeArgument() {
-    for ( int i = globalCurrentArgumentIndex; i < *globalArgumentCount - 1; i++ ) {
-        globalArguments[i] = globalArguments[i + 1];
+    for ( int i = currentArgumentIndex; i < *argumentCount - 1; i++ ) {
+        arguments[i] = arguments[i + 1];
     }
-    globalArguments[*globalArgumentCount - 1] = nullptr;
-    (*globalArgumentCount)--;
+    arguments[*argumentCount - 1] = nullptr;
+    (*argumentCount)--;
 }
 
 /**
@@ -147,8 +147,8 @@ Options::optionsGetString(void *value, void * /*data*/) {
     unsigned long n = strlen(currentArgument) + 1;
     *s = new char[n];
 
-    if ( globalStringsToDelete != nullptr ) {
-        globalStringsToDelete->add(*s);
+    if ( stringsToDelete != nullptr ) {
+        stringsToDelete->add(*s);
     }
     java::Formatter::format(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
@@ -182,8 +182,8 @@ Options::optionsStringGet(void *value, void *data) {
 int *
 Options::optionsCreateStringLengthStorage(int n) {
     int *storage = new int(n);
-    if ( globalStringLengthsToDelete != nullptr ) {
-        globalStringLengthsToDelete->add(storage);
+    if ( stringLengthsToDelete != nullptr ) {
+        stringLengthsToDelete->add(storage);
     }
     return storage;
 }
@@ -375,8 +375,6 @@ Options::optionsPrintCieXyCallBack(java::PrintStream *stream, void *value, void 
     }
 }
 
-void (*const DEFAULT_ACTION)(void *) = nullptr;
-
 /**
 Argument parsing
 */
@@ -472,19 +470,19 @@ Options::parseGeneralOptions(CommandLineOptionDescription *options, int *argc, c
 
 void
 Options::deleteOptionsMemory() {
-    if ( globalStringLengthsToDelete != nullptr ) {
-        for ( int i = 0; i < globalStringLengthsToDelete->size(); i++ ) {
-            delete globalStringLengthsToDelete->get(i);
+    if ( stringLengthsToDelete != nullptr ) {
+        for ( int i = 0; i < stringLengthsToDelete->size(); i++ ) {
+            delete stringLengthsToDelete->get(i);
         }
-        delete globalStringLengthsToDelete;
-        globalStringLengthsToDelete = nullptr;
+        delete stringLengthsToDelete;
+        stringLengthsToDelete = nullptr;
     }
 
-    if ( globalStringsToDelete != nullptr ) {
-        for ( int i = 0; i < globalStringsToDelete->size(); i++ ) {
-            delete[] globalStringsToDelete->get(i);
+    if ( stringsToDelete != nullptr ) {
+        for ( int i = 0; i < stringsToDelete->size(); i++ ) {
+            delete[] stringsToDelete->get(i);
         }
-        delete globalStringsToDelete;
-        globalStringsToDelete = nullptr;
+        delete stringsToDelete;
+        stringsToDelete = nullptr;
     }
 }

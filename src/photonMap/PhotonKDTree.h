@@ -7,8 +7,10 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 
 #include "common/dataStructures/KDTree.h"
 #include "photonMap/IrrPhoton.h"
+#include "photonMap/NormalQuery.h"
 class PhotonKDTree final : public KDTree {
   private:
+    static NormalQuery qdat_s;
     static float sqrDistance3D(const float *a, const float *b);
     void NormalBQuery_rec(int index);
 

@@ -12,16 +12,7 @@
 #include "numericalAnalysis/quasiMonteCarlo/Sobol.h"
 #include "raycasting/stochasticRaytracing/Sample4d.h"
 
-static Sampler4DSequence seq = Sampler4DSequence::RANDOM;
-
-static constexpr char RANDOM_NAME[8] = "drand48";
-static constexpr char HALTON_NAME[7] = "Halton";
-static constexpr char SCRAMBLED_HALTON_NAME[12] = "ScramHalton";
-static constexpr char SOBOL_NAME[6] = "sobol";
-static constexpr char ORIGINAL_FAURE_NAME[6] = "faure";
-static constexpr char GENERALIZED_FAURE_NAME[7] = "GFaure";
-static constexpr char NIEDERREITER_NAME[5] = "Nied";
-static constexpr char UNKNOWN_NAME[8] = "Unknown";
+Sampler4DSequence Sample4d::seq = Sampler4DSequence::RANDOM;
 
 const char *
 Sample4d::sequenceName(Sampler4DSequence sequence) {

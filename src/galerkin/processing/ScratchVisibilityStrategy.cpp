@@ -86,7 +86,7 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
     scratch->sglViewport(0, 0, vp_size, vp_size);
 
     // Render element pointers in the scratch frame buffer
-    scratch->sglClear(static_cast<SGL_PIXEL>(0x00), SGL_MAXIMUM_Z);
+    scratch->sglClear(static_cast<SGL_PIXEL>(0x00), SglConstants::SGL_MAXIMUM_Z);
 
     ScratchRendererVisitor leafVisitor(eye, scratch);
     ClusterTraversalStrategy::traverseAllLeafElements(&leafVisitor, cluster, galerkinState);

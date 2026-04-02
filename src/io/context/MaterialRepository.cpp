@@ -8,16 +8,16 @@ MaterialRepository::createDefaultMgfMaterialContext() {
         1.0f,
         0.0f,
         0.0f,
-        DEFAULT_COLOR_CONTEXT,
+        ColorContext::DEFAULT_COLOR_CONTEXT,
         0.0f,
-        DEFAULT_COLOR_CONTEXT,
+        ColorContext::DEFAULT_COLOR_CONTEXT,
         0.0f,
-        DEFAULT_COLOR_CONTEXT,
+        ColorContext::DEFAULT_COLOR_CONTEXT,
         0.0f,
-        DEFAULT_COLOR_CONTEXT,
+        ColorContext::DEFAULT_COLOR_CONTEXT,
         0.0f,
         0.0f,
-        DEFAULT_COLOR_CONTEXT,
+        ColorContext::DEFAULT_COLOR_CONTEXT,
         0.0f
     };
 }

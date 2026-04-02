@@ -97,7 +97,7 @@ PhotonMapSampler::sample(
     float pdfChoice;
     char sFlagMask;
 
-    const char sFLAGS = BSDF_SPECULAR_COMPONENT;
+    const char sFLAGS = BsdfComponentInfo::BSDF_SPECULAR_COMPONENT;
     const char gdFLAGS = BRDF_GLOSSY_COMPONENT | BRDF_DIFFUSE_COMPONENT;
 
     // Choose between S or D|G scattering

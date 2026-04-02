@@ -9,15 +9,15 @@
 inline int
 DensityBuffer::xIndex(float x) const {
     return java::Math::min(
-        static_cast<int>(DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
-        DHA_X_RES - 1);
+        static_cast<int>(DensityBuffer::DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum)),
+        DensityBuffer::DHA_X_RES - 1);
 }
 
 inline int
 DensityBuffer::yIndex(float y) const {
     return java::Math::min(
-            static_cast<int>(DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
-            DHA_Y_RES - 1);
+            static_cast<int>(DensityBuffer::DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum)),
+            DensityBuffer::DHA_Y_RES - 1);
 }
 
 DensityBuffer::DensityBuffer(ScreenBuffer *screen, BidirectionalPathRaytracerConfig *paramBaseConfig) {
@@ -77,8 +77,8 @@ DensityBuffer::reconstruct() {
 
     kernel.SetH(h);
 
-    for ( int i = 0; i < DHA_X_RES; i++ ) {
-        for ( int j = 0; j < DHA_Y_RES; j++ ) {
+    for ( int i = 0; i < DensityBuffer::DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DensityBuffer::DHA_Y_RES; j++ ) {
             maxK = hitGrid[i][j].storedHits();
 
             for ( int k = 0; k < maxK; k++ ) {
@@ -109,8 +109,8 @@ DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
     Kernel2D kernel;
     Vector2D center;
 
-    for ( int i = 0; i < DHA_X_RES; i++ ) {
-        for ( int j = 0; j < DHA_Y_RES; j++ ) {
+    for ( int i = 0; i < DensityBuffer::DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DensityBuffer::DHA_Y_RES; j++ ) {
             maxK = hitGrid[i][j].storedHits();
 
             for ( int k = 0; k < maxK; k++ ) {

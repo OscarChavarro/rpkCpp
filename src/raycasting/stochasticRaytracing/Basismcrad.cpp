@@ -17,7 +17,7 @@ Basismcrad::oneBasis(double /*u*/, double /*v*/) {
     return 1;
 }
 
-static double (*oneBasisTable[1])(double, double) = {
+double (*StochasticRadiosityBasisState::oneBasisTable[1])(double, double) = {
     Basismcrad::oneBasis
 };
 
@@ -25,7 +25,7 @@ StochasticRadiosityBasisState::StochasticRadiosityBasisState():
     approxDesc(),
     basis(),
     triBasis(Basistrimcrad::createBasis()),
-    quadBasis(stochasticRadiosityCreateQuadBasis()),
+    quadBasis(StochasticRadiosityBasisState::stochasticRadiosityCreateQuadBasis()),
     dummyBasis(),
     clusterBasis(),
     quadUpTransform(),
@@ -49,8 +49,8 @@ StochasticRadiosityBasisState::StochasticRadiosityBasisState():
     clusterBasis = {
         "cluster basis",
         1,
-        oneBasisTable,
-        oneBasisTable,
+        StochasticRadiosityBasisState::oneBasisTable,
+        StochasticRadiosityBasisState::oneBasisTable,
         nullptr
     };
 
@@ -148,7 +148,7 @@ Basismcrad::computeFilterCoefficients(
     const int child_size,
     const Matrix2x2 *upxfm,
     const CubatureRule *cr,
-    FILTER *filter)
+    GalerkinBasis::FILTER *filter)
 {
     for ( int a = 0; a < parent_size; a++ ) {
         for ( int b = 0; b < child_size; b++ ) {
@@ -209,8 +209,8 @@ Basismcrad::monteCarloRadiosityInitBasis() {
         basisState.quadUpTransform,
         QuadCubatureRule::degree8QuadrilateralRule());
 
-    for ( int et = 0; et < NUMBER_OF_ELEMENT_TYPES; et++ ) {
-        for ( int at = 0; at < NUMBER_OF_APPROXIMATION_TYPES; at++ )
+    for ( int et = 0; et < StochasticRadiosityElementTypeInfo::NUMBER_OF_ELEMENT_TYPES; et++ ) {
+        for ( int at = 0; at < StochasticRadiosityBasisState::NUMBER_OF_APPROXIMATION_TYPES; at++ )
             basisState.basis[et][at] = makeBasis(static_cast<StochasticRadiosityElementType>(et), static_cast<StochasticRaytracingApproximation>(at));
     }
     basisState.inited = true;
@@ -235,7 +235,7 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-Basismcrad::filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, int n) {
+Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             child[i].addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
@@ -244,7 +244,7 @@ Basismcrad::filterColorDown(const ColorRgb *parent, FILTER *h, ColorRgb *child, 
 }
 
 void
-Basismcrad::filterColorUp(const ColorRgb *child, FILTER *h, ColorRgb *parent, int n, double areaFactor) {
+Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;

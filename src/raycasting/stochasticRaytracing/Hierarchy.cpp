@@ -7,12 +7,6 @@
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 
-static constexpr float DEFAULT_EH_EPSILON = 5e-4f;
-static constexpr float DEFAULT_EH_MINIMUM_AREA = 1e-6f;
-static constexpr bool DEFAULT_EH_HIERARCHICAL_MESHING = true;
-static constexpr bool DEFAULT_EH_T_VERTEX_ELIMINATION = true;
-static constexpr HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyClusteringMode::ORIENTED_CLUSTERING;
-
 ElementHierarchyState::ElementHierarchyState():
     epsilon(),
     do_h_meshing(),

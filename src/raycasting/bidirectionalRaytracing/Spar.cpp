@@ -3,8 +3,8 @@
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
 Spar::Spar() {
-    m_contrib = new ContribHandler[MAX_PATH_GROUPS];
-    m_sparList = new SparList[MAX_PATH_GROUPS];
+    m_contrib = new ContribHandler[SparPathGroupInfo::MAX_PATH_GROUPS];
+    m_sparList = new SparList[SparPathGroupInfo::MAX_PATH_GROUPS];
 }
 
 Spar::~Spar() {
@@ -14,7 +14,7 @@ Spar::~Spar() {
 
 void
 Spar::init(SparConfig *config, RadianceMethod */*radianceMethod*/) {
-    for ( int i = 0; i < MAX_PATH_GROUPS; i++ ) {
+    for ( int i = 0; i < SparPathGroupInfo::MAX_PATH_GROUPS; i++ ) {
         m_contrib[i].init(config->baseConfig->maximumPathDepth);
         m_sparList[i].removeAll();
     }

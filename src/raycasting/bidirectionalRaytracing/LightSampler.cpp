@@ -135,7 +135,7 @@ UniformLightSampler::sample(
     newNode->m_pdfFromPrev = pdfLight * pdfPoint;
 
     // Component propagation
-    newNode->m_accUsedComponents = NO_COMPONENTS; // Light has no accumulated comps.
+    newNode->m_accUsedComponents = XxdfComponentFlagInfo::NO_COMPONENTS; // Light has no accumulated comps.
 
     newNode->accumulatedRussianRouletteFactors = 1.0;
 

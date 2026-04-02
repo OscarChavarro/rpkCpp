@@ -11,10 +11,10 @@ General definitions for edf, brdf, btdf, etc.
 #include "material/BsdfComponentFlag.h"
 #include "material/RefractionIndex.h"
 
-extern const float PHONG_LOWEST_SPECULAR_EXP;
-
 class Xxdf {
   public:
+    static constexpr float PHONG_LOWEST_SPECULAR_EXP = 250.0f;
+
     static Vector3D
     idealReflectedDirection(const Vector3D *in, const Vector3D *normal);
 

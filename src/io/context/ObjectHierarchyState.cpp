@@ -3,8 +3,6 @@
 #include "common/CppReAlloc.h"
 #include "io/context/ObjectHierarchyState.h"
 
-constexpr int OBJECT_NAMES_ALLOC_INCREMENT = 16;
-
 ObjectHierarchyState::ObjectHierarchyState():
     objectNamesList(nullptr),
     objectMaxName(0),

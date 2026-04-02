@@ -6,6 +6,10 @@
 
 class PatchClusterOctreeNode {
   private:
+    static constexpr int XYZ_EQUAL_MASK = 0x08;
+    // No clusters are created with less than this number of patches.
+    static constexpr int MINIMUM_NUMBER_OF_PATCHES_PER_CLUSTER = 3;
+
     java::ArrayList<Patch *> *patches;
     PatchClusterOctreeNode *children[8]{}; // Clusters form an octree
     BoundingBox boundingBox{}; // Bounding box for the cluster

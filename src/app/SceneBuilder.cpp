@@ -26,8 +26,8 @@
 
 void
 SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
-    ColorRgb E = PatchVisitor::averageEmittance(patch, ALL_COMPONENTS);
-    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BSDF_ALL_COMPONENTS);
+    ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
+    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb power;
 
     Statistics::instance().radiance.totalArea += patch->area;

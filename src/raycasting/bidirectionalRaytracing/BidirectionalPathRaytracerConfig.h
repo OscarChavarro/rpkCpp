@@ -7,8 +7,6 @@ Encapsulates option handling for bidirectional path tracing
 
 #include "render/ScreenBuffer.h"
 
-constexpr int MAX_REGEXP_SIZE = 100;
-
 /**
 Contains basic config options used throughout the complete BPT code. typically two
 instances are used. One persistent, containing current GUI options and one non
@@ -16,6 +14,8 @@ persistent copy when rendering an image
 */
 class BidirectionalPathRaytracerConfig {
   public:
+    static constexpr int MAX_REGEXP_SIZE = 100;
+
     // Path depth config
     int maximumEyePathDepth;
     int maximumLightPathDepth;

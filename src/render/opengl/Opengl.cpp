@@ -300,7 +300,7 @@ Opengl::openGlRenderOctreeLeaf(
 
 bool
 Opengl::openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
-    for ( int i = 0; i < NUMBER_OF_VIEW_PLANES; i++ ) {
+    for ( int i = 0; i < Camera::NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
         }

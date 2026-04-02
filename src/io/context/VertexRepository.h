@@ -18,6 +18,9 @@ class VertexRepository {
 
     VertexRepository(const VertexRepository &) = delete;
     VertexRepository &operator=(const VertexRepository &) = delete;
+
+  private:
+    static const Vector3Dd ZERO_VECTOR;
 };
 
 #endif

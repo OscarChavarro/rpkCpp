@@ -10,6 +10,8 @@ Monte Carlo radiosity element type
 #include "skin/Element.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 
+class Coefficientsmcrad;
+
 class StochasticRadiosityElement final : public Element {
   public:
     NiederreiterIndex rayIndex; // Incremented each time a ray is shot from the element
@@ -89,6 +91,9 @@ class StochasticRadiosityElement final : public Element {
     ~StochasticRadiosityElement() final;
 
   private:
+    friend class Coefficientsmcrad;
+    static int coefficientPoolsInitialized;
+
     static void vertexAttachElement(Vertex *vertex, StochasticRadiosityElement *elem);
     static StochasticRadiosityElement *createElement();
     static StochasticRadiosityElement *monteCarloRadiosityCreateCluster(Geometry *geometry);

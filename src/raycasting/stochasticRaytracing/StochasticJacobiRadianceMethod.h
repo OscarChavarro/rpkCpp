@@ -33,6 +33,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         const RenderOptions *renderOptions) const final;
 
   private:
+    static constexpr int STRING_LENGTH = 2000;
     StochasticRelaxation &stochasticRelaxationState;
     ElementHierarchyState &elementHierarchyState;
     StochasticRadiosityBasisState &stochasticRadiosityBasisState;

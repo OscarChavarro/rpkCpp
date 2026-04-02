@@ -8,7 +8,7 @@ Command line options type registry
 
 /* ------------------- boolean (yes|no) option values-------------------- */
 /* implemented as an enumeration type */
-static EnumDesc boolTable[] = {
+EnumDesc OptionsType::boolTable[5] = {
     {true,  "yes",   1},
     {false, "no",    1},
     {true,  "true",  1},
@@ -36,7 +36,7 @@ OptionsType::OptionsType():
     dummyCieXy{0.0f, 0.0f}
 {
     intType = {Options::optionsGetInt, Options::optionsPrintInt, static_cast<void *>(&dummyInt), nullptr};
-    boolType = {Options::optionsEnumGet, Options::optionsEnumPrint, static_cast<void *>(&dummyInt), static_cast<void *>(boolTable)};
+    boolType = {Options::optionsEnumGet, Options::optionsEnumPrint, static_cast<void *>(&dummyInt), static_cast<void *>(OptionsType::boolTable)};
     setTrueType = {Options::optionsSetTrue, Options::optionsPrintOther, static_cast<void *>(&dummyTrue), nullptr};
     setFalseType = {Options::optionsSetFalse, Options::optionsPrintOther, static_cast<void *>(&dummyFalse), nullptr};
     stringType = {Options::optionsGetString, Options::optionsPrintString, static_cast<void *>(&dummyString), nullptr};

@@ -263,7 +263,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
             SamplerConfig::pathNodeConnect(camera, eyeEndNode, lightEndNode,
                             &config->eyeConfig, &config->lightConfig,
                             CONNECT_EL | CONNECT_LE,
-                            BSDF_ALL_COMPONENTS, BSDF_ALL_COMPONENTS, &bp->m_dirEL);
+                            BsdfComponentInfo::BSDF_ALL_COMPONENTS, BsdfComponentInfo::BSDF_ALL_COMPONENTS, &bp->m_dirEL);
 
     bp->m_dirLE.scaledCopy(-1, bp->m_dirEL);
 
@@ -370,7 +370,7 @@ PhotonMapRadianceMethod::photonMapDoPhotonStore(
         const PhongBidirectionalScatteringDistributionFunction *bsdf;
         bsdf = node->m_hit.getPatch()->material->getBsdf();
 
-        if ( !PhotonMap::zeroAlbedo(bsdf, &node->m_hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+        if ( !PhotonMap::zeroAlbedo(bsdf, &node->m_hit, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT) ) {
             Photon photon(node->m_hit.getPoint(), power, node->m_inDirF);
 
             // Determine photon flags
@@ -571,7 +571,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
                 sceneBackground,
                 &photonMapConfig,
                 static_cast<int>(photonMapState.gPathsPerIteration),
-                BSDF_ALL_COMPONENTS,
+                BsdfComponentInfo::BSDF_ALL_COMPONENTS,
                 radianceMethod);
 
         java::System::err.printf("Global map: ");
@@ -594,7 +594,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
             sceneBackground,
             &photonMapConfig,
             static_cast<int>(photonMapState.cPathsPerIteration),
-            BSDF_SPECULAR_COMPONENT);
+            BsdfComponentInfo::BSDF_SPECULAR_COMPONENT);
 
         java::System::err.printf("Caustic map: ");
         photonMapConfig.causticMap->printStats(&java::System::err);
@@ -708,7 +708,7 @@ PhotonMapRadianceMethod::getRadiance(
     hit.shadingNormal(&normal);
     hit.setNormal(&normal);
 
-    if ( PhotonMap::zeroAlbedo(bsdf, &hit, BSDF_DIFFUSE_COMPONENT | BSDF_GLOSSY_COMPONENT) ) {
+    if ( PhotonMap::zeroAlbedo(bsdf, &hit, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT) ) {
         radiance.clear();
         return radiance;
     }

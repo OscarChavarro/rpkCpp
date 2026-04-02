@@ -5,7 +5,7 @@
 
 bool
 PhongEmittanceDistributionFunction::isSpecular() const {
-    return Ns >= PHONG_LOWEST_SPECULAR_EXP;
+    return Ns >= Xxdf::PHONG_LOWEST_SPECULAR_EXP;
 }
 
 /**

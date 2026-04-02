@@ -9,6 +9,9 @@ class MinMaxBox;
 
 class VoxelGrid {
   private:
+    static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
+    static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
+
     static java::ArrayList<VoxelGrid *> *subGridsToDelete;
     static java::ArrayList<VoxelData *> *voxelCellsToDelete;
 

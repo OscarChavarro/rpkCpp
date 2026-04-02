@@ -22,6 +22,8 @@ class Batch final {
     static const BatchOptions *batchGetOptions();
 
   private:
+    static BatchOptions batchOptions;
+
 #ifdef RAYTRACING_ENABLED
     static void batchRayTraceSaveImage(
         const char *fileName,

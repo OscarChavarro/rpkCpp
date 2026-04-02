@@ -15,6 +15,7 @@ class MgfHandlerMaterial {
     static bool mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context);
 
   private:
+    static constexpr int NUMBER_OF_SAMPLES = 3;
     static Material *materialLookup(const char *name, const ParseSession *context);
     static void mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseSession *context);
     static void specSamples(const ColorRgb &col, float *rgb);

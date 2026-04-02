@@ -248,7 +248,7 @@ FormFactorStrategy::computeInteractionFormFactor(
 {
     // 1. Determine basis function values \phi_{i,\alpha}(x_k) at sample positions on the
     //    receiver patch for all basis functions \alpha
-    double receiverPhi[MAX_BASIS_SIZE][CubatureRule::MAXIMUM_NODES]{};
+    double receiverPhi[GalerkinBasis::MAX_BASIS_SIZE][CubatureRule::MAXIMUM_NODES]{};
 
     for ( int k = 0; k < receiverCubatureRule->numberOfNodes; k++ ) {
         if ( receiverElement->isCluster() ) {

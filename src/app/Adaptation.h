@@ -19,6 +19,14 @@ class Adaptation final {
         ToneMappingContext &toneMapOptions);
 
   private:
+    static int numEntries;
+    static double logAreaLum;
+    static LuminanceArea *lumArea;
+    static int lumAreaIndex;
+    static float lumMin;
+    static float lumMax;
+    static ColorRgb (*patchRadianceEstimate)(Patch *);
+
     static ColorRgb initRadianceEstimate(Patch *patch);
     static int adaptationLumAreaComp(const void *la1, const void *la2);
     static float patchBrightnessEstimate(Patch *patch);

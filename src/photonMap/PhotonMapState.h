@@ -6,11 +6,12 @@
 #include "photonMap/PhotonMapDensityControlOption.h"
 #include "photonMap/PhotonMapImportanceOption.h"
 #include "photonMap/RadiosityReturnOption.h"
-const int MAXIMUM_RECON_PHOTONS = 400;
 
 class PhotonMapState
 {
   public:
+    static constexpr int MAXIMUM_RECON_PHOTONS = 400;
+
     int doGlobalMap;
     long gPathsPerIteration;
     int precomputeGIrradiance;

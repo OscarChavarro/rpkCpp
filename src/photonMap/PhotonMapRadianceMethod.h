@@ -57,7 +57,7 @@ class PhotonMapRadianceMethod final : public RadianceMethod {
         Background *sceneBackground,
         PhotonMapConfig *config,
         int numberOfPaths,
-        char bsdfFlags = BSDF_ALL_COMPONENTS,
+        char bsdfFlags = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
         const RadianceMethod *radianceMethod = nullptr);
     void
     photonMapBRRealIteration(

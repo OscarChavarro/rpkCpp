@@ -8,12 +8,13 @@ Command line options and defaults
 #include "app/CommandLineOptions.h"
 #include "app/CommandLineOptionDescription.h"
 #include "app/EnumDesc.h"
-
-// Default action; no action.
-extern void (*const DEFAULT_ACTION)(void *);
+#include "java/util/ArrayList.h"
 
 class Options final {
   public:
+    // Default action; no action.
+    static constexpr void (*DEFAULT_ACTION)(void *) = nullptr;
+
     static void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
     static bool optionsEnumGet(void *value, void *data);
     static void optionsEnumPrint(java::PrintStream *stream, void *value, void *data);
@@ -76,6 +77,12 @@ class Options final {
     }
 
   private:
+    static int *argumentCount;
+    static char **arguments;
+    static int currentArgumentIndex;
+    static java::ArrayList<char *> *stringsToDelete;
+    static java::ArrayList<int *> *stringLengthsToDelete;
+
     static void optionsInitArguments(int *argc, char **argv);
     static const char *optionsCurrentArgumentValue();
     static bool optionsArgumentsRemaining();

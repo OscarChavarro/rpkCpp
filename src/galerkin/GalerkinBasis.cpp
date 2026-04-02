@@ -99,9 +99,9 @@ GalerkinBasis::pushPullRadianceRecursive(
     if ( element->regularSubElements != nullptr ) {
         // Regularly subdivided surface element
         for ( int i = 0; i < 4; i++ ) {
-            ColorRgb Btmp[MAX_BASIS_SIZE];
-            ColorRgb Bdown2[MAX_BASIS_SIZE];
-            ColorRgb Bup2[MAX_BASIS_SIZE];
+            ColorRgb Btmp[GalerkinBasis::MAX_BASIS_SIZE];
+            ColorRgb Bdown2[GalerkinBasis::MAX_BASIS_SIZE];
+            ColorRgb Bup2[GalerkinBasis::MAX_BASIS_SIZE];
 
             // 1. Push B-down to the i-th sub-element
             push(element, Bdown, static_cast<GalerkinElement *>(element->regularSubElements[i]), Bdown2);
@@ -121,9 +121,9 @@ GalerkinBasis::pushPullRadianceRecursive(
         // A cluster or irregularly subdivided surface element
         for ( int i = 0; element->irregularSubElements != nullptr && i < element->irregularSubElements->size(); i++ ) {
             GalerkinElement *subElement = static_cast<GalerkinElement *>(element->irregularSubElements->get(i));
-            ColorRgb Btmp[MAX_BASIS_SIZE];
-            ColorRgb Bdown2[MAX_BASIS_SIZE];
-            ColorRgb Bup2[MAX_BASIS_SIZE];
+            ColorRgb Btmp[GalerkinBasis::MAX_BASIS_SIZE];
+            ColorRgb Bdown2[GalerkinBasis::MAX_BASIS_SIZE];
+            ColorRgb Bup2[GalerkinBasis::MAX_BASIS_SIZE];
 
             // 1. Push Bdown to the sub-element if a cluster (don't push to irregular
             // surface sub-elements)
@@ -177,7 +177,7 @@ GalerkinBasis::computeFilterCoefficients(
     const int childSize,
     const Matrix2x2 *upTransform,
     const CubatureRule *cubatureRule,
-    double filter[MAX_BASIS_SIZE][MAX_BASIS_SIZE])
+    double filter[GalerkinBasis::MAX_BASIS_SIZE][GalerkinBasis::MAX_BASIS_SIZE])
 {
     double x;
 
@@ -291,8 +291,8 @@ radiance, making a consistent hierarchical representation
 */
 void
 GalerkinBasis::pushPullRadiance(GalerkinElement *top, GalerkinState *galerkinState) {
-    ColorRgb bDown[MAX_BASIS_SIZE];
-    ColorRgb Bup[MAX_BASIS_SIZE];
+    ColorRgb bDown[GalerkinBasis::MAX_BASIS_SIZE];
+    ColorRgb Bup[GalerkinBasis::MAX_BASIS_SIZE];
     ColorRgb::arrayClear(bDown, top->basisSize);
     pushPullRadianceRecursive(top, bDown, Bup, galerkinState);
 }

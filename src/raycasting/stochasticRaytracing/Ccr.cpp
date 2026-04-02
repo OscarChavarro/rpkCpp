@@ -11,10 +11,8 @@ Determination of constant control radiosity value
 #include "raycasting/stochasticRaytracing/Ccr.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-static constexpr int NUMBER_OF_INTERVALS = 10;
-
-static ColorRgb *(*globalGetRadiance)(const StochasticRadiosityElement *);
-static ColorRgb (*globalGetScaling)(StochasticRadiosityElement *);
+ColorRgb *(*Ccr::getRadianceCallback)(const StochasticRadiosityElement *) = nullptr;
+ColorRgb (*Ccr::getScalingCallback)(StochasticRadiosityElement *) = nullptr;
 
 void
 Ccr::initialControlRadiosityRecursive(
@@ -29,7 +27,7 @@ Ccr::initialControlRadiosityRecursive(
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        ColorRgb rad = globalGetRadiance(element)[0];
+        ColorRgb rad = getRadianceCallback(element)[0];
         float weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -148,8 +146,8 @@ Ccr::refineControlRadiosityRecursive(
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        ColorRgb B = globalGetRadiance(element)[0];
-        ColorRgb s = globalGetScaling ? globalGetScaling(element) : *colorOne;
+        ColorRgb B = getRadianceCallback(element)[0];
+        ColorRgb s = getScalingCallback ? getScalingCallback(element) : *colorOne;
         float weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method !=
@@ -293,10 +291,10 @@ Ccr::determineControlRadiosity(
     float eps = 0.001f;
     int sweep = 0;
 
-    globalGetRadiance = getRadiance;
-    globalGetScaling = getScaling;
+    getRadianceCallback = getRadiance;
+    getScalingCallback = getScaling;
     beta.clear();
-    if ( globalGetRadiance == nullptr ) {
+    if ( getRadianceCallback == nullptr ) {
         return beta;
     }
 

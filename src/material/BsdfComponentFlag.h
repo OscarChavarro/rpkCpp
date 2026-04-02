@@ -12,12 +12,12 @@ class BsdfComponentFlag {
 
     static constexpr int
     getBrdfFlags(const int bsflags) {
-        return bsflags & ALL_COMPONENTS;
+        return bsflags & XxdfComponentFlagInfo::ALL_COMPONENTS;
     }
 
     static constexpr int
     getBtdfFlags(const int bsflags) {
-        return (bsflags >> XXDF_COMPONENTS) & ALL_COMPONENTS;
+        return (bsflags >> XxdfComponentFlagInfo::XXDF_COMPONENTS) & XxdfComponentFlagInfo::ALL_COMPONENTS;
     }
 };
 

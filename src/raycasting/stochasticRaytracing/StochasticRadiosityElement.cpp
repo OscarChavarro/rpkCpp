@@ -19,10 +19,9 @@ integrals etc.. etc.
 Do not change the conventions below without knowing VERY well what
 you are doing.
 */
+int StochasticRadiosityElement::coefficientPoolsInitialized = false;
 
-static int globalCoefficientPoolsInitialized = false;
-
- void
+void
 StochasticRadiosityElement::vertexAttachElement(Vertex *v, StochasticRadiosityElement *elem) {
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
     if ( v->radianceData == nullptr ) {
@@ -36,8 +35,8 @@ Basically sets rad to nullptr
 */
 void
 Coefficientsmcrad::initCoefficients(StochasticRadiosityElement *elem) {
-    if ( !globalCoefficientPoolsInitialized ) {
-        globalCoefficientPoolsInitialized = true;
+    if ( !StochasticRadiosityElement::coefficientPoolsInitialized ) {
+        StochasticRadiosityElement::coefficientPoolsInitialized = true;
     }
 
     elem->radiance = nullptr;
@@ -64,7 +63,7 @@ StochasticRadiosityElement::StochasticRadiosityElement():
     className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
 }
 
- StochasticRadiosityElement *
+StochasticRadiosityElement *
 StochasticRadiosityElement::createElement() {
     static long id = 1;
     StochasticRadiosityElement *elem = new StochasticRadiosityElement();
@@ -131,7 +130,7 @@ StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(Patch *pat
 StochasticRadiosityElement::~StochasticRadiosityElement() {
 }
 
- StochasticRadiosityElement *
+StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry) {
     StochasticRadiosityElement *elem = createElement();
 
@@ -157,7 +156,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry)
     return elem;
 }
 
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(patch->radianceData); // Created before
     elem->parent = parent;
@@ -169,7 +168,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceElementChild(Patch *
     parent->irregularSubElements->add(elem);
 }
 
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityCreateClusterChild(Geometry *geom, StochasticRadiosityElement *parent) {
     StochasticRadiosityElement *subCluster = monteCarloRadiosityCreateClusterHierarchyRecursive(geom);
     subCluster->parent = parent;
@@ -183,7 +182,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateClusterChild(Geometry *geom
 /**
 Initialises parent cluster radiance/importance/area for child voxelData
 */
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityInitClusterPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child) {
     parent->area += child->area;
     StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(parent, child, parent->radiance, child->radiance);
@@ -198,7 +197,7 @@ StochasticRadiosityElement::monteCarloRadiosityInitClusterPull(StochasticRadiosi
     parent->Ed.addScaled(parent->Ed, child->area, child->Ed);
 }
 
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityCreateClusterChildren(StochasticRadiosityElement *parent) {
     Geometry *geometry = parent->geometry;
 
@@ -221,7 +220,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateClusterChildren(StochasticR
     parent->Ed.scaleInverse(parent->area, parent->Ed);
 }
 
- StochasticRadiosityElement *
+StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityCreateClusterHierarchyRecursive(Geometry *world) {
     StochasticRadiosityElement *topCluster = monteCarloRadiosityCreateCluster(world);
     world->radianceData = topCluster;
@@ -363,28 +362,28 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
     return leaf;
 }
 
- Vector3D *
+Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallCoordinate(const Vector3D *coord) {
     Vector3D *v = new Vector3D(coord->x, coord->y, coord->z);
     ElementHierarchyState::activeState().coords->add(v);
     return v;
 }
 
- Vector3D *
+Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallNormal(const Vector3D *norm) {
     Vector3D *v = new Vector3D(norm->x, norm->y, norm->z);
     ElementHierarchyState::activeState().normals->add(v);
     return v;
 }
 
- Vector3D *
+Vector3D *
 StochasticRadiosityElement::monteCarloRadiosityInstallTexCoord(const Vector3D *texCoord) {
     Vector3D *t = new Vector3D(texCoord->x, texCoord->y, texCoord->z);
     ElementHierarchyState::activeState().texCoords->add(t);
     return t;
 }
 
- Vertex *
+Vertex *
 StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3D *coord, Vector3D *norm, Vector3D *texCoord) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, texCoord, newPatchList);
@@ -392,7 +391,7 @@ StochasticRadiosityElement::monteCarloRadiosityInstallVertex(Vector3D *coord, Ve
     return v;
 }
 
- Vertex *
+Vertex *
 StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadiosityElement *elem, const Vertex *v1, const Vertex *v2) {
     Vector3D coord;
     Vector3D norm;
@@ -529,7 +528,7 @@ StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(const S
     return v;
 }
 
- Vertex *
+Vertex *
 StochasticRadiosityElement::monteCarloRadiosityNewEdgeMidpointVertex(StochasticRadiosityElement *elem, int edgeNumber) {
     Vertex *v = StochasticRadiosityElement::stochasticRadiosityElementEdgeMidpointVertex(elem, edgeNumber);
     if ( v == nullptr ) {
@@ -541,7 +540,7 @@ StochasticRadiosityElement::monteCarloRadiosityNewEdgeMidpointVertex(StochasticR
     return v;
 }
 
- Vector3D
+Vector3D
 StochasticRadiosityElement::galerkinElementMidpoint(StochasticRadiosityElement *elem) {
     elem->midPoint.set(0.0, 0.0, 0.0);
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
@@ -588,7 +587,7 @@ StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(const St
 /**
 Computes average reflectance and emittance of a surface sub-element
 */
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceAndEmittance(StochasticRadiosityElement *elem) {
     Patch *patch = elem->patch;
     int numberOfSamples;
@@ -636,7 +635,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
 /**
 Initial push operation for surface sub-elements
 */
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityInitSurfacePush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     child->sourceRad = parent->sourceRad;
     StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(parent, child, parent->radiance, child->radiance);
@@ -658,7 +657,7 @@ Creates a sub-element of the element "*parent", stores it as the
 sub-element number "childNumber". Tha value of "v3" is unused in the
 process of triangle subdivision.
 */
- StochasticRadiosityElement *
+StochasticRadiosityElement *
 StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
         StochasticRadiosityElement *parent,
         int childNumber,
@@ -703,7 +702,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
 /**
 Create sub-elements: regular subdivision, see drawings above
 */
- StochasticRadiosityElement **
+StochasticRadiosityElement **
 StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
     (void)renderOptions;
 
@@ -722,7 +721,7 @@ StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(Stochast
     return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
 
- StochasticRadiosityElement **
+StochasticRadiosityElement **
 StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
     (void)renderOptions;
 
@@ -786,7 +785,7 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
     return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);
 }
 
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem) {
     if ( elem->isCluster() ) {
         ElementHierarchyState::activeState().nr_clusters--;
@@ -815,7 +814,7 @@ StochasticRadiosityElement::monteCarloRadiosityDestroyElement(StochasticRadiosit
     delete elem;
 }
 
- void
+void
 StochasticRadiosityElement::monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem) {
     if ( !elem ) {
         return;
@@ -847,7 +846,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDestroyClusterHierarchy(St
     monteCarloRadiosityDestroyElement(top);
 }
 
- inline bool
+inline bool
 StochasticRadiosityElement::regularChild(const StochasticRadiosityElement *child) {
     return (child->childNumber >= 0 && child->childNumber <= 3);
 }

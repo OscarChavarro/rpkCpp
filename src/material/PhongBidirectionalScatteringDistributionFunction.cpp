@@ -8,8 +8,6 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 #include "common/RenderOptions.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
-static constexpr int TEXTURED_COMPONENT = BRDF_DIFFUSE_COMPONENT;
-
 /**
 Creates a BSDF instance with given data and methods
 */
@@ -552,7 +550,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
     empty.clear();
     result.clear();
 
-    for ( int i = 0; i < BSDF_COMPONENTS; i++ ) {
+    for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         thisFlag = static_cast<char>(BsdfComponentFlag::bsdfIndexToComp(i));
 
         if ( flags & thisFlag ) {

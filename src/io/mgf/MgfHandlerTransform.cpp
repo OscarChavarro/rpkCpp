@@ -91,7 +91,7 @@ Put out name for this instance
 */
 int
 MgfHandlerTransform::transformName(const TransformArray *ap, ParseSession *context) {
-    static char oName[10 * TRANSFORM_MAXIMUM_DIMENSIONS];
+    static char oName[10 * TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS];
     static const char *oav[3] = {
         context->entityNames[EntityContext::OBJECT], oName
     };
@@ -127,7 +127,7 @@ MgfHandlerTransform::newTransform(int ac, const char **av, ParseSession *context
             i++;
         }
     }
-    if ( nDim > TRANSFORM_MAXIMUM_DIMENSIONS ) {
+    if ( nDim > TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS ) {
         return nullptr;
     }
 

@@ -8,8 +8,6 @@
 #include "io/mgf/MgfHandlerMaterial.h"
 #include "io/context/MaterialContext.h"
 
-static constexpr int NUMBER_OF_SAMPLES = 3;
-
 /**
 Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found

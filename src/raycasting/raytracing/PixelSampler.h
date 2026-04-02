@@ -25,14 +25,14 @@ class PixelSampler : public Sampler {
         double x1,
         double x2,
         bool doRR = false,
-        char flags = BSDF_ALL_COMPONENTS);
+        char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);
 
     double
     evalPDF(
         Camera *camera,
         SimpleRaytracingPathNode *thisNode,
         SimpleRaytracingPathNode *newNode,
-        char flags = BSDF_ALL_COMPONENTS,
+        char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS,
         double *pdf = nullptr,
         double *pdfRR = nullptr) final;
 

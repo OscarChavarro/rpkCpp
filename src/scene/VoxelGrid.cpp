@@ -11,9 +11,6 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "skin/MinMaxBox.h"
 #include "scene/VoxelGrid.h"
 
-static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
-static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
-
 java::ArrayList<VoxelGrid *> * VoxelGrid::subGridsToDelete = nullptr;
 java::ArrayList<VoxelData *> * VoxelGrid::voxelCellsToDelete = nullptr;
 

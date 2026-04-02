@@ -1,9 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "galerkin/Shaft.h"
 
-static constexpr int MIN_MAX_DIMENSIONS = 6;
-static constexpr int NONE = -1;
-
 Shaft::Shaft():
     referenceItem1(),
     referenceItem2(),

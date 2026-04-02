@@ -21,6 +21,7 @@ class MgfHandlerGeometry {
     static VertexContext *getNamedVertex(const char *name, ParseSession *context);
 
   private:
+    static constexpr int MAXIMUM_FACE_VERTICES = 100;
     static long transformXid(const TransformStackContext *xf);
     static int doDiscreteConic(int argc, const char **argv, ParseSession *context);
     static Vector3D *installPoint(float x, float y, float z, const ParseSession *context);

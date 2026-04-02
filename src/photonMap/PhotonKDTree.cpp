@@ -5,7 +5,7 @@ Implementation of specific kdtree for photonmaps
 #include "photonMap/PhotonKDTree.h"
 #include "photonMap/NormalQuery.h"
 
-static NormalQuery qdat_s;
+NormalQuery PhotonKDTree::qdat_s;
 
 // Distance calculation COPY FROM kdtree.C !
 float PhotonKDTree::sqrDistance3D(const float *a, const float *b) {

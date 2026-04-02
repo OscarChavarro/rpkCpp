@@ -8,7 +8,7 @@ class Polygon {
   public:
     int n; // Number of sides
     unsigned long mask; // Interpolation mask for vertex elems
-    PolygonVertex vertices[MAXIMUM_SIDES_PER_POLYGON];
+    PolygonVertex vertices[PolygonClipResultInfo::MAXIMUM_SIDES_PER_POLYGON];
 };
 
 #endif

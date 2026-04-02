@@ -49,6 +49,10 @@ class BinaryModelReaderSupport {
 
     static bool validateBinaryHeader(java::InputStream &input);
     static bool populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record);
+
+  private:
+    static const unsigned char BINARY_MODEL_MAGIC[16];
+    static constexpr int BINARY_MODEL_VERSION = 1;
 };
 
 template <typename T>

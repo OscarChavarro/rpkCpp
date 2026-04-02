@@ -33,6 +33,17 @@ class RenderOptions {
 
     RenderOptions();
     virtual ~RenderOptions();
+
+  private:
+    static constexpr bool DEFAULT_SMOOTH_SHADING = true;
+    static constexpr bool DEFAULT_BACKFACE_CULLING = true;
+    static constexpr bool DEFAULT_OUTLINE_DRAWING = false;
+    static constexpr bool DEFAULT_SURFACE_DRAWING = true;
+    static constexpr bool DEFAULT_BOUNDING_BOX_DRAWING = false;
+    static constexpr bool DEFAULT_CLUSTER_DRAWING = false;
+    static const ColorRgb DEFAULT_OUTLINE_COLOR;
+    static const ColorRgb DEFAULT_BOUNDING_BOX_COLOR;
+    static const ColorRgb DEFAULT_CLUSTER_COLOR;
 };
 
 #endif
