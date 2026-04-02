@@ -10,9 +10,10 @@ Most of the functions have similar meaning as for a radiance or ray-tracing meth
 */
 class ToneMap {
   private:
+    static ToneMap *activeToneMap;
     static int gammaTableEntry(float x);
     static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
-    static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance, const ToneMappingContext &toneMapOptions);
+    static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
     static ColorRgb *rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions);
 
   protected:
@@ -49,6 +50,7 @@ class ToneMap {
     */
     virtual ColorRgb scaleForDisplay(ColorRgb radiance) const = 0;
 
+    static void setActiveToneMap(ToneMap *toneMap);
     static void toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions);
     static void recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma);
     static ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions);

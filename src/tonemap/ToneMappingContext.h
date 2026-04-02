@@ -4,8 +4,6 @@
 #include "common/ColorRgb.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
 
-class ToneMap;
-
 class ToneMappingContext {
   public:
     // Gamma correction table
@@ -16,8 +14,7 @@ class ToneMappingContext {
     float brightness_adjust; // Brightness adjustment factor
     float pow_bright_adjust; // pow(2, brightness_adjust)
 
-    // Variable / non-linear radiance rescaling
-    ToneMap *selectedToneMap;
+    // Variable / non-linear radiance rescaling parameters
     ToneMapAdaptationMethod staticAdaptationMethod;
     float realWorldAdaptionLuminance;
     float maximumDisplayLuminance;

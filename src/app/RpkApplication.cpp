@@ -5,6 +5,7 @@
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
 #include "tonemap/RevisedTumblinRushmeierToneMap.h"
+#include "tonemap/ToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
 #include "raycasting/simple/RayMatterState.h"
@@ -47,6 +48,7 @@ RpkApplication::RpkApplication():
     imageOutputWidth(),
     imageOutputHeight(),
     selectedRadianceMethod(),
+    selectedToneMap(nullptr),
     toneMapOptions(),
     rayTracer(),
     glutDebugEnabled(false)
@@ -57,6 +59,11 @@ RpkApplication::RpkApplication():
 }
 
 RpkApplication::~RpkApplication() {
+    if ( selectedToneMap != nullptr ) {
+        delete selectedToneMap;
+        selectedToneMap = nullptr;
+    }
+    ToneMap::setActiveToneMap(nullptr);
     delete scene;
     delete mgfContext;
     delete renderOptions;
@@ -93,10 +100,11 @@ RpkApplication::selectToneMapByName(const char *name) {
         newMap = new LightnessToneMap();
     }
 
-    if ( toneMapOptions.selectedToneMap != nullptr ) {
-        delete toneMapOptions.selectedToneMap;
+    if ( selectedToneMap != nullptr ) {
+        delete selectedToneMap;
     }
-    toneMapOptions.selectedToneMap = newMap;
+    selectedToneMap = newMap;
+    ToneMap::setActiveToneMap(selectedToneMap);
     newMap->init(toneMapOptions);
 }
 

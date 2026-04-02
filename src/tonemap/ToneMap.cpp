@@ -3,6 +3,8 @@
 #include "common/linealAlgebra/Numeric.h"
 #include "tonemap/ToneMap.h"
 
+ToneMap *ToneMap::activeToneMap = nullptr;
+
 ToneMap::ToneMap() {
 }
 
@@ -22,11 +24,11 @@ ToneMap::toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &ton
 }
 
 ColorRgb
-ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance, const ToneMappingContext &toneMapOptions) {
-    if ( toneMapOptions.selectedToneMap == nullptr ) {
-        Error::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No selected tone map in context");
+ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
+    if ( activeToneMap == nullptr ) {
+        Error::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
-    return toneMapOptions.selectedToneMap->scaleForDisplay(radiance);
+    return activeToneMap->scaleForDisplay(radiance);
 }
 
 float
@@ -67,8 +69,13 @@ Rescale real world radiance using properly set up tone mapping algorithm
 ColorRgb *
 ToneMap::rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions) {
     in.scale(toneMapOptions.pow_bright_adjust);
-    *out = ToneMap::toneMapScaleForDisplay(in, toneMapOptions);
+    *out = ToneMap::toneMapScaleForDisplay(in);
     return out;
+}
+
+void
+ToneMap::setActiveToneMap(ToneMap *toneMap) {
+    activeToneMap = toneMap;
 }
 
 /**

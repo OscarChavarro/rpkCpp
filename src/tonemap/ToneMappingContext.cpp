@@ -4,7 +4,6 @@
 ToneMappingContext::ToneMappingContext():
     brightness_adjust(),
     pow_bright_adjust(),
-    selectedToneMap(),
     staticAdaptationMethod(),
     realWorldAdaptionLuminance(),
     maximumDisplayLuminance(),
@@ -43,7 +42,4 @@ ToneMappingContext::ToneMappingContext():
 }
 
 ToneMappingContext::~ToneMappingContext() {
-    if ( selectedToneMap != nullptr ) {
-        delete selectedToneMap;
-    }
 }

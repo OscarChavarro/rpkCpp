@@ -15,7 +15,7 @@
 #include "scene/Scene.h"
 #include "io/context/ParseSession.h"
 #include "raycasting/common/RayTracer.h"
-#include "tonemap/ToneMappingContext.h"
+#include "tonemap/ToneMap.h"
 
 class RpkApplication {
   private:
@@ -26,6 +26,7 @@ class RpkApplication {
     Scene *scene;
     ParseSession *mgfContext;
     RadianceMethod *selectedRadianceMethod;
+    ToneMap *selectedToneMap;
     ToneMappingContext toneMapOptions;
     RenderOptions *renderOptions;
     RayTracer *rayTracer;
