@@ -25,6 +25,19 @@ and no up trans
 */
 class GalerkinElement final : public Element {
   private:
+    /**
+    Position and orientation of the regular sub-elements is fully
+    determined by the following transforms, that transform (u,v)
+    parameters of a point on a sub-element to the (u',v') parameters
+    of the same point on the parent element
+    */
+
+    static int numberOfElements;
+    static int numberOfClusters;
+
+    static const Matrix2x2 quadToParentTransformMatrix[4];
+    static const Matrix2x2 triangleToParentTransformMatrix[4];
+
     explicit GalerkinElement(GalerkinState *inGalerkinState);
 
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
@@ -66,15 +79,6 @@ class GalerkinElement final : public Element {
     void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();
 };
-
-/**
-Position and orientation of the regular sub-elements is fully
-determined by the following transforms, that transform (u,v)
-parameters of a point on a sub-element to the (u',v') parameters
-of the same point on the parent element
-*/
-extern Matrix2x2 globalQuadToParentTransformMatrix[4];
-extern Matrix2x2 globalTriangleToParentTransformMatrix[4];
 
 #include "galerkin/GalerkinState.h"
 

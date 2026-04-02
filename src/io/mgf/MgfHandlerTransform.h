@@ -11,7 +11,7 @@ class TransformStackContext;
 
 /**
 The transformation handler should do most of the work that needs
-doing. Just globalPass it any xf entities, then use the associated
+doing. Just pass it any xf entities, then use the associated
 functions to transform and translate positions, transform vectors
 (without translation), rotate vectors (without scaling) and scale
 values appropriately.

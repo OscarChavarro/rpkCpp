@@ -14,9 +14,11 @@ DepthVisibilityGathererVisitor::~DepthVisibilityGathererVisitor() {
 }
 
 /**
-Same as above, except that the number of pixels in the scratch frame buffer
-times the area corresponding one such pixel is used as the visible area
-of the element. Uses global variables globalPixelArea, globalTheLink, globalPSourceRad
+Accumulates gather contribution for a visible leaf using scratch-buffer visibility.
+The visible fraction is estimated from the number of scratch pixels assigned to
+the element (`scratchVisibilityUsageCounter`) times `pixelArea`, normalized by
+one quarter of the receiver area. The method then calls isotropic gathering
+with that area factor and clears the counter for reuse.
 */
 void
 DepthVisibilityGathererVisitor::visit(

@@ -5,7 +5,7 @@ TODO: hierarchical refinement for importance propagation
 TODO: re-incorporate the rejection sampling technique for
 sampling positions on shooters with higher order radiosity approximation
 (lower variance)
-TODO: global lines and global line bundles.
+TODO: lines and line bundles.
 */
 
 #include <cstdlib>
@@ -24,61 +24,55 @@ TODO: global lines and global line bundles.
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-// Returns radiance or importance to be propagated
-static ColorRgb *(*globalGetRadianceCallback)(const StochasticRadiosityElement *);
+ColorRgb *(*StochasticJacobi::getRadianceCallback)(const StochasticRadiosityElement *) = nullptr;
+float (*StochasticJacobi::getImportanceCallback)(const StochasticRadiosityElement *) = nullptr;
+void (*StochasticJacobi::reflectCallback)(StochasticRadiosityElement *, double) = nullptr;
+int StochasticJacobi::useControlVariate = 0; // If uses a constant control variate
+int StochasticJacobi::numberOfRaysToShoot = 0; // Number of rays to shoot in the iteration
+double StochasticJacobi::sumOfProbabilities = 0.0; // Sum of un-normalised sampling "probabilities"
 
-static float (*globalGetImportanceCallback)(const StochasticRadiosityElement *);
-
-// Converts received radiance or importance into a new approximation for
-// total and un-shot radiance or importance
-static void (*globalReflectCallback)(StochasticRadiosityElement *, double) = nullptr;
-
-static int globalDoControlVariate; // If uses a constant control variate
-static int globalNumberOfRays; // Number of rays to shoot in the iteration
-static double globalSumOfProbabilities = 0.0; // Sum of un-normalised sampling "probabilities"
-
- void
-Stochjacobi::stochasticJacobiInitGlobals(
+void
+StochasticJacobi::stochasticJacobiInitGlobals(
     int numberOfRays,
     ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),
     float (*GetImportance)(const StochasticRadiosityElement *),
     void (*Update)(StochasticRadiosityElement *P, double w))
 {
-    globalNumberOfRays = numberOfRays;
-    globalGetRadianceCallback = getRadianceCallBack;
-    globalGetImportanceCallback = GetImportance;
-    globalReflectCallback = Update;
+    numberOfRaysToShoot = numberOfRays;
+    getRadianceCallback = getRadianceCallBack;
+    getImportanceCallback = GetImportance;
+    reflectCallback = Update;
     // Only use control variates for propagating radiance, not for importance
-    globalDoControlVariate = (StochasticRelaxation::activeState().constantControlVariate && getRadianceCallBack);
+    useControlVariate = (StochasticRelaxation::activeState().constantControlVariate && getRadianceCallBack);
 
-    if ( globalGetRadianceCallback ) {
+    if ( getRadianceCallback ) {
         StochasticRelaxation::activeState().prevTracedRays = StochasticRelaxation::activeState().tracedRays;
     }
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         StochasticRelaxation::activeState().prevImportanceTracedRays = StochasticRelaxation::activeState().importanceTracedRays;
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPrintMessage(long nr_rays) {
+void
+StochasticJacobi::stochasticJacobiPrintMessage(long nr_rays) {
     java::System::err.printf("%s-directional ",
             StochasticRelaxation::activeState().bidirectionalTransfers ? "Bi" : "Uni");
-    if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
+    if ( getRadianceCallback && getImportanceCallback ) {
         java::System::err.printf("combined ");
     }
-    if ( globalGetRadianceCallback ) {
+    if ( getRadianceCallback ) {
         java::System::err.printf("%s radiance ",
                 StochasticRelaxation::activeState().importanceDriven ? "importance-driven " : "");
     }
-    if ( globalGetRadianceCallback && globalGetImportanceCallback ) {
+    if ( getRadianceCallback && getImportanceCallback ) {
         java::System::err.printf("and ");
     }
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         java::System::err.printf("%s importance ",
                 StochasticRelaxation::activeState().radianceDriven ? "radiance-driven " : "");
     }
     java::System::err.printf("propagation");
-    if ( globalDoControlVariate ) {
+    if ( useControlVariate ) {
         java::System::err.printf("using a constant control variate ");
     }
     java::System::err.printf("(%ld rays):\n", nr_rays);
@@ -87,13 +81,13 @@ Stochjacobi::stochasticJacobiPrintMessage(long nr_rays) {
 /**
 Compute (un-normalised) stochasticJacobiProbability of shooting a ray from elem
 */
- double
-Stochjacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem) {
+double
+StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem) {
     double prob = 0.0;
 
-    if ( globalGetRadianceCallback ) {
+    if ( getRadianceCallback ) {
         // Probability proportional to power to be propagated
-        ColorRgb radiance = globalGetRadianceCallback(elem)[0];
+        ColorRgb radiance = getRadianceCallback(elem)[0];
         if ( StochasticRelaxation::activeState().constantControlVariate ) {
             radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
         }
@@ -105,8 +99,8 @@ Stochjacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem)
         }
     }
 
-    if ( globalGetImportanceCallback && StochasticRelaxation::activeState().importanceDriven ) {
-        double prob2 = elem->area * java::Math::abs(globalGetImportanceCallback(elem)) *
+    if ( getImportanceCallback && StochasticRelaxation::activeState().importanceDriven ) {
+        double prob2 = elem->area * java::Math::abs(getImportanceCallback(elem)) *
                 StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(elem);
 
         if ( StochasticRelaxation::activeState().radianceDriven ) {
@@ -128,12 +122,12 @@ Stochjacobi::stochasticJacobiProbability(const StochasticRadiosityElement *elem)
 /**
 clear accumulators of all kinds of sample weights and contributions
 */
- void
-Stochjacobi::stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem) {
-    if ( globalGetRadianceCallback ) {
+void
+StochasticJacobi::stochasticJacobiElementClearAccumulators(StochasticRadiosityElement *elem) {
+    if ( getRadianceCallback ) {
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(elem->receivedRadiance, elem->basis);
     }
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         elem->receivedImportance = 0.0;
     }
 }
@@ -142,8 +136,8 @@ Stochjacobi::stochasticJacobiElementClearAccumulators(StochasticRadiosityElement
 Clears received radiance and importance and accumulates the un-normalized
 sampling probabilities at leaf elements
 */
- void
-Stochjacobi::stochasticJacobiElementSetup(Element *element) {
+void
+StochasticJacobi::stochasticJacobiElementSetup(Element *element) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
@@ -155,7 +149,7 @@ Stochjacobi::stochasticJacobiElementSetup(Element *element) {
         // Elem is a leaf element. We need to compute the sum of the un-normalized
         // sampling "probabilities" at the leaf elements
         stochasticRadiosityElement->samplingProbability = static_cast<float>(stochasticJacobiProbability(stochasticRadiosityElement));
-        globalSumOfProbabilities += stochasticRadiosityElement->samplingProbability;
+        sumOfProbabilities += stochasticRadiosityElement->samplingProbability;
     }
     if ( stochasticRadiosityElement->parent ) {
         // The probability of sampling a non-leaf element is the sum of the
@@ -169,18 +163,18 @@ Stochjacobi::stochasticJacobiElementSetup(Element *element) {
 /**
 Returns true if success, that is: sum of sampling probabilities is nonzero
 */
- bool
-Stochjacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
+bool
+StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches) {
     // Determine constant control radiosity if required
     StochasticRelaxation::activeState().controlRadiance.clear();
-    if ( globalDoControlVariate ) {
-        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(globalGetRadianceCallback, nullptr, scenePatches);
+    if ( useControlVariate ) {
+        StochasticRelaxation::activeState().controlRadiance = Ccr::determineControlRadiosity(getRadianceCallback, nullptr, scenePatches);
     }
 
-    globalSumOfProbabilities = 0.0;
+    sumOfProbabilities = 0.0;
     stochasticJacobiElementSetup(ElementHierarchyState::activeState().topCluster);
 
-    if ( globalSumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
+    if ( sumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
         Error::warning("Iteration", "No sources");
         return false;
     }
@@ -190,14 +184,14 @@ Stochjacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePatches)
 /**
 Returns radiance to be propagated from the given location of the element
 */
- ColorRgb
-Stochjacobi::stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs) {
-    const ColorRgb *srcRad = globalGetRadianceCallback(src);
+ColorRgb
+StochasticJacobi::stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs) {
+    const ColorRgb *srcRad = getRadianceCallback(src);
     return Basismcrad::colorAtUv(src->basis, srcRad, us, vs);
 }
 
- void
-Stochjacobi::stochasticJacobiPropagateRadianceToSurface(
+void
+StochasticJacobi::stochasticJacobiPropagateRadianceToSurface(
     StochasticRadiosityElement *rcv,
     double ur,
     double vr,
@@ -208,28 +202,28 @@ Stochjacobi::stochasticJacobiPropagateRadianceToSurface(
 {
     for ( int i = 0; i < rcv->basis->size; i++ ) {
         double dual = rcv->basis->dualFunction[i](ur, vr) / rcv->area;
-        double w = dual * fraction / static_cast<double>(globalNumberOfRays);
+        double w = dual * fraction / static_cast<double>(numberOfRaysToShoot);
         rcv->receivedRadiance[i].addScaled(rcv->receivedRadiance[i], static_cast<float>(w), rayPower);
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPropagateRadianceToClusterIsotropic(
+void
+StochasticJacobi::stochasticJacobiPropagateRadianceToClusterIsotropic(
     StochasticRadiosityElement *cluster,
     ColorRgb rayPower,
     const StochasticRadiosityElement * /*src*/,
     double fraction,
     double /*weight*/)
 {
-    double w = fraction / cluster->area / static_cast<double>(globalNumberOfRays);
+    double w = fraction / cluster->area / static_cast<double>(numberOfRaysToShoot);
     cluster->receivedRadiance[0].addScaled(cluster->receivedRadiance[0], static_cast<float>(w), rayPower);
 }
 
 /**
 Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
- void
-Stochjacobi::stochasticJacobiPropagateRadianceClusterRecursive(
+void
+StochasticJacobi::stochasticJacobiPropagateRadianceClusterRecursive(
     StochasticRadiosityElement *currentElement,
     ColorRgb rayPower,
     Ray *ray,
@@ -242,7 +236,7 @@ Stochjacobi::stochasticJacobiPropagateRadianceClusterRecursive(
         double c = -dir * currentElement->patch->normal.dotProduct(ray->direction);
         if ( c > 0.0 ) {
             double aFraction = fraction * (c * currentElement->area / projectedArea);
-            double w = aFraction / currentElement->area / static_cast<double>(globalNumberOfRays);
+            double w = aFraction / currentElement->area / static_cast<double>(numberOfRaysToShoot);
             currentElement->receivedRadiance[0].addScaled(currentElement->receivedRadiance[0], static_cast<float>(w), rayPower);
         }
     } else {
@@ -259,8 +253,8 @@ Stochjacobi::stochasticJacobiPropagateRadianceClusterRecursive(
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPropagateRadianceToClusterOriented(
+void
+StochasticJacobi::stochasticJacobiPropagateRadianceToClusterOriented(
     StochasticRadiosityElement *cluster,
     ColorRgb rayPower,
     Ray *ray,
@@ -276,8 +270,8 @@ Stochjacobi::stochasticJacobiPropagateRadianceToClusterOriented(
 /**
 Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 */
- void
-Stochjacobi::stochasticJacobiReceiverProjectedAreaRecursive(
+void
+StochasticJacobi::stochasticJacobiReceiverProjectedAreaRecursive(
     const StochasticRadiosityElement *currentElement,
     Ray *ray,
     float dir,
@@ -302,8 +296,8 @@ Stochjacobi::stochasticJacobiReceiverProjectedAreaRecursive(
     }
 }
 
- double
-Stochjacobi::stochasticJacobiReceiverProjectedArea(const StochasticRadiosityElement *cluster, Ray *ray, float dir) {
+double
+StochasticJacobi::stochasticJacobiReceiverProjectedArea(const StochasticRadiosityElement *cluster, Ray *ray, float dir) {
     double area = 0.0;
     stochasticJacobiReceiverProjectedAreaRecursive(cluster, ray, dir, &area);
     return area;
@@ -314,13 +308,13 @@ Transfer radiance from src to rcv.
 src_prob = un-normalised src birth stochasticJacobiProbability / src area
 rcv_prob = un-normalised rcv birth stochasticJacobiProbability / rcv area for bidirectional transfers
       or = 0 for unidirectional transfers
-score will be weighted with globalSumProbabilities / nr_rays (both are global).
+score is weighted with sumOfProbabilities / numberOfRaysToShoot.
 ray->dir and dir are used in order to determine projected cluster area
 and cosine of incident direction of cluster surface elements when
 the receiver is a cluster
 */
- void
-Stochjacobi::stochasticJacobiPropagateRadiance(
+void
+StochasticJacobi::stochasticJacobiPropagateRadiance(
     const StochasticRadiosityElement *src,
     double us,
     double vs,
@@ -335,7 +329,7 @@ Stochjacobi::stochasticJacobiPropagateRadiance(
     ColorRgb radiance;
     ColorRgb rayPower;
     double area;
-    double weight = globalSumOfProbabilities / src_prob; // src area / normalised src prob
+    double weight = sumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
 
     if ( src_prob < Numeric::EPSILON * Numeric::EPSILON /* this should never happen */
@@ -376,8 +370,8 @@ Stochjacobi::stochasticJacobiPropagateRadiance(
 /**
 Idem but for importance
 */
- void
-Stochjacobi::stochasticJacobiPropagateImportance(
+void
+StochasticJacobi::stochasticJacobiPropagateImportance(
     const StochasticRadiosityElement *src,
     double /*us*/,
     double /*vs*/,
@@ -389,8 +383,8 @@ Stochjacobi::stochasticJacobiPropagateImportance(
     const Ray * /*ray*/,
     float /*dir*/)
 {
-    double w = globalSumOfProbabilities / (src_prob + rcv_prob) / rcv->area / static_cast<double>(globalNumberOfRays);
-    rcv->receivedImportance += static_cast<float>(w * StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(src) * globalGetImportanceCallback(src));
+    double w = sumOfProbabilities / (src_prob + rcv_prob) / rcv->area / static_cast<double>(numberOfRaysToShoot);
+    rcv->receivedImportance += static_cast<float>(w * StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(src) * getImportanceCallback(src));
 
     if ( ElementHierarchyState::activeState().do_h_meshing ||
          ElementHierarchyState::activeState().clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
@@ -403,8 +397,8 @@ Src is the leaf element containing the point from which to propagate
 radiance on P. P and Q are toplevel surface elements. Transfer
 is from P to Q
 */
- void
-Stochjacobi::stochasticJacobiRefineAndPropagateRadiance(
+void
+StochasticJacobi::stochasticJacobiRefineAndPropagateRadiance(
     const StochasticRadiosityElement *src,
     double us,
     double vs,
@@ -427,8 +421,8 @@ Stochjacobi::stochasticJacobiRefineAndPropagateRadiance(
     stochasticJacobiPropagateRadiance(src, us, vs, link.rcv, uq, vq, src_prob, rcv_prob, ray, dir);
 }
 
- void
-Stochjacobi::stochasticJacobiRefineAndPropagateImportance(
+void
+StochasticJacobi::stochasticJacobiRefineAndPropagateImportance(
     const StochasticRadiosityElement *P,
     double up,
     double vp,
@@ -451,8 +445,8 @@ imaginary interaction between these elements and performs
 radiance or importance transfer along the ray, taking into account
 bi-directionality if requested
 */
- void
-Stochjacobi::stochasticJacobiRefineAndPropagate(
+void
+StochasticJacobi::stochasticJacobiRefineAndPropagate(
     StochasticRadiosityElement *P,
     double up,
     double vp,
@@ -474,37 +468,37 @@ Stochjacobi::stochasticJacobiRefineAndPropagate(
         const StochasticRadiosityElement *rcv = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(Q, &ur, &vr);
         rcv_prob = static_cast<double>(rcv->samplingProbability) / static_cast<double>(rcv->area);
 
-        if ( globalGetRadianceCallback ) {
+        if ( getRadianceCallback ) {
             stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1, renderOptions);
             stochasticJacobiRefineAndPropagateRadiance(rcv, ur, vr, Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1, renderOptions);
         }
-        if ( globalGetImportanceCallback ) {
+        if ( getImportanceCallback ) {
             stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, src_prob, rcv_prob, ray, +1);
             stochasticJacobiRefineAndPropagateImportance(Q, uq, vq, P, up, vp, rcv_prob, src_prob, ray, -1);
         }
     } else {
-        if ( globalGetRadianceCallback ) {
+        if ( getRadianceCallback ) {
             stochasticJacobiRefineAndPropagateRadiance(src, us, vs, P, up, vp, Q, uq, vq, src_prob, 0.0, ray, +1, renderOptions);
         }
-        if ( globalGetImportanceCallback ) {
+        if ( getImportanceCallback ) {
             stochasticJacobiRefineAndPropagateImportance(P, up, vp, Q, uq, vq, src_prob, 0.0, ray, +1);
         }
     }
 }
 
- double *
-Stochjacobi::stochasticJacobiNextSample(
-        StochasticRadiosityElement *elem,
-        int nMostSignificantBit,
-        NiederreiterIndex mostSignificantBit1,
-        NiederreiterIndex rMostSignificantBit2,
-        double *zeta)
+double *
+StochasticJacobi::stochasticJacobiNextSample(
+    StochasticRadiosityElement *elem,
+    int nMostSignificantBit,
+    NiederreiterIndex mostSignificantBit1,
+    NiederreiterIndex rMostSignificantBit2,
+    double *zeta)
 {
     NiederreiterIndex *xi;
     NiederreiterIndex u;
     NiederreiterIndex v;
     // Use different ray index for propagating importance and radiance
-    NiederreiterIndex *ray_index = globalGetRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
+    NiederreiterIndex *ray_index = getRadianceCallback ? &elem->rayIndex : &elem->importanceRayIndex;
 
     xi = Niederreiter::NextNiedInRange(ray_index, +1, nMostSignificantBit, mostSignificantBit1, rMostSignificantBit2);
 
@@ -524,8 +518,8 @@ Stochjacobi::stochasticJacobiNextSample(
 /**
 Determines uniform (u,v) parameters of hit point on hit patch
 */
- void
-Stochjacobi::stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
+void
+StochasticJacobi::stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uHit, double *vHit) {
     if ( hit->getFlags() & RayHitFlag::UV ) {
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->getUv().u;
@@ -557,8 +551,8 @@ Stochjacobi::stochasticJacobiUniformHitCoordinates(const RayHit *hit, double *uH
 Traces a local line from 'src' and propagates radiance and/or importance from P to
 hit patch (and back for bidirectional transfers)
 */
- void
-Stochjacobi::stochasticJacobiElementShootRay(
+void
+StochasticJacobi::stochasticJacobiElementShootRay(
     const VoxelGrid * sceneWorldVoxelGrid,
     StochasticRadiosityElement *src,
     int nMostSignificantBit,
@@ -566,11 +560,11 @@ Stochjacobi::stochasticJacobiElementShootRay(
     NiederreiterIndex rMostSignificantBit2,
     const RenderOptions *renderOptions)
 {
-    if ( globalGetRadianceCallback != nullptr ) {
+    if ( getRadianceCallback != nullptr ) {
         StochasticRelaxation::activeState().tracedRays++;
     }
 
-    if ( globalGetImportanceCallback != nullptr ) {
+    if ( getImportanceCallback != nullptr ) {
         StochasticRelaxation::activeState().importanceTracedRays++;
     }
 
@@ -592,8 +586,8 @@ Stochjacobi::stochasticJacobiElementShootRay(
     }
 }
 
- void
-Stochjacobi::stochasticJacobiInitPushRayIndex(Element *element) {
+void
+StochasticJacobi::stochasticJacobiInitPushRayIndex(Element *element) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
 
     if ( stochasticRadiosityElement == nullptr ) {
@@ -607,8 +601,8 @@ Stochjacobi::stochasticJacobiInitPushRayIndex(Element *element) {
 /**
 Determines nr of rays to shoot from element and shoots this number of rays
 */
- void
-Stochjacobi::stochasticJacobiElementShootRays(
+void
+StochasticJacobi::stochasticJacobiElementShootRays(
     const VoxelGrid *sceneWorldVoxelGrid,
     StochasticRadiosityElement *element,
     int raysThisElem,
@@ -632,8 +626,8 @@ Stochjacobi::stochasticJacobiElementShootRays(
     }
 }
 
- void
-Stochjacobi::stochasticJacobiShootRaysRecursive(
+void
+StochasticJacobi::stochasticJacobiShootRaysRecursive(
     VoxelGrid *sceneWorldVoxelGrid,
     StochasticRadiosityElement *element,
     double rnd,
@@ -642,9 +636,9 @@ Stochjacobi::stochasticJacobiShootRaysRecursive(
     RenderOptions *renderOptions) {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        double p = element->samplingProbability / globalSumOfProbabilities;
+        double p = element->samplingProbability / sumOfProbabilities;
         long rays_this_leaf =
-                static_cast<long>(java::Math::floor((*cumulative + p) * static_cast<double>(globalNumberOfRays) + rnd)) - *rayCount;
+                static_cast<long>(java::Math::floor((*cumulative + p) * static_cast<double>(numberOfRaysToShoot) + rnd)) - *rayCount;
 
         if ( rays_this_leaf > 0 ) {
             stochasticJacobiElementShootRays(sceneWorldVoxelGrid, element, static_cast<int>(rays_this_leaf), renderOptions);
@@ -669,8 +663,8 @@ Stochjacobi::stochasticJacobiShootRaysRecursive(
 /**
 Fire off rays from the leaf elements, propagate radiance/importance
 */
- void
-Stochjacobi::stochasticJacobiShootRays(
+void
+StochasticJacobi::stochasticJacobiShootRays(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
     RenderOptions *renderOptions)
@@ -697,10 +691,10 @@ Stochjacobi::stochasticJacobiShootRays(
 Converts received radiance and importance at a leaf element into a new
 approximation of total and un-shot radiance and importance
 */
- void
-Stochjacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
-    if ( globalGetRadianceCallback ) {
-        if ( globalDoControlVariate ) {
+void
+StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
+    if ( getRadianceCallback ) {
+        if ( useControlVariate ) {
             // Add constant radiosity contribution to received flux
             elem->receivedRadiance[0].add(
                 elem->receivedRadiance[0], StochasticRelaxation::activeState().controlRadiance);
@@ -709,7 +703,7 @@ Stochjacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
         Coefficientsmcrad::stochasticRadiosityMultiplyCoefficients(elem->Rd, elem->receivedRadiance, elem->basis);
     }
 
-    globalReflectCallback(elem, static_cast<double>(globalNumberOfRays) / globalSumOfProbabilities);
+    reflectCallback(elem, static_cast<double>(numberOfRaysToShoot) / sumOfProbabilities);
 
     StochasticRelaxation::activeState().unShotFlux.addScaled(
         StochasticRelaxation::activeState().unShotFlux,
@@ -727,9 +721,9 @@ Stochjacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem) {
     StochasticRelaxation::activeState().totalYmp += elem->area * elem->importance;
 }
 
- void
-Stochjacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
-    if ( globalGetRadianceCallback ) {
+void
+StochasticJacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
+    if ( getRadianceCallback ) {
         ColorRgb Rd;
         Rd.clear();
 
@@ -743,18 +737,18 @@ Stochjacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, Stoc
             StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(parent, child, parent->receivedRadiance, child->receivedRadiance);
     }
 
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         StochasticRadiosityElement::stochasticRadiosityElementPushImportance(&parent->receivedImportance, &child->receivedImportance);
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child) {
-    if ( globalGetRadianceCallback ) {
+void
+StochasticJacobi::stochasticJacobiPull(StochasticRadiosityElement *parent, const StochasticRadiosityElement *child) {
+    if ( getRadianceCallback ) {
         StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(parent, child, parent->radiance, child->radiance);
         StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(parent, child, parent->unShotRadiance, child->unShotRadiance);
     }
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         StochasticRadiosityElement::stochasticRadiosityElementPullImportance(parent, child, &parent->importance, &child->importance);
         StochasticRadiosityElement::stochasticRadiosityElementPullImportance(parent, child, &parent->unShotImportance, &child->unShotImportance);
     }
@@ -763,19 +757,19 @@ Stochjacobi::stochasticJacobiPull(StochasticRadiosityElement *parent, const Stoc
 /**
 Clears everything to be pulled from children elements to zero
 */
- void
-Stochjacobi::stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
-    if ( globalGetRadianceCallback ) {
+void
+StochasticJacobi::stochasticJacobiClearElement(StochasticRadiosityElement *parent) {
+    if ( getRadianceCallback ) {
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(parent->radiance, parent->basis);
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(parent->unShotRadiance, parent->basis);
     }
-    if ( globalGetImportanceCallback ) {
+    if ( getImportanceCallback ) {
         parent->importance = parent->unShotImportance = 0.0;
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPushUpdatePullChild(Element *element) {
+void
+StochasticJacobi::stochasticJacobiPushUpdatePullChild(Element *element) {
     StochasticRadiosityElement *child = static_cast<StochasticRadiosityElement *>(element);
     StochasticRadiosityElement *parent = static_cast<StochasticRadiosityElement *>(child->parent);
     stochasticJacobiPush(parent, child);
@@ -783,8 +777,8 @@ Stochjacobi::stochasticJacobiPushUpdatePullChild(Element *element) {
     stochasticJacobiPull(parent, child);
 }
 
- void
-Stochjacobi::stochasticJacobiPushUpdatePull(Element *element) {
+void
+StochasticJacobi::stochasticJacobiPushUpdatePull(Element *element) {
     StochasticRadiosityElement *stochasticRadiosityElement = static_cast<StochasticRadiosityElement *>(element);
     if ( stochasticRadiosityElement != nullptr && stochasticRadiosityElement->isLeaf() ) {
         stochasticJacobiUpdateElement(stochasticRadiosityElement);
@@ -795,8 +789,8 @@ Stochjacobi::stochasticJacobiPushUpdatePull(Element *element) {
     }
 }
 
- void
-Stochjacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
+void
+StochasticJacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
     StochasticRadiosityElement *child = static_cast<StochasticRadiosityElement *>(element);
     StochasticRadiosityElement *parent = static_cast<StochasticRadiosityElement *>(child->parent);
 
@@ -808,8 +802,8 @@ Stochjacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
         parent->Rd.setMonochrome(1.0);
 }
 
- void
-Stochjacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) {
+void
+StochasticJacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) {
     if ( element == nullptr || element->isLeaf() || (!element->isCluster() && !StochasticRadiosityElement::stochasticRadiosityElementIsTextured(element)) ) {
         return;
     }
@@ -819,8 +813,8 @@ Stochjacobi::stochasticJacobiPullRdEd(StochasticRadiosityElement *element) {
     element->traverseAllChildren(stochasticJacobiPullRdEdFromChild);
 }
 
- void
-Stochjacobi::stochasticJacobiPushUpdatePullSweep() {
+void
+StochasticJacobi::stochasticJacobiPushUpdatePullSweep() {
     // Update radiance, compute new total and un-shot flux
     StochasticRelaxation::activeState().unShotFlux.clear();
     StochasticRelaxation::activeState().unShotYmp = 0.0;
@@ -859,7 +853,7 @@ CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
 void
-Stochjacobi::doStochasticJacobiIteration(
+StochasticJacobi::doStochasticJacobiIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     long numberOfRays,
     ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),

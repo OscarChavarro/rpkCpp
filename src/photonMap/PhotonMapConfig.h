@@ -21,7 +21,7 @@ class PhotonMapConfig {
 
     ImportanceMap *importanceMap;
     ImportanceMap *importanceCMap;
-    PhotonMap *globalMap;
+    PhotonMap *map;
     PhotonMap *causticMap;
 
     PhotonMap *currentMap; // Map in current use: global or caustic
@@ -31,7 +31,7 @@ class PhotonMapConfig {
     LightList *lightList;
 
     PhotonMapConfig(): lightConfig(), eyeConfig(), biPath(),
-                       importanceMap(), importanceCMap(), globalMap(),
+                       importanceMap(), importanceCMap(), map(),
                        causticMap(), currentMap(), currentImpMap(), screen(), lightList() {
         screen = nullptr;
         currentMap = nullptr;

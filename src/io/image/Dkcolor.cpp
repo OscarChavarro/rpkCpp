@@ -3,23 +3,8 @@
 #include "io/wrapper/PersistenceElement.h"
 #include "io/image/Dkcolor.h"
 
-static constexpr int RED = 0;
-static constexpr int GREEN = 1;
-static constexpr int BLUE = 2;
-
-// Exponent same for either format
-static constexpr int EXP = 3;
-
-// Excess used for exponent
-static constexpr int COL_XS = 128;
-
-// Minimum scanline length for encoding
-static constexpr int MINIMUM_SCAN_LINE_LENGTH = 8;
-
-// Maximum scanline length for encoding
-static constexpr int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
-static constexpr int MINIMUM_RUN_LENGTH = 4;
-static BYTE *globalTempBuffer = nullptr;
+BYTE *DkColor::temporaryBuffer = nullptr;
+unsigned int DkColor::temporaryBufferLength = 0;
 
 void
 DkColor::writeByte(java::OutputStream *stream, int value) {
@@ -34,20 +19,18 @@ Get a temporary buffer
 */
 BYTE *
 DkColor::tempBuffer(unsigned int length) {
-    static unsigned tempBufferLength = 0;
-
-    if ( length > tempBufferLength ) {
-        if ( tempBufferLength > 0 ) {
-            globalTempBuffer = CppReAlloc::reAlloc(
-                globalTempBuffer,
-                static_cast<int>(tempBufferLength),
+    if ( length > temporaryBufferLength ) {
+        if ( temporaryBufferLength > 0 ) {
+            temporaryBuffer = CppReAlloc::reAlloc(
+                temporaryBuffer,
+                static_cast<int>(temporaryBufferLength),
                 static_cast<int>(length));
         } else {
-            globalTempBuffer = new BYTE[length];
+            temporaryBuffer = new BYTE[length];
         }
-        tempBufferLength = globalTempBuffer == nullptr ? 0 : length;
+        temporaryBufferLength = temporaryBuffer == nullptr ? 0 : length;
     }
-    return globalTempBuffer;
+    return temporaryBuffer;
 }
 
 /**
@@ -177,8 +160,9 @@ DkColor::writeScan(DK_COLOR *scanline, int len, java::OutputStream *outputStream
 
 void
 DkColor::freeBuffer() {
-    if ( globalTempBuffer != nullptr ) {
-        delete[] globalTempBuffer;
-        globalTempBuffer = nullptr;
+    if ( temporaryBuffer != nullptr ) {
+        delete[] temporaryBuffer;
+        temporaryBuffer = nullptr;
+        temporaryBufferLength = 0;
     }
 }

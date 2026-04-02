@@ -23,6 +23,18 @@ class DkColor {
     static void freeBuffer();
 
   private:
+    static constexpr int RED = 0;
+    static constexpr int GREEN = 1;
+    static constexpr int BLUE = 2;
+    static constexpr int EXP = 3;
+    static constexpr int COL_XS = 128;
+    static constexpr int MINIMUM_SCAN_LINE_LENGTH = 8;
+    static constexpr int MAXIMUM_SCAN_LINE_LENGTH = 0x7fff;
+    static constexpr int MINIMUM_RUN_LENGTH = 4;
+
+    static BYTE *temporaryBuffer;
+    static unsigned int temporaryBufferLength;
+
     static void writeByte(java::OutputStream *stream, int value);
     static BYTE *tempBuffer(unsigned int length);
     static int writeByteColors(BYTE_COLOR *scanline, int len, java::OutputStream *outputStream);

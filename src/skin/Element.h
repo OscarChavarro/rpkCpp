@@ -29,7 +29,7 @@ class Element {
         // A nullptr pointer if there are no regular sub-elements (child element in hierarchy), or a 4-sized
         // array containing with sub-elements. Note both triangles and quads are subdivided in 4.
     java::ArrayList<Element *> *irregularSubElements; // Hierarchy of clusters
-    Matrix2x2 *transformToParent; // Relates surface element (u, v) coordinates to patch (u, v) coordinates,
+    const Matrix2x2 *transformToParent; // Relates surface element (u, v) coordinates to patch (u, v) coordinates,
         // if non-null, transforms (u, v) coordinates on a sub-element to the (u, v) coordinates
         // of the same point on the parent surface element. It is nullptr if the element is a
         // toplevel element for a patch or a cluster element. If non-null it is a sub-element on a patch

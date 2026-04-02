@@ -15,6 +15,9 @@ class MgfGeometry {
     static int mgfEntityFaceWithHoles(int ac, const char **av, ParseSession *context);
 
   private:
+    static constexpr int MGF_PV_SIZE = 24;
+    static constexpr char FLOAT_FORMAT[] = "%.12g";
+
     static void mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon);
 };
 

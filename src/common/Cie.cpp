@@ -34,9 +34,9 @@ float Cie::CIE_y_b = 0.060f;
 float Cie::CIE_x_w = 0.3333333333f;
 float Cie::CIE_y_w = 0.3333333333f;
 
-float Cie::globalLuminousEfficacy = Cie::WHITE_EFFICACY;
-float Cie::globalXyz2RgbMat[3][3] = {};
-float Cie::globalRgb2XyzMat[3][3] = {};
+float Cie::luminousEfficacy = Cie::WHITE_EFFICACY;
+float Cie::xyz2RgbMat[3][3] = {};
+float Cie::rgb2XyzMat[3][3] = {};
 
 double
 Cie::cieD() {
@@ -91,7 +91,7 @@ Cie::gray(float r, float g, float b) {
 
 float
 Cie::luminance(float r, float g, float b) {
-    return globalLuminousEfficacy * gray(r, g, b);
+    return luminousEfficacy * gray(r, g, b);
 }
 
 void
@@ -124,7 +124,7 @@ Set/return the value used for tri-stimulus white efficacy.
 */
 float
 Cie::getLuminousEfficacy() {
-    return globalLuminousEfficacy;
+    return luminousEfficacy;
 }
 
 /**
@@ -169,7 +169,7 @@ Cie::computeColorConversionTransforms(
     CIE_y_w = yw;
 
     setColorTransform(
-            globalXyz2RgbMat, // XYZ to RGB
+            xyz2RgbMat, // XYZ to RGB
           static_cast<float>((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / cieCrD()),
             static_cast<float>((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / cieCrD()),
             static_cast<float>((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / cieCrD()),
@@ -181,7 +181,7 @@ Cie::computeColorConversionTransforms(
             static_cast<float>((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / cieCbD()));
 
     setColorTransform(
-            globalRgb2XyzMat, // RGB to XYZ
+            rgb2XyzMat, // RGB to XYZ
           static_cast<float>(CIE_x_r * cieCrD() / cieD()),
             static_cast<float>(CIE_x_g * cieCgD() / cieD()),
             static_cast<float>(CIE_x_b * cieCbD() / cieD()),
@@ -198,7 +198,7 @@ CIE XYZ <-> RGB
 */
 void
 Cie::transformColorFromXYZ2RGB(const float *xyz, float *rgb) {
-    colorTransform(xyz, globalXyz2RgbMat, rgb);
+    colorTransform(xyz, xyz2RgbMat, rgb);
 }
 
 /**

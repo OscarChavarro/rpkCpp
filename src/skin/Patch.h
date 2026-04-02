@@ -37,8 +37,8 @@ class Patch {
 
     // A static counter which is increased every time a Patch is created in
     // order to make a unique Patch id
-    static int globalPatchId;
-    static Patch *globalExcludedPatches[MAX_EXCLUDED_PATCHES];
+    static int patchId;
+    static Patch *excludedPatches[MAX_EXCLUDED_PATCHES];
     static void
     dontIntersectBase(
         int n,

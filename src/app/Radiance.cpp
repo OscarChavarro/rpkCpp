@@ -17,9 +17,7 @@ Stuff common to all radiance methods
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif
 
-// Composes explanation for -radiance command line option
-static constexpr int  STRING_LENGTH = 1000;
-static char globalRadianceMethodsString[STRING_LENGTH];
+char Radiance::radianceMethodsString[Radiance::STRING_LENGTH];
 
 /**
 This routine sets the current radiance method to be used + initializes
@@ -118,7 +116,7 @@ Radiance::radianceParseOptions(
         stochasticRadiosityBasisState,
         photonMapState,
         photonMapConfig);
-    CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString, optionTypes);
+    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString, optionTypes);
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED

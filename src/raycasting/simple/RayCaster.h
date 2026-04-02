@@ -9,7 +9,8 @@
 
 class RayCaster final : public RayTracer {
   private:
-    static char name[];
+    static RayCaster *rayCaster;
+    static const char *const NAME;
     ScreenBuffer *screenBuffer;
     bool doDeleteScreen;
 

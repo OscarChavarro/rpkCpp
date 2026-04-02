@@ -24,8 +24,7 @@ class VrmlWriter {
     static constexpr int MAXIMUM_CAMERA_STACK = 20;
     static const char *const RPK_HOME;
 
-    static Camera globalCameraStack[MAXIMUM_CAMERA_STACK];
-    static Camera *globalCameraStackPtr;
+    static Camera cameraStack[MAXIMUM_CAMERA_STACK];
 
     static Camera *nextSavedCamera(Camera *previous);
 

@@ -18,10 +18,10 @@ PowerAccumulatorVisitor::getAccumulatedRadiance() const {
 }
 
 /**
-Uses global variables globalSourceRadiance and samplePoint: accumulates the
-power emitted by the element towards the samplePoint in sourceRadiance
-only taking into account the surface orientation with respect to the
-sample point, (ignores intra cluster visibility)
+Accumulates this leaf contribution towards the visitor sample point.
+The contribution is weighted by projected area (cosine term and patch area),
+uses the radiance channel that matches the current Galerkin iteration mode,
+and ignores intra-cluster visibility.
 */
 void
 PowerAccumulatorVisitor::visit(

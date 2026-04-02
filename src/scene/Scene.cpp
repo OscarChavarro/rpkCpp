@@ -2,10 +2,10 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Scene.h"
 
-static const char *globalCompoundType = "Compound";
-static const char *globalMeshSurfaceType = "MeshSurface";
-static const char *globalPatchSetType = "PatchSet";
-static const char *globalUnknownType = "<unknown>";
+const char *Scene::compoundType = "Compound";
+const char *Scene::meshSurfaceType = "MeshSurface";
+const char *Scene::patchSetType = "PatchSet";
+const char *Scene::unknownType = "<unknown>";
 
 Scene::Scene():
     background(),
@@ -56,13 +56,13 @@ Scene::~Scene() {
 
 const char *
 Scene::printGeometryType(GeometryClassId id) {
-    const char *response = globalUnknownType;
+    const char *response = unknownType;
     if ( id == GeometryClassId::SURFACE_MESH ) {
-        response = globalMeshSurfaceType;
+        response = meshSurfaceType;
     } else if ( id == GeometryClassId::COMPOUND ) {
-        response = globalCompoundType;
+        response = compoundType;
     } else if ( id == GeometryClassId::PATCH_SET ) {
-        response = globalPatchSetType;
+        response = patchSetType;
     }
     return response;
 }

@@ -18,23 +18,23 @@ Non diffuse first shot
 #include "raycasting/stochasticRaytracing/Nondiff.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-static LightSourceTable *globalLights;
-static int globalNumberOfLights;
-static int globalNumberOfSamples;
-static double globalTotalFlux;
+LightSourceTable *Nondiff::lights = nullptr;
+int Nondiff::numberOfLights = 0;
+int Nondiff::numberOfSamples = 0;
+double Nondiff::totalFlux = 0.0;
 
 void
 Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, const java::ArrayList<Patch *> *lightPatches) {
-    globalTotalFlux = 0.0;
-    globalNumberOfLights = Statistics::instance().reader.numberOfLightSources;
-    globalLights = new LightSourceTable[globalNumberOfLights];
+    totalFlux = 0.0;
+    numberOfLights = Statistics::instance().reader.numberOfLightSources;
+    lights = new LightSourceTable[numberOfLights];
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
         ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, ALL_COMPONENTS);
         double flux = M_PI * light->area * emittedRadiance.sumAbsComponents();
-        globalTotalFlux += flux;
-        globalLights[i] = LightSourceTable(light, flux);
+        totalFlux += flux;
+        lights[i] = LightSourceTable(light, flux);
     }
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
@@ -108,7 +108,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
         double outCos = ray.direction.dotProduct(light->patch->normal);
         ColorRgb receivedRadiosity;
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
-        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * globalNumberOfSamples)), rad);
+        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
         McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
         McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);
@@ -118,20 +118,20 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
 }
 
 void
-Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int numberOfSamples) {
+Nondiff::sampleLightSources(const VoxelGrid *sceneWorldVoxelGrid, int samplesCount) {
     double rnd = drand48();
     int count = 0;
     double pCumulative = 0.0;
-    globalNumberOfSamples = numberOfSamples;
-    java::System::err.printf("Shooting %d light rays ", globalNumberOfSamples);
+    Nondiff::numberOfSamples = samplesCount;
+    java::System::err.printf("Shooting %d light rays ", Nondiff::numberOfSamples);
     java::System::err.flush();
-    for ( int i = 0; i < globalNumberOfLights; i++ ) {
-        double p = globalLights[i].flux / globalTotalFlux;
+    for ( int i = 0; i < Nondiff::numberOfLights; i++ ) {
+        double p = lights[i].flux / totalFlux;
         int samples_this_light =
-                static_cast<int>(floor((pCumulative + p) * static_cast<double>(globalNumberOfSamples) + rnd)) - count;
+                static_cast<int>(floor((pCumulative + p) * static_cast<double>(Nondiff::numberOfSamples) + rnd)) - count;
 
         for ( int j = 0; j < samples_this_light; j++ ) {
-            sampleLight(sceneWorldVoxelGrid, &globalLights[i], p);
+            sampleLight(sceneWorldVoxelGrid, &lights[i], p);
         }
 
         pCumulative += p;
@@ -179,9 +179,10 @@ Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radia
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,
-        StochasticRelaxation::activeState().initialLightSourceSamples * globalNumberOfLights);
+        StochasticRelaxation::activeState().initialLightSourceSamples * numberOfLights);
     summarize(scene->patchList);
-    delete[] globalLights;
+    delete[] lights;
+    lights = nullptr;
 }
 
 #endif

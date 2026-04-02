@@ -5,7 +5,6 @@ Random walk generation
 #include <cstdlib>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -17,10 +16,8 @@ Random walk generation
 #include "raycasting/stochasticRaytracing/Localline.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-static double (*globalBirthProbability)(const Patch *);
-static double globalSumProbabilities;
-
-StochasticRaytracingPathNode::StochasticRaytracingPathNode(): patch(), probability(), inPoint(), outpoint() {}
+double (*Tracepath::birthProbability)(const Patch *) = nullptr;
+double Tracepath::sumProbabilities = 0.0;
 
 /**
 Initialises numberOfNodes, nodes allocated to zero and 'nodes' to the nullptr pointer
@@ -137,7 +134,7 @@ Tracepath::tracePath(
 
 double
 Tracepath::patchNormalisedBirthProbability(const Patch *P) {
-    return globalBirthProbability(P) / globalSumProbabilities;
+    return birthProbability(P) / sumProbabilities;
 }
 
 /**
@@ -159,16 +156,16 @@ Tracepath::tracePaths(
     Path path{};
 
     StochasticRelaxation::activeState().prevTracedRays = StochasticRelaxation::activeState().tracedRays;
-    globalBirthProbability = birthProbabilityCallBack;
+    birthProbability = birthProbabilityCallBack;
 
     // Compute sampling probability normalisation factor
-    globalSumProbabilities = 0.0;
+    sumProbabilities = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
-        globalSumProbabilities += birthProbabilityCallBack(patch);
+        sumProbabilities += birthProbabilityCallBack(patch);
         Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchReceivedRad(patch), McradP::getTopLevelPatchBasis(patch));
     }
-    if ( globalSumProbabilities < Numeric::EPSILON ) {
+    if ( sumProbabilities < Numeric::EPSILON ) {
         Error::warning("tracePaths", "No sources");
         return;
     }
@@ -180,7 +177,7 @@ Tracepath::tracePaths(
     pCumulative = 0.0;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        double p = birthProbabilityCallBack(patch) / globalSumProbabilities;
+        double p = birthProbabilityCallBack(patch) / sumProbabilities;
         long paths_this_patch = static_cast<int>(java::Math::floor((pCumulative + p) * static_cast<double>(numberOfPaths) + rnd)) - pathCount;
         for ( int j = 0; j < paths_this_patch; j++ ) {
             tracePath(sceneWorldVoxelGrid, patch, p, survivalProbabilityCallBack, &path);
@@ -201,7 +198,7 @@ Tracepath::tracePaths(
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
-        updateCallBack(patch, static_cast<double>(numberOfPaths) / globalSumProbabilities);
+        updateCallBack(patch, static_cast<double>(numberOfPaths) / sumProbabilities);
         StochasticRelaxation::activeState().unShotFlux.addScaled(
             StochasticRelaxation::activeState().unShotFlux,
             static_cast<float>(M_PI) * patch->area,

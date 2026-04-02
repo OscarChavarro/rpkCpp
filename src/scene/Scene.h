@@ -9,6 +9,11 @@ class ToneMappingContext;
 
 class Scene {
   private:
+    static const char *compoundType;
+    static const char *meshSurfaceType;
+    static const char *patchSetType;
+    static const char *unknownType;
+
     static const char *printGeometryType(GeometryClassId id);
     static void printSurfaceMesh(const MeshSurface *mesh, int level);
     static void printCompound(const Compound *geometry);

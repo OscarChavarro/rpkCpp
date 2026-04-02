@@ -28,7 +28,7 @@ The parser follows the following process:
 
  For additional control over error reporting and file management,
 use mgfOpen, mgfReadNextLine, mgfParseCurrentLine and mgfClose instead of mgfLoad.
-To globalPass an entity of your own construction to the parser, use
+To pass an entity of your own construction to the parser, use
 the mgfHandle function rather than the handleCallbacks routines directly.
 (The first argument to mgfHandle is the entity #, or -1.)
 To free any data structures and clear the parser, use mgfClear.
@@ -639,7 +639,7 @@ MgfReader::mgfBuildModel(ParseSession *context) {
 }
 
 /**
-Reads in a mgf file. The result is that the global variables
+Reads in a mgf file. The result is that the attributes
 context->geometries and context->materials are filled in, and a PersistedSceneModel
 snapshot with parser outputs/state pointers is returned.
 

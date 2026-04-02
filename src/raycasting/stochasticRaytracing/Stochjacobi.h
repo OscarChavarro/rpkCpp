@@ -32,7 +32,7 @@ This routine updates global ray counts and total/un-shot power/importance statis
 CAVEAT: propagate either radiance or importance alone. Simultaneous
 propagation of importance and radiance does not work yet.
 */
-class Stochjacobi final {
+class StochasticJacobi final {
   public:
     static void doStochasticJacobiIteration(
         VoxelGrid *sceneWorldVoxelGrid,
@@ -44,6 +44,13 @@ class Stochjacobi final {
         RenderOptions *renderOptions);
 
   private:
+    static ColorRgb *(*getRadianceCallback)(const StochasticRadiosityElement *);
+    static float (*getImportanceCallback)(const StochasticRadiosityElement *);
+    static void (*reflectCallback)(StochasticRadiosityElement *, double);
+    static int useControlVariate;
+    static int numberOfRaysToShoot;
+    static double sumOfProbabilities;
+
     static void stochasticJacobiInitGlobals(
         int numberOfRays,
         ColorRgb *(*getRadianceCallBack)(const StochasticRadiosityElement *),

@@ -494,7 +494,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
         StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
     java::System::err.printf("First shot (%ld rays):\n", numberOfRays);
-    Stochjacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
+    StochasticJacobi::doStochasticJacobiIteration(sceneWorldVoxelGrid, numberOfRays, randomWalkRadiosityGetSelfEmittedRadiance, nullptr,
                                 randomWalkRadiosityUpdateSourceIllumination, scenePatches, renderOptions);
     randomWalkRadiosityPrintStats();
 }

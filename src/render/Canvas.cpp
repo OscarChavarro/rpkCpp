@@ -1,22 +1,15 @@
 #include "common/Error.h"
 #include "render/Canvas.h"
 
-/**
-Size of the canvas mode stack. Canvas mode: determines how the program will
-react to mouse events and what shape of cursor is displayed in the canvas
-window, eg spray can when rendering. When the mode changes, the old mode
-is pushed on a stack and restored afterwards
-*/
-static constexpr int CANVAS_MODE_STACK_SIZE = 5;
-static int globalModeStackIndex;
+int Canvas::modeStackIndex = 0;
 
 /**
 Pushes the current canvas mode on the canvas mode stack, so it can be restored later
 */
 void
 Canvas::canvasPushMode() {
-    globalModeStackIndex++;
-    if ( globalModeStackIndex >= CANVAS_MODE_STACK_SIZE ) {
+    modeStackIndex++;
+    if ( modeStackIndex >= CANVAS_MODE_STACK_SIZE ) {
         Error::fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", CANVAS_MODE_STACK_SIZE);
     }
 }
@@ -26,8 +19,8 @@ Restores the last saved canvas mode
 */
 void
 Canvas::canvasPullMode() {
-    globalModeStackIndex--;
-    if ( globalModeStackIndex < 0 ) {
+    modeStackIndex--;
+    if ( modeStackIndex < 0 ) {
         Error::fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
     }
 }

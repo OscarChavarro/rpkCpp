@@ -17,9 +17,8 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 #include "raycasting/common/NormalFilter.h"
 #include "raycasting/simple/RayMatter.h"
 
-static RayMatter *globalRayMatter = nullptr;
-
-char RayMatter::name[12] = "Ray Matting";
+RayMatter *RayMatter::rayMatter = nullptr;
+constexpr char RayMatter::NAME[];
 
 RayMatter::RayMatter(
     ScreenBuffer *screen,
@@ -57,7 +56,7 @@ RayMatter::defaults() {
 
 const char *
 RayMatter::getName() const {
-    return name;
+    return NAME;
 }
 
 void
@@ -71,36 +70,36 @@ RayMatter::execute(
     RadianceMethod */*radianceMethod*/,
     const RenderOptions *renderOptions) const
 {
-    if ( globalRayMatter != nullptr ) {
-        delete globalRayMatter;
+    if ( rayMatter != nullptr ) {
+        delete rayMatter;
     }
-    globalRayMatter = new RayMatter(
+    rayMatter = new RayMatter(
         nullptr,
         scene->camera,
         rayMatterState,
         renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
-    globalRayMatter->doMatting(scene->camera, scene->voxelGrid);
-    if ( ip && globalRayMatter != nullptr ) {
-        globalRayMatter->save(ip);
+    rayMatter->doMatting(scene->camera, scene->voxelGrid);
+    if ( ip && rayMatter != nullptr ) {
+        rayMatter->save(ip);
     }
 }
 
 bool
 RayMatter::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( globalRayMatter == nullptr ) {
+    if ( rayMatter == nullptr ) {
         return false;
     }
 
-    globalRayMatter->save(imageOutputHandle);
+    rayMatter->save(imageOutputHandle);
     return true;
 }
 
 void
 RayMatter::terminate() const {
-    if ( globalRayMatter != nullptr ) {
-        delete globalRayMatter;
+    if ( rayMatter != nullptr ) {
+        delete rayMatter;
     }
-    globalRayMatter = nullptr;
+    rayMatter = nullptr;
 }
 
 void

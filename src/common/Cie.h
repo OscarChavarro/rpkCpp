@@ -17,9 +17,9 @@ class Cie final {
     static float CIE_x_w;
     static float CIE_y_w;
 
-    static float globalLuminousEfficacy;
-    static float globalXyz2RgbMat[3][3];
-    static float globalRgb2XyzMat[3][3];
+    static float luminousEfficacy;
+    static float xyz2RgbMat[3][3];
+    static float rgb2XyzMat[3][3];
 
     static double cieD();
     static double cieCrD();

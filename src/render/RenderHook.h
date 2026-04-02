@@ -4,8 +4,8 @@
 #include "render/RenderHookList.h"
 
 class RenderHook {
-public:
-    RenderHookFunction func;
+  public:
+    RenderHookFunction function;
     void *data;
 };
 

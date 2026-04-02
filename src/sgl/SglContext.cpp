@@ -8,12 +8,17 @@ of patches needs to be ID rendered very often
 #include "common/Error.h"
 #include "sgl/Poly.h"
 #include "sgl/SglContext.h"
-static Matrix4x4 globalIdentityMatrix(
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    0.0f, 0.0f, 1.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f
-);
+
+const Matrix4x4 &
+SglContext::identityMatrix() {
+    static const Matrix4x4 identity(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
+    return identity;
+}
 
 /**
 Creates and destroys an SGL rendering context.
@@ -40,7 +45,7 @@ SglContext::SglContext(int width, int height):
 
     // Transform stack and current transform
     currentTransform = transformStack;
-    *currentTransform = globalIdentityMatrix;
+    *currentTransform = identityMatrix();
 
     currentPixel = 0;
     currentPatch = nullptr;

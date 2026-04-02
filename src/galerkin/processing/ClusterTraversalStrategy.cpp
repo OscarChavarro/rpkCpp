@@ -121,8 +121,8 @@ ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState
 }
 
 /**
-Computes projected area of receiver surface element towards the sample point
-(global variable). Ignores intra cluster visibility
+Computes projected area of receiver surface element towards the sample point.
+Ignores intra cluster visibility
 */
 double
 ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElement *receiverElement) {

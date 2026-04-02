@@ -7,8 +7,7 @@ Saves the result of a radiosity computation as a VRML file
 #include "io/wrl/VrmlWriter.h"
 
 const char *const VrmlWriter::RPK_HOME = "http://www.cs.kuleuven.ac.be/cwis/research/graphics/RENDERPARK/";
-Camera VrmlWriter::globalCameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
-Camera *VrmlWriter::globalCameraStackPtr = VrmlWriter::globalCameraStack;
+Camera VrmlWriter::cameraStack[VrmlWriter::MAXIMUM_CAMERA_STACK];
 
 void
 VrmlWriter::writeFormatted(java::OutputStream *outputStream, const char *format, ...) {
@@ -57,9 +56,9 @@ have been iterated over, nullptr is returned
 */
 Camera *
 VrmlWriter::nextSavedCamera(Camera *previous) {
-    Camera *cam = previous ? previous : globalCameraStackPtr;
+    Camera *cam = previous ? previous : cameraStack;
     cam--;
-    return (cam < globalCameraStack) ? nullptr : cam;
+    return (cam < cameraStack) ? nullptr : cam;
 }
 
 /**

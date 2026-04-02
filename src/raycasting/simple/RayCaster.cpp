@@ -10,9 +10,8 @@ a software frame buffer directly.
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
 
-char RayCaster::name[12] = "Ray Casting";
-
-static RayCaster *globalRayCaster = nullptr;
+const char *const RayCaster::NAME = "Ray Casting";
+RayCaster *RayCaster::rayCaster = nullptr;
 
 RayCaster::RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions) {
     if ( inScreen == nullptr ) {
@@ -37,7 +36,7 @@ RayCaster::defaults() {
 
 const char *
 RayCaster::getName() const {
-    return name;
+    return NAME;
 }
 
 void
@@ -51,32 +50,32 @@ RayCaster::execute(
     RadianceMethod *radianceMethod,
     const RenderOptions *renderOptions) const
 {
-    if ( globalRayCaster != nullptr ) {
-        delete globalRayCaster;
+    if ( rayCaster != nullptr ) {
+        delete rayCaster;
     }
-    globalRayCaster = new RayCaster(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
-    globalRayCaster->render(scene, radianceMethod, renderOptions);
-    if ( globalRayCaster != nullptr && ip != nullptr ) {
-        globalRayCaster->save(ip);
+    rayCaster = new RayCaster(nullptr, scene->camera, renderOptions == nullptr ? nullptr : renderOptions->toneMapOptions);
+    rayCaster->render(scene, radianceMethod, renderOptions);
+    if ( rayCaster != nullptr && ip != nullptr ) {
+        rayCaster->save(ip);
     }
 }
 
 bool
 RayCaster::saveImage(ImageOutputHandle *imageOutputHandle) const {
-    if ( !globalRayCaster ) {
+    if ( !rayCaster ) {
         return false;
     }
 
-    globalRayCaster->save(imageOutputHandle);
+    rayCaster->save(imageOutputHandle);
     return true;
 }
 
 void
 RayCaster::terminate() const {
-    if ( globalRayCaster ) {
-        delete globalRayCaster;
+    if ( rayCaster ) {
+        delete rayCaster;
     }
-    globalRayCaster = nullptr;
+    rayCaster = nullptr;
 }
 
 void

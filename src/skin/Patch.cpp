@@ -7,15 +7,15 @@
 
 static constexpr double TOLERANCE = 1e-5;
 
-int Patch::globalPatchId = 1;
-Patch *Patch::globalExcludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
+int Patch::patchId = 1;
+Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
 
 /**
 This routine returns the ID number the next patch would get
 */
 int
 Patch::getNextId() {
-    return globalPatchId;
+    return patchId;
 }
 
 /**
@@ -24,14 +24,14 @@ Note that patch ID 0 is reserved. The smallest patch ID number should be 1
 */
 void
 Patch::setNextId(int id) {
-    globalPatchId = id;
+    patchId = id;
 }
 
 bool
 Patch::isExcluded() const {
     // MAX_EXCLUDED_PATCHES tests!
     for ( int i = 0; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        if ( globalExcludedPatches[i] == this ) {
+        if ( excludedPatches[i] == this ) {
             return true;
         }
     }
@@ -631,8 +631,8 @@ Patch::Patch(
 
     Statistics::instance().reader.numberOfElements++;
     twin = nullptr;
-    id = globalPatchId;
-    globalPatchId++;
+    id = patchId;
+    patchId++;
 
     material = nullptr;
 
@@ -738,10 +738,10 @@ Patch::dontIntersectBase(
     Patch *localPatches[MAX_EXCLUDED_PATCHES] = {p0, p1, p2, p3};
     int i = 0;
     for ( ; i < n; i++ ) {
-        globalExcludedPatches[i] = localPatches[i];
+        excludedPatches[i] = localPatches[i];
     }
     for ( ; i < MAX_EXCLUDED_PATCHES; i++ ) {
-        globalExcludedPatches[i] = nullptr;
+        excludedPatches[i] = nullptr;
     }
 }
 

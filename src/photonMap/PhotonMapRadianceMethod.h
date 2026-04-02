@@ -12,6 +12,9 @@ class PhotonMapState;
 
 class PhotonMapRadianceMethod final : public RadianceMethod {
   private:
+    static constexpr int STRING_LENGTH = 1000;
+    static bool doingLocalRayCasting;
+
     PhotonMapState &photonMapState;
     PhotonMapConfig &photonMapConfig;
 

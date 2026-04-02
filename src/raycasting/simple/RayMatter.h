@@ -13,7 +13,8 @@
 
 class RayMatter final : public RayTracer {
   private:
-    static char name[];
+    static RayMatter *rayMatter;
+    static constexpr char NAME[] = "Ray Matting";
     ScreenBuffer *screenBuffer;
     PixelFilter *pixelFilter;
     bool doDeleteScreen;

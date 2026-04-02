@@ -15,6 +15,7 @@ typedef unsigned long SGL_Z_VALUE;
 class SglContext {
   private:
     static void clearFrameBuffer(SglContext *sglContext, SGL_PIXEL backgroundColor);
+    static const Matrix4x4 &identityMatrix();
 
   public:
     Matrix4x4 transformStack[SGL_TRANSFORM_STACK_SIZE]; // Transform stack

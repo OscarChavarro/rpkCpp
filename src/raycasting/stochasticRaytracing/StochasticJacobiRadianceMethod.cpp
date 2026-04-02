@@ -267,7 +267,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
         java::System::err.printf("Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
-        Stochjacobi::doStochasticJacobiIteration(
+        StochasticJacobi::doStochasticJacobiIteration(
             scene->voxelGrid,
             numberOfRays,
             stochasticRelaxationRadiosityElementUnShotRadiance,
@@ -344,7 +344,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
         java::System::err.printf("Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
                 stepNumber, 100.0 * unShotFraction);
 
-        Stochjacobi::doStochasticJacobiIteration(
+        StochasticJacobi::doStochasticJacobiIteration(
             sceneWorldVoxelGrid,
             numberOfRays,
             nullptr,
@@ -427,7 +427,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularRadianceIt
     RenderOptions *renderOptions)
 {
     java::System::err.printf("Regular radiance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
-    Stochjacobi::doStochasticJacobiIteration(
+    StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
         StochasticRelaxation::activeState().raysPerIteration,
         stochasticRelaxationRadiosityElementRadiance,
@@ -471,7 +471,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularImportance
     numberOfRays = StochasticRelaxation::activeState().importanceRaysPerIteration;
     java::System::err.printf("Regular importance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
 
-    Stochjacobi::doStochasticJacobiIteration(
+    StochasticJacobi::doStochasticJacobiIteration(
         sceneWorldVoxelGrid,
         numberOfRays,
         nullptr,

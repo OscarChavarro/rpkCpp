@@ -12,7 +12,7 @@ Hash a null-terminated string
 */
 long
 LookUpTable::lookUpShuffleHash(const char *text) {
-    static const unsigned char globalShuffle[256] = {
+    static const unsigned char shuffle[256] = {
         0, 157, 58, 215, 116, 17, 174, 75, 232, 133, 34, 191, 92, 249, 150, 51,
         208, 109, 10, 167, 68, 225, 126, 27, 184, 85, 242, 143, 44, 201, 102, 3,
         160, 61, 218, 119, 20, 177, 78, 235, 136, 37, 194, 95, 252, 153, 54, 211,
@@ -36,7 +36,7 @@ LookUpTable::lookUpShuffleHash(const char *text) {
     const unsigned char *bytes = reinterpret_cast<const unsigned char *>(text);
 
     for ( int i = 0; bytes[i] != '\0'; i++ ) {
-        hash ^= static_cast<long>(globalShuffle[bytes[i]]) << ((bitShift += 11) & 0xf);
+        hash ^= static_cast<long>(shuffle[bytes[i]]) << ((bitShift += 11) & 0xf);
     }
 
     return hash;

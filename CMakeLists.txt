@@ -281,6 +281,7 @@ set(RAYTRACING_SRC
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp
     src/raycasting/stochasticRaytracing/Hierarchy.cpp
+    src/raycasting/stochasticRaytracing/StochasticRaytracingPathNode.cpp
     src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp
     src/raycasting/stochasticRaytracing/Render.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.cpp

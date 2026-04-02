@@ -6,8 +6,8 @@
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinElement.h"
 
-static int globalNumberOfElements = 0;
-static int globalNumberOfClusters = 0;
+int GalerkinElement::numberOfElements = 0;
+int GalerkinElement::numberOfClusters = 0;
 
 /**
 Orientation and position of regular sub-elements is fully determined by the following transformations.
@@ -32,7 +32,7 @@ Up-transforms for regular quadrilateral sub-elements:
    0 +---------+---------+
      0        0.5        1   (u)
 */
-Matrix2x2 globalQuadToParentTransformMatrix[4] = {
+const Matrix2x2 GalerkinElement::quadToParentTransformMatrix[4] = {
     // 1: South-west [0, 0.5] x [0, 0.5]
     {
         {
@@ -88,7 +88,7 @@ Up-transforms for regular triangular sub-elements:
   0 +---------+---------+
     0        0.5        1  (u)
 */
-Matrix2x2 globalTriangleToParentTransformMatrix[4] = {
+const Matrix2x2 GalerkinElement::triangleToParentTransformMatrix[4] = {
     // 1: Left [0, 0], [0.5, 0], [0, 0.5]
     {
         {
@@ -129,15 +129,14 @@ Matrix2x2 globalTriangleToParentTransformMatrix[4] = {
 /**
 Private inner constructor, Use either galerkinElementCreateTopLevel() or CreateRegularSubElement()
 */
-GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
-    Element()
+GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):Element()
 {
     className = ElementTypes::ELEMENT_GALERKIN;
 
     interactions = new java::ArrayList<Interaction *>();
     galerkinState = inGalerkinState;
 
-    id = globalNumberOfElements + 1; // Let the IDs start from 1, not 0
+    id = numberOfElements + 1; // Let the IDs start from 1, not 0
     radiance = nullptr;
     receivedRadiance = nullptr;
     unShotRadiance = nullptr;
@@ -160,7 +159,7 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):
     scratchVisibilityUsageCounter = 0;
     blockerSize = 0.0; // Correct eq. blocker size will be computer later on
 
-    globalNumberOfElements++;
+    numberOfElements++;
 }
 
 /**
@@ -200,7 +199,7 @@ GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkin
     Rd.setMonochrome(1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
-    globalNumberOfClusters++;
+    numberOfClusters++;
 }
 
 GalerkinElement::~GalerkinElement() {
@@ -225,9 +224,9 @@ GalerkinElement::~GalerkinElement() {
     if ( unShotRadiance ) {
         delete[] unShotRadiance;
     }
-    globalNumberOfElements--;
+    numberOfElements--;
     if ( isCluster() ) {
-        globalNumberOfClusters--;
+        numberOfClusters--;
     }
 }
 
@@ -236,17 +235,17 @@ Returns the total number of elements in use
 */
 int
 GalerkinElement::getNumberOfElements() {
-    return globalNumberOfElements;
+    return numberOfElements;
 }
 
 int
 GalerkinElement::getNumberOfClusters() {
-    return globalNumberOfClusters;
+    return numberOfClusters;
 }
 
 int
 GalerkinElement::getNumberOfSurfaceElements() {
-    return globalNumberOfElements - globalNumberOfClusters;
+    return numberOfElements - numberOfClusters;
 }
 
 GalerkinElement *
@@ -379,8 +378,8 @@ GalerkinElement::regularSubDivide() {
         child->parent = this;
         child->transformToParent =
             patch->numberOfVertices == 3 ?
-            &globalTriangleToParentTransformMatrix[i] :
-            &globalQuadToParentTransformMatrix[i];
+            &triangleToParentTransformMatrix[i] :
+            &quadToParentTransformMatrix[i];
         child->area = 0.25f * area;  // Uniform mapping is always used
         child->blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(child->area / M_PI));
         child->childNumber = static_cast<GalerkinElementRenderMode>(i);
@@ -615,10 +614,10 @@ void
 GalerkinElement::initializeBasis() {
     GalerkinBasis::computeRegularFilterCoefficients(
         GalerkinBasis::mutableBasisForVertexCount(4),
-        globalQuadToParentTransformMatrix,
+        quadToParentTransformMatrix,
         QuadCubatureRule::degree8QuadrilateralRule());
     GalerkinBasis::computeRegularFilterCoefficients(
         GalerkinBasis::mutableBasisForVertexCount(3),
-        globalTriangleToParentTransformMatrix,
+        triangleToParentTransformMatrix,
         TriangleCubatureRule::degree8Rule());
 }
