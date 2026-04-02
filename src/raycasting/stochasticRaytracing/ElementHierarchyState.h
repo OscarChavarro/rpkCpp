@@ -9,7 +9,7 @@
 #include "raycasting/stochasticRaytracing/Link.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 
-typedef Link *(*REFINE_ACTION)(
+using REFINE_ACTION = Link *(*)(
     Link *link,
     StochasticRadiosityElement *rcvtop,
     double *ur,
@@ -19,7 +19,7 @@ typedef Link *(*REFINE_ACTION)(
     double *vs,
     const RenderOptions *renderOptions);
 
-typedef REFINE_ACTION (*ORACLE)(const Link *link);
+using ORACLE = REFINE_ACTION (*)(const Link *link);
 
 /**
 Global parameters controlling hierarchical refinement

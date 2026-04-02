@@ -9,8 +9,8 @@ Small Graphics Library
 #include "skin/Patch.h"
 #include "render/sgl/SglConstants.h"
 #include "render/sgl/SglPixelContent.h"
-typedef unsigned long SGL_PIXEL;
-typedef unsigned long SGL_Z_VALUE;
+using SGL_PIXEL = unsigned long;
+using SGL_Z_VALUE = unsigned long;
 
 class GalerkinElement;
 

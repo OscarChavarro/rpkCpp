@@ -7,8 +7,8 @@ All bases are orthonormal on their standard domain
 class GalerkinBasis {
   public:
     static constexpr int MAX_BASIS_SIZE = 10;
-    typedef double FILTER[MAX_BASIS_SIZE][MAX_BASIS_SIZE];
-    typedef FILTER FILTER_TABLE[4];
+    using FILTER = double[MAX_BASIS_SIZE][MAX_BASIS_SIZE];
+    using FILTER_TABLE = FILTER[4];
 
     const char *description;
     int size; // Number of basis functions

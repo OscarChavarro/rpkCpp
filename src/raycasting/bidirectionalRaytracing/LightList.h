@@ -11,8 +11,6 @@ this class can be used for sampling lights
 #include "raycasting/bidirectionalRaytracing/LightInfo.h"
 #include "skin/Patch.h"
 
-class LightListIterator;
-
 class LightList final : private CircularList<LightInfo> {
   private:
     // Total flux ( sum(L * A * PI))

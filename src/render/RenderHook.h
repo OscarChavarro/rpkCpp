@@ -1,7 +1,7 @@
 #ifndef __RENDER_HOOK_PRIVATE__
 #define __RENDER_HOOK_PRIVATE__
 
-#include "render/RenderHookList.h"
+using RenderHookFunction = void (*)(void *data);
 
 class RenderHook {
   public:

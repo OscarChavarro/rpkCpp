@@ -19,6 +19,6 @@ class SparList final : public CircularList<Spar *> {
     ~SparList() final;
 };
 
-typedef CircularListIterator<Spar *> CSparListIter;
+using CSparListIter = CircularListIterator<Spar *>;
 
 #endif

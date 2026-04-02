@@ -23,6 +23,6 @@ class FlagChainList final : private CircularList<FlagChain> {
     FlagChainList *simplify();
 };
 
-typedef CircularListIterator<FlagChain> FlagChainIterator;
+using FlagChainIterator = CircularListIterator<FlagChain>;
 
 #endif

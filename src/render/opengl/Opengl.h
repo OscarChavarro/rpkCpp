@@ -11,8 +11,8 @@
 
 class OpenGlRenderTraversalCallback;
 
-typedef void (*OpenGlRenderPatchCallback)(const Patch *, const Camera *, const RenderOptions *);
-typedef void (*OpenGlRenderPatchCallbackWithData)(const Patch *, const Camera *, const RenderOptions *, void *);
+using OpenGlRenderPatchCallback = void (*)(const Patch *, const Camera *, const RenderOptions *);
+using OpenGlRenderPatchCallbackWithData = void (*)(const Patch *, const Camera *, const RenderOptions *, void *);
 
 class Opengl {
   private:

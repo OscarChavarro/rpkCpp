@@ -9,10 +9,9 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4
     #error "Niederreiter63.h and Niederreiter31.h cannot be included in the same source file"
 #endif
 
-typedef unsigned NiederreiterIndex;
+using NiederreiterIndex = unsigned;
 
-template<typename IndexType, unsigned Dimension, unsigned NumberOfBits>
-class NiederreiterCore;
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
 class Niederreiter31 {
   public:

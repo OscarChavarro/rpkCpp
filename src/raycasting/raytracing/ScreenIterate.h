@@ -13,7 +13,7 @@ Several functions are provided for different iterating schemes
 #include "tonemap/ToneMappingContext.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
 
-typedef ColorRgb(*SCREEN_ITERATE_CALLBACK)(Camera *, VoxelGrid *, Background *, int, int, void *);
+using SCREEN_ITERATE_CALLBACK = ColorRgb (*)(Camera *, VoxelGrid *, Background *, int, int, void *);
 
 class ScreenIterate {
   public:

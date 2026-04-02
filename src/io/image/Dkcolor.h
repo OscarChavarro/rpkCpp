@@ -13,9 +13,9 @@ three single byte mantissas and a common exponent.
 
 #include "java/io/OutputStream.h"
 
-typedef unsigned char BYTE; // 8-bit unsigned integer
-typedef BYTE BYTE_COLOR[4]; // Red, green, blue (or X,Y,Z), exponent
-typedef float DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
+using BYTE = unsigned char; // 8-bit unsigned integer
+using BYTE_COLOR = BYTE[4]; // Red, green, blue (or X,Y,Z), exponent
+using DK_COLOR = float[3]; // Red, green, blue (or X,Y,Z)
 
 class DkColor {
   public:

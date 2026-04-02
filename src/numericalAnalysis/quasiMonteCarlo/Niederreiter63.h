@@ -13,10 +13,9 @@ Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 63 bits, skip 4
 
 /** All this makes no sense if you don't have 64-bit integers */
 
-typedef unsigned long long NiederreiterIndex;
+using NiederreiterIndex = unsigned long long;
 
-template<typename IndexType, unsigned Dimension, unsigned NumberOfBits>
-class NiederreiterCore;
+#include "numericalAnalysis/quasiMonteCarlo/NiederreiterCore.txx"
 
 class Niederreiter63 {
   public:

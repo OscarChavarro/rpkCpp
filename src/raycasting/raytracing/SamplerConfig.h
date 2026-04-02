@@ -14,7 +14,7 @@ procedure of a monte carlo ray tracing like algorithm
 #include "raycasting/raytracing/PixelSampler.h"
 #include "raycasting/raytracing/SampleConnectionFlags.h"
 
-typedef int CONNECT_FLAGS;
+using CONNECT_FLAGS = int;
 
 class SamplerConfig {
   public:
