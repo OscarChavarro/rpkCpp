@@ -34,6 +34,7 @@ RayTracer *
 Raytrace::rayTraceCreateRayTracerFromName(
     const char *rayTracerName,
     const Scene *scene,
+    ToneMappingContext *toneMapOptions,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
     StochasticRayTracingState &stochasticRayTracingState,
@@ -41,9 +42,9 @@ Raytrace::rayTraceCreateRayTracerFromName(
 {
     RayTracer *newRaytracer;
     if ( strcmp(rayTracerName, "RayMatting") == 0 ) {
-        newRaytracer = new RayMatter(nullptr, scene->camera, rayMatterState, scene->toneMapOptions);
+        newRaytracer = new RayMatter(nullptr, scene->camera, rayMatterState, toneMapOptions);
     } else if ( strcmp(rayTracerName, "RayCasting") == 0 ) {
-        newRaytracer = new RayCaster(nullptr, scene->camera, scene->toneMapOptions);
+        newRaytracer = new RayCaster(nullptr, scene->camera, toneMapOptions);
     } else if ( strcmp(rayTracerName, "BidirectionalPathTracing") == 0 ) {
         newRaytracer = new BidirectionalPathRaytracer(bidirectionalPathState, lightList);
     } else if ( strcmp(rayTracerName, "StochasticRaytracing") == 0 ) {
@@ -63,6 +64,7 @@ Raytrace::rayTraceCreateRayTracerFromName(
 RayTracer *
 Raytrace::rayTraceCreate(
     const Scene *scene,
+    ToneMappingContext *toneMapOptions,
     const char *rayTracerName,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
@@ -72,6 +74,7 @@ Raytrace::rayTraceCreate(
     RayTracer *rayTracer = Raytrace::rayTraceCreateRayTracerFromName(
         rayTracerName,
         scene,
+        toneMapOptions,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState,
@@ -140,6 +143,7 @@ Raytrace::rayTraceExecute(
     Scene *scene,
     RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
+    ToneMappingContext *toneMapOptions,
     RenderOptions *renderOptions)
 {
     renderOptions->renderRayTracedImage = true;
@@ -153,6 +157,7 @@ Raytrace::rayTraceExecute(
         rayTracer,
         scene,
         radianceMethod,
+        toneMapOptions,
         renderOptions);
     Canvas::canvasPullMode();
 }

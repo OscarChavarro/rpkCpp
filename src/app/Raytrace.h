@@ -11,12 +11,14 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "app/options/OptionsType.h"
+#include "tonemap/ToneMappingContext.h"
 
 #ifdef RAYTRACING_ENABLED
 class Raytrace final {
   public:
     static RayTracer *rayTraceCreate(
         const Scene *scene,
+        ToneMappingContext *toneMapOptions,
         const char *rayTracerName,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
@@ -35,6 +37,7 @@ class Raytrace final {
         Scene *scene,
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         RenderOptions *renderOptions);
     static void rayTraceParseOptions(
             int *argc,
@@ -51,6 +54,7 @@ class Raytrace final {
     static RayTracer *rayTraceCreateRayTracerFromName(
         const char *rayTracerName,
         const Scene *scene,
+        ToneMappingContext *toneMapOptions,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState,

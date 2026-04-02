@@ -657,7 +657,7 @@ SceneBuilder::sceneBuilderReadFile(
     java::System::err.printf("Initializing radiance method ... ");
     java::System::err.flush();
 
-    Radiance::setRadianceMethod(mgfContext->radianceMethod, scene);
+    Radiance::setRadianceMethod(mgfContext->radianceMethod, scene, &toneMapOptions);
 
     t = java::System::nanoTime();
     java::System::err.printf(

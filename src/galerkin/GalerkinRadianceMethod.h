@@ -70,7 +70,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     ~GalerkinRadianceMethod() final;
     const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
-    void initialize(Scene *scene) final;
+    void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RenderOptions *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
     ColorRgb getRadiance(Camera *, Patch *patch, double u, double v, Vector3D, const RenderOptions *) const final;

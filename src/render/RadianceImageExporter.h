@@ -9,6 +9,7 @@
 #include "scene/Scene.h"
 #include "skin/Patch.h"
 #include "render/ScreenBuffer.h"
+#include "tonemap/ToneMappingContext.h"
 
 class RadianceImageExporter final {
   public:
@@ -18,6 +19,7 @@ class RadianceImageExporter final {
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
 
   private:

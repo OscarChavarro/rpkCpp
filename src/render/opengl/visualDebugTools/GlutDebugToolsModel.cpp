@@ -12,6 +12,7 @@ GlutDebugToolsModel::GlutDebugToolsModel():
     scene(nullptr),
     radianceMethod(nullptr),
     renderOptions(nullptr),
+    toneMapOptions(nullptr),
     debugState(nullptr),
     memoryFreeCallBack(nullptr),
     mgfContext(nullptr)

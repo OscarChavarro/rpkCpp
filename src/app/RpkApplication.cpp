@@ -54,7 +54,6 @@ RpkApplication::RpkApplication():
     scene = new Scene();
     mgfContext = new ParseSession();
     renderOptions = new RenderOptions();
-    scene->toneMapOptions = &toneMapOptions;
 }
 
 RpkApplication::~RpkApplication() {
@@ -174,6 +173,7 @@ RpkApplication::executeRendering(
     #ifdef RAYTRACING_ENABLED
         rayTracer = Raytrace::rayTraceCreate(
             scene,
+            &toneMapOptions,
             rayTracerName,
             rayMatterState,
             bidirectionalPathState,
@@ -187,7 +187,7 @@ RpkApplication::executeRendering(
         (void) lightList;
     #endif
 
-    Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, renderOptions);
+    Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, &toneMapOptions, renderOptions);
 }
 
 void
@@ -268,6 +268,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
             debugToolsModel.scene = scene;
             debugToolsModel.radianceMethod = mgfContext->radianceMethod;
             debugToolsModel.renderOptions = renderOptions;
+            debugToolsModel.toneMapOptions = &toneMapOptions;
             debugToolsModel.debugState = &debugState;
             debugToolsModel.memoryFreeCallBack = RpkApplication::freeMemory;
             debugToolsModel.mgfContext = mgfContext;

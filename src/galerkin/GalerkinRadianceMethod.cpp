@@ -336,10 +336,10 @@ GalerkinRadianceMethod::parseOptions(int * /*argc*/, char ** /*argv*/) {
 }
 
 void
-GalerkinRadianceMethod::initialize(Scene *scene) {
-    galerkinState.toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
+GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOptions) {
+    galerkinState.toneMapOptions = toneMapOptions;
     if ( galerkinState.toneMapOptions == nullptr ) {
-        Error::fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not set in scene");
+        Error::fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     galerkinState.iterationNumber = 0;

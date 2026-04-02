@@ -28,7 +28,12 @@ class RayCaster final : public RayTracer {
   public:
     explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = nullptr);
     ~RayCaster() final;
-    void render(const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);
+    void
+    render(
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
+        const RenderOptions *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);
 
@@ -41,6 +46,7 @@ class RayCaster final : public RayTracer {
         ImageOutputHandle *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
@@ -53,6 +59,7 @@ class RayCaster final : public RayTracer {
         int isPipe,
         const Scene *scene,
         const RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
 };
 

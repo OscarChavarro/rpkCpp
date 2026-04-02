@@ -13,15 +13,15 @@ RadianceImageExporter::exportImage(
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions)
 {
     if ( outputStream == nullptr || scene == nullptr || scene->camera == nullptr ) {
         return;
     }
 
-    ToneMappingContext *toneMapOptions = scene->toneMapOptions;
     if ( toneMapOptions == nullptr ) {
-        Error::error("RadianceImageExporter::exportImage", "Tone mapping context not available for image export");
+        Error::error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
         return;
     }
 

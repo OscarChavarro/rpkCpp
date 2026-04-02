@@ -9,6 +9,7 @@
 #include "scene/Scene.h"
 #include "app/options/BatchOptions.h"
 #include "app/options/OptionsType.h"
+#include "tonemap/ToneMappingContext.h"
 
 class Batch final {
   public:
@@ -16,6 +17,7 @@ class Batch final {
         Scene *scene,
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         RenderOptions *renderOptions);
     static void generalParseOptions(int *argc, char **argv, OptionsType &optionTypes);
     static const BatchOptions *batchGetOptions();
@@ -32,6 +34,7 @@ class Batch final {
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
 #endif
     static void batchProcessFile(
@@ -43,10 +46,12 @@ class Batch final {
             const Scene *scene,
             const RadianceMethod *radianceMethod,
             const RayTracer *rayTracer,
+            ToneMappingContext *toneMapOptions,
             const RenderOptions *renderOptions),
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
     static void batchSaveRadianceImage(
         const char *fileName,
@@ -55,6 +60,7 @@ class Batch final {
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
     static void batchSaveRadianceModel(
         const char *fileName,
@@ -63,6 +69,7 @@ class Batch final {
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
 };
 

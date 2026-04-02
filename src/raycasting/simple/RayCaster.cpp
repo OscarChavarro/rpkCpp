@@ -48,13 +48,14 @@ RayCaster::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions) const
 {
     if ( rayCaster != nullptr ) {
         delete rayCaster;
     }
-    rayCaster = new RayCaster(nullptr, scene->camera, scene == nullptr ? nullptr : scene->toneMapOptions);
-    rayCaster->render(scene, radianceMethod, renderOptions);
+    rayCaster = new RayCaster(nullptr, scene->camera, toneMapOptions);
+    rayCaster->render(scene, radianceMethod, toneMapOptions, renderOptions);
     if ( rayCaster != nullptr && ip != nullptr ) {
         rayCaster->save(ip);
     }
@@ -151,9 +152,10 @@ void
 RayCaster::render(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions)
 {
-    screenBuffer->setToneMappingContext(scene == nullptr ? nullptr : scene->toneMapOptions);
+    screenBuffer->setToneMappingContext(toneMapOptions);
 #ifdef RAYTRACING_ENABLED
     long long t = java::System::nanoTime();
 #endif
@@ -211,6 +213,7 @@ RayCaster::rayCast(
     const int isPipe,
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions) {
     ImageOutputHandle *img = nullptr;
 
@@ -227,8 +230,8 @@ RayCaster::rayCast(
         }
     }
 
-    RayCaster *rc = new RayCaster(nullptr, scene->camera, scene == nullptr ? nullptr : scene->toneMapOptions);
-    rc->render(scene, radianceMethod, renderOptions);
+    RayCaster *rc = new RayCaster(nullptr, scene->camera, toneMapOptions);
+    rc->render(scene, radianceMethod, toneMapOptions, renderOptions);
     if ( img != nullptr ) {
         rc->save(img);
     }

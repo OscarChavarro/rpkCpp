@@ -68,6 +68,7 @@ RayMatter::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod */*radianceMethod*/,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions) const
 {
     if ( rayMatter != nullptr ) {
@@ -77,7 +78,7 @@ RayMatter::execute(
         nullptr,
         scene->camera,
         rayMatterState,
-        scene == nullptr ? nullptr : scene->toneMapOptions);
+        toneMapOptions);
     rayMatter->doMatting(scene->camera, scene->voxelGrid);
     if ( ip && rayMatter != nullptr ) {
         rayMatter->save(ip);

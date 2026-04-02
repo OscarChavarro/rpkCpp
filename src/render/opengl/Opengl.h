@@ -7,6 +7,7 @@
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class OpenGlRenderTraversalCallback;
 
@@ -93,6 +94,7 @@ class Opengl {
     openGlRenderScene(
         const Scene *scene,
         const RadianceMethod *radianceMethod,
+        const ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions,
         const GlutDebugState *debugState = nullptr);
 };

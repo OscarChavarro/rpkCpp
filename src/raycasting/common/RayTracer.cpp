@@ -12,6 +12,7 @@ RayTracer::rayTrace(
     const RayTracer *rayTracer,
     Scene *scene,
     RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions)
 {
     ImageOutputHandle *img = nullptr;
@@ -29,7 +30,7 @@ RayTracer::rayTrace(
     }
 
     if ( rayTracer != nullptr ) {
-        rayTracer->execute(img, scene, radianceMethod, renderOptions);
+        rayTracer->execute(img, scene, radianceMethod, toneMapOptions, renderOptions);
     }
 
     if ( img ) {

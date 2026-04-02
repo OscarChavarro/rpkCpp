@@ -11,7 +11,7 @@ Stuff common to all radiance methods
 This routine sets the current radiance method to be used + initializes
 */
 void
-Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
+Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene, ToneMappingContext *toneMapOptions) {
     if ( radianceMethod != nullptr ) {
         radianceMethod->terminate(scene->patchList);
         // Until we have radiance data convertors, we dispose of the old data and
@@ -22,7 +22,7 @@ Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene) {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             radianceMethod->createPatchData(scene->patchList->get(i));
         }
-        radianceMethod->initialize(scene);
+        radianceMethod->initialize(scene, toneMapOptions);
     }
 }
 

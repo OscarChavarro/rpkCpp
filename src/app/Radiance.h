@@ -11,6 +11,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/RadianceMethod.h"
+#include "tonemap/ToneMappingContext.h"
 
 class Radiance final {
   public:
@@ -27,7 +28,7 @@ class Radiance final {
             BidirectionalPathTracingState &bidirectionalPathState,
             StochasticRayTracingState &stochasticRayTracingState,
             OptionsType &optionTypes);
-    static void setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene);
+    static void setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene, ToneMappingContext *toneMapOptions);
 };
 
 #endif

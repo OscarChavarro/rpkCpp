@@ -15,12 +15,10 @@ Scene::Scene():
     clusteredRootGeometry(),
     voxelGrid(),
     patchList(),
-    lightSourcePatchList(),
-    toneMapOptions()
+    lightSourcePatchList()
 {
     camera = new Camera();
     clusteredGeometryList = new java::ArrayList<Geometry *>();
-    toneMapOptions = nullptr;
 }
 
 Scene::~Scene() {

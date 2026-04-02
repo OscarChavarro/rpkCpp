@@ -113,8 +113,12 @@ PhotonMapRadianceMethod::photonMapChooseSurfaceSampler(SurfaceSampler **samplerP
 Initializes the computations for the current scene (if any)
 */
 void
-PhotonMapRadianceMethod::initialize(Scene *scene) {
+PhotonMapRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOptions) {
     java::System::err.printf("Photon map activated\n");
+
+    if ( toneMapOptions == nullptr ) {
+        Error::fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
+    }
 
     photonMapState.lastClock = java::System::nanoTime();
     photonMapState.cpuSecs = 0.0;
@@ -130,7 +134,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene) {
     if ( photonMapConfig.screen ) {
         delete photonMapConfig.screen;
     }
-    photonMapConfig.screen = new ScreenBuffer(nullptr, scene->camera, scene->toneMapOptions);
+    photonMapConfig.screen = new ScreenBuffer(nullptr, scene->camera, toneMapOptions);
 
     if ( photonMapConfig.lightList ) {
         delete photonMapConfig.lightList;

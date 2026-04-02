@@ -8,6 +8,7 @@
 #include "scene/Camera.h"
 #include "scene/RadianceMethodAlgorithm.h"
 #include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class RadianceMethod {
   public:
@@ -23,7 +24,7 @@ class RadianceMethod {
 
     // Initializes the current scene for radiance computations. Called when a new
     // scene is loaded or when selecting a particular radiance algorithm
-    virtual void initialize(Scene *scene) = 0;
+    virtual void initialize(Scene *scene, ToneMappingContext *toneMapOptions) = 0;
 
     // Does one step or iteration of the radiance computation, typically a unit
     // of computations after which the scene is to be redrawn. Returns TRUE when

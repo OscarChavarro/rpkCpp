@@ -49,11 +49,11 @@ StochasticRaytracer::execute(
     ImageOutputHandle *ip,
     Scene *scene,
     RadianceMethod *radianceMethod,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions) const
 {
-    ToneMappingContext *toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not set in scene");
+        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
     }
 
     StochasticRaytracingConfiguration config(

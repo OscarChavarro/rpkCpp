@@ -97,13 +97,14 @@ RandomWalkRadianceMethod::writeVRML(
 }
 
 void
-RandomWalkRadianceMethod::initialize(Scene *scene) {
+RandomWalkRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOptions) {
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
-    StochasticRelaxation::activeState().toneMapOptions = scene == nullptr ? nullptr : scene->toneMapOptions;
+    (void) scene;
+    StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
-        Error::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not set in scene");
+        Error::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation::activeState().method = StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();

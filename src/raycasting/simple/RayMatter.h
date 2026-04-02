@@ -42,6 +42,7 @@ class RayMatter final : public RayTracer {
         ImageOutputHandle *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;

@@ -298,6 +298,7 @@ GlutDebugTools::drawCallback() {
         Opengl::openGlRenderScene(
             model.scene,
             model.radianceMethod,
+            model.toneMapOptions,
             model.renderOptions,
             model.debugState);
     } else if ( model.mode == GlutDebugMode::GALERKIN_ELEMENT_HIERARCHY ) {

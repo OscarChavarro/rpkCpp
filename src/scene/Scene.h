@@ -4,7 +4,6 @@
 #include "scene/Background.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
-#include "tonemap/ToneMappingContext.h"
 
 class Scene {
   private:
@@ -36,7 +35,6 @@ public:
 
     // The light of all patches on light sources, useful for e.g. next event estimation in Monte Carlo raytracing etc.
     java::ArrayList<Patch *> *lightSourcePatchList;
-    ToneMappingContext *toneMapOptions; // Owned by the application, shared scene-level reference
 
     Scene();
     ~Scene();

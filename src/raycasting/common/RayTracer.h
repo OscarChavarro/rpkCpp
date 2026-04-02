@@ -7,6 +7,7 @@
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "io/image/ImageOutputHandle.h"
+#include "tonemap/ToneMappingContext.h"
 
 /**
 TODO: This should be converted on to the Raytracer interface for inheriting the current four
@@ -33,6 +34,7 @@ class RayTracer {
         ImageOutputHandle *ip,
         Scene *scene,
         RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions) const = 0;
 
     // Saves last ray-traced image in the file describe dby the image output handle
@@ -49,6 +51,7 @@ class RayTracer {
         const RayTracer *rayTracer,
         Scene *scene,
         RadianceMethod *radianceMethod,
+        ToneMappingContext *toneMapOptions,
         const RenderOptions *renderOptions);
 };
 

@@ -38,6 +38,7 @@ Batch::batchRayTraceSaveImage(
     const Scene *scene,
     const RadianceMethod * /*radianceMethod*/,
     const RayTracer *rayTracer,
+    ToneMappingContext * /*toneMapOptions*/,
     const RenderOptions * /*renderOptions*/)
 {
     Raytrace::rayTraceSaveImage(
@@ -55,17 +56,26 @@ This routine was copied from uit.c, leaving out all interface related things
 void
 Batch::batchProcessFile(
     const char *fileName,
-    void (*processFileCallback)(const char *fileName, java::OutputStream *outputStream, int isPipe, const Scene *scene, const RadianceMethod *radianceMethod, const RayTracer *rayTracer, const RenderOptions *renderOptions),
+    void (*processFileCallback)(
+        const char *fileName,
+        java::OutputStream *outputStream,
+        int isPipe,
+        const Scene *scene,
+        const RadianceMethod *radianceMethod,
+        const RayTracer *rayTracer,
+        ToneMappingContext *toneMapOptions,
+        const RenderOptions *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions)
 {
     int isPipe;
     java::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
 
     // Call the user supplied procedure to process the file
-    processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, renderOptions);
+    processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, toneMapOptions, renderOptions);
 
     FileUncompressWrapper::closeOutputStream(outputStream);
 }
@@ -78,6 +88,7 @@ Batch::batchSaveRadianceImage(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer * /*rayTracer*/,
+    ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions)
 {
     long long t;
@@ -99,7 +110,7 @@ Batch::batchSaveRadianceImage(
 
     t = java::System::nanoTime();
 
-    RadianceImageExporter::exportImage(fileName, outputStream, isPipe, scene, radianceMethod, renderOptions);
+    RadianceImageExporter::exportImage(fileName, outputStream, isPipe, scene, radianceMethod, toneMapOptions, renderOptions);
 
     java::System::out.printf(
         "%g secs.\n",
@@ -115,6 +126,7 @@ Batch::batchSaveRadianceModel(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer */*rayTracer*/,
+    ToneMappingContext * /*toneMapOptions*/,
     const RenderOptions *renderOptions)
 {
     long long t;
@@ -143,6 +155,7 @@ Batch::batchExecuteRadianceSimulation(
     Scene *scene,
     RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
+    ToneMappingContext *toneMapOptions,
     RenderOptions *renderOptions)
 {
     long long startTime;
@@ -203,6 +216,7 @@ Batch::batchExecuteRadianceSimulation(
                     scene,
                     radianceMethod,
                     rayTracer,
+                    toneMapOptions,
                     renderOptions);
                 delete[] fileName;
             }
@@ -221,6 +235,7 @@ Batch::batchExecuteRadianceSimulation(
                     scene,
                     radianceMethod,
                     rayTracer,
+                    toneMapOptions,
                     renderOptions);
                 delete[] fileName;
             }
@@ -252,6 +267,7 @@ Batch::batchExecuteRadianceSimulation(
                 scene,
                 radianceMethod,
                 Batch::currentRayTracer,
+                toneMapOptions,
                 renderOptions);
 
             if ( batchOptions.timings ) {
@@ -265,6 +281,7 @@ Batch::batchExecuteRadianceSimulation(
                 scene,
                 radianceMethod,
                 Batch::currentRayTracer,
+                toneMapOptions,
                 renderOptions);
         } else {
             java::System::out.printf("(No pixel-based radiance computations are being done)\n");

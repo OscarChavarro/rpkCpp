@@ -7,6 +7,7 @@
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class GlutDebugToolsModel {
   public:
@@ -21,6 +22,7 @@ class GlutDebugToolsModel {
     Scene *scene;
     RadianceMethod *radianceMethod;
     RenderOptions *renderOptions;
+    ToneMappingContext *toneMapOptions;
     GlutDebugState *debugState;
     void (*memoryFreeCallBack)(ParseSession *mgfContext);
     ParseSession *mgfContext;

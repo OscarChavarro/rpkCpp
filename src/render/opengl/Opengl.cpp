@@ -592,14 +592,15 @@ void
 Opengl::openGlRenderScene(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
+    const ToneMappingContext *toneMapOptions,
     const RenderOptions *renderOptions,
     const GlutDebugState *debugState)
 {
 #ifdef OPEN_GL_ENABLED
-    if ( scene == nullptr || scene->toneMapOptions == nullptr ) {
-        Error::fatal(-1, "Opengl::openGlRenderScene", "Tone mapping context not set in scene");
+    if ( scene == nullptr || toneMapOptions == nullptr ) {
+        Error::fatal(-1, "Opengl::openGlRenderScene", "Tone mapping context not provided");
     }
-    Opengl::activeToneMapOptions = scene->toneMapOptions;
+    Opengl::activeToneMapOptions = toneMapOptions;
 
     Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
 
