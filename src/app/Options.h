@@ -9,36 +9,11 @@ Command line options and defaults
 #include "app/CommandLineOptionDescription.h"
 #include "app/EnumDesc.h"
 
-extern CommandLineOptions GLOBAL_options_intType;
-extern CommandLineOptions GLOBAL_options_boolType;
-extern CommandLineOptions GLOBAL_options_setTrueType;
-extern CommandLineOptions GLOBAL_options_setFalseType;
-extern CommandLineOptions GLOBAL_options_stringType;
-extern CommandLineOptions GLOBAL_options_floatType;
-extern CommandLineOptions GLOBAL_options_vectorType;
-extern CommandLineOptions GLOBAL_options_rgbType;
-extern CommandLineOptions GLOBAL_options_xyType;
-extern char *GLOBAL_option_dummyVal;
-
-/**
-Shorthands for specifying command line argument type, the 'type'
-field of the CMD_LINE_OPT_DESC structure below
-*/
-extern CommandLineOptions *const OPTIONS_TYPE_BOOL;
-extern CommandLineOptions *const OPTIONS_TYPE_SET_TRUE;
-extern CommandLineOptions *const OPTIONS_TYPE_SET_FALSE;
-extern CommandLineOptions *const OPTIONS_TYPE_STRING;
-extern CommandLineOptions *const OPTIONS_TYPE_FLOAT;
-extern CommandLineOptions *const OPTIONS_TYPE_VECTOR;
-extern CommandLineOptions *const OPTIONS_TYPE_RGB;
-extern CommandLineOptions *const OPTIONS_TYPE_XY;
-
 // Default action; no action.
 extern void (*const DEFAULT_ACTION)(void *);
 
 class Options final {
   public:
-    static void setDummyIntValueReference(int &dummyValue);
     static void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
     static bool optionsEnumGet(void *value, void *data);
     static void optionsEnumPrint(java::PrintStream *stream, void *value, void *data);
@@ -94,7 +69,7 @@ class Options final {
         CommandLineOptions optionsType = {
             Options::optionsStringGet,
             Options::optionsStringPrint,
-            static_cast<void *>(&GLOBAL_option_dummyVal),
+            nullptr,
             static_cast<void *>(Options::optionsCreateStringLengthStorage(n))
         };
         return optionsType;

@@ -96,17 +96,18 @@ computation
 */
 void
 Radiance::radianceParseOptions(
-    int *argc,
-    char **argv,
-    RadianceMethod **newRadianceMethod,
-    StochasticRelaxation &stochasticRelaxationState,
-    ElementHierarchyState &elementHierarchyState,
-    StochasticRadiosityBasisState &stochasticRadiosityBasisState,
-    PhotonMapState &photonMapState,
-    PhotonMapConfig &photonMapConfig,
-    RayMatterState &rayMatterState,
-    BidirectionalPathTracingState &bidirectionalPathState,
-    StochasticRayTracingState &stochasticRayTracingState)
+        int *argc,
+        char **argv,
+        RadianceMethod **newRadianceMethod,
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState,
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState,
+        OptionsType &optionTypes)
 {
     Radiance::selectRadianceMethod(
         argc,
@@ -117,7 +118,7 @@ Radiance::radianceParseOptions(
         stochasticRadiosityBasisState,
         photonMapState,
         photonMapConfig);
-    CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString);
+    CommandLine::radianceMethodParseOptions(argc, argv, globalRadianceMethodsString, optionTypes);
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED
@@ -134,12 +135,12 @@ Radiance::radianceParseOptions(
     }
 
 #ifdef RAYTRACING_ENABLED
-    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv, stochasticRelaxationState, elementHierarchyState);
-    CommandLine::randomWalkRadiosityParseOptions(argc, argv, stochasticRelaxationState);
-    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
-    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState);
-    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState);
-    CommandLine::photonMapParseOptions(argc, argv, photonMapState);
+    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv, stochasticRelaxationState, elementHierarchyState, optionTypes);
+    CommandLine::randomWalkRadiosityParseOptions(argc, argv, stochasticRelaxationState, optionTypes);
+    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState, optionTypes);
+    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState, optionTypes);
+    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState, optionTypes);
+    CommandLine::photonMapParseOptions(argc, argv, photonMapState, optionTypes);
 #else
     (void) photonMapState;
     (void) photonMapConfig;
@@ -148,7 +149,7 @@ Radiance::radianceParseOptions(
     (void) stochasticRayTracingState;
 #endif
 
-    CommandLine::galerkinParseOptions(argc, argv);
+    CommandLine::galerkinParseOptions(argc, argv, optionTypes);
 
     if ( *newRadianceMethod != nullptr ) {
         if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {

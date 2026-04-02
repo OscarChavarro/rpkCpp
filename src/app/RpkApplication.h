@@ -15,6 +15,7 @@ class StochasticRadiosityBasisState;
 class PhotonMapState;
 class PhotonMapConfig;
 class LightList;
+class OptionsType;
 
 class RpkApplication {
   private:
@@ -32,18 +33,19 @@ class RpkApplication {
     void selectToneMapByName(const char *name);
     static void mainInitApplication();
     void mainParseOptions(
-        int *argc,
-        char **argv,
-        char *rayTracerName,
-        char *toneMapName,
-        StochasticRelaxation &stochasticRelaxationState,
-        ElementHierarchyState &elementHierarchyState,
-        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
-        PhotonMapState &photonMapState,
-        PhotonMapConfig &photonMapConfig,
-        RayMatterState &rayMatterState,
-        BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState);
+            int *argc,
+            char **argv,
+            char *rayTracerName,
+            char *toneMapName,
+            StochasticRelaxation &stochasticRelaxationState,
+            ElementHierarchyState &elementHierarchyState,
+            StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+            PhotonMapState &photonMapState,
+            PhotonMapConfig &photonMapConfig,
+            RayMatterState &rayMatterState,
+            BidirectionalPathTracingState &bidirectionalPathState,
+            StochasticRayTracingState &stochasticRayTracingState,
+            OptionsType &optionTypes);
     void mainCreateOffscreenCanvasWindow() const;
     void executeRendering(
         const char *rayTracerName,

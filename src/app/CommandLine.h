@@ -10,47 +10,88 @@ class StochasticRayTracingState;
 class StochasticRelaxation;
 class ElementHierarchyState;
 class PhotonMapState;
+class OptionsType;
 
 class CommandLine final {
   public:
     static ColorRgb commandLineDefaultBackgroundColor();
     static Background *commandLineCreateBackground();
 
-    static void cameraParseOptions(int *argc, char **argv, Camera *camera, int imageWidth, int imageHeight);
+    static void cameraParseOptions(
+            int *argc,
+            char **argv,
+            Camera *camera,
+            int imageWidth,
+            int imageHeight,
+            OptionsType &optionTypes);
     static void commandLineGeneralProgramParseOptions(
-        int *argc,
-        char **argv,
-        bool *oneSidedSurfaces,
-        int *conicSubDivisions,
-        int *imageOutputWidth,
-        int *imageOutputHeight,
-        bool *glutDebugEnabled);
+            int *argc,
+            char **argv,
+            bool *oneSidedSurfaces,
+            int *conicSubDivisions,
+            int *imageOutputWidth,
+            int *imageOutputHeight,
+            bool *glutDebugEnabled,
+            OptionsType &optionTypes);
     static void stochasticRelaxationRadiosityParseOptions(
-        int *argc,
-        char **argv,
-        StochasticRelaxation &stochasticRelaxationState,
-        ElementHierarchyState &elementHierarchyState);
+            int *argc,
+            char **argv,
+            StochasticRelaxation &stochasticRelaxationState,
+            ElementHierarchyState &elementHierarchyState,
+            OptionsType &optionTypes);
     static void randomWalkRadiosityParseOptions(
-        int *argc,
-        char **argv,
-        StochasticRelaxation &stochasticRelaxationState);
-    static void rayMattingParseOptions(int *argc, char **argv, RayMatterState &rayMatterState);
+            int *argc,
+            char **argv,
+            StochasticRelaxation &stochasticRelaxationState,
+            OptionsType &optionTypes);
+    static void rayMattingParseOptions(
+            int *argc,
+            char **argv,
+            RayMatterState &rayMatterState,
+            OptionsType &optionTypes);
     static void stochasticRayTracerParseOptions(
-        int *argc,
-        char **argv,
-        StochasticRayTracingState &stochasticRayTracingState);
-    static void biDirectionalPathParseOptions(int *argc, char **argv, BidirectionalPathTracingState &bidirectionalPathState);
-    static void photonMapParseOptions(int *argc, char **argv, PhotonMapState &photonMapState);
-    static void toneMapParseOptions(int *argc, char **argv, char *toneMapName, ToneMappingContext &toneMapOptions);
-    static void radianceMethodParseOptions(int *argc, char **argv, char *radianceMethodsString);
-    static void renderParseOptions(int *argc, char **argv, RenderOptions *renderOptions);
-    static void batchParseOptions(int *argc, char **argv, BatchOptions *batchOptions);
+            int *argc,
+            char **argv,
+            StochasticRayTracingState &stochasticRayTracingState,
+            OptionsType &optionTypes);
+    static void biDirectionalPathParseOptions(
+            int *argc,
+            char **argv,
+            BidirectionalPathTracingState &bidirectionalPathState,
+            OptionsType &optionTypes);
+    static void photonMapParseOptions(
+            int *argc,
+            char **argv,
+            PhotonMapState &photonMapState,
+            OptionsType &optionTypes);
+    static void toneMapParseOptions(
+            int *argc,
+            char **argv,
+            char *toneMapName,
+            ToneMappingContext &toneMapOptions,
+            OptionsType &optionTypes);
+    static void radianceMethodParseOptions(
+            int *argc,
+            char **argv,
+            char *radianceMethodsString,
+            OptionsType &optionTypes);
+    static void renderParseOptions(
+            int *argc,
+            char **argv,
+            RenderOptions *renderOptions,
+            OptionsType &optionTypes);
+    static void batchParseOptions(
+            int *argc,
+            char **argv,
+            BatchOptions *batchOptions,
+            OptionsType &optionTypes);
     static void rayTracingParseOptions(
-        int *argc,
-        char **argv,
-        char raytracingMethodsString[],
-        char *rayTracerName);
-    static void galerkinParseOptions(int *argc, char **argv);
+            int *argc,
+            char **argv,
+            char raytracingMethodsString[],
+            char *rayTracerName,
+            OptionsType &optionTypes);
+    static void galerkinParseOptions(int *argc, char **argv, OptionsType &optionTypes);
     static void mainForceOneSidedOption(void *value);
     static void mainMonochromeOption(void *value);
     static void commandLineImageWidthOption(void *value);

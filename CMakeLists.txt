@@ -202,6 +202,7 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
+    src/app/OptionsType.cpp
     src/app/Options.cpp
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp

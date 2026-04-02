@@ -22,6 +22,7 @@
 #include "app/Batch.h"
 #include "app/CommandLine.h"
 #include "app/Options.h"
+#include "app/OptionsType.h"
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
@@ -109,18 +110,19 @@ Processes command line arguments
 */
 void
 RpkApplication::mainParseOptions(
-    int *argc,
-    char **argv,
-    char *rayTracerName,
-    char *toneMapName,
-    StochasticRelaxation &stochasticRelaxationState,
-    ElementHierarchyState &elementHierarchyState,
-    StochasticRadiosityBasisState &stochasticRadiosityBasisState,
-    PhotonMapState &photonMapState,
-    PhotonMapConfig &photonMapConfig,
-    RayMatterState &rayMatterState,
-    BidirectionalPathTracingState &bidirectionalPathState,
-    StochasticRayTracingState &stochasticRayTracingState)
+        int *argc,
+        char **argv,
+        char *rayTracerName,
+        char *toneMapName,
+        StochasticRelaxation &stochasticRelaxationState,
+        ElementHierarchyState &elementHierarchyState,
+        StochasticRadiosityBasisState &stochasticRadiosityBasisState,
+        PhotonMapState &photonMapState,
+        PhotonMapConfig &photonMapConfig,
+        RayMatterState &rayMatterState,
+        BidirectionalPathTracingState &bidirectionalPathState,
+        StochasticRayTracingState &stochasticRayTracingState,
+        OptionsType &optionTypes)
 {
     CommandLine::commandLineGeneralProgramParseOptions(
         argc,
@@ -129,11 +131,12 @@ RpkApplication::mainParseOptions(
         &mgfContext->numberOfQuarterCircleDivisions,
         &imageOutputWidth,
         &imageOutputHeight,
-        &glutDebugEnabled);
-    CommandLine::renderParseOptions(argc, argv, renderOptions);
+        &glutDebugEnabled,
+        optionTypes);
+    CommandLine::renderParseOptions(argc, argv, renderOptions, optionTypes);
     renderOptions->toneMapOptions = &toneMapOptions;
-    CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions);
-    CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight);
+    CommandLine::toneMapParseOptions(argc, argv, toneMapName, toneMapOptions, optionTypes);
+    CommandLine::cameraParseOptions(argc, argv, scene->camera, imageOutputWidth, imageOutputHeight, optionTypes);
     Radiance::radianceParseOptions(
         argc,
         argv,
@@ -145,13 +148,14 @@ RpkApplication::mainParseOptions(
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState);
+        stochasticRayTracingState,
+        optionTypes);
 
 #ifdef RAYTRACING_ENABLED
-    Raytrace::rayTraceParseOptions(argc, argv, rayTracerName);
+    Raytrace::rayTraceParseOptions(argc, argv, rayTracerName, optionTypes);
 #endif
 
-    Batch::generalParseOptions(argc, argv);
+    Batch::generalParseOptions(argc, argv, optionTypes);
 }
 
 void
@@ -212,8 +216,7 @@ int
 RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
     mainInitApplication();
-    int optionsDummyVal = 0;
-    Options::setDummyIntValueReference(optionsDummyVal);
+    OptionsType optionTypes;
 
     RayMatterState rayMatterState;
     BidirectionalPathTracingState bidirectionalPathState;
@@ -244,7 +247,8 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState);
+        stochasticRayTracingState,
+        optionTypes);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;

@@ -135,12 +135,17 @@ Raytrace::rayTraceSaveImage(
 }
 
 void
-Raytrace::rayTraceParseOptions(int *argc, char **argv, char *rayTracerName) {
+Raytrace::rayTraceParseOptions(
+        int *argc,
+        char **argv,
+        char *rayTracerName,
+        OptionsType &optionTypes)
+{
     char helpMessage[1000];
 
     Raytrace::rayTraceMakeMethodsHelpMessage(helpMessage);
     strcpy(rayTracerName, "none");
-    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
+    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName, optionTypes);
 }
 
 void

@@ -9,6 +9,7 @@
 
 class RayTracer;
 class RadianceMethod;
+class OptionsType;
 
 class Batch final {
   public:
@@ -17,7 +18,7 @@ class Batch final {
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         RenderOptions *renderOptions);
-    static void generalParseOptions(int *argc, char **argv);
+    static void generalParseOptions(int *argc, char **argv, OptionsType &optionTypes);
     static const BatchOptions *batchGetOptions();
 
   private:

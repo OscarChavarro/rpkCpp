@@ -12,6 +12,7 @@ class RayMatterState;
 class BidirectionalPathTracingState;
 class StochasticRayTracingState;
 class LightList;
+class OptionsType;
 
 class Raytrace final {
   public:
@@ -36,7 +37,11 @@ class Raytrace final {
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         RenderOptions *renderOptions);
-    static void rayTraceParseOptions(int *argc, char **argv, char *rayTracerName);
+    static void rayTraceParseOptions(
+            int *argc,
+            char **argv,
+            char *rayTracerName,
+            OptionsType &optionTypes);
 
   private:
     static void rayTraceMakeMethodsHelpMessage(char *str);

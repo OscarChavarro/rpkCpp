@@ -13,20 +13,9 @@ Command line options and defaults
 #include "common/ColorRgb.h"
 #include "app/Options.h"
 
-char *GLOBAL_option_dummyVal = nullptr;
-
 static int *globalArgumentCount;
 static char **globalArguments = nullptr;
 static int globalCurrentArgumentIndex = 0;
-static int globalDummyInt = 0;
-static int *globalDummyIntReference = &globalDummyInt;
-static char *globalDummyString = nullptr;
-static int globalDummyTrue = true;
-static int globalDummyFalse = false;
-static float globalDummyFloat = 0.0f;
-static Vector3D globalDummyVector3D = {0.0f, 0.0f, 0.0f};
-static ColorRgb globalDummyRgb{};
-static float globalDummyCieXy[2] = {0.0f, 0.0f};
 static java::ArrayList<char *> *globalStringsToDelete = new java::ArrayList<char *>();
 static java::ArrayList<int *> *globalStringLengthsToDelete = new java::ArrayList<int *>();
 
@@ -145,13 +134,6 @@ Options::optionsPrintInt(java::PrintStream *stream, void *value, void * /*data*/
     }
 }
 
-CommandLineOptions GLOBAL_options_intType = {
-    Options::optionsGetInt,
-    Options::optionsPrintInt,
-    static_cast<void *>(&globalDummyInt),
-    nullptr
-};
-
 /**
 String option values
 */
@@ -179,13 +161,6 @@ Options::optionsPrintString(java::PrintStream *stream, void *value, void * /*dat
         stream->printf("'%s'", *s ? *s : "");
     }
 }
-
-CommandLineOptions GLOBAL_options_stringType = {
-    Options::optionsGetString,
-    Options::optionsPrintString,
-    static_cast<void *>(&globalDummyString),
-    nullptr
-};
 
 /**
 Copied string (maxlength n) option values
@@ -267,24 +242,6 @@ Options::optionsEnumPrint(java::PrintStream *stream, void *value, void *data) {
     stream->printf("%s", "INVALID ENUM VALUE!!!");
 }
 
-/* ------------------- boolean (yes|no) option values-------------------- */
-/* implemented as an enumeration type */
-
-static EnumDesc boolTable[] = {
-        {true,  "yes",   1},
-        {false, "no",    1},
-        {true,  "true",  1},
-        {false, "false", 1},
-        {0, nullptr,        0}
-};
-
-CommandLineOptions GLOBAL_options_boolType = {
-    Options::optionsEnumGet,
-    Options::optionsEnumPrint,
-    nullptr,
-    static_cast<void *>(boolTable)
-};
-
 /* ------------------- set true/false option values --------------------- */
 
 bool
@@ -312,21 +269,6 @@ Options::optionsPrintOther(java::PrintStream *stream, void * /*x*/, void * /*dat
     }
 }
 
-
-CommandLineOptions GLOBAL_options_setTrueType = {
-    Options::optionsSetTrue,
-    Options::optionsPrintOther,
-    static_cast<void *>(&globalDummyTrue),
-    nullptr
-};
-
-CommandLineOptions GLOBAL_options_setFalseType = {
-    Options::optionsSetFalse,
-    Options::optionsPrintOther,
-    static_cast<void *>(&globalDummyFalse),
-    nullptr
-};
-
 /* ------------------- float option values --------------------- */
 bool
 Options::optionsGetfloat(void *value, void * /*data*/) {
@@ -345,13 +287,6 @@ Options::optionsPrintFloat(java::PrintStream *stream, void *value, void * /*data
         stream->printf("%g", *x);
     }
 }
-
-CommandLineOptions GLOBAL_options_floatType = {
-        Options::optionsGetfloat,
-        Options::optionsPrintFloat,
-        static_cast<void *>(&globalDummyFloat),
-        nullptr
-};
 
 /**
 Vector3D option values
@@ -383,13 +318,6 @@ Options::optionsPrintVector(java::PrintStream *stream, void *value, void * /*dat
     }
 }
 
-CommandLineOptions GLOBAL_options_vectorType = {
-    Options::optionsGetVector,
-    Options::optionsPrintVector,
-    static_cast<void *>(&globalDummyVector3D),
-    nullptr
-};
-
 /**
 RGB option values
 */
@@ -420,13 +348,6 @@ Options::optionsPrintRgb(java::PrintStream *stream, void *value, void * /*data*/
     }
 }
 
-CommandLineOptions GLOBAL_options_rgbType = {
-    Options::optionsGetRgb,
-    Options::optionsPrintRgb,
-    static_cast<void *>(&globalDummyRgb),
-    nullptr
-};
-
 /**
 CIE xy option values
 */
@@ -454,21 +375,6 @@ Options::optionsPrintCieXyCallBack(java::PrintStream *stream, void *value, void 
     }
 }
 
-CommandLineOptions GLOBAL_options_xyType = {
-    Options::optionsGetCieXy,
-    Options::optionsPrintCieXyCallBack,
-    static_cast<void *>(&globalDummyCieXy),
-    nullptr
-};
-
-CommandLineOptions *const OPTIONS_TYPE_BOOL = &GLOBAL_options_boolType;
-CommandLineOptions *const OPTIONS_TYPE_SET_TRUE = &GLOBAL_options_setTrueType;
-CommandLineOptions *const OPTIONS_TYPE_SET_FALSE = &GLOBAL_options_setFalseType;
-CommandLineOptions *const OPTIONS_TYPE_STRING = &GLOBAL_options_stringType;
-CommandLineOptions *const OPTIONS_TYPE_FLOAT = &GLOBAL_options_floatType;
-CommandLineOptions *const OPTIONS_TYPE_VECTOR = &GLOBAL_options_vectorType;
-CommandLineOptions *const OPTIONS_TYPE_RGB = &GLOBAL_options_rgbType;
-CommandLineOptions *const OPTIONS_TYPE_XY = &GLOBAL_options_xyType;
 void (*const DEFAULT_ACTION)(void *) = nullptr;
 
 /**
@@ -496,11 +402,6 @@ Options::optionsLookupOption(const char *s, CommandLineOptionDescription *option
     return nullptr;
 }
 
-void
-Options::setDummyIntValueReference(int &dummyValue) {
-    globalDummyIntReference = &dummyValue;
-}
-
 static void *
 optionsValueOrDummy(CommandLineOptionDescription *opt) {
     if ( opt == nullptr ) {
@@ -510,12 +411,17 @@ optionsValueOrDummy(CommandLineOptionDescription *opt) {
         return opt->value;
     }
     if ( opt->type != nullptr ) {
-        if ( opt->type->dummy != nullptr ) {
-            return opt->type->dummy;
-        }
-        return static_cast<void *>(globalDummyIntReference);
+        return opt->type->dummy;
     }
     return nullptr;
+}
+
+static bool
+optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type) {
+    if ( type == nullptr || type->get == nullptr ) {
+        return false;
+    }
+    return type->get != Options::optionsSetTrue && type->get != Options::optionsSetFalse;
 }
 
 void
@@ -524,8 +430,7 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
     if ( opt ) {
         bool ok = true;
         if ( opt->type ) {
-            if ((opt->type == &GLOBAL_options_setTrueType) ||
-                (opt->type == &GLOBAL_options_setFalseType) ) {
+            if ( !optionsTypeConsumesCommandLineArgument(opt->type) ) {
                 if ( !opt->type->get(optionsValueOrDummy(opt), opt->type->data) ) {
                     ok = false;
                 }
