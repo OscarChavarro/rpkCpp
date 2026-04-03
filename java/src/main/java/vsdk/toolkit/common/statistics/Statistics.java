@@ -1,5 +1,7 @@
 package vsdk.toolkit.common.statistics;
 
+// Note this class is a singleton
+
 public class Statistics {
     public ReaderStatistics reader;
     public RadianceStatistics radiance;

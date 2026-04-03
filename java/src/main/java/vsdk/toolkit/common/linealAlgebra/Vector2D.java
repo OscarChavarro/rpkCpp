@@ -1,5 +1,13 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Vector difference
+*/
+
+/**
+Square of vector norm: scalar product with itself
+*/
+
 public class Vector2D {
     public float x;
     public float y;

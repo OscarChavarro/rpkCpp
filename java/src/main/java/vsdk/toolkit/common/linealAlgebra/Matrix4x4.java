@@ -1,5 +1,44 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Create scaling, ... transform. The transforms behave identically as the
+corresponding transforms in OpenGL
+*/
+
+// Singularity test
+
+// Bad rotation axis
+
+// Normalize
+
+/**
+Recovers the rotation axis and angle from the given rotation matrix.
+There is no check whether the transform really is a rotation.
+*/
+
+// Assume x positive, determine sign of y and z
+
+/**
+xf(p) = xf2(xf1(p))
+*/
+
+/**
+This transforms the eye point to the origin and rotates such
+that the centre will be on the negative Z axis and the up direction
+on the positive Y axis (Y axis positions up, X positions right, Z positions
+towards the viewer)
+*/
+
+// Z positions towards viewer
+
+// X positions right
+
+// Y positions up
+
+// View orientation transform
+
+// Translate eye to origin
+
 import java.util.Arrays;
 
 public class Matrix4x4 {

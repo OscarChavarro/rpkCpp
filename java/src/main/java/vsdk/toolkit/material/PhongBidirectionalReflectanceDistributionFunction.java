@@ -1,5 +1,96 @@
 package vsdk.toolkit.material;
 
+/**
+BRDF evaluation functions :
+  Vector3D in : incoming ray direction (to patch)
+  Vector3D out : reflected ray direction (from patch)
+  Vector3D normal : normal vector
+  char flags : flags indicating which components must be
+    evaluated
+*/
+
+/**
+The BRDF here is a modified phong-brdf. It satisfies the requirements of symmetry and energy conservation.
+
+The BRDF is expressed as:
+
+brdf(in, out) = kd + ks * pow(cos(a), n)
+
+where:
+- kd: diffuse coefficient of the BRDF
+- ks: specular coefficient of the BRDF
+- n: specular power
+    n small : glossy reflectance
+    n large : specular reflectance (>= Xxdf::PHONG_LOWEST_SPECULAR_EXP)
+- a: angle between the out direction and the perfect mirror direction for in
+
+The variables Kd and Ks which are stored in in the PHONG_BRDF type are
+not the above coefficients, but represent the total energy reflected
+for light incident perpendicular on the surface.
+
+Thus:
+Kd = kd*pi		or	kd = Kd/pi
+Ks = ks*2*pi/(n+2)	or	ks = Ks*(n+2)/(2*pi)
+
+For this BRDF to be energy conserving, the following condition must be met:
+
+Kd + Ks <= 1
+
+Some functions sample a direction on the hemisphere, given a specific
+incoming direction, proportional to the value of the Modified Phong BRDF.
+There are several sampling strategies to achieve this:
+rejection sampling PhongBrdfSampleRejection()
+inverse cumulative PDF sampling	PhongBrdfSampleCumPdf()
+
+The different sampling functions are commented separately.
+*/
+
+/**
+Returns the diffuse reflectance of the BRDF according to the flags
+*/
+
+/**
+Brdf evaluations
+*/
+
+// kd + ks (idealReflected * out)^n
+
+// Refracted ray
+
+// cos(a) ^ n
+
+// Ks -> ks
+
+/**
+Brdf sampling
+*/
+
+// Determine diffuse or glossy/specular sampling
+
+// Absorption
+
+// Rescaling of x_1
+
+// Sample diffuse
+
+// Section [ARVO1995b].2: square-to-sphere mapping in a frame aligned with the surface normal.
+
+// Sample specular
+
+// Section [ARVO1995b].2: same 2D random-parameter mapping, but around the ideal reflection axis.
+
+// Combine probabilityDensityFunctions
+
+// Ensure 'in' on the same side as 'normal'!
+
+// 'out' is a reflected direction
+
+// Store in phong data ?
+
+// Diffuse sampling probabilityDensityFunction
+
+// Glossy or specular
+
 import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

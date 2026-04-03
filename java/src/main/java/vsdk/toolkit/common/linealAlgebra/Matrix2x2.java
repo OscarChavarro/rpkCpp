@@ -1,5 +1,11 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+|u'|   |m[0][0]  m[0][1]|   | u |   |t[0]|
+|  | = |                | * |   | + |    |
+|v'|   |m[1][0]  m[1][1]|   | v |   |t[1]|
+*/
+
 public class Matrix2x2 {
     public float[][] m = new float[2][2];
     public float[] t = new float[2];

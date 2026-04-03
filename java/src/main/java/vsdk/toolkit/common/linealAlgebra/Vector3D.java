@@ -1,5 +1,96 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Fills in x, y, and z component of a vector
+*/
+
+/**
+Copies the vector v to d: d = v. They may be different vector types
+*/
+
+/**
+Tolerance value for e.g. a vertex position
+*/
+
+/**
+Two vectors are equal if their components are equal within the given tolerance
+*/
+
+/**
+Vector difference
+*/
+
+/**
+Vector sum: d = a + b
+*/
+
+/**
+Scaled vector sum: d = a + s.b
+*/
+
+/**
+Scalar vector product: a.b
+*/
+
+/**
+Compute (T * vector) with
+T = transpose[ X Y Z ] so that e.g. T.X = (1 0 0) if
+X, Y, Z form a coordinate system
+*/
+
+/**
+Square of vector norm: scalar product with itself
+*/
+
+/**
+Norm of a vector: square root of the square norm
+*/
+
+/**
+Scale a vector: d = s.v (s is a real number)
+*/
+
+/**
+Scales a vector with the inverse of the real number s if not zero: d = (1/s).v
+*/
+
+/**
+Normalizes a vector: scale it with the inverse of its norm
+*/
+
+/**
+In product of two vectors
+*/
+
+/**
+Linear combination of two vectors: d = a.v + b.w
+*/
+
+/**
+Affine linear combination of two vectors: d = o + a.v + b.w
+*/
+
+/**
+Triple (cross) product: d = (v3 - v2) x (v1 - v2)
+*/
+
+/**
+Distance between two positions in 3D space: s = | p2 - p1 |
+*/
+
+/**
+Squared distance between two positions in 3D space: s = |p2-p1|
+*/
+
+/**
+Centre of two positions
+*/
+
+/**
+Find the "dominant" part of the vector (eg patch-normal).
+This is used to turn the point-in-polygon test into a 2D problem.
+*/
+
 public class Vector3D {
     public float x;
     public float y;

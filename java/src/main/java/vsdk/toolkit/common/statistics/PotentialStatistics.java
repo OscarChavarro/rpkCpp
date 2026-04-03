@@ -1,5 +1,7 @@
 package vsdk.toolkit.common.statistics;
 
+// Potential times area
+
 public class PotentialStatistics {
     public double averageDirectPotential;
     public double maxDirectPotential;

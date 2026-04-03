@@ -1,5 +1,10 @@
 package vsdk.toolkit.common.dataStructures;
 
+/**
+Node for a balanced kd tree, nodes are placed in arrays
+and no loson, hison pointers are necessary
+*/
+
 public class BalancedKDTreeNode {
     public Object mData;
     public int mFlags;

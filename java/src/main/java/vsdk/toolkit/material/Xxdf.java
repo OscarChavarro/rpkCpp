@@ -1,5 +1,25 @@
 package vsdk.toolkit.material;
 
+/**
+General definitions for edf, brdf, btdf, etc.
+*/
+
+/**
+Some general functions regarding edf, brdf, btdf, bsdf
+*/
+
+/**
+Calculate the ideal reflected ray direction (independent of the brdf)
+*/
+
+/**
+Calculate the perfect refracted ray direction.
+Sets totalInternalReflection to true or false accordingly.
+Cfr. [GLAS1989] An Introduction to Raytracing (Glassner)
+*/
+
+// Only real part of n for now
+
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 

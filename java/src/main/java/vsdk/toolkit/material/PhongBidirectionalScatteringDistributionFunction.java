@@ -1,5 +1,149 @@
 package vsdk.toolkit.material;
 
+/**
+A simple combination of brdf and btdf.
+Handles evaluation and sampling and also
+functions that relate to brdf or btdf like reflectance etc.
+*/
+
+/*in*/
+
+/*out*/
+
+/*normal*/
+
+/**
+Bidirectional Reflectance Distribution Functions (BSDF)
+
+Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be nullptr
+*/
+
+/**
+Creates a BSDF instance with given data and methods
+*/
+
+/**
+Computes a shading frame at the given hit point. The Z axis of this frame is
+the shading normal, The X axis is in the tangent plane on the surface at the
+hit point ("brush" direction relevant for anisotropic shaders e.g.). Y
+is perpendicular to X and Z. X and Y may be null pointers. In this case,
+only the shading normal is returned, avoiding computation of the X and
+Y axis if possible).
+Note: edf can have also a routine for computing the shading frame. If a
+material has both an edf and a bsdf, the shading frame shall of course
+be the same.
+This routine returns TRUE if a shading frame could be constructed and FALSE if
+not. In the latter case, a default frame needs to be used (not computed by this
+routine - pointShadingFrame() in material.[ch] constructs such a frame if
+needed)
+*/
+
+/*hit*/
+
+/*X*/
+
+/*Y*/
+
+/*Z*/
+
+// Not implemented, should call to bsdf->methods->setShadingFrame or something like that
+
+/**
+Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
+*/
+
+// Avoid taking it into account again
+
+/**
+Albedo is assumed to be 1
+*/
+
+// Section [ARVO1995b].2: map (x1, x2) from [0,1]^2 into a hemisphere direction.
+
+/**
+Sample a split bsdf. If no sample was taken (RR/absorption)
+the pdf will be 0 upon return  Computes probabilities for sampling the texture, reflection minus texture,
+or transmission. Also determines b[r|t]dfFlags taking into
+account potential texturing
+*/
+
+// bsdf has a texture for diffuse reflection and diffuse reflection needs to be sampled
+
+// Rescale into [0,1) interval again
+
+/**
+Returns the index of refraction of the BSDF
+*/
+
+// Vacuum
+
+/**
+Sampling and pdf evaluation
+
+Sampling routines, parameters as in evaluation, except that two
+random numbers x1 and x2 are needed (2D sampling process)
+*/
+
+// So we can return safely
+
+// Calculate probabilities for sampling the texture, reflection minus texture,
+
+// and transmission. Also fills in correct b[r|t]dfFlags
+
+// Decide whether to sample the texture reflectance, the reflectance
+
+// modes not in the texture, transmission or absorption
+
+// Normalize: no absorption sampling
+
+// Sample according to the selected mode
+
+// Don't care
+
+/* other components will be added later */
+
+// Add probability of sampling the same direction in other than the
+
+// selected scattering mode (e.g. internal reflection) */
+
+/**
+Bsdf evaluations
+All components of the Bsdf
+
+Vector directions :
+
+in: from patch
+out: from patch
+hit->normal : leaving from patch, on the incoming side.
+         So in . hit->normal > 0!
+*/
+
+// Just add brdf and btdf contributions, the eval routines handle the direction of out.
+
+// Note that out * normal is computed more than once :-(
+
+/**
+Constructs shading frame at hit point. Returns TRUE if successful and
+FALSE if not. X and Y may be null pointers
+
+Sample a split bsdf. If no sample was taken (RR/absorption)
+the pdf will be 0 upon return
+*/
+
+// Survival probability
+
+// Probability of sampling the outgoing direction, after survival decision
+
+/**
+Evaluates all requested components of the BSDF separately and
+stores the result in 'colArray'.
+Total evaluation is returned.
+*/
+
+// Some caching optimisation could be used here
+
+// Set to 0 for safety
+
 import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;

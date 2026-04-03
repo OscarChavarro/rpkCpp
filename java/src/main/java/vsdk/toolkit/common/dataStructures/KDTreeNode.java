@@ -1,5 +1,9 @@
 package vsdk.toolkit.common.dataStructures;
 
+// Flags can be used to exclude certain nodes from a query
+
+// 4 LOWER BITS ARE RESERVED !!
+
 public class KDTreeNode {
     public KDTreeNode loson;
     public KDTreeNode hison;

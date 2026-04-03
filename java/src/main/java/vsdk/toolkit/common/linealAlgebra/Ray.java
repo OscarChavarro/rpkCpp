@@ -1,5 +1,7 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+// Direction should be normalized
+
 public class Ray {
     public Vector3D position;
     public Vector3D direction;

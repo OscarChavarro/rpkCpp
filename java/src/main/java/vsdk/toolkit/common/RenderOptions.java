@@ -1,5 +1,37 @@
 package vsdk.toolkit.common;
 
+/**
+If this is undefined, the raytracing code can be trimmed as follows:
+- PHOTON MAP module can be removed
+- All of the ray-casting module can be removed except the RayCaster class
+
+Build-time feature flags are configured from CMake.
+*/
+
+// Color in which to draw outlines
+
+// Color in which to draw bounding boxes
+
+// Color in which to show cluster bounding boxes
+
+// True for drawing facet outlines
+
+// False for using any kind of shading
+
+// True for rendering with Gouraud interpolation
+
+// True for backface culling
+
+// True for showing bounding boxes
+
+// True for showing cluster hierarchy
+
+// Frustum culling accelerates rendering of large scenes.
+
+// For freezing ray-traced image on the screen when appropriate
+
+// High-dynamic range ray-traced tiff
+
 public class RenderOptions {
     public ColorRgb outlineColor;
     public ColorRgb boundingBoxColor;

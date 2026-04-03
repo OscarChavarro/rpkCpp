@@ -1,5 +1,86 @@
 package vsdk.toolkit.material;
 
+/**
+Index of refraction data type. Normally when using BSDF's
+this should not be needed. In C++ this would of course
+be a plain complex number
+*/
+
+/**
+All components of the Btdf
+
+Vector directions :
+
+in : towards patch
+out : from patch
+normal : leaving from patch, on the incoming side.
+         So in.normal < 0 !!!
+*/
+
+/**
+Returns the transmittance of the BTDF
+*/
+
+/**
+Btdf evaluations
+*/
+
+// Specular-like refraction can turn into reflection.
+
+// So for refraction a complete sphere should be
+
+// sampled ! Importance sampling is advisable.
+
+// Diffuse transmission is considered to always pass
+
+// the material boundary
+
+// Diffuse part
+
+// Normal is pointing away from refracted direction
+
+// Specular part
+
+// cos(a) ^ n
+
+// Ks -> ks
+
+// Choose sampling mode
+
+// Store in phong data ?
+
+// Determine diffuse or glossy/specular sampling
+
+// Absorption
+
+// Rescaling of x_1
+
+// Sample diffuse
+
+// Section [ARVO1995b].2: square-to-sphere mapping in the frame of the transmitted hemisphere.
+
+// Sample specular
+
+// Section [ARVO1995b].2: same 2D mapping with a lobe centered on the ideal transmitted direction.
+
+// Assume totalIR (maybe we should test the refractionIndices
+
+// Combine Probability Density Functions
+
+// Ensure 'in' on the same side as 'normal'!
+
+// Transmitted ray
+
+// Diffuse sampling probabilityDensityFunction
+
+// Glossy or specular
+
+// Normal was inverted, so materialSides switch also
+
+/**
+Refraction index
+*/
+
 import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;

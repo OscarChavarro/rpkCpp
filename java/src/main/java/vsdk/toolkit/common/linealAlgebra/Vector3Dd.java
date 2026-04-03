@@ -1,5 +1,28 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+// TODO: Replace this odd method with standard norm and normalize operations
+
+/**
+Routines for 3-d vectors
+*/
+
+/**
+Normalize a vector, return old magnitude
+*/
+
+// Note: this starts being length ^ 2
+
+// First order approximation
+
+/**
+Cross product of two vectors
+result = a X b
+*/
+
+/**
+Returns squared distance between the two vectors
+*/
+
 public class Vector3Dd {
     public double x;
     public double y;

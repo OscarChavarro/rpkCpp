@@ -1,5 +1,9 @@
 package vsdk.toolkit.common;
 
+/**
+Representation of radiance, radiosity, power, spectra
+*/
+
 import java.io.PrintStream;
 import java.util.Locale;
 

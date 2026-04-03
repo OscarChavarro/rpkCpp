@@ -9,14 +9,20 @@ import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.RayHitFlag;
 
+/**
+Hit record structure, returned by ray-object intersection routines and
+used as a parameter for BSDF/EDF queries.
+*/
 public class RayHit {
-    private Vector3D point;
-    private Patch patch;
-    private Vector3D texCoord;
+    private Vector3D point; // Intersection point
+    private Patch patch; // Patch that was hit
+    private Vector3D texCoord; // Texture coordinate
     private Vector3D geometricNormal;
-    private Material material;
+    private Material material; // Material of hit surface
+    // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
     private CoordinateSystem shadingFrame;
-    private Vector2Dd uv;
+    private Vector2Dd uv; // Bi-linear / barycentric parameters of hit
+    // Flags indicating which of the above fields have been filled in
     private int flags;
 
     public RayHit() {
@@ -30,6 +36,24 @@ public class RayHit {
         flags = 0;
     }
 
+    /**
+    Checks whether or not the hit record is properly initialised, that
+    means that at least patch or geometry plus point, geometricNormal, material
+    and distance are initialised. Returns TRUE if the structure is properly
+    initialised and FALSE if not.
+    */
+    private boolean hitInitialised() {
+        return (((flags & RayHitFlag.PATCH) != 0) || ((flags & RayHitFlag.GEOMETRY) != 0))
+            && ((flags & RayHitFlag.POINT) != 0)
+            && ((flags & RayHitFlag.GEOMETRIC_NORMAL) != 0)
+            && ((flags & RayHitFlag.MATERIAL) != 0)
+            && ((flags & RayHitFlag.DISTANCE) != 0);
+    }
+
+    /**
+    Fills in (u,v) parameters of hit point on the hit patch, computing it if not
+    computed before. Returns FALSE if the (u,v) parameters could not be determined.
+    */
     private boolean computeUv(Vector2Dd inUv) {
         if ((flags & RayHitFlag.UV) != 0) {
             inUv.u = uv.u;
@@ -52,14 +76,12 @@ public class RayHit {
         return false;
     }
 
-    private boolean hitInitialised() {
-        return (((flags & RayHitFlag.PATCH) != 0) || ((flags & RayHitFlag.GEOMETRY) != 0))
-            && ((flags & RayHitFlag.POINT) != 0)
-            && ((flags & RayHitFlag.GEOMETRIC_NORMAL) != 0)
-            && ((flags & RayHitFlag.MATERIAL) != 0)
-            && ((flags & RayHitFlag.DISTANCE) != 0);
-    }
-
+    /**
+    Computes shading frame at hit point. Z is the shading normal. Returns FALSE
+    if the shading frame could not be determined.
+    If X and Y are null pointers, only the shading normal is returned in Z
+    possibly avoiding computations of the X and Y axis.
+    */
     private boolean pointShadingFrame(Vector3D inX, Vector3D inY, Vector3D inZ) {
         boolean success = false;
 
@@ -77,19 +99,20 @@ public class RayHit {
         }
 
         if (!success && computeUv(uv) && patch != null) {
+            // Make default shading frame
             Vector3D x = inX != null ? inX : new Vector3D();
             Vector3D y = inY != null ? inY : new Vector3D();
             Vector3D z = inZ != null ? inZ : new Vector3D();
             patch.interpolatedFrameAtUv(uv.u, uv.v, x, y, z);
 
-            if (inZ != null) {
-                inZ.copy(z);
-            }
             if (inX != null) {
                 inX.copy(x);
             }
             if (inY != null) {
                 inY.copy(y);
+            }
+            if (inZ != null) {
+                inZ.copy(z);
             }
             success = true;
         }
@@ -97,6 +120,12 @@ public class RayHit {
         return success;
     }
 
+    /**
+    Initialises a hit record. Either patch or geometry shall be non-null. Returns
+    TRUE if the structure is properly initialised and FALSE if not.
+    This routine can be used in order to construct BSDF queries at other positions
+    than hit positions returned by ray intersection routines.
+    */
     public boolean init(Patch inPatch, Vector3D inPoint, Vector3D inGeometryNormal, Material inMaterial) {
         flags = 0;
         patch = inPatch;
@@ -130,6 +159,9 @@ public class RayHit {
         return hitInitialised();
     }
 
+    /**
+    Fills in/computes texture coordinates of hit point.
+    */
     public boolean getTexCoord(Vector3D outTexCoord) {
         if ((flags & RayHitFlag.TEXTURE_COORDINATE) != 0) {
             outTexCoord.copy(texCoord);
@@ -150,6 +182,10 @@ public class RayHit {
         return false;
     }
 
+    /**
+    Fills in shading normal (Z axis of shading frame) only, avoiding computation
+    of shading X and Y axis if possible.
+    */
     public boolean shadingNormal(Vector3D inNormal) {
         if (((flags & RayHitFlag.SHADING_FRAME) != 0) || ((flags & RayHitFlag.NORMAL) != 0)) {
             inNormal.copy(shadingFrame.getZ());
@@ -164,6 +200,36 @@ public class RayHit {
         flags |= RayHitFlag.NORMAL;
         shadingFrame.setZ(localNormal);
         inNormal.copy(shadingFrame.getZ());
+        return true;
+    }
+
+    /**
+    Fills in shading frame: Z is the shading normal.
+    */
+    public boolean setShadingFrame(CoordinateSystem frame) {
+        if ((flags & RayHitFlag.SHADING_FRAME) != 0) {
+            frame.setX(shadingFrame.getX());
+            frame.setY(shadingFrame.getY());
+            frame.setZ(shadingFrame.getZ());
+            return true;
+        }
+
+        Vector3D shadingX = shadingFrame.getX();
+        Vector3D shadingY = shadingFrame.getY();
+        Vector3D shadingZ = shadingFrame.getZ();
+
+        if (!pointShadingFrame(shadingX, shadingY, shadingZ)) {
+            return false;
+        }
+
+        shadingFrame.setX(shadingX);
+        shadingFrame.setY(shadingY);
+        shadingFrame.setZ(shadingZ);
+        flags |= RayHitFlag.SHADING_FRAME | RayHitFlag.NORMAL;
+
+        frame.setX(shadingFrame.getX());
+        frame.setY(shadingFrame.getY());
+        frame.setZ(shadingFrame.getZ());
         return true;
     }
 
@@ -213,33 +279,6 @@ public class RayHit {
         flags = inFlags;
     }
 
-    public boolean setShadingFrame(CoordinateSystem frame) {
-        if ((flags & RayHitFlag.SHADING_FRAME) != 0) {
-            frame.setX(shadingFrame.getX());
-            frame.setY(shadingFrame.getY());
-            frame.setZ(shadingFrame.getZ());
-            return true;
-        }
-
-        Vector3D shadingX = shadingFrame.getX();
-        Vector3D shadingY = shadingFrame.getY();
-        Vector3D shadingZ = shadingFrame.getZ();
-
-        if (!pointShadingFrame(shadingX, shadingY, shadingZ)) {
-            return false;
-        }
-
-        shadingFrame.setX(shadingX);
-        shadingFrame.setY(shadingY);
-        shadingFrame.setZ(shadingZ);
-        flags |= RayHitFlag.SHADING_FRAME | RayHitFlag.NORMAL;
-
-        frame.setX(shadingFrame.getX());
-        frame.setY(shadingFrame.getY());
-        frame.setZ(shadingFrame.getZ());
-        return true;
-    }
-
     public Vector3D getNormal() {
         return shadingFrame.getZ();
     }
@@ -264,5 +303,25 @@ public class RayHit {
         shadingFrame.setX(inX);
         shadingFrame.setY(inY);
         shadingFrame.setZ(inZ);
+    }
+
+    public void copyFrom(RayHit other) {
+        if (other == null) {
+            return;
+        }
+
+        setPoint(other.getPoint());
+        setPatch(other.getPatch());
+        setGeometricNormal(other.getGeometricNormal());
+        setMaterial(other.getMaterial());
+        setUv(other.getUv());
+        setFlags(other.getFlags());
+
+        CoordinateSystem frame = other.getShadingFrame();
+        setShadingFrame(frame.getX(), frame.getY(), frame.getZ());
+        Vector3D localTex = new Vector3D();
+        if (other.getTexCoord(localTex)) {
+            texCoord = localTex;
+        }
     }
 }

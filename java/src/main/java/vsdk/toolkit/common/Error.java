@@ -1,5 +1,20 @@
 package vsdk.toolkit.common;
 
+/**
+Prints an error message. Behaves much like printf. The first argument is the
+name of the routine in which the error occurs (optional - can be nullptr)
+*/
+
+/**
+Fatal error: print message or and exit the program with the specified error code
+First argument is a return code. We use negative return codes for
+"internal" error messages
+*/
+
+/**
+Same, but for warning messages
+*/
+
 public final class Error {
     private Error() {
     }

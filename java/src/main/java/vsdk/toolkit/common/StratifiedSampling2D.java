@@ -1,5 +1,17 @@
 package vsdk.toolkit.common;
 
+/**
+A simple 2D stratified sampling class. Only one sample per stratum. If the number
+of samples does not fit a 2D grid, some samples are taken randomly over the
+complete unit square.
+*/
+
+// All strata sampled -> now just uniform sampling
+
+/**
+Makes a nice grid for stratified sampling
+*/
+
 public class StratifiedSampling2D {
     private int xMaxStratum;
     private int yMaxStratum;

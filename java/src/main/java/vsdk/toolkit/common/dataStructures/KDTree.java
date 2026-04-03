@@ -1,5 +1,251 @@
 package vsdk.toolkit.common.dataStructures;
 
+/**
+ KD Tree
+
+Creation :
+
+KDTree( int dimension, int dataSize, bool CopyData = true )
+
+  dimension : the dimension k of the kd tree
+  dataSize : size of the data blocks that are stored in the tree.
+    The first k entries of the data block must be floats. These
+    are the coordinates of this point in the kd space
+  CopyData : boolean indicating if data must be copied.
+
+virtual void addPoint(void *data)
+
+  Adds a point to the tree. (First k entries of data == point)
+
+Destruction :
+
+virtual KDTree void )
+
+  Destroys kd tree and nodes. Data is freed only when
+  copy data was true.
+ 
+Interrogation :
+
+virtual int query(const float *point, int N, void *results,
+	     float *distances = nullptr, float radius = HUGE_DOUBLE_VALUE)
+
+ Gives a maximum of N positions that are closest to the query point
+ ('point'). An optional radius defines the maximum distance
+to the query positions. The number of positions found is returned.
+
+float *point : the query point (float point[k])
+int N : maximum number of positions to return
+void *results : array of N pointers where the results of the query
+                will be stored. (DATATYPE *results[k])
+float *distances : array of N floats where the distances to the
+                   query point can be stored. If nullptr no distances
+                   are stored.
+float radius : defines the maximum allowed distance between any point 
+               found and the query point. 
+
+Ref : - Bentley, J.L. (1975) Multidimensional search trees used for 
+        associative searching. Comm. of the ACM 18(9) p. 509-517
+      - Friedman et al. (1977) An algorithm for finding best matches
+        in logarithmic expected time. ACM Trans. on Math. Software 3(3)
+        p. 209-226
+*/
+
+// Start of non balanced part of the kd tree
+
+// (numBalanced+1) / 2 : index of first leaf element
+
+// Start of balanced part of the kd tree
+
+// Unbalanced part
+
+// Balanced part
+
+// Not HUGE_DOUBLE_VALUE, since we need to square it.
+
+// KD Tree with one data element per node
+
+// Maximum 1000!
+
+/**
+Add a point in the kd tree, this is always to the unbalanced part
+*/
+
+// Add the point to the unbalanced part
+
+// Default
+
+// The parent
+
+// Test discriminator
+
+// Choose an appropriate discriminator for the parent
+
+// Choose correct side
+
+// Parent is nullptr or discriminator is fixed...
+
+/**
+Iterate nodes : iterate all nodes (only for balanced trees!)
+*/
+
+/**
+Query the kd tree : both balanced and unbalanced parts taken into
+account ! (The balanced part is searched first)
+*/
+
+// Fill in static class data
+
+// First query balanced part
+
+// Now query unbalanced part using the already found nodes
+
+// from the balanced part
+
+/**
+Distance calculation
+*/
+
+/**
+Max heap stuff
+Adapted from patched POVRAY (megasrc), who took it from Sejwick
+*/
+
+// Ripple the node (qdat_s.foundN) upward. There are qdat_s.foundN + 1 nodes
+
+// in the tree
+
+// Root of tree == index 0 so parent = any son - 1 / 2
+
+// If all the photons are filled, we can use the actual maximum distance
+
+// Ripple the top node, which may not be max anymore downwards
+
+// There are qdat_s.foundN nodes in the tree, starting at index 0
+
+// Node in place, left son and right son smaller
+
+// Take maximum of the two sons
+
+// Swap because son > parent
+
+// Top = maximum element. Replace it with new and ripple down
+
+// The heap is full (foundN == wantedN), but this is not required
+
+// Top
+
+// Max = top of heap
+
+/**
+Query_rec for the unbalanced kd tree part
+*/
+
+// Add this point anyway, because we haven't got enough positions yet.
+
+// We have to check for the radius only here, since if N positions
+
+// are added, maximumDistance <= radius
+
+// Add point if distance < maximumDistance
+
+// Reuse distance
+
+// Always call near node recursively
+
+// Square distance to the separator plane
+
+// Discriminator line closer than maximumDistance : nearer positions can lie
+
+// on the far side. Or there are still not enough nodes found
+
+// Recursive call to the child nodes
+
+// Test discr (reuse distance)
+
+// node loson
+
+// node hison
+
+// qdat_s.foundN < qdat_s.wantedN
+
+/**
+This Quick select routine is adapted from the algorithm described in
+"Numerical recipes in C", Second Edition,
+Cambridge University Press, 1992, Section 8.5, ISBN 0-521-43108-5
+*/
+
+// High inclusive
+
+// Add 0.1 because integer powers of 2 sometimes gave a smaller FL (8 -> 2)
+
+// 2^FL
+
+// Number of elements on last level
+
+// Half the room for elements on last level
+
+// All in left subtree
+
+// Full bottom level in left subtree
+
+// Rest in right subtree
+
+/**
+Return index of median element
+*/
+
+// One element only
+
+// Two elements only
+
+// Find median of low, middle and high volumeListsOfItems; swap into position low
+
+// Swap low item (now in position middle) into position (low + 1)
+
+// Nibble from each end towards middle, swapping volumeListsOfItems when stuck
+
+// Swap middle item (in position low) back into correct position
+
+// Re-set active partition
+
+/**
+Balance the kd tree
+*/
+
+// X spread
+
+/**
+balance the tree recursively
+*/
+
+// High inclusive!
+
+// Put it in dest
+
+// Don't care
+
+// Find the balance median element
+
+// Recurse low and high array
+
+/**
+Balance the tree, it is possible that a part is already balanced!
+*/
+
+// Make an unsorted BalancedKDTreeNode array pointing to the nodes
+
+// No balancing needed.
+
+// Copy balanced
+
+// Copy unbalanced
+
+// Clear old balanced and unbalanced part (but no data delete)
+
+// Could we do with just 1 array???
+
+// Now balance the tree recursively
+
 import java.util.Arrays;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 

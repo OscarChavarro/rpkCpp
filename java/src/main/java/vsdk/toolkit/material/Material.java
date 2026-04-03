@@ -1,5 +1,13 @@
 package vsdk.toolkit.material;
 
+// Emittance distribution function
+
+// Reflection and transmission together
+
+// True for 1-sided surface, false for 2-sided, see mgf docs
+
+// Material name
+
 public class Material {
     private PhongEmittanceDistributionFunction edf;
     private PhongBidirectionalScatteringDistributionFunction bsdf;

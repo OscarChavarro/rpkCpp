@@ -1,5 +1,21 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Transform vector v3b by m4 and put into v3a
+*/
+
+/**
+Transform p3b by m4 and put into p3a
+*/
+
+// Transform as vector
+
+// Translate
+
+/**
+Multiply m4b X m4c and put into m4a
+*/
+
 public class Matrix4x4d {
     public double[][] m;
 

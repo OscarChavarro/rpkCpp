@@ -1,5 +1,15 @@
 package vsdk.toolkit.common.dataStructures;
 
+/**
+Remove first element and return it
+*/
+
+/**
+Add an element to the head of the list
+*/
+
+// Not empty
+
 public class CircularListBase {
     private CircularListLink last;
 

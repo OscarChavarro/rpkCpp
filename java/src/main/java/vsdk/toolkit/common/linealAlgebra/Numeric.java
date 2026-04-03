@@ -1,5 +1,13 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Tests whether two floating point numbers are equal within the given tolerance
+*/
+
+/**
+Returns whether the first floating point value is greater than the second one.
+*/
+
 public final class Numeric {
     public static final double HUGE_DOUBLE_VALUE = 1e30;
     public static final float HUGE_FLOAT_VALUE = Float.MAX_VALUE;

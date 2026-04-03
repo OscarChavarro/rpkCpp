@@ -1,5 +1,9 @@
 package vsdk.toolkit.common.dataStructures;
 
+/**
+Implementation is based on Stroustrup 'The C++ Programming Language' Section 8.3
+*/
+
 public class CircularList<T> extends CircularListBase {
     public void add(T data) {
         addLink(new CircularListNode<>(data));

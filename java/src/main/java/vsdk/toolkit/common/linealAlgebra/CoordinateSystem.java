@@ -1,5 +1,49 @@
 package vsdk.toolkit.common.linealAlgebra;
 
+/**
+Routines used to sample a spherical triangle or quadrilateral
+using Arvo's technique published in SIGGRAPH '95 p 437
+
+References:
+- [ARVO1995b] "Stratified Sampling of Spherical Triangles", SIGGRAPH 1995
+
+This class implements local-frame and spherical-coordinate primitives after
+Section [ARVO1995b].2, especially the orthogonal normalized component operator from
+equation (6). Equations (1)-(5) in the paper concern spherical
+triangle area inversion and are not directly implemented here.
+*/
+
+/**
+Creates a coordinate system with the given UNIT direction vector as inZ-axis
+*/
+
+// Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
+
+// X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
+
+// Section [ARVO1995b].2: complete a local orthonormal frame to express spherical angles.
+
+/**
+Given a unit vector and a coordinate system, this routine computes the spherical
+coordinates phi and theta of the vector with respect to the coordinate system
+*/
+
+// Sometimes numerical errors cause this
+
+// Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
+
+/**
+Samples the hemisphere according to a cos_theta distribution
+*/
+
+// Section [ARVO1995b].2: map (xi1, xi2) in [0,1]^2 to angular parameters on the sphere.
+
+/**
+Samples the hemisphere according to a cos_theta ^ n distribution
+*/
+
+// Section [ARVO1995b].2: same square-to-sphere mapping pattern with a different radial CDF.
+
 public class CoordinateSystem {
     private Vector3D X = new Vector3D();
     private Vector3D Y = new Vector3D();

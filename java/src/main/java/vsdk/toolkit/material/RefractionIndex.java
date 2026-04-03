@@ -1,5 +1,9 @@
 package vsdk.toolkit.material;
 
+/**
+Compute an approximate geometric IOR from a complex IOR (cfr. Gr.Gems II, p289)
+*/
+
 public class RefractionIndex {
     private float nr;
     private float ni;
