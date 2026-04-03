@@ -3,8 +3,9 @@ package vsdk.toolkit.io;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.StringTokenizer;
+import java.nio.charset.StandardCharsets;
 
+import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.VSDK;
 
 /**
@@ -46,6 +47,12 @@ public abstract class PersistenceElement {
     
     // Long int should use an 8-sized array, not a 4-sized. Check.
     private static final byte[] bytesForLong = new byte[4];
+
+    private static int
+    signedByte2unsignedInteger(byte value)
+    {
+        return value & 0xFF;
+    }
 
     public static int
     readByteInt(InputStream is) throws Exception
@@ -106,6 +113,44 @@ public abstract class PersistenceElement {
                 "Could not read requested length (" + offset + "/" + length + ")");
         }
     }
+
+    /**
+    Given a previously initialized array of bytes, this method fills it
+    with information readed from the given input stream.  If it is not
+    enough information to read, this method generates an Exception.
+    @param is
+    @param bytesBuffer
+    */
+    public static void
+    readBytes(InputStream is, byte[] bytesBuffer, int length)
+    {
+        if ( bytesBuffer == null || length < 0 ) {
+            Error.error("PersistenceElement::readBytes", "%s", "invalid buffer");
+            return;
+        }
+
+        int offset = 0;
+        int numRead = 0;
+        do {
+            try {
+                numRead = is.read(bytesBuffer, offset, (length-offset));
+            }
+            catch (Exception e) {
+                numRead = -1;
+            }
+            if ( numRead <= 0 ) {
+                break;
+            }
+            offset += numRead;
+        } while( offset < length && numRead >= 0 );
+
+        if ( offset < length ) {
+            for ( int i = offset; i < length; i++ ) {
+                bytesBuffer[i] = 0;
+            }
+            Error.error("PersistenceElement::readBytes", "could not read requested length (%d/%d)", offset, length);
+        }
+    }
     
     /**
     Given a previously initialized array of bytes, this method writes it
@@ -119,6 +164,30 @@ public abstract class PersistenceElement {
     writeBytes(OutputStream os, byte[] bytesBuffer) throws Exception
     {
         os.write(bytesBuffer, 0, bytesBuffer.length);
+    }
+
+    /**
+    Given a previously initialized array of bytes, this method writes it
+    with information readed from the given output stream.  If it is not
+    enough information to read, this method generates an Exception.
+    @param os
+    @param bytesBuffer
+    */
+    public static void
+    writeBytes(OutputStream os, byte[] bytesBuffer, int length)
+    {
+        if ( bytesBuffer == null || length < 0 ) {
+            Error.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
+            return;
+        }
+        if ( length == 0 ) {
+            return;
+        }
+        try {
+            os.write(bytesBuffer, 0, length);
+        }
+        catch (Exception ignored) {
+        }
     }
 
     /**
@@ -711,21 +780,26 @@ public abstract class PersistenceElement {
 
     public static String buildUtf8Char(byte arr[])
     {
-        String c;
-        int a = VSDK.signedByte2unsignedInteger(arr[0]);
-        int b = VSDK.signedByte2unsignedInteger(arr[1]);
+        byte[] outBytes = new byte[2];
+        if ( !buildUtf8Char(arr, outBytes) ) {
+            return null;
+        }
+        return new String(outBytes, StandardCharsets.UTF_8);
+    }
+
+    private static boolean buildUtf8Char(byte[] arr, byte[] outBytes)
+    {
+        int a = signedByte2unsignedInteger(arr[0]);
+        int b = signedByte2unsignedInteger(arr[1]);
 
         if ( ((a >> 5) == 0x06) &&
              ((b >> 6) == 0x02) ) {
-            c = new String(arr);
+            outBytes[0] = arr[0];
+            outBytes[1] = arr[1];
+            return true;
         }
-        else {
-            //System.err.println("VSDK: Unhandled UTF-8 binary encoding!");
-            //System.err.println("  - Byte 0: " + a + " / " + (a >> 5) );
-            //System.err.println("  - Byte 1: " + b + " / " + (b >> 6) );
-            return null;
-        }
-        return c;
+
+        return false;
     }
 
     public static String readUtf8Line(InputStream is) throws Exception
@@ -790,72 +864,174 @@ public abstract class PersistenceElement {
         return false;
     }
 
+    private static boolean isInSet(byte key, byte[] set, int setLength)
+    {
+        for ( int i = 0; i < setLength; i++ ) {
+            if ( key == set[i] ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String readAsciiToken(InputStream is, byte separators[]) throws Exception
     {
         byte character[] = new byte[1];
-        char letter;
-        String msg = "";
-        int i;
+        StringBuilder msg = new StringBuilder("");
 
         do {
             readBytes(is, character);
             if ( !isInSet(character[0], separators) ) {
-                msg = msg + ((char)character[0]);
+                msg.append((char)character[0]);
             }
         } while ( !isInSet(character[0], separators) );
 
-        return msg;
+        return msg.toString();
+    }
+
+    public static String readAsciiToken(InputStream is, byte[] separators, int separatorsLength)
+    {
+        byte[] character = new byte[1];
+        StringBuilder bytes = new StringBuilder("");
+
+        do {
+            readBytes(is, character, 1);
+            if ( character[0] == 0x00 ) {
+                break;
+            }
+            if ( !isInSet(character[0], separators, separatorsLength) ) {
+                bytes.append((char)character[0]);
+            }
+        } while ( !isInSet(character[0], separators, separatorsLength) );
+
+        return bytes.toString();
     }
 
     public static void
     writeAsciiString(OutputStream writer, String cad)
         throws Exception
     {
-        byte arr[];
-        arr = cad.getBytes();
-        writer.write(arr, 0, arr.length);
+        String text = cad == null ? "" : cad;
+        byte[] arr = text.getBytes(StandardCharsets.UTF_8);
+        writeBytes(writer, arr, arr.length);
 
-        byte end[] = new byte[1];
+        byte[] end = new byte[1];
         end[0] = '\0';
-        writer.write(end, 0, end.length);
+        writeBytes(writer, end, 1);
     }
 
     public static void
     writeUtf8String(OutputStream writer, String cad) throws Exception
     {
-        byte arr[];
-        arr = cad.getBytes();
-        writer.write(arr, 0, arr.length);
+        String text = cad == null ? "" : cad;
+        byte[] arr = text.getBytes(StandardCharsets.UTF_8);
+        writeBytes(writer, arr, arr.length);
 
-        byte end[] = new byte[1];
+        byte[] end = new byte[1];
         end[0] = '\0';
-        writer.write(end, 0, end.length);
+        writeBytes(writer, end, 1);
     }
 
     public static void
     writeAsciiLine(OutputStream writer, String cad)
         throws Exception
     {
-        byte arr[];
-        arr = cad.getBytes();
-        writer.write(arr, 0, arr.length);
+        String text = cad == null ? "" : cad;
+        byte[] arr = text.getBytes(StandardCharsets.UTF_8);
+        writeBytes(writer, arr, arr.length);
 
-        byte end[] = new byte[1];
+        byte[] end = new byte[1];
         end[0] = '\n';
-        writer.write(end, 0, end.length);
+        writeBytes(writer, end, 1);
     }
 
     public static void
     writeUtf8Line(OutputStream writer, String cad)
         throws Exception
     {
-        byte arr[];
-        arr = cad.getBytes();
-        writer.write(arr, 0, arr.length);
+        String text = cad == null ? "" : cad;
+        byte[] arr = text.getBytes(StandardCharsets.UTF_8);
+        writeBytes(writer, arr, arr.length);
 
-        byte end[] = new byte[1];
+        byte[] end = new byte[1];
         end[0] = '\n';
-        writer.write(end, 0, end.length);
+        writeBytes(writer, end, 1);
+    }
+
+    private static String duplicateCString(String text)
+    {
+        String source = text == null ? "" : text;
+        return new String(source);
+    }
+
+    private static String joinCString2(String left, String right)
+    {
+        String leftText = left == null ? "" : left;
+        String rightText = right == null ? "" : right;
+        return leftText + rightText;
+    }
+
+    private static String joinCString3(String first, String second, String third)
+    {
+        String firstText = first == null ? "" : first;
+        String secondText = second == null ? "" : second;
+        String thirdText = third == null ? "" : third;
+        return firstText + secondText + thirdText;
+    }
+
+    private static boolean containsCString(String text, String fragment)
+    {
+        if ( text == null || fragment == null ) {
+            return false;
+        }
+        return text.contains(fragment);
+    }
+
+    private static boolean startsWithCString(String text, String prefix)
+    {
+        if ( text == null || prefix == null ) {
+            return false;
+        }
+        return text.startsWith(prefix);
+    }
+
+    private static boolean endsWithCString(String text, String suffix)
+    {
+        if ( text == null || suffix == null ) {
+            return false;
+        }
+        return text.endsWith(suffix);
+    }
+
+    private static boolean containsExistingLibrary(String pathList, char pathSeparator, String nativeLibname)
+    {
+        if ( pathList == null || nativeLibname == null || nativeLibname.isEmpty() ) {
+            return false;
+        }
+
+        int start = 0;
+        while ( start <= pathList.length() ) {
+            int separatorIndex = pathList.indexOf(pathSeparator, start);
+            if ( separatorIndex < 0 ) {
+                separatorIndex = pathList.length();
+            }
+
+            String token = pathList.substring(start, separatorIndex);
+            if ( !token.isEmpty() ) {
+                String fullPath = joinCString3(token, "/", nativeLibname);
+                File candidate = new File(fullPath);
+                if ( candidate.exists() && candidate.canRead() && candidate.isFile() ) {
+                    return true;
+                }
+            }
+
+            if ( separatorIndex >= pathList.length() ) {
+                break;
+            }
+            start = separatorIndex + 1;
+        }
+
+        return false;
     }
 
     /**
@@ -892,37 +1068,23 @@ public abstract class PersistenceElement {
             paths = paths.concat(":" + System.getenv("LD_LIBRARY_PATH"));
         }
 
-        String separator = File.pathSeparator;                
-        StringTokenizer st = new StringTokenizer(paths, separator);
-        String token;
-        String concat = File.separator;
-        while ( st.hasMoreTokens() ) {
-            token = st.nextToken();
-            File directory = new File(token);
-            if ( !directory.isDirectory()  ) {
-                continue;
-            }
-            File file = new File(token + concat + nativeLibname);
-            if ( file.exists() ) {
-                return true;
-            }
-                        
-        }
-        return false;
+        char separator = File.pathSeparatorChar;
+        return containsExistingLibrary(paths, separator, nativeLibname);
     }
 
     public static boolean
     checkDirectory(String dirName)
     {
-        File dirFd = new File(dirName);
-
-        if ( dirFd.exists() && (!dirFd.isDirectory() ) ) {
-            System.err.println("Directory " + dirName + " can not be created, because a file with that name already exists (not overwriten).");
+        if ( dirName == null || dirName.isEmpty() ) {
+            System.err.print("Directory name is empty.\n");
             return false;
         }
 
-        if ( !dirFd.exists() && !dirFd.mkdir() ) {
-            System.err.println("Directory " + dirName + " can not be created, check permisions and available free disk space.");
+        File directory = new File(dirName);
+        if ( !directory.exists() || !directory.isDirectory() || !directory.canRead() || !directory.canWrite() ) {
+            System.err.printf(
+                "Directory %s is not accessible and automatic creation is disabled.\n",
+                dirName);
             return false;
         }
 
@@ -938,14 +1100,23 @@ public abstract class PersistenceElement {
     */
     protected static String extractExtensionFromFile(File fd)
     {
-        String filename = fd.getName();
-        StringTokenizer st = new StringTokenizer(filename, ".");
-        int numTokens = st.countTokens();
-        for( int i = 0; i < numTokens - 1; i++ ) {
-            st.nextToken();
+        String javaFilename = fd.getName();
+        if ( javaFilename == null || javaFilename.isEmpty() ) {
+            return duplicateCString("");
         }
-        String ext = st.nextToken();
-        return ext;
+
+        String extension = javaFilename;
+        int cursor = 0;
+        while ( true ) {
+            int dot = javaFilename.indexOf('.', cursor);
+            if ( dot < 0 ) {
+                break;
+            }
+            extension = javaFilename.substring(dot + 1);
+            cursor = dot + 1;
+        }
+
+        return duplicateCString(extension);
     }
 
 }
