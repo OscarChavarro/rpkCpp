@@ -10,11 +10,11 @@ MgfStaticHandler::MgfStaticHandler(
 }
 
 int
-MgfStaticHandler::handle(int argc, const char **argv, ParseSession *context) const {
+MgfStaticHandler::handle(int argc, const char **argv, ParseContext *context) const {
     if ( handlerFunction == nullptr ) {
         return ErrorCodeContext::MGF_OK;
     }
-    return handlerFunction(argc, argv, context);
+    return handlerFunction(argc, argv, static_cast<ParseSession *>(context));
 }
 
 HandlerType

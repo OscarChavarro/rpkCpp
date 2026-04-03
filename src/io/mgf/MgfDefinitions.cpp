@@ -140,14 +140,14 @@ MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, ParseSes
         // Unknown entity
         return MgfDefinitions::mgfDefaultHandlerForUnknownEntities(argc, argv, context);
     }
-    if ( context->supportCallbacks[entityIndex] != nullptr ) {
+    if ( context->readerStackState.supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
-        int rv = context->supportCallbacks[entityIndex]->handle(argc, argv, context);
+        int rv = context->readerStackState.supportCallbacks[entityIndex]->handle(argc, argv, context);
         if ( rv != ErrorCodeContext::MGF_OK ) {
             return rv;
         }
     }
-    return context->handleCallbacks[entityIndex]->handle(argc, argv, context); // Assigned handler
+    return context->readerStackState.handleCallbacks[entityIndex]->handle(argc, argv, context); // Assigned handler
 }
 
 /**

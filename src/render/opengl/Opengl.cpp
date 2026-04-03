@@ -18,7 +18,7 @@
 #include "render/Canvas.h"
 #include "render/opengl/GalerkinOpenGLRenderer.h"
 #include "render/OctreeChild.h"
-#include "render/OpenGlRenderTraversalCallback.h"
+#include "render/opengl/OpenGlRenderTraversalCallback.h"
 #include "render/opengl/Opengl.h"
 #include "render/Render.h"
 #include "java/lang/System.h"
@@ -416,29 +416,6 @@ Opengl::openGlRenderWorldOctree(
     callbackContext.callbackWithoutData = renderPatchCallback;
     callbackContext.callbackWithData = nullptr;
     callbackContext.callbackData = nullptr;
-    if ( scene->clusteredRootGeometry->isCompound() ) {
-        Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
-    } else {
-        Opengl::openGlRenderOctreeLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
-    }
-#endif
-}
-
-void
-Opengl::openGlRenderWorldOctreeWithData(
-    const Scene *scene,
-    OpenGlRenderPatchCallbackWithData renderPatchCallback,
-    void *callbackData,
-    const RenderOptions *renderOptions)
-{
-    if ( scene->clusteredRootGeometry == nullptr || renderPatchCallback == nullptr ) {
-        return;
-    }
-#ifdef OPEN_GL_ENABLED
-    OpenGlRenderTraversalCallback callbackContext{};
-    callbackContext.callbackWithoutData = nullptr;
-    callbackContext.callbackWithData = renderPatchCallback;
-    callbackContext.callbackData = callbackData;
     if ( scene->clusteredRootGeometry->isCompound() ) {
         Opengl::openGlRenderOctreeNonLeaf(scene->camera, scene->clusteredRootGeometry, callbackContext, renderOptions);
     } else {

@@ -23,8 +23,6 @@ ParseSession::ParseSession():
     entityLookUpTable(readerStackState.entityLookUpTable),
     nextFileContextId(readerStackState.nextFileContextId),
     readerContext(readerStackState.readerContext),
-    handleCallbacks(readerStackState.handleCallbacks),
-    supportCallbacks(readerStackState.supportCallbacks),
     currentMaterialName(materialState.currentMaterialName),
     geometryStackHeadIndex(geometryBuildState.geometryStackHeadIndex),
     geometryStack(geometryBuildState.geometryStack),

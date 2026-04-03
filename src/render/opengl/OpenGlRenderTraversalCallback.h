@@ -1,7 +1,7 @@
 #ifndef __OPENGL_RENDER_TRAVERSAL_CALLBACK__
 #define __OPENGL_RENDER_TRAVERSAL_CALLBACK__
 
-#include "render/opengl/Opengl.h"
+#include "render/opengl/OpenGLCallbacks.h"
 
 class OpenGlRenderTraversalCallback {
   public:

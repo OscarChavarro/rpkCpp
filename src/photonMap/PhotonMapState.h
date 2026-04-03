@@ -7,8 +7,7 @@
 #include "photonMap/PhotonMapImportanceOption.h"
 #include "photonMap/RadiosityReturnOption.h"
 
-class PhotonMapState
-{
+class PhotonMapState {
   public:
     static constexpr int MAXIMUM_RECON_PHOTONS = 400;
 

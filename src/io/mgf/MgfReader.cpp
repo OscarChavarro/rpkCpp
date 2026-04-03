@@ -238,7 +238,7 @@ MgfReader::mgfPutCSpec(ParseSession *context)
     char buffer[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES][24];
     const char *newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
-    if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
         java::Formatter::format(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
         java::Formatter::format(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
         newAv[0] = context->entityNames[EntityContext::C_SPEC];
@@ -284,7 +284,7 @@ MgfReader::mgfECSpec(int /*ac*/, const char ** /*av*/, ParseSession *context) {
     // Convert to xy chromaticity
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
-    if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
     return ErrorCodeContext::MGF_OK;
@@ -301,12 +301,12 @@ Contorted logic works as follows:
 */
 int
 MgfReader::mgfECMix(int /*ac*/, const char ** /*av*/, ParseSession *context) {
-    if ( mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
+    if ( mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
         context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
-    if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
     return ErrorCodeContext::MGF_OK;
@@ -321,11 +321,11 @@ MgfReader::mgfColorTemperature(int /*ac*/, const char ** /*av*/, ParseSession *c
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
-    if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
         return mgfPutCSpec(context);
     }
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
-    if ( !mgfHandlerMatches(context->handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
     return ErrorCodeContext::MGF_OK;
@@ -541,28 +541,28 @@ MgfReader::mgfAlternativeInit(
 
     // Add support as needed
     if ( iNeed & 1L << EntityContext::VERTEX && !mgfHandlerMatches(handleCallbacks[EntityContext::VERTEX], HandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+        context->readerStackState.supportCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::MGF_POINT && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_POINT], HandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+        context->readerStackState.supportCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::MGF_NORMAL && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_NORMAL], HandlerType::HANDLE_VERTEX) ) {
-        context->supportCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+        context->readerStackState.supportCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
     }
     if ( iNeed & 1L << EntityContext::COLOR && !mgfHandlerMatches(handleCallbacks[EntityContext::COLOR], HandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+        context->readerStackState.supportCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::CXY && !mgfHandlerMatches(handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+        context->readerStackState.supportCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::C_SPEC && !mgfHandlerMatches(handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+        context->readerStackState.supportCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::C_MIX && !mgfHandlerMatches(handleCallbacks[EntityContext::C_MIX], HandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+        context->readerStackState.supportCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
     }
     if ( iNeed & 1L << EntityContext::CCT && !mgfHandlerMatches(handleCallbacks[EntityContext::CCT], HandlerType::HANDLE_COLOR) ) {
-        context->supportCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+        context->readerStackState.supportCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
     }
 
     // Discard remaining entities
@@ -576,40 +576,40 @@ MgfReader::mgfAlternativeInit(
 void
 MgfReader::initMgf(ParseSession *context) {
     // Related to ColorContext
-    context->handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
-    context->handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
-    context->handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
 
     // Related to MgfMaterialContext
-    context->handleCallbacks[EntityContext::MGF_MATERIAL] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::ED] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::IR] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::RD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::RS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::SIDES] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::TD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->handleCallbacks[EntityContext::TS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::MGF_MATERIAL] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::ED] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::IR] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::RD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::RS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::SIDES] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::TD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityContext::TS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
 
     // Related to TransformStackContext
-    context->handleCallbacks[EntityContext::TRANSFORM] = mgfHandlerFromType(context, HandlerType::HANDLE_TRANSFORM);
+    context->readerStackState.handleCallbacks[EntityContext::TRANSFORM] = mgfHandlerFromType(context, HandlerType::HANDLE_TRANSFORM);
 
     // Related to object, no explicit context
-    context->handleCallbacks[EntityContext::OBJECT] = mgfHandlerFromType(context, HandlerType::HANDLE_OBJECT);
+    context->readerStackState.handleCallbacks[EntityContext::OBJECT] = mgfHandlerFromType(context, HandlerType::HANDLE_OBJECT);
 
     // Related to geometry elements, no explicit context
-    context->handleCallbacks[EntityContext::FACE] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE);
-    context->handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE_WITH_HOLES);
-    context->handleCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::FACE] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE);
+    context->readerStackState.handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE_WITH_HOLES);
+    context->readerStackState.handleCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
 
-    mgfAlternativeInit(context->handleCallbacks, context);
+    mgfAlternativeInit(context->readerStackState.handleCallbacks, context);
 }
 
 PersistedSceneModel *

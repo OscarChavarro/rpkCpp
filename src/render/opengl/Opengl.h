@@ -2,17 +2,14 @@
 #define __OPENGL__
 
 #include "common/RenderOptions.h"
-#include "render/opengl/visualDebugTools/GlutDebugState.h"
-#include "skin/Patch.h"
+#include "tonemap/ToneMappingContext.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "tonemap/ToneMappingContext.h"
-
-class OpenGlRenderTraversalCallback;
-
-using OpenGlRenderPatchCallback = void (*)(const Patch *, const Camera *, const RenderOptions *);
-using OpenGlRenderPatchCallbackWithData = void (*)(const Patch *, const Camera *, const RenderOptions *, void *);
+#include "skin/Patch.h"
+#include "render/opengl/OpenGLCallbacks.h"
+#include "render/opengl/OpenGlRenderTraversalCallback.h"
+#include "render/opengl/visualDebugTools/GlutDebugState.h"
 
 class Opengl {
   private:
@@ -81,13 +78,6 @@ class Opengl {
     openGlRenderWorldOctree(
         const Scene *scene,
         OpenGlRenderPatchCallback renderPatchCallback,
-        const RenderOptions *renderOptions);
-
-    static void
-    openGlRenderWorldOctreeWithData(
-        const Scene *scene,
-        OpenGlRenderPatchCallbackWithData renderPatchCallback,
-        void *callbackData,
         const RenderOptions *renderOptions);
 
     static void

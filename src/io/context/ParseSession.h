@@ -5,7 +5,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/context/TransformStackContext.h"
 #include "io/context/ColorContext.h"
-#include "io/context/EntityHandler.h"
+#include "io/context/ParseContext.h"
 #include "io/context/LookUpTable.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
@@ -24,7 +24,7 @@
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 
-class ParseSession {
+class ParseSession final : public ParseContext {
   public:
     ParserConfig parserConfig;
     ReaderStackState readerStackState;
@@ -42,7 +42,6 @@ class ParseSession {
     // migrate to explicit sub-state access.
     using EntityNamesArray = char[TOTAL_NUMBER_OF_ENTITIES][EntityContextInfo::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     using ErrorMessagesArray = const char *[ErrorCodeContext::MGF_NUMBER_OF_ERRORS];
-    using HandlerArray = EntityHandler *[TOTAL_NUMBER_OF_ENTITIES];
     using GeometryStackArray = java::ArrayList<Geometry *> *[GeometryBuildState::MAXIMUM_GEOMETRY_STACK_DEPTH];
 
     RadianceMethod *&radianceMethod;
@@ -56,8 +55,6 @@ class ParseSession {
     LookUpTable &entityLookUpTable;
     int &nextFileContextId;
     ReaderContext *&readerContext;
-    HandlerArray &handleCallbacks;
-    HandlerArray &supportCallbacks;
     char *&currentMaterialName;
     int &geometryStackHeadIndex;
     GeometryStackArray &geometryStack;
