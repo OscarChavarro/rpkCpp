@@ -2,23 +2,23 @@
 #define __SCOPED_ARRAY__
 
 template <typename T>
-class ScopedArray {
+class ScopedArrayBuffer {
   private:
     T *value;
 
   public:
-    explicit ScopedArray(T *initialValue = nullptr):
+    explicit ScopedArrayBuffer(T *initialValue = nullptr):
         value(initialValue)
     {
     }
 
-    ~ScopedArray() {
+    ~ScopedArrayBuffer() {
         delete[] value;
         value = nullptr;
     }
 
-    ScopedArray(const ScopedArray &) = delete;
-    ScopedArray &operator=(const ScopedArray &) = delete;
+    ScopedArrayBuffer(const ScopedArrayBuffer &) = delete;
+    ScopedArrayBuffer &operator=(const ScopedArrayBuffer &) = delete;
 
     void
     reset(T *newValue = nullptr) {

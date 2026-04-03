@@ -4,19 +4,19 @@
 #include "common/Error.h"
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
-#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelIndexListRef.h"
+#include "io/bin/reader/BinaryModelSnapshotRecordData.h"
 #include "io/context/ParseSnapshotContext.h"
 #include "skin/BoundingBox.h"
 
-class BinaryModelReaderSupport {
+class BinaryModelReadPrimitives {
   public:
     static bool reportReadError(const char *routine, const char *message);
 
     template <typename T>
     static bool initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what);
 
-    static void releaseIndexListRecord(BinaryModelReaderIndexListRecord *record);
+    static void releaseIndexListRecord(BinaryModelIndexListRef *record);
     static void readBytes(java::InputStream &input, unsigned char *buffer, int length);
     static bool readBytesChunked(java::InputStream &input, unsigned char *buffer, long long length);
     static unsigned char readByte(java::InputStream &input);
@@ -34,20 +34,20 @@ class BinaryModelReaderSupport {
     static bool readVector(java::InputStream &input, Vector3D *vector);
     static bool readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]);
     static bool setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]);
-    static bool readIndexList(java::InputStream &input, const char *what, BinaryModelReaderIndexListRecord *record);
+    static bool readIndexList(java::InputStream &input, const char *what, BinaryModelIndexListRef *record);
 
     template <typename T>
     static bool pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result);
 
     template <typename T>
     static bool arrayListFromIndices(
-        const BinaryModelReaderIndexListRecord &record,
+        const BinaryModelIndexListRef &record,
         const java::ArrayList<T *> &values,
         const char *what,
         java::ArrayList<T *> **result);
 
     static bool validateBinaryHeader(java::InputStream &input);
-    static bool populateModelStrings(ParseSnapshotContext *model, const BinaryModelReaderModelRecord &record);
+    static bool populateModelStrings(ParseSnapshotContext *model, const BinaryModelSnapshotRecordData &record);
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
@@ -56,17 +56,17 @@ class BinaryModelReaderSupport {
 
 template <typename T>
 inline bool
-BinaryModelReaderSupport::initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what) {
+BinaryModelReadPrimitives::initializeArrayList(java::ArrayList<T> *list, int count, T initialValue, const char *what) {
     if ( list == nullptr ) {
-        return reportReadError("BinaryModelReaderSupport::initializeArrayList", "Null list pointer");
+        return reportReadError("BinaryModelReadPrimitives::initializeArrayList", "Null list pointer");
     }
     if ( count < 0 ) {
-        Error::error("BinaryModelReaderSupport::initializeArrayList", "Negative count while reading binary model (%s)", what);
+        Error::error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
         return false;
     }
     for ( int i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
-            Error::error("BinaryModelReaderSupport::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
+            Error::error("BinaryModelReadPrimitives::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
             return false;
         }
     }
@@ -75,16 +75,16 @@ BinaryModelReaderSupport::initializeArrayList(java::ArrayList<T> *list, int coun
 
 template <typename T>
 inline bool
-BinaryModelReaderSupport::pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result) {
+BinaryModelReadPrimitives::pointerFromIndex(const java::ArrayList<T *> &values, int index, const char *what, T **result) {
     if ( result == nullptr ) {
-        return reportReadError("BinaryModelReaderSupport::pointerFromIndex", "Null output pointer");
+        return reportReadError("BinaryModelReadPrimitives::pointerFromIndex", "Null output pointer");
     }
     *result = nullptr;
     if ( index == -1 ) {
         return true;
     }
     if ( index < 0 || static_cast<long int>(index) >= values.size() ) {
-        Error::error("BinaryModelReaderSupport::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+        Error::error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
         return false;
     }
     *result = values.get(static_cast<long int>(index));
@@ -93,21 +93,21 @@ BinaryModelReaderSupport::pointerFromIndex(const java::ArrayList<T *> &values, i
 
 template <typename T>
 inline bool
-BinaryModelReaderSupport::arrayListFromIndices(
-    const BinaryModelReaderIndexListRecord &record,
+BinaryModelReadPrimitives::arrayListFromIndices(
+    const BinaryModelIndexListRef &record,
     const java::ArrayList<T *> &values,
     const char *what,
     java::ArrayList<T *> **result)
 {
     if ( result == nullptr ) {
-        return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Null output pointer");
+        return reportReadError("BinaryModelReadPrimitives::arrayListFromIndices", "Null output pointer");
     }
     *result = nullptr;
     if ( record.isNull ) {
         return true;
     }
     if ( record.indices == nullptr ) {
-        return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Missing index list while reading binary model");
+        return reportReadError("BinaryModelReadPrimitives::arrayListFromIndices", "Missing index list while reading binary model");
     }
     java::ArrayList<T *> *list = new java::ArrayList<T *>();
     for ( long int i = 0; i < record.indices->size(); i++ ) {
@@ -118,7 +118,7 @@ BinaryModelReaderSupport::arrayListFromIndices(
         }
         if ( !list->add(element) ) {
             delete list;
-            return reportReadError("BinaryModelReaderSupport::arrayListFromIndices", "Failed to allocate output list while reading binary model");
+            return reportReadError("BinaryModelReadPrimitives::arrayListFromIndices", "Failed to allocate output list while reading binary model");
         }
     }
     *result = list;

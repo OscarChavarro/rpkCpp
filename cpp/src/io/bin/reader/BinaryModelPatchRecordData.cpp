@@ -1,6 +1,6 @@
-#include "io/bin/reader/BinaryModelReaderPatchRecord.h"
+#include "io/bin/reader/BinaryModelPatchRecordData.h"
 
-BinaryModelReaderPatchRecord::BinaryModelReaderPatchRecord():
+BinaryModelPatchRecordData::BinaryModelPatchRecordData():
     id(0),
     twinIndex(-1),
     numberOfVertices(0),

@@ -3,7 +3,7 @@
 
 #include "io/context/ParseSnapshotContext.h"
 
-class BinaryModelReader {
+class BinaryModelDeserializer {
   public:
     static ParseSnapshotContext *read(const char *fileName);
 };

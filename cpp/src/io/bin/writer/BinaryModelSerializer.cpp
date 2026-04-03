@@ -25,18 +25,18 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/writer/BinaryModelWriter.h"
-#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
+#include "io/bin/writer/BinaryModelSerializer.h"
+#include "io/bin/writer/BinaryModelSerializationGraph.h"
 
-const unsigned char BinaryModelWriter::BINARY_MODEL_MAGIC[16] = {
+const unsigned char BinaryModelSerializer::BINARY_MODEL_MAGIC[16] = {
     'R', 'P', 'K', '_', 'M', 'G', 'F', '_',
     'B', 'I', 'N', '_', '1', 0, 0, 0
 };
 
-const int BinaryModelWriter::BINARY_MODEL_VERSION = 1;
+const int BinaryModelSerializer::BINARY_MODEL_VERSION = 1;
 
 const char *
-BinaryModelWriter::safeLabel(const char *text) {
+BinaryModelSerializer::safeLabel(const char *text) {
     if ( text == nullptr ) {
         return "(null)";
     }
@@ -44,9 +44,9 @@ BinaryModelWriter::safeLabel(const char *text) {
 }
 
 bool
-BinaryModelWriter::writeBytesChunked(java::OutputStream &output, const unsigned char *data, long long length) {
+BinaryModelSerializer::writeBytesChunked(java::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
-        Error::error("BinaryModelWriter::writeBytesChunked", "Negative block length");
+        Error::error("BinaryModelSerializer::writeBytesChunked", "Negative block length");
         return false;
     }
     long long offset = 0;
@@ -61,7 +61,7 @@ BinaryModelWriter::writeBytesChunked(java::OutputStream &output, const unsigned 
 }
 
 void
-BinaryModelWriter::writeTag(java::OutputStream &output, const char tag[4]) {
+BinaryModelSerializer::writeTag(java::OutputStream &output, const char tag[4]) {
     vsdk::PersistenceElement::writeBytes(
         output,
         reinterpret_cast<const unsigned char *>(tag),
@@ -69,10 +69,10 @@ BinaryModelWriter::writeTag(java::OutputStream &output, const char tag[4]) {
 }
 
 bool
-BinaryModelWriter::checkedLongToInt32(long value, const char *what, int &result) {
+BinaryModelSerializer::checkedLongToInt32(long value, const char *what, int &result) {
     if ( value > static_cast<long>(java::Integer::MAX_VALUE)
          || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
-        Error::error("BinaryModelWriter::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+        Error::error("BinaryModelSerializer::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(value);
@@ -80,7 +80,7 @@ BinaryModelWriter::checkedLongToInt32(long value, const char *what, int &result)
 }
 
 bool
-BinaryModelWriter::writeString(java::OutputStream &output, const char *text) {
+BinaryModelSerializer::writeString(java::OutputStream &output, const char *text) {
     if ( text == nullptr ) {
         vsdk::PersistenceElement::writeInt32LE(output, -1);
         return true;
@@ -101,21 +101,21 @@ BinaryModelWriter::writeString(java::OutputStream &output, const char *text) {
 }
 
 void
-BinaryModelWriter::writeColor(java::OutputStream &output, const ColorRgb &color) {
+BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
     vsdk::PersistenceElement::writeFloatLE(output, color.r);
     vsdk::PersistenceElement::writeFloatLE(output, color.g);
     vsdk::PersistenceElement::writeFloatLE(output, color.b);
 }
 
 void
-BinaryModelWriter::writeVector(java::OutputStream &output, const Vector3D &vector) {
+BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3D &vector) {
     vsdk::PersistenceElement::writeFloatLE(output, vector.x);
     vsdk::PersistenceElement::writeFloatLE(output, vector.y);
     vsdk::PersistenceElement::writeFloatLE(output, vector.z);
 }
 
 void
-BinaryModelWriter::writeBoundingBox(java::OutputStream &output, const BoundingBox &boundingBox) {
+BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const BoundingBox &boundingBox) {
     for ( int i = 0; i < 6; i++ ) {
         vsdk::PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
     }
@@ -123,7 +123,7 @@ BinaryModelWriter::writeBoundingBox(java::OutputStream &output, const BoundingBo
 
 template <typename T>
 bool
-BinaryModelWriter::indexOfPointer(
+BinaryModelSerializer::indexOfPointer(
     const T *ptr,
     const java::HashMap<const T *, int> &indices,
     const char *what,
@@ -135,7 +135,7 @@ BinaryModelWriter::indexOfPointer(
     }
     int index = 0;
     if ( !indices.tryGet(ptr, &index) ) {
-        Error::error("BinaryModelWriter::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+        Error::error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(index);
@@ -144,7 +144,7 @@ BinaryModelWriter::indexOfPointer(
 
 template <typename T>
 bool
-BinaryModelWriter::writeIndexList(
+BinaryModelSerializer::writeIndexList(
     java::OutputStream &output,
     const java::ArrayList<T *> *list,
     const java::HashMap<const T *, int> &indices,
@@ -172,7 +172,7 @@ BinaryModelWriter::writeIndexList(
 }
 
 bool
-BinaryModelWriter::writeMaterialRecord(java::OutputStream &output, const Material *material) {
+BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Material *material) {
     if ( !writeString(output, material->getName()) ) {
         return false;
     }
@@ -217,7 +217,7 @@ BinaryModelWriter::writeMaterialRecord(java::OutputStream &output, const Materia
         const int height = texture->getHeight();
         const int channels = texture->getChannels();
         if ( width < 0 || height < 0 || channels < 0 ) {
-            Error::error("BinaryModelWriter::writeMaterialRecord", "Invalid texture dimensions");
+            Error::error("BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
             return false;
         }
 
@@ -233,7 +233,7 @@ BinaryModelWriter::writeMaterialRecord(java::OutputStream &output, const Materia
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
             if ( data == nullptr ) {
-                Error::error("BinaryModelWriter::writeMaterialRecord", "Texture data is null with non-zero size");
+                Error::error("BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
                 return false;
             }
             if ( !writeBytesChunked(output, data, dataBytes) ) {
@@ -245,7 +245,7 @@ BinaryModelWriter::writeMaterialRecord(java::OutputStream &output, const Materia
 }
 
 void
-BinaryModelWriter::writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext) {
+BinaryModelSerializer::writeColorContextRecord(java::OutputStream &output, const ColorContext *colorContext) {
     vsdk::PersistenceElement::writeInt32LE(output, colorContext->clock);
     vsdk::PersistenceElement::writeSignedShortLE(output, colorContext->flags);
     for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
@@ -258,10 +258,10 @@ BinaryModelWriter::writeColorContextRecord(java::OutputStream &output, const Col
 }
 
 bool
-BinaryModelWriter::writeReaderContextRecord(
+BinaryModelSerializer::writeReaderContextRecord(
     java::OutputStream &output,
     const ReaderContext *readerContext,
-    const BinaryModelWriterSerializationContext &context)
+    const BinaryModelSerializationGraph &context)
 {
     vsdk::PersistenceElement::writeBytes(
         output,
@@ -285,7 +285,7 @@ BinaryModelWriter::writeReaderContextRecord(
 }
 
 void
-BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray) {
+BinaryModelSerializer::writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray) {
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
@@ -301,10 +301,10 @@ BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const T
 }
 
 bool
-BinaryModelWriter::writeTransformContextRecord(
+BinaryModelSerializer::writeTransformContextRecord(
     java::OutputStream &output,
     const TransformStackContext *transformContext,
-    const BinaryModelWriterSerializationContext &context)
+    const BinaryModelSerializationGraph &context)
 {
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformContext->xid));
     vsdk::PersistenceElement::writeSignedShortLE(output, transformContext->xac);
@@ -336,7 +336,7 @@ BinaryModelWriter::writeTransformContextRecord(
 }
 
 bool
-BinaryModelWriter::writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context) {
+BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelSerializationGraph &context) {
     vsdk::PersistenceElement::writeInt32LE(output, vertex->id);
 
     int pointIndex = -1;
@@ -371,7 +371,7 @@ BinaryModelWriter::writeVertexRecord(java::OutputStream &output, const Vertex *v
 }
 
 bool
-BinaryModelWriter::writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context) {
+BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelSerializationGraph &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->id));
 
     int twinIndex = -1;
@@ -424,7 +424,7 @@ BinaryModelWriter::writePatchRecord(java::OutputStream &output, const Patch *pat
 }
 
 bool
-BinaryModelWriter::writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context) {
+BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelSerializationGraph &context) {
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(geometry->className));
     vsdk::PersistenceElement::writeInt32LE(output, geometry->id);
     vsdk::PersistenceElement::writeInt32LE(output, geometry->itemCount);
@@ -472,14 +472,14 @@ BinaryModelWriter::writeGeometryRecord(java::OutputStream &output, const Geometr
             return false;
         }
     } else {
-        Error::error("BinaryModelWriter::writeGeometryRecord", "Unsupported geometry class while writing");
+        Error::error("BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
         return false;
     }
     return true;
 }
 
 bool
-BinaryModelWriter::writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelWriterSerializationContext &context) {
+BinaryModelSerializer::writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelSerializationGraph &context) {
     int currentColorIndex = -1;
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
@@ -538,20 +538,20 @@ BinaryModelWriter::writeModelRecord(java::OutputStream &output, const ParseSnaps
 }
 
 bool
-BinaryModelWriter::write(const ParseSnapshotContext *model, const char *fileName) {
+BinaryModelSerializer::write(const ParseSnapshotContext *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
-        Error::error("BinaryModelWriter::write", "Invalid model or fileName");
+        Error::error("BinaryModelSerializer::write", "Invalid model or fileName");
         return false;
     }
     java::File file(fileName);
     if ( !file.canWrite() || file.isDirectory() ) {
-        Error::error("BinaryModelWriter::write", "Could not open output file '%s'", fileName);
+        Error::error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
         return false;
     }
 
     java::FileOutputStream output(fileName);
 
-    BinaryModelWriterSerializationContext context;
+    BinaryModelSerializationGraph context;
     if ( !context.collectModel(model) ) {
         output.close();
         return false;

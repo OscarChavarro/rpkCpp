@@ -10,14 +10,14 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/reader/BinaryModelReaderVertexRecord.h"
-#include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
-#include "io/bin/reader/BinaryModelReaderModelRecord.h"
-#include "io/bin/reader/BinaryModelReaderSupport.h"
-#include "io/bin/reader/BinaryModelReaderCleanup.h"
+#include "io/bin/reader/BinaryModelVertexRecordData.h"
+#include "io/bin/reader/BinaryModelGeometryRecordData.h"
+#include "io/bin/reader/BinaryModelSnapshotRecordData.h"
+#include "io/bin/reader/BinaryModelReadPrimitives.h"
+#include "io/bin/reader/BinaryModelReadCleanup.h"
 
 void
-BinaryModelReaderCleanup::cleanupPartialModel(
+BinaryModelReadCleanup::cleanupPartialModel(
     java::ArrayList<Vector3D *> &vectors,
     java::ArrayList<Vertex *> &vertices,
     java::ArrayList<Patch *> &patches,
@@ -80,32 +80,32 @@ BinaryModelReaderCleanup::cleanupPartialModel(
 }
 
 void
-BinaryModelReaderCleanup::releaseVertexRecordIndexLists(java::ArrayList<BinaryModelReaderVertexRecord> &vertexRecords) {
+BinaryModelReadCleanup::releaseVertexRecordIndexLists(java::ArrayList<BinaryModelVertexRecordData> &vertexRecords) {
     for ( long int i = 0; i < vertexRecords.size(); i++ ) {
-        BinaryModelReaderSupport::releaseIndexListRecord(&vertexRecords[i].patchIndices);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&vertexRecords[i].patchIndices);
     }
 }
 
 void
-BinaryModelReaderCleanup::releaseGeometryRecordIndexLists(java::ArrayList<BinaryModelReaderGeometryRecord> &geometryRecords) {
+BinaryModelReadCleanup::releaseGeometryRecordIndexLists(java::ArrayList<BinaryModelGeometryRecordData> &geometryRecords) {
     for ( long int i = 0; i < geometryRecords.size(); i++ ) {
-        BinaryModelReaderGeometryRecord &record = geometryRecords[i];
+        BinaryModelGeometryRecordData &record = geometryRecords[i];
         if ( record.objectName != nullptr ) {
             delete[] record.objectName;
             record.objectName = nullptr;
         }
         record.hasObjectName = false;
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.positions);
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.normals);
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.vertices);
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.faces);
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.children);
-        BinaryModelReaderSupport::releaseIndexListRecord(&record.patchSetPatches);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.positions);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.normals);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.vertices);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.faces);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.children);
+        BinaryModelReadPrimitives::releaseIndexListRecord(&record.patchSetPatches);
     }
 }
 
 void
-BinaryModelReaderCleanup::releaseModelRecordIndexLists(BinaryModelReaderModelRecord *modelRecord) {
+BinaryModelReadCleanup::releaseModelRecordIndexLists(BinaryModelSnapshotRecordData *modelRecord) {
     if ( modelRecord == nullptr ) {
         return;
     }
@@ -124,11 +124,11 @@ BinaryModelReaderCleanup::releaseModelRecordIndexLists(BinaryModelReaderModelRec
     modelRecord->hasCurrentMaterialName = false;
     modelRecord->hasCurrentObjectName = false;
     modelRecord->hasCurrentVertexName = false;
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->currentFaceList);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->currentGeometryList);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->currentNormalList);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->currentPointList);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->currentVertexList);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->geometries);
-    BinaryModelReaderSupport::releaseIndexListRecord(&modelRecord->materials);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->currentFaceList);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->currentGeometryList);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->currentNormalList);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->currentPointList);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->currentVertexList);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->geometries);
+    BinaryModelReadPrimitives::releaseIndexListRecord(&modelRecord->materials);
 }

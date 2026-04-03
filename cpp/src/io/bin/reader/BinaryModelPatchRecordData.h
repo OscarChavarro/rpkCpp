@@ -5,7 +5,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/Patch.h"
 
-class BinaryModelReaderPatchRecord {
+class BinaryModelPatchRecordData {
   public:
     int id;
     int twinIndex;
@@ -30,7 +30,7 @@ class BinaryModelReaderPatchRecord {
     int materialIndex;
     bool hasRadianceData;
 
-    BinaryModelReaderPatchRecord();
+    BinaryModelPatchRecordData();
 };
 
 #endif

@@ -14,7 +14,7 @@
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 
-class BinaryModelWriterSerializationContext {
+class BinaryModelSerializationGraph {
   public:
     java::HashMap<const Vector3D *, int> vectorIndices;
     java::ArrayList<const Vector3D *> vectors;

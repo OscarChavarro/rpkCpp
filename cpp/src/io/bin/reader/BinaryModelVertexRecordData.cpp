@@ -1,6 +1,6 @@
-#include "io/bin/reader/BinaryModelReaderVertexRecord.h"
+#include "io/bin/reader/BinaryModelVertexRecordData.h"
 
-BinaryModelReaderVertexRecord::BinaryModelReaderVertexRecord():
+BinaryModelVertexRecordData::BinaryModelVertexRecordData():
     id(0),
     pointIndex(-1),
     normalIndex(-1),

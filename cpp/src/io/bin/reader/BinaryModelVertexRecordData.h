@@ -2,9 +2,9 @@
 #define __BINARY_MODEL_READER_VERTEX_RECORD__
 
 #include "common/ColorRgb.h"
-#include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
+#include "io/bin/reader/BinaryModelIndexListRef.h"
 
-class BinaryModelReaderVertexRecord {
+class BinaryModelVertexRecordData {
   public:
     int id;
     int pointIndex;
@@ -14,9 +14,9 @@ class BinaryModelReaderVertexRecord {
     int backIndex;
     int tmp;
     bool hasRadianceData;
-    BinaryModelReaderIndexListRecord patchIndices;
+    BinaryModelIndexListRef patchIndices;
 
-    BinaryModelReaderVertexRecord();
+    BinaryModelVertexRecordData();
 };
 
 #endif

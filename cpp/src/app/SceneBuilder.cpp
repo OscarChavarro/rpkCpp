@@ -11,8 +11,8 @@
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "io/context/ParseSnapshotContext.h"
-#include "io/bin/reader/BinaryModelReader.h"
-#include "io/bin/writer/BinaryModelWriter.h"
+#include "io/bin/reader/BinaryModelDeserializer.h"
+#include "io/bin/writer/BinaryModelSerializer.h"
 #ifdef MGF_ENABLED
     #include "io/mgf/MgfParserLoader.h"
 #endif
@@ -502,7 +502,7 @@ SceneBuilder::sceneBuilderReadFile(
     ParseSnapshotContext *mgfModel = nullptr;
 
     if ( readBinaryModel ) {
-        mgfModel = BinaryModelReader::read(inputName);
+        mgfModel = BinaryModelDeserializer::read(inputName);
         if ( mgfModel != nullptr ) {
             SceneBuilder::sceneBuilderApplyModelToMgfContext(mgfContext, mgfModel);
         }
@@ -518,7 +518,7 @@ SceneBuilder::sceneBuilderReadFile(
                 "Exporting loaded ParseSnapshotContext to binary '%s' ... ",
                 batchOptions->binaryOutputFilename);
             java::System::err.flush();
-            const bool binarySaved = BinaryModelWriter::write(
+            const bool binarySaved = BinaryModelSerializer::write(
                 mgfModel,
                 batchOptions->binaryOutputFilename);
             if ( binarySaved ) {

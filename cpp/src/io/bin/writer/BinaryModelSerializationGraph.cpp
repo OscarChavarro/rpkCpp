@@ -15,10 +15,10 @@
 #include "io/context/ReaderContext.h"
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
-#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
+#include "io/bin/writer/BinaryModelSerializationGraph.h"
 
 bool
-BinaryModelWriterSerializationContext::ensureVector(const Vector3D *value) {
+BinaryModelSerializationGraph::ensureVector(const Vector3D *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -28,19 +28,19 @@ BinaryModelWriterSerializationContext::ensureVector(const Vector3D *value) {
     }
     const int index = static_cast<int>(vectors.size());
     if ( !vectors.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureVector", "Failed to append vector");
+        Error::error("BinaryModelSerializationGraph::ensureVector", "Failed to append vector");
         return false;
     }
     if ( !vectorIndices.put(value, index) ) {
         vectors.remove(vectors.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureVector", "Failed to index vector");
+        Error::error("BinaryModelSerializationGraph::ensureVector", "Failed to index vector");
         return false;
     }
     return true;
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureMaterial(const Material *value) {
+BinaryModelSerializationGraph::ensureMaterial(const Material *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -50,19 +50,19 @@ BinaryModelWriterSerializationContext::ensureMaterial(const Material *value) {
     }
     const int index = static_cast<int>(materials.size());
     if ( !materials.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureMaterial", "Failed to append material");
+        Error::error("BinaryModelSerializationGraph::ensureMaterial", "Failed to append material");
         return false;
     }
     if ( !materialIndices.put(value, index) ) {
         materials.remove(materials.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureMaterial", "Failed to index material");
+        Error::error("BinaryModelSerializationGraph::ensureMaterial", "Failed to index material");
         return false;
     }
     return true;
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureVertex(const Vertex *value) {
+BinaryModelSerializationGraph::ensureVertex(const Vertex *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -72,18 +72,18 @@ BinaryModelWriterSerializationContext::ensureVertex(const Vertex *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelSerializationGraph::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(vertices.size());
     if ( !vertices.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Failed to append vertex");
+        Error::error("BinaryModelSerializationGraph::ensureVertex", "Failed to append vertex");
         return false;
     }
     if ( !vertexIndices.put(value, index) ) {
         vertices.remove(vertices.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureVertex", "Failed to index vertex");
+        Error::error("BinaryModelSerializationGraph::ensureVertex", "Failed to index vertex");
         return false;
     }
 
@@ -112,7 +112,7 @@ BinaryModelWriterSerializationContext::ensureVertex(const Vertex *value) {
 }
 
 bool
-BinaryModelWriterSerializationContext::ensurePatch(const Patch *value) {
+BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -122,18 +122,18 @@ BinaryModelWriterSerializationContext::ensurePatch(const Patch *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(patches.size());
     if ( !patches.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Failed to append patch");
+        Error::error("BinaryModelSerializationGraph::ensurePatch", "Failed to append patch");
         return false;
     }
     if ( !patchIndices.put(value, index) ) {
         patches.remove(patches.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensurePatch", "Failed to index patch");
+        Error::error("BinaryModelSerializationGraph::ensurePatch", "Failed to index patch");
         return false;
     }
 
@@ -153,7 +153,7 @@ BinaryModelWriterSerializationContext::ensurePatch(const Patch *value) {
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureGeometry(const Geometry *value) {
+BinaryModelSerializationGraph::ensureGeometry(const Geometry *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -163,18 +163,18 @@ BinaryModelWriterSerializationContext::ensureGeometry(const Geometry *value) {
     }
 
     if ( value->radianceData != nullptr ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+        Error::error("BinaryModelSerializationGraph::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
         return false;
     }
 
     const int index = static_cast<int>(geometries.size());
     if ( !geometries.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Failed to append geometry");
+        Error::error("BinaryModelSerializationGraph::ensureGeometry", "Failed to append geometry");
         return false;
     }
     if ( !geometryIndices.put(value, index) ) {
         geometries.remove(geometries.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Failed to index geometry");
+        Error::error("BinaryModelSerializationGraph::ensureGeometry", "Failed to index geometry");
         return false;
     }
 
@@ -206,7 +206,7 @@ BinaryModelWriterSerializationContext::ensureGeometry(const Geometry *value) {
             return false;
         }
     } else {
-        Error::error("BinaryModelWriterSerializationContext::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+        Error::error("BinaryModelSerializationGraph::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
         return false;
     }
 
@@ -214,7 +214,7 @@ BinaryModelWriterSerializationContext::ensureGeometry(const Geometry *value) {
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureColorContext(const ColorContext *value) {
+BinaryModelSerializationGraph::ensureColorContext(const ColorContext *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -224,19 +224,19 @@ BinaryModelWriterSerializationContext::ensureColorContext(const ColorContext *va
     }
     const int index = static_cast<int>(colorContexts.size());
     if ( !colorContexts.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureColorContext", "Failed to append color context");
+        Error::error("BinaryModelSerializationGraph::ensureColorContext", "Failed to append color context");
         return false;
     }
     if ( !colorContextIndices.put(value, index) ) {
         colorContexts.remove(colorContexts.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureColorContext", "Failed to index color context");
+        Error::error("BinaryModelSerializationGraph::ensureColorContext", "Failed to index color context");
         return false;
     }
     return true;
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureReaderContext(const ReaderContext *value) {
+BinaryModelSerializationGraph::ensureReaderContext(const ReaderContext *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -246,12 +246,12 @@ BinaryModelWriterSerializationContext::ensureReaderContext(const ReaderContext *
     }
     const int index = static_cast<int>(readerContexts.size());
     if ( !readerContexts.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureReaderContext", "Failed to append reader context");
+        Error::error("BinaryModelSerializationGraph::ensureReaderContext", "Failed to append reader context");
         return false;
     }
     if ( !readerContextIndices.put(value, index) ) {
         readerContexts.remove(readerContexts.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureReaderContext", "Failed to index reader context");
+        Error::error("BinaryModelSerializationGraph::ensureReaderContext", "Failed to index reader context");
         return false;
     }
 
@@ -259,7 +259,7 @@ BinaryModelWriterSerializationContext::ensureReaderContext(const ReaderContext *
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureTransformArray(const TransformSequenceContext *value) {
+BinaryModelSerializationGraph::ensureTransformArray(const TransformSequenceContext *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -269,19 +269,19 @@ BinaryModelWriterSerializationContext::ensureTransformArray(const TransformSeque
     }
     const int index = static_cast<int>(transformArrays.size());
     if ( !transformArrays.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureTransformArray", "Failed to append transform array");
+        Error::error("BinaryModelSerializationGraph::ensureTransformArray", "Failed to append transform array");
         return false;
     }
     if ( !transformArrayIndices.put(value, index) ) {
         transformArrays.remove(transformArrays.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureTransformArray", "Failed to index transform array");
+        Error::error("BinaryModelSerializationGraph::ensureTransformArray", "Failed to index transform array");
         return false;
     }
     return true;
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureTransformContext(const TransformStackContext *value) {
+BinaryModelSerializationGraph::ensureTransformContext(const TransformStackContext *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -291,12 +291,12 @@ BinaryModelWriterSerializationContext::ensureTransformContext(const TransformSta
     }
     const int index = static_cast<int>(transformContexts.size());
     if ( !transformContexts.add(value) ) {
-        Error::error("BinaryModelWriterSerializationContext::ensureTransformContext", "Failed to append transform context");
+        Error::error("BinaryModelSerializationGraph::ensureTransformContext", "Failed to append transform context");
         return false;
     }
     if ( !transformContextIndices.put(value, index) ) {
         transformContexts.remove(transformContexts.size() - 1);
-        Error::error("BinaryModelWriterSerializationContext::ensureTransformContext", "Failed to index transform context");
+        Error::error("BinaryModelSerializationGraph::ensureTransformContext", "Failed to index transform context");
         return false;
     }
 
@@ -307,7 +307,7 @@ BinaryModelWriterSerializationContext::ensureTransformContext(const TransformSta
 }
 
 bool
-BinaryModelWriterSerializationContext::collectVectorList(const java::ArrayList<Vector3D *> *list) {
+BinaryModelSerializationGraph::collectVectorList(const java::ArrayList<Vector3D *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -320,7 +320,7 @@ BinaryModelWriterSerializationContext::collectVectorList(const java::ArrayList<V
 }
 
 bool
-BinaryModelWriterSerializationContext::collectVertexList(const java::ArrayList<Vertex *> *list) {
+BinaryModelSerializationGraph::collectVertexList(const java::ArrayList<Vertex *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -333,7 +333,7 @@ BinaryModelWriterSerializationContext::collectVertexList(const java::ArrayList<V
 }
 
 bool
-BinaryModelWriterSerializationContext::collectPatchList(const java::ArrayList<Patch *> *list) {
+BinaryModelSerializationGraph::collectPatchList(const java::ArrayList<Patch *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -346,7 +346,7 @@ BinaryModelWriterSerializationContext::collectPatchList(const java::ArrayList<Pa
 }
 
 bool
-BinaryModelWriterSerializationContext::collectMaterialList(const java::ArrayList<Material *> *list) {
+BinaryModelSerializationGraph::collectMaterialList(const java::ArrayList<Material *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -359,7 +359,7 @@ BinaryModelWriterSerializationContext::collectMaterialList(const java::ArrayList
 }
 
 bool
-BinaryModelWriterSerializationContext::collectGeometryList(const java::ArrayList<Geometry *> *list) {
+BinaryModelSerializationGraph::collectGeometryList(const java::ArrayList<Geometry *> *list) {
     if ( list == nullptr ) {
         return true;
     }
@@ -372,7 +372,7 @@ BinaryModelWriterSerializationContext::collectGeometryList(const java::ArrayList
 }
 
 bool
-BinaryModelWriterSerializationContext::collectModel(const ParseSnapshotContext *model) {
+BinaryModelSerializationGraph::collectModel(const ParseSnapshotContext *model) {
     if ( model == nullptr ) {
         return true;
     }

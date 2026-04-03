@@ -151,16 +151,16 @@ set(MAIN_SRC
     src/io/context/ColorContext.cpp
     src/io/context/TokenValidationContext.cpp
     src/io/context/ParseSnapshotContext.cpp
-    src/io/bin/writer/BinaryModelWriter.cpp
-    src/io/bin/writer/BinaryModelWriterSerializationContext.cpp
-    src/io/bin/reader/BinaryModelReader.cpp
-    src/io/bin/reader/BinaryModelReaderSupport.cpp
-    src/io/bin/reader/BinaryModelReaderCleanup.cpp
-    src/io/bin/reader/BinaryModelReaderIndexListRecord.cpp
-    src/io/bin/reader/BinaryModelReaderVertexRecord.cpp
-    src/io/bin/reader/BinaryModelReaderPatchRecord.cpp
-    src/io/bin/reader/BinaryModelReaderGeometryRecord.cpp
-    src/io/bin/reader/BinaryModelReaderModelRecord.cpp
+    src/io/bin/writer/BinaryModelSerializer.cpp
+    src/io/bin/writer/BinaryModelSerializationGraph.cpp
+    src/io/bin/reader/BinaryModelDeserializer.cpp
+    src/io/bin/reader/BinaryModelReadPrimitives.cpp
+    src/io/bin/reader/BinaryModelReadCleanup.cpp
+    src/io/bin/reader/BinaryModelIndexListRef.cpp
+    src/io/bin/reader/BinaryModelVertexRecordData.cpp
+    src/io/bin/reader/BinaryModelPatchRecordData.cpp
+    src/io/bin/reader/BinaryModelGeometryRecordData.cpp
+    src/io/bin/reader/BinaryModelSnapshotRecordData.cpp
     src/io/wrl/VrmlWriter.cpp
     src/io/image/PicOutputHandle.cpp
     src/io/image/Dkcolor.cpp

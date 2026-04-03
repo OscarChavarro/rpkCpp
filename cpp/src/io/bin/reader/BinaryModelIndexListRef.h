@@ -3,12 +3,12 @@
 
 #include "java/util/ArrayList.h"
 
-class BinaryModelReaderIndexListRecord {
+class BinaryModelIndexListRef {
   public:
     bool isNull;
     java::ArrayList<int> *indices;
 
-    BinaryModelReaderIndexListRecord();
+    BinaryModelIndexListRef();
 };
 
 #endif

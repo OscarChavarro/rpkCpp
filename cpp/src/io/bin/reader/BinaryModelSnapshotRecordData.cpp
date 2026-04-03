@@ -1,6 +1,6 @@
-#include "io/bin/reader/BinaryModelReaderModelRecord.h"
+#include "io/bin/reader/BinaryModelSnapshotRecordData.h"
 
-BinaryModelReaderModelRecord::BinaryModelReaderModelRecord():
+BinaryModelSnapshotRecordData::BinaryModelSnapshotRecordData():
     currentColorIndex(0),
     hasCurrentMaterialName(false),
     currentMaterialName(nullptr),

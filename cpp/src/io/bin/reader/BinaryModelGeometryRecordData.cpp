@@ -1,6 +1,6 @@
-#include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
+#include "io/bin/reader/BinaryModelGeometryRecordData.h"
 
-BinaryModelReaderGeometryRecord::BinaryModelReaderGeometryRecord():
+BinaryModelGeometryRecordData::BinaryModelGeometryRecordData():
     classId(0),
     id(0),
     itemCount(0),

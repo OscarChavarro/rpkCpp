@@ -6,7 +6,7 @@
 #include "java/util/HashMap.h"
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "io/bin/writer/BinaryModelWriterSerializationContext.h"
+#include "io/bin/writer/BinaryModelSerializationGraph.h"
 #include "io/context/ColorContext.h"
 #include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
@@ -18,7 +18,7 @@
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 
-class BinaryModelWriter {
+class BinaryModelSerializer {
   public:
     static bool write(const ParseSnapshotContext *model, const char *fileName);
 
@@ -50,16 +50,16 @@ class BinaryModelWriter {
     static bool writeReaderContextRecord(
         java::OutputStream &output,
         const ReaderContext *readerContext,
-        const BinaryModelWriterSerializationContext &context);
+        const BinaryModelSerializationGraph &context);
     static void writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray);
     static bool writeTransformContextRecord(
         java::OutputStream &output,
         const TransformStackContext *transformContext,
-        const BinaryModelWriterSerializationContext &context);
-    static bool writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context);
-    static bool writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context);
-    static bool writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context);
-    static bool writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelWriterSerializationContext &context);
+        const BinaryModelSerializationGraph &context);
+    static bool writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelSerializationGraph &context);
+    static bool writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelSerializationGraph &context);
+    static bool writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelSerializationGraph &context);
+    static bool writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelSerializationGraph &context);
 };
 
 #endif
