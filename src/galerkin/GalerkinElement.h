@@ -43,6 +43,8 @@ class GalerkinElement final : public Element {
     GalerkinElement *regularSubElementAtPoint(double *u, double *v);
 
   public:
+    Patch *patch;
+    Geometry *geometry;
     float potential; // Total potential of the element
     float receivedPotential; // Potential received during the last iteration
     float unShotPotential; // Un-shot potential (progressive refinement radiosity)
@@ -78,6 +80,22 @@ class GalerkinElement final : public Element {
     Vector3D midPoint() const;
     void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();
+
+    Patch *getPatch() const {
+        return patch;
+    }
+
+    void setPatch(Patch *inPatch) {
+        patch = inPatch;
+    }
+
+    Geometry *getGeometry() const {
+        return geometry;
+    }
+
+    void setGeometry(Geometry *inGeometry) {
+        geometry = inGeometry;
+    }
 };
 
 #include "galerkin/GalerkinState.h"

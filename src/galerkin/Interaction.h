@@ -1,6 +1,8 @@
 #ifndef __INTERACTION__
 #define __INTERACTION__
 
+#include "skin/Geometry.h"
+
 class GalerkinElement;
 
 class Interaction {

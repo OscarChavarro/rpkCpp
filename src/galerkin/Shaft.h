@@ -9,6 +9,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
+#include "skin/Geometry.h"
 #include "scene/Polygon.h"
 #include "galerkin/ShaftCullStrategy.h"
 #include "galerkin/ShaftPlane.h"

@@ -56,6 +56,8 @@ Coefficientsmcrad::initCoefficients(StochasticRadiosityElement *elem) {
 }
 
 StochasticRadiosityElement::StochasticRadiosityElement():
+    patch(),
+    geometry(),
     rayIndex(),
     quality(),
     samplingProbability(),
@@ -79,6 +81,7 @@ StochasticRadiosityElement::createElement() {
     StochasticRadiosityElement *elem = new StochasticRadiosityElement();
 
     elem->patch = nullptr;
+    elem->geometry = nullptr;
     elem->id = static_cast<int>(id);
     id++;
     elem->area = 0.0;

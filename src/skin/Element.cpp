@@ -16,8 +16,6 @@ Element::Element():
     unShotRadiance(),
     area(),
     className(),
-    patch(),
-    geometry(),
     parent(),
     regularSubElements(),
     irregularSubElements(),

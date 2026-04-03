@@ -5,7 +5,10 @@
 #include "common/linealAlgebra/Ray.h"
 #include "material/RayHit.h"
 #include "skin/BoundingBox.h"
+#include "skin/Element.h"
 #include "skin/GeometryClassId.h"
+#include "skin/MinMaxBox.h"
+#include "skin/Patch.h"
 
 /**
 Currently, there are three types of geometries:
@@ -18,11 +21,6 @@ Currently, there are three types of geometries:
 Each of these primitives has certain specific data. The geometry class
 contains data that is independent of geometry type.
 */
-
-class PatchSet;
-class Compound;
-class Element;
-class MinMaxBox;
 
 class Geometry {
   private:
@@ -105,9 +103,8 @@ class Geometry {
     patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
 };
 
-#include "skin/PatchSet.h"
-#include "skin/MeshSurface.h"
 #include "skin/Compound.h"
-#include "skin/Element.h"
+#include "skin/MeshSurface.h"
+#include "skin/PatchSet.h"
 
 #endif

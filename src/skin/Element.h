@@ -1,13 +1,12 @@
 #ifndef __ELEMENT__
 #define __ELEMENT__
 
+#include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "skin/ElementFlags.h"
 #include "skin/ElementTypes.h"
-#include "skin/Geometry.h"
-#include "skin/Patch.h"
 
 class Element {
   public:
@@ -20,9 +19,6 @@ class Element {
     float area; // Area of all surfaces contained in the element
     ElementTypes className;
     unsigned char flags;
-
-    Patch *patch;
-    Geometry *geometry;
 
     Element *parent; // Parent element in a hierarchy, or nullptr pointer if there is no parent
     Element **regularSubElements; // For surface elements with regular quadtree subdivision

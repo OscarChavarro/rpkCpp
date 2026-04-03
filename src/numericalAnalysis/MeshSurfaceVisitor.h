@@ -2,6 +2,7 @@
 #define __MESH_SURFACE_VISITOR__
 
 #include "skin/Patch.h"
+#include "skin/MeshSurface.h"
 
 class MeshSurfaceVisitor {
   private:

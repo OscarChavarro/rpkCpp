@@ -14,6 +14,8 @@ class Coefficientsmcrad;
 
 class StochasticRadiosityElement final : public Element {
   public:
+    Patch *patch;
+    Geometry *geometry;
     NiederreiterIndex rayIndex; // Incremented each time a ray is shot from the element
     float quality; // For merging the result of multiple iterations
     float samplingProbability;
@@ -91,6 +93,22 @@ class StochasticRadiosityElement final : public Element {
 
     StochasticRadiosityElement();
     ~StochasticRadiosityElement() final;
+
+    Patch *getPatch() const {
+        return patch;
+    }
+
+    void setPatch(Patch *inPatch) {
+        patch = inPatch;
+    }
+
+    Geometry *getGeometry() const {
+        return geometry;
+    }
+
+    void setGeometry(Geometry *inGeometry) {
+        geometry = inGeometry;
+    }
 
   private:
     static int coefficientPoolsInitialized;

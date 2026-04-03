@@ -42,13 +42,13 @@ MinMaxBox::~MinMaxBox() {
 
 inline bool
 MinMaxBox::clipAxisSlab(
-        float minimumBound,
-        float maximumBound,
-        float origin,
-        float direction,
-        float toleranceScale,
-        float *nearDistance,
-        float *farDistance) {
+    float minimumBound,
+    float maximumBound,
+    float origin,
+    float direction,
+    float toleranceScale,
+    float *nearDistance,
+    float *farDistance) {
     if ( direction == 0.0f ) {
         return !(origin < minimumBound || origin > maximumBound);
     }
