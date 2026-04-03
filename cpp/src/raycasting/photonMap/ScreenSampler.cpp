@@ -2,7 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "photonMap/ScreenSampler.h"
+#include "raycasting/photonMap/ScreenSampler.h"
 #include "raycasting/common/Raytools.h"
 
 /**

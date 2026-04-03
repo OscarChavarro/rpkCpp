@@ -1,4 +1,4 @@
-#include "photonMap/DiscreteSampling.h"
+#include "raycasting/photonMap/DiscreteSampling.h"
 int
 DiscreteSampling::sample(
     const double probabilities[],

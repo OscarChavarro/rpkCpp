@@ -276,18 +276,18 @@ set(RAYTRACING_SRC
     src/raycasting/bidirectionalRaytracing/Spar.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.cpp
     src/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer.cpp
-    src/photonMap/SampleGrid2D.cpp
-    src/photonMap/NormalQuery.cpp
-    src/photonMap/DiscreteSampling.cpp
-    src/photonMap/PhotonKDTree.cpp
-    src/photonMap/PhotonMapImportance.cpp
-    src/photonMap/ScreenSampler.cpp
-    src/photonMap/PhotonMapState.cpp
-    src/photonMap/Photon.cpp
-    src/photonMap/ImportanceMap.cpp
-    src/photonMap/PhotonMapRadianceMethod.cpp
-    src/photonMap/PhotonMap.cpp
-    src/photonMap/PhotonMapSampler.cpp
+    src/raycasting/photonMap/SampleGrid2D.cpp
+    src/raycasting/photonMap/NormalQuery.cpp
+    src/raycasting/photonMap/DiscreteSampling.cpp
+    src/raycasting/photonMap/PhotonKDTree.cpp
+    src/raycasting/photonMap/PhotonMapImportance.cpp
+    src/raycasting/photonMap/ScreenSampler.cpp
+    src/raycasting/photonMap/PhotonMapState.cpp
+    src/raycasting/photonMap/Photon.cpp
+    src/raycasting/photonMap/ImportanceMap.cpp
+    src/raycasting/photonMap/PhotonMapRadianceMethod.cpp
+    src/raycasting/photonMap/PhotonMap.cpp
+    src/raycasting/photonMap/PhotonMapSampler.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracingState.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracer.cpp
     src/raycasting/stochasticRaytracing/StochasticRadiosityElement.cpp

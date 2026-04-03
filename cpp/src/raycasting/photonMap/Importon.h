@@ -1,7 +1,7 @@
 #ifndef __IMPORTON__
 #define __IMPORTON__
 
-#include "photonMap/IrrPhoton.h"
+#include "raycasting/photonMap/IrrPhoton.h"
 
 // Importon: identical to IrrPhoton, but with some extra functions
 class Importon : public IrrPhoton {

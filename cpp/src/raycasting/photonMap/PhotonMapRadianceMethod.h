@@ -2,12 +2,12 @@
 #define __PHOTON_MAP_RADIOSITY_
 
 #include "java/util/ArrayList.h"
-#include "photonMap/PhotonMapConfig.h"
-#include "photonMap/PhotonMapState.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/raytracing/SurfaceSampler.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
-#include "photonMap/PhotonMap.h"
+#include "raycasting/photonMap/PhotonMap.h"
 
 class PhotonMapRadianceMethod final : public RadianceMethod {
   private:

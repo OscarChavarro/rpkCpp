@@ -1,4 +1,4 @@
-#include "photonMap/NormalQuery.h"
+#include "raycasting/photonMap/NormalQuery.h"
 
 NormalQuery::NormalQuery():
     photon(),

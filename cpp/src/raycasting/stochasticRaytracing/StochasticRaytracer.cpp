@@ -5,7 +5,7 @@
 #include "common/Error.h"
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "photonMap/PhotonMapRadianceMethod.h"
+#include "raycasting/photonMap/PhotonMapRadianceMethod.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/ScreenIterate.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracerCallbackData.h"

@@ -8,10 +8,10 @@
 Importon tracing
 */
 #include "common/RenderOptions.h"
-#include "photonMap/PhotonMapImportance.h"
-#include "photonMap/PhotonMapConfig.h"
-#include "photonMap/Importon.h"
-#include "photonMap/ScreenSampler.h"
+#include "raycasting/photonMap/PhotonMapImportance.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/Importon.h"
+#include "raycasting/photonMap/ScreenSampler.h"
 /**
 Store a importon/poton. Some acceptance tests are performed first
 **/

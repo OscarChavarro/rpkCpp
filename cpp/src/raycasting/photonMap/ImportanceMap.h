@@ -9,7 +9,7 @@ The real importance map storage
 
 #ifdef RAYTRACING_ENABLED
 
-#include "photonMap/PhotonMap.h"
+#include "raycasting/photonMap/PhotonMap.h"
 
 class ImportanceMap: public PhotonMap {
   private:

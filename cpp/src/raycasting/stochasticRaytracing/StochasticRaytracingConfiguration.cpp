@@ -4,7 +4,7 @@
 #include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/raytracing/SpecularSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
-#include "photonMap/PhotonMapSampler.h"
+#include "raycasting/photonMap/PhotonMapSampler.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED

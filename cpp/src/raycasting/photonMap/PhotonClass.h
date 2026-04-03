@@ -4,7 +4,7 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/ColorRgb.h"
 #include "material/Xxdf.h"
-#include "photonMap/PhotonMapState.h"
+#include "raycasting/photonMap/PhotonMapState.h"
 
 // Non-compact photon representation
 class Photon {

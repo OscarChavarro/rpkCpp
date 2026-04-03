@@ -7,7 +7,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "photonMap/PhotonMapSampler.h"
+#include "raycasting/photonMap/PhotonMapSampler.h"
 #include "common/Error.h"
 #include "raycasting/common/Raytools.h"
 

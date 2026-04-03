@@ -2,7 +2,7 @@
 #define __NORMAL_QUERY__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "photonMap/IrrPhoton.h"
+#include "raycasting/photonMap/IrrPhoton.h"
 
 class NormalQuery {
   public:

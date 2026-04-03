@@ -13,12 +13,12 @@
 #include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightDirSampler.h"
-#include "photonMap/PhotonMapSampler.h"
-#include "photonMap/ScreenSampler.h"
-#include "photonMap/Photon.h"
-#include "photonMap/PhotonMapRadianceMethod.h"
-#include "photonMap/PhotonMapConfig.h"
-#include "photonMap/PhotonMapImportance.h"
+#include "raycasting/photonMap/PhotonMapSampler.h"
+#include "raycasting/photonMap/ScreenSampler.h"
+#include "raycasting/photonMap/Photon.h"
+#include "raycasting/photonMap/PhotonMapRadianceMethod.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/PhotonMapImportance.h"
 
 // To adjust photonMapGetRadiance returns
 bool PhotonMapRadianceMethod::doingLocalRayCasting = false;

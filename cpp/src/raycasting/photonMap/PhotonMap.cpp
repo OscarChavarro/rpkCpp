@@ -8,8 +8,8 @@
 #include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/statistics/Statistics.h"
-#include "photonMap/Photon.h"
-#include "photonMap/PhotonMap.h"
+#include "raycasting/photonMap/Photon.h"
+#include "raycasting/photonMap/PhotonMap.h"
 bool
 PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb color;

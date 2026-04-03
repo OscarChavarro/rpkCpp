@@ -1,5 +1,5 @@
 #include "common/Error.h"
-#include "photonMap/PhotonClass.h"
+#include "raycasting/photonMap/PhotonClass.h"
 void
 Photon::findRS(
     double *r,

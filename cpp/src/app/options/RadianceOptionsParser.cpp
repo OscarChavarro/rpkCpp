@@ -7,7 +7,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
-    #include "photonMap/PhotonMapRadianceMethod.h"
+    #include "raycasting/photonMap/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
 #endif

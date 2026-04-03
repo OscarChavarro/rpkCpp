@@ -1,7 +1,7 @@
 #ifndef __IRR_PHOTON__
 #define __IRR_PHOTON__
 
-#include "photonMap/PhotonClass.h"
+#include "raycasting/photonMap/PhotonClass.h"
 // IrrPhoton: photon with extra irradiance info
 class IrrPhoton : public Photon {
   public:

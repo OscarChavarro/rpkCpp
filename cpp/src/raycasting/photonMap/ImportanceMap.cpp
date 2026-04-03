@@ -6,8 +6,8 @@ Implementation of the special importance map functions
 
 #ifdef RAYTRACING_ENABLED
 
-#include "photonMap/ImportanceMap.h"
-#include "photonMap/Importon.h"
+#include "raycasting/photonMap/ImportanceMap.h"
+#include "raycasting/photonMap/Importon.h"
 #include "common/Error.h"
 
 bool

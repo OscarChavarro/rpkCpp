@@ -5,10 +5,10 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "photonMap/PhotonClass.h"
-#include "photonMap/PhotonKDTree.h"
-#include "photonMap/PhotonMapState.h"
-#include "photonMap/SampleGrid2D.h"
+#include "raycasting/photonMap/PhotonClass.h"
+#include "raycasting/photonMap/PhotonKDTree.h"
+#include "raycasting/photonMap/PhotonMapState.h"
+#include "raycasting/photonMap/SampleGrid2D.h"
 
 class PhotonMap {
   protected:

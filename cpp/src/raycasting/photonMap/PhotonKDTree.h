@@ -6,8 +6,8 @@ Photon kd-tree : specialized kd-tree with some photon map specific additions
 #define __PHOTON_K_D_TREE__
 
 #include "common/dataStructures/KDTree.h"
-#include "photonMap/IrrPhoton.h"
-#include "photonMap/NormalQuery.h"
+#include "raycasting/photonMap/IrrPhoton.h"
+#include "raycasting/photonMap/NormalQuery.h"
 class PhotonKDTree final : public KDTree {
   private:
     static NormalQuery qdat_s;

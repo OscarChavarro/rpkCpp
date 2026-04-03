@@ -2,13 +2,13 @@
 #define __PHOTON_MAP_IMPORTANCE__
 
 #include "common/ColorRgb.h"
-#include "photonMap/PhotonMapConfig.h"
-#include "photonMap/PhotonMapState.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 #include "scene/Background.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
-#include "photonMap/ImportanceMap.h"
+#include "raycasting/photonMap/ImportanceMap.h"
 
 class PhotonMapImportance {
   private:

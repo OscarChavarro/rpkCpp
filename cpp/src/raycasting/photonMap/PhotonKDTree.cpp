@@ -2,8 +2,8 @@
 Implementation of specific kdtree for photonmaps
 */
 
-#include "photonMap/PhotonKDTree.h"
-#include "photonMap/NormalQuery.h"
+#include "raycasting/photonMap/PhotonKDTree.h"
+#include "raycasting/photonMap/NormalQuery.h"
 
 NormalQuery PhotonKDTree::qdat_s;
 

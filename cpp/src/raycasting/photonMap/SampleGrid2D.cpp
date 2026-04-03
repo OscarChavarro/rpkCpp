@@ -1,6 +1,6 @@
 #include "common/linealAlgebra/Numeric.h"
-#include "photonMap/DiscreteSampling.h"
-#include "photonMap/SampleGrid2D.h"
+#include "raycasting/photonMap/DiscreteSampling.h"
+#include "raycasting/photonMap/SampleGrid2D.h"
 
 SampleGrid2D::SampleGrid2D(int xSectionsParam, int ySectionsParam): totalSum() {
     xSections = xSectionsParam;

@@ -2,10 +2,10 @@
 #define __PHOTON_MAP_OPTIONS__
 
 #include "render/ScreenBuffer.h"
-#include "photonMap/PhotonMapDCAcceptPDFType.h"
-#include "photonMap/PhotonMapDensityControlOption.h"
-#include "photonMap/PhotonMapImportanceOption.h"
-#include "photonMap/RadiosityReturnOption.h"
+#include "raycasting/photonMap/PhotonMapDCAcceptPDFType.h"
+#include "raycasting/photonMap/PhotonMapDensityControlOption.h"
+#include "raycasting/photonMap/PhotonMapImportanceOption.h"
+#include "raycasting/photonMap/RadiosityReturnOption.h"
 
 class PhotonMapState {
   public:

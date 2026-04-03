@@ -14,7 +14,7 @@
     #include "raycasting/stochasticRaytracing/Hierarchy.h"
     #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
     #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-    #include "photonMap/PhotonMapState.h"
+    #include "raycasting/photonMap/PhotonMapState.h"
 #endif
 
 #include "app/options/BackgroundMode.h"

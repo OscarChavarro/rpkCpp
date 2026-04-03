@@ -13,7 +13,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 #ifdef RAYTRACING_ENABLED
 
 #include "raycasting/raytracing/BsdfSampler.h"
-#include "photonMap/PhotonMap.h"
+#include "raycasting/photonMap/PhotonMap.h"
 
 class PhotonMapSampler final : public BsdfSampler {
   private:

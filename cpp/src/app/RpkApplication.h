@@ -3,8 +3,8 @@
 
 #include "app/options/OptionsType.h"
 #include "common/RenderOptions.h"
-#include "photonMap/PhotonMapConfig.h"
-#include "photonMap/PhotonMapState.h"
+#include "raycasting/photonMap/PhotonMapConfig.h"
+#include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/simple/RayMatterState.h"
