@@ -65,7 +65,6 @@ class Patch {
     Vector3D getInterpolatedNormalAtUv(double u, double v) const;
     float computeTolerance() const;
     bool triangleUv(const Vector3D *point, Vector2Dd *uv) const;
-    bool hitPointInPatchNoUv(const Vector3D *point) const;
     bool isAtLeastPartlyInFront(const Patch *other) const;
     void connectVertex(Vertex *paramVertex);
     void connectVertices();
