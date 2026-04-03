@@ -1,6 +1,9 @@
 #ifndef __SCENE__
 #define __SCENE__
 
+#include "skin/Compound.h"
+#include "skin/PatchSet.h"
+#include "skin/MeshSurface.h"
 #include "scene/Background.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"

@@ -5,6 +5,8 @@
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
 #include "skin/Patch.h"
+#include "skin/Compound.h"
+#include "skin/PatchSet.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethodAlgorithm.h"
 #include "scene/Scene.h"

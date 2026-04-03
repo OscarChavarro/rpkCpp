@@ -3,6 +3,9 @@
 #include "common/statistics/Statistics.h"
 #include "skin/Geometry.h"
 #include "skin/MinMaxBox.h"
+#include "skin/Compound.h"
+#include "skin/MeshSurface.h"
+#include "skin/PatchSet.h"
 
 Geometry *Geometry::excludedGeometry1 = nullptr;
 Geometry *Geometry::excludedGeometry2 = nullptr;

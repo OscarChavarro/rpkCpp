@@ -1,4 +1,6 @@
 #include "java/util/ArrayList.txx"
+#include "skin/Compound.h"
+#include "skin/PatchSet.h"
 #include "galerkin/Shaft.h"
 
 Shaft::Shaft():

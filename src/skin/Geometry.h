@@ -103,8 +103,4 @@ class Geometry {
     patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
 };
 
-#include "skin/Compound.h"
-#include "skin/MeshSurface.h"
-#include "skin/PatchSet.h"
-
 #endif
