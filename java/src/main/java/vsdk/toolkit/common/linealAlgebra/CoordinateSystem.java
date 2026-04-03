@@ -17,7 +17,7 @@ triangle area inversion and are not directly implemented here.
 Creates a coordinate system with the given UNIT direction vector as inZ-axis
 */
 
-// Equation [ARVO1995b](6): [x|y] = Normalize(x - (x·y) y).
+// Equation [ARVO1995b](6): [x|y] = Normalize(x - (x.y) y).
 
 // X is a closed-form tangent orthogonal to Z (equivalent to [worldZ|Z], up to sign).
 
@@ -30,7 +30,7 @@ coordinates phi and theta of the vector with respect to the coordinate system
 
 // Sometimes numerical errors cause this
 
-// Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C·Z) Z).
+// Equation [ARVO1995b](6): [C|Z] = Normalize(C - (C.Z) Z).
 
 /**
 Samples the hemisphere according to a cos_theta distribution

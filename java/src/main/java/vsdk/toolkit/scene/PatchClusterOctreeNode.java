@@ -165,7 +165,7 @@ public class PatchClusterOctreeNode {
         Patch patch = patches.get(patchIndexOnParent);
         BoundingBox patchBoundingBox = patch.boundingBox;
 
-        // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
+        // If the patch is larger than an octant, don't move current patch from parent to sub-cluster
         float smallestBoxDimension = 10.0f * Numeric.EPSILON_FLOAT;
 
         if ((patchBoundingBox.dx() > smallestBoxDimension && patchBoundingBox.dx() > boundingBox.dx() * 0.5f) ||
@@ -180,7 +180,7 @@ public class PatchClusterOctreeNode {
 
         int selectedChildOctantIndex = octantIndex(midPatch);
 
-        // If the centroids (almost by EPSILON) coincides, don´t move current patch from parent cluster to sub-cluster
+        // If the centroids (almost by EPSILON) coincides, don't move current patch from parent cluster to sub-cluster
         if (selectedChildOctantIndex == XYZ_EQUAL_MASK) {
             return false;
         }
