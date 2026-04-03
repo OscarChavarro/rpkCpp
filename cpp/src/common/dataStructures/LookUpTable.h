@@ -1,16 +1,12 @@
 #ifndef __COMMON_LOOKUP_TABLE__
 #define __COMMON_LOOKUP_TABLE__
 
-#include <type_traits>
-
 #include "common/dataStructures/LookUpBehaviors.h"
 #include "common/dataStructures/LookUpEntity.h"
 
 template<typename T>
 class LookUpTable {
   public:
-    static_assert(std::is_pointer<T>::value, "LookUpTable requires pointer data type");
-
     LookUpTable();
     explicit LookUpTable(LookUpBehaviors behaviorType);
     ~LookUpTable();
