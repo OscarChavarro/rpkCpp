@@ -9,6 +9,11 @@ Original software from 2001 is available on
 The C++ modernization checklist and architecture notes are now in
 [cpp/README.md](./cpp/README.md).
 
+## Java app notes
+
+The Java 17 Gradle app notes are in
+[java/README.md](./java/README.md).
+
 ## What RPK program does
 
 Basically, this program has two use cases:

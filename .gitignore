@@ -43,3 +43,24 @@ cmake*
 
 # Generated files
 output/*
+
+# gprof profiling artifacts
+gmon.out
+gmon.*
+gmon_*
+gprof*.txt
+gprof*.out
+
+# Java / Gradle / IDE
+.gradle/
+dist/
+out/
+bin/
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+.classpath
+.project
+.settings/

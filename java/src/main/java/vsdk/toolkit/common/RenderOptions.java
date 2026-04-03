@@ -1,0 +1,51 @@
+package vsdk.toolkit.common;
+
+public class RenderOptions {
+    public ColorRgb outlineColor;
+    public ColorRgb boundingBoxColor;
+    public ColorRgb clusterColor;
+    public float lineWidth;
+    public boolean drawOutlines;
+    public boolean drawSurfaces;
+    public boolean noShading;
+    public boolean smoothShading;
+    public boolean backfaceCulling;
+    public boolean drawBoundingBoxes;
+    public boolean drawClusters;
+    public boolean frustumCulling;
+    public boolean renderRayTracedImage;
+    public boolean trace;
+
+    private static final boolean DEFAULT_SMOOTH_SHADING = true;
+    private static final boolean DEFAULT_BACKFACE_CULLING = true;
+    private static final boolean DEFAULT_OUTLINE_DRAWING = false;
+    private static final boolean DEFAULT_SURFACE_DRAWING = true;
+    private static final boolean DEFAULT_BOUNDING_BOX_DRAWING = false;
+    private static final boolean DEFAULT_CLUSTER_DRAWING = false;
+    private static final ColorRgb DEFAULT_OUTLINE_COLOR = new ColorRgb(0.5f, 0.0f, 0.0f);
+    private static final ColorRgb DEFAULT_BOUNDING_BOX_COLOR = new ColorRgb(0.5f, 0.0f, 1.0f);
+    private static final ColorRgb DEFAULT_CLUSTER_COLOR = new ColorRgb(1.0f, 0.5f, 0.0f);
+
+    public RenderOptions() {
+        outlineColor = new ColorRgb();
+        boundingBoxColor = new ColorRgb();
+        clusterColor = new ColorRgb();
+
+        smoothShading = DEFAULT_SMOOTH_SHADING;
+        backfaceCulling = DEFAULT_BACKFACE_CULLING;
+        drawSurfaces = DEFAULT_SURFACE_DRAWING;
+        drawOutlines = DEFAULT_OUTLINE_DRAWING;
+        drawBoundingBoxes = DEFAULT_BOUNDING_BOX_DRAWING;
+        drawClusters = DEFAULT_CLUSTER_DRAWING;
+
+        outlineColor = new ColorRgb(DEFAULT_OUTLINE_COLOR.r, DEFAULT_OUTLINE_COLOR.g, DEFAULT_OUTLINE_COLOR.b);
+        boundingBoxColor = new ColorRgb(DEFAULT_BOUNDING_BOX_COLOR.r, DEFAULT_BOUNDING_BOX_COLOR.g, DEFAULT_BOUNDING_BOX_COLOR.b);
+        clusterColor = new ColorRgb(DEFAULT_CLUSTER_COLOR.r, DEFAULT_CLUSTER_COLOR.g, DEFAULT_CLUSTER_COLOR.b);
+
+        frustumCulling = false;
+        noShading = false;
+        lineWidth = 1.0f;
+        renderRayTracedImage = false;
+        trace = false;
+    }
+}
