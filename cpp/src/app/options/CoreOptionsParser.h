@@ -3,7 +3,7 @@
 
 #include "app/options/OptionsType.h"
 #include "common/RenderOptions.h"
-#include "io/context/ParseSession.h"
+#include "io/context/ParseRuntimeContext.h"
 #include "scene/Background.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMappingContext.h"
@@ -13,7 +13,7 @@ class CoreOptionsParser final {
     static void parse(
         int *argc,
         char **argv,
-        ParseSession &parseSession,
+        ParseRuntimeContext &parseSession,
         Scene &scene,
         RenderOptions &renderOptions,
         ToneMappingContext &toneMapOptions,

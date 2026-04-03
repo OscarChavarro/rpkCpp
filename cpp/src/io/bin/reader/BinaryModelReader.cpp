@@ -22,9 +22,9 @@
 #include "skin/PatchSet.h"
 #include "skin/Vertex.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "io/bin/reader/BinaryModelReader.h"
 #include "io/bin/reader/ScopedArray.h"
@@ -35,7 +35,7 @@
 #include "io/bin/reader/BinaryModelReaderSupport.h"
 #include "io/bin/reader/BinaryModelReaderCleanup.h"
 
-PersistedSceneModel *
+ParseSnapshotContext *
 BinaryModelReader::read(const char *fileName) {
     if ( fileName == nullptr || fileName[0] == '\0' ) {
         return nullptr;
@@ -55,13 +55,13 @@ BinaryModelReader::read(const char *fileName) {
     java::ArrayList<Geometry *> geometries;
     java::ArrayList<ColorContext *> colorContexts;
     java::ArrayList<ReaderContext *> readerContexts;
-    java::ArrayList<TransformArray *> transformArrays;
+    java::ArrayList<TransformSequenceContext *> transformArrays;
     java::ArrayList<TransformStackContext *> transformContexts;
     java::ArrayList<BinaryModelReaderVertexRecord> vertexRecords;
     java::ArrayList<BinaryModelReaderPatchRecord> patchRecords;
     java::ArrayList<BinaryModelReaderGeometryRecord> geometryRecords;
     BinaryModelReaderModelRecord modelRecord;
-    PersistedSceneModel *model = nullptr;
+    ParseSnapshotContext *model = nullptr;
     bool ok = false;
     int vectorCount = 0;
     int vertexCount = 0;
@@ -93,7 +93,7 @@ BinaryModelReader::read(const char *fileName) {
         if ( !BinaryModelReaderSupport::initializeArrayList(&geometries, geometryCount, static_cast<Geometry *>(nullptr), "geometries") ) goto fail;
         if ( !BinaryModelReaderSupport::initializeArrayList(&colorContexts, colorContextCount, static_cast<ColorContext *>(nullptr), "color contexts") ) goto fail;
         if ( !BinaryModelReaderSupport::initializeArrayList(&readerContexts, readerContextCount, static_cast<ReaderContext *>(nullptr), "reader contexts") ) goto fail;
-        if ( !BinaryModelReaderSupport::initializeArrayList(&transformArrays, transformArrayCount, static_cast<TransformArray *>(nullptr), "transform arrays") ) goto fail;
+        if ( !BinaryModelReaderSupport::initializeArrayList(&transformArrays, transformArrayCount, static_cast<TransformSequenceContext *>(nullptr), "transform arrays") ) goto fail;
         if ( !BinaryModelReaderSupport::initializeArrayList(&transformContexts, transformContextCount, static_cast<TransformStackContext *>(nullptr), "transform contexts") ) goto fail;
         if ( !BinaryModelReaderSupport::initializeArrayList(&vertexRecords, vertexCount, BinaryModelReaderVertexRecord(), "vertex records") ) goto fail;
         if ( !BinaryModelReaderSupport::initializeArrayList(&patchRecords, patchCount, BinaryModelReaderPatchRecord(), "patch records") ) goto fail;
@@ -254,12 +254,12 @@ BinaryModelReader::read(const char *fileName) {
 
         if ( !BinaryModelReaderSupport::expectTag(input, "XFAR") ) goto fail;
         for ( int i = 0; i < transformArrayCount; i++ ) {
-            TransformArray *transformArray = new TransformArray();
+            TransformSequenceContext *transformArray = new TransformSequenceContext();
             transformArray->startingPosition.fileId = BinaryModelReaderSupport::readInt32LE(input);
             transformArray->startingPosition.lineNumber = BinaryModelReaderSupport::readInt32LE(input);
             transformArray->startingPosition.offset = static_cast<long>(BinaryModelReaderSupport::readInt64LE(input));
             transformArray->numberOfDimensions = BinaryModelReaderSupport::readInt32LE(input);
-            for ( int j = 0; j < TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS; j++ ) {
+            for ( int j = 0; j < TransformSequenceContext::TRANSFORM_MAXIMUM_DIMENSIONS; j++ ) {
                 transformArray->transformArguments[j].i = BinaryModelReaderSupport::readInt16LE(input);
                 transformArray->transformArguments[j].n = BinaryModelReaderSupport::readInt16LE(input);
                 BinaryModelReaderSupport::readBytes(
@@ -296,7 +296,7 @@ BinaryModelReader::read(const char *fileName) {
         }
         for ( int i = 0; i < transformContextCount; i++ ) {
             TransformStackContext *transformContext = transformContexts.get(static_cast<long int>(i));
-            TransformArray *transformArray = nullptr;
+            TransformSequenceContext *transformArray = nullptr;
             if ( !BinaryModelReaderSupport::pointerFromIndex(
                      transformArrays,
                      transformContextArrayIndex.get(static_cast<long int>(i)),
@@ -611,7 +611,7 @@ BinaryModelReader::read(const char *fileName) {
         if ( !BinaryModelReaderSupport::readIndexList(input, "model.geometries", &modelRecord.geometries) ) goto fail;
         if ( !BinaryModelReaderSupport::readIndexList(input, "model.materials", &modelRecord.materials) ) goto fail;
 
-        model = new PersistedSceneModel();
+        model = new ParseSnapshotContext();
         ColorContext *modelCurrentColor = nullptr;
         ReaderContext *modelReaderContext = nullptr;
         TransformStackContext *modelTransformContext = nullptr;

@@ -3,8 +3,8 @@
 
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "io/context/LookUpEntity.h"
-#include "io/context/WordsContext.h"
+#include "common/dataStructures/LookUpEntity.h"
+#include "io/context/TokenValidationContext.h"
 #include "io/mgf/MgfConeGeometry.h"
 #include "io/mgf/MgfCylinderGeometry.h"
 #include "io/mgf/MgfDefinitions.h"
@@ -30,21 +30,21 @@ The parser was changed so we can call them in order not to have to duplicate
 the code
 */
 int
-MgfHandlerGeometry::doDiscreteConic(int argc, const char **argv, ParseSession *context) {
+MgfHandlerGeometry::doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context) {
     int en = MgfDefinitions::mgfEntity(argv[0], context);
 
     switch ( en ) {
-        case EntityContext::SPHERE:
+        case EntityTypeContext::SPHERE:
             return MgfSphereGeometry::handleEntity(argc, argv, context);
-        case EntityContext::TORUS:
+        case EntityTypeContext::TORUS:
             return MgfTorusGeometry::handleEntity(argc, argv, context);
-        case EntityContext::CYLINDER:
+        case EntityTypeContext::CYLINDER:
             return MgfCylinderGeometry::handleEntity(argc, argv, context);
-        case EntityContext::RING:
+        case EntityTypeContext::RING:
             return MgfRingGeometry::handleEntity(argc, argv, context);
-        case EntityContext::CONE:
+        case EntityTypeContext::CONE:
             return MgfConeGeometry::handleEntity(argc, argv, context);
-        case EntityContext::PRISM:
+        case EntityTypeContext::PRISM:
             return MgfPrismGeometry::handleEntity(argc, argv, context);
         default:
             Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
@@ -52,21 +52,21 @@ MgfHandlerGeometry::doDiscreteConic(int argc, const char **argv, ParseSession *c
 }
 
 Vector3D *
-MgfHandlerGeometry::installPoint(float x, float y, float z, const ParseSession *context) {
+MgfHandlerGeometry::installPoint(float x, float y, float z, const ParseRuntimeContext *context) {
     Vector3D *coord = new Vector3D(x, y, z);
     context->currentPointList->add(coord);
     return coord;
 }
 
 Vector3D *
-MgfHandlerGeometry::installNormal(float x, float y, float z, const ParseSession *context) {
+MgfHandlerGeometry::installNormal(float x, float y, float z, const ParseRuntimeContext *context) {
     Vector3D *norm = new Vector3D(x, y, z);
     context->currentNormalList->add(norm);
     return norm;
 }
 
 Vertex *
-MgfHandlerGeometry::installVertex(Vector3D *coord, Vector3D *norm, const ParseSession *context) {
+MgfHandlerGeometry::installVertex(Vector3D *coord, Vector3D *norm, const ParseRuntimeContext *context) {
     java::ArrayList<Patch *> *newPatchList = new java::ArrayList<Patch *>();
     Vertex *v = new Vertex(coord, norm, nullptr, newPatchList);
     context->currentVertexList->add(v);
@@ -74,7 +74,7 @@ MgfHandlerGeometry::installVertex(Vector3D *coord, Vector3D *norm, const ParseSe
 }
 
 Vertex *
-MgfHandlerGeometry::getVertex(const char *name, ParseSession *context) {
+MgfHandlerGeometry::getVertex(const char *name, ParseRuntimeContext *context) {
     VertexContext *vp = MgfHandlerGeometry::getNamedVertex(name, context);
     if ( vp == nullptr ) {
         return nullptr;
@@ -113,7 +113,7 @@ Create a vertex with given name, but with reversed normal as
 the given vertex. For back-faces of two-sided surfaces
 */
 Vertex *
-MgfHandlerGeometry::getBackFaceVertex(Vertex *v, const ParseSession *context) {
+MgfHandlerGeometry::getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context) {
     Vertex *back = v->back;
 
     if ( !back ) {
@@ -131,7 +131,7 @@ MgfHandlerGeometry::getBackFaceVertex(Vertex *v, const ParseSession *context) {
 }
 
 Patch *
-MgfHandlerGeometry::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseSession *context) {
+MgfHandlerGeometry::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context) {
     Patch *theFace;
     int numberOfVertices = v4 ? 4 : 3;
 
@@ -357,7 +357,7 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
 */
 void
-MgfHandlerGeometry::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseSession *context) {
+MgfHandlerGeometry::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseRuntimeContext *context) {
     Vector3D center;
 
     center.set(0.0, 0.0, 0.0);
@@ -478,17 +478,17 @@ MgfHandlerGeometry::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **
 }
 
 int
-MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, ParseSession *context) {
+MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, ParseRuntimeContext *context) {
     if ( argc < 4 ) {
         MgfDefinitions::doError("too few vertices in face", context);
-        return ErrorCodeContext::MGF_OK; // Don't stop parsing the input
+        return ParseErrorContext::MGF_OK; // Don't stop parsing the input
     }
 
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         MgfDefinitions::doWarning(
             "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf",
             context);
-        return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
+        return ParseErrorContext::MGF_OK; // No reason to stop parsing the input
     }
 
     if ( !context->inComplex && MgfHandlerMaterial::mgfMaterialChanged(context->currentMaterial, context) ) {
@@ -506,7 +506,7 @@ MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, ParseSession *
         v[i] = getVertex(argv[i + 1], context);
         if ( v[i] == nullptr ) {
             // This is however a reason to stop parsing the input
-            return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+            return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
         }
         backV[i] = nullptr;
         if ( !context->currentMaterial->isSided() )
@@ -517,14 +517,14 @@ MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, ParseSession *
 
     if ( !faceNormal(argc - 1, v, &normal) ) {
         MgfDefinitions::doWarning("degenerate face", context);
-        return ErrorCodeContext::MGF_OK; // Just ignore the generated face
+        return ParseErrorContext::MGF_OK; // Just ignore the generated face
     }
     if ( !context->currentMaterial->isSided() ) {
         Vector3D backNormal;
         backNormal.scaledCopy(-1.0, normal);
     }
 
-    int errorCode = ErrorCodeContext::MGF_OK;
+    int errorCode = ParseErrorContext::MGF_OK;
 
     Patch *face;
     Patch *twin;
@@ -552,19 +552,19 @@ MgfHandlerGeometry::handleFaceEntity(int argc, const char **argv, ParseSession *
             }
         } else {
             doComplexFace(argc - 1, v, &normal, backV, context);
-            errorCode = ErrorCodeContext::MGF_OK;
+            errorCode = ParseErrorContext::MGF_OK;
         }
     } else {
         // More than 4 vertices
         doComplexFace(argc - 1, v, &normal, backV, context);
-        errorCode = ErrorCodeContext::MGF_OK;
+        errorCode = ParseErrorContext::MGF_OK;
     }
 
     return errorCode;
 }
 
 int
-MgfHandlerGeometry::handleSurfaceEntity(int argc, const char **argv, ParseSession *context) {
+MgfHandlerGeometry::handleSurfaceEntity(int argc, const char **argv, ParseRuntimeContext *context) {
     if ( context->inComplex ) {
         // mgfEntitySphere calls mgfEntityCone
         return doDiscreteConic(argc, argv, context);
@@ -591,7 +591,7 @@ on another contour. Creates an argument list for the face
 without hole entity handling routine MgfHandlerGeometry::handleFaceEntity() and calls it
 */
 int
-MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, ParseSession *context) {
+MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, ParseRuntimeContext *context) {
     Vector3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
     const char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
                                             // without hole entity handler
@@ -604,7 +604,7 @@ MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, Parse
     if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
         MgfDefinitions::doWarning(
                 "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
-        return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
+        return ParseErrorContext::MGF_OK; // No reason to stop parsing the input
     }
 
     // Get the location of the vertices: the location of the vertex
@@ -619,7 +619,7 @@ MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, Parse
         const VertexContext *vp = MgfHandlerGeometry::getNamedVertex(argv[i], context);
         if ( !vp ) {
             // Undefined vertex
-            return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+            return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
         }
         MgfHandlerTransform::mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
 
@@ -690,7 +690,7 @@ MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, Parse
         if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
             MgfDefinitions::doWarning(
                     "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
-            return ErrorCodeContext::MGF_OK; // No reason to stop parsing the input
+            return ParseErrorContext::MGF_OK; // No reason to stop parsing the input
         }
 
         // Shift the elements in new contour starting at position nearestCopied
@@ -740,112 +740,112 @@ MgfHandlerGeometry::handleFaceWithHolesEntity(int argc, const char **argv, Parse
 Handle a vertex entity
 */
 int
-MgfHandlerGeometry::handleVertexEntity(int ac, const char **av, ParseSession *context) {
+MgfHandlerGeometry::handleVertexEntity(int ac, const char **av, ParseRuntimeContext *context) {
     LookUpEntity<char *> *lp;
     VertexContext *&currentVertexContext = context->vertexRepository.currentVertex;
     LookUpTable<char *> *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
-        case EntityContext::VERTEX:
+        case EntityTypeContext::VERTEX:
             // get/set vertex context
             if ( ac > 4 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {
                 // Set unnamed vertex context
                 context->vertexRepository.unNamedVertexContext = context->vertexRepository.defaultVertexContext;
                 currentVertexContext = &context->vertexRepository.unNamedVertexContext;
                 context->currentVertexName = nullptr;
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
-            if ( !WordsContext::isName(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+            if ( !TokenValidationContext::isName(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = vertexLookUpTable->lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
-                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentVertexName = lp->key;
             currentVertexContext = reinterpret_cast<VertexContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( currentVertexContext == nullptr) {
-                    return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+                    return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( currentVertexContext == nullptr  ) {
                 // Create new vertex context
                 context->currentVertexName = new char[strlen(av[1]) + 1];
                 if ( context->currentVertexName == nullptr ) {
-                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                    return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(context->currentVertexName, av[1]);
                 lp->key = context->currentVertexName;
                 currentVertexContext = reinterpret_cast<VertexContext *>(new char[sizeof(VertexContext)]);
                 if ( currentVertexContext == nullptr ) {
-                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                    return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 lp->data = reinterpret_cast<char *>(currentVertexContext);
             }
             if ( ac == 3 ) {
                 // Use default template
                 *currentVertexContext = context->vertexRepository.defaultVertexContext;
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
             lp = vertexLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr) {
-                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr) {
-                return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+                return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *currentVertexContext = *reinterpret_cast<VertexContext *>(lp->data);
             currentVertexContext->clock++;
-            return ErrorCodeContext::MGF_OK;
-        case EntityContext::MGF_POINT:
+            return ParseErrorContext::MGF_OK;
+        case EntityTypeContext::MGF_POINT:
             // Set point
             if ( ac != 4 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentVertexContext->p.x = strtod(av[1], nullptr);
             currentVertexContext->p.y = strtod(av[2], nullptr);
             currentVertexContext->p.z = strtod(av[3], nullptr);
             currentVertexContext->clock++;
-            return ErrorCodeContext::MGF_OK;
-        case EntityContext::MGF_NORMAL:
+            return ParseErrorContext::MGF_OK;
+        case EntityTypeContext::MGF_NORMAL:
             // Set normal
             if ( ac != 4 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) || !WordsContext::isFloat(av[3]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentVertexContext->n.x = strtod(av[1], nullptr);
             currentVertexContext->n.y = strtod(av[2], nullptr);
             currentVertexContext->n.z = strtod(av[3], nullptr);
             currentVertexContext->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
             currentVertexContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
         default:
             break;
     }
-    return ErrorCodeContext::MGF_ERROR_UNKNOWN_ENTITY;
+    return ParseErrorContext::MGF_ERROR_UNKNOWN_ENTITY;
 }
 
 /**
 Get a named vertex
 */
 VertexContext *
-MgfHandlerGeometry::getNamedVertex(const char *name, ParseSession *context) {
+MgfHandlerGeometry::getNamedVertex(const char *name, ParseRuntimeContext *context) {
     LookUpEntity<char *> *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
@@ -855,7 +855,7 @@ MgfHandlerGeometry::getNamedVertex(const char *name, ParseSession *context) {
 }
 
 void
-MgfHandlerGeometry::initGeometryContextTables(ParseSession *context) {
+MgfHandlerGeometry::initGeometryContextTables(ParseRuntimeContext *context) {
     context->vertexRepository.reset();
     context->currentVertexName = nullptr;
 }

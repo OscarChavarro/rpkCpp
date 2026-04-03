@@ -2,8 +2,8 @@
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
-#include "io/context/LookUpEntity.h"
-#include "io/context/WordsContext.h"
+#include "common/dataStructures/LookUpEntity.h"
+#include "io/context/TokenValidationContext.h"
 #include "io/mgf/MgfDefinitions.h"
 #include "io/mgf/MgfHandlerMaterial.h"
 #include "io/context/MaterialContext.h"
@@ -13,7 +13,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 Material *
-MgfHandlerMaterial::materialLookup(const char *name, const ParseSession *context) {
+MgfHandlerMaterial::materialLookup(const char *name, const ParseRuntimeContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
@@ -27,7 +27,7 @@ MgfHandlerMaterial::materialLookup(const char *name, const ParseSession *context
 Translates mgf color into out color representation
 */
 void
-MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseSession *context) {
+MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
     float xyz[3];
     float rgb[3];
 
@@ -96,7 +96,7 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 bool
-MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseSession *context) {
+MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
     ColorRgb Ed;
     ColorRgb Es;
     ColorRgb Rd;
@@ -220,7 +220,7 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
 }
 
 void
-MgfHandlerMaterial::initMaterialContextTables(ParseSession *context) {
+MgfHandlerMaterial::initMaterialContextTables(ParseRuntimeContext *context) {
     context->materialRepository.reset();
     context->currentMaterialName = nullptr;
 }
@@ -229,7 +229,7 @@ MgfHandlerMaterial::initMaterialContextTables(ParseSession *context) {
 This routine returns true if the current material has changed
 */
 bool
-MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseSession *context) {
+MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseRuntimeContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -249,7 +249,7 @@ MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseSess
 Handle material entity
 */
 int
-MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *context) {
+MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseRuntimeContext *context) {
     int i;
     LookUpEntity<char *> *lp;
     MaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
@@ -257,48 +257,48 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
 
-        case EntityContext::MGF_MATERIAL:
+        case EntityTypeContext::MGF_MATERIAL:
             // Get / set material context
             if ( ac > 4 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( ac == 1 ) {
                 // Set unnamed material context
                 context->materialRepository.unNamedMaterialContext = context->materialRepository.defaultMaterialContext;
                 currentMaterialContext = &context->materialRepository.unNamedMaterialContext;
                 context->currentMaterialName = nullptr;
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
-            if ( !WordsContext::isName(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+            if ( !TokenValidationContext::isName(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             lp = materialLookUpTable->lookUpFind(av[1]);
             // Lookup context
             if ( lp == nullptr ) {
-                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             context->currentMaterialName = lp->key;
             currentMaterialContext = reinterpret_cast<MaterialContext *>(lp->data);
             if ( ac == 2 ) {
                 // Re-establish previous context
                 if ( currentMaterialContext == nullptr) {
-                    return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+                    return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
                 }
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
             if ( av[2][0] != '=' || av[2][1] ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             if ( currentMaterialContext == nullptr ) {
                 // Create new material
                 lp->key = new char[strlen(av[1]) + 1];
                 if ( lp->key == nullptr) {
-                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                    return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 strcpy(lp->key, av[1]);
                 lp->data = new char[sizeof(MaterialContext)];
                 if ( lp->data == nullptr) {
-                    return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                    return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
                 }
                 context->currentMaterialName = lp->key;
                 currentMaterialContext = reinterpret_cast<MaterialContext *>(lp->data);
@@ -309,127 +309,127 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *
                 // Use default template
                 *currentMaterialContext = context->materialRepository.defaultMaterialContext;
                 currentMaterialContext->clock = i + 1;
-                return ErrorCodeContext::MGF_OK;
+                return ParseErrorContext::MGF_OK;
             }
             lp = materialLookUpTable->lookUpFind(av[3]);
             // Lookup template
             if ( lp == nullptr ) {
-                return ErrorCodeContext::MGF_ERROR_OUT_OF_MEMORY;
+                return ParseErrorContext::MGF_ERROR_OUT_OF_MEMORY;
             }
             if ( lp->data == nullptr ) {
-                return ErrorCodeContext::MGF_ERROR_UNDEFINED_REFERENCE;
+                return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
             }
             *currentMaterialContext = *reinterpret_cast<MaterialContext *>(lp->data);
             currentMaterialContext->clock = i + 1;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::IR:
+        case EntityTypeContext::IR:
             // Set index of refraction
             if ( ac != 3 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->nr = strtof(av[1], nullptr);
             currentMaterialContext->ni = strtof(av[2], nullptr);
             if ( currentMaterialContext->nr <= Numeric::EPSILON ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::RD:
+        case EntityTypeContext::RD:
             // Set diffuse reflectance
             if ( ac != 2 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->rd = strtof(av[1], nullptr);
             if ( currentMaterialContext->rd < 0. || currentMaterialContext->rd > 1.0 ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->rd_c = *(context->currentColor);
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::ED:
+        case EntityTypeContext::ED:
             // Set diffuse emittance
             if ( ac != 2 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->ed = strtof(av[1], nullptr);
             if ( currentMaterialContext->ed < 0.0 ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->ed_c = *(context->currentColor);
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::TD:
+        case EntityTypeContext::TD:
             // Set diffuse transmittance
             if ( ac != 2 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->td = strtof(av[1], nullptr);
             if ( currentMaterialContext->td < 0.0 || currentMaterialContext->td > 1.0 ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->td_c = *(context->currentColor);
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::RS:
+        case EntityTypeContext::RS:
             // Set specular reflectance
             if ( ac != 3 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->rs = strtof(av[1], nullptr);
             currentMaterialContext->rs_a = strtof(av[2], nullptr);
             if ( currentMaterialContext->rs < 0.0 || currentMaterialContext->rs > 1.0 ||
                  currentMaterialContext->rs_a < 0.0 ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->rs_c = *(context->currentColor);
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::TS:
+        case EntityTypeContext::TS:
             // Set specular transmittance
             if ( ac != 3 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isFloat(av[1]) || !WordsContext::isFloat(av[2]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             currentMaterialContext->ts = strtof(av[1], nullptr);
             currentMaterialContext->ts_a = strtof(av[2], nullptr);
             if ( currentMaterialContext->ts < 0.0 || currentMaterialContext->ts > 1.0 ||
                  currentMaterialContext->ts_a < 0.0 ) {
-                return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
             }
             currentMaterialContext->ts_c = *(context->currentColor);
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
-        case EntityContext::SIDES:
+        case EntityTypeContext::SIDES:
             // Set number of sides
             if ( ac != 2 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
-            if ( !WordsContext::isInt(av[1]) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isInt(av[1]) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             i = static_cast<int>(strtol(av[1], nullptr, 10));
             if ( i == 1 ) {
@@ -437,13 +437,13 @@ MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *
             } else if ( i == 2 ) {
                     currentMaterialContext->sided = false;
                 } else {
-                    return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+                    return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
                 }
             currentMaterialContext->clock++;
-            return ErrorCodeContext::MGF_OK;
+            return ParseErrorContext::MGF_OK;
 
         default:
             break;
     }
-    return ErrorCodeContext::MGF_ERROR_UNKNOWN_ENTITY;
+    return ParseErrorContext::MGF_ERROR_UNKNOWN_ENTITY;
 }

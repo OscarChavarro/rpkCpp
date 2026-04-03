@@ -11,9 +11,9 @@
 #include "skin/PatchSet.h"
 #include "skin/Vertex.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "io/bin/writer/BinaryModelWriterSerializationContext.h"
 
@@ -259,7 +259,7 @@ BinaryModelWriterSerializationContext::ensureReaderContext(const ReaderContext *
 }
 
 bool
-BinaryModelWriterSerializationContext::ensureTransformArray(const TransformArray *value) {
+BinaryModelWriterSerializationContext::ensureTransformArray(const TransformSequenceContext *value) {
     if ( value == nullptr ) {
         return true;
     }
@@ -372,7 +372,7 @@ BinaryModelWriterSerializationContext::collectGeometryList(const java::ArrayList
 }
 
 bool
-BinaryModelWriterSerializationContext::collectModel(const PersistedSceneModel *model) {
+BinaryModelWriterSerializationContext::collectModel(const ParseSnapshotContext *model) {
     if ( model == nullptr ) {
         return true;
     }

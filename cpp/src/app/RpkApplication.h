@@ -13,7 +13,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/Scene.h"
-#include "io/context/ParseSession.h"
+#include "io/context/ParseRuntimeContext.h"
 #include "raycasting/common/RayTracer.h"
 #include "tonemap/ToneMap.h"
 
@@ -24,7 +24,7 @@ class RpkApplication {
     int imageOutputWidth;
     int imageOutputHeight;
     Scene *scene;
-    ParseSession *mgfContext;
+    ParseRuntimeContext *mgfContext;
     RadianceMethod *selectedRadianceMethod;
     ToneMap *selectedToneMap;
     ToneMappingContext toneMapOptions;
@@ -55,7 +55,7 @@ class RpkApplication {
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState,
         LightList *&lightList);
-    static void freeMemory(ParseSession *mgfContext);
+    static void freeMemory(ParseRuntimeContext *mgfContext);
 
   public:
     RpkApplication();

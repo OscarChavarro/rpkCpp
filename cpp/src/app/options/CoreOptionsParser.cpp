@@ -1,7 +1,7 @@
 #include "app/options/CoreOptionsParser.h"
 
 #include "common/RenderOptions.h"
-#include "io/context/ParseSession.h"
+#include "io/context/ParseRuntimeContext.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMappingContext.h"
 #include "app/options/CommandLine.h"
@@ -10,7 +10,7 @@ void
 CoreOptionsParser::parse(
         int *argc,
         char **argv,
-        ParseSession &parseSession,
+        ParseRuntimeContext &parseSession,
         Scene &scene,
         RenderOptions &renderOptions,
         ToneMappingContext &toneMapOptions,

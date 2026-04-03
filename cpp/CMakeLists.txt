@@ -136,20 +136,20 @@ set(MAIN_SRC
     src/io/wrapper/Vector3DPrinter.cpp
     src/io/wrapper/Matrix2x2Printer.cpp
     src/io/context/TransformContext.cpp
-    src/io/context/EntityContextInfo.cpp
-    src/io/context/ParseSession.cpp
-    src/io/context/ParserConfig.cpp
-    src/io/context/ReaderStackState.cpp
-    src/io/context/GeometryBuildState.cpp
-    src/io/context/MaterialState.cpp
-    src/io/context/ColorRepository.cpp
-    src/io/context/MaterialRepository.cpp
-    src/io/context/VertexRepository.cpp
-    src/io/context/ObjectHierarchyState.cpp
-    src/io/context/TransformStack.cpp
+    src/io/context/EntityNamingContext.cpp
+    src/io/context/ParseRuntimeContext.cpp
+    src/io/context/ParseOptionsContext.cpp
+    src/io/context/ReaderDispatchContext.cpp
+    src/io/context/GeometryAssemblyContext.cpp
+    src/io/context/MaterialSelectionContext.cpp
+    src/io/context/ColorRegistryContext.cpp
+    src/io/context/MaterialRegistryContext.cpp
+    src/io/context/VertexRegistryContext.cpp
+    src/io/context/ObjectScopeContext.cpp
+    src/io/context/TransformScopeContext.cpp
     src/io/context/ColorContext.cpp
-    src/io/context/WordsContext.cpp
-    src/io/context/PersistedSceneModel.cpp
+    src/io/context/TokenValidationContext.cpp
+    src/io/context/ParseSnapshotContext.cpp
     src/io/bin/writer/BinaryModelWriter.cpp
     src/io/bin/writer/BinaryModelWriterSerializationContext.cpp
     src/io/bin/reader/BinaryModelReader.cpp

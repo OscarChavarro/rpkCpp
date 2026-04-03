@@ -5,16 +5,16 @@
 Replace face + holes with single contour
 */
 int
-MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseSession *context) {
+MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
     const char *newArgumentValues[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastPerimeterIndex = 0;
 
-    newArgumentValues[0] = context->entityNames[EntityContext::FACE];
+    newArgumentValues[0] = context->entityNames[EntityTypeContext::FACE];
     int i;
     for ( i = 1; i < argumentCount; i++ ) {
         if ( argumentValues[i][0] == '-' ) {
             if ( i < 4 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             if ( i >= argumentCount - 1 ) {
                 break;
@@ -25,7 +25,7 @@ MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentV
             int j;
             for ( j = i + 1; j < argumentCount - 1 && argumentValues[j + 1][0] != '-'; j++ ) {}
             if ( j - i < 3 ) {
-                return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+                return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
             }
             newArgumentValues[i] = argumentValues[j]; // Connect hole loop
         } else {
@@ -38,5 +38,5 @@ MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentV
         newArgumentValues[i++] = argumentValues[lastPerimeterIndex];
     }
     newArgumentValues[i] = nullptr;
-    return MgfDefinitions::mgfHandle(EntityContext::FACE, i, newArgumentValues, context);
+    return MgfDefinitions::mgfHandle(EntityTypeContext::FACE, i, newArgumentValues, context);
 }

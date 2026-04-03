@@ -54,7 +54,7 @@ RpkApplication::RpkApplication():
     glutDebugEnabled(false)
 {
     scene = new Scene();
-    mgfContext = new ParseSession();
+    mgfContext = new ParseRuntimeContext();
     renderOptions = new RenderOptions();
 }
 
@@ -199,7 +199,7 @@ RpkApplication::executeRendering(
 }
 
 void
-RpkApplication::freeMemory(ParseSession *mgfContext) {
+RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     Options::deleteOptionsMemory();
 #ifdef MGF_ENABLED
     MgfReader::mgfFreeMemory(mgfContext);

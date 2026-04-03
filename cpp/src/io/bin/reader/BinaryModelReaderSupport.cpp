@@ -7,7 +7,7 @@
 #include "common/Error.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/MinMaxBox.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 #include "io/bin/reader/BinaryModelReaderModelRecord.h"
@@ -275,14 +275,14 @@ BinaryModelReaderSupport::validateBinaryHeader(java::InputStream &input) {
 
     if ( pointerSize != static_cast<int>(sizeof(void *))
          || longSize != static_cast<int>(sizeof(long))
-         || modelSize != static_cast<int>(sizeof(PersistedSceneModel)) ) {
+         || modelSize != static_cast<int>(sizeof(ParseSnapshotContext)) ) {
         return reportReadError("BinaryModelReaderSupport::validateBinaryHeader", "Incompatible binary model platform/type sizes");
     }
     return true;
 }
 
 bool
-BinaryModelReaderSupport::populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record) {
+BinaryModelReaderSupport::populateModelStrings(ParseSnapshotContext *model, const BinaryModelReaderModelRecord &record) {
     if ( model == nullptr ) {
         return reportReadError("BinaryModelReaderSupport::populateModelStrings", "Null model in string population");
     }

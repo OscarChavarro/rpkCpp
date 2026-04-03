@@ -8,9 +8,9 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/writer/BinaryModelWriterSerializationContext.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
@@ -20,7 +20,7 @@
 
 class BinaryModelWriter {
   public:
-    static bool write(const PersistedSceneModel *model, const char *fileName);
+    static bool write(const ParseSnapshotContext *model, const char *fileName);
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];
@@ -51,7 +51,7 @@ class BinaryModelWriter {
         java::OutputStream &output,
         const ReaderContext *readerContext,
         const BinaryModelWriterSerializationContext &context);
-    static void writeTransformArrayRecord(java::OutputStream &output, const TransformArray *transformArray);
+    static void writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray);
     static bool writeTransformContextRecord(
         java::OutputStream &output,
         const TransformStackContext *transformContext,
@@ -59,7 +59,7 @@ class BinaryModelWriter {
     static bool writeVertexRecord(java::OutputStream &output, const Vertex *vertex, const BinaryModelWriterSerializationContext &context);
     static bool writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelWriterSerializationContext &context);
     static bool writeGeometryRecord(java::OutputStream &output, const Geometry *geometry, const BinaryModelWriterSerializationContext &context);
-    static bool writeModelRecord(java::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context);
+    static bool writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelWriterSerializationContext &context);
 };
 
 #endif

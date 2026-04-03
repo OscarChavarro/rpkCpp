@@ -5,9 +5,9 @@
 #include "java/util/HashMap.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
@@ -37,8 +37,8 @@ class BinaryModelWriterSerializationContext {
     java::HashMap<const ReaderContext *, int> readerContextIndices;
     java::ArrayList<const ReaderContext *> readerContexts;
 
-    java::HashMap<const TransformArray *, int> transformArrayIndices;
-    java::ArrayList<const TransformArray *> transformArrays;
+    java::HashMap<const TransformSequenceContext *, int> transformArrayIndices;
+    java::ArrayList<const TransformSequenceContext *> transformArrays;
 
     java::HashMap<const TransformStackContext *, int> transformContextIndices;
     java::ArrayList<const TransformStackContext *> transformContexts;
@@ -50,7 +50,7 @@ class BinaryModelWriterSerializationContext {
     bool ensureGeometry(const Geometry *value);
     bool ensureColorContext(const ColorContext *value);
     bool ensureReaderContext(const ReaderContext *value);
-    bool ensureTransformArray(const TransformArray *value);
+    bool ensureTransformArray(const TransformSequenceContext *value);
     bool ensureTransformContext(const TransformStackContext *value);
 
     bool collectVectorList(const java::ArrayList<Vector3D *> *list);
@@ -58,7 +58,7 @@ class BinaryModelWriterSerializationContext {
     bool collectPatchList(const java::ArrayList<Patch *> *list);
     bool collectMaterialList(const java::ArrayList<Material *> *list);
     bool collectGeometryList(const java::ArrayList<Geometry *> *list);
-    bool collectModel(const PersistedSceneModel *model);
+    bool collectModel(const ParseSnapshotContext *model);
 };
 
 #endif

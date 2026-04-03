@@ -6,7 +6,7 @@
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/reader/BinaryModelReaderIndexListRecord.h"
 #include "io/bin/reader/BinaryModelReaderModelRecord.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "skin/BoundingBox.h"
 
 class BinaryModelReaderSupport {
@@ -47,7 +47,7 @@ class BinaryModelReaderSupport {
         java::ArrayList<T *> **result);
 
     static bool validateBinaryHeader(java::InputStream &input);
-    static bool populateModelStrings(PersistedSceneModel *model, const BinaryModelReaderModelRecord &record);
+    static bool populateModelStrings(ParseSnapshotContext *model, const BinaryModelReaderModelRecord &record);
 
   private:
     static const unsigned char BINARY_MODEL_MAGIC[16];

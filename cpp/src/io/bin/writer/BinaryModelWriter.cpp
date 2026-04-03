@@ -21,9 +21,9 @@
 #include "skin/Vertex.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "io/bin/writer/BinaryModelWriter.h"
 #include "io/bin/writer/BinaryModelWriterSerializationContext.h"
@@ -285,12 +285,12 @@ BinaryModelWriter::writeReaderContextRecord(
 }
 
 void
-BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const TransformArray *transformArray) {
+BinaryModelWriter::writeTransformArrayRecord(java::OutputStream &output, const TransformSequenceContext *transformArray) {
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.fileId);
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->startingPosition.lineNumber);
     vsdk::PersistenceElement::writeInt64LE(output, static_cast<long long>(transformArray->startingPosition.offset));
     vsdk::PersistenceElement::writeInt32LE(output, transformArray->numberOfDimensions);
-    for ( int i = 0; i < TransformArray::TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
+    for ( int i = 0; i < TransformSequenceContext::TRANSFORM_MAXIMUM_DIMENSIONS; i++ ) {
         vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].i);
         vsdk::PersistenceElement::writeSignedShortLE(output, transformArray->transformArguments[i].n);
         vsdk::PersistenceElement::writeBytes(
@@ -479,7 +479,7 @@ BinaryModelWriter::writeGeometryRecord(java::OutputStream &output, const Geometr
 }
 
 bool
-BinaryModelWriter::writeModelRecord(java::OutputStream &output, const PersistedSceneModel *model, const BinaryModelWriterSerializationContext &context) {
+BinaryModelWriter::writeModelRecord(java::OutputStream &output, const ParseSnapshotContext *model, const BinaryModelWriterSerializationContext &context) {
     int currentColorIndex = -1;
     if ( !indexOfPointer(model->currentColor, context.colorContextIndices, "model.currentColor", currentColorIndex) ) {
         return false;
@@ -538,7 +538,7 @@ BinaryModelWriter::writeModelRecord(java::OutputStream &output, const PersistedS
 }
 
 bool
-BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName) {
+BinaryModelWriter::write(const ParseSnapshotContext *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
         Error::error("BinaryModelWriter::write", "Invalid model or fileName");
         return false;
@@ -561,7 +561,7 @@ BinaryModelWriter::write(const PersistedSceneModel *model, const char *fileName)
     vsdk::PersistenceElement::writeInt32LE(output, BINARY_MODEL_VERSION);
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(void *)));
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(long)));
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(PersistedSceneModel)));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(sizeof(ParseSnapshotContext)));
 
     int vectorsCount = 0;
     if ( !checkedLongToInt32(context.vectors.size(), "vectors count", vectorsCount) ) {

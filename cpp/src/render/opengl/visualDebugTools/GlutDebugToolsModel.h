@@ -2,7 +2,7 @@
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 
 #include "common/RenderOptions.h"
-#include "io/context/ParseSession.h"
+#include "io/context/ParseRuntimeContext.h"
 #include "render/opengl/visualDebugTools/GlutDebugMode.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "scene/RadianceMethod.h"
@@ -24,8 +24,8 @@ class GlutDebugToolsModel {
     RenderOptions *renderOptions;
     ToneMappingContext *toneMapOptions;
     GlutDebugState *debugState;
-    void (*memoryFreeCallBack)(ParseSession *mgfContext);
-    ParseSession *mgfContext;
+    void (*memoryFreeCallBack)(ParseRuntimeContext *mgfContext);
+    ParseRuntimeContext *mgfContext;
 
     GlutDebugToolsModel();
 };

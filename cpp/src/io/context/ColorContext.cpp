@@ -1,9 +1,9 @@
 #include <cstdlib>
 
 #include "common/linealAlgebra/Numeric.h"
-#include "io/context/ErrorCodeContext.h"
+#include "io/context/ParseErrorContext.h"
 #include "io/context/ColorContext.h"
-#include "io/context/WordsContext.h"
+#include "io/context/TokenValidationContext.h"
 
 const ColorContext ColorContext::DEFAULT_COLOR_CONTEXT = {
     1,
@@ -99,7 +99,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
 
     // Check getBoundingBox
     if ( wlMaximum <= COLOR_MINIMUM_WAVE_LENGTH || wlMaximum <= wlMinimum || wlMinimum >= COLOR_MAXIMUM_WAVE_LENGTH ) {
-        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wlStep = (wlMaximum - wlMinimum) / (ac - 1);
     while ( wlMinimum < COLOR_MINIMUM_WAVE_LENGTH ) {
@@ -127,8 +127,8 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
         n = 0;
         while ( boxPos < i + 0.5 && pos < ac ) {
             const char *value = av[argumentStartIndex + pos];
-            if ( !WordsContext::isFloat(value) ) {
-                return ErrorCodeContext::MGF_ERROR_ARGUMENT_TYPE;
+            if ( !TokenValidationContext::isFloat(value) ) {
+                return ParseErrorContext::MGF_ERROR_ARGUMENT_TYPE;
             }
             va[i] += strtof(value, nullptr);
             pos++;
@@ -145,7 +145,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
             }
     }
     if ( scale <= Numeric::EPSILON ) {
-        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     scale = ColorContext::COLOR_NOMINAL_MAXIMUM_SAMPLE_VALUE / scale;
     spectralStraightSum = 0; // Convert to our spacing
@@ -172,7 +172,7 @@ ColorContext::setSpectrum(double wlMinimum, double wlMaximum, int ac, const char
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 /**
@@ -184,7 +184,7 @@ ColorContext::setBlackBodyTemperature(double tk) {
     double wl;
 
     if ( tk < 1000 ) {
-        return ErrorCodeContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
+        return ParseErrorContext::MGF_ERROR_ILLEGAL_ARGUMENT_VALUE;
     }
     wl = bBlm(tk);
     // Scale factor based on peak
@@ -201,7 +201,7 @@ ColorContext::setBlackBodyTemperature(double tk) {
     }
     flags = COLOR_DEFINED_WITH_SPECTRUM_FLAG | COLOR_SPECTRUM_IS_SET_FLAG;
     clock++;
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 /**

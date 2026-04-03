@@ -10,7 +10,7 @@
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/MeshSurfaceVisitor.h"
 #include "numericalAnalysis/PatchVisitor.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/bin/reader/BinaryModelReader.h"
 #include "io/bin/writer/BinaryModelWriter.h"
 #ifdef MGF_ENABLED
@@ -232,7 +232,7 @@ SceneBuilder::sceneBuilderCollectGeometriesRecursive(
 }
 
 void
-SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, PersistedSceneModel *mgfModel) {
+SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext, ParseSnapshotContext *mgfModel) {
     if ( mgfContext == nullptr || mgfModel == nullptr ) {
         return;
     }
@@ -281,7 +281,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseSession *mgfContext, Persi
 }
 
 void
-SceneBuilder::removeEmptyMeshSurfaces(ParseSession *mgfContext, java::ArrayList<Geometry *> *geometryList) {
+SceneBuilder::removeEmptyMeshSurfaces(ParseRuntimeContext *mgfContext, java::ArrayList<Geometry *> *geometryList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
         const Geometry *geometry = geometryList->get(i);
         if ( geometry->className == GeometryClassId::SURFACE_MESH ) {
@@ -402,7 +402,7 @@ Returns true if successful
 bool
 SceneBuilder::sceneBuilderReadFile(
     const char *fileName,
-    ParseSession *mgfContext,
+    ParseRuntimeContext *mgfContext,
     Scene *scene,
     ToneMappingContext &toneMapOptions)
 {
@@ -496,10 +496,10 @@ SceneBuilder::sceneBuilderReadFile(
     }
     scene->background = CoreOptionsParser::createBackground();
 
-    // Read the source scene description into a PersistedSceneModel snapshot
+    // Read the source scene description into a ParseSnapshotContext snapshot
     java::System::err.printf("Reading the scene from file '%s' ... \n", inputName);
     long long last = java::System::nanoTime();
-    PersistedSceneModel *mgfModel = nullptr;
+    ParseSnapshotContext *mgfModel = nullptr;
 
     if ( readBinaryModel ) {
         mgfModel = BinaryModelReader::read(inputName);
@@ -515,7 +515,7 @@ SceneBuilder::sceneBuilderReadFile(
              && batchOptions->binaryOutputFilename != nullptr
              && batchOptions->binaryOutputFilename[0] != '\0' ) {
             java::System::err.printf(
-                "Exporting loaded PersistedSceneModel to binary '%s' ... ",
+                "Exporting loaded ParseSnapshotContext to binary '%s' ... ",
                 batchOptions->binaryOutputFilename);
             java::System::err.flush();
             const bool binarySaved = BinaryModelWriter::write(
@@ -527,7 +527,7 @@ SceneBuilder::sceneBuilderReadFile(
                 java::System::err.printf("failed.\n");
                 Error::error(
                     "SceneBuilder::sceneBuilderReadFile",
-                    "Could not export PersistedSceneModel binary to '%s'",
+                    "Could not export ParseSnapshotContext binary to '%s'",
                     batchOptions->binaryOutputFilename);
             }
         }
@@ -678,7 +678,7 @@ void
 SceneBuilder::sceneBuilderCreateModel(
     const int *argc,
     char *const *argv,
-    ParseSession *mgfContext,
+    ParseRuntimeContext *mgfContext,
     Scene *scene,
     ToneMappingContext &toneMapOptions)
 {

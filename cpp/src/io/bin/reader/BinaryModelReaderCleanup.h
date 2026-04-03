@@ -7,9 +7,9 @@
 #include "io/bin/reader/BinaryModelReaderModelRecord.h"
 #include "io/bin/reader/BinaryModelReaderVertexRecord.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
@@ -26,9 +26,9 @@ class BinaryModelReaderCleanup {
         java::ArrayList<Geometry *> &geometries,
         java::ArrayList<ColorContext *> &colorContexts,
         java::ArrayList<ReaderContext *> &readerContexts,
-        java::ArrayList<TransformArray *> &transformArrays,
+        java::ArrayList<TransformSequenceContext *> &transformArrays,
         java::ArrayList<TransformStackContext *> &transformContexts,
-        PersistedSceneModel *model);
+        ParseSnapshotContext *model);
     static void releaseVertexRecordIndexLists(java::ArrayList<BinaryModelReaderVertexRecord> &vertexRecords);
     static void releaseGeometryRecordIndexLists(java::ArrayList<BinaryModelReaderGeometryRecord> &geometryRecords);
     static void releaseModelRecordIndexLists(BinaryModelReaderModelRecord *modelRecord);

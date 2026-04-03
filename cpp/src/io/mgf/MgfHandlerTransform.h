@@ -3,8 +3,8 @@
 
 #include "common/linealAlgebra/Matrix4x4d.h"
 #include "common/linealAlgebra/Vector3Dd.h"
-#include "io/context/ParseSession.h"
-#include "io/context/TransformArray.h"
+#include "io/context/ParseRuntimeContext.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformContext.h"
 #include "io/context/TransformStackContext.h"
 
@@ -22,21 +22,21 @@ puts the result into the first.
 
 class MgfHandlerTransform {
   public:
-    static int handleTransformationEntity(int ac, const char **av, ParseSession *context);
-    static void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseSession *context); // Transform point
-    static void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const ParseSession *context); // Transform vector
-    static void mgfTransformFreeMemory(ParseSession *context);
+    static int handleTransformationEntity(int ac, const char **av, ParseRuntimeContext *context);
+    static void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context); // Transform point
+    static void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context); // Transform vector
+    static void mgfTransformFreeMemory(ParseRuntimeContext *context);
 
   private:
     static long computeUniqueId(const Matrix4x4d *xfm);
     static double d2r(double a);
     static int checkForBadArguments(int ac, char **av, const char *fl);
     static bool checkArgument(int a, const char *l, int ac, char **av, int i);
-    static int transformName(const TransformArray *ap, ParseSession *context);
-    static TransformStackContext *newTransform(int ac, const char **av, ParseSession *context);
+    static int transformName(const TransformSequenceContext *ap, ParseRuntimeContext *context);
+    static TransformStackContext *newTransform(int ac, const char **av, ParseRuntimeContext *context);
     static void finish(int count, TransformContext *ret, const Matrix4x4d *transformMatrix, double scaTransform);
     static int xf(TransformContext *ret, int ac, char **av);
-    static bool compactTransformArguments(ParseSession *context, const TransformStackContext *stackContext);
+    static bool compactTransformArguments(ParseRuntimeContext *context, const TransformStackContext *stackContext);
 };
 
 #endif

@@ -82,7 +82,7 @@ MgfReader::readInputLine(java::InputStream *inputStream, char *readBuffer, int m
 }
 
 int
-MgfReader::mgfReadNextLine(const ParseSession *context) {
+MgfReader::mgfReadNextLine(const ParseRuntimeContext *context) {
     if ( context->readerContext->inputStream == nullptr ) {
         return 0;
     }
@@ -133,7 +133,7 @@ MgfReader::mgfReadNextLine(const ParseSession *context) {
 Parse current input line
 */
 int
-MgfReader::mgfParseCurrentLine(ParseSession *context) {
+MgfReader::mgfParseCurrentLine(ParseRuntimeContext *context) {
     const char *argv[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     java::String tokens[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     int argc = 0;
@@ -159,7 +159,7 @@ MgfReader::mgfParseCurrentLine(ParseSession *context) {
             tokenizer.dispose();
             buffer.dispose();
             inputLine.dispose();
-            return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+            return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
         }
         tokens[argc] = tokenizer.nextToken();
         argv[argc] = tokens[argc].toCString();
@@ -173,7 +173,7 @@ MgfReader::mgfParseCurrentLine(ParseSession *context) {
         tokenizer.dispose();
         buffer.dispose();
         inputLine.dispose();
-        return ErrorCodeContext::MGF_OK;
+        return ParseErrorContext::MGF_OK;
     }
     argv[argc] = nullptr;
     tokenizer.dispose();
@@ -191,7 +191,7 @@ MgfReader::mgfParseCurrentLine(ParseSession *context) {
 Clear parser history
 */
 void
-MgfReader::mgfClear(ParseSession *context) {
+MgfReader::mgfClear(ParseRuntimeContext *context) {
     MgfHandlerColor::initColorContextTables(context);
     MgfHandlerGeometry::initGeometryContextTables(context);
     MgfHandlerMaterial::initMaterialContextTables(context);
@@ -216,7 +216,7 @@ MgfReader::mgfSetNrQuartCircDivs(int divs) {
 If yesno is true, all materials will be converted to be monochrome
 */
 void
-MgfReader::mgfSetMonochrome(bool yesno, ParseSession *context) {
+MgfReader::mgfSetMonochrome(bool yesno, ParseRuntimeContext *context) {
     context->monochrome = yesno;
 }
 
@@ -224,24 +224,24 @@ MgfReader::mgfSetMonochrome(bool yesno, ParseSession *context) {
 Discard unneeded/unwanted entity
 */
 int
-MgfReader::mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, ParseSession * /*context*/) {
-    return ErrorCodeContext::MGF_OK;
+MgfReader::mgfDiscardUnNeededEntity(int /*ac*/, const char ** /*av*/, ParseRuntimeContext * /*context*/) {
+    return ParseErrorContext::MGF_OK;
 }
 
 /**
 Put out current color spectrum
 */
 int
-MgfReader::mgfPutCSpec(ParseSession *context)
+MgfReader::mgfPutCSpec(ParseRuntimeContext *context)
 {
     char wl[2][6];
     char buffer[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES][24];
     const char *newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 4];
 
-    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::C_SPEC], HandlerRoleContext::HANDLE_COLOR) ) {
         java::Formatter::format(wl[0], 6, "%d", COLOR_MINIMUM_WAVE_LENGTH);
         java::Formatter::format(wl[1], 6, "%d", COLOR_MAXIMUM_WAVE_LENGTH);
-        newAv[0] = context->entityNames[EntityContext::C_SPEC];
+        newAv[0] = context->entityNames[EntityTypeContext::C_SPEC];
         newAv[1] = wl[0];
         newAv[2] = wl[1];
         const double sf = static_cast<double>(ColorContext::NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
@@ -250,44 +250,44 @@ MgfReader::mgfPutCSpec(ParseSession *context)
             newAv[i + 3] = buffer[i];
         }
         newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
-        int status = MgfDefinitions::mgfHandle(EntityContext::C_SPEC, ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
-        if ( status != ErrorCodeContext::MGF_OK ) {
+        int status = MgfDefinitions::mgfHandle(EntityTypeContext::C_SPEC, ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3, newAv, context);
+        if ( status != ParseErrorContext::MGF_OK ) {
             return status;
         }
     }
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 /**
 Put out current xy chromatic values
 */
 int
-MgfReader::mgfPutCxy(ParseSession *context) {
+MgfReader::mgfPutCxy(ParseRuntimeContext *context) {
     static char xBuffer[24];
     static char yBuffer[24];
     static const char *cCom[4] = {
-        context->entityNames[EntityContext::CXY],
+        context->entityNames[EntityTypeContext::CXY],
         xBuffer,
         yBuffer
     };
 
     java::Formatter::format(xBuffer, 24, "%.4f", context->currentColor->cx);
     java::Formatter::format(yBuffer, 24, "%.4f", context->currentColor->cy);
-    return MgfDefinitions::mgfHandle(EntityContext::CXY, 3, cCom, context);
+    return MgfDefinitions::mgfHandle(EntityTypeContext::CXY, 3, cCom, context);
 }
 
 /**
 Handle spectral color
 */
 int
-MgfReader::mgfECSpec(int /*ac*/, const char ** /*av*/, ParseSession *context) {
+MgfReader::mgfECSpec(int /*ac*/, const char ** /*av*/, ParseRuntimeContext *context) {
     // Convert to xy chromaticity
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     // If it's really their handler, use it
-    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::CXY], HandlerRoleContext::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 /**
@@ -300,59 +300,59 @@ Contorted logic works as follows:
 5. if we have only xy results, handle it as c_spec() would
 */
 int
-MgfReader::mgfECMix(int /*ac*/, const char ** /*av*/, ParseSession *context) {
-    if ( mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
+MgfReader::mgfECMix(int /*ac*/, const char ** /*av*/, ParseRuntimeContext *context) {
+    if ( mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::C_SPEC], HandlerRoleContext::COLOR_SPEC_HELPER) ) {
         context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     } else if ( context->currentColor->flags & COLOR_DEFINED_WITH_SPECTRUM_FLAG ) {
         return mgfPutCSpec(context);
     }
-    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::CXY], HandlerRoleContext::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 /**
 Handle color temperature
 */
 int
-MgfReader::mgfColorTemperature(int /*ac*/, const char ** /*av*/, ParseSession *context) {
+MgfReader::mgfColorTemperature(int /*ac*/, const char ** /*av*/, ParseRuntimeContext *context) {
     // Logic is similar to mgfECMix here.  Support handler has already
     // converted temperature to spectral color.  Put it out as such
     // if they support it, otherwise convert to xy chromaticity and
     // put it out if they handle it
-    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::C_SPEC], HandlerType::COLOR_SPEC_HELPER) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::C_SPEC], HandlerRoleContext::COLOR_SPEC_HELPER) ) {
         return mgfPutCSpec(context);
     }
     context->currentColor->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
-    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
+    if ( !mgfHandlerMatches(context->readerStackState.handleCallbacks[EntityTypeContext::CXY], HandlerRoleContext::HANDLE_COLOR) ) {
         return mgfPutCxy(context);
     }
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 int
-MgfReader::handleIncludedFile(int ac, const char **av, ParseSession *context) {
+MgfReader::handleIncludedFile(int ac, const char **av, ParseRuntimeContext *context) {
     const char *transformArgument[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     ReaderContext readerContext{};
     const TransformStackContext *originTransform = context->transformContext;
 
     if ( ac < 2 ) {
-        return ErrorCodeContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
+        return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
 
     int rv = MgfDefinitions::mgfOpen(&readerContext, av[1], context);
-    if ( rv != ErrorCodeContext::MGF_OK ) {
+    if ( rv != ParseErrorContext::MGF_OK ) {
         return rv;
     }
     if ( ac > 2 ) {
-        transformArgument[0] = context->entityNames[EntityContext::TRANSFORM];
+        transformArgument[0] = context->entityNames[EntityTypeContext::TRANSFORM];
         for ( int i = 1; i < ac - 1; i++ ) {
             transformArgument[i] = av[i + 1];
         }
         transformArgument[ac - 1] = nullptr;
-        rv = MgfDefinitions::mgfHandle(EntityContext::TRANSFORM, ac - 1, transformArgument, context);
-        if ( rv != ErrorCodeContext::MGF_OK ) {
+        rv = MgfDefinitions::mgfHandle(EntityTypeContext::TRANSFORM, ac - 1, transformArgument, context);
+        if ( rv != ParseErrorContext::MGF_OK ) {
             MgfDefinitions::mgfClose(context);
             return rv;
         }
@@ -361,74 +361,74 @@ MgfReader::handleIncludedFile(int ac, const char **av, ParseSession *context) {
         while ( (rv = mgfReadNextLine(context)) > 0 ) {
             if ( rv >= ReaderContext::MGF_MAXIMUM_INPUT_LINE_LENGTH - 1 ) {
                 java::System::err.printf("%s: %d: %s\n", readerContext.fileName,
-                    readerContext.lineNumber, context->errorCodeMessages[ErrorCodeContext::MGF_ERROR_LINE_TOO_LONG]);
+                    readerContext.lineNumber, context->errorCodeMessages[ParseErrorContext::MGF_ERROR_LINE_TOO_LONG]);
                 MgfDefinitions::mgfClose(context);
-                return ErrorCodeContext::MGF_ERROR_IN_INCLUDED_FILE;
+                return ParseErrorContext::MGF_ERROR_IN_INCLUDED_FILE;
             }
             rv = mgfParseCurrentLine(context);
-            if ( rv != ErrorCodeContext::MGF_OK ) {
+            if ( rv != ParseErrorContext::MGF_OK ) {
                 java::System::err.printf("%s: %d: %s:\n%s", readerContext.fileName,
                         readerContext.lineNumber, context->errorCodeMessages[rv],
                         readerContext.inputLine);
                 MgfDefinitions::mgfClose(context);
-                return ErrorCodeContext::MGF_ERROR_IN_INCLUDED_FILE;
+                return ParseErrorContext::MGF_ERROR_IN_INCLUDED_FILE;
             }
         }
         if ( ac > 2 ) {
-            rv = MgfDefinitions::mgfHandle(EntityContext::TRANSFORM, 1, transformArgument, context);
-            if ( rv != ErrorCodeContext::MGF_OK ) {
+            rv = MgfDefinitions::mgfHandle(EntityTypeContext::TRANSFORM, 1, transformArgument, context);
+            if ( rv != ParseErrorContext::MGF_OK ) {
                 MgfDefinitions::mgfClose(context);
                 return rv;
             }
         }
     } while ( context->transformContext != originTransform );
     MgfDefinitions::mgfClose(context);
-    return ErrorCodeContext::MGF_OK;
+    return ParseErrorContext::MGF_OK;
 }
 
 void
-MgfReader::ensureSessionHandlerRegistry(ParseSession *context) {
+MgfReader::ensureSessionHandlerRegistry(ParseRuntimeContext *context) {
     if ( context == nullptr ) {
         return;
     }
 
-    EntityHandler **handlers = context->readerStackState.handlerByType;
+    EntityDispatchContext **handlers = context->readerStackState.handlerByType;
     if ( handlers[0] != nullptr ) {
         return;
     }
 
-    handlers[static_cast<int>(HandlerType::DISCARD_UNNEEDED)] = new MgfStaticHandler(HandlerType::DISCARD_UNNEEDED, MgfReader::mgfDiscardUnNeededEntity);
-    handlers[static_cast<int>(HandlerType::INCLUDE_FILE)] = new MgfStaticHandler(HandlerType::INCLUDE_FILE, MgfReader::handleIncludedFile);
-    handlers[static_cast<int>(HandlerType::ENTITY_SPHERE)] = new MgfStaticHandler(HandlerType::ENTITY_SPHERE, MgfSphereGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_TORUS)] = new MgfStaticHandler(HandlerType::ENTITY_TORUS, MgfTorusGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_CYLINDER)] = new MgfStaticHandler(HandlerType::ENTITY_CYLINDER, MgfCylinderGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_RING)] = new MgfStaticHandler(HandlerType::ENTITY_RING, MgfRingGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_CONE)] = new MgfStaticHandler(HandlerType::ENTITY_CONE, MgfConeGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_PRISM)] = new MgfStaticHandler(HandlerType::ENTITY_PRISM, MgfPrismGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::ENTITY_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerType::ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesGeometry::handleEntity);
-    handlers[static_cast<int>(HandlerType::COLOR_SPEC_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_SPEC_HELPER, MgfReader::mgfECSpec);
-    handlers[static_cast<int>(HandlerType::COLOR_MIX_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_MIX_HELPER, MgfReader::mgfECMix);
-    handlers[static_cast<int>(HandlerType::COLOR_TEMPERATURE_HELPER)] = new MgfStaticHandler(HandlerType::COLOR_TEMPERATURE_HELPER, MgfReader::mgfColorTemperature);
-    handlers[static_cast<int>(HandlerType::HANDLE_VERTEX)] = new MgfStaticHandler(HandlerType::HANDLE_VERTEX, MgfHandlerGeometry::handleVertexEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_FACE)] = new MgfStaticHandler(HandlerType::HANDLE_FACE, MgfHandlerGeometry::handleFaceEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerType::HANDLE_FACE_WITH_HOLES, MgfHandlerGeometry::handleFaceWithHolesEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_SURFACE)] = new MgfStaticHandler(HandlerType::HANDLE_SURFACE, MgfHandlerGeometry::handleSurfaceEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_COLOR)] = new MgfStaticHandler(HandlerType::HANDLE_COLOR, MgfHandlerColor::handleColorEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_MATERIAL)] = new MgfStaticHandler(HandlerType::HANDLE_MATERIAL, MgfHandlerMaterial::handleMaterialEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_TRANSFORM)] = new MgfStaticHandler(HandlerType::HANDLE_TRANSFORM, MgfHandlerTransform::handleTransformationEntity);
-    handlers[static_cast<int>(HandlerType::HANDLE_OBJECT)] = new MgfStaticHandler(HandlerType::HANDLE_OBJECT, MgfHandlerObject::handleObjectEntity);
+    handlers[static_cast<int>(HandlerRoleContext::DISCARD_UNNEEDED)] = new MgfStaticHandler(HandlerRoleContext::DISCARD_UNNEEDED, MgfReader::mgfDiscardUnNeededEntity);
+    handlers[static_cast<int>(HandlerRoleContext::INCLUDE_FILE)] = new MgfStaticHandler(HandlerRoleContext::INCLUDE_FILE, MgfReader::handleIncludedFile);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_SPHERE)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_SPHERE, MgfSphereGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_TORUS)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_TORUS, MgfTorusGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CYLINDER)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_CYLINDER, MgfCylinderGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_RING)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_RING, MgfRingGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_CONE)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_CONE, MgfConeGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_PRISM)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_PRISM, MgfPrismGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::ENTITY_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerRoleContext::ENTITY_FACE_WITH_HOLES, MgfFaceWithHolesGeometry::handleEntity);
+    handlers[static_cast<int>(HandlerRoleContext::COLOR_SPEC_HELPER)] = new MgfStaticHandler(HandlerRoleContext::COLOR_SPEC_HELPER, MgfReader::mgfECSpec);
+    handlers[static_cast<int>(HandlerRoleContext::COLOR_MIX_HELPER)] = new MgfStaticHandler(HandlerRoleContext::COLOR_MIX_HELPER, MgfReader::mgfECMix);
+    handlers[static_cast<int>(HandlerRoleContext::COLOR_TEMPERATURE_HELPER)] = new MgfStaticHandler(HandlerRoleContext::COLOR_TEMPERATURE_HELPER, MgfReader::mgfColorTemperature);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_VERTEX)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_VERTEX, MgfHandlerGeometry::handleVertexEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_FACE)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_FACE, MgfHandlerGeometry::handleFaceEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_FACE_WITH_HOLES)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_FACE_WITH_HOLES, MgfHandlerGeometry::handleFaceWithHolesEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_SURFACE)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_SURFACE, MgfHandlerGeometry::handleSurfaceEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_COLOR)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_COLOR, MgfHandlerColor::handleColorEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_MATERIAL)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_MATERIAL, MgfHandlerMaterial::handleMaterialEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_TRANSFORM)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_TRANSFORM, MgfHandlerTransform::handleTransformationEntity);
+    handlers[static_cast<int>(HandlerRoleContext::HANDLE_OBJECT)] = new MgfStaticHandler(HandlerRoleContext::HANDLE_OBJECT, MgfHandlerObject::handleObjectEntity);
 }
 
-EntityHandler *
-MgfReader::mgfHandlerFromType(ParseSession *context, HandlerType handlerType) {
+EntityDispatchContext *
+MgfReader::mgfHandlerFromType(ParseRuntimeContext *context, HandlerRoleContext handlerType) {
     ensureSessionHandlerRegistry(context);
 
     const int handlerIndex = static_cast<int>(handlerType);
-    if ( handlerIndex < 0 || handlerIndex >= ReaderStackState::handlerTypeCount() ) {
+    if ( handlerIndex < 0 || handlerIndex >= ReaderDispatchContext::handlerTypeCount() ) {
         Error::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
     }
 
-    EntityHandler *handler = context->readerStackState.handlerByType[handlerIndex];
+    EntityDispatchContext *handler = context->readerStackState.handlerByType[handlerIndex];
     if ( handler == nullptr ) {
         Error::fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
     }
@@ -436,7 +436,7 @@ MgfReader::mgfHandlerFromType(ParseSession *context, HandlerType handlerType) {
 }
 
 bool
-MgfReader::mgfHandlerMatches(const EntityHandler *handler, HandlerType handlerType) {
+MgfReader::mgfHandlerMatches(const EntityDispatchContext *handler, HandlerRoleContext handlerType) {
     return handler != nullptr && handler->type() == handlerType;
 }
 
@@ -445,8 +445,8 @@ rayCasterInitialize alternate entity handlers
 */
 void
 MgfReader::mgfAlternativeInit(
-        EntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES],
-        ParseSession *context)
+        EntityDispatchContext *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES],
+        ParseRuntimeContext *context)
 {
     unsigned long iNeed = 0;
     unsigned long uNeed = 0;
@@ -454,82 +454,82 @@ MgfReader::mgfAlternativeInit(
 
     // Pick up slack
     if ( handleCallbacks[IES] == nullptr) {
-        handleCallbacks[IES] = mgfHandlerFromType(context, HandlerType::DISCARD_UNNEEDED);
+        handleCallbacks[IES] = mgfHandlerFromType(context, HandlerRoleContext::DISCARD_UNNEEDED);
     }
     if ( handleCallbacks[INCLUDE] == nullptr ) {
-        handleCallbacks[INCLUDE] = mgfHandlerFromType(context, HandlerType::INCLUDE_FILE);
+        handleCallbacks[INCLUDE] = mgfHandlerFromType(context, HandlerRoleContext::INCLUDE_FILE);
     }
-    if ( handleCallbacks[EntityContext::SPHERE] == nullptr) {
-        handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, HandlerType::ENTITY_SPHERE);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::SPHERE] == nullptr) {
+        handleCallbacks[EntityTypeContext::SPHERE] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_SPHERE);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::CYLINDER] == nullptr) {
-        handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, HandlerType::ENTITY_CYLINDER);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::CYLINDER] == nullptr) {
+        handleCallbacks[EntityTypeContext::CYLINDER] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_CYLINDER);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::CONE] == nullptr) {
-        handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, HandlerType::ENTITY_CONE);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::CONE] == nullptr) {
+        handleCallbacks[EntityTypeContext::CONE] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_CONE);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::RING] == nullptr) {
-        handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, HandlerType::ENTITY_RING);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::RING] == nullptr) {
+        handleCallbacks[EntityTypeContext::RING] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_RING);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::MGF_NORMAL | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::MGF_NORMAL | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::PRISM] == nullptr) {
-        handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, HandlerType::ENTITY_PRISM);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::PRISM] == nullptr) {
+        handleCallbacks[EntityTypeContext::PRISM] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_PRISM);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::TORUS] == nullptr) {
-        handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, HandlerType::ENTITY_TORUS);
-        iNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX;
+    if ( handleCallbacks[EntityTypeContext::TORUS] == nullptr) {
+        handleCallbacks[EntityTypeContext::TORUS] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_TORUS);
+        iNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::MGF_NORMAL | 1L << EntityTypeContext::VERTEX;
     } else {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::MGF_NORMAL | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::MGF_NORMAL | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::FACE] == nullptr) {
-        handleCallbacks[EntityContext::FACE] = handleCallbacks[EntityContext::FACE_WITH_HOLES];
-    } else if ( handleCallbacks[EntityContext::FACE_WITH_HOLES] == nullptr) {
-        handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerType::ENTITY_FACE_WITH_HOLES);
+    if ( handleCallbacks[EntityTypeContext::FACE] == nullptr) {
+        handleCallbacks[EntityTypeContext::FACE] = handleCallbacks[EntityTypeContext::FACE_WITH_HOLES];
+    } else if ( handleCallbacks[EntityTypeContext::FACE_WITH_HOLES] == nullptr) {
+        handleCallbacks[EntityTypeContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerRoleContext::ENTITY_FACE_WITH_HOLES);
     }
-    if ( handleCallbacks[EntityContext::COLOR] != nullptr) {
-        if ( handleCallbacks[EntityContext::C_MIX] == nullptr) {
-            handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::COLOR_MIX_HELPER);
-            iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
+    if ( handleCallbacks[EntityTypeContext::COLOR] != nullptr) {
+        if ( handleCallbacks[EntityTypeContext::C_MIX] == nullptr) {
+            handleCallbacks[EntityTypeContext::C_MIX] = mgfHandlerFromType(context, HandlerRoleContext::COLOR_MIX_HELPER);
+            iNeed |= 1L << EntityTypeContext::COLOR | 1L << EntityTypeContext::CXY | 1L << EntityTypeContext::C_SPEC | 1L << EntityTypeContext::C_MIX | 1L << EntityTypeContext::CCT;
         }
-        if ( handleCallbacks[EntityContext::C_SPEC] == nullptr) {
-            handleCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, HandlerType::COLOR_SPEC_HELPER);
-            iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
+        if ( handleCallbacks[EntityTypeContext::C_SPEC] == nullptr) {
+            handleCallbacks[EntityTypeContext::C_SPEC] = mgfHandlerFromType(context, HandlerRoleContext::COLOR_SPEC_HELPER);
+            iNeed |= 1L << EntityTypeContext::COLOR | 1L << EntityTypeContext::CXY | 1L << EntityTypeContext::C_SPEC | 1L << EntityTypeContext::C_MIX | 1L << EntityTypeContext::CCT;
         }
-        if ( handleCallbacks[EntityContext::CCT] == nullptr) {
-            handleCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, HandlerType::COLOR_TEMPERATURE_HELPER);
-            iNeed |= 1L << EntityContext::COLOR | 1L << EntityContext::CXY | 1L << EntityContext::C_SPEC | 1L << EntityContext::C_MIX | 1L << EntityContext::CCT;
+        if ( handleCallbacks[EntityTypeContext::CCT] == nullptr) {
+            handleCallbacks[EntityTypeContext::CCT] = mgfHandlerFromType(context, HandlerRoleContext::COLOR_TEMPERATURE_HELPER);
+            iNeed |= 1L << EntityTypeContext::COLOR | 1L << EntityTypeContext::CXY | 1L << EntityTypeContext::C_SPEC | 1L << EntityTypeContext::C_MIX | 1L << EntityTypeContext::CCT;
         }
     }
 
     // Check for consistency
-    if ( handleCallbacks[EntityContext::FACE] != nullptr) {
-        uNeed |= 1L << EntityContext::MGF_POINT | 1L << EntityContext::VERTEX | 1L << EntityContext::TRANSFORM;
+    if ( handleCallbacks[EntityTypeContext::FACE] != nullptr) {
+        uNeed |= 1L << EntityTypeContext::MGF_POINT | 1L << EntityTypeContext::VERTEX | 1L << EntityTypeContext::TRANSFORM;
     }
-    if ( handleCallbacks[EntityContext::CXY] != nullptr || handleCallbacks[EntityContext::C_SPEC] != nullptr ||
-         handleCallbacks[EntityContext::C_MIX] != nullptr) {
-        uNeed |= 1L << EntityContext::COLOR;
+    if ( handleCallbacks[EntityTypeContext::CXY] != nullptr || handleCallbacks[EntityTypeContext::C_SPEC] != nullptr ||
+         handleCallbacks[EntityTypeContext::C_MIX] != nullptr) {
+        uNeed |= 1L << EntityTypeContext::COLOR;
     }
-    if ( handleCallbacks[EntityContext::RD] != nullptr || handleCallbacks[EntityContext::TD] != nullptr ||
-         handleCallbacks[EntityContext::IR] != nullptr ||
-         handleCallbacks[EntityContext::ED] != nullptr ||
-         handleCallbacks[EntityContext::RS] != nullptr ||
-         handleCallbacks[EntityContext::TS] != nullptr ||
-         handleCallbacks[EntityContext::SIDES] != nullptr) {
-        uNeed |= 1L << EntityContext::MGF_MATERIAL;
+    if ( handleCallbacks[EntityTypeContext::RD] != nullptr || handleCallbacks[EntityTypeContext::TD] != nullptr ||
+         handleCallbacks[EntityTypeContext::IR] != nullptr ||
+         handleCallbacks[EntityTypeContext::ED] != nullptr ||
+         handleCallbacks[EntityTypeContext::RS] != nullptr ||
+         handleCallbacks[EntityTypeContext::TS] != nullptr ||
+         handleCallbacks[EntityTypeContext::SIDES] != nullptr) {
+        uNeed |= 1L << EntityTypeContext::MGF_MATERIAL;
     }
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( uNeed & 1L << i && handleCallbacks[i] == nullptr) {
@@ -540,89 +540,89 @@ MgfReader::mgfAlternativeInit(
     }
 
     // Add support as needed
-    if ( iNeed & 1L << EntityContext::VERTEX && !mgfHandlerMatches(handleCallbacks[EntityContext::VERTEX], HandlerType::HANDLE_VERTEX) ) {
-        context->readerStackState.supportCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    if ( iNeed & 1L << EntityTypeContext::VERTEX && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::VERTEX], HandlerRoleContext::HANDLE_VERTEX) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::VERTEX] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
     }
-    if ( iNeed & 1L << EntityContext::MGF_POINT && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_POINT], HandlerType::HANDLE_VERTEX) ) {
-        context->readerStackState.supportCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    if ( iNeed & 1L << EntityTypeContext::MGF_POINT && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::MGF_POINT], HandlerRoleContext::HANDLE_VERTEX) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::MGF_POINT] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
     }
-    if ( iNeed & 1L << EntityContext::MGF_NORMAL && !mgfHandlerMatches(handleCallbacks[EntityContext::MGF_NORMAL], HandlerType::HANDLE_VERTEX) ) {
-        context->readerStackState.supportCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
+    if ( iNeed & 1L << EntityTypeContext::MGF_NORMAL && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::MGF_NORMAL], HandlerRoleContext::HANDLE_VERTEX) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
     }
-    if ( iNeed & 1L << EntityContext::COLOR && !mgfHandlerMatches(handleCallbacks[EntityContext::COLOR], HandlerType::HANDLE_COLOR) ) {
-        context->readerStackState.supportCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    if ( iNeed & 1L << EntityTypeContext::COLOR && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::COLOR], HandlerRoleContext::HANDLE_COLOR) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::COLOR] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
     }
-    if ( iNeed & 1L << EntityContext::CXY && !mgfHandlerMatches(handleCallbacks[EntityContext::CXY], HandlerType::HANDLE_COLOR) ) {
-        context->readerStackState.supportCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    if ( iNeed & 1L << EntityTypeContext::CXY && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::CXY], HandlerRoleContext::HANDLE_COLOR) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::CXY] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
     }
-    if ( iNeed & 1L << EntityContext::C_SPEC && !mgfHandlerMatches(handleCallbacks[EntityContext::C_SPEC], HandlerType::HANDLE_COLOR) ) {
-        context->readerStackState.supportCallbacks[EntityContext::C_SPEC] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    if ( iNeed & 1L << EntityTypeContext::C_SPEC && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::C_SPEC], HandlerRoleContext::HANDLE_COLOR) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::C_SPEC] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
     }
-    if ( iNeed & 1L << EntityContext::C_MIX && !mgfHandlerMatches(handleCallbacks[EntityContext::C_MIX], HandlerType::HANDLE_COLOR) ) {
-        context->readerStackState.supportCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    if ( iNeed & 1L << EntityTypeContext::C_MIX && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::C_MIX], HandlerRoleContext::HANDLE_COLOR) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::C_MIX] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
     }
-    if ( iNeed & 1L << EntityContext::CCT && !mgfHandlerMatches(handleCallbacks[EntityContext::CCT], HandlerType::HANDLE_COLOR) ) {
-        context->readerStackState.supportCallbacks[EntityContext::CCT] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    if ( iNeed & 1L << EntityTypeContext::CCT && !mgfHandlerMatches(handleCallbacks[EntityTypeContext::CCT], HandlerRoleContext::HANDLE_COLOR) ) {
+        context->readerStackState.supportCallbacks[EntityTypeContext::CCT] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
     }
 
     // Discard remaining entities
     for ( i = 0; i < TOTAL_NUMBER_OF_ENTITIES; i++ ) {
         if ( handleCallbacks[i] == nullptr) {
-            handleCallbacks[i] = mgfHandlerFromType(context, HandlerType::DISCARD_UNNEEDED);
+            handleCallbacks[i] = mgfHandlerFromType(context, HandlerRoleContext::DISCARD_UNNEEDED);
         }
     }
 }
 
 void
-MgfReader::initMgf(ParseSession *context) {
+MgfReader::initMgf(ParseRuntimeContext *context) {
     // Related to ColorContext
-    context->readerStackState.handleCallbacks[EntityContext::COLOR] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
-    context->readerStackState.handleCallbacks[EntityContext::CXY] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
-    context->readerStackState.handleCallbacks[EntityContext::C_MIX] = mgfHandlerFromType(context, HandlerType::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityTypeContext::COLOR] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityTypeContext::CXY] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
+    context->readerStackState.handleCallbacks[EntityTypeContext::C_MIX] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_COLOR);
 
     // Related to MgfMaterialContext
-    context->readerStackState.handleCallbacks[EntityContext::MGF_MATERIAL] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::ED] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::IR] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::RD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::RS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::SIDES] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::TD] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
-    context->readerStackState.handleCallbacks[EntityContext::TS] = mgfHandlerFromType(context, HandlerType::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::MGF_MATERIAL] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::ED] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::IR] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::RD] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::RS] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::SIDES] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::TD] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
+    context->readerStackState.handleCallbacks[EntityTypeContext::TS] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_MATERIAL);
 
     // Related to TransformStackContext
-    context->readerStackState.handleCallbacks[EntityContext::TRANSFORM] = mgfHandlerFromType(context, HandlerType::HANDLE_TRANSFORM);
+    context->readerStackState.handleCallbacks[EntityTypeContext::TRANSFORM] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_TRANSFORM);
 
     // Related to object, no explicit context
-    context->readerStackState.handleCallbacks[EntityContext::OBJECT] = mgfHandlerFromType(context, HandlerType::HANDLE_OBJECT);
+    context->readerStackState.handleCallbacks[EntityTypeContext::OBJECT] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_OBJECT);
 
     // Related to geometry elements, no explicit context
-    context->readerStackState.handleCallbacks[EntityContext::FACE] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE);
-    context->readerStackState.handleCallbacks[EntityContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerType::HANDLE_FACE_WITH_HOLES);
-    context->readerStackState.handleCallbacks[EntityContext::VERTEX] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->readerStackState.handleCallbacks[EntityContext::MGF_POINT] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->readerStackState.handleCallbacks[EntityContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerType::HANDLE_VERTEX);
-    context->readerStackState.handleCallbacks[EntityContext::SPHERE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->readerStackState.handleCallbacks[EntityContext::TORUS] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->readerStackState.handleCallbacks[EntityContext::RING] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->readerStackState.handleCallbacks[EntityContext::CYLINDER] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->readerStackState.handleCallbacks[EntityContext::CONE] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
-    context->readerStackState.handleCallbacks[EntityContext::PRISM] = mgfHandlerFromType(context, HandlerType::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::FACE] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_FACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::FACE_WITH_HOLES] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_FACE_WITH_HOLES);
+    context->readerStackState.handleCallbacks[EntityTypeContext::VERTEX] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityTypeContext::MGF_POINT] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityTypeContext::MGF_NORMAL] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_VERTEX);
+    context->readerStackState.handleCallbacks[EntityTypeContext::SPHERE] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::TORUS] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::RING] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::CYLINDER] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::CONE] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
+    context->readerStackState.handleCallbacks[EntityTypeContext::PRISM] = mgfHandlerFromType(context, HandlerRoleContext::HANDLE_SURFACE);
 
     mgfAlternativeInit(context->readerStackState.handleCallbacks, context);
 }
 
-PersistedSceneModel *
-MgfReader::mgfBuildModel(ParseSession *context) {
+ParseSnapshotContext *
+MgfReader::mgfBuildModel(ParseRuntimeContext *context) {
     if ( context == nullptr ) {
         return nullptr;
     }
 
     if ( context->model == nullptr ) {
-        context->model = new PersistedSceneModel();
+        context->model = new ParseSnapshotContext();
     }
 
-    PersistedSceneModel *model = context->model;
+    ParseSnapshotContext *model = context->model;
     model->currentColor = context->currentColor;
     model->currentFaceList = context->currentFaceList;
     model->currentGeometryList = context->currentGeometryList;
@@ -646,13 +646,13 @@ MgfReader::mgfBuildModel(ParseSession *context) {
 
 /**
 Reads in a mgf file. The result is that the attributes
-context->geometries and context->materials are filled in, and a PersistedSceneModel
+context->geometries and context->materials are filled in, and a ParseSnapshotContext
 snapshot with parser outputs/state pointers is returned.
 
 Note: this is an implementation of MGF file format with major version number 2.
 */
-PersistedSceneModel *
-MgfReader::readMgf(const char *filename, ParseSession *context) {
+ParseSnapshotContext *
+MgfReader::readMgf(const char *filename, ParseRuntimeContext *context) {
     mgfSetNrQuartCircDivs(context->numberOfQuarterCircleDivisions);
     mgfSetMonochrome(context->monochrome, context);
 
@@ -700,7 +700,7 @@ MgfReader::readMgf(const char *filename, ParseSession *context) {
 }
 
 void
-MgfReader::mgfFreeMemory(ParseSession *context) {
+MgfReader::mgfFreeMemory(ParseRuntimeContext *context) {
     if ( context->currentGeometryList != nullptr ) {
         java::System::out.printf("Freeing %ld geometries\n", context->currentGeometryList->size());
         long surfaces = 0;

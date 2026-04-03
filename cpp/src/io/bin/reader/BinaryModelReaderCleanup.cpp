@@ -6,9 +6,9 @@
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 #include "io/context/ColorContext.h"
-#include "io/context/PersistedSceneModel.h"
+#include "io/context/ParseSnapshotContext.h"
 #include "io/context/ReaderContext.h"
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "io/bin/reader/BinaryModelReaderVertexRecord.h"
 #include "io/bin/reader/BinaryModelReaderGeometryRecord.h"
@@ -25,9 +25,9 @@ BinaryModelReaderCleanup::cleanupPartialModel(
     java::ArrayList<Geometry *> &geometries,
     java::ArrayList<ColorContext *> &colorContexts,
     java::ArrayList<ReaderContext *> &readerContexts,
-    java::ArrayList<TransformArray *> &transformArrays,
+    java::ArrayList<TransformSequenceContext *> &transformArrays,
     java::ArrayList<TransformStackContext *> &transformContexts,
-    PersistedSceneModel *model)
+    ParseSnapshotContext *model)
 {
     const bool hasGeometry = geometries.size() > 0;
     bool hasSurfaceGeometry = false;

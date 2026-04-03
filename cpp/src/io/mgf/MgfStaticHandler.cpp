@@ -1,8 +1,8 @@
-#include "io/context/ErrorCodeContext.h"
+#include "io/context/ParseErrorContext.h"
 #include "io/mgf/MgfStaticHandler.h"
 
 MgfStaticHandler::MgfStaticHandler(
-    const HandlerType handlerType,
+    const HandlerRoleContext handlerType,
     const HandlerFunction handlerFunction):
     handlerType(handlerType),
     handlerFunction(handlerFunction)
@@ -12,12 +12,12 @@ MgfStaticHandler::MgfStaticHandler(
 int
 MgfStaticHandler::handle(int argc, const char **argv, ParseContext *context) const {
     if ( handlerFunction == nullptr ) {
-        return ErrorCodeContext::MGF_OK;
+        return ParseErrorContext::MGF_OK;
     }
-    return handlerFunction(argc, argv, static_cast<ParseSession *>(context));
+    return handlerFunction(argc, argv, static_cast<ParseRuntimeContext *>(context));
 }
 
-HandlerType
+HandlerRoleContext
 MgfStaticHandler::type() const {
     return handlerType;
 }

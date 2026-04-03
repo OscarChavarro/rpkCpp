@@ -1,7 +1,7 @@
 #ifndef __TRANSFORM_STACK_CONTEXT__
 #define __TRANSFORM_STACK_CONTEXT__
 
-#include "io/context/TransformArray.h"
+#include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformContext.h"
 
 class TransformStackContext {
@@ -11,7 +11,7 @@ class TransformStackContext {
     short rev; // Boolean true if vertices reversed
     short ownedArgumentCount; // Number of owned argument copies
     TransformContext xf; // Cumulative transformation
-    TransformArray *transformationArray;
+    TransformSequenceContext *transformationArray;
     char **ownedArgumentCopies; // Copies for non-iterative transform arguments
     TransformStackContext *prev; // Previous transformation context
 
