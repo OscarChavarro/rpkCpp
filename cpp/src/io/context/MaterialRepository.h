@@ -6,7 +6,7 @@
 
 class MaterialRepository {
   public:
-    LookUpTable *materialLookUpTable;
+    LookUpTable<char *> *materialLookUpTable;
     MaterialContext defaultMaterialContext;
     MaterialContext unNamedMaterialContext;
     MaterialContext *currentMaterialContext;

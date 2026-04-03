@@ -6,7 +6,7 @@
 
 class ColorRepository {
   public:
-    LookUpTable *colorLookUpTable;
+    LookUpTable<char *> *colorLookUpTable;
     ColorContext *unNamedColorContext;
     ColorContext *currentColor;
 

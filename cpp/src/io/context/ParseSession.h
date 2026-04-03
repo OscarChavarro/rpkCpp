@@ -9,6 +9,7 @@
 #include "io/context/LookUpTable.h"
 #include "io/context/PersistedSceneModel.h"
 #include "io/context/ReaderContext.h"
+#include "io/context/EntityContextInfo.h"
 
 #include "io/context/ParserConfig.h"
 #include "io/context/ReaderStackState.h"
@@ -52,7 +53,7 @@ class ParseSession final : public ParseContext {
     Material *&currentMaterial;
     EntityNamesArray &entityNames;
     ErrorMessagesArray &errorCodeMessages;
-    LookUpTable &entityLookUpTable;
+    LookUpTable<char *> &entityLookUpTable;
     int &nextFileContextId;
     ReaderContext *&readerContext;
     char *&currentMaterialName;
@@ -70,7 +71,7 @@ class ParseSession final : public ParseContext {
     bool &inSurface;
     bool &inComplex;
     bool &warpConeEnds;
-    LookUpTable *&vertexLookUpTable;
+    LookUpTable<char *> *&vertexLookUpTable;
     java::ArrayList<Geometry *> *&allGeometries;
     java::ArrayList<Geometry *> *&geometries;
     java::ArrayList<Material *> *&materials;

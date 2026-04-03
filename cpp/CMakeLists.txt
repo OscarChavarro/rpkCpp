@@ -136,6 +136,7 @@ set(MAIN_SRC
     src/io/wrapper/Vector3DPrinter.cpp
     src/io/wrapper/Matrix2x2Printer.cpp
     src/io/context/TransformContext.cpp
+    src/io/context/EntityContextInfo.cpp
     src/io/context/ParseSession.cpp
     src/io/context/ParserConfig.cpp
     src/io/context/ReaderStackState.cpp
@@ -146,8 +147,6 @@ set(MAIN_SRC
     src/io/context/VertexRepository.cpp
     src/io/context/ObjectHierarchyState.cpp
     src/io/context/TransformStack.cpp
-    src/io/context/LookUpEntity.cpp
-    src/io/context/LookUpTable.cpp
     src/io/context/ColorContext.cpp
     src/io/context/WordsContext.cpp
     src/io/context/PersistedSceneModel.cpp

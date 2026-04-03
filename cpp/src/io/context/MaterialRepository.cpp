@@ -23,7 +23,7 @@ MaterialRepository::createDefaultMgfMaterialContext() {
 }
 
 MaterialRepository::MaterialRepository():
-    materialLookUpTable(new LookUpTable(LookUpBehaviors::OWNING)),
+    materialLookUpTable(new LookUpTable<char *>(LookUpBehaviors::OWNING)),
     defaultMaterialContext(MaterialRepository::createDefaultMgfMaterialContext()),
     unNamedMaterialContext(defaultMaterialContext),
     currentMaterialContext(&unNamedMaterialContext)

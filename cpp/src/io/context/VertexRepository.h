@@ -6,7 +6,7 @@
 
 class VertexRepository {
   public:
-    LookUpTable *vertexLookUpTable;
+    LookUpTable<char *> *vertexLookUpTable;
     VertexContext defaultVertexContext;
     VertexContext unNamedVertexContext;
     VertexContext *currentVertex;

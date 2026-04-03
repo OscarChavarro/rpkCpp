@@ -741,9 +741,9 @@ Handle a vertex entity
 */
 int
 MgfHandlerGeometry::handleVertexEntity(int ac, const char **av, ParseSession *context) {
-    LookUpEntity *lp;
+    LookUpEntity<char *> *lp;
     VertexContext *&currentVertexContext = context->vertexRepository.currentVertex;
-    LookUpTable *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
+    LookUpTable<char *> *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
         case EntityContext::VERTEX:
@@ -846,7 +846,7 @@ Get a named vertex
 */
 VertexContext *
 MgfHandlerGeometry::getNamedVertex(const char *name, ParseSession *context) {
-    LookUpEntity *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
+    LookUpEntity<char *> *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
 
     if ( lp == nullptr ) {
         return nullptr;

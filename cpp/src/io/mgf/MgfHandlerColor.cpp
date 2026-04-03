@@ -13,7 +13,7 @@ int
 MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseSession *context) {
     int i;
     double wSum;
-    LookUpEntity *lp;
+    LookUpEntity<char *> *lp;
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
         case EntityContext::COLOR:

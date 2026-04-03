@@ -2,6 +2,7 @@
 #define __READER_STACK_STATE__
 
 #include "io/context/EntityContext.h"
+#include "io/context/EntityContextInfo.h"
 #include "io/context/EntityHandler.h"
 #include "io/context/ErrorCodeContext.h"
 #include "io/context/LookUpTable.h"
@@ -15,7 +16,7 @@ class ReaderStackState {
   public:
     char entityNames[TOTAL_NUMBER_OF_ENTITIES][EntityContextInfo::MGF_MAXIMUM_ENTITY_NAME_LENGTH];
     const char *errorCodeMessages[ErrorCodeContext::MGF_NUMBER_OF_ERRORS];
-    LookUpTable entityLookUpTable;
+    LookUpTable<char *> entityLookUpTable;
     int nextFileContextId;
     ReaderContext *readerContext;
     EntityHandler *handleCallbacks[TOTAL_NUMBER_OF_ENTITIES];

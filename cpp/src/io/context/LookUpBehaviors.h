@@ -1,9 +1,6 @@
 #ifndef __LOOKUP_BEHAVIORS__
 #define __LOOKUP_BEHAVIORS__
 
-enum class LookUpBehaviors {
-    NON_OWNING,
-    OWNING
-};
+#include "common/dataStructures/LookUpBehaviors.h"
 
 #endif

@@ -251,9 +251,9 @@ Handle material entity
 int
 MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseSession *context) {
     int i;
-    LookUpEntity *lp;
+    LookUpEntity<char *> *lp;
     MaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
-    LookUpTable *materialLookUpTable = context->materialRepository.materialLookUpTable;
+    LookUpTable<char *> *materialLookUpTable = context->materialRepository.materialLookUpTable;
 
     switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
 

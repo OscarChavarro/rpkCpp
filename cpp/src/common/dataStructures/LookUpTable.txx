@@ -1,17 +1,30 @@
-    /**
+/**
 Table lookup routines
 */
 
 #include <cstring>
 
-#include "io/context/LookUpEntity.h"
-#include "io/context/LookUpTable.h"
+template<typename T>
+struct LookUpDataDisposer {
+    static void freeData(T /*data*/, LookUpBehaviors /*behaviorType*/) {
+    }
+};
+
+template<>
+struct LookUpDataDisposer<char *> {
+    static void freeData(char *data, LookUpBehaviors behaviorType) {
+        if ( behaviorType == LookUpBehaviors::OWNING ) {
+            delete[] data;
+        }
+    }
+};
 
 /**
 Hash a null-terminated string
 */
+template<typename T>
 long
-LookUpTable::lookUpShuffleHash(const char *text) {
+LookUpTable<T>::lookUpShuffleHash(const char *text) {
     static const unsigned char shuffle[256] = {
         0, 157, 58, 215, 116, 17, 174, 75, 232, 133, 34, 191, 92, 249, 150, 51,
         208, 109, 10, 167, 68, 225, 126, 27, 184, 85, 242, 143, 44, 201, 102, 3,
@@ -42,12 +55,14 @@ LookUpTable::lookUpShuffleHash(const char *text) {
     return hash;
 }
 
-LookUpTable::LookUpTable():
+template<typename T>
+LookUpTable<T>::LookUpTable():
     LookUpTable(LookUpBehaviors::NON_OWNING)
 {
 }
 
-LookUpTable::LookUpTable(LookUpBehaviors behaviorType):
+template<typename T>
+LookUpTable<T>::LookUpTable(LookUpBehaviors behaviorType):
     behaviorType(behaviorType),
     currentTableSize(0),
     table(nullptr),
@@ -55,33 +70,35 @@ LookUpTable::LookUpTable(LookUpBehaviors behaviorType):
 {
 }
 
-LookUpTable::~LookUpTable() {
+template<typename T>
+LookUpTable<T>::~LookUpTable() {
     lookUpDone();
 }
 
+template<typename T>
 int
-LookUpTable::getCurrentTableSize() const
-{
+LookUpTable<T>::getCurrentTableSize() const {
     return currentTableSize;
 }
 
+template<typename T>
 bool
-LookUpTable::keysEqual(const char *left, const char *right) const {
+LookUpTable<T>::keysEqual(const char *left, const char *right) const {
     return std::strcmp(left, right) == 0;
 }
 
+template<typename T>
 void
-LookUpTable::freeKey(const char *key) const {
+LookUpTable<T>::freeKey(const char *key) const {
     if ( behaviorType == LookUpBehaviors::OWNING ) {
         delete[] key;
     }
 }
 
+template<typename T>
 void
-LookUpTable::freeData(const char *data) const {
-    if ( behaviorType == LookUpBehaviors::OWNING ) {
-        delete[] data;
-    }
+LookUpTable<T>::freeData(T data) const {
+    LookUpDataDisposer<T>::freeData(data, behaviorType);
 }
 
 /**
@@ -94,8 +111,9 @@ if this number strikes a reasonable balance between default memory use
 and the expected (minimum) table size.  The value returned is the
 actual allocated table size (or zero if there was insufficient memory).
 */
+template<typename T>
 int
-LookUpTable::lookUpInit(int nel) {
+LookUpTable<T>::lookUpInit(int nel) {
     static int hSizeTab[] = {
         31, 61, 127, 251, 509, 1021, 2039, 4093, 8191, 16381,
         32749, 65521, 131071, 262139, 524287, 1048573, 2097143,
@@ -118,7 +136,7 @@ LookUpTable::lookUpInit(int nel) {
         currentTableSize = nel * 2 + 1;
     }
 
-    table = new LookUpEntity[currentTableSize];
+    table = new LookUpEntity<T>[currentTableSize];
     if ( table == nullptr ) {
         currentTableSize = 0;
         return 0;
@@ -126,7 +144,7 @@ LookUpTable::lookUpInit(int nel) {
 
     for ( int i = 0; i < currentTableSize; i++ ) {
         table[i].key = nullptr;
-        table[i].data = nullptr;
+        table[i].data = T();
         table[i].value = 0;
     }
     numberOfDeletedEntries = 0;
@@ -145,8 +163,9 @@ responsibility to (allocate and) assign the key and data fields when
 creating a new entry.  The only case where lookUpFind returns nullptr is when
 the system has run out of memory.
 */
-LookUpEntity *
-LookUpTable::lookUpFind(const char *key) {
+template<typename T>
+LookUpEntity<T> *
+LookUpTable<T>::lookUpFind(const char *key) {
     // Look up object
     if ( currentTableSize <= 0 ) {
         if ( !lookUpInit(1) ) {
@@ -161,7 +180,7 @@ LookUpTable::lookUpFind(const char *key) {
         int i = 0;
         int n = -1;
         do {
-            LookUpEntity *entry = &table[index];
+            LookUpEntity<T> *entry = &table[index];
             if ( entry->key == nullptr ) {
                 entry->value = hashValue;
                 return entry;
@@ -192,14 +211,15 @@ The lookUpDone routine calls the configured cleanup behavior once for each
 assigned table entry (i.e. each entry with an assigned key value).
 The final action of lookUpDone is to free the allocated table itself.
 */
+template<typename T>
 void
-LookUpTable::lookUpDone() {
+LookUpTable<T>::lookUpDone() {
     if ( currentTableSize <= 0 ) {
         return;
     }
 
     for ( int i = currentTableSize - 1; i >= 0; i-- ) {
-        const LookUpEntity *entry = &table[i];
+        const LookUpEntity<T> *entry = &table[i];
         if ( entry->key != nullptr ) {
             freeKey(entry->key);
             if ( entry->data != nullptr ) {
@@ -217,9 +237,10 @@ LookUpTable::lookUpDone() {
 /**
 Reallocate table for at least nel entries
 */
+template<typename T>
 int
-LookUpTable::lookUpReAlloc(int nel) {
-    LookUpEntity *oldTable = table;
+LookUpTable<T>::lookUpReAlloc(int nel) {
+    LookUpEntity<T> *oldTable = table;
     const int oldTableSize = currentTableSize;
     const int oldDeletedEntries = numberOfDeletedEntries;
 
@@ -235,17 +256,18 @@ LookUpTable::lookUpReAlloc(int nel) {
     // deleted entries and the system runs out of memory in a
     // recursive call to lookUpFind()
     for ( int i = 0; i < oldTableSize; i++ ) {
-        const LookUpEntity &entry = oldTable[i];
+        const LookUpEntity<T> &entry = oldTable[i];
         if ( entry.key == nullptr ) {
             continue;
         }
         if ( entry.data != nullptr ) {
-            LookUpEntity *newEntry = lookUpFind(entry.key);
+            LookUpEntity<T> *newEntry = lookUpFind(entry.key);
             if ( newEntry == nullptr ) {
                 continue;
             }
             *newEntry = entry;
-        } else {
+        }
+        else {
             freeKey(entry.key);
         }
     }

@@ -34,9 +34,4 @@ enum EntityContext {
     TOTAL_NUMBER_OF_ENTITIES = 29
 };
 
-class EntityContextInfo final {
-  public:
-    static constexpr int MGF_MAXIMUM_ENTITY_NAME_LENGTH = 6;
-};
-
 #endif

@@ -3,7 +3,7 @@
 const Vector3Dd VertexRepository::ZERO_VECTOR(0.0, 0.0, 0.0);
 
 VertexRepository::VertexRepository():
-    vertexLookUpTable(new LookUpTable(LookUpBehaviors::OWNING)),
+    vertexLookUpTable(new LookUpTable<char *>(LookUpBehaviors::OWNING)),
     defaultVertexContext(ZERO_VECTOR, ZERO_VECTOR, 0, 1, nullptr),
     unNamedVertexContext(defaultVertexContext),
     currentVertex(&unNamedVertexContext)
