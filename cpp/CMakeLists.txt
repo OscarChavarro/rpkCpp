@@ -45,6 +45,7 @@ set(MAIN_SRC
     src/java/lang/Float.cpp
     src/java/lang/String.cpp
     src/java/lang/System.cpp
+    src/java/lang/ProcessBuilder.cpp
     src/java/lang/StringBuilder.cpp
     src/java/util/Formatter.cpp
     src/java/util/StringTokenizer.cpp

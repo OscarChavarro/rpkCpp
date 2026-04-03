@@ -1,5 +1,6 @@
 #include <cstdio>
 
+#include "java/lang/ProcessBuilder.h"
 #include "io/wrapper/PipeInputStream.h"
 
 FILE *
@@ -11,7 +12,8 @@ PipeInputStream::PipeInputStream(const char *command):
     pipeHandle(nullptr)
 {
     if ( command != nullptr && command[0] != '\0' ) {
-        pipeHandle = static_cast<void *>(popen(command, "r"));
+        java::ProcessBuilder processBuilder(command);
+        pipeHandle = processBuilder.startRead();
     }
 }
 
@@ -58,7 +60,7 @@ PipeInputStream::close() {
     if ( handle == nullptr ) {
         return;
     }
-    pclose(handle);
+    java::ProcessBuilder::close(handle);
     pipeHandle = nullptr;
 }
 
