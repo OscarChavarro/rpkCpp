@@ -20,23 +20,13 @@ class FormFactorStrategy {
     static GalerkinElement *formFactorLastSource;
 
     static RayHit *
-    shadowTestDiscretizationFull(
+    shadowTestDiscretization(
         Ray *ray,
         const java::ArrayList<Geometry *> *geometrySceneList,
         const VoxelGrid *voxelGrid,
         ShadowCache *shadowCache,
         float minimumDistance,
         RayHit *hitStore,
-        bool isSceneGeometry,
-        bool isClusteredGeometry);
-
-    static bool
-    shadowTestDiscretizationOccluded(
-        Ray *ray,
-        const java::ArrayList<Geometry *> *geometrySceneList,
-        const VoxelGrid *voxelGrid,
-        ShadowCache *shadowCache,
-        float minimumDistance,
         bool isSceneGeometry,
         bool isClusteredGeometry);
 
