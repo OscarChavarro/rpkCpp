@@ -20,7 +20,7 @@
 #include "render/OctreeChild.h"
 #include "render/opengl/OpenGlRenderTraversalCallback.h"
 #include "render/opengl/Opengl.h"
-#include "render/Render.h"
+#include "render/opengl/RenderOpenGL.h"
 #include "java/lang/System.h"
 
 const ToneMappingContext *Opengl::activeToneMapOptions = nullptr;
@@ -463,7 +463,7 @@ Opengl::openGlRenderSetCamera(Camera *camera, const java::ArrayList<Geometry *> 
     glViewport(0, 0, camera->xSize, camera->ySize);
 
     // Determine distance to front- and back-clipping plane
-    Render::renderGetNearFar(camera, sceneGeometries);
+    RenderOpenGL::renderGetNearFar(camera, sceneGeometries);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -553,11 +553,11 @@ Opengl::openGlRenderRadiance(
     Opengl::openGlReallyRender(scene, radianceMethod, renderOptions, debugState);
 
     if ( renderOptions->drawBoundingBoxes ) {
-        Render::renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
+        RenderOpenGL::renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
     }
 
     if ( renderOptions->drawClusters ) {
-        Render::renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
+        RenderOpenGL::renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
     }
 }
 #endif

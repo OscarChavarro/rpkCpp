@@ -3,7 +3,7 @@
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinElement.h"
 #include "java/util/ArrayList.txx"
-#include "render/Render.h"
+#include "render/opengl/RenderOpenGL.h"
 #include "render/opengl/Opengl.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "tonemap/ToneMap.h"
@@ -44,7 +44,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
     if ( element->isCluster() ) {
         if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-            Render::renderBoundingBox(element->geometry->getBoundingBox());
+            RenderOpenGL::renderBoundingBox(element->geometry->getBoundingBox());
         }
         return;
     }

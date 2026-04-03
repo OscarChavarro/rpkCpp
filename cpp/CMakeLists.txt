@@ -172,7 +172,6 @@ set(MAIN_SRC
     src/render/RadianceImageExporter.cpp
     src/render/RenderHookList.cpp
     src/render/Canvas.cpp
-    src/render/Rendercommon.cpp
     src/render/ScreenBuffer.cpp
     src/galerkin/GalerkinState.cpp
     src/galerkin/GalerkinBasis.cpp
@@ -218,6 +217,7 @@ set(MAIN_SRC
 
 set(OPEN_GL_SRC
     src/render/opengl/Opengl.cpp
+    src/render/opengl/RenderOpenGL.cpp
     src/render/opengl/GalerkinOpenGLRenderer.cpp
     src/render/opengl/visualDebugTools/GlutDebugState.cpp
     src/render/opengl/visualDebugTools/GlutHudConsole.cpp
@@ -294,7 +294,7 @@ set(RAYTRACING_SRC
     src/raycasting/stochasticRaytracing/Hierarchy.cpp
     src/raycasting/stochasticRaytracing/StochasticRaytracingPathNode.cpp
     src/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.cpp
-    src/raycasting/stochasticRaytracing/Render.cpp
+    src/raycasting/stochasticRaytracing/StochasticRadiosityElementRender.cpp
     src/raycasting/stochasticRaytracing/RandomWalkRadianceMethod.cpp
     src/raycasting/stochasticRaytracing/Coefficientsgalerkin.cpp
     src/raycasting/stochasticRaytracing/Basismcrad.cpp

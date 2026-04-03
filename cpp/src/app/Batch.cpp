@@ -7,10 +7,13 @@
 #include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
-#include "render/Render.h"
 #include "render/RadianceImageExporter.h"
 #include "app/Batch.h"
 #include "app/options/BatchOptionsParser.h"
+
+#ifdef OPEN_GL_ENABLED
+    #include "render/opengl/RenderOpenGL.h"
+#endif
 
 #ifdef RAYTRACING_ENABLED
     #include "app/Raytrace.h"
@@ -195,7 +198,9 @@ Batch::batchExecuteRadianceSimulation(
 
             java::System::out.printf("%s", radianceMethod->getStats());
 
-            Render::renderGetNearFar(scene->camera, scene->geometryList);
+            #ifdef OPEN_GL_ENABLED
+                RenderOpenGL::renderGetNearFar(scene->camera, scene->geometryList);
+            #endif
 
             java::System::out.flush();
             java::System::err.flush();

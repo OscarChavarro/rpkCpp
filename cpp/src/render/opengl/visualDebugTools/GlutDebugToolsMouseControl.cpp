@@ -12,7 +12,7 @@
 #include "java/util/ArrayList.txx"
 #include "material/RayHit.h"
 #include "material/RayHitFlag.h"
-#include "render/Render.h"
+#include "render/opengl/RenderOpenGL.h"
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "render/opengl/visualDebugTools/PatchHitCandidate.h"
@@ -250,7 +250,7 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
     syncCameraToViewport(model);
 
     Camera *camera = model.scene->camera;
-    Render::renderGetNearFar(camera, model.scene->geometryList);
+    RenderOpenGL::renderGetNearFar(camera, model.scene->geometryList);
 
     float nearDistance = camera->near;
     if ( nearDistance < Numeric::EPSILON_FLOAT ) {

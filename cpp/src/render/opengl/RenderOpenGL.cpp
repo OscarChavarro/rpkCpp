@@ -4,7 +4,7 @@ Rendering stuff independent of the graphics library being used
 
 #include "java/util/ArrayList.txx"
 #include "render/opengl/Opengl.h"
-#include "render/Render.h"
+#include "render/opengl/RenderOpenGL.h"
 
 /**
 Computes the camera near and far clipping distances from the bounding box of
@@ -12,7 +12,7 @@ the provided scene geometries, projected onto the camera Z axis.
 Adds a small safety margin and fallback defaults for empty or non-positive ranges.
 */
 void
-Render::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
+RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
     BoundingBox bounds;
     Vector3D minimum;
     Vector3D maximum;
@@ -66,7 +66,7 @@ Render::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *scen
 Renders a bounding box
 */
 void
-Render::renderBoundingBox(BoundingBox boundingBox) {
+RenderOpenGL::renderBoundingBox(BoundingBox boundingBox) {
     Vector3D p[8];
 
     const float minX = boundingBox.minX();
@@ -100,17 +100,17 @@ Render::renderBoundingBox(BoundingBox boundingBox) {
 }
 
 void
-Render::renderGeomBounds(Camera *camera, const Geometry *geometry) {
+RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
     BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
-        Render::renderBoundingBox(geometryBoundingBox);
+        RenderOpenGL::renderBoundingBox(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
         java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
-            Render::renderGeomBounds(camera, geometryList->get(i));
+            RenderOpenGL::renderGeomBounds(camera, geometryList->get(i));
         }
         delete geometryList;
     }
@@ -120,10 +120,10 @@ Render::renderGeomBounds(Camera *camera, const Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-Render::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
+RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
     Opengl::openGlRenderSetColor(&renderOptions->boundingBoxColor, renderOptions);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
-        Render::renderGeomBounds(camera, sceneGeometries->get(i));
+        RenderOpenGL::renderGeomBounds(camera, sceneGeometries->get(i));
     }
 }
 
@@ -131,9 +131,9 @@ Render::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometr
 Renders the cluster hierarchy bounding boxes
 */
 void
-Render::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
+RenderOpenGL::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
     Opengl::openGlRenderSetColor(&renderOptions->clusterColor, renderOptions);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
-        Render::renderGeomBounds(camera, clusteredGeometryList->get(i));
+        RenderOpenGL::renderGeomBounds(camera, clusteredGeometryList->get(i));
     }
 }

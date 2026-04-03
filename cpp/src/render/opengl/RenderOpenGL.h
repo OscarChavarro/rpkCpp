@@ -1,5 +1,5 @@
-#ifndef __RENDER__
-#define __RENDER__
+#ifndef __RENDER_OPEN_GL__
+#define __RENDER_OPEN_GL__
 
 #include "java/util/ArrayList.h"
 #include "common/RenderOptions.h"
@@ -7,7 +7,7 @@
 #include "skin/Geometry.h"
 #include "scene/Camera.h"
 
-class Render {
+class RenderOpenGL {
   private:
     static void renderGeomBounds(Camera *camera, const Geometry *geometry);
 

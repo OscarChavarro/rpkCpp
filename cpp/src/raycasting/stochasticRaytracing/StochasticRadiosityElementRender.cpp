@@ -76,7 +76,7 @@ StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
 /**
 Same as above but for importance
 */
- float
+float
 StochasticRadiosityElement::vertexImportance(const Vertex *v) {
     int count = 0;
     float imp = 0.0;

@@ -11,7 +11,6 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 #include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/statistics/Statistics.h"
-#include "render/Render.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
