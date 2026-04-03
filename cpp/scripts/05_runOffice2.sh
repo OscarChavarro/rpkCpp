@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/office2/office2.mgf \
+./build/rpk ../etc/office2/office2.mgf \
     -obf output/05_office2.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/05_office2.wrl \

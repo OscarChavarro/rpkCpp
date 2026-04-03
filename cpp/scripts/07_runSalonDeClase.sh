@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/salon/classroom.mgf \
+./build/rpk ../etc/salon/classroom.mgf \
     -obf output/07_classroom.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/07_classroom.wrl \

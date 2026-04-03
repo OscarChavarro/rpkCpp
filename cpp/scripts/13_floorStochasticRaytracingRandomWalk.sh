@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/floor_gloss.mgf -raytracing-method StochasticRaytracing \
+./build/rpk ../etc/floor_gloss.mgf -raytracing-method StochasticRaytracing \
     -obf output/13_floorStochasticRaytracingRandomWalk.bin \
     -nqcdivs 16 \
     -iterations 9 -radiance-method RandomWalk \

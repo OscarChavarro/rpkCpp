@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/soda.mgf \
+./build/rpk ../etc/soda.mgf \
     -obf output/08_soda.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/08_soda.wrl \

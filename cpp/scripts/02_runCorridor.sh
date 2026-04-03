@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mkdir -p output
-./build/rpk etc/corridor.mgf \
+./build/rpk ../etc/corridor.mgf \
     -obf output/02_corridor.bin \
     -raytracing-method none \
     -nqcdivs 18 -iterations 21 -radiance-method Galerkin \

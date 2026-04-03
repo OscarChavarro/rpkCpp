@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/office1/graz.mgf \
+./build/rpk ../etc/office1/graz.mgf \
     -obf output/04_office1.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/04_office1.wrl \

@@ -2,7 +2,7 @@
 
 mkdir -p output
 
-./build/rpk etc/cube.mgf \
+./build/rpk ../etc/cube.mgf \
     -obf output/22_tonemapTumblinRushmeier.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/01_cube.wrl \

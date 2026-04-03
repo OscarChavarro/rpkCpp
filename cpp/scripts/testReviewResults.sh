@@ -1,5 +1,5 @@
 #!/bin/bash
-findimagedupes -t 100 `ls doc/testBaseImages/*.ppm output/*.ppm | sort` 2> /dev/null | sort > /tmp/x
+findimagedupes -t 100 `ls ../doc/testBaseImages/*.ppm output/*.ppm | sort` 2> /dev/null | sort > /tmp/x
 
 PATTERN=`pwd -P`/
 
