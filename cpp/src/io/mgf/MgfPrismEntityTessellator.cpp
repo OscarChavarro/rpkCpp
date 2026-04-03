@@ -2,16 +2,16 @@
 
 #include "java/util/Formatter.h"
 #include "io/context/TokenValidationContext.h"
-#include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfGeometry.h"
-#include "io/mgf/MgfHandlerGeometry.h"
-#include "io/mgf/MgfPrismGeometry.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfTessellationMath.h"
+#include "io/mgf/MgfVertexFaceEntitySupport.h"
+#include "io/mgf/MgfPrismEntityTessellator.h"
 
 /**
 Turn a prism into polygons
 */
 int
-MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
+MgfPrismEntityTessellator::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
     char p[3][24];
     const char *vertexEntity[5] = {
         context->entityNames[EntityTypeContext::VERTEX],
@@ -31,7 +31,7 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
         "0"
     };
     const char *newArgumentValues[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
-    char newVertexNames[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT - 1][MgfGeometry::MGF_PV_SIZE];
+    char newVertexNames[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT - 1][MgfTessellationMath::MGF_PV_SIZE];
     const VertexContext *vertexContext;
     int errorCode;
     int i;
@@ -49,7 +49,7 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
     }
 
     // Compute face normal
-    const VertexContext *v0Context = MgfHandlerGeometry::getNamedVertex(argumentValues[1], context);
+    const VertexContext *v0Context = MgfVertexFaceEntitySupport::getNamedVertex(argumentValues[1], context);
     if ( v0Context == nullptr ) {
         return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
@@ -59,7 +59,7 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
     Vector3Dd v1(0.0, 0.0, 0.0);
 
     for ( i = 2; i < argumentCount - 1; i++ ) {
-        vertexContext = MgfHandlerGeometry::getNamedVertex(argumentValues[i], context);
+        vertexContext = MgfVertexFaceEntitySupport::getNamedVertex(argumentValues[i], context);
         if ( vertexContext == nullptr) {
             return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
         }
@@ -86,18 +86,18 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
 
     // Create moved vertices
     for ( i = 1; i < argumentCount - 1; i++ ) {
-        java::Formatter::format(newVertexNames[i - 1], MgfGeometry::MGF_PV_SIZE, "_pv%d", i);
+        java::Formatter::format(newVertexNames[i - 1], MgfTessellationMath::MGF_PV_SIZE, "_pv%d", i);
         vertexEntity[1] = newVertexNames[i - 1];
         vertexEntity[3] = argumentValues[i];
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 4, vertexEntity, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 4, vertexEntity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        vertexContext = MgfHandlerGeometry::getNamedVertex(argumentValues[i], context); // Checked above
-        MgfGeometry::formatFloat(p[0], 24, vertexContext->p.x - length * normal.x);
-        MgfGeometry::formatFloat(p[1], 24, vertexContext->p.y - length * normal.y);
-        MgfGeometry::formatFloat(p[2], 24, vertexContext->p.z - length * normal.z);
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_POINT, 4, pointEntity, context);
+        vertexContext = MgfVertexFaceEntitySupport::getNamedVertex(argumentValues[i], context); // Checked above
+        MgfTessellationMath::formatFloat(p[0], 24, vertexContext->p.x - length * normal.x);
+        MgfTessellationMath::formatFloat(p[1], 24, vertexContext->p.y - length * normal.y);
+        MgfTessellationMath::formatFloat(p[2], 24, vertexContext->p.z - length * normal.z);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, pointEntity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
@@ -112,7 +112,7 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
     for ( i = 1; i < argumentCount - 1; i++ ) {
         newArgumentValues[1] = newVertexNames[i - 1];
         newArgumentValues[2] = argumentValues[i];
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::FACE, 5, newArgumentValues, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::FACE, 5, newArgumentValues, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
@@ -125,18 +125,18 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
         if ( hasNormal ) {
             // Zero normals
             vertexEntity[1] = newVertexNames[i - 1];
-            errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 2, vertexEntity, context);
+            errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, vertexEntity, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {
                 return errorCode;
             }
-            errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_NORMAL, 4, zeroNormal, context);
+            errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_NORMAL, 4, zeroNormal, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {
                 return errorCode;
             }
         }
         newArgumentValues[argumentCount - 1 - i] = newVertexNames[i - 1]; // Reverse
     }
-    errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::FACE, argumentCount - 1, newArgumentValues, context);
+    errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::FACE, argumentCount - 1, newArgumentValues, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
     }
@@ -146,11 +146,11 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
         for ( i = 1; i < argumentCount - 1; i++ ) {
             vertexEntity[1] = newVertexNames[i - 1];
             vertexEntity[3] = argumentValues[i];
-            errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 4, vertexEntity, context);
+            errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 4, vertexEntity, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {
                 return errorCode;
             }
-            errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_NORMAL, 4, zeroNormal, context);
+            errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_NORMAL, 4, zeroNormal, context);
             if ( errorCode != ParseErrorContext::MGF_OK ) {
                 return errorCode;
             }
@@ -162,7 +162,7 @@ MgfPrismGeometry::handleEntity(int argumentCount, const char **argumentValues, P
         }
     }
     newArgumentValues[i] = nullptr;
-    errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::FACE, i, newArgumentValues, context);
+    errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::FACE, i, newArgumentValues, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
     }

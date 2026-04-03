@@ -4,8 +4,8 @@
 #include "java/util/ArrayList.txx"
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/context/TokenValidationContext.h"
-#include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfHandlerMaterial.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfMaterialEntitySupport.h"
 #include "io/context/MaterialContext.h"
 
 /**
@@ -13,7 +13,7 @@ Looks up a material with given name in the given material list. Returns
 a pointer to the material if found, or nullptr if not found
 */
 Material *
-MgfHandlerMaterial::materialLookup(const char *name, const ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeContext *context) {
     for ( int i = 0; context->materials != nullptr && i < context->materials->size(); i++ ) {
         Material *m = context->materials->get(i);
         if ( m != nullptr && m->getName() != nullptr && strcmp(m->getName(), name) == 0 ) {
@@ -27,7 +27,7 @@ MgfHandlerMaterial::materialLookup(const char *name, const ParseRuntimeContext *
 Translates mgf color into out color representation
 */
 void
-MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
     float xyz[3];
     float rgb[3];
 
@@ -37,14 +37,14 @@ MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *co
         xyz[1] = 1.0f * intensity;
         xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
-        MgfDefinitions::doWarning("invalid color specification (Y<=0) ... setting to black", context);
+        MgfEntityControl::doWarning("invalid color specification (Y<=0) ... setting to black", context);
         xyz[0] = 0.0;
         xyz[1] = 0.0;
         xyz[2] = 0.0;
     }
 
     if ( xyz[0] < 0.0 || xyz[1] < 0.0 || xyz[2] < 0.0 ) {
-        MgfDefinitions::doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero", context);
+        MgfEntityControl::doWarning("invalid color specification (negative CIE XYZ components) ... clipping to zero", context);
         if ( xyz[0] < 0.0 ) {
             xyz[0] = 0.0;
         }
@@ -58,26 +58,26 @@ MgfHandlerMaterial::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *co
 
     Cie::transformColorFromXYZ2RGB(xyz, rgb);
     if ( Cie::clipGamut(rgb) ) {
-        MgfDefinitions::doWarning("color desaturated during gamut clipping", context);
+        MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
     colorOut->set(rgb[0], rgb[1], rgb[2]);
 }
 
 void
-MgfHandlerMaterial::specSamples(const ColorRgb &col, float *rgb) {
+MgfMaterialEntitySupport::specSamples(const ColorRgb &col, float *rgb) {
     rgb[0] = col.r;
     rgb[1] = col.g;
     rgb[2] = col.b;
 }
 
 float
-MgfHandlerMaterial::colorMax(ColorRgb col) {
+MgfMaterialEntitySupport::colorMax(ColorRgb col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
     float samples[NUMBER_OF_SAMPLES];
 
-    MgfHandlerMaterial::specSamples(col, samples);
+    MgfMaterialEntitySupport::specSamples(col, samples);
 
     float mx = -Numeric::HUGE_FLOAT_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
@@ -96,7 +96,7 @@ creates a new MATERIAL, which is added to the session material library.
 The routine returns true if the material being used has changed
 */
 bool
-MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
     ColorRgb Ed;
     ColorRgb Es;
     ColorRgb Rd;
@@ -117,7 +117,7 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
         return false;
     }
 
-    Material *storedMaterial = MgfHandlerMaterial::materialLookup(materialName, context);
+    Material *storedMaterial = MgfMaterialEntitySupport::materialLookup(materialName, context);
     if ( storedMaterial != nullptr && currentMaterialContext->clock == 0 ) {
         *material = storedMaterial;
         return true;
@@ -125,26 +125,26 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
 
     // New material, or a material that changed. Convert intensities and chromaticities
     // to our color model
-    MgfHandlerMaterial::mgfGetColor(&currentMaterialContext->ed_c, currentMaterialContext->ed, &Ed, context);
-    MgfHandlerMaterial::mgfGetColor(&currentMaterialContext->rd_c, currentMaterialContext->rd, &Rd, context);
-    MgfHandlerMaterial::mgfGetColor(&currentMaterialContext->td_c, currentMaterialContext->td, &Td, context);
-    MgfHandlerMaterial::mgfGetColor(&currentMaterialContext->rs_c, currentMaterialContext->rs, &Rs, context);
-    MgfHandlerMaterial::mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
+    MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->ed_c, currentMaterialContext->ed, &Ed, context);
+    MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->rd_c, currentMaterialContext->rd, &Rd, context);
+    MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->td_c, currentMaterialContext->td, &Td, context);
+    MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->rs_c, currentMaterialContext->rs, &Rs, context);
+    MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
     A.add(Rd, Rs);
-    float a = MgfHandlerMaterial::colorMax(A);
+    float a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
-        MgfDefinitions::doWarning("invalid material specification: total reflectance shall be < 1", context);
+        MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0f - Numeric::EPSILON_FLOAT) / a;
         Rd.scale(a);
         Rs.scale(a);
     }
 
     A.add(Td, Ts);
-    a = MgfHandlerMaterial::colorMax(A);
+    a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
-        MgfDefinitions::doWarning("invalid material specification: total transmittance shall be < 1", context);
+        MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0f - Numeric::EPSILON_FLOAT) / a;
         Td.scale(a);
         Ts.scale(a);
@@ -220,7 +220,7 @@ MgfHandlerMaterial::mgfGetCurrentMaterial(Material **material, bool allSurfacesS
 }
 
 void
-MgfHandlerMaterial::initMaterialContextTables(ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::initMaterialContextTables(ParseRuntimeContext *context) {
     context->materialRepository.reset();
     context->currentMaterialName = nullptr;
 }
@@ -229,7 +229,7 @@ MgfHandlerMaterial::initMaterialContextTables(ParseRuntimeContext *context) {
 This routine returns true if the current material has changed
 */
 bool
-MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfMaterialChanged(const Material *material, const ParseRuntimeContext *context) {
     const char *materialName = context->currentMaterialName;
     if ( materialName == nullptr || materialName[0] == '\0' ) {
         materialName = "unnamed";
@@ -249,13 +249,13 @@ MgfHandlerMaterial::mgfMaterialChanged(const Material *material, const ParseRunt
 Handle material entity
 */
 int
-MgfHandlerMaterial::handleMaterialEntity(int ac, const char **av, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::handleMaterialEntity(int ac, const char **av, ParseRuntimeContext *context) {
     int i;
     LookUpEntity<char *> *lp;
     MaterialContext *&currentMaterialContext = context->materialRepository.currentMaterialContext;
     LookUpTable<char *> *materialLookUpTable = context->materialRepository.materialLookUpTable;
 
-    switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
+    switch ( MgfEntityControl::mgfEntity(av[0], context) ) {
 
         case EntityTypeContext::MGF_MATERIAL:
             // Get / set material context

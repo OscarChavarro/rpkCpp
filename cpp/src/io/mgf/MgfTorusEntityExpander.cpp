@@ -2,16 +2,16 @@
 #include <cstring>
 
 #include "io/context/TokenValidationContext.h"
-#include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfGeometry.h"
-#include "io/mgf/MgfHandlerGeometry.h"
-#include "io/mgf/MgfTorusGeometry.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfTessellationMath.h"
+#include "io/mgf/MgfVertexFaceEntitySupport.h"
+#include "io/mgf/MgfTorusEntityExpander.h"
 
 /**
 Expand a torus into cones
 */
 int
-MgfTorusGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
+MgfTorusEntityExpander::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
     char p2[3][24];
     char radius1[24];
     char radius2[24];
@@ -46,7 +46,7 @@ MgfTorusGeometry::handleEntity(int argumentCount, const char **argumentValues, P
     if ( argumentCount != 4 ) {
         return ParseErrorContext::MGF_ERROR_WRONG_NUMBER_OF_ARGUMENTS;
     }
-    if ( (vertexContext = MgfHandlerGeometry::getNamedVertex(argumentValues[1], context)) == nullptr ) {
+    if ( (vertexContext = MgfVertexFaceEntitySupport::getNamedVertex(argumentValues[1], context)) == nullptr ) {
         return ParseErrorContext::MGF_ERROR_UNDEFINED_REFERENCE;
     }
     if ( vertexContext->n.isNull(Numeric::EPSILON) ) {
@@ -75,68 +75,68 @@ MgfTorusGeometry::handleEntity(int argumentCount, const char **argumentValues, P
     // Initialize
     context->warpConeEnds = true;
     v2Entity[3] = argumentValues[1];
-    MgfGeometry::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.x);
-    MgfGeometry::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.y);
-    MgfGeometry::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.z);
-    int errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 4, v2Entity, context);
+    MgfTessellationMath::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.x);
+    MgfTessellationMath::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.y);
+    MgfTessellationMath::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * vertexContext->n.z);
+    int errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 4, v2Entity, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
     }
-    errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
+    errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
     if ( errorCode != ParseErrorContext::MGF_OK ) {
         return errorCode;
     }
-    MgfGeometry::formatFloat(radius2, 24, averageRadius = 0.5 * (minRadius + maxRadius));
+    MgfTessellationMath::formatFloat(radius2, 24, averageRadius = 0.5 * (minRadius + maxRadius));
 
     // Run outer section
     int i;
     for ( i = 1; i <= 2 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 4, v1Entity, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 4, v1Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        MgfGeometry::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.x);
-        MgfGeometry::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.y);
-        MgfGeometry::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.z);
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 2, v2Entity, context);
+        MgfTessellationMath::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.x);
+        MgfTessellationMath::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.y);
+        MgfTessellationMath::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.z);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v2Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
         strcpy(radius1, radius2);
-        MgfGeometry::formatFloat(radius2, 24, averageRadius + 0.5 * (maxRadius - minRadius) * java::Math::sin(theta));
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::CONE, 5, coneEntity, context);
+        MgfTessellationMath::formatFloat(radius2, 24, averageRadius + 0.5 * (maxRadius - minRadius) * java::Math::sin(theta));
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::CONE, 5, coneEntity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
     }
 
     // Run inner section
-    MgfGeometry::formatFloat(radius2, 24, -0.5 * (minRadius + maxRadius));
+    MgfTessellationMath::formatFloat(radius2, 24, -0.5 * (minRadius + maxRadius));
     for ( ; i <= 4 * context->numberOfQuarterCircleDivisions; i++ ) {
         theta = i * (M_PI / 2) / context->numberOfQuarterCircleDivisions;
-        MgfGeometry::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.x);
-        MgfGeometry::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.y);
-        MgfGeometry::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.z);
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 4, v1Entity, context);
+        MgfTessellationMath::formatFloat(p2[0], 24, vertexContext->p.x + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.x);
+        MgfTessellationMath::formatFloat(p2[1], 24, vertexContext->p.y + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.y);
+        MgfTessellationMath::formatFloat(p2[2], 24, vertexContext->p.z + 0.5 * sign * (maxRadius - minRadius) * java::Math::cos(theta) * vertexContext->n.z);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 4, v1Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::VERTEX, 2, v2Entity, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::VERTEX, 2, v2Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::MGF_POINT, 4, p2Entity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }
         strcpy(radius1, radius2);
-        MgfGeometry::formatFloat(radius2, 24, -averageRadius - .5 * (maxRadius - minRadius) * java::Math::sin(theta));
-        errorCode = MgfDefinitions::mgfHandle(EntityTypeContext::CONE, 5, coneEntity, context);
+        MgfTessellationMath::formatFloat(radius2, 24, -averageRadius - .5 * (maxRadius - minRadius) * java::Math::sin(theta));
+        errorCode = MgfEntityControl::mgfHandle(EntityTypeContext::CONE, 5, coneEntity, context);
         if ( errorCode != ParseErrorContext::MGF_OK ) {
             return errorCode;
         }

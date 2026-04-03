@@ -4,15 +4,15 @@
 #include "common/Error.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "common/dataStructures/LookUpEntity.h"
-#include "io/mgf/MgfDefinitions.h"
+#include "io/mgf/MgfEntityControl.h"
 
 const char *
-MgfDefinitions::standardInputPath() {
+MgfEntityControl::standardInputPath() {
     return "/dev/stdin";
 }
 
 bool
-MgfDefinitions::skipLines(java::InputStream *inputStream, int lineCount) {
+MgfEntityControl::skipLines(java::InputStream *inputStream, int lineCount) {
     if ( inputStream == nullptr || lineCount < 0 ) {
         return false;
     }
@@ -39,18 +39,18 @@ MgfDefinitions::skipLines(java::InputStream *inputStream, int lineCount) {
 Default handler for unknown entities
 */
 int
-MgfDefinitions::mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const ParseRuntimeContext * /*context*/) {
+MgfEntityControl::mgfDefaultHandlerForUnknownEntities(int /*ac*/, const char ** /*av*/, const ParseRuntimeContext * /*context*/) {
     // Just ignore line
     return ParseErrorContext::MGF_OK;
 }
 
 void
-MgfDefinitions::doError(const char *errmsg, ParseRuntimeContext *context) {
+MgfEntityControl::doError(const char *errmsg, ParseRuntimeContext *context) {
     Error::error(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
-MgfDefinitions::doWarning(const char *errmsg, ParseRuntimeContext *context) {
+MgfEntityControl::doWarning(const char *errmsg, ParseRuntimeContext *context) {
     Error::warning(nullptr, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
@@ -58,7 +58,7 @@ MgfDefinitions::doWarning(const char *errmsg, ParseRuntimeContext *context) {
 Get current position in input file
 */
 void
-MgfDefinitions::mgfGetFilePosition(FilePositionContext *pos, ParseRuntimeContext *context) {
+MgfEntityControl::mgfGetFilePosition(FilePositionContext *pos, ParseRuntimeContext *context) {
     pos->fileId = context->readerContext->fileContextId;
     pos->lineNumber = context->readerContext->lineNumber;
     pos->offset = -1;
@@ -68,7 +68,7 @@ MgfDefinitions::mgfGetFilePosition(FilePositionContext *pos, ParseRuntimeContext
 Reposition input file pointer
 */
 int
-MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, ParseRuntimeContext *context) {
+MgfEntityControl::mgfGoToFilePosition(const FilePositionContext *pos, ParseRuntimeContext *context) {
     if ( pos->fileId != context->readerContext->fileContextId ) {
         return ParseErrorContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -89,7 +89,7 @@ MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, ParseRuntime
         return ParseErrorContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
 
-    if ( !MgfDefinitions::skipLines(inputStream, pos->lineNumber) ) {
+    if ( !MgfEntityControl::skipLines(inputStream, pos->lineNumber) ) {
         FileUncompressWrapper::closeInputStream(inputStream);
         return ParseErrorContext::MGF_ERROR_FILE_SEEK_ERROR;
     }
@@ -105,7 +105,7 @@ MgfDefinitions::mgfGoToFilePosition(const FilePositionContext *pos, ParseRuntime
 Get entity number from its name
 */
 int
-MgfDefinitions::mgfEntity(const char *name, ParseRuntimeContext *context) {
+MgfEntityControl::mgfEntity(const char *name, ParseRuntimeContext *context) {
     if ( !context->entityLookUpTable.getCurrentTableSize() ) {
         // Initialize hash table
         if ( !context->entityLookUpTable.lookUpInit(TOTAL_NUMBER_OF_ENTITIES) ) {
@@ -134,11 +134,11 @@ MgfDefinitions::mgfEntity(const char *name, ParseRuntimeContext *context) {
 Pass entity to appropriate handler
 */
 int
-MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, ParseRuntimeContext *context) {
-    entityIndex = MgfDefinitions::mgfEntity(argv[0], context);
+MgfEntityControl::mgfHandle(int entityIndex, int argc, const char **argv, ParseRuntimeContext *context) {
+    entityIndex = MgfEntityControl::mgfEntity(argv[0], context);
     if ( entityIndex < 0 ) {
         // Unknown entity
-        return MgfDefinitions::mgfDefaultHandlerForUnknownEntities(argc, argv, context);
+        return MgfEntityControl::mgfDefaultHandlerForUnknownEntities(argc, argv, context);
     }
     if ( context->readerStackState.supportCallbacks[entityIndex] != nullptr ) {
         // Support handler
@@ -154,7 +154,7 @@ MgfDefinitions::mgfHandle(int entityIndex, int argc, const char **argv, ParseRun
 shaftCullOpen new input file
 */
 int
-MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallback, ParseRuntimeContext *context) {
+MgfEntityControl::mgfOpen(ReaderContext *readerContext, const char *functionCallback, ParseRuntimeContext *context) {
     readerContext->fileContextId = ++context->nextFileContextId;
     readerContext->lineNumber = 0;
     readerContext->isPipe = 0;
@@ -208,7 +208,7 @@ MgfDefinitions::mgfOpen(ReaderContext *readerContext, const char *functionCallba
 Close input file
 */
 void
-MgfDefinitions::mgfClose(ParseRuntimeContext *context) {
+MgfEntityControl::mgfClose(ParseRuntimeContext *context) {
     if ( context == nullptr || context->readerContext == nullptr ) {
         return;
     }
@@ -224,7 +224,7 @@ MgfDefinitions::mgfClose(ParseRuntimeContext *context) {
 }
 
 void
-MgfDefinitions::mgfLookUpFreeMemory(ParseRuntimeContext *context) {
+MgfEntityControl::mgfLookUpFreeMemory(ParseRuntimeContext *context) {
     if ( context != nullptr ) {
         context->entityLookUpTable.lookUpDone();
     }

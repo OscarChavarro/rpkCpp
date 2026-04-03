@@ -10,7 +10,7 @@
 #include "skin/Patch.h"
 #include "skin/Vertex.h"
 
-class MgfHandlerGeometry {
+class MgfVertexFaceEntitySupport {
   public:
     static int handleVertexEntity(int ac, const char **av, ParseRuntimeContext *context);
     static int handleFaceEntity(int argc, const char **argv, ParseRuntimeContext *context);

@@ -3,7 +3,7 @@
 
 #include "io/context/ParseRuntimeContext.h"
 
-class MgfHandlerObject {
+class MgfObjectNameSupport {
   public:
     static int handleObjectEntity(int argc, const char **argv, ParseRuntimeContext *context);
     static void mgfObjectNewSurface(ParseRuntimeContext *context);

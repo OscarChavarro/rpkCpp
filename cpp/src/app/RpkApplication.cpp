@@ -34,7 +34,7 @@
 #endif
 
 #ifdef MGF_ENABLED
-    #include "io/mgf/MgfReader.h"
+    #include "io/mgf/MgfParserLoader.h"
 #endif
 
 #ifdef RAYTRACING_ENABLED
@@ -202,7 +202,7 @@ void
 RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
     Options::deleteOptionsMemory();
 #ifdef MGF_ENABLED
-    MgfReader::mgfFreeMemory(mgfContext);
+    MgfParserLoader::mgfFreeMemory(mgfContext);
 #endif
     GalerkinRadianceMethod::freeMemory();
     PatchClusterOctreeNode::deleteCachedGeometries();

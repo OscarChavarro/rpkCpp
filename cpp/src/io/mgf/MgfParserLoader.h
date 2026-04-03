@@ -6,7 +6,7 @@
 #include "io/context/EntityDispatchContext.h"
 #include "io/context/HandlerRoleContext.h"
 
-class MgfReader {
+class MgfParserLoader {
   public:
     static ParseSnapshotContext *readMgf(const char *filename, ParseRuntimeContext *context);
     static void mgfFreeMemory(ParseRuntimeContext *context);

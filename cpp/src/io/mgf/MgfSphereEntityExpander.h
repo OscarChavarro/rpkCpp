@@ -3,7 +3,7 @@
 
 #include "io/context/ParseRuntimeContext.h"
 
-class MgfSphereGeometry final {
+class MgfSphereEntityExpander final {
   public:
     static int handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context);
 };

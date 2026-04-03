@@ -1,7 +1,7 @@
 #include "io/context/ParseErrorContext.h"
-#include "io/mgf/MgfStaticHandler.h"
+#include "io/mgf/MgfEntityHandlerAdapter.h"
 
-MgfStaticHandler::MgfStaticHandler(
+MgfEntityHandlerAdapter::MgfEntityHandlerAdapter(
     const HandlerRoleContext handlerType,
     const HandlerFunction handlerFunction):
     handlerType(handlerType),
@@ -10,7 +10,7 @@ MgfStaticHandler::MgfStaticHandler(
 }
 
 int
-MgfStaticHandler::handle(int argc, const char **argv, ParseContext *context) const {
+MgfEntityHandlerAdapter::handle(int argc, const char **argv, ParseContext *context) const {
     if ( handlerFunction == nullptr ) {
         return ParseErrorContext::MGF_OK;
     }
@@ -18,6 +18,6 @@ MgfStaticHandler::handle(int argc, const char **argv, ParseContext *context) con
 }
 
 HandlerRoleContext
-MgfStaticHandler::type() const {
+MgfEntityHandlerAdapter::type() const {
     return handlerType;
 }

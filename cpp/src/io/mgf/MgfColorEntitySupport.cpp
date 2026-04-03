@@ -3,19 +3,19 @@
 
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/context/TokenValidationContext.h"
-#include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfHandlerColor.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfColorEntitySupport.h"
 
 /**
 Handle color entity
 */
 int
-MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseRuntimeContext *context) {
+MgfColorEntitySupport::handleColorEntity(int ac, const char **av, ParseRuntimeContext *context) {
     int i;
     double wSum;
     LookUpEntity<char *> *lp;
 
-    switch ( MgfDefinitions::mgfEntity(av[0], context) ) {
+    switch ( MgfEntityControl::mgfEntity(av[0], context) ) {
         case EntityTypeContext::COLOR:
             // Get/set color context
             if ( ac > 4 ) {
@@ -166,6 +166,6 @@ MgfHandlerColor::handleColorEntity(int ac, const char **av, ParseRuntimeContext 
 Empty context tables
 */
 void
-MgfHandlerColor::initColorContextTables(ParseRuntimeContext *context) {
+MgfColorEntitySupport::initColorContextTables(ParseRuntimeContext *context) {
     context->colorRepository.reset();
 }

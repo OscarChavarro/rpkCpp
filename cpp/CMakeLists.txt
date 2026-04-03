@@ -230,22 +230,22 @@ set(OPEN_GL_SRC
     src/render/opengl/visualDebugTools/GlutDebugTools.cpp)
 
 set(MGF_SRC
-    src/io/mgf/MgfDefinitions.cpp
-    src/io/mgf/MgfGeometry.cpp
-    src/io/mgf/MgfSphereGeometry.cpp
-    src/io/mgf/MgfTorusGeometry.cpp
-    src/io/mgf/MgfCylinderGeometry.cpp
-    src/io/mgf/MgfRingGeometry.cpp
-    src/io/mgf/MgfConeGeometry.cpp
-    src/io/mgf/MgfPrismGeometry.cpp
-    src/io/mgf/MgfFaceWithHolesGeometry.cpp
-    src/io/mgf/MgfHandlerGeometry.cpp
-    src/io/mgf/MgfHandlerObject.cpp
-    src/io/mgf/MgfHandlerTransform.cpp
-    src/io/mgf/MgfHandlerColor.cpp
-    src/io/mgf/MgfHandlerMaterial.cpp
-    src/io/mgf/MgfStaticHandler.cpp
-    src/io/mgf/MgfReader.cpp)
+    src/io/mgf/MgfEntityControl.cpp
+    src/io/mgf/MgfTessellationMath.cpp
+    src/io/mgf/MgfSphereEntityExpander.cpp
+    src/io/mgf/MgfTorusEntityExpander.cpp
+    src/io/mgf/MgfCylinderEntityExpander.cpp
+    src/io/mgf/MgfRingEntityTessellator.cpp
+    src/io/mgf/MgfConeEntityTessellator.cpp
+    src/io/mgf/MgfPrismEntityTessellator.cpp
+    src/io/mgf/MgfFaceWithHolesEntityExpander.cpp
+    src/io/mgf/MgfVertexFaceEntitySupport.cpp
+    src/io/mgf/MgfObjectNameSupport.cpp
+    src/io/mgf/MgfTransformationSupport.cpp
+    src/io/mgf/MgfColorEntitySupport.cpp
+    src/io/mgf/MgfMaterialEntitySupport.cpp
+    src/io/mgf/MgfEntityHandlerAdapter.cpp
+    src/io/mgf/MgfParserLoader.cpp)
 
 set(RAYTRACING_SRC
     src/raycasting/common/RayTracer.cpp

@@ -20,7 +20,7 @@ The routines mgfTransformPoint and mgfTransformVector takes two
 puts the result into the first.
 */
 
-class MgfHandlerTransform {
+class MgfTransformationSupport {
   public:
     static int handleTransformationEntity(int ac, const char **av, ParseRuntimeContext *context);
     static void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context); // Transform point

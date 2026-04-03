@@ -14,7 +14,7 @@
 #include "io/bin/reader/BinaryModelReader.h"
 #include "io/bin/writer/BinaryModelWriter.h"
 #ifdef MGF_ENABLED
-    #include "io/mgf/MgfReader.h"
+    #include "io/mgf/MgfParserLoader.h"
 #endif
 #include "render/RenderHookList.h"
 #include "render/ScreenBuffer.h"
@@ -508,7 +508,7 @@ SceneBuilder::sceneBuilderReadFile(
         }
     } else {
 #ifdef MGF_ENABLED
-        mgfModel = MgfReader::readMgf(fileName, mgfContext);
+        mgfModel = MgfParserLoader::readMgf(fileName, mgfContext);
         if ( mgfModel != nullptr
              && batchOptions != nullptr
              && batchOptions->exportBinary

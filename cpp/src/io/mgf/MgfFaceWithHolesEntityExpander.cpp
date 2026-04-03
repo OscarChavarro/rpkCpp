@@ -1,11 +1,11 @@
-#include "io/mgf/MgfDefinitions.h"
-#include "io/mgf/MgfFaceWithHolesGeometry.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfFaceWithHolesEntityExpander.h"
 
 /**
 Replace face + holes with single contour
 */
 int
-MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
+MgfFaceWithHolesEntityExpander::handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context) {
     const char *newArgumentValues[ReaderContext::MGF_MAXIMUM_ARGUMENT_COUNT];
     int lastPerimeterIndex = 0;
 
@@ -38,5 +38,5 @@ MgfFaceWithHolesGeometry::handleEntity(int argumentCount, const char **argumentV
         newArgumentValues[i++] = argumentValues[lastPerimeterIndex];
     }
     newArgumentValues[i] = nullptr;
-    return MgfDefinitions::mgfHandle(EntityTypeContext::FACE, i, newArgumentValues, context);
+    return MgfEntityControl::mgfHandle(EntityTypeContext::FACE, i, newArgumentValues, context);
 }

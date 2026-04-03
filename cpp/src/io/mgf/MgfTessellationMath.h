@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3Dd.h"
 
-class MgfGeometry {
+class MgfTessellationMath {
   public:
     static constexpr int MGF_PV_SIZE = 24;
 

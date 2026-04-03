@@ -6,7 +6,7 @@
 #include "material/Material.h"
 #include "io/context/ParseRuntimeContext.h"
 
-class MgfHandlerMaterial {
+class MgfMaterialEntitySupport {
   public:
     static int handleMaterialEntity(int ac, const char **av, ParseRuntimeContext *context);
     static void initMaterialContextTables(ParseRuntimeContext *context);

@@ -3,7 +3,7 @@
 
 #include "io/context/ParseRuntimeContext.h"
 
-class MgfRingGeometry final {
+class MgfRingEntityTessellator final {
   public:
     static int handleEntity(int argumentCount, const char **argumentValues, ParseRuntimeContext *context);
 };

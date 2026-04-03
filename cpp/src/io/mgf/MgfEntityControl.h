@@ -6,7 +6,7 @@
 #include "io/context/HandlerRoleContext.h"
 #include "io/context/EntityDispatchContext.h"
 
-class MgfDefinitions {
+class MgfEntityControl {
   public:
     static int mgfOpen(ReaderContext *readerContext, const char *functionCallback, ParseRuntimeContext *context);
     static void mgfClose(ParseRuntimeContext *context);

@@ -1,8 +1,8 @@
 #include "java/util/Formatter.h"
-#include "io/mgf/MgfGeometry.h"
+#include "io/mgf/MgfTessellationMath.h"
 
 void
-MgfGeometry::formatFloat(char *target, int targetLength, double value) {
+MgfTessellationMath::formatFloat(char *target, int targetLength, double value) {
     java::Formatter::format(target, targetLength, "%.12g", value);
 }
 
@@ -10,7 +10,7 @@ MgfGeometry::formatFloat(char *target, int targetLength, double value) {
 Compute u and v given w (normalized)
 */
 void
-MgfGeometry::mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon)
+MgfTessellationMath::mgfMakeAxes(Vector3Dd *u, Vector3Dd *v, const Vector3Dd *w, double epsilon)
 {
     v->x = 0.0;
     v->y = 0.0;
