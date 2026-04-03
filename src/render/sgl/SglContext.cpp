@@ -151,12 +151,6 @@ SglContext::sglMultiplyMatrix(const Matrix4x4 *xf) const {
 }
 
 void
-SglContext::sglSetColor(SGL_PIXEL col) {
-    pixelData = SglPixelContent::PIXEL;
-    currentPixel = col;
-}
-
-void
 SglContext::sglSetPatch(const Patch *patch) {
     pixelData = SglPixelContent::PATCH_POINTER;
     currentPatch = patch;

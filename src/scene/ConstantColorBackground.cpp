@@ -11,16 +11,6 @@ ConstantColorBackground::ConstantColorBackground(const ColorRgb &backgroundColor
 {
 }
 
-void
-ConstantColorBackground::setColor(const ColorRgb &backgroundColor) {
-    color = backgroundColor;
-}
-
-ColorRgb
-ConstantColorBackground::getColor() const {
-    return color;
-}
-
 ColorRgb
 ConstantColorBackground::radiance(
     Vector3D * /*position*/,

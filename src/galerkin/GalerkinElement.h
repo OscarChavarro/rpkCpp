@@ -88,14 +88,6 @@ class GalerkinElement final : public Element {
     void setPatch(Patch *inPatch) {
         patch = inPatch;
     }
-
-    Geometry *getGeometry() const {
-        return geometry;
-    }
-
-    void setGeometry(Geometry *inGeometry) {
-        geometry = inGeometry;
-    }
 };
 
 #include "galerkin/GalerkinState.h"

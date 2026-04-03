@@ -54,7 +54,6 @@ class SglContext {
     void sglClipping(bool on);
     void sglLoadMatrix(const Matrix4x4 *xf) const;
     void sglMultiplyMatrix(const Matrix4x4 *xf) const;
-    void sglSetColor(SGL_PIXEL col);
     void sglSetPatch(const Patch *col);
     void sglSetGalerkinElement(const Element *galerkinElement);
     void sglViewport(int x, int y, int viewPortWidth, int viewPortHeight);

@@ -8,12 +8,6 @@ class ConstantColorBackground : public Background {
     ConstantColorBackground();
     explicit ConstantColorBackground(const ColorRgb &backgroundColor);
 
-    void
-    setColor(const ColorRgb &backgroundColor);
-
-    ColorRgb
-    getColor() const;
-
     ColorRgb
     radiance(Vector3D *position, Vector3D *direction, float *probabilityDensityFunction) const override;
 

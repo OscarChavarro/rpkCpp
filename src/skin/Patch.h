@@ -9,9 +9,9 @@
 #include "skin/Vertex.h"
 
 enum {
-MAXIMUM_VERTICES_PER_PATCH = 4,
-PATCH_VISIBILITY = 0x01,
-MAX_EXCLUDED_PATCHES = 4
+    MAXIMUM_VERTICES_PER_PATCH = 4,
+    PATCH_VISIBILITY = 0x01,
+    MAX_EXCLUDED_PATCHES = 4
 };
 
 class Patch {
@@ -97,7 +97,6 @@ class Patch {
     Material *material;
 
     static void dontIntersect0();
-    static void dontIntersect1(Patch *p0);
     static void dontIntersect2(Patch *p0, Patch *p1);
     static void dontIntersect3(Patch *p0, Patch *p1, Patch *p2);
     static void dontIntersect4(Patch *p0, Patch *p1, Patch *p2, Patch *p3);

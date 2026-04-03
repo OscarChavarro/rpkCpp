@@ -1,7 +1,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
-#include "common/RenderOptions.h"
 #include "common/statistics/Statistics.h"
 #include "skin/Patch.h"
 
@@ -746,11 +745,6 @@ Patch::dontIntersectBase(
 void
 Patch::dontIntersect0() {
     dontIntersectBase(0, nullptr, nullptr, nullptr, nullptr);
-}
-
-void
-Patch::dontIntersect1(Patch *p0) {
-    dontIntersectBase(1, p0, nullptr, nullptr, nullptr);
 }
 
 void
