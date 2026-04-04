@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.ImportantLightSampler;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.UniformLightSampler;
@@ -47,17 +46,17 @@ public class StochasticRaytracingConfiguration {
     // Variables derived from user options
     // All variables must not change during raytracing...
     public SamplerConfig samplerConfig;
-    public CSeedConfig seedConfig;
+    public SeedConfig seedConfig;
 
     // Scatter info blocks
 
     // Scattering info for the part of light
     // transport that is used from storage
     // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for photon map methods)
-    public CScatterInfo siStorage;
+    public ScatterInfo siStorage;
 
     // Maximum 1 scattering block per component
-    public CScatterInfo[] siOthers;
+    public ScatterInfo[] siOthers;
     public int siOthersCount;
 
     public StorageReadout initialReadout;
@@ -88,11 +87,11 @@ public class StochasticRaytracingConfiguration {
         screen = null;
         toneMapOptions = null;
         samplerConfig = new SamplerConfig();
-        seedConfig = new CSeedConfig();
-        siStorage = new CScatterInfo();
-        siOthers = new CScatterInfo[6];
+        seedConfig = new SeedConfig();
+        siStorage = new ScatterInfo();
+        siOthers = new ScatterInfo[6];
         for ( int i = 0; i < siOthers.length; i++ ) {
-            siOthers[i] = new CScatterInfo();
+            siOthers[i] = new ScatterInfo();
         }
         siOthersCount = 0;
         initialReadout = StorageReadout.SCATTER;

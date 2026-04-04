@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.Random;
 
-public class CSeedConfig {
+public class SeedConfig {
     private Seed[] m_seeds;
     private static final Seed xOrSeed = new Seed();
 
@@ -14,7 +14,7 @@ public class CSeedConfig {
         return new Random(merged);
     }
 
-    public CSeedConfig() {
+    public SeedConfig() {
         xOrSeed.SetSeed(0xF0, 0x65, 0xDE);
         m_seeds = null;
     }

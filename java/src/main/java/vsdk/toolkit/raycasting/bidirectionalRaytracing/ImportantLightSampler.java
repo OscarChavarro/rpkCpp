@@ -6,13 +6,13 @@ import vsdk.toolkit.material.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
-import vsdk.toolkit.raycasting.raytracing.CNextEventSampler;
+import vsdk.toolkit.raycasting.raytracing.NextEventSampler;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Patch;
 
-public class ImportantLightSampler extends CNextEventSampler {
+public class ImportantLightSampler extends NextEventSampler {
     private LightList lightList;
 
     public ImportantLightSampler(LightList inLightList) {

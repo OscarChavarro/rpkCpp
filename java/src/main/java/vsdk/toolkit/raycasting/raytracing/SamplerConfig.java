@@ -22,7 +22,7 @@ public class SamplerConfig {
     public Sampler pointSampler;  // Samples first point
     public Sampler dirSampler; // Samples first direction
     public SurfaceSampler surfaceSampler; // Samples on surfaces
-    public CNextEventSampler neSampler; // Samples last point separately for next event
+    public NextEventSampler neSampler; // Samples last point separately for next event
 
     public boolean m_useQMC;
     public int m_qmcDepth;

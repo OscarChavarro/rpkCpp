@@ -1,12 +1,12 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 /**
-SEED Configuration class
+Configuration class
 */
-public class CSeed {
+public class Seed {
     private final short[] m_seed;
 
-    public CSeed() {
+    public Seed() {
         m_seed = new short[3];
     }
 
@@ -14,7 +14,7 @@ public class CSeed {
         return m_seed;
     }
 
-    public void SetSeed(CSeed seed) {
+    public void SetSeed(Seed seed) {
         short[] s = seed.GetSeed();
         m_seed[0] = s[0];
         m_seed[1] = s[1];
@@ -33,7 +33,7 @@ public class CSeed {
         m_seed[2] = (short)s2;
     }
 
-    public void XORSeed(CSeed xOrSeed) {
+    public void XORSeed(Seed xOrSeed) {
         short[] s = xOrSeed.GetSeed();
         m_seed[0] ^= s[0];
         m_seed[1] ^= s[1];

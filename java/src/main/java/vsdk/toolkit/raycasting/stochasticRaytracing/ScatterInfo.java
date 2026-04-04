@@ -3,10 +3,10 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
 /**
-CScatterinfo includes information about different scattering properties for different bsdf components
+ScatterInfo includes information about different scattering properties for different bsdf components
 This info is used during scattering, but also when weighting or reading storage decisions must be made
 */
-public class CScatterInfo {
+public class ScatterInfo {
     // The components under consideration
     public byte flags;
     // Spawning factor if no 'flags' bounce was made before

@@ -17,7 +17,7 @@ import vsdk.toolkit.raycasting.common.RayTools;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.raycasting.photonMap.PhotonMapRadianceMethod;
-import vsdk.toolkit.raycasting.raytracing.CNextEventSampler;
+import vsdk.toolkit.raycasting.raytracing.NextEventSampler;
 import vsdk.toolkit.raycasting.raytracing.PixelSampler;
 import vsdk.toolkit.raycasting.raytracing.SampleConnectionFlags;
 import vsdk.toolkit.raycasting.raytracing.SamplerConfig;
@@ -154,7 +154,7 @@ pointed to by 'fp'
         vsdk.toolkit.common.RenderOptions renderOptions)
     {
         int siCurrent; // What scatter block are we handling
-        CScatterInfo si;
+        ScatterInfo si;
 
         SimpleRaytracingPathNode newNode = new SimpleRaytracingPathNode();
         thisNode.attach(newNode);
@@ -305,7 +305,7 @@ pointed to by 'fp'
             return result;
         }
 
-        CNextEventSampler nes = config.samplerConfig.neSampler;
+        NextEventSampler nes = config.samplerConfig.neSampler;
         int bsdfAll = BsdfComponent.BRDF_DIFFUSE_COMPONENT
             | BsdfComponent.BRDF_GLOSSY_COMPONENT
             | BsdfComponent.BRDF_SPECULAR_COMPONENT
@@ -355,7 +355,7 @@ pointed to by 'fp'
                         && ( RayTools.pathNodesVisible(sceneVoxelGrid, prevNode, lightNode) ) ) {
                         // Now connect for all applicable scatter-info's
                         int siCurrent;
-                        CScatterInfo si;
+                        ScatterInfo si;
 
                         if ( (config.siStorage.flags != 0) && (readout == StorageReadout.SCATTER) ) {
                             // Do storage components

@@ -3,18 +3,16 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
-import vsdk.toolkit.raycasting.raytracing.CNextEventSampler;
+import vsdk.toolkit.raycasting.raytracing.NextEventSampler;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Patch;
 
-public class UniformLightSampler extends CNextEventSampler {
+public class UniformLightSampler extends NextEventSampler {
     private LightList lightList;
     private LightListIterator iterator;
     private Patch currentPatch;

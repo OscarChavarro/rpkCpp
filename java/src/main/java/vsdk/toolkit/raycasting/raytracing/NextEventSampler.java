@@ -9,7 +9,7 @@ f.i. if you want to sample all light sources.
 The interface is very simple. I just wanted to be able
 to sample all light sources.
 */
-public abstract class CNextEventSampler extends Sampler {
+public abstract class NextEventSampler extends Sampler {
     // Setting units causes sampling of the activated unit
     // instead of over all units.
 
