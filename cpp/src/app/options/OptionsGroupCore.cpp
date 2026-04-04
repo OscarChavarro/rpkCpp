@@ -1,5 +1,6 @@
+#include <cstdio>
 #include <cstdlib>
-#include <strings.h>
+#include <cstring>
 
 #include "java/lang/System.h"
 #include "scene/ConstantColorBackground.h"
@@ -10,6 +11,31 @@
 #include "app/options/OptionsGroupRender.h"
 #include "app/options/OptionsGroupToneMapping.h"
 #include "app/options/OptionsGroupCamera.h"
+
+namespace {
+char
+toLowerAscii(char c) {
+    if ( c >= 'A' && c <= 'Z' ) {
+        return static_cast<char>(c - 'A' + 'a');
+    }
+    return c;
+}
+
+bool
+equalsIgnoreCase(const char *a, const char *b) {
+    if ( a == nullptr || b == nullptr ) {
+        return false;
+    }
+    unsigned long i = 0;
+    while ( a[i] != '\0' && b[i] != '\0' ) {
+        if ( toLowerAscii(a[i]) != toLowerAscii(b[i]) ) {
+            return false;
+        }
+        i++;
+    }
+    return a[i] == '\0' && b[i] == '\0';
+}
+}
 
 const ColorRgb OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 int OptionsGroupCore::numberOfQuarterCircleDivisions = OptionsGroupCore::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
@@ -113,7 +139,7 @@ OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         const char *mode = argv[readIndex + 1];
-        if ( strcasecmp(mode, "solid") != 0 ) {
+        if ( !equalsIgnoreCase(mode, "solid") ) {
             java::System::err.printf(
                 "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",
                 mode);
@@ -174,13 +200,21 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    TypedOption<int> widthOpt = {"-width", static_cast<int>(offsetof(EnumAppOptions, width)), 1, nullptr, nullptr};
-    TypedOption<int> heightOpt = {"-height", static_cast<int>(offsetof(EnumAppOptions, height)), 1, nullptr, nullptr};
-    TypedOption<int> nqcdivsOpt = {"-nqcdivs", static_cast<int>(offsetof(EnumAppOptions, nqcdivs)), 1, nullptr, nullptr};
-    TypedOption<int> forceOneSidedOpt = {"-force-onesided", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
-    TypedOption<int> dontForceOneSidedOpt = {"-dont-force-onesided", static_cast<int>(offsetof(EnumAppOptions, noValue)), 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
-    TypedOption<int> monochromaticOpt = {"-monochromatic", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, OptionsGroupCore::mainMonochromeOption, nullptr};
-    TypedOption<int> glutDebugOpt = {"-glutDebug", static_cast<int>(offsetof(EnumAppOptions, debug)), 0, OptionsGroupCore::setIntTrue, nullptr};
+    EnumAppOptions appOptions;
+    appOptions.width = outputImageWidth;
+    appOptions.height = outputImageHeight;
+    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
+    appOptions.yesValue = 1;
+    appOptions.noValue = 0;
+    appOptions.debug = 0;
+
+    TypedOption<int> widthOpt = {"-width", &appOptions.width, 1, nullptr, nullptr};
+    TypedOption<int> heightOpt = {"-height", &appOptions.height, 1, nullptr, nullptr};
+    TypedOption<int> nqcdivsOpt = {"-nqcdivs", &appOptions.nqcdivs, 1, nullptr, nullptr};
+    TypedOption<int> forceOneSidedOpt = {"-force-onesided", &appOptions.yesValue, 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
+    TypedOption<int> dontForceOneSidedOpt = {"-dont-force-onesided", &appOptions.noValue, 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
+    TypedOption<int> monochromaticOpt = {"-monochromatic", &appOptions.yesValue, 0, OptionsGroupCore::mainMonochromeOption, nullptr};
+    TypedOption<int> glutDebugOpt = {"-glutDebug", &appOptions.debug, 0, OptionsGroupCore::setIntTrue, nullptr};
     OptionBase registry[] = {
         REGISTER_OPTION(int, widthOpt, 5),
         REGISTER_OPTION(int, heightOpt, 6),
@@ -190,14 +224,6 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
         REGISTER_OPTION(int, monochromaticOpt, 5),
         REGISTER_OPTION(int, glutDebugOpt, 6)
     };
-
-    EnumAppOptions appOptions;
-    appOptions.width = outputImageWidth;
-    appOptions.height = outputImageHeight;
-    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
-    appOptions.yesValue = 1;
-    appOptions.noValue = 0;
-    appOptions.debug = 0;
 
     fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;

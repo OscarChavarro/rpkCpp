@@ -44,21 +44,16 @@ public class LookUpTable<T> {
     }
 
     private boolean keysEqual(String left, String right) {
-        if (left == null || right == null) {
-            return false;
-        }
         return left.equals(right);
     }
 
     private void freeKey(String key) {
         if (behaviorType == LookUpBehaviors.OWNING) {
-            // No explicit deallocation is needed in Java.
         }
     }
 
     private void freeData(T data) {
         if (behaviorType == LookUpBehaviors.OWNING) {
-            // No explicit deallocation is needed in Java.
         }
     }
 
@@ -66,10 +61,6 @@ public class LookUpTable<T> {
     Hash a null-terminated string
     */
     private static long lookUpShuffleHash(String text) {
-        if (text == null) {
-            return 0;
-        }
-
         int bitShift = 0;
         long hash = 0;
 
@@ -144,10 +135,6 @@ public class LookUpTable<T> {
     the system has run out of memory.
     */
     public LookUpEntity<T> lookUpFind(String key) {
-        if (key == null) {
-            return null;
-        }
-
         // Look up object
         if (currentTableSize <= 0) {
             if (lookUpInit(1) == 0) {
