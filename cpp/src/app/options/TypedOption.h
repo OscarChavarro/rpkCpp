@@ -15,6 +15,7 @@ struct Option {
 
 struct OptionBase {
     const char *name;
+    int abbreviationLength;
     bool (*apply)(void *, const char *);
     void *option;
 };
@@ -43,8 +44,18 @@ bool applyAdapter(void *opt, const char *arg) {
     return applyOption(*(Option<T> *)opt, arg);
 }
 
-#define REGISTER_OPTION(type, optionInstance) \
-    { (optionInstance).name, &applyAdapter<type>, (void *)&(optionInstance) }
+#define REGISTER_OPTION(type, optionInstance, abbr) \
+    { (optionInstance).name, abbr, &applyAdapter<type>, (void *)&(optionInstance) }
+
+inline bool matchOption(const char *input, const char *name, int abbrLen) {
+    if ( input == nullptr || name == nullptr ) {
+        return false;
+    }
+    if ( abbrLen == 0 ) {
+        return strcmp(input, name) == 0;
+    }
+    return strncmp(input, name, static_cast<unsigned long>(abbrLen)) == 0;
+}
 
 inline bool parseOptionBaseRegistryInPlace(OptionBase *registry, int registryCount, int *argc, char **argv) {
     if ( registry == nullptr || argc == nullptr || argv == nullptr ) {
@@ -59,7 +70,7 @@ inline bool parseOptionBaseRegistryInPlace(OptionBase *registry, int registryCou
             if ( registry[j].name == nullptr ) {
                 continue;
             }
-            if ( strcmp(argv[i], registry[j].name) != 0 ) {
+            if ( !matchOption(argv[i], registry[j].name, registry[j].abbreviationLength) ) {
                 continue;
             }
             if ( i + 1 >= *argc || argv[i + 1] == nullptr ) {

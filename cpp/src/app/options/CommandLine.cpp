@@ -190,8 +190,8 @@ CommandLine::commandLineGeneralProgramParseOptions(
     Option<int> widthOpt = DEFINE_OPTION_INT("-width", outputImageWidth);
     Option<int> heightOpt = DEFINE_OPTION_INT("-height", outputImageHeight);
     OptionBase imageSizeRegistry[] = {
-        REGISTER_OPTION(int, widthOpt),
-        REGISTER_OPTION(int, heightOpt)
+        REGISTER_OPTION(int, widthOpt, 5),
+        REGISTER_OPTION(int, heightOpt, 6)
     };
     CommandLineOptionDescription options[] = {
         {"-nqcdivs", 3, OptionKind::INT, &numberOfQuarterCircleDivisions, Options::DEFAULT_ACTION,
