@@ -74,8 +74,7 @@ RadianceOptionsParser::parse(
     PhotonMapConfig &photonMapConfig,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
-    StochasticRayTracingState &stochasticRayTracingState,
-    OptionsType &optionTypes)
+    StochasticRayTracingState &stochasticRayTracingState)
 {
     char radianceMethodsString[RADIANCE_METHODS_STRING_LENGTH];
 
@@ -88,7 +87,7 @@ RadianceOptionsParser::parse(
         stochasticRadiosityBasisState,
         photonMapState,
         photonMapConfig);
-    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString, optionTypes);
+    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED
@@ -105,13 +104,13 @@ RadianceOptionsParser::parse(
     }
 
 #ifdef RAYTRACING_ENABLED
-    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv, stochasticRelaxationState, elementHierarchyState, optionTypes);
-    CommandLine::randomWalkRadiosityParseOptions(argc, argv, stochasticRelaxationState, optionTypes);
-    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState, optionTypes);
-    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState, optionTypes);
-    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState, optionTypes);
-    CommandLine::photonMapParseOptions(argc, argv, photonMapState, optionTypes);
+    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv, stochasticRelaxationState, elementHierarchyState);
+    CommandLine::randomWalkRadiosityParseOptions(argc, argv, stochasticRelaxationState);
+    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
+    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState);
+    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState);
+    CommandLine::photonMapParseOptions(argc, argv, photonMapState);
 #endif
 
-    CommandLine::galerkinParseOptions(argc, argv, optionTypes);
+    CommandLine::galerkinParseOptions(argc, argv);
 }

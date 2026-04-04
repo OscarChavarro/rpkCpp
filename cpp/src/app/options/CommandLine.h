@@ -7,7 +7,6 @@
 #include "app/options/BackgroundMode.h"
 #include "app/options/EnumDesc.h"
 #include "app/options/CommandLineOptions.h"
-#include "app/options/OptionsType.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/simple/RayMatterState.h"
@@ -26,8 +25,7 @@ class CommandLine final {
             char **argv,
             Camera *camera,
             int imageWidth,
-            int imageHeight,
-            OptionsType &optionTypes);
+            int imageHeight);
     static void commandLineGeneralProgramParseOptions(
             int *argc,
             char **argv,
@@ -35,67 +33,55 @@ class CommandLine final {
             int *conicSubDivisions,
             int *imageOutputWidth,
             int *imageOutputHeight,
-            bool *glutDebugEnabledOut,
-            OptionsType &optionTypes);
+            bool *glutDebugEnabledOut);
     static void stochasticRelaxationRadiosityParseOptions(
             int *argc,
             char **argv,
             StochasticRelaxation &stochasticRelaxationState,
-            ElementHierarchyState &elementHierarchyState,
-            OptionsType &optionTypes);
+            ElementHierarchyState &elementHierarchyState);
     static void randomWalkRadiosityParseOptions(
             int *argc,
             char **argv,
-            StochasticRelaxation &stochasticRelaxationState,
-            OptionsType &optionTypes);
+            StochasticRelaxation &stochasticRelaxationState);
     static void rayMattingParseOptions(
             int *argc,
             char **argv,
-            RayMatterState &rayMatterState,
-            OptionsType &optionTypes);
+            RayMatterState &rayMatterState);
     static void stochasticRayTracerParseOptions(
             int *argc,
             char **argv,
-            StochasticRayTracingState &stochasticRayTracingState,
-            OptionsType &optionTypes);
+            StochasticRayTracingState &stochasticRayTracingState);
     static void biDirectionalPathParseOptions(
             int *argc,
             char **argv,
-            BidirectionalPathTracingState &bidirectionalPathState,
-            OptionsType &optionTypes);
+            BidirectionalPathTracingState &bidirectionalPathState);
     static void photonMapParseOptions(
             int *argc,
             char **argv,
-            PhotonMapState &photonMapState,
-            OptionsType &optionTypes);
+            PhotonMapState &photonMapState);
     static void toneMapParseOptions(
             int *argc,
             char **argv,
             char *toneMapNameOut,
-            ToneMappingContext &toneMapOptionsContext,
-            OptionsType &optionTypes);
+            ToneMappingContext &toneMapOptionsContext);
     static void radianceMethodParseOptions(
             int *argc,
             char **argv,
-            char *radianceMethodsStringOut,
-            OptionsType &optionTypes);
+            char *radianceMethodsStringOut);
     static void renderParseOptions(
             int *argc,
             char **argv,
-            RenderOptions *renderOptions,
-            OptionsType &optionTypes);
+            RenderOptions *renderOptions);
     static void batchParseOptions(
             int *argc,
             char **argv,
-            BatchOptions *batchOptions,
-            OptionsType &optionTypes);
+            BatchOptions *batchOptions);
     static void rayTracingParseOptions(
             int *argc,
             char **argv,
             char raytracingMethodsStringOut[],
-            char *rayTracerNameOut,
-            OptionsType &optionTypes);
-    static void galerkinParseOptions(int *argc, char **argv, OptionsType &optionTypes);
+            char *rayTracerNameOut);
+    static void galerkinParseOptions(int *argc, char **argv);
     static void mainForceOneSidedOption(OptionValueWrapper value);
     static void mainMonochromeOption(OptionValueWrapper value);
     static void commandLineImageWidthOption(OptionValueWrapper value);
@@ -160,36 +146,16 @@ class CommandLine final {
 
 #ifdef RAYTRACING_ENABLED
     static EnumDesc approximateValues[];
-    static CommandLineOptions approximationTypeOption;
-
     static EnumDesc clusteringValues[];
-    static CommandLineOptions clusteringTypeOption;
-
     static EnumDesc sequenceValues[];
-    static CommandLineOptions sequenceTypeOption;
-
     static EnumDesc estimatorTypeValues[];
-    static CommandLineOptions estimatorTypeOption;
-
     static EnumDesc estimatorKindValues[];
-    static CommandLineOptions estimatorKindTypeOption;
-
     static EnumDesc showWhatValues[];
-    static CommandLineOptions showWhatTypeOption;
-
     static EnumDesc rayMatterPixelFilterValues[];
-    static CommandLineOptions rayMatterPixelFilterTypeOption;
-
     static EnumDesc rayTracingRadianceModeValues[];
-    static CommandLineOptions rayTracingRadianceModeTypeOption;
-
     static EnumDesc rayTracingLightModeValues[];
-    static CommandLineOptions rayTracingLightModeTypeOption;
-
     static EnumDesc rayTracingSamplingModeValues[];
-    static CommandLineOptions rayTracingSamplingModeTypeOption;
-
-    static CommandLineOptions regExpStringType;
+    static int regExpStringLength;
 
     static char *raytracingMethodsString;
     static char *rayTracerName;

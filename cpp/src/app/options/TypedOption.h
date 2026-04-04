@@ -36,10 +36,12 @@ inline CommandLineOptionDescription makeTypedOptionDescription(Option<T> *option
     CommandLineOptionDescription desc = {
         option->name,
         option->abbreviationLength,
-        nullptr,
+        OptionKind::UNKNOWN,
         OptionValueWrapper(),
         nullptr,
         description,
+        nullptr,
+        OptionDispatch::AUTO,
         (const void *)option,
         &TypedOptionAdapter<T>::parse,
         &TypedOptionAdapter<T>::act

@@ -42,8 +42,7 @@ Radiance::radianceParseOptions(
         PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState,
-        OptionsType &optionTypes)
+        StochasticRayTracingState &stochasticRayTracingState)
 {
     RadianceOptionsParser::parse(
         argc,
@@ -56,8 +55,7 @@ Radiance::radianceParseOptions(
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState,
-        optionTypes);
+        stochasticRayTracingState);
 
     if ( *newRadianceMethod != nullptr ) {
         if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {

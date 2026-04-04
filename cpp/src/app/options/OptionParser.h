@@ -11,8 +11,8 @@ struct OptionParser {
     static LegacyOptionRegistry legacyRegistry;
     static int *argumentCount;
 
-    static OptionValueWrapper valueOrDummy(CommandLineOptionDescription *opt);
-    static bool typeConsumesArgument(const CommandLineOptions *type);
+    static bool optionConsumesArgument(const CommandLineOptionDescription *opt);
+    static bool parseLegacyValue(CommandLineOptionDescription *opt, OptionValueWrapper value);
     static bool processOne();
     static void compactArguments(char **argv, int originalArgc);
 };

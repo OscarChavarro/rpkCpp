@@ -1,7 +1,6 @@
 #ifndef __CORE_OPTIONS_PARSER__
 #define __CORE_OPTIONS_PARSER__
 
-#include "app/options/OptionsType.h"
 #include "common/RenderOptions.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "scene/Background.h"
@@ -20,8 +19,7 @@ class CoreOptionsParser final {
         int &imageOutputWidth,
         int &imageOutputHeight,
         bool &glutDebugEnabled,
-        char *toneMapNameOut,
-        OptionsType &optionTypes);
+        char *toneMapNameOut);
 
     static Background *createBackground();
 };

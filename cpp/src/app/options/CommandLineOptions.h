@@ -1,8 +1,6 @@
 #ifndef __APP_COMMAND_LINE_OPTIONS_TYPE__
 #define __APP_COMMAND_LINE_OPTIONS_TYPE__
 
-#include "java/io/PrintStream.h"
-
 enum class OptionKind {
     BOOL,
     INT,
@@ -11,6 +9,15 @@ enum class OptionKind {
     VECTOR3D,
     COLORRGB,
     UNKNOWN
+};
+
+enum class OptionDispatch {
+    AUTO,
+    ENUM,
+    FIXED_STRING,
+    SET_TRUE,
+    SET_FALSE,
+    CIE_XY
 };
 
 struct OptionValueWrapper {
@@ -31,14 +38,6 @@ struct OptionValueWrapper {
         ptr(p),
         kind(k) {
     }
-};
-
-class CommandLineOptions {
-  public:
-    bool (*get)(OptionValueWrapper value, void *data);
-    void (*print)(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    OptionValueWrapper dummy;
-    void *data;
 };
 
 #endif

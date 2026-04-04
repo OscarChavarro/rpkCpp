@@ -20,12 +20,11 @@ void
 RaytraceOptionsParser::parse(
     int *argc,
     char **argv,
-    char *rayTracerName,
-    OptionsType &optionTypes)
+    char *rayTracerName)
 {
     char helpMessage[1000];
 
     RaytraceOptionsParser::makeMethodsHelpMessage(helpMessage);
     strcpy(rayTracerName, "none");
-    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName, optionTypes);
+    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
 }

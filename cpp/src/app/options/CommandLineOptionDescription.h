@@ -5,13 +5,14 @@
 
 class CommandLineOptionDescription {
   public:
-    const char *name; // Command line options name
-    int abbreviationLength; // Minimum number of characters in command ine option name abbreviation or
-				 // 0 if no abbreviation is allowed
-    CommandLineOptions *type; // Value type, or TYPELESS
+    const char *name;
+    int abbreviationLength;
+    OptionKind kind;
     OptionValueWrapper value;
     void (*action)(OptionValueWrapper);
-    const char *description; // Short description of the option. For printing command line option usage
+    const char *description;
+    void *data;
+    OptionDispatch dispatch;
     const void *typedOption;
     bool (*typedParser)(const void *, const char *);
     void (*typedAction)(const void *);

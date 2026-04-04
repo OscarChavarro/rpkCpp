@@ -5,8 +5,7 @@ void
 BatchOptionsParser::parse(
     int *argc,
     char **argv,
-    BatchOptions &batchOptions,
-    OptionsType &optionTypes)
+    BatchOptions &batchOptions)
 {
-    CommandLine::batchParseOptions(argc, argv, &batchOptions, optionTypes);
+    CommandLine::batchParseOptions(argc, argv, &batchOptions);
 }

@@ -1,7 +1,6 @@
 #ifndef __RADIANCE_OPTIONS_PARSER__
 #define __RADIANCE_OPTIONS_PARSER__
 
-#include "app/options/OptionsType.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
@@ -25,8 +24,7 @@ class RadianceOptionsParser final {
         PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState,
-        OptionsType &optionTypes);
+        StochasticRayTracingState &stochasticRayTracingState);
 
   private:
     static constexpr int RADIANCE_METHODS_STRING_LENGTH = 1000;

@@ -17,8 +17,7 @@ CoreOptionsParser::parse(
         int &imageOutputWidth,
         int &imageOutputHeight,
         bool &glutDebugEnabled,
-        char *toneMapNameOut,
-        OptionsType &optionTypes)
+        char *toneMapNameOut)
 {
     CommandLine::commandLineGeneralProgramParseOptions(
         argc,
@@ -27,12 +26,11 @@ CoreOptionsParser::parse(
         &parseSession.numberOfQuarterCircleDivisions,
         &imageOutputWidth,
         &imageOutputHeight,
-        &glutDebugEnabled,
-        optionTypes);
+        &glutDebugEnabled);
 
-    CommandLine::renderParseOptions(argc, argv, &renderOptions, optionTypes);
-    CommandLine::toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions, optionTypes);
-    CommandLine::cameraParseOptions(argc, argv, scene.camera, imageOutputWidth, imageOutputHeight, optionTypes);
+    CommandLine::renderParseOptions(argc, argv, &renderOptions);
+    CommandLine::toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions);
+    CommandLine::cameraParseOptions(argc, argv, scene.camera, imageOutputWidth, imageOutputHeight);
 }
 
 Background *

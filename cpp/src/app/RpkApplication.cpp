@@ -22,7 +22,6 @@
 #include "app/Batch.h"
 #include "app/options/CoreOptionsParser.h"
 #include "app/options/Options.h"
-#include "app/options/OptionsType.h"
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
@@ -124,8 +123,7 @@ RpkApplication::mainParseOptions(
         PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState,
-        OptionsType &optionTypes)
+        StochasticRayTracingState &stochasticRayTracingState)
 {
     CoreOptionsParser::parse(
         argc,
@@ -137,8 +135,7 @@ RpkApplication::mainParseOptions(
         imageOutputWidth,
         imageOutputHeight,
         glutDebugEnabled,
-        toneMapName,
-        optionTypes);
+        toneMapName);
     Radiance::radianceParseOptions(
         argc,
         argv,
@@ -150,14 +147,13 @@ RpkApplication::mainParseOptions(
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState,
-        optionTypes);
+        stochasticRayTracingState);
 
 #ifdef RAYTRACING_ENABLED
-    Raytrace::rayTraceParseOptions(argc, argv, rayTracerName, optionTypes);
+    Raytrace::rayTraceParseOptions(argc, argv, rayTracerName);
 #endif
 
-    Batch::generalParseOptions(argc, argv, optionTypes);
+    Batch::generalParseOptions(argc, argv);
 }
 
 void
@@ -218,7 +214,6 @@ int
 RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
     mainInitApplication();
-    OptionsType optionTypes;
 
     RayMatterState rayMatterState;
     BidirectionalPathTracingState bidirectionalPathState;
@@ -249,8 +244,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState,
-        optionTypes);
+        stochasticRayTracingState);
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;

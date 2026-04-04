@@ -18,7 +18,6 @@ int *Options::argumentCount;
 char **Options::arguments = nullptr;
 int Options::currentArgumentIndex = 0;
 java::ArrayList<char *> *Options::stringsToDelete = new java::ArrayList<char *>();
-java::ArrayList<int *> *Options::stringLengthsToDelete = new java::ArrayList<int *>();
 
 template <typename T>
 static T *optionsTypedValue(OptionValueWrapper value, OptionKind expectedKind) {
@@ -156,15 +155,6 @@ Options::optionsParseFixedString(OptionValueWrapper value, void *data) {
     }
 
     return true;
-}
-
-int *
-Options::optionsCreateStringLengthStorage(int n) {
-    int *storage = new int(n);
-    if ( stringLengthsToDelete != nullptr ) {
-        stringLengthsToDelete->add(storage);
-    }
-    return storage;
 }
 
 void
@@ -389,14 +379,6 @@ Options::parseGeneralOptions(CommandLineOptionDescription *options, int *argc, c
 
 void
 Options::deleteOptionsMemory() {
-    if ( stringLengthsToDelete != nullptr ) {
-        for ( int i = 0; i < stringLengthsToDelete->size(); i++ ) {
-            delete stringLengthsToDelete->get(i);
-        }
-        delete stringLengthsToDelete;
-        stringLengthsToDelete = nullptr;
-    }
-
     if ( stringsToDelete != nullptr ) {
         for ( int i = 0; i < stringsToDelete->size(); i++ ) {
             delete[] stringsToDelete->get(i);

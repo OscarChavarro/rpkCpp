@@ -1,7 +1,6 @@
 #ifndef __RADIANCE__
 #define __RADIANCE__
 
-#include "app/options/OptionsType.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
@@ -26,8 +25,7 @@ class Radiance final {
             PhotonMapConfig &photonMapConfig,
             RayMatterState &rayMatterState,
             BidirectionalPathTracingState &bidirectionalPathState,
-            StochasticRayTracingState &stochasticRayTracingState,
-            OptionsType &optionTypes);
+            StochasticRayTracingState &stochasticRayTracingState);
     static void setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene, ToneMappingContext *toneMapOptions);
 };
 

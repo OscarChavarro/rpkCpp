@@ -8,7 +8,6 @@
 #include "skin/Patch.h"
 #include "scene/Scene.h"
 #include "app/options/BatchOptions.h"
-#include "app/options/OptionsType.h"
 #include "tonemap/ToneMappingContext.h"
 
 class Batch final {
@@ -19,7 +18,7 @@ class Batch final {
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
         RenderOptions *renderOptions);
-    static void generalParseOptions(int *argc, char **argv, OptionsType &optionTypes);
+    static void generalParseOptions(int *argc, char **argv);
     static const BatchOptions *batchGetOptions();
 
   private:

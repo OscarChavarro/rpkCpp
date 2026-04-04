@@ -129,10 +129,9 @@ void
 Raytrace::rayTraceParseOptions(
         int *argc,
         char **argv,
-        char *rayTracerName,
-        OptionsType &optionTypes)
+        char *rayTracerName)
 {
-    RaytraceOptionsParser::parse(argc, argv, rayTracerName, optionTypes);
+    RaytraceOptionsParser::parse(argc, argv, rayTracerName);
 }
 
 void

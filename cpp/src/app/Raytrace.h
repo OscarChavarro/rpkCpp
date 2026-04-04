@@ -10,7 +10,6 @@
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "app/options/OptionsType.h"
 #include "tonemap/ToneMappingContext.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -42,8 +41,7 @@ class Raytrace final {
     static void rayTraceParseOptions(
             int *argc,
             char **argv,
-            char *rayTracerName,
-            OptionsType &optionTypes);
+            char *rayTracerName);
 
   private:
     static void

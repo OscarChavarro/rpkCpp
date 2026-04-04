@@ -1,7 +1,6 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "app/options/OptionsType.h"
 #include "common/RenderOptions.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
@@ -46,8 +45,7 @@ class RpkApplication {
             PhotonMapConfig &photonMapConfig,
             RayMatterState &rayMatterState,
             BidirectionalPathTracingState &bidirectionalPathState,
-            StochasticRayTracingState &stochasticRayTracingState,
-            OptionsType &optionTypes);
+            StochasticRayTracingState &stochasticRayTracingState);
     void mainCreateOffscreenCanvasWindow() const;
     void executeRendering(
         const char *rayTracerName,

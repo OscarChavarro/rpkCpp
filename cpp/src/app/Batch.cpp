@@ -28,8 +28,8 @@ Batch::batchGetOptions() {
 }
 
 void
-Batch::generalParseOptions(int *argc, char **argv, OptionsType &optionTypes) {
-    BatchOptionsParser::parse(argc, argv, batchOptions, optionTypes);
+Batch::generalParseOptions(int *argc, char **argv) {
+    BatchOptionsParser::parse(argc, argv, batchOptions);
 }
 
 #ifdef RAYTRACING_ENABLED
