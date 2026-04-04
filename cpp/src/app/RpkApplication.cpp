@@ -20,7 +20,7 @@
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
 #include "app/Batch.h"
-#include "app/options/CoreOptionsGroup.h"
+#include "app/options/OptionsGroupCore.h"
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
@@ -124,7 +124,7 @@ RpkApplication::mainParseOptions(
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState)
 {
-    CoreOptionsGroup::parse(
+    OptionsGroupCore::parse(
         argc,
         argv,
         *mgfContext,

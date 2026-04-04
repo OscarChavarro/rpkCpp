@@ -4,9 +4,12 @@
 #include "java/lang/System.h"
 #include "scene/ConstantColorBackground.h"
 #include "common/commandLineOptions/OptionParser.h"
+#include "common/commandLineOptions/TypedOption.h"
 #include "app/options/EnumAppOptions.h"
 #include "app/options/OptionsGroupCore.h"
-#include "app/options/GeneralProgramOptions.h"
+#include "app/options/OptionsGroupRender.h"
+#include "app/options/OptionsGroupToneMapping.h"
+#include "app/options/OptionsGroupCamera.h"
 
 const ColorRgb OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 int OptionsGroupCore::numberOfQuarterCircleDivisions = OptionsGroupCore::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
@@ -17,9 +20,36 @@ int OptionsGroupCore::glutDebugEnabled = false;
 EnumBackgroundMode OptionsGroupCore::backgroundMode = EnumBackgroundMode::NONE;
 ColorRgb OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BACKGROUND_COLOR;
 
-ColorRgb
-OptionsGroupCore::commandLineDefaultBackgroundColor() {
-    return DEFAULT_BACKGROUND_COLOR;
+void
+OptionsGroupCore::parse(
+    int *argc,
+    char **argv,
+    ParseRuntimeContext &parseSession,
+    Scene &scene,
+    RenderOptions &renderOptions,
+    ToneMappingContext &toneMapOptions,
+    int &imageOutputWidth,
+    int &imageOutputHeight,
+    bool &glutDebugEnabled,
+    char *toneMapNameOut)
+{
+    OptionsGroupCore::commandLineGeneralProgramParseOptions(
+        argc,
+        argv,
+        &parseSession.singleSided,
+        &parseSession.numberOfQuarterCircleDivisions,
+        &imageOutputWidth,
+        &imageOutputHeight,
+        &glutDebugEnabled);
+
+    OptionsGroupRender::renderParseOptions(argc, argv, &renderOptions);
+    OptionsGroupToneMapping::toneMapParseOptions(argc, argv, toneMapNameOut, toneMapOptions);
+    OptionsGroupCamera::cameraParseOptions(argc, argv, scene.camera, imageOutputWidth, imageOutputHeight);
+}
+
+Background *
+OptionsGroupCore::createBackground() {
+    return OptionsGroupCore::commandLineCreateBackground();
 }
 
 Background *
@@ -130,16 +160,6 @@ OptionsGroupCore::mainMonochromeOption(int &value) {
 }
 
 void
-OptionsGroupCore::commandLineImageWidthOption(int &value) {
-    outputImageWidth = value;
-}
-
-void
-OptionsGroupCore::commandLineImageHeightOption(int &value) {
-    outputImageHeight = value;
-}
-
-void
 OptionsGroupCore::setIntTrue(int &value) {
     value = 1;
 }
@@ -154,10 +174,22 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    GeneralProgramOptions optionsRegistry(
-            OptionsGroupCore::mainForceOneSidedOption,
-            OptionsGroupCore::mainMonochromeOption,
-            OptionsGroupCore::setIntTrue);
+    TypedOption<int> widthOpt = {"-width", static_cast<int>(offsetof(EnumAppOptions, width)), 1, nullptr, nullptr};
+    TypedOption<int> heightOpt = {"-height", static_cast<int>(offsetof(EnumAppOptions, height)), 1, nullptr, nullptr};
+    TypedOption<int> nqcdivsOpt = {"-nqcdivs", static_cast<int>(offsetof(EnumAppOptions, nqcdivs)), 1, nullptr, nullptr};
+    TypedOption<int> forceOneSidedOpt = {"-force-onesided", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
+    TypedOption<int> dontForceOneSidedOpt = {"-dont-force-onesided", static_cast<int>(offsetof(EnumAppOptions, noValue)), 0, OptionsGroupCore::mainForceOneSidedOption, nullptr};
+    TypedOption<int> monochromaticOpt = {"-monochromatic", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, OptionsGroupCore::mainMonochromeOption, nullptr};
+    TypedOption<int> glutDebugOpt = {"-glutDebug", static_cast<int>(offsetof(EnumAppOptions, debug)), 0, OptionsGroupCore::setIntTrue, nullptr};
+    OptionBase registry[] = {
+        REGISTER_OPTION(int, widthOpt, 5),
+        REGISTER_OPTION(int, heightOpt, 6),
+        REGISTER_OPTION(int, nqcdivsOpt, 3),
+        REGISTER_OPTION(int, forceOneSidedOpt, 10),
+        REGISTER_OPTION(int, dontForceOneSidedOpt, 14),
+        REGISTER_OPTION(int, monochromaticOpt, 5),
+        REGISTER_OPTION(int, glutDebugOpt, 6)
+    };
 
     EnumAppOptions appOptions;
     appOptions.width = outputImageWidth;
@@ -174,7 +206,7 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
     glutDebugEnabled = appOptions.debug;
     OptionsGroupCore::commandLineParseBackgroundOption(argc, argv);
     OptionGroup generalGroups[] = {
-        OptionGroup("global", optionsRegistry.entries(), optionsRegistry.count())
+        OptionGroup("global", registry, 7)
     };
     OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
 

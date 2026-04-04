@@ -4,9 +4,9 @@
 #include "java/lang/Math.h"
 #include "common/Error.h"
 #include "common/Cie.h"
-#include "tonemap/ToneMap.h"
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
+#include "tonemap/ToneMap.h"
 #include "app/options/OptionsGroupToneMapping.h"
 
 char OptionsGroupToneMapping::toneMappingMethodsString[OptionsGroupToneMapping::TONE_MAPPING_METHODS_STRING_LENGTH];

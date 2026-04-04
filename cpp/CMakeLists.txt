@@ -201,7 +201,6 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
-    src/app/options/CoreOptionsGroup.cpp
         src/app/options/OptionsGroupRadiance.cpp
         src/app/options/OptionsGroupRaytracing.cpp
     src/app/Radiance.cpp
@@ -215,6 +214,11 @@ set(MAIN_SRC
         src/app/options/OptionsGroupRender.cpp
         src/app/options/OptionsGroupRadianceMethod.cpp
         src/app/options/OptionsGroupRaytracingMethod.cpp
+        src/app/options/OptionsGroupStochasticRelaxationRadiosity.cpp
+        src/app/options/OptionsGroupRandomWalkRadiosity.cpp
+        src/app/options/OptionsGroupStochasticRaytracing.cpp
+        src/app/options/OptionsGroupBidirectionalRaytracing.cpp
+        src/app/options/OptionsGroupPhotonMap.cpp
     src/app/options/CommandLine.cpp
     src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp

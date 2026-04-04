@@ -14,10 +14,10 @@ OptionsGroupRaytracingMethod::mainRayTracingOption(char *&name) {
 
 void
 OptionsGroupRaytracingMethod::rayTracingParseOptions(
-        int *argc,
-        char **argv,
-        char raytracingMethodsStringOut[],
-        char *rayTracerNameOut)
+    int *argc,
+    char **argv,
+    char raytracingMethodsStringOut[],
+    char *rayTracerNameOut)
 {
     char *raytracingMethodName = nullptr;
     TypedOption<char *> raytracingMethodOpt = {"-raytracing-method", &raytracingMethodName, 1, OptionsGroupRaytracingMethod::mainRayTracingOption, nullptr};

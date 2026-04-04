@@ -2,9 +2,14 @@
 
 #include "java/lang/System.h"
 #include "app/options/CommandLine.h"
+#include "app/options/OptionsGroupBidirectionalRaytracing.h"
 #include "app/options/OptionsGroupGalerkin.h"
+#include "app/options/OptionsGroupPhotonMap.h"
 #include "app/options/OptionsGroupRadianceMethod.h"
 #include "app/options/OptionsGroupRadiance.h"
+#include "app/options/OptionsGroupRandomWalkRadiosity.h"
+#include "app/options/OptionsGroupStochasticRaytracing.h"
+#include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
@@ -94,12 +99,12 @@ OptionsGroupRadiance::parse(
     }
 
 #ifdef RAYTRACING_ENABLED
-    CommandLine::stochasticRelaxationRadiosityParseOptions(argc, argv, stochasticRelaxationState, elementHierarchyState);
-    CommandLine::randomWalkRadiosityParseOptions(argc, argv, stochasticRelaxationState);
+    OptionsGroupStochasticRelaxationRadiosity::parse(argc, argv, stochasticRelaxationState, elementHierarchyState);
+    OptionsGroupRandomWalkRadiosity::parse(argc, argv, stochasticRelaxationState);
     CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
-    CommandLine::biDirectionalPathParseOptions(argc, argv, bidirectionalPathState);
-    CommandLine::stochasticRayTracerParseOptions(argc, argv, stochasticRayTracingState);
-    CommandLine::photonMapParseOptions(argc, argv, photonMapState);
+    OptionsGroupBidirectionalRaytracing::parse(argc, argv, bidirectionalPathState);
+    OptionsGroupStochasticRaytracing::parse(argc, argv, stochasticRayTracingState);
+    OptionsGroupPhotonMap::parse(argc, argv, photonMapState);
 #endif
 
     OptionsGroupGalerkin::galerkinParseOptions(argc, argv);

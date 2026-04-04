@@ -3,12 +3,28 @@
 
 #include "app/options/EnumBackgroundMode.h"
 #include "common/ColorRgb.h"
+#include "common/RenderOptions.h"
+#include "io/context/ParseRuntimeContext.h"
+#include "scene/Scene.h"
+#include "tonemap/ToneMappingContext.h"
 
 class Background;
 
 class OptionsGroupCore final {
   public:
-    static ColorRgb commandLineDefaultBackgroundColor();
+    static void parse(
+        int *argc,
+        char **argv,
+        ParseRuntimeContext &parseSession,
+        Scene &scene,
+        RenderOptions &renderOptions,
+        ToneMappingContext &toneMapOptions,
+        int &imageOutputWidth,
+        int &imageOutputHeight,
+        bool &glutDebugEnabled,
+        char *toneMapNameOut);
+    static Background *createBackground();
+
     static Background *commandLineCreateBackground();
     static void commandLineGeneralProgramParseOptions(
         int *argc,
@@ -37,8 +53,6 @@ class OptionsGroupCore final {
     static void commandLineParseBackgroundOption(int *argc, char **argv);
     static void mainForceOneSidedOption(int &value);
     static void mainMonochromeOption(int &value);
-    static void commandLineImageWidthOption(int &value);
-    static void commandLineImageHeightOption(int &value);
     static void setIntTrue(int &value);
 };
 
