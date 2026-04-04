@@ -10,6 +10,8 @@ Command line options and defaults
 #include "app/options/EnumDesc.h"
 #include "java/util/ArrayList.h"
 
+struct OptionParser;
+
 class Options final {
   public:
     // Default action; no action.
@@ -77,6 +79,8 @@ class Options final {
     }
 
   private:
+    friend struct OptionParser;
+
     static int *argumentCount;
     static char **arguments;
     static int currentArgumentIndex;
@@ -89,11 +93,6 @@ class Options final {
     static void optionsNextArgument();
     static void optionsConsumeArgument();
     static void optionsPrintEnumValues(const EnumDesc *tab);
-    static unsigned long unsignedLongMax(unsigned long a, unsigned long b);
-    static CommandLineOptionDescription *optionsLookupOption(const char *s, CommandLineOptionDescription *options);
-    static OptionValueWrapper optionsValueOrDummy(CommandLineOptionDescription *opt);
-    static bool optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type);
-    static void optionsProcessArguments(CommandLineOptionDescription *options);
 };
 
 #endif

@@ -203,6 +203,7 @@ set(MAIN_SRC
     src/app/Adaptation.cpp
     src/app/options/OptionsType.cpp
     src/app/options/Options.cpp
+    src/app/options/OptionParser.cpp
     src/app/options/ValueParser.cpp
     src/app/options/CoreOptionsParser.cpp
     src/app/options/RadianceOptionsParser.cpp

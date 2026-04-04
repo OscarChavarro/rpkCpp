@@ -12,6 +12,7 @@ Command line options and defaults
 #include "common/ColorRgb.h"
 #include "app/options/Options.h"
 #include "app/options/ValueParser.h"
+#include "app/options/OptionParser.h"
 
 int *Options::argumentCount;
 char **Options::arguments = nullptr;
@@ -83,11 +84,14 @@ Consumes the current argument value, that is: removes it from the list
 */
 void
 Options::optionsConsumeArgument() {
-    for ( int i = currentArgumentIndex; i < *argumentCount - 1; i++ ) {
-        arguments[i] = arguments[i + 1];
+    if ( arguments == nullptr || argumentCount == nullptr ) {
+        return;
     }
-    arguments[*argumentCount - 1] = nullptr;
-    (*argumentCount)--;
+    if ( currentArgumentIndex < 0 || currentArgumentIndex >= *argumentCount ) {
+        return;
+    }
+    arguments[currentArgumentIndex] = nullptr;
+    currentArgumentIndex++;
 }
 
 bool
@@ -376,114 +380,11 @@ Options::optionsPrintCieXyCallBack(java::PrintStream *stream, OptionValueWrapper
 Argument parsing
 */
 
-unsigned long
-Options::unsignedLongMax(unsigned long a, unsigned long b) {
-    return a > b ? a : b;
-}
-
-CommandLineOptionDescription *
-Options::optionsLookupOption(const char *s, CommandLineOptionDescription *options) {
-    if ( s == nullptr ) {
-        return nullptr;
-    }
-    for ( int i = 0; options[i].name != nullptr; i++ ) {
-        CommandLineOptionDescription *opt = &options[i];
-        if ( strncmp(s, opt->name,
-             Options::unsignedLongMax(opt->abbreviationLength > 0 ? opt->abbreviationLength : strlen(opt->name), strlen(s))) ==
-             0 ) {
-            return opt;
-        }
-    }
-    return nullptr;
-}
-
-OptionValueWrapper
-Options::optionsValueOrDummy(CommandLineOptionDescription *opt) {
-    if ( opt == nullptr ) {
-        return OptionValueWrapper();
-    }
-    if ( opt->value.ptr != nullptr ) {
-        OptionValueWrapper value = opt->value;
-        if ( value.kind == OptionKind::UNKNOWN && opt->type != nullptr ) {
-            value.kind = opt->type->dummy.kind;
-        }
-        return value;
-    }
-    if ( opt->type != nullptr ) {
-        return opt->type->dummy;
-    }
-    return OptionValueWrapper();
-}
-
-bool
-Options::optionsTypeConsumesCommandLineArgument(const CommandLineOptions *type) {
-    if ( type == nullptr || type->get == nullptr ) {
-        return false;
-    }
-    return type->get != Options::optionsSetTrue && type->get != Options::optionsSetFalse;
-}
-
-void
-Options::optionsProcessArguments(CommandLineOptionDescription *options) {
-    CommandLineOptionDescription *opt = Options::optionsLookupOption(Options::optionsCurrentArgumentValue(), options);
-    if ( opt ) {
-        bool ok = true;
-        if ( opt->typedOption != nullptr ) {
-            if ( opt->typedParser != nullptr ) {
-                Options::optionsConsumeArgument();
-                if ( Options::optionsArgumentsRemaining() ) {
-                    if ( !opt->typedParser(opt->typedOption, Options::optionsCurrentArgumentValue()) ) {
-                        ok = false;
-                    }
-                } else {
-                    java::System::err.printf("Option argument missing.\n");
-                    ok = false;
-                }
-            }
-            if ( ok && opt->typedAction != nullptr ) {
-                opt->typedAction(opt->typedOption);
-            }
-        } else {
-            if ( opt->type ) {
-                if ( !Options::optionsTypeConsumesCommandLineArgument(opt->type) ) {
-                    if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
-                        ok = false;
-                    }
-                } else {
-                    Options::optionsConsumeArgument();
-                    if ( Options::optionsArgumentsRemaining() ) {
-                        if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
-                            ok = false;
-                        }
-                    } else {
-                        java::System::err.printf("Option argument missing.\n");
-                        ok = false;
-                    }
-                }
-            }
-            if ( ok && opt->action ) {
-                if ( opt->value.ptr != nullptr ) {
-                    opt->action(opt->value);
-                } else {
-                    opt->action(Options::optionsValueOrDummy(opt));
-                }
-            }
-        }
-        Options::optionsConsumeArgument();
-    } else Options::optionsNextArgument();
-}
-
-/**
-Scans for options mentioned in the 'options' command line description
-list, parses their value, executes their associated actions, and
-removes them from the argv list (decreasing argc)
-*/
 void
 Options::parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv) {
-    Options::optionsInitArguments(argc, argv);
-    while ( Options::optionsArgumentsRemaining() ) {
-        Options::optionsProcessArguments(options);
-    }
+    LegacyOptionRegistry registry = {options, legacyOptionRegistryCount(options)};
+    OptionParser::configureLegacy(registry, argc);
+    OptionParser::parse(*argc, argv);
 }
 
 void
