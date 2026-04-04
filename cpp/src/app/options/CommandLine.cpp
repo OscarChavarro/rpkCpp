@@ -187,9 +187,11 @@ CommandLine::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    Option<int> imageSizeOptions[] = {
-        DEFINE_OPTION_INT_ABBR("-width", 5, outputImageWidth),
-        DEFINE_OPTION_INT_ABBR("-height", 6, outputImageHeight)
+    Option<int> widthOpt = DEFINE_OPTION_INT("-width", outputImageWidth);
+    Option<int> heightOpt = DEFINE_OPTION_INT("-height", outputImageHeight);
+    OptionBase imageSizeRegistry[] = {
+        REGISTER_OPTION(int, widthOpt),
+        REGISTER_OPTION(int, heightOpt)
     };
     CommandLineOptionDescription options[] = {
         {"-nqcdivs", 3, OptionKind::INT, &numberOfQuarterCircleDivisions, Options::DEFAULT_ACTION,
@@ -200,8 +202,6 @@ CommandLine::commandLineGeneralProgramParseOptions(
          "-dont-force-onesided\t: allow two-sided surfaces", nullptr, OptionDispatch::SET_FALSE},
         {"-monochromatic", 5, OptionKind::BOOL, &yesValue, CommandLine::mainMonochromeOption,
          "-monochromatic \t\t: convert colors to shades of grey", nullptr, OptionDispatch::SET_TRUE},
-        makeTypedOptionDescription(&imageSizeOptions[0], "-width \t\t: image output width in pixels"),
-        makeTypedOptionDescription(&imageSizeOptions[1], "-width \t\t: image output width in pixels"),
         {"-glutDebug", 6, OptionKind::BOOL, &CommandLine::glutDebugEnabled, Options::DEFAULT_ACTION,
                 "-glutDebug\t\t: open interactive GLUT debug window after rendering", nullptr, OptionDispatch::SET_TRUE},
         {nullptr, 0, OptionKind::UNKNOWN, nullptr, Options::DEFAULT_ACTION, nullptr}
@@ -213,6 +213,7 @@ CommandLine::commandLineGeneralProgramParseOptions(
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
     CommandLine::glutDebugEnabled = false;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
+    parseOptionBaseRegistryInPlace(imageSizeRegistry, 2, argc, argv);
     Options::parseGeneralOptions(options, argc, argv); // Order is important, this should be called last
 
     if ( fileOptionsForceOneSidedSurfaces != 0 ) {

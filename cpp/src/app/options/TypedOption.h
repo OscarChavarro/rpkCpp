@@ -1,52 +1,91 @@
 #ifndef __TYPED_OPTION__
 #define __TYPED_OPTION__
 
+#include <cstring>
+
 #include "app/options/CommandLineOptionDescription.h"
 
 template<typename T>
 struct Option {
     const char *name;
-    int abbreviationLength;
     T *target;
-    bool (*parser)(const char *, T &);
-    void (*action)(T &);
+    bool (*parse)(const char *, T &);
+    void (*onSet)(T &);
+};
+
+struct OptionBase {
+    const char *name;
+    bool (*apply)(void *, const char *);
+    void *option;
 };
 
 template<typename T>
-struct TypedOptionAdapter {
-    static bool parse(const void *typedOption, const char *input) {
-        Option<T> *option = (Option<T> *)typedOption;
-        if ( option == nullptr || option->target == nullptr || option->parser == nullptr ) {
-            return false;
-        }
-        return option->parser(input, *option->target);
+bool applyOption(Option<T> &opt, const char *arg) {
+    if ( opt.target == nullptr || opt.parse == nullptr ) {
+        return false;
     }
-
-    static void act(const void *typedOption) {
-        Option<T> *option = (Option<T> *)typedOption;
-        if ( option == nullptr || option->target == nullptr || option->action == nullptr ) {
-            return;
-        }
-        option->action(*option->target);
+    T value;
+    if ( !opt.parse(arg, value) ) {
+        return false;
     }
-};
+    *opt.target = value;
+    if ( opt.onSet != nullptr ) {
+        opt.onSet(*opt.target);
+    }
+    return true;
+}
 
 template<typename T>
-inline CommandLineOptionDescription makeTypedOptionDescription(Option<T> *option, const char *description) {
-    CommandLineOptionDescription desc = {
-        option->name,
-        option->abbreviationLength,
-        OptionKind::UNKNOWN,
-        OptionValueWrapper(),
-        nullptr,
-        description,
-        nullptr,
-        OptionDispatch::AUTO,
-        (const void *)option,
-        &TypedOptionAdapter<T>::parse,
-        &TypedOptionAdapter<T>::act
-    };
-    return desc;
+bool applyAdapter(void *opt, const char *arg) {
+    if ( opt == nullptr ) {
+        return false;
+    }
+    return applyOption(*(Option<T> *)opt, arg);
+}
+
+#define REGISTER_OPTION(type, optionInstance) \
+    { (optionInstance).name, &applyAdapter<type>, (void *)&(optionInstance) }
+
+inline bool parseOptionBaseRegistryInPlace(OptionBase *registry, int registryCount, int *argc, char **argv) {
+    if ( registry == nullptr || argc == nullptr || argv == nullptr ) {
+        return false;
+    }
+
+    for ( int i = 0; i < *argc; i++ ) {
+        if ( argv[i] == nullptr ) {
+            continue;
+        }
+        for ( int j = 0; j < registryCount; j++ ) {
+            if ( registry[j].name == nullptr ) {
+                continue;
+            }
+            if ( strcmp(argv[i], registry[j].name) != 0 ) {
+                continue;
+            }
+            if ( i + 1 >= *argc || argv[i + 1] == nullptr ) {
+                return false;
+            }
+            if ( registry[j].apply == nullptr || !registry[j].apply(registry[j].option, argv[i + 1]) ) {
+                return false;
+            }
+            argv[i] = nullptr;
+            argv[i + 1] = nullptr;
+            i++;
+            break;
+        }
+    }
+
+    int writeIndex = 0;
+    for ( int readIndex = 0; readIndex < *argc; readIndex++ ) {
+        if ( argv[readIndex] != nullptr ) {
+            argv[writeIndex++] = argv[readIndex];
+        }
+    }
+    for ( int i = writeIndex; i < *argc; i++ ) {
+        argv[i] = nullptr;
+    }
+    *argc = writeIndex;
+    return true;
 }
 
 #endif
