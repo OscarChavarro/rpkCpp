@@ -35,13 +35,13 @@ OptionsType::OptionsType():
     dummyRgb(),
     dummyCieXy{0.0f, 0.0f}
 {
-    intType = {Options::optionsGetInt, Options::optionsPrintInt, static_cast<void *>(&dummyInt), nullptr};
-    boolType = {Options::optionsEnumGet, Options::optionsEnumPrint, static_cast<void *>(&dummyInt), static_cast<void *>(OptionsType::boolTable)};
-    setTrueType = {Options::optionsSetTrue, Options::optionsPrintOther, static_cast<void *>(&dummyTrue), nullptr};
-    setFalseType = {Options::optionsSetFalse, Options::optionsPrintOther, static_cast<void *>(&dummyFalse), nullptr};
-    stringType = {Options::optionsGetString, Options::optionsPrintString, static_cast<void *>(&dummyString), nullptr};
-    floatType = {Options::optionsGetfloat, Options::optionsPrintFloat, static_cast<void *>(&dummyFloat), nullptr};
-    vectorType = {Options::optionsGetVector, Options::optionsPrintVector, static_cast<void *>(&dummyVector3D), nullptr};
-    rgbType = {Options::optionsGetRgb, Options::optionsPrintRgb, static_cast<void *>(&dummyRgb), nullptr};
-    xyType = {Options::optionsGetCieXy, Options::optionsPrintCieXyCallBack, static_cast<void *>(dummyCieXy), nullptr};
+    intType = {Options::optionsGetInt, Options::optionsPrintInt, OptionValueWrapper(static_cast<void *>(&dummyInt), OptionKind::INT), nullptr};
+    boolType = {Options::optionsEnumGet, Options::optionsEnumPrint, OptionValueWrapper(static_cast<void *>(&dummyInt), OptionKind::BOOL), static_cast<void *>(OptionsType::boolTable)};
+    setTrueType = {Options::optionsSetTrue, Options::optionsPrintOther, OptionValueWrapper(static_cast<void *>(&dummyTrue), OptionKind::BOOL), nullptr};
+    setFalseType = {Options::optionsSetFalse, Options::optionsPrintOther, OptionValueWrapper(static_cast<void *>(&dummyFalse), OptionKind::BOOL), nullptr};
+    stringType = {Options::optionsGetString, Options::optionsPrintString, OptionValueWrapper(static_cast<void *>(&dummyString), OptionKind::STRING), nullptr};
+    floatType = {Options::optionsGetfloat, Options::optionsPrintFloat, OptionValueWrapper(static_cast<void *>(&dummyFloat), OptionKind::FLOAT), nullptr};
+    vectorType = {Options::optionsGetVector, Options::optionsPrintVector, OptionValueWrapper(static_cast<void *>(&dummyVector3D), OptionKind::VECTOR3D), nullptr};
+    rgbType = {Options::optionsGetRgb, Options::optionsPrintRgb, OptionValueWrapper(static_cast<void *>(&dummyRgb), OptionKind::COLORRGB), nullptr};
+    xyType = {Options::optionsGetCieXy, Options::optionsPrintCieXyCallBack, OptionValueWrapper(static_cast<void *>(dummyCieXy), OptionKind::FLOAT), nullptr};
 }

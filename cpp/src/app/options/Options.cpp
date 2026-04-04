@@ -19,6 +19,28 @@ int Options::currentArgumentIndex = 0;
 java::ArrayList<char *> *Options::stringsToDelete = new java::ArrayList<char *>();
 java::ArrayList<int *> *Options::stringLengthsToDelete = new java::ArrayList<int *>();
 
+template <typename T>
+static T *optionsTypedValue(OptionValueWrapper value, OptionKind expectedKind) {
+    if ( value.ptr == nullptr ) {
+        return nullptr;
+    }
+    if ( value.kind != OptionKind::UNKNOWN && value.kind != expectedKind ) {
+        return nullptr;
+    }
+    return static_cast<T *>(value.ptr);
+}
+
+template <typename T>
+static const T *optionsTypedConstValue(OptionValueWrapper value, OptionKind expectedKind) {
+    if ( value.ptr == nullptr ) {
+        return nullptr;
+    }
+    if ( value.kind != OptionKind::UNKNOWN && value.kind != expectedKind ) {
+        return nullptr;
+    }
+    return static_cast<const T *>(value.ptr);
+}
+
 /**
 Initializes the class static parsing state
 */
@@ -117,8 +139,11 @@ Options::optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
 Integer option values
 */
 bool
-Options::optionsGetInt(void *value, void * /*data*/) {
-    int *n = static_cast<int *>(value);
+Options::optionsGetInt(OptionValueWrapper value, void * /*data*/) {
+    int *n = optionsTypedValue<int>(value, OptionKind::INT);
+    if ( n == nullptr ) {
+        return false;
+    }
     if ( !Options::optionsGetArgumentIntValue(n) ) {
         java::System::err.printf("'%s' is not a valid integer value\n", Options::optionsCurrentArgumentValue());
         return false;
@@ -127,8 +152,11 @@ Options::optionsGetInt(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintInt(java::PrintStream *stream, void *value, void * /*data*/) {
-    int *n = static_cast<int *>(value);
+Options::optionsPrintInt(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const int *n = optionsTypedConstValue<int>(value, OptionKind::INT);
+    if ( n == nullptr ) {
+        return;
+    }
     if ( stream != nullptr ) {
         stream->printf("%d", *n);
     }
@@ -138,8 +166,11 @@ Options::optionsPrintInt(java::PrintStream *stream, void *value, void * /*data*/
 String option values
 */
 bool
-Options::optionsGetString(void *value, void * /*data*/) {
-    char **s = static_cast<char **>(value);
+Options::optionsGetString(OptionValueWrapper value, void * /*data*/) {
+    char **s = optionsTypedValue<char *>(value, OptionKind::STRING);
+    if ( s == nullptr ) {
+        return false;
+    }
     const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( currentArgument == nullptr ) {
         return false;
@@ -155,8 +186,11 @@ Options::optionsGetString(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintString(java::PrintStream *stream, void *value, void * /*data*/) {
-    char **s = static_cast<char **>(value);
+Options::optionsPrintString(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    char * const *s = optionsTypedConstValue<char *>(value, OptionKind::STRING);
+    if ( s == nullptr ) {
+        return;
+    }
     if ( stream != nullptr ) {
         stream->printf("'%s'", *s ? *s : "");
     }
@@ -166,8 +200,8 @@ Options::optionsPrintString(java::PrintStream *stream, void *value, void * /*dat
 Copied string (maxlength n) option values
 */
 bool
-Options::optionsStringGet(void *value, void *data) {
-    char *s = static_cast<char *>(value);
+Options::optionsStringGet(OptionValueWrapper value, void *data) {
+    char *s = optionsTypedValue<char>(value, OptionKind::STRING);
     int *nPointer = static_cast<int *>(data);
     const char *currentArgument = Options::optionsCurrentArgumentValue();
     if ( s != nullptr && currentArgument != nullptr && nPointer != nullptr && *nPointer > 0 ) {
@@ -189,8 +223,8 @@ Options::optionsCreateStringLengthStorage(int n) {
 }
 
 void
-Options::optionsStringPrint(java::PrintStream *stream, void *value, void * /*data*/) {
-    const char *s = static_cast<const char *>(value);
+Options::optionsStringPrint(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const char *s = optionsTypedConstValue<char>(value, OptionKind::STRING);
     if ( stream != nullptr ) {
         stream->printf("'%s'", s ? s : "");
     }
@@ -207,8 +241,14 @@ Options::optionsPrintEnumValues(const EnumDesc *tab) {
 }
 
 bool
-Options::optionsEnumGet(void *value, void *data) {
-    int *v = static_cast<int *>(value);
+Options::optionsEnumGet(OptionValueWrapper value, void *data) {
+    int *v = optionsTypedValue<int>(value, OptionKind::BOOL);
+    if ( v == nullptr ) {
+        v = optionsTypedValue<int>(value, OptionKind::INT);
+    }
+    if ( v == nullptr ) {
+        return false;
+    }
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
     const EnumDesc *tabSave = tab;
     const char *currentArgument = Options::optionsCurrentArgumentValue();
@@ -227,8 +267,14 @@ Options::optionsEnumGet(void *value, void *data) {
 }
 
 void
-Options::optionsEnumPrint(java::PrintStream *stream, void *value, void *data) {
-    const int *v = static_cast<const int *>(value);
+Options::optionsEnumPrint(java::PrintStream *stream, OptionValueWrapper value, void *data) {
+    const int *v = optionsTypedConstValue<int>(value, OptionKind::BOOL);
+    if ( v == nullptr ) {
+        v = optionsTypedConstValue<int>(value, OptionKind::INT);
+    }
+    if ( v == nullptr ) {
+        return;
+    }
     const EnumDesc *tab = static_cast<const EnumDesc *>(data);
     if ( stream == nullptr ) {
         return;
@@ -245,8 +291,11 @@ Options::optionsEnumPrint(java::PrintStream *stream, void *value, void *data) {
 /* ------------------- set true/false option values --------------------- */
 
 bool
-Options::optionsSetTrue(void *value, void * /*data*/) {
-    int *x = static_cast<int *>(value);
+Options::optionsSetTrue(OptionValueWrapper value, void * /*data*/) {
+    int *x = optionsTypedValue<int>(value, OptionKind::BOOL);
+    if ( x == nullptr ) {
+        return false;
+    }
     // No option expected on command line, nothing consumed
 
     *x = true;
@@ -254,8 +303,11 @@ Options::optionsSetTrue(void *value, void * /*data*/) {
 }
 
 bool
-Options::optionsSetFalse(void *value, void * /*data*/) {
-    int *x = static_cast<int *>(value);
+Options::optionsSetFalse(OptionValueWrapper value, void * /*data*/) {
+    int *x = optionsTypedValue<int>(value, OptionKind::BOOL);
+    if ( x == nullptr ) {
+        return false;
+    }
     /* No option expected on command line, nothing consumed */
 
     *x = false;
@@ -263,7 +315,7 @@ Options::optionsSetFalse(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintOther(java::PrintStream *stream, void * /*x*/, void * /*data*/) {
+Options::optionsPrintOther(java::PrintStream *stream, OptionValueWrapper /*x*/, void * /*data*/) {
     if ( stream != nullptr ) {
         stream->printf("%s", "other");
     }
@@ -271,8 +323,11 @@ Options::optionsPrintOther(java::PrintStream *stream, void * /*x*/, void * /*dat
 
 /* ------------------- float option values --------------------- */
 bool
-Options::optionsGetfloat(void *value, void * /*data*/) {
-    float *x = static_cast<float *>(value);
+Options::optionsGetfloat(OptionValueWrapper value, void * /*data*/) {
+    float *x = optionsTypedValue<float>(value, OptionKind::FLOAT);
+    if ( x == nullptr ) {
+        return false;
+    }
     if ( !Options::optionsGetArgumentFloatValue("%f", x) ) {
         java::System::err.printf("'%s' is not a valid floating point value\n", Options::optionsCurrentArgumentValue());
         return false;
@@ -281,8 +336,11 @@ Options::optionsGetfloat(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintFloat(java::PrintStream *stream, void *value, void * /*data*/) {
-    const float *x = static_cast<const float *>(value);
+Options::optionsPrintFloat(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const float *x = optionsTypedConstValue<float>(value, OptionKind::FLOAT);
+    if ( x == nullptr ) {
+        return;
+    }
     if ( stream != nullptr ) {
         stream->printf("%g", *x);
     }
@@ -292,8 +350,11 @@ Options::optionsPrintFloat(java::PrintStream *stream, void *value, void * /*data
 Vector3D option values
 */
 bool
-Options::optionsGetVector(void *value, void * /*data*/) {
-    Vector3D *v = static_cast<Vector3D *>(value);
+Options::optionsGetVector(OptionValueWrapper value, void * /*data*/) {
+    Vector3D *v = optionsTypedValue<Vector3D>(value, OptionKind::VECTOR3D);
+    if ( v == nullptr ) {
+        return false;
+    }
     bool ok = Options::optionsGetArgumentFloatValue("%f", &v->x);
     if ( ok ) {
         Options::optionsConsumeArgument();
@@ -311,8 +372,8 @@ Options::optionsGetVector(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintVector(java::PrintStream *stream, void *value, void * /*data*/) {
-    const Vector3D *v = static_cast<const Vector3D *>(value);
+Options::optionsPrintVector(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const Vector3D *v = optionsTypedConstValue<Vector3D>(value, OptionKind::VECTOR3D);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->x, v->y, v->z);
     }
@@ -322,8 +383,11 @@ Options::optionsPrintVector(java::PrintStream *stream, void *value, void * /*dat
 RGB option values
 */
 bool
-Options::optionsGetRgb(void *value, void * /*data*/) {
-    ColorRgb *c = static_cast<ColorRgb *>(value);
+Options::optionsGetRgb(OptionValueWrapper value, void * /*data*/) {
+    ColorRgb *c = optionsTypedValue<ColorRgb>(value, OptionKind::COLORRGB);
+    if ( c == nullptr ) {
+        return false;
+    }
     bool ok = Options::optionsGetArgumentFloatValue("%f", &c->r);
     if ( ok ) {
         Options::optionsConsumeArgument();
@@ -341,8 +405,8 @@ Options::optionsGetRgb(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintRgb(java::PrintStream *stream, void *value, void * /*data*/) {
-    const ColorRgb *v = static_cast<const ColorRgb *>(value);
+Options::optionsPrintRgb(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const ColorRgb *v = optionsTypedConstValue<ColorRgb>(value, OptionKind::COLORRGB);
     if ( stream != nullptr && v != nullptr ) {
         stream->printf("%g %g %g", v->r, v->g, v->b);
     }
@@ -353,8 +417,11 @@ CIE xy option values
 */
 
 bool
-Options::optionsGetCieXy(void *value, void * /*data*/) {
-    float *c = static_cast<float *>(value);
+Options::optionsGetCieXy(OptionValueWrapper value, void * /*data*/) {
+    float *c = optionsTypedValue<float>(value, OptionKind::FLOAT);
+    if ( c == nullptr ) {
+        return false;
+    }
     bool ok = Options::optionsGetArgumentFloatValue("%f", &c[0]);
     if ( ok ) {
         Options::optionsConsumeArgument();
@@ -368,8 +435,8 @@ Options::optionsGetCieXy(void *value, void * /*data*/) {
 }
 
 void
-Options::optionsPrintCieXyCallBack(java::PrintStream *stream, void *value, void * /*data*/) {
-    const float *c = static_cast<const float *>(value);
+Options::optionsPrintCieXyCallBack(java::PrintStream *stream, OptionValueWrapper value, void * /*data*/) {
+    const float *c = optionsTypedConstValue<float>(value, OptionKind::FLOAT);
     if ( stream != nullptr && c != nullptr ) {
         stream->printf("%g %g", c[0], c[1]);
     }
@@ -400,18 +467,22 @@ Options::optionsLookupOption(const char *s, CommandLineOptionDescription *option
     return nullptr;
 }
 
-void *
+OptionValueWrapper
 Options::optionsValueOrDummy(CommandLineOptionDescription *opt) {
     if ( opt == nullptr ) {
-        return nullptr;
+        return OptionValueWrapper();
     }
-    if ( opt->value != nullptr ) {
-        return opt->value;
+    if ( opt->value.ptr != nullptr ) {
+        OptionValueWrapper value = opt->value;
+        if ( value.kind == OptionKind::UNKNOWN && opt->type != nullptr ) {
+            value.kind = opt->type->dummy.kind;
+        }
+        return value;
     }
     if ( opt->type != nullptr ) {
         return opt->type->dummy;
     }
-    return nullptr;
+    return OptionValueWrapper();
 }
 
 bool
@@ -445,7 +516,7 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
             }
         }
         if ( ok && opt->action ) {
-            if ( opt->value != nullptr ) {
+            if ( opt->value.ptr != nullptr ) {
                 opt->action(opt->value);
             } else {
                 opt->action(Options::optionsValueOrDummy(opt));

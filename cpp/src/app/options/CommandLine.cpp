@@ -156,23 +156,23 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
 }
 
 void
-CommandLine::mainForceOneSidedOption(void *value) {
-    fileOptionsForceOneSidedSurfaces = *static_cast<int *>(value);
+CommandLine::mainForceOneSidedOption(OptionValueWrapper value) {
+    fileOptionsForceOneSidedSurfaces = *static_cast<int *>(value.ptr);
 }
 
 void
-CommandLine::mainMonochromeOption(void *value) {
-    numberOfQuarterCircleDivisions = *static_cast<int *>(value);
+CommandLine::mainMonochromeOption(OptionValueWrapper value) {
+    numberOfQuarterCircleDivisions = *static_cast<int *>(value.ptr);
 }
 
 void
-CommandLine::commandLineImageWidthOption(void *value) {
-    outputImageWidth = *static_cast<int *>(value);
+CommandLine::commandLineImageWidthOption(OptionValueWrapper value) {
+    outputImageWidth = *static_cast<int *>(value.ptr);
 }
 
 void
-CommandLine::commandLineImageHeightOption(void *value) {
-    outputImageHeight = *static_cast<int *>(value);
+CommandLine::commandLineImageHeightOption(OptionValueWrapper value) {
+    outputImageHeight = *static_cast<int *>(value.ptr);
 }
 
 void
@@ -233,26 +233,26 @@ CommandLine::commandLineGeneralProgramParseOptions(
 }
 
 void
-CommandLine::cameraSetEyePositionOption(void *val) {
-    const Vector3D *v = static_cast<Vector3D *>(val);
+CommandLine::cameraSetEyePositionOption(OptionValueWrapper val) {
+    const Vector3D *v = static_cast<Vector3D *>(val.ptr);
     cameraState.setEyePosition(v->x, v->y, v->z);
 }
 
 void
-CommandLine::cameraSetLookPositionOption(void *val) {
-    const Vector3D *v = static_cast<Vector3D *>(val);
+CommandLine::cameraSetLookPositionOption(OptionValueWrapper val) {
+    const Vector3D *v = static_cast<Vector3D *>(val.ptr);
     cameraState.setLookPosition(v->x, v->y, v->z);
 }
 
 void
-CommandLine::cameraSetUpDirectionOption(void *val) {
-    const Vector3D *v = static_cast<Vector3D *>(val);
+CommandLine::cameraSetUpDirectionOption(OptionValueWrapper val) {
+    const Vector3D *v = static_cast<Vector3D *>(val.ptr);
     cameraState.setUpDirection(v->x, v->y, v->z);
 }
 
 void
-CommandLine::cameraSetFieldOfViewOption(void *val) {
-    const float *v = static_cast<float *>(val);
+CommandLine::cameraSetFieldOfViewOption(OptionValueWrapper val) {
+    const float *v = static_cast<float *>(val.ptr);
     cameraState.setFieldOfView(*v);
 }
 
@@ -300,8 +300,8 @@ CommandLine::cameraParseOptions(
 }
 
 void
-CommandLine::iterationMethodOption(void *value) {
-    char *name = *static_cast<char **>(value);
+CommandLine::iterationMethodOption(OptionValueWrapper value) {
+    char *name = *static_cast<char **>(value.ptr);
 
     if ( strncasecmp(name, "jacobi", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::JACOBI;
@@ -315,8 +315,8 @@ CommandLine::iterationMethodOption(void *value) {
 }
 
 void
-CommandLine::hierarchicalOption(void *value) {
-    int yesno = *static_cast<int *>(value);
+CommandLine::hierarchicalOption(OptionValueWrapper value) {
+    int yesno = *static_cast<int *>(value.ptr);
 
     if ( yesno != 0 ) {
         GalerkinRadianceMethod::galerkinState.hierarchical = true;
@@ -326,26 +326,26 @@ CommandLine::hierarchicalOption(void *value) {
 }
 
 void
-CommandLine::lazyOption(void *value) {
-    int yesno = *static_cast<int *>(value);
+CommandLine::lazyOption(OptionValueWrapper value) {
+    int yesno = *static_cast<int *>(value.ptr);
     GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
 }
 
 void
-CommandLine::clusteringOption(void *value) {
-    int yesno = *static_cast<int *>(value);
+CommandLine::clusteringOption(OptionValueWrapper value) {
+    int yesno = *static_cast<int *>(value.ptr);
     GalerkinRadianceMethod::galerkinState.clustered = yesno;
 }
 
 void
-CommandLine::importanceOption(void *value) {
-    int yesno = *static_cast<int *>(value);
+CommandLine::importanceOption(OptionValueWrapper value) {
+    int yesno = *static_cast<int *>(value.ptr);
     GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
 }
 
 void
-CommandLine::ambientOption(void *value) {
-    int yesno = *static_cast<int *>(value);
+CommandLine::ambientOption(OptionValueWrapper value) {
+    int yesno = *static_cast<int *>(value.ptr);
     GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
 }
 
@@ -397,14 +397,14 @@ CommandLine::makeToneMappingMethodsString() {
 }
 
 void
-CommandLine::toneMappingMethodOption(void *value) {
-    char *name = *static_cast<char **>(value);
+CommandLine::toneMappingMethodOption(OptionValueWrapper value) {
+    char *name = *static_cast<char **>(value.ptr);
 
     strcpy(toneMapName, name);
 }
 
 void
-CommandLine::brightnessAdjustOption(void * /*val*/) {
+CommandLine::brightnessAdjustOption(OptionValueWrapper /*val*/) {
     if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::brightnessAdjustOption", "ToneMappingContext not set");
     }
@@ -412,11 +412,11 @@ CommandLine::brightnessAdjustOption(void * /*val*/) {
 }
 
 void
-CommandLine::chromaOption(void *value) {
+CommandLine::chromaOption(OptionValueWrapper value) {
     if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::chromaOption", "ToneMappingContext not set");
     }
-    const float *chroma = static_cast<float *>(value);
+    const float *chroma = static_cast<float *>(value.ptr);
     if ( chroma == redChromaticity ) {
         (*toneMapOptions).xr = chroma[0];
         (*toneMapOptions).yr = chroma[1];
@@ -441,11 +441,11 @@ CommandLine::chromaOption(void *value) {
 }
 
 void
-CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
+CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(OptionValueWrapper value) {
     if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
     }
-    char *name = *static_cast<char **>(value);
+    char *name = *static_cast<char **>(value.ptr);
 
     if ( strncasecmp(name, "average", 2) == 0 ) {
         (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
@@ -457,11 +457,11 @@ CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(void *value) {
 }
 
 void
-CommandLine::gammaOption(void *value) {
+CommandLine::gammaOption(OptionValueWrapper value) {
     if ( toneMapOptions == nullptr ) {
         Error::fatal(-1, "CommandLine::gammaOption", "ToneMappingContext not set");
     }
-    float gam = *static_cast<float *>(value);
+    float gam = *static_cast<float *>(value.ptr);
     (*toneMapOptions).gamma.set(gam, gam, gam);
 }
 
@@ -531,22 +531,22 @@ CommandLine::radianceMethodParseOptions(
 }
 
 void
-CommandLine::flatOption(void * /*value*/) {
+CommandLine::flatOption(OptionValueWrapper /*value*/) {
     renderOptionsState.smoothShading = false;
 }
 
 void
-CommandLine::noCullingOption(void * /*value*/) {
+CommandLine::noCullingOption(OptionValueWrapper /*value*/) {
     renderOptionsState.backfaceCulling = false;
 }
 
 void
-CommandLine::outlinesOption(void * /*value*/) {
+CommandLine::outlinesOption(OptionValueWrapper /*value*/) {
     renderOptionsState.drawOutlines = true;
 }
 
 void
-CommandLine::traceOption(void * /*value*/) {
+CommandLine::traceOption(OptionValueWrapper /*value*/) {
     renderOptionsState.trace = true;
 }
 
@@ -582,14 +582,14 @@ CommandLine::renderParseOptions(
 }
 
 void
-CommandLine::binaryOutputOption(void * /*value*/) {
+CommandLine::binaryOutputOption(OptionValueWrapper /*value*/) {
     batchOptionsState.exportBinary =
         batchOptionsState.binaryOutputFilename != nullptr
         && batchOptionsState.binaryOutputFilename[0] != '\0';
 }
 
 void
-CommandLine::binaryInputOption(void * /*value*/) {
+CommandLine::binaryInputOption(OptionValueWrapper /*value*/) {
     batchOptionsState.importBinary =
         batchOptionsState.binaryInputFilename != nullptr
         && batchOptionsState.binaryInputFilename[0] != '\0';
@@ -916,8 +916,8 @@ char *CommandLine::raytracingMethodsString = nullptr;
 char *CommandLine::rayTracerName = nullptr;
 
 void
-CommandLine::mainRayTracingOption(void *value) {
-    const char *name = *static_cast<char **>(value);
+CommandLine::mainRayTracingOption(OptionValueWrapper value) {
+    const char *name = *static_cast<char **>(value.ptr);
     strcpy(rayTracerName, name);
 }
 
