@@ -5,13 +5,13 @@ Command line options and defaults
 #include <cstdlib>
 #include <cstring>
 
-#include "java/lang/Integer.h"
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/ColorRgb.h"
 #include "app/options/Options.h"
+#include "app/options/ValueParser.h"
 
 int *Options::argumentCount;
 char **Options::arguments = nullptr;
@@ -90,61 +90,13 @@ Options::optionsConsumeArgument() {
     (*argumentCount)--;
 }
 
-/**
-Scans the current argument value for a value of given format
-*/
 bool
-Options::optionsGetArgumentIntValue(int *res) {
-    const char *currentArgument = Options::optionsCurrentArgumentValue();
-    if ( currentArgument == nullptr ) {
-        return false;
-    }
-
-    char *endPointer = nullptr;
-    const long parsedValue = strtol(currentArgument, &endPointer, 10);
-
-    if ( endPointer == currentArgument || *endPointer != '\0' ) {
-        return false;
-    }
-    if ( parsedValue < static_cast<long>(java::Integer::MIN_VALUE)
-         || parsedValue > static_cast<long>(java::Integer::MAX_VALUE) ) {
-        return false;
-    }
-
-    *res = static_cast<int>(parsedValue);
-    return true;
-}
-
-/**
-Scans the current argument value for a value of given format
-*/
-bool
-Options::optionsGetArgumentFloatValue(const char * /*format*/, float *res) {
-    const char *currentArgument = Options::optionsCurrentArgumentValue();
-    if ( currentArgument == nullptr || res == nullptr ) {
-        return false;
-    }
-
-    char *endPointer = nullptr;
-    const float parsedValue = strtof(currentArgument, &endPointer);
-    if ( endPointer == currentArgument || *endPointer != '\0' ) {
-        return false;
-    }
-
-    *res = parsedValue;
-    return true;
-}
-
-/**
-Integer option values
-*/
-bool
-Options::optionsGetInt(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseInt(OptionValueWrapper value, void * /*data*/) {
     int *n = optionsTypedValue<int>(value, OptionKind::INT);
     if ( n == nullptr ) {
         return false;
     }
-    if ( !Options::optionsGetArgumentIntValue(n) ) {
+    if ( !ValueParser<int>::parse(Options::optionsCurrentArgumentValue(), *n) ) {
         java::System::err.printf("'%s' is not a valid integer value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
@@ -162,26 +114,18 @@ Options::optionsPrintInt(java::PrintStream *stream, OptionValueWrapper value, vo
     }
 }
 
-/**
-String option values
-*/
 bool
-Options::optionsGetString(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseString(OptionValueWrapper value, void * /*data*/) {
     char **s = optionsTypedValue<char *>(value, OptionKind::STRING);
     if ( s == nullptr ) {
         return false;
     }
-    const char *currentArgument = Options::optionsCurrentArgumentValue();
-    if ( currentArgument == nullptr ) {
+    if ( !ValueParser<char *>::parse(Options::optionsCurrentArgumentValue(), *s) ) {
         return false;
     }
-    unsigned long n = strlen(currentArgument) + 1;
-    *s = new char[n];
-
     if ( stringsToDelete != nullptr ) {
         stringsToDelete->add(*s);
     }
-    java::Formatter::format(*s, static_cast<int>(n), "%s", currentArgument);
     return true;
 }
 
@@ -196,11 +140,8 @@ Options::optionsPrintString(java::PrintStream *stream, OptionValueWrapper value,
     }
 }
 
-/**
-Copied string (maxlength n) option values
-*/
 bool
-Options::optionsStringGet(OptionValueWrapper value, void *data) {
+Options::optionsParseFixedString(OptionValueWrapper value, void *data) {
     char *s = optionsTypedValue<char>(value, OptionKind::STRING);
     int *nPointer = static_cast<int *>(data);
     const char *currentArgument = Options::optionsCurrentArgumentValue();
@@ -241,7 +182,7 @@ Options::optionsPrintEnumValues(const EnumDesc *tab) {
 }
 
 bool
-Options::optionsEnumGet(OptionValueWrapper value, void *data) {
+Options::optionsParseEnum(OptionValueWrapper value, void *data) {
     int *v = optionsTypedValue<int>(value, OptionKind::BOOL);
     if ( v == nullptr ) {
         v = optionsTypedValue<int>(value, OptionKind::INT);
@@ -321,14 +262,13 @@ Options::optionsPrintOther(java::PrintStream *stream, OptionValueWrapper /*x*/, 
     }
 }
 
-/* ------------------- float option values --------------------- */
 bool
-Options::optionsGetfloat(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseFloat(OptionValueWrapper value, void * /*data*/) {
     float *x = optionsTypedValue<float>(value, OptionKind::FLOAT);
     if ( x == nullptr ) {
         return false;
     }
-    if ( !Options::optionsGetArgumentFloatValue("%f", x) ) {
+    if ( !ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), *x) ) {
         java::System::err.printf("'%s' is not a valid floating point value\n", Options::optionsCurrentArgumentValue());
         return false;
     }
@@ -346,23 +286,20 @@ Options::optionsPrintFloat(java::PrintStream *stream, OptionValueWrapper value, 
     }
 }
 
-/**
-Vector3D option values
-*/
 bool
-Options::optionsGetVector(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseVector(OptionValueWrapper value, void * /*data*/) {
     Vector3D *v = optionsTypedValue<Vector3D>(value, OptionKind::VECTOR3D);
     if ( v == nullptr ) {
         return false;
     }
-    bool ok = Options::optionsGetArgumentFloatValue("%f", &v->x);
+    bool ok = ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), v->x);
     if ( ok ) {
         Options::optionsConsumeArgument();
-        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->y);
+        ok &= Options::optionsArgumentsRemaining() && ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), v->y);
     }
     if ( ok ) {
         Options::optionsConsumeArgument();
-        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &v->z);
+        ok &= Options::optionsArgumentsRemaining() && ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), v->z);
     }
     if ( !ok ) {
         java::System::err.printf("invalid vector argument value");
@@ -379,23 +316,20 @@ Options::optionsPrintVector(java::PrintStream *stream, OptionValueWrapper value,
     }
 }
 
-/**
-RGB option values
-*/
 bool
-Options::optionsGetRgb(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseRgb(OptionValueWrapper value, void * /*data*/) {
     ColorRgb *c = optionsTypedValue<ColorRgb>(value, OptionKind::COLORRGB);
     if ( c == nullptr ) {
         return false;
     }
-    bool ok = Options::optionsGetArgumentFloatValue("%f", &c->r);
+    bool ok = ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), c->r);
     if ( ok ) {
         Options::optionsConsumeArgument();
-        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->g);
+        ok &= Options::optionsArgumentsRemaining() && ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), c->g);
     }
     if ( ok ) {
         Options::optionsConsumeArgument();
-        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c->b);
+        ok &= Options::optionsArgumentsRemaining() && ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), c->b);
     }
     if ( !ok ) {
         java::System::err.printf("invalid RGB color argument value");
@@ -412,20 +346,16 @@ Options::optionsPrintRgb(java::PrintStream *stream, OptionValueWrapper value, vo
     }
 }
 
-/**
-CIE xy option values
-*/
-
 bool
-Options::optionsGetCieXy(OptionValueWrapper value, void * /*data*/) {
+Options::optionsParseCieXy(OptionValueWrapper value, void * /*data*/) {
     float *c = optionsTypedValue<float>(value, OptionKind::FLOAT);
     if ( c == nullptr ) {
         return false;
     }
-    bool ok = Options::optionsGetArgumentFloatValue("%f", &c[0]);
+    bool ok = ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), c[0]);
     if ( ok ) {
         Options::optionsConsumeArgument();
-        ok &= Options::optionsArgumentsRemaining() && Options::optionsGetArgumentFloatValue("%f", &c[1]);
+        ok &= Options::optionsArgumentsRemaining() && ValueParser<float>::parse(Options::optionsCurrentArgumentValue(), c[1]);
     }
     if ( !ok ) {
         java::System::err.printf("invalid CIE xy color argument value");

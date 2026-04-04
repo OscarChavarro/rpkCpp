@@ -16,24 +16,24 @@ class Options final {
     static constexpr void (*DEFAULT_ACTION)(OptionValueWrapper) = nullptr;
 
     static void parseGeneralOptions(CommandLineOptionDescription *options, int *argc, char **argv);
-    static bool optionsEnumGet(OptionValueWrapper value, void *data);
+    static bool optionsParseEnum(OptionValueWrapper value, void *data);
     static void optionsEnumPrint(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsStringGet(OptionValueWrapper value, void *data);
+    static bool optionsParseFixedString(OptionValueWrapper value, void *data);
     static void optionsStringPrint(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsGetInt(OptionValueWrapper value, void *data);
+    static bool optionsParseInt(OptionValueWrapper value, void *data);
     static void optionsPrintInt(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsGetString(OptionValueWrapper value, void *data);
+    static bool optionsParseString(OptionValueWrapper value, void *data);
     static void optionsPrintString(java::PrintStream *stream, OptionValueWrapper value, void *data);
     static bool optionsSetTrue(OptionValueWrapper value, void *data);
     static bool optionsSetFalse(OptionValueWrapper value, void *data);
     static void optionsPrintOther(java::PrintStream *stream, OptionValueWrapper x, void *data);
-    static bool optionsGetfloat(OptionValueWrapper value, void *data);
+    static bool optionsParseFloat(OptionValueWrapper value, void *data);
     static void optionsPrintFloat(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsGetVector(OptionValueWrapper value, void *data);
+    static bool optionsParseVector(OptionValueWrapper value, void *data);
     static void optionsPrintVector(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsGetRgb(OptionValueWrapper value, void *data);
+    static bool optionsParseRgb(OptionValueWrapper value, void *data);
     static void optionsPrintRgb(java::PrintStream *stream, OptionValueWrapper value, void *data);
-    static bool optionsGetCieXy(OptionValueWrapper value, void *data);
+    static bool optionsParseCieXy(OptionValueWrapper value, void *data);
     static void optionsPrintCieXyCallBack(java::PrintStream *stream, OptionValueWrapper value, void *data);
     static int *optionsCreateStringLengthStorage(int n);
     static void deleteOptionsMemory();
@@ -52,7 +52,7 @@ class Options final {
     */
     static inline CommandLineOptions makeEnumOptTypeStruct(EnumDesc *enumvaltab) {
         CommandLineOptions optionsType = {
-            Options::optionsEnumGet,
+            Options::optionsParseEnum,
             Options::optionsEnumPrint,
             OptionValueWrapper(),
             static_cast<void *>(enumvaltab)
@@ -68,7 +68,7 @@ class Options final {
     */
     static inline CommandLineOptions makeNStringTypeStruct(int n) {
         CommandLineOptions optionsType = {
-            Options::optionsStringGet,
+            Options::optionsParseFixedString,
             Options::optionsStringPrint,
             OptionValueWrapper(),
             static_cast<void *>(Options::optionsCreateStringLengthStorage(n))
@@ -88,8 +88,6 @@ class Options final {
     static bool optionsArgumentsRemaining();
     static void optionsNextArgument();
     static void optionsConsumeArgument();
-    static bool optionsGetArgumentIntValue(int *res);
-    static bool optionsGetArgumentFloatValue(const char *format, float *res);
     static void optionsPrintEnumValues(const EnumDesc *tab);
     static unsigned long unsignedLongMax(unsigned long a, unsigned long b);
     static CommandLineOptionDescription *optionsLookupOption(const char *s, CommandLineOptionDescription *options);
