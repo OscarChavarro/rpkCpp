@@ -1,5 +1,5 @@
 template<typename TOptionBase>
-bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *registry, int registryCount) {
+bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *registry, int registryCount, void *context) {
     if ( registry == nullptr || argc == nullptr || argv == nullptr ) {
         return false;
     }
@@ -30,7 +30,7 @@ bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *regis
                 if ( missingValue ) {
                     return false;
                 }
-                if ( !registry[j].apply(consumesValue, argv + i + 1) ) {
+                if ( !registry[j].apply(context, consumesValue, argv + i + 1) ) {
                     return false;
                 }
                 argv[i] = nullptr;
@@ -39,7 +39,7 @@ bool OptionParser<TOptionBase>::parse(int *argc, char **argv, TOptionBase *regis
                 }
                 i += consumesValue;
             } else {
-                if ( !registry[j].apply(0, nullptr) ) {
+                if ( !registry[j].apply(context, 0, nullptr) ) {
                     return false;
                 }
                 argv[i] = nullptr;

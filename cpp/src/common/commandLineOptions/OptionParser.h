@@ -6,7 +6,7 @@
 template<typename TOptionBase>
 class OptionParser {
   public:
-    static bool parse(int *argc, char **argv, TOptionBase *registry, int registryCount);
+    static bool parse(int *argc, char **argv, TOptionBase *registry, int registryCount, void *context = nullptr);
 };
 
 #include "common/commandLineOptions/OptionParser.txx"

@@ -1,27 +1,24 @@
 #ifndef __APP_GENERAL_PROGRAM_OPTIONS__
 #define __APP_GENERAL_PROGRAM_OPTIONS__
 
+#include <cstddef>
+
 #include "common/commandLineOptions/TypedOption.h"
+#include "app/options/AppOptions.h"
 
 class GeneralProgramOptionsRegistry {
   public:
     GeneralProgramOptionsRegistry(
-        int &outputImageWidth,
-        int &outputImageHeight,
-        int &numberOfQuarterCircleDivisions,
-        int &yesValue,
-        int &noValue,
-        int &glutDebugEnabled,
         void (*mainForceOneSidedOption)(int &),
         void (*mainMonochromeOption)(int &),
         void (*setIntTrue)(int &))
-        : widthOpt{"-width", &outputImageWidth, 1, nullptr, nullptr},
-          heightOpt{"-height", &outputImageHeight, 1, nullptr, nullptr},
-          nqcdivsOpt{"-nqcdivs", &numberOfQuarterCircleDivisions, 1, nullptr, nullptr},
-          forceOneSidedOpt{"-force-onesided", &yesValue, 0, mainForceOneSidedOption, nullptr},
-          dontForceOneSidedOpt{"-dont-force-onesided", &noValue, 0, mainForceOneSidedOption, nullptr},
-          monochromaticOpt{"-monochromatic", &yesValue, 0, mainMonochromeOption, nullptr},
-          glutDebugOpt{"-glutDebug", &glutDebugEnabled, 0, setIntTrue, nullptr},
+        : widthOpt{"-width", static_cast<int>(offsetof(AppOptions, width)), 1, nullptr, nullptr},
+          heightOpt{"-height", static_cast<int>(offsetof(AppOptions, height)), 1, nullptr, nullptr},
+          nqcdivsOpt{"-nqcdivs", static_cast<int>(offsetof(AppOptions, nqcdivs)), 1, nullptr, nullptr},
+          forceOneSidedOpt{"-force-onesided", static_cast<int>(offsetof(AppOptions, yesValue)), 0, mainForceOneSidedOption, nullptr},
+          dontForceOneSidedOpt{"-dont-force-onesided", static_cast<int>(offsetof(AppOptions, noValue)), 0, mainForceOneSidedOption, nullptr},
+          monochromaticOpt{"-monochromatic", static_cast<int>(offsetof(AppOptions, yesValue)), 0, mainMonochromeOption, nullptr},
+          glutDebugOpt{"-glutDebug", static_cast<int>(offsetof(AppOptions, debug)), 0, setIntTrue, nullptr},
           registry{
               REGISTER_OPTION(int, widthOpt, 5),
               REGISTER_OPTION(int, heightOpt, 6),

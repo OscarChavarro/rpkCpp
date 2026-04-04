@@ -10,14 +10,17 @@ class TypedOption {
   public:
     TypedOption();
     TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
+    TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
 
     const char *getName() const;
     int getConsumesValue() const;
-    bool apply(int argc, char **argv);
+    bool apply(void *context, int argc, char **argv);
 
   private:
     const char *name_;
     T *target_;
+    int offset_;
+    bool useOffset_;
     int consumesValue_;
     void (*onSet_)(T &);
     bool (*parseArgs_)(int, char **, T &);
@@ -30,28 +33,28 @@ class OptionBase {
         const char *name,
         int abbreviationLength,
         int (*consumesValue)(void *),
-        bool (*apply)(void *, int, char **),
+        bool (*apply)(void *, void *, int, char **),
         void *option);
 
     bool isConfigured() const;
     const char *getName() const;
     int getAbbreviationLength() const;
     int consumesValue() const;
-    bool apply(int argc, char **argv) const;
+    bool apply(void *context, int argc, char **argv) const;
 
   private:
     const char *name_;
     int abbreviationLength_;
     int (*consumesValue_)(void *);
-    bool (*apply_)(void *, int, char **);
+    bool (*apply_)(void *, void *, int, char **);
     void *option_;
 };
 
 template<typename T>
-bool applyOption(TypedOption<T> &opt, int argc, char **argv);
+bool applyOption(TypedOption<T> &opt, void *context, int argc, char **argv);
 
 template<typename T>
-bool applyAdapter(void *opt, int argc, char **argv);
+bool applyAdapter(void *opt, void *context, int argc, char **argv);
 
 template<typename T>
 int consumesValueAdapter(void *opt);

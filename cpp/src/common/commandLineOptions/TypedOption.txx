@@ -2,6 +2,8 @@ template<typename T>
 TypedOption<T>::TypedOption():
     name_(nullptr),
     target_(nullptr),
+    offset_(0),
+    useOffset_(false),
     consumesValue_(1),
     onSet_(nullptr),
     parseArgs_(nullptr) {
@@ -11,6 +13,19 @@ template<typename T>
 TypedOption<T>::TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &)):
     name_(name),
     target_(target),
+    offset_(0),
+    useOffset_(false),
+    consumesValue_(consumesValue),
+    onSet_(onSet),
+    parseArgs_(parseArgs) {
+}
+
+template<typename T>
+TypedOption<T>::TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &)):
+    name_(name),
+    target_(nullptr),
+    offset_(offset),
+    useOffset_(true),
     consumesValue_(consumesValue),
     onSet_(onSet),
     parseArgs_(parseArgs) {
@@ -27,25 +42,32 @@ int TypedOption<T>::getConsumesValue() const {
 }
 
 template<typename T>
-bool TypedOption<T>::apply(int argc, char **argv) {
-    if ( target_ == nullptr ) {
+bool TypedOption<T>::apply(void *context, int argc, char **argv) {
+    T *target = target_;
+    if ( useOffset_ ) {
+        if ( context == nullptr ) {
+            return false;
+        }
+        target = (T *)((char *)context + offset_);
+    }
+    if ( target == nullptr ) {
         return false;
     }
     if ( consumesValue_ == 0 ) {
         if ( parseArgs_ != nullptr ) {
-            if ( !parseArgs_(0, nullptr, *target_) ) {
+            if ( !parseArgs_(0, nullptr, *target) ) {
                 return false;
             }
         }
         if ( onSet_ != nullptr ) {
-            onSet_(*target_);
+            onSet_(*target);
         }
         return true;
     }
     if ( argc < consumesValue_ ) {
         return false;
     }
-    T value = *target_;
+    T value = *target;
     bool parsed = false;
     if ( parseArgs_ != nullptr ) {
         parsed = parseArgs_(consumesValue_, argv, value);
@@ -55,9 +77,9 @@ bool TypedOption<T>::apply(int argc, char **argv) {
     if ( !parsed ) {
         return false;
     }
-    *target_ = value;
+    *target = value;
     if ( onSet_ != nullptr ) {
-        onSet_(*target_);
+        onSet_(*target);
     }
     return true;
 }
@@ -74,7 +96,7 @@ inline OptionBase::OptionBase(
         const char *name,
         int abbreviationLength,
         int (*consumesValue)(void *),
-        bool (*apply)(void *, int, char **),
+        bool (*apply)(void *, void *, int, char **),
         void *option):
     name_(name),
     abbreviationLength_(abbreviationLength),
@@ -102,24 +124,24 @@ inline int OptionBase::consumesValue() const {
     return consumesValue_(option_);
 }
 
-inline bool OptionBase::apply(int argc, char **argv) const {
+inline bool OptionBase::apply(void *context, int argc, char **argv) const {
     if ( apply_ == nullptr ) {
         return false;
     }
-    return apply_(option_, argc, argv);
+    return apply_(option_, context, argc, argv);
 }
 
 template<typename T>
-bool applyOption(TypedOption<T> &opt, int argc, char **argv) {
-    return opt.apply(argc, argv);
+bool applyOption(TypedOption<T> &opt, void *context, int argc, char **argv) {
+    return opt.apply(context, argc, argv);
 }
 
 template<typename T>
-bool applyAdapter(void *opt, int argc, char **argv) {
+bool applyAdapter(void *opt, void *context, int argc, char **argv) {
     if ( opt == nullptr ) {
         return false;
     }
-    return applyOption(*(TypedOption<T> *)opt, argc, argv);
+    return applyOption(*(TypedOption<T> *)opt, context, argc, argv);
 }
 
 template<typename T>

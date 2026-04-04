@@ -23,7 +23,7 @@
 #include "common/commandLineOptions/TypedOption.h"
 #include "app/options/BatchOptions.h"
 #include "app/options/CommandLine.h"
-#include "common/commandLineOptions/GeneralProgramOptions.h"
+#include "app/options/GeneralProgramOptions.h"
 
 namespace {
 
@@ -308,23 +308,30 @@ CommandLine::commandLineGeneralProgramParseOptions(
         bool *glutDebugEnabledOut)
 {
     GeneralProgramOptionsRegistry optionsRegistry(
-        outputImageWidth,
-        outputImageHeight,
-        numberOfQuarterCircleDivisions,
-        yesValue,
-        noValue,
-        CommandLine::glutDebugEnabled,
         CommandLine::mainForceOneSidedOption,
         CommandLine::mainMonochromeOption,
         setIntTrue);
+
+    AppOptions appOptions;
+    appOptions.width = outputImageWidth;
+    appOptions.height = outputImageHeight;
+    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
+    appOptions.yesValue = 1;
+    appOptions.noValue = 0;
+    appOptions.debug = 0;
 
     fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
     backgroundMode = BackgroundMode::NONE;
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
-    CommandLine::glutDebugEnabled = false;
+    CommandLine::glutDebugEnabled = appOptions.debug;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
-    OptionParser<OptionBase>::parse(argc, argv, optionsRegistry.entries(), optionsRegistry.count());
+    OptionParser<OptionBase>::parse(argc, argv, optionsRegistry.entries(), optionsRegistry.count(), &appOptions);
+
+    outputImageWidth = appOptions.width;
+    outputImageHeight = appOptions.height;
+    numberOfQuarterCircleDivisions = appOptions.nqcdivs;
+    CommandLine::glutDebugEnabled = appOptions.debug;
 
     if ( fileOptionsForceOneSidedSurfaces != 0 ) {
         *oneSidedSurfaces = true;
