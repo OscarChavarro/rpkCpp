@@ -14,8 +14,7 @@
 
 void
 RadianceOptionsParser::selectRadianceMethod(
-    const int *argc,
-    char **argv,
+    const char *name,
     RadianceMethod **newRadianceMethod,
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
@@ -23,19 +22,7 @@ RadianceOptionsParser::selectRadianceMethod(
     PhotonMapState &photonMapState,
     PhotonMapConfig &photonMapConfig)
 {
-    bool getNext = false;
-    const char *name = nullptr;
-    for ( int i = 0; i < *argc; i++ ) {
-        if ( strcmp(argv[i], "-radiance-method") == 0 ) {
-            getNext = true;
-            continue;
-        } else if ( getNext ) {
-            name = argv[i];
-            break;
-        }
-    }
-
-    if ( name != nullptr ) {
+    if ( name != nullptr && name[0] != '\0' ) {
         if ( *newRadianceMethod != nullptr ) {
             delete *newRadianceMethod;
             *newRadianceMethod = nullptr;
@@ -77,17 +64,18 @@ RadianceOptionsParser::parse(
     StochasticRayTracingState &stochasticRayTracingState)
 {
     char radianceMethodsString[RADIANCE_METHODS_STRING_LENGTH];
+    radianceMethodsString[0] = '\0';
+
+    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
     RadianceOptionsParser::selectRadianceMethod(
-        argc,
-        argv,
+        radianceMethodsString,
         newRadianceMethod,
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
         photonMapState,
         photonMapConfig);
-    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED

@@ -209,6 +209,9 @@ set(MAIN_SRC
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp
+    src/app/options/CommandLineCoreGroup.cpp
+    src/app/options/CommandLineCameraGroup.cpp
+    src/app/options/CommandLineBatchGroup.cpp
     src/app/options/CommandLine.cpp
     src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp

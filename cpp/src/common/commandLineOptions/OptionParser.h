@@ -1,29 +1,7 @@
 #ifndef __OPTION_CORE_PARSER__
 #define __OPTION_CORE_PARSER__
 
-#include "common/commandLineOptions/TypedOption.h"
-
-template<typename TOptionBase>
-class OptionGroupT {
-  public:
-    OptionGroupT():
-        name(nullptr),
-        options(nullptr),
-        count(0) {
-    }
-
-    OptionGroupT(const char *groupName, TOptionBase *groupOptions, int groupCount):
-        name(groupName),
-        options(groupOptions),
-        count(groupCount) {
-    }
-
-    const char *name;
-    TOptionBase *options;
-    int count;
-};
-
-typedef OptionGroupT<OptionBase> OptionGroup;
+#include "common/commandLineOptions/OptionGroup.h"
 
 template<typename TOptionBase>
 class OptionParser {

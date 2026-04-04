@@ -5,7 +5,6 @@
 #include "java/lang/System.h"
 #include "common/Error.h"
 #include "common/RenderOptions.h"
-#include "scene/ConstantColorBackground.h"
 #include "tonemap/ToneMap.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 
@@ -23,7 +22,6 @@
 #include "common/commandLineOptions/TypedOption.h"
 #include "app/options/BatchOptions.h"
 #include "app/options/CommandLine.h"
-#include "app/options/GeneralProgramOptions.h"
 
 namespace {
 
@@ -60,26 +58,6 @@ bool parseFixedStringBinding(int argc, char **argv, FixedStringBinding &binding)
     }
     strncpy(binding.target, argv[0], binding.maxLength);
     binding.target[binding.maxLength - 1] = '\0';
-    return true;
-}
-
-bool parseVector3(int argc, char **argv, Vector3D &value) {
-    if ( argc < 3 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr || argv[2] == nullptr ) {
-        return false;
-    }
-    char *endPointer = nullptr;
-    value.x = strtof(argv[0], &endPointer);
-    if ( endPointer == argv[0] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.y = strtof(argv[1], &endPointer);
-    if ( endPointer == argv[1] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.z = strtof(argv[2], &endPointer);
-    if ( endPointer == argv[2] || *endPointer != '\0' ) {
-        return false;
-    }
     return true;
 }
 
@@ -175,247 +153,6 @@ RenderOptions CommandLine::renderOptionsState;
 ColorRgb CommandLine::outlineColor;
 BatchOptions CommandLine::batchOptionsState;
 
-ColorRgb
-CommandLine::commandLineDefaultBackgroundColor() {
-    return DEFAULT_BACKGROUND_COLOR;
-}
-
-Background *
-CommandLine::commandLineCreateBackground() {
-    if ( backgroundMode == BackgroundMode::SOLID ) {
-        return new ConstantColorBackground(backgroundColor);
-    }
-    return nullptr;
-}
-
-bool
-CommandLine::commandLineParseFloat(const char *text, float *value) {
-    if ( text == nullptr || value == nullptr ) {
-        return false;
-    }
-
-    char *endPointer = nullptr;
-    const float parsedValue = strtof(text, &endPointer);
-    if ( endPointer == text || *endPointer != '\0' ) {
-        return false;
-    }
-
-    *value = parsedValue;
-    return true;
-}
-
-bool
-CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
-    float red = 0.0f;
-    float green = 0.0f;
-    float blue = 0.0f;
-    if ( !CommandLine::commandLineParseFloat(rArg, &red)
-         || !CommandLine::commandLineParseFloat(gArg, &green)
-         || !CommandLine::commandLineParseFloat(bArg, &blue) ) {
-        return false;
-    }
-
-    if ( red < 0.0f || red > 1.0f || green < 0.0f || green > 1.0f || blue < 0.0f || blue > 1.0f ) {
-        return false;
-    }
-
-    color->set(red, green, blue);
-    return true;
-}
-
-void
-CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
-    int writeIndex = 0;
-    int readIndex = 0;
-    while ( readIndex < *argc ) {
-        const char *argument = argv[readIndex];
-        if ( argument == nullptr || strcmp(argument, "-background") != 0 ) {
-            argv[writeIndex++] = argv[readIndex++];
-            continue;
-        }
-
-        if ( readIndex + 1 >= *argc ) {
-            java::System::err.printf("Option '-background' requires a mode. Supported mode: solid.\n");
-            readIndex += 1;
-            continue;
-        }
-
-        const char *mode = argv[readIndex + 1];
-        if ( strcasecmp(mode, "solid") != 0 ) {
-            java::System::err.printf(
-                "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",
-                mode);
-            readIndex += 2;
-            continue;
-        }
-
-        if ( readIndex + 4 >= *argc ) {
-            java::System::err.printf(
-                "Option '-background solid' requires three values in range [0.0, 1.0].\n");
-            readIndex += 2;
-            continue;
-        }
-
-        ColorRgb parsedColor;
-        if ( !CommandLine::commandLineParseBackgroundColor(
-                 argv[readIndex + 2],
-                 argv[readIndex + 3],
-                 argv[readIndex + 4],
-                 &parsedColor) ) {
-            java::System::err.printf(
-                "Invalid '-background solid' color. Use '-background solid <r> <g> <b>' with values in [0.0, 1.0].\n");
-        } else {
-            backgroundMode = BackgroundMode::SOLID;
-            backgroundColor = parsedColor;
-        }
-        readIndex += 5;
-    }
-
-    while ( writeIndex < *argc ) {
-        argv[writeIndex++] = nullptr;
-    }
-    *argc = writeIndex;
-}
-
-void
-CommandLine::mainForceOneSidedOption(int &value) {
-    fileOptionsForceOneSidedSurfaces = value;
-}
-
-void
-CommandLine::mainMonochromeOption(int &value) {
-    numberOfQuarterCircleDivisions = value;
-}
-
-void
-CommandLine::commandLineImageWidthOption(int &value) {
-    outputImageWidth = value;
-}
-
-void
-CommandLine::commandLineImageHeightOption(int &value) {
-    outputImageHeight = value;
-}
-
-void
-CommandLine::commandLineGeneralProgramParseOptions(
-        int *argc,
-        char **argv,
-        bool *oneSidedSurfaces,
-        int *conicSubDivisions,
-        int *imageOutputWidth,
-        int *imageOutputHeight,
-        bool *glutDebugEnabledOut)
-{
-    GeneralProgramOptionsRegistry optionsRegistry(
-        CommandLine::mainForceOneSidedOption,
-        CommandLine::mainMonochromeOption,
-        setIntTrue);
-
-    AppOptions appOptions;
-    appOptions.width = outputImageWidth;
-    appOptions.height = outputImageHeight;
-    appOptions.nqcdivs = numberOfQuarterCircleDivisions;
-    appOptions.yesValue = 1;
-    appOptions.noValue = 0;
-    appOptions.debug = 0;
-
-    fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
-    numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-    backgroundMode = BackgroundMode::NONE;
-    backgroundColor = DEFAULT_BACKGROUND_COLOR;
-    CommandLine::glutDebugEnabled = appOptions.debug;
-    CommandLine::commandLineParseBackgroundOption(argc, argv);
-    OptionGroup generalGroups[] = {
-        OptionGroup("global", optionsRegistry.entries(), optionsRegistry.count())
-    };
-    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
-
-    outputImageWidth = appOptions.width;
-    outputImageHeight = appOptions.height;
-    numberOfQuarterCircleDivisions = appOptions.nqcdivs;
-    CommandLine::glutDebugEnabled = appOptions.debug;
-
-    if ( fileOptionsForceOneSidedSurfaces != 0 ) {
-        *oneSidedSurfaces = true;
-    } else {
-        *oneSidedSurfaces = false;
-    }
-    *conicSubDivisions = numberOfQuarterCircleDivisions;
-    *imageOutputWidth = outputImageWidth;
-    *imageOutputHeight = outputImageHeight;
-    *glutDebugEnabledOut = CommandLine::glutDebugEnabled;
-
-#ifndef OPEN_GL_ENABLED
-    if ( CommandLine::glutDebugEnabled ) {
-        java::System::err.printf(
-            "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
-        java::System::err.flush();
-        java::System::exit(1);
-    }
-#endif
-}
-
-void
-CommandLine::cameraSetEyePositionOption(Vector3D &val) {
-    cameraState.setEyePosition(val.x, val.y, val.z);
-}
-
-void
-CommandLine::cameraSetLookPositionOption(Vector3D &val) {
-    cameraState.setLookPosition(val.x, val.y, val.z);
-}
-
-void
-CommandLine::cameraSetUpDirectionOption(Vector3D &val) {
-    cameraState.setUpDirection(val.x, val.y, val.z);
-}
-
-void
-CommandLine::cameraSetFieldOfViewOption(float &val) {
-    cameraState.setFieldOfView(val);
-}
-
-void
-CommandLine::cameraDefaults(Camera *camera, int imageWidth, int imageHeight) {
-    Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
-    Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
-    Vector3D upDirection = DEFAULT_CAMERA_UP_DIRECTION;
-    ColorRgb backgroundColorSelected = DEFAULT_BACKGROUND_COLOR;
-
-    camera->set(
-        &eyePosition,
-        &lookPosition,
-        &upDirection,
-        DEFAULT_CAMERA_FIELD_OF_VIEW,
-        imageWidth,
-        imageHeight,
-        &backgroundColorSelected);
-}
-
-void
-CommandLine::cameraParseOptions(
-        int *argc,
-        char **argv,
-        Camera *camera,
-        int imageWidth,
-        int imageHeight)
-{
-    TypedOption<Vector3D> eyePointOpt = {"-eyepoint", &cameraState.eyePosition, 3, CommandLine::cameraSetEyePositionOption, parseVector3};
-    TypedOption<Vector3D> centerOpt = {"-center", &cameraState.lookPosition, 3, CommandLine::cameraSetLookPositionOption, parseVector3};
-    TypedOption<Vector3D> upDirOpt = {"-updir", &cameraState.upDirection, 3, CommandLine::cameraSetUpDirectionOption, parseVector3};
-    TypedOption<float> fovOpt = {"-fov", &cameraState.fieldOfVision, 1, CommandLine::cameraSetFieldOfViewOption, nullptr};
-    OptionBase cameraOptions[] = {
-        REGISTER_OPTION(Vector3D, eyePointOpt, 4),
-        REGISTER_OPTION(Vector3D, centerOpt, 4),
-        REGISTER_OPTION(Vector3D, upDirOpt, 3),
-        REGISTER_OPTION(float, fovOpt, 4)
-    };
-
-    CommandLine::cameraDefaults(&cameraState, imageWidth, imageHeight);
-    OptionParser<OptionBase>::parse(argc, argv, cameraOptions, 4);
-    *camera = cameraState;
-}
 
 void
 CommandLine::iterationMethodOption(char *&name) {
@@ -493,7 +230,10 @@ CommandLine::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(float, grMinElemAreaOpt, 6)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, galerkinOptions, 13);
+    OptionGroup galerkinGroups[] = {
+        OptionGroup("galerkin", galerkinOptions, 13)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, galerkinGroups, 1);
 }
 
 // Composes explanation for -tonemapping command line option
@@ -643,7 +383,10 @@ CommandLine::toneMapParseOptions(
     CommandLine::toneMapName = toneMapNameOut;
     CommandLine::toneMapOptions = &toneMapOptionsContext;
     CommandLine::makeToneMappingMethodsString();
-    OptionParser<OptionBase>::parse(argc, argv, toneMappingOptions, 12);
+    OptionGroup toneMappingGroups[] = {
+        OptionGroup("toneMapping", toneMappingOptions, 12)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, toneMappingGroups, 1);
     ToneMap::recomputeGammaTables(toneMapOptionsContext, (*CommandLine::toneMapOptions).gamma);
     CommandLine::toneMapOptions = nullptr;
     CommandLine::toneMapName = nullptr;
@@ -655,12 +398,23 @@ CommandLine::radianceMethodParseOptions(
         char **argv,
         char *radianceMethodsStringOut)
 {
-    CommandLine::radianceMethodsString = radianceMethodsStringOut;
-    TypedOption<char *> radianceMethodOpt = {"-radiance-method", &CommandLine::radianceMethodsString, 1, nullptr, nullptr};
+    char *radianceMethodName = nullptr;
+    TypedOption<char *> radianceMethodOpt = {"-radiance-method", &radianceMethodName, 1, nullptr, nullptr};
     OptionBase radianceOptions[] = {
         REGISTER_OPTION(char *, radianceMethodOpt, 4)
     };
-    OptionParser<OptionBase>::parse(argc, argv, radianceOptions, 1);
+    OptionGroup radianceGroups[] = {
+        OptionGroup("radiance", radianceOptions, 1)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, radianceGroups, 1);
+
+    if ( radianceMethodsStringOut != nullptr ) {
+        if ( radianceMethodName != nullptr ) {
+            strcpy(radianceMethodsStringOut, radianceMethodName);
+        } else {
+            radianceMethodsStringOut[0] = '\0';
+        }
+    }
 }
 
 void
@@ -704,7 +458,10 @@ CommandLine::renderParseOptions(
 
     renderOptionsState = *renderOptions;
 
-    OptionParser<OptionBase>::parse(argc, argv, renderingOptions, 5);
+    OptionGroup renderGroups[] = {
+        OptionGroup("render", renderingOptions, 5)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, renderGroups, 1);
 
     *renderOptions = renderOptionsState;
     renderOptions->outlineColor.r = outlineColor.r;
@@ -712,51 +469,6 @@ CommandLine::renderParseOptions(
     renderOptions->outlineColor.b = outlineColor.b;
 }
 
-void
-CommandLine::binaryOutputOption(const char *& /*value*/) {
-    batchOptionsState.exportBinary =
-        batchOptionsState.binaryOutputFilename != nullptr
-        && batchOptionsState.binaryOutputFilename[0] != '\0';
-}
-
-void
-CommandLine::binaryInputOption(const char *& /*value*/) {
-    batchOptionsState.importBinary =
-        batchOptionsState.binaryInputFilename != nullptr
-        && batchOptionsState.binaryInputFilename[0] != '\0';
-}
-
-void
-CommandLine::batchParseOptions(
-        int *argc,
-        char **argv,
-        BatchOptions *options)
-{
-    TypedOption<int> iterationsOpt = {"-iterations", &batchOptionsState.iterations, 1, nullptr, nullptr};
-    TypedOption<const char *> obfOpt = {"-obf", &batchOptionsState.binaryOutputFilename, 1, CommandLine::binaryOutputOption, nullptr};
-    TypedOption<const char *> ibfOpt = {"-ibf", &batchOptionsState.binaryInputFilename, 1, CommandLine::binaryInputOption, nullptr};
-    TypedOption<const char *> radianceImageOpt = {"-radiance-image-savefile", &batchOptionsState.radianceImageFileNameFormat, 1, nullptr, nullptr};
-    TypedOption<const char *> radianceModelOpt = {"-radiance-model-savefile", &batchOptionsState.radianceModelFileNameFormat, 1, nullptr, nullptr};
-    TypedOption<int> saveModuloOpt = {"-save-modulo", &batchOptionsState.saveModulo, 1, nullptr, nullptr};
-    TypedOption<const char *> raytracingImageOpt = {"-raytracing-image-savefile", &batchOptionsState.raytracingImageFileName, 1, nullptr, nullptr};
-    TypedOption<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, setIntTrue, nullptr};
-    OptionBase batchCommandLineOptions[] = {
-        REGISTER_OPTION(int, iterationsOpt, 3),
-        REGISTER_OPTION(const char *, obfOpt, 4),
-        REGISTER_OPTION(const char *, ibfOpt, 4),
-        REGISTER_OPTION(const char *, radianceImageOpt, 12),
-        REGISTER_OPTION(const char *, radianceModelOpt, 12),
-        REGISTER_OPTION(int, saveModuloOpt, 8),
-        REGISTER_OPTION(const char *, raytracingImageOpt, 14),
-        REGISTER_OPTION(int, timingsOpt, 3)
-    };
-
-    batchOptionsState = *options;
-    batchOptionsState.exportBinary = false;
-    batchOptionsState.importBinary = false;
-    OptionParser<OptionBase>::parse(argc, argv, batchCommandLineOptions, 8);
-    *options = batchOptionsState;
-}
 
 #ifdef RAYTRACING_ENABLED
 
@@ -853,7 +565,10 @@ CommandLine::stochasticRelaxationRadiosityParseOptions(
         REGISTER_OPTION(int, srrInitialLsSamplesOpt, 7)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, srrOptions, 17);
+    OptionGroup srrGroups[] = {
+        OptionGroup("stochasticRelaxation", srrOptions, 17)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, srrGroups, 1);
 }
 
 void
@@ -887,7 +602,10 @@ CommandLine::randomWalkRadiosityParseOptions(
         REGISTER_OPTION(int, rwrNumlastOpt, 12)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, rwrOptions, 9);
+    OptionGroup rwrGroups[] = {
+        OptionGroup("randomWalk", rwrOptions, 9)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, rwrGroups, 1);
 }
 
 EnumDesc CommandLine::rayMatterPixelFilterValues[] = {
@@ -912,7 +630,10 @@ CommandLine::rayMattingParseOptions(
         REGISTER_OPTION(EnumBinding<RayMatterFilterType>, rmPixelFilterOpt, 7)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, rayMatterOptions, 2);
+    OptionGroup rayMatterGroups[] = {
+        OptionGroup("rayMatter", rayMatterOptions, 2)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, rayMatterGroups, 1);
 }
 
 /*** Enum Option types ***/
@@ -982,7 +703,10 @@ CommandLine::stochasticRayTracerParseOptions(
         REGISTER_OPTION(int, rtsNoIndirectBackgroundOpt, 8)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, stochasticRatTracerOptions, 15);
+    OptionGroup stochasticRaytracerGroups[] = {
+        OptionGroup("stochasticRaytracer", stochasticRatTracerOptions, 15)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, stochasticRaytracerGroups, 1);
 }
 
 int CommandLine::regExpStringLength = BidirectionalPathRaytracerConfig::MAX_REGEXP_SIZE;
@@ -1027,7 +751,10 @@ CommandLine::biDirectionalPathParseOptions(
         REGISTER_OPTION(FixedStringBinding, bidirRexpIndirectOpt, 13)
     };
 
-    OptionParser<OptionBase>::parse(argc, argv, bidirectionalOptions, 14);
+    OptionGroup bidirectionalGroups[] = {
+        OptionGroup("bidirectional", bidirectionalOptions, 14)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, bidirectionalGroups, 1);
 }
 
 char *CommandLine::raytracingMethodsString = nullptr;
@@ -1053,7 +780,10 @@ CommandLine::rayTracingParseOptions(
 
     CommandLine::rayTracerName = rayTracerNameOut;
     CommandLine::raytracingMethodsString = raytracingMethodsStringOut;
-    OptionParser<OptionBase>::parse(argc, argv, raytracingOptions, 1);
+    OptionGroup raytracingGroups[] = {
+        OptionGroup("raytracing", raytracingOptions, 1)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, raytracingGroups, 1);
 }
 
 void
@@ -1084,7 +814,10 @@ CommandLine::photonMapParseOptions(
         REGISTER_OPTION(int, pmapReconPhotonsOpt, 9),
         REGISTER_OPTION(int, pmapBalancingOpt, 9)
     };
-    OptionParser<OptionBase>::parse(argc, argv, photonMapOptions, 10);
+    OptionGroup photonMapGroups[] = {
+        OptionGroup("photonMap", photonMapOptions, 10)
+    };
+    OptionParser<OptionBase>::parse(argc, argv, photonMapGroups, 1);
 }
 
 #endif

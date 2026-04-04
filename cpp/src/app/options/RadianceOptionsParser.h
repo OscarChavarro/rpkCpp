@@ -30,8 +30,7 @@ class RadianceOptionsParser final {
     static constexpr int RADIANCE_METHODS_STRING_LENGTH = 1000;
 
     static void selectRadianceMethod(
-        const int *argc,
-        char **argv,
+        const char *name,
         RadianceMethod **newRadianceMethod,
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,

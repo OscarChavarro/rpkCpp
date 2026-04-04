@@ -5,27 +5,6 @@
 #include <cstring>
 #include <climits>
 
-inline char commandLineOptionsToLowerAscii(char c) {
-    if ( c >= 'A' && c <= 'Z' ) {
-        return static_cast<char>(c - 'A' + 'a');
-    }
-    return c;
-}
-
-inline bool commandLineOptionsEqualsIgnoreCase(const char *a, const char *b) {
-    if ( a == nullptr || b == nullptr ) {
-        return false;
-    }
-    unsigned long i = 0;
-    while ( a[i] != '\0' && b[i] != '\0' ) {
-        if ( commandLineOptionsToLowerAscii(a[i]) != commandLineOptionsToLowerAscii(b[i]) ) {
-            return false;
-        }
-        i++;
-    }
-    return a[i] == '\0' && b[i] == '\0';
-}
-
 template<typename T>
 struct DefaultParser {
     static bool parse(const char * /*input*/, T & /*out*/) {
@@ -90,19 +69,41 @@ struct DefaultParser<bool> {
         if ( input == nullptr ) {
             return false;
         }
-        if ( commandLineOptionsEqualsIgnoreCase(input, "true")
-             || commandLineOptionsEqualsIgnoreCase(input, "yes")
+        if ( equalsIgnoreCase(input, "true")
+             || equalsIgnoreCase(input, "yes")
              || strcmp(input, "1") == 0 ) {
             out = true;
             return true;
         }
-        if ( commandLineOptionsEqualsIgnoreCase(input, "false")
-             || commandLineOptionsEqualsIgnoreCase(input, "no")
+        if ( equalsIgnoreCase(input, "false")
+             || equalsIgnoreCase(input, "no")
              || strcmp(input, "0") == 0 ) {
             out = false;
             return true;
         }
         return false;
+    }
+
+  private:
+    static char toLowerAscii(char c) {
+        if ( c >= 'A' && c <= 'Z' ) {
+            return static_cast<char>(c - 'A' + 'a');
+        }
+        return c;
+    }
+
+    static bool equalsIgnoreCase(const char *a, const char *b) {
+        if ( a == nullptr || b == nullptr ) {
+            return false;
+        }
+        unsigned long i = 0;
+        while ( a[i] != '\0' && b[i] != '\0' ) {
+            if ( toLowerAscii(a[i]) != toLowerAscii(b[i]) ) {
+                return false;
+            }
+            i++;
+        }
+        return a[i] == '\0' && b[i] == '\0';
     }
 };
 
