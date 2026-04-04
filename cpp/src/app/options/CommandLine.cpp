@@ -20,6 +20,8 @@
 #include "app/options/BackgroundMode.h"
 #include "app/options/Options.h"
 #include "app/options/OptionsType.h"
+#include "app/options/TypedOption.h"
+#include "app/options/ValueParser.h"
 #include "app/options/BatchOptions.h"
 #include "app/options/CommandLine.h"
 
@@ -186,6 +188,20 @@ CommandLine::commandLineGeneralProgramParseOptions(
         bool *glutDebugEnabledOut,
         OptionsType &optionTypes)
 {
+    Option<int> widthTypedOption = {
+        "-width",
+        5,
+        &outputImageWidth,
+        ValueParser<int>::parse,
+        nullptr
+    };
+    Option<int> heightTypedOption = {
+        "-height",
+        6,
+        &outputImageHeight,
+        ValueParser<int>::parse,
+        nullptr
+    };
     CommandLineOptionDescription options[] = {
         {"-nqcdivs", 3, &optionTypes.intType, &numberOfQuarterCircleDivisions, Options::DEFAULT_ACTION,
          "-nqcdivs <integer>\t: number of quarter circle divisions"},
@@ -195,10 +211,8 @@ CommandLine::commandLineGeneralProgramParseOptions(
          "-dont-force-onesided\t: allow two-sided surfaces"},
         {"-monochromatic", 5, nullptr, &yesValue, CommandLine::mainMonochromeOption,
          "-monochromatic \t\t: convert colors to shades of grey"},
-        {"-width", 5, &optionTypes.intType, &outputImageWidth, CommandLine::commandLineImageWidthOption,
-                "-width \t\t: image output width in pixels"},
-        {"-height", 6, &optionTypes.intType, &outputImageHeight, CommandLine::commandLineImageHeightOption,
-                "-width \t\t: image output width in pixels"},
+        makeTypedOptionDescription(&widthTypedOption, "-width \t\t: image output width in pixels"),
+        makeTypedOptionDescription(&heightTypedOption, "-width \t\t: image output width in pixels"),
         {"-glutDebug", 6, &optionTypes.setTrueType, &CommandLine::glutDebugEnabled, Options::DEFAULT_ACTION,
                 "-glutDebug\t\t: open interactive GLUT debug window after rendering"},
         {nullptr, 0, nullptr, nullptr, Options::DEFAULT_ACTION, nullptr}

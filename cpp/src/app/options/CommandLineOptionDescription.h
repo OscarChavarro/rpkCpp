@@ -12,6 +12,9 @@ class CommandLineOptionDescription {
     OptionValueWrapper value;
     void (*action)(OptionValueWrapper);
     const char *description; // Short description of the option. For printing command line option usage
+    const void *typedOption;
+    bool (*typedParser)(const void *, const char *);
+    void (*typedAction)(const void *);
 };
 
 #endif

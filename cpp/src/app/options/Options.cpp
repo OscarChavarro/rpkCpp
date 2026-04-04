@@ -428,15 +428,11 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
     CommandLineOptionDescription *opt = Options::optionsLookupOption(Options::optionsCurrentArgumentValue(), options);
     if ( opt ) {
         bool ok = true;
-        if ( opt->type ) {
-            if ( !Options::optionsTypeConsumesCommandLineArgument(opt->type) ) {
-                if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
-                    ok = false;
-                }
-            } else {
+        if ( opt->typedOption != nullptr ) {
+            if ( opt->typedParser != nullptr ) {
                 Options::optionsConsumeArgument();
                 if ( Options::optionsArgumentsRemaining() ) {
-                    if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
+                    if ( !opt->typedParser(opt->typedOption, Options::optionsCurrentArgumentValue()) ) {
                         ok = false;
                     }
                 } else {
@@ -444,12 +440,33 @@ Options::optionsProcessArguments(CommandLineOptionDescription *options) {
                     ok = false;
                 }
             }
-        }
-        if ( ok && opt->action ) {
-            if ( opt->value.ptr != nullptr ) {
-                opt->action(opt->value);
-            } else {
-                opt->action(Options::optionsValueOrDummy(opt));
+            if ( ok && opt->typedAction != nullptr ) {
+                opt->typedAction(opt->typedOption);
+            }
+        } else {
+            if ( opt->type ) {
+                if ( !Options::optionsTypeConsumesCommandLineArgument(opt->type) ) {
+                    if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
+                        ok = false;
+                    }
+                } else {
+                    Options::optionsConsumeArgument();
+                    if ( Options::optionsArgumentsRemaining() ) {
+                        if ( !opt->type->get(Options::optionsValueOrDummy(opt), opt->type->data) ) {
+                            ok = false;
+                        }
+                    } else {
+                        java::System::err.printf("Option argument missing.\n");
+                        ok = false;
+                    }
+                }
+            }
+            if ( ok && opt->action ) {
+                if ( opt->value.ptr != nullptr ) {
+                    opt->action(opt->value);
+                } else {
+                    opt->action(Options::optionsValueOrDummy(opt));
+                }
             }
         }
         Options::optionsConsumeArgument();
