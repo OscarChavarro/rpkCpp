@@ -1,1 +1,1 @@
-grep $@ `find . -name "*.c"` `find . -name "*.h"` `find . -name "*.cpp"`
+grep $@ `find ./src -name "*.h"` `find ./src -name "*.cpp"`

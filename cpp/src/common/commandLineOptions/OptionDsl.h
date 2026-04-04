@@ -1,7 +1,7 @@
 #ifndef __OPTION_DSL__
 #define __OPTION_DSL__
 
-#include "app/options/TypedOption.h"
+#include "common/commandLineOptions/TypedOption.h"
 
 #define DEFINE_OPTION_INT(name, var) \
     { name, &(var), 1, nullptr, nullptr }

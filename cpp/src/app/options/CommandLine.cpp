@@ -19,20 +19,23 @@
 #endif
 
 #include "app/options/BackgroundMode.h"
-#include "app/options/OptionDsl.h"
-#include "app/options/TypedOption.h"
+#include "common/commandLineOptions/OptionParser.h"
+#include "common/commandLineOptions/TypedOption.h"
 #include "app/options/BatchOptions.h"
 #include "app/options/CommandLine.h"
+#include "common/commandLineOptions/GeneralProgramOptions.h"
 
 namespace {
 
 template<typename T>
-struct EnumBinding {
+class EnumBinding {
+  public:
     T *target;
     const EnumDesc *values;
 };
 
-struct FixedStringBinding {
+class FixedStringBinding {
+  public:
     char *target;
     int maxLength;
 };
@@ -304,22 +307,16 @@ CommandLine::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    Option<int> widthOpt = DEFINE_OPTION_INT("-width", outputImageWidth);
-    Option<int> heightOpt = DEFINE_OPTION_INT("-height", outputImageHeight);
-    Option<int> nqcdivsOpt = DEFINE_OPTION_INT("-nqcdivs", numberOfQuarterCircleDivisions);
-    Option<int> forceOneSidedOpt = {"-force-onesided", &yesValue, 0, CommandLine::mainForceOneSidedOption, nullptr};
-    Option<int> dontForceOneSidedOpt = {"-dont-force-onesided", &noValue, 0, CommandLine::mainForceOneSidedOption, nullptr};
-    Option<int> monochromaticOpt = {"-monochromatic", &yesValue, 0, CommandLine::mainMonochromeOption, nullptr};
-    Option<int> glutDebugOpt = {"-glutDebug", &CommandLine::glutDebugEnabled, 0, setIntTrue, nullptr};
-    OptionBase optionsRegistry[] = {
-        REGISTER_OPTION(int, widthOpt, 5),
-        REGISTER_OPTION(int, heightOpt, 6),
-        REGISTER_OPTION(int, nqcdivsOpt, 3),
-        REGISTER_OPTION(int, forceOneSidedOpt, 10),
-        REGISTER_OPTION(int, dontForceOneSidedOpt, 14),
-        REGISTER_OPTION(int, monochromaticOpt, 5),
-        REGISTER_OPTION(int, glutDebugOpt, 6)
-    };
+    GeneralProgramOptionsRegistry optionsRegistry(
+        outputImageWidth,
+        outputImageHeight,
+        numberOfQuarterCircleDivisions,
+        yesValue,
+        noValue,
+        CommandLine::glutDebugEnabled,
+        CommandLine::mainForceOneSidedOption,
+        CommandLine::mainMonochromeOption,
+        setIntTrue);
 
     fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
@@ -327,7 +324,7 @@ CommandLine::commandLineGeneralProgramParseOptions(
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
     CommandLine::glutDebugEnabled = false;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
-    parseOptionBaseRegistryInPlace(optionsRegistry, 7, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, optionsRegistry.entries(), optionsRegistry.count());
 
     if ( fileOptionsForceOneSidedSurfaces != 0 ) {
         *oneSidedSurfaces = true;
@@ -394,10 +391,10 @@ CommandLine::cameraParseOptions(
         int imageWidth,
         int imageHeight)
 {
-    Option<Vector3D> eyePointOpt = {"-eyepoint", &cameraState.eyePosition, 3, CommandLine::cameraSetEyePositionOption, parseVector3};
-    Option<Vector3D> centerOpt = {"-center", &cameraState.lookPosition, 3, CommandLine::cameraSetLookPositionOption, parseVector3};
-    Option<Vector3D> upDirOpt = {"-updir", &cameraState.upDirection, 3, CommandLine::cameraSetUpDirectionOption, parseVector3};
-    Option<float> fovOpt = {"-fov", &cameraState.fieldOfVision, 1, CommandLine::cameraSetFieldOfViewOption, nullptr};
+    TypedOption<Vector3D> eyePointOpt = {"-eyepoint", &cameraState.eyePosition, 3, CommandLine::cameraSetEyePositionOption, parseVector3};
+    TypedOption<Vector3D> centerOpt = {"-center", &cameraState.lookPosition, 3, CommandLine::cameraSetLookPositionOption, parseVector3};
+    TypedOption<Vector3D> upDirOpt = {"-updir", &cameraState.upDirection, 3, CommandLine::cameraSetUpDirectionOption, parseVector3};
+    TypedOption<float> fovOpt = {"-fov", &cameraState.fieldOfVision, 1, CommandLine::cameraSetFieldOfViewOption, nullptr};
     OptionBase cameraOptions[] = {
         REGISTER_OPTION(Vector3D, eyePointOpt, 4),
         REGISTER_OPTION(Vector3D, centerOpt, 4),
@@ -406,7 +403,7 @@ CommandLine::cameraParseOptions(
     };
 
     CommandLine::cameraDefaults(&cameraState, imageWidth, imageHeight);
-    parseOptionBaseRegistryInPlace(cameraOptions, 4, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, cameraOptions, 4);
     *camera = cameraState;
 }
 
@@ -457,19 +454,19 @@ CommandLine::ambientOption(int &yesno) {
 void
 CommandLine::galerkinParseOptions(int *argc, char **argv) {
     char *iterationMethodName = nullptr;
-    Option<char *> iterationMethodOpt = {"-gr-iteration-method", &iterationMethodName, 1, CommandLine::iterationMethodOption, nullptr};
-    Option<int> grHierarchicalOpt = {"-gr-hierarchical", &trueValue, 0, CommandLine::hierarchicalOption, nullptr};
-    Option<int> grNotHierarchicalOpt = {"-gr-not-hierarchical", &falseValue, 0, CommandLine::hierarchicalOption, nullptr};
-    Option<int> grLazyOpt = {"-gr-lazy-linking", &trueValue, 0, CommandLine::lazyOption, nullptr};
-    Option<int> grNoLazyOpt = {"-gr-no-lazy-linking", &falseValue, 0, CommandLine::lazyOption, nullptr};
-    Option<int> grClusteringOpt = {"-gr-clustering", &trueValue, 0, CommandLine::clusteringOption, nullptr};
-    Option<int> grNoClusteringOpt = {"-gr-no-clustering", &falseValue, 0, CommandLine::clusteringOption, nullptr};
-    Option<int> grImportanceOpt = {"-gr-importance", &trueValue, 0, CommandLine::importanceOption, nullptr};
-    Option<int> grNoImportanceOpt = {"-gr-no-importance", &falseValue, 0, CommandLine::importanceOption, nullptr};
-    Option<int> grAmbientOpt = {"-gr-ambient", &trueValue, 0, CommandLine::ambientOption, nullptr};
-    Option<int> grNoAmbientOpt = {"-gr-no-ambient", &falseValue, 0, CommandLine::ambientOption, nullptr};
-    Option<float> grLinkErrorOpt = {"-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, nullptr, nullptr};
-    Option<float> grMinElemAreaOpt = {"-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, nullptr, nullptr};
+    TypedOption<char *> iterationMethodOpt = {"-gr-iteration-method", &iterationMethodName, 1, CommandLine::iterationMethodOption, nullptr};
+    TypedOption<int> grHierarchicalOpt = {"-gr-hierarchical", &trueValue, 0, CommandLine::hierarchicalOption, nullptr};
+    TypedOption<int> grNotHierarchicalOpt = {"-gr-not-hierarchical", &falseValue, 0, CommandLine::hierarchicalOption, nullptr};
+    TypedOption<int> grLazyOpt = {"-gr-lazy-linking", &trueValue, 0, CommandLine::lazyOption, nullptr};
+    TypedOption<int> grNoLazyOpt = {"-gr-no-lazy-linking", &falseValue, 0, CommandLine::lazyOption, nullptr};
+    TypedOption<int> grClusteringOpt = {"-gr-clustering", &trueValue, 0, CommandLine::clusteringOption, nullptr};
+    TypedOption<int> grNoClusteringOpt = {"-gr-no-clustering", &falseValue, 0, CommandLine::clusteringOption, nullptr};
+    TypedOption<int> grImportanceOpt = {"-gr-importance", &trueValue, 0, CommandLine::importanceOption, nullptr};
+    TypedOption<int> grNoImportanceOpt = {"-gr-no-importance", &falseValue, 0, CommandLine::importanceOption, nullptr};
+    TypedOption<int> grAmbientOpt = {"-gr-ambient", &trueValue, 0, CommandLine::ambientOption, nullptr};
+    TypedOption<int> grNoAmbientOpt = {"-gr-no-ambient", &falseValue, 0, CommandLine::ambientOption, nullptr};
+    TypedOption<float> grLinkErrorOpt = {"-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, nullptr, nullptr};
+    TypedOption<float> grMinElemAreaOpt = {"-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, nullptr, nullptr};
     OptionBase galerkinOptions[] = {
         REGISTER_OPTION(char *, iterationMethodOpt, 6),
         REGISTER_OPTION(int, grHierarchicalOpt, 6),
@@ -486,7 +483,7 @@ CommandLine::galerkinParseOptions(int *argc, char **argv) {
         REGISTER_OPTION(float, grMinElemAreaOpt, 6)
     };
 
-    parseOptionBaseRegistryInPlace(galerkinOptions, 13, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, galerkinOptions, 13);
 }
 
 // Composes explanation for -tonemapping command line option
@@ -606,18 +603,18 @@ CommandLine::toneMapParseOptions(
     Vector3D greenChromaticityValue(0.0, 0.0, 0.0);
     Vector3D blueChromaticityValue(0.0, 0.0, 0.0);
     Vector3D whiteChromaticityValue(0.0, 0.0, 0.0);
-    Option<char *> toneMappingOpt = {"-tonemapping", &toneMapMethodName, 1, CommandLine::toneMappingMethodOption, nullptr};
-    Option<float> brightnessAdjustOpt = {"-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, CommandLine::brightnessAdjustOption, nullptr};
-    Option<char *> adaptOpt = {"-adapt", &adaptMethodName, 1, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption, nullptr};
-    Option<float> lwaOpt = {"-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, nullptr, nullptr};
-    Option<float> ldmaxOpt = {"-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, nullptr, nullptr};
-    Option<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
-    Option<float> gammaOpt = {"-gamma", &toneMapOptionsContext.gamma.r, 1, CommandLine::gammaOption, nullptr};
-    Option<ColorRgb> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, parseColor3};
-    Option<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, CommandLine::redChromaOption, parseCieXy};
-    Option<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, CommandLine::greenChromaOption, parseCieXy};
-    Option<Vector3D> blueOpt = {"-blue", &blueChromaticityValue, 2, CommandLine::blueChromaOption, parseCieXy};
-    Option<Vector3D> whiteOpt = {"-white", &whiteChromaticityValue, 2, CommandLine::whiteChromaOption, parseCieXy};
+    TypedOption<char *> toneMappingOpt = {"-tonemapping", &toneMapMethodName, 1, CommandLine::toneMappingMethodOption, nullptr};
+    TypedOption<float> brightnessAdjustOpt = {"-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, CommandLine::brightnessAdjustOption, nullptr};
+    TypedOption<char *> adaptOpt = {"-adapt", &adaptMethodName, 1, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption, nullptr};
+    TypedOption<float> lwaOpt = {"-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, nullptr, nullptr};
+    TypedOption<float> ldmaxOpt = {"-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, nullptr, nullptr};
+    TypedOption<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
+    TypedOption<float> gammaOpt = {"-gamma", &toneMapOptionsContext.gamma.r, 1, CommandLine::gammaOption, nullptr};
+    TypedOption<ColorRgb> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, parseColor3};
+    TypedOption<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, CommandLine::redChromaOption, parseCieXy};
+    TypedOption<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, CommandLine::greenChromaOption, parseCieXy};
+    TypedOption<Vector3D> blueOpt = {"-blue", &blueChromaticityValue, 2, CommandLine::blueChromaOption, parseCieXy};
+    TypedOption<Vector3D> whiteOpt = {"-white", &whiteChromaticityValue, 2, CommandLine::whiteChromaOption, parseCieXy};
     OptionBase toneMappingOptions[] = {
         REGISTER_OPTION(char *, toneMappingOpt, 4),
         REGISTER_OPTION(float, brightnessAdjustOpt, 4),
@@ -636,7 +633,7 @@ CommandLine::toneMapParseOptions(
     CommandLine::toneMapName = toneMapNameOut;
     CommandLine::toneMapOptions = &toneMapOptionsContext;
     CommandLine::makeToneMappingMethodsString();
-    parseOptionBaseRegistryInPlace(toneMappingOptions, 12, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, toneMappingOptions, 12);
     ToneMap::recomputeGammaTables(toneMapOptionsContext, (*CommandLine::toneMapOptions).gamma);
     CommandLine::toneMapOptions = nullptr;
     CommandLine::toneMapName = nullptr;
@@ -649,11 +646,11 @@ CommandLine::radianceMethodParseOptions(
         char *radianceMethodsStringOut)
 {
     CommandLine::radianceMethodsString = radianceMethodsStringOut;
-    Option<char *> radianceMethodOpt = {"-radiance-method", &CommandLine::radianceMethodsString, 1, nullptr, nullptr};
+    TypedOption<char *> radianceMethodOpt = {"-radiance-method", &CommandLine::radianceMethodsString, 1, nullptr, nullptr};
     OptionBase radianceOptions[] = {
         REGISTER_OPTION(char *, radianceMethodOpt, 4)
     };
-    parseOptionBaseRegistryInPlace(radianceOptions, 1, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, radianceOptions, 1);
 }
 
 void
@@ -682,11 +679,11 @@ CommandLine::renderParseOptions(
         char **argv,
         RenderOptions *renderOptions)
 {
-    Option<int> flatOpt = {"-flat-shading", &trueValue, 0, CommandLine::flatOption, nullptr};
-    Option<int> raycastOpt = {"-raycast", &trueValue, 0, CommandLine::traceOption, nullptr};
-    Option<int> noCullingOpt = {"-no-culling", &trueValue, 0, CommandLine::noCullingOption, nullptr};
-    Option<int> outlinesOpt = {"-outlines", &trueValue, 0, CommandLine::outlinesOption, nullptr};
-    Option<ColorRgb> outlineColorOpt = {"-outline-color", &outlineColor, 3, nullptr, parseColor3};
+    TypedOption<int> flatOpt = {"-flat-shading", &trueValue, 0, CommandLine::flatOption, nullptr};
+    TypedOption<int> raycastOpt = {"-raycast", &trueValue, 0, CommandLine::traceOption, nullptr};
+    TypedOption<int> noCullingOpt = {"-no-culling", &trueValue, 0, CommandLine::noCullingOption, nullptr};
+    TypedOption<int> outlinesOpt = {"-outlines", &trueValue, 0, CommandLine::outlinesOption, nullptr};
+    TypedOption<ColorRgb> outlineColorOpt = {"-outline-color", &outlineColor, 3, nullptr, parseColor3};
     OptionBase renderingOptions[] = {
         REGISTER_OPTION(int, flatOpt, 5),
         REGISTER_OPTION(int, raycastOpt, 5),
@@ -697,7 +694,7 @@ CommandLine::renderParseOptions(
 
     renderOptionsState = *renderOptions;
 
-    parseOptionBaseRegistryInPlace(renderingOptions, 5, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, renderingOptions, 5);
 
     *renderOptions = renderOptionsState;
     renderOptions->outlineColor.r = outlineColor.r;
@@ -725,14 +722,14 @@ CommandLine::batchParseOptions(
         char **argv,
         BatchOptions *options)
 {
-    Option<int> iterationsOpt = {"-iterations", &batchOptionsState.iterations, 1, nullptr, nullptr};
-    Option<const char *> obfOpt = {"-obf", &batchOptionsState.binaryOutputFilename, 1, CommandLine::binaryOutputOption, nullptr};
-    Option<const char *> ibfOpt = {"-ibf", &batchOptionsState.binaryInputFilename, 1, CommandLine::binaryInputOption, nullptr};
-    Option<const char *> radianceImageOpt = {"-radiance-image-savefile", &batchOptionsState.radianceImageFileNameFormat, 1, nullptr, nullptr};
-    Option<const char *> radianceModelOpt = {"-radiance-model-savefile", &batchOptionsState.radianceModelFileNameFormat, 1, nullptr, nullptr};
-    Option<int> saveModuloOpt = {"-save-modulo", &batchOptionsState.saveModulo, 1, nullptr, nullptr};
-    Option<const char *> raytracingImageOpt = {"-raytracing-image-savefile", &batchOptionsState.raytracingImageFileName, 1, nullptr, nullptr};
-    Option<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, setIntTrue, nullptr};
+    TypedOption<int> iterationsOpt = {"-iterations", &batchOptionsState.iterations, 1, nullptr, nullptr};
+    TypedOption<const char *> obfOpt = {"-obf", &batchOptionsState.binaryOutputFilename, 1, CommandLine::binaryOutputOption, nullptr};
+    TypedOption<const char *> ibfOpt = {"-ibf", &batchOptionsState.binaryInputFilename, 1, CommandLine::binaryInputOption, nullptr};
+    TypedOption<const char *> radianceImageOpt = {"-radiance-image-savefile", &batchOptionsState.radianceImageFileNameFormat, 1, nullptr, nullptr};
+    TypedOption<const char *> radianceModelOpt = {"-radiance-model-savefile", &batchOptionsState.radianceModelFileNameFormat, 1, nullptr, nullptr};
+    TypedOption<int> saveModuloOpt = {"-save-modulo", &batchOptionsState.saveModulo, 1, nullptr, nullptr};
+    TypedOption<const char *> raytracingImageOpt = {"-raytracing-image-savefile", &batchOptionsState.raytracingImageFileName, 1, nullptr, nullptr};
+    TypedOption<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, setIntTrue, nullptr};
     OptionBase batchCommandLineOptions[] = {
         REGISTER_OPTION(int, iterationsOpt, 3),
         REGISTER_OPTION(const char *, obfOpt, 4),
@@ -747,7 +744,7 @@ CommandLine::batchParseOptions(
     batchOptionsState = *options;
     batchOptionsState.exportBinary = false;
     batchOptionsState.importBinary = false;
-    parseOptionBaseRegistryInPlace(batchCommandLineOptions, 8, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, batchCommandLineOptions, 8);
     *options = batchOptionsState;
 }
 
@@ -809,23 +806,23 @@ CommandLine::stochasticRelaxationRadiosityParseOptions(
     EnumBinding<StochasticRaytracingApproximation> approximationBinding = {&stochasticRelaxationState.approximationOrderType, approximateValues};
     EnumBinding<HierarchyClusteringMode> clusteringBinding = {&elementHierarchyState.clustering, clusteringValues};
     EnumBinding<WhatToShow> showBinding = {&stochasticRelaxationState.show, showWhatValues};
-    Option<int> srrRayUnitsOpt = {"-srr-ray-units", &stochasticRelaxationState.rayUnitsPerIt, 1, nullptr, nullptr};
-    Option<int> srrBidirectionalOpt = {"-srr-bidirectional", &stochasticRelaxationState.bidirectionalTransfers, 1, nullptr, parseBoolInt};
-    Option<int> srrControlVariateOpt = {"-srr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, nullptr, parseBoolInt};
-    Option<int> srrIndirectOnlyOpt = {"-srr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, nullptr, parseBoolInt};
-    Option<int> srrImportanceDrivenOpt = {"-srr-importance-driven", &stochasticRelaxationState.importanceDriven, 1, nullptr, parseBoolInt};
-    Option<EnumBinding<Sampler4DSequence>> srrSequenceOpt = {"-srr-sampling-sequence", &sequenceBinding, 1, nullptr, parseEnumBinding<Sampler4DSequence>};
-    Option<EnumBinding<StochasticRaytracingApproximation>> srrApproximationOpt = {"-srr-approximation", &approximationBinding, 1, nullptr, parseEnumBinding<StochasticRaytracingApproximation>};
-    Option<int> srrHierarchicalOpt = {"-srr-hierarchical", &elementHierarchyState.do_h_meshing, 1, nullptr, parseBoolInt};
-    Option<EnumBinding<HierarchyClusteringMode>> srrClusteringOpt = {"-srr-clustering", &clusteringBinding, 1, nullptr, parseEnumBinding<HierarchyClusteringMode>};
-    Option<float> srrEpsilonOpt = {"-srr-epsilon", &elementHierarchyState.epsilon, 1, nullptr, nullptr};
-    Option<float> srrMinAreaOpt = {"-srr-minarea", &elementHierarchyState.minimumArea, 1, nullptr, nullptr};
-    Option<EnumBinding<WhatToShow>> srrDisplayOpt = {"-srr-display", &showBinding, 1, nullptr, parseEnumBinding<WhatToShow>};
-    Option<int> srrDiscardIncrementalOpt = {"-srr-discard-incremental", &stochasticRelaxationState.discardIncremental, 1, nullptr, parseBoolInt};
-    Option<int> srrIncrementalImportanceOpt = {"-srr-incremental-uses-importance", &stochasticRelaxationState.incrementalUsesImportance, 1, nullptr, parseBoolInt};
-    Option<int> srrNaiveMergingOpt = {"-srr-naive-merging", &stochasticRelaxationState.naiveMerging, 1, nullptr, parseBoolInt};
-    Option<int> srrNonDiffuseFirstShotOpt = {"-srr-nondiffuse-first-shot", &stochasticRelaxationState.doNonDiffuseFirstShot, 1, nullptr, parseBoolInt};
-    Option<int> srrInitialLsSamplesOpt = {"-srr-initial-ls-samples", &stochasticRelaxationState.initialLightSourceSamples, 1, nullptr, nullptr};
+    TypedOption<int> srrRayUnitsOpt = {"-srr-ray-units", &stochasticRelaxationState.rayUnitsPerIt, 1, nullptr, nullptr};
+    TypedOption<int> srrBidirectionalOpt = {"-srr-bidirectional", &stochasticRelaxationState.bidirectionalTransfers, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrControlVariateOpt = {"-srr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrIndirectOnlyOpt = {"-srr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrImportanceDrivenOpt = {"-srr-importance-driven", &stochasticRelaxationState.importanceDriven, 1, nullptr, parseBoolInt};
+    TypedOption<EnumBinding<Sampler4DSequence>> srrSequenceOpt = {"-srr-sampling-sequence", &sequenceBinding, 1, nullptr, parseEnumBinding<Sampler4DSequence>};
+    TypedOption<EnumBinding<StochasticRaytracingApproximation>> srrApproximationOpt = {"-srr-approximation", &approximationBinding, 1, nullptr, parseEnumBinding<StochasticRaytracingApproximation>};
+    TypedOption<int> srrHierarchicalOpt = {"-srr-hierarchical", &elementHierarchyState.do_h_meshing, 1, nullptr, parseBoolInt};
+    TypedOption<EnumBinding<HierarchyClusteringMode>> srrClusteringOpt = {"-srr-clustering", &clusteringBinding, 1, nullptr, parseEnumBinding<HierarchyClusteringMode>};
+    TypedOption<float> srrEpsilonOpt = {"-srr-epsilon", &elementHierarchyState.epsilon, 1, nullptr, nullptr};
+    TypedOption<float> srrMinAreaOpt = {"-srr-minarea", &elementHierarchyState.minimumArea, 1, nullptr, nullptr};
+    TypedOption<EnumBinding<WhatToShow>> srrDisplayOpt = {"-srr-display", &showBinding, 1, nullptr, parseEnumBinding<WhatToShow>};
+    TypedOption<int> srrDiscardIncrementalOpt = {"-srr-discard-incremental", &stochasticRelaxationState.discardIncremental, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrIncrementalImportanceOpt = {"-srr-incremental-uses-importance", &stochasticRelaxationState.incrementalUsesImportance, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrNaiveMergingOpt = {"-srr-naive-merging", &stochasticRelaxationState.naiveMerging, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrNonDiffuseFirstShotOpt = {"-srr-nondiffuse-first-shot", &stochasticRelaxationState.doNonDiffuseFirstShot, 1, nullptr, parseBoolInt};
+    TypedOption<int> srrInitialLsSamplesOpt = {"-srr-initial-ls-samples", &stochasticRelaxationState.initialLightSourceSamples, 1, nullptr, nullptr};
     OptionBase srrOptions[] = {
         REGISTER_OPTION(int, srrRayUnitsOpt, 8),
         REGISTER_OPTION(int, srrBidirectionalOpt, 7),
@@ -846,7 +843,7 @@ CommandLine::stochasticRelaxationRadiosityParseOptions(
         REGISTER_OPTION(int, srrInitialLsSamplesOpt, 7)
     };
 
-    parseOptionBaseRegistryInPlace(srrOptions, 17, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, srrOptions, 17);
 }
 
 void
@@ -859,15 +856,15 @@ CommandLine::randomWalkRadiosityParseOptions(
     EnumBinding<StochasticRaytracingApproximation> approximationBinding = {&stochasticRelaxationState.approximationOrderType, approximateValues};
     EnumBinding<RandomWalkEstimatorType> estimatorTypeBinding = {&stochasticRelaxationState.randomWalkEstimatorType, estimatorTypeValues};
     EnumBinding<RandomWalkEstimatorKind> estimatorKindBinding = {&stochasticRelaxationState.randomWalkEstimatorKind, estimatorKindValues};
-    Option<int> rwrRayUnitsOpt = {"-rwr-ray-units", &stochasticRelaxationState.rayUnitsPerIt, 1, nullptr, nullptr};
-    Option<int> rwrContinuousOpt = {"-rwr-continuous", &stochasticRelaxationState.continuousRandomWalk, 1, nullptr, parseBoolInt};
-    Option<int> rwrControlVariateOpt = {"-rwr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, nullptr, parseBoolInt};
-    Option<int> rwrIndirectOnlyOpt = {"-rwr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, nullptr, parseBoolInt};
-    Option<EnumBinding<Sampler4DSequence>> rwrSequenceOpt = {"-rwr-sampling-sequence", &sequenceBinding, 1, nullptr, parseEnumBinding<Sampler4DSequence>};
-    Option<EnumBinding<StochasticRaytracingApproximation>> rwrApproximationOpt = {"-rwr-approximation", &approximationBinding, 1, nullptr, parseEnumBinding<StochasticRaytracingApproximation>};
-    Option<EnumBinding<RandomWalkEstimatorType>> rwrEstimatorOpt = {"-rwr-estimator", &estimatorTypeBinding, 1, nullptr, parseEnumBinding<RandomWalkEstimatorType>};
-    Option<EnumBinding<RandomWalkEstimatorKind>> rwrScoreOpt = {"-rwr-score", &estimatorKindBinding, 1, nullptr, parseEnumBinding<RandomWalkEstimatorKind>};
-    Option<int> rwrNumlastOpt = {"-rwr-numlast", &stochasticRelaxationState.randomWalkNumLast, 1, nullptr, nullptr};
+    TypedOption<int> rwrRayUnitsOpt = {"-rwr-ray-units", &stochasticRelaxationState.rayUnitsPerIt, 1, nullptr, nullptr};
+    TypedOption<int> rwrContinuousOpt = {"-rwr-continuous", &stochasticRelaxationState.continuousRandomWalk, 1, nullptr, parseBoolInt};
+    TypedOption<int> rwrControlVariateOpt = {"-rwr-control-variate", &stochasticRelaxationState.constantControlVariate, 1, nullptr, parseBoolInt};
+    TypedOption<int> rwrIndirectOnlyOpt = {"-rwr-indirect-only", &stochasticRelaxationState.indirectOnly, 1, nullptr, parseBoolInt};
+    TypedOption<EnumBinding<Sampler4DSequence>> rwrSequenceOpt = {"-rwr-sampling-sequence", &sequenceBinding, 1, nullptr, parseEnumBinding<Sampler4DSequence>};
+    TypedOption<EnumBinding<StochasticRaytracingApproximation>> rwrApproximationOpt = {"-rwr-approximation", &approximationBinding, 1, nullptr, parseEnumBinding<StochasticRaytracingApproximation>};
+    TypedOption<EnumBinding<RandomWalkEstimatorType>> rwrEstimatorOpt = {"-rwr-estimator", &estimatorTypeBinding, 1, nullptr, parseEnumBinding<RandomWalkEstimatorType>};
+    TypedOption<EnumBinding<RandomWalkEstimatorKind>> rwrScoreOpt = {"-rwr-score", &estimatorKindBinding, 1, nullptr, parseEnumBinding<RandomWalkEstimatorKind>};
+    TypedOption<int> rwrNumlastOpt = {"-rwr-numlast", &stochasticRelaxationState.randomWalkNumLast, 1, nullptr, nullptr};
     OptionBase rwrOptions[] = {
         REGISTER_OPTION(int, rwrRayUnitsOpt, 8),
         REGISTER_OPTION(int, rwrContinuousOpt, 7),
@@ -880,7 +877,7 @@ CommandLine::randomWalkRadiosityParseOptions(
         REGISTER_OPTION(int, rwrNumlastOpt, 12)
     };
 
-    parseOptionBaseRegistryInPlace(rwrOptions, 9, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, rwrOptions, 9);
 }
 
 EnumDesc CommandLine::rayMatterPixelFilterValues[] = {
@@ -898,14 +895,14 @@ CommandLine::rayMattingParseOptions(
         RayMatterState &rayMatterState)
 {
     EnumBinding<RayMatterFilterType> pixelFilterBinding = {&rayMatterState.filter, rayMatterPixelFilterValues};
-    Option<int> rmSamplesOpt = {"-rm-samples-per-pixel", &rayMatterState.samplesPerPixel, 1, nullptr, nullptr};
-    Option<EnumBinding<RayMatterFilterType>> rmPixelFilterOpt = {"-rm-pixel-filter", &pixelFilterBinding, 1, nullptr, parseEnumBinding<RayMatterFilterType>};
+    TypedOption<int> rmSamplesOpt = {"-rm-samples-per-pixel", &rayMatterState.samplesPerPixel, 1, nullptr, nullptr};
+    TypedOption<EnumBinding<RayMatterFilterType>> rmPixelFilterOpt = {"-rm-pixel-filter", &pixelFilterBinding, 1, nullptr, parseEnumBinding<RayMatterFilterType>};
     OptionBase rayMatterOptions[] = {
         REGISTER_OPTION(int, rmSamplesOpt, 6),
         REGISTER_OPTION(EnumBinding<RayMatterFilterType>, rmPixelFilterOpt, 7)
     };
 
-    parseOptionBaseRegistryInPlace(rayMatterOptions, 2, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, rayMatterOptions, 2);
 }
 
 /*** Enum Option types ***/
@@ -942,21 +939,21 @@ CommandLine::stochasticRayTracerParseOptions(
     EnumBinding<RayTracingRadMode> radModeBinding = {&stochasticRayTracingState.radMode, rayTracingRadianceModeValues};
     EnumBinding<RayTracingLightMode> lightModeBinding = {&stochasticRayTracingState.lightMode, rayTracingLightModeValues};
     EnumBinding<RayTracingSamplingMode> samplingModeBinding = {&stochasticRayTracingState.reflectionSampling, rayTracingSamplingModeValues};
-    Option<int> rtsSamplesPerPixelOpt = {"-rts-samples-per-pixel", &stochasticRayTracingState.samplesPerPixel, 1, nullptr, nullptr};
-    Option<int> rtsNoProgressiveOpt = {"-rts-no-progressive", &stochasticRayTracingState.progressiveTracing, 0, setIntFalse, nullptr};
-    Option<EnumBinding<RayTracingRadMode>> rtsRadModeOpt = {"-rts-rad-mode", &radModeBinding, 1, nullptr, parseEnumBinding<RayTracingRadMode>};
-    Option<int> rtsNoLightSamplingOpt = {"-rts-no-lightsampling", &stochasticRayTracingState.nextEvent, 0, setIntFalse, nullptr};
-    Option<EnumBinding<RayTracingLightMode>> rtsLightModeOpt = {"-rts-l-mode", &lightModeBinding, 1, nullptr, parseEnumBinding<RayTracingLightMode>};
-    Option<int> rtsLightSamplesOpt = {"-rts-l-samples", &stochasticRayTracingState.nextEventSamples, 1, nullptr, nullptr};
-    Option<int> rtsScatterSamplesOpt = {"-rts-scatter-samples", &stochasticRayTracingState.scatterSamples, 1, nullptr, nullptr};
-    Option<int> rtsDoFdgOpt = {"-rts-do-fdg", &stochasticRayTracingState.differentFirstDG, 0, setIntTrue, nullptr};
-    Option<int> rtsFdgSamplesOpt = {"-rts-fdg-samples", &stochasticRayTracingState.firstDGSamples, 1, nullptr, nullptr};
-    Option<int> rtsSeparateSpecularOpt = {"-rts-separate-specular", &stochasticRayTracingState.separateSpecular, 0, setIntTrue, nullptr};
-    Option<EnumBinding<RayTracingSamplingMode>> rtsSamplingModeOpt = {"-rts-s-mode", &samplingModeBinding, 1, nullptr, parseEnumBinding<RayTracingSamplingMode>};
-    Option<int> rtsMinPathLengthOpt = {"-rts-min-path-length", &stochasticRayTracingState.minPathDepth, 1, nullptr, nullptr};
-    Option<int> rtsMaxPathLengthOpt = {"-rts-max-path-length", &stochasticRayTracingState.maxPathDepth, 1, nullptr, nullptr};
-    Option<int> rtsNoDirectBackgroundOpt = {"-rts-NOdirect-background-rad", &stochasticRayTracingState.backgroundDirect, 0, setIntFalse, nullptr};
-    Option<int> rtsNoIndirectBackgroundOpt = {"-rts-NOindirect-background-rad", &stochasticRayTracingState.backgroundIndirect, 0, setIntFalse, nullptr};
+    TypedOption<int> rtsSamplesPerPixelOpt = {"-rts-samples-per-pixel", &stochasticRayTracingState.samplesPerPixel, 1, nullptr, nullptr};
+    TypedOption<int> rtsNoProgressiveOpt = {"-rts-no-progressive", &stochasticRayTracingState.progressiveTracing, 0, setIntFalse, nullptr};
+    TypedOption<EnumBinding<RayTracingRadMode>> rtsRadModeOpt = {"-rts-rad-mode", &radModeBinding, 1, nullptr, parseEnumBinding<RayTracingRadMode>};
+    TypedOption<int> rtsNoLightSamplingOpt = {"-rts-no-lightsampling", &stochasticRayTracingState.nextEvent, 0, setIntFalse, nullptr};
+    TypedOption<EnumBinding<RayTracingLightMode>> rtsLightModeOpt = {"-rts-l-mode", &lightModeBinding, 1, nullptr, parseEnumBinding<RayTracingLightMode>};
+    TypedOption<int> rtsLightSamplesOpt = {"-rts-l-samples", &stochasticRayTracingState.nextEventSamples, 1, nullptr, nullptr};
+    TypedOption<int> rtsScatterSamplesOpt = {"-rts-scatter-samples", &stochasticRayTracingState.scatterSamples, 1, nullptr, nullptr};
+    TypedOption<int> rtsDoFdgOpt = {"-rts-do-fdg", &stochasticRayTracingState.differentFirstDG, 0, setIntTrue, nullptr};
+    TypedOption<int> rtsFdgSamplesOpt = {"-rts-fdg-samples", &stochasticRayTracingState.firstDGSamples, 1, nullptr, nullptr};
+    TypedOption<int> rtsSeparateSpecularOpt = {"-rts-separate-specular", &stochasticRayTracingState.separateSpecular, 0, setIntTrue, nullptr};
+    TypedOption<EnumBinding<RayTracingSamplingMode>> rtsSamplingModeOpt = {"-rts-s-mode", &samplingModeBinding, 1, nullptr, parseEnumBinding<RayTracingSamplingMode>};
+    TypedOption<int> rtsMinPathLengthOpt = {"-rts-min-path-length", &stochasticRayTracingState.minPathDepth, 1, nullptr, nullptr};
+    TypedOption<int> rtsMaxPathLengthOpt = {"-rts-max-path-length", &stochasticRayTracingState.maxPathDepth, 1, nullptr, nullptr};
+    TypedOption<int> rtsNoDirectBackgroundOpt = {"-rts-NOdirect-background-rad", &stochasticRayTracingState.backgroundDirect, 0, setIntFalse, nullptr};
+    TypedOption<int> rtsNoIndirectBackgroundOpt = {"-rts-NOindirect-background-rad", &stochasticRayTracingState.backgroundIndirect, 0, setIntFalse, nullptr};
     OptionBase stochasticRatTracerOptions[] = {
         REGISTER_OPTION(int, rtsSamplesPerPixelOpt, 7),
         REGISTER_OPTION(int, rtsNoProgressiveOpt, 9),
@@ -975,7 +972,7 @@ CommandLine::stochasticRayTracerParseOptions(
         REGISTER_OPTION(int, rtsNoIndirectBackgroundOpt, 8)
     };
 
-    parseOptionBaseRegistryInPlace(stochasticRatTracerOptions, 15, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, stochasticRatTracerOptions, 15);
 }
 
 int CommandLine::regExpStringLength = BidirectionalPathRaytracerConfig::MAX_REGEXP_SIZE;
@@ -989,20 +986,20 @@ CommandLine::biDirectionalPathParseOptions(
     FixedStringBinding leBinding = {bidirectionalPathState.baseConfig.leRegExp, regExpStringLength};
     FixedStringBinding ldBinding = {bidirectionalPathState.baseConfig.ldRegExp, regExpStringLength};
     FixedStringBinding liBinding = {bidirectionalPathState.baseConfig.liRegExp, regExpStringLength};
-    Option<int> bidirSamplesPerPixelOpt = {"-bidir-samples-per-pixel", &bidirectionalPathState.baseConfig.samplesPerPixel, 1, nullptr, nullptr};
-    Option<int> bidirNoProgressiveOpt = {"-bidir-no-progressive", &bidirectionalPathState.baseConfig.progressiveTracing, 0, setIntFalse, nullptr};
-    Option<int> bidirMaxEyePathLengthOpt = {"-bidir-max-eye-path-length", &bidirectionalPathState.baseConfig.maximumEyePathDepth, 1, nullptr, nullptr};
-    Option<int> bidirMaxLightPathLengthOpt = {"-bidir-max-light-path-length", &bidirectionalPathState.baseConfig.maximumLightPathDepth, 1, nullptr, nullptr};
-    Option<int> bidirMaxPathLengthOpt = {"-bidir-max-path-length", &bidirectionalPathState.baseConfig.maximumPathDepth, 1, nullptr, nullptr};
-    Option<int> bidirMinPathLengthOpt = {"-bidir-min-path-length", &bidirectionalPathState.baseConfig.minimumPathDepth, 1, nullptr, nullptr};
-    Option<int> bidirNoLightImportanceOpt = {"-bidir-no-light-importance", &bidirectionalPathState.baseConfig.sampleImportantLights, 0, setIntFalse, nullptr};
-    Option<int> bidirUseRegexpOpt = {"-bidir-use-regexp", &bidirectionalPathState.baseConfig.useSpars, 0, setIntTrue, nullptr};
-    Option<int> bidirUseEmittedOpt = {"-bidir-use-emitted", &bidirectionalPathState.baseConfig.doLe, 1, nullptr, parseBoolInt};
-    Option<FixedStringBinding> bidirRexpEmittedOpt = {"-bidir-rexp-emitted", &leBinding, 1, nullptr, parseFixedStringBinding};
-    Option<int> bidirRegDirectOpt = {"-bidir-reg-direct", &bidirectionalPathState.baseConfig.doLD, 1, nullptr, parseBoolInt};
-    Option<FixedStringBinding> bidirRexpDirectOpt = {"-bidir-rexp-direct", &ldBinding, 1, nullptr, parseFixedStringBinding};
-    Option<int> bidirRegIndirectOpt = {"-bidir-reg-indirect", &bidirectionalPathState.baseConfig.doLI, 1, nullptr, parseBoolInt};
-    Option<FixedStringBinding> bidirRexpIndirectOpt = {"-bidir-rexp-indirect", &liBinding, 1, nullptr, parseFixedStringBinding};
+    TypedOption<int> bidirSamplesPerPixelOpt = {"-bidir-samples-per-pixel", &bidirectionalPathState.baseConfig.samplesPerPixel, 1, nullptr, nullptr};
+    TypedOption<int> bidirNoProgressiveOpt = {"-bidir-no-progressive", &bidirectionalPathState.baseConfig.progressiveTracing, 0, setIntFalse, nullptr};
+    TypedOption<int> bidirMaxEyePathLengthOpt = {"-bidir-max-eye-path-length", &bidirectionalPathState.baseConfig.maximumEyePathDepth, 1, nullptr, nullptr};
+    TypedOption<int> bidirMaxLightPathLengthOpt = {"-bidir-max-light-path-length", &bidirectionalPathState.baseConfig.maximumLightPathDepth, 1, nullptr, nullptr};
+    TypedOption<int> bidirMaxPathLengthOpt = {"-bidir-max-path-length", &bidirectionalPathState.baseConfig.maximumPathDepth, 1, nullptr, nullptr};
+    TypedOption<int> bidirMinPathLengthOpt = {"-bidir-min-path-length", &bidirectionalPathState.baseConfig.minimumPathDepth, 1, nullptr, nullptr};
+    TypedOption<int> bidirNoLightImportanceOpt = {"-bidir-no-light-importance", &bidirectionalPathState.baseConfig.sampleImportantLights, 0, setIntFalse, nullptr};
+    TypedOption<int> bidirUseRegexpOpt = {"-bidir-use-regexp", &bidirectionalPathState.baseConfig.useSpars, 0, setIntTrue, nullptr};
+    TypedOption<int> bidirUseEmittedOpt = {"-bidir-use-emitted", &bidirectionalPathState.baseConfig.doLe, 1, nullptr, parseBoolInt};
+    TypedOption<FixedStringBinding> bidirRexpEmittedOpt = {"-bidir-rexp-emitted", &leBinding, 1, nullptr, parseFixedStringBinding};
+    TypedOption<int> bidirRegDirectOpt = {"-bidir-reg-direct", &bidirectionalPathState.baseConfig.doLD, 1, nullptr, parseBoolInt};
+    TypedOption<FixedStringBinding> bidirRexpDirectOpt = {"-bidir-rexp-direct", &ldBinding, 1, nullptr, parseFixedStringBinding};
+    TypedOption<int> bidirRegIndirectOpt = {"-bidir-reg-indirect", &bidirectionalPathState.baseConfig.doLI, 1, nullptr, parseBoolInt};
+    TypedOption<FixedStringBinding> bidirRexpIndirectOpt = {"-bidir-rexp-indirect", &liBinding, 1, nullptr, parseFixedStringBinding};
     OptionBase bidirectionalOptions[] = {
         REGISTER_OPTION(int, bidirSamplesPerPixelOpt, 8),
         REGISTER_OPTION(int, bidirNoProgressiveOpt, 11),
@@ -1020,7 +1017,7 @@ CommandLine::biDirectionalPathParseOptions(
         REGISTER_OPTION(FixedStringBinding, bidirRexpIndirectOpt, 13)
     };
 
-    parseOptionBaseRegistryInPlace(bidirectionalOptions, 14, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, bidirectionalOptions, 14);
 }
 
 char *CommandLine::raytracingMethodsString = nullptr;
@@ -1039,14 +1036,14 @@ CommandLine::rayTracingParseOptions(
         char *rayTracerNameOut)
 {
     char *raytracingMethodName = nullptr;
-    Option<char *> raytracingMethodOpt = {"-raytracing-method", &raytracingMethodName, 1, CommandLine::mainRayTracingOption, nullptr};
+    TypedOption<char *> raytracingMethodOpt = {"-raytracing-method", &raytracingMethodName, 1, CommandLine::mainRayTracingOption, nullptr};
     OptionBase raytracingOptions[] = {
         REGISTER_OPTION(char *, raytracingMethodOpt, 4)
     };
 
     CommandLine::rayTracerName = rayTracerNameOut;
     CommandLine::raytracingMethodsString = raytracingMethodsStringOut;
-    parseOptionBaseRegistryInPlace(raytracingOptions, 1, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, raytracingOptions, 1);
 }
 
 void
@@ -1055,16 +1052,16 @@ CommandLine::photonMapParseOptions(
         char **argv,
         PhotonMapState &photonMapState)
 {
-    Option<int> pmapDoGlobalOpt = {"-pmap-do-global", &photonMapState.doGlobalMap, 1, nullptr, parseBoolInt};
-    Option<long> pmapGlobalPathsOpt = {"-pmap-global-paths", &photonMapState.gPathsPerIteration, 1, nullptr, nullptr};
-    Option<int> pmapGPreirradianceOpt = {"-pmap-g-preirradiance", &photonMapState.precomputeGIrradiance, 1, nullptr, parseBoolInt};
-    Option<int> pmapDoCausticOpt = {"-pmap-do-caustic", &photonMapState.doCausticMap, 1, nullptr, parseBoolInt};
-    Option<long> pmapCausticPathsOpt = {"-pmap-caustic-paths", &photonMapState.cPathsPerIteration, 1, nullptr, nullptr};
-    Option<int> pmapRenderHitsOpt = {"-pmap-render-hits", &photonMapState.renderImage, 0, setIntTrue, nullptr};
-    Option<int> pmapReconGPhotonsOpt = {"-pmap-recon-gphotons", &photonMapState.reconGPhotons, 1, nullptr, nullptr};
-    Option<int> pmapReconIPhotonsOpt = {"-pmap-recon-iphotons", &photonMapState.reconCPhotons, 1, nullptr, nullptr};
-    Option<int> pmapReconPhotonsOpt = {"-pmap-recon-photons", &photonMapState.reconIPhotons, 1, nullptr, nullptr};
-    Option<int> pmapBalancingOpt = {"-pmap-balancing", &photonMapState.balanceKDTree, 1, nullptr, parseBoolInt};
+    TypedOption<int> pmapDoGlobalOpt = {"-pmap-do-global", &photonMapState.doGlobalMap, 1, nullptr, parseBoolInt};
+    TypedOption<long> pmapGlobalPathsOpt = {"-pmap-global-paths", &photonMapState.gPathsPerIteration, 1, nullptr, nullptr};
+    TypedOption<int> pmapGPreirradianceOpt = {"-pmap-g-preirradiance", &photonMapState.precomputeGIrradiance, 1, nullptr, parseBoolInt};
+    TypedOption<int> pmapDoCausticOpt = {"-pmap-do-caustic", &photonMapState.doCausticMap, 1, nullptr, parseBoolInt};
+    TypedOption<long> pmapCausticPathsOpt = {"-pmap-caustic-paths", &photonMapState.cPathsPerIteration, 1, nullptr, nullptr};
+    TypedOption<int> pmapRenderHitsOpt = {"-pmap-render-hits", &photonMapState.renderImage, 0, setIntTrue, nullptr};
+    TypedOption<int> pmapReconGPhotonsOpt = {"-pmap-recon-gphotons", &photonMapState.reconGPhotons, 1, nullptr, nullptr};
+    TypedOption<int> pmapReconIPhotonsOpt = {"-pmap-recon-iphotons", &photonMapState.reconCPhotons, 1, nullptr, nullptr};
+    TypedOption<int> pmapReconPhotonsOpt = {"-pmap-recon-photons", &photonMapState.reconIPhotons, 1, nullptr, nullptr};
+    TypedOption<int> pmapBalancingOpt = {"-pmap-balancing", &photonMapState.balanceKDTree, 1, nullptr, parseBoolInt};
     OptionBase photonMapOptions[] = {
         REGISTER_OPTION(int, pmapDoGlobalOpt, 9),
         REGISTER_OPTION(long, pmapGlobalPathsOpt, 9),
@@ -1077,7 +1074,7 @@ CommandLine::photonMapParseOptions(
         REGISTER_OPTION(int, pmapReconPhotonsOpt, 9),
         REGISTER_OPTION(int, pmapBalancingOpt, 9)
     };
-    parseOptionBaseRegistryInPlace(photonMapOptions, 10, argc, argv);
+    OptionParser<OptionBase>::parse(argc, argv, photonMapOptions, 10);
 }
 
 #endif

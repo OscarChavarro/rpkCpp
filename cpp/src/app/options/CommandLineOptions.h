@@ -1,4 +1,0 @@
-#ifndef __APP_COMMAND_LINE_OPTIONS_TYPE__
-#define __APP_COMMAND_LINE_OPTIONS_TYPE__
-
-#endif

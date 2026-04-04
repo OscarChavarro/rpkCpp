@@ -202,8 +202,6 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
     src/app/options/Options.cpp
-    src/app/options/OptionParser.cpp
-    src/app/options/ValueParser.cpp
     src/app/options/CoreOptionsParser.cpp
     src/app/options/RadianceOptionsParser.cpp
     src/app/options/BatchOptionsParser.cpp
