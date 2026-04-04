@@ -33,6 +33,22 @@ struct DefaultParser<int> {
 };
 
 template<>
+struct DefaultParser<long> {
+    static bool parse(const char *input, long &out) {
+        if ( input == nullptr ) {
+            return false;
+        }
+        char *endPointer = nullptr;
+        const long parsedValue = strtol(input, &endPointer, 10);
+        if ( endPointer == input || *endPointer != '\0' ) {
+            return false;
+        }
+        out = parsedValue;
+        return true;
+    }
+};
+
+template<>
 struct DefaultParser<float> {
     static bool parse(const char *input, float &out) {
         if ( input == nullptr ) {
@@ -73,6 +89,17 @@ struct DefaultParser<char *> {
             return false;
         }
         out = const_cast<char *>(input);
+        return true;
+    }
+};
+
+template<>
+struct DefaultParser<const char *> {
+    static bool parse(const char *input, const char *&out) {
+        if ( input == nullptr ) {
+            return false;
+        }
+        out = input;
         return true;
     }
 };

@@ -6,7 +6,6 @@
 #include "app/options/BatchOptions.h"
 #include "app/options/BackgroundMode.h"
 #include "app/options/EnumDesc.h"
-#include "app/options/CommandLineOptions.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 #include "raycasting/simple/RayMatterState.h"
@@ -82,32 +81,35 @@ class CommandLine final {
             char raytracingMethodsStringOut[],
             char *rayTracerNameOut);
     static void galerkinParseOptions(int *argc, char **argv);
-    static void mainForceOneSidedOption(OptionValueWrapper value);
-    static void mainMonochromeOption(OptionValueWrapper value);
-    static void commandLineImageWidthOption(OptionValueWrapper value);
-    static void commandLineImageHeightOption(OptionValueWrapper value);
-    static void cameraSetEyePositionOption(OptionValueWrapper val);
-    static void cameraSetLookPositionOption(OptionValueWrapper val);
-    static void cameraSetUpDirectionOption(OptionValueWrapper val);
-    static void cameraSetFieldOfViewOption(OptionValueWrapper val);
-    static void iterationMethodOption(OptionValueWrapper value);
-    static void hierarchicalOption(OptionValueWrapper value);
-    static void lazyOption(OptionValueWrapper value);
-    static void clusteringOption(OptionValueWrapper value);
-    static void importanceOption(OptionValueWrapper value);
-    static void ambientOption(OptionValueWrapper value);
-    static void toneMappingMethodOption(OptionValueWrapper value);
-    static void brightnessAdjustOption(OptionValueWrapper value);
-    static void chromaOption(OptionValueWrapper value);
-    static void toneMappingCommandLineOptionDescAdaptMethodOption(OptionValueWrapper value);
-    static void gammaOption(OptionValueWrapper value);
-    static void flatOption(OptionValueWrapper value);
-    static void noCullingOption(OptionValueWrapper value);
-    static void outlinesOption(OptionValueWrapper value);
-    static void traceOption(OptionValueWrapper value);
-    static void binaryOutputOption(OptionValueWrapper value);
-    static void binaryInputOption(OptionValueWrapper value);
-    static void mainRayTracingOption(OptionValueWrapper value);
+    static void mainForceOneSidedOption(int &value);
+    static void mainMonochromeOption(int &value);
+    static void commandLineImageWidthOption(int &value);
+    static void commandLineImageHeightOption(int &value);
+    static void cameraSetEyePositionOption(Vector3D &val);
+    static void cameraSetLookPositionOption(Vector3D &val);
+    static void cameraSetUpDirectionOption(Vector3D &val);
+    static void cameraSetFieldOfViewOption(float &val);
+    static void iterationMethodOption(char *&value);
+    static void hierarchicalOption(int &value);
+    static void lazyOption(int &value);
+    static void clusteringOption(int &value);
+    static void importanceOption(int &value);
+    static void ambientOption(int &value);
+    static void toneMappingMethodOption(char *&value);
+    static void brightnessAdjustOption(float &value);
+    static void redChromaOption(Vector3D &value);
+    static void greenChromaOption(Vector3D &value);
+    static void blueChromaOption(Vector3D &value);
+    static void whiteChromaOption(Vector3D &value);
+    static void toneMappingCommandLineOptionDescAdaptMethodOption(char *&value);
+    static void gammaOption(float &value);
+    static void flatOption(int &value);
+    static void noCullingOption(int &value);
+    static void outlinesOption(int &value);
+    static void traceOption(int &value);
+    static void binaryOutputOption(const char *&value);
+    static void binaryInputOption(const char *&value);
+    static void mainRayTracingOption(char *&value);
 
   private:
     static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;

@@ -3,7 +3,6 @@
 
 #include <cstring>
 
-#include "app/options/CommandLineOptionDescription.h"
 #include "app/options/DefaultParser.h"
 
 template<typename T>
@@ -12,30 +11,44 @@ struct Option {
     T *target;
     int consumesValue;
     void (*onSet)(T &);
+    bool (*parseArgs)(int, char **, T &);
 };
 
 struct OptionBase {
     const char *name;
     int abbreviationLength;
     int (*consumesValue)(void *);
-    bool (*apply)(void *, const char *);
+    bool (*apply)(void *, int, char **);
     void *option;
 };
 
 template<typename T>
-bool applyOption(Option<T> &opt, const char *arg) {
+bool applyOption(Option<T> &opt, int argc, char **argv) {
     if ( opt.target == nullptr ) {
         return false;
     }
     if ( opt.consumesValue == 0 ) {
-        *opt.target = static_cast<T>(true);
+        if ( opt.parseArgs != nullptr ) {
+            if ( !opt.parseArgs(0, nullptr, *opt.target) ) {
+                return false;
+            }
+        }
         if ( opt.onSet != nullptr ) {
             opt.onSet(*opt.target);
         }
         return true;
     }
-    T value;
-    if ( !DefaultParser<T>::parse(arg, value) ) {
+    if ( argc < opt.consumesValue ) {
+        return false;
+    }
+    T value = *opt.target;
+    bool parsed = false;
+    if ( opt.parseArgs != nullptr ) {
+        parsed = opt.parseArgs(opt.consumesValue, argv, value);
+    } else if ( opt.consumesValue == 1 ) {
+        parsed = DefaultParser<T>::parse(argv[0], value);
+    }
+    if ( !parsed ) {
         return false;
     }
     *opt.target = value;
@@ -46,11 +59,11 @@ bool applyOption(Option<T> &opt, const char *arg) {
 }
 
 template<typename T>
-bool applyAdapter(void *opt, const char *arg) {
+bool applyAdapter(void *opt, int argc, char **argv) {
     if ( opt == nullptr ) {
         return false;
     }
-    return applyOption(*(Option<T> *)opt, arg);
+    return applyOption(*(Option<T> *)opt, argc, argv);
 }
 
 template<typename T>
@@ -68,10 +81,17 @@ inline bool matchOption(const char *input, const char *name, int abbrLen) {
     if ( input == nullptr || name == nullptr ) {
         return false;
     }
-    if ( abbrLen == 0 ) {
-        return strcmp(input, name) == 0;
+    if ( strcmp(input, name) == 0 ) {
+        return true;
     }
-    return strncmp(input, name, static_cast<unsigned long>(abbrLen)) == 0;
+    if ( abbrLen <= 0 ) {
+        return false;
+    }
+    const unsigned long inputLength = static_cast<unsigned long>(strlen(input));
+    if ( inputLength > static_cast<unsigned long>(abbrLen) ) {
+        return false;
+    }
+    return strncmp(input, name, inputLength) == 0;
 }
 
 inline bool parseOptionBaseRegistryInPlace(OptionBase *registry, int registryCount, int *argc, char **argv) {
@@ -95,17 +115,29 @@ inline bool parseOptionBaseRegistryInPlace(OptionBase *registry, int registryCou
                 consumesValue = registry[j].consumesValue(registry[j].option);
             }
             if ( consumesValue != 0 ) {
-                if ( i + 1 >= *argc || argv[i + 1] == nullptr ) {
+                if ( i + consumesValue >= *argc ) {
                     return false;
                 }
-                if ( registry[j].apply == nullptr || !registry[j].apply(registry[j].option, argv[i + 1]) ) {
+                bool missingValue = false;
+                for ( int k = 1; k <= consumesValue; k++ ) {
+                    if ( argv[i + k] == nullptr ) {
+                        missingValue = true;
+                        break;
+                    }
+                }
+                if ( missingValue ) {
+                    return false;
+                }
+                if ( registry[j].apply == nullptr || !registry[j].apply(registry[j].option, consumesValue, argv + i + 1) ) {
                     return false;
                 }
                 argv[i] = nullptr;
-                argv[i + 1] = nullptr;
-                i++;
+                for ( int k = 1; k <= consumesValue; k++ ) {
+                    argv[i + k] = nullptr;
+                }
+                i += consumesValue;
             } else {
-                if ( registry[j].apply == nullptr || !registry[j].apply(registry[j].option, nullptr) ) {
+                if ( registry[j].apply == nullptr || !registry[j].apply(registry[j].option, 0, nullptr) ) {
                     return false;
                 }
                 argv[i] = nullptr;
