@@ -9,5 +9,5 @@ java {
 }
 
 application {
-    mainClass = "Main"
+    mainClass = "vsdk.toolkit.app.Main"
 }

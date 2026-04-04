@@ -1,9 +1,48 @@
 package vsdk.toolkit.common.commandLineOptions;
 
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public class TypedOption<T> {
     public interface Reference<T> {
         T get();
         void set(T value);
+    }
+
+    public static class ValueRef<T> implements Reference<T> {
+        private T value;
+
+        public ValueRef(T initialValue) {
+            value = initialValue;
+        }
+
+        @Override
+        public T get() {
+            return value;
+        }
+
+        @Override
+        public void set(T newValue) {
+            value = newValue;
+        }
+    }
+
+    public static <T> ValueRef<T> valueRef(T initialValue) {
+        return new ValueRef<>(initialValue);
+    }
+
+    public static <T> Reference<T> reference(Supplier<T> getter, Consumer<T> setter) {
+        return new Reference<>() {
+            @Override
+            public T get() {
+                return getter.get();
+            }
+
+            @Override
+            public void set(T value) {
+                setter.accept(value);
+            }
+        };
     }
 
     public interface ContextBinding {
