@@ -18,6 +18,7 @@
 #endif
 
 #include "app/options/BackgroundMode.h"
+#include "app/options/OptionDsl.h"
 #include "app/options/Options.h"
 #include "app/options/TypedOption.h"
 #include "app/options/ValueParser.h"
@@ -186,19 +187,9 @@ CommandLine::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    Option<int> widthTypedOption = {
-        "-width",
-        5,
-        &outputImageWidth,
-        ValueParser<int>::parse,
-        nullptr
-    };
-    Option<int> heightTypedOption = {
-        "-height",
-        6,
-        &outputImageHeight,
-        ValueParser<int>::parse,
-        nullptr
+    Option<int> imageSizeOptions[] = {
+        DEFINE_OPTION_INT_ABBR("-width", 5, outputImageWidth),
+        DEFINE_OPTION_INT_ABBR("-height", 6, outputImageHeight)
     };
     CommandLineOptionDescription options[] = {
         {"-nqcdivs", 3, OptionKind::INT, &numberOfQuarterCircleDivisions, Options::DEFAULT_ACTION,
@@ -209,8 +200,8 @@ CommandLine::commandLineGeneralProgramParseOptions(
          "-dont-force-onesided\t: allow two-sided surfaces", nullptr, OptionDispatch::SET_FALSE},
         {"-monochromatic", 5, OptionKind::BOOL, &yesValue, CommandLine::mainMonochromeOption,
          "-monochromatic \t\t: convert colors to shades of grey", nullptr, OptionDispatch::SET_TRUE},
-        makeTypedOptionDescription(&widthTypedOption, "-width \t\t: image output width in pixels"),
-        makeTypedOptionDescription(&heightTypedOption, "-width \t\t: image output width in pixels"),
+        makeTypedOptionDescription(&imageSizeOptions[0], "-width \t\t: image output width in pixels"),
+        makeTypedOptionDescription(&imageSizeOptions[1], "-width \t\t: image output width in pixels"),
         {"-glutDebug", 6, OptionKind::BOOL, &CommandLine::glutDebugEnabled, Options::DEFAULT_ACTION,
                 "-glutDebug\t\t: open interactive GLUT debug window after rendering", nullptr, OptionDispatch::SET_TRUE},
         {nullptr, 0, OptionKind::UNKNOWN, nullptr, Options::DEFAULT_ACTION, nullptr}
