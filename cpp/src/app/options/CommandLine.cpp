@@ -326,7 +326,10 @@ CommandLine::commandLineGeneralProgramParseOptions(
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
     CommandLine::glutDebugEnabled = appOptions.debug;
     CommandLine::commandLineParseBackgroundOption(argc, argv);
-    OptionParser<OptionBase>::parse(argc, argv, optionsRegistry.entries(), optionsRegistry.count(), &appOptions);
+    OptionGroup generalGroups[] = {
+        OptionGroup("global", optionsRegistry.entries(), optionsRegistry.count())
+    };
+    OptionParser<OptionBase>::parse(argc, argv, generalGroups, 1, &appOptions);
 
     outputImageWidth = appOptions.width;
     outputImageHeight = appOptions.height;
