@@ -4,12 +4,12 @@
 #include <cstring>
 
 #include "app/options/CommandLineOptionDescription.h"
+#include "app/options/DefaultParser.h"
 
 template<typename T>
 struct Option {
     const char *name;
     T *target;
-    bool (*parse)(const char *, T &);
     void (*onSet)(T &);
 };
 
@@ -21,11 +21,11 @@ struct OptionBase {
 
 template<typename T>
 bool applyOption(Option<T> &opt, const char *arg) {
-    if ( opt.target == nullptr || opt.parse == nullptr ) {
+    if ( opt.target == nullptr ) {
         return false;
     }
     T value;
-    if ( !opt.parse(arg, value) ) {
+    if ( !DefaultParser<T>::parse(arg, value) ) {
         return false;
     }
     *opt.target = value;
