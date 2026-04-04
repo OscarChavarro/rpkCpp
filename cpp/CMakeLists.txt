@@ -203,9 +203,9 @@ set(MAIN_SRC
     src/app/Adaptation.cpp
     src/app/options/Options.cpp
     src/app/options/CoreOptionsParser.cpp
-    src/app/options/RadianceOptionsParser.cpp
-    src/app/options/BatchOptionsParser.cpp
-    src/app/options/RaytraceOptionsParser.cpp
+    src/app/options/RadianceOptionsGroup.cpp
+    src/app/options/BatchOptionsGroup.cpp
+    src/app/options/RaytraceOptionsGroup.cpp
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp

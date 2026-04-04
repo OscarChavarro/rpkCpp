@@ -1,9 +1,9 @@
-#ifndef __BATCH_OPTIONS_PARSER__
-#define __BATCH_OPTIONS_PARSER__
+#ifndef __BATCH_OPTIONS_GROUP__
+#define __BATCH_OPTIONS_GROUP__
 
 #include "app/options/BatchOptions.h"
 
-class BatchOptionsParser final {
+class BatchOptionsGroup final {
   public:
     static void parse(
         int *argc,

@@ -2,7 +2,7 @@
 
 #include "java/lang/System.h"
 #include "app/options/CommandLine.h"
-#include "app/options/RadianceOptionsParser.h"
+#include "app/options/RadianceOptionsGroup.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
@@ -13,7 +13,7 @@
 #endif
 
 void
-RadianceOptionsParser::selectRadianceMethod(
+RadianceOptionsGroup::selectRadianceMethod(
     const char *name,
     RadianceMethod **newRadianceMethod,
     StochasticRelaxation &stochasticRelaxationState,
@@ -50,7 +50,7 @@ RadianceOptionsParser::selectRadianceMethod(
 }
 
 void
-RadianceOptionsParser::parse(
+RadianceOptionsGroup::parse(
     int *argc,
     char **argv,
     RadianceMethod **newRadianceMethod,
@@ -68,7 +68,7 @@ RadianceOptionsParser::parse(
 
     CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
-    RadianceOptionsParser::selectRadianceMethod(
+    RadianceOptionsGroup::selectRadianceMethod(
         radianceMethodsString,
         newRadianceMethod,
         stochasticRelaxationState,

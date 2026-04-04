@@ -1,5 +1,5 @@
-#ifndef __RADIANCE_OPTIONS_PARSER__
-#define __RADIANCE_OPTIONS_PARSER__
+#ifndef __RADIANCE_OPTIONS_GROUP__
+#define __RADIANCE_OPTIONS_GROUP__
 
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
@@ -11,7 +11,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/RadianceMethod.h"
 
-class RadianceOptionsParser final {
+class RadianceOptionsGroup final {
   public:
     static void parse(
         int *argc,

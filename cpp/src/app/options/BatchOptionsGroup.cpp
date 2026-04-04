@@ -1,8 +1,8 @@
-#include "app/options/BatchOptionsParser.h"
+#include "app/options/BatchOptionsGroup.h"
 #include "app/options/CommandLine.h"
 
 void
-BatchOptionsParser::parse(
+BatchOptionsGroup::parse(
     int *argc,
     char **argv,
     BatchOptions &batchOptions)

@@ -4,7 +4,7 @@ Stuff common to all radiance methods
 
 #include "java/util/ArrayList.txx"
 #include "galerkin/GalerkinRadianceMethod.h"
-#include "app/options/RadianceOptionsParser.h"
+#include "app/options/RadianceOptionsGroup.h"
 #include "app/Radiance.h"
 
 /**
@@ -44,7 +44,7 @@ Radiance::radianceParseOptions(
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState)
 {
-    RadianceOptionsParser::parse(
+    RadianceOptionsGroup::parse(
         argc,
         argv,
         newRadianceMethod,

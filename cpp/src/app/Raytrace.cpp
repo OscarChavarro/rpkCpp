@@ -13,7 +13,7 @@
 #include "raycasting/simple/RayCaster.h"
 #include "raycasting/simple/RayMatter.h"
 #include "app/Raytrace.h"
-#include "app/options/RaytraceOptionsParser.h"
+#include "app/options/RaytraceOptionsGroup.h"
 
 /**
 This routine sets the current raytracing method to be used
@@ -131,7 +131,7 @@ Raytrace::rayTraceParseOptions(
         char **argv,
         char *rayTracerName)
 {
-    RaytraceOptionsParser::parse(argc, argv, rayTracerName);
+    RaytraceOptionsGroup::parse(argc, argv, rayTracerName);
 }
 
 void

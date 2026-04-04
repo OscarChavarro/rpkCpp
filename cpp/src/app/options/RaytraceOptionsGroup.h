@@ -1,8 +1,8 @@
-#ifndef __RAYTRACE_OPTIONS_PARSER__
-#define __RAYTRACE_OPTIONS_PARSER__
+#ifndef __RAYTRACE_OPTIONS_GROUP__
+#define __RAYTRACE_OPTIONS_GROUP__
 
 
-class RaytraceOptionsParser final {
+class RaytraceOptionsGroup final {
   public:
     static void parse(
         int *argc,
