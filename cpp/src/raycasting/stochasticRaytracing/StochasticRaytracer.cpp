@@ -140,7 +140,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     RenderOptions *renderOptions)
 {
     int siCurrent; // What scatter block are we handling
-    const CScatterInfo *si;
+    const ScatterInfo *si;
 
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
@@ -292,7 +292,7 @@ StochasticRaytracer::srGetDirectRadiance(
         return result;
     }
 
-    CNextEventSampler *nes = config->samplerConfig.neSampler;
+    NextEventSampler *nes = config->samplerConfig.neSampler;
 
     // Check if N.E.E. can give a contribution. I.e. not inside
     // a medium or just about to leave to vacuum
@@ -340,7 +340,7 @@ StochasticRaytracer::srGetDirectRadiance(
                     // using the union of different scatter info flags
                     // are necessary (=speedup)
                     int siCurrent;
-                    const CScatterInfo *si;
+                    const ScatterInfo *si;
 
                     if ( (config->siStorage.flags != XxdfComponentFlagInfo::NO_COMPONENTS) && (readout == StorageReadout::SCATTER) ) {
                         // Do storage components

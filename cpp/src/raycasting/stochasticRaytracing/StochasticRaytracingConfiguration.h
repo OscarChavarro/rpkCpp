@@ -8,9 +8,9 @@
 #include "java/util/ArrayList.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/SamplerConfig.h"
-#include "raycasting/stochasticRaytracing/CSeed.h"
-#include "raycasting/stochasticRaytracing/CSeedConfig.h"
-#include "raycasting/stochasticRaytracing/CScatterInfo.h"
+#include "raycasting/stochasticRaytracing/Seed.h"
+#include "raycasting/stochasticRaytracing/SeedConfig.h"
+#include "raycasting/stochasticRaytracing/ScatterInfo.h"
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
 #include "raycasting/stochasticRaytracing/StorageReadout.h"
 #include "tonemap/ToneMappingContext.h"
@@ -43,17 +43,17 @@ class StochasticRaytracingConfiguration {
     // Variables derived from user options
     // All variables must not change during raytracing...
     SamplerConfig samplerConfig;
-    CSeedConfig seedConfig;
+    SeedConfig seedConfig;
 
     // Scatter info blocks
 
     // Scattering info for the part of light
     // transport that is used from storage
     // (Diffuse for getTopLevelPatchRad, Diffuse & Glossy for photon map methods)
-    CScatterInfo siStorage;
+    ScatterInfo siStorage;
 
     // Maximum 1 scattering block per component
-    CScatterInfo siOthers[BsdfComponentInfo::BSDF_COMPONENTS];
+    ScatterInfo siOthers[BsdfComponentInfo::BSDF_COMPONENTS];
     int siOthersCount;
 
     StorageReadout initialReadout;

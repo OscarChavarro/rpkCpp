@@ -2,9 +2,9 @@
 #define __STOCHASTIC_RAYTRACING_CSEED__
 
 /**
-SEED Configuration class
+Configuration class
 */
-class CSeed {
+class Seed {
   private:
     unsigned short m_seed[3];
   public:
@@ -12,7 +12,7 @@ class CSeed {
         return m_seed;
     }
 
-    void SetSeed(CSeed seed) {
+    void SetSeed(Seed seed) {
         const unsigned short *s = seed.GetSeed();
         m_seed[0] = s[0];
         m_seed[1] = s[1];
@@ -31,7 +31,7 @@ class CSeed {
         m_seed[2] = s2;
     }
 
-    void XORSeed(CSeed xOrSeed) {
+    void XORSeed(Seed xOrSeed) {
         const unsigned short *s = xOrSeed.GetSeed();
         m_seed[0] ^= s[0];
         m_seed[1] ^= s[1];

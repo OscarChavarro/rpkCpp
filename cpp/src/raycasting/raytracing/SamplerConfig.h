@@ -21,7 +21,7 @@ class SamplerConfig {
     Sampler *pointSampler;  // Samples first point
     Sampler *dirSampler; // Samples first direction
     SurfaceSampler *surfaceSampler; // Samples on surfaces
-    CNextEventSampler *neSampler; // Samples last point separately for next event
+    NextEventSampler *neSampler; // Samples last point separately for next event
 
     bool m_useQMC;
     int m_qmcDepth;

@@ -3,10 +3,10 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.Random;
 
 public class CSeedConfig {
-    private CSeed[] m_seeds;
-    private static final CSeed xOrSeed = new CSeed();
+    private Seed[] m_seeds;
+    private static final Seed xOrSeed = new Seed();
 
-    private static Random randomFromSeed(CSeed seed) {
+    private static Random randomFromSeed(Seed seed) {
         short[] s = seed.GetSeed();
         long merged = (((long)s[0] & 0xFFFFL) << 32)
             ^ (((long)s[1] & 0xFFFFL) << 16)
@@ -27,9 +27,9 @@ public class CSeedConfig {
     public void
     init(int maxDepth) {
         clear();
-        m_seeds = new CSeed[maxDepth];
+        m_seeds = new Seed[maxDepth];
         for (int i = 0; i < maxDepth; i++) {
-            m_seeds[i] = new CSeed();
+            m_seeds[i] = new Seed();
         }
     }
 
@@ -42,10 +42,10 @@ public class CSeedConfig {
         }
 
         // Save the seed (supply dummy seed to seed48())
-        CSeed current = m_seeds[depth];
+        Seed current = m_seeds[depth];
 
         //Generate a new seed, dependent on the current seed
-        CSeed tmpSeed = new CSeed();
+        Seed tmpSeed = new Seed();
 
         tmpSeed.SetSeed(current);
         // Fixed xor should do the trick. Note that you can not use

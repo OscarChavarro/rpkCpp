@@ -3,15 +3,15 @@
 
 #include <cstdlib>
 
-#include "raycasting/stochasticRaytracing/CSeed.h"
+#include "raycasting/stochasticRaytracing/Seed.h"
 
-class CSeedConfig {
+class SeedConfig {
   private:
-    CSeed *m_seeds;
-    static CSeed xOrSeed;
+    Seed *m_seeds;
+    static Seed xOrSeed;
 
   public:
-    CSeedConfig() {
+    SeedConfig() {
         xOrSeed.SetSeed(0xF0, 0x65, 0xDE);
         m_seeds = nullptr;
     }
@@ -26,10 +26,10 @@ class CSeedConfig {
     void
     init(int maxDepth) {
         clear();
-        m_seeds = new CSeed[maxDepth];
+        m_seeds = new Seed[maxDepth];
     }
 
-    ~CSeedConfig() {
+    ~SeedConfig() {
         clear();
     }
 
@@ -41,7 +41,7 @@ class CSeedConfig {
         m_seeds[depth].SetSeed(seed48(m_seeds[depth].GetSeed()));
 
         //Generate a new seed, dependent on the current seed
-        CSeed tmpSeed{};
+        Seed tmpSeed{};
 
         tmpSeed.SetSeed(m_seeds[depth]);
         // Fixed xor should do the trick. Note that you can not use

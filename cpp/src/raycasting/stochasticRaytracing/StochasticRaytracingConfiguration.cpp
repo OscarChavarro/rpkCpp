@@ -9,7 +9,7 @@
 
 #ifdef RAYTRACING_ENABLED
 
-CSeed CSeedConfig::xOrSeed;
+Seed SeedConfig::xOrSeed;
 
 void
 StochasticRaytracingConfiguration::init(

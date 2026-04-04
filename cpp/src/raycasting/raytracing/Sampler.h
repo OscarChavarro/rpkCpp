@@ -65,7 +65,7 @@ inline Sampler::Sampler() {
 inline Sampler::~Sampler() {
 }
 
-#include "raycasting/raytracing/CNextEventSampler.h"
+#include "raycasting/raytracing/NextEventSampler.h"
 #include "raycasting/raytracing/SurfaceSampler.h"
 
 #endif

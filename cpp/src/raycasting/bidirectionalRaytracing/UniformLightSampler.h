@@ -8,7 +8,7 @@
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/Sampler.h"
 
-class UniformLightSampler final : public CNextEventSampler {
+class UniformLightSampler final : public NextEventSampler {
   private:
     LightList *lightList;
     LightListIterator *iterator;

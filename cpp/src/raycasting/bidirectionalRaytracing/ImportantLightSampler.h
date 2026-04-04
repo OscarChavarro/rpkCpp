@@ -8,7 +8,7 @@
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/raytracing/Sampler.h"
 
-class ImportantLightSampler final : public CNextEventSampler {
+class ImportantLightSampler final : public NextEventSampler {
   private:
     LightList *lightList;
 

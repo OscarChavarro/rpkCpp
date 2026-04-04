@@ -4,10 +4,10 @@
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 
 /**
-CScatterinfo includes information about different scattering properties for different bsdf components
+ScatterInfo includes information about different scattering properties for different bsdf components
 This info is used during scattering, but also when weighting or reading storage decisions must be made
 */
-class CScatterInfo {
+class ScatterInfo {
   public:
     // The components under consideration
     char flags;
