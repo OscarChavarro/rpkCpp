@@ -2,11 +2,11 @@
 
 #include "java/util/Formatter.h"
 
-#include "app/options/CommandLine.h"
-#include "app/options/RaytraceOptionsGroup.h"
+#include "app/options/OptionsGroupRaytracingMethod.h"
+#include "app/options/OptionsGroupRaytracing.h"
 
 void
-RaytraceOptionsGroup::makeMethodsHelpMessage(char *buffer) {
+OptionsGroupRaytracing::makeMethodsHelpMessage(char *buffer) {
     java::Formatter::format(buffer, 1000,
          "-raytracing-method <method>: set pixel-based radiance computation method\n"
          "\tmethods: none                 no pixel-based radiance computation\n"
@@ -17,14 +17,14 @@ RaytraceOptionsGroup::makeMethodsHelpMessage(char *buffer) {
 }
 
 void
-RaytraceOptionsGroup::parse(
+OptionsGroupRaytracing::parse(
     int *argc,
     char **argv,
     char *rayTracerName)
 {
     char helpMessage[1000];
 
-    RaytraceOptionsGroup::makeMethodsHelpMessage(helpMessage);
+    OptionsGroupRaytracing::makeMethodsHelpMessage(helpMessage);
     strcpy(rayTracerName, "none");
-    CommandLine::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
+    OptionsGroupRaytracingMethod::rayTracingParseOptions(argc, argv, helpMessage, rayTracerName);
 }

@@ -1,42 +1,50 @@
 #include "common/commandLineOptions/OptionParser.h"
-#include "app/options/CommandLine.h"
+#include "app/options/OptionsGroupBatch.h"
 
-namespace {
+BatchOptions OptionsGroupBatch::batchOptionsState;
 
-void setIntTrue(int &value) {
-    value = 1;
-}
-
+void
+OptionsGroupBatch::parse(
+    int *argc,
+    char **argv,
+    BatchOptions &batchOptions)
+{
+    OptionsGroupBatch::batchParseOptions(argc, argv, &batchOptions);
 }
 
 void
-CommandLine::binaryOutputOption(const char *& /*value*/) {
+OptionsGroupBatch::binaryOutputOption(const char *& /*value*/) {
     batchOptionsState.exportBinary =
         batchOptionsState.binaryOutputFilename != nullptr
         && batchOptionsState.binaryOutputFilename[0] != '\0';
 }
 
 void
-CommandLine::binaryInputOption(const char *& /*value*/) {
+OptionsGroupBatch::binaryInputOption(const char *& /*value*/) {
     batchOptionsState.importBinary =
         batchOptionsState.binaryInputFilename != nullptr
         && batchOptionsState.binaryInputFilename[0] != '\0';
 }
 
 void
-CommandLine::batchParseOptions(
+OptionsGroupBatch::setIntTrue(int &value) {
+    value = 1;
+}
+
+void
+OptionsGroupBatch::batchParseOptions(
         int *argc,
         char **argv,
         BatchOptions *options)
 {
     TypedOption<int> iterationsOpt = {"-iterations", &batchOptionsState.iterations, 1, nullptr, nullptr};
-    TypedOption<const char *> obfOpt = {"-obf", &batchOptionsState.binaryOutputFilename, 1, CommandLine::binaryOutputOption, nullptr};
-    TypedOption<const char *> ibfOpt = {"-ibf", &batchOptionsState.binaryInputFilename, 1, CommandLine::binaryInputOption, nullptr};
+    TypedOption<const char *> obfOpt = {"-obf", &batchOptionsState.binaryOutputFilename, 1, OptionsGroupBatch::binaryOutputOption, nullptr};
+    TypedOption<const char *> ibfOpt = {"-ibf", &batchOptionsState.binaryInputFilename, 1, OptionsGroupBatch::binaryInputOption, nullptr};
     TypedOption<const char *> radianceImageOpt = {"-radiance-image-savefile", &batchOptionsState.radianceImageFileNameFormat, 1, nullptr, nullptr};
     TypedOption<const char *> radianceModelOpt = {"-radiance-model-savefile", &batchOptionsState.radianceModelFileNameFormat, 1, nullptr, nullptr};
     TypedOption<int> saveModuloOpt = {"-save-modulo", &batchOptionsState.saveModulo, 1, nullptr, nullptr};
     TypedOption<const char *> raytracingImageOpt = {"-raytracing-image-savefile", &batchOptionsState.raytracingImageFileName, 1, nullptr, nullptr};
-    TypedOption<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, setIntTrue, nullptr};
+    TypedOption<int> timingsOpt = {"-timings", &batchOptionsState.timings, 0, OptionsGroupBatch::setIntTrue, nullptr};
     OptionBase batchCommandLineOptions[] = {
         REGISTER_OPTION(int, iterationsOpt, 3),
         REGISTER_OPTION(const char *, obfOpt, 4),

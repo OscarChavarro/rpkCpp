@@ -1,37 +1,37 @@
 #include <cstdlib>
-#include <cstring>
 #include <strings.h>
 
 #include "java/lang/System.h"
 #include "scene/ConstantColorBackground.h"
 #include "common/commandLineOptions/OptionParser.h"
-#include "app/options/AppOptions.h"
-#include "app/options/CommandLine.h"
+#include "app/options/EnumAppOptions.h"
+#include "app/options/OptionsGroupCore.h"
 #include "app/options/GeneralProgramOptions.h"
 
-namespace {
-
-void setIntTrue(int &value) {
-    value = 1;
-}
-
-}
+const ColorRgb OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
+int OptionsGroupCore::numberOfQuarterCircleDivisions = OptionsGroupCore::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
+int OptionsGroupCore::fileOptionsForceOneSidedSurfaces = 0;
+int OptionsGroupCore::outputImageWidth = 1920;
+int OptionsGroupCore::outputImageHeight = 1080;
+int OptionsGroupCore::glutDebugEnabled = false;
+EnumBackgroundMode OptionsGroupCore::backgroundMode = EnumBackgroundMode::NONE;
+ColorRgb OptionsGroupCore::backgroundColor = OptionsGroupCore::DEFAULT_BACKGROUND_COLOR;
 
 ColorRgb
-CommandLine::commandLineDefaultBackgroundColor() {
+OptionsGroupCore::commandLineDefaultBackgroundColor() {
     return DEFAULT_BACKGROUND_COLOR;
 }
 
 Background *
-CommandLine::commandLineCreateBackground() {
-    if ( backgroundMode == BackgroundMode::SOLID ) {
+OptionsGroupCore::commandLineCreateBackground() {
+    if ( backgroundMode == EnumBackgroundMode::SOLID ) {
         return new ConstantColorBackground(backgroundColor);
     }
     return nullptr;
 }
 
 bool
-CommandLine::commandLineParseFloat(const char *text, float *value) {
+OptionsGroupCore::commandLineParseFloat(const char *text, float *value) {
     if ( text == nullptr || value == nullptr ) {
         return false;
     }
@@ -47,13 +47,13 @@ CommandLine::commandLineParseFloat(const char *text, float *value) {
 }
 
 bool
-CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
+OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
     float red = 0.0f;
     float green = 0.0f;
     float blue = 0.0f;
-    if ( !CommandLine::commandLineParseFloat(rArg, &red)
-         || !CommandLine::commandLineParseFloat(gArg, &green)
-         || !CommandLine::commandLineParseFloat(bArg, &blue) ) {
+    if ( !OptionsGroupCore::commandLineParseFloat(rArg, &red)
+         || !OptionsGroupCore::commandLineParseFloat(gArg, &green)
+         || !OptionsGroupCore::commandLineParseFloat(bArg, &blue) ) {
         return false;
     }
 
@@ -66,7 +66,7 @@ CommandLine::commandLineParseBackgroundColor(const char *rArg, const char *gArg,
 }
 
 void
-CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
+OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
     int writeIndex = 0;
     int readIndex = 0;
     while ( readIndex < *argc ) {
@@ -99,7 +99,7 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         ColorRgb parsedColor;
-        if ( !CommandLine::commandLineParseBackgroundColor(
+        if ( !OptionsGroupCore::commandLineParseBackgroundColor(
                  argv[readIndex + 2],
                  argv[readIndex + 3],
                  argv[readIndex + 4],
@@ -107,7 +107,7 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
             java::System::err.printf(
                 "Invalid '-background solid' color. Use '-background solid <r> <g> <b>' with values in [0.0, 1.0].\n");
         } else {
-            backgroundMode = BackgroundMode::SOLID;
+            backgroundMode = EnumBackgroundMode::SOLID;
             backgroundColor = parsedColor;
         }
         readIndex += 5;
@@ -120,27 +120,32 @@ CommandLine::commandLineParseBackgroundOption(int *argc, char **argv) {
 }
 
 void
-CommandLine::mainForceOneSidedOption(int &value) {
+OptionsGroupCore::mainForceOneSidedOption(int &value) {
     fileOptionsForceOneSidedSurfaces = value;
 }
 
 void
-CommandLine::mainMonochromeOption(int &value) {
+OptionsGroupCore::mainMonochromeOption(int &value) {
     numberOfQuarterCircleDivisions = value;
 }
 
 void
-CommandLine::commandLineImageWidthOption(int &value) {
+OptionsGroupCore::commandLineImageWidthOption(int &value) {
     outputImageWidth = value;
 }
 
 void
-CommandLine::commandLineImageHeightOption(int &value) {
+OptionsGroupCore::commandLineImageHeightOption(int &value) {
     outputImageHeight = value;
 }
 
 void
-CommandLine::commandLineGeneralProgramParseOptions(
+OptionsGroupCore::setIntTrue(int &value) {
+    value = 1;
+}
+
+void
+OptionsGroupCore::commandLineGeneralProgramParseOptions(
         int *argc,
         char **argv,
         bool *oneSidedSurfaces,
@@ -149,12 +154,12 @@ CommandLine::commandLineGeneralProgramParseOptions(
         int *imageOutputHeight,
         bool *glutDebugEnabledOut)
 {
-    GeneralProgramOptionsRegistry optionsRegistry(
-        CommandLine::mainForceOneSidedOption,
-        CommandLine::mainMonochromeOption,
-        setIntTrue);
+    GeneralProgramOptions optionsRegistry(
+            OptionsGroupCore::mainForceOneSidedOption,
+            OptionsGroupCore::mainMonochromeOption,
+            OptionsGroupCore::setIntTrue);
 
-    AppOptions appOptions;
+    EnumAppOptions appOptions;
     appOptions.width = outputImageWidth;
     appOptions.height = outputImageHeight;
     appOptions.nqcdivs = numberOfQuarterCircleDivisions;
@@ -164,10 +169,10 @@ CommandLine::commandLineGeneralProgramParseOptions(
 
     fileOptionsForceOneSidedSurfaces = DEFAULT_FORCE_ONE_SIDED;
     numberOfQuarterCircleDivisions = DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-    backgroundMode = BackgroundMode::NONE;
+    backgroundMode = EnumBackgroundMode::NONE;
     backgroundColor = DEFAULT_BACKGROUND_COLOR;
-    CommandLine::glutDebugEnabled = appOptions.debug;
-    CommandLine::commandLineParseBackgroundOption(argc, argv);
+    glutDebugEnabled = appOptions.debug;
+    OptionsGroupCore::commandLineParseBackgroundOption(argc, argv);
     OptionGroup generalGroups[] = {
         OptionGroup("global", optionsRegistry.entries(), optionsRegistry.count())
     };
@@ -176,7 +181,7 @@ CommandLine::commandLineGeneralProgramParseOptions(
     outputImageWidth = appOptions.width;
     outputImageHeight = appOptions.height;
     numberOfQuarterCircleDivisions = appOptions.nqcdivs;
-    CommandLine::glutDebugEnabled = appOptions.debug;
+    glutDebugEnabled = appOptions.debug;
 
     if ( fileOptionsForceOneSidedSurfaces != 0 ) {
         *oneSidedSurfaces = true;
@@ -186,10 +191,10 @@ CommandLine::commandLineGeneralProgramParseOptions(
     *conicSubDivisions = numberOfQuarterCircleDivisions;
     *imageOutputWidth = outputImageWidth;
     *imageOutputHeight = outputImageHeight;
-    *glutDebugEnabledOut = CommandLine::glutDebugEnabled;
+    *glutDebugEnabledOut = glutDebugEnabled;
 
 #ifndef OPEN_GL_ENABLED
-    if ( CommandLine::glutDebugEnabled ) {
+    if ( glutDebugEnabled ) {
         java::System::err.printf(
             "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
         java::System::err.flush();

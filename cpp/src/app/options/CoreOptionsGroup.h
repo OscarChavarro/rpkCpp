@@ -1,5 +1,5 @@
-#ifndef __CORE_OPTIONS_PARSER__
-#define __CORE_OPTIONS_PARSER__
+#ifndef __CORE_OPTIONS_GROUP__
+#define __CORE_OPTIONS_GROUP__
 
 #include "common/RenderOptions.h"
 #include "io/context/ParseRuntimeContext.h"
@@ -7,7 +7,7 @@
 #include "scene/Scene.h"
 #include "tonemap/ToneMappingContext.h"
 
-class CoreOptionsParser final {
+class CoreOptionsGroup final {
   public:
     static void parse(
         int *argc,

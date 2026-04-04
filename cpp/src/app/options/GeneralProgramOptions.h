@@ -4,21 +4,21 @@
 #include <cstddef>
 
 #include "common/commandLineOptions/TypedOption.h"
-#include "app/options/AppOptions.h"
+#include "app/options/EnumAppOptions.h"
 
-class GeneralProgramOptionsRegistry {
+class GeneralProgramOptions {
   public:
-    GeneralProgramOptionsRegistry(
+    GeneralProgramOptions(
         void (*mainForceOneSidedOption)(int &),
         void (*mainMonochromeOption)(int &),
         void (*setIntTrue)(int &))
-        : widthOpt{"-width", static_cast<int>(offsetof(AppOptions, width)), 1, nullptr, nullptr},
-          heightOpt{"-height", static_cast<int>(offsetof(AppOptions, height)), 1, nullptr, nullptr},
-          nqcdivsOpt{"-nqcdivs", static_cast<int>(offsetof(AppOptions, nqcdivs)), 1, nullptr, nullptr},
-          forceOneSidedOpt{"-force-onesided", static_cast<int>(offsetof(AppOptions, yesValue)), 0, mainForceOneSidedOption, nullptr},
-          dontForceOneSidedOpt{"-dont-force-onesided", static_cast<int>(offsetof(AppOptions, noValue)), 0, mainForceOneSidedOption, nullptr},
-          monochromaticOpt{"-monochromatic", static_cast<int>(offsetof(AppOptions, yesValue)), 0, mainMonochromeOption, nullptr},
-          glutDebugOpt{"-glutDebug", static_cast<int>(offsetof(AppOptions, debug)), 0, setIntTrue, nullptr},
+        : widthOpt{"-width", static_cast<int>(offsetof(EnumAppOptions, width)), 1, nullptr, nullptr},
+          heightOpt{"-height", static_cast<int>(offsetof(EnumAppOptions, height)), 1, nullptr, nullptr},
+          nqcdivsOpt{"-nqcdivs", static_cast<int>(offsetof(EnumAppOptions, nqcdivs)), 1, nullptr, nullptr},
+          forceOneSidedOpt{"-force-onesided", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, mainForceOneSidedOption, nullptr},
+          dontForceOneSidedOpt{"-dont-force-onesided", static_cast<int>(offsetof(EnumAppOptions, noValue)), 0, mainForceOneSidedOption, nullptr},
+          monochromaticOpt{"-monochromatic", static_cast<int>(offsetof(EnumAppOptions, yesValue)), 0, mainMonochromeOption, nullptr},
+          glutDebugOpt{"-glutDebug", static_cast<int>(offsetof(EnumAppOptions, debug)), 0, setIntTrue, nullptr},
           registry{
               REGISTER_OPTION(int, widthOpt, 5),
               REGISTER_OPTION(int, heightOpt, 6),

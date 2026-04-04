@@ -11,7 +11,7 @@
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/RadianceMethod.h"
 
-class RadianceOptionsGroup final {
+class OptionsGroupRadiance final {
   public:
     static void parse(
         int *argc,

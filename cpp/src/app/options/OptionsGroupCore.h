@@ -1,0 +1,45 @@
+#ifndef __COMMAND_LINE_CORE_OPTIONS_GROUP__
+#define __COMMAND_LINE_CORE_OPTIONS_GROUP__
+
+#include "app/options/EnumBackgroundMode.h"
+#include "common/ColorRgb.h"
+
+class Background;
+
+class OptionsGroupCore final {
+  public:
+    static ColorRgb commandLineDefaultBackgroundColor();
+    static Background *commandLineCreateBackground();
+    static void commandLineGeneralProgramParseOptions(
+        int *argc,
+        char **argv,
+        bool *oneSidedSurfaces,
+        int *conicSubDivisions,
+        int *imageOutputWidth,
+        int *imageOutputHeight,
+        bool *glutDebugEnabledOut);
+
+  private:
+    static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
+    static constexpr bool DEFAULT_FORCE_ONE_SIDED = true;
+    static const ColorRgb DEFAULT_BACKGROUND_COLOR;
+
+    static int numberOfQuarterCircleDivisions;
+    static int fileOptionsForceOneSidedSurfaces;
+    static int outputImageWidth;
+    static int outputImageHeight;
+    static int glutDebugEnabled;
+    static EnumBackgroundMode backgroundMode;
+    static ColorRgb backgroundColor;
+
+    static bool commandLineParseFloat(const char *text, float *value);
+    static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
+    static void commandLineParseBackgroundOption(int *argc, char **argv);
+    static void mainForceOneSidedOption(int &value);
+    static void mainMonochromeOption(int &value);
+    static void commandLineImageWidthOption(int &value);
+    static void commandLineImageHeightOption(int &value);
+    static void setIntTrue(int &value);
+};
+
+#endif

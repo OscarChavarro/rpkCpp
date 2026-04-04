@@ -20,7 +20,7 @@
 #include "render/ScreenBuffer.h"
 #include "app/Adaptation.h"
 #include "app/Batch.h"
-#include "app/options/CoreOptionsParser.h"
+#include "app/options/CoreOptionsGroup.h"
 #include "app/Radiance.h"
 #include "app/SceneBuilder.h"
 
@@ -494,7 +494,7 @@ SceneBuilder::sceneBuilderReadFile(
     if ( scene->background != nullptr ) {
         delete scene->background;
     }
-    scene->background = CoreOptionsParser::createBackground();
+    scene->background = CoreOptionsGroup::createBackground();
 
     // Read the source scene description into a ParseSnapshotContext snapshot
     java::System::err.printf("Reading the scene from file '%s' ... \n", inputName);

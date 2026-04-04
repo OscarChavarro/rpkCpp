@@ -201,17 +201,20 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
-    src/app/options/Options.cpp
-    src/app/options/CoreOptionsParser.cpp
-    src/app/options/RadianceOptionsGroup.cpp
-    src/app/options/BatchOptionsGroup.cpp
-    src/app/options/RaytraceOptionsGroup.cpp
+    src/app/options/CoreOptionsGroup.cpp
+        src/app/options/OptionsGroupRadiance.cpp
+        src/app/options/OptionsGroupRaytracing.cpp
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp
-    src/app/options/CommandLineCoreGroup.cpp
-    src/app/options/CommandLineCameraGroup.cpp
-    src/app/options/CommandLineBatchGroup.cpp
+        src/app/options/OptionsGroupCore.cpp
+        src/app/options/OptionsGroupCamera.cpp
+        src/app/options/OptionsGroupBatch.cpp
+        src/app/options/OptionsGroupGalerkin.cpp
+        src/app/options/OptionsGroupToneMapping.cpp
+        src/app/options/OptionsGroupRender.cpp
+        src/app/options/OptionsGroupRadianceMethod.cpp
+        src/app/options/OptionsGroupRaytracingMethod.cpp
     src/app/options/CommandLine.cpp
     src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp

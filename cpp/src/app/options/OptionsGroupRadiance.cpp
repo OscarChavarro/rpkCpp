@@ -2,7 +2,9 @@
 
 #include "java/lang/System.h"
 #include "app/options/CommandLine.h"
-#include "app/options/RadianceOptionsGroup.h"
+#include "app/options/OptionsGroupGalerkin.h"
+#include "app/options/OptionsGroupRadianceMethod.h"
+#include "app/options/OptionsGroupRadiance.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
@@ -13,7 +15,7 @@
 #endif
 
 void
-RadianceOptionsGroup::selectRadianceMethod(
+OptionsGroupRadiance::selectRadianceMethod(
     const char *name,
     RadianceMethod **newRadianceMethod,
     StochasticRelaxation &stochasticRelaxationState,
@@ -50,7 +52,7 @@ RadianceOptionsGroup::selectRadianceMethod(
 }
 
 void
-RadianceOptionsGroup::parse(
+OptionsGroupRadiance::parse(
     int *argc,
     char **argv,
     RadianceMethod **newRadianceMethod,
@@ -66,9 +68,9 @@ RadianceOptionsGroup::parse(
     char radianceMethodsString[RADIANCE_METHODS_STRING_LENGTH];
     radianceMethodsString[0] = '\0';
 
-    CommandLine::radianceMethodParseOptions(argc, argv, radianceMethodsString);
+    OptionsGroupRadianceMethod::radianceMethodParseOptions(argc, argv, radianceMethodsString);
 
-    RadianceOptionsGroup::selectRadianceMethod(
+    OptionsGroupRadiance::selectRadianceMethod(
         radianceMethodsString,
         newRadianceMethod,
         stochasticRelaxationState,
@@ -100,5 +102,5 @@ RadianceOptionsGroup::parse(
     CommandLine::photonMapParseOptions(argc, argv, photonMapState);
 #endif
 
-    CommandLine::galerkinParseOptions(argc, argv);
+    OptionsGroupGalerkin::galerkinParseOptions(argc, argv);
 }

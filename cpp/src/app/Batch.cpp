@@ -9,7 +9,7 @@
 #include "render/Canvas.h"
 #include "render/RadianceImageExporter.h"
 #include "app/Batch.h"
-#include "app/options/BatchOptionsGroup.h"
+#include "app/options/OptionsGroupBatch.h"
 
 #ifdef OPEN_GL_ENABLED
     #include "render/opengl/RenderOpenGL.h"
@@ -29,7 +29,7 @@ Batch::batchGetOptions() {
 
 void
 Batch::generalParseOptions(int *argc, char **argv) {
-    BatchOptionsGroup::parse(argc, argv, batchOptions);
+    OptionsGroupBatch::parse(argc, argv, batchOptions);
 }
 
 #ifdef RAYTRACING_ENABLED

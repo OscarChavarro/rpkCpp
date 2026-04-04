@@ -20,8 +20,7 @@
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
 #include "app/Batch.h"
-#include "app/options/CoreOptionsParser.h"
-#include "app/options/Options.h"
+#include "app/options/CoreOptionsGroup.h"
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
@@ -125,7 +124,7 @@ RpkApplication::mainParseOptions(
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState)
 {
-    CoreOptionsParser::parse(
+    CoreOptionsGroup::parse(
         argc,
         argv,
         *mgfContext,
@@ -196,7 +195,6 @@ RpkApplication::executeRendering(
 
 void
 RpkApplication::freeMemory(ParseRuntimeContext *mgfContext) {
-    Options::deleteOptionsMemory();
 #ifdef MGF_ENABLED
     MgfParserLoader::mgfFreeMemory(mgfContext);
 #endif

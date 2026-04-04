@@ -4,9 +4,6 @@
 
 #include "java/lang/System.h"
 #include "common/Error.h"
-#include "common/RenderOptions.h"
-#include "tonemap/ToneMap.h"
-#include "galerkin/GalerkinRadianceMethod.h"
 
 #ifdef RAYTRACING_ENABLED
     #include "raycasting/simple/RayMatterState.h"
@@ -17,29 +14,12 @@
     #include "raycasting/photonMap/PhotonMapState.h"
 #endif
 
-#include "app/options/BackgroundMode.h"
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
-#include "app/options/BatchOptions.h"
 #include "app/options/CommandLine.h"
 
-namespace {
-
 template<typename T>
-class EnumBinding {
-  public:
-    T *target;
-    const EnumDesc *values;
-};
-
-class FixedStringBinding {
-  public:
-    char *target;
-    int maxLength;
-};
-
-template<typename T>
-bool parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding) {
+bool CommandLine::parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding) {
     if ( argc < 1 || argv == nullptr || argv[0] == nullptr || binding.target == nullptr || binding.values == nullptr ) {
         return false;
     }
@@ -52,7 +32,8 @@ bool parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding) {
     return false;
 }
 
-bool parseFixedStringBinding(int argc, char **argv, FixedStringBinding &binding) {
+bool
+CommandLine::parseFixedStringBinding(int argc, char **argv, FixedStringBinding &binding) {
     if ( argc < 1 || argv == nullptr || argv[0] == nullptr || binding.target == nullptr || binding.maxLength <= 0 ) {
         return false;
     }
@@ -61,44 +42,8 @@ bool parseFixedStringBinding(int argc, char **argv, FixedStringBinding &binding)
     return true;
 }
 
-bool parseColor3(int argc, char **argv, ColorRgb &value) {
-    if ( argc < 3 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr || argv[2] == nullptr ) {
-        return false;
-    }
-    char *endPointer = nullptr;
-    value.r = strtof(argv[0], &endPointer);
-    if ( endPointer == argv[0] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.g = strtof(argv[1], &endPointer);
-    if ( endPointer == argv[1] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.b = strtof(argv[2], &endPointer);
-    if ( endPointer == argv[2] || *endPointer != '\0' ) {
-        return false;
-    }
-    return true;
-}
-
-bool parseCieXy(int argc, char **argv, Vector3D &value) {
-    if ( argc < 2 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr ) {
-        return false;
-    }
-    char *endPointer = nullptr;
-    value.x = strtof(argv[0], &endPointer);
-    if ( endPointer == argv[0] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.y = strtof(argv[1], &endPointer);
-    if ( endPointer == argv[1] || *endPointer != '\0' ) {
-        return false;
-    }
-    value.z = 0.0;
-    return true;
-}
-
-bool parseBoolInt(int argc, char **argv, int &value) {
+bool
+CommandLine::parseBoolInt(int argc, char **argv, int &value) {
     if ( argc < 1 || argv == nullptr || argv[0] == nullptr ) {
         return false;
     }
@@ -113,362 +58,15 @@ bool parseBoolInt(int argc, char **argv, int &value) {
     return false;
 }
 
-void setIntTrue(int &value) {
+void
+CommandLine::setIntTrue(int &value) {
     value = 1;
 }
 
-void setIntFalse(int &value) {
+void
+CommandLine::setIntFalse(int &value) {
     value = 0;
 }
-
-}
-
-const Vector3D CommandLine::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
-const Vector3D CommandLine::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
-const Vector3D CommandLine::DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
-const ColorRgb CommandLine::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
-
-int CommandLine::numberOfQuarterCircleDivisions = CommandLine::DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS;
-int CommandLine::fileOptionsForceOneSidedSurfaces = 0;
-int CommandLine::yesValue = 1;
-int CommandLine::noValue = 0;
-int CommandLine::outputImageWidth = 1920;
-int CommandLine::outputImageHeight = 1080;
-int CommandLine::glutDebugEnabled = false;
-Camera CommandLine::cameraState;
-BackgroundMode CommandLine::backgroundMode = BackgroundMode::NONE;
-ColorRgb CommandLine::backgroundColor = CommandLine::DEFAULT_BACKGROUND_COLOR;
-int CommandLine::trueValue = true;
-int CommandLine::falseValue = false;
-
-char CommandLine::toneMappingMethodsString[CommandLine::TONE_MAPPING_METHODS_STRING_LENGTH];
-float CommandLine::redChromaticity[2];
-float CommandLine::greenChromaticity[2];
-float CommandLine::blueChromaticity[2];
-float CommandLine::whiteChromaticity[2];
-char *CommandLine::toneMapName = nullptr;
-ToneMappingContext *CommandLine::toneMapOptions = nullptr;
-char *CommandLine::radianceMethodsString = nullptr;
-RenderOptions CommandLine::renderOptionsState;
-ColorRgb CommandLine::outlineColor;
-BatchOptions CommandLine::batchOptionsState;
-
-
-void
-CommandLine::iterationMethodOption(char *&name) {
-
-    if ( strncasecmp(name, "jacobi", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::JACOBI;
-    } else if ( strncasecmp(name, "gaussseidel", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::GAUSS_SEIDEL;
-    } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
-        GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
-    } else {
-        Error::error(nullptr, "Invalid iteration method '%s'", name);
-    }
-}
-
-void
-CommandLine::hierarchicalOption(int &yesno) {
-
-    if ( yesno != 0 ) {
-        GalerkinRadianceMethod::galerkinState.hierarchical = true;
-    } else {
-        GalerkinRadianceMethod::galerkinState.hierarchical = false;
-    }
-}
-
-void
-CommandLine::lazyOption(int &yesno) {
-    GalerkinRadianceMethod::galerkinState.lazyLinking = yesno;
-}
-
-void
-CommandLine::clusteringOption(int &yesno) {
-    GalerkinRadianceMethod::galerkinState.clustered = yesno;
-}
-
-void
-CommandLine::importanceOption(int &yesno) {
-    GalerkinRadianceMethod::galerkinState.importanceDriven = yesno;
-}
-
-void
-CommandLine::ambientOption(int &yesno) {
-    GalerkinRadianceMethod::galerkinState.useAmbientRadiance = yesno;
-}
-
-void
-CommandLine::galerkinParseOptions(int *argc, char **argv) {
-    char *iterationMethodName = nullptr;
-    TypedOption<char *> iterationMethodOpt = {"-gr-iteration-method", &iterationMethodName, 1, CommandLine::iterationMethodOption, nullptr};
-    TypedOption<int> grHierarchicalOpt = {"-gr-hierarchical", &trueValue, 0, CommandLine::hierarchicalOption, nullptr};
-    TypedOption<int> grNotHierarchicalOpt = {"-gr-not-hierarchical", &falseValue, 0, CommandLine::hierarchicalOption, nullptr};
-    TypedOption<int> grLazyOpt = {"-gr-lazy-linking", &trueValue, 0, CommandLine::lazyOption, nullptr};
-    TypedOption<int> grNoLazyOpt = {"-gr-no-lazy-linking", &falseValue, 0, CommandLine::lazyOption, nullptr};
-    TypedOption<int> grClusteringOpt = {"-gr-clustering", &trueValue, 0, CommandLine::clusteringOption, nullptr};
-    TypedOption<int> grNoClusteringOpt = {"-gr-no-clustering", &falseValue, 0, CommandLine::clusteringOption, nullptr};
-    TypedOption<int> grImportanceOpt = {"-gr-importance", &trueValue, 0, CommandLine::importanceOption, nullptr};
-    TypedOption<int> grNoImportanceOpt = {"-gr-no-importance", &falseValue, 0, CommandLine::importanceOption, nullptr};
-    TypedOption<int> grAmbientOpt = {"-gr-ambient", &trueValue, 0, CommandLine::ambientOption, nullptr};
-    TypedOption<int> grNoAmbientOpt = {"-gr-no-ambient", &falseValue, 0, CommandLine::ambientOption, nullptr};
-    TypedOption<float> grLinkErrorOpt = {"-gr-link-error-threshold", &GalerkinRadianceMethod::galerkinState.relLinkErrorThreshold, 1, nullptr, nullptr};
-    TypedOption<float> grMinElemAreaOpt = {"-gr-min-elem-area", &GalerkinRadianceMethod::galerkinState.relMinElemArea, 1, nullptr, nullptr};
-    OptionBase galerkinOptions[] = {
-        REGISTER_OPTION(char *, iterationMethodOpt, 6),
-        REGISTER_OPTION(int, grHierarchicalOpt, 6),
-        REGISTER_OPTION(int, grNotHierarchicalOpt, 10),
-        REGISTER_OPTION(int, grLazyOpt, 6),
-        REGISTER_OPTION(int, grNoLazyOpt, 10),
-        REGISTER_OPTION(int, grClusteringOpt, 6),
-        REGISTER_OPTION(int, grNoClusteringOpt, 10),
-        REGISTER_OPTION(int, grImportanceOpt, 6),
-        REGISTER_OPTION(int, grNoImportanceOpt, 10),
-        REGISTER_OPTION(int, grAmbientOpt, 6),
-        REGISTER_OPTION(int, grNoAmbientOpt, 10),
-        REGISTER_OPTION(float, grLinkErrorOpt, 6),
-        REGISTER_OPTION(float, grMinElemAreaOpt, 6)
-    };
-
-    OptionGroup galerkinGroups[] = {
-        OptionGroup("galerkin", galerkinOptions, 13)
-    };
-    OptionParser<OptionBase>::parse(argc, argv, galerkinGroups, 1);
-}
-
-// Composes explanation for -tonemapping command line option
-void
-CommandLine::makeToneMappingMethodsString() {
-    strcpy(toneMappingMethodsString,
-       "-tonemapping <method>: Set tone mapping method\n"
-       "\tmethods: Lightness            Lightness Mapping (default)\n"
-       "\t         TumblinRushmeier     Tumblin/Rushmeier's Mapping\n"
-       "\t         Ward                 Ward's Mapping\n"
-       "\t         RevisedTR            Revised Tumblin/Rushmeier's Mapping\n"
-       "\t         Ferwerda             Partial Ferwerda's Mapping");
-}
-
-void
-CommandLine::toneMappingMethodOption(char *&name) {
-    strcpy(toneMapName, name);
-}
-
-void
-CommandLine::brightnessAdjustOption(float & /*value*/) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::brightnessAdjustOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
-}
-
-void
-CommandLine::redChromaOption(Vector3D &value) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::redChromaOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).xr = value.x;
-    (*toneMapOptions).yr = value.y;
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
-}
-
-void
-CommandLine::greenChromaOption(Vector3D &value) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::greenChromaOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).xg = value.x;
-    (*toneMapOptions).yg = value.y;
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
-}
-
-void
-CommandLine::blueChromaOption(Vector3D &value) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::blueChromaOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).xb = value.x;
-    (*toneMapOptions).yb = value.y;
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
-}
-
-void
-CommandLine::whiteChromaOption(Vector3D &value) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::whiteChromaOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).xw = value.x;
-    (*toneMapOptions).yw = value.y;
-    Cie::computeColorConversionTransforms(
-        (*toneMapOptions).xr, (*toneMapOptions).yr,
-        (*toneMapOptions).xg, (*toneMapOptions).yg,
-        (*toneMapOptions).xb, (*toneMapOptions).yb,
-        (*toneMapOptions).xw, (*toneMapOptions).yw);
-}
-
-void
-CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption(char *&name) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
-    }
-
-    if ( strncasecmp(name, "average", 2) == 0 ) {
-        (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
-    } else if ( strncasecmp(name, "median", 2) == 0 ) {
-        (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
-    } else {
-        Error::error(nullptr, "Invalid adaptation estimate method '%s'", name);
-    }
-}
-
-void
-CommandLine::gammaOption(float &gam) {
-    if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLine::gammaOption", "ToneMappingContext not set");
-    }
-    (*toneMapOptions).gamma.set(gam, gam, gam);
-}
-
-void
-CommandLine::toneMapParseOptions(
-        int *argc,
-        char **argv,
-        char *toneMapNameOut,
-        ToneMappingContext &toneMapOptionsContext)
-{
-    char *toneMapMethodName = nullptr;
-    char *adaptMethodName = nullptr;
-    Vector3D redChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D greenChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D blueChromaticityValue(0.0, 0.0, 0.0);
-    Vector3D whiteChromaticityValue(0.0, 0.0, 0.0);
-    TypedOption<char *> toneMappingOpt = {"-tonemapping", &toneMapMethodName, 1, CommandLine::toneMappingMethodOption, nullptr};
-    TypedOption<float> brightnessAdjustOpt = {"-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, CommandLine::brightnessAdjustOption, nullptr};
-    TypedOption<char *> adaptOpt = {"-adapt", &adaptMethodName, 1, CommandLine::toneMappingCommandLineOptionDescAdaptMethodOption, nullptr};
-    TypedOption<float> lwaOpt = {"-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, nullptr, nullptr};
-    TypedOption<float> ldmaxOpt = {"-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, nullptr, nullptr};
-    TypedOption<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
-    TypedOption<float> gammaOpt = {"-gamma", &toneMapOptionsContext.gamma.r, 1, CommandLine::gammaOption, nullptr};
-    TypedOption<ColorRgb> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, parseColor3};
-    TypedOption<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, CommandLine::redChromaOption, parseCieXy};
-    TypedOption<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, CommandLine::greenChromaOption, parseCieXy};
-    TypedOption<Vector3D> blueOpt = {"-blue", &blueChromaticityValue, 2, CommandLine::blueChromaOption, parseCieXy};
-    TypedOption<Vector3D> whiteOpt = {"-white", &whiteChromaticityValue, 2, CommandLine::whiteChromaOption, parseCieXy};
-    OptionBase toneMappingOptions[] = {
-        REGISTER_OPTION(char *, toneMappingOpt, 4),
-        REGISTER_OPTION(float, brightnessAdjustOpt, 4),
-        REGISTER_OPTION(char *, adaptOpt, 5),
-        REGISTER_OPTION(float, lwaOpt, 3),
-        REGISTER_OPTION(float, ldmaxOpt, 5),
-        REGISTER_OPTION(float, cmaxOpt, 4),
-        REGISTER_OPTION(float, gammaOpt, 4),
-        REGISTER_OPTION(ColorRgb, rgbGammaOpt, 4),
-        REGISTER_OPTION(Vector3D, redOpt, 4),
-        REGISTER_OPTION(Vector3D, greenOpt, 4),
-        REGISTER_OPTION(Vector3D, blueOpt, 4),
-        REGISTER_OPTION(Vector3D, whiteOpt, 4)
-    };
-
-    CommandLine::toneMapName = toneMapNameOut;
-    CommandLine::toneMapOptions = &toneMapOptionsContext;
-    CommandLine::makeToneMappingMethodsString();
-    OptionGroup toneMappingGroups[] = {
-        OptionGroup("toneMapping", toneMappingOptions, 12)
-    };
-    OptionParser<OptionBase>::parse(argc, argv, toneMappingGroups, 1);
-    ToneMap::recomputeGammaTables(toneMapOptionsContext, (*CommandLine::toneMapOptions).gamma);
-    CommandLine::toneMapOptions = nullptr;
-    CommandLine::toneMapName = nullptr;
-}
-
-void
-CommandLine::radianceMethodParseOptions(
-        int *argc,
-        char **argv,
-        char *radianceMethodsStringOut)
-{
-    char *radianceMethodName = nullptr;
-    TypedOption<char *> radianceMethodOpt = {"-radiance-method", &radianceMethodName, 1, nullptr, nullptr};
-    OptionBase radianceOptions[] = {
-        REGISTER_OPTION(char *, radianceMethodOpt, 4)
-    };
-    OptionGroup radianceGroups[] = {
-        OptionGroup("radiance", radianceOptions, 1)
-    };
-    OptionParser<OptionBase>::parse(argc, argv, radianceGroups, 1);
-
-    if ( radianceMethodsStringOut != nullptr ) {
-        if ( radianceMethodName != nullptr ) {
-            strcpy(radianceMethodsStringOut, radianceMethodName);
-        } else {
-            radianceMethodsStringOut[0] = '\0';
-        }
-    }
-}
-
-void
-CommandLine::flatOption(int & /*value*/) {
-    renderOptionsState.smoothShading = false;
-}
-
-void
-CommandLine::noCullingOption(int & /*value*/) {
-    renderOptionsState.backfaceCulling = false;
-}
-
-void
-CommandLine::outlinesOption(int & /*value*/) {
-    renderOptionsState.drawOutlines = true;
-}
-
-void
-CommandLine::traceOption(int & /*value*/) {
-    renderOptionsState.trace = true;
-}
-
-void
-CommandLine::renderParseOptions(
-        int *argc,
-        char **argv,
-        RenderOptions *renderOptions)
-{
-    TypedOption<int> flatOpt = {"-flat-shading", &trueValue, 0, CommandLine::flatOption, nullptr};
-    TypedOption<int> raycastOpt = {"-raycast", &trueValue, 0, CommandLine::traceOption, nullptr};
-    TypedOption<int> noCullingOpt = {"-no-culling", &trueValue, 0, CommandLine::noCullingOption, nullptr};
-    TypedOption<int> outlinesOpt = {"-outlines", &trueValue, 0, CommandLine::outlinesOption, nullptr};
-    TypedOption<ColorRgb> outlineColorOpt = {"-outline-color", &outlineColor, 3, nullptr, parseColor3};
-    OptionBase renderingOptions[] = {
-        REGISTER_OPTION(int, flatOpt, 5),
-        REGISTER_OPTION(int, raycastOpt, 5),
-        REGISTER_OPTION(int, noCullingOpt, 5),
-        REGISTER_OPTION(int, outlinesOpt, 5),
-        REGISTER_OPTION(ColorRgb, outlineColorOpt, 10)
-    };
-
-    renderOptionsState = *renderOptions;
-
-    OptionGroup renderGroups[] = {
-        OptionGroup("render", renderingOptions, 5)
-    };
-    OptionParser<OptionBase>::parse(argc, argv, renderGroups, 1);
-
-    *renderOptions = renderOptionsState;
-    renderOptions->outlineColor.r = outlineColor.r;
-    renderOptions->outlineColor.g = outlineColor.g;
-    renderOptions->outlineColor.b = outlineColor.b;
-}
-
 
 #ifdef RAYTRACING_ENABLED
 
@@ -755,35 +353,6 @@ CommandLine::biDirectionalPathParseOptions(
         OptionGroup("bidirectional", bidirectionalOptions, 14)
     };
     OptionParser<OptionBase>::parse(argc, argv, bidirectionalGroups, 1);
-}
-
-char *CommandLine::raytracingMethodsString = nullptr;
-char *CommandLine::rayTracerName = nullptr;
-
-void
-CommandLine::mainRayTracingOption(char *&name) {
-    strcpy(rayTracerName, name);
-}
-
-void
-CommandLine::rayTracingParseOptions(
-        int *argc,
-        char **argv,
-        char raytracingMethodsStringOut[],
-        char *rayTracerNameOut)
-{
-    char *raytracingMethodName = nullptr;
-    TypedOption<char *> raytracingMethodOpt = {"-raytracing-method", &raytracingMethodName, 1, CommandLine::mainRayTracingOption, nullptr};
-    OptionBase raytracingOptions[] = {
-        REGISTER_OPTION(char *, raytracingMethodOpt, 4)
-    };
-
-    CommandLine::rayTracerName = rayTracerNameOut;
-    CommandLine::raytracingMethodsString = raytracingMethodsStringOut;
-    OptionGroup raytracingGroups[] = {
-        OptionGroup("raytracing", raytracingOptions, 1)
-    };
-    OptionParser<OptionBase>::parse(argc, argv, raytracingGroups, 1);
 }
 
 void
