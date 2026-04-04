@@ -10,7 +10,9 @@ class TypedOption {
   public:
     TypedOption();
     TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
+    TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &));
     TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &));
+    TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &));
 
     const char *getName() const;
     int getConsumesValue() const;
@@ -24,6 +26,8 @@ class TypedOption {
     int consumesValue_;
     void (*onSet_)(T &);
     bool (*parseArgs_)(int, char **, T &);
+    bool (*validate_)(T &);
+    void (*transform_)(T &);
 };
 
 class OptionBase {

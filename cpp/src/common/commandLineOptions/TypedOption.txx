@@ -6,7 +6,9 @@ TypedOption<T>::TypedOption():
     useOffset_(false),
     consumesValue_(1),
     onSet_(nullptr),
-    parseArgs_(nullptr) {
+    parseArgs_(nullptr),
+    validate_(nullptr),
+    transform_(nullptr) {
 }
 
 template<typename T>
@@ -17,7 +19,22 @@ TypedOption<T>::TypedOption(const char *name, T *target, int consumesValue, void
     useOffset_(false),
     consumesValue_(consumesValue),
     onSet_(onSet),
-    parseArgs_(parseArgs) {
+    parseArgs_(parseArgs),
+    validate_(nullptr),
+    transform_(nullptr) {
+}
+
+template<typename T>
+TypedOption<T>::TypedOption(const char *name, T *target, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &)):
+    name_(name),
+    target_(target),
+    offset_(0),
+    useOffset_(false),
+    consumesValue_(consumesValue),
+    onSet_(onSet),
+    parseArgs_(parseArgs),
+    validate_(validate),
+    transform_(transform) {
 }
 
 template<typename T>
@@ -28,7 +45,22 @@ TypedOption<T>::TypedOption(const char *name, int offset, int consumesValue, voi
     useOffset_(true),
     consumesValue_(consumesValue),
     onSet_(onSet),
-    parseArgs_(parseArgs) {
+    parseArgs_(parseArgs),
+    validate_(nullptr),
+    transform_(nullptr) {
+}
+
+template<typename T>
+TypedOption<T>::TypedOption(const char *name, int offset, int consumesValue, void (*onSet)(T &), bool (*parseArgs)(int, char **, T &), bool (*validate)(T &), void (*transform)(T &)):
+    name_(name),
+    target_(nullptr),
+    offset_(offset),
+    useOffset_(true),
+    consumesValue_(consumesValue),
+    onSet_(onSet),
+    parseArgs_(parseArgs),
+    validate_(validate),
+    transform_(transform) {
 }
 
 template<typename T>
@@ -53,12 +85,20 @@ bool TypedOption<T>::apply(void *context, int argc, char **argv) {
     if ( target == nullptr ) {
         return false;
     }
+    T value = *target;
     if ( consumesValue_ == 0 ) {
         if ( parseArgs_ != nullptr ) {
-            if ( !parseArgs_(0, nullptr, *target) ) {
+            if ( !parseArgs_(0, nullptr, value) ) {
                 return false;
             }
         }
+        if ( validate_ != nullptr && !validate_(value) ) {
+            return false;
+        }
+        if ( transform_ != nullptr ) {
+            transform_(value);
+        }
+        *target = value;
         if ( onSet_ != nullptr ) {
             onSet_(*target);
         }
@@ -67,7 +107,6 @@ bool TypedOption<T>::apply(void *context, int argc, char **argv) {
     if ( argc < consumesValue_ ) {
         return false;
     }
-    T value = *target;
     bool parsed = false;
     if ( parseArgs_ != nullptr ) {
         parsed = parseArgs_(consumesValue_, argv, value);
@@ -76,6 +115,12 @@ bool TypedOption<T>::apply(void *context, int argc, char **argv) {
     }
     if ( !parsed ) {
         return false;
+    }
+    if ( validate_ != nullptr && !validate_(value) ) {
+        return false;
+    }
+    if ( transform_ != nullptr ) {
+        transform_(value);
     }
     *target = value;
     if ( onSet_ != nullptr ) {
