@@ -5,7 +5,7 @@
 #include "raycasting/simple/RayMatterState.h"
 #include "app/options/EnumDesc.h"
 
-class CommandLine final {
+class OptionsGroupRayMatter final {
   public:
     static void rayMattingParseOptions(
             int *argc,

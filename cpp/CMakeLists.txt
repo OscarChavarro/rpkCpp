@@ -219,7 +219,7 @@ set(MAIN_SRC
         src/app/options/OptionsGroupStochasticRaytracing.cpp
         src/app/options/OptionsGroupBidirectionalRaytracing.cpp
         src/app/options/OptionsGroupPhotonMap.cpp
-    src/app/options/CommandLine.cpp
+        src/app/options/OptionsGroupRayMatter.cpp
     src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/Main.cpp)

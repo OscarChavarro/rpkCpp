@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "java/lang/System.h"
-#include "app/options/CommandLine.h"
+#include "app/options/OptionsGroupRayMatter.h"
 #include "app/options/OptionsGroupBidirectionalRaytracing.h"
 #include "app/options/OptionsGroupGalerkin.h"
 #include "app/options/OptionsGroupPhotonMap.h"
@@ -101,7 +101,7 @@ OptionsGroupRadiance::parse(
 #ifdef RAYTRACING_ENABLED
     OptionsGroupStochasticRelaxationRadiosity::parse(argc, argv, stochasticRelaxationState, elementHierarchyState);
     OptionsGroupRandomWalkRadiosity::parse(argc, argv, stochasticRelaxationState);
-    CommandLine::rayMattingParseOptions(argc, argv, rayMatterState);
+    OptionsGroupRayMatter::rayMattingParseOptions(argc, argv, rayMatterState);
     OptionsGroupBidirectionalRaytracing::parse(argc, argv, bidirectionalPathState);
     OptionsGroupStochasticRaytracing::parse(argc, argv, stochasticRayTracingState);
     OptionsGroupPhotonMap::parse(argc, argv, photonMapState);

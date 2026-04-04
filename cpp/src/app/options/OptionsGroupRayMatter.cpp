@@ -2,10 +2,10 @@
 
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
-#include "app/options/CommandLine.h"
+#include "app/options/OptionsGroupRayMatter.h"
 
 template<typename T>
-bool CommandLine::parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding) {
+bool OptionsGroupRayMatter::parseEnumBinding(int argc, char **argv, EnumBinding<T> &binding) {
     if ( argc < 1 || argv == nullptr || argv[0] == nullptr || binding.target == nullptr || binding.values == nullptr ) {
         return false;
     }
@@ -18,7 +18,7 @@ bool CommandLine::parseEnumBinding(int argc, char **argv, EnumBinding<T> &bindin
     return false;
 }
 
-EnumDesc CommandLine::rayMatterPixelFilterValues[] = {
+EnumDesc OptionsGroupRayMatter::rayMatterPixelFilterValues[] = {
     {RayMatterFilterType::BOX_FILTER, "box", 2},
     {RayMatterFilterType::TENT_FILTER, "tent", 2},
     {RayMatterFilterType::GAUSS_FILTER, "gaussian 1/sqrt2", 2},
@@ -27,7 +27,7 @@ EnumDesc CommandLine::rayMatterPixelFilterValues[] = {
 };
 
 void
-CommandLine::rayMattingParseOptions(
+OptionsGroupRayMatter::rayMattingParseOptions(
         int *argc,
         char **argv,
         RayMatterState &rayMatterState)
