@@ -278,7 +278,9 @@ public class GlutDebugTools implements GLEventListener {
         }
 
         if ( model.mode == GlutDebugMode.RADIANCE_SCENE ) {
-            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_LINE);
+            // Keep filled rasterization in radiance scene; outlines are handled by RenderOptions.
+            // Forcing GL_LINE here can collapse visual output to sparse edge artifacts.
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2.GL_FILL);
             Opengl.openGlRenderScene(
                 model.scene,
                 model.radianceMethod,
