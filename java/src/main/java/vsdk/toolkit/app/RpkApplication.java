@@ -15,6 +15,9 @@ import vsdk.toolkit.raycasting.stochasticRaytracing.ElementHierarchyState;
 import vsdk.toolkit.raycasting.stochasticRaytracing.StochasticRadiosityBasisState;
 import vsdk.toolkit.raycasting.stochasticRaytracing.StochasticRayTracingState;
 import vsdk.toolkit.raycasting.stochasticRaytracing.StochasticRelaxation;
+import vsdk.toolkit.render.jogl.visualDebugTools.GlutDebugState;
+import vsdk.toolkit.render.jogl.visualDebugTools.GlutDebugTools;
+import vsdk.toolkit.render.jogl.visualDebugTools.GlutDebugToolsModel;
 import vsdk.toolkit.scene.PatchClusterOctreeNode;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -245,6 +248,22 @@ Processes command line arguments
             bidirectionalPathState,
             stochasticRayTracingState,
             lightList);
+
+        // X. Interactive visual debug GUI tool (JOGL + Swing)
+        if ( glutDebugEnabled ) {
+            GlutDebugState debugState = new GlutDebugState();
+            GlutDebugToolsModel debugToolsModel = new GlutDebugToolsModel();
+            debugToolsModel.scene = scene;
+            debugToolsModel.radianceMethod = mgfContext.radianceMethod;
+            debugToolsModel.renderOptions = renderOptions;
+            debugToolsModel.toneMapOptions = toneMapOptions;
+            debugToolsModel.debugState = debugState;
+            debugToolsModel.memoryFreeCallBack = RpkApplication::freeMemory;
+            debugToolsModel.mgfContext = mgfContext;
+
+            GlutDebugTools glutDebugTools = new GlutDebugTools(debugToolsModel);
+            glutDebugTools.executeGlutGui(argc, argv);
+        }
 
         // 5. Free used memory
         freeMemory(mgfContext);

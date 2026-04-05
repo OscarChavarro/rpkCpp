@@ -292,11 +292,5 @@ public final class OptionsGroupCore {
             glutDebugEnabledOut[0] = glutDebugEnabled != 0;
         }
 
-        if ( glutDebugEnabled != 0 ) {
-            System.err.printf(
-                "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
-            System.err.flush();
-            System.exit(1);
-        }
     }
 }
