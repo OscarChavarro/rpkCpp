@@ -126,16 +126,23 @@ public class Matrix4x4 {
     }
 
     public void transformPoint3D(Vector3D src, Vector3D dst) {
-        dst.x = m[0][0] * src.x + m[0][1] * src.y + m[0][2] * src.z;
-        dst.y = m[1][0] * src.x + m[1][1] * src.y + m[1][2] * src.z;
-        dst.z = m[2][0] * src.x + m[2][1] * src.y + m[2][2] * src.z;
+        float sx = src.x;
+        float sy = src.y;
+        float sz = src.z;
+        dst.x = m[0][0] * sx + m[0][1] * sy + m[0][2] * sz;
+        dst.y = m[1][0] * sx + m[1][1] * sy + m[1][2] * sz;
+        dst.z = m[2][0] * sx + m[2][1] * sy + m[2][2] * sz;
     }
 
     public void transformPoint4D(Vector4D src, Vector4D dst) {
-        dst.x = m[0][0] * src.x + m[0][1] * src.y + m[0][2] * src.z + m[0][3] * src.w;
-        dst.y = m[1][0] * src.x + m[1][1] * src.y + m[1][2] * src.z + m[1][3] * src.w;
-        dst.z = m[2][0] * src.x + m[2][1] * src.y + m[2][2] * src.z + m[2][3] * src.w;
-        dst.w = m[3][0] * src.x + m[3][1] * src.y + m[3][2] * src.z + m[3][3] * src.w;
+        float sx = src.x;
+        float sy = src.y;
+        float sz = src.z;
+        float sw = src.w;
+        dst.x = m[0][0] * sx + m[0][1] * sy + m[0][2] * sz + m[0][3] * sw;
+        dst.y = m[1][0] * sx + m[1][1] * sy + m[1][2] * sz + m[1][3] * sw;
+        dst.z = m[2][0] * sx + m[2][1] * sy + m[2][2] * sz + m[2][3] * sw;
+        dst.w = m[3][0] * sx + m[3][1] * sy + m[3][2] * sz + m[3][3] * sw;
     }
 
     public void recoverRotationParameters(float[] angle, Vector3D axis) {

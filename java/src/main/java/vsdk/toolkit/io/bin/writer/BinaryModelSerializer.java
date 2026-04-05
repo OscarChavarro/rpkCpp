@@ -610,7 +610,7 @@ public class BinaryModelSerializer {
         }
 
         File file = new File(fileName);
-        if (!file.canWrite() || file.isDirectory()) {
+        if (file.isDirectory()) {
             Error.error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
             return false;
         }

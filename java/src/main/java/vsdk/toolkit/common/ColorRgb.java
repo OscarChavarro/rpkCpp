@@ -206,7 +206,15 @@ public class ColorRgb {
 
     public static void arrayCopy(ColorRgb[] result, ColorRgb[] source, int n) {
         for (int i = 0; i < n; i++) {
-            result[i] = source[i];
+            if (result[i] == null) {
+                result[i] = new ColorRgb();
+            }
+            if (source[i] == null) {
+                result[i].clear();
+            }
+            else {
+                result[i].set(source[i].r, source[i].g, source[i].b);
+            }
         }
     }
 

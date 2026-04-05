@@ -71,15 +71,20 @@ public class GalerkinBasis {
         int sigma = child.childNumber;
         if ( element.isCluster() ) {
             ColorRgb.arrayClear(childCoefficients, child.basisSize);
-            childCoefficients[0].scaledCopy(
-                element.area > 0.0f ? child.area / element.area : 0.0f,
-                parentCoefficients[0]);
+            childCoefficients[0].set(
+                parentCoefficients[0].r,
+                parentCoefficients[0].g,
+                parentCoefficients[0].b);
             return;
         }
 
         if ( sigma < 0 || sigma > 3 ) {
             Error.error("GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
-            ColorRgb.arrayCopy(childCoefficients, parentCoefficients, Math.min(childCoefficients.length, parentCoefficients.length));
+            ColorRgb.arrayClear(childCoefficients, child.basisSize);
+            childCoefficients[0].set(
+                parentCoefficients[0].r,
+                parentCoefficients[0].g,
+                parentCoefficients[0].b);
             return;
         }
 
@@ -197,6 +202,21 @@ public class GalerkinBasis {
             bup[i].clear();
         }
 
+        if ( element.regularSubElements == null && element.irregularSubElements == null && element.patch != null ) {
+            // Leaf-element, multiply with reflectivity at the lowest level
+            ColorRgb rho = element.patch.radianceData.Rd;
+            for ( int i = 0; i < n; i++ ) {
+                bup[i].scalarProduct(rho, bdown[i]);
+            }
+
+            if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI
+                || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
+                // Add self-emitted radiance
+                ColorRgb Ed = element.patch.radianceData.Ed;
+                bup[0].add(bup[0], Ed);
+            }
+        }
+
         if ( element.regularSubElements != null ) {
             for ( int i = 0; i < 4; i++ ) {
                 if ( !(element.regularSubElements[i] instanceof GalerkinElement) ) {
@@ -236,9 +256,7 @@ public class GalerkinBasis {
 
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod.JACOBI
             || galerkinState.galerkinIterationMethod == GalerkinIterationMethod.GAUSS_SEIDEL ) {
-            for ( int i = 0; i < n; i++ ) {
-                element.radiance[i] = bup[i];
-            }
+            ColorRgb.arrayCopy(element.radiance, bup, n);
         }
         else {
             ColorRgb.arrayAdd(element.radiance, bup, n);

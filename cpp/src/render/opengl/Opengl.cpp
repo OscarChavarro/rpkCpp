@@ -24,6 +24,7 @@
 #include "java/lang/System.h"
 
 const ToneMappingContext *Opengl::activeToneMapOptions = nullptr;
+static bool openGlMissingToneMapWarningShown = false;
 
 #ifdef OPEN_GL_ENABLED
 void
@@ -58,14 +59,15 @@ Sets the current color for line or outline drawing
 void
 Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RenderOptions *renderOptions) {
     (void) renderOptions;
-    if ( Opengl::activeToneMapOptions == nullptr ) {
-        Error::fatal(-1, "Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene");
-    }
-
     ColorRgb correctedRgb{};
 
     correctedRgb = *rgb;
-    ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
+    if ( Opengl::activeToneMapOptions != nullptr ) {
+        ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
+    } else if ( !openGlMissingToneMapWarningShown ) {
+        Error::warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
+        openGlMissingToneMapWarningShown = true;
+    }
 #ifdef OPEN_GL_ENABLED
     glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif
@@ -574,10 +576,14 @@ Opengl::openGlRenderScene(
     const GlutDebugState *debugState)
 {
 #ifdef OPEN_GL_ENABLED
-    if ( scene == nullptr || toneMapOptions == nullptr ) {
-        Error::fatal(-1, "Opengl::openGlRenderScene", "Tone mapping context not provided");
+    if ( scene == nullptr ) {
+        Error::fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
     }
     Opengl::activeToneMapOptions = toneMapOptions;
+    if ( toneMapOptions == nullptr && !openGlMissingToneMapWarningShown ) {
+        Error::warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
+        openGlMissingToneMapWarningShown = true;
+    }
 
     Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
 

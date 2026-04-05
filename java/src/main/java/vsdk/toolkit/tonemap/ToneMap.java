@@ -37,8 +37,9 @@ public abstract class ToneMap {
 Rescale real world radiance using properly set up tone mapping algorithm
 */
     private static ColorRgb rescaleRadiance(ColorRgb in, ColorRgb out, ToneMappingContext toneMapOptions) {
-        in.scale(toneMapOptions.pow_bright_adjust);
-        ColorRgb scaled = ToneMap.toneMapScaleForDisplay(in);
+        ColorRgb scaledInput = new ColorRgb(in.r, in.g, in.b);
+        scaledInput.scale(toneMapOptions.pow_bright_adjust);
+        ColorRgb scaled = ToneMap.toneMapScaleForDisplay(scaledInput);
         out.set(scaled.r, scaled.g, scaled.b);
         return out;
     }
@@ -108,8 +109,9 @@ Does most to convert radiance to display RGB color
 3) clipping of RGB values to the range [0,1].
 */
     public static ColorRgb radianceToRgb(ColorRgb color, ColorRgb rgb, ToneMappingContext toneMapOptions) {
-        ToneMap.rescaleRadiance(color, color, toneMapOptions);
-        rgb.set(color.r, color.g, color.b);
+        ColorRgb rescaled = new ColorRgb();
+        ToneMap.rescaleRadiance(color, rescaled, toneMapOptions);
+        rgb.set(rescaled.r, rescaled.g, rescaled.b);
         rgb.clip();
         return rgb;
     }

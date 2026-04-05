@@ -68,7 +68,7 @@ public class FileUncompressWrapper {
         }
         else {
             File file = new File(fileName);
-            if (file.canWrite() && !file.isDirectory()) {
+            if (!file.isDirectory()) {
                 try {
                     stream = new FileOutputStream(fileName);
                 }

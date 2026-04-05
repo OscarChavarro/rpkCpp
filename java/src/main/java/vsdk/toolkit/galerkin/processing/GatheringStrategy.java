@@ -25,7 +25,7 @@ public abstract class GatheringStrategy {
         float up = 0.0f;
 
         if ( element.regularSubElements == null && element.irregularSubElements == null ) {
-            up = down;
+            up = down + (element.patch != null ? element.patch.directPotential : 0.0f);
         }
 
         if ( element.regularSubElements != null ) {

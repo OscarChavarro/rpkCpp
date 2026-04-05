@@ -10,6 +10,7 @@ import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.Canvas;
 import vsdk.toolkit.render.RadianceImageExporter;
+import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.tonemap.ToneMappingContext;
@@ -298,6 +299,10 @@ This routine was copied from uit.c, leaving out all interface related things
         }
         else {
             System.out.printf("(No pixel-based radiance computations are being done)\n");
+        }
+
+        if ( radianceMethod instanceof GalerkinRadianceMethod ) {
+            ((GalerkinRadianceMethod)radianceMethod).debugPrintPatchSubdivisionSummary(scene.patchList);
         }
 
         System.out.printf("Computations finished.\n");
