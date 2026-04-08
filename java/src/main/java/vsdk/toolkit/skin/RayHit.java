@@ -246,11 +246,11 @@ public class RayHit {
     }
 
     public void setPoint(Vector3D position) {
-        point = new Vector3D(position.x, position.y, position.z);
+        point.copy(position);
     }
 
     public void setGeometricNormal(Vector3D inNormal) {
-        geometricNormal = new Vector3D(inNormal.x, inNormal.y, inNormal.z);
+        geometricNormal.copy(inNormal);
     }
 
     public void setMaterial(Material inMaterial) {

@@ -62,19 +62,19 @@ public class CoordinateSystem {
     }
 
     public void setX(Vector3D inX) {
-        X = inX;
+        X.copy(inX);
     }
 
     public void setY(Vector3D inY) {
-        Y = inY;
+        Y.copy(inY);
     }
 
     public void setZ(Vector3D inZ) {
-        Z = inZ;
+        Z.copy(inZ);
     }
 
     public void setFromZAxis(Vector3D inZ) {
-        Z = new Vector3D(inZ.x, inZ.y, inZ.z);
+        Z.copy(inZ);
 
         float zz = (float)Math.sqrt(1.0f - inZ.z * inZ.z);
         if (zz < Numeric.EPSILON) {

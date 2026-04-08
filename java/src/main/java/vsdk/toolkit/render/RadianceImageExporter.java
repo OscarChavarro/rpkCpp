@@ -60,25 +60,6 @@ public final class RadianceImageExporter {
                 }
             }
         }
-        // Temporary diagnostics for Java/C++ parity verification.
-        int coveredPixels = 0;
-        int nonBlackPixels = 0;
-        for (int y = 0; y < height[0]; y++) {
-            for (int x = 0; x < width[0]; x++) {
-                Patch patch = idRenderer.getPatchAtPixel(x, y);
-                if (patch != null) {
-                    coveredPixels++;
-                    ColorRgb sample = screenBuffer.get(x, y);
-                    if (!sample.isBlack()) {
-                        nonBlackPixels++;
-                    }
-                }
-            }
-        }
-        System.err.printf(
-            "RadianceImageExporter: coveredPixels=%d nonBlackPixels=%d (%dx%d)\n",
-            coveredPixels, nonBlackPixels, width[0], height[0]);
-
         ImageOutputHandle imageOutputHandle = ImageOutputHandle.createRadianceImageOutputHandle(
             fileName,
             outputStream,
