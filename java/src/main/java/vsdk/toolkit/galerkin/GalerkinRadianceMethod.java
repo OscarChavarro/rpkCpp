@@ -261,35 +261,8 @@ Disposes of the cluster hierarchy
         return 1 + maxChildDepth;
     }
 
-    private static void printPatchSubdivisionSummary(ArrayList<Patch> scenePatches) {
-        if ( scenePatches == null ) {
-            return;
-        }
-        System.out.println("TEMP patch subdivision summary:");
-        for ( int i = 0; i < scenePatches.size(); i++ ) {
-            Patch patch = scenePatches.get(i);
-            if ( patch == null ) {
-                System.out.printf(Locale.US, "  - patch[%d]: null\n", i);
-                continue;
-            }
-            int depth = 0;
-            if ( patch.radianceData instanceof GalerkinElement ) {
-                depth = regularSubdivisionDepth((GalerkinElement)patch.radianceData);
-            }
-            System.out.printf(Locale.US, "  - patch[%d] id=%d regularSubdivisionLevels=%d\n", i, patch.id, depth);
-        }
-    }
-
-    public void debugPrintPatchSubdivisionSummary(ArrayList<Patch> scenePatches) {
-        printPatchSubdivisionSummary(scenePatches);
-    }
-
     @Override
     public void terminate(ArrayList<Patch> scenePatches) {
-        // Some flows call terminate() before initialize() to clean previous state.
-        // Print debug summary only when a real iteration run has happened.
-        final boolean reportSubdivisionSummary = (galerkinState.iterationNumber > 0);
-
         if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy.Z_VISIBILITY ) {
             ScratchVisibilityStrategy.scratchTerminate(galerkinState);
         }
@@ -300,9 +273,6 @@ Disposes of the cluster hierarchy
                 if ( patch != null ) {
                     recomputePatchColor(patch);
                 }
-            }
-            if ( reportSubdivisionSummary ) {
-                printPatchSubdivisionSummary(scenePatches);
             }
         }
 

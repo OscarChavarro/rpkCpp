@@ -26,7 +26,8 @@ public final class MgfTorusEntityExpander {
         String[] v2Entity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],
             "_tv2",
-            "="
+            "=",
+            null
         };
         String[] p2Entity = new String[] {
             context.entityNames[EntityTypeContext.MGF_POINT],

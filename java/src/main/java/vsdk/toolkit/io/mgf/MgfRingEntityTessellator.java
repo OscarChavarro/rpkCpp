@@ -28,7 +28,8 @@ public final class MgfRingEntityTessellator {
         String[] v1Entity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],
             "_rv1",
-            "="
+            "=",
+            null
         };
         String[] v2Entity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],

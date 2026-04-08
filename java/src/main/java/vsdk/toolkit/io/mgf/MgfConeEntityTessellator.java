@@ -28,7 +28,8 @@ public final class MgfConeEntityTessellator {
         String[] v1Entity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],
             "_cv1",
-            "="
+            "=",
+            null
         };
         String[] v2Entity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],

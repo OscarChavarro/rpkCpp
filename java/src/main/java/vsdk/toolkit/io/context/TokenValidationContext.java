@@ -3,12 +3,26 @@ package vsdk.toolkit.io.context;
 public class TokenValidationContext {
     public static boolean isIntDelimited(String text, String delimiters) {
         int cp = skipInt(text);
-        return cp >= 0 && cp < text.length() && delimiters.indexOf(text.charAt(cp)) >= 0;
+        if (cp < 0) {
+            return false;
+        }
+        if (cp == text.length()) {
+            // C++ reference accepts end-of-string as a valid delimiter ('\0').
+            return true;
+        }
+        return delimiters.indexOf(text.charAt(cp)) >= 0;
     }
 
     public static boolean isFloatDelimited(String text, String delimiters) {
         int cp = skipFloat(text);
-        return cp >= 0 && cp < text.length() && delimiters.indexOf(text.charAt(cp)) >= 0;
+        if (cp < 0) {
+            return false;
+        }
+        if (cp == text.length()) {
+            // C++ reference accepts end-of-string as a valid delimiter ('\0').
+            return true;
+        }
+        return delimiters.indexOf(text.charAt(cp)) >= 0;
     }
 
     public static boolean isFloat(String text) {

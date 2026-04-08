@@ -304,10 +304,6 @@ This routine was copied from uit.c, leaving out all interface related things
             System.out.printf("(No pixel-based radiance computations are being done)\n");
         }
 
-        if ( radianceMethod instanceof GalerkinRadianceMethod ) {
-            ((GalerkinRadianceMethod)radianceMethod).debugPrintPatchSubdivisionSummary(scene.patchList);
-        }
-
         System.out.printf("Computations finished.\n");
         Batch.currentRayTracer = null;
     }

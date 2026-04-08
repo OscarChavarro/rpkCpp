@@ -21,7 +21,8 @@ public final class MgfPrismEntityTessellator {
         String[] vertexEntity = new String[] {
             context.entityNames[EntityTypeContext.VERTEX],
             null,
-            "="
+            "=",
+            null
         };
         String[] pointEntity = new String[] {
             context.entityNames[EntityTypeContext.MGF_POINT],
