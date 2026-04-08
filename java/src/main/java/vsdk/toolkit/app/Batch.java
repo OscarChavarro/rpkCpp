@@ -10,6 +10,7 @@ import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;
 import vsdk.toolkit.render.Canvas;
 import vsdk.toolkit.render.RadianceImageExporter;
+import vsdk.toolkit.render.jogl.RenderOpenGL;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
@@ -216,6 +217,8 @@ This routine was copied from uit.c, leaving out all interface related things
                 System.err.flush();
 
                 System.out.printf("%s", radianceMethod.getStats());
+
+		RenderOpenGL.renderGetNearFar(scene.camera, scene.geometryList);
 
                 System.out.flush();
                 System.err.flush();
