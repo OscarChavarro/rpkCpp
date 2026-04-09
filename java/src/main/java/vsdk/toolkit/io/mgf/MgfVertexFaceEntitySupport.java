@@ -353,16 +353,121 @@ Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
 the (indispensable) Graphics Gems books
     */
     private static void doComplexFace(int n, Vertex[] v, Vector3D normal, Vertex[] backVertex, ParseRuntimeContext context) {
-        // Simplified ear clipping fallback is handled by fan triangulation.
-        for (int i = 1; i + 1 < n; i++) {
-            Patch face = newFace(v[0], v[i], v[i + 1], null, context);
-            if (context.currentMaterial.isSided() == false && face != null) {
-                Patch twin = newFace(backVertex[i + 1], backVertex[i], backVertex[0], null, context);
-                face.twin = twin;
-                if (twin != null) {
-                    twin.twin = face;
+        Vector3D center = new Vector3D();
+        center.set(0.0f, 0.0f, 0.0f);
+        for (int i = 0; i < n; i++) {
+            center.addition(center, v[i].point);
+        }
+        center.inverseScaledCopy((float)n, center, Numeric.EPSILON_FLOAT);
+
+        double maxD = center.distance(v[0].point);
+        int max = 0;
+        for (int i = 1; i < n; i++) {
+            double d = center.distance(v[i].point);
+            if (d > maxD) {
+                maxD = d;
+                max = i;
+            }
+        }
+
+        boolean[] out = new boolean[MAXIMUM_FACE_VERTICES + 1];
+        for (int i = 0; i < n; i++) {
+            out[i] = false;
+        }
+
+        int p1 = max;
+        int p0 = p1 - 1;
+        if (p0 < 0) {
+            p0 = n - 1;
+        }
+        int p2 = (p1 + 1) % n;
+        normal.tripleCrossProduct(v[p0].point, v[p1].point, v[p2].point);
+        normal.normalize(Numeric.EPSILON_FLOAT);
+        CoordinateAxis index = normal.dominantCoordinate();
+
+        Vector2D[] q = new Vector2D[MAXIMUM_FACE_VERTICES + 1];
+        for (int i = 0; i < n; i++) {
+            q[i] = new Vector2D();
+            vectorProject(q[i], v[i].point, index);
+        }
+
+        int corners = n;
+        Vector3D nn = new Vector3D();
+
+        p0 = -1;
+        while (corners >= 3) {
+            int start = p0;
+            double d;
+            double a = 0.0;
+            boolean good;
+
+            do {
+                p0 = (p0 + 1) % n;
+                while (out[p0]) {
+                    p0 = (p0 + 1) % n;
+                }
+
+                p1 = (p0 + 1) % n;
+                while (out[p1]) {
+                    p1 = (p1 + 1) % n;
+                }
+
+                p2 = (p1 + 1) % n;
+                while (out[p2]) {
+                    p2 = (p2 + 1) % n;
+                }
+
+                if (p0 == start) {
+                    break;
+                }
+
+                nn.tripleCrossProduct(v[p0].point, v[p1].point, v[p2].point);
+                a = nn.norm();
+                nn.inverseScaledCopy((float)a, nn, Numeric.EPSILON_FLOAT);
+                d = nn.distance(normal);
+
+                good = true;
+                if (d <= 1.0 + Numeric.EPSILON) {
+                    for (int i = 0; i < n && good; i++) {
+                        if (out[i] || v[i] == v[p0] || v[i] == v[p1] || v[i] == v[p2]) {
+                            continue;
+                        }
+
+                        if (pointInsideTriangle2D(q[i], q[p0], q[p1], q[p2])) {
+                            good = false;
+                        }
+
+                        int j = (i + 1) % n;
+                        if (out[j] || v[j] == v[p0]) {
+                            continue;
+                        }
+
+                        if (segmentsIntersect2D(q[p2], q[p0], q[i], q[j])) {
+                            good = false;
+                        }
+                    }
+                }
+            } while (d > 1.0 + Numeric.EPSILON || !good);
+
+            if (p0 == start) {
+                MgfEntityControl.doError("mis-built polygonal face", context);
+                return;
+            }
+
+            if (Math.abs(a) > Numeric.EPSILON) {
+                // Avoid degenerate faces
+                Patch face = newFace(v[p0], v[p1], v[p2], null, context);
+                if (context.currentMaterial.isSided() == false && face != null) {
+                    Patch twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], null, context);
+                    face.twin = twin;
+                    if (twin != null) {
+                        twin.twin = face;
+                    }
                 }
             }
+
+            out[p1] = true;
+            corners--;
         }
     }
 

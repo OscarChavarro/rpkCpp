@@ -9,6 +9,7 @@ import vsdk.toolkit.io.context.FilePositionContext;
 import vsdk.toolkit.io.context.ParseErrorContext;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.io.context.TokenValidationContext;
+import vsdk.toolkit.io.context.TransformArrayContext;
 import vsdk.toolkit.io.context.TransformContext;
 import vsdk.toolkit.io.context.TransformScopeContext;
 import vsdk.toolkit.io.context.TransformSequenceContext;
@@ -180,12 +181,14 @@ public class MgfTransformationSupport {
                 stack.argumentList[i] = stack.iterateArgument;
                 spec.ownedArgumentCopies[i] = null;
                 i++;
-                stack.argumentList[i] = "0";
+                TransformArrayContext transformArgument =
+                    spec.transformationArray.transformArguments[spec.transformationArray.numberOfDimensions];
+                transformArgument.arg = "0";
+                transformArgument.argumentIndex = (short)i;
                 spec.ownedArgumentCopies[i] = null;
-                spec.transformationArray.transformArguments[spec.transformationArray.numberOfDimensions].arg = "0";
-                spec.transformationArray.transformArguments[spec.transformationArray.numberOfDimensions].i = 0;
-                spec.transformationArray.transformArguments[spec.transformationArray.numberOfDimensions].n =
-                    (short)Integer.parseInt(av[i]);
+                stack.argumentList[i] = transformArgument.arg;
+                transformArgument.i = 0;
+                transformArgument.n = (short)Integer.parseInt(av[i]);
                 spec.transformationArray.numberOfDimensions++;
             } else {
                 String argumentCopy = av[i];
@@ -242,6 +245,11 @@ public class MgfTransformationSupport {
         for (i = 0; i < ac && av[i] != null && av[i].length() > 0 && av[i].charAt(0) == '-'; i++) {
             Matrix4x4d m4 = new Matrix4x4d();
 
+            if (av[i].length() < 2) {
+                finish(counter, ret, transformMatrix, scaTransform);
+                return i;
+            }
+
             switch (av[i].charAt(1)) {
 
                 case 't':
@@ -257,8 +265,9 @@ public class MgfTransformationSupport {
 
                 case 'r':
                     // Rotate
-                    if (av[i].length() > 2) {
-                        switch (av[i].charAt(2)) {
+                    {
+                        char suffix = av[i].length() > 2 ? av[i].charAt(2) : '\0';
+                        switch (suffix) {
                             case 'x':
                                 if (!checkArgument(3, "f", ac, av, i)) {
                                     finish(counter, ret, transformMatrix, scaTransform);
@@ -324,8 +333,9 @@ public class MgfTransformationSupport {
 
                 case 's':
                     // Scale
-                    if (av[i].length() > 2) {
-                        switch (av[i].charAt(2)) {
+                    {
+                        char suffix = av[i].length() > 2 ? av[i].charAt(2) : '\0';
+                        switch (suffix) {
                             case 'x':
                                 if (!checkArgument(3, "f", ac, av, i)) {
                                     finish(counter, ret, transformMatrix, scaTransform);
@@ -378,14 +388,15 @@ public class MgfTransformationSupport {
                                 m4.m[2][2] = tmp;
                                 break;
                         }
+                        i++;
                     }
-                    i++;
                     break;
 
                 case 'm':
                     // Mirror
-                    if (av[i].length() > 2) {
-                        switch (av[i].charAt(2)) {
+                    {
+                        char suffix = av[i].length() > 2 ? av[i].charAt(2) : '\0';
+                        switch (suffix) {
                             case 'x':
                                 if (!checkArgument(3, "", ac, av, i)) {
                                     finish(counter, ret, transformMatrix, scaTransform);
@@ -474,6 +485,10 @@ public class MgfTransformationSupport {
                         break;
                     }
                     ap.transformArguments[n].arg = "0";
+                    if (ap.transformArguments[n].argumentIndex >= 0
+                        && ap.transformArguments[n].argumentIndex < stack.argumentCount) {
+                        stack.argumentList[ap.transformArguments[n].argumentIndex] = ap.transformArguments[n].arg;
+                    }
                     ap.transformArguments[n].i = 0;
                 }
                 if (n >= 0) {
@@ -482,6 +497,10 @@ public class MgfTransformationSupport {
                         return rv;
                     }
                     ap.transformArguments[n].arg = Integer.toString(ap.transformArguments[n].i);
+                    if (ap.transformArguments[n].argumentIndex >= 0
+                        && ap.transformArguments[n].argumentIndex < stack.argumentCount) {
+                        stack.argumentList[ap.transformArguments[n].argumentIndex] = ap.transformArguments[n].arg;
+                    }
                     transformName(ap, context);
                 }
             }
