@@ -12,6 +12,10 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.PointerInfo;
+import java.awt.Rectangle;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
@@ -372,7 +376,7 @@ public class GlutDebugTools implements GLEventListener {
         }
 
         fullscreenTransitionInProgress = true;
-        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        GraphicsDevice device = fullscreenTargetDevice();
         try {
             // Frame recreation is required by AWT when changing decoration/fullscreen state.
             // During this transition, temporary close events must not terminate the application.
@@ -418,6 +422,36 @@ public class GlutDebugTools implements GLEventListener {
         finally {
             fullscreenTransitionInProgress = false;
         }
+    }
+
+    private GraphicsDevice fullscreenTargetDevice() {
+        GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsDevice[] devices = environment.getScreenDevices();
+        if ( devices == null || devices.length == 0 ) {
+            return environment.getDefaultScreenDevice();
+        }
+
+        Point pointerLocation = null;
+        try {
+            PointerInfo pointerInfo = MouseInfo.getPointerInfo();
+            if ( pointerInfo != null ) {
+                pointerLocation = pointerInfo.getLocation();
+            }
+        }
+        catch ( RuntimeException e ) {
+            // Fall back to the default device when pointer info is unavailable.
+        }
+
+        if ( pointerLocation != null ) {
+            for ( GraphicsDevice candidate : devices ) {
+                Rectangle bounds = candidate.getDefaultConfiguration().getBounds();
+                if ( bounds.contains(pointerLocation) ) {
+                    return candidate;
+                }
+            }
+        }
+
+        return environment.getDefaultScreenDevice();
     }
 
     @Override
