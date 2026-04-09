@@ -4,6 +4,7 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -34,10 +35,64 @@ public class GlutDebugTools implements GLEventListener {
     private final GlutDebugToolsModel model;
     private JFrame frame;
     private GLJPanel panel;
+    private GLCapabilities panelCapabilities;
     private final CountDownLatch closeLatch = new CountDownLatch(1);
+    private boolean fullscreenTransitionInProgress = false;
+    private int suppressedWindowClosedEvents = 0;
+    private boolean shutdownInProgress = false;
 
     public GlutDebugTools(GlutDebugToolsModel initialModel) {
         model = initialModel;
+    }
+
+    private GLJPanel createConfiguredPanel() {
+        if ( panelCapabilities == null ) {
+            GLProfile profile = GLProfile.get(GLProfile.GL2);
+            panelCapabilities = new GLCapabilities(profile);
+        }
+
+        GLJPanel newPanel = new GLJPanel(panelCapabilities);
+        newPanel.setPreferredSize(new Dimension(model.width, model.height));
+        newPanel.setFocusable(true);
+        newPanel.addGLEventListener(this);
+
+        newPanel.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                char c = e.getKeyChar();
+                if ( c != KeyEvent.CHAR_UNDEFINED ) {
+                    keypressCallback(c);
+                }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if ( e.getKeyCode() != KeyEvent.VK_UNDEFINED ) {
+                    extendedKeypressCallback(e.getKeyCode());
+                }
+            }
+        });
+
+        newPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mouseButtonCallback(e.getButton(), MouseEvent.MOUSE_PRESSED, e.getX(), e.getY(), e.isShiftDown());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                mouseButtonCallback(e.getButton(), MouseEvent.MOUSE_RELEASED, e.getX(), e.getY(), e.isShiftDown());
+            }
+        });
+
+        newPanel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                mouseMotionCallback(e.getX(), e.getY());
+            }
+        });
+
+        return newPanel;
     }
 
     private void syncModelSizeFromDrawable(GLAutoDrawable drawable) {
@@ -163,15 +218,64 @@ public class GlutDebugTools implements GLEventListener {
     }
 
     private void postRedisplay() {
-        if ( panel != null ) {
-            panel.display();
+        if ( panel == null || fullscreenTransitionInProgress ) {
+            return;
         }
+
+        SwingUtilities.invokeLater(() -> {
+            if ( panel == null || fullscreenTransitionInProgress || !panel.isDisplayable() ) {
+                return;
+            }
+            try {
+                panel.display();
+            }
+            catch ( GLException e ) {
+                // During AWT fullscreen transitions JOGL may temporarily lose the current context.
+                // Ignore this transient state; a subsequent repaint will recover.
+            }
+        });
     }
 
     private void keypressCallback(char keyChar) {
+        if ( keyChar == 27 ) {
+            requestGracefulShutdown();
+            return;
+        }
+
         if ( GlutDebugToolsKeyControl.handleKeypress(keyChar, model, this::printGalerkinElementForPatch) ) {
+            applyFullscreenStateIfNeeded();
             postRedisplay();
         }
+    }
+
+    private void requestGracefulShutdown() {
+        if ( shutdownInProgress ) {
+            return;
+        }
+        shutdownInProgress = true;
+
+        if ( model.memoryFreeCallBack != null ) {
+            model.memoryFreeCallBack.accept(model.mgfContext);
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            try {
+                if ( panel != null ) {
+                    try {
+                        panel.destroy();
+                    }
+                    catch ( RuntimeException e ) {
+                        // Best effort cleanup before closing the window.
+                    }
+                }
+                if ( frame != null ) {
+                    frame.dispose();
+                }
+            }
+            finally {
+                closeLatch.countDown();
+            }
+        });
     }
 
     private void extendedKeypressCallback(int keyCode) {
@@ -263,30 +367,65 @@ public class GlutDebugTools implements GLEventListener {
     }
 
     private void applyFullscreenStateIfNeeded() {
-        if ( frame == null || model.fullScreen == model.fullScreenApplied ) {
+        if ( frame == null || model.fullScreen == model.fullScreenApplied || fullscreenTransitionInProgress ) {
             return;
         }
 
+        fullscreenTransitionInProgress = true;
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        try {
+            // Frame recreation is required by AWT when changing decoration/fullscreen state.
+            // During this transition, temporary close events must not terminate the application.
+            suppressedWindowClosedEvents++;
 
-        frame.dispose();
-        frame.setUndecorated(model.fullScreen);
-        if ( model.fullScreen ) {
-            device.setFullScreenWindow(frame);
-            model.fullScreenApplied = true;
+            if ( panel != null ) {
+                frame.getContentPane().remove(panel);
+                try {
+                    panel.destroy();
+                }
+                catch ( RuntimeException e ) {
+                    // Best effort cleanup of native GL resources before recreating the drawable.
+                }
+                panel = null;
+            }
+
+            frame.dispose();
+            frame.setUndecorated(model.fullScreen);
+            if ( model.fullScreen ) {
+                device.setFullScreenWindow(frame);
+                model.fullScreenApplied = true;
+            }
+            else {
+                device.setFullScreenWindow(null);
+                frame.setLocation(0, 0);
+                frame.setSize(model.windowedWidth, model.windowedHeight);
+                model.fullScreenApplied = false;
+            }
+
+            panel = createConfiguredPanel();
+            frame.add(panel, BorderLayout.CENTER);
+            frame.setVisible(true);
+            frame.validate();
+            if ( panel != null ) {
+                panel.requestFocusInWindow();
+                panel.display();
+            }
         }
-        else {
-            device.setFullScreenWindow(null);
-            frame.setLocation(0, 0);
-            frame.setSize(model.windowedWidth, model.windowedHeight);
-            model.fullScreenApplied = false;
+        catch ( RuntimeException e ) {
+            // Keep the app alive even if platform fullscreen integration fails.
+            System.err.println("ERROR: Unable to switch fullscreen mode on this platform.");
         }
-        frame.setVisible(true);
+        finally {
+            fullscreenTransitionInProgress = false;
+        }
     }
 
     @Override
     public void init(GLAutoDrawable drawable) {
         syncModelSizeFromDrawable(drawable);
+        if ( drawable == null || drawable.getGL() == null ) {
+            return;
+        }
         GL2 gl = drawable.getGL().getGL2();
         gl.glEnable(GL.GL_DEPTH_TEST);
         gl.glDisable(GL2.GL_LIGHTING);
@@ -304,12 +443,20 @@ public class GlutDebugTools implements GLEventListener {
         if ( model.scene == null || model.renderOptions == null ) {
             return;
         }
+        if ( drawable == null || drawable.getGL() == null ) {
+            return;
+        }
 
         syncModelSizeFromDrawable(drawable);
-        applyFullscreenStateIfNeeded();
         syncCameraToViewport();
 
-        GL2 gl = drawable.getGL().getGL2();
+        GL2 gl;
+        try {
+            gl = drawable.getGL().getGL2();
+        }
+        catch ( RuntimeException e ) {
+            return;
+        }
         Opengl.setCurrentGl(gl);
 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
@@ -446,46 +593,8 @@ public class GlutDebugTools implements GLEventListener {
 
         Runnable createUi = () -> {
             GLProfile profile = GLProfile.get(GLProfile.GL2);
-            GLCapabilities capabilities = new GLCapabilities(profile);
-            panel = new GLJPanel(capabilities);
-            panel.setPreferredSize(new Dimension(model.width, model.height));
-            panel.addGLEventListener(this);
-
-            panel.addKeyListener(new KeyAdapter() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                    char c = e.getKeyChar();
-                    if ( c != KeyEvent.CHAR_UNDEFINED ) {
-                        keypressCallback(c);
-                    }
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    if ( e.getKeyCode() != KeyEvent.VK_UNDEFINED ) {
-                        extendedKeypressCallback(e.getKeyCode());
-                    }
-                }
-            });
-
-            panel.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mousePressed(MouseEvent e) {
-                    mouseButtonCallback(e.getButton(), MouseEvent.MOUSE_PRESSED, e.getX(), e.getY(), e.isShiftDown());
-                }
-
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    mouseButtonCallback(e.getButton(), MouseEvent.MOUSE_RELEASED, e.getX(), e.getY(), e.isShiftDown());
-                }
-            });
-
-            panel.addMouseMotionListener(new MouseMotionAdapter() {
-                @Override
-                public void mouseDragged(MouseEvent e) {
-                    mouseMotionCallback(e.getX(), e.getY());
-                }
-            });
+            panelCapabilities = new GLCapabilities(profile);
+            panel = createConfiguredPanel();
 
             frame = new JFrame("RPK");
             frame.setLayout(new BorderLayout());
@@ -502,6 +611,13 @@ public class GlutDebugTools implements GLEventListener {
             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 @Override
                 public void windowClosed(java.awt.event.WindowEvent e) {
+                    if ( suppressedWindowClosedEvents > 0 ) {
+                        suppressedWindowClosedEvents--;
+                        return;
+                    }
+                    if ( fullscreenTransitionInProgress ) {
+                        return;
+                    }
                     closeLatch.countDown();
                 }
             });

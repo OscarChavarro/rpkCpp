@@ -175,9 +175,21 @@ public class GalerkinElement extends Element {
 
     public static int renderMode(RenderOptions renderOptions) {
         if ( renderOptions == null ) {
-            return 0;
+            return GalerkinElementRenderMode.FLAT.value;
         }
-        return renderOptions.smoothShading ? 1 : 0;
+
+        int renderCode = 0;
+        if ( renderOptions.drawOutlines ) {
+            renderCode |= GalerkinElementRenderMode.OUTLINE.value;
+        }
+        if ( renderOptions.smoothShading ) {
+            renderCode |= GalerkinElementRenderMode.GOURAUD.value;
+        }
+        else {
+            renderCode |= GalerkinElementRenderMode.FLAT.value;
+        }
+
+        return renderCode;
     }
 
     public void regularSubDivide() {

@@ -119,7 +119,7 @@ public final class GalerkinOpenGLRenderer {
             }
         }
 
-        if ( (mode & GalerkinElementRenderMode.OUTLINE.value) != 0 || renderOptions.drawOutlines ) {
+        if ( (mode & GalerkinElementRenderMode.OUTLINE.value) != 0 ) {
             Opengl.openGlRenderSetColor(renderOptions.outlineColor, renderOptions);
             if ( numberOfVertices == 3 ) {
                 Opengl.openGlRenderLine(p[0], p[1]);
@@ -152,23 +152,23 @@ public final class GalerkinOpenGLRenderer {
             return;
         }
 
-        RenderOptions modified = new RenderOptions();
-        modified.outlineColor = new ColorRgb(renderOptions.outlineColor.r, renderOptions.outlineColor.g, renderOptions.outlineColor.b);
-        modified.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.r, renderOptions.boundingBoxColor.g, renderOptions.boundingBoxColor.b);
-        modified.clusterColor = new ColorRgb(renderOptions.clusterColor.r, renderOptions.clusterColor.g, renderOptions.clusterColor.b);
-        modified.lineWidth = renderOptions.lineWidth;
-        modified.drawOutlines = renderOptions.drawOutlines;
-        modified.drawSurfaces = renderOptions.drawSurfaces;
-        modified.noShading = renderOptions.noShading;
-        modified.smoothShading = renderOptions.smoothShading;
-        modified.backfaceCulling = renderOptions.backfaceCulling;
-        modified.drawBoundingBoxes = renderOptions.drawBoundingBoxes;
-        modified.drawClusters = renderOptions.drawClusters;
-        modified.frustumCulling = renderOptions.frustumCulling;
-        modified.renderRayTracedImage = renderOptions.renderRayTracedImage;
-        modified.trace = renderOptions.trace;
-
         for ( int i = 0; scene.patchList != null && i < scene.patchList.size(); i++ ) {
+            RenderOptions modified = new RenderOptions();
+            modified.outlineColor = new ColorRgb(renderOptions.outlineColor.r, renderOptions.outlineColor.g, renderOptions.outlineColor.b);
+            modified.boundingBoxColor = new ColorRgb(renderOptions.boundingBoxColor.r, renderOptions.boundingBoxColor.g, renderOptions.boundingBoxColor.b);
+            modified.clusterColor = new ColorRgb(renderOptions.clusterColor.r, renderOptions.clusterColor.g, renderOptions.clusterColor.b);
+            modified.lineWidth = renderOptions.lineWidth;
+            modified.drawOutlines = renderOptions.drawOutlines;
+            modified.drawSurfaces = renderOptions.drawSurfaces;
+            modified.noShading = renderOptions.noShading;
+            modified.smoothShading = renderOptions.smoothShading;
+            modified.backfaceCulling = renderOptions.backfaceCulling;
+            modified.drawBoundingBoxes = renderOptions.drawBoundingBoxes;
+            modified.drawClusters = renderOptions.drawClusters;
+            modified.frustumCulling = renderOptions.frustumCulling;
+            modified.renderRayTracedImage = renderOptions.renderRayTracedImage;
+            modified.trace = renderOptions.trace;
+
             if ( debugState.showSelectedPathOnly ) {
                 if ( i == debugState.primarySelectedPatch ) {
                     modified.drawOutlines = true;
