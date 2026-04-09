@@ -520,8 +520,17 @@ public class GlutDebugTools implements GLEventListener {
             }
             closeLatch.await();
         }
-        catch ( Exception e ) {
-            throw new RuntimeException("Failed to start JOGL debug UI", e);
+        catch ( InterruptedException e ) {
+            Thread.currentThread().interrupt();
+            printGraphicsSetupError();
         }
+        catch ( Exception e ) {
+            printGraphicsSetupError();
+        }
+    }
+
+    private static void printGraphicsSetupError() {
+        System.err.println("ERROR: Unable to start the JOGL debug UI. Please check your graphics setup.");
+        System.err.println("If you are running on X11, make sure DISPLAY is set and your session has the required permissions.");
     }
 }
