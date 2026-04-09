@@ -412,7 +412,21 @@ public class Shaft {
                 }
                 // Co-linear vertices, try next vertex on polygon2
                 normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
-                float d = -normal.dotProduct(current);
+                float dNaive = -normal.dotProduct(current);
+                float dExtended =
+                    (float)(-((double)normal.x * (double)current.x
+                        + (double)normal.y * (double)current.y
+                        + (double)normal.z * (double)current.z));
+                float dFma = -Math.fma(normal.z, current.z, normal.x * current.x + normal.y * current.y);
+                float d = dNaive;
+                if (Math.abs(d) <= 1.0e-10f) {
+                    if (dFma != 0.0f && Math.abs(dFma) <= 1.0e-5f) {
+                        d = dFma;
+                    }
+                    else if (dExtended != 0.0f && Math.abs(dExtended) <= 1.0e-5f) {
+                        d = Math.abs(dExtended);
+                    }
+                }
 
                 // Test position of polygon1 with respect to constructed plane.
                 ShaftPlanePosition side =

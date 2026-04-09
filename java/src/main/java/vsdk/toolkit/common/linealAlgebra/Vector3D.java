@@ -237,11 +237,9 @@ public class Vector3D {
     }
 
     public void crossProduct(Vector3D a, Vector3D b) {
-        // C++ builds with -ffast-math can keep cancellation residuals that affect
-        // shaft-plane branch decisions; fma reproduces that behavior in Java.
-        x = Math.fma(a.y, b.z, -a.z * b.y);
-        y = Math.fma(a.z, b.x, -a.x * b.z);
-        z = Math.fma(a.x, b.y, -a.y * b.x);
+        x = a.y * b.z - a.z * b.y;
+        y = a.z * b.x - a.x * b.z;
+        z = a.x * b.y - a.y * b.x;
     }
 
     public void combine3(Vector3D o, float a, Vector3D v, float b, Vector3D w) {
