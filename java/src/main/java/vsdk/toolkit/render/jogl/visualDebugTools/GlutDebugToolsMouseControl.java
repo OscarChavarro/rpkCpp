@@ -11,6 +11,7 @@ import vsdk.toolkit.render.jogl.RenderOpenGL;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.skin.BoundingBox;
+import vsdk.toolkit.skin.ElementTypes;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.Patch;
 import vsdk.toolkit.skin.RayHit;
@@ -290,6 +291,9 @@ public final class GlutDebugToolsMouseControl {
         for ( int i = 0; i < model.scene.patchList.size(); i++ ) {
             Patch patch = model.scene.patchList.get(i);
             if ( patch == null || patch.radianceData == null ) {
+                continue;
+            }
+            if ( patch.radianceData.className != ElementTypes.ELEMENT_GALERKIN ) {
                 continue;
             }
 

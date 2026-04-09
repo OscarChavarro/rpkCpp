@@ -181,17 +181,85 @@ public class GlutDebugTools implements GLEventListener {
     }
 
     private void mouseButtonCallback(int button, int state, int x, int y, boolean shiftDown) {
+        syncModelSizeFromDrawable(panel);
         syncCameraToViewport();
-        if ( GlutDebugToolsMouseControl.handleMouseButton(button, state, x, y, shiftDown, model) ) {
+        int[] drawablePoint = mousePointInDrawablePixels(x, y);
+        if ( GlutDebugToolsMouseControl.handleMouseButton(
+                button,
+                state,
+                drawablePoint[0],
+                drawablePoint[1],
+                shiftDown,
+                model) ) {
             postRedisplay();
         }
     }
 
     private void mouseMotionCallback(int x, int y) {
+        syncModelSizeFromDrawable(panel);
         syncCameraToViewport();
-        if ( GlutDebugToolsMouseControl.handleMouseMotion(x, y, model) ) {
+        int[] drawablePoint = mousePointInDrawablePixels(x, y);
+        if ( GlutDebugToolsMouseControl.handleMouseMotion(drawablePoint[0], drawablePoint[1], model) ) {
             postRedisplay();
         }
+    }
+
+    private static int clampToSurface(int value, int surfaceSize) {
+        if ( surfaceSize <= 0 ) {
+            return 0;
+        }
+        if ( value < 0 ) {
+            return 0;
+        }
+        if ( value >= surfaceSize ) {
+            return surfaceSize - 1;
+        }
+        return value;
+    }
+
+    private static int scaleToSurface(int value, int componentSize, int surfaceSize) {
+        if ( componentSize <= 0 || surfaceSize <= 0 ) {
+            return 0;
+        }
+        if ( componentSize == surfaceSize ) {
+            return value;
+        }
+
+        float scaled = ((float)value + 0.5f) * ((float)surfaceSize / (float)componentSize) - 0.5f;
+        return Math.round(scaled);
+    }
+
+    private int[] mousePointInDrawablePixels(int awtX, int awtY) {
+        int surfaceWidth = model.width;
+        int surfaceHeight = model.height;
+        int componentWidth = surfaceWidth;
+        int componentHeight = surfaceHeight;
+
+        if ( panel != null ) {
+            int panelSurfaceWidth = panel.getSurfaceWidth();
+            int panelSurfaceHeight = panel.getSurfaceHeight();
+            if ( panelSurfaceWidth > 0 ) {
+                surfaceWidth = panelSurfaceWidth;
+            }
+            if ( panelSurfaceHeight > 0 ) {
+                surfaceHeight = panelSurfaceHeight;
+            }
+
+            componentWidth = panel.getWidth();
+            componentHeight = panel.getHeight();
+            if ( componentWidth <= 0 ) {
+                componentWidth = surfaceWidth;
+            }
+            if ( componentHeight <= 0 ) {
+                componentHeight = surfaceHeight;
+            }
+        }
+
+        int mappedX = scaleToSurface(awtX, componentWidth, surfaceWidth);
+        int mappedY = scaleToSurface(awtY, componentHeight, surfaceHeight);
+        mappedX = clampToSurface(mappedX, surfaceWidth);
+        mappedY = clampToSurface(mappedY, surfaceHeight);
+        return new int[] {mappedX, mappedY};
     }
 
     private void applyFullscreenStateIfNeeded() {
@@ -370,6 +438,7 @@ public class GlutDebugTools implements GLEventListener {
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         syncModelSizeFromDrawable(drawable);
+        syncCameraToViewport();
     }
 
     public void executeGlutGui(int argc, String[] argv) {
