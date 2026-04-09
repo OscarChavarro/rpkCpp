@@ -36,7 +36,7 @@ public class BinaryModelSerializer {
         'B', 'I', 'N', '_', '1', 0, 0, 0
     };
 
-    private static final int BINARY_MODEL_VERSION = 1;
+    private static final int BINARY_MODEL_VERSION = 2;
     private static final int BINARY_MODEL_POINTER_SIZE = 8;
     private static final int BINARY_MODEL_LONG_SIZE = 8;
     private static final int BINARY_MODEL_PARSE_SNAPSHOT_CONTEXT_SIZE = 120;
@@ -565,6 +565,9 @@ public class BinaryModelSerializer {
         writeBool(output, model.inComplex);
         writeBool(output, model.inSurface);
         writeBool(output, model.monochrome);
+        writeBool(output, model.singleSided);
+        writeBool(output, model.warpConeEnds);
+        writeInt32LE(output, model.numberOfQuarterCircleDivisions);
 
         int[] readerContextIndex = new int[1];
         if (!indexOfPointer(model.readerContext, context.readerContextIndices, "model.readerContext", readerContextIndex)) {

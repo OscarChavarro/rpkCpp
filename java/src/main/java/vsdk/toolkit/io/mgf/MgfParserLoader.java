@@ -515,6 +515,9 @@ Contorted logic works as follows:
         model.inSurface = context.inSurface;
         model.materials = context.materials;
         model.monochrome = context.monochrome;
+        model.singleSided = context.singleSided;
+        model.warpConeEnds = context.warpConeEnds;
+        model.numberOfQuarterCircleDivisions = context.numberOfQuarterCircleDivisions;
         model.readerContext = context.readerContext;
         model.transformContext = context.transformContext;
 

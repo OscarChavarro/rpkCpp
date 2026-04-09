@@ -268,6 +268,9 @@ they are primitive or not
         mgfContext.inSurface = mgfModel.inSurface;
         mgfContext.materials = mgfModel.materials;
         mgfContext.monochrome = mgfModel.monochrome;
+        mgfContext.singleSided = mgfModel.singleSided;
+        mgfContext.warpConeEnds = mgfModel.warpConeEnds;
+        mgfContext.numberOfQuarterCircleDivisions = mgfModel.numberOfQuarterCircleDivisions;
         mgfContext.readerContext = mgfModel.readerContext;
         mgfContext.transformContext = mgfModel.transformContext;
         mgfContext.model = mgfModel;
@@ -285,8 +288,11 @@ they are primitive or not
         mgfContext.geometryBuildState.geometryStackHeadIndex = mgfContext.geometryStackHeadIndex;
         mgfContext.geometryBuildState.inComplex = mgfContext.inComplex;
         mgfContext.geometryBuildState.inSurface = mgfContext.inSurface;
+        mgfContext.geometryBuildState.warpConeEnds = mgfContext.warpConeEnds;
         mgfContext.materialState.materials = mgfContext.materials;
         mgfContext.parserConfig.monochrome = mgfContext.monochrome;
+        mgfContext.parserConfig.singleSided = mgfContext.singleSided;
+        mgfContext.parserConfig.numberOfQuarterCircleDivisions = mgfContext.numberOfQuarterCircleDivisions;
         mgfContext.readerStackState.readerContext = mgfContext.readerContext;
         mgfContext.transformStack.transformContext = mgfContext.transformContext;
 

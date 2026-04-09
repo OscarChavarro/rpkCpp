@@ -24,6 +24,9 @@ public class ParseSnapshotContext {
     public boolean inSurface;
     public ArrayList<Material> materials;
     public boolean monochrome;
+    public boolean singleSided;
+    public boolean warpConeEnds;
+    public int numberOfQuarterCircleDivisions;
     public ReaderContext readerContext;
     public TransformStackContext transformContext;
 
@@ -43,6 +46,9 @@ public class ParseSnapshotContext {
         inSurface = false;
         materials = null;
         monochrome = false;
+        singleSided = false;
+        warpConeEnds = false;
+        numberOfQuarterCircleDivisions = 0;
         readerContext = null;
         transformContext = null;
     }

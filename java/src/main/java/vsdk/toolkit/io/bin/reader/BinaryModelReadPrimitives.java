@@ -21,7 +21,7 @@ public class BinaryModelReadPrimitives {
         'B', 'I', 'N', '_', '1', 0, 0, 0
     };
 
-    private static final int BINARY_MODEL_VERSION = 1;
+    private static final int BINARY_MODEL_VERSION = 2;
     private static final int BINARY_MODEL_POINTER_SIZE = 8;
     private static final int BINARY_MODEL_LONG_SIZE = 8;
     private static final int BINARY_MODEL_PARSE_SNAPSHOT_CONTEXT_SIZE = 120;

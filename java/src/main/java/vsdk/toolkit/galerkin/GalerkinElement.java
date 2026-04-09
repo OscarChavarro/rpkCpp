@@ -6,6 +6,7 @@ package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.RenderOptions;
@@ -368,21 +369,23 @@ public class GalerkinElement extends Element {
     }
 
     public void initPolygon(Polygon polygon) {
-        if ( polygon == null || patch == null ) {
+        if ( polygon == null ) {
+            return;
+        }
+        if ( isCluster() ) {
+            Error.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+            return;
+        }
+        if ( patch == null ) {
             return;
         }
 
         polygon.normal.set(patch.normal.x, patch.normal.y, patch.normal.z);
         polygon.planeConstant = patch.planeConstant;
-        polygon.numberOfVertices = patch.numberOfVertices;
-        polygon.bounds.copyFrom(patch.boundingBox);
-        for ( int i = 0; i < patch.numberOfVertices; i++ ) {
-            if ( patch.vertex[i] != null && patch.vertex[i].point != null ) {
-                polygon.vertex[i].set(
-                    patch.vertex[i].point.x,
-                    patch.vertex[i].point.y,
-                    patch.vertex[i].point.z);
-            }
+        polygon.numberOfVertices = vertices(polygon.vertex);
+        polygon.bounds = new BoundingBox();
+        for ( int i = 0; i < polygon.numberOfVertices; i++ ) {
+            polygon.bounds.enlargeToIncludePoint(polygon.vertex[i]);
         }
     }
 

@@ -13,6 +13,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinBasis;
+import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinRole;
 import vsdk.toolkit.galerkin.GalerkinState;
@@ -53,7 +54,7 @@ public class FormFactorStrategy {
             hit = Geometry.listDiscretizationIntersect(
                 geometrySceneList,
                 ray,
-                Numeric.EPSILON_FLOAT * minimumDistance,
+                Numeric.EPSILON_FLOAT * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
                 hitStore);
@@ -61,7 +62,7 @@ public class FormFactorStrategy {
         else if ( voxelGrid != null ) {
             hit = voxelGrid.gridIntersect(
                 ray,
-                Numeric.EPSILON_FLOAT * minimumDistance,
+                Numeric.EPSILON_FLOAT * dist[0],
                 dist,
                 RayHitFlag.FRONT | RayHitFlag.ANY,
                 hitStore);
@@ -163,7 +164,7 @@ relevant for surface elements
         if ( distance < Numeric.EPSILON ) {
             return 0.0;
         }
-        ray.direction.scaledCopy((float)(1.0 / distance), ray.direction);
+        ray.direction.inverseScaledCopy((float)distance, ray.direction, Numeric.EPSILON_FLOAT);
 
         double cosThetaY;
         if ( sourceElement.isCluster() ) {
@@ -233,9 +234,6 @@ relevant for surface elements
         Interaction link,
         GalerkinState galerkinState)
     {
-        formFactorLastReceived = null;
-        formFactorLastSource = null;
-
         GalerkinElement receiverElement = link.receiverElement;
         GalerkinElement sourceElement = link.sourceElement;
         if ( receiverElement == null || sourceElement == null ) {
@@ -354,7 +352,8 @@ relevant for surface elements
             link.visibility = (byte)254;
         }
 
-        if ( (receiverElement.isCluster() || sourceElement.isCluster()) ) {
+        if ( galerkinState.clusteringStrategy == GalerkinClusteringStrategy.ISOTROPIC
+            && (receiverElement.isCluster() || sourceElement.isCluster()) ) {
             link.deltaK = new float[] {(float)(maximumKernelValue * sourceElement.area)};
             link.numberOfReceiverCubaturePositions = 1;
         }

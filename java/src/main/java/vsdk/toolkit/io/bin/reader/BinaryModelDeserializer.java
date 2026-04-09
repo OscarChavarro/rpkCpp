@@ -629,6 +629,9 @@ public class BinaryModelDeserializer {
             modelRecord.inComplex = BinaryModelReadPrimitives.readBool(input);
             modelRecord.inSurface = BinaryModelReadPrimitives.readBool(input);
             modelRecord.monochrome = BinaryModelReadPrimitives.readBool(input);
+            modelRecord.singleSided = BinaryModelReadPrimitives.readBool(input);
+            modelRecord.warpConeEnds = BinaryModelReadPrimitives.readBool(input);
+            modelRecord.numberOfQuarterCircleDivisions = BinaryModelReadPrimitives.readInt32LE(input);
             modelRecord.readerContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
             modelRecord.transformContextIndex = BinaryModelReadPrimitives.readInt32LE(input);
 
@@ -653,6 +656,9 @@ public class BinaryModelDeserializer {
             model.inComplex = modelRecord.inComplex;
             model.inSurface = modelRecord.inSurface;
             model.monochrome = modelRecord.monochrome;
+            model.singleSided = modelRecord.singleSided;
+            model.warpConeEnds = modelRecord.warpConeEnds;
+            model.numberOfQuarterCircleDivisions = modelRecord.numberOfQuarterCircleDivisions;
             model.readerContext = readerContextOut.value;
             model.transformContext = transformContextOut.value;
 

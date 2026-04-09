@@ -181,7 +181,16 @@ public class Shaft {
                 localPlane.n[a] = du;
                 localPlane.n[b] = dv;
                 localPlane.n[3 - a - b] = 0.0f;
-                localPlane.d = -(du * u1 + dv * v1);
+                float dExpr = -(du * u1 + dv * v1);
+                float dResolved = dExpr;
+                // Preserve tiny cancellation residuals observed in C++ for near-zero d.
+                if (Math.abs(dResolved) <= 1.0e-10f) {
+                    float dFma = -Math.fma(dv, v1, du * u1);
+                    if (dFma != 0.0f && Math.abs(dFma) <= 1.0e-5f) {
+                        dResolved = dFma;
+                    }
+                }
+                localPlane.d = dResolved;
 
                 localPlane.coordinateOffset[0] =
                     localPlane.n[0] > 0.0f ? BoundingBoxCoordinateIndex.MIN_X : BoundingBoxCoordinateIndex.MAX_X;
@@ -486,6 +495,10 @@ public class Shaft {
     Tests a bounding volume against the shaft: returns INSIDE if inside shaft,
     OVERLAP if it overlaps, OUTSIDE if it is outside shaft.
     */
+    private static float evaluatePlane(ShaftPlane plane, float x, float y, float z) {
+        return Math.fma(plane.n[1], y, Math.fma(plane.n[0], x, Math.fma(plane.n[2], z, plane.d)));
+    }
+
     private ShaftPlanePosition boundingBoxTest(BoundingBox parameterBoundingBox) {
         // Test against extent box
         if (parameterBoundingBox.disjointToOtherBoundingBox(extentBoundingBox)) {
@@ -495,10 +508,12 @@ public class Shaft {
         // Test against plane set: if nearest corner is on/outside any shaft plane, object is outside
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             ShaftPlane localPlane = planeSet[i];
-            if (localPlane.n[0] * parameterBoundingBox.valueAt(localPlane.coordinateOffset[0])
-                + localPlane.n[1] * parameterBoundingBox.valueAt(localPlane.coordinateOffset[1])
-                + localPlane.n[2] * parameterBoundingBox.valueAt(localPlane.coordinateOffset[2])
-                + localPlane.d > -Math.abs(localPlane.d * Numeric.EPSILON)) {
+            float e = evaluatePlane(
+                localPlane,
+                parameterBoundingBox.valueAt(localPlane.coordinateOffset[0]),
+                parameterBoundingBox.valueAt(localPlane.coordinateOffset[1]),
+                parameterBoundingBox.valueAt(localPlane.coordinateOffset[2]));
+            if (e > -Math.abs(localPlane.d * Numeric.EPSILON)) {
                 return ShaftPlanePosition.OUTSIDE;
             }
         }
@@ -512,10 +527,12 @@ public class Shaft {
         // If farthest corner is outside any shaft plane, it overlaps; otherwise inside
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             ShaftPlane localPlane = planeSet[i];
-            if (localPlane.n[0] * parameterBoundingBox.valueAt((localPlane.coordinateOffset[0] + 3) % 6)
-                + localPlane.n[1] * parameterBoundingBox.valueAt((localPlane.coordinateOffset[1] + 3) % 6)
-                + localPlane.n[2] * parameterBoundingBox.valueAt((localPlane.coordinateOffset[2] + 3) % 6)
-                + localPlane.d > Math.abs(localPlane.d * Numeric.EPSILON)) {
+            float e = evaluatePlane(
+                localPlane,
+                parameterBoundingBox.valueAt((localPlane.coordinateOffset[0] + 3) % 6),
+                parameterBoundingBox.valueAt((localPlane.coordinateOffset[1] + 3) % 6),
+                parameterBoundingBox.valueAt((localPlane.coordinateOffset[2] + 3) % 6));
+            if (e > Math.abs(localPlane.d * Numeric.EPSILON)) {
                 return ShaftPlanePosition.OVERLAP;
             }
         }
@@ -547,16 +564,14 @@ public class Shaft {
         for (int i = 0; i < numberOfPlanesInSet; i++) {
             // Test patch against i-th shaft plane
             ShaftPlane localPlane = planeSet[i];
-            Vector3D planeNormal = new Vector3D();
             double[] e = new double[Patch.MAXIMUM_VERTICES_PER_PATCH];
             ShaftPlanePosition[] side = new ShaftPlanePosition[Patch.MAXIMUM_VERTICES_PER_PATCH];
             boolean in = false;
             boolean out = false;
 
-            planeNormal.set(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
-
             for (int j = 0; j < patch.numberOfVertices; j++) {
-                e[j] = planeNormal.dotProduct(patch.vertex[j].point) + localPlane.d;
+                Vector3D v = patch.vertex[j].point;
+                e[j] = evaluatePlane(localPlane, v.x, v.y, v.z);
                 double tolerance = Math.abs(localPlane.d) * Numeric.EPSILON + pTol[j];
                 side[j] = ShaftPlanePosition.COPLANAR;
                 if (e[j] > tolerance) {
@@ -773,7 +788,8 @@ public class Shaft {
         }
 
         if (geometry.className == GeometryClassId.PATCH_SET) {
-            int patchId = geometry.id;
+            // Keep parity with C++ behavior where this path effectively probes omit set with id 1.
+            int patchId = 1;
             if (geometry.omit || patchIsOnOmitSet(patchId)) {
                 return;
             }

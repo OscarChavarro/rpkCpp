@@ -95,9 +95,9 @@ public class Patch {
         float u,
         float v,
         Vector3D p) {
-        p.x = v0.x + u * (v1.x - v0.x) + v * (v2.x - v0.x);
-        p.y = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
-        p.z = v0.z + u * (v1.z - v0.z) + v * (v2.z - v0.z);
+        p.x = Math.fma(v, (v2.x - v0.x), Math.fma(u, (v1.x - v0.x), v0.x));
+        p.y = Math.fma(v, (v2.y - v0.y), Math.fma(u, (v1.y - v0.y), v0.y));
+        p.z = Math.fma(v, (v2.z - v0.z), Math.fma(u, (v1.z - v0.z), v0.z));
     }
 
     /**
@@ -114,9 +114,9 @@ public class Patch {
         float c = u * v;
         float b = u - c;
         float d = v - c;
-        p.x = v0.x + b * (v1.x - v0.x) + c * (v2.x - v0.x) + d * (v3.x - v0.x);
-        p.y = v0.y + b * (v1.y - v0.y) + c * (v2.y - v0.y) + d * (v3.y - v0.y);
-        p.z = v0.z + b * (v1.z - v0.z) + c * (v2.z - v0.z) + d * (v3.z - v0.z);
+        p.x = Math.fma(d, (v3.x - v0.x), Math.fma(c, (v2.x - v0.x), Math.fma(b, (v1.x - v0.x), v0.x)));
+        p.y = Math.fma(d, (v3.y - v0.y), Math.fma(c, (v2.y - v0.y), Math.fma(b, (v1.y - v0.y), v0.y)));
+        p.z = Math.fma(d, (v3.z - v0.z), Math.fma(c, (v2.z - v0.z), Math.fma(b, (v1.z - v0.z), v0.z)));
     }
 
     private Vector3D getInterpolatedNormalAtUv(double u, double v) {
