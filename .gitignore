@@ -46,6 +46,7 @@ cmake*
 output/*
 cpp/output/*
 java/output/*
+turboc/output/*
 
 # gprof profiling artifacts
 gmon.out

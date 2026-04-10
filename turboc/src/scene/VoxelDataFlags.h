@@ -1,0 +1,13 @@
+#ifndef __VOXEL_DATA_FLAGS__
+#define __VOXEL_DATA_FLAGS__
+
+#include "common/VSDK.h"
+
+enum VoxelDataFlags {
+    VOXEL_DATA_PATCH_MASK = 0x10000000U,
+    VOXEL_DATA_GEOMETRY_MASK = 0x20000000U,
+    VOXEL_DATA_GRID_MASK = 0x40000000U,
+    VOXEL_DATA_RAY_COUNT_MASK = 0x0fffffffU
+};
+
+#endif

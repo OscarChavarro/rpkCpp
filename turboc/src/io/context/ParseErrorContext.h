@@ -1,0 +1,23 @@
+#ifndef __ERROR_CODE_CONTEXT__
+#define __ERROR_CODE_CONTEXT__
+
+#include "common/VSDK.h"
+
+// Error codes
+enum ParseErrorContext {
+    MGF_OK = 0, // normal return value
+    MGF_ERROR_UNKNOWN_ENTITY = 1,
+    MGF_ERRR_WRNG_NUM_O_ARGMN = 2,
+    MGF_ERROR_ARGUMENT_TYPE = 3,
+    MGF_ERRR_ILLGL_ARGMN_VAL = 4,
+    MGF_ERROR_UNDEFINED_REFERENCE = 5,
+    MGF_ERRR_CAN_NOT_OPEN_INPT_FILE = 6,
+    MGF_ERROR_IN_INCLUDED_FILE = 7,
+    MGF_ERROR_OUT_OF_MEMORY = 8,
+    MGF_ERROR_FILE_SEEK_ERROR = 9,
+    MGF_ERROR_LINE_TOO_LONG = 11,
+    MGF_ERRR_UNMTC_CNTXT_CLS = 12,
+    MGF_NUMBER_OF_ERRORS = 13
+};
+
+#endif

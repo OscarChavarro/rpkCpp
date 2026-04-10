@@ -1,0 +1,131 @@
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+#include "common/RenderOptions.h"
+#include "java/lang/System.h"
+#include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
+#include "raycasting/bidirectionalRaytracing/Kernel2D.h"
+
+inline int
+DensityBuffer::xIndex(float x) const {
+    return Math::min(
+        ((int)(DensityBuffer::DHA_X_RES * (x - xMinimum) / (xMaximum - xMinimum))),
+        DensityBuffer::DHA_X_RES - 1);
+}
+
+inline int
+DensityBuffer::yIndex(float y) const {
+    return Math::min(
+            ((int)(DensityBuffer::DHA_Y_RES * (y - yMinimum) / (yMaximum - yMinimum))),
+            DensityBuffer::DHA_Y_RES - 1);
+}
+
+DensityBuffer::DensityBuffer(ScreenBuffer *screen, BidirPathRaytrcCnfg *paramBaseConfig) {
+    screenBuffer = screen;
+    baseConfig = paramBaseConfig;
+
+    xMinimum = screenBuffer->getScreenXMin();
+    xMaximum = screenBuffer->getScreenXMax();
+    yMinimum = screenBuffer->getScreenYMin();
+    yMaximum = screenBuffer->getScreenYMax();
+
+    System::out.printf("Density Buffer :\nXmin %f, Ymin %f, Xmax %f, Ymax %f\n",
+           xMinimum, yMinimum, xMaximum, yMaximum);
+
+}
+
+DensityBuffer::~DensityBuffer() {
+}
+
+/**
+Add a hit
+*/
+void
+DensityBuffer::add(float x, float y, ColorRgb color) {
+    float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
+                   * ((float)(baseConfig->totalSamples));
+    ColorRgb tmpCol;
+
+    if ( color.average() > Numeric::EPSILON ) {
+        tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor
+
+        DensityHit hit(x, y, tmpCol);
+
+        hitGrid[xIndex(x)][yIndex(y)].add(hit);
+    }
+}
+
+/**
+Reconstruct the internal screen buffer using constant kernel width
+*/
+ScreenBuffer *
+DensityBuffer::reconstruct() {
+    // For all samples -> compute pixel coverage
+
+    // Kernel size. Now spread over 3 pixels
+    float h = 8.0f * Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
+              / Math::sqrt(((float)(baseConfig->samplesPerPixel)));
+
+    System::out.printf("h = %f\n", h);
+
+    screenBuffer->scaleRadiance(0.0); // Hack!
+
+    int maxK;
+    DensityHit hit;
+    Kernel2D kernel;
+    Vector2D center;
+
+    kernel.SetH(h);
+
+    for ( int i = 0; i < DensityBuffer::DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DensityBuffer::DHA_Y_RES; j++ ) {
+            maxK = hitGrid[i][j].storedHits();
+
+            for ( int k = 0; k < maxK; k++ ) {
+                hit = (hitGrid[i][j])[k];
+
+                center.u = hit.m_x;
+                center.v = hit.m_y;
+
+                kernel.cover(center, 1.0f / ((float)(baseConfig->totalSamples)), hit.color, screenBuffer);
+            }
+        }
+    }
+
+    return screenBuffer;
+}
+
+
+ScreenBuffer *
+DensityBuffer::reconstructVariable(ScreenBuffer *dest, float baseSize) {
+    // For all samples -> compute pixel coverage
+
+    // Base Kernel size. Now spread over a number of pixels
+
+    dest->scaleRadiance(0.0); // Hack!
+
+    int maxK;
+    DensityHit hit;
+    Kernel2D kernel;
+    Vector2D center;
+
+    for ( int i = 0; i < DensityBuffer::DHA_X_RES; i++ ) {
+        for ( int j = 0; j < DensityBuffer::DHA_Y_RES; j++ ) {
+            maxK = hitGrid[i][j].storedHits();
+
+            for ( int k = 0; k < maxK; k++ ) {
+                hit = (hitGrid[i][j])[k];
+
+                center.u = hit.m_x;
+                center.v = hit.m_y;
+
+                kernel.varCover(center, hit.color, screenBuffer, dest, ((int)(baseConfig->totalSamples)),
+                                baseConfig->samplesPerPixel, baseSize);
+            }
+        }
+    }
+
+    return dest;
+}
+
+#endif

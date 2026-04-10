@@ -1,0 +1,96 @@
+#ifndef CONSTEXPR
+#define CONSTEXPR const
+#endif
+
+/**
+Niederreiter quasiMonteCarlo sample series (dimension 4, base 2, 31 bits, skip 4096)
+*/
+
+#ifndef __NIEDERREITER__
+#define __NIEDERREITER__
+
+#include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
+
+/**
+The header files above define NiederreiterIndex as unsigned for this build.
+
+The class below exposes the following constants:
+Niederreiter::DIMEN      4         dimension of the samples generated.
+Niederreiter::NBITS      31        number of bits in an integer, excluding the sign bit
+Niederreiter::RECIP      1/2^NBITS multiply niedindex values by this to get
+                                   floating point values in the range 0..1
+Niederreiter::RECIP1     2^NBITS   multiply floating point values in the range 0..1
+                                   by this factor in order to convert to niedindex
+Niederreiter::NBITS_POW  (1<<NBITS)     2^NBITS niedindex value
+Niederreiter::NBITS_POW1 (1<<(NBITS-1)) 2^(NBITS-1) niedindex value
+*/
+
+/**
+Computes the base-2 NBITS-bits 4D Niederreiter sample with index n.
+contrary to the literature, the index is not transformed to its Gray
+code. The routine still is very efficient for computing subsequent
+samples. An array of four NBITS-bits integers is returned. Multiply
+with RECIP in order to obtain floating point numbers between 0 and 1.
+k * Do not modify the returned ints
+*/
+class Niederreiter {
+  public:
+    #define DIMEN Niederreiter31::DIMEN
+    #define NBITS Niederreiter31::NBITS
+    #define SKIP Niederreiter31::SKIP
+    #define NBITS_POW Niederreiter31::NBITS_POW
+    #define NBITS_POW1 Niederreiter31::NBITS_POW1
+    #define RECIP Niederreiter31::RECIP
+    #define RECIP1 Niederreiter31::RECIP1
+
+    static inline NiederreiterIndex *
+    Nied(NiederreiterIndex n) {
+        return Niederreiter31::niederreiter31(n);
+    }
+
+/**
+Finds the next Niederreiter sample following or preceeding the
+sample with index *idx with first 2 components in a range defined by
+nmsb, msb1, rmsb2:
+- if dir>0, the next sample (including the current one) in the range is
+  	determined,
+  if dir<0, the previous sample (including the current sample) is found.
+  The current sample is the sample with index *idx at entry.
+- nmsb contains how many bits of msb1 and rmsb2 are significant in
+  the definition of the range.
+- the routine looks for samples with 1st components having the same nmsb
+  most significant bits as the base-2 radical inverse of msb1.
+- the 2nd component has the same nmsb most significant bits as msb2.
+Note the difference between the specification of the most significant bits
+with msb1 and msb2. This is so because of efficiency reasons (which are
+very important for this routine!).
+Upon exit, *idx will contain the index of the sample that is returned
+*/
+    static inline NiederreiterIndex *
+    NextNiedInRange(
+            NiederreiterIndex *idx,
+            int dir,
+            int nmsb,
+            NiederreiterIndex msb1,
+            NiederreiterIndex rmsb2) {
+        return Niederreiter31::NextNiedInRange31(idx, dir, nmsb, msb1, rmsb2);
+    }
+
+/**
+Computes the (NBITS-bits) base-2 radical inverse of the given number
+*/
+    static inline NiederreiterIndex
+    radicalInverse(NiederreiterIndex n) {
+        return Niederreiter31::radicalInverse31(n);
+    }
+
+/**
+"folds" a sample in the unit square to the standard triangle (0, 0), (1, 0), (0, 1)
+*/
+    static inline void
+    foldSample(NiederreiterIndex *xi1, NiederreiterIndex *xi2) {
+        Niederreiter31::foldSample31(xi1, xi2);
+    }
+};
+
+#endif

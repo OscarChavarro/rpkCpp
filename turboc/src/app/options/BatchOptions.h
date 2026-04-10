@@ -1,0 +1,23 @@
+#ifndef __BATCH_OPTIONS__
+#define __BATCH_OPTIONS__
+
+#include "common/VSDK.h"
+
+class BatchOptions {
+  public:
+    bool exportBinary;
+    const char *binaryOutputFilename;
+    bool importBinary;
+    const char *binaryInputFilename;
+    int iterations; // Radiance method iterations
+    const char *radianceImageFileNameFormat;
+    const char *radianceModelFileNameFormat;
+    int saveModulo; // Every n-th iteration, surface model and image will be saved
+    const char *raytracingImageFileName;
+    int timings;
+
+    BatchOptions();
+    virtual ~BatchOptions();
+};
+
+#endif

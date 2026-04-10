@@ -1,0 +1,25 @@
+/**
+Samples a random point on the view screen and traces the viewing ray.
+*/
+
+#ifndef __SCREEN_SAMPLER__
+#define __SCREEN_SAMPLER__
+
+#include "common/RenderOptions.h"
+
+#ifdef RAYTRACING_ENABLED
+
+#include "scene/Camera.h"
+#include "raycasting/raytracing/Sampler.h"
+
+class ScreenSampler: public Sampler{ public:
+    bool
+    sample( Camera *camera, VoxelGrid *sceneVoxelGrid, Background *sceneBackground, SimpleRaytracingPathNode *prevNode, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, double x1, double x2, bool doRR = false, char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+
+    double
+    evalPDF( Camera *camera, SimpleRaytracingPathNode *thisNode, SimpleRaytracingPathNode *newNode, char flags = BsdfComponentInfo::BSDF_ALL_COMPONENTS, double *probabilityDensityFunction = NULL, double *probabilityDensityFunctionRR = NULL);
+};
+
+#endif
+
+#endif

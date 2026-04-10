@@ -1,0 +1,33 @@
+#ifndef BNRY_MDL_RDR_MDL_RCRD
+#define BNRY_MDL_RDR_MDL_RCRD
+
+#include "io/bin/reader/BinaryModelIndexListRef.h"
+
+class BinaryModelSnapshotRecordData {
+  public:
+    int currentColorIndex;
+    bool hasCurrentMaterialName;
+    char *currentMaterialName;
+    bool hasCurrentObjectName;
+    char *currentObjectName;
+    bool hasCurrentVertexName;
+    char *currentVertexName;
+    int geometryStackHeadIndex;
+    bool inComplex;
+    bool inSurface;
+    bool monochrome;
+    int readerContextIndex;
+    int transformContextIndex;
+
+    BinaryModelIndexListRef currentFaceList;
+    BinaryModelIndexListRef currentGeometryList;
+    BinaryModelIndexListRef currentNormalList;
+    BinaryModelIndexListRef currentPointList;
+    BinaryModelIndexListRef currentVertexList;
+    BinaryModelIndexListRef geometries;
+    BinaryModelIndexListRef materials;
+
+    BinaryModelSnapshotRecordData();
+};
+
+#endif

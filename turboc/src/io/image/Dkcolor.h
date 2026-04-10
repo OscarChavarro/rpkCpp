@@ -1,0 +1,48 @@
+#ifndef CONSTEXPR
+#define CONSTEXPR const
+#endif
+
+#ifndef __DK_COLOR__
+#define __DK_COLOR__
+
+/**
+Routines using pixel color values / color calculations.
+     12/31/85
+
+Two color representations are used, one for calculation and
+another for storage.  Calculation is done with three floats
+for speed.  Stored color values use 4 bytes which contain
+three single byte mantissas and a common exponent.
+*/
+
+#include "java/io/OutputStream.h"
+
+typedef unsigned char BYTE; // 8-bit unsigned integer
+typedef BYTE BYTE_COLOR[4]; // Red, green, blue (or X,Y,Z), exponent
+typedef float DK_COLOR[3]; // Red, green, blue (or X,Y,Z)
+
+class DkColor {
+  public:
+    static int writeScan(DK_COLOR *scanline, int len, OutputStream *outputStream);
+    static void freeBuffer();
+
+  private:
+    #define RED 0
+    #define GREEN 1
+    #define BLUE 2
+    #define EXP 3
+    #define COL_XS 128
+    #define MINIMUM_SCAN_LINE_LENGTH 8
+    #define MAXIMUM_SCAN_LINE_LENGTH 0x7fff
+    #define MINIMUM_RUN_LENGTH 4
+
+    static BYTE *temporaryBuffer;
+    static unsigned int temporaryBufferLength;
+
+    static void writeByte(OutputStream *stream, int value);
+    static BYTE *tempBuffer(unsigned int length);
+    static int writeByteColors(BYTE_COLOR *scanline, int len, OutputStream *outputStream);
+    static void setByteColors(BYTE_COLOR color, double r, double g, double b);
+};
+
+#endif

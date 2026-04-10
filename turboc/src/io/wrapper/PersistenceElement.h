@@ -1,0 +1,135 @@
+#ifndef __PERSISTENCE_ELEMENT__
+#define __PERSISTENCE_ELEMENT__
+
+#include "java/io/File.h"
+#include "java/io/InputStream.h"
+#include "java/io/OutputStream.h"
+
+/**
+A `PersistenceElement` in VitralSDK is a software element with
+algorithms and data structures (i.e. a class) with the specific functionality
+of providing persistence operations for a data Entity.
+
+The PersistenceElement abstract class provides an interface for *Persistence
+style classes. This serves three purposes:
+  - To help in design level organization of persistence classes (this eases the
+    study of the class hierarchy)
+  - To provide a place to locate operations common to all persistence classes
+    and persistence private utility/supporting classes.  In particular, this
+    class contains basic low level persistence operations for converting bit
+    streams from and to basic numeric data types. Note that this code is NOT
+    portable, as it needs explicit programmer configuration for little-endian
+    or big-endian hardware platform (programmer should take care about how
+    to configure attribute bigEndianArchitecture).
+  - To provide means of accessing some operating system's native library
+    files and other basic file system management.
+
+Note that there are several methods used to handle byte arrays and change
+between little endian and bit endian orders. When the copies are done on
+the same order (from little endian to little endian or from big endian to
+big endian) the "Direct" versions are used. When copies are done on the
+reverse order (from little endian to big endian or from big endian to
+little endian) the "Invert" versions are used.
+*/
+class PersistenceElement {
+  public:
+    PersistenceElement();
+
+    static int readByteInt(InputStream &is);
+    static int readByteUnsignedInt(InputStream &is);
+    static void writeByte(OutputStream &os, unsigned char value);
+    static void writeBool(OutputStream &os, bool value);
+
+    static void readBytes(InputStream &is, unsigned char *bytesBuffer, int length);
+
+    static void writeBytes(OutputStream &os, const unsigned char *bytesBuffer, int length);
+
+    static int byteArray2signedShortBE(const unsigned char *arr, int start);
+    static void signedShort2byteArrayBE(unsigned char *arr, int start, int num);
+    static void signedShort2byteArrayLE(unsigned char *arr, int start, int num);
+    static int byteArray2signedShortLE(const unsigned char *arr, int start);
+
+    static long byteArray2longBE(const unsigned char *arr, int start);
+    static long byteArray2longLE(const unsigned char *arr, int start);
+
+    static float byteArray2floatBE(const unsigned char *arr, int start);
+    static void float2byteArrayBE(unsigned char *arr, int start, float num);
+    static void float2byteArrayLE(unsigned char *arr, int start, float num);
+    static float byteArray2floatLE(const unsigned char *arr, int start);
+
+    static int readSignedShortLE(InputStream &is);
+    static int readSignedShortBE(InputStream &is);
+    static void writeSignedShortBE(OutputStream &os, int num);
+    static void writeSignedShortLE(OutputStream &os, int num);
+
+    static long readLongLE(InputStream &is);
+    static void writeInt32LE(OutputStream &os, int num);
+
+    static long readLongBE(InputStream &is);
+
+    static float readFloatLE(InputStream &is);
+    static float readFloatBE(InputStream &is);
+
+    static void writeFloatBE(OutputStream &os, float num);
+    static void writeFloatLE(OutputStream &os, float num);
+    static void writeLongBE(OutputStream &os, long num);
+    static void writeLongLE(OutputStream &os, long num);
+
+    static char *readAsciiFixedSizeString(InputStream &is, int size);
+    static char *readAsciiString(InputStream &is);
+    static char *readUtf8String(InputStream &is);
+    static char *readUtf8Line(InputStream &is);
+    static char *readAsciiLine(InputStream &is);
+    static char *readAsciiToken(InputStream &is, const unsigned char *separators, int separatorsLength);
+
+    static void writeAsciiString(OutputStream &writer, const char *cad);
+    static void writeUtf8String(OutputStream &writer, const char *cad);
+    static void writeAsciiLine(OutputStream &writer, const char *cad);
+    static void writeUtf8Line(OutputStream &writer, const char *cad);
+    static bool checkDirectory(const char *dirName);
+
+  protected:
+    static char *extractExtensionFromFile(const File &fd);
+
+  private:
+    static const bool bigEndianArchitecture;
+
+    // Those are not thread safe / re-entrant... each different thread should
+    // use its own arrays
+    static unsigned char byteBuffer1byte[1];
+    static unsigned char byteBuffer2byte[2];
+    static unsigned char byteBuffer4byte[4];
+    static unsigned char byteBuffer8byte[8];
+
+    // Long int should use an 8-sized array, not a 4-sized. Check.
+    static unsigned char bytesForLong[4];
+
+    static void signedShort2byteArrayDirect(unsigned char *outArrayToBeExported, int inStartIndexInsideArray, int inNumberToConvert);
+
+    static void signedShort2byteArrayInvert(unsigned char *outArrayToBeExported, int inStartIndexInsideArray, int inNumberToConvert);
+
+    static int byteArray2signedShortDirect(const unsigned char *arr, int start);
+    static int byteArray2signedShortInvert(const unsigned char *arr, int start);
+
+    static long byteArray2longDirect(const unsigned char *arr, int start);
+    static long byteArray2longInvert(const unsigned char *arr, int start);
+
+    static void signedInt2byteArrayDirect(unsigned char *arr, int start, long num);
+    static void signedInt2byteArrayInvert(unsigned char *arr, int start, long num);
+    static int signedByte2unsignedInteger(unsigned char value);
+
+    static float byteArray2floatDirect(const unsigned char *arr, int start);
+    static float byteArray2floatInvert(const unsigned char *arr, int start);
+
+    static bool isInSet(unsigned char key, const unsigned char *set, int setLength);
+    static bool buildUtf8Char(const unsigned char arr[2], unsigned char outBytes[2]);
+    static char *duplicateCString(const char *text);
+    static char *joinCString2(const char *left, const char *right);
+    static char *joinCString3(const char *first, const char *second, const char *third);
+    static bool containsCString(const char *text, const char *fragment);
+    static bool startsWithCString(const char *text, const char *prefix);
+    static bool endsWithCString(const char *text, const char *suffix);
+    static bool containsExistingLibrary(const char *pathList, char pathSeparator, const char *nativeLibname);
+};
+
+#endif

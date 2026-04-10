@@ -1,0 +1,862 @@
+#include <string.h>
+#include <stdlib.h>
+
+#include "java/util/ArrayList.txx"
+#include "common/Error.h"
+#include "common/dataStructures/LookUpEntity.h"
+#include "io/context/TokenValidationContext.h"
+#include "io/mgf/MgfConeEntityTessellator.h"
+#include "io/mgf/MgfCylinderEntityExpander.h"
+#include "io/mgf/MgfEntityControl.h"
+#include "io/mgf/MgfPrismEntityTessellator.h"
+#include "io/mgf/MgfRingEntityTessellator.h"
+#include "io/mgf/MgfSphereEntityExpander.h"
+#include "io/mgf/MgfVertexFaceEntitySupport.h"
+#include "io/mgf/MgfMaterialEntitySupport.h"
+#include "io/mgf/MgfObjectNameSupport.h"
+#include "io/mgf/MgfTransformationSupport.h"
+#include "io/mgf/MgfTorusEntityExpander.h"
+
+long
+MgfVertexFaceEntitySupport::transformXid(const TransformStackContext *xf) {
+    return xf == NULL ? 0L : xf->xid;
+}
+
+/**
+The mgf parser already contains some good routines for discrete spheres / cone / cylinder / torus
+into polygons. In the official release of the parser library, these routines
+are internal (declared static in parse.c and no reference to them in parser.h).
+The parser was changed so we can call them in order not to have to duplicate
+the code
+*/
+int
+MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRuntimeContext *context) {
+    int en = MgfEntityControl::mgfEntity(argv[0], context);
+
+    switch ( en ) {
+        case SPHERE:
+            return MgfSphereEntityExpander::handleEntity(argc, argv, context);
+        case TORUS:
+            return MgfTorusEntityExpander::handleEntity(argc, argv, context);
+        case CYLINDER:
+            return MgfCylinderEntityExpander::handleEntity(argc, argv, context);
+        case RING:
+            return MgfRingEntityTessellator::handleEntity(argc, argv, context);
+        case CONE:
+            return MgfConeEntityTessellator::handleEntity(argc, argv, context);
+        case PRISM:
+            return MgfPrismEntityTessellator::handleEntity(argc, argv, context);
+        default:
+            Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+            return MGF_ERROR_UNKNOWN_ENTITY;
+    }
+}
+
+Vector3D *
+MgfVertexFaceEntitySupport::installPoint(float x, float y, float z, const ParseRuntimeContext *context) {
+    Vector3D *coord = new Vector3D(x, y, z);
+    context->currentPointList->add(coord);
+    return coord;
+}
+
+Vector3D *
+MgfVertexFaceEntitySupport::installNormal(float x, float y, float z, const ParseRuntimeContext *context) {
+    Vector3D *norm = new Vector3D(x, y, z);
+    context->currentNormalList->add(norm);
+    return norm;
+}
+
+Vertex *
+MgfVertexFaceEntitySupport::installVertex(Vector3D *coord, Vector3D *norm, const ParseRuntimeContext *context) {
+    ArrayList<Patch *> *newPatchList = new ArrayList<Patch *>();
+    Vertex *v = new Vertex(coord, norm, NULL, newPatchList);
+    context->currentVertexList->add(v);
+    return v;
+}
+
+Vertex *
+MgfVertexFaceEntitySupport::getVertex(const char *name, ParseRuntimeContext *context) {
+    VertexContext *vp = MgfVertexFaceEntitySupport::getNamedVertex(name, context);
+    if ( vp == NULL ) {
+        return NULL;
+    }
+
+    Vertex *theVertex = vp->vertex;
+    if ( !theVertex
+         || vp->clock >= 1
+         || vp->xid != MgfVertexFaceEntitySupport::transformXid(context->transformContext)
+         || vp->n.isNull(Numeric::EPSILON) ) {
+        // New vertex, or updated vertex or same vertex, but other transform, or
+        // vertex without normal: create a new Vertex
+        Vector3Dd vert;
+        Vector3Dd norm;
+        Vector3D *theNormal;
+
+        MgfTransformationSupport::mgfTransformPoint(&vert, &vp->p, context);
+        Vector3D *thePoint = installPoint(((float)(vert.x)), ((float)(vert.y)), ((float)(vert.z)), context);
+        if ( vp->n.isNull(Numeric::EPSILON) ) {
+            theNormal = NULL;
+        } else {
+            MgfTransformationSupport::mgfTransformVector(&norm, &vp->n, context);
+            theNormal = installNormal(((float)(norm.x)), ((float)(norm.y)), ((float)(norm.z)), context);
+        }
+        theVertex = installVertex(thePoint, theNormal, context);
+        vp->vertex = theVertex;
+        vp->xid = MgfVertexFaceEntitySupport::transformXid(context->transformContext);
+    }
+    vp->clock = 0;
+
+    return theVertex;
+}
+
+/**
+Create a vertex with given name, but with reversed normal as
+the given vertex. For back-faces of two-sided surfaces
+*/
+Vertex *
+MgfVertexFaceEntitySupport::getBackFaceVertex(Vertex *v, const ParseRuntimeContext *context) {
+    Vertex *back = v->back;
+
+    if ( !back ) {
+        Vector3D *point = v->point;
+        Vector3D *normal = v->normal;
+        if ( normal ) {
+            normal = installNormal(-normal->x, -normal->y, -normal->z, context);
+        }
+
+        back = v->back = installVertex(point, normal, context);
+        back->back = v;
+    }
+
+    return back;
+}
+
+Patch *
+MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *v4, const ParseRuntimeContext *context) {
+    Patch *theFace;
+    int numberOfVertices = v4 ? 4 : 3;
+
+    if ( v1 == NULL || v2 == NULL || v3 == NULL ) {
+        return NULL;
+    }
+
+    if ( context->transformContext && context->transformContext->rev ) {
+        theFace = new Patch(numberOfVertices, v3, v2, v1, v4);
+    } else {
+        theFace = new Patch(numberOfVertices, v1, v2, v3, v4);
+    }
+
+    // If we are doing radiance computations, create radiance data for the patch
+    if ( theFace->material != NULL ) {
+        context->radianceMethod->createPatchData(theFace);
+    }
+
+    context->currentFaceList->add(theFace);
+
+    return theFace;
+}
+
+/**
+Computes the normal to the patch plane
+*/
+Vector3D *
+MgfVertexFaceEntitySupport::faceNormal(int numberOfVertices, Vertex **v, Vector3D *normal) {
+    Vector3D cur;
+    Vector3D n;
+
+    n.set(0, 0, 0);
+    cur.subtraction(*(v[numberOfVertices - 1]->point), *(v[0]->point));
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        Vector3D prev = cur;
+        cur.subtraction(*(v[i]->point), *(v[0]->point));
+        n.x += (prev.y - cur.y) * (prev.z + cur.z);
+        n.y += (prev.z - cur.z) * (prev.x + cur.x);
+        n.z += (prev.x - cur.x) * (prev.y + cur.y);
+    }
+    double localNorm = n.norm();
+
+    if ( localNorm < Numeric::Numeric::EPSILON ) {
+        // Degenerate normal --> degenerate polygon
+        return NULL;
+    }
+    n.inverseScaledCopy(((float)(localNorm)), n, Numeric::Numeric::EPSILON_FLOAT);
+    *normal = n;
+
+    return normal;
+}
+
+/**
+Given a vector p in 3D space and an index i, which is X, Y
+or Z, projects the vector on the YZ, XZ or XY plane respectively
+*/
+void
+MgfVertexFaceEntitySupport::vectorProject(Vector2D &r, const Vector3D &p, const CoordinateAxis i) {
+    switch ( i ) {
+        case X:
+            r.u = p.y;
+            r.v = p.z;
+            break;
+        case Y:
+            r.u = p.x;
+            r.v = p.z;
+            break;
+        case Z:
+            r.u = p.x;
+            r.v = p.y;
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+Tests whether the polygon is convex or concave. This is accomplished by projecting
+onto the coordinate plane "most parallel" to the polygon and checking the signs
+the cross product of succeeding edges: the signs are all equal for a convex polygon
+*/
+bool
+MgfVertexFaceEntitySupport::faceIsConvex(int numberOfVertices, Vertex **v, const Vector3D *normal) {
+    Vector2D v2d[MAXIMUM_FACE_VERTICES + 1];
+    Vector2D p;
+    Vector2D c;
+    int i;
+
+    int index = normal->dominantCoordinate();
+    for ( i = 0; i < numberOfVertices; i++ ) {
+        vectorProject(v2d[i], *(v[i]->point), ((CoordinateAxis)(index)));
+    }
+
+    p.u = v2d[3].u - v2d[2].u;
+    p.v = v2d[3].v - v2d[2].v;
+    c.u = v2d[0].u - v2d[3].u;
+    c.v = v2d[0].v - v2d[3].v;
+    int sign = (p.u * c.v > c.u * p.v) ? 1 : -1;
+
+    for ( i = 1; i < numberOfVertices; i++ ) {
+        p.u = c.u;
+        p.v = c.v;
+        c.u = v2d[i].u - v2d[i - 1].u;
+        c.v = v2d[i].v - v2d[i - 1].v;
+        if ( ((p.u * c.v > c.u * p.v) ? 1 : -1) != sign ) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+Returns true if the 2D point p is inside the 2D triangle p1-p2-p3
+*/
+bool
+MgfVertexFaceEntitySupport::pointInsideTriangle2D(const Vector2D *p, const Vector2D *p1, const Vector2D *p2, const Vector2D *p3) {
+    // From Graphics Gems I, Didier Badouel, An Efficient Ray-Polygon Intersection, p390
+    double u0 = p->u - p1->u;
+    double v0 = p->v - p1->v;
+    double u1 = p2->u - p1->u;
+    double v1 = p2->v - p1->v;
+    double u2 = p3->u - p1->u;
+    double v2 = p3->v - p1->v;
+
+    double a = 10.0;
+    double b = 10.0; // Values large enough so the result would be false
+    if ( Math::abs(u1) < Numeric::Numeric::EPSILON ) {
+        if ( Math::abs(u2) > Numeric::Numeric::EPSILON && Math::abs(v1) > Numeric::EPSILON ) {
+            b = u0 / u2;
+            if ( b < Numeric::EPSILON || b > 1.0 - Numeric::EPSILON ) {
+                return false;
+            } else {
+                a = (v0 - b * v2) / v1;
+            }
+        }
+    } else {
+        b = v2 * u1 - u2 * v1;
+        if ( Math::abs(b) > Numeric::EPSILON ) {
+            b = (v0 * u1 - u0 * v1) / b;
+            if ( b < Numeric::EPSILON || b > 1.0 - Numeric::EPSILON ) {
+                return false;
+            } else {
+                a = (u0 - b * u2) / u1;
+            }
+        }
+    }
+
+    return (a >= Numeric::EPSILON && a <= 1.0 - Numeric::EPSILON && (a + b) <= 1.0 - Numeric::EPSILON);
+}
+
+/**
+Returns true if the 2D segments p1-p2 and p3-p4 intersect
+*/
+bool
+MgfVertexFaceEntitySupport::segmentsIntersect2D(const Vector2D *p1, const Vector2D *p2, const Vector2D *p3, const Vector2D *p4) {
+    double a;
+    double b;
+    double c;
+    bool coLinear = false;
+
+    // From Graphics Gems II, Mukesh Prasad, Intersection of Line Segments, p7
+    double du = Math::abs(p2->u - p1->u);
+    double dv = Math::abs(p2->v - p1->v);
+    if ( du > Numeric::EPSILON || dv > Numeric::EPSILON ) {
+        if ( dv > du ) {
+            a = 1.0;
+            b = -(p2->u - p1->u) / (p2->v - p1->v);
+            c = -(p1->u + b * p1->v);
+        } else {
+            a = -(p2->v - p1->v) / (p2->u - p1->u);
+            b = 1.0;
+            c = -(a * p1->u + p1->v);
+        }
+
+        double r3 = a * p3->u + b * p3->v + c;
+        double r4 = a * p4->u + b * p4->v + c;
+
+        if ( Math::abs(r3) < Numeric::EPSILON && Math::abs(r4) < Numeric::EPSILON ) {
+            coLinear = true;
+        } else if ((r3 > -Numeric::EPSILON && r4 > -Numeric::EPSILON) || (r3 < Numeric::EPSILON && r4 < Numeric::EPSILON) ) {
+            return false;
+        }
+    }
+
+    if ( !coLinear ) {
+        du = Math::abs(p4->u - p3->u);
+        dv = Math::abs(p4->v - p3->v);
+        if ( du > Numeric::EPSILON || dv > Numeric::EPSILON ) {
+            if ( dv > du ) {
+                a = 1.0;
+                b = -(p4->u - p3->u) / (p4->v - p3->v);
+                c = -(p3->u + b * p3->v);
+            } else {
+                a = -(p4->v - p3->v) / (p4->u - p3->u);
+                b = 1.0;
+                c = -(a * p3->u + p3->v);
+            }
+
+            double r1 = a * p1->u + b * p1->v + c;
+            double r2 = a * p2->u + b * p2->v + c;
+
+            if ( Math::abs(r1) < Numeric::EPSILON && Math::abs(r2) < Numeric::EPSILON ) {
+                coLinear = true;
+            } else if ( (r1 > -Numeric::EPSILON && r2 > -Numeric::EPSILON) || (r1 < Numeric::EPSILON && r2 < Numeric::EPSILON) ) {
+                return false;
+            }
+        }
+    }
+
+    if ( !coLinear ) {
+        return true;
+    }
+
+    return false; // Co-linear segments never intersect: do as if they are always
+		          // a bit apart from each other
+}
+
+/**
+Handles concave faces and faces with > 4 vertices. This routine started as an
+ANSI-C version of face2tri, but I changed it a lot to make it more robust.
+Inspiration comes from Burger and Gillis, Interactive Computer Graphics and
+the (indispensable) Graphics Gems books
+*/
+void
+MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3D *normal, Vertex **backVertex, ParseRuntimeContext *context) {
+    Vector3D center;
+
+    center.set(0.0, 0.0, 0.0);
+    for ( int i = 0; i < n; i++ ) {
+        center.addition(center, *(v[i]->point));
+    }
+    center.inverseScaledCopy(((float)(n)), center, Numeric::EPSILON_FLOAT);
+
+    double maxD = center.distance(*(v[0]->point));
+    int max = 0;
+    for ( int i = 1; i < n; i++ ) {
+        double d = center.distance(*(v[i]->point));
+        if ( d > maxD ) {
+            maxD = d;
+            max = i;
+        }
+    }
+
+    char out[MAXIMUM_FACE_VERTICES + 1];
+
+    for ( int i = 0; i < n; i++ ) {
+        out[i] = false;
+    }
+
+    int p1 = max;
+    int p0 = p1 - 1;
+    if ( p0 < 0 ) {
+        p0 = n - 1;
+    }
+    int p2 = (p1 + 1) % n;
+    normal->tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
+    normal->normalize(Numeric::EPSILON_FLOAT);
+    int index = normal->dominantCoordinate();
+
+    Vector2D q[MAXIMUM_FACE_VERTICES + 1];
+    for ( int i = 0; i < n; i++ ) {
+        vectorProject(q[i], *(v[i]->point), ((CoordinateAxis)(index)));
+    }
+
+    int good;
+    int corners = n;
+    Vector3D nn;
+
+    p0 = -1;
+    while ( corners >= 3 ) {
+        int start = p0;
+        double d;
+        double a = 0.0;
+
+        do {
+            p0 = (p0 + 1) % n;
+            while ( out[p0] ) {
+                p0 = (p0 + 1) % n;
+            }
+
+            p1 = (p0 + 1) % n;
+            while ( out[p1] ) {
+                p1 = (p1 + 1) % n;
+            }
+
+            p2 = (p1 + 1) % n;
+            while ( out[p2] ) {
+                p2 = (p2 + 1) % n;
+            }
+
+            if ( p0 == start ) {
+                break;
+            }
+
+            nn.tripleCrossProduct(*(v[p0]->point), *(v[p1]->point), *(v[p2]->point));
+            a = nn.norm();
+            nn.inverseScaledCopy(((float)(a)), nn, Numeric::EPSILON_FLOAT);
+            d = nn.distance(*normal);
+
+            good = true;
+            if ( d <= 1.0 ) {
+                for ( int i = 0; i < n && good; i++ ) {
+                    if ( out[i] || v[i] == v[p0] || v[i] == v[p1] || v[i] == v[p2] ) {
+                        continue;
+                    }
+
+                    if ( pointInsideTriangle2D(&q[i], &q[p0], &q[p1], &q[p2]) ) {
+                        good = false;
+                    }
+
+                    int j = (i + 1) % n;
+                    if ( out[j] || v[j] == v[p0] ) {
+                        continue;
+                    }
+
+                    if ( segmentsIntersect2D(&q[p2], &q[p0], &q[i], &q[j]) ) {
+                        good = false;
+                    }
+                }
+            }
+        } while ( d > 1.0 || !good );
+
+        if ( p0 == start ) {
+            MgfEntityControl::doError("mis-built polygonal face", context);
+            return; // Don't stop parsing the input however
+        }
+
+        if ( Math::abs(a) > Numeric::EPSILON ) {
+            // Avoid degenerate faces
+            Patch *face = newFace(v[p0], v[p1], v[p2], NULL, context);
+            if ( !context->currentMaterial->isSided() && face != NULL ) {
+                Patch *twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], NULL, context);
+                face->twin = twin;
+                if ( twin != NULL ) {
+                    twin->twin = face;
+                }
+            }
+        }
+
+        out[p1] = true;
+        corners--;
+    }
+}
+
+int
+MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseRuntimeContext *context) {
+    if ( argc < 4 ) {
+        MgfEntityControl::doError("too few vertices in face", context);
+        return MGF_OK; // Don't stop parsing the input
+    }
+
+    if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
+        MgfEntityControl::doWarning(
+            "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf",
+            context);
+        return MGF_OK; // No reason to stop parsing the input
+    }
+
+    if ( !context->inComplex && MgfMaterialEntitySupport::mgfMaterialChanged(context->currentMaterial, context) ) {
+        if ( context->inSurface ) {
+            MgfObjectNameSupport::mgfObjectSurfaceDone(context);
+        }
+        MgfObjectNameSupport::mgfObjectNewSurface(context);
+        MgfMaterialEntitySupport::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
+    }
+
+    Vertex *v[MAXIMUM_FACE_VERTICES + 1];
+    Vertex *backV[MAXIMUM_FACE_VERTICES + 1];
+
+    for ( int i = 0; i < argc - 1; i++ ) {
+        v[i] = getVertex(argv[i + 1], context);
+        if ( v[i] == NULL ) {
+            // This is however a reason to stop parsing the input
+            return MGF_ERROR_UNDEFINED_REFERENCE;
+        }
+        backV[i] = NULL;
+        if ( !context->currentMaterial->isSided() )
+            backV[i] = getBackFaceVertex(v[i], context);
+    }
+
+    Vector3D normal;
+
+    if ( !faceNormal(argc - 1, v, &normal) ) {
+        MgfEntityControl::doWarning("degenerate face", context);
+        return MGF_OK; // Just ignore the generated face
+    }
+    if ( !context->currentMaterial->isSided() ) {
+        Vector3D backNormal;
+        backNormal.scaledCopy(-1.0, normal);
+    }
+
+    int errorCode = MGF_OK;
+
+    Patch *face;
+    Patch *twin;
+
+    if ( argc == 4 ) {
+        // Triangles
+        face = newFace(v[0], v[1], v[2], NULL, context);
+        if ( !context->currentMaterial->isSided() && face != NULL ) {
+            twin = newFace(backV[2], backV[1], backV[0], NULL, context);
+            face->twin = twin;
+            if ( twin != NULL ) {
+                twin->twin = face;
+            }
+        }
+    } else if ( argc == 5 ) {
+        // Quadrilaterals
+        if ( context->inComplex || faceIsConvex(argc - 1, v, &normal) ) {
+            face = newFace(v[0], v[1], v[2], v[3], context);
+            if ( !context->currentMaterial->isSided() && face != NULL ) {
+                twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
+                face->twin = twin;
+                if ( twin != NULL ) {
+                    twin->twin = face;
+                }
+            }
+        } else {
+            doComplexFace(argc - 1, v, &normal, backV, context);
+            errorCode = MGF_OK;
+        }
+    } else {
+        // More than 4 vertices
+        doComplexFace(argc - 1, v, &normal, backV, context);
+        errorCode = MGF_OK;
+    }
+
+    return errorCode;
+}
+
+int
+MgfVertexFaceEntitySupport::handleSurfaceEntity(int argc, const char **argv, ParseRuntimeContext *context) {
+    if ( context->inComplex ) {
+        // mgfEntitySphere calls mgfEntityCone
+        return doDiscreteConic(argc, argv, context);
+    } else {
+        context->inComplex = true;
+        if ( context->inSurface ) {
+            MgfObjectNameSupport::mgfObjectSurfaceDone(context);
+        }
+        MgfObjectNameSupport::mgfObjectNewSurface(context);
+        MgfMaterialEntitySupport::mgfGetCurrentMaterial(&context->currentMaterial, context->singleSided, context);
+
+        int errcode = doDiscreteConic(argc, argv, context);
+
+        MgfObjectNameSupport::mgfObjectSurfaceDone(context);
+        context->inComplex = false;
+
+        return errcode;
+    }
+}
+
+/**
+Eliminates the holes by creating seems to the nearest vertex
+on another contour. Creates an argument list for the face
+without hole entity handling routine MgfVertexFaceEntitySupport::handleFaceEntity() and calls it
+*/
+int
+MgfVertexFaceEntitySupport::handleFaceWithHolesEntity(int argc, const char **argv, ParseRuntimeContext *context) {
+    Vector3Dd v[MAXIMUM_FACE_VERTICES + 1]; // v[i] = location of vertex argv[i]
+    const char *argumentsToFaceWithoutHoles[MAXIMUM_FACE_VERTICES + 1]; // Arguments to be passed to the face
+                                            // without hole entity handler
+    char copied[MAXIMUM_FACE_VERTICES + 1]; // copied[i] is 1 or 0 indicating if
+                                       // the vertex argv[i] has been copied to new contour
+    int newContour[MAXIMUM_FACE_VERTICES] = {0}; // newContour[i] will contain the i-th
+                                             // vertex of the face with eliminated holes
+    int i;
+
+    if ( argc - 1 > MAXIMUM_FACE_VERTICES ) {
+        MgfEntityControl::doWarning(
+                "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
+        return MGF_OK; // No reason to stop parsing the input
+    }
+
+    // Get the location of the vertices: the location of the vertex
+    // argv[i] is kept in v[i] (i=1 ... argc-1, and argv[i] not a contour
+    // separator)
+    for ( i = 1; i < argc; i++ ) {
+        if ( *argv[i] == '-' ) {
+            // Skip contour separators
+            continue;
+        }
+
+        const VertexContext *vp = MgfVertexFaceEntitySupport::getNamedVertex(argv[i], context);
+        if ( !vp ) {
+            // Undefined vertex
+            return MGF_ERROR_UNDEFINED_REFERENCE;
+        }
+        MgfTransformationSupport::mgfTransformPoint(&v[i], &vp->p, context); // Transform with the current transform
+
+        copied[i] = false; // Vertex not yet copied to argumentsToFaceWithoutHoles
+    }
+
+    // Copy the outer contour
+    int numberOfVerticesInNewContour = 0;
+    for ( i = 1; i < argc && *argv[i] != '-'; i++ ) {
+        newContour[numberOfVerticesInNewContour++] = i;
+        copied[i] = true;
+    }
+
+    // Find next not yet copied vertex in argv (i++ should suffice, but
+    // this way we can also skip multiple "-"s ...)
+    for ( ; i < argc; i++ ) {
+        if ( *argv[i] == '-' ) {
+            // Skip contour separators
+            continue;
+        }
+        if ( !copied[i] ) {
+            // Not yet copied vertex encountered
+            break;
+        }
+    }
+
+    while ( i < argc ) {
+        // First i vertex of a hole that is not yet eliminated
+        int nearestOther;
+        int first;
+        int last;
+        int j;
+        int k;
+
+        // Find the not yet copied vertex that is nearest to the already
+        // copied ones
+        int nearestCopied = nearestOther = 0;
+        double minimumDistance = Numeric::HUGE_DOUBLE_VALUE;
+        for ( j = i; j < argc; j++ ) {
+            if ( *argv[j] == '-' || copied[j] ) {
+                // Contour separator or already copied vertex
+                continue;
+            }
+
+            for ( k = 0; k < numberOfVerticesInNewContour; k++ ) {
+                int index = newContour[k];
+                double d = v[j].distanceSquared(&v[index]);
+                if ( d < minimumDistance ) {
+                    minimumDistance = d;
+                    nearestCopied = k;
+                    nearestOther = j;
+                }
+            }
+        }
+
+        // Find first vertex of this nearest contour
+        for ( first = nearestOther; *argv[first] != '-'; first-- ) {}
+        first++;
+
+        // Find last vertex in this nearest contour
+        for ( last = nearestOther; last < argc && *argv[last] != '-'; last++ ) {}
+        last--;
+
+        // Number of vertices in the nearest contour
+        int num = last - first + 1;
+
+        // Create num+2 extra vertices in new contour
+        if ( numberOfVerticesInNewContour + num + 2 > MAXIMUM_FACE_VERTICES ) {
+            MgfEntityControl::doWarning(
+                    "too many vertices in face. Recompile the program with larger MAXIMUM_FACE_VERTICES constant in read mgf", context);
+            return MGF_OK; // No reason to stop parsing the input
+        }
+
+        // Shift the elements in new contour starting at position nearestCopied
+        // num+2 places further. Vertex new contour[nearestCopied] will be connected
+        // to vertex nearestOther ... last, first ... nearestOther and
+        // back to newContour[nearestCopied]
+        for ( k = numberOfVerticesInNewContour - 1; k >= nearestCopied; k-- ) {
+            newContour[k + num + 2] = newContour[k];
+        }
+        numberOfVerticesInNewContour += num + 2;
+
+        // Insert the vertices of the nearest contour (closing the loop)
+        k = nearestCopied + 1;
+        for ( j = nearestOther; j <= last; j++ ) {
+            newContour[k++] = j;
+            copied[j] = true;
+        }
+        for ( j = first; j <= nearestOther && j <= MAXIMUM_FACE_VERTICES; j++ ) {
+            newContour[k++] = j;
+            copied[j] = true;
+        }
+
+        // Find next not yet copied vertex in argv
+        for ( ; i < argc; i++ ) {
+            if ( *argv[i] == '-' ) {
+                continue;
+            }
+            // Skip contour separators
+            if ( !copied[i] ) {
+                // Not yet copied vertex encountered
+                break;
+            }
+        }
+    }
+
+    // Build an argument list for the new polygon without holes
+    argumentsToFaceWithoutHoles[0] = "f";
+    for ( i = 0; i < numberOfVerticesInNewContour; i++ ) {
+        argumentsToFaceWithoutHoles[i + 1] = argv[newContour[i]];
+    }
+
+    // And handle the face without holes
+    return MgfVertexFaceEntitySupport::handleFaceEntity(numberOfVerticesInNewContour + 1, argumentsToFaceWithoutHoles, context);
+}
+
+/**
+Handle a vertex entity
+*/
+int
+MgfVertexFaceEntitySupport::handleVertexEntity(int ac, const char **av, ParseRuntimeContext *context) {
+    LookUpEntity<char *> *lp;
+    VertexContext *&currentVertexContext = context->vertexRepository.currentVertex;
+    LookUpTable<char *> *vertexLookUpTable = context->vertexRepository.vertexLookUpTable;
+
+    switch ( MgfEntityControl::mgfEntity(av[0], context) ) {
+        case VERTEX:
+            // get/set vertex context
+            if ( ac > 4 ) {
+                return MGF_ERRR_WRNG_NUM_O_ARGMN;
+            }
+            if ( ac == 1 ) {
+                // Set unnamed vertex context
+                context->vertexRepository.unNamedVertexContext = context->vertexRepository.defaultVertexContext;
+                currentVertexContext = &context->vertexRepository.unNamedVertexContext;
+                context->currentVertexName = NULL;
+                return MGF_OK;
+            }
+            if ( !TokenValidationContext::isName(av[1]) ) {
+                return MGF_ERRR_ILLGL_ARGMN_VAL;
+            }
+            lp = vertexLookUpTable->lookUpFind(av[1]);
+            // Lookup context
+            if ( lp == NULL ) {
+                return MGF_ERROR_OUT_OF_MEMORY;
+            }
+            context->currentVertexName = lp->key;
+            currentVertexContext = ((VertexContext *)(lp->data));
+            if ( ac == 2 ) {
+                // Re-establish previous context
+                if ( currentVertexContext == NULL) {
+                    return MGF_ERROR_UNDEFINED_REFERENCE;
+                }
+                return MGF_OK;
+            }
+            if ( av[2][0] != '=' || av[2][1] ) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            if ( currentVertexContext == NULL  ) {
+                // Create new vertex context
+                context->currentVertexName = new char[strlen(av[1]) + 1];
+                if ( context->currentVertexName == NULL ) {
+                    return MGF_ERROR_OUT_OF_MEMORY;
+                }
+                strcpy(context->currentVertexName, av[1]);
+                lp->key = context->currentVertexName;
+                currentVertexContext = ((VertexContext *)(new char[sizeof(VertexContext)]));
+                if ( currentVertexContext == NULL ) {
+                    return MGF_ERROR_OUT_OF_MEMORY;
+                }
+                lp->data = ((char *)(currentVertexContext));
+            }
+            if ( ac == 3 ) {
+                // Use default template
+                *currentVertexContext = context->vertexRepository.defaultVertexContext;
+                return MGF_OK;
+            }
+            lp = vertexLookUpTable->lookUpFind(av[3]);
+            // Lookup template
+            if ( lp == NULL) {
+                return MGF_ERROR_OUT_OF_MEMORY;
+            }
+            if ( lp->data == NULL) {
+                return MGF_ERROR_UNDEFINED_REFERENCE;
+            }
+            *currentVertexContext = *((VertexContext *)(lp->data));
+            currentVertexContext->clock++;
+            return MGF_OK;
+        case MGF_POINT:
+            // Set point
+            if ( ac != 4 ) {
+                return MGF_ERRR_WRNG_NUM_O_ARGMN;
+            }
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            currentVertexContext->p.x = strtod(av[1], NULL);
+            currentVertexContext->p.y = strtod(av[2], NULL);
+            currentVertexContext->p.z = strtod(av[3], NULL);
+            currentVertexContext->clock++;
+            return MGF_OK;
+        case MGF_NORMAL:
+            // Set normal
+            if ( ac != 4 ) {
+                return MGF_ERRR_WRNG_NUM_O_ARGMN;
+            }
+            if ( !TokenValidationContext::isFloat(av[1]) || !TokenValidationContext::isFloat(av[2]) || !TokenValidationContext::isFloat(av[3]) ) {
+                return MGF_ERROR_ARGUMENT_TYPE;
+            }
+            currentVertexContext->n.x = strtod(av[1], NULL);
+            currentVertexContext->n.y = strtod(av[2], NULL);
+            currentVertexContext->n.z = strtod(av[3], NULL);
+            currentVertexContext->n.normalizeAndGivePreviousNorm(Numeric::EPSILON);
+            currentVertexContext->clock++;
+            return MGF_OK;
+        default:
+            break;
+    }
+    return MGF_ERROR_UNKNOWN_ENTITY;
+}
+
+/**
+Get a named vertex
+*/
+VertexContext *
+MgfVertexFaceEntitySupport::getNamedVertex(const char *name, ParseRuntimeContext *context) {
+    LookUpEntity<char *> *lp = context->vertexRepository.vertexLookUpTable->lookUpFind(name);
+
+    if ( lp == NULL ) {
+        return NULL;
+    }
+    return ((VertexContext *)(lp->data));
+}
+
+void
+MgfVertexFaceEntitySupport::initGeometryContextTables(ParseRuntimeContext *context) {
+    context->vertexRepository.reset();
+    context->currentVertexName = NULL;
+}

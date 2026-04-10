@@ -1,0 +1,42 @@
+#ifndef __MGF_HANDLER_TRANSFORM__
+#define __MGF_HANDLER_TRANSFORM__
+
+#include "common/linealAlgebra/Matrix4x4d.h"
+#include "common/linealAlgebra/Vector3Dd.h"
+#include "io/context/ParseRuntimeContext.h"
+#include "io/context/TransformSequenceContext.h"
+#include "io/context/TransformContext.h"
+#include "io/context/TransformStackContext.h"
+
+/**
+The transformation handler should do most of the work that needs
+doing. Just pass it any xf entities, then use the associated
+functions to transform and translate positions, transform vectors
+(without translation), rotate vectors (without scaling) and scale
+values appropriately.
+
+The routines mgfTransformPoint and mgfTransformVector takes two
+3-D vectors (which may be identical), transforms the second and
+puts the result into the first.
+*/
+
+class MgfTransformationSupport {
+  public:
+    static int handleTransformationEntity(int ac, const char **av, ParseRuntimeContext *context);
+    static void mgfTransformPoint(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context); // Transform point
+    static void mgfTransformVector(Vector3Dd *v1, const Vector3Dd *v2, const ParseRuntimeContext *context); // Transform vector
+    static void mgfTransformFreeMemory(ParseRuntimeContext *context);
+
+  private:
+    static long computeUniqueId(const Matrix4x4d *xfm);
+    static double d2r(double a);
+    static int checkForBadArguments(int ac, char **av, const char *fl);
+    static bool checkArgument(int a, const char *l, int ac, char **av, int i);
+    static int transformName(const TransformSequenceContext *ap, ParseRuntimeContext *context);
+    static TransformStackContext *newTransform(int ac, const char **av, ParseRuntimeContext *context);
+    static void finish(int count, TransformContext *ret, const Matrix4x4d *transformMatrix, double scaTransform);
+    static int xf(TransformContext *ret, int ac, char **av);
+    static bool compactTransformArguments(ParseRuntimeContext *context, const TransformStackContext *stackContext);
+};
+
+#endif

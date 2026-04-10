@@ -1,0 +1,37 @@
+#ifndef __BINARY_MODEL_READER_CLEANUP__
+#define __BINARY_MODEL_READER_CLEANUP__
+
+#include "java/util/ArrayList.h"
+#include "common/linealAlgebra/Vector3D.h"
+#include "io/bin/reader/BinaryModelGeometryRecordData.h"
+#include "io/bin/reader/BinaryModelSnapshotRecordData.h"
+#include "io/bin/reader/BinaryModelVertexRecordData.h"
+#include "io/context/ColorContext.h"
+#include "io/context/ParseSnapshotContext.h"
+#include "io/context/ReaderContext.h"
+#include "io/context/TransformSequenceContext.h"
+#include "io/context/TransformStackContext.h"
+#include "material/Material.h"
+#include "skin/Geometry.h"
+#include "skin/Patch.h"
+#include "skin/Vertex.h"
+
+class BinaryModelReadCleanup {
+  public:
+    static void cleanupPartialModel(
+        ArrayList<Vector3D *> &vectors,
+        ArrayList<Vertex *> &vertices,
+        ArrayList<Patch *> &patches,
+        ArrayList<Material *> &materials,
+        ArrayList<Geometry *> &geometries,
+        ArrayList<ColorContext *> &colorContexts,
+        ArrayList<ReaderContext *> &readerContexts,
+        ArrayList<TransformSequenceContext *> &transformArrays,
+        ArrayList<TransformStackContext *> &transformContexts,
+        ParseSnapshotContext *model);
+    static void releaseVertexRecordIndexLists(ArrayList<BinaryModelVertexRecordData> &vertexRecords);
+    static void releaseGeometryRecordIndexLists(ArrayList<BinaryModelGeometryRecordData> &geometryRecords);
+    static void releaseModelRecordIndexLists(BinaryModelSnapshotRecordData *modelRecord);
+};
+
+#endif
