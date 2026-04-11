@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT_DIR"
+
+mkdir -p output
+
+node scripts/runNodeProgram.mjs --build --entry dist/vsdk/toolkit/app/Main.js -- \
+  ../etc/office2/office2.mgf \
+  -obf output/05_office2.bin \
+  -raytracing-method none -iterations 11 -radiance-method Galerkin \
+  -radiance-model-savefile output/05_office2.wrl \
+  -eyepoint 1.43 5.89 2 -center 4.11 -3.7 0.7 \
+  -raycast -radiance-image-savefile ./output/05_office2.ppm \
+  "$@"

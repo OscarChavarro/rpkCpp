@@ -47,6 +47,9 @@ output/*
 cpp/output/*
 java/output/*
 turboc/output/*
+typescript/node_modules
+typescript/output/*
+typescript/package-lock.json
 
 # gprof profiling artifacts
 gmon.out

@@ -413,6 +413,8 @@ Returns true a component was chosen, false if absorbed
         byte flags)
     {
         boolean ok;
+        double[] x1Holder = new double[] {x1};
+        double[] x2Holder = new double[] {x2};
 
         // Sample G|D and use m_photonMap for importance sampling if possible.
         if ( m_photonMap == null ) {
@@ -426,18 +428,17 @@ Returns true a component was chosen, false if absorbed
         // -- Currently NEVER reached!
 
         // Choose G or D
-        PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
+        final PhongBidirectionalScatteringDistributionFunction bsdf = thisNode.m_useBsdf;
         boolean[] dChosen = new boolean[1];
         float[] pdfChoice = new float[1];
 
         // Choose between D or G scattering
-        double[] x1a = new double[] {x1};
         if ( !chooseComponent((byte)(BsdfComponent.BRDF_DIFFUSE_COMPONENT & flags),
                           (byte)(BsdfComponent.BRDF_GLOSSY_COMPONENT & flags),
                           bsdf,
                           thisNode.m_hit,
                           false,
-                          x1a,
+                          x1Holder,
                           pdfChoice,
                           dChosen) ) {
             return false;
@@ -461,8 +462,7 @@ Returns true a component was chosen, false if absorbed
             return false;
         }
 
-        double[] x2a = new double[] {x2};
-        double photonMapPdf = m_photonMap.sample(thisNode.m_hit.getPoint(), x1a, x2a, coord, flags, glossy_exponent);
+        double photonMapPdf = m_photonMap.sample(thisNode.m_hit.getPoint(), x1Holder, x2Holder, coord, flags, glossy_exponent);
 
         // Do real sampling
         ok = super.sample(
@@ -472,8 +472,8 @@ Returns true a component was chosen, false if absorbed
             prevNode,
             thisNode,
             newNode,
-            x1a[0],
-            x2a[0],
+            x1Holder[0],
+            x2Holder[0],
             false,
             flags);
 

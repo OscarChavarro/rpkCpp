@@ -1,0 +1,14 @@
+{
+  "name": "rpk-typescript",
+  "version": "0.6.66",
+  "private": true,
+  "description": "TypeScript implementation of RPK",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "run": "node scripts/runNodeProgram.mjs",
+    "run:help": "node scripts/runNodeProgram.mjs --help"
+  },
+  "dependencies": {
+    "typescript": "^6.0.2"
+  }
+}

@@ -1,0 +1,445 @@
+{
+  "missingTsClasses": [],
+  "classNameMismatch": [],
+  "classKindMismatch": [],
+  "fieldMismatch": [],
+  "methodMissingInTs": [],
+  "methodExtraInTs": [
+    {
+      "class": "vsdk/toolkit/app/LuminanceArea",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/EnumAppOptions",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupBatch",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupBidirectionalRaytracing",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupCamera",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupPhotonMap",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupRadianceMethod",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupRayMatter",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupRaytracing",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupRaytracingMethod",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupRender",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/options/OptionsGroupStochasticRaytracing",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/app/Raytrace",
+      "signature": "toArrayList"
+    },
+    {
+      "class": "vsdk/toolkit/common/commandLineOptions/DefaultParser",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/common/commandLineOptions/DefaultParser",
+      "signature": "parseInteger"
+    },
+    {
+      "class": "vsdk/toolkit/common/commandLineOptions/DefaultParser",
+      "signature": "parseNumber"
+    },
+    {
+      "class": "vsdk/toolkit/common/commandLineOptions/OptionParser",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/common/dataStructures/BalancedKDTreeNode",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/common/dataStructures/KDTreeNode",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/common/linealAlgebra/Matrix4x4",
+      "signature": "createZeroMatrix"
+    },
+    {
+      "class": "vsdk/toolkit/common/VSDK",
+      "signature": "classNameOf"
+    },
+    {
+      "class": "vsdk/toolkit/galerkin/GalerkinBasis",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/galerkin/GalerkinRadianceMethod",
+      "signature": "formatArgument"
+    },
+    {
+      "class": "vsdk/toolkit/galerkin/GalerkinRadianceMethod",
+      "signature": "formatToString"
+    },
+    {
+      "class": "vsdk/toolkit/galerkin/ShaftPlane",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/reader/BinaryModelDeserializer",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/reader/BinaryModelReadPrimitives",
+      "signature": "bytesAsDataView"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/reader/BinaryModelReadPrimitives",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/reader/BinaryModelReadPrimitives",
+      "signature": "int64BytesToNumberLE"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/reader/BinaryModelReadPrimitives",
+      "signature": "readFully"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/writer/BinaryModelSerializationGraph",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/bin/writer/BinaryModelSerializer",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/context/FilePositionContext",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/context/TokenValidationContext",
+      "signature": "skipIntFrom"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/DkColor",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/DkColor",
+      "signature": "javaByte"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/DkColor",
+      "signature": "javaIntCast"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/ImageOutputHandle",
+      "signature": "extensionMatches"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/ImageOutputHandle",
+      "signature": "javaByte"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/ImageOutputHandle",
+      "signature": "javaIntCast"
+    },
+    {
+      "class": "vsdk/toolkit/io/image/PicOutputHandle",
+      "signature": "formatCompileDate"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfColorEntitySupport",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfConeEntityTessellator",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfCylinderEntityExpander",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfEntityControl",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfFaceWithHolesEntityExpander",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfObjectNameSupport",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfParserLoader",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfPrismEntityTessellator",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfRingEntityTessellator",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfSphereEntityExpander",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfTessellationMath",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfTorusEntityExpander",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfTransformationSupport",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/mgf/MgfVertexFaceEntitySupport",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/PersistenceElement",
+      "signature": "getByte"
+    },
+    {
+      "class": "vsdk/toolkit/io/PersistenceElement",
+      "signature": "streamAvailable"
+    },
+    {
+      "class": "vsdk/toolkit/io/PersistenceElement",
+      "signature": "toSignedByte"
+    },
+    {
+      "class": "vsdk/toolkit/io/wrapper/PipeInputStream",
+      "signature": "readRange"
+    },
+    {
+      "class": "vsdk/toolkit/io/wrapper/Vector3DPrinter",
+      "signature": "toGeneralNumber"
+    },
+    {
+      "class": "vsdk/toolkit/io/wrl/VrmlWriter",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/io/wrl/VrmlWriter",
+      "signature": "formatArgument"
+    },
+    {
+      "class": "vsdk/toolkit/io/wrl/VrmlWriter",
+      "signature": "formatToString"
+    },
+    {
+      "class": "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction",
+      "signature": "setOutInt"
+    },
+    {
+      "class": "vsdk/toolkit/material/RefractionIndex",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/QuadCubatureRule",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Faure",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Faure",
+      "signature": "create2DIntArray"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Faure",
+      "signature": "create3DIntArray"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Halton",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter31",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter31",
+      "signature": "mapSample"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Niederreiter63",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/NiederreiterCore",
+      "signature": "mask"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/ScrambledHalton",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Sobol",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/quasiMonteCarlo/Sobol",
+      "signature": "create2DArray"
+    },
+    {
+      "class": "vsdk/toolkit/numericalAnalysis/TriangleCubatureRule",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer",
+      "signature": "formatWithInt"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightInfo",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/bidirectionalRaytracing/SparConfig",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/photonMap/DiscreteSampling",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/photonMap/PhotonKDTree",
+      "signature": "sqrDistance3DPhoton"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/raytracing/PixelSampler",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/raytracing/SamplerConfig",
+      "signature": "tracePathDefault"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/ApproximationTypeDescription",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad",
+      "signature": "Basisquadmcrad_stochasticRadiosityCreateQuadBasis"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/Basismcrad",
+      "signature": "create3DArray"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/Basistrimcrad",
+      "signature": "create3DArray"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/GalerkinBasis",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/Link",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkRadianceMethod",
+      "signature": "toArrayList"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/ScatterInfo",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod",
+      "signature": "toArrayList"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracer",
+      "signature": "toArrayList"
+    },
+    {
+      "class": "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRaytracerCallbackData",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/Canvas",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/OctreeChild",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/Potential",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/RadianceImageExporter",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/RenderHook",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/RenderHookList",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/sgl/Poly",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/sgl/Poly",
+      "signature": "longCast"
+    },
+    {
+      "class": "vsdk/toolkit/render/sgl/PolygonVertex",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/sgl/Window",
+      "signature": "constructor"
+    },
+    {
+      "class": "vsdk/toolkit/render/SoftIds",
+      "signature": "constructor"
+    }
+  ]
+}
