@@ -485,11 +485,11 @@ Shaft::shaftPatchTest(Patch *patch) {
 
     // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
     int someOut = false;
-    for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
         inAll[j] = true;
         tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
         tMax[j] = 1.0;
-        pTol[j] = patch->vertex[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
+        pTol[j] = patch->getVertices()[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
     }
 
     for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
@@ -503,8 +503,8 @@ Shaft::shaftPatchTest(Patch *patch) {
 
         planeNormal.set(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
 
-        for ( int j = 0; j < patch->numberOfVertices; j++ ) {
-            e[j] = planeNormal.dotProduct(*patch->vertex[j]->point) + localPlane.d;
+        for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+            e[j] = planeNormal.dotProduct(*patch->getVertices()[j]->point) + localPlane.d;
             double tolerance = java::Math::abs(localPlane.d) * Numeric::EPSILON + pTol[j];
             side[j] = ShaftPlanePosition::COPLANAR;
             if ( e[j] > tolerance ) {
@@ -530,9 +530,9 @@ Shaft::shaftPatchTest(Patch *patch) {
 			 // if it is inside *all* planes, but it is outside
 			 // as soon it is outside *one* plane
 
-            for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+            for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
                 // Reduce segment of edge that can lay within the shaft
-                int k = (j + 1) % patch->numberOfVertices;
+                int k = (j + 1) % patch->getNumberOfVertices();
                 if ( side[j] != side[k] ) {
                     if ( side[k] == ShaftPlanePosition::OUTSIDE ) {
                         // Decrease tMax[j]
@@ -581,7 +581,7 @@ Shaft::shaftPatchTest(Patch *patch) {
         return ShaftPlanePosition::INSIDE;
     }
 
-    for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
         if ( inAll[j] ) {
             // At least one patch vertex is really inside the shaft and
             return ShaftPlanePosition::OVERLAP;
@@ -591,7 +591,7 @@ Shaft::shaftPatchTest(Patch *patch) {
 
     // All vertices are outside or on the shaft. Check whether there are edges
     // intersecting the shaft
-    for ( int j = 0; j < patch->numberOfVertices; j++ ) {
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
         if ( tMin[j] + Numeric::EPSILON < tMax[j] - Numeric::EPSILON ) {
             return ShaftPlanePosition::OVERLAP;
         }
@@ -655,11 +655,11 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
             continue;
         }
 
-        if ( patch->boundingBox == nullptr ) {
+        if ( patch->getBoundingBox() == nullptr ) {
             patch->computeBoundingBox();
         }
 
-        ShaftPlanePosition boundingBoxSide = boundingBoxTest(patch->boundingBox);
+        ShaftPlanePosition boundingBoxSide = boundingBoxTest(patch->getBoundingBox());
         // Patch bounding box is inside the shaft, or overlaps with it. If it
         // overlaps, do a more expensive, but definitive, test to see whether
         // the patch itself is inside, outside or overlapping the shaft

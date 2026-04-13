@@ -72,14 +72,14 @@ GlutDebugPatchHierarchy::selectedPatchRoot(const Scene *scene, int patchIndex) {
     }
 
     const Patch *patch = scene->patchList->get(patchIndex);
-    if ( patch == nullptr || patch->radianceData == nullptr ) {
+    if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
         return nullptr;
     }
-    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
         return nullptr;
     }
 
-    return static_cast<const GalerkinElement *>(patch->radianceData);
+    return static_cast<const GalerkinElement *>(patch->getRadianceData());
 }
 
 int
@@ -136,10 +136,10 @@ GlutDebugPatchHierarchy::renderElementGray(
         if ( element->galerkinState != nullptr
              && element->galerkinState->useAmbientRadiance
              && element->patch != nullptr
-             && element->patch->radianceData != nullptr ) {
+             && element->patch->getRadianceData() != nullptr ) {
             ColorRgb ambient;
             ambient.scalarProduct(
-                element->patch->radianceData->Rd,
+                element->patch->getRadianceData()->Rd,
                 element->galerkinState->ambientRadiance);
             radianceSample.add(radianceSample, ambient);
         }
@@ -192,10 +192,10 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
         }
 
         const Patch *patch = scene->patchList->get(patchIndex);
-        if ( patch == nullptr || patch->radianceData == nullptr ) {
+        if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
             continue;
         }
-        if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
         }
 
@@ -227,7 +227,7 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
             }
         }
 
-        const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(patch->radianceData);
+        const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(patch->getRadianceData());
         renderElementGray(element, renderOptions);
     }
 }

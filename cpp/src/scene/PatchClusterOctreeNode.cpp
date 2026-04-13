@@ -101,8 +101,8 @@ PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
 
         BoundingBox patchBoundingBox{};
 
-        if ( patch->boundingBox != nullptr ) {
-            patchBoundingBox = *patch->boundingBox;
+        if ( patch->getBoundingBox() != nullptr ) {
+            patchBoundingBox = *patch->getBoundingBox();
         } else {
             patch->computeAndGetBoundingBox(&patchBoundingBox);
         }
@@ -128,7 +128,7 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(patchIndexOnParent);
-    const BoundingBox *patchBoundingBox = patch->boundingBox;
+    const BoundingBox *patchBoundingBox = patch->getBoundingBox();
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10.0f * Numeric::EPSILON_FLOAT;
@@ -262,7 +262,7 @@ PatchClusterOctreeNode::print(const int level) const {
     }
     java::System::out.printf("%ld patches: ", patches->size());
     for ( int i = 0; i < patches->size(); i++ ) {
-        java::System::out.printf("[%d]", patches->get(i)->id);
+        java::System::out.printf("[%d]", patches->get(i)->getId());
     }
     java::System::out.printf("\n");
     for ( int i = 0; i < 8; i++ ) {

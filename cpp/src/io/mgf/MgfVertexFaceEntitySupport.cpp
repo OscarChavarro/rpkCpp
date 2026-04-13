@@ -465,9 +465,9 @@ MgfVertexFaceEntitySupport::doComplexFace(int n, Vertex **v, Vector3D *normal, V
             Patch *face = newFace(v[p0], v[p1], v[p2], nullptr, context);
             if ( !context->currentMaterial->isSided() && face != nullptr ) {
                 Patch *twin = newFace(backVertex[p2], backVertex[p1], backVertex[p0], nullptr, context);
-                face->twin = twin;
+                face->setTwin(twin);
                 if ( twin != nullptr ) {
-                    twin->twin = face;
+                    twin->setTwin(face);
                 }
             }
         }
@@ -534,9 +534,9 @@ MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseR
         face = newFace(v[0], v[1], v[2], nullptr, context);
         if ( !context->currentMaterial->isSided() && face != nullptr ) {
             twin = newFace(backV[2], backV[1], backV[0], nullptr, context);
-            face->twin = twin;
+            face->setTwin(twin);
             if ( twin != nullptr ) {
-                twin->twin = face;
+                twin->setTwin(face);
             }
         }
     } else if ( argc == 5 ) {
@@ -545,9 +545,9 @@ MgfVertexFaceEntitySupport::handleFaceEntity(int argc, const char **argv, ParseR
             face = newFace(v[0], v[1], v[2], v[3], context);
             if ( !context->currentMaterial->isSided() && face != nullptr ) {
                 twin = newFace(backV[3], backV[2], backV[1], backV[0], context);
-                face->twin = twin;
+                face->setTwin(twin);
                 if ( twin != nullptr ) {
-                    twin->twin = face;
+                    twin->setTwin(face);
                 }
             }
         } else {

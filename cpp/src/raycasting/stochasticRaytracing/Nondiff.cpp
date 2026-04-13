@@ -32,7 +32,7 @@ Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, cons
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
         ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
-        double flux = M_PI * light->area * emittedRadiance.sumAbsComponents();
+        double flux = M_PI * light->getArea() * emittedRadiance.sumAbsComponents();
         totalFlux += flux;
         lights[i] = LightSourceTable(light, flux);
     }
@@ -50,7 +50,7 @@ void
 Nondiff::nextLightSample(const Patch *patch, double *zeta) {
     const double *xi = Sample4d::sample4D(static_cast<unsigned int>(McradP::topLevelStochasticRadiosityElement(patch)->rayIndex));
     McradP::topLevelStochasticRadiosityElement(patch)->rayIndex++;
-    if ( patch->numberOfVertices == 3 ) {
+    if ( patch->getNumberOfVertices() == 3 ) {
         double u = xi[0];
         double v = xi[1];
         Sample4d::foldSampleF(&u, &v);
@@ -108,7 +108,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
         double outCos = ray.direction.dotProduct(light->patch->getNormal());
         ColorRgb receivedRadiosity;
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
-        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)), rad);
+        receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
         McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);
         McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0].add(McradP::getTopLevelPatchUnShotRad(hit->getPatch())[0], receivedRadiosity);

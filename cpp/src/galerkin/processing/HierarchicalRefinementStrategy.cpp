@@ -285,7 +285,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
         rcvRho.setMonochrome(1.0);
         receiveArea = ClusterTraversalStrategy::receiverArea(interaction, galerkinState);
     } else {
-        rcvRho = interaction->receiverElement->patch->radianceData->Rd;
+        rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
         receiveArea = interaction->receiverElement->area;
     }
 
@@ -293,7 +293,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     if ( interaction->sourceElement->isCluster() ) {
         srcRho.setMonochrome(1.0f);
     } else {
-        srcRho = interaction->sourceElement->patch->radianceData->Rd;
+        srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
     }
 
     // Determine error estimate and error threshold
@@ -399,7 +399,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             if ( interaction->receiverElement->isCluster() ) {
                 rcvRho.setMonochrome(1.0f);
             } else {
-                rcvRho = interaction->receiverElement->patch->radianceData->Rd;
+                rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
             }
             interaction->sourceElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
@@ -407,7 +407,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             if ( interaction->sourceElement->isCluster() ) {
                 srcRho.setMonochrome(1.0f);
             } else {
-                srcRho = interaction->sourceElement->patch->radianceData->Rd;
+                srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
             }
             interaction->receiverElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
@@ -597,7 +597,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
         if ( !childElement->isCluster() ) {
             const Patch *thePatch = childElement->patch;
             if ( (receiverElement->isCluster()
-              && receiverElement->geometry->getBoundingBox().behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+              && receiverElement->geometry->getBoundingBox().behindPlane(&thePatch->getNormal(), thePatch->getPlaneConstant())) ||
                 (!receiverElement->isCluster() && !receiverElement->patch->facing(thePatch)) ) {
                 continue;
             }
@@ -650,7 +650,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
         if ( !child->isCluster() ) {
             const Patch *thePatch = child->patch;
             if ( (sourceElement->isCluster()
-               && sourceElement->geometry->getBoundingBox().behindPlane(&thePatch->normal, thePatch->planeConstant)) ||
+               && sourceElement->geometry->getBoundingBox().behindPlane(&thePatch->getNormal(), thePatch->getPlaneConstant())) ||
                 (!sourceElement->isCluster() && !sourceElement->patch->facing(thePatch)) ) {
                 continue;
             }

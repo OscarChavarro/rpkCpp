@@ -62,7 +62,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
         if ( mode & GalerkinElementRenderMode::FLAT ) {
             ColorRgb color{};
-            ColorRgb rho = element->patch->radianceData->Rd;
+            ColorRgb rho = element->patch->getRadianceData()->Rd;
 
             if ( element->galerkinState->useAmbientRadiance ) {
                 ColorRgb radVis;
@@ -89,7 +89,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             }
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgb reflectivity = element->patch->radianceData->Rd;
+                ColorRgb reflectivity = element->patch->getRadianceData()->Rd;
                 ColorRgb ambient;
 
                 ambient.scalarProduct(reflectivity, element->galerkinState->ambientRadiance);

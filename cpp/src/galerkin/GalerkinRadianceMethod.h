@@ -40,22 +40,22 @@ class GalerkinRadianceMethod final : public RadianceMethod {
 
     static inline ColorRgb
     galerkinGetRadiance(Patch *patch) {
-        return static_cast<GalerkinElement *>(patch->radianceData)->radiance[0];
+        return static_cast<GalerkinElement *>(patch->getRadianceData())->radiance[0];
     }
 
     static inline void
     galerkinSetRadiance(Patch *patch, ColorRgb value) {
-        static_cast<GalerkinElement *>(patch->radianceData)->radiance[0] = value;
+        static_cast<GalerkinElement *>(patch->getRadianceData())->radiance[0] = value;
     }
 
     static inline void
     galerkinSetPotential(Patch *patch, float value) {
-        static_cast<GalerkinElement *>(patch->radianceData)->potential = value;
+        static_cast<GalerkinElement *>(patch->getRadianceData())->potential = value;
     }
 
     static inline void
     galerkinSetUnShotPotential(Patch *patch, float value) {
-        static_cast<GalerkinElement *>(patch->radianceData)->unShotPotential = value;
+        static_cast<GalerkinElement *>(patch->getRadianceData())->unShotPotential = value;
     }
 
     static void galerkinDestroyClusterHierarchy(GalerkinElement *clusterElement);

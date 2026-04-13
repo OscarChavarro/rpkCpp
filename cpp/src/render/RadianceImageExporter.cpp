@@ -123,7 +123,7 @@ RadianceImageExporter::getRadianceAtPixel(
     double u;
     double v;
     patch->uv(&hitPoint, &u, &v);
-    RadianceImageExporter::clipUv(patch->numberOfVertices, &u, &v);
+    RadianceImageExporter::clipUv(patch->getNumberOfVertices(), &u, &v);
 
     const Vector3D eyeDirection(-rayDirection.x, -rayDirection.y, -rayDirection.z);
     return radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions);

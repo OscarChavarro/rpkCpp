@@ -22,8 +22,8 @@ ScratchRendererVisitor::visit(
         return;
     }
 
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        v[i] = *patch->vertex[i]->point;
+    for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
+        v[i] = *patch->getVertices()[i]->point;
     }
 
     if ( sglContext == nullptr ) {
@@ -31,5 +31,5 @@ ScratchRendererVisitor::visit(
     }
 
     sglContext->sglSetGalerkinElement(galerkinElement);
-    sglContext->sglPolygon(patch->numberOfVertices, v);
+    sglContext->sglPolygon(patch->getNumberOfVertices(), v);
 }

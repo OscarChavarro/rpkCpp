@@ -56,7 +56,7 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
                 info.emittedFlux = e.average();
             } else {
                 lightColor = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
-                info.emittedFlux = lightColor.average() * light->area;
+                info.emittedFlux = lightColor.average() * light->getArea();
             }
 
             totalFlux += info.emittedFlux;
@@ -152,7 +152,7 @@ LightList::evalPdfReal(Patch *light, const Vector3D */*point*/) const {
     color = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
 
     // Prob for choosing this light
-    pdf = color.average() * light->area / totalFlux;
+    pdf = color.average() * light->getArea() / totalFlux;
 
     return pdf;
 }
@@ -211,18 +211,18 @@ LightList::computeOneLightImportanceReal(
     double cosRayLight;
     double dist2;
 
-    while ( !done && tried <= light->numberOfVertices ) {
+    while ( !done && tried <= light->getNumberOfVertices() ) {
         // Choose a point on the patch according to 'tried'
 
         if ( tried == 0 ) {
             lightPoint = light->midPoint();
-            lightNormal = light->normal;
+            lightNormal = light->getNormal();
         } else {
-            lightPoint = *(light->vertex[tried - 1]->point);
-            if ( light->vertex[tried - 1]->normal != nullptr ) {
-                lightNormal = *(light->vertex[tried - 1]->normal);
+            lightPoint = *(light->getVertices()[tried - 1]->point);
+            if ( light->getVertices()[tried - 1]->normal != nullptr ) {
+                lightNormal = *(light->getVertices()[tried - 1]->normal);
             } else {
-                lightNormal = light->normal;
+                lightNormal = light->getNormal();
             }
         }
 

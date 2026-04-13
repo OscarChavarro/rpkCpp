@@ -44,7 +44,7 @@ sub-elements of the galerkinElement
 */
 void
 ClusterCreationStrategy::patchAddClusterChild(Patch *patch, GalerkinElement *galerkinElement) {
-    GalerkinElement *surfaceElement = static_cast<GalerkinElement *>(patch->radianceData);
+    GalerkinElement *surfaceElement = static_cast<GalerkinElement *>(patch->getRadianceData());
 
     if ( galerkinElement->irregularSubElements == nullptr ) {
         galerkinElement->irregularSubElements = new java::ArrayList<Element *>();

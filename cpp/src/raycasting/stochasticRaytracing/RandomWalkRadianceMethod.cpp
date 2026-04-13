@@ -128,7 +128,7 @@ Used as un-normalised stochasticJacobiProbability for mimicking global lines
 */
  double
 RandomWalkRadianceMethod::randomWalkRadiosityPatchArea(const Patch *P) {
-    return P->area;
+    return P->getArea();
 }
 
 /**
@@ -137,7 +137,7 @@ stochasticJacobiProbability proportional to power to be propagated
  double
 RandomWalkRadianceMethod::randomWalkRadiosityScalarSourcePower(const Patch *P) {
     ColorRgb radiance = McradP::topLevelStochasticRadiosityElement(P)->sourceRad;
-    return P->area * radiance.sumAbsComponents();
+    return P->getArea() * radiance.sumAbsComponents();
 }
 
 /**
@@ -254,7 +254,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
         w = randomWalkRadiosityScoreWeight(path, n);
 
         for ( int i = 0; i < McradP::getTopLevelPatchBasis(P)->size; i++ ) {
-            double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->area;
+            double dual = McradP::getTopLevelPatchBasis(P)->dualFunction[i](uin, vin) / P->getArea();
             McradP::getTopLevelPatchReceivedRad(P)[i].addScaled(
                 McradP::getTopLevelPatchReceivedRad(P)[i],
                 static_cast<float>(w * dual / static_cast<double>(nr_paths)),
@@ -262,7 +262,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
 
             if ( !StochasticRelaxation::activeState().continuousRandomWalk ) {
                 double basf = McradP::getTopLevelPatchBasis(P)->function[i](uOut, vOut);
-                r += dual * P->area * basf;
+                r += dual * P->getArea() * basf;
             }
         }
 

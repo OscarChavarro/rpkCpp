@@ -190,26 +190,26 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
 void
 Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions) {
     Opengl::openGlRenderSetColor(&patch->getColor(), renderOptions);
-    switch ( patch->numberOfVertices ) {
+    switch ( patch->getNumberOfVertices() ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[3]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[3]->point));
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-                glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[i]->point));
+            for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
+                glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[i]->point));
             }
             glEnd();
     }
@@ -217,34 +217,34 @@ Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOpt
 
 void
 Opengl::openGlRenderPatchSmooth(const Patch *patch, const RenderOptions *renderOptions) {
-    switch ( patch->numberOfVertices ) {
+    switch ( patch->getNumberOfVertices() ) {
         case 3:
             glBegin(GL_TRIANGLES);
-            Opengl::openGlRenderSetColor(&patch->vertex[0]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            Opengl::openGlRenderSetColor(&patch->vertex[1]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            Opengl::openGlRenderSetColor(&patch->vertex[2]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[0]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[1]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[2]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
             glEnd();
             break;
         case 4:
             glBegin(GL_QUADS);
-            Opengl::openGlRenderSetColor(&patch->vertex[0]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[0]->point));
-            Opengl::openGlRenderSetColor(&patch->vertex[1]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[1]->point));
-            Opengl::openGlRenderSetColor(&patch->vertex[2]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[2]->point));
-            Opengl::openGlRenderSetColor(&patch->vertex[3]->color, renderOptions);
-            glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[3]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[0]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[0]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[1]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[1]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[2]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[2]->point));
+            Opengl::openGlRenderSetColor(&patch->getVertices()[3]->color, renderOptions);
+            glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[3]->point));
             glEnd();
             break;
         default:
             glBegin(GL_POLYGON);
-            for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-                Opengl::openGlRenderSetColor(&patch->vertex[i]->color, renderOptions);
-                glVertex3fv(reinterpret_cast<GLfloat *>(patch->vertex[i]->point));
+            for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
+                Opengl::openGlRenderSetColor(&patch->getVertices()[i]->color, renderOptions);
+                glVertex3fv(reinterpret_cast<GLfloat *>(patch->getVertices()[i]->point));
             }
             glEnd();
     }
@@ -258,8 +258,8 @@ void
 Opengl::openGlRenderPatchOutline(const Patch *patch) {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_LINE_LOOP);
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
-        glVertex3fv(reinterpret_cast<GLfloat *>(&patch->vertex[i]->point));
+    for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
+        glVertex3fv(reinterpret_cast<GLfloat *>(&patch->getVertices()[i]->point));
     }
     glEnd();
 #endif

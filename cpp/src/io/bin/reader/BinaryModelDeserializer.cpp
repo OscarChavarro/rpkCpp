@@ -413,10 +413,9 @@ BinaryModelDeserializer::read(const char *fileName) {
 
             Patch *patch = new Patch(record.numberOfVertices, v1, v2, v3, v4);
             patch->setId(static_cast<unsigned>(record.id));
-            patch->setNormal(record.normal);
-            patch->setPlaneConstant(record.planeConstant);
-            patch->setTolerance(record.tolerance);
-            patch->setArea(record.area);
+            // Plane constant is immutable after construction and recomputed from geometry.
+            // Plane tolerance is immutable after construction and recomputed from geometry.
+            // Area is immutable after construction and recomputed from geometry.
             patch->setDirectPotential(record.directPotential);
             patch->setDominantAxisIndex(static_cast<char>(record.dominantIndex));
             patch->setOmit(record.omit);
@@ -425,24 +424,16 @@ BinaryModelDeserializer::read(const char *fileName) {
             Material *material = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
             patch->setMaterial(material);
-            patch->radianceData = nullptr;
+            patch->setRadianceData(nullptr);
 
-            if ( patch->jacobian != nullptr ) {
-                delete patch->jacobian;
-                patch->jacobian = nullptr;
-            }
+            patch->setJacobian(nullptr);
             if ( record.hasJacobian ) {
-                patch->jacobian = new Jacobian(record.jacobianA, record.jacobianB, record.jacobianC);
+                patch->setJacobian(new Jacobian(record.jacobianA, record.jacobianB, record.jacobianC));
             }
 
-            if ( patch->boundingBox != nullptr ) {
-                delete patch->boundingBox;
-                patch->boundingBox = nullptr;
-            }
-            if ( record.hasBoundingBox ) {
-                patch->boundingBox = new BoundingBox();
-                if ( !BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(patch->boundingBox, record.boundingBoxCoordinates) ) goto fail;
-            }
+            // Patch bounding box is immutable after construction.
+            // The constructor computes it from vertices.
+            // We keep reading serialized bounding-box payload for format compatibility.
 
             patches.set(static_cast<long int>(i), patch);
         }

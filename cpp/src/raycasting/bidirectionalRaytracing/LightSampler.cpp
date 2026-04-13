@@ -121,10 +121,10 @@ UniformLightSampler::sample(
         pdfPoint = pdf;   // every direction corresponds to 1 point
     } else {
         light->uniformPoint(x1, x2, &point);
-        pdfPoint = 1.0 / light->area;
+        pdfPoint = 1.0 / light->getArea();
 
         // Fake a hit record
-        newNode->m_hit.init(light, &point, &light->normal, light->getMaterial());
+        newNode->m_hit.init(light, &point, &light->getNormal(), light->getMaterial());
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
@@ -182,8 +182,8 @@ UniformLightSampler::evalPDF(
         pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->area > Numeric::EPSILON ) {
-            pdf = pdf / newNode->m_hit.getPatch()->area;
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->getArea() > Numeric::EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->getArea();
         } else {
             pdf = 0.0;
         }
@@ -282,12 +282,12 @@ ImportantLightSampler::sample(
     } else {
         light->uniformPoint(x1, x2, &point);
 
-        pdfPoint = 1.0 / light->area;
+        pdfPoint = 1.0 / light->getArea();
 
         // Light position and value are known now
 
         // Fake a hit record
-        newNode->m_hit.init(light, &point, &light->normal, light->getMaterial());
+        newNode->m_hit.init(light, &point, &light->getNormal(), light->getMaterial());
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
@@ -342,8 +342,8 @@ ImportantLightSampler::evalPDF(
         pdf *= pdfDir;
     } else {
         // Normal patch, choosing point uniformly
-        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->area > Numeric::EPSILON ) {
-            pdf = pdf / newNode->m_hit.getPatch()->area;
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->getArea() > Numeric::EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->getArea();
         } else {
             pdf = 0.0;
         }

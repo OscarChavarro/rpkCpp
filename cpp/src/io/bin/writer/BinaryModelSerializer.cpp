@@ -380,18 +380,18 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     }
     vsdk::PersistenceElement::writeInt32LE(output, twinIndex);
 
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->numberOfVertices));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getNumberOfVertices()));
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
         int vertexIndex = -1;
-        if ( !indexOfPointer(patch->vertex[i], context.vertexIndices, "patch.vertex", vertexIndex) ) {
+        if ( !indexOfPointer(patch->getVertices()[i], context.vertexIndices, "patch.vertex", vertexIndex) ) {
             return false;
         }
         vsdk::PersistenceElement::writeInt32LE(output, vertexIndex);
     }
 
-    vsdk::PersistenceElement::writeBool(output, patch->boundingBox != nullptr);
-    if ( patch->boundingBox != nullptr ) {
-        writeBoundingBox(output, *patch->boundingBox);
+    vsdk::PersistenceElement::writeBool(output, patch->getBoundingBox() != nullptr);
+    if ( patch->getBoundingBox() != nullptr ) {
+        writeBoundingBox(output, *patch->getBoundingBox());
     }
 
     writeVector(output, patch->getNormal());
@@ -400,11 +400,12 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     vsdk::PersistenceElement::writeFloatLE(output, patch->getArea());
     writeVector(output, patch->midPoint());
 
-    vsdk::PersistenceElement::writeBool(output, patch->jacobian != nullptr);
-    if ( patch->jacobian != nullptr ) {
-        vsdk::PersistenceElement::writeFloatLE(output, patch->jacobian->A);
-        vsdk::PersistenceElement::writeFloatLE(output, patch->jacobian->B);
-        vsdk::PersistenceElement::writeFloatLE(output, patch->jacobian->C);
+    const Jacobian *jacobian = patch->getJacobian();
+    vsdk::PersistenceElement::writeBool(output, jacobian != nullptr);
+    if ( jacobian != nullptr ) {
+        vsdk::PersistenceElement::writeFloatLE(output, jacobian->A);
+        vsdk::PersistenceElement::writeFloatLE(output, jacobian->B);
+        vsdk::PersistenceElement::writeFloatLE(output, jacobian->C);
     }
 
     vsdk::PersistenceElement::writeFloatLE(output, patch->getDirectPotential());
@@ -419,7 +420,7 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     }
     vsdk::PersistenceElement::writeInt32LE(output, materialIndex);
 
-    vsdk::PersistenceElement::writeBool(output, patch->radianceData != nullptr);
+    vsdk::PersistenceElement::writeBool(output, patch->getRadianceData() != nullptr);
     return true;
 }
 

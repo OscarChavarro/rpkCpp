@@ -152,7 +152,7 @@ RayTools::pathNodesVisible(
         Patch::dontIntersect3(
             node2->m_hit.getPatch(),
             node1->m_hit.getPatch(),
-            node1->m_hit.getPatch() != nullptr ? node1->m_hit.getPatch()->twin : nullptr);
+            node1->m_hit.getPatch() != nullptr ? node1->m_hit.getPatch()->getTwin() : nullptr);
         hit = sceneWorldVoxelGrid->gridIntersect(
             &ray,
             0.0,
@@ -234,7 +234,7 @@ RayTools::eyeNodeVisible(
                     fDistance = static_cast<float>(dist);
                     Patch::dontIntersect3(
                         node->m_hit.getPatch(), eyeNode->m_hit.getPatch(),
-                        eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->twin : nullptr);
+                        eyeNode->m_hit.getPatch() ? eyeNode->m_hit.getPatch()->getTwin() : nullptr);
                     hit = sceneWorldVoxelGrid->gridIntersect(&ray,
                                                              0.0, &fDistance,
                                                              RayHitFlag::FRONT | RayHitFlag::ANY, &hitStore);

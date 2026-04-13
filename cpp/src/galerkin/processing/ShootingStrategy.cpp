@@ -31,7 +31,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = static_cast<float>(M_PI) * patch->getArea() * patch->radianceData->unShotRadiance[0].sumAbsComponents();
+        power = static_cast<float>(M_PI) * patch->getArea() * patch->getRadianceData()->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -155,7 +155,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
     galerkinState->ambientRadiance.addScaled(
         galerkinState->ambientRadiance,
         patch->getArea(),
-        patch->radianceData->unShotRadiance[0]);
+        patch->getRadianceData()->unShotRadiance[0]);
 }
 
 void

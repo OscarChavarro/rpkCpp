@@ -121,7 +121,7 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
         return true;
     }
 
-    if ( value->radianceData != nullptr ) {
+    if ( value->getRadianceData() != nullptr ) {
         Error::error("BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
         return false;
     }
@@ -138,11 +138,11 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
     }
 
     for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        if ( !ensureVertex(value->vertex[i]) ) {
+        if ( !ensureVertex(value->getVertices()[i]) ) {
             return false;
         }
     }
-    if ( !ensurePatch(value->twin) ) {
+    if ( !ensurePatch(value->getTwin()) ) {
         return false;
     }
     if ( !ensureMaterial(value->getMaterial()) ) {

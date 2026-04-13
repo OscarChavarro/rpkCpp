@@ -180,7 +180,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
         Ed.scaleInverse(M_PI, Ed);
     }
 
-    patch->radianceData = this;
+    patch->setRadianceData(this);
     reAllocCoefficients();
 }
 
@@ -254,15 +254,15 @@ GalerkinElement::fromPatch(const Patch *patch) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement on a null Patch\n");
         java::System::exit(1);
     }
-    if ( patch->radianceData == nullptr ) {
+    if ( patch->getRadianceData() == nullptr ) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement on a Patch with null radianceData\n");
         java::System::exit(1);
     }
-    if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+    if ( patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
         java::System::err.printf("Fatal: Trying to access as GalerkinElement a different type of element\n");
         java::System::exit(1);
     }
-    return static_cast<GalerkinElement *>(patch->radianceData);
+    return static_cast<GalerkinElement *>(patch->getRadianceData());
 }
 
 int
@@ -338,7 +338,7 @@ GalerkinElement::reAllocCoefficients() {
                 ColorRgb::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->getMaterial() != nullptr ) {
-                defaultUnShotRadiance[0] = patch->radianceData->Ed;
+                defaultUnShotRadiance[0] = patch->getRadianceData()->Ed;
             }
         }
         unShotRadiance = defaultUnShotRadiance;
@@ -377,7 +377,7 @@ GalerkinElement::regularSubDivide() {
         child->patch = patch;
         child->parent = this;
         child->transformToParent =
-            patch->numberOfVertices == 3 ?
+            patch->getNumberOfVertices() == 3 ?
             &triangleToParentTransformMatrix[i] :
             &quadToParentTransformMatrix[i];
         child->area = 0.25f * area;  // Uniform mapping is always used
@@ -421,7 +421,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
     Element *childElement;
     double _u = *u;
     double _v = *v;
-    switch ( patch->numberOfVertices ) {
+    switch ( patch->getNumberOfVertices() ) {
         case 3:
             if ( _u + _v <= 0.5 ) {
                 childElement = regularSubElements[0];
@@ -519,7 +519,7 @@ GalerkinElement::vertices(Vector3D *p) const {
         }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
 
-        if ( patch->numberOfVertices == 4 ) {
+        if ( patch->getNumberOfVertices() == 4 ) {
             uv.u = 1.0f;
             uv.v = 1.0f;
             if ( transformToParent != nullptr ) {
@@ -543,7 +543,7 @@ GalerkinElement::vertices(Vector3D *p) const {
             p[3].set(0.0f, 0.0f, 0.0f);
         }
 
-        return patch->numberOfVertices;
+        return patch->getNumberOfVertices();
     }
 }
 

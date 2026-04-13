@@ -46,7 +46,7 @@ GalerkinBasis::pull(
         }
 
         // Parent and child basis should be the same
-        basis = GalerkinBasis::basisForVertexCount(child->patch->numberOfVertices);
+        basis = GalerkinBasis::basisForVertexCount(child->patch->getNumberOfVertices());
         for ( int alpha = 0; alpha < parent->basisSize; alpha++ ) {
             parentCoefficients[alpha].clear();
             for ( int beta = 0; beta < child->basisSize; beta++ ) {
@@ -82,7 +82,7 @@ GalerkinBasis::pushPullRadianceRecursive(
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         // Leaf-element, multiply with reflectivity at the lowest level
-        ColorRgb rho = element->patch->radianceData->Rd;
+        ColorRgb rho = element->patch->getRadianceData()->Rd;
         for ( int i = 0; i < element->basisSize; i++ ) {
             Bup[i].scalarProduct(rho, Bdown[i]);
         }
@@ -91,7 +91,7 @@ GalerkinBasis::pushPullRadianceRecursive(
           || galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ) {
             // Add self-emitted radiance. Bup is a new approximation of the total radiance
             // add this leaf element
-            ColorRgb Ed = element->patch->radianceData->Ed;
+            ColorRgb Ed = element->patch->getRadianceData()->Ed;
             Bup[0].add(Bup[0], Ed);
         }
     }
@@ -270,7 +270,7 @@ GalerkinBasis::push(
         }
 
         // Parent and child basis should be the same
-        const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(child->patch->numberOfVertices);
+        const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(child->patch->getNumberOfVertices());
         for ( int beta = 0; beta < child->basisSize; beta++ ) {
             childCoefficients[beta].clear();
             for ( int alpha = 0; alpha < element->basisSize; alpha++ ) {
@@ -311,7 +311,7 @@ GalerkinBasis::radianceAtPoint(
     const double u,
     const double v)
 {
-    const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(element->patch->numberOfVertices);
+    const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(element->patch->getNumberOfVertices());
 
     ColorRgb rad;
     rad.clear();

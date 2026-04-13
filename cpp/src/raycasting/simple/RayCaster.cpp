@@ -139,7 +139,7 @@ RayCaster::getRadianceAtPixel(
         // Boundary check is necessary because Z-buffer algorithm does
         // not yield exactly the same result as ray tracing at patch
         // boundaries.
-        clipUv(patch->numberOfVertices, &u, &v);
+        clipUv(patch->getNumberOfVertices(), &u, &v);
 
         // Reverse ray direction and get radiance emitted at hit point towards the eye
         Vector3D dir(-ray.direction.x, -ray.direction.y, -ray.direction.z);

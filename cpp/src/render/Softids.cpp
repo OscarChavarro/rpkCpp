@@ -50,15 +50,15 @@ SoftIds::softRenderPatch(
         return;
     }
 
-    vertices[0] = *patch->vertex[0]->point;
-    vertices[1] = *patch->vertex[1]->point;
-    vertices[2] = *patch->vertex[2]->point;
-    if ( patch->numberOfVertices > 3 ) {
-        vertices[3] = *patch->vertex[3]->point;
+    vertices[0] = *patch->getVertices()[0]->point;
+    vertices[1] = *patch->getVertices()[1]->point;
+    vertices[2] = *patch->getVertices()[2]->point;
+    if ( patch->getNumberOfVertices() > 3 ) {
+        vertices[3] = *patch->getVertices()[3]->point;
     }
 
     sglContext->sglSetPatch(patch);
-    sglContext->sglPolygon(patch->numberOfVertices, vertices);
+    sglContext->sglPolygon(patch->getNumberOfVertices(), vertices);
 }
 
 void

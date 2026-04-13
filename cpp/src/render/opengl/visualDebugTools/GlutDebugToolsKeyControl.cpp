@@ -25,11 +25,11 @@ GlutDebugToolsKeyControl::isGalerkinPatchIndex(const Scene *scene, int patchInde
     }
 
     const Patch *patch = scene->patchList->get(patchIndex);
-    if ( patch == nullptr || patch->radianceData == nullptr ) {
+    if ( patch == nullptr || patch->getRadianceData() == nullptr ) {
         return false;
     }
 
-    return patch->radianceData->className == ElementTypes::ELEMENT_GALERKIN;
+    return patch->getRadianceData()->className == ElementTypes::ELEMENT_GALERKIN;
 }
 
 void

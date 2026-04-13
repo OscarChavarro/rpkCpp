@@ -18,7 +18,7 @@ void
 Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
     Vector3D z = patch->getNormal();
     Vector3D x;
-    x.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
+    x.subtraction(*patch->getVertices()[1]->point, *patch->getVertices()[0]->point);
     x.normalize(Numeric::EPSILON_FLOAT);
     Vector3D y;
     y.crossProduct(z, x);
@@ -74,10 +74,10 @@ Localline::mcrShootRay(const VoxelGrid *sceneWorldVoxelGrid, Patch *P, Ray *ray,
     RayHit *hit;
 
     // Reject self-intersections
-    Patch::dontIntersect2(P, P->twin);
+    Patch::dontIntersect2(P, P->getTwin());
     hit = sceneWorldVoxelGrid->gridIntersect(
         ray,
-        Numeric::EPSILON_FLOAT < P->tolerance ? Numeric::EPSILON_FLOAT : P->tolerance,
+        Numeric::EPSILON_FLOAT < P->getTolerance() ? Numeric::EPSILON_FLOAT : P->getTolerance(),
         &distance,
         RayHitFlag::FRONT | RayHitFlag::POINT,
         hitStore);

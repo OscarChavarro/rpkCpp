@@ -12,11 +12,11 @@
 class McradP final {
   public:
     static inline int numberOfVertices(const StochasticRadiosityElement *elem) {
-        return elem->patch->numberOfVertices;
+        return elem->patch->getNumberOfVertices();
     }
 
     static inline StochasticRadiosityElement *topLevelStochasticRadiosityElement(const Patch *patch) {
-        return static_cast<StochasticRadiosityElement *>(patch->radianceData);
+        return static_cast<StochasticRadiosityElement *>(patch->getRadianceData());
     }
 
     static inline ColorRgb *getTopLevelPatchRad(const Patch *patch) {

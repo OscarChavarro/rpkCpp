@@ -524,7 +524,7 @@ StochasticJacobi::stochasticJacobiUniformHitCoordinates(const RayHit *hit, doubl
         // (u,v) coordinates obtained as side result of intersection test
         *uHit = hit->getUv().u;
         *vHit = hit->getUv().v;
-        if ( hit->getPatch()->jacobian ) {
+        if ( hit->getPatch()->getJacobian() != nullptr ) {
             hit->getPatch()->biLinearToUniform(uHit, vHit);
         }
     } else {

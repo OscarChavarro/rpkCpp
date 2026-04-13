@@ -154,7 +154,7 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
     ColorRgb vertexRadiosity[4];
     int i;
 
-    if ( galerkinElement->patch->numberOfVertices == 3 ) {
+    if ( galerkinElement->patch->getNumberOfVertices() == 3 ) {
         vertexRadiosity[0] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 0.0);
         vertexRadiosity[1] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 1.0, 0.0);
         vertexRadiosity[2] = GalerkinBasis::radianceAtPoint(galerkinElement, galerkinElement->radiance, 0.0, 1.0);
@@ -166,16 +166,16 @@ GalerkinRadianceMethod::writeVertexColors(Element *element) {
     }
 
     if ( GalerkinRadianceMethod::galerkinState.useAmbientRadiance ) {
-        ColorRgb reflectivity = galerkinElement->patch->radianceData->Rd;
+        ColorRgb reflectivity = galerkinElement->patch->getRadianceData()->Rd;
         ColorRgb ambient;
 
         ambient.scalarProduct(reflectivity, GalerkinRadianceMethod::galerkinState.ambientRadiance);
-        for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
+        for ( i = 0; i < galerkinElement->patch->getNumberOfVertices(); i++ ) {
             vertexRadiosity[i].add(vertexRadiosity[i], ambient);
         }
     }
 
-    for ( i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
+    for ( i = 0; i < galerkinElement->patch->getNumberOfVertices(); i++ ) {
         ColorRgb col{};
         ToneMap::radianceToRgb(vertexRadiosity[i], &col, *GalerkinRadianceMethod::galerkinState.toneMapOptions);
         writeVertexColor(&col);
@@ -212,7 +212,7 @@ GalerkinRadianceMethod::writeCoordIndex(int index) {
 void
 GalerkinRadianceMethod::writeCoordIndices(Element *element) {
     const GalerkinElement *galerkinElement = static_cast<GalerkinElement *>(element);
-    for ( int i = 0; i < galerkinElement->patch->numberOfVertices; i++ ) {
+    for ( int i = 0; i < galerkinElement->patch->getNumberOfVertices(); i++ ) {
         writeCoordIndex(vertexId);
         vertexId++;
     }
@@ -262,8 +262,8 @@ GalerkinRadianceMethod::updateCpuSecs() {
 
 void
 GalerkinRadianceMethod::patchInit(Patch *patch) {
-    ColorRgb reflectivity = patch->radianceData->Rd;
-    ColorRgb selfEmittanceRadiance = patch->radianceData->Ed;
+    ColorRgb reflectivity = patch->getRadianceData()->Rd;
+    ColorRgb selfEmittanceRadiance = patch->getRadianceData()->Ed;
 
     if ( galerkinState.useConstantRadiance ) {
         // See Neumann et-al, "The Constant Radiosity Step", Euro-graphics Rendering Workshop
@@ -271,12 +271,12 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         galerkinGetRadiance(patch).scalarProduct(reflectivity, galerkinState.constantRadiance);
         galerkinGetRadiance(patch).add(galerkinGetRadiance(patch), selfEmittanceRadiance);
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-            patch->radianceData->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
+            patch->getRadianceData()->unShotRadiance[0].subtract(galerkinGetRadiance(patch), galerkinState.constantRadiance);
         }
     } else {
         galerkinSetRadiance(patch, selfEmittanceRadiance);
         if ( galerkinState.galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-            patch->radianceData->unShotRadiance[0] = galerkinGetRadiance(patch);
+            patch->getRadianceData()->unShotRadiance[0] = galerkinGetRadiance(patch);
         }
     }
 
@@ -303,7 +303,7 @@ Recomputes the color of a patch using ambient radiance term, ... if requested fo
 */
 void
 GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
-    ColorRgb reflectivity = patch->radianceData->Rd;
+    ColorRgb reflectivity = patch->getRadianceData()->Rd;
     ColorRgb radVis;
 
     // Compute the patches color based on its radiance + ambient radiance if desired
@@ -438,7 +438,7 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
     const GalerkinElement *leaf;
     ColorRgb rad;
 
-    if ( patch->jacobian ) {
+    if ( patch->getJacobian() != nullptr ) {
         patch->biLinearToUniform(&u, &v);
     }
 
@@ -449,7 +449,7 @@ GalerkinRadianceMethod::computePatchRadiance(Patch *patch, double u, double v) c
 
     if ( galerkinState.useAmbientRadiance ) {
         // Add ambient radiance
-        ColorRgb reflectivity = patch->radianceData->Rd;
+        ColorRgb reflectivity = patch->getRadianceData()->Rd;
         ColorRgb ambientRadiance;
         ambientRadiance.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         rad.add(rad, ambientRadiance);
@@ -475,7 +475,9 @@ Radiance data for a Patch is a surface element
 */
 Element *
 GalerkinRadianceMethod::createPatchData(Patch *patch) {
-    return patch->radianceData = new GalerkinElement(patch, &galerkinState);
+    Element *radianceData = new GalerkinElement(patch, &galerkinState);
+    patch->setRadianceData(radianceData);
+    return radianceData;
 }
 
 void
@@ -483,9 +485,9 @@ GalerkinRadianceMethod::destroyPatchData(Patch *patch) {
     if ( patch == nullptr ) {
         return;
     }
-    if ( patch->radianceData != nullptr ) {
-        delete static_cast<GalerkinElement *>(patch->radianceData);
-        patch->radianceData = nullptr;
+    if ( patch->getRadianceData() != nullptr ) {
+        delete static_cast<GalerkinElement *>(patch->getRadianceData());
+        patch->setRadianceData(nullptr);
     }
 }
 

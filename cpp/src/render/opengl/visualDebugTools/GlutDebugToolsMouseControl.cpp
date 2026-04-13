@@ -344,7 +344,7 @@ GlutDebugToolsMouseControl::pickPatchAtMousePosition(
         if ( patch == nullptr ) {
             continue;
         }
-        if ( patch->radianceData == nullptr || patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        if ( patch->getRadianceData() == nullptr || patch->getRadianceData()->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
         }
 

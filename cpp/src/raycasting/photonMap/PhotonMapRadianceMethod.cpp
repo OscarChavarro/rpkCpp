@@ -88,12 +88,13 @@ PhotonMapRadianceMethod::photonMapRadiosityUpdateCpuSecs() {
 
 Element *
 PhotonMapRadianceMethod::createPatchData(Patch *patch) {
-    return patch->radianceData = nullptr;
+    patch->setRadianceData(nullptr);
+    return nullptr;
 }
 
 void
 PhotonMapRadianceMethod::destroyPatchData(Patch *patch) {
-    patch->radianceData = nullptr;
+    patch->setRadianceData(nullptr);
 }
 
 void

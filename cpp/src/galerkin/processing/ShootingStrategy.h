@@ -18,12 +18,12 @@ class ShootingStrategy {
   private:
     static inline float
     galerkinGetPotential(Patch *patch) {
-        return static_cast<GalerkinElement *>(patch->radianceData)->potential;
+        return static_cast<GalerkinElement *>(patch->getRadianceData())->potential;
     }
 
     static inline float
     galerkinGetUnShotPotential(Patch *patch) {
-        return static_cast<GalerkinElement *>(patch->radianceData)->unShotPotential;
+        return static_cast<GalerkinElement *>(patch->getRadianceData())->unShotPotential;
     }
 
     static Patch *

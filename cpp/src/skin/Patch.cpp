@@ -429,35 +429,35 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
     int vertexIndex = 0;
     switch ( patch->getDominantAxisIndex() ) {
         case X:
-            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->y, patch->getVertices()[vertexIndex]->point->z);
             Vector2Dd::set(M, point->y, point->z);
             break;
 
         case Y:
-            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             vertexIndex++;
-            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->z);
+            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->z);
             Vector2Dd::set(M, point->x, point->z);
             break;
 
         case Z:
-            Vector2Dd::set(A, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(A, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(B, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(B, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(C, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(C, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             vertexIndex++;
-            Vector2Dd::set(D, patch->vertex[vertexIndex]->point->x, patch->vertex[vertexIndex]->point->y);
+            Vector2Dd::set(D, patch->getVertices()[vertexIndex]->point->x, patch->getVertices()[vertexIndex]->point->y);
             Vector2Dd::set(M, point->x, point->y);
             break;
 
@@ -545,7 +545,7 @@ Patch::hitInPatch(RayHit *hit, const Patch *patch) const {
     hit->setFlags(newFlags); // uv parameters computed as a side result
     Vector3D position = hit->getPoint();
     Vector2Dd uv;
-    bool result = (patch->numberOfVertices == 3)
+    bool result = (patch->getNumberOfVertices() == 3)
        ? triangleUv(&position, &uv)
        : quadUv(patch, &position, &uv);
     hit->setUv(&uv);
@@ -560,10 +560,10 @@ Patch::patchNormal(const Patch *patch, Vector3D *normal) {
     Vector3D current;
 
     normal->set(0, 0, 0);
-    current.subtraction(*patch->vertex[patch->numberOfVertices - 1]->point, *patch->vertex[0]->point);
-    for ( int i = 0; i < patch->numberOfVertices; i++ ) {
+    current.subtraction(*patch->getVertices()[patch->getNumberOfVertices() - 1]->point, *patch->getVertices()[0]->point);
+    for ( int i = 0; i < patch->getNumberOfVertices(); i++ ) {
         Vector3D previous = current;
-        current.subtraction(*patch->vertex[i]->point, *patch->vertex[0]->point);
+        current.subtraction(*patch->getVertices()[i]->point, *patch->getVertices()[0]->point);
         normal->x += (previous.y - current.y) * (previous.z + current.z);
         normal->y += (previous.z - current.z) * (previous.x + current.x);
         normal->z += (previous.x - current.x) * (previous.y + current.y);
@@ -601,19 +601,19 @@ Patch::Patch(
     material(),
     id(),
     twin(),
-    vertex(),
-    numberOfVertices(),
-    boundingBox(),
+    numberOfVertices(static_cast<char>(inNumberOfVertices)),
+    vertex{v1, v2, v3, v4},
+    boundingBox(new BoundingBox()),
+    planeTolerance(),
+    directPotential(),
     normal(),
     planeConstant(),
-    tolerance(),
     area(),
     jacobian(),
-    directPotential(),
+    radianceData(),
     index(),
     omit(),
-    color(),
-    radianceData()
+    color()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         Error::error("Patch::Patch", "Null vertex!");
@@ -633,18 +633,10 @@ Patch::Patch(
 
     material = nullptr;
 
-    for ( int i = 0; i < MAXIMUM_VERTICES_PER_PATCH; i++ ) {
-        vertex[i] = nullptr;
+    // Bounding box is computed once and remains stable afterwards.
+    for ( int i = 0; i < numberOfVertices; i++ ) {
+        boundingBox->enlargeToIncludePoint(vertex[i]->point);
     }
-
-    numberOfVertices = static_cast<char>(inNumberOfVertices);
-    vertex[0] = v1;
-    vertex[1] = v2;
-    vertex[2] = v3;
-    vertex[3] = v4;
-
-    // A bounding box will be computed the first time it is needed
-    boundingBox = nullptr;
 
     // Compute normal
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
@@ -663,7 +655,7 @@ Patch::Patch(
     planeConstant = -normal.dotProduct(midPoint());
 
     // Plane tolerance
-    tolerance = computeTolerance();
+    planeTolerance = computeTolerance();
 
     // Dominant part of normal
     index = static_cast<char>(normal.dominantCoordinate());
@@ -706,12 +698,7 @@ Patch::computeAndGetBoundingBox(BoundingBox *bounds) {
 
 void
 Patch::computeBoundingBox() {
-    if ( boundingBox == nullptr ) {
-        boundingBox = new BoundingBox();
-        for ( int i = 0; i < numberOfVertices; i++ ) {
-            boundingBox->enlargeToIncludePoint(vertex[i]->point);
-        }
-    }
+    // Bounding box is initialized in the constructor and vertices are immutable afterwards.
 }
 
 void
@@ -1062,7 +1049,7 @@ Patch::isAtLeastPartlyInFront(const Patch *other) const {
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *vp = vertex[i]->point;
         double ep = other->normal.dotProduct(*vp) + other->planeConstant;
-        double localTolerance = other->tolerance + vp->tolerance(Numeric::EPSILON_FLOAT);
+        double localTolerance = other->planeTolerance + vp->tolerance(Numeric::EPSILON_FLOAT);
         if ( ep > localTolerance ) {
             // P is at least partly in front of Q
             return true;
@@ -1081,7 +1068,6 @@ Patch::facing(const Patch *other) const {
 }
 
 #ifdef RAYTRACING_ENABLED
-
 /**
 Like 'uv', but returns uniform coordinates (inverse of uniformPoint())
 */

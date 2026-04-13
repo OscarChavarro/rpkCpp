@@ -122,9 +122,9 @@ StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(Patch *pat
     elem->flags = 0x00;
     elem->area = patch->getArea();
     elem->midPoint = patch->midPoint();
-    elem->numberOfVertices = patch->numberOfVertices;
+    elem->numberOfVertices = patch->getNumberOfVertices();
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
-        elem->vertices[i] = patch->vertex[i];
+        elem->vertices[i] = patch->getVertices()[i];
         vertexAttachElement(elem->vertices[i], elem);
     }
 
@@ -171,7 +171,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry)
 
 void
 StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceElementChild(Patch *patch, StochasticRadiosityElement *parent) {
-    StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(patch->radianceData); // Created before
+    StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(patch->getRadianceData()); // Created before
     elem->parent = parent;
 
     elem->className = ElementTypes::ELEMENT_STOCHASTIC_RADIOSITY;
@@ -774,7 +774,7 @@ StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
         return nullptr;
     }
 
-    if ( element->patch->jacobian ) {
+    if ( element->patch->getJacobian() != nullptr ) {
         static bool flag = false;
         if ( !flag ) {
             Error::warning("galerkinElementRegularSubDivide",

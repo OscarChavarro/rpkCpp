@@ -164,8 +164,8 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
     BoundingBox localBounds;
-    if ( patch->boundingBox != nullptr ) {
-        localBounds = *patch->boundingBox;
+    if ( patch->getBoundingBox() != nullptr ) {
+        localBounds = *patch->getBoundingBox();
     } else {
         patch->computeAndGetBoundingBox(&localBounds);
     }

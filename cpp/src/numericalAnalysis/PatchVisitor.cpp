@@ -5,10 +5,10 @@ int
 PatchVisitor::getNumberOfSamples(Patch *patch) {
     int numberOfSamples = 1;
     if ( patch->getMaterial()->getBsdf() != nullptr && patch->getMaterial()->getBsdf()->splitBsdfIsTextured() ) {
-        if ( patch->vertex[0]->textureCoordinates == patch->vertex[1]->textureCoordinates &&
-             patch->vertex[0]->textureCoordinates == patch->vertex[2]->textureCoordinates &&
-             (patch->numberOfVertices == 3 || patch->vertex[0]->textureCoordinates == patch->vertex[3]->textureCoordinates) &&
-             patch->vertex[0]->textureCoordinates != nullptr ) {
+        if ( patch->getVertices()[0]->textureCoordinates == patch->getVertices()[1]->textureCoordinates &&
+             patch->getVertices()[0]->textureCoordinates == patch->getVertices()[2]->textureCoordinates &&
+             (patch->getNumberOfVertices() == 3 || patch->getVertices()[0]->textureCoordinates == patch->getVertices()[3]->textureCoordinates) &&
+             patch->getVertices()[0]->textureCoordinates != nullptr ) {
             // All vertices have same texture coordinates (important special case)
             numberOfSamples = 1;
         } else {

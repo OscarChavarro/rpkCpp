@@ -44,14 +44,14 @@ SimpleRaytracingPathNode::print(java::PrintStream *out) const {
         Vector3DPrinter::print(m_inDirF, out);
         out->printf("\n");
         out->printf("Cos in  %f\n", m_normal.dotProduct(m_inDirF));
-        out->printf("GCos in %f\n", m_hit.getPatch()->normal.dotProduct(m_inDirF));
+        out->printf("GCos in %f\n", m_hit.getPatch()->getNormal().dotProduct(m_inDirF));
     }
     if ( m_next ) {
         out->printf("OutF: ");
         Vector3DPrinter::print(m_next->m_inDirT, out);
         out->printf("\n");
         out->printf("Cos out %f\n", m_normal.dotProduct(m_next->m_inDirT));
-        out->printf("GCos out %f\n", m_hit.getPatch()->normal.dotProduct(m_next->m_inDirT));
+        out->printf("GCos out %f\n", m_hit.getPatch()->getNormal().dotProduct(m_next->m_inDirT));
     }
 }
 

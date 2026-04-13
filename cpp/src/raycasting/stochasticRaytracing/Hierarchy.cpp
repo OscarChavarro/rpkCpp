@@ -78,7 +78,7 @@ Hierarchy::elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatche
         Patch *patch = scenePatches->get(i);
         // Need to be destroyed before destroying the automatically created vertices
         StochasticRadiosityElement::stochasticRadiosityElementDestroy(McradP::topLevelStochasticRadiosityElement(patch));
-        patch->radianceData = nullptr; // Prevents destroying a 2nd time later
+        patch->setRadianceData(nullptr); // Prevents destroying a 2nd time later
     }
 
     // Delete vertices

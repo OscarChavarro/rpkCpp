@@ -100,7 +100,7 @@ FormFactorStrategy::determineNodes(
         }
     } else {
         // What cubature rule should be used over the element
-        switch ( element->patch->numberOfVertices ) {
+        switch ( element->patch->getNumberOfVertices() ) {
             case 3:
                 *cr = role == GalerkinRole::RECEIVER ? galerkinState->receiverTriangleCubatureRule : galerkinState->sourceTriangleCubatureRule;
                 break;
@@ -398,13 +398,13 @@ FormFactorStrategy::doHigherOrderAreaToAreaFormFactor(
         // No basis description for clusters: we always use a constant approximation on clusters
         receiverBasis = nullptr;
     } else {
-        receiverBasis = GalerkinBasis::basisForVertexCount(receiverElement->patch->numberOfVertices);
+        receiverBasis = GalerkinBasis::basisForVertexCount(receiverElement->patch->getNumberOfVertices());
     }
 
     if ( sourceElement->isCluster() ) {
         sourceBasis = nullptr;
     } else {
-        sourceBasis = GalerkinBasis::basisForVertexCount(sourceElement->patch->numberOfVertices);
+        sourceBasis = GalerkinBasis::basisForVertexCount(sourceElement->patch->getNumberOfVertices());
     }
 
     // 2. Compute form factor (sets K)
