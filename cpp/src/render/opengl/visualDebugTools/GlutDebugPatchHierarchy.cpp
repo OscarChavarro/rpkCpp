@@ -341,13 +341,9 @@ GlutDebugPatchHierarchy::drawInteractions(
             continue;
         }
 
-        const Patch *sourcePatch = interaction->sourceElement->patch;
-        const Patch *receiverPatch = interaction->receiverElement->patch;
-        if ( sourcePatch == nullptr || receiverPatch == nullptr ) {
-            continue;
-        }
-
-        GlutDebugPatchHierarchy::drawGradientLine(sourcePatch->midPoint(), receiverPatch->midPoint());
+        GlutDebugPatchHierarchy::drawGradientLine(
+            interaction->sourceElement->midPoint(),
+            interaction->receiverElement->midPoint());
     }
 
     glLineWidth(previousLineWidth);

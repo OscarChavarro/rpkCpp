@@ -9,6 +9,7 @@ class GlutDebugTools final {
   private:
     GlutDebugToolsModel model;
     int cachedPrimaryPatchIndex;
+    int cachedPrimaryHierarchyLevel;
     java::ArrayList<Interaction *> *cachedInteractionsForPrimaryPatch;
 
     void resizeCallback(int newWidth, int newHeight);
@@ -19,11 +20,13 @@ class GlutDebugTools final {
     void drawCallback();
     void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
     void clearCachedPrimaryPatchInteractions();
-    void updateCachedPrimaryPatchInteractions(int selectedPatchIndex);
+    void updateCachedPrimaryPatchInteractions(int selectedPatchIndex, int selectedHierarchyLevel);
     static void addInteractionIfNotPresent(
         java::ArrayList<Interaction *> *interactions,
         Interaction *interaction);
-    java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(const Patch *patch) const;
+    java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
+        const Patch *patch,
+        int selectedHierarchyLevel) const;
 
     static GlutDebugTools *&activeGlutDebugToolsInstance();
     static void resizeCallbackBridge(int newWidth, int newHeight);
