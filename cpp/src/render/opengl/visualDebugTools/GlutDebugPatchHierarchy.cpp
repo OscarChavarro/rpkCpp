@@ -1,7 +1,5 @@
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
-#include <cmath>
-
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "galerkin/GalerkinElement.h"
@@ -225,8 +223,8 @@ GlutDebugPatchHierarchy::drawCenterMark(
     Vector3D previousVertex;
     for ( int i = 0; i < sides; i++ ) {
         const float angle = TWO_PI * static_cast<float>(i) / static_cast<float>(sides);
-        const float u = radius * std::cos(angle);
-        const float v = radius * std::sin(angle);
+        const float u = radius * java::Math::cos(angle);
+        const float v = radius * java::Math::sin(angle);
 
         Vector3D currentVertex;
         currentVertex.combine3(center, u, axisU, v, axisV);

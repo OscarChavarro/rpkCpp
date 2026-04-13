@@ -6,9 +6,8 @@
     #include <GL/glut.h>
 #endif
 
-#include <cstdlib>
-
 #include "common/linealAlgebra/Matrix4x4.h"
+#include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "material/RayHit.h"
 #include "material/RayHitFlag.h"
@@ -446,8 +445,8 @@ GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel 
     }
 
     if ( !GlutDebugToolsMouseControl::dragging ) {
-        const int fromPressX = std::abs(clampedX - GlutDebugToolsMouseControl::pressX);
-        const int fromPressY = std::abs(clampedY - GlutDebugToolsMouseControl::pressY);
+        const int fromPressX = static_cast<int>(java::Math::abs(static_cast<float>(clampedX - GlutDebugToolsMouseControl::pressX)));
+        const int fromPressY = static_cast<int>(java::Math::abs(static_cast<float>(clampedY - GlutDebugToolsMouseControl::pressY)));
         if ( fromPressX >= DRAG_START_THRESHOLD_PIXELS || fromPressY >= DRAG_START_THRESHOLD_PIXELS ) {
             GlutDebugToolsMouseControl::dragging = true;
         }
