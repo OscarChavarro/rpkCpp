@@ -94,12 +94,8 @@ GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(const GlutDebugToolsMod
 
 void
 GlutDebugToolsKeyControl::clampHierarchyLevel(GlutDebugToolsModel &model) {
-    const int maxHierarchyLevel = GlutDebugToolsKeyControl::selectedPatchMaxHierarchyLevel(model);
     if ( model.selectedHierarchyLevel < 0 ) {
         model.selectedHierarchyLevel = 0;
-    }
-    if ( model.selectedHierarchyLevel > maxHierarchyLevel ) {
-        model.selectedHierarchyLevel = maxHierarchyLevel;
     }
 }
 
@@ -177,6 +173,7 @@ GlutDebugToolsKeyControl::handleKeypress(
         case ' ':
             if ( model.radianceMethod != nullptr && model.scene != nullptr && model.renderOptions != nullptr ) {
                 model.radianceMethod->doStep(model.scene, model.renderOptions);
+                model.selectedHierarchyLevel = GlutDebugPatchHierarchy::maxLevelAcrossScene(model.scene);
             }
             break;
         case 'e':

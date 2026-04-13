@@ -8,22 +8,32 @@
 class GlutDebugPatchHierarchy final {
   public:
     static int maxLevelForSelectedPatch(const Scene *scene, int patchIndex);
+    static int maxLevelAcrossScene(const Scene *scene);
 
     static void renderSelectedPatchAtLevel(
         const Scene *scene,
         const RenderOptions *renderOptions,
         int primaryPatchIndex,
         int secondaryPatchIndex,
-        int hierarchyLevel);
+        int hierarchyLevel,
+        const java::ArrayList<Interaction *> *interactionsToRender);
     static void renderInteractionBetweenSelected(
         const Scene *scene,
         int primaryPatchIndex,
         int secondaryPatchIndex,
         const java::ArrayList<Interaction *> *interactionsToRender);
+    static void renderInteractingPatchesAtLevelIfNoSecondary(
+        const Scene *scene,
+        const RenderOptions *renderOptions,
+        int primaryPatchIndex,
+        int secondaryPatchIndex,
+        int hierarchyLevel,
+        const java::ArrayList<Interaction *> *interactionsToRender);
     static void renderSecondarySelectedPatchMarker(
         const Scene *scene,
         const RenderOptions *renderOptions,
-        int secondaryPatchIndex);
+        int secondaryPatchIndex,
+        int hierarchyLevel);
 
   private:
     static constexpr float GRAY_DARKEN_FACTOR = 0.42f;
@@ -38,7 +48,8 @@ class GlutDebugPatchHierarchy final {
         const Scene *scene,
         const RenderOptions *renderOptions,
         int primaryPatchIndex,
-        int secondaryPatchIndex);
+        int secondaryPatchIndex,
+        const java::ArrayList<Interaction *> *interactionsToRender);
     static void renderElementGray(const GalerkinElement *element, const RenderOptions *renderOptions);
     static const GalerkinElement *selectedPatchRoot(const Scene *scene, int patchIndex);
     static int maxLevelFromElement(const GalerkinElement *element);
@@ -57,7 +68,8 @@ class GlutDebugPatchHierarchy final {
     static void drawInteractions(const java::ArrayList<Interaction *> *interactionsToRender);
     static void drawSecondarySelectedPatchMarker(
         const GalerkinElement *topLevelElement,
-        const RenderOptions *renderOptions);
+        const RenderOptions *renderOptions,
+        int hierarchyLevel);
 };
 
 #endif

@@ -27,6 +27,25 @@ GlutDebugPatchHierarchy::clamp01(float value) {
     return value;
 }
 
+namespace {
+void
+addPatchIfNotPresent(
+    java::ArrayList<const Patch *> *patches,
+    const Patch *patch)
+{
+    if ( patches == nullptr || patch == nullptr ) {
+        return;
+    }
+
+    for ( int i = 0; i < patches->size(); i++ ) {
+        if ( patches->get(i) == patch ) {
+            return;
+        }
+    }
+    patches->add(patch);
+}
+}
+
 float
 GlutDebugPatchHierarchy::toneMappedGrayAndDarkened(float value01) {
     float adjusted = GlutDebugPatchHierarchy::clamp01(value01);
@@ -155,10 +174,16 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
     const Scene *scene,
     const RenderOptions *renderOptions,
     int primaryPatchIndex,
-    int secondaryPatchIndex)
+    int secondaryPatchIndex,
+    const java::ArrayList<Interaction *> *interactionsToRender)
 {
     if ( scene == nullptr || renderOptions == nullptr || scene->patchList == nullptr ) {
         return;
+    }
+
+    const Patch *primaryPatch = nullptr;
+    if ( primaryPatchIndex >= 0 && primaryPatchIndex < scene->patchList->size() ) {
+        primaryPatch = scene->patchList->get(primaryPatchIndex);
     }
 
     for ( int patchIndex = 0; patchIndex < scene->patchList->size(); patchIndex++ ) {
@@ -172,6 +197,34 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
         }
         if ( patch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
             continue;
+        }
+
+        if ( secondaryPatchIndex < 0 && interactionsToRender != nullptr ) {
+            bool isInteractingWithPrimary = false;
+            for ( int i = 0; i < interactionsToRender->size(); i++ ) {
+                const Interaction *interaction = interactionsToRender->get(i);
+                if ( interaction == nullptr ) {
+                    continue;
+                }
+
+                const Patch *sourcePatch =
+                    interaction->sourceElement == nullptr ? nullptr : interaction->sourceElement->patch;
+                const Patch *receiverPatch =
+                    interaction->receiverElement == nullptr ? nullptr : interaction->receiverElement->patch;
+
+                const bool isPrimaryInteraction =
+                    sourcePatch == primaryPatch || receiverPatch == primaryPatch;
+                const bool isCurrentPatchInteraction =
+                    sourcePatch == patch || receiverPatch == patch;
+
+                if ( isPrimaryInteraction && isCurrentPatchInteraction ) {
+                    isInteractingWithPrimary = true;
+                    break;
+                }
+            }
+            if ( isInteractingWithPrimary ) {
+                continue;
+            }
         }
 
         const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(patch->radianceData);
@@ -368,15 +421,92 @@ GlutDebugPatchHierarchy::renderInteractionBetweenSelected(
 }
 
 void
+GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
+    const Scene *scene,
+    const RenderOptions *renderOptions,
+    int primaryPatchIndex,
+    int secondaryPatchIndex,
+    int hierarchyLevel,
+    const java::ArrayList<Interaction *> *interactionsToRender)
+{
+    if ( scene == nullptr || renderOptions == nullptr || interactionsToRender == nullptr ) {
+        return;
+    }
+    if ( scene->patchList == nullptr || primaryPatchIndex < 0 || primaryPatchIndex >= scene->patchList->size() ) {
+        return;
+    }
+    if ( secondaryPatchIndex >= 0 ) {
+        return;
+    }
+
+    const Patch *primaryPatch = scene->patchList->get(primaryPatchIndex);
+    if ( primaryPatch == nullptr ) {
+        return;
+    }
+
+    java::ArrayList<const Patch *> interactingPatches;
+    for ( int i = 0; i < interactionsToRender->size(); i++ ) {
+        const Interaction *interaction = interactionsToRender->get(i);
+        if ( interaction == nullptr ) {
+            continue;
+        }
+
+        const Patch *sourcePatch =
+            interaction->sourceElement == nullptr ? nullptr : interaction->sourceElement->patch;
+        const Patch *receiverPatch =
+            interaction->receiverElement == nullptr ? nullptr : interaction->receiverElement->patch;
+
+        if ( sourcePatch != primaryPatch ) {
+            addPatchIfNotPresent(&interactingPatches, sourcePatch);
+        }
+        if ( receiverPatch != primaryPatch ) {
+            addPatchIfNotPresent(&interactingPatches, receiverPatch);
+        }
+    }
+
+    if ( interactingPatches.size() <= 0 ) {
+        return;
+    }
+
+    RenderOptions interactingRenderOptions = *renderOptions;
+    interactingRenderOptions.drawSurfaces = true;
+    interactingRenderOptions.drawOutlines = true;
+    interactingRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
+
+    GLint previousDepthFunc = GL_LESS;
+    glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
+    GLfloat previousLineWidth = 1.0f;
+    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
+    glDepthFunc(GL_LEQUAL);
+    glLineWidth(2.0f);
+
+    for ( int i = 0; i < interactingPatches.size(); i++ ) {
+        const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(interactingPatches.get(i));
+        if ( topLevelElement == nullptr || topLevelElement->isCluster() ) {
+            continue;
+        }
+
+        const int maxLevel = maxLevelFromElement(topLevelElement);
+        const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
+        renderElementAtLevel(topLevelElement, clampedLevel, &interactingRenderOptions);
+    }
+
+    glLineWidth(previousLineWidth);
+    glDepthFunc(previousDepthFunc);
+}
+
+void
 GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     const GalerkinElement *topLevelElement,
-    const RenderOptions *renderOptions)
+    const RenderOptions *renderOptions,
+    int hierarchyLevel)
 {
     if ( topLevelElement == nullptr || renderOptions == nullptr || topLevelElement->isCluster() ) {
         return;
     }
 
-    const int secondaryHierarchyLevel = 0;
+    const int maxLevel = maxLevelFromElement(topLevelElement);
+    const int secondaryHierarchyLevel = clampLevel(hierarchyLevel, maxLevel);
 
     RenderOptions secondaryRenderOptions = *renderOptions;
     secondaryRenderOptions.drawSurfaces = true;
@@ -402,19 +532,42 @@ GlutDebugPatchHierarchy::maxLevelForSelectedPatch(const Scene *scene, int patchI
     return maxLevelFromElement(topLevelElement);
 }
 
+int
+GlutDebugPatchHierarchy::maxLevelAcrossScene(const Scene *scene) {
+    if ( scene == nullptr || scene->patchList == nullptr ) {
+        return 0;
+    }
+
+    int maxLevel = 0;
+    for ( int patchIndex = 0; patchIndex < scene->patchList->size(); patchIndex++ ) {
+        const GalerkinElement *topLevelElement = selectedPatchRoot(scene, patchIndex);
+        const int patchMaxLevel = maxLevelFromElement(topLevelElement);
+        if ( patchMaxLevel > maxLevel ) {
+            maxLevel = patchMaxLevel;
+        }
+    }
+    return maxLevel;
+}
+
 void
 GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
     const Scene *scene,
     const RenderOptions *renderOptions,
     int primaryPatchIndex,
     int secondaryPatchIndex,
-    int hierarchyLevel)
+    int hierarchyLevel,
+    const java::ArrayList<Interaction *> *interactionsToRender)
 {
     if ( renderOptions == nullptr ) {
         return;
     }
 
-    renderNonSelectedPatchesGray(scene, renderOptions, primaryPatchIndex, secondaryPatchIndex);
+    renderNonSelectedPatchesGray(
+        scene,
+        renderOptions,
+        primaryPatchIndex,
+        secondaryPatchIndex,
+        interactionsToRender);
 
     const GalerkinElement *primaryTopLevelElement = selectedPatchRoot(scene, primaryPatchIndex);
     if ( primaryTopLevelElement != nullptr ) {
@@ -434,12 +587,13 @@ void
 GlutDebugPatchHierarchy::renderSecondarySelectedPatchMarker(
     const Scene *scene,
     const RenderOptions *renderOptions,
-    int secondaryPatchIndex)
+    int secondaryPatchIndex,
+    int hierarchyLevel)
 {
     if ( scene == nullptr || renderOptions == nullptr ) {
         return;
     }
 
     const GalerkinElement *secondaryTopLevelElement = selectedPatchRoot(scene, secondaryPatchIndex);
-    drawSecondarySelectedPatchMarker(secondaryTopLevelElement, renderOptions);
+    drawSecondarySelectedPatchMarker(secondaryTopLevelElement, renderOptions, hierarchyLevel);
 }

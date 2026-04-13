@@ -20,8 +20,10 @@
 #include "skin/Patch.h"
 
 bool GlutDebugToolsMouseControl::leftButtonDown = false;
+bool GlutDebugToolsMouseControl::rightButtonDown = false;
 bool GlutDebugToolsMouseControl::dragging = false;
 bool GlutDebugToolsMouseControl::pressWithShift = false;
+int GlutDebugToolsMouseControl::activeDragButton = -1;
 int GlutDebugToolsMouseControl::pressX = 0;
 int GlutDebugToolsMouseControl::pressY = 0;
 int GlutDebugToolsMouseControl::lastX = 0;
@@ -96,19 +98,8 @@ GlutDebugToolsMouseControl::clampCoord(int value, int maxExclusive) {
 
 void
 GlutDebugToolsMouseControl::clampSelectedHierarchyLevel(GlutDebugToolsModel &model) {
-    if ( model.debugState == nullptr ) {
-        return;
-    }
-
-    const int maxHierarchyLevel = GlutDebugPatchHierarchy::maxLevelForSelectedPatch(
-        model.scene,
-        model.debugState->primarySelectedPatch);
-
     if ( model.selectedHierarchyLevel < 0 ) {
         model.selectedHierarchyLevel = 0;
-    }
-    if ( model.selectedHierarchyLevel > maxHierarchyLevel ) {
-        model.selectedHierarchyLevel = maxHierarchyLevel;
     }
 }
 
@@ -200,6 +191,50 @@ GlutDebugToolsMouseControl::rotateVectorAroundAxis(Vector3D *vector, const Vecto
     Vector3D rotated;
     rotation.transformPoint3D(*vector, rotated);
     vector->copy(rotated);
+}
+
+bool
+GlutDebugToolsMouseControl::dollyCameraAlongFront(GlutDebugToolsModel &model, int deltaY) {
+    if ( deltaY == 0 || model.scene == nullptr || model.scene->camera == nullptr ) {
+        return false;
+    }
+
+    syncCameraToViewport(model);
+
+    Camera *camera = model.scene->camera;
+    Vector3D viewDirection;
+    viewDirection.subtraction(camera->lookPosition, camera->eyePosition);
+    const float viewDistance = viewDirection.norm();
+    if ( viewDistance < Numeric::EPSILON_FLOAT ) {
+        return false;
+    }
+    viewDirection.inverseScaledCopy(viewDistance, viewDirection, Numeric::EPSILON_FLOAT);
+
+    const float translationDistance =
+        -static_cast<float>(deltaY) * viewDistance * DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL;
+    if ( java::Math::abs(translationDistance) < Numeric::EPSILON_FLOAT ) {
+        return false;
+    }
+
+    Vector3D translation;
+    translation.scaledCopy(translationDistance, viewDirection);
+
+    Vector3D newEyePosition;
+    newEyePosition.addition(camera->eyePosition, translation);
+    Vector3D newLookPosition;
+    newLookPosition.addition(camera->lookPosition, translation);
+
+    const int viewportWidth = model.width > 0 ? model.width : camera->xSize;
+    const int viewportHeight = model.height > 0 ? model.height : camera->ySize;
+    camera->set(
+        &newEyePosition,
+        &newLookPosition,
+        &camera->upDirection,
+        camera->fieldOfVision,
+        viewportWidth,
+        viewportHeight,
+        &camera->background);
+    return true;
 }
 
 void
@@ -371,7 +406,9 @@ GlutDebugToolsMouseControl::handleMouseButton(
     int y,
     GlutDebugToolsModel &model)
 {
-    if ( button != GLUT_LEFT_BUTTON ) {
+    const bool isLeftButton = button == GLUT_LEFT_BUTTON;
+    const bool isRightButton = button == GLUT_RIGHT_BUTTON;
+    if ( !isLeftButton && !isRightButton ) {
         return false;
     }
 
@@ -379,9 +416,15 @@ GlutDebugToolsMouseControl::handleMouseButton(
     const int clampedY = clampCoord(y, model.height);
 
     if ( state == GLUT_DOWN ) {
-        const int modifiers = glutGetModifiers();
-        GlutDebugToolsMouseControl::pressWithShift = (modifiers & GLUT_ACTIVE_SHIFT) != 0;
-        GlutDebugToolsMouseControl::leftButtonDown = true;
+        GlutDebugToolsMouseControl::leftButtonDown = isLeftButton;
+        GlutDebugToolsMouseControl::rightButtonDown = isRightButton;
+        GlutDebugToolsMouseControl::activeDragButton = button;
+        if ( isLeftButton ) {
+            const int modifiers = glutGetModifiers();
+            GlutDebugToolsMouseControl::pressWithShift = (modifiers & GLUT_ACTIVE_SHIFT) != 0;
+        } else {
+            GlutDebugToolsMouseControl::pressWithShift = false;
+        }
         GlutDebugToolsMouseControl::dragging = false;
         GlutDebugToolsMouseControl::pressX = clampedX;
         GlutDebugToolsMouseControl::pressY = clampedY;
@@ -390,13 +433,34 @@ GlutDebugToolsMouseControl::handleMouseButton(
         return false;
     }
 
-    if ( state != GLUT_UP || !GlutDebugToolsMouseControl::leftButtonDown ) {
+    if ( state != GLUT_UP ) {
+        return false;
+    }
+
+    if ( isRightButton ) {
+        if ( !GlutDebugToolsMouseControl::rightButtonDown ) {
+            return false;
+        }
+        GlutDebugToolsMouseControl::rightButtonDown = false;
+        if ( GlutDebugToolsMouseControl::activeDragButton == GLUT_RIGHT_BUTTON ) {
+            GlutDebugToolsMouseControl::activeDragButton = -1;
+            GlutDebugToolsMouseControl::dragging = false;
+        }
+        return false;
+    }
+
+    if ( !GlutDebugToolsMouseControl::leftButtonDown ) {
         return false;
     }
 
     GlutDebugToolsMouseControl::leftButtonDown = false;
-    const bool shouldSelectPatch = !GlutDebugToolsMouseControl::dragging;
-    GlutDebugToolsMouseControl::dragging = false;
+    const bool shouldSelectPatch =
+        !GlutDebugToolsMouseControl::dragging
+        && GlutDebugToolsMouseControl::activeDragButton == GLUT_LEFT_BUTTON;
+    if ( GlutDebugToolsMouseControl::activeDragButton == GLUT_LEFT_BUTTON ) {
+        GlutDebugToolsMouseControl::activeDragButton = -1;
+        GlutDebugToolsMouseControl::dragging = false;
+    }
 
     if ( !shouldSelectPatch ) {
         return false;
@@ -428,7 +492,16 @@ GlutDebugToolsMouseControl::handleMouseButton(
 
 bool
 GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel &model) {
-    if ( !GlutDebugToolsMouseControl::leftButtonDown ) {
+    if ( GlutDebugToolsMouseControl::activeDragButton != GLUT_LEFT_BUTTON
+         && GlutDebugToolsMouseControl::activeDragButton != GLUT_RIGHT_BUTTON ) {
+        return false;
+    }
+    if ( GlutDebugToolsMouseControl::activeDragButton == GLUT_LEFT_BUTTON
+         && !GlutDebugToolsMouseControl::leftButtonDown ) {
+        return false;
+    }
+    if ( GlutDebugToolsMouseControl::activeDragButton == GLUT_RIGHT_BUTTON
+         && !GlutDebugToolsMouseControl::rightButtonDown ) {
         return false;
     }
 
@@ -455,11 +528,15 @@ GlutDebugToolsMouseControl::handleMouseMotion(int x, int y, GlutDebugToolsModel 
     if ( !GlutDebugToolsMouseControl::dragging ) {
         return false;
     }
-    if ( model.debugState == nullptr ) {
-        return false;
+
+    if ( GlutDebugToolsMouseControl::activeDragButton == GLUT_LEFT_BUTTON ) {
+        if ( model.debugState == nullptr ) {
+            return false;
+        }
+        model.debugState->angleAroundViewportV -= static_cast<float>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        model.debugState->angleAroundViewportU += static_cast<float>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
+        return true;
     }
 
-    model.debugState->angleAroundViewportV -= static_cast<float>(deltaX) * DRAG_ROTATION_DEGREES_PER_PIXEL;
-    model.debugState->angleAroundViewportU += static_cast<float>(deltaY) * DRAG_ROTATION_DEGREES_PER_PIXEL;
-    return true;
+    return dollyCameraAlongFront(model, deltaY);
 }

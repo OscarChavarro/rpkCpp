@@ -59,6 +59,30 @@ maxHierarchyLevelFromElement(const GalerkinElement *element) {
     return maxDepth;
 }
 
+bool
+isElementInHierarchy(
+    const GalerkinElement *hierarchyRoot,
+    const GalerkinElement *candidateElement)
+{
+    if ( hierarchyRoot == nullptr || candidateElement == nullptr ) {
+        return false;
+    }
+    if ( hierarchyRoot == candidateElement ) {
+        return true;
+    }
+    if ( hierarchyRoot->regularSubElements == nullptr ) {
+        return false;
+    }
+
+    for ( int i = 0; i < 4; i++ ) {
+        const GalerkinElement *child = static_cast<const GalerkinElement *>(hierarchyRoot->regularSubElements[i]);
+        if ( child != nullptr && isElementInHierarchy(child, candidateElement) ) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void
 addInteractionsFromElementLevel(
     const GalerkinElement *element,
@@ -153,9 +177,12 @@ GlutDebugTools::printGalerkinElementForPatchBridge(const Scene *scene, int patch
 GlutDebugTools::GlutDebugTools(const GlutDebugToolsModel &initialModel):
     model(initialModel),
     cachedPrimaryPatchIndex(-2),
+    cachedSecondaryPatchIndex(-2),
     cachedPrimaryHierarchyLevel(-1),
+    forcePrimaryPatchInteractionsRefresh(false),
     cachedInteractionsForPrimaryPatch(nullptr)
 {
+    model.selectedHierarchyLevel = GlutDebugPatchHierarchy::maxLevelAcrossScene(model.scene);
 }
 
 GlutDebugTools::~GlutDebugTools() {
@@ -191,6 +218,7 @@ GlutDebugTools::addInteractionIfNotPresent(
 java::ArrayList<Interaction *> *
 GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
     const Patch *patch,
+    const Patch *secondaryPatch,
     int selectedHierarchyLevel) const
 {
     java::ArrayList<Interaction *> *interactions = new java::ArrayList<Interaction *>();
@@ -216,17 +244,56 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
     }
 
     addInteractionsFromElementLevel(topLevelElement, clampedLevel, interactions);
-    return interactions;
+    if ( secondaryPatch == nullptr ) {
+        return interactions;
+    }
+    if ( secondaryPatch->radianceData == nullptr
+         || secondaryPatch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+        delete interactions;
+        interactions = new java::ArrayList<Interaction *>();
+        return interactions;
+    }
+
+    const GalerkinElement *secondaryTopLevelElement = GalerkinElement::fromPatch(secondaryPatch);
+    if ( secondaryTopLevelElement == nullptr ) {
+        delete interactions;
+        interactions = new java::ArrayList<Interaction *>();
+        return interactions;
+    }
+
+    java::ArrayList<Interaction *> *filteredInteractions = new java::ArrayList<Interaction *>();
+    for ( int i = 0; i < interactions->size(); i++ ) {
+        Interaction *interaction = interactions->get(i);
+        if ( interaction == nullptr ) {
+            continue;
+        }
+
+        if ( isElementInHierarchy(secondaryTopLevelElement, interaction->sourceElement)
+             || isElementInHierarchy(secondaryTopLevelElement, interaction->receiverElement) ) {
+            addInteractionIfNotPresentLocal(filteredInteractions, interaction);
+        }
+    }
+
+    delete interactions;
+    return filteredInteractions;
 }
 
 void
-GlutDebugTools::updateCachedPrimaryPatchInteractions(int selectedPatchIndex, int selectedHierarchyLevel) {
-    if ( selectedPatchIndex == cachedPrimaryPatchIndex
+GlutDebugTools::updateCachedPrimaryPatchInteractions(
+    int selectedPatchIndex,
+    int secondarySelectedPatchIndex,
+    int selectedHierarchyLevel)
+{
+    if ( !forcePrimaryPatchInteractionsRefresh
+         && selectedPatchIndex == cachedPrimaryPatchIndex
+         && secondarySelectedPatchIndex == cachedSecondaryPatchIndex
          && selectedHierarchyLevel == cachedPrimaryHierarchyLevel ) {
         return;
     }
+    forcePrimaryPatchInteractionsRefresh = false;
 
     cachedPrimaryPatchIndex = selectedPatchIndex;
+    cachedSecondaryPatchIndex = secondarySelectedPatchIndex;
     cachedPrimaryHierarchyLevel = selectedHierarchyLevel;
     clearCachedPrimaryPatchInteractions();
 
@@ -237,9 +304,16 @@ GlutDebugTools::updateCachedPrimaryPatchInteractions(int selectedPatchIndex, int
         return;
     }
 
+    const Patch *secondaryPatch = nullptr;
+    if ( secondarySelectedPatchIndex >= 0 && secondarySelectedPatchIndex < model.scene->patchList->size() ) {
+        secondaryPatch = model.scene->patchList->get(secondarySelectedPatchIndex);
+    }
+
     const Patch *selectedPatch = model.scene->patchList->get(selectedPatchIndex);
-    cachedInteractionsForPrimaryPatch =
-        getInteractionsWherePatchParticipateAsSourceOrAsReceiver(selectedPatch, selectedHierarchyLevel);
+    cachedInteractionsForPrimaryPatch = getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
+        selectedPatch,
+        secondaryPatch,
+        selectedHierarchyLevel);
 }
 
 void
@@ -367,6 +441,9 @@ GlutDebugTools::keypressCallback(unsigned char keyChar, int /*x*/, int /*y*/) {
              keyChar,
              model,
              printGalerkinElementForPatchBridge) ) {
+        if ( keyChar == ' ' ) {
+            forcePrimaryPatchInteractionsRefresh = true;
+        }
         glutPostRedisplay();
     }
 }
@@ -447,7 +524,10 @@ GlutDebugTools::drawCallback() {
             secondarySelectedPatchIndex = -1;
         }
     }
-    updateCachedPrimaryPatchInteractions(selectedPatchIndex, model.selectedHierarchyLevel);
+    updateCachedPrimaryPatchInteractions(
+        selectedPatchIndex,
+        secondarySelectedPatchIndex,
+        model.selectedHierarchyLevel);
 
     if ( model.mode == GlutDebugMode::RADIANCE_SCENE ) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
@@ -467,11 +547,20 @@ GlutDebugTools::drawCallback() {
             model.renderOptions,
             selectedPatchIndex,
             secondarySelectedPatchIndex,
-            model.selectedHierarchyLevel);
+            model.selectedHierarchyLevel,
+            cachedInteractionsForPrimaryPatch);
         GlutDebugPatchHierarchy::renderSecondarySelectedPatchMarker(
             model.scene,
             model.renderOptions,
-            secondarySelectedPatchIndex);
+            secondarySelectedPatchIndex,
+            model.selectedHierarchyLevel);
+        GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
+            model.scene,
+            model.renderOptions,
+            selectedPatchIndex,
+            secondarySelectedPatchIndex,
+            model.selectedHierarchyLevel,
+            cachedInteractionsForPrimaryPatch);
         GlutDebugPatchHierarchy::renderInteractionBetweenSelected(
             model.scene,
             selectedPatchIndex,

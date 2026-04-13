@@ -14,11 +14,14 @@ class GlutDebugToolsMouseControl final {
   private:
     static constexpr int DRAG_START_THRESHOLD_PIXELS = 3;
     static constexpr float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25f;
+    static constexpr float DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL = 0.01f;
     static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846f / 180.0f;
 
     static bool leftButtonDown;
+    static bool rightButtonDown;
     static bool dragging;
     static bool pressWithShift;
+    static int activeDragButton;
     static int pressX;
     static int pressY;
     static int lastX;
@@ -32,6 +35,7 @@ class GlutDebugToolsMouseControl final {
     static Vector3D sceneRotationPivot(const Scene *scene);
     static void viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV);
     static void rotateVectorAroundAxis(Vector3D *vector, const Vector3D &axis, float angleDegrees);
+    static bool dollyCameraAlongFront(GlutDebugToolsModel &model, int deltaY);
     static int clampCoord(int value, int maxExclusive);
     static void clampSelectedHierarchyLevel(GlutDebugToolsModel &model);
 };
