@@ -27,7 +27,7 @@ RayTools::traceWorld(
     }
 
     dist = Numeric::HUGE_FLOAT_VALUE;
-    Patch::dontIntersect3(patch, patch ? patch->twin : nullptr, extraPatch);
+    Patch::dontIntersect3(patch, patch ? patch->getTwin() : nullptr, extraPatch);
     result = sceneWorldVoxelGrid->gridIntersect(ray, 0.0, &dist, static_cast<int>(flags), hitStore);
 
     if ( result ) {
@@ -66,7 +66,7 @@ RayTools::findRayIntersection(
     // bsdf and the bsdf of the material hit. If they
     // don't match, exclude this patch and trace again :-(
     if ( newHit != nullptr && (newHit->getFlags() & RayHitFlag::BACK) &&
-         newHit->getPatch()->material->getBsdf() != currentBsdf ) {
+         newHit->getPatch()->getMaterial()->getBsdf() != currentBsdf ) {
         // Whoops, intersected with wrong patch (accuracy problem)
         newHit = traceWorld(sceneWorldVoxelGrid, ray, patch, hitFlags, newHit->getPatch(), hitStore);
         Statistics::instance().rayTracer.rayCount++; // Statistics

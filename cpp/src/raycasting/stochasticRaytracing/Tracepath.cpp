@@ -201,11 +201,11 @@ Tracepath::tracePaths(
         updateCallBack(patch, static_cast<double>(numberOfPaths) / sumProbabilities);
         StochasticRelaxation::activeState().unShotFlux.addScaled(
             StochasticRelaxation::activeState().unShotFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().totalFlux.addScaled(
             StochasticRelaxation::activeState().totalFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);
     }
 }

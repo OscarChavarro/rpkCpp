@@ -427,7 +427,7 @@ Patch::quadUv(const Patch *patch, const Vector3D *point, Vector2Dd *uv) {
 
     // Projection on the plane that is most parallel to the facet
     int vertexIndex = 0;
-    switch ( patch->index ) {
+    switch ( patch->getDominantAxisIndex() ) {
         case X:
             Vector2Dd::set(A, patch->vertex[vertexIndex]->point->y, patch->vertex[vertexIndex]->point->z);
             vertexIndex++;
@@ -571,7 +571,7 @@ Patch::patchNormal(const Patch *patch, Vector3D *normal) {
 
     const float localNorm = normal->norm();
     if ( localNorm < Numeric::EPSILON ) {
-        Error::warning("patchNormal", "degenerate patch (id %d)", patch->id);
+        Error::warning("patchNormal", "degenerate patch (id %d)", patch->getId());
         return nullptr;
     }
     normal->inverseScaledCopy(localNorm, *normal, Numeric::EPSILON_FLOAT);
@@ -598,6 +598,7 @@ Patch::Patch(
     Vertex *v4):
     flags(),
     patchMidPoint(),
+    material(),
     id(),
     twin(),
     vertex(),
@@ -612,8 +613,7 @@ Patch::Patch(
     index(),
     omit(),
     color(),
-    radianceData(),
-    material()
+    radianceData()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
         Error::error("Patch::Patch", "Null vertex!");
@@ -657,7 +657,7 @@ Patch::Patch(
     area = computeRandomWalkRadiosityArea();
 
     // Patch midpoint
-    computeMidpoint(&midPoint());
+    computeMidpoint(&patchMidPoint);
 
     // Plane constant
     planeConstant = -normal.dotProduct(midPoint());
@@ -781,7 +781,7 @@ given parameters on the patch. The frame is consistent over the
 complete patch if the shading normals in the vertices do not differ
 too much from the geometric normal. The Z axis is the interpolated
 normal The X is determined by Z and the projection of the patch by
-the dominant axis (patch->index)
+the dominant axis (patch->getDominantAxisIndex())
 */
 void
 Patch::interpolatedFrameAtUv(

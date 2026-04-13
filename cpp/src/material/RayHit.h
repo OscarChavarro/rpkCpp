@@ -25,7 +25,7 @@ class RayHit {
     Patch *patch; // Patch that was hit
     Vector3D texCoord; // Texture coordinate
     Vector3D geometricNormal;
-    Material *material; // Material of hit surface
+    const Material *material; // Material of hit surface
     CoordinateSystem shadingFrame; // Shading frame (Z = shading normal: hit->shadingFrame.getZ() == hit->normal)
     Vector2Dd uv; // Bi-linear / barycentric parameters of hit
     unsigned int flags; // Flags indicating which of the above fields have been filled in
@@ -42,7 +42,7 @@ public:
         Patch *inPatch,
         const Vector3D *inPoint,
         const Vector3D *inGeometryNormal,
-        Material *inMaterial);
+        const Material *inMaterial);
 
     bool getTexCoord(Vector3D *outTexCoord);
     bool shadingNormal(Vector3D *inNormal);
@@ -52,7 +52,7 @@ public:
     Vector3D getPoint() const;
     void setPoint(const Vector3D *position);
     void setGeometricNormal(const Vector3D *inNormal);
-    void setMaterial(Material *inMaterial);
+    void setMaterial(const Material *inMaterial);
     Vector2Dd getUv() const;
     void setUv(const Vector2Dd *inUv);
     void setUv(const double inU, const double inV);
@@ -64,7 +64,7 @@ public:
     Vector3D getNormal() const;
     void setNormal(const Vector3D *n);
     CoordinateSystem getShadingFrame() const;
-    Material * getMaterial() const;
+    const Material * getMaterial() const;
     Vector3D getGeometricNormal() const;
     void setShadingFrame(const Vector3D *inX, const Vector3D *inY, const Vector3D *inZ);
 #endif
@@ -97,7 +97,7 @@ RayHit::setGeometricNormal(const Vector3D *inNormal) {
 }
 
 inline void
-RayHit::setMaterial(Material *inMaterial) {
+RayHit::setMaterial(const Material *inMaterial) {
     material = inMaterial;
 }
 
@@ -143,7 +143,7 @@ RayHit::getShadingFrame() const {
     return shadingFrame;
 }
 
-inline Material *
+inline const Material *
 RayHit::getMaterial() const {
     return material;
 }

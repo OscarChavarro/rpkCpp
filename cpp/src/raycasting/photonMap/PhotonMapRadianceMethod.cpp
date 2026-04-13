@@ -367,12 +367,12 @@ PhotonMapRadianceMethod::photonMapDoPhotonStore(
     SimpleRaytracingPathNode *node,
     ColorRgb power)
 {
-    if ( node->m_hit.getPatch() && node->m_hit.getPatch()->material ) {
+    if ( node->m_hit.getPatch() && node->m_hit.getPatch()->getMaterial() ) {
         // Only add photons on surfaces with a certain reflection
         // coefficient
 
         const PhongBidirectionalScatteringDistributionFunction *bsdf;
-        bsdf = node->m_hit.getPatch()->material->getBsdf();
+        bsdf = node->m_hit.getPatch()->getMaterial()->getBsdf();
 
         if ( !PhotonMap::zeroAlbedo(bsdf, &node->m_hit, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT) ) {
             Photon photon(node->m_hit.getPoint(), power, node->m_inDirF);
@@ -702,12 +702,12 @@ PhotonMapRadianceMethod::getRadiance(
 {
     RayHit hit;
     Vector3D point;
-    PhongBidirectionalScatteringDistributionFunction *bsdf = patch->material->getBsdf();
+    PhongBidirectionalScatteringDistributionFunction *bsdf = patch->getMaterial()->getBsdf();
     ColorRgb radiance;
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);
-    hit.init(patch, &point, &patch->normal, patch->material);
+    hit.init(patch, &point, &patch->getNormal(), patch->getMaterial());
     Vector3D normal = hit.getNormal();
     hit.shadingNormal(&normal);
     hit.setNormal(&normal);

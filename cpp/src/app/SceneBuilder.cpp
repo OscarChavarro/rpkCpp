@@ -30,10 +30,10 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb power;
 
-    Statistics::instance().radiance.totalArea += patch->area;
-    power.scaledCopy(patch->area, E);
+    Statistics::instance().radiance.totalArea += patch->getArea();
+    power.scaledCopy(patch->getArea(), E);
     Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, power);
-    Statistics::instance().radiance.averageReflectivity.addScaled(Statistics::instance().radiance.averageReflectivity, patch->area, R);
+    Statistics::instance().radiance.averageReflectivity.addScaled(Statistics::instance().radiance.averageReflectivity, patch->getArea(), R);
     E.scale(1.0f / static_cast<float>(M_PI));
     Statistics::instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics::instance().radiance.maxSelfEmittedRadiance);
     Statistics::instance().radiance.maxSelfEmittedPower.maximum(power, Statistics::instance().radiance.maxSelfEmittedPower);
@@ -101,8 +101,8 @@ a light source (i.e. when the surfaces material has a non-null edf)
 void
 SceneBuilder::sceneBuilderAddPatchToLightSourceListIfLightSource(java::ArrayList<Patch *> *lights, Patch *patch) {
     if ( patch != nullptr
-         && patch->material != nullptr
-         && patch->material->getEdf() != nullptr ) {
+         && patch->getMaterial() != nullptr
+         && patch->getMaterial()->getEdf() != nullptr ) {
         lights->add(patch);
         Statistics::instance().reader.numberOfLightSources++;
     }

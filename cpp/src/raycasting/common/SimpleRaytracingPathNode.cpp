@@ -79,7 +79,7 @@ SimpleRaytracingPathNode::GetMatchingNode() const {
     while ( tmpNode && backHits > 0 ) {
         switch ( tmpNode->m_rayType ) {
             case PathRayType::ENTERS:
-                if ( tmpNode->m_hit.getPatch()->material->getBsdf() == thisBsdf ) {
+                if ( tmpNode->m_hit.getPatch()->getMaterial()->getBsdf() == thisBsdf ) {
                     backHits--; // Entering point in this material
                 }
                 break;
@@ -112,7 +112,7 @@ SimpleRaytracingPathNode::getPreviousBsdf() const {
         return m_inBsdf;  // Should not happen
     }
 
-    if ( m_hit.getPatch()->material->getBsdf() != m_inBsdf ) {
+    if ( m_hit.getPatch()->getMaterial()->getBsdf() != m_inBsdf ) {
         Error::warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
@@ -136,7 +136,7 @@ SimpleRaytracingPathNode::assignBsdfAndNormal() {
         return;
     }
 
-    thisMaterial = m_hit.getPatch()->material;
+    thisMaterial = m_hit.getPatch()->getMaterial();
 
     m_normal.copy(m_hit.getNormal()); // Possible double format
 

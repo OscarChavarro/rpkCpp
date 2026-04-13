@@ -431,7 +431,7 @@ GlutDebugTools::printGalerkinElementForPatch(const Scene *scene, int patchIndex)
         return;
     }
     const GalerkinElement *element = GalerkinElement::fromPatch(patch);
-    java::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->id);
+    java::System::out.printf("Galerkin element for patch[%d] %d\n", patchIndex, patch->getId());
     printElementHierarchy(element, 0);
 }
 

@@ -16,7 +16,7 @@ Creates a coordinate system on the patch P with Z direction along the normal
 */
 void
 Localline::patchCoordSys(const Patch *patch, CoordinateSystem *coord) {
-    Vector3D z = patch->normal;
+    Vector3D z = patch->getNormal();
     Vector3D x;
     x.subtraction(*patch->vertex[1]->point, *patch->vertex[0]->point);
     x.normalize(Numeric::EPSILON_FLOAT);

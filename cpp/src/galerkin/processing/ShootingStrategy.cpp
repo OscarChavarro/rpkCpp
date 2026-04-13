@@ -31,7 +31,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
 
-        power = static_cast<float>(M_PI) * patch->area * patch->radianceData->unShotRadiance[0].sumAbsComponents();
+        power = static_cast<float>(M_PI) * patch->getArea() * patch->radianceData->unShotRadiance[0].sumAbsComponents();
         if ( power > maximumPower ) {
             shooting_patch = patch;
             maximumPower = power;
@@ -40,7 +40,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
         if ( galerkinState->importanceDriven ) {
             // For importance-driven progressive refinement radiosity, choose the patch
             // with highest indirectly received potential times power
-            powerImportance = (galerkinGetPotential(patch) - patch->directPotential) * power;
+            powerImportance = (galerkinGetPotential(patch) - patch->getDirectPotential()) * power;
             if ( powerImportance > maximumPowerImportance ) {
                 pot_shooting_patch = patch;
                 maximumPowerImportance = powerImportance;
@@ -154,7 +154,7 @@ ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinSt
 
     galerkinState->ambientRadiance.addScaled(
         galerkinState->ambientRadiance,
-        patch->area,
+        patch->getArea(),
         patch->radianceData->unShotRadiance[0]);
 }
 
@@ -235,7 +235,7 @@ ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *s
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
-        float imp = patch->area * java::Math::abs(galerkinGetUnShotPotential(patch));
+        float imp = patch->getArea() * java::Math::abs(galerkinGetUnShotPotential(patch));
 
         if ( imp > maximumImportance ) {
             shootingPatch = patch;
@@ -290,7 +290,7 @@ ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, con
             for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
                 const Patch *patch = scene->patchList->get(i);
                 GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
-                float potential_increment = patch->directPotential - topLevelElement->directPotential;
+                float potential_increment = patch->getDirectPotential() - topLevelElement->directPotential;
                 shootingUpdateDirectPotential(topLevelElement, potential_increment);
             }
             scene->camera->changed = false;

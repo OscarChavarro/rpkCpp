@@ -4,7 +4,7 @@
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {
     int numberOfSamples = 1;
-    if ( patch->material->getBsdf() != nullptr && patch->material->getBsdf()->splitBsdfIsTextured() ) {
+    if ( patch->getMaterial()->getBsdf() != nullptr && patch->getMaterial()->getBsdf()->splitBsdfIsTextured() ) {
         if ( patch->vertex[0]->textureCoordinates == patch->vertex[1]->textureCoordinates &&
              patch->vertex[0]->textureCoordinates == patch->vertex[2]->textureCoordinates &&
              (patch->numberOfVertices == 3 || patch->vertex[0]->textureCoordinates == patch->vertex[3]->textureCoordinates) &&
@@ -27,7 +27,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     ColorRgb albedo;
     RayHit hit;
 
-    hit.init(patch, &patch->midPoint(), &patch->normal, patch->material);
+    hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
     const int numberOfSamples = getNumberOfSamples(patch);
     albedo.clear();
@@ -40,8 +40,8 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
         sample.clear();
-        if ( patch->material->getBsdf() != nullptr ) {
-            sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, components);
+        if ( patch->getMaterial()->getBsdf() != nullptr ) {
+            sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, components);
         }
         albedo.add(albedo, sample);
     }
@@ -54,7 +54,7 @@ ColorRgb
 PatchVisitor::averageEmittance(Patch *patch, char components) {
     ColorRgb emittance;
     RayHit hit;
-    hit.init(patch, &patch->midPoint(), &patch->normal, patch->material);
+    hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
     const int numberOfSamples = getNumberOfSamples(patch);
     emittance.clear();
@@ -67,10 +67,10 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
 
-        if ( patch->material->getEdf() == nullptr ) {
+        if ( patch->getMaterial()->getEdf() == nullptr ) {
             sample.clear();
         } else {
-            sample = patch->material->getEdf()->phongEmittance(&hit, components);
+            sample = patch->getMaterial()->getEdf()->phongEmittance(&hit, components);
         }
         emittance.add(emittance, sample);
     }

@@ -30,7 +30,7 @@ candidate list, even if the geometry overlaps or is inside the shaft
 */
 void
 Shaft::setShaftOmit(Patch *patch) {
-    patchIdsToOmit[numberOfGeometriesToOmit++] = patch->id;
+    patchIdsToOmit[numberOfGeometriesToOmit++] = patch->getId();
 }
 
 /**
@@ -651,7 +651,7 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
 
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
-        if ( patch->omit || patchIsOnOmitSet(patch->id) ) {
+        if ( patch->isOmitted() || patchIsOnOmitSet(patch->getId()) ) {
             continue;
         }
 
@@ -734,7 +734,7 @@ Shaft::cullGeometry(
         // TODO: Review this, Patch is not a Geometry! Probably here we are getting non-sense int numbers,
         // not related to any Geometry/PatchSet neither Patch id.
         const Patch* patch = reinterpret_cast<Patch *>(geometry);
-        const unsigned patchId = patch->id;
+        const unsigned patchId = patch->getId();
 
         // TODO: Check why the following alternatives does not work for test scene 05
         // const unsigned geometryId = geometry->id;

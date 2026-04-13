@@ -146,7 +146,7 @@ MgfVertexFaceEntitySupport::newFace(Vertex *v1, Vertex *v2, Vertex *v3, Vertex *
     }
 
     // If we are doing radiance computations, create radiance data for the patch
-    if ( theFace->material != nullptr ) {
+    if ( theFace->getMaterial() != nullptr ) {
         context->radianceMethod->createPatchData(theFace);
     }
 

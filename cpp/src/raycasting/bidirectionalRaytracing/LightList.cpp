@@ -42,16 +42,16 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
     for ( int i = 0; list != nullptr && i < list->size(); i++ ) {
         Patch *light = list->get(i);
         if ( (!light->hasZeroVertices() || includeVirtual)
-            && ( light->material->getEdf() != nullptr ) ) {
+            && ( light->getMaterial()->getEdf() != nullptr ) ) {
             info.light = light;
 
             // calc emittedFlux
             if ( light->hasZeroVertices() ) {
                 ColorRgb e;
-                if ( light->material->getEdf() == nullptr ) {
+                if ( light->getMaterial()->getEdf() == nullptr ) {
                     e.clear();
                 } else {
-                    e = light->material->getEdf()->phongEmittance(nullptr, DIFFUSE_COMPONENT);
+                    e = light->getMaterial()->getEdf()->phongEmittance(nullptr, DIFFUSE_COMPONENT);
                 }
                 info.emittedFlux = e.average();
             } else {
@@ -133,10 +133,10 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3D */*point*/) const {
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
     ColorRgb e;
-    if ( light->material->getEdf() == nullptr) {
+    if ( light->getMaterial()->getEdf() == nullptr) {
         e.clear();
     } else {
-        e = light->material->getEdf()->phongEmittance(nullptr, all);
+        e = light->getMaterial()->getEdf()->phongEmittance(nullptr, all);
     }
     probabilityDensityFunction = e.average() / totalFlux;
 
@@ -185,10 +185,10 @@ LightList::computeOneLightImportanceVirtual(
 
     ColorRgb e;
 
-    if ( light->material->getEdf() == nullptr ) {
+    if ( light->getMaterial()->getEdf() == nullptr ) {
         e.clear();
     } else {
-        e = light->material->getEdf()->phongEmittance(nullptr, all);
+        e = light->getMaterial()->getEdf()->phongEmittance(nullptr, all);
     }
     return e.average();
 }

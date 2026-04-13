@@ -145,7 +145,7 @@ BinaryModelSerializationGraph::ensurePatch(const Patch *value) {
     if ( !ensurePatch(value->twin) ) {
         return false;
     }
-    if ( !ensureMaterial(value->material) ) {
+    if ( !ensureMaterial(value->getMaterial()) ) {
         return false;
     }
 

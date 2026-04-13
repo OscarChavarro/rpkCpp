@@ -15,7 +15,7 @@ MeshSurfaceVisitor::initializeFacesDefaults(MeshSurface *mesh) {
         if ( face == nullptr ) {
             continue;
         }
-        face->material = mesh->material;
+        face->setMaterial(mesh->material);
     }
 }
 
@@ -26,7 +26,7 @@ void
 MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
     int i;
 
-    face->material = mesh->material;
+    face->setMaterial(mesh->material);
 
     // Also fill in a nicer default color for the patch
     switch ( mesh->colorFlags ) {

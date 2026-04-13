@@ -74,13 +74,13 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
 
         patch->uniformPoint(zeta[0], zeta[1], &ray.position);
 
-        hit.init(patch, &ray.position, &patch->normal, patch->material);
+        hit.init(patch, &ray.position, &patch->getNormal(), patch->getMaterial());
         *dirSelectionPdf = 0.0;
         ray.direction.x = 0.0;
         ray.direction.y = 0.0;
         ray.direction.z = 0.0;
-        if ( patch->material->getEdf() != nullptr ) {
-            ray.direction = patch->material->getEdf()->phongEdfSample(
+        if ( patch->getMaterial()->getEdf() != nullptr ) {
+            ray.direction = patch->getMaterial()->getEdf()->phongEdfSample(
                 &hit, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
         }
     } while ( *dirSelectionPdf == 0.0 );
@@ -88,7 +88,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
     // The following is only correct if no rejections would result in the
     // loop above, i.o.w. the surface is not textured, or it is textured, but there
     // are no areas that are non-self emitting
-    *point_selection_pdf = 1.0 / patch->area;  // Uniform area sampling
+    *point_selection_pdf = 1.0 / patch->getArea();  // Uniform area sampling
     return ray;
 }
 
@@ -105,7 +105,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
     hit = Localline::mcrShootRay(sceneWorldVoxelGrid, light->patch, &ray, &hitStore);
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
-        double outCos = ray.direction.dotProduct(light->patch->normal);
+        double outCos = ray.direction.dotProduct(light->patch->getNormal());
         ColorRgb receivedRadiosity;
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->area * pdf * numberOfSamples)), rad);
@@ -152,21 +152,21 @@ Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
         Patch *patch = scenePatches->get(i);
         StochasticRelaxation::activeState().unShotFlux.addScaled(
             StochasticRelaxation::activeState().unShotFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().totalFlux.addScaled(
             StochasticRelaxation::activeState().totalFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);
         StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
             StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
-            static_cast<float>(M_PI) * patch->area * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
+            static_cast<float>(M_PI) * patch->getArea() * (McradP::topLevelStochasticRadiosityElement(patch)->importance -
                                                       McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
               McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().unShotYmp += patch->area * java::Math::abs(
+        StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(
                 McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
-        StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
-        StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
+        StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
+        StochasticRelaxation::activeState().sourceYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
         Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
     }
 }

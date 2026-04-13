@@ -17,8 +17,8 @@ Store a importon/poton. Some acceptance tests are performed first
 **/
 bool
 PhotonMapImportance::hasDiffuseOrGlossy(SimpleRaytracingPathNode *node) {
-    if ( node->m_hit.getPatch()->material ) {
-        const PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->material->getBsdf();
+    if ( node->m_hit.getPatch()->getMaterial() ) {
+        const PhongBidirectionalScatteringDistributionFunction *bsdf = node->m_hit.getPatch()->getMaterial()->getBsdf();
         return !PhotonMap::zeroAlbedo(bsdf, &node->m_hit,
                            BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
     } else {

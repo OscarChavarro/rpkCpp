@@ -173,7 +173,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( sourceElement->isCluster() ) {
         cosThetaY = 0.25;
     } else {
-        cosThetaY = ray.direction.dotProduct(sourceElement->patch->normal);
+        cosThetaY = ray.direction.dotProduct(sourceElement->patch->getNormal());
         if ( cosThetaY <= 0.0 ) {
             // Ray leaves behind the source
             return 0.0;
@@ -185,7 +185,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     if ( receiverElement->isCluster() ) {
         cosThetaX = 0.25;
     } else {
-        cosThetaX = -ray.direction.dotProduct(receiverElement->patch->normal);
+        cosThetaX = -ray.direction.dotProduct(receiverElement->patch->getNormal());
         if ( cosThetaX <= 0.0 ) {
             // Ray hits receiver from the back
             return 0.0;
@@ -577,9 +577,9 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         // Mark the patches in order to avoid immediate self-intersections
         Patch::dontIntersect4(
             receiverElement->isCluster() ? nullptr : receiverElement->patch,
-            receiverElement->isCluster() ? nullptr : receiverElement->patch->twin,
+            receiverElement->isCluster() ? nullptr : receiverElement->patch->getTwin(),
             sourceElement->isCluster() ? nullptr : sourceElement->patch,
-            sourceElement->isCluster() ? nullptr : sourceElement->patch->twin);
+            sourceElement->isCluster() ? nullptr : sourceElement->patch->getTwin());
         Geometry::dontIntersect(
             receiverElement->isCluster() ? receiverElement->geometry : nullptr,
             sourceElement->isCluster() ? sourceElement->geometry : nullptr);

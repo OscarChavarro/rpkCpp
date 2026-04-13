@@ -61,7 +61,7 @@ void
 Adaptation::patchComputeLogAreaLum(Patch *patch) {
     const float brightness = Adaptation::patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
-    logAreaLum += patch->area * java::Math::log(brightness);
+    logAreaLum += patch->getArea() * java::Math::log(brightness);
 }
 
 void
@@ -70,7 +70,7 @@ Adaptation::patchFillLumArea(Patch *patch) {
 
     LuminanceArea &entry = lumArea[lumAreaIndex];
     entry.luminance = brightness;
-    entry.area = patch->area;
+    entry.area = patch->getArea();
 
     lumMin = java::Math::min(lumMin, entry.luminance);
     lumMax = java::Math::max(lumMax, entry.luminance);

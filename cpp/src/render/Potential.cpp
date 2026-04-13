@@ -43,7 +43,7 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     }
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         Patch * const patch = scene->patchList->get(i);
-        id2patch[patch->id] = patch;
+        id2patch[patch->getId()] = patch;
     }
 
     // Allocate space for an array to hold the new direct potential of the patches
@@ -95,10 +95,10 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
         Patch * const patch = id2patch[i];
 
         if ( patch != nullptr ) {
-            patch->directPotential = newDirectImportance[i] / patch->area;
+            patch->setDirectPotential(newDirectImportance[i] / patch->getArea());
 
-            if ( patch->directPotential > Statistics::instance().potential.maxDirectPotential ) {
-                Statistics::instance().potential.maxDirectPotential = patch->directPotential;
+            if ( patch->getDirectPotential() > Statistics::instance().potential.maxDirectPotential ) {
+                Statistics::instance().potential.maxDirectPotential = patch->getDirectPotential();
             }
             Statistics::instance().potential.totalDirectPotential += newDirectImportance[i];
             Statistics::instance().potential.averageDirectPotential += newDirectImportance[i];

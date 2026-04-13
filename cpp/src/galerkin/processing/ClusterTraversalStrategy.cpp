@@ -136,7 +136,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
     if ( distance < Numeric::EPSILON ) {
         rcvCos = 1.0;
     } else {
-        rcvCos = dir.dotProduct(receiverElement->patch->normal) / distance;
+        rcvCos = dir.dotProduct(receiverElement->patch->getNormal()) / distance;
     }
     if ( rcvCos <= 0.0 ) {
         // Sample point is behind the receiverElement

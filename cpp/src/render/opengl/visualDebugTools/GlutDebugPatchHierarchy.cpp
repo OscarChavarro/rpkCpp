@@ -320,7 +320,7 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
 
     Vector3D normal;
     if ( topLevelElement->patch != nullptr ) {
-        normal.copy(topLevelElement->patch->normal);
+        normal.copy(topLevelElement->patch->getNormal());
     } else {
         Vector3D edgeA;
         Vector3D edgeB;

@@ -46,7 +46,7 @@ SoftIds::softRenderPatch(
     Vector3D vertices[4];
 
     if ( renderOptions->backfaceCulling &&
-         patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant < Numeric::EPSILON ) {
+         patch->getNormal().dotProduct(camera->eyePosition) + patch->getPlaneConstant() < Numeric::EPSILON ) {
         return;
     }
 

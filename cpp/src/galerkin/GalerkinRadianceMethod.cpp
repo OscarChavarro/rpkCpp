@@ -284,11 +284,11 @@ GalerkinRadianceMethod::patchInit(Patch *patch) {
         switch ( galerkinState.galerkinIterationMethod ) {
             case GalerkinIterationMethod::GAUSS_SEIDEL:
             case GalerkinIterationMethod::JACOBI:
-                galerkinSetPotential(patch, patch->directPotential);
+                galerkinSetPotential(patch, patch->getDirectPotential());
                 break;
             case GalerkinIterationMethod::SOUTH_WELL:
-                galerkinSetPotential(patch, patch->directPotential);
-                galerkinSetUnShotPotential(patch, patch->directPotential);
+                galerkinSetPotential(patch, patch->getDirectPotential());
+                galerkinSetUnShotPotential(patch, patch->getDirectPotential());
                 break;
             default:
                 Error::fatal(-1, "patchInit", "Invalid iteration method");
@@ -310,9 +310,13 @@ GalerkinRadianceMethod::recomputePatchColor(Patch *patch) {
     if ( galerkinState.useAmbientRadiance ) {
         radVis.scalarProduct(reflectivity, galerkinState.ambientRadiance);
         radVis.add(radVis, galerkinGetRadiance(patch));
-        ToneMap::radianceToRgb(radVis, &patch->color, *galerkinState.toneMapOptions);
+        ColorRgb patchColor;
+        ToneMap::radianceToRgb(radVis, &patchColor, *galerkinState.toneMapOptions);
+        patch->setColor(patchColor);
     } else {
-        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patch->color, *galerkinState.toneMapOptions);
+        ColorRgb patchColor;
+        ToneMap::radianceToRgb(galerkinGetRadiance(patch), &patchColor, *galerkinState.toneMapOptions);
+        patch->setColor(patchColor);
     }
     patch->computeVertexColors();
 }

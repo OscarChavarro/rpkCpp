@@ -229,7 +229,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, lon
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
-    accumPow.scaledCopy(static_cast<float>(firstNode.patch->area / firstNode.probability), McradP::topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
+    accumPow.scaledCopy(static_cast<float>(firstNode.patch->getArea() / firstNode.probability), McradP::topLevelStochasticRadiosityElement(firstNode.patch)->sourceRad);
     for ( int n = 1; n < path->numberOfNodes; n++ ) {
         const StochasticRaytracingPathNode &node = path->nodes[n];
         double uin = 0.0;
@@ -356,10 +356,10 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
 
         Ed = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad;
         num.scalarProduct(absorb, Ed);
-        c1.addScaled(c1, patch->area, num); // A_P (1-rho_P) E_P
+        c1.addScaled(c1, patch->getArea(), num); // A_P (1-rho_P) E_P
 
         denominator.scalarProduct(absorb, absorb);
-        c2.addScaled(c2, patch->area, denominator); // A_P (1-rho_P)^2
+        c2.addScaled(c2, patch->getArea(), denominator); // A_P (1-rho_P)^2
     }
 
     cr.divide(c1, c2);

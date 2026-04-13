@@ -5,13 +5,8 @@
 #include "common/linealAlgebra/Ray.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
+#include "skin/PatchConstants.h"
 #include "skin/Vertex.h"
-
-enum {
-    MAXIMUM_VERTICES_PER_PATCH = 4,
-    PATCH_VISIBILITY = 0x01,
-    MAX_EXCLUDED_PATCHES = 4
-};
 
 class Patch {
   private:
@@ -50,6 +45,7 @@ class Patch {
 
     unsigned char flags; // Other flags
     Vector3D patchMidPoint; // Patch midpoint
+    Material *material;
 
     static double clipToUnitInterval(double x);
     static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
@@ -58,7 +54,6 @@ class Patch {
 
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;
-    int getNumberOfSamples() const;
     bool isExcluded() const;
     bool hitInPatch(RayHit *hit, const Patch *patch) const;
     bool allVerticesHaveANormal() const;
@@ -90,10 +85,9 @@ class Patch {
                // for a couple of things, such as intersection
                // testing, shaft culling, ... set to FALSE by
                // default. Don't forget to set to FALSE again
-			   // after you changed it!
+               // after you changed it!
     ColorRgb color; // Color used to flat render the patch
     Element *radianceData; // Data needed for radiance computations. Content depends on the current radiance algorithm / radiosity method (a.k.a. context)
-    Material *material;
 
     static void dontIntersect0();
     static void dontIntersect2(Patch *p0, Patch *p1);
@@ -109,6 +103,28 @@ class Patch {
     void setInvisible();
     void setFlags(unsigned char newFlags);
     unsigned char getFlags() const;
+    unsigned getId() const;
+    void setId(unsigned newId);
+    Patch *getTwin() const;
+    void setTwin(Patch *newTwin);
+    const Vector3D &getNormal() const;
+    void setNormal(const Vector3D &newNormal);
+    float getPlaneConstant() const;
+    void setPlaneConstant(float newPlaneConstant);
+    float getTolerance() const;
+    void setTolerance(float newTolerance);
+    float getArea() const;
+    void setArea(float newArea);
+    float getDirectPotential() const;
+    void setDirectPotential(float newDirectPotential);
+    char getDominantAxisIndex() const;
+    void setDominantAxisIndex(char newIndex);
+    bool isOmitted() const;
+    void setOmit(bool shouldOmit);
+    const ColorRgb &getColor() const;
+    void setColor(const ColorRgb &newColor);
+    const Material *getMaterial() const;
+    void setMaterial(Material *newMaterial);
     bool hasZeroVertices() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
     Vector3D *uniformPoint(double u, double v, Vector3D *point) const;
@@ -118,7 +134,6 @@ class Patch {
     Vector3D textureCoordAtUv(double u, double v) const;
     void computeVertexColors() const;
     bool facing(const Patch *other) const;
-    Vector3D &midPoint();
     const Vector3D &midPoint() const;
     void computeBoundingBox();
     void computeAndGetBoundingBox(BoundingBox *bounds);
@@ -127,9 +142,7 @@ class Patch {
 #ifdef RAYTRACING_ENABLED
     bool isVisible() const;
     bool uniformUv(const Vector3D *point, double *u, double *v) const;
-
 #endif
-
 };
 
 inline double
@@ -161,9 +174,114 @@ Patch::getFlags() const {
     return flags;
 }
 
-inline Vector3D &
-Patch::midPoint() {
-    return patchMidPoint;
+inline unsigned
+Patch::getId() const {
+    return id;
+}
+
+inline void
+Patch::setId(unsigned newId) {
+    id = newId;
+}
+
+inline Patch *
+Patch::getTwin() const {
+    return twin;
+}
+
+inline void
+Patch::setTwin(Patch *newTwin) {
+    twin = newTwin;
+}
+
+inline const Vector3D &
+Patch::getNormal() const {
+    return normal;
+}
+
+inline void
+Patch::setNormal(const Vector3D &newNormal) {
+    normal = newNormal;
+}
+
+inline float
+Patch::getPlaneConstant() const {
+    return planeConstant;
+}
+
+inline void
+Patch::setPlaneConstant(float newPlaneConstant) {
+    planeConstant = newPlaneConstant;
+}
+
+inline float
+Patch::getTolerance() const {
+    return tolerance;
+}
+
+inline void
+Patch::setTolerance(float newTolerance) {
+    tolerance = newTolerance;
+}
+
+inline float
+Patch::getArea() const {
+    return area;
+}
+
+inline void
+Patch::setArea(float newArea) {
+    area = newArea;
+}
+
+inline float
+Patch::getDirectPotential() const {
+    return directPotential;
+}
+
+inline void
+Patch::setDirectPotential(float newDirectPotential) {
+    directPotential = newDirectPotential;
+}
+
+inline char
+Patch::getDominantAxisIndex() const {
+    return index;
+}
+
+inline void
+Patch::setDominantAxisIndex(char newIndex) {
+    index = newIndex;
+}
+
+inline bool
+Patch::isOmitted() const {
+    return omit != 0;
+}
+
+inline void
+Patch::setOmit(bool shouldOmit) {
+    omit = static_cast<char>(shouldOmit ? 1 : 0);
+}
+
+inline const ColorRgb &
+Patch::getColor() const {
+    return color;
+}
+
+inline void
+Patch::setColor(const ColorRgb &newColor) {
+    color = newColor;
+}
+
+inline const Material *
+Patch::getMaterial() const {
+    return material;
+}
+
+inline void
+Patch::setMaterial(Material *newMaterial) {
+    material = newMaterial;
 }
 
 inline const Vector3D &
@@ -176,7 +294,6 @@ inline bool
 Patch::isVisible() const {
     return (flags & PATCH_VISIBILITY) != 0;
 }
-
 #endif
 
 #endif

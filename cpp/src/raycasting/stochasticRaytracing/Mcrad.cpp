@@ -82,7 +82,7 @@ in the current random walk radiosity implementation
 */
 void
 Mcrad::monteCarloRadiosityPatchComputeNewColor(Patch *patch) {
-    patch->color = StochasticRadiosityElement::stochasticRadiosityElementColor(McradP::topLevelStochasticRadiosityElement(patch));
+    patch->setColor(StochasticRadiosityElement::stochasticRadiosityElementColor(McradP::topLevelStochasticRadiosityElement(patch)));
     patch->computeVertexColors();
 }
 
@@ -110,7 +110,7 @@ Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
     McradP::getTopLevelPatchRad(patch)[0] = McradP::getTopLevelPatchUnShotRad(patch)[0] = McradP::topLevelStochasticRadiosityElement(patch)->sourceRad = Ed;
     McradP::getTopLevelPatchReceivedRad(patch)[0].clear();
 
-    McradP::topLevelStochasticRadiosityElement(patch)->rayIndex = patch->id * 11;
+    McradP::topLevelStochasticRadiosityElement(patch)->rayIndex = patch->getId() * 11;
     McradP::topLevelStochasticRadiosityElement(patch)->quality = 0.0;
     McradP::topLevelStochasticRadiosityElement(patch)->ng = 0;
     McradP::topLevelStochasticRadiosityElement(patch)->importance = 0.0;
@@ -256,7 +256,7 @@ Mcrad::monteCarloRadiosityDetermineAreaFraction(
     }
     for ( i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
-        areas[patch->id] = patch->area;
+        areas[patch->getId()] = patch->getArea();
     }
 
     // Sort the table to decreasing areas
@@ -321,20 +321,20 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOption
         monteCarloRadiosityInitPatch(patch);
         StochasticRelaxation::activeState().unShotFlux.addScaled(
             StochasticRelaxation::activeState().unShotFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
         StochasticRelaxation::activeState().totalFlux.addScaled(
             StochasticRelaxation::activeState().totalFlux,
-            static_cast<float>(M_PI) * patch->area,
+            static_cast<float>(M_PI) * patch->getArea(),
             McradP::getTopLevelPatchRad(patch)[0]);
         StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux.addScaled(
             StochasticRelaxation::activeState().indirectImportanceWeightedUnShotFlux,
-            static_cast<float>(M_PI) * patch->area *
+            static_cast<float>(M_PI) * patch->getArea() *
             (McradP::topLevelStochasticRadiosityElement(patch)->importance - McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance),
             McradP::getTopLevelPatchUnShotRad(patch)[0]);
-        StochasticRelaxation::activeState().unShotYmp += patch->area * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
-        StochasticRelaxation::activeState().totalYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->importance;
-        StochasticRelaxation::activeState().sourceYmp += patch->area * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
+        StochasticRelaxation::activeState().unShotYmp += patch->getArea() * java::Math::abs(McradP::topLevelStochasticRadiosityElement(patch)->unShotImportance);
+        StochasticRelaxation::activeState().totalYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->importance;
+        StochasticRelaxation::activeState().sourceYmp += patch->getArea() * McradP::topLevelStochasticRadiosityElement(patch)->sourceImportance;
         Mcrad::monteCarloRadiosityPatchComputeNewColor(patch);
     }
 
@@ -375,7 +375,7 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
     RayHit hit;
     Vector3D point;
     patch->uniformPoint(u, v, &point);
-    hit.init(patch, &point, &patch->normal, patch->material);
+    hit.init(patch, &point, &patch->getNormal(), patch->getMaterial());
     hit.setUv(u, v);
     unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
     hit.setFlags(newFlags);

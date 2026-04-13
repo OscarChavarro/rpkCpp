@@ -110,13 +110,13 @@ RadianceImageExporter::getRadianceAtPixel(
     Vector3D rayDirection = screenBuffer->getPixelVector(x, y);
     rayDirection.normalize(Numeric::EPSILON_FLOAT);
 
-    const float denominator = patch->normal.dotProduct(rayDirection);
+    const float denominator = patch->getNormal().dotProduct(rayDirection);
     if ( denominator <= Numeric::EPSILON_FLOAT && denominator >= -Numeric::EPSILON_FLOAT ) {
         return radiance;
     }
 
     const float distance =
-        -(patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant) / denominator;
+        -(patch->getNormal().dotProduct(camera->eyePosition) + patch->getPlaneConstant()) / denominator;
     Vector3D hitPoint;
     hitPoint.sumScaled(camera->eyePosition, distance, rayDirection);
 

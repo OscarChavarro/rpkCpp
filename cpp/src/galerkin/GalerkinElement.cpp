@@ -169,12 +169,12 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
     GalerkinElement(inGalerkinState)
 {
     patch = parameterPatch;
-    minimumArea = area = patch->area;
+    minimumArea = area = patch->getArea();
     blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(area / M_PI));
-    directPotential = patch->directPotential;
+    directPotential = patch->getDirectPotential();
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
-    if ( patch->material != nullptr && patch->material->getEdf() != nullptr ) {
+    if ( patch->getMaterial() != nullptr && patch->getMaterial()->getEdf() != nullptr ) {
         flags |= ElementFlags::IS_LIGHT_SOURCE_MASK;
         Ed = PatchVisitor::averageEmittance(patch, DIFFUSE_COMPONENT);
         Ed.scaleInverse(M_PI, Ed);
@@ -337,7 +337,7 @@ GalerkinElement::reAllocCoefficients() {
             if ( unShotRadiance ) {
                 ColorRgb::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
-            } else if ( patch->material != nullptr ) {
+            } else if ( patch->getMaterial() != nullptr ) {
                 defaultUnShotRadiance[0] = patch->radianceData->Ed;
             }
         }
@@ -600,9 +600,9 @@ GalerkinElement::initPolygon(Polygon *polygon) const {
         Error::fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
     }
 
-    polygon->normal = patch->normal;
-    polygon->planeConstant = patch->planeConstant;
-    polygon->index = patch->index;
+    polygon->normal = patch->getNormal();
+    polygon->planeConstant = patch->getPlaneConstant();
+    polygon->index = patch->getDominantAxisIndex();
     polygon->numberOfVertices = vertices(polygon->vertex);
 
     for ( int i = 0; i < polygon->numberOfVertices; i++ ) {

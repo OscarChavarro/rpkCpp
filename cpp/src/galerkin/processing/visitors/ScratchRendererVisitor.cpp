@@ -18,7 +18,7 @@ ScratchRendererVisitor::visit(
 
     // Backface culling test: only render the element if it is turned towards
     // the current eye point
-    if ( patch->normal.dotProduct(eyePoint) + patch->planeConstant < Numeric::EPSILON ) {
+    if ( patch->getNormal().dotProduct(eyePoint) + patch->getPlaneConstant() < Numeric::EPSILON ) {
         return;
     }
 

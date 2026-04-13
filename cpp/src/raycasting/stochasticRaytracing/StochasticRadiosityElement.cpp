@@ -120,7 +120,7 @@ StochasticRadiosityElement::stochasticRadiosityElementCreateFromPatch(Patch *pat
     StochasticRadiosityElement *elem = createElement();
     elem->patch = patch;
     elem->flags = 0x00;
-    elem->area = patch->area;
+    elem->area = patch->getArea();
     elem->midPoint = patch->midPoint();
     elem->numberOfVertices = patch->numberOfVertices;
     for ( int i = 0; i < elem->numberOfVertices; i++ ) {
@@ -420,7 +420,7 @@ StochasticRadiosityElement::monteCarloRadiosityNewMidpointVertex(StochasticRadio
         norm.midPoint(*(v1->normal), *(v2->normal));
         n = monteCarloRadiosityInstallNormal(&norm);
     } else {
-        n = &elem->patch->normal;
+        n = const_cast<Vector3D *>(&elem->patch->getNormal());
     }
 
     if ( v1->textureCoordinates && v2->textureCoordinates ) {
@@ -573,7 +573,7 @@ StochasticRadiosityElement::stochasticRadiosityElementIsTextured(const Stochasti
         Error::fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
         return false;
     }
-    const Material *mat = elem->patch->material;
+    const Material *mat = elem->patch->getMaterial();
     return mat->getBsdf() != nullptr
         && (mat->getBsdf()->splitBsdfIsTextured() || PhongEmittanceDistributionFunction::edfIsTextured());
 }
@@ -612,7 +612,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     ColorRgb albedo;
     ColorRgb emittance;
     RayHit hit;
-    hit.init(patch, &patch->midPoint(), &patch->normal, patch->material);
+    hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
     isTextured = StochasticRadiosityElement::stochasticRadiosityElementIsTextured(elem);
     numberOfSamples = isTextured ? 100 : 1;
@@ -629,15 +629,15 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->uniformPoint(hit.getUv().u, hit.getUv().v, &position);
-        if ( patch->material->getBsdf() ) {
+        if ( patch->getMaterial()->getBsdf() ) {
             sample.clear();
-            if ( patch->material->getBsdf() != nullptr ) {
-                sample = patch->material->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+            if ( patch->getMaterial()->getBsdf() != nullptr ) {
+                sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
             }
             albedo.add(albedo, sample);
         }
-        if ( patch->material->getEdf() ) {
-            sample = patch->material->getEdf()->phongEmittance(&hit, DIFFUSE_COMPONENT);
+        if ( patch->getMaterial()->getEdf() ) {
+            sample = patch->getMaterial()->getEdf()->phongEmittance(&hit, DIFFUSE_COMPONENT);
             emittance.add(emittance, sample);
         }
     }

@@ -189,7 +189,7 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
 
 void
 Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions) {
-    Opengl::openGlRenderSetColor(&patch->color, renderOptions);
+    Opengl::openGlRenderSetColor(&patch->getColor(), renderOptions);
     switch ( patch->numberOfVertices ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -441,7 +441,7 @@ Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, cons
     }
 
     if ( renderOptions->drawOutlines &&
-         (patch->normal.dotProduct(camera->eyePosition) + patch->planeConstant > Numeric::EPSILON) ) {
+         (patch->getNormal().dotProduct(camera->eyePosition) + patch->getPlaneConstant() > Numeric::EPSILON) ) {
         Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
         Opengl::openGlRenderPatchOutline(patch);
     }

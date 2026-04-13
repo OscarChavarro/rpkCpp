@@ -129,7 +129,7 @@ LinkingSimpleStrategy::geometryLink(
 {
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
     if ( geometry->bounded
-        && geometry->getBoundingBox().behindPlane(&topElement->patch->normal, topElement->patch->planeConstant) ) {
+        && geometry->getBoundingBox().behindPlane(&topElement->patch->getNormal(), topElement->patch->getPlaneConstant()) ) {
         return;
     }
 

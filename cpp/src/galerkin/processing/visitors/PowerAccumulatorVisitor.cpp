@@ -38,7 +38,7 @@ PowerAccumulatorVisitor::visit(
     if ( dist < Numeric::EPSILON ) {
         srcOs = 1.0f;
     } else {
-        srcOs = dir.dotProduct(galerkinElement->patch->normal) / dist;
+        srcOs = dir.dotProduct(galerkinElement->patch->getNormal()) / dist;
     }
     if ( srcOs <= 0.0f ) {
         // Receiver point is behind the src

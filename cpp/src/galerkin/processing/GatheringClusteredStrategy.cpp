@@ -55,7 +55,7 @@ GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinSta
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             Patch *patch = scene->patchList->get(i);
             GalerkinElement *top = static_cast<GalerkinElement *>(patch->radianceData);
-            float potentialIncrement = patch->directPotential - top->directPotential;
+            float potentialIncrement = patch->getDirectPotential() - top->directPotential;
             GatheringClusteredStrategy::updateClusterDirectPotential(top, potentialIncrement);
         }
         GatheringClusteredStrategy::updatePotential(galerkinState->topCluster);

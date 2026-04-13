@@ -412,20 +412,19 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
 
             Patch *patch = new Patch(record.numberOfVertices, v1, v2, v3, v4);
-            patch->id = static_cast<unsigned>(record.id);
-            patch->normal = record.normal;
-            patch->planeConstant = record.planeConstant;
-            patch->tolerance = record.tolerance;
-            patch->area = record.area;
-            patch->midPoint() = record.midPoint;
-            patch->directPotential = record.directPotential;
-            patch->index = static_cast<char>(record.dominantIndex);
-            patch->omit = static_cast<char>(record.omit ? 1 : 0);
+            patch->setId(static_cast<unsigned>(record.id));
+            patch->setNormal(record.normal);
+            patch->setPlaneConstant(record.planeConstant);
+            patch->setTolerance(record.tolerance);
+            patch->setArea(record.area);
+            patch->setDirectPotential(record.directPotential);
+            patch->setDominantAxisIndex(static_cast<char>(record.dominantIndex));
+            patch->setOmit(record.omit);
             patch->setFlags(record.flags);
-            patch->color = record.color;
+            patch->setColor(record.color);
             Material *material = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(materials, record.materialIndex, "patch.material", &material) ) goto fail;
-            patch->material = material;
+            patch->setMaterial(material);
             patch->radianceData = nullptr;
 
             if ( patch->jacobian != nullptr ) {
@@ -453,7 +452,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             const BinaryModelPatchRecordData &record = patchRecords[static_cast<long int>(i)];
             Patch *twin = nullptr;
             if ( !BinaryModelReadPrimitives::pointerFromIndex(patches, record.twinIndex, "patch.twin", &twin) ) goto fail;
-            patch->twin = twin;
+            patch->setTwin(twin);
         }
 
         for ( int i = 0; i < vertexCount; i++ ) {
@@ -639,8 +638,8 @@ BinaryModelDeserializer::read(const char *fileName) {
         int maxPatchId = 0;
         for ( long int i = 0; i < patches.size(); i++ ) {
             Patch *patch = patches.get(i);
-            if ( patch != nullptr && static_cast<int>(patch->id) > maxPatchId ) {
-                maxPatchId = static_cast<int>(patch->id);
+            if ( patch != nullptr && static_cast<int>(patch->getId()) > maxPatchId ) {
+                maxPatchId = static_cast<int>(patch->getId());
             }
         }
         Patch::setNextId(maxPatchId + 1);

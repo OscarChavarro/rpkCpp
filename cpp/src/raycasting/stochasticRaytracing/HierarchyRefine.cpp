@@ -106,11 +106,11 @@ Hierarchy::formFactorEstimate(const StochasticRadiosityElement *rcv, const Stoch
     double d = D.norm();
     double f = src->area / (M_PI * d * d + src->area);
     double f2 = 2.0 * f;
-    double c1 = rcv->isCluster() ? 1.0 /*0.25*/ : java::Math::abs(D.dotProduct(rcv->patch->normal)) / d;
+    double c1 = rcv->isCluster() ? 1.0 /*0.25*/ : java::Math::abs(D.dotProduct(rcv->patch->getNormal())) / d;
     if ( c1 < f2 ) {
         c1 = f2;
     }
-    double c2 = src->isCluster() ? 1.0 /*0.25*/ : java::Math::abs(D.dotProduct(src->patch->normal)) / d;
+    double c2 = src->isCluster() ? 1.0 /*0.25*/ : java::Math::abs(D.dotProduct(src->patch->getNormal())) / d;
     if ( c2 < f2 ) {
         c2 = f2;
     }

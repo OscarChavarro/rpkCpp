@@ -372,10 +372,10 @@ BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const Verte
 
 bool
 BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch *patch, const BinaryModelSerializationGraph &context) {
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->id));
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getId()));
 
     int twinIndex = -1;
-    if ( !indexOfPointer(patch->twin, context.patchIndices, "patch.twin", twinIndex) ) {
+    if ( !indexOfPointer(patch->getTwin(), context.patchIndices, "patch.twin", twinIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, twinIndex);
@@ -394,10 +394,10 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
         writeBoundingBox(output, *patch->boundingBox);
     }
 
-    writeVector(output, patch->normal);
-    vsdk::PersistenceElement::writeFloatLE(output, patch->planeConstant);
-    vsdk::PersistenceElement::writeFloatLE(output, patch->tolerance);
-    vsdk::PersistenceElement::writeFloatLE(output, patch->area);
+    writeVector(output, patch->getNormal());
+    vsdk::PersistenceElement::writeFloatLE(output, patch->getPlaneConstant());
+    vsdk::PersistenceElement::writeFloatLE(output, patch->getTolerance());
+    vsdk::PersistenceElement::writeFloatLE(output, patch->getArea());
     writeVector(output, patch->midPoint());
 
     vsdk::PersistenceElement::writeBool(output, patch->jacobian != nullptr);
@@ -407,14 +407,14 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
         vsdk::PersistenceElement::writeFloatLE(output, patch->jacobian->C);
     }
 
-    vsdk::PersistenceElement::writeFloatLE(output, patch->directPotential);
-    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->index));
-    vsdk::PersistenceElement::writeBool(output, patch->omit != 0);
+    vsdk::PersistenceElement::writeFloatLE(output, patch->getDirectPotential());
+    vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
+    vsdk::PersistenceElement::writeBool(output, patch->isOmitted() != 0);
     vsdk::PersistenceElement::writeByte(output, patch->getFlags());
-    writeColor(output, patch->color);
+    writeColor(output, patch->getColor());
 
     int materialIndex = -1;
-    if ( !indexOfPointer(patch->material, context.materialIndices, "patch.material", materialIndex) ) {
+    if ( !indexOfPointer(patch->getMaterial(), context.materialIndices, "patch.material", materialIndex) ) {
         return false;
     }
     vsdk::PersistenceElement::writeInt32LE(output, materialIndex);

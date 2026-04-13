@@ -105,13 +105,13 @@ UniformLightSampler::sample(
         double pdf = 0.0;
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
-        if ( light->material->getEdf() != nullptr ) {
-            dir = light->material->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
+        if ( light->getMaterial()->getEdf() != nullptr ) {
+            dir = light->getMaterial()->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
         }
 
         point.subtraction(thisNode->m_hit.getPoint(), dir); // Fake hit at distance 1!
 
-        newNode->m_hit.init(light, &point, nullptr, light->material);
+        newNode->m_hit.init(light, &point, nullptr, light->getMaterial());
 
         // Fill in directions
         newNode->m_inDirT.scaledCopy(-1, dir);
@@ -124,7 +124,7 @@ UniformLightSampler::sample(
         pdfPoint = 1.0 / light->area;
 
         // Fake a hit record
-        newNode->m_hit.init(light, &point, &light->normal, light->material);
+        newNode->m_hit.init(light, &point, &light->normal, light->getMaterial());
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
@@ -169,10 +169,10 @@ UniformLightSampler::evalPDF(
     if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing a point == choosing a dir --> use pdf from evalEdf
-        if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
+        if ( newNode->m_hit.getPatch()->getMaterial()->getEdf() == nullptr ) {
             pdfDir = 0.0;
         } else {
-            newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
+            newNode->m_hit.getPatch()->getMaterial()->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
@@ -265,13 +265,13 @@ ImportantLightSampler::sample(
         double pdf = 0.0;
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
-        if ( light->material->getEdf() != nullptr ) {
-            dir = light->material->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
+        if ( light->getMaterial()->getEdf() != nullptr ) {
+            dir = light->getMaterial()->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
         }
 
         point.addition(thisNode->m_hit.getPoint(), dir);   // fake hit at distance 1!
 
-        newNode->m_hit.init(light, &point, nullptr, light->material);
+        newNode->m_hit.init(light, &point, nullptr, light->getMaterial());
 
         // fill in directions
         newNode->m_inDirT.scaledCopy(-1, dir);
@@ -287,7 +287,7 @@ ImportantLightSampler::sample(
         // Light position and value are known now
 
         // Fake a hit record
-        newNode->m_hit.init(light, &point, &light->normal, light->material);
+        newNode->m_hit.init(light, &point, &light->normal, light->getMaterial());
         Vector3D normal = newNode->m_hit.getNormal();
         newNode->m_hit.shadingNormal(&normal);
         newNode->m_hit.setNormal(&normal);
@@ -329,10 +329,10 @@ ImportantLightSampler::evalPDF(
     if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
         // virtual patch has no area!
         // choosing newPosition point == choosing newPosition dir --> use pdf from evalEdf
-        if ( newNode->m_hit.getPatch()->material->getEdf() == nullptr ) {
+        if ( newNode->m_hit.getPatch()->getMaterial()->getEdf() == nullptr ) {
             pdfDir = 0.0;
         } else {
-            newNode->m_hit.getPatch()->material->getEdf()->phongEdfEval(
+            newNode->m_hit.getPatch()->getMaterial()->getEdf()->phongEdfEval(
                 nullptr,
                 &newNode->m_inDirF,
                 DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
