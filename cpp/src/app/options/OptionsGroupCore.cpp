@@ -254,7 +254,7 @@ OptionsGroupCore::commandLineGeneralProgramParseOptions(
 #ifndef OPEN_GL_ENABLED
     if ( glutDebugEnabled ) {
         java::System::err.printf(
-            "ERROR: Option '-glutDebug' requires OpenGL support. Recompile with -DOPEN_GL_ENABLED=ON.\n");
+            "ERROR: Option '-glutDebug' requires OpenGL support. Rebuild with CMake flag '-DWITH_OPENGL=ON'.\n");
         java::System::err.flush();
         java::System::exit(1);
     }

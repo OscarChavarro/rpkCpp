@@ -1,19 +1,20 @@
 #include <cstring>
+#include <strings.h>
 
 #include "java/lang/System.h"
-#include "app/options/OptionsGroupRayMatter.h"
-#include "app/options/OptionsGroupBidirectionalRaytracing.h"
 #include "app/options/OptionsGroupGalerkin.h"
-#include "app/options/OptionsGroupPhotonMap.h"
 #include "app/options/OptionsGroupRadianceMethod.h"
 #include "app/options/OptionsGroupRadiance.h"
-#include "app/options/OptionsGroupRandomWalkRadiosity.h"
-#include "app/options/OptionsGroupStochasticRaytracing.h"
-#include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
 #include "galerkin/GalerkinRadianceMethod.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 #ifdef RAYTRACING_ENABLED
+    #include "app/options/OptionsGroupRayMatter.h"
+    #include "app/options/OptionsGroupBidirectionalRaytracing.h"
+    #include "app/options/OptionsGroupPhotonMap.h"
+    #include "app/options/OptionsGroupRandomWalkRadiosity.h"
+    #include "app/options/OptionsGroupStochasticRaytracing.h"
+    #include "app/options/OptionsGroupStochasticRelaxationRadiosity.h"
+    #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
     #include "raycasting/photonMap/PhotonMapRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/StochasticJacobiRadianceMethod.h"
     #include "raycasting/stochasticRaytracing/RandomWalkRadianceMethod.h"
@@ -22,12 +23,16 @@
 void
 OptionsGroupRadiance::selectRadianceMethod(
     const char *name,
-    RadianceMethod **newRadianceMethod,
+    RadianceMethod **newRadianceMethod
+#ifdef RAYTRACING_ENABLED
+    ,
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
     StochasticRadiosityBasisState &stochasticRadiosityBasisState,
     PhotonMapState &photonMapState,
-    PhotonMapConfig &photonMapConfig)
+    PhotonMapConfig &photonMapConfig
+#endif
+    )
 {
     if ( name != nullptr && name[0] != '\0' ) {
         if ( *newRadianceMethod != nullptr ) {
@@ -52,6 +57,14 @@ OptionsGroupRadiance::selectRadianceMethod(
                 elementHierarchyState,
                 stochasticRadiosityBasisState);
         }
+#else
+        else {
+            java::System::err.printf(
+                "ERROR: Radiance method '%s' requires raytracing support. Rebuild with CMake flag '-DWITH_RAYTRACING=ON'.\n",
+                name);
+            java::System::err.flush();
+            java::System::exit(1);
+        }
 #endif
     }
 }
@@ -60,7 +73,9 @@ void
 OptionsGroupRadiance::parse(
     int *argc,
     char **argv,
-    RadianceMethod **newRadianceMethod,
+    RadianceMethod **newRadianceMethod
+#ifdef RAYTRACING_ENABLED
+    ,
     StochasticRelaxation &stochasticRelaxationState,
     ElementHierarchyState &elementHierarchyState,
     StochasticRadiosityBasisState &stochasticRadiosityBasisState,
@@ -68,7 +83,9 @@ OptionsGroupRadiance::parse(
     PhotonMapConfig &photonMapConfig,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
-    StochasticRayTracingState &stochasticRayTracingState)
+    StochasticRayTracingState &stochasticRayTracingState
+#endif
+    )
 {
     char radianceMethodsString[RADIANCE_METHODS_STRING_LENGTH];
     radianceMethodsString[0] = '\0';
@@ -77,12 +94,16 @@ OptionsGroupRadiance::parse(
 
     OptionsGroupRadiance::selectRadianceMethod(
         radianceMethodsString,
-        newRadianceMethod,
+        newRadianceMethod
+#ifdef RAYTRACING_ENABLED
+        ,
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
         photonMapState,
-        photonMapConfig);
+        photonMapConfig
+#endif
+        );
 
     if ( *newRadianceMethod == nullptr ) {
 #ifdef RAYTRACING_ENABLED

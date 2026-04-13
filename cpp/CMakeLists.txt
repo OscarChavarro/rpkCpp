@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(rpk)
 
-option(RAYTRACING_ENABLED "Enable raytracing modules" ON)
-option(OPEN_GL_ENABLED "Enable OpenGL modules" ON)
-option(MGF_ENABLED "Enable MGF reader modules" ON)
+option(WITH_RAYTRACING "Enable raytracing modules" ON)
+option(WITH_OPENGL "Enable OpenGL modules" ON)
+option(WITH_MGF "Enable MGF reader modules" ON)
 
 if(UNIX AND NOT APPLE)
     add_compile_options(-std=c++11 -Wall -Wextra -pedantic)
@@ -13,13 +13,13 @@ if(APPLE)
     add_compile_options(-std=c++17 -Wall -pedantic)
 endif()
 
-if(OPEN_GL_ENABLED)
+if(WITH_OPENGL)
     if(APPLE)
         find_library(OPENGL_FRAMEWORK OpenGL)
         find_library(GLUT_FRAMEWORK GLUT)
         if(NOT OPENGL_FRAMEWORK OR NOT GLUT_FRAMEWORK)
             message(WARNING "OpenGL support requested, but OpenGL/GLUT frameworks were not found. Building without OpenGL support.")
-            set(OPEN_GL_ENABLED OFF)
+            set(WITH_OPENGL OFF)
         endif()
     else()
         find_library(RPK_OPENGL_GL_LIBRARY GL)
@@ -27,7 +27,7 @@ if(OPEN_GL_ENABLED)
         find_library(RPK_OPENGL_GLUT_LIBRARY glut)
         if(NOT RPK_OPENGL_GL_LIBRARY OR NOT RPK_OPENGL_GLU_LIBRARY OR NOT RPK_OPENGL_GLUT_LIBRARY)
             message(WARNING "OpenGL support requested, but GL/GLU/GLUT libraries were not found. Building without OpenGL support.")
-            set(OPEN_GL_ENABLED OFF)
+            set(WITH_OPENGL OFF)
         endif()
     endif()
 endif()
@@ -201,28 +201,31 @@ set(MAIN_SRC
     src/galerkin/processing/visitors/OrientedGathererVisitor.cpp
     src/galerkin/processing/visitors/DepthVisibilityGathererVisitor.cpp
     src/app/Adaptation.cpp
-        src/app/options/OptionsGroupRadiance.cpp
-        src/app/options/OptionsGroupRaytracing.cpp
+    src/app/options/OptionsGroupRadiance.cpp
     src/app/Radiance.cpp
     src/app/SceneBuilder.cpp
     src/app/Batch.cpp
-        src/app/options/OptionsGroupCore.cpp
-        src/app/options/OptionsGroupCamera.cpp
-        src/app/options/OptionsGroupBatch.cpp
-        src/app/options/OptionsGroupGalerkin.cpp
-        src/app/options/OptionsGroupToneMapping.cpp
-        src/app/options/OptionsGroupRender.cpp
-        src/app/options/OptionsGroupRadianceMethod.cpp
-        src/app/options/OptionsGroupRaytracingMethod.cpp
-        src/app/options/OptionsGroupStochasticRelaxationRadiosity.cpp
-        src/app/options/OptionsGroupRandomWalkRadiosity.cpp
-        src/app/options/OptionsGroupStochasticRaytracing.cpp
-        src/app/options/OptionsGroupBidirectionalRaytracing.cpp
-        src/app/options/OptionsGroupPhotonMap.cpp
-        src/app/options/OptionsGroupRayMatter.cpp
+    src/app/options/OptionsGroupCore.cpp
+    src/app/options/OptionsGroupCamera.cpp
+    src/app/options/OptionsGroupBatch.cpp
+    src/app/options/OptionsGroupGalerkin.cpp
+    src/app/options/OptionsGroupToneMapping.cpp
+    src/app/options/OptionsGroupRender.cpp
+    src/app/options/OptionsGroupRadianceMethod.cpp
     src/app/options/BatchOptions.cpp
     src/app/RpkApplication.cpp
     src/app/Main.cpp)
+
+set(APP_RAYTRACING_SRC
+    src/app/Raytrace.cpp
+    src/app/options/OptionsGroupRaytracing.cpp
+    src/app/options/OptionsGroupRaytracingMethod.cpp
+    src/app/options/OptionsGroupStochasticRelaxationRadiosity.cpp
+    src/app/options/OptionsGroupRandomWalkRadiosity.cpp
+    src/app/options/OptionsGroupStochasticRaytracing.cpp
+    src/app/options/OptionsGroupBidirectionalRaytracing.cpp
+    src/app/options/OptionsGroupPhotonMap.cpp
+    src/app/options/OptionsGroupRayMatter.cpp)
 
 set(OPEN_GL_SRC
     src/render/opengl/Opengl.cpp
@@ -323,31 +326,32 @@ set(RAYTRACING_SRC
 
 add_executable(rpk ${MAIN_SRC})
 
-if(OPEN_GL_ENABLED)
+if(WITH_OPENGL)
     target_sources(rpk PRIVATE ${OPEN_GL_SRC})
 endif()
 
-if(MGF_ENABLED)
+if(WITH_MGF)
     target_sources(rpk PRIVATE ${MGF_SRC})
 endif()
 
-if(RAYTRACING_ENABLED)
+if(WITH_RAYTRACING)
     target_sources(rpk PRIVATE ${RAYTRACING_SRC})
+    target_sources(rpk PRIVATE ${APP_RAYTRACING_SRC})
 endif()
 
-if(RAYTRACING_ENABLED)
-    target_compile_definitions(rpk PRIVATE RAYTRACING_ENABLED)
+if(WITH_RAYTRACING)
+    target_compile_definitions(rpk PRIVATE RAYTRACING_ENABLED=true)
 endif()
 
-if(OPEN_GL_ENABLED)
-    target_compile_definitions(rpk PRIVATE OPEN_GL_ENABLED)
+if(WITH_OPENGL)
+    target_compile_definitions(rpk PRIVATE OPEN_GL_ENABLED=true)
 endif()
 
-if(MGF_ENABLED)
-    target_compile_definitions(rpk PRIVATE MGF_ENABLED)
+if(WITH_MGF)
+    target_compile_definitions(rpk PRIVATE MGF_ENABLED=true)
 endif()
 
-if(OPEN_GL_ENABLED)
+if(WITH_OPENGL)
     if(APPLE)
         message(STATUS "Using native macOS frameworks: ${OPENGL_FRAMEWORK}, ${GLUT_FRAMEWORK}")
         target_compile_definitions(rpk PRIVATE GL_SILENCE_DEPRECATION)

@@ -20,6 +20,9 @@ class GlutDebugTools final {
     void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
     void clearCachedPrimaryPatchInteractions();
     void updateCachedPrimaryPatchInteractions(int selectedPatchIndex);
+    static void addInteractionIfNotPresent(
+        java::ArrayList<Interaction *> *interactions,
+        Interaction *interaction);
     java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const;
 
     static GlutDebugTools *&activeGlutDebugToolsInstance();

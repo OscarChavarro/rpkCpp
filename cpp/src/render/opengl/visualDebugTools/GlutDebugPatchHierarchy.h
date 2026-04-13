@@ -50,6 +50,9 @@ class GlutDebugPatchHierarchy final {
         const Vector3D &axisU,
         const Vector3D &axisV,
         const RenderOptions *renderOptions);
+    static void drawGradientLine(
+        const Vector3D &start,
+        const Vector3D &end);
     static void drawSelectedPatchCenterMarker(const GalerkinElement *topLevelElement, const RenderOptions *renderOptions);
     static void drawInteractions(const java::ArrayList<Interaction *> *interactionsToRender);
     static void drawSecondarySelectedPatchMarker(

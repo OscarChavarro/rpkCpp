@@ -30,7 +30,7 @@ GalerkinOpenGLRenderer::renderElementHierarchy(const GalerkinElement *element, c
         GalerkinOpenGLRenderer::drawElement(element, GalerkinElement::renderMode(renderOptions), renderOptions);
     } else {
         for ( int i = 0; i < 4; i++ ) {
-            const auto *child = static_cast<const GalerkinElement *>(element->regularSubElements[i]);
+            const GalerkinElement *child = static_cast<const GalerkinElement *>(element->regularSubElements[i]);
             GalerkinOpenGLRenderer::renderElementHierarchy(child, renderOptions);
         }
     }

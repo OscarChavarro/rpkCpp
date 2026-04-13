@@ -2,19 +2,22 @@
 #define __RPK_APPLICATION__
 
 #include "common/RenderOptions.h"
-#include "raycasting/photonMap/PhotonMapConfig.h"
-#include "raycasting/photonMap/PhotonMapState.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "raycasting/simple/RayMatterState.h"
-#include "raycasting/stochasticRaytracing/Basismcrad.h"
-#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 #include "scene/Scene.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "raycasting/common/RayTracer.h"
 #include "tonemap/ToneMap.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/photonMap/PhotonMapConfig.h"
+    #include "raycasting/photonMap/PhotonMapState.h"
+    #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+    #include "raycasting/bidirectionalRaytracing/LightList.h"
+    #include "raycasting/simple/RayMatterState.h"
+    #include "raycasting/stochasticRaytracing/Basismcrad.h"
+    #include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+#endif
 
 class RpkApplication {
   private:
@@ -37,7 +40,9 @@ class RpkApplication {
             int *argc,
             char **argv,
             char *rayTracerName,
-            char *toneMapName,
+            char *toneMapName
+#ifdef RAYTRACING_ENABLED
+            ,
             StochasticRelaxation &stochasticRelaxationState,
             ElementHierarchyState &elementHierarchyState,
             StochasticRadiosityBasisState &stochasticRadiosityBasisState,
@@ -45,14 +50,20 @@ class RpkApplication {
             PhotonMapConfig &photonMapConfig,
             RayMatterState &rayMatterState,
             BidirectionalPathTracingState &bidirectionalPathState,
-            StochasticRayTracingState &stochasticRayTracingState);
+            StochasticRayTracingState &stochasticRayTracingState
+#endif
+            );
     void mainCreateOffscreenCanvasWindow() const;
     void executeRendering(
-        const char *rayTracerName,
+        const char *rayTracerName
+#ifdef RAYTRACING_ENABLED
+        ,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
         StochasticRayTracingState &stochasticRayTracingState,
-        LightList *&lightList);
+        LightList *&lightList
+#endif
+        );
     static void freeMemory(ParseRuntimeContext *mgfContext);
 
   public:

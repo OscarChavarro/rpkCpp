@@ -1,5 +1,6 @@
 #include <cstring>
 
+#include "java/lang/System.h"
 #include "common/RenderOptions.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/FerwerdaToneMap.h"
@@ -8,14 +9,6 @@
 #include "tonemap/ToneMap.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 #include "tonemap/WardToneMap.h"
-#include "raycasting/simple/RayMatterState.h"
-#include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
-#include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
-#include "raycasting/stochasticRaytracing/Basismcrad.h"
-#include "raycasting/photonMap/PhotonMapState.h"
-#include "raycasting/photonMap/PhotonMapConfig.h"
 #include "io/image/Dkcolor.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
@@ -24,6 +17,17 @@
 #include "app/Radiance.h"
 #include "app/RpkApplication.h"
 #include "app/SceneBuilder.h"
+
+#ifdef RAYTRACING_ENABLED
+    #include "raycasting/simple/RayMatterState.h"
+    #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
+    #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
+    #include "raycasting/stochasticRaytracing/ElementHierarchyState.h"
+    #include "raycasting/stochasticRaytracing/Basismcrad.h"
+    #include "raycasting/photonMap/PhotonMapState.h"
+    #include "raycasting/photonMap/PhotonMapConfig.h"
+#endif
 
 #ifdef OPEN_GL_ENABLED
     #include "render/opengl/visualDebugTools/GlutDebugTools.h"
@@ -41,6 +45,38 @@
 #endif
 
 Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
+
+namespace {
+#ifndef RAYTRACING_ENABLED
+bool
+isRaytracingDependentOption(const char *argument) {
+    if ( argument == nullptr ) {
+        return false;
+    }
+
+    return strcmp(argument, "-raytracing-method") == 0
+           || strncmp(argument, "-rts-", 5) == 0
+           || strncmp(argument, "-bidir-", 7) == 0
+           || strncmp(argument, "-rm-", 4) == 0
+           || strncmp(argument, "-srr-", 5) == 0
+           || strncmp(argument, "-rwr-", 5) == 0
+           || strncmp(argument, "-pmap-", 6) == 0;
+}
+
+void
+failIfUnsupportedRaytracingOptionRequested(int argc, char **argv) {
+    for ( int i = 0; i < argc; i++ ) {
+        if ( isRaytracingDependentOption(argv[i]) ) {
+            java::System::err.printf(
+                "ERROR: Option '%s' requires raytracing support. Rebuild with CMake flag '-DWITH_RAYTRACING=ON'.\n",
+                argv[i]);
+            java::System::err.flush();
+            java::System::exit(1);
+        }
+    }
+}
+#endif
+}
 
 RpkApplication::RpkApplication():
     imageOutputWidth(),
@@ -114,7 +150,9 @@ RpkApplication::mainParseOptions(
         int *argc,
         char **argv,
         char *rayTracerName,
-        char *toneMapName,
+        char *toneMapName
+#ifdef RAYTRACING_ENABLED
+        ,
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,
         StochasticRadiosityBasisState &stochasticRadiosityBasisState,
@@ -122,8 +160,15 @@ RpkApplication::mainParseOptions(
         PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState)
+        StochasticRayTracingState &stochasticRayTracingState
+#endif
+        )
 {
+#ifndef RAYTRACING_ENABLED
+    failIfUnsupportedRaytracingOptionRequested(*argc, argv);
+    (void) rayTracerName;
+#endif
+
     OptionsGroupCore::parse(
         argc,
         argv,
@@ -138,7 +183,9 @@ RpkApplication::mainParseOptions(
     Radiance::radianceParseOptions(
         argc,
         argv,
-        &selectedRadianceMethod,
+        &selectedRadianceMethod
+#ifdef RAYTRACING_ENABLED
+        ,
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
@@ -146,7 +193,9 @@ RpkApplication::mainParseOptions(
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState);
+        stochasticRayTracingState
+#endif
+        );
 
 #ifdef RAYTRACING_ENABLED
     Raytrace::rayTraceParseOptions(argc, argv, rayTracerName);
@@ -164,11 +213,15 @@ RpkApplication::mainCreateOffscreenCanvasWindow() const {
 
 void
 RpkApplication::executeRendering(
-    const char *rayTracerName,
+    const char *rayTracerName
+#ifdef RAYTRACING_ENABLED
+    ,
     RayMatterState &rayMatterState,
     BidirectionalPathTracingState &bidirectionalPathState,
     StochasticRayTracingState &stochasticRayTracingState,
-    LightList *&lightList)
+    LightList *&lightList
+#endif
+    )
 {
     // Create the window in which to render (canvas window)
     mainCreateOffscreenCanvasWindow();
@@ -184,10 +237,6 @@ RpkApplication::executeRendering(
             lightList);
     #else
         (void) rayTracerName;
-        (void) rayMatterState;
-        (void) bidirectionalPathState;
-        (void) stochasticRayTracingState;
-        (void) lightList;
     #endif
 
     Batch::batchExecuteRadianceSimulation(scene, selectedRadianceMethod, rayTracer, &toneMapOptions, renderOptions);
@@ -213,6 +262,7 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     // 1. Default empty scene
     mainInitApplication();
 
+#ifdef RAYTRACING_ENABLED
     RayMatterState rayMatterState;
     BidirectionalPathTracingState bidirectionalPathState;
     StochasticRayTracingState stochasticRayTracingState;
@@ -225,16 +275,19 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);
+#endif
 
     // 2. Set model elements from command line options
-    char rayTracerName[256];
+    char rayTracerName[256] = "none";
     char initializationToneMapName[256] = "Lightness";
     char renderToneMapName[256] = "Lightness";
     mainParseOptions(
         &argc,
         argv,
         rayTracerName,
-        renderToneMapName,
+        renderToneMapName
+#ifdef RAYTRACING_ENABLED
+        ,
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
@@ -242,7 +295,9 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState);
+        stochasticRayTracingState
+#endif
+        );
 
     // 3. Load scene elements from MGF file
     mgfContext->radianceMethod = selectedRadianceMethod;
@@ -254,11 +309,15 @@ RpkApplication::entryPoint(int argc, char *argv[]) {
 
     // 4. Run main radiosity simulation and export result
     executeRendering(
-        rayTracerName,
+        rayTracerName
+#ifdef RAYTRACING_ENABLED
+        ,
         rayMatterState,
         bidirectionalPathState,
         stochasticRayTracingState,
-        lightList);
+        lightList
+#endif
+        );
 
     // X. Interactive visual debug GUI tool
     #ifdef OPEN_GL_ENABLED

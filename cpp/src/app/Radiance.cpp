@@ -34,7 +34,9 @@ void
 Radiance::radianceParseOptions(
         int *argc,
         char **argv,
-        RadianceMethod **newRadianceMethod,
+        RadianceMethod **newRadianceMethod
+#ifdef RAYTRACING_ENABLED
+        ,
         StochasticRelaxation &stochasticRelaxationState,
         ElementHierarchyState &elementHierarchyState,
         StochasticRadiosityBasisState &stochasticRadiosityBasisState,
@@ -42,12 +44,16 @@ Radiance::radianceParseOptions(
         PhotonMapConfig &photonMapConfig,
         RayMatterState &rayMatterState,
         BidirectionalPathTracingState &bidirectionalPathState,
-        StochasticRayTracingState &stochasticRayTracingState)
+        StochasticRayTracingState &stochasticRayTracingState
+#endif
+        )
 {
     OptionsGroupRadiance::parse(
         argc,
         argv,
-        newRadianceMethod,
+        newRadianceMethod
+#ifdef RAYTRACING_ENABLED
+        ,
         stochasticRelaxationState,
         elementHierarchyState,
         stochasticRadiosityBasisState,
@@ -55,7 +61,9 @@ Radiance::radianceParseOptions(
         photonMapConfig,
         rayMatterState,
         bidirectionalPathState,
-        stochasticRayTracingState);
+        stochasticRayTracingState
+#endif
+        );
 
     if ( *newRadianceMethod != nullptr ) {
         if ( (*newRadianceMethod)->className == RadianceMethodAlgorithm::GALERKIN ) {

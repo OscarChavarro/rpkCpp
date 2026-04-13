@@ -441,22 +441,24 @@ SceneBuilder::sceneBuilderReadFile(
                 readBinaryModel = true;
                 inputName = fallbackBinaryInputName;
             } else {
-                java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+                java::System::err.printf(
+                    "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
                 java::System::err.flush();
                 Error::error(
                     "SceneBuilder::sceneBuilderReadFile",
-                    "MGF_ENABLED was OFF at compile time. Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
+                    "Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
                     requestedInputName,
                     fallbackBinaryInputName != nullptr ? fallbackBinaryInputName : "(not derivable)");
                 delete[] fallbackBinaryInputName;
                 return false;
             }
         } else {
-            java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+            java::System::err.printf(
+                "ERROR: Non-binary scene input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
             java::System::err.flush();
             Error::error(
                 "SceneBuilder::sceneBuilderReadFile",
-                "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+                "Only '.bin' input files are supported in this build.");
             return false;
         }
     }
@@ -532,11 +534,12 @@ SceneBuilder::sceneBuilderReadFile(
             }
         }
 #else
-        java::System::err.printf("MGF_ENABLED was OFF at compile time.\n");
+        java::System::err.printf(
+            "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
         java::System::err.flush();
         Error::error(
             "SceneBuilder::sceneBuilderReadFile",
-            "MGF_ENABLED was OFF at compile time. Only '.bin' input files are supported.");
+            "Only '.bin' input files are supported in this build.");
 #endif
     }
 

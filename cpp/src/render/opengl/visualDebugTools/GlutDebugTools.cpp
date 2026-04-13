@@ -101,24 +101,30 @@ GlutDebugTools::clearCachedPrimaryPatchInteractions() {
     }
 }
 
+void
+GlutDebugTools::addInteractionIfNotPresent(
+    java::ArrayList<Interaction *> *interactions,
+    Interaction *interaction)
+{
+    if ( interactions == nullptr || interaction == nullptr ) {
+        return;
+    }
+
+    for ( int i = 0; i < interactions->size(); i++ ) {
+        if ( interactions->get(i) == interaction ) {
+            return;
+        }
+    }
+
+    interactions->add(interaction);
+}
+
 java::ArrayList<Interaction *> *
 GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const {
-    auto *interactions = new java::ArrayList<Interaction *>();
+    java::ArrayList<Interaction *> *interactions = new java::ArrayList<Interaction *>();
     if ( patch == nullptr ) {
         return interactions;
     }
-
-    auto addIfNotPresent = [interactions](Interaction *interaction) {
-        if ( interaction == nullptr ) {
-            return;
-        }
-        for ( int i = 0; i < interactions->size(); i++ ) {
-            if ( interactions->get(i) == interaction ) {
-                return;
-            }
-        }
-        interactions->add(interaction);
-    };
 
     for ( int patchIndex = 0; patchIndex < model.scene->patchList->size(); patchIndex++ ) {
         const Patch *candidatePatch = model.scene->patchList->get(patchIndex);
@@ -147,7 +153,7 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *
                 continue;
             }
             if ( sourcePatch == patch || receiverPatch == patch ) {
-                addIfNotPresent(interaction);
+                GlutDebugTools::addInteractionIfNotPresent(interactions, interaction);
             }
         }
     }

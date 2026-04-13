@@ -307,6 +307,19 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
 }
 
 void
+GlutDebugPatchHierarchy::drawGradientLine(
+    const Vector3D &start,
+    const Vector3D &end)
+{
+    glBegin(GL_LINES);
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glVertex3f(start.x, start.y, start.z);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glVertex3f(end.x, end.y, end.z);
+    glEnd();
+}
+
+void
 GlutDebugPatchHierarchy::drawInteractions(
     const java::ArrayList<Interaction *> *interactionsToRender)
 {
@@ -322,15 +335,6 @@ GlutDebugPatchHierarchy::drawInteractions(
     glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
     glLineWidth(2.0f);
 
-    auto drawGradientLine = [](const Vector3D &start, const Vector3D &end) {
-        glBegin(GL_LINES);
-        glColor3f(0.5f, 0.5f, 0.5f);
-        glVertex3f(start.x, start.y, start.z);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(end.x, end.y, end.z);
-        glEnd();
-    };
-
     for ( int i = 0; i < interactionsToRender->size(); i++ ) {
         const Interaction *interaction = interactionsToRender->get(i);
         if ( interaction == nullptr
@@ -345,7 +349,7 @@ GlutDebugPatchHierarchy::drawInteractions(
             continue;
         }
 
-        drawGradientLine(sourcePatch->midPoint(), receiverPatch->midPoint());
+        GlutDebugPatchHierarchy::drawGradientLine(sourcePatch->midPoint(), receiverPatch->midPoint());
     }
 
     glLineWidth(previousLineWidth);
