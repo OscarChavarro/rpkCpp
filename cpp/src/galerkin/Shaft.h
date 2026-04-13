@@ -9,7 +9,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
-#include "skin/Geometry.h"
+#include "skin/PatchSet.h"
 #include "scene/Polygon.h"
 #include "galerkin/ShaftCullStrategy.h"
 #include "galerkin/ShaftPlane.h"
@@ -65,38 +65,38 @@ class Shaft {
 
     static ShaftPlanePosition testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
-    static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
+    static void keep(PatchSet *patchSet, java::ArrayList<PatchSet *> *candidateList);
 
     void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);
     ShaftPlanePosition shaftPatchTest(Patch *patch);
-    bool closedGeometry(const Geometry *geometry) const;
+    bool closedGeometry(const PatchSet *patchSet) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
     java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
     bool patchIsOnOmitSet(unsigned id) const;
-    void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
+    void shaftCullOpen(PatchSet *patchSet, java::ArrayList<PatchSet *> *candidateList, ShaftCullStrategy strategy);
 
 public:
     Shaft();
 
-    static void freeCandidateList(java::ArrayList<Geometry *> *candidateList);
+    static void freeCandidateList(java::ArrayList<PatchSet *> *candidateList);
 
     bool isCut() const;
     void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
     void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
     void setShaftOmit(Patch *patch);
-    void setShaftDontOpen(Geometry *geometry);
+    void setShaftDontOpen(const Geometry *geometry);
 
     void
     doCulling(
-        const java::ArrayList<Geometry *> *world,
-        java::ArrayList<Geometry *> *candidateList,
+        const java::ArrayList<PatchSet *> *world,
+        java::ArrayList<PatchSet *> *candidateList,
         ShaftCullStrategy strategy);
 
     void
     cullGeometry(
-        Geometry *geometry,
-        java::ArrayList<Geometry *> *candidateList,
+        PatchSet *patchSet,
+        java::ArrayList<PatchSet *> *candidateList,
         ShaftCullStrategy strategy);
 };
 

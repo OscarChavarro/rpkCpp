@@ -14,15 +14,14 @@ class HierarchicalRefinementStrategy {
   private:
     static void
     hierarchicRefinementCull(
-        const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState);
 
     static void
     hierarchicRefinementUnCull(
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         const GalerkinState *galerkinState);
 
     static double
@@ -61,7 +60,7 @@ class HierarchicalRefinementStrategy {
     static int
     hierarchicRefinementCreateSubdivisionLink(
         const Scene *scene,
-        const java::ArrayList<Geometry *> *candidatesList,
+        const java::ArrayList<PatchSet *> *candidatesList,
         GalerkinElement *receiverElement,
         GalerkinElement *sourceElement,
         Interaction *interaction,
@@ -73,7 +72,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierarchicRefinementRegularSubdivideSource(
         const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
@@ -81,7 +80,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierarchicRefinementRegularSubdivideReceiver(
         const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
@@ -89,7 +88,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierarchicRefinementSubdivideSourceCluster(
         const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
@@ -97,7 +96,7 @@ class HierarchicalRefinementStrategy {
     static void
     hierarchicRefinementSubdivideReceiverCluster(
         const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         bool isClusteredGeometry,
         GalerkinState *galerkinState);
@@ -105,7 +104,7 @@ class HierarchicalRefinementStrategy {
     static bool
     refineRecursive(
         const Scene *scene,
-        java::ArrayList<Geometry *> **candidatesList,
+        java::ArrayList<PatchSet *> **candidatesList,
         Interaction *interaction,
         GalerkinState *galerkinState);
 

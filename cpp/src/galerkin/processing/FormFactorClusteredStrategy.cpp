@@ -68,7 +68,7 @@ lead to this conclusion is added to the shadow cache
 */
 double
 FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-    const java::ArrayList<Geometry *> *geometryOccluderList,
+    const java::ArrayList<PatchSet *> *geometryOccluderList,
     ShadowCache *shadowCache,
     Ray *ray,
     float rcvDist,
@@ -93,7 +93,7 @@ FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
 double
 FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     ShadowCache *shadowCache,
-    Geometry *geometry,
+    PatchSet *geometry,
     Ray *ray,
     float rcvDist,
     float srcSize,
@@ -145,28 +145,20 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
         }
         return java::Math::exp(-kappa * (tMaximum - tMinimum));
     } else {
-        if ( geometry->isCompound() ) {
-            java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
-            double visibility = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
-                geometryList, shadowCache, ray, rcvDist, srcSize, minimumFeatureSize);
-            delete geometryList;
-            return visibility;
-        } else {
-            RayHit hitStore;
-            const RayHit *hit = Geometry::patchListIntersect(
-                    Geometry::patchListReference(geometry),
-                    ray,
-                    rcvDist * Numeric::EPSILON_FLOAT,
-                    &rcvDist,
-                    RayHitFlag::FRONT | RayHitFlag::ANY,
-                    &hitStore);
+        RayHit hitStore;
+        const RayHit *hit = Geometry::patchListIntersect(
+                geometry->getPatchList(),
+                ray,
+                rcvDist * Numeric::EPSILON_FLOAT,
+                &rcvDist,
+                RayHitFlag::FRONT | RayHitFlag::ANY,
+                &hitStore);
 
-            if ( hit != nullptr ) {
-                shadowCache->addToShadowCache(hit->getPatch());
-                return 0.0;
-            } else {
-                return 1.0;
-            }
+        if ( hit != nullptr ) {
+            shadowCache->addToShadowCache(hit->getPatch());
+            return 0.0;
+        } else {
+            return 1.0;
         }
     }
 }

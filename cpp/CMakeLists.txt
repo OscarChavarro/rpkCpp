@@ -174,6 +174,7 @@ set(MAIN_SRC
     src/render/Canvas.cpp
     src/render/ScreenBuffer.cpp
     src/galerkin/GalerkinState.cpp
+    src/galerkin/GalerkinGeometry.cpp
     src/galerkin/GalerkinBasis.cpp
     src/galerkin/GalerkinRadianceMethod.cpp
     src/galerkin/Shaft.cpp
