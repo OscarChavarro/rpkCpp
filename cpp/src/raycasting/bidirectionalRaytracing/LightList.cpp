@@ -215,7 +215,7 @@ LightList::computeOneLightImportanceReal(
         // Choose a point on the patch according to 'tried'
 
         if ( tried == 0 ) {
-            lightPoint = light->midPoint;
+            lightPoint = light->midPoint();
             lightNormal = light->normal;
         } else {
             lightPoint = *(light->vertex[tried - 1]->point);

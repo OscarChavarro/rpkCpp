@@ -15,6 +15,11 @@ class GlutDebugPatchHierarchy final {
         int primaryPatchIndex,
         int secondaryPatchIndex,
         int hierarchyLevel);
+    static void renderInteractionBetweenSelected(
+        const Scene *scene,
+        int primaryPatchIndex,
+        int secondaryPatchIndex,
+        const java::ArrayList<Interaction *> *interactionsToRender);
     static void renderSecondarySelectedPatchMarker(
         const Scene *scene,
         const RenderOptions *renderOptions,
@@ -38,7 +43,15 @@ class GlutDebugPatchHierarchy final {
     static const GalerkinElement *selectedPatchRoot(const Scene *scene, int patchIndex);
     static int maxLevelFromElement(const GalerkinElement *element);
     static void renderElementAtLevel(const GalerkinElement *element, int hierarchyLevel, const RenderOptions *renderOptions);
+    static void drawCenterMark(
+        const Vector3D &center,
+        float radius,
+        int sides,
+        const Vector3D &axisU,
+        const Vector3D &axisV,
+        const RenderOptions *renderOptions);
     static void drawSelectedPatchCenterMarker(const GalerkinElement *topLevelElement, const RenderOptions *renderOptions);
+    static void drawInteractions(const java::ArrayList<Interaction *> *interactionsToRender);
     static void drawSecondarySelectedPatchMarker(
         const GalerkinElement *topLevelElement,
         const RenderOptions *renderOptions);

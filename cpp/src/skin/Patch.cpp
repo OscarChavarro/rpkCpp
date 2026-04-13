@@ -597,6 +597,7 @@ Patch::Patch(
     Vertex *v3,
     Vertex *v4):
     flags(),
+    patchMidPoint(),
     id(),
     twin(),
     vertex(),
@@ -606,7 +607,6 @@ Patch::Patch(
     planeConstant(),
     tolerance(),
     area(),
-    midPoint(),
     jacobian(),
     directPotential(),
     index(),
@@ -657,10 +657,10 @@ Patch::Patch(
     area = computeRandomWalkRadiosityArea();
 
     // Patch midpoint
-    computeMidpoint(&midPoint);
+    computeMidpoint(&midPoint());
 
     // Plane constant
-    planeConstant = -normal.dotProduct(midPoint);
+    planeConstant = -normal.dotProduct(midPoint());
 
     // Plane tolerance
     tolerance = computeTolerance();

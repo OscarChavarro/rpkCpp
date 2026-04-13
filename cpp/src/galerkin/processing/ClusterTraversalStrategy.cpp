@@ -131,7 +131,7 @@ ClusterTraversalStrategy::surfaceProjectedAreaToSamplePoint(const GalerkinElemen
     Vector3D dir;
     Vector3D samplePoint;
 
-    dir.subtraction(samplePoint, receiverElement->patch->midPoint);
+    dir.subtraction(samplePoint, receiverElement->patch->midPoint());
     distance = dir.norm();
     if ( distance < Numeric::EPSILON ) {
         rcvCos = 1.0;

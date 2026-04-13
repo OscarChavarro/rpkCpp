@@ -27,7 +27,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     ColorRgb albedo;
     RayHit hit;
 
-    hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
+    hit.init(patch, &patch->midPoint(), &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
     albedo.clear();
@@ -54,7 +54,7 @@ ColorRgb
 PatchVisitor::averageEmittance(Patch *patch, char components) {
     ColorRgb emittance;
     RayHit hit;
-    hit.init(patch, &patch->midPoint, &patch->normal, patch->material);
+    hit.init(patch, &patch->midPoint(), &patch->normal, patch->material);
 
     const int numberOfSamples = getNumberOfSamples(patch);
     emittance.clear();

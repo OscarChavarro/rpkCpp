@@ -6,14 +6,10 @@
 #include "scene/Scene.h"
 
 class GlutDebugTools final {
-  public:
-    explicit GlutDebugTools(const GlutDebugToolsModel &initialModel);
-    ~GlutDebugTools() = default;
-
-    void executeGlutGui(int argc, char *argv[]);
-
   private:
     GlutDebugToolsModel model;
+    int cachedPrimaryPatchIndex;
+    java::ArrayList<Interaction *> *cachedInteractionsForPrimaryPatch;
 
     void resizeCallback(int newWidth, int newHeight);
     void keypressCallback(unsigned char keyChar, int x, int y);
@@ -22,6 +18,9 @@ class GlutDebugTools final {
     void mouseMotionCallback(int x, int y);
     void drawCallback();
     void printGalerkinElementForPatch(const Scene *scene, int patchIndex);
+    void clearCachedPrimaryPatchInteractions();
+    void updateCachedPrimaryPatchInteractions(int selectedPatchIndex);
+    java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const;
 
     static GlutDebugTools *&activeGlutDebugToolsInstance();
     static void resizeCallbackBridge(int newWidth, int newHeight);
@@ -33,8 +32,14 @@ class GlutDebugTools final {
     static void printGalerkinElementForPatchBridge(const Scene *scene, int patchIndex);
 
     void syncModelWindowSizeFromGlut();
-    void syncCameraToViewport();
+    void syncCameraToViewport() const;
     void printElementHierarchy(const GalerkinElement *element, int level);
+
+public:
+    explicit GlutDebugTools(const GlutDebugToolsModel &initialModel);
+    ~GlutDebugTools();
+
+    void executeGlutGui(int argc, char *argv[]);
 };
 
 #endif

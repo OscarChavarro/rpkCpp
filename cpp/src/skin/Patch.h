@@ -50,6 +50,7 @@ class Patch {
         Patch *p3);
 
     unsigned char flags; // Other flags
+    Vector3D patchMidPoint; // Patch midpoint
 
     static double clipToUnitInterval(double x);
     static bool solveQuadraticUnitInterval(double A, double B, double C, double *x);
@@ -81,7 +82,6 @@ class Patch {
     float planeConstant;
     float tolerance; // Plane tolerance
     float area; // Patch area
-    Vector3D midPoint; // Patch midpoint
     Jacobian *jacobian; // Shape-related constants for irregular quadrilaterals.
                         // Used for sampling the quadrilateral and for computing integrals
     float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph, 1995?).
@@ -119,6 +119,8 @@ class Patch {
     Vector3D textureCoordAtUv(double u, double v) const;
     void computeVertexColors() const;
     bool facing(const Patch *other) const;
+    Vector3D &midPoint();
+    const Vector3D &midPoint() const;
     void computeBoundingBox();
     void computeAndGetBoundingBox(BoundingBox *bounds);
     RayHit *intersect(const Ray *ray, float minimumDistance, float *maximumDistance, int hitFlags, RayHit *hitStore);
@@ -158,6 +160,16 @@ Patch::setFlags(unsigned char newFlags) {
 inline unsigned char
 Patch::getFlags() const {
     return flags;
+}
+
+inline Vector3D &
+Patch::midPoint() {
+    return patchMidPoint;
+}
+
+inline const Vector3D &
+Patch::midPoint() const {
+    return patchMidPoint;
 }
 
 #ifdef RAYTRACING_ENABLED

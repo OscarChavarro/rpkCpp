@@ -398,7 +398,7 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     vsdk::PersistenceElement::writeFloatLE(output, patch->planeConstant);
     vsdk::PersistenceElement::writeFloatLE(output, patch->tolerance);
     vsdk::PersistenceElement::writeFloatLE(output, patch->area);
-    writeVector(output, patch->midPoint);
+    writeVector(output, patch->midPoint());
 
     vsdk::PersistenceElement::writeBool(output, patch->jacobian != nullptr);
     if ( patch->jacobian != nullptr ) {

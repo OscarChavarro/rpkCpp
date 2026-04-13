@@ -417,7 +417,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             patch->planeConstant = record.planeConstant;
             patch->tolerance = record.tolerance;
             patch->area = record.area;
-            patch->midPoint = record.midPoint;
+            patch->midPoint() = record.midPoint;
             patch->directPotential = record.directPotential;
             patch->index = static_cast<char>(record.dominantIndex);
             patch->omit = static_cast<char>(record.omit ? 1 : 0);

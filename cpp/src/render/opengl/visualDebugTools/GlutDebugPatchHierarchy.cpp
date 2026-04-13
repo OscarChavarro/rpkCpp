@@ -1,5 +1,7 @@
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
+#include <cmath>
+
 #include "common/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "galerkin/GalerkinElement.h"
@@ -174,7 +176,7 @@ GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
             continue;
         }
 
-        const GalerkinElement *element = static_cast<const GalerkinElement *>(patch->radianceData);
+        const GalerkinElement *element = dynamic_cast<const GalerkinElement *>(patch->radianceData);
         renderElementGray(element, renderOptions);
     }
 }
@@ -200,6 +202,43 @@ GlutDebugPatchHierarchy::renderElementAtLevel(
             renderElementAtLevel(child, hierarchyLevel - 1, renderOptions);
         }
     }
+}
+
+void
+GlutDebugPatchHierarchy::drawCenterMark(
+    const Vector3D &center,
+    float radius,
+    int sides,
+    const Vector3D &axisU,
+    const Vector3D &axisV,
+    const RenderOptions *renderOptions)
+{
+    if ( renderOptions == nullptr || sides < 3 || radius < Numeric::EPSILON ) {
+        return;
+    }
+
+    const ColorRgb yellow(1.0f, 1.0f, 0.0f);
+    Opengl::openGlRenderSetColor(&yellow, renderOptions);
+
+    constexpr float TWO_PI = 6.28318530717958647692f;
+    Vector3D firstVertex;
+    Vector3D previousVertex;
+    for ( int i = 0; i < sides; i++ ) {
+        const float angle = TWO_PI * static_cast<float>(i) / static_cast<float>(sides);
+        const float u = radius * std::cos(angle);
+        const float v = radius * std::sin(angle);
+
+        Vector3D currentVertex;
+        currentVertex.combine3(center, u, axisU, v, axisV);
+
+        if ( i == 0 ) {
+            firstVertex = currentVertex;
+        } else {
+            Opengl::openGlRenderLine(&previousVertex, &currentVertex);
+        }
+        previousVertex = currentVertex;
+    }
+    Opengl::openGlRenderLine(&previousVertex, &firstVertex);
 }
 
 void
@@ -262,26 +301,72 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
         averageEdgeSize = 0.1f;
     }
 
-    const float halfSize = 0.08f * averageEdgeSize;
-    Vector3D center = topLevelElement->midPoint();
-    Vector3D normalOffset;
-    normalOffset.scaledCopy(0.002f * averageEdgeSize, normal);
+    const float radius = 0.08f * averageEdgeSize;
+    const Vector3D center = topLevelElement->midPoint();
+    drawCenterMark(center, radius, 8, axisU, axisV, renderOptions);
+}
 
-    Vector3D markerVertices[4];
-    markerVertices[0].combine3(center, -halfSize, axisU, -halfSize, axisV);
-    markerVertices[1].combine3(center,  halfSize, axisU, -halfSize, axisV);
-    markerVertices[2].combine3(center,  halfSize, axisU,  halfSize, axisV);
-    markerVertices[3].combine3(center, -halfSize, axisU,  halfSize, axisV);
-    for ( auto &markerVertex : markerVertices ) {
-        markerVertex.addition(markerVertex, normalOffset);
+void
+GlutDebugPatchHierarchy::drawInteractions(
+    const java::ArrayList<Interaction *> *interactionsToRender)
+{
+    if ( interactionsToRender == nullptr ) {
+        return;
     }
 
-    const ColorRgb yellow(1.0f, 1.0f, 0.0f);
-    Opengl::openGlRenderSetColor(&yellow, renderOptions);
-    Opengl::openGlRenderLine(&markerVertices[0], &markerVertices[1]);
-    Opengl::openGlRenderLine(&markerVertices[1], &markerVertices[2]);
-    Opengl::openGlRenderLine(&markerVertices[2], &markerVertices[3]);
-    Opengl::openGlRenderLine(&markerVertices[3], &markerVertices[0]);
+    GLint previousShadeModel = GL_FLAT;
+    glGetIntegerv(GL_SHADE_MODEL, &previousShadeModel);
+    glShadeModel(GL_SMOOTH);
+
+    GLfloat previousLineWidth = 1.0f;
+    glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
+    glLineWidth(2.0f);
+
+    auto drawGradientLine = [](const Vector3D &start, const Vector3D &end) {
+        glBegin(GL_LINES);
+        glColor3f(0.5f, 0.5f, 0.5f);
+        glVertex3f(start.x, start.y, start.z);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glVertex3f(end.x, end.y, end.z);
+        glEnd();
+    };
+
+    for ( int i = 0; i < interactionsToRender->size(); i++ ) {
+        const Interaction *interaction = interactionsToRender->get(i);
+        if ( interaction == nullptr
+             || interaction->sourceElement == nullptr
+             || interaction->receiverElement == nullptr ) {
+            continue;
+        }
+
+        const Patch *sourcePatch = interaction->sourceElement->patch;
+        const Patch *receiverPatch = interaction->receiverElement->patch;
+        if ( sourcePatch == nullptr || receiverPatch == nullptr ) {
+            continue;
+        }
+
+        drawGradientLine(sourcePatch->midPoint(), receiverPatch->midPoint());
+    }
+
+    glLineWidth(previousLineWidth);
+    glShadeModel(previousShadeModel);
+}
+
+void
+GlutDebugPatchHierarchy::renderInteractionBetweenSelected(
+    const Scene *scene,
+    int primaryPatchIndex,
+    int secondaryPatchIndex,
+    const java::ArrayList<Interaction *> *interactionsToRender)
+{
+    (void)secondaryPatchIndex;
+    if ( scene == nullptr ) {
+        return;
+    }
+    if ( primaryPatchIndex < 0 ) {
+        return;
+    }
+    drawInteractions(interactionsToRender);
 }
 
 void

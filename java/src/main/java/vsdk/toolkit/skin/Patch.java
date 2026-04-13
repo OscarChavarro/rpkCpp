@@ -85,6 +85,16 @@ public class Patch {
         return i >= numberOfVertices;
     }
 
+    private static boolean withinUvInterval(double value) {
+        return value >= 0.0 && value <= 1.0;
+    }
+
+    public static double planeEquationValue(Vector3D normal, float planeConstant, Vector3D point) {
+        float xy = normal.x * point.x + normal.y * point.y;
+        float zd = normal.z * point.z + planeConstant;
+        return (double)(xy + zd);
+    }
+
     /**
     Point IN Triangle: barycentric parametrisation.
     */
@@ -95,9 +105,9 @@ public class Patch {
         float u,
         float v,
         Vector3D p) {
-        p.x = Math.fma(v, (v2.x - v0.x), Math.fma(u, (v1.x - v0.x), v0.x));
-        p.y = Math.fma(v, (v2.y - v0.y), Math.fma(u, (v1.y - v0.y), v0.y));
-        p.z = Math.fma(v, (v2.z - v0.z), Math.fma(u, (v1.z - v0.z), v0.z));
+        p.x = v0.x + u * (v1.x - v0.x) + v * (v2.x - v0.x);
+        p.y = v0.y + u * (v1.y - v0.y) + v * (v2.y - v0.y);
+        p.z = v0.z + u * (v1.z - v0.z) + v * (v2.z - v0.z);
     }
 
     /**
@@ -114,9 +124,20 @@ public class Patch {
         float c = u * v;
         float b = u - c;
         float d = v - c;
-        p.x = Math.fma(d, (v3.x - v0.x), Math.fma(c, (v2.x - v0.x), Math.fma(b, (v1.x - v0.x), v0.x)));
-        p.y = Math.fma(d, (v3.y - v0.y), Math.fma(c, (v2.y - v0.y), Math.fma(b, (v1.y - v0.y), v0.y)));
-        p.z = Math.fma(d, (v3.z - v0.z), Math.fma(c, (v2.z - v0.z), Math.fma(b, (v1.z - v0.z), v0.z)));
+        float px = v0.x + b * (v1.x - v0.x);
+        px = px + c * (v2.x - v0.x);
+        px = px + d * (v3.x - v0.x);
+        p.x = px;
+
+        float py = v0.y + b * (v1.y - v0.y);
+        py = py + c * (v2.y - v0.y);
+        py = py + d * (v3.y - v0.y);
+        p.y = py;
+
+        float pz = v0.z + b * (v1.z - v0.z);
+        pz = pz + c * (v2.z - v0.z);
+        pz = pz + d * (v3.z - v0.z);
+        p.z = pz;
     }
 
     private Vector3D getInterpolatedNormalAtUv(double u, double v) {
@@ -511,22 +532,22 @@ public class Patch {
             // Case AB // CD
             Vector2Dd.subtract(AB, CD, vector);
             v = Vector2Dd.determinant(AM, vector) / Vector2Dd.determinant(AD, vector);
-            if (v >= 0.0 && v <= 1.0) {
+            if (withinUvInterval(v)) {
                 b = Vector2Dd.determinant(AB, AD) - Vector2Dd.determinant(AM, AE);
                 c = Vector2Dd.determinant(AM, AD);
                 u = Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
-                isInside = (u >= 0.0 && u <= 1.0);
+                isInside = withinUvInterval(u);
             }
         }
         else if (Math.abs(Vector2Dd.determinant(BC, AD)) < Numeric.EPSILON) {
             // Case AD // BC
             Vector2Dd.add(AD, BC, vector);
             u = Vector2Dd.determinant(AM, vector) / Vector2Dd.determinant(AB, vector);
-            if (u >= 0.0 && u <= 1.0) {
+            if (withinUvInterval(u)) {
                 b = Vector2Dd.determinant(AD, AB) - Vector2Dd.determinant(AM, AE);
                 c = Vector2Dd.determinant(AM, AB);
                 v = Math.abs(b) < Numeric.EPSILON ? -1.0 : c / b;
-                isInside = (v >= 0.0 && v <= 1.0);
+                isInside = withinUvInterval(v);
             }
         }
         else {
@@ -545,7 +566,7 @@ public class Patch {
                     // To choose u between 0 and 1
                     u = b + sqrtDelta;
                 }
-                if (u >= 0.0 && u <= 1.0) {
+                if (withinUvInterval(u)) {
                     v = AD.u + u * AE.u;
                     if (Math.abs(v) < Numeric.EPSILON) {
                         v = (AM.v - u * AB.v) / (AD.v + u * AE.v);
@@ -553,7 +574,7 @@ public class Patch {
                     else {
                         v = (AM.u - u * AB.u) / v;
                     }
-                    isInside = (v >= 0.0 && v <= 1.0);
+                    isInside = withinUvInterval(v);
                 }
             }
             else {
@@ -588,16 +609,28 @@ public class Patch {
     */
     private static Vector3D patchNormal(Patch patch, Vector3D normal) {
         Vector3D current = new Vector3D();
+        double normalX = 0.0;
+        double normalY = 0.0;
+        double normalZ = 0.0;
 
         normal.set(0.0f, 0.0f, 0.0f);
         current.subtraction(patch.vertex[patch.numberOfVertices - 1].point, patch.vertex[0].point);
         for (int i = 0; i < patch.numberOfVertices; i++) {
             Vector3D previous = new Vector3D(current.x, current.y, current.z);
             current.subtraction(patch.vertex[i].point, patch.vertex[0].point);
-            normal.x += (previous.y - current.y) * (previous.z + current.z);
-            normal.y += (previous.z - current.z) * (previous.x + current.x);
-            normal.z += (previous.x - current.x) * (previous.y + current.y);
+            float termX = (previous.y - current.y) * (previous.z + current.z);
+            float termY = (previous.z - current.z) * (previous.x + current.x);
+            float termZ = (previous.x - current.x) * (previous.y + current.y);
+            normalX += termX;
+            normalY += termY;
+            normalZ += termZ;
+            normal.x = (float)normalX;
+            normal.y = (float)normalY;
+            normal.z = (float)normalZ;
         }
+        normal.x = (float)normalX;
+        normal.y = (float)normalY;
+        normal.z = (float)normalZ;
 
         float localNorm = normal.norm();
         if (localNorm < Numeric.EPSILON) {
@@ -871,7 +904,7 @@ public class Patch {
             return null;
         }
 
-        distance = -(normal.dotProduct(ray.position) + planeConstant) / distance;
+        distance = (float)(-planeEquationValue(normal, planeConstant, ray.position) / distance);
 
         if (distance > maximumDistance[0] || distance < minimumDistance) {
             // Intersection too far or too close

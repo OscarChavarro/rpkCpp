@@ -83,12 +83,101 @@ GlutDebugTools::printGalerkinElementForPatchBridge(const Scene *scene, int patch
 }
 
 GlutDebugTools::GlutDebugTools(const GlutDebugToolsModel &initialModel):
-    model(initialModel)
+    model(initialModel),
+    cachedPrimaryPatchIndex(-2),
+    cachedInteractionsForPrimaryPatch(nullptr)
 {
 }
 
+GlutDebugTools::~GlutDebugTools() {
+    clearCachedPrimaryPatchInteractions();
+}
+
 void
-GlutDebugTools::resizeCallback(int newWidth, int newHeight) {
+GlutDebugTools::clearCachedPrimaryPatchInteractions() {
+    if ( cachedInteractionsForPrimaryPatch != nullptr ) {
+        delete cachedInteractionsForPrimaryPatch;
+        cachedInteractionsForPrimaryPatch = nullptr;
+    }
+}
+
+java::ArrayList<Interaction *> *
+GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const {
+    auto *interactions = new java::ArrayList<Interaction *>();
+    if ( patch == nullptr ) {
+        return interactions;
+    }
+
+    auto addIfNotPresent = [interactions](Interaction *interaction) {
+        if ( interaction == nullptr ) {
+            return;
+        }
+        for ( int i = 0; i < interactions->size(); i++ ) {
+            if ( interactions->get(i) == interaction ) {
+                return;
+            }
+        }
+        interactions->add(interaction);
+    };
+
+    for ( int patchIndex = 0; patchIndex < model.scene->patchList->size(); patchIndex++ ) {
+        const Patch *candidatePatch = model.scene->patchList->get(patchIndex);
+        if ( candidatePatch == nullptr
+             || candidatePatch->radianceData == nullptr
+             || candidatePatch->radianceData->className != ElementTypes::ELEMENT_GALERKIN ) {
+            continue;
+        }
+
+        const GalerkinElement *candidateElement = dynamic_cast<GalerkinElement *>(candidatePatch->radianceData);
+        if ( candidateElement->interactions == nullptr ) {
+            continue;
+        }
+
+        for ( int interactionIndex = 0; interactionIndex < candidateElement->interactions->size(); interactionIndex++ ) {
+            Interaction *interaction = candidateElement->interactions->get(interactionIndex);
+            if ( interaction == nullptr
+                 || interaction->sourceElement == nullptr
+                 || interaction->receiverElement == nullptr ) {
+                continue;
+            }
+
+            const Patch *sourcePatch = interaction->sourceElement->patch;
+            const Patch *receiverPatch = interaction->receiverElement->patch;
+            if ( sourcePatch == nullptr || receiverPatch == nullptr ) {
+                continue;
+            }
+            if ( sourcePatch == patch || receiverPatch == patch ) {
+                addIfNotPresent(interaction);
+            }
+        }
+    }
+
+    return interactions;
+}
+
+void
+GlutDebugTools::updateCachedPrimaryPatchInteractions(int selectedPatchIndex) {
+    if ( selectedPatchIndex == cachedPrimaryPatchIndex ) {
+        return;
+    }
+
+    cachedPrimaryPatchIndex = selectedPatchIndex;
+    clearCachedPrimaryPatchInteractions();
+
+    if ( selectedPatchIndex < 0
+         || model.scene == nullptr
+         || model.scene->patchList == nullptr
+         || selectedPatchIndex >= model.scene->patchList->size() ) {
+        return;
+    }
+
+    Patch *selectedPatch = model.scene->patchList->get(selectedPatchIndex);
+    cachedInteractionsForPrimaryPatch =
+        getInteractionsWherePatchParticipateAsSourceOrAsReceiver(selectedPatch);
+}
+
+void
+GlutDebugTools::resizeCallback(const int newWidth, const int newHeight) {
     if ( newWidth <= 0 || newHeight <= 0 ) {
         return;
     }
@@ -117,7 +206,7 @@ GlutDebugTools::syncModelWindowSizeFromGlut() {
 }
 
 void
-GlutDebugTools::syncCameraToViewport() {
+GlutDebugTools::syncCameraToViewport() const {
     if ( model.scene == nullptr || model.scene->camera == nullptr ) {
         return;
     }
@@ -292,6 +381,7 @@ GlutDebugTools::drawCallback() {
             secondarySelectedPatchIndex = -1;
         }
     }
+    updateCachedPrimaryPatchInteractions(selectedPatchIndex);
 
     if ( model.mode == GlutDebugMode::RADIANCE_SCENE ) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINES);
@@ -316,6 +406,11 @@ GlutDebugTools::drawCallback() {
             model.scene,
             model.renderOptions,
             secondarySelectedPatchIndex);
+        GlutDebugPatchHierarchy::renderInteractionBetweenSelected(
+            model.scene,
+            selectedPatchIndex,
+            secondarySelectedPatchIndex,
+            cachedInteractionsForPrimaryPatch);
         glPopMatrix();
     }
 
@@ -394,6 +489,26 @@ GlutDebugTools::drawCallback() {
             currentLevelLabel,
             maxHierarchyLevel);
         GlutHudConsole::printTextLine(hudSubdivisionText, 0, 3, model.width, model.height);
+
+        int primaryInteractionCount = 0;
+        if ( selectedPatchIndex >= 0 && cachedInteractionsForPrimaryPatch != nullptr ) {
+            primaryInteractionCount = cachedInteractionsForPrimaryPatch->size();
+        }
+
+        char hudPrimaryInteractionsText[256];
+        if ( selectedPatchIndex >= 0 ) {
+            std::snprintf(
+                hudPrimaryInteractionsText,
+                sizeof(hudPrimaryInteractionsText),
+                "Primary element Iteration: %d",
+                primaryInteractionCount);
+        } else {
+            std::snprintf(
+                hudPrimaryInteractionsText,
+                sizeof(hudPrimaryInteractionsText),
+                "Primary element Iteration: none");
+        }
+        GlutHudConsole::printTextLine(hudPrimaryInteractionsText, 0, 4, model.width, model.height);
     }
 
     glutSwapBuffers();
