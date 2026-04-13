@@ -70,3 +70,5 @@ out/
 .classpath
 .project
 .settings/
+
+.codex

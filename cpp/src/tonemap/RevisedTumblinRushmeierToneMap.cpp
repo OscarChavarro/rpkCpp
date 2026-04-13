@@ -21,15 +21,15 @@ RevisedTumblinRushmeierToneMap::~RevisedTumblinRushmeierToneMap() {
 
 void
 RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float lwa = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
+    const float lwa = toneMapOptions.realWorldAdaptionLuminance;
+    const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    const float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
     ldaRTR = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     // Equation [TUMB1999b](17): exponent gw/gd
     g = stevensGamma(lwa) / stevensGamma(ldaRTR);
     // Equation [TUMB1999b](20): gwd = gw / (1.855 + 0.4 * log10(Lda))
-    float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log10(ldaRTR));
+    const float gwd = stevensGamma(lwa) / (1.855f + 0.4f * java::Math::log10(ldaRTR));
     // Equation [TUMB1999b](19): m(Lwa) * Lda
     comp = java::Math::pow(java::Math::sqrt(maximumDisplayContrast), gwd - 1) * ldaRTR;
     display = comp / maximumDisplayLuminance;
@@ -37,7 +37,7 @@ RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    float rwl = radiance.luminance();
+    const float rwl = radiance.luminance();
     float scale;
 
     if ( rwl > 0.0 ) {
@@ -53,8 +53,8 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = static_cast<float>(M_PI) * radiance.luminance();
-    float eff = Cie::getLuminousEfficacy();
+    const float rwl = static_cast<float>(M_PI) * radiance.luminance();
+    const float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff * static_cast<float>(M_PI));
 
     float scale;

@@ -23,8 +23,8 @@ FerwerdaToneMap::~FerwerdaToneMap() {
 
 void
 FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
+    const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
     lda = maximumDisplayLuminance / 2.0f;
 
     // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)
@@ -45,7 +45,7 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     float sl;
 
     // Convert to photometric values
-    float eff = Cie::getLuminousEfficacy();
+    const float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
@@ -70,7 +70,7 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
     float sl;
 
     // Convert to photometric values
-    float eff = Cie::getLuminousEfficacy();
+    const float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift

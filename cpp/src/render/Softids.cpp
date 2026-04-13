@@ -15,18 +15,18 @@ viewport for the current view.
 */
 SglContext *
 SoftIds::setupSoftFrameBuffer(const Camera *camera) {
-    SglContext *sgl = new SglContext(camera->xSize, camera->ySize);
+    SglContext * const sgl = new SglContext(camera->xSize, camera->ySize);
     sgl->sglDepthTesting(true);
     sgl->sglClipping(true);
     sgl->sglClear(0, SglConstants::SGL_MAXIMUM_Z);
 
-    Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
+    const Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
         camera->fieldOfVision * 2.0f * static_cast<float>(M_PI) / 180.0f,
         static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
         camera->near,
         camera->far);
     sgl->sglLoadMatrix(&p);
-    Matrix4x4 l = Matrix4x4::createLookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
+    const Matrix4x4 l = Matrix4x4::createLookAtMatrix(camera->eyePosition, camera->lookPosition, camera->upDirection);
     sgl->sglMultiplyMatrix(&l);
 
     return sgl;
@@ -81,12 +81,12 @@ the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
 SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
-    SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
+    SglContext * const currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
     SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
 
     *x = currentSglContext->width;
     *y = currentSglContext->height;
-    unsigned long *ids = new unsigned long[currentSglContext->width * currentSglContext->height];
+    unsigned long * const ids = new unsigned long[currentSglContext->width * currentSglContext->height];
     memcpy(ids, currentSglContext->frameBuffer, currentSglContext->width * currentSglContext->height * sizeof(unsigned long));
 
     delete currentSglContext;
@@ -102,7 +102,7 @@ void
 SoftIds::softRenderPixels(int width, int height, const ColorRgb *rgb, const ToneMappingContext &toneMapOptions) {
     // Length of one row of RGBA image data rounded up to a multiple of 8
     const int rowLength = static_cast<int>((4 * width * sizeof(unsigned char) + 7) & ~7);
-    unsigned char *c = new unsigned char[height * rowLength + 8];
+    unsigned char * const c = new unsigned char[height * rowLength + 8];
 
     for ( int j = 0; j < height; j++ ) {
         const int rowRgbStart = j * width;

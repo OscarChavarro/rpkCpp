@@ -101,14 +101,14 @@ RenderOpenGL::renderBoundingBox(BoundingBox boundingBox) {
 
 void
 RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
-    BoundingBox geometryBoundingBox = geometry->getBoundingBox();
+    const BoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
         RenderOpenGL::renderBoundingBox(geometryBoundingBox);
     }
 
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
+        java::ArrayList<Geometry *> * const geometryList = Geometry::primitiveListCopy(geometry);
         for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
             RenderOpenGL::renderGeomBounds(camera, geometryList->get(i));
         }

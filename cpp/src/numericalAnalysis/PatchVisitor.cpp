@@ -35,7 +35,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         ColorRgb sample;
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
+        const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
@@ -62,7 +62,7 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         ColorRgb sample;
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
-        unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
+        const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
         hit.setFlags(newFlags);
         Vector3D position = hit.getPoint();
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);

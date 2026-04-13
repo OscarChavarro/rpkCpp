@@ -28,7 +28,7 @@ GlutDebugTools::activeGlutDebugToolsInstance() {
 
 void
 GlutDebugTools::resizeCallbackBridge(int newWidth, int newHeight) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->resizeCallback(newWidth, newHeight);
     }
@@ -36,7 +36,7 @@ GlutDebugTools::resizeCallbackBridge(int newWidth, int newHeight) {
 
 void
 GlutDebugTools::keypressCallbackBridge(unsigned char keyChar, int x, int y) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->keypressCallback(keyChar, x, y);
     }
@@ -44,7 +44,7 @@ GlutDebugTools::keypressCallbackBridge(unsigned char keyChar, int x, int y) {
 
 void
 GlutDebugTools::extendedKeypressCallbackBridge(int keyCode, int x, int y) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->extendedKeypressCallback(keyCode, x, y);
     }
@@ -52,7 +52,7 @@ GlutDebugTools::extendedKeypressCallbackBridge(int keyCode, int x, int y) {
 
 void
 GlutDebugTools::mouseButtonCallbackBridge(int button, int state, int x, int y) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->mouseButtonCallback(button, state, x, y);
     }
@@ -60,7 +60,7 @@ GlutDebugTools::mouseButtonCallbackBridge(int button, int state, int x, int y) {
 
 void
 GlutDebugTools::mouseMotionCallbackBridge(int x, int y) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->mouseMotionCallback(x, y);
     }
@@ -68,7 +68,7 @@ GlutDebugTools::mouseMotionCallbackBridge(int x, int y) {
 
 void
 GlutDebugTools::drawCallbackBridge() {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->drawCallback();
     }
@@ -76,7 +76,7 @@ GlutDebugTools::drawCallbackBridge() {
 
 void
 GlutDebugTools::printGalerkinElementForPatchBridge(const Scene *scene, int patchIndex) {
-    GlutDebugTools *activeInstance = activeGlutDebugToolsInstance();
+    GlutDebugTools * const activeInstance = activeGlutDebugToolsInstance();
     if ( activeInstance != nullptr ) {
         activeInstance->printGalerkinElementForPatch(scene, patchIndex);
     }
@@ -120,7 +120,7 @@ GlutDebugTools::addInteractionIfNotPresent(
 }
 
 java::ArrayList<Interaction *> *
-GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const {
+GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(const Patch *patch) const {
     java::ArrayList<Interaction *> *interactions = new java::ArrayList<Interaction *>();
     if ( patch == nullptr ) {
         return interactions;
@@ -177,7 +177,7 @@ GlutDebugTools::updateCachedPrimaryPatchInteractions(int selectedPatchIndex) {
         return;
     }
 
-    Patch *selectedPatch = model.scene->patchList->get(selectedPatchIndex);
+    const Patch *selectedPatch = model.scene->patchList->get(selectedPatchIndex);
     cachedInteractionsForPrimaryPatch =
         getInteractionsWherePatchParticipateAsSourceOrAsReceiver(selectedPatch);
 }

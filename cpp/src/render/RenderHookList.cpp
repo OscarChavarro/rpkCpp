@@ -7,7 +7,7 @@ java::ArrayList<RenderHook *> *RenderHookList::renderHookList = new java::ArrayL
 void
 RenderHookList::renderHooks() {
     for ( int i = 0; renderHookList != nullptr && i < renderHookList->size(); i++ ) {
-        RenderHook *h = renderHookList->get(i);
+        RenderHook * const h = renderHookList->get(i);
         h->function(h->data);
     }
 }

@@ -64,7 +64,7 @@ ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
     }
 
     // Clear
-    ColorRgb black = {0.0, 0.0, 0.0};
+    const ColorRgb black = {0.0, 0.0, 0.0};
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
         radiance[i].setMonochrome(0.0);
         rgbColor[i] = black;
@@ -103,7 +103,7 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
         return;
     }
 
-    int N = getVRes() * getHRes();
+    const int N = getVRes() * getHRes();
 
     for ( int i = 0; i < N; i++ ) {
         radiance[i].add(src1->radiance[i], src2->radiance[i]);
@@ -112,7 +112,7 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
 
 void
 ScreenBuffer::add(int x, int y, ColorRgb inRadiance) {
-    int index = x + (camera.ySize - y - 1) * camera.xSize;
+    const int index = x + (camera.ySize - y - 1) * camera.xSize;
 
     radiance[index].addScaled(radiance[index], addFactor, inRadiance);
     synced = false;
@@ -120,14 +120,14 @@ ScreenBuffer::add(int x, int y, ColorRgb inRadiance) {
 
 void
 ScreenBuffer::set(int x, int y, ColorRgb inRadiance) {
-    int index = x + (camera.ySize - y - 1) * camera.xSize;
+    const int index = x + (camera.ySize - y - 1) * camera.xSize;
     radiance[index].scaledCopy(addFactor, inRadiance);
     synced = false;
 }
 
 ColorRgb
 ScreenBuffer::get(int x, int y) const {
-    int index = x + (camera.ySize - y - 1) * camera.xSize;
+    const int index = x + (camera.ySize - y - 1) * camera.xSize;
 
     return radiance[index];
 }
@@ -280,7 +280,7 @@ point with given fractional pixel coordinates
 */
 Vector3D
 ScreenBuffer::getPixelVector(int nx, int ny, float xOffset, float yOffset) const {
-    Vector2D pix = getPixelPoint(nx, ny, xOffset, yOffset);
+    const Vector2D pix = getPixelPoint(nx, ny, xOffset, yOffset);
     Vector3D dir;
     dir.combine3(camera.Z, pix.u, camera.X, pix.v, camera.Y);
     return dir;
@@ -304,18 +304,18 @@ ScreenBuffer::getVRes() const {
 float
 ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
     Vector3D dir;
-    double h = camera->pixelWidth;
-    double v = camera->pixelHeight;
+    const double h = camera->pixelWidth;
+    const double v = camera->pixelHeight;
 
-    double x = -h * camera->xSize / 2.0 + pixX * h;
-    double y = -v * camera->ySize / 2.0 + pixY * v;
+    const double x = -h * camera->xSize / 2.0 + pixX * h;
+    const double y = -v * camera->ySize / 2.0 + pixY * v;
 
-    double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
-    double ySample = y + v * 0.5;
+    const double xSample = x + h * 0.5;  // (pixX, pixY) indicate upper left
+    const double ySample = y + v * 0.5;
 
     dir.combine3(camera->Z, static_cast<float>(xSample), camera->X, static_cast<float>(ySample), camera->Y);
-    double distPixel2 = dir.norm2();
-    double distPixel = java::Math::sqrt(distPixel2);
+    const double distPixel2 = dir.norm2();
+    const double distPixel = java::Math::sqrt(distPixel2);
     dir.inverseScaledCopy(static_cast<float>(distPixel), dir, Numeric::EPSILON_FLOAT);
 
     double factor = 1.0 / (h * v);
@@ -369,10 +369,10 @@ ScreenBuffer::getBiLinear(float x, float y) const {
     // u = 0 for nx0 and u = 1 for nx1, x in-between. Not that
     // nx0 and nx1 may be the same (at border of image). Same for ny
 
-    ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
-    ColorRgb c1 = get(nx1, ny0); // u = 1
-    ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
-    ColorRgb c3 = get(nx0, ny1); // v = 1
+    const ColorRgb c0 = get(nx0, ny0); // Separate vars, since interpolation is a macro...
+    const ColorRgb c1 = get(nx1, ny0); // u = 1
+    const ColorRgb c2 = get(nx1, ny1); // u = 1, v = 1
+    const ColorRgb c3 = get(nx0, ny1); // v = 1
 
     color.interpolateBiLinear(c0, c1, c2, c3, x, y);
 

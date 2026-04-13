@@ -26,8 +26,8 @@ A-priori estimate of a patch's radiance
 */
 ColorRgb
 Adaptation::initRadianceEstimate(Patch *patch) {
-    ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
-    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    const ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
+    const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb radiance;
 
     radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
@@ -37,8 +37,8 @@ Adaptation::initRadianceEstimate(Patch *patch) {
 
 int
 Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
-    float l1 = static_cast<const LuminanceArea *>(la1)->luminance;
-    float l2 = static_cast<const LuminanceArea *>(la2)->luminance;
+    const float l1 = static_cast<const LuminanceArea *>(la1)->luminance;
+    const float l2 = static_cast<const LuminanceArea *>(la2)->luminance;
 
     if ( l1 > l2 ) {
         return 1;
@@ -49,7 +49,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
-    ColorRgb radiance = patchRadianceEstimate(patch);
+    const ColorRgb radiance = patchRadianceEstimate(patch);
     float brightness = radiance.luminance();
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
@@ -59,14 +59,14 @@ Adaptation::patchBrightnessEstimate(Patch *patch) {
 
 void
 Adaptation::patchComputeLogAreaLum(Patch *patch) {
-    float brightness = Adaptation::patchBrightnessEstimate(patch);
+    const float brightness = Adaptation::patchBrightnessEstimate(patch);
     // Equation [TUMB1999b](7): log(Lwa) as mean(log(Lw)), here area-weighted over patches
     logAreaLum += patch->area * java::Math::log(brightness);
 }
 
 void
 Adaptation::patchFillLumArea(Patch *patch) {
-    float brightness = Adaptation::patchBrightnessEstimate(patch);
+    const float brightness = Adaptation::patchBrightnessEstimate(patch);
 
     LuminanceArea &entry = lumArea[lumAreaIndex];
     entry.luminance = brightness;
@@ -90,7 +90,7 @@ Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
         return 0.0f;
     }
 
-    float areaMax = Statistics::instance().radiance.totalArea / 2.0f;
+    const float areaMax = Statistics::instance().radiance.totalArea / 2.0f;
     float areaCnt = 0.0;
     int pairIndex = 0;
 
@@ -136,7 +136,7 @@ Adaptation::estimateSceneAdaptation(
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {
             // Static adaptation inspired by [TUMB1999b]
-            LuminanceArea *la = new LuminanceArea[Statistics::instance().reader.numberOfPatches];
+            LuminanceArea * const la = new LuminanceArea[Statistics::instance().reader.numberOfPatches];
 
             lumArea = la;
             lumAreaIndex = 0;

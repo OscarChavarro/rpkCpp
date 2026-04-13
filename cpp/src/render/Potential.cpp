@@ -36,13 +36,13 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     long lostPixels = 0;
 
     // Build a table to convert a patch ID to the corresponding Patch
-    unsigned long maximumPatchId = Patch::getNextId() - 1;
+    const unsigned long maximumPatchId = Patch::getNextId() - 1;
     Patch **id2patch = new Patch *[maximumPatchId + 1];
     for ( unsigned long i = 0; i <= maximumPatchId; i++ ) {
         id2patch[i] = nullptr;
     }
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
-        Patch *patch = scene->patchList->get(i);
+        Patch * const patch = scene->patchList->get(i);
         id2patch[patch->id] = patch;
     }
 
@@ -54,9 +54,9 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(x);
-    float v = 2.0f * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(y);
-    float pixelArea = h * v;
+    const float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(x);
+    const float v = 2.0f * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(y);
+    const float pixelArea = h * v;
 
     float ySample;
     long j;
@@ -92,7 +92,7 @@ Potential::updateDirectPotential(const Scene *scene, const RenderOptions *render
     Statistics::instance().potential.averageDirectPotential = Statistics::instance().potential.totalDirectPotential =
     Statistics::instance().potential.maxDirectPotential = Statistics::instance().potential.maxDirectImportance = 0.0;
     for ( unsigned long i = 1; i <= maximumPatchId; i++ ) {
-        Patch *patch = id2patch[i];
+        Patch * const patch = id2patch[i];
 
         if ( patch != nullptr ) {
             patch->directPotential = newDirectImportance[i] / patch->area;
@@ -125,7 +125,7 @@ Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Pat
 
     const int pixelCount = sgl->width * sgl->height;
     for ( i = 0; i < pixelCount; i++ ) {
-        Patch *P = reinterpret_cast<Patch *>(sgl->frameBuffer[i]);
+        Patch * const P = reinterpret_cast<Patch *>(sgl->frameBuffer[i]);
         if ( P ) {
             P->setVisible();
         }

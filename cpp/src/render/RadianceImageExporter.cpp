@@ -40,7 +40,7 @@ RadianceImageExporter::exportImage(
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer.getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb radiance = RadianceImageExporter::getRadianceAtPixel(
+                const ColorRgb radiance = RadianceImageExporter::getRadianceAtPixel(
                     &screenBuffer,
                     scene->camera,
                     x,
@@ -125,6 +125,6 @@ RadianceImageExporter::getRadianceAtPixel(
     patch->uv(&hitPoint, &u, &v);
     RadianceImageExporter::clipUv(patch->numberOfVertices, &u, &v);
 
-    Vector3D eyeDirection(-rayDirection.x, -rayDirection.y, -rayDirection.z);
+    const Vector3D eyeDirection(-rayDirection.x, -rayDirection.y, -rayDirection.z);
     return radianceMethod->getRadiance(camera, patch, u, v, eyeDirection, renderOptions);
 }

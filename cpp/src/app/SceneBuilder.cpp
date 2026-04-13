@@ -27,7 +27,7 @@
 void
 SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
-    ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
     ColorRgb power;
 
     Statistics::instance().radiance.totalArea += patch->area;
@@ -113,7 +113,7 @@ Build the global light source patch list
 */
 void
 SceneBuilder::sceneBuilderFillLightSourcePatchList(Scene *scene) {
-    java::ArrayList<Patch *> *lights = new java::ArrayList<Patch *>();
+    java::ArrayList<Patch *> * const lights = new java::ArrayList<Patch *>();
     Statistics::instance().reader.numberOfLightSources = 0;
 
     for ( int i = 0; i < scene->patchList->size(); i++ ) {
@@ -158,7 +158,7 @@ they are primitive or not
 void
 SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryList, java::ArrayList<Patch *> *patchList) {
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        Geometry * const geometry = geometryList->get(i);
         if ( geometry->isCompound() ) {
             // Recursive case
             const Compound *compound = static_cast<const Compound *>(geometry);
@@ -168,7 +168,7 @@ SceneBuilder::sceneBuilderPatchList(const java::ArrayList<Geometry *> *geometryL
             const java::ArrayList<Patch *> *patchesFromNonCompounds = Geometry::patchListReference(geometry);
 
             for ( int j = 0; patchesFromNonCompounds != nullptr && j < patchesFromNonCompounds->size(); j++ ) {
-                Patch *patch = patchesFromNonCompounds->get(j);
+                Patch * const patch = patchesFromNonCompounds->get(j);
                 if ( patch != nullptr ) {
                     patchList->add(patch);
                 }
@@ -183,7 +183,7 @@ SceneBuilder::sceneBuilderFillFacesBackPointers(const java::ArrayList<Geometry *
         return;
     }
     for ( int i = 0; i < geometryList->size(); i++ ) {
-        Geometry *geometry = geometryList->get(i);
+        Geometry * const geometry = geometryList->get(i);
         if ( geometry == nullptr ) {
             continue;
         }
@@ -208,7 +208,7 @@ SceneBuilder::sceneBuilderCollectGeometriesRecursive(
     }
 
     for ( int i = 0; i < source->size(); i++ ) {
-        Geometry *geometry = source->get(i);
+        Geometry * const geometry = source->get(i);
         if ( geometry == nullptr ) {
             continue;
         }
@@ -259,7 +259,7 @@ SceneBuilder::sceneBuilderApplyModelToMgfContext(ParseRuntimeContext *mgfContext
     mgfContext->currentMaterial = nullptr;
     if ( mgfContext->materials != nullptr && mgfContext->currentMaterialName != nullptr ) {
         for ( int i = 0; i < mgfContext->materials->size(); i++ ) {
-            Material *material = mgfContext->materials->get(i);
+            Material * const material = mgfContext->materials->get(i);
             if ( material != nullptr
                  && material->getName() != nullptr
                  && strcmp(material->getName(), mgfContext->currentMaterialName) == 0 ) {
@@ -324,7 +324,7 @@ SceneBuilder::sceneBuilderBuildBinaryFallbackPath(const char *mgfFileName) {
     }
 
     const size_t length = strlen(mgfFileName);
-    char *fallbackFileName = new char[length + 1];
+    char * const fallbackFileName = new char[length + 1];
     memcpy(fallbackFileName, mgfFileName, length + 1);
     memcpy(fallbackFileName + length - 4, ".bin", 5);
 
@@ -478,9 +478,9 @@ SceneBuilder::sceneBuilderReadFile(
     }
 
     // Get current directory from the filename
-    unsigned long n = strlen(inputName) + 1;
+    const unsigned long n = strlen(inputName) + 1;
 
-    char *currentDirectory = new char[n];
+    char * const currentDirectory = new char[n];
     java::Formatter::format(currentDirectory, static_cast<int>(n), "%s", inputName);
     char *slash = strrchr(currentDirectory, '/');
     if ( slash != nullptr ) {

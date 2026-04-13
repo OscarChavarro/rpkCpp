@@ -75,7 +75,7 @@ Batch::batchProcessFile(
     const RenderOptions *renderOptions)
 {
     int isPipe;
-    java::OutputStream *outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
+    java::OutputStream * const outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
 
     // Call the user supplied procedure to process the file
     processFileCallback(fileName, outputStream, isPipe, scene, radianceMethod, rayTracer, toneMapOptions, renderOptions);
@@ -208,8 +208,8 @@ Batch::batchExecuteRadianceSimulation(
             wasted_start = java::System::nanoTime();
 
             if ( (!(iterationNumber % batchOptions.saveModulo)) && *batchOptions.radianceImageFileNameFormat ) {
-                int n = static_cast<int>(strlen(batchOptions.radianceImageFileNameFormat)) + 1;
-                char *fileName = new char[n];
+                const int n = static_cast<int>(strlen(batchOptions.radianceImageFileNameFormat)) + 1;
+                char * const fileName = new char[n];
                 java::Formatter::format(
                     fileName,
                     n,
@@ -227,8 +227,8 @@ Batch::batchExecuteRadianceSimulation(
             }
 
             if ( *batchOptions.radianceModelFileNameFormat ) {
-                int n = static_cast<int>(strlen(batchOptions.radianceModelFileNameFormat)) + 1;
-                char *fileName = new char[n];
+                const int n = static_cast<int>(strlen(batchOptions.radianceModelFileNameFormat)) + 1;
+                char * const fileName = new char[n];
                 java::Formatter::format(
                     fileName,
                     n,

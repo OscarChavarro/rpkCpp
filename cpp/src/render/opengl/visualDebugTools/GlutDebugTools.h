@@ -23,7 +23,7 @@ class GlutDebugTools final {
     static void addInteractionIfNotPresent(
         java::ArrayList<Interaction *> *interactions,
         Interaction *interaction);
-    java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(Patch *patch) const;
+    java::ArrayList<Interaction *> *getInteractionsWherePatchParticipateAsSourceOrAsReceiver(const Patch *patch) const;
 
     static GlutDebugTools *&activeGlutDebugToolsInstance();
     static void resizeCallbackBridge(int newWidth, int newHeight);

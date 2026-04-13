@@ -101,7 +101,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "VEC3") ) goto fail;
         for ( int i = 0; i < vectorCount; i++ ) {
-            Vector3D *vector = new Vector3D();
+            Vector3D * const vector = new Vector3D();
             if ( !BinaryModelReadPrimitives::readVector(input, vector) ) {
                 delete vector;
                 goto fail;
@@ -220,7 +220,7 @@ BinaryModelDeserializer::read(const char *fileName) {
         java::ArrayList<int> readerContextPrevIndex;
         if ( !BinaryModelReadPrimitives::initializeArrayList(&readerContextPrevIndex, readerContextCount, static_cast<int>(-1), "reader context prev index") ) goto fail;
         for ( int i = 0; i < readerContextCount; i++ ) {
-            ReaderContext *readerContext = new ReaderContext();
+            ReaderContext * const readerContext = new ReaderContext();
             BinaryModelReadPrimitives::readBytes(input, reinterpret_cast<unsigned char *>(readerContext->fileName), 96);
             readerContext->fileName[95] = '\0';
 
@@ -254,7 +254,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         if ( !BinaryModelReadPrimitives::expectTag(input, "XFAR") ) goto fail;
         for ( int i = 0; i < transformArrayCount; i++ ) {
-            TransformSequenceContext *transformArray = new TransformSequenceContext();
+            TransformSequenceContext * const transformArray = new TransformSequenceContext();
             transformArray->startingPosition.fileId = BinaryModelReadPrimitives::readInt32LE(input);
             transformArray->startingPosition.lineNumber = BinaryModelReadPrimitives::readInt32LE(input);
             transformArray->startingPosition.offset = static_cast<long>(BinaryModelReadPrimitives::readInt64LE(input));

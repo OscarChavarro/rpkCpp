@@ -138,7 +138,7 @@ OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
             continue;
         }
 
-        const char *mode = argv[readIndex + 1];
+        const char * const mode = argv[readIndex + 1];
         if ( !equalsIgnoreCase(mode, "solid") ) {
             java::System::err.printf(
                 "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",

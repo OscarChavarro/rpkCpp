@@ -20,14 +20,14 @@ LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float max = radiance.maximumComponent();
+    const float max = radiance.maximumComponent();
     if ( max < 1e-32 ) {
         return radiance;
     }
 
     // Multiply by WHITE EFFICACY to convert W/m^2sr to nits
     // (reference luminance is also in nits)
-    float scaleFactor = lightness(Cie::WHITE_EFFICACY * max);
+    const float scaleFactor = lightness(Cie::WHITE_EFFICACY * max);
     if ( scaleFactor == 0.0 ) {
         return radiance;
     }
@@ -42,7 +42,7 @@ LightnessToneMap::lightness(float luminance) {
         return 0.0f;
     }
 
-    float relativeLuminance = luminance / static_cast<float>(Statistics::instance().radiance.referenceLuminance);
+    const float relativeLuminance = luminance / static_cast<float>(Statistics::instance().radiance.referenceLuminance);
     if ( relativeLuminance > 0.008856 ) {
         return 1.16f * java::Math::pow(relativeLuminance, 0.33f) - 0.16f;
     } else {

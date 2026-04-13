@@ -21,20 +21,20 @@ TumblinRushmeierToneMap::~TumblinRushmeierToneMap() {
 
 void
 TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
-    float lwa = toneMapOptions.realWorldAdaptionLuminance;
-    float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
+    const float lwa = toneMapOptions.realWorldAdaptionLuminance;
+    const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
+    const float maximumDisplayContrast = toneMapOptions.maximumDisplayContrast;
     lda = maximumDisplayLuminance / java::Math::sqrt(maximumDisplayContrast);
 
     // Equation [COHE1993](9.16): alpha(L_w), beta(L_w) (Tumblin/Rushmeier model)
     float l10 = java::Math::log10(tmoCandelaLambert(lwa));
-    float alpha = 0.4f * l10 + 2.92f;
-    float beta = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
+    const float alpha = 0.4f * l10 + 2.92f;
+    const float beta = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
 
     // Equation [COHE1993](9.16): alpha(L_d), beta(L_d)
     l10 = java::Math::log10(tmoCandelaLambert(lda));
-    float alphaD = 0.4f * l10 + 2.92f;
-    float betaD = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
+    const float alphaD = 0.4f * l10 + 2.92f;
+    const float betaD = -0.4f * (l10 * l10) - 2.584f * l10 + 2.0208f;
 
     // Equation [COHE1993](9.18): L_d from L_w using adaptation-dependent exponent and scale
     lrwExponent = alpha / alphaD;
@@ -45,11 +45,11 @@ TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    float rwl = radiance.luminance();
+    const float rwl = radiance.luminance();
 
     float scale;
     if ( rwl > 0.0 ) {
-        float m = tmoLambertCandela(
+        const float m = tmoLambertCandela(
                 java::Math::pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmComp);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
@@ -62,13 +62,13 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = static_cast<float>(M_PI) * radiance.luminance();
-    float eff = Cie::getLuminousEfficacy();
+    const float rwl = static_cast<float>(M_PI) * radiance.luminance();
+    const float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff * static_cast<float>(M_PI));
 
     float scale;
     if ( rwl > 0.0 ) {
-        float m = (java::Math::pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmDisplay - invCMaximum);
+        const float m = (java::Math::pow(tmoCandelaLambert(rwl), lrwExponent) * lrwmDisplay - invCMaximum);
         scale = m > 0.0f ? m / rwl : 0.0f;
     } else {
         scale = 0.0f;

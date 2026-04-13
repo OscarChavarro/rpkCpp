@@ -3,7 +3,6 @@
 
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Ray.h"
-#include "common/RenderOptions.h"
 #include "material/Material.h"
 #include "skin/BoundingBox.h"
 #include "skin/Vertex.h"

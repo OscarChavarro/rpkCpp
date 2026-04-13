@@ -80,7 +80,7 @@ ColorRgb::subtract(const ColorRgb s, const ColorRgb  t) {
 
 void
 ColorRgb::scaleInverse(const float scale, const ColorRgb s) {
-    float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
+    const float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
     r = a * s.r;
     g = a * s.g;
     b = a * s.b;
@@ -129,9 +129,9 @@ ColorRgb::interpolateBarycentric(const ColorRgb c0, const ColorRgb c1, const Col
 
 void
 ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const ColorRgb c3, const float u, const float v) {
-    float c = u * v;
-    float bb = u - c;
-    float d = v - c;
+    const float c = u * v;
+    const float bb = u - c;
+    const float d = v - c;
 
     r = c0.r + b * (c1.r - c0.r) + c * (c2.r - c0.r) + d * (c3.r - c0.r);
     g = c0.g + b * (c1.g - c0.g) + c * (c2.g - c0.g) + d * (c3.g - c0.g);
