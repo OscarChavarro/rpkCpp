@@ -3,7 +3,6 @@
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
-#include "skin/PatchSet.h"
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
 #include "galerkin/GalerkinElement.h"
@@ -17,7 +16,7 @@ class LinkingSimpleStrategy {
         const Scene *scene,
         const GalerkinState *galerkinState,
         GalerkinRole role,
-        java::ArrayList<PatchSet *> **candidateList,
+        java::ArrayList<Geometry *> **candidateList,
         GalerkinElement *topElement,
         BoundingBox *topLevelBoundingBox,
         Patch *patch);
@@ -27,7 +26,7 @@ class LinkingSimpleStrategy {
         const Scene *scene,
         const GalerkinState *galerkinState,
         GalerkinRole role,
-        java::ArrayList<PatchSet *> **candidateList,
+        java::ArrayList<Geometry *> **candidateList,
         GalerkinElement *topElement,
         BoundingBox *topLevelBoundingBox,
         Geometry *geometry);

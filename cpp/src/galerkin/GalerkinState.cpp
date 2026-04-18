@@ -14,9 +14,7 @@ GalerkinState::GalerkinState():
     lastEye(),
     lastClock(),
     cpuSeconds(),
-    toneMapOptions(),
-    scenePatchSetList(),
-    clusteredPatchSetList()
+    toneMapOptions()
 {
     hierarchical = DEFAULT_GAL_HIERARCHICAL;
     galerkinIterationMethod = DEFAULT_GAL_ITERATION_METHOD;
@@ -41,8 +39,6 @@ GalerkinState::GalerkinState():
     iterationNumber = DEFAULT_GAL_ITERATION_NOT_INITIALIZED;
     shaftCullStrategy = DEFAULT_GAL_SHAFT_CULL_STRATEGY;
     toneMapOptions = nullptr;
-    scenePatchSetList = nullptr;
-    clusteredPatchSetList = nullptr;
 
     TriangleCubatureRule::setTriangleCubatureRules(&receiverTriangleCubatureRule, receiverDegree);
     TriangleCubatureRule::setTriangleCubatureRules(&sourceTriangleCubatureRule, sourceDegree);

@@ -3,7 +3,6 @@ Stuff common to all radiance methods
 */
 
 #include "java/util/ArrayList.txx"
-#include "galerkin/GalerkinGeometry.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "app/options/OptionsGroupRadiance.h"
 #include "app/Radiance.h"
@@ -22,9 +21,6 @@ Radiance::setRadianceMethod(RadianceMethod *radianceMethod, Scene *scene, ToneMa
         }
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             radianceMethod->createPatchData(scene->patchList->get(i));
-        }
-        if ( radianceMethod->className == RadianceMethodAlgorithm::GALERKIN ) {
-            GalerkinGeometry::validateSceneForGalerkin(scene);
         }
         radianceMethod->initialize(scene, toneMapOptions);
     }
