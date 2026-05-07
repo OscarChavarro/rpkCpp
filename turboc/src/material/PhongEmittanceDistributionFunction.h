@@ -2,6 +2,7 @@
 #define Phngm
 
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
+#include "material/ShadingContext.h"
 #include "material/RayHit.h"
 
 /**
@@ -29,12 +30,27 @@ public:
 
     static bool
     edfShadingFrame(
+        const ShadingContext &context,
+        const Vector3D *X,
+        const Vector3D *Y,
+        const Vector3D *Z);
+
+    static bool
+    edfShadingFrame(
         const RayHit *hit,
         const Vector3D *X,
         const Vector3D *Y,
         const Vector3D *Z);
 
+    ColorRgb phongEmittance(const ShadingContext &context, char flags) const;
     ColorRgb phongEmittance(const RayHit * /*hit*/, char flags) const;
+
+    ColorRgb
+    phongEdfEval(
+        const ShadingContext &context,
+        const Vector3D *out,
+        char flags,
+        double *probabilityDensityFunction) const;
 
     ColorRgb
     phongEdfEval(
@@ -42,6 +58,15 @@ public:
         const Vector3D *out,
         char flags,
         double *probabilityDensityFunction) const;
+
+    Vector3D
+    phongEdfSample(
+        const ShadingContext &context,
+        char flags,
+        double xi1,
+        double xi2,
+        ColorRgb *selfEmittedRadiance,
+        double *probabilityDensityFunction) const ;
 
     Vector3D
     phongEdfSample(
