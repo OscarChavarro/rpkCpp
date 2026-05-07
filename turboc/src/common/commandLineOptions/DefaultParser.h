@@ -2,10 +2,10 @@
 #define __OPTION_CORE_DEFAULT_PARSER__
 
 #include "common/VSDK.h"
+#include "java/lang/Integer.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 
 template<typename T>
 struct DefaultParser {
@@ -25,7 +25,7 @@ struct DefaultParser<int> {
         if ( endPointer == input || *endPointer != '\0' ) {
             return false;
         }
-        if ( parsedValue < ((long)(INT_MIN)) || parsedValue > ((long)(INT_MAX)) ) {
+        if ( parsedValue < ((long)(Integer::MIN_VALUE)) || parsedValue > ((long)(Integer::MAX_VALUE)) ) {
             return false;
         }
         out = ((int)(parsedValue));

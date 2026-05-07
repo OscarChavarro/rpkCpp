@@ -3,7 +3,7 @@
 
 #include <cstdlib>
 #include <cstring>
-#include <climits>
+#include "java/lang/Integer.h"
 
 template<typename T>
 struct DefaultParser {
@@ -23,7 +23,8 @@ struct DefaultParser<int> {
         if ( endPointer == input || *endPointer != '\0' ) {
             return false;
         }
-        if ( parsedValue < static_cast<long>(INT_MIN) || parsedValue > static_cast<long>(INT_MAX) ) {
+        if ( parsedValue < static_cast<long>(java::Integer::MIN_VALUE)
+             || parsedValue > static_cast<long>(java::Integer::MAX_VALUE) ) {
             return false;
         }
         out = static_cast<int>(parsedValue);

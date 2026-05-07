@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <strings.h>
+#include <cstrings>
 
 #include "java/lang/Math.h"
 #include "common/Error.h"

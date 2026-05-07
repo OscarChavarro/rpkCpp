@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "galerkin/ShadowCache.h"
 
 /**

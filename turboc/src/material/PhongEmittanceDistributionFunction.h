@@ -3,7 +3,7 @@
 
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/ShadingContext.h"
-#include "material/RayHit.h"
+#include "skin/RayHit.h"
 
 /**
 Emittance Distribution Functions: the self-emitted radiance

@@ -149,6 +149,7 @@ import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.skin.RayHit;
 
 /**

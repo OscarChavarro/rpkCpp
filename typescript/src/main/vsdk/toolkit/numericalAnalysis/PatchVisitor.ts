@@ -1,6 +1,6 @@
 import { ColorRgb } from "../common/ColorRgb";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../material/RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import { Patch } from "../skin/Patch";
 import { RayHit } from "../skin/RayHit";
 import { Niederreiter31 } from "./quasiMonteCarlo/Niederreiter31";

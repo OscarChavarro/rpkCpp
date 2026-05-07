@@ -2,7 +2,7 @@ package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.skin.Patch;
 import vsdk.toolkit.skin.RayHit;
 

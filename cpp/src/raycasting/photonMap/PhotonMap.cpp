@@ -13,10 +13,12 @@
 bool
 PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
     ColorRgb color;
-    if ( bsdf == nullptr ) {
+    bool shctxOk = false;
+    ShadingContext shctx = hit->shadingContext(&shctxOk);
+    if ( !shctxOk || bsdf == nullptr ) {
         color.clear();
     } else {
-        color = bsdf->splitBsdfScatteredPower(hit, flags);
+        color = bsdf->splitBsdfScatteredPower(shctx, flags);
     }
     return (color.average() < Numeric::EPSILON);
 }
@@ -384,10 +386,12 @@ PhotonMap::reconstruct(
     diffuseAlbedo.clear();
     glossyAlbedo.clear();
 
-    if ( bsdf != nullptr ) {
-        diffuseAlbedo = bsdf->splitBsdfScatteredPower(hit, BRDF_DIFFUSE_COMPONENT);
+    bool shctxOk = false;
+    ShadingContext shctx = hit->shadingContext(&shctxOk);
+    if ( bsdf != nullptr && shctxOk ) {
+        diffuseAlbedo = bsdf->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
         // -- TODO Irradiance pre-computation for diffuse transmission
-        glossyAlbedo = bsdf->splitBsdfScatteredPower(hit, BTDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
+        glossyAlbedo = bsdf->splitBsdfScatteredPower(shctx, BTDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
     }
 
     checkNBalance();
@@ -422,11 +426,11 @@ PhotonMap::reconstruct(
     for ( int i = 0; i < m_nrpFound; i++ ) {
         Vector3D dir = m_photons[i]->dir();
 
-        if ( bsdf == nullptr ) {
+        if ( bsdf == nullptr || !shctxOk ) {
             eval.clear();
         } else {
             eval = bsdf->evaluate(
-                hit, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
+                shctx, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
         }
         ColorRgb power = m_photons[i]->power();
 

@@ -29,6 +29,12 @@ PhotonMapSampler::chooseComponent(
     float *probabilityDensityFunction,
     bool *chose1)
 {
+    bool shctxOk = false;
+    ShadingContext shctx = hit->shadingContext(&shctxOk);
+    if ( !shctxOk ) {
+        return false;
+    }
+
     ColorRgb color;
     float power1;
     float power2;
@@ -38,13 +44,13 @@ PhotonMapSampler::chooseComponent(
     color.clear();
 
     if ( bsdf != nullptr ) {
-        color = bsdf->splitBsdfScatteredPower(hit, flags1);
+        color = bsdf->splitBsdfScatteredPower(shctx, flags1);
     }
     power1 = color.average();
 
     color.clear();
     if ( bsdf != nullptr ) {
-        color = bsdf->splitBsdfScatteredPower(hit, flags2);
+        color = bsdf->splitBsdfScatteredPower(shctx, flags2);
     }
     power2 = color.average();
 
@@ -187,16 +193,21 @@ PhotonMapSampler::chooseFresnelDirection(
     // Reflectance and Transmittance values are taken. Normally one of the two
     // would be zero
     const PhongBidirectionalScatteringDistributionFunction *bsdf = thisNode->m_useBsdf;
+    bool shctxOk = false;
+    ShadingContext shctx = thisNode->m_hit.shadingContext(&shctxOk);
+    if ( !shctxOk ) {
+        return false;
+    }
     ColorRgb reflectance;
     reflectance.clear();
     if ( bsdf != nullptr ) {
-        reflectance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
+        reflectance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
     ColorRgb transmittance;
     transmittance.clear();
     if ( bsdf != nullptr ) {
-        transmittance = bsdf->splitBsdfScatteredPower(&thisNode->m_hit, SPECULAR_COMPONENT);
+        transmittance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
     bool reflective = (reflectance.average() > Numeric::EPSILON);

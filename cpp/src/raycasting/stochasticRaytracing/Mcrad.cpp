@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 /**
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */
@@ -382,7 +383,13 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
     ColorRgb result;
     result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {
-        result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+        bool shctxOk = false;
+        ShadingContext shctx = hit.shadingContext(&shctxOk);
+        if ( shctxOk ) {
+            result = hit.getMaterial()->getBsdf()->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
+        } else {
+            result.clear();
+        }
     }
     return result;
 }

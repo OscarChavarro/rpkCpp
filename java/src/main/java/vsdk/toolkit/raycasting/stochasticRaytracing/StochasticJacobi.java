@@ -18,7 +18,7 @@ import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Element;

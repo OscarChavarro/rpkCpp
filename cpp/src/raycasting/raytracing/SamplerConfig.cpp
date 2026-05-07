@@ -298,8 +298,14 @@ SamplerConfig::pathNodeConnect(
         if ( nodeY->m_hit.getMaterial()->getEdf() == nullptr ) {
             nodeY->m_bsdfEval.clear();
         } else {
+            bool shctxOk = false;
+            ShadingContext lightContext = nodeY->m_hit.shadingContext(&shctxOk);
+            if ( !shctxOk ) {
+                nodeY->m_bsdfEval.clear();
+            } else {
             nodeY->m_bsdfEval = nodeY->m_hit.getMaterial()->getEdf()->phongEdfEval(
-                &nodeY->m_hit, &dirLE, bsdfFlagsL, nullptr);
+                &lightContext, &dirLE, bsdfFlagsL, nullptr);
+            }
         }
         nodeY->m_bsdfComp.Clear();
         nodeY->m_bsdfComp.Fill(nodeY->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);

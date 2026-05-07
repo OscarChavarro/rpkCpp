@@ -7,7 +7,7 @@ import { RayHit } from "../skin/RayHit";
 import { BsdfComponent } from "./BsdfComponent";
 import { BsdfComponentFlag } from "./BsdfComponentFlag";
 import { BsdfComponentInfo } from "./BsdfComponent";
-import { RayHitFlag } from "./RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import { PhongBidirectionalReflectanceDistributionFunction } from "./PhongBidirectionalReflectanceDistributionFunction";
 import { PhongBidirectionalTransmittanceDistributionFunction } from "./PhongBidirectionalTransmittanceDistributionFunction";
 import { RefractionIndex } from "./RefractionIndex";

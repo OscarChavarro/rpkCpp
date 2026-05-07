@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -106,7 +107,12 @@ UniformLightSampler::sample(
         Vector3D dir(0.0f, 0.0f, 0.0f);
 
         if ( light->getMaterial()->getEdf() != nullptr ) {
-            dir = light->getMaterial()->getEdf()->phongEdfSample(&(thisNode->m_hit), flags, x1, x2, nullptr, &pdf);
+            bool shctxOk = false;
+            ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+            if ( !shctxOk ) {
+                return false;
+            }
+            dir = light->getMaterial()->getEdf()->phongEdfSample(&thisContext, flags, x1, x2, nullptr, &pdf);
         }
 
         point.subtraction(thisNode->m_hit.getPoint(), dir); // Fake hit at distance 1!

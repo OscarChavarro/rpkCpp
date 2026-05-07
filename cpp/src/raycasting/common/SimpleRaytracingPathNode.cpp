@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "common/RenderOptions.h"
 
 /**

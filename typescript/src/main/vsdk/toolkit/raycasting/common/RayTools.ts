@@ -4,7 +4,7 @@ import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
 import { Patch } from "../../skin/Patch";

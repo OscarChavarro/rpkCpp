@@ -1,5 +1,8 @@
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "numericalAnalysis/PatchVisitor.h"
+#include "material/ShadingContext.h"
+#include "skin/RayHit.h"
+#include "skin/RayHitFlag.h"
 
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {
@@ -41,7 +44,25 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
         patch->pointBarycentricMapping(hit.getUv().u, hit.getUv().v, &position);
         sample.clear();
         if ( patch->getMaterial()->getBsdf() != nullptr ) {
-            sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, components);
+            Vector3D normal;
+            hit.shadingNormal(&normal);
+            Vector3D texCoord;
+            unsigned int shFlags = SHCTX_NORMAL;
+            if ( hit.getTexCoord(&texCoord) ) {
+                shFlags |= SHCTX_TEXTURE_COORDINATE;
+            } else {
+                texCoord.set(0.0, 0.0, 0.0);
+            }
+            ShadingContext context(
+                hit.getPoint(),
+                hit.getGeometricNormal(),
+                normal,
+                texCoord,
+                hit.getUv(),
+                hit.getShadingFrame(),
+                hit.getMaterial(),
+                shFlags);
+            sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(context, components);
         }
         albedo.add(albedo, sample);
     }
@@ -70,7 +91,25 @@ PatchVisitor::averageEmittance(Patch *patch, char components) {
         if ( patch->getMaterial()->getEdf() == nullptr ) {
             sample.clear();
         } else {
-            sample = patch->getMaterial()->getEdf()->phongEmittance(&hit, components);
+            Vector3D normal;
+            hit.shadingNormal(&normal);
+            Vector3D texCoord;
+            unsigned int shFlags = SHCTX_NORMAL;
+            if ( hit.getTexCoord(&texCoord) ) {
+                shFlags |= SHCTX_TEXTURE_COORDINATE;
+            } else {
+                texCoord.set(0.0, 0.0, 0.0);
+            }
+            ShadingContext context(
+                hit.getPoint(),
+                hit.getGeometricNormal(),
+                normal,
+                texCoord,
+                hit.getUv(),
+                hit.getShadingFrame(),
+                hit.getMaterial(),
+                shFlags);
+            sample = patch->getMaterial()->getEdf()->phongEmittance(&context, components);
         }
         emittance.add(emittance, sample);
     }

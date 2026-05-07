@@ -4,7 +4,7 @@ import { Error as VsdkError } from "../../common/Error";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vector3DPrinter } from "../../io/wrapper/Vector3DPrinter";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { RayHit } from "../../skin/RayHit";
 import { BsdfComp } from "./BsdfComp";
 import { PathRayType } from "./PathRayType";

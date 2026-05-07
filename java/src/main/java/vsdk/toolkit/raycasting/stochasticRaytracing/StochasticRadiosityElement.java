@@ -15,7 +15,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter;

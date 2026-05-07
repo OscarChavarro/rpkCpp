@@ -10,7 +10,8 @@ used as a parameter for BSDF/EDF queries
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/RenderOptions.h"
-#include "material/RayHitFlag.h"
+#include "material/ShadingContext.h"
+#include "skin/RayHitFlag.h"
 
 class Patch; // TODO: this is coupling RayHit with skin level classes :(
 class Material;
@@ -46,6 +47,7 @@ public:
 
     bool getTexCoord(Vector3D *outTexCoord);
     bool shadingNormal(Vector3D *inNormal);
+    ShadingContext shadingContext(bool *ok) const;
 
     Patch *getPatch() const;
     void setPatch(Patch *inPatch);

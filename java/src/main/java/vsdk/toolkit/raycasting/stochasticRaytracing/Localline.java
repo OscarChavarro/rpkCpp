@@ -77,7 +77,7 @@ Determines nearest intersection point and patch
             ray,
             Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
             distance,
-            vsdk.toolkit.material.RayHitFlag.FRONT | vsdk.toolkit.material.RayHitFlag.POINT,
+            vsdk.toolkit.skin.RayHitFlag.FRONT | vsdk.toolkit.skin.RayHitFlag.POINT,
             hitStore);
         Patch.dontIntersect0();
         someFeedback();

@@ -15,7 +15,7 @@ import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";
 import { VoxelGrid } from "../../scene/VoxelGrid";
 import { Element } from "../../skin/Element";

@@ -19,7 +19,7 @@ import vsdk.toolkit.galerkin.GalerkinRole;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.ShadowCache;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.BoundingBox;

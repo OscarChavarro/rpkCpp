@@ -10,7 +10,7 @@ import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Patch;

@@ -5,7 +5,7 @@ import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 
 /**
 Currently, there are three types of geometries:

@@ -5,6 +5,7 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
+#include "skin/RayHit.h"
 #include "raycasting/photonMap/PhotonClass.h"
 #include "raycasting/photonMap/PhotonKDTree.h"
 #include "raycasting/photonMap/PhotonMapState.h"

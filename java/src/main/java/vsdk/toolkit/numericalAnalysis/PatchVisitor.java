@@ -2,7 +2,7 @@ package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.skin.Patch;
 import vsdk.toolkit.skin.RayHit;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;

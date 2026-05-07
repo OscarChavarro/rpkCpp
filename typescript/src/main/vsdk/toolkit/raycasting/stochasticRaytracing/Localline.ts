@@ -6,7 +6,7 @@ import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { VoxelGrid } from "../../scene/VoxelGrid";
 import { Patch } from "../../skin/Patch";
 import { RayHit } from "../../skin/RayHit";

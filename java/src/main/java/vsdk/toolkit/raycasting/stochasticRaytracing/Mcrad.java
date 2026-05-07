@@ -12,7 +12,7 @@ import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.render.Potential;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.skin.Element;

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.scene.Polygon;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.BoundingBoxCoordinateIndex;

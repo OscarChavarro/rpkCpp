@@ -10,7 +10,7 @@ import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";

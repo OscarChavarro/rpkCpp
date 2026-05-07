@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "skin/Compound.h"
 #include "skin/PatchSet.h"

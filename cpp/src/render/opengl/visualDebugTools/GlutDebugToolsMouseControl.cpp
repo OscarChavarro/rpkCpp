@@ -10,7 +10,7 @@
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
 #include "skin/RayHit.h"
-#include "material/RayHitFlag.h"
+#include "skin/RayHitFlag.h"
 #include "render/opengl/RenderOpenGL.h"
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"

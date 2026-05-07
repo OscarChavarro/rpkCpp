@@ -27,15 +27,25 @@ SpecularSampler::sample(
     ColorRgb reflectance;
     reflectance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
+        bool shctxOk = false;
+        ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+        if ( !shctxOk ) {
+            return false;
+        }
         reflectance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-                &thisNode->m_hit,
+                thisContext,
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
     ColorRgb transmittance;
     transmittance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
+        bool shctxOk = false;
+        ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+        if ( !shctxOk ) {
+            return false;
+        }
         transmittance = thisNode->m_useBsdf->splitBsdfScatteredPower(
-                &thisNode->m_hit,
+                thisContext,
                 BsdfComponentFlag::getBtdfFlags(flags));
     }
 

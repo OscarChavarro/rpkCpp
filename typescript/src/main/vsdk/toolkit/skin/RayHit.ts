@@ -5,7 +5,7 @@ import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Material } from "../material/Material";
 import { PhongBidirectionalScatteringDistributionFunction } from "../material/PhongBidirectionalScatteringDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../material/PhongEmittanceDistributionFunction";
-import { RayHitFlag } from "../material/RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import type { Patch } from "./Patch";
 
 export class RayHit {

@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 /**
 Generate and trace a local line
 */

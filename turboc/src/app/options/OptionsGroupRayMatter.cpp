@@ -1,4 +1,4 @@
-#include <strings.h>
+#include <cstrings>
 
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"

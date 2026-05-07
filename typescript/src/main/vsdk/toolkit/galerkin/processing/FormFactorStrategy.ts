@@ -13,7 +13,7 @@ import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
 import { ShadowCache } from "../ShadowCache";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 import { VoxelGrid } from "../../scene/VoxelGrid";
 import { BoundingBox } from "../../skin/BoundingBox";

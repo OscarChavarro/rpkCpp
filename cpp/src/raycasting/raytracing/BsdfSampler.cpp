@@ -25,8 +25,13 @@ BsdfSampler::sample(
     pdfDir = 0.0;
 
     if ( thisNode->m_useBsdf != nullptr ) {
+        bool shctxOk = false;
+        ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+        if ( !shctxOk ) {
+            return false;
+        }
         dir = thisNode->m_useBsdf->sample(
-            &thisNode->m_hit,
+            thisContext,
             thisNode->m_inBsdf,
             thisNode->m_outBsdf,
             &thisNode->m_inDirF,
@@ -47,7 +52,11 @@ BsdfSampler::sample(
         ColorRgb albedo;
         albedo.clear();
         if ( thisNode->m_useBsdf != nullptr ) {
-            albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, flags);
+            bool shctxOk = false;
+            ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+            if ( shctxOk ) {
+                albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(thisContext, flags);
+            }
         }
         newNode->accumulatedRussianRouletteFactors *= albedo.average();
     }
@@ -83,11 +92,16 @@ BsdfSampler::sample(
         double pdfRR = 0.0;
 
         if ( thisNode->m_useBsdf != nullptr ) {
+            bool shctxOk = false;
+            ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+            if ( !shctxOk ) {
+                return false;
+            }
             // prevpdf : new->this->prev pdf evaluation
             // normal direction is handled by the evalpdf routine
             // Are the flags usable in both directions?
             thisNode->m_useBsdf->evaluateProbabilityDensityFunction(
-                &thisNode->m_hit,
+                thisContext,
                 thisNode->m_outBsdf,
                 thisNode->m_inBsdf,
                 &newNode->m_inDirT,
@@ -138,8 +152,15 @@ BsdfSampler::evalPDF(
     pdfDir = 0;
     *pdfRR = 0;
     if ( thisNode->m_useBsdf != nullptr ) {
+        bool shctxOk = false;
+        ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+        if ( !shctxOk ) {
+            *pdf = 0.0;
+            *pdfRR = 0.0;
+            return 0.0;
+        }
         thisNode->m_useBsdf->evaluateProbabilityDensityFunction(
-            &thisNode->m_hit,
+            thisContext,
             thisNode->m_inBsdf,
             thisNode->m_outBsdf,
             &thisNode->m_inDirF,
@@ -189,8 +210,15 @@ BsdfSampler::EvalPDFPrev(
     pdfDir = 0.0;
     *pdfRR = 0.0;
     if ( thisNode->m_useBsdf != nullptr ) {
+        bool shctxOk = false;
+        ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+        if ( !shctxOk ) {
+            *pdf = 0.0;
+            *pdfRR = 0.0;
+            return 0.0;
+        }
         thisNode->m_useBsdf->evaluateProbabilityDensityFunction(
-            &thisNode->m_hit,
+            thisContext,
             thisNode->m_outBsdf,
             thisNode->m_inBsdf,
             &outDir,
@@ -209,6 +237,5 @@ BsdfSampler::EvalPDFPrev(
 }
 
 #endif
-
 
 

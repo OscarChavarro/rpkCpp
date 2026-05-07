@@ -1,6 +1,6 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
-import { RayHitFlag } from "../material/RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import { Patch } from "../skin/Patch";
 import { RayHit } from "../skin/RayHit";
 

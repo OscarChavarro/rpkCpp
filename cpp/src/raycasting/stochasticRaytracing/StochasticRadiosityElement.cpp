@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -632,12 +633,22 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
         if ( patch->getMaterial()->getBsdf() ) {
             sample.clear();
             if ( patch->getMaterial()->getBsdf() != nullptr ) {
-                sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(&hit, BRDF_DIFFUSE_COMPONENT);
+                bool shctxOk = false;
+                ShadingContext shctx = hit.shadingContext(&shctxOk);
+                if ( shctxOk ) {
+                    sample = patch->getMaterial()->getBsdf()->splitBsdfScatteredPower(shctx, BRDF_DIFFUSE_COMPONENT);
+                }
             }
             albedo.add(albedo, sample);
         }
         if ( patch->getMaterial()->getEdf() ) {
-            sample = patch->getMaterial()->getEdf()->phongEmittance(&hit, DIFFUSE_COMPONENT);
+            bool shctxOk = false;
+            ShadingContext shctx = hit.shadingContext(&shctxOk);
+            if ( shctxOk ) {
+                sample = patch->getMaterial()->getEdf()->phongEmittance(&shctx, DIFFUSE_COMPONENT);
+            } else {
+                sample.clear();
+            }
             emittance.add(emittance, sample);
         }
     }

@@ -38,13 +38,16 @@ class SurfaceSampler : public Sampler {
         char flags,
         BsdfComp *bsdfComp) const
     {
+        bool ok = false;
+        const ShadingContext context = hit->shadingContext(&ok);
+
         if ( m_computeBsdfComponents ) {
             if ( bsdf == nullptr ) {
                 ColorRgb black;
                 black.clear();
                 return black;
             } else {
-                return bsdf->bsdfEvalComponents(hit, inBsdf, outBsdf, in, out, flags, *bsdfComp);
+                return bsdf->bsdfEvalComponents(context, inBsdf, outBsdf, in, out, flags, *bsdfComp);
             }
         } else {
             bsdfComp->Clear();
@@ -52,7 +55,7 @@ class SurfaceSampler : public Sampler {
             if ( bsdf == nullptr ) {
                 radiance.clear();
             } else {
-                radiance = bsdf->evaluate(hit, inBsdf, outBsdf, in, out, flags);
+                radiance = bsdf->evaluate(context, inBsdf, outBsdf, in, out, flags);
             }
             return radiance;
         }

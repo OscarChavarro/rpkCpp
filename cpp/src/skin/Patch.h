@@ -8,6 +8,8 @@
 #include "skin/PatchConstants.h"
 #include "skin/Vertex.h"
 
+class RayHit;
+
 class Patch {
   private:
     static constexpr double TOLERANCE = 1e-5;

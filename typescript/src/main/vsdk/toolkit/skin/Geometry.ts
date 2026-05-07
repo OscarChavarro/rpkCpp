@@ -2,7 +2,7 @@ import { Error as VsdkError } from "../common/Error";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
-import { RayHitFlag } from "../material/RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import { BoundingBox } from "./BoundingBox";
 import { GeometryClassId } from "./GeometryClassId";
 import { MinMaxBox } from "./MinMaxBox";

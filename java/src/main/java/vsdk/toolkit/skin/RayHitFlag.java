@@ -1,4 +1,4 @@
-package vsdk.toolkit.material;
+package vsdk.toolkit.skin;
 
 /**
 The flags below have a double function: if passed as an argument

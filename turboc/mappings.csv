@@ -410,8 +410,8 @@ src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp,src/materia
 src/material/PhongBidirectionalTransmittanceDistributionFunction.h,src/material/PHBITRDI.H,PhongBidirectionalTransmittanceDistributionFunction.h,PHBITRDI.H
 src/material/PhongEmittanceDistributionFunction.cpp,src/material/PHEMDIFU.CPP,PhongEmittanceDistributionFunction.cpp,PHEMDIFU.CPP
 src/material/PhongEmittanceDistributionFunction.h,src/material/PHEMDIFU.H,PhongEmittanceDistributionFunction.h,PHEMDIFU.H
-src/material/RayHit.h,src/material/RAHIYTRA.H,RayHit.h,RAHIYTRA.H
-src/material/RayHitFlag.h,src/material/RAHIFLYT.H,RayHitFlag.h,RAHIFLYT.H
+src/skin/RayHit.h,src/skin/RAHIYTRA.H,RayHit.h,RAHIYTRA.H
+src/skin/RayHitFlag.h,src/skin/RAHIFLYT.H,RayHitFlag.h,RAHIFLYT.H
 src/material/RefractionIndex.cpp,src/material/REINFRAC.CPP,RefractionIndex.cpp,REINFRAC.CPP
 src/material/RefractionIndex.h,src/material/REINFRAC.H,RefractionIndex.h,REINFRAC.H
 src/material/SplitBSDFSamplingMode.h,src/material/SPBSSAMO.H,SplitBSDFSamplingMode.h,SPBSSAMO.H

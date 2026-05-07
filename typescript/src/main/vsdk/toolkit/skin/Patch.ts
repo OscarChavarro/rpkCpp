@@ -8,7 +8,7 @@ import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
 import { Material } from "../material/Material";
-import { RayHitFlag } from "../material/RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import type { Element } from "./Element";
 import { BoundingBox } from "./BoundingBox";
 import { RayHit } from "./RayHit";

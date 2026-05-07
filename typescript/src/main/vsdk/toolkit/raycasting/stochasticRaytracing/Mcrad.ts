@@ -9,7 +9,7 @@ import { RenderOptions } from "../../common/RenderOptions";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";

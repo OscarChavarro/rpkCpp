@@ -1,6 +1,6 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";

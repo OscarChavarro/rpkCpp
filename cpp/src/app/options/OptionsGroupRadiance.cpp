@@ -1,5 +1,5 @@
 #include <cstring>
-#include <strings.h>
+#include <cstring>
 
 #include "java/lang/System.h"
 #include "app/options/OptionsGroupGalerkin.h"

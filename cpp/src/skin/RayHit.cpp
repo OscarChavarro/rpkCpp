@@ -1,5 +1,7 @@
+#include "skin/RayHitFlag.h"
 #include "common/Error.h"
 #include "common/RenderOptions.h"
+#include "skin/RayHit.h"
 #include "skin/Patch.h"
 
 RayHit::RayHit():
@@ -136,6 +138,41 @@ RayHit::shadingNormal(Vector3D *inNormal) {
     return true;
 }
 
+ShadingContext
+RayHit::shadingContext(bool *ok) const {
+    Vector3D normal;
+    Vector3D texCoord;
+    unsigned int localFlags = 0;
+    bool localOk = true;
+
+    if ( !const_cast<RayHit *>(this)->shadingNormal(&normal) ) {
+        localOk = false;
+        normal.set(0.0, 0.0, 1.0);
+    } else {
+        localFlags |= SHCTX_NORMAL;
+    }
+
+    if ( const_cast<RayHit *>(this)->getTexCoord(&texCoord) ) {
+        localFlags |= SHCTX_TEXTURE_COORDINATE;
+    } else {
+        texCoord.set(0.0, 0.0, 0.0);
+    }
+
+    if ( ok != nullptr ) {
+        *ok = localOk;
+    }
+
+    return ShadingContext(
+        point,
+        geometricNormal,
+        normal,
+        texCoord,
+        uv,
+        shadingFrame,
+        material,
+        localFlags);
+}
+
 /**
 Computes shading frame at hit point. Z is the shading normal. Returns FALSE
 if the shading frame could not be determined.
@@ -152,11 +189,29 @@ RayHit::pointShadingFrame(Vector3D *inX, Vector3D *inY, Vector3D *inZ) {
     }
 
     if ( material && material->getBsdf() ) {
-        success = PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(this, inX, inY, inZ);
+        ShadingContext context(
+            getPoint(),
+            getGeometricNormal(),
+            shadingFrame.getZ(),
+            texCoord,
+            uv,
+            shadingFrame,
+            const_cast<Material *>(material),
+            0);
+        success = PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(context, inX, inY, inZ);
     }
 
     if ( !success && material != nullptr && material->getEdf() != nullptr ) {
-        success = PhongEmittanceDistributionFunction::edfShadingFrame(this, inX, inY, inZ);
+        ShadingContext context(
+            getPoint(),
+            getGeometricNormal(),
+            shadingFrame.getZ(),
+            texCoord,
+            uv,
+            shadingFrame,
+            const_cast<Material *>(material),
+            0);
+        success = PhongEmittanceDistributionFunction::edfShadingFrame(context, inX, inY, inZ);
     }
 
     if ( !success && computeUv(&uv) ) {

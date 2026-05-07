@@ -182,7 +182,13 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
             ColorRgb albedo;
             albedo.clear();
             if ( thisNode->m_useBsdf != nullptr ) {
-                albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(&thisNode->m_hit, si->flags);
+                bool shctxOk = false;
+                ShadingContext shctx = thisNode->m_hit.shadingContext(&shctxOk);
+                if ( shctxOk ) {
+                    albedo = thisNode->m_useBsdf->splitBsdfScatteredPower(shctx, si->flags);
+                } else {
+                    albedo.clear();
+                }
             }
             if ( albedo.average() < Numeric::EPSILON ) {
                 // Skip, no contribution anyway
@@ -524,8 +530,14 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 if ( thisEdf == nullptr ) {
                     diffEmit.clear();
                 } else {
+                    bool shctxOk = false;
+                    ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+                    if ( !shctxOk ) {
+                        diffEmit.clear();
+                    } else {
                     diffEmit = thisEdf->phongEdfEval(
-                        &thisNode->m_hit, &(thisNode->m_inDirF), BRDF_DIFFUSE_COMPONENT, nullptr);
+                        &thisContext, &(thisNode->m_inDirF), BRDF_DIFFUSE_COMPONENT, nullptr);
+                    }
                 }
 
                 radiance.subtract(radiance, diffEmit);
@@ -605,7 +617,13 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             if ( thisEdf == nullptr ) {
                 col.clear();
             } else {
-                col = thisEdf->phongEdfEval(&thisNode->m_hit, &(thisNode->m_inDirF), edfFlags, nullptr);
+                bool shctxOk = false;
+                ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+                if ( !shctxOk ) {
+                    col.clear();
+                } else {
+                    col = thisEdf->phongEdfEval(&thisContext, &(thisNode->m_inDirF), edfFlags, nullptr);
+                }
             }
 
             result.addScaled(result, static_cast<float>(weight), col);

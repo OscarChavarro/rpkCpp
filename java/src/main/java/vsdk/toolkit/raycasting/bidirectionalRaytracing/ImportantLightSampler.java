@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;

@@ -3,6 +3,8 @@
 #include "common/Error.h"
 #include "common/statistics/Statistics.h"
 #include "skin/Patch.h"
+#include "skin/RayHit.h"
+#include "skin/RayHitFlag.h"
 
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};

@@ -4,7 +4,7 @@
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Vector2Dd.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "material/RayHitFlag.h"
+#include "skin/RayHitFlag.h"
 
 class Material;
 

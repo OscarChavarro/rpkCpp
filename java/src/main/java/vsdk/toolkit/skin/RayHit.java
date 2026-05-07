@@ -7,7 +7,8 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.material.ShadingContext;
+import vsdk.toolkit.skin.RayHitFlag;
 
 /**
 Hit record structure, returned by ray-object intersection routines and
@@ -90,12 +91,14 @@ public class RayHit {
             return false;
         }
 
-        if (material != null && material.getBsdf() != null) {
-            success = PhongBidirectionalScatteringDistributionFunction.bsdfShadingFrame(this, inX, inY, inZ);
+        ShadingContext context = shadingContext();
+
+        if (material != null && material.getBsdf() != null && context != null) {
+            success = PhongBidirectionalScatteringDistributionFunction.bsdfShadingFrame(context, inX, inY, inZ);
         }
 
-        if (!success && material != null && material.getEdf() != null) {
-            success = PhongEmittanceDistributionFunction.edfShadingFrame(this, inX, inY, inZ);
+        if (!success && material != null && material.getEdf() != null && context != null) {
+            success = PhongEmittanceDistributionFunction.edfShadingFrame(context, inX, inY, inZ);
         }
 
         if (!success && computeUv(uv) && patch != null) {
@@ -323,5 +326,31 @@ public class RayHit {
         if (other.getTexCoord(localTex)) {
             texCoord = localTex;
         }
+    }
+
+    public ShadingContext shadingContext() {
+        Vector3D normal = new Vector3D();
+        if (!shadingNormal(normal)) {
+            return null;
+        }
+
+        Vector3D localTexCoord = new Vector3D();
+        int localFlags = RayHitFlag.NORMAL;
+        if (getTexCoord(localTexCoord)) {
+            localFlags |= RayHitFlag.TEXTURE_COORDINATE;
+        }
+        else {
+            localTexCoord.set(0.0f, 0.0f, 0.0f);
+        }
+
+        return new ShadingContext(
+            getPoint(),
+            getGeometricNormal(),
+            normal,
+            localTexCoord,
+            getUv(),
+            getShadingFrame(),
+            getMaterial(),
+            localFlags);
     }
 }

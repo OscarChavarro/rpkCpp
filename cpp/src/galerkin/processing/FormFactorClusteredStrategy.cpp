@@ -1,3 +1,4 @@
+#include "skin/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
 #include "skin/MinMaxBox.h"

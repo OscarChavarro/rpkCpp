@@ -5,7 +5,7 @@ Just fills in the eye point in the node
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.Error;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;

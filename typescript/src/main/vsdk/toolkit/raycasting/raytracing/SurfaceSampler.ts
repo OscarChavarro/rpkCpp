@@ -1,7 +1,7 @@
 import { ColorRgb } from "../../common/ColorRgb";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../material/RayHitFlag";
+import { RayHitFlag } from "../../skin/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";

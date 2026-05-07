@@ -10,7 +10,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.Material;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 
 public class Patch {
     public static final int MAXIMUM_VERTICES_PER_PATCH = 4;

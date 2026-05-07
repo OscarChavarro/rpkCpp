@@ -16,7 +16,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/ShadingContext.h"
-#include "material/RayHit.h"
+#include "skin/RayHit.h"
 #include "material/Texture.h"
 #include "material/Xxdf.h"
 

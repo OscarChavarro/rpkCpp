@@ -13,7 +13,7 @@ import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.io.wrapper.Vector3DPrinter;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.material.RayHitFlag;
+import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.skin.RayHit;
 
 // Type definitions used in CPathNode

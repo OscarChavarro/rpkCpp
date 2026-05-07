@@ -4,7 +4,7 @@ import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { RayHit } from "../skin/RayHit";
-import { RayHitFlag } from "./RayHitFlag";
+import { RayHitFlag } from "../skin/RayHitFlag";
 import { ShadingContext } from "./ShadingContext";
 import { Xxdf } from "./Xxdf";
 import { XxdfComponentFlag } from "./XxdfComponentFlag";
