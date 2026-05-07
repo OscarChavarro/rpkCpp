@@ -7,7 +7,7 @@ Generate and trace a local line
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Ray.h"
-#include "material/RayHit.h"
+#include "skin/RayHit.h"
 #include "scene/VoxelGrid.h"
 #include "skin/Patch.h"
 

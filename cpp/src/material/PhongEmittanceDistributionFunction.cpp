@@ -36,7 +36,7 @@ PhongEmittanceDistributionFunction::~PhongEmittanceDistributionFunction() {
 Returns emittance, reflectance, transmittance
 */
 ColorRgb
-PhongEmittanceDistributionFunction::phongEmittance(const RayHit * /*hit*/, const char flags) const {
+PhongEmittanceDistributionFunction::phongEmittance(const ShadingContext & /*context*/, const char flags) const {
     ColorRgb result;
 
     result.clear();
@@ -57,6 +57,20 @@ PhongEmittanceDistributionFunction::phongEmittance(const RayHit * /*hit*/, const
     return result;
 }
 
+ColorRgb
+PhongEmittanceDistributionFunction::phongEmittance(const RayHit * /*hit*/, const char flags) const {
+    ShadingContext context(
+        Vector3D(),
+        Vector3D(),
+        Vector3D(),
+        Vector3D(),
+        Vector2Dd(),
+        CoordinateSystem(),
+        nullptr,
+        0);
+    return phongEmittance(context, flags);
+}
+
 /**
 Returns the emittance (self-emitted radiant exitance) [W / m ^ 2] of the EDF
 */
@@ -73,7 +87,7 @@ computed and returned in probabilityDensityFunction
 */
 ColorRgb
 PhongEmittanceDistributionFunction::phongEdfEval(
-    RayHit *hit,
+    const ShadingContext &context,
     const Vector3D *out,
     char flags,
     double *probabilityDensityFunction) const
@@ -87,21 +101,19 @@ PhongEmittanceDistributionFunction::phongEdfEval(
         *probabilityDensityFunction = 0.0;
     }
 
-    if ( !hit->shadingNormal(&normal) ) {
+    if ( !context.hasFlag(RayHitFlag::NORMAL) ) {
         Error::warning("phongEdfEval", "Couldn't determine shading normal");
         return result;
     }
+    normal = context.getShadingNormal();
 
     cosL = out->dotProduct(normal);
 
     if ( cosL < 0.0 ) {
         return result;
-    } // Back face of a light does not radiate
-
-    // kd + ks (idealReflected * out) ^ n
+    }
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        // Divide by PI to turn radiant exitance [W / m ^ 2] into exitant radiance [W / m ^ 2 sr]
         result.add(result, kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
@@ -109,10 +121,52 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     }
 
     if ( flags & SPECULAR_COMPONENT ) {
-        // ???
     }
 
     return result;
+}
+
+ColorRgb
+PhongEmittanceDistributionFunction::phongEdfEval(
+    RayHit *hit,
+    const Vector3D *out,
+    char flags,
+    double *probabilityDensityFunction) const
+{
+    if ( hit == nullptr ) {
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = 0.0;
+        }
+        ColorRgb result;
+        result.clear();
+        return result;
+    }
+    Vector3D normal;
+    if ( !hit->shadingNormal(&normal) ) {
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = 0.0;
+        }
+        ColorRgb result;
+        result.clear();
+        return result;
+    }
+    Vector3D texCoord;
+    unsigned int localFlags = RayHitFlag::NORMAL;
+    if ( hit->getTexCoord(&texCoord) ) {
+        localFlags |= RayHitFlag::TEXTURE_COORDINATE;
+    } else {
+        texCoord.set(0.0, 0.0, 0.0);
+    }
+    ShadingContext context(
+        hit->getPoint(),
+        hit->getGeometricNormal(),
+        normal,
+        texCoord,
+        hit->getUv(),
+        hit->getShadingFrame(),
+        hit->getMaterial(),
+        localFlags);
+    return phongEdfEval(context, out, flags, probabilityDensityFunction);
 }
 
 /**
@@ -123,7 +177,7 @@ of the generated direction is computed and returned in probabilityDensityFunctio
 */
 Vector3D
 PhongEmittanceDistributionFunction::phongEdfSample(
-    RayHit *hit,
+    const ShadingContext &context,
     char flags,
     double xi1,
     double xi2,
@@ -142,14 +196,12 @@ PhongEmittanceDistributionFunction::phongEdfSample(
         double sProbabilityDensityFunction;
         CoordinateSystem coord;
 
-        Vector3D normal;
-        if ( !hit->shadingNormal(&normal) ) {
+        if ( !context.hasFlag(RayHitFlag::NORMAL) ) {
             Error::warning("phongEdfEval", "Couldn't determine shading normal");
             return dir;
         }
+        Vector3D normal = context.getShadingNormal();
 
-        // Section [ARVO1995b].2: two independent samples (xi1, xi2) in [0,1]^2
-        // are mapped to a direction on the hemisphere after building a local frame.
         coord.setFromZAxis(&normal);
         dir = coord.sampleHemisphereCosTheta(xi1, xi2, &sProbabilityDensityFunction);
         if ( probabilityDensityFunction ) {
@@ -161,6 +213,55 @@ PhongEmittanceDistributionFunction::phongEdfSample(
     }
 
     return dir;
+}
+
+Vector3D
+PhongEmittanceDistributionFunction::phongEdfSample(
+    RayHit *hit,
+    char flags,
+    double xi1,
+    double xi2,
+    ColorRgb *selfEmittedRadiance,
+    double *probabilityDensityFunction) const
+{
+    if ( hit == nullptr ) {
+        if ( selfEmittedRadiance ) {
+            selfEmittedRadiance->clear();
+        }
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = 0.0;
+        }
+        Vector3D dir = {0.0, 0.0, 1.0};
+        return dir;
+    }
+    Vector3D normal;
+    if ( !hit->shadingNormal(&normal) ) {
+        if ( selfEmittedRadiance ) {
+            selfEmittedRadiance->clear();
+        }
+        if ( probabilityDensityFunction ) {
+            *probabilityDensityFunction = 0.0;
+        }
+        Vector3D dir = {0.0, 0.0, 1.0};
+        return dir;
+    }
+    Vector3D texCoord;
+    unsigned int localFlags = RayHitFlag::NORMAL;
+    if ( hit->getTexCoord(&texCoord) ) {
+        localFlags |= RayHitFlag::TEXTURE_COORDINATE;
+    } else {
+        texCoord.set(0.0, 0.0, 0.0);
+    }
+    ShadingContext context(
+        hit->getPoint(),
+        hit->getGeometricNormal(),
+        normal,
+        texCoord,
+        hit->getUv(),
+        hit->getShadingFrame(),
+        hit->getMaterial(),
+        localFlags);
+    return phongEdfSample(context, flags, xi1, xi2, selfEmittedRadiance, probabilityDensityFunction);
 }
 
 /**
@@ -178,6 +279,15 @@ not. In the latter case, a default frame needs to be used (not computed by this
 routine - pointShadingFrame() in material.[ch] constructs such a frame if
 needed)
 */
+bool
+PhongEmittanceDistributionFunction::edfShadingFrame(
+    const ShadingContext & /*context*/,
+    const Vector3D * /*X*/,
+    const Vector3D * /*Y*/,
+    const Vector3D * /*Z*/) {
+    return false;
+}
+
 bool
 PhongEmittanceDistributionFunction::edfShadingFrame(
     const RayHit * /*hit*/,

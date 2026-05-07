@@ -9,7 +9,7 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "material/RayHit.h"
+#include "skin/RayHit.h"
 #include "material/RayHitFlag.h"
 #include "render/opengl/RenderOpenGL.h"
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
