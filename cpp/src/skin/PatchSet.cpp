@@ -13,7 +13,10 @@ PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClas
 }
 
 PatchSet::~PatchSet() {
-    if ( !isDuplicate && patchList != nullptr ) {
+    // PatchSet always owns its internal patch pointer container.
+    // `isDuplicate` only controls shared resources at Geometry level
+    // (for example radianceData), not this list's lifetime.
+    if ( patchList != nullptr ) {
         delete patchList;
         patchList = nullptr;
     }
