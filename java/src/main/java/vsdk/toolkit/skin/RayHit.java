@@ -91,7 +91,15 @@ public class RayHit {
             return false;
         }
 
-        ShadingContext context = shadingContext();
+        ShadingContext context = new ShadingContext(
+            point,
+            geometricNormal,
+            shadingFrame.getZ(),
+            texCoord,
+            uv,
+            shadingFrame,
+            material,
+            0);
 
         if (material != null && material.getBsdf() != null && context != null) {
             success = PhongBidirectionalScatteringDistributionFunction.bsdfShadingFrame(context, inX, inY, inZ);
