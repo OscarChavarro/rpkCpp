@@ -11,6 +11,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.skin.RayHit;
 
 public class ImportantLightSampler extends NextEventSampler {
     private LightList lightList;
@@ -90,7 +91,7 @@ public class ImportantLightSampler extends NextEventSampler {
             Vector3D dir = new Vector3D(0.0f, 0.0f, 0.0f);
 
             if ( light.material.getEdf() != null ) {
-                dir = light.material.getEdf().phongEdfSample(null, flags & 0xFF, x1, x2, null, pdf);
+                dir = light.material.getEdf().phongEdfSample((RayHit)null, flags & 0xFF, x1, x2, null, pdf);
             }
 
             point.addition(thisNode.m_hit.getPoint(), dir);   // fake hit at distance 1!
@@ -158,7 +159,7 @@ public class ImportantLightSampler extends NextEventSampler {
             } else {
                 double[] outPdfDir = new double[] {0.0};
                 newNode.m_hit.getPatch().material.getEdf().phongEdfEval(
-                    null,
+                    (RayHit)null,
                     newNode.m_inDirF,
                     XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
                     outPdfDir);

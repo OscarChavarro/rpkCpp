@@ -186,6 +186,42 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return false;
     }
 
+    public static boolean bsdfShadingFrame(ShadingContext context, Vector3D X, Vector3D Y, Vector3D Z) {
+        return false;
+    }
+
+    private static boolean extractHitData(RayHit hit, Vector3D normal, Vector3D texCoord, int[] flags) {
+        if (hit == null || normal == null || texCoord == null || flags == null || flags.length == 0) {
+            return false;
+        }
+        if (!hit.shadingNormal(normal)) {
+            return false;
+        }
+        flags[0] = RayHitFlag.NORMAL;
+        if (hit.getTexCoord(texCoord)) {
+            flags[0] |= RayHitFlag.TEXTURE_COORDINATE;
+        }
+        else {
+            texCoord.set(0.0f, 0.0f, 0.0f);
+        }
+        return true;
+    }
+
+    private static ColorRgb splitBsdfEvalTexture(Texture texture, ShadingContext context) {
+        ColorRgb col = new ColorRgb();
+        col.clear();
+
+        if (texture == null) {
+            return col;
+        }
+        if (context == null || !context.hasFlag(RayHitFlag.TEXTURE_COORDINATE)) {
+            Error.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+            return col;
+        }
+        Vector3D texCoord = context.getTexCoord();
+        return texture.evaluateColor(texCoord.x, texCoord.y);
+    }
+
     private static ColorRgb splitBsdfEvalTexture(Texture texture, RayHit hit) {
         Vector3D texCoord = new Vector3D();
         ColorRgb col = new ColorRgb();
@@ -203,12 +239,12 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return texture.evaluateColor(texCoord.x, texCoord.y);
     }
 
-    public ColorRgb splitBsdfScatteredPower(RayHit hit, int flags) {
+    public ColorRgb splitBsdfScatteredPower(ShadingContext context, int flags) {
         ColorRgb albedo = new ColorRgb();
         albedo.clear();
 
         if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
-            ColorRgb textureColor = splitBsdfEvalTexture(texture, hit);
+            ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
             albedo.add(albedo, textureColor);
             flags &= ~TEXTURED_COMPONENT;
         }
@@ -227,6 +263,27 @@ public class PhongBidirectionalScatteringDistributionFunction {
         }
 
         return albedo;
+    }
+
+    public ColorRgb splitBsdfScatteredPower(RayHit hit, int flags) {
+        Vector3D normal = new Vector3D();
+        Vector3D texCoord = new Vector3D();
+        int[] localFlags = new int[] {0};
+        if (!extractHitData(hit, normal, texCoord, localFlags)) {
+            ColorRgb out = new ColorRgb();
+            out.clear();
+            return out;
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags[0]);
+        return splitBsdfScatteredPower(context, flags);
     }
 
     public boolean splitBsdfIsTextured() {
@@ -250,6 +307,46 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D normal,
         double[] probabilityDensityFunction) {
         setOut(probabilityDensityFunction, normal.dotProduct(out) / Math.PI);
+    }
+
+    private void splitBsdfProbabilities(
+        ShadingContext context,
+        int flags,
+        double[] inTexture,
+        double[] reflection,
+        double[] transmission,
+        int[] brdfFlags,
+        int[] btdfFlags) {
+        setOut(inTexture, 0.0);
+
+        if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
+            ColorRgb textureColor = splitBsdfEvalTexture(texture, context);
+            setOut(inTexture, textureColor.average());
+            flags &= ~TEXTURED_COMPONENT;
+        }
+
+        setOut(brdfFlags, BsdfComponentFlag.getBrdfFlags(flags));
+        setOut(btdfFlags, BsdfComponentFlag.getBtdfFlags(flags));
+
+        ColorRgb reflectance;
+        if (brdf == null) {
+            reflectance = new ColorRgb();
+            reflectance.clear();
+        }
+        else {
+            reflectance = brdf.reflectance(brdfFlags[0]);
+        }
+        setOut(reflection, reflectance.average());
+
+        ColorRgb transmittance;
+        if (btdf == null) {
+            transmittance = new ColorRgb();
+            transmittance.clear();
+        }
+        else {
+            transmittance = btdf.transmittance(btdfFlags[0]);
+        }
+        setOut(transmission, transmittance.average());
     }
 
     private void splitBsdfProbabilities(
@@ -331,7 +428,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
     }
 
     public Vector3D sample(
-        RayHit hit,
+        ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
         Vector3D in,
@@ -344,11 +441,12 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D out = new Vector3D();
 
         setOut(probabilityDensityFunction, 0.0);
-        if (!hit.shadingNormal(normal)) {
+        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
             Error.warning("sample", "Couldn't determine shading normal");
             out.set(0.0f, 0.0f, 1.0f);
             return out;
         }
+        normal.copy(context.getShadingNormal());
 
         double[] localTexture = new double[] {0.0};
         double[] reflection = new double[] {0.0};
@@ -356,7 +454,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         int[] brdfFlags = new int[] {0};
         int[] btdfFlags = new int[] {0};
 
-        splitBsdfProbabilities(hit, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
+        splitBsdfProbabilities(context, flags, localTexture, reflection, transmission, brdfFlags, btdfFlags);
 
         double scattering = localTexture[0] + reflection[0] + transmission[0];
         if (scattering < Numeric.EPSILON) {
@@ -461,12 +559,42 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return out;
     }
 
+    public Vector3D sample(
+        RayHit hit,
+        PhongBidirectionalScatteringDistributionFunction inBsdf,
+        PhongBidirectionalScatteringDistributionFunction outBsdf,
+        Vector3D in,
+        int doRussianRoulette,
+        int flags,
+        double x1,
+        double x2,
+        double[] probabilityDensityFunction) {
+        Vector3D normal = new Vector3D();
+        Vector3D texCoord = new Vector3D();
+        int[] localFlags = new int[] {0};
+        if (!extractHitData(hit, normal, texCoord, localFlags)) {
+            Vector3D out = new Vector3D(0.0, 0.0, 1.0);
+            setOut(probabilityDensityFunction, 0.0);
+            return out;
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags[0]);
+        return sample(context, inBsdf, outBsdf, in, doRussianRoulette, flags, x1, x2, probabilityDensityFunction);
+    }
+
     private static double texturedScattererEval(Vector3D in, Vector3D out, Vector3D normal) {
         return 1.0 / Math.PI;
     }
 
     public ColorRgb evaluate(
-        RayHit hit,
+        ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
         Vector3D in,
@@ -476,14 +604,15 @@ public class PhongBidirectionalScatteringDistributionFunction {
         Vector3D normal = new Vector3D();
 
         result.clear();
-        if (!hit.shadingNormal(normal)) {
+        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
             Error.warning("evaluate", "Couldn't determine shading normal");
             return result;
         }
+        normal.copy(context.getShadingNormal());
 
         if (texture != null && (flags & TEXTURED_COMPONENT) != 0) {
             double textureBsdf = texturedScattererEval(in, out, normal);
-            ColorRgb textureCol = splitBsdfEvalTexture(texture, hit);
+            ColorRgb textureCol = splitBsdfEvalTexture(texture, context);
             result.addScaled(result, (float)textureBsdf, textureCol);
             flags &= ~TEXTURED_COMPONENT;
         }
@@ -517,8 +646,35 @@ public class PhongBidirectionalScatteringDistributionFunction {
         return result;
     }
 
-    public void evaluateProbabilityDensityFunction(
+    public ColorRgb evaluate(
         RayHit hit,
+        PhongBidirectionalScatteringDistributionFunction inBsdf,
+        PhongBidirectionalScatteringDistributionFunction outBsdf,
+        Vector3D in,
+        Vector3D out,
+        int flags) {
+        Vector3D normal = new Vector3D();
+        Vector3D texCoord = new Vector3D();
+        int[] localFlags = new int[] {0};
+        if (!extractHitData(hit, normal, texCoord, localFlags)) {
+            ColorRgb result = new ColorRgb();
+            result.clear();
+            return result;
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags[0]);
+        return evaluate(context, inBsdf, outBsdf, in, out, flags);
+    }
+
+    public void evaluateProbabilityDensityFunction(
+        ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
         Vector3D in,
@@ -530,10 +686,11 @@ public class PhongBidirectionalScatteringDistributionFunction {
         setOut(probabilityDensityFunctionRR, 0.0);
 
         Vector3D normal = new Vector3D();
-        if (!hit.shadingNormal(normal)) {
+        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
             Error.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
             return;
         }
+        normal.copy(context.getShadingNormal());
 
         double[] pTexture = new double[] {0.0};
         double[] pReflection = new double[] {0.0};
@@ -541,7 +698,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         int[] brdfFlags = new int[] {0};
         int[] btdfFlags = new int[] {0};
 
-        splitBsdfProbabilities(hit, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
+        splitBsdfProbabilities(context, flags, pTexture, pReflection, pTransmission, brdfFlags, btdfFlags);
 
         double pScattering = pTexture[0] + pReflection[0] + pTransmission[0];
         if (pScattering < Numeric.EPSILON) {
@@ -591,8 +748,37 @@ public class PhongBidirectionalScatteringDistributionFunction {
         setOut(probabilityDensityFunction, probabilityDensityFunction[0] / pScattering);
     }
 
-    public ColorRgb bsdfEvalComponents(
+    public void evaluateProbabilityDensityFunction(
         RayHit hit,
+        PhongBidirectionalScatteringDistributionFunction inBsdf,
+        PhongBidirectionalScatteringDistributionFunction outBsdf,
+        Vector3D in,
+        Vector3D out,
+        int flags,
+        double[] probabilityDensityFunction,
+        double[] probabilityDensityFunctionRR) {
+        Vector3D normal = new Vector3D();
+        Vector3D texCoord = new Vector3D();
+        int[] localFlags = new int[] {0};
+        if (!extractHitData(hit, normal, texCoord, localFlags)) {
+            setOut(probabilityDensityFunction, 0.0);
+            setOut(probabilityDensityFunctionRR, 0.0);
+            return;
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags[0]);
+        evaluateProbabilityDensityFunction(context, inBsdf, outBsdf, in, out, flags, probabilityDensityFunction, probabilityDensityFunctionRR);
+    }
+
+    public ColorRgb bsdfEvalComponents(
+        ShadingContext context,
         PhongBidirectionalScatteringDistributionFunction inBsdf,
         PhongBidirectionalScatteringDistributionFunction outBsdf,
         Vector3D in,
@@ -607,7 +793,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         for (int i = 0; i < BsdfComponentInfo.BSDF_COMPONENTS; i++) {
             int thisFlag = BsdfComponentFlag.bsdfIndexToComp(i);
             if ((flags & thisFlag) != 0) {
-                colArray[i] = evaluate(hit, inBsdf, outBsdf, in, out, thisFlag);
+                colArray[i] = evaluate(context, inBsdf, outBsdf, in, out, thisFlag);
                 result.add(result, colArray[i]);
             }
             else {
@@ -616,6 +802,34 @@ public class PhongBidirectionalScatteringDistributionFunction {
         }
 
         return result;
+    }
+
+    public ColorRgb bsdfEvalComponents(
+        RayHit hit,
+        PhongBidirectionalScatteringDistributionFunction inBsdf,
+        PhongBidirectionalScatteringDistributionFunction outBsdf,
+        Vector3D in,
+        Vector3D out,
+        int flags,
+        ColorRgb[] colArray) {
+        Vector3D normal = new Vector3D();
+        Vector3D texCoord = new Vector3D();
+        int[] localFlags = new int[] {0};
+        if (!extractHitData(hit, normal, texCoord, localFlags)) {
+            ColorRgb result = new ColorRgb();
+            result.clear();
+            return result;
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags[0]);
+        return bsdfEvalComponents(context, inBsdf, outBsdf, in, out, flags, colArray);
     }
 
     private static void setOut(double[] out, double value) {

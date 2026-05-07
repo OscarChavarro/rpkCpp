@@ -11,6 +11,7 @@ import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.skin.RayHit;
 
 public class UniformLightSampler extends NextEventSampler {
     private LightList lightList;
@@ -185,7 +186,7 @@ public class UniformLightSampler extends NextEventSampler {
             } else {
                 double[] outPdfDir = new double[] {0.0};
                 newNode.m_hit.getPatch().material.getEdf().phongEdfEval(
-                    null,
+                    (RayHit)null,
                     newNode.m_inDirF,
                     XxdfComponentFlag.DIFFUSE_COMPONENT | XxdfComponentFlag.GLOSSY_COMPONENT | XxdfComponentFlag.SPECULAR_COMPONENT,
                     outPdfDir);

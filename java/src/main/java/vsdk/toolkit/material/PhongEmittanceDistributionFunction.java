@@ -75,6 +75,7 @@ needed)
 import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
+import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.RayHit;
 
@@ -122,7 +123,11 @@ public class PhongEmittanceDistributionFunction {
         return false;
     }
 
-    public ColorRgb phongEmittance(RayHit hit, int flags) {
+    public static boolean edfShadingFrame(ShadingContext context, Vector3D X, Vector3D Y, Vector3D Z) {
+        return false;
+    }
+
+    public ColorRgb phongEmittance(ShadingContext context, int flags) {
         ColorRgb result = new ColorRgb();
         result.clear();
 
@@ -142,16 +147,30 @@ public class PhongEmittanceDistributionFunction {
         return result;
     }
 
-    public ColorRgb phongEdfEval(RayHit hit, Vector3D out, int flags, double[] probabilityDensityFunction) {
+    public ColorRgb phongEmittance(RayHit hit, int flags) {
+        ShadingContext context = new ShadingContext(
+            new Vector3D(),
+            new Vector3D(),
+            new Vector3D(),
+            new Vector3D(),
+            new Vector2Dd(),
+            new CoordinateSystem(),
+            null,
+            0);
+        return phongEmittance(context, flags);
+    }
+
+    public ColorRgb phongEdfEval(ShadingContext context, Vector3D out, int flags, double[] probabilityDensityFunction) {
         Vector3D normal = new Vector3D();
         ColorRgb result = new ColorRgb();
         result.clear();
         setOut(probabilityDensityFunction, 0.0);
 
-        if (!hit.shadingNormal(normal)) {
+        if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
             Error.warning("phongEdfEval", "Couldn't determine shading normal");
             return result;
         }
+        normal.copy(context.getShadingNormal());
 
         double cosL = out.dotProduct(normal);
         if (cosL < 0.0) {
@@ -170,8 +189,42 @@ public class PhongEmittanceDistributionFunction {
         return result;
     }
 
+    public ColorRgb phongEdfEval(RayHit hit, Vector3D out, int flags, double[] probabilityDensityFunction) {
+        if (hit == null) {
+            setOut(probabilityDensityFunction, 0.0);
+            ColorRgb result = new ColorRgb();
+            result.clear();
+            return result;
+        }
+        Vector3D normal = new Vector3D();
+        if (!hit.shadingNormal(normal)) {
+            setOut(probabilityDensityFunction, 0.0);
+            ColorRgb result = new ColorRgb();
+            result.clear();
+            return result;
+        }
+        Vector3D texCoord = new Vector3D();
+        int localFlags = RayHitFlag.NORMAL;
+        if (hit.getTexCoord(texCoord)) {
+            localFlags |= RayHitFlag.TEXTURE_COORDINATE;
+        }
+        else {
+            texCoord.set(0.0f, 0.0f, 0.0f);
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags);
+        return phongEdfEval(context, out, flags, probabilityDensityFunction);
+    }
+
     public Vector3D phongEdfSample(
-        RayHit hit,
+        ShadingContext context,
         int flags,
         double xi1,
         double xi2,
@@ -185,11 +238,11 @@ public class PhongEmittanceDistributionFunction {
         Vector3D dir = new Vector3D(0.0f, 0.0f, 1.0f);
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
             CoordinateSystem coord = new CoordinateSystem();
-            Vector3D normal = new Vector3D();
-            if (!hit.shadingNormal(normal)) {
+            if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
                 Error.warning("phongEdfEval", "Couldn't determine shading normal");
                 return dir;
             }
+            Vector3D normal = context.getShadingNormal();
 
             coord.setFromZAxis(normal);
             double[] sampledPdf = new double[] {0.0};
@@ -202,6 +255,45 @@ public class PhongEmittanceDistributionFunction {
         }
 
         return dir;
+    }
+
+    public Vector3D phongEdfSample(
+        RayHit hit,
+        int flags,
+        double xi1,
+        double xi2,
+        ColorRgb selfEmittedRadiance,
+        double[] probabilityDensityFunction) {
+        if (selfEmittedRadiance != null) {
+            selfEmittedRadiance.clear();
+        }
+        if (hit == null) {
+            setOut(probabilityDensityFunction, 0.0);
+            return new Vector3D(0.0, 0.0, 1.0);
+        }
+        Vector3D normal = new Vector3D();
+        if (!hit.shadingNormal(normal)) {
+            setOut(probabilityDensityFunction, 0.0);
+            return new Vector3D(0.0, 0.0, 1.0);
+        }
+        Vector3D texCoord = new Vector3D();
+        int localFlags = RayHitFlag.NORMAL;
+        if (hit.getTexCoord(texCoord)) {
+            localFlags |= RayHitFlag.TEXTURE_COORDINATE;
+        }
+        else {
+            texCoord.set(0.0f, 0.0f, 0.0f);
+        }
+        ShadingContext context = new ShadingContext(
+            hit.getPoint(),
+            hit.getGeometricNormal(),
+            normal,
+            texCoord,
+            hit.getUv(),
+            hit.getShadingFrame(),
+            hit.getMaterial(),
+            localFlags);
+        return phongEdfSample(context, flags, xi1, xi2, selfEmittedRadiance, probabilityDensityFunction);
     }
 
     private static void setOut(double[] out, double value) {

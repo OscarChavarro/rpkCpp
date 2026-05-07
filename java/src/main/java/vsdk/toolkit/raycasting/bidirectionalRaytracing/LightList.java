@@ -16,6 +16,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.skin.RayHit;
 
 public class LightList extends CircularList<LightInfo> {
     // Total flux ( sum(L * A * PI))
@@ -53,7 +54,7 @@ public class LightList extends CircularList<LightInfo> {
                         e = new ColorRgb();
                         e.clear();
                     } else {
-                        e = light.material.getEdf().phongEmittance(null, XxdfComponentFlag.DIFFUSE_COMPONENT);
+                        e = light.material.getEdf().phongEmittance((RayHit)null, XxdfComponentFlag.DIFFUSE_COMPONENT);
                     }
                     info.emittedFlux = e.average();
                 } else {
@@ -138,7 +139,7 @@ public class LightList extends CircularList<LightInfo> {
             e = new ColorRgb();
             e.clear();
         } else {
-            e = light.material.getEdf().phongEmittance(null, all);
+            e = light.material.getEdf().phongEmittance((RayHit)null, all);
         }
         probabilityDensityFunction = e.average() / totalFlux;
 
@@ -190,7 +191,7 @@ public class LightList extends CircularList<LightInfo> {
             e = new ColorRgb();
             e.clear();
         } else {
-            e = light.material.getEdf().phongEmittance(null, all);
+            e = light.material.getEdf().phongEmittance((RayHit)null, all);
         }
         return e.average();
     }
