@@ -53,6 +53,12 @@ public class Shaft {
     private final Vector3D center2;
     private boolean cut; // Full occlusion flag set when one patch cuts the shaft
 
+    private static PatchSet createPatchSetWithPool(ArrayList<Patch> patches) {
+        PatchSet patchSet = new PatchSet(patches);
+        patchSet.setMemoryPoolManaged(true);
+        return patchSet;
+    }
+
     public Shaft() {
         referenceItem1 = null;
         referenceItem2 = null;
@@ -73,7 +79,7 @@ public class Shaft {
 
     public static void freeCandidateList(ArrayList<Geometry> candidateList) {
         // Only destroy geometries that were generated for shaft culling
-        for (int i = 0; candidateList != null && i < candidateList.size(); i++) {
+        for (int i = candidateList != null ? candidateList.size() - 1 : -1; i >= 0; i--) {
             Geometry geometry = candidateList.get(i);
             if (geometry != null && geometry.shaftCullGeometry) {
                 Geometry.destroy(geometry);
@@ -723,9 +729,8 @@ public class Shaft {
     Given a patch list, checks every patch and returns a culled list
     containing inside or overlapping patches.
     */
-    private ArrayList<Patch> cullPatches(ArrayList<Patch> patchList) {
-        ArrayList<Patch> culledPatchList = new ArrayList<>();
-
+    private void cullPatches(ArrayList<Patch> patchList, ArrayList<Patch> culledPatchList) {
+        culledPatchList.clear();
         for (int i = 0; patchList != null && i < patchList.size() && !cut; i++) {
             Patch patch = patchList.get(i);
             if (patch.omit != 0 || patchIsOnOmitSet(patch.id)) {
@@ -744,7 +749,6 @@ public class Shaft {
                 culledPatchList.add(patch);
             }
         }
-        return culledPatchList;
     }
 
     /**
@@ -756,9 +760,10 @@ public class Shaft {
         }
 
         if (geometry.shaftCullGeometry && geometry.className == GeometryClassId.PATCH_SET) {
-            // TODO: Should be PatchSet, or implement clone in all Geometry subclasses.
-            Geometry newGeometry = geometry.clone();
+            PatchSet oldPatchSet = (PatchSet)geometry;
+            Geometry newGeometry = createPatchSetWithPool(oldPatchSet.getPatchList());
             newGeometry.shaftCullGeometry = true;
+            newGeometry.isDuplicate = true;
             candidateList.add(newGeometry);
         }
         else {
@@ -780,10 +785,11 @@ public class Shaft {
         }
         else {
             ArrayList<Patch> geometryPatchesList = Geometry.patchListReference(geometry);
-            ArrayList<Patch> culledPatches = cullPatches(geometryPatchesList);
+            ArrayList<Patch> culledPatches = new ArrayList<>();
+            cullPatches(geometryPatchesList, culledPatches);
 
             if (culledPatches.size() > 0) {
-                PatchSet newGeometry = new PatchSet(culledPatches);
+                PatchSet newGeometry = createPatchSetWithPool(culledPatches);
                 newGeometry.shaftCullGeometry = true;
                 newGeometry.isDuplicate = false;
                 candidateList.add(newGeometry);

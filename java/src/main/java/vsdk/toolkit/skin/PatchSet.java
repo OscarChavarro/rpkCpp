@@ -5,9 +5,11 @@ import vsdk.toolkit.common.linealAlgebra.Ray;
 
 public final class PatchSet extends Geometry {
     private ArrayList<Patch> patchList;
+    private boolean memoryPoolManaged;
 
     public PatchSet(ArrayList<Patch> input) {
         super(GeometryClassId.PATCH_SET);
+        memoryPoolManaged = false;
         patchList = new ArrayList<>();
         for (int i = 0; input != null && i < input.size(); i++) {
             patchList.add(input.get(i));
@@ -20,7 +22,7 @@ public final class PatchSet extends Geometry {
 
     @Override
     public void destroy() {
-        if (!isDuplicate && patchList != null) {
+        if (patchList != null) {
             patchList = null;
         }
         super.destroy();
@@ -50,5 +52,13 @@ public final class PatchSet extends Geometry {
 
     public ArrayList<Patch> getPatchList() {
         return patchList;
+    }
+
+    public boolean isMemoryPoolManaged() {
+        return memoryPoolManaged;
+    }
+
+    public void setMemoryPoolManaged(boolean value) {
+        memoryPoolManaged = value;
     }
 }

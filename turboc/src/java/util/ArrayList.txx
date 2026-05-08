@@ -145,3 +145,8 @@ template <class T> void
 ArrayList<T>::set(long int pos, T elem) {
     Data[pos] = elem;
 }
+
+template <class T> void
+ArrayList<T>::clear() {
+    currentSize = 0;
+}

@@ -6,9 +6,11 @@ import type { RayHit } from "./RayHit";
 
 export class PatchSet extends Geometry {
   private patchList: Patch[] | null;
+  private memoryPoolManaged: boolean;
 
   public constructor(input: Patch[] | null) {
     super(GeometryClassId.PATCH_SET);
+    this.memoryPoolManaged = false;
     this.patchList = [];
     for (let i = 0; input !== null && i < input.length; i++) {
       this.patchList.push(input[i]);
@@ -20,7 +22,7 @@ export class PatchSet extends Geometry {
   }
 
   public override destroy(): void {
-    if (!this.isDuplicate && this.patchList !== null) {
+    if (this.patchList !== null) {
       this.patchList = null;
     }
     super.destroy();
@@ -42,5 +44,13 @@ export class PatchSet extends Geometry {
 
   public getPatchList(): Patch[] | null {
     return this.patchList;
+  }
+
+  public isMemoryPoolManaged(): boolean {
+    return this.memoryPoolManaged;
+  }
+
+  public setMemoryPoolManaged(value: boolean): void {
+    this.memoryPoolManaged = value;
   }
 }

@@ -18,6 +18,8 @@ class Interaction {
     GalerkinElement *sourceElement;
     float *K; // Coupling coefficient(s), stored top to bottom, left to right
     float *deltaK; // Used for approximation error estimation over the link
+    bool ownsK;
+    bool ownsDeltaK;
     unsigned char nmbrOBasisFnctnORecv;
     unsigned char numberOfBasisFunctionsOnSource;
     unsigned char nmbrORecvCbtrPstns;

@@ -18,6 +18,22 @@ import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.Patch;
 
 public class LinkingSimpleStrategy {
+    private static final ArrayList<float[]> coefficientsPool = new ArrayList<>();
+
+    private static float[] borrowKBuffer() {
+        int n = coefficientsPool.size();
+        if ( n > 0 ) {
+            return coefficientsPool.remove(n - 1);
+        }
+        return new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
+    }
+
+    private static void returnKBuffer(float[] buffer) {
+        if ( buffer != null && buffer.length == GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE ) {
+            coefficientsPool.add(buffer);
+        }
+    }
+
     private static void createInitialLink(
         Scene scene,
         GalerkinState galerkinState,
@@ -89,7 +105,8 @@ public class LinkingSimpleStrategy {
         }
 
         Interaction link = new Interaction();
-        link.K = new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
+        link.K = borrowKBuffer();
+        link.ownsK = false;
         link.receiverElement = receiverElement;
         link.sourceElement = sourceElement;
 
@@ -143,6 +160,10 @@ public class LinkingSimpleStrategy {
                 receiverElement.interactions.add(newLink);
             }
         }
+
+        float[] borrowed = link.K;
+        link.K = null;
+        returnKBuffer(borrowed);
     }
 
     private static void geometryLink(

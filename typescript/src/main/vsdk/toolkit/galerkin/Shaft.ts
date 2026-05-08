@@ -16,6 +16,12 @@ import { ShaftPlane } from "./ShaftPlane";
 import { ShaftPlanePosition } from "./ShaftPlanePosition";
 
 export class Shaft {
+  private static createPatchSetWithPool(patches: Patch[] | null): PatchSet {
+    const p = new PatchSet(patches);
+    p.setMemoryPoolManaged(true);
+    return p;
+  }
+
   private static readonly MAX_SKIP_ELEMENTS = 2;
   private static readonly SHAFT_MAX_PLANES = 16;
   private static readonly MIN_MAX_DIMENSIONS = 6;
@@ -59,7 +65,7 @@ export class Shaft {
   }
 
   public static freeCandidateList(candidateList: Geometry[] | null): void {
-    for (let i = 0; candidateList !== null && i < candidateList.length; i++) {
+    for (let i = candidateList !== null ? candidateList.length - 1 : -1; i >= 0; i--) {
       const geometry = candidateList[i];
       if (geometry !== null && geometry.shaftCullGeometry) {
         Geometry.destroy(geometry);
@@ -596,9 +602,8 @@ export class Shaft {
     return false;
   }
 
-  private cullPatches(patchList: Patch[] | null): Patch[] {
-    const culledPatchList: Patch[] = [];
-
+  private cullPatches(patchList: Patch[] | null, culledPatchList: Patch[]): void {
+    culledPatchList.length = 0;
     for (let i = 0; patchList !== null && i < patchList.length && !this.cut; i++) {
       const patch = patchList[i];
       if (patch.omit !== 0 || this.patchIsOnOmitSet(patch.id)) {
@@ -617,7 +622,6 @@ export class Shaft {
         culledPatchList.push(patch);
       }
     }
-    return culledPatchList;
   }
 
   private static keep(geometry: Geometry | null, candidateList: Geometry[] | null): void {
@@ -626,8 +630,10 @@ export class Shaft {
     }
 
     if (geometry.shaftCullGeometry && geometry.className === GeometryClassId.PATCH_SET) {
-      const newGeometry = geometry.clone();
+      const oldPatchSet = geometry as PatchSet;
+      const newGeometry = Shaft.createPatchSetWithPool(oldPatchSet.getPatchList());
       newGeometry.shaftCullGeometry = true;
+      newGeometry.isDuplicate = true;
       candidateList.push(newGeometry);
     }
     else {
@@ -646,10 +652,11 @@ export class Shaft {
     }
     else {
       const geometryPatchesList = Geometry.patchListReference(geometry);
-      const culledPatches = this.cullPatches(geometryPatchesList);
+      const culledPatches: Patch[] = [];
+      this.cullPatches(geometryPatchesList, culledPatches);
 
       if (culledPatches.length > 0) {
-        const newGeometry = new PatchSet(culledPatches);
+        const newGeometry = Shaft.createPatchSetWithPool(culledPatches);
         newGeometry.shaftCullGeometry = true;
         newGeometry.isDuplicate = false;
         candidateList.push(newGeometry);

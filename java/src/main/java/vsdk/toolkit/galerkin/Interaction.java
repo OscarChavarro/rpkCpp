@@ -13,12 +13,16 @@ public class Interaction {
     public GalerkinElement sourceElement;
     public float[] K; // Coupling coefficient(s), stored top to bottom, left to right
     public float[] deltaK; // Used for approximation error estimation over the link
+    public boolean ownsK;
+    public boolean ownsDeltaK;
     public byte numberOfBasisFunctionsOnReceiver;
     public byte numberOfBasisFunctionsOnSource;
     public byte numberOfReceiverCubaturePositions;
     public byte visibility; // 255 for full visibility, 0 for full occlusion
 
     public Interaction() {
+        ownsK = true;
+        ownsDeltaK = true;
     }
 
     public Interaction(
@@ -116,6 +120,15 @@ public class Interaction {
             else {
                 ssInteractions--;
             }
+        }
+        if ( interaction.ownsK
+             && interaction.K != null
+             && ((interaction.numberOfBasisFunctionsOnReceiver & 0xFF) > 1
+                 || (interaction.numberOfBasisFunctionsOnSource & 0xFF) > 1) ) {
+            interaction.K = null;
+        }
+        if ( interaction.ownsDeltaK && interaction.deltaK != null ) {
+            interaction.deltaK = null;
         }
     }
 

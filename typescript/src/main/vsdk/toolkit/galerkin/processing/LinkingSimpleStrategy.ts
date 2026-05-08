@@ -16,6 +16,22 @@ import { Patch } from "../../skin/Patch";
 import { FormFactorStrategy } from "./FormFactorStrategy";
 
 export class LinkingSimpleStrategy {
+  private static readonly coefficientsPool: number[][] = [];
+
+  private static borrowKBuffer(): number[] {
+    const v = LinkingSimpleStrategy.coefficientsPool.pop();
+    if (v !== undefined) {
+      return v;
+    }
+    return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+  }
+
+  private static returnKBuffer(v: number[] | null): void {
+    if (v !== null && v.length === GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE) {
+      LinkingSimpleStrategy.coefficientsPool.push(v);
+    }
+  }
+
   private static createInitialLink(
     scene: Scene,
     galerkinState: GalerkinState,
@@ -88,7 +104,8 @@ export class LinkingSimpleStrategy {
     }
 
     const link = new Interaction();
-    link.K = new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+    link.K = LinkingSimpleStrategy.borrowKBuffer();
+    link.ownsK = false;
     link.receiverElement = receiverElement;
     link.sourceElement = sourceElement;
 
@@ -134,6 +151,9 @@ export class LinkingSimpleStrategy {
         receiverElement.interactions.push(newLink);
       }
     }
+    const borrowed = link.K;
+    link.K = [];
+    LinkingSimpleStrategy.returnKBuffer(borrowed);
   }
 
   private static geometryLink(

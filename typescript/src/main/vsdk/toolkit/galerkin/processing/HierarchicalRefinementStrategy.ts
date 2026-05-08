@@ -2,6 +2,7 @@ import { ColorRgb } from "../../common/ColorRgb";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
+import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
 import { GalerkinErrorNorm } from "../GalerkinErrorNorm";
@@ -21,6 +22,22 @@ import { FormFactorStrategy } from "./FormFactorStrategy";
 import { InteractionEvaluationCode } from "./InteractionEvaluationCode";
 
 export class HierarchicalRefinementStrategy {
+  private static readonly hierarchicalKPool: number[][] = [];
+
+  private static borrowKBuffer(): number[] {
+    const v = HierarchicalRefinementStrategy.hierarchicalKPool.pop();
+    if (v !== undefined) {
+      return v;
+    }
+    return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+  }
+
+  private static returnKBuffer(v: number[] | null): void {
+    if (v !== null && v.length === GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE) {
+      HierarchicalRefinementStrategy.hierarchicalKPool.push(v);
+    }
+  }
+
   private static refineTreeDepth = 0;
 
   private static hierarchicRefinementCull(
@@ -455,6 +472,8 @@ export class HierarchicalRefinementStrategy {
       }
       const child = sourceElement.regularSubElements[i] as GalerkinElement;
       const subInteraction = new Interaction();
+      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
+      subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
         candidatesList[0],
@@ -466,6 +485,9 @@ export class HierarchicalRefinementStrategy {
         && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
         HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
       }
+      const borrowed = subInteraction.K;
+      subInteraction.K = [];
+      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup;
@@ -495,6 +517,8 @@ export class HierarchicalRefinementStrategy {
       }
       const child = receiverElement.regularSubElements[i] as GalerkinElement;
       const subInteraction = new Interaction();
+      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
+      subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
         candidatesList[0],
@@ -506,6 +530,9 @@ export class HierarchicalRefinementStrategy {
         && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
         HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
       }
+      const borrowed = subInteraction.K;
+      subInteraction.K = [];
+      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup;
@@ -542,6 +569,8 @@ export class HierarchicalRefinementStrategy {
         }
       }
       const subInteraction = new Interaction();
+      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
+      subInteraction.ownsK = false;
 
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
@@ -554,6 +583,9 @@ export class HierarchicalRefinementStrategy {
         && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
         HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
       }
+      const borrowed = subInteraction.K;
+      subInteraction.K = [];
+      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup;
@@ -590,6 +622,8 @@ export class HierarchicalRefinementStrategy {
         }
       }
       const subInteraction = new Interaction();
+      subInteraction.K = HierarchicalRefinementStrategy.borrowKBuffer();
+      subInteraction.ownsK = false;
       if (HierarchicalRefinementStrategy.hierarchicRefinementCreateSubdivisionLink(
         scene,
         candidatesList[0],
@@ -601,6 +635,9 @@ export class HierarchicalRefinementStrategy {
         && !HierarchicalRefinementStrategy.refineRecursive(scene, candidatesList, subInteraction, galerkinState)) {
         HierarchicalRefinementStrategy.hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
       }
+      const borrowed = subInteraction.K;
+      subInteraction.K = [];
+      HierarchicalRefinementStrategy.returnKBuffer(borrowed);
     }
     HierarchicalRefinementStrategy.hierarchicRefinementUnCull(candidatesList, galerkinState);
     candidatesList[0] = backup;

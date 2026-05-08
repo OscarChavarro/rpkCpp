@@ -76,7 +76,7 @@ class Shaft {
     bool closedGeometry(const Geometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
-    ArrayList<Patch *> *cullPatches(const ArrayList<Patch *> *patchList);
+    void cullPatches(const ArrayList<Patch *> *patchList, ArrayList<Patch *> *culledPatchList);
     bool patchIsOnOmitSet(unsigned id) const;
     void shaftCullOpen(Geometry *geometry, ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
 

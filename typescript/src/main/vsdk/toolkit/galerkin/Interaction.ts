@@ -12,6 +12,8 @@ export class Interaction {
   public sourceElement!: GalerkinElement;
   public K!: number[];
   public deltaK!: number[];
+  public ownsK!: boolean;
+  public ownsDeltaK!: boolean;
   public numberOfBasisFunctionsOnReceiver!: number;
   public numberOfBasisFunctionsOnSource!: number;
   public numberOfReceiverCubaturePositions!: number;
@@ -44,6 +46,8 @@ export class Interaction {
     this.numberOfBasisFunctionsOnSource = 0;
     this.numberOfReceiverCubaturePositions = 0;
     this.visibility = 0;
+    this.ownsK = true;
+    this.ownsDeltaK = true;
 
     if (arguments.length === 0) {
       return;
@@ -136,6 +140,17 @@ export class Interaction {
       else {
         Interaction.ssInteractions--;
       }
+    }
+    if (
+      interaction.ownsK
+      && interaction.K !== null
+      && ((interaction.numberOfBasisFunctionsOnReceiver & 0xff) > 1
+        || (interaction.numberOfBasisFunctionsOnSource & 0xff) > 1)
+    ) {
+      interaction.K = [];
+    }
+    if (interaction.ownsDeltaK && interaction.deltaK !== null) {
+      interaction.deltaK = [];
     }
   }
 

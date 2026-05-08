@@ -12,11 +12,15 @@ Interaction::Interaction():
     sourceElement(),
     K(),
     deltaK(),
+    ownsK(),
+    ownsDeltaK(),
     nmbrOBasisFnctnORecv(),
     numberOfBasisFunctionsOnSource(),
     nmbrORecvCbtrPstns(),
     visibility()
 {
+    ownsK = true;
+    ownsDeltaK = true;
 }
 
 Interaction::Interaction(
@@ -69,11 +73,11 @@ Interaction::Interaction(
 }
 
 Interaction::~Interaction() {
-    if ( K != NULL ) {
+    if ( ownsK && K != NULL ) {
         delete[] K;
         K = NULL;
     }
-    if ( deltaK != NULL ) {
+    if ( ownsDeltaK && deltaK != NULL ) {
         delete[] deltaK;
         deltaK = NULL;
     }
@@ -136,7 +140,9 @@ Interaction::interactionDestroy(Interaction *interaction) {
         }
     }
 
-    if ( interaction->nmbrOBasisFnctnORecv > 1 || interaction->numberOfBasisFunctionsOnSource > 1 ) {
+    if ( interaction->ownsK
+      && interaction->K != NULL
+      && (interaction->nmbrOBasisFnctnORecv > 1 || interaction->numberOfBasisFunctionsOnSource > 1) ) {
         delete[] interaction->K;
         interaction->K = NULL;
     }

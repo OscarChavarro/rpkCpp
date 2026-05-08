@@ -2,6 +2,7 @@
 #include "skin/PatchSet.h"
 
 PatchSet::PatchSet(const ArrayList<Patch *> *input): Geometry(PATCH_SET) {
+    memoryPoolManaged = false;
     patchList = new ArrayList<Patch *>();
     for ( int i = 0; input != NULL && i < input->size(); i++ ) {
         patchList->add(input->get(i));
@@ -13,7 +14,7 @@ PatchSet::PatchSet(const ArrayList<Patch *> *input): Geometry(PATCH_SET) {
 }
 
 PatchSet::~PatchSet() {
-    if ( !isDuplicate && patchList != NULL ) {
+    if ( patchList != NULL ) {
         delete patchList;
         patchList = NULL;
     }
@@ -45,4 +46,14 @@ PatchSet::discretizationIntersect(
 ArrayList<Patch *> *
 PatchSet::getPatchList() const {
     return patchList;
+}
+
+bool
+PatchSet::isMemoryPoolManaged() const {
+    return memoryPoolManaged;
+}
+
+void
+PatchSet::setMemoryPoolManaged(bool value) {
+    memoryPoolManaged = value;
 }

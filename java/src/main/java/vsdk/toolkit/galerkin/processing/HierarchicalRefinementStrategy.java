@@ -6,6 +6,7 @@ import vsdk.toolkit.common.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
+import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
 import vsdk.toolkit.galerkin.GalerkinErrorNorm;
@@ -25,6 +26,22 @@ import vsdk.toolkit.skin.Patch;
 Shaft culling stuff for hierarchical refinement
 */
 public class HierarchicalRefinementStrategy {
+    private static final ArrayList<float[]> hierarchicalKPool = new ArrayList<>();
+
+    private static float[] borrowKBuffer() {
+        int n = hierarchicalKPool.size();
+        if ( n > 0 ) {
+            return hierarchicalKPool.remove(n - 1);
+        }
+        return new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
+    }
+
+    private static void returnKBuffer(float[] k) {
+        if ( k != null && k.length == GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE ) {
+            hierarchicalKPool.add(k);
+        }
+    }
+
     private static final ThreadLocal<Integer> refineTreeDepth = ThreadLocal.withInitial(() -> 0);
     private static void hierarchicRefinementCull(
         Scene scene,
@@ -413,6 +430,8 @@ public class HierarchicalRefinementStrategy {
             }
             GalerkinElement child = (GalerkinElement)sourceElement.regularSubElements[i];
             Interaction subInteraction = new Interaction();
+            subInteraction.K = borrowKBuffer();
+            subInteraction.ownsK = false;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -423,6 +442,9 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
+            float[] borrowed = subInteraction.K;
+            subInteraction.K = null;
+            returnKBuffer(borrowed);
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -452,6 +474,8 @@ public class HierarchicalRefinementStrategy {
             }
             GalerkinElement child = (GalerkinElement)receiverElement.regularSubElements[i];
             Interaction subInteraction = new Interaction();
+            subInteraction.K = borrowKBuffer();
+            subInteraction.ownsK = false;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -462,6 +486,9 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
+            float[] borrowed = subInteraction.K;
+            subInteraction.K = null;
+            returnKBuffer(borrowed);
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -497,6 +524,8 @@ public class HierarchicalRefinementStrategy {
                 }
             }
             Interaction subInteraction = new Interaction();
+            subInteraction.K = borrowKBuffer();
+            subInteraction.ownsK = false;
 
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
@@ -508,6 +537,9 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
+            float[] borrowed = subInteraction.K;
+            subInteraction.K = null;
+            returnKBuffer(borrowed);
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -543,6 +575,8 @@ public class HierarchicalRefinementStrategy {
                 }
             }
             Interaction subInteraction = new Interaction();
+            subInteraction.K = borrowKBuffer();
+            subInteraction.ownsK = false;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -553,6 +587,9 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
+            float[] borrowed = subInteraction.K;
+            subInteraction.K = null;
+            returnKBuffer(borrowed);
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
