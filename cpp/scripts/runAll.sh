@@ -1,5 +1,9 @@
 #!/bin/bash
-nohup sh scripts/01_runCube.sh &> output/01.log &
+nohup sh scripts/01_runCubeJacobi.sh &> output/01_jacobi.log &
+disown
+nohup sh scripts/01_runCubeGaussSiedel.sh &> output/01_gaussSiedel.log &
+disown
+nohup sh scripts/01_runCubeSouthwell.sh &> output/01_southwell.log &
 disown
 nohup sh scripts/02_runCorridor.sh &> output/02.log &
 disown
