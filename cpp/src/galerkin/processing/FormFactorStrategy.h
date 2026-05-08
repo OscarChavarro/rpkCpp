@@ -6,7 +6,7 @@ All kind of form factor computations
 #define __FORM_FACTOR_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "skin/Geometry.h"
+#include "skin/PatchSet.h"
 #include "scene/VoxelGrid.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/GalerkinRole.h"
@@ -22,7 +22,7 @@ class FormFactorStrategy {
     static RayHit *
     shadowTestDiscretization(
         Ray *ray,
-        const java::ArrayList<Geometry *> *geometrySceneList,
+        const java::ArrayList<PatchSet *> *geometrySceneList,
         const VoxelGrid *voxelGrid,
         ShadowCache *shadowCache,
         float minimumDistance,
@@ -46,7 +46,7 @@ class FormFactorStrategy {
         const Vector3D *y,
         const GalerkinElement *receiverElement,
         const GalerkinElement *sourceElement,
-        const java::ArrayList<Geometry *> *shadowGeometryList,
+        const java::ArrayList<PatchSet *> *shadowGeometryList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         const GalerkinState *galerkinState);
@@ -88,7 +88,7 @@ class FormFactorStrategy {
     static void
     computeAreaToAreaFormFactorVisibility(
         const VoxelGrid *sceneWorldVoxelGrid,
-        const java::ArrayList<Geometry *> *geometryShadowList,
+        const java::ArrayList<PatchSet *> *geometryShadowList,
         bool isSceneGeometry,
         bool isClusteredGeometry,
         Interaction *link,

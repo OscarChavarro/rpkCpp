@@ -1,28 +1,16 @@
 #include "java/util/ArrayList.txx"
-#include "common/MemoryPool.txx"
 #include "common/Error.h"
+#include "skin/Compound.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
-
-namespace {
-common::MemoryPool<float> gInteractionCoefficientsPool;
-bool gInteractionCoefficientsPoolInitialized = false;
-
-inline void ensureInteractionCoefficientsPool() {
-    if ( !gInteractionCoefficientsPoolInitialized ) {
-        gInteractionCoefficientsPool.init(8 * 1024 * 1024);
-        gInteractionCoefficientsPoolInitialized = true;
-    }
-}
-}
 
 void
 LinkingSimpleStrategy::createInitialLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    java::ArrayList<Geometry *> **candidateList,
+    java::ArrayList<PatchSet *> **candidateList,
     GalerkinElement *topElement,
     BoundingBox *topLevelBoundingBox,
     Patch *patch)
@@ -47,7 +35,7 @@ LinkingSimpleStrategy::createInitialLink(
             Error::fatal(2, "createInitialLink", "Impossible element role");
     }
 
-    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    java::ArrayList<PatchSet *> *oldCandidateList = *candidateList;
 
     if ( (galerkinState->exactVisibility
        || galerkinState->shaftCullMode == GalerkinShaftCullMode::ALWAYS_DO_SHAFT_CULLING)
@@ -70,8 +58,8 @@ LinkingSimpleStrategy::createInitialLink(
 
         shaft.setShaftOmit(topElement->patch);
         shaft.setShaftOmit(patch);
-        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
-        shaft.doCulling(oldCandidateList, *candidateList, galerkinState->shaftCullStrategy);
+        java::ArrayList<PatchSet*> *arr = new java::ArrayList<PatchSet*>();
+        shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
         *candidateList = arr;
 
         if ( shaft.isCut() ) {
@@ -83,20 +71,7 @@ LinkingSimpleStrategy::createInitialLink(
     }
 
     Interaction link{};
-    constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
-    ensureInteractionCoefficientsPool();
-    bool usingPool = true;
-    link.K = gInteractionCoefficientsPool.allocate(KSize);
-    if ( link.K == nullptr ) {
-        if ( gInteractionCoefficientsPool.expand(KSize * 128) ) {
-            link.K = gInteractionCoefficientsPool.allocate(KSize);
-        }
-        if ( link.K == nullptr ) {
-            usingPool = false;
-            link.K = new float[KSize];
-        }
-    }
-    link.ownsK = !usingPool;
+    link.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
     link.receiverElement = rcv;
     link.sourceElement = src;
 
@@ -108,9 +83,9 @@ LinkingSimpleStrategy::createInitialLink(
         link.numberOfBasisFunctionsOnSource = src->basisSize;
     }
 
-    bool isSceneGeometry = (*candidateList == scene->geometryList);
-    bool isClusteredGeometry = (*candidateList == scene->clusteredGeometryList);
-    const java::ArrayList<Geometry *> *geometryListReferences = *candidateList;
+    bool isSceneGeometry = (*candidateList == galerkinState->scenePatchSetList);
+    bool isClusteredGeometry = (*candidateList == galerkinState->clusteredPatchSetList);
+    const java::ArrayList<PatchSet *> *geometryListReferences = *candidateList;
     FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         scene->voxelGrid,
         geometryListReferences,
@@ -138,11 +113,6 @@ LinkingSimpleStrategy::createInitialLink(
             rcv->interactions->add(newLink);
         }
     }
-
-    if ( usingPool ) {
-        link.K = nullptr;
-        gInteractionCoefficientsPool.free(KSize);
-    }
 }
 
 /**
@@ -153,12 +123,12 @@ LinkingSimpleStrategy::geometryLink(
     const Scene *scene,
     const GalerkinState *galerkinState,
     const GalerkinRole role,
-    java::ArrayList<Geometry *> **candidateList,
+    java::ArrayList<PatchSet *> **candidateList,
     GalerkinElement *topElement,
     BoundingBox *topLevelBoundingBox,
     Geometry *geometry)
 {
-    // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
+    // Immediately return if the geometry is bounded and behind the plane of the patch for which interactions are created
     if ( geometry->bounded
         && geometry->getBoundingBox().behindPlane(&topElement->patch->getNormal(), topElement->patch->getPlaneConstant()) ) {
         return;
@@ -167,23 +137,21 @@ LinkingSimpleStrategy::geometryLink(
     // If the geometry is bounded, do shaft culling, reducing the candidate list
     // which contains the possible occluder between a pair of patches for which
     // an initial link will need to be created
-    java::ArrayList<Geometry *> *oldCandidateList = *candidateList;
+    java::ArrayList<PatchSet *> *oldCandidateList = *candidateList;
 
     if ( geometry->bounded && oldCandidateList ) {
         Shaft shaft;
         BoundingBox boundingBox = geometry->getBoundingBox();
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         shaft.setShaftOmit(topElement->patch);
-        java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
+        java::ArrayList<PatchSet*> *arr = new java::ArrayList<PatchSet*>();
         shaft.doCulling(oldCandidateList, arr, galerkinState->shaftCullStrategy);
         *candidateList = arr;
     }
 
-    // If the Geometry is an aggregate, test each of its children GEOMs, if it
-    // is a primitive, create an initial link with each patch it consists of
     if ( geometry->isCompound() ) {
-        java::ArrayList<Geometry *> *geometryList = Geometry::primitiveListCopy(geometry);
-        for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
+        const Compound *compound = static_cast<const Compound *>(geometry);
+        for ( int i = 0; compound->children != nullptr && i < compound->children->size(); i++ ) {
             LinkingSimpleStrategy::geometryLink(
                 scene,
                 galerkinState,
@@ -191,9 +159,8 @@ LinkingSimpleStrategy::geometryLink(
                 candidateList,
                 topElement,
                 topLevelBoundingBox,
-                geometryList->get(i));
+                compound->children->get(i));
         }
-        delete geometryList;
     } else {
         const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
         for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
@@ -234,7 +201,7 @@ LinkingSimpleStrategy::createInitialLinks(
     BoundingBox topLevelBoundingBox;
     topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
 
-    java::ArrayList<Geometry *> *candidateList = scene->clusteredGeometryList;
+    java::ArrayList<PatchSet *> *candidateList = galerkinState->clusteredPatchSetList;
 
     for ( int i = 0; scene->geometryList != nullptr && i < scene->geometryList->size(); i++ ) {
         LinkingSimpleStrategy::geometryLink(

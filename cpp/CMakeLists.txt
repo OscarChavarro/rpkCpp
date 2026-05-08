@@ -174,6 +174,7 @@ set(MAIN_SRC
     src/render/Canvas.cpp
     src/render/ScreenBuffer.cpp
     src/galerkin/GalerkinState.cpp
+    src/galerkin/GalerkinGeometry.cpp
     src/galerkin/GalerkinBasis.cpp
     src/galerkin/GalerkinRadianceMethod.cpp
     src/galerkin/Shaft.cpp
@@ -359,18 +360,4 @@ if(WITH_OPENGL)
     else()
         target_link_libraries(rpk ${RPK_OPENGL_GLU_LIBRARY} ${RPK_OPENGL_GL_LIBRARY} ${RPK_OPENGL_GLUT_LIBRARY})
     endif()
-endif()
-
-if(APPLE)
-    # Optional macOS post-build signing for local profiling tools (xctrace/leaks).
-    # Create a signing identity in Xcode:
-    # Xcode -> Settings -> Accounts -> select Apple ID -> Manage Certificates... -> "+" -> Apple Development.
-    # This signature is only needed to make the built binary debuggable/profileable.
-    # If no identity exists (or signing fails), build continues and the unsigned binary remains valid.
-    add_custom_command(
-        TARGET rpk
-        POST_BUILD
-        COMMAND /bin/sh -c "IDENTITY=$(/usr/bin/security find-identity -v -p codesigning \"$HOME/Library/Keychains/login.keychain-db\" 2>/dev/null | /usr/bin/sed -n 's/.*\"\\(.*\\)\"/\\1/p' | /usr/bin/head -n 1); if [ -n \"$IDENTITY\" ]; then /usr/bin/codesign --force --sign \"$IDENTITY\" \"$<TARGET_FILE:rpk>\" >/dev/null 2>&1 || true; fi"
-        VERBATIM
-    )
 endif()

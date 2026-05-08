@@ -1,4 +1,3 @@
-#include "skin/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
 #include "common/statistics/Statistics.h"
@@ -26,7 +25,7 @@ further away than minimumDistance are ignored.
 RayHit *
 FormFactorStrategy::shadowTestDiscretization(
     Ray *ray,
-    const java::ArrayList<Geometry *> *geometrySceneList,
+    const java::ArrayList<PatchSet *> *geometrySceneList,
     const VoxelGrid *voxelGrid,
     ShadowCache *shadowCache,
     float minimumDistance,
@@ -40,13 +39,18 @@ FormFactorStrategy::shadowTestDiscretization(
         Statistics::instance().shadow.numberOfShadowCacheHits++;
     } else {
         if ( !isClusteredGeometry && !isSceneGeometry ) {
-            hit = Geometry::listDiscretizationIntersect(
-                geometrySceneList,
-                ray,
-                Numeric::EPSILON_FLOAT * minimumDistance,
-                &minimumDistance,
-                RayHitFlag::FRONT | RayHitFlag::ANY,
-                hitStore);
+            for ( int i = 0; geometrySceneList != nullptr && i < geometrySceneList->size(); i++ ) {
+                const RayHit *candidateHit = Geometry::patchListIntersect(
+                    geometrySceneList->get(i)->getPatchList(),
+                    ray,
+                    Numeric::EPSILON_FLOAT * minimumDistance,
+                    &minimumDistance,
+                    RayHitFlag::FRONT | RayHitFlag::ANY,
+                    hitStore);
+                if ( candidateHit != nullptr ) {
+                    hit = hitStore;
+                }
+            }
         } else {
             hit = voxelGrid->gridIntersect(
                 ray,
@@ -150,7 +154,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
     const Vector3D *y,
     const GalerkinElement *receiverElement,
     const GalerkinElement *sourceElement,
-    const java::ArrayList<Geometry *> *shadowGeometryList,
+    const java::ArrayList<PatchSet *> *shadowGeometryList,
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
     const GalerkinState *galerkinState)
@@ -476,7 +480,7 @@ is used, see [SILL1995b].
 void
 FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     const VoxelGrid *sceneWorldVoxelGrid,
-    const java::ArrayList<Geometry *> *geometryShadowList,
+    const java::ArrayList<PatchSet *> *geometryShadowList,
     const bool isSceneGeometry,
     const bool isClusteredGeometry,
     Interaction *link,

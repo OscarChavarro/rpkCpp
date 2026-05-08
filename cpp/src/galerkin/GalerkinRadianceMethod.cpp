@@ -16,6 +16,7 @@ Galerkin radiosity, with the following variants:
 #include "io/wrapper/PersistenceElement.h"
 #include "io/wrl/VrmlWriter.h"
 #include "galerkin/GalerkinBasis.h"
+#include "galerkin/GalerkinGeometry.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "galerkin/processing/ClusterCreationStrategy.h"
 #include "galerkin/processing/GatheringClusteredStrategy.h"
@@ -27,6 +28,23 @@ GalerkinState GalerkinRadianceMethod::galerkinState;
 java::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
 int GalerkinRadianceMethod::numberOfWrites = 0;
 int GalerkinRadianceMethod::vertexId = 0;
+
+static void
+galerkinFreeCachedPatchSetLists(GalerkinState *state) {
+    if ( state == nullptr ) {
+        return;
+    }
+
+    if ( state->scenePatchSetList != nullptr ) {
+        delete state->scenePatchSetList;
+        state->scenePatchSetList = nullptr;
+    }
+
+    if ( state->clusteredPatchSetList != nullptr ) {
+        delete state->clusteredPatchSetList;
+        state->clusteredPatchSetList = nullptr;
+    }
+}
 
 java::String
 GalerkinRadianceMethod::formatToString(const char *format, va_list arguments) {
@@ -362,6 +380,10 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
         patchInit(scene->patchList->get(i));
     }
 
+    galerkinFreeCachedPatchSetLists(&galerkinState);
+    galerkinState.scenePatchSetList = GalerkinGeometry::collectPatchSets(scene->clusteredRootGeometry);
+    galerkinState.clusteredPatchSetList = GalerkinGeometry::collectPatchSets(scene->clusteredRootGeometry);
+
     galerkinState.topCluster = ClusterCreationStrategy::createClusterHierarchy(
         scene->clusteredRootGeometry, &galerkinState);
 
@@ -430,6 +452,7 @@ GalerkinRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
         delete galerkinState.topCluster;
         galerkinState.topCluster = nullptr;
     }
+    galerkinFreeCachedPatchSetLists(&galerkinState);
 }
 
 ColorRgb
