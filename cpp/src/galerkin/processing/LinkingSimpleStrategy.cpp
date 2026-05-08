@@ -1,8 +1,21 @@
 #include "java/util/ArrayList.txx"
+#include "common/MemoryPool.txx"
 #include "common/Error.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
+
+namespace {
+common::MemoryPool<float> gInteractionCoefficientsPool;
+bool gInteractionCoefficientsPoolInitialized = false;
+
+inline void ensureInteractionCoefficientsPool() {
+    if ( !gInteractionCoefficientsPoolInitialized ) {
+        gInteractionCoefficientsPool.init(8 * 1024 * 1024);
+        gInteractionCoefficientsPoolInitialized = true;
+    }
+}
+}
 
 void
 LinkingSimpleStrategy::createInitialLink(
@@ -70,7 +83,20 @@ LinkingSimpleStrategy::createInitialLink(
     }
 
     Interaction link{};
-    link.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+    constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+    ensureInteractionCoefficientsPool();
+    bool usingPool = true;
+    link.K = gInteractionCoefficientsPool.allocate(KSize);
+    if ( link.K == nullptr ) {
+        if ( gInteractionCoefficientsPool.expand(KSize * 128) ) {
+            link.K = gInteractionCoefficientsPool.allocate(KSize);
+        }
+        if ( link.K == nullptr ) {
+            usingPool = false;
+            link.K = new float[KSize];
+        }
+    }
+    link.ownsK = !usingPool;
     link.receiverElement = rcv;
     link.sourceElement = src;
 
@@ -111,6 +137,11 @@ LinkingSimpleStrategy::createInitialLink(
         } else if ( rcv != nullptr ) {
             rcv->interactions->add(newLink);
         }
+    }
+
+    if ( usingPool ) {
+        link.K = nullptr;
+        gInteractionCoefficientsPool.free(KSize);
     }
 }
 

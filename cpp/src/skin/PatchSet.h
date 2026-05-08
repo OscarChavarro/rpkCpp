@@ -7,6 +7,7 @@
 class PatchSet final : public Geometry {
   private:
     java::ArrayList<Patch *> *patchList;
+    bool memoryPoolManaged;
 
   public:
     explicit PatchSet(const java::ArrayList<Patch *> *input);
@@ -21,6 +22,8 @@ class PatchSet final : public Geometry {
         RayHit *hitStore) const final;
 
     java::ArrayList<Patch *> *getPatchList() const;
+    bool isMemoryPoolManaged() const;
+    void setMemoryPoolManaged(bool value);
 };
 
 #endif

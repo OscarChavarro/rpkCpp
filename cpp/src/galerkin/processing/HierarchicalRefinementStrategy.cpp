@@ -3,12 +3,25 @@ Hierarchical refinement
 */
 
 #include "java/util/ArrayList.txx"
+#include "common/MemoryPool.txx"
 #include "common/Error.h"
 #include "common/statistics/Statistics.h"
 #include "galerkin/processing/ClusterTraversalStrategy.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "galerkin/Shaft.h"
+
+namespace {
+common::MemoryPool<float> gHierarchicalCoefficientsPool;
+bool gHierarchicalCoefficientsPoolInitialized = false;
+
+inline void ensureHierarchicalCoefficientsPool() {
+    if ( !gHierarchicalCoefficientsPoolInitialized ) {
+        gHierarchicalCoefficientsPool.init(16 * 1024 * 1024);
+        gHierarchicalCoefficientsPoolInitialized = true;
+    }
+}
+}
 
 /**
 Does shaft-culling between elements in a interaction (if the user asked for it).
@@ -507,7 +520,20 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
     for ( int i = 0; i < 4; i++ ) {
         GalerkinElement *child = static_cast<GalerkinElement *>(sourceElement->regularSubElements[i]);
         Interaction subInteraction{};
-        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+        constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+        ensureHierarchicalCoefficientsPool();
+        bool usingPool = true;
+        subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+        if ( subInteraction.K == nullptr ) {
+            if ( gHierarchicalCoefficientsPool.expand(KSize * 256) ) {
+                subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+            }
+            if ( subInteraction.K == nullptr ) {
+                usingPool = false;
+                subInteraction.K = new float[KSize];
+            }
+        }
+        subInteraction.ownsK = !usingPool;
 
         if ( hierarchicRefinementCreateSubdivisionLink(
                 scene,
@@ -522,6 +548,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideSource(
                     &subInteraction,
                     galerkinState) ) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
+        }
+
+        if ( usingPool ) {
+            subInteraction.K = nullptr;
+            gHierarchicalCoefficientsPool.free(KSize);
         }
     }
 
@@ -549,7 +580,20 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
     for ( int i = 0; i < 4; i++ ) {
         Interaction subInteraction{};
         GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->regularSubElements[i]);
-        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+        constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+        ensureHierarchicalCoefficientsPool();
+        bool usingPool = true;
+        subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+        if ( subInteraction.K == nullptr ) {
+            if ( gHierarchicalCoefficientsPool.expand(KSize * 256) ) {
+                subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+            }
+            if ( subInteraction.K == nullptr ) {
+                usingPool = false;
+                subInteraction.K = new float[KSize];
+            }
+        }
+        subInteraction.ownsK = !usingPool;
 
         if ( hierarchicRefinementCreateSubdivisionLink(
                 scene,
@@ -563,6 +607,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementRegularSubdivideReceiver(
                     &subInteraction,
                     galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
+        }
+
+        if ( usingPool ) {
+            subInteraction.K = nullptr;
+            gHierarchicalCoefficientsPool.free(KSize);
         }
     }
 
@@ -592,7 +641,20 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
           i++ ) {
         GalerkinElement *childElement = static_cast<GalerkinElement *>(sourceElement->irregularSubElements->get(i));
         Interaction subInteraction{};
-        subInteraction.K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+        constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+        ensureHierarchicalCoefficientsPool();
+        bool usingPool = true;
+        subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+        if ( subInteraction.K == nullptr ) {
+            if ( gHierarchicalCoefficientsPool.expand(KSize * 256) ) {
+                subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+            }
+            if ( subInteraction.K == nullptr ) {
+                usingPool = false;
+                subInteraction.K = new float[KSize];
+            }
+        }
+        subInteraction.ownsK = !usingPool;
 
         if ( !childElement->isCluster() ) {
             const Patch *thePatch = childElement->patch;
@@ -616,6 +678,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideSourceCluster(
                 &subInteraction,
                 galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
+        }
+
+        if ( usingPool ) {
+            subInteraction.K = nullptr;
+            gHierarchicalCoefficientsPool.free(KSize);
         }
     }
 
@@ -645,7 +712,20 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
           i++ ) {
         GalerkinElement *child = static_cast<GalerkinElement *>(receiverElement->irregularSubElements->get(i));
         Interaction subInteraction{};
-        subInteraction.K = new float [GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+        constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+        ensureHierarchicalCoefficientsPool();
+        bool usingPool = true;
+        subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+        if ( subInteraction.K == nullptr ) {
+            if ( gHierarchicalCoefficientsPool.expand(KSize * 256) ) {
+                subInteraction.K = gHierarchicalCoefficientsPool.allocate(KSize);
+            }
+            if ( subInteraction.K == nullptr ) {
+                usingPool = false;
+                subInteraction.K = new float[KSize];
+            }
+        }
+        subInteraction.ownsK = !usingPool;
 
         if ( !child->isCluster() ) {
             const Patch *thePatch = child->patch;
@@ -669,6 +749,11 @@ HierarchicalRefinementStrategy::hierarchicRefinementSubdivideReceiverCluster(
                     &subInteraction,
                     galerkinState) ) {
             hierarchicRefinementStoreInteraction(&subInteraction, galerkinState);
+        }
+
+        if ( usingPool ) {
+            subInteraction.K = nullptr;
+            gHierarchicalCoefficientsPool.free(KSize);
         }
     }
 

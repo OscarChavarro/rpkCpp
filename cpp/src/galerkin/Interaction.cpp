@@ -12,11 +12,15 @@ Interaction::Interaction():
     sourceElement(),
     K(),
     deltaK(),
+    ownsK(),
+    ownsDeltaK(),
     numberOfBasisFunctionsOnReceiver(),
     numberOfBasisFunctionsOnSource(),
     numberOfReceiverCubaturePositions(),
     visibility()
 {
+    ownsK = true;
+    ownsDeltaK = true;
 }
 
 Interaction::Interaction(
@@ -69,11 +73,11 @@ Interaction::Interaction(
 }
 
 Interaction::~Interaction() {
-    if ( K != nullptr ) {
+    if ( ownsK && K != nullptr ) {
         delete[] K;
         K = nullptr;
     }
-    if ( deltaK != nullptr ) {
+    if ( ownsDeltaK && deltaK != nullptr ) {
         delete[] deltaK;
         deltaK = nullptr;
     }
@@ -136,7 +140,9 @@ Interaction::interactionDestroy(Interaction *interaction) {
         }
     }
 
-    if ( interaction->numberOfBasisFunctionsOnReceiver > 1 || interaction->numberOfBasisFunctionsOnSource > 1 ) {
+    if ( interaction->ownsK
+      && interaction->K != nullptr
+      && (interaction->numberOfBasisFunctionsOnReceiver > 1 || interaction->numberOfBasisFunctionsOnSource > 1) ) {
         delete[] interaction->K;
         interaction->K = nullptr;
     }

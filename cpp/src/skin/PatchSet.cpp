@@ -2,6 +2,7 @@
 #include "skin/PatchSet.h"
 
 PatchSet::PatchSet(const java::ArrayList<Patch *> *input): Geometry(GeometryClassId::PATCH_SET) {
+    memoryPoolManaged = false;
     patchList = new java::ArrayList<Patch *>();
     for ( int i = 0; input != nullptr && i < input->size(); i++ ) {
         patchList->add(input->get(i));
@@ -48,4 +49,14 @@ PatchSet::discretizationIntersect(
 java::ArrayList<Patch *> *
 PatchSet::getPatchList() const {
     return patchList;
+}
+
+bool
+PatchSet::isMemoryPoolManaged() const {
+    return memoryPoolManaged;
+}
+
+void
+PatchSet::setMemoryPoolManaged(const bool value) {
+    memoryPoolManaged = value;
 }

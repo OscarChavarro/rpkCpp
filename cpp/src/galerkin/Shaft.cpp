@@ -1,8 +1,39 @@
 #include "skin/RayHitFlag.h"
+#include <new>
 #include "java/util/ArrayList.txx"
+#include "common/MemoryPool.txx"
+#include "common/statistics/Statistics.h"
 #include "skin/Compound.h"
 #include "skin/PatchSet.h"
 #include "galerkin/Shaft.h"
+
+namespace {
+common::MemoryPool<PatchSet> gPatchSetPool;
+bool gPatchSetPoolInitialized = false;
+
+inline void ensurePatchSetPoolInitialized() {
+    if ( !gPatchSetPoolInitialized ) {
+        gPatchSetPool.init(8 * 1024 * 1024);
+        gPatchSetPoolInitialized = true;
+    }
+}
+
+inline PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
+    ensurePatchSetPoolInitialized();
+    PatchSet *slot = gPatchSetPool.allocate(1);
+    if ( slot == nullptr ) {
+        if ( gPatchSetPool.expand(1024) ) {
+            slot = gPatchSetPool.allocate(1);
+        }
+    }
+    if ( slot == nullptr ) {
+        return new PatchSet(patches);
+    }
+    PatchSet *patchSet = new (slot) PatchSet(patches);
+    patchSet->setMemoryPoolManaged(true);
+    return patchSet;
+}
+}
 
 Shaft::Shaft():
     referenceItem1(),
@@ -646,10 +677,9 @@ see if it is inside, outside or overlapping the shaft. Inside or overlapping pat
 are added to culledPatchList. A pointer to the possibly elongated culledPatchList
 is returned
 */
-java::ArrayList<Patch *> *
-Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
-    java::ArrayList<Patch *> *culledPatchList = new java::ArrayList<Patch *>();
-
+void
+Shaft::cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Patch *> *culledPatchList) {
+    culledPatchList->clear();
     for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
         Patch *patch = patchList->get(i);
         if ( patch->isOmitted() || patchIsOnOmitSet(patch->getId()) ) {
@@ -670,7 +700,6 @@ Shaft::cullPatches(const java::ArrayList<Patch *> *patchList) {
             culledPatchList->add(patch);
         }
     }
-    return culledPatchList;
 }
 
 /**
@@ -684,9 +713,10 @@ Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
     }
 
     if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
-        // TODO: Should be PatchSet, or implement clone in all Geometry sub-classes
-        Geometry *newGeometry = geometry->clone();
+        const PatchSet *oldPatchSet = dynamic_cast<const PatchSet *>(geometry);
+        Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
         newGeometry->shaftCullGeometry = true;
+        newGeometry->isDuplicate = true;
         candidateList->add(newGeometry);
     } else {
         candidateList->add(geometry);
@@ -708,15 +738,15 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
     } else {
         // TODO: Check if this logic branch evers gets called
         const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
-        const java::ArrayList<Patch *> *culledPatches = cullPatches(geometryPatchesList);
+        java::ArrayList<Patch *> culledPatches;
+        cullPatches(geometryPatchesList, &culledPatches);
 
-        if ( culledPatches->size() > 0 ) {
-            PatchSet *newGeometry = new PatchSet(culledPatches);
+        if ( culledPatches.size() > 0 ) {
+            PatchSet *newGeometry = createPatchSetWithPool(&culledPatches);
             newGeometry->shaftCullGeometry = true;
             newGeometry->isDuplicate = false;
             candidateList->add(newGeometry);
         }
-        delete culledPatches;
     }
 }
 
@@ -796,10 +826,22 @@ Frees the memory occupied by a candidate list produced by doCulling
 void
 Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
     // Only destroy geometries that were generated for shaft culling
-    for ( int i = 0; candidateList != nullptr && i < candidateList->size(); i++ ) {
+    // free in reverse order to match LIFO allocations in shaft-culling paths
+    for ( int i = candidateList != nullptr ? static_cast<int>(candidateList->size()) - 1 : -1; i >= 0; i-- ) {
         Geometry *geometry = candidateList->get(i);
         if ( geometry->shaftCullGeometry ) {
-            Geometry::destroy(geometry);
+            if ( geometry->className == GeometryClassId::PATCH_SET ) {
+                PatchSet *patchSet = dynamic_cast<PatchSet *>(geometry);
+                if ( patchSet != nullptr && patchSet->isMemoryPoolManaged() ) {
+                    patchSet->~PatchSet();
+                    gPatchSetPool.free(1);
+                    Statistics::instance().reader.numberOfGeometries--;
+                } else {
+                    Geometry::destroy(geometry);
+                }
+            } else {
+                Geometry::destroy(geometry);
+            }
         }
     }
 

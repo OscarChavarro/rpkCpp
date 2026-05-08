@@ -1,7 +1,20 @@
 #include "java/util/ArrayList.txx"
+#include "common/MemoryPool.txx"
 #include "common/Error.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/processing/LinkingClusteredStrategy.h"
+
+namespace {
+common::MemoryPool<float> gLinkingClusteredPool;
+bool gLinkingClusteredPoolInitialized = false;
+
+inline void ensureLinkingClusteredPool() {
+    if ( !gLinkingClusteredPoolInitialized ) {
+        gLinkingClusteredPool.init(2 * 1024 * 1024);
+        gLinkingClusteredPoolInitialized = true;
+    }
+}
+}
 
 /**
 Creates an initial link between the given element and the top cluster
@@ -35,17 +48,51 @@ LinkingClusteredStrategy::createInitialLinks(
     // Assume no light transport (overlapping receiver and source)
     float *K;
     float *deltaK;
+    bool kFromPool = false;
+    bool deltaFromPool = false;
+    ensureLinkingClusteredPool();
 
     if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
-        K = new float[1];
+        K = gLinkingClusteredPool.allocate(1);
+        if ( K == nullptr ) {
+            if ( gLinkingClusteredPool.expand(1024) ) {
+                K = gLinkingClusteredPool.allocate(1);
+            }
+        }
+        if ( K != nullptr ) {
+            kFromPool = true;
+        } else {
+            K = new float[1];
+        }
         K[0] = 0.0;
     } else {
-        K = new float[GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE];
+        constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
+        K = gLinkingClusteredPool.allocate(KSize);
+        if ( K == nullptr ) {
+            if ( gLinkingClusteredPool.expand(KSize * 128) ) {
+                K = gLinkingClusteredPool.allocate(KSize);
+            }
+        }
+        if ( K != nullptr ) {
+            kFromPool = true;
+        } else {
+            K = new float[KSize];
+        }
         for ( int i = 0; i < receiverElement->basisSize * sourceElement->basisSize; i++ ) {
             K[i] = 0.0;
         }
     }
-    deltaK = new float[1];
+    deltaK = gLinkingClusteredPool.allocate(1);
+    if ( deltaK == nullptr ) {
+        if ( gLinkingClusteredPool.expand(1024) ) {
+            deltaK = gLinkingClusteredPool.allocate(1);
+        }
+    }
+    if ( deltaK != nullptr ) {
+        deltaFromPool = true;
+    } else {
+        deltaK = new float[1];
+    }
     deltaK[0] = Numeric::HUGE_FLOAT_VALUE; // Huge value error on the form factor
 
     Interaction *newLink = new Interaction(
@@ -59,8 +106,20 @@ LinkingClusteredStrategy::createInitialLinks(
         128
     );
 
-    delete[] K;
-    delete[] deltaK;
+    if ( kFromPool ) {
+        if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
+            gLinkingClusteredPool.free(1);
+        } else {
+            gLinkingClusteredPool.free(GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE);
+        }
+    } else {
+        delete[] K;
+    }
+    if ( deltaFromPool ) {
+        gLinkingClusteredPool.free(1);
+    } else {
+        delete[] deltaK;
+    }
 
     // Store interactions with the source patch for the progressive radiosity method
     // and with the receiving patch for gathering methods

@@ -72,7 +72,7 @@ class Shaft {
     bool closedGeometry(const Geometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
     ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
-    java::ArrayList<Patch *> *cullPatches(const java::ArrayList<Patch *> *patchList);
+    void cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Patch *> *culledPatchList);
     bool patchIsOnOmitSet(unsigned id) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
 
