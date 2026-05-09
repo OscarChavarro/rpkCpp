@@ -9,7 +9,9 @@ References:
 */
 
 #include "java/util/ArrayList.h"
+#include "common/MemoryPool.h"
 #include "skin/Geometry.h"
+#include "skin/PatchSet.h"
 #include "scene/Polygon.h"
 #include "galerkin/ShaftCullStrategy.h"
 #include "galerkin/ShaftPlane.h"
@@ -24,6 +26,9 @@ a kind of convex envelope.
 */
 class Shaft {
   private:
+    static common::MemoryPool<PatchSet> patchSetPool;
+    static bool patchSetPoolInitialized;
+
     static constexpr int MAX_SKIP_ELEMENTS = 2;
     // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
     // maximum 2 times the total number of vertices for a patch-to-patch shaft
@@ -65,6 +70,8 @@ class Shaft {
 
     static ShaftPlanePosition testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d);
     static int compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2);
+    static void ensurePatchSetPoolInitialized();
+    static PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches);
     static void keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList);
 
     void constructPolygonToPolygonPlanes(const Polygon *p1, const Polygon *p2);

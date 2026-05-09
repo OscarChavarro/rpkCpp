@@ -7,23 +7,24 @@
 #include "skin/PatchSet.h"
 #include "galerkin/Shaft.h"
 
-namespace {
-common::MemoryPool<PatchSet> gPatchSetPool;
-bool gPatchSetPoolInitialized = false;
+common::MemoryPool<PatchSet> Shaft::patchSetPool;
+bool Shaft::patchSetPoolInitialized = false;
 
-inline void ensurePatchSetPoolInitialized() {
-    if ( !gPatchSetPoolInitialized ) {
-        gPatchSetPool.init(8 * 1024 * 1024);
-        gPatchSetPoolInitialized = true;
+void
+Shaft::ensurePatchSetPoolInitialized() {
+    if ( !patchSetPoolInitialized ) {
+        patchSetPool.init(8 * 1024 * 1024);
+        patchSetPoolInitialized = true;
     }
 }
 
-inline PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
+PatchSet *
+Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
     ensurePatchSetPoolInitialized();
-    PatchSet *slot = gPatchSetPool.allocate(1);
+    PatchSet *slot = patchSetPool.allocate(1);
     if ( slot == nullptr ) {
-        if ( gPatchSetPool.expand(1024) ) {
-            slot = gPatchSetPool.allocate(1);
+        if ( patchSetPool.expand(1024) ) {
+            slot = patchSetPool.allocate(1);
         }
     }
     if ( slot == nullptr ) {
@@ -32,7 +33,6 @@ inline PatchSet *createPatchSetWithPool(const java::ArrayList<Patch *> *patches)
     PatchSet *patchSet = new (slot) PatchSet(patches);
     patchSet->setMemoryPoolManaged(true);
     return patchSet;
-}
 }
 
 Shaft::Shaft():
@@ -834,7 +834,7 @@ Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
                 PatchSet *patchSet = dynamic_cast<PatchSet *>(geometry);
                 if ( patchSet != nullptr && patchSet->isMemoryPoolManaged() ) {
                     patchSet->~PatchSet();
-                    gPatchSetPool.free(1);
+                    patchSetPool.free(1);
                     Statistics::instance().reader.numberOfGeometries--;
                 } else {
                     Geometry::destroy(geometry);

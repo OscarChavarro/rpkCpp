@@ -1,6 +1,7 @@
 #ifndef __HIERARCHICAL_REFINE__
 #define __HIERARCHICAL_REFINE__
 
+#include "common/MemoryPool.h"
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
 #include "galerkin/GalerkinElement.h"
@@ -12,6 +13,11 @@ Shaft culling stuff for hierarchical refinement
 */
 class HierarchicalRefinementStrategy {
   private:
+    static common::MemoryPool<float> hierarchicalCoefficientsPool;
+    static bool hierarchicalCoefficientsPoolInitialized;
+
+    static void ensureHierarchicalCoefficientsPool();
+
     static void
     hierarchicRefinementCull(
         const Scene *scene,

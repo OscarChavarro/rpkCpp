@@ -4,16 +4,15 @@
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/processing/LinkingClusteredStrategy.h"
 
-namespace {
-common::MemoryPool<float> gLinkingClusteredPool;
-bool gLinkingClusteredPoolInitialized = false;
+common::MemoryPool<float> LinkingClusteredStrategy::linkingClusteredPool;
+bool LinkingClusteredStrategy::linkingClusteredPoolInitialized = false;
 
-inline void ensureLinkingClusteredPool() {
-    if ( !gLinkingClusteredPoolInitialized ) {
-        gLinkingClusteredPool.init(2 * 1024 * 1024);
-        gLinkingClusteredPoolInitialized = true;
+void
+LinkingClusteredStrategy::ensureLinkingClusteredPool() {
+    if ( !linkingClusteredPoolInitialized ) {
+        linkingClusteredPool.init(2 * 1024 * 1024);
+        linkingClusteredPoolInitialized = true;
     }
-}
 }
 
 /**
@@ -53,10 +52,10 @@ LinkingClusteredStrategy::createInitialLinks(
     ensureLinkingClusteredPool();
 
     if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
-        K = gLinkingClusteredPool.allocate(1);
+        K = linkingClusteredPool.allocate(1);
         if ( K == nullptr ) {
-            if ( gLinkingClusteredPool.expand(1024) ) {
-                K = gLinkingClusteredPool.allocate(1);
+            if ( linkingClusteredPool.expand(1024) ) {
+                K = linkingClusteredPool.allocate(1);
             }
         }
         if ( K != nullptr ) {
@@ -67,10 +66,10 @@ LinkingClusteredStrategy::createInitialLinks(
         K[0] = 0.0;
     } else {
         constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
-        K = gLinkingClusteredPool.allocate(KSize);
+        K = linkingClusteredPool.allocate(KSize);
         if ( K == nullptr ) {
-            if ( gLinkingClusteredPool.expand(KSize * 128) ) {
-                K = gLinkingClusteredPool.allocate(KSize);
+            if ( linkingClusteredPool.expand(KSize * 128) ) {
+                K = linkingClusteredPool.allocate(KSize);
             }
         }
         if ( K != nullptr ) {
@@ -82,10 +81,10 @@ LinkingClusteredStrategy::createInitialLinks(
             K[i] = 0.0;
         }
     }
-    deltaK = gLinkingClusteredPool.allocate(1);
+    deltaK = linkingClusteredPool.allocate(1);
     if ( deltaK == nullptr ) {
-        if ( gLinkingClusteredPool.expand(1024) ) {
-            deltaK = gLinkingClusteredPool.allocate(1);
+        if ( linkingClusteredPool.expand(1024) ) {
+            deltaK = linkingClusteredPool.allocate(1);
         }
     }
     if ( deltaK != nullptr ) {
@@ -108,15 +107,15 @@ LinkingClusteredStrategy::createInitialLinks(
 
     if ( kFromPool ) {
         if ( receiverElement->basisSize * sourceElement->basisSize == 1 ) {
-            gLinkingClusteredPool.free(1);
+            linkingClusteredPool.free(1);
         } else {
-            gLinkingClusteredPool.free(GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE);
+            linkingClusteredPool.free(GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE);
         }
     } else {
         delete[] K;
     }
     if ( deltaFromPool ) {
-        gLinkingClusteredPool.free(1);
+        linkingClusteredPool.free(1);
     } else {
         delete[] deltaK;
     }

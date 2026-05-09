@@ -5,16 +5,15 @@
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
 
-namespace {
-common::MemoryPool<float> gInteractionCoefficientsPool;
-bool gInteractionCoefficientsPoolInitialized = false;
+common::MemoryPool<float> LinkingSimpleStrategy::interactionCoefficientsPool;
+bool LinkingSimpleStrategy::interactionCoefficientsPoolInitialized = false;
 
-inline void ensureInteractionCoefficientsPool() {
-    if ( !gInteractionCoefficientsPoolInitialized ) {
-        gInteractionCoefficientsPool.init(8 * 1024 * 1024);
-        gInteractionCoefficientsPoolInitialized = true;
+void
+LinkingSimpleStrategy::ensureInteractionCoefficientsPool() {
+    if ( !interactionCoefficientsPoolInitialized ) {
+        interactionCoefficientsPool.init(8 * 1024 * 1024);
+        interactionCoefficientsPoolInitialized = true;
     }
-}
 }
 
 void
@@ -86,10 +85,10 @@ LinkingSimpleStrategy::createInitialLink(
     constexpr int KSize = GalerkinBasis::MAX_BASIS_SIZE * GalerkinBasis::MAX_BASIS_SIZE;
     ensureInteractionCoefficientsPool();
     bool usingPool = true;
-    link.K = gInteractionCoefficientsPool.allocate(KSize);
+    link.K = interactionCoefficientsPool.allocate(KSize);
     if ( link.K == nullptr ) {
-        if ( gInteractionCoefficientsPool.expand(KSize * 128) ) {
-            link.K = gInteractionCoefficientsPool.allocate(KSize);
+        if ( interactionCoefficientsPool.expand(KSize * 128) ) {
+            link.K = interactionCoefficientsPool.allocate(KSize);
         }
         if ( link.K == nullptr ) {
             usingPool = false;
@@ -141,7 +140,7 @@ LinkingSimpleStrategy::createInitialLink(
 
     if ( usingPool ) {
         link.K = nullptr;
-        gInteractionCoefficientsPool.free(KSize);
+        interactionCoefficientsPool.free(KSize);
     }
 }
 

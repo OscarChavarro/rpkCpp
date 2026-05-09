@@ -8,8 +8,8 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 #include "common/RenderOptions.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
-namespace {
-bool extractHitData(
+static bool
+extractHitData(
     RayHit *hit,
     Vector3D *normal,
     Vector3D *texCoord,
@@ -28,7 +28,6 @@ bool extractHitData(
         texCoord->set(0.0, 0.0, 0.0);
     }
     return true;
-}
 }
 
 /**
