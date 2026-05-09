@@ -5,7 +5,6 @@
 #include "common/ColorRgb.h"
 #include "numericalAnalysis/CubatureRule.h"
 #include "skin/Geometry.h"
-#include "skin/PatchSet.h"
 #include "render/sgl/SglContext.h"
 #include "galerkin/GalerkinBasisType.h"
 #include "galerkin/GalerkinClusteringStrategy.h"
@@ -68,8 +67,6 @@ class GalerkinState {
 
     ShaftCullStrategy shaftCullStrategy;
     ToneMappingContext *toneMapOptions;
-    java::ArrayList<PatchSet *> *scenePatchSetList;
-    java::ArrayList<PatchSet *> *clusteredPatchSetList;
 
     GalerkinState();
 

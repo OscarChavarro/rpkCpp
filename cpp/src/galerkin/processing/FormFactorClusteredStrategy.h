@@ -2,7 +2,7 @@
 #define __FORM_FACTOR_CLUSTERED_STRATEGY__
 
 #include "common/linealAlgebra/Ray.h"
-#include "skin/PatchSet.h"
+#include "skin/Geometry.h"
 #include "numericalAnalysis/CubatureRule.h"
 #include "galerkin/Interaction.h"
 #include "galerkin/ShadowCache.h"
@@ -18,7 +18,7 @@ class FormFactorClusteredStrategy {
 
     static double
     geomListMultiResolutionVisibility(
-        const java::ArrayList<PatchSet *> *geometryOccluderList,
+        const java::ArrayList<Geometry *> *geometryOccluderList,
         ShadowCache *shadowCache,
         Ray *ray,
         float rcvDist,
@@ -28,7 +28,7 @@ class FormFactorClusteredStrategy {
     static double
     geometryMultiResolutionVisibility(
         ShadowCache *shadowCache,
-        PatchSet *geometry,
+        Geometry *geometry,
         Ray *ray,
         float rcvDist,
         float srcSize,
