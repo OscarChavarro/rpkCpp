@@ -1,5 +1,5 @@
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/raytracing/SpecularSampler.h"

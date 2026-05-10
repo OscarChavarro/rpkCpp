@@ -35,7 +35,7 @@ class RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions) const = 0;
+        const RendererConfiguration *renderOptions) const = 0;
 
     // Saves last ray-traced image in the file describe dby the image output handle
     virtual bool saveImage(ImageOutputHandle *imageOutputHandle) const = 0;
@@ -52,7 +52,7 @@ class RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 };
 
 #endif

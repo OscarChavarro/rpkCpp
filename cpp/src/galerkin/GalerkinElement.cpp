@@ -266,7 +266,7 @@ GalerkinElement::fromPatch(const Patch *patch) {
 }
 
 int
-GalerkinElement::renderMode(const RenderOptions *renderOptions) {
+GalerkinElement::renderMode(const RendererConfiguration *renderOptions) {
     if ( renderOptions == nullptr ) {
         return GalerkinElementRenderMode::FLAT;
     }

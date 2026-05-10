@@ -5,7 +5,7 @@ a software frame buffer directly.
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"
@@ -49,7 +49,7 @@ RayCaster::execute(
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions) const
+    const RendererConfiguration *renderOptions) const
 {
     if ( rayCaster != nullptr ) {
         delete rayCaster;
@@ -113,7 +113,7 @@ RayCaster::getRadianceAtPixel(
     int y,
     Patch *patch,
     const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions) const
+    const RendererConfiguration *renderOptions) const
 {
     ColorRgb radiance{};
     radiance.clear();
@@ -153,7 +153,7 @@ RayCaster::render(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     screenBuffer->setToneMappingContext(toneMapOptions);
 #ifdef RAYTRACING_ENABLED

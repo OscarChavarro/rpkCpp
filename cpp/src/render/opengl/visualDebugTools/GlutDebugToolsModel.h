@@ -1,7 +1,7 @@
 #ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 #define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "render/opengl/visualDebugTools/GlutDebugMode.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
@@ -21,7 +21,7 @@ class GlutDebugToolsModel {
     int windowedHeight;
     Scene *scene;
     RadianceMethod *radianceMethod;
-    RenderOptions *renderOptions;
+    RendererConfiguration *renderOptions;
     ToneMappingContext *toneMapOptions;
     GlutDebugState *debugState;
     void (*memoryFreeCallBack)(ParseRuntimeContext *mgfContext);

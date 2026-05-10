@@ -14,7 +14,7 @@ RadianceImageExporter::exportImage(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( outputStream == nullptr || scene == nullptr || scene->camera == nullptr ) {
         return;
@@ -98,7 +98,7 @@ RadianceImageExporter::getRadianceAtPixel(
     int y,
     Patch *patch,
     const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     ColorRgb radiance{};
     radiance.clear();

@@ -6,7 +6,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #include <cstdlib>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/stochasticRaytracing/Mcrad.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -189,7 +189,7 @@ Mcrad::monteCarloRadiosityReInitImportance(Element *element) {
 }
 
 void
-Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions) {
+Mcrad::monteCarloRadiosityUpdateViewImportance(Scene *scene, const RendererConfiguration *renderOptions) {
     java::System::err.printf("Updating direct visibility ... \n");
 
     Potential::updateDirectVisibility(scene, renderOptions);
@@ -293,7 +293,7 @@ Mcrad::monteCarloRadiosityDetermineInitialNrRays(
 Really initialises: before the first iteration step
 */
 void
-Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions) {
+Mcrad::monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *renderOptions) {
     if ( StochasticRelaxation::activeState().inited ) {
         return;
     }
@@ -350,7 +350,7 @@ Mcrad::monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOption
 }
 
 void
-Mcrad::monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions) {
+Mcrad::monteCarloRadiosityPreStep(Scene *scene, const RendererConfiguration *renderOptions) {
     if ( !StochasticRelaxation::activeState().inited ) {
         Mcrad::monteCarloRadiosityReInit(scene, renderOptions);
     }
@@ -454,7 +454,7 @@ Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
 ColorRgb
-Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, const RenderOptions *renderOptions) {
+Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, const RendererConfiguration *renderOptions) {
     ColorRgb TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);

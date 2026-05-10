@@ -48,7 +48,7 @@ GatheringClusteredStrategy::updatePotential(GalerkinElement *cluster) {
 Note: clustering should not be turned off during the calculations
 */
 bool
-GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) {
+GatheringClusteredStrategy::doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RendererConfiguration *renderOptions) {
     if ( galerkinState->importanceDriven &&
         ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {
         Potential::updateDirectPotential(scene, renderOptions);

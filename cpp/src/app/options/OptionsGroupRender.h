@@ -1,18 +1,18 @@
 #ifndef __COMMAND_LINE_RENDER_OPTIONS_GROUP__
 #define __COMMAND_LINE_RENDER_OPTIONS_GROUP__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 class OptionsGroupRender final {
   public:
     static void renderParseOptions(
         int *argc,
         char **argv,
-        RenderOptions *renderOptions);
+        RendererConfiguration *renderOptions);
 
   private:
     static int trueValue;
-    static RenderOptions renderOptionsState;
+    static RendererConfiguration renderOptionsState;
     static ColorRgb outlineColor;
 
     static void flatOption(int &value);

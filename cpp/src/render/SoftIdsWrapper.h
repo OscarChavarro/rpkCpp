@@ -8,10 +8,10 @@ class SoftIdsWrapper {
   private:
     SglContext *sgl; // Software rendering context, includes frame buffer
 
-    void init(const Scene *scene, const RenderOptions *renderOptions); // Also performs the actual ID rendering
+    void init(const Scene *scene, const RendererConfiguration *renderOptions); // Also performs the actual ID rendering
 
   public:
-    explicit SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions);
+    explicit SoftIdsWrapper(const Scene *scene, const RendererConfiguration *renderOptions);
     ~SoftIdsWrapper();
 
     void getSize(long *width, long *height) const;

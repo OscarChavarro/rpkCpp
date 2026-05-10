@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 /**
 Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
@@ -77,7 +77,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
 }
 
 ColorRgb
-StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const {
+StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
     StochasticRadiosityBasisState::setActiveState(const_cast<StochasticRadiosityBasisState &>(stochasticRadiosityBasisState));
@@ -98,7 +98,7 @@ void
 StochasticJacobiRadianceMethod::writeVRML(
     const Camera * /*camera*/,
     java::OutputStream * /*outputStream*/,
-    const RenderOptions * /*renderOptions*/) const
+    const RendererConfiguration * /*renderOptions*/) const
 {
 }
 
@@ -225,7 +225,7 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     Scene* scene,
     const RadianceMethod */*radianceMethod*/,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     double refUnShot;
     long stepNumber = 0;
@@ -309,7 +309,7 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     long stepNumber = 0;
     int radiance_driven = StochasticRelaxation::activeState().radianceDriven;
@@ -422,7 +422,7 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularRadianceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     java::System::err.printf("Regular radiance iteration %d:\n", StochasticRelaxation::activeState().currentIteration);
     StochasticJacobi::doStochasticJacobiIteration(
@@ -456,7 +456,7 @@ void
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoRegularImportanceIteration(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     long numberOfRays;
     int doHierarchicMeshing = ElementHierarchyState::activeState().do_h_meshing;
@@ -513,7 +513,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDiscardIncremental(
 }
 
 bool
-StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
+StochasticJacobiRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOptions) {
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);

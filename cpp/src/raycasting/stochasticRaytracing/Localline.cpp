@@ -3,7 +3,7 @@
 Generate and trace a local line
 */
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

@@ -193,7 +193,7 @@ GalerkinRadianceMethod::writeVertexColorsTopCluster() {
 }
 
 void
-GalerkinRadianceMethod::writeColors(const RenderOptions *renderOptions) {
+GalerkinRadianceMethod::writeColors(const RendererConfiguration *renderOptions) {
     if ( !renderOptions->smoothShading ) {
         Logger::warning(nullptr, "I assume you want a smooth shaded model ...");
     }
@@ -377,7 +377,7 @@ GalerkinRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpti
 }
 
 bool
-GalerkinRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
+GalerkinRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOptions) {
     if ( galerkinState.iterationNumber < 0 ) {
         Logger::error("doGalerkinOneStep", "method not initialized");
         return true; // Done, don't continue!
@@ -466,7 +466,7 @@ GalerkinRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D /*dir*/,
-    const RenderOptions * /*renderOptions*/) const
+    const RendererConfiguration * /*renderOptions*/) const
 {
     return computePatchRadiance(patch, u, v);
 }
@@ -531,7 +531,7 @@ void
 GalerkinRadianceMethod::writeVRML(
     const Camera *camera,
     java::OutputStream *outputStream,
-    const RenderOptions *renderOptions) const
+    const RendererConfiguration *renderOptions) const
 {
     if ( outputStream == nullptr ) {
         return;

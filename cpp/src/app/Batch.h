@@ -17,7 +17,7 @@ class Batch final {
         RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        RenderOptions *renderOptions);
+        RendererConfiguration *renderOptions);
     static void generalParseOptions(int *argc, char **argv);
     static const BatchOptions *batchGetOptions();
 
@@ -34,7 +34,7 @@ class Batch final {
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 #endif
     static void batchProcessFile(
         const char *fileName,
@@ -46,12 +46,12 @@ class Batch final {
             const RadianceMethod *radianceMethod,
             const RayTracer *rayTracer,
             ToneMappingContext *toneMapOptions,
-            const RenderOptions *renderOptions),
+            const RendererConfiguration *renderOptions),
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static void batchSaveRadianceImage(
         const char *fileName,
         java::OutputStream *outputStream,
@@ -60,7 +60,7 @@ class Batch final {
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static void batchSaveRadianceModel(
         const char *fileName,
         java::OutputStream *outputStream,
@@ -69,7 +69,7 @@ class Batch final {
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 };
 
 #endif

@@ -283,7 +283,7 @@ One step of the progressive refinement radiosity algorithm
 Returns true when converged and false if not
 */
 bool
-ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions) {
+ShootingStrategy::doShootingStep(Scene *scene, GalerkinState *galerkinState, const RendererConfiguration *renderOptions) {
         if ( galerkinState->importanceDriven ) {
         if ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) {
             Potential::updateDirectPotential(scene, renderOptions);

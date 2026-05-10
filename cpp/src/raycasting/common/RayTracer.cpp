@@ -13,7 +13,7 @@ RayTracer::rayTrace(
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     ImageOutputHandle *img = nullptr;
 

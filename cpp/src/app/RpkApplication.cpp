@@ -1,7 +1,7 @@
 #include <cstring>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"
@@ -87,7 +87,7 @@ RpkApplication::RpkApplication():
 {
     scene = new Scene();
     mgfContext = new ParseRuntimeContext();
-    renderOptions = new RenderOptions();
+    renderOptions = new RendererConfiguration();
 }
 
 RpkApplication::~RpkApplication() {

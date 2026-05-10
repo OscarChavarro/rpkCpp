@@ -3,7 +3,7 @@
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "environment/geometry/elements/Vertex.h"
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "raycasting/stochasticRaytracing/Link.h"
@@ -17,7 +17,7 @@ using REFINE_ACTION = Link *(*)(
     StochasticRadiosityElement *srctop,
     double *us,
     double *vs,
-    const RenderOptions *renderOptions);
+    const RendererConfiguration *renderOptions);
 
 using ORACLE = REFINE_ACTION (*)(const Link *link);
 

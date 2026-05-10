@@ -22,7 +22,7 @@ class GatheringStrategy {
     GatheringStrategy();
     virtual ~GatheringStrategy();
 
-    virtual bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) = 0;
+    virtual bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RendererConfiguration *renderOptions) = 0;
 };
 
 #endif

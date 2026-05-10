@@ -11,7 +11,7 @@ class GatheringClusteredStrategy final : public GatheringStrategy {
     GatheringClusteredStrategy();
     ~GatheringClusteredStrategy() final;
 
-    bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RenderOptions *renderOptions) final;
+    bool doGatheringIteration(const Scene *scene, GalerkinState *galerkinState, RendererConfiguration *renderOptions) final;
 };
 
 #endif

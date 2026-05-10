@@ -49,7 +49,7 @@ class StochasticRadiosityElement final : public Element {
         NiederreiterIndex *mostSignificantBits2);
     static StochasticRadiosityElement **stochasticRadiosityElementRegularSubdivideElement(
         StochasticRadiosityElement *element,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static StochasticRadiosityElement *stochasticRadiosityElementRegularSubElementAtPoint(
         const StochasticRadiosityElement *parent,
         double *u,
@@ -84,7 +84,7 @@ class StochasticRadiosityElement final : public Element {
         const StochasticRadiosityElement *elem,
         double u,
         double v,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static void stochasticRadiosityElementComputeNewVertexColors(Element *element);
     static void stochasticRadiosityElementAdjustTVertexColors(Element *element);
     static ColorRgb stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
@@ -145,10 +145,10 @@ class StochasticRadiosityElement final : public Element {
         Vertex *v3);
     static StochasticRadiosityElement **monteCarloRadiosityRegularSubdivideTriangle(
         StochasticRadiosityElement *element,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static StochasticRadiosityElement **monteCarloRadiosityRegularSubdivideQuad(
         StochasticRadiosityElement *element,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static void monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem);
     static void monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem);
     static bool regularChild(const StochasticRadiosityElement *child);

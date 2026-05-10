@@ -110,7 +110,7 @@ bool
 GatheringSimpleStrategy::doGatheringIteration(
     const Scene *scene,
     GalerkinState *galerkinState,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     if ( galerkinState->importanceDriven &&
          ( galerkinState->iterationNumber <= 1 || scene->camera->changed ) ) {

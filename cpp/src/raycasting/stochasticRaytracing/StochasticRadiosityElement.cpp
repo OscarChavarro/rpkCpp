@@ -1,5 +1,5 @@
 #include "environment/geometry/elements/RayHitFlag.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
@@ -727,7 +727,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
 Create sub-elements: regular subdivision, see drawings above
 */
 StochasticRadiosityElement **
-StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
+StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(StochasticRadiosityElement *element, const RendererConfiguration *renderOptions) {
     (void)renderOptions;
 
     Vertex *v0 = element->vertices[0];
@@ -746,7 +746,7 @@ StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideTriangle(Stochast
 }
 
 StochasticRadiosityElement **
-StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, const RenderOptions *renderOptions) {
+StochasticRadiosityElement::monteCarloRadiosityRegularSubdivideQuad(StochasticRadiosityElement *element, const RendererConfiguration *renderOptions) {
     (void)renderOptions;
 
     Vertex *v0 = element->vertices[0];
@@ -774,7 +774,7 @@ done so before. Returns the list of created sub-elements
 StochasticRadiosityElement **
 StochasticRadiosityElement::stochasticRadiosityElementRegularSubdivideElement(
     StochasticRadiosityElement *element,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( element->regularSubElements ) {
         return reinterpret_cast<StochasticRadiosityElement **>(element->regularSubElements);

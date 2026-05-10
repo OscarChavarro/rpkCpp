@@ -2,7 +2,7 @@
 #define __RAY_CASTER__
 
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/RadianceMethod.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/RayTracer.h"
@@ -23,7 +23,7 @@ class RayCaster final : public RayTracer {
         int y,
         Patch *patch,
         const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions) const;
+        const RendererConfiguration *renderOptions) const;
 
   public:
     explicit RayCaster(ScreenBuffer *inScreen, const Camera *defaultCamera, ToneMappingContext *toneMapOptions = nullptr);
@@ -33,7 +33,7 @@ class RayCaster final : public RayTracer {
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     void display();
     void save(ImageOutputHandle *ip);
 
@@ -47,7 +47,7 @@ class RayCaster final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions) const final;
+        const RendererConfiguration *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const;

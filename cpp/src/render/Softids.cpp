@@ -36,7 +36,7 @@ void
 SoftIds::softRenderPatch(
     const Patch *patch,
     const Camera *camera,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     SglContext *sglContext)
 {
     if ( patch == nullptr || camera == nullptr || renderOptions == nullptr || sglContext == nullptr ) {
@@ -62,7 +62,7 @@ SoftIds::softRenderPatch(
 }
 
 void
-SoftIds::softRenderPatches(const Scene *scene, const RenderOptions *renderOptions, SglContext *sglContext) {
+SoftIds::softRenderPatches(const Scene *scene, const RendererConfiguration *renderOptions, SglContext *sglContext) {
     if ( scene == nullptr || renderOptions == nullptr || sglContext == nullptr ) {
         return;
     }
@@ -80,7 +80,7 @@ the patches visible through each pixel or 0 if the background is visible through
 the pixel. x is normally the width and y the height of the canvas window
 */
 unsigned long *
-SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RenderOptions *renderOptions) {
+SoftIds::softRenderIds(long *x, long *y, const Scene *scene, const RendererConfiguration *renderOptions) {
     SglContext * const currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
     SoftIds::softRenderPatches(scene, renderOptions, currentSglContext);
 

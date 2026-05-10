@@ -7,7 +7,7 @@ Saves the result of a radiosity computation as a VRML file
 
 #include "java/io/OutputStream.h"
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Camera.h"
 
 class VrmlWriter {
@@ -16,7 +16,7 @@ class VrmlWriter {
     writeHeader(
         const Camera *camera,
         java::OutputStream *outputStream,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 
     static void writeTrailer(java::OutputStream *outputStream);
 

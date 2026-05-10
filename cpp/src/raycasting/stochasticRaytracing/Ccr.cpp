@@ -2,7 +2,7 @@
 Determination of constant control radiosity value
 */
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/color/Cie.h"
 
 #ifdef RAYTRACING_ENABLED

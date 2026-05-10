@@ -1,6 +1,6 @@
 #include "RayHitFlag.h"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "RayHit.h"
 #include "Patch.h"
 

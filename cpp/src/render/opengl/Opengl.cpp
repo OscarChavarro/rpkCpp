@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/logging/Logger.h"
 
 #ifdef OPEN_GL_ENABLED
@@ -57,7 +57,7 @@ Opengl::openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RenderOptions *renderOptions) {
+Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions) {
     (void) renderOptions;
     ColorRgb correctedRgb{};
 
@@ -95,7 +95,7 @@ Opengl::openGlRenderPolygonGouraud(
     int numberOfVertices,
     Vector3D *vertices,
     const ColorRgb *verticesColors,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
 #ifdef OPEN_GL_ENABLED
     glBegin(GL_POLYGON);
@@ -188,7 +188,7 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
 }
 
 void
-Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOptions) {
+Opengl::openGlRenderPatchFlat(const Patch *patch, const RendererConfiguration *renderOptions) {
     Opengl::openGlRenderSetColor(&patch->getColor(), renderOptions);
     switch ( patch->getNumberOfVertices() ) {
         case 3:
@@ -216,7 +216,7 @@ Opengl::openGlRenderPatchFlat(const Patch *patch, const RenderOptions *renderOpt
 }
 
 void
-Opengl::openGlRenderPatchSmooth(const Patch *patch, const RenderOptions *renderOptions) {
+Opengl::openGlRenderPatchSmooth(const Patch *patch, const RendererConfiguration *renderOptions) {
     switch ( patch->getNumberOfVertices() ) {
         case 3:
             glBegin(GL_TRIANGLES);
@@ -271,7 +271,7 @@ Opengl::openGlInvokeRenderPatch(
     const OpenGlRenderTraversalCallback &renderPatch,
     const Patch *patch,
     const Camera *camera,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( renderPatch.callbackWithData != nullptr ) {
         renderPatch.callbackWithData(patch, camera, renderOptions, renderPatch.callbackData);
@@ -285,7 +285,7 @@ Opengl::openGlReallyRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatch,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     const java::ArrayList<Patch *> *patchList = Geometry::patchListReference(geometry);
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
@@ -298,7 +298,7 @@ Opengl::openGlRenderOctreeLeaf(
     const Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     Opengl::openGlReallyRenderOctreeLeaf(camera, geometry, renderPatchCallback, renderOptions);
 }
@@ -334,7 +334,7 @@ Opengl::openGlRenderOctreeNonLeaf(
     Camera *camera,
     const Geometry *geometry,
     const OpenGlRenderTraversalCallback &renderPatchCallback,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     OctreeChild octree_children[8];
     java::ArrayList<Geometry *> *children = Geometry::primitiveListCopy(geometry);
@@ -405,7 +405,7 @@ void
 Opengl::openGlRenderWorldOctree(
     const Scene *scene,
     OpenGlRenderPatchCallback renderPatchCallback,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( scene->clusteredRootGeometry == nullptr ) {
         return;
@@ -430,7 +430,7 @@ Opengl::openGlRenderWorldOctree(
 Renders the all the patches using default colors
 */
 void
-Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RenderOptions *renderOptions) {
+Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions) {
 #ifdef OPEN_GL_ENABLED
     if ( !renderOptions->noShading ) {
         if ( renderOptions->smoothShading ) {
@@ -509,7 +509,7 @@ void
 Opengl::openGlReallyRender(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     const GlutDebugState *debugState)
 {
     glPushMatrix();
@@ -535,7 +535,7 @@ void
 Opengl::openGlRenderRadiance(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     const GlutDebugState *debugState)
 {
     if ( renderOptions->smoothShading ) {
@@ -572,7 +572,7 @@ Opengl::openGlRenderScene(
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     const GlutDebugState *debugState)
 {
 #ifdef OPEN_GL_ENABLED

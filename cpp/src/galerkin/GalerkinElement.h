@@ -7,7 +7,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Polygon.h"
 #include "galerkin/GalerkinElementRenderMode.h"
 #include "galerkin/Interaction.h"
@@ -71,7 +71,7 @@ class GalerkinElement final : public Element {
     static int getNumberOfSurfaceElements();
     static GalerkinElement *fromPatch(const Patch *patch);
     static void initializeBasis();
-    static int renderMode(const RenderOptions *renderOptions);
+    static int renderMode(const RendererConfiguration *renderOptions);
 
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);

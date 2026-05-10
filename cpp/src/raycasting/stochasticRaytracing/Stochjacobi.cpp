@@ -12,7 +12,7 @@ TODO: lines and line bundles.
 #include <cstdlib>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/stochasticRaytracing/Stochjacobi.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -413,7 +413,7 @@ StochasticJacobi::stochasticJacobiRefineAndPropagateRadiance(
     double rcv_prob,
     Ray *ray,
     float dir,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     Link link{};
     link = Hierarchy::topLink(Q, P);
@@ -455,7 +455,7 @@ StochasticJacobi::stochasticJacobiRefineAndPropagate(
     double uq,
     double vq,
     Ray *ray,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     double src_prob;
     double us = up;
@@ -559,7 +559,7 @@ StochasticJacobi::stochasticJacobiElementShootRay(
     int nMostSignificantBit,
     NiederreiterIndex mostSignificantBit1,
     NiederreiterIndex rMostSignificantBit2,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( getRadianceCallback != nullptr ) {
         StochasticRelaxation::activeState().tracedRays++;
@@ -607,7 +607,7 @@ StochasticJacobi::stochasticJacobiElementShootRays(
     const VoxelGrid *sceneWorldVoxelGrid,
     StochasticRadiosityElement *element,
     int raysThisElem,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     int sampleRange; // Determines a range in which to generate a sample
     NiederreiterIndex mostSignificantBit1; // See monteCarloRadiosityElementRange() and NextSample()
@@ -634,7 +634,7 @@ StochasticJacobi::stochasticJacobiShootRaysRecursive(
     double rnd,
     long *rayCount,
     double *cumulative,
-    RenderOptions *renderOptions) {
+    RendererConfiguration *renderOptions) {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
         double p = element->samplingProbability / sumOfProbabilities;
@@ -668,7 +668,7 @@ void
 StochasticJacobi::stochasticJacobiShootRays(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     double rnd = drand48();
     long rayCount = 0;
@@ -861,7 +861,7 @@ StochasticJacobi::doStochasticJacobiIteration(
     GetImportanceCallback getImportanceCallBack,
     UpdateCallback updateCallBack,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     stochasticJacobiInitGlobals(static_cast<int>(numberOfRays), getRadianceCallBack, getImportanceCallBack, updateCallBack);
     stochasticJacobiPrintMessage(numberOfRays);

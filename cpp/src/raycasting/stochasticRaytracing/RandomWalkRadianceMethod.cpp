@@ -2,7 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
@@ -71,7 +71,7 @@ RandomWalkRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D dir,
-    const RenderOptions *renderOptions) const
+    const RendererConfiguration *renderOptions) const
 {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
@@ -93,7 +93,7 @@ void
 RandomWalkRadianceMethod::writeVRML(
     const Camera * /*camera*/,
     java::OutputStream * /*outputStream*/,
-    const RenderOptions * /*renderOptions*/) const
+    const RendererConfiguration * /*renderOptions*/) const
 {
 }
 
@@ -489,7 +489,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityUpdateSourceIllumination(Stochastic
 RandomWalkRadianceMethod::randomWalkRadiosityDoFirstShot(
     VoxelGrid *sceneWorldVoxelGrid,
     const java::ArrayList<Patch *> *scenePatches,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     long numberOfRays = StochasticRelaxation::activeState().initialNumberOfRays *
         StochasticRadiosityBasisState::activeState().approxDesc[StochasticRelaxation::activeState().approximationOrderType].basis_size;
@@ -508,7 +508,7 @@ RandomWalkRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches) {
 }
 
 bool
-RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
+RandomWalkRadianceMethod::doStep(Scene *scene, RendererConfiguration *renderOptions) {
     StochasticRelaxation::setActiveState(stochasticRelaxationState);
     ElementHierarchyState::setActiveState(elementHierarchyState);
     StochasticRadiosityBasisState::setActiveState(stochasticRadiosityBasisState);

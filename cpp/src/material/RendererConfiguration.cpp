@@ -1,10 +1,10 @@
-#include "common/RenderOptions.h"
+#include "RendererConfiguration.h"
 
-const ColorRgb RenderOptions::DEFAULT_OUTLINE_COLOR = {0.5, 0.0, 0.0};
-const ColorRgb RenderOptions::DEFAULT_BOUNDING_BOX_COLOR = {0.5, 0.0, 1.0};
-const ColorRgb RenderOptions::DEFAULT_CLUSTER_COLOR = {1.0, 0.5, 0.0};
+const ColorRgb RendererConfiguration::DEFAULT_OUTLINE_COLOR = {0.5, 0.0, 0.0};
+const ColorRgb RendererConfiguration::DEFAULT_BOUNDING_BOX_COLOR = {0.5, 0.0, 1.0};
+const ColorRgb RendererConfiguration::DEFAULT_CLUSTER_COLOR = {1.0, 0.5, 0.0};
 
-RenderOptions::RenderOptions():
+RendererConfiguration::RendererConfiguration():
     outlineColor(),
     boundingBoxColor(),
     clusterColor(),
@@ -34,5 +34,5 @@ RenderOptions::RenderOptions():
     renderRayTracedImage = false;
 }
 
-RenderOptions::~RenderOptions() {
+RendererConfiguration::~RendererConfiguration() {
 }

@@ -2,7 +2,7 @@
 
 #include "java/lang/System.h"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/ScreenBuffer.h"

@@ -50,7 +50,7 @@ OptionsGroupCore::parse(
     char **argv,
     ParseRuntimeContext &parseSession,
     Scene &scene,
-    RenderOptions &renderOptions,
+    RendererConfiguration &renderOptions,
     ToneMappingContext &toneMapOptions,
     int &imageOutputWidth,
     int &imageOutputHeight,

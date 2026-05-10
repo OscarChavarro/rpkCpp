@@ -3,7 +3,7 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "environment/geometry/elements/Patch.h"
 #include "skin/Compound.h"
 #include "environment/geometry/elements/PatchSet.h"
@@ -32,14 +32,14 @@ class RadianceMethod {
     // of computations after which the scene is to be redrawn. Returns TRUE when
     // done
     virtual bool
-    doStep(Scene *scene, RenderOptions *renderOptions) = 0;
+    doStep(Scene *scene, RendererConfiguration *renderOptions) = 0;
 
     // Terminates radiance computations on the current scene
     virtual void terminate(java::ArrayList<Patch *> *scenePatches) = 0;
 
     // Returns the radiance being emitted from the specified patch, at
     // the point with given (u,v) parameters and into the given direction
-    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RenderOptions *renderOptions) const = 0;
+    virtual ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const = 0;
 
     // Allocates memory for the radiance data for the given patch. Fills in the pointer in patch->radianceData
     virtual Element *createPatchData(Patch *patch) = 0;
@@ -57,7 +57,7 @@ class RadianceMethod {
     writeVRML(
         const Camera *camera,
         java::OutputStream *outputStream,
-        const RenderOptions *renderOptions) const = 0;
+        const RendererConfiguration *renderOptions) const = 0;
 };
 
 #endif

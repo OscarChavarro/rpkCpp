@@ -4,7 +4,7 @@
 #include "java/io/OutputStream.h"
 #include "common/linealAlgebra/Vector2D.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Camera.h"
 #include "io/image/ImageOutputHandle.h"
 #include "tonemap/ToneMappingContext.h"

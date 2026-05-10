@@ -72,4 +72,7 @@ out/
 .project
 .settings/
 
+# AI tools
 .codex
+AGENTS.md
+

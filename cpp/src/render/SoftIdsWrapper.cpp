@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "render/SoftIdsWrapper.h"
 
-SoftIdsWrapper::SoftIdsWrapper(const Scene *scene, const RenderOptions *renderOptions) {
+SoftIdsWrapper::SoftIdsWrapper(const Scene *scene, const RendererConfiguration *renderOptions) {
     sgl = nullptr;
     init(scene, renderOptions);
 }
@@ -11,7 +11,7 @@ SoftIdsWrapper::~SoftIdsWrapper() {
 }
 
 void
-SoftIdsWrapper::init(const Scene *scene, const RenderOptions *renderOptions) {
+SoftIdsWrapper::init(const Scene *scene, const RendererConfiguration *renderOptions) {
     sgl = SoftIds::setupSoftFrameBuffer(scene->camera);
     SoftIds::softRenderPatches(scene, renderOptions, sgl);
 }

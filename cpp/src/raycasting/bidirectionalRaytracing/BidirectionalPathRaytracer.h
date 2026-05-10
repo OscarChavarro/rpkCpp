@@ -1,7 +1,7 @@
 #ifndef __BI_DIRECTIONAL_PATH__
 #define __BI_DIRECTIONAL_PATH__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -107,7 +107,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions) const final;
+        const RendererConfiguration *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const;

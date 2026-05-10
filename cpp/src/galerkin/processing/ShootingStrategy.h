@@ -62,7 +62,7 @@ class ShootingStrategy {
     shootingUpdateDirectPotential(GalerkinElement *galerkinElement, float potentialIncrement);
 
   public:
-    static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, const RenderOptions *renderOptions);
+    static bool doShootingStep(Scene *scene, GalerkinState *galerkinState, const RendererConfiguration *renderOptions);
 };
 
 #endif

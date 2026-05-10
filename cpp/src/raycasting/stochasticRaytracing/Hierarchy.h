@@ -25,7 +25,7 @@ class Hierarchy final {
         double *us,
         double *vs,
         ORACLE evaluateLink,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 
     static void elementHierarchyDefaults();
     static void elementHierarchyInit(Geometry *clusteredWorldGeometry);
@@ -46,7 +46,7 @@ class Hierarchy final {
         StochasticRadiosityElement *srctop,
         double *us,
         double *vs,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static Link *subdivideReceiverCallBack(
         Link *link,
         StochasticRadiosityElement *rcvtop,
@@ -55,7 +55,7 @@ class Hierarchy final {
         StochasticRadiosityElement *srctop,
         double *us,
         double *vs,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static Link *subdivideSourceCallBack(
         Link *link,
         StochasticRadiosityElement *rcvtop,
@@ -64,7 +64,7 @@ class Hierarchy final {
         StochasticRadiosityElement *srctop,
         double *us,
         double *vs,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
     static bool selfLink(const Link *link);
     static float formFactorEstimate(const StochasticRadiosityElement *rcv, const StochasticRadiosityElement *src);
     static bool lowPowerLink(const Link *link, const Statistics *statistics);

@@ -1,13 +1,13 @@
 #include <cstdlib>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
 /**
 Importon tracing
 */
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/photonMap/PhotonMapImportance.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/Importon.h"

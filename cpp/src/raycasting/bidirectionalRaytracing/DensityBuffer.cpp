@@ -1,7 +1,7 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "java/lang/System.h"
 #include "raycasting/bidirectionalRaytracing/DensityBuffer.h"
 #include "raycasting/bidirectionalRaytracing/Kernel2D.h"

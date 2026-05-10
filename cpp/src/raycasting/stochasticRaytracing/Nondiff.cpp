@@ -5,7 +5,7 @@ Non diffuse first shot
 #include <cstdlib>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -180,7 +180,7 @@ Nondiff::summarize(const java::ArrayList<Patch *> *scenePatches) {
 Initial shooting pass handling non-diffuse light sources
 */
 void
-Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RenderOptions */*renderOptions*/) {
+Nondiff::doNonDiffuseFirstShot(const Scene *scene, const RadianceMethod */*radianceMethod*/, const RendererConfiguration */*renderOptions*/) {
     makeLightSourceTable(scene->patchList, scene->lightSourcePatchList);
     sampleLightSources(
         scene->voxelGrid,

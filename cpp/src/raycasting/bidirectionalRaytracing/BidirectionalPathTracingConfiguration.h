@@ -1,7 +1,7 @@
 #ifndef __BIDIRECTIONAL_PATH_TRACING_CONFIGURATION__
 #define __BIDIRECTIONAL_PATH_TRACING_CONFIGURATION__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

@@ -8,7 +8,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 #ifndef __PHOTON_MAP_SAMPLER__
 #define __PHOTON_MAP_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

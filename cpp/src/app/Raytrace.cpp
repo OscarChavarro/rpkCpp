@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -143,7 +143,7 @@ Raytrace::rayTraceExecute(
     RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
     ToneMappingContext *toneMapOptions,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     renderOptions->renderRayTracedImage = true;
     scene->camera->changed = false;

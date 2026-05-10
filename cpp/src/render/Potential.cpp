@@ -19,7 +19,7 @@ call the integral of potential over surface area "importance"
 Updates directly received potential for all patches
 */
 void
-Potential::updateDirectPotential(const Scene *scene, const RenderOptions *renderOptions) {
+Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration *renderOptions) {
     Canvas::canvasPushMode();
 
     // Get the patch IDs for each pixel
@@ -133,7 +133,7 @@ Potential::softGetPatchPointers(const SglContext *sgl, const java::ArrayList<Pat
 }
 
 void
-Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
+Potential::softUpdateDirectVisibility(const Scene *scene, const RendererConfiguration *renderOptions) {
     const long long t = java::System::nanoTime();
     SglContext *currentSglContext = SoftIds::setupSoftFrameBuffer(scene->camera);
 
@@ -149,7 +149,7 @@ Potential::softUpdateDirectVisibility(const Scene *scene, const RenderOptions *r
 Updates view visibility status of all patches
 */
 void
-Potential::updateDirectVisibility(const Scene *scene, const RenderOptions *renderOptions) {
+Potential::updateDirectVisibility(const Scene *scene, const RendererConfiguration *renderOptions) {
     Canvas::canvasPushMode();
     Potential::softUpdateDirectVisibility(scene, renderOptions);
     Canvas::canvasPullMode();

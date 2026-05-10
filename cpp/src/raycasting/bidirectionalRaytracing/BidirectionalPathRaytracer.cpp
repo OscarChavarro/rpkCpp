@@ -1,5 +1,5 @@
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -8,7 +8,7 @@
 
 #include "java/lang/System.h"
 #include "common/logging/Logger.h"
-#include "common/StratifiedSampling2D.h"
+#include "raycasting/common/StratifiedSampling2D.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
@@ -61,7 +61,7 @@ BidirectionalPathRaytracer::execute(
     Scene *scene,
     RadianceMethod *radianceMethod,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions * /*renderOptions*/) const
+    const RendererConfiguration * /*renderOptions*/) const
 {
     // Install the samplers to be used in the state
     BidirectionalPathTracingConfiguration config;

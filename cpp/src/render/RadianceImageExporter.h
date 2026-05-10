@@ -3,7 +3,7 @@
 
 #include "java/io/OutputStream.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
@@ -20,7 +20,7 @@ class RadianceImageExporter final {
         const Scene *scene,
         const RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 
   private:
     static void clipUv(int numberOfVertices, double *u, double *v);
@@ -31,7 +31,7 @@ class RadianceImageExporter final {
         int y,
         Patch *patch,
         const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 };
 
 #endif

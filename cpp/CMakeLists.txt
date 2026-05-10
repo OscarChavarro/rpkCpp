@@ -60,8 +60,7 @@ set(MAIN_SRC
     src/common/memoryManagement/CppReAlloc.cpp
     src/common/color/ColorRgb.cpp
     src/common/color/Cie.cpp
-    src/common/RenderOptions.cpp
-    src/common/StratifiedSampling2D.cpp
+    src/material/RendererConfiguration.cpp
     src/common/statistics/Statistics.cpp
     src/common/statistics/ReaderStatistics.cpp
     src/common/statistics/RadianceStatistics.cpp
@@ -89,16 +88,16 @@ set(MAIN_SRC
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp
     src/material/PhongBidirectionalScatteringDistributionFunction.cpp
     src/material/Material.cpp
-        src/environment/geometry/elements/PatchSet.cpp
-        src/environment/geometry/elements/RayHit.cpp
+    src/environment/geometry/elements/PatchSet.cpp
+    src/environment/geometry/elements/RayHit.cpp
+    src/environment/geometry/elements/Patch.cpp
+    src/environment/geometry/elements/Vertex.cpp
+    src/environment/geometry/elements/Element.cpp
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
-        src/environment/geometry/elements/Patch.cpp
-        src/skin/AxisAlignedBoundingBox.cpp
+    src/skin/AxisAlignedBoundingBox.cpp
     src/skin/MinMaxBox.cpp
     src/skin/MeshSurface.cpp
-        src/environment/geometry/elements/Vertex.cpp
-        src/environment/geometry/elements/Element.cpp
     src/render/sgl/PolyClip.cpp
     src/render/sgl/PolyScanZ.cpp
     src/render/sgl/SglContext.cpp
@@ -260,6 +259,7 @@ set(MGF_SRC
     src/io/mgf/MgfParserLoader.cpp)
 
 set(RAYTRACING_SRC
+    src/raycasting/common/StratifiedSampling2D.cpp
     src/raycasting/common/RayTracer.cpp
     src/raycasting/common/SimpleRaytracingPathNode.cpp
     src/raycasting/common/Raytools.cpp

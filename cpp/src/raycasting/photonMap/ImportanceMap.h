@@ -5,7 +5,7 @@ The real importance map storage
 #ifndef __IMPORTANCE_MAP__
 #define __IMPORTANCE_MAP__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

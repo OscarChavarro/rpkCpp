@@ -3,7 +3,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"
@@ -42,7 +42,7 @@ Batch::batchRayTraceSaveImage(
     const RadianceMethod * /*radianceMethod*/,
     const RayTracer *rayTracer,
     ToneMappingContext * /*toneMapOptions*/,
-    const RenderOptions * /*renderOptions*/)
+    const RendererConfiguration * /*renderOptions*/)
 {
     Raytrace::rayTraceSaveImage(
         fileName,
@@ -67,12 +67,12 @@ Batch::batchProcessFile(
         const RadianceMethod *radianceMethod,
         const RayTracer *rayTracer,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions),
+        const RendererConfiguration *renderOptions),
     const Scene *scene,
     const RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     int isPipe;
     java::OutputStream * const outputStream = FileUncompressWrapper::openOutputStreamCompressWrapper(fileName, &isPipe);
@@ -92,7 +92,7 @@ Batch::batchSaveRadianceImage(
     const RadianceMethod *radianceMethod,
     const RayTracer * /*rayTracer*/,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     long long t;
     const char *extension;
@@ -130,7 +130,7 @@ Batch::batchSaveRadianceModel(
     const RadianceMethod *radianceMethod,
     const RayTracer */*rayTracer*/,
     ToneMappingContext * /*toneMapOptions*/,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     long long t;
 
@@ -159,7 +159,7 @@ Batch::batchExecuteRadianceSimulation(
     RadianceMethod *radianceMethod,
     const RayTracer *rayTracer,
     ToneMappingContext *toneMapOptions,
-    RenderOptions *renderOptions)
+    RendererConfiguration *renderOptions)
 {
     long long startTime;
     long long wasted_start;

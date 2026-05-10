@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "ElementFlags.h"
 #include "ElementTypes.h"
 
@@ -37,7 +37,7 @@ class Element {
     Matrix2x2 *topTransform(Matrix2x2 *transform) const;
     void traverseAllLeafElements(void (*traversalCallbackFunction)(Element *));
     void traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *));
-    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RenderOptions *renderOptions), const RenderOptions *renderOptions);
+    void traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RendererConfiguration *renderOptions), const RendererConfiguration *renderOptions);
 
 #ifdef RAYTRACING_ENABLED
     bool isLeaf() const;

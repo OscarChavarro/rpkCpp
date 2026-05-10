@@ -1,6 +1,6 @@
 #include <cstdlib>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 /**
 Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
@@ -8,7 +8,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "java/lang/System.h"
 #include "raycasting/common/Raytools.h"
@@ -69,7 +69,7 @@ RayMatter::execute(
     Scene *scene,
     RadianceMethod */*radianceMethod*/,
     ToneMappingContext *toneMapOptions,
-    const RenderOptions * /*renderOptions*/) const
+    const RendererConfiguration * /*renderOptions*/) const
 {
     if ( rayMatter != nullptr ) {
         delete rayMatter;

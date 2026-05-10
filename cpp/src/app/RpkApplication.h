@@ -1,7 +1,7 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Scene.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "raycasting/common/RayTracer.h"
@@ -30,7 +30,7 @@ class RpkApplication {
     RadianceMethod *selectedRadianceMethod;
     ToneMap *selectedToneMap;
     ToneMappingContext toneMapOptions;
-    RenderOptions *renderOptions;
+    RendererConfiguration *renderOptions;
     RayTracer *rayTracer;
     bool glutDebugEnabled;
 

@@ -1,7 +1,7 @@
 #ifndef __UNIFORM_LIGHT_SAMPLER__
 #define __UNIFORM_LIGHT_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

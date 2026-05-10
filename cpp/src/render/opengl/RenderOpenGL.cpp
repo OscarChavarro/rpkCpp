@@ -120,7 +120,7 @@ RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
 Renders the bounding boxes of all objects in the scene
 */
 void
-RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RenderOptions *renderOptions) {
+RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries, const RendererConfiguration *renderOptions) {
     Opengl::openGlRenderSetColor(&renderOptions->boundingBoxColor, renderOptions);
     for ( int i = 0; sceneGeometries != nullptr && i < sceneGeometries->size(); i++ ) {
         RenderOpenGL::renderGeomBounds(camera, sceneGeometries->get(i));
@@ -131,7 +131,7 @@ RenderOpenGL::renderBoundingBoxHierarchy(Camera *camera, const java::ArrayList<G
 Renders the cluster hierarchy bounding boxes
 */
 void
-RenderOpenGL::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RenderOptions *renderOptions) {
+RenderOpenGL::renderClusterHierarchy(Camera *camera, const java::ArrayList<Geometry *> *clusteredGeometryList, const RendererConfiguration *renderOptions) {
     Opengl::openGlRenderSetColor(&renderOptions->clusterColor, renderOptions);
     for ( int i = 0; clusteredGeometryList != nullptr && i < clusteredGeometryList->size(); i++ ) {
         RenderOpenGL::renderGeomBounds(camera, clusteredGeometryList->get(i));

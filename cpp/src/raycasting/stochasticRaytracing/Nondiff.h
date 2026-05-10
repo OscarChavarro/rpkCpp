@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Ray.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
@@ -16,7 +16,7 @@ class Nondiff final {
     static void doNonDiffuseFirstShot(
         const Scene *scene,
         const RadianceMethod *radianceMethod,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 
   private:
     static LightSourceTable *lights;

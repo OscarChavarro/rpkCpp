@@ -1,7 +1,7 @@
 #ifndef __STOCHASTIC_RAYTRACER__
 #define __STOCHASTIC_RAYTRACER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -33,7 +33,7 @@ class StochasticRaytracer final : public RayTracer {
         StochasticRaytracingConfiguration *config,
         StorageReadout readout,
         RadianceMethod *radianceMethod,
-        RenderOptions *renderOptions);
+        RendererConfiguration *renderOptions);
     static ColorRgb srGetDirectRadiance(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -50,7 +50,7 @@ class StochasticRaytracer final : public RayTracer {
         StorageReadout readout,
         int usedScatterSamples,
         RadianceMethod *radianceMethod,
-        RenderOptions *renderOptions);
+        RendererConfiguration *renderOptions);
 
   public:
     StochasticRaytracer(
@@ -68,7 +68,7 @@ class StochasticRaytracer final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions) const final;
+        const RendererConfiguration *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const final;

@@ -161,7 +161,7 @@ void
 VrmlWriter::writeHeader(
     const Camera *camera,
     java::OutputStream *outputStream,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     Vector3D modelRotationAxis;
     float modelRotationAngle;

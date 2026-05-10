@@ -104,7 +104,7 @@ GlutDebugPatchHierarchy::maxLevelFromElement(const GalerkinElement *element) {
 void
 GlutDebugPatchHierarchy::renderElementGray(
     const GalerkinElement *element,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( element == nullptr || renderOptions == nullptr ) {
         return;
@@ -174,7 +174,7 @@ GlutDebugPatchHierarchy::renderElementGray(
 void
 GlutDebugPatchHierarchy::renderNonSelectedPatchesGray(
     const Scene *scene,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     int primaryPatchIndex,
     int secondaryPatchIndex,
     const java::ArrayList<Interaction *> *interactionsToRender)
@@ -238,7 +238,7 @@ void
 GlutDebugPatchHierarchy::renderElementAtLevel(
     const GalerkinElement *element,
     int hierarchyLevel,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( element == nullptr || renderOptions == nullptr ) {
         return;
@@ -264,7 +264,7 @@ GlutDebugPatchHierarchy::drawCenterMark(
     int sides,
     const Vector3D &axisU,
     const Vector3D &axisV,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( renderOptions == nullptr || sides < 3 || radius < Numeric::EPSILON ) {
         return;
@@ -297,7 +297,7 @@ GlutDebugPatchHierarchy::drawCenterMark(
 void
 GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
     const GalerkinElement *topLevelElement,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( topLevelElement == nullptr || renderOptions == nullptr ) {
         return;
@@ -425,7 +425,7 @@ GlutDebugPatchHierarchy::renderInteractionBetweenSelected(
 void
 GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     const Scene *scene,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     int primaryPatchIndex,
     int secondaryPatchIndex,
     int hierarchyLevel,
@@ -470,7 +470,7 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
         return;
     }
 
-    RenderOptions interactingRenderOptions = *renderOptions;
+    RendererConfiguration interactingRenderOptions = *renderOptions;
     interactingRenderOptions.drawSurfaces = true;
     interactingRenderOptions.drawOutlines = true;
     interactingRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
@@ -500,7 +500,7 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
 void
 GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     const GalerkinElement *topLevelElement,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     int hierarchyLevel)
 {
     if ( topLevelElement == nullptr || renderOptions == nullptr || topLevelElement->isCluster() ) {
@@ -510,7 +510,7 @@ GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     const int maxLevel = maxLevelFromElement(topLevelElement);
     const int secondaryHierarchyLevel = clampLevel(hierarchyLevel, maxLevel);
 
-    RenderOptions secondaryRenderOptions = *renderOptions;
+    RendererConfiguration secondaryRenderOptions = *renderOptions;
     secondaryRenderOptions.drawSurfaces = true;
     secondaryRenderOptions.drawOutlines = true;
     secondaryRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
@@ -554,7 +554,7 @@ GlutDebugPatchHierarchy::maxLevelAcrossScene(const Scene *scene) {
 void
 GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
     const Scene *scene,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     int primaryPatchIndex,
     int secondaryPatchIndex,
     int hierarchyLevel,
@@ -576,7 +576,7 @@ GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
         const int maxLevel = maxLevelFromElement(primaryTopLevelElement);
         const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
 
-        RenderOptions selectedRenderOptions = *renderOptions;
+        RendererConfiguration selectedRenderOptions = *renderOptions;
         selectedRenderOptions.drawSurfaces = true;
         selectedRenderOptions.drawOutlines = true;
 
@@ -588,7 +588,7 @@ GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
 void
 GlutDebugPatchHierarchy::renderSecondarySelectedPatchMarker(
     const Scene *scene,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     int secondaryPatchIndex,
     int hierarchyLevel)
 {

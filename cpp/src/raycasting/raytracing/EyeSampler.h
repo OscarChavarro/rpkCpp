@@ -5,7 +5,7 @@ Just fills in the eye point in the node
 #ifndef _EYE_SAMPLER__
 #define _EYE_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

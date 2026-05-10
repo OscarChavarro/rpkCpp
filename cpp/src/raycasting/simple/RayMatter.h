@@ -1,7 +1,7 @@
 #ifndef __RAY_MATTER__
 #define __RAY_MATTER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -43,7 +43,7 @@ class RayMatter final : public RayTracer {
         Scene *scene,
         RadianceMethod *radianceMethod,
         ToneMappingContext *toneMapOptions,
-        const RenderOptions *renderOptions) const final;
+        const RendererConfiguration *renderOptions) const final;
 
     bool saveImage(ImageOutputHandle *imageOutputHandle) const final;
     void terminate() const;

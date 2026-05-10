@@ -1,7 +1,7 @@
 #include <cstdlib>
 
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -71,7 +71,7 @@ void
 PhotonMapRadianceMethod::writeVRML(
     const Camera */*camera*/,
     java::OutputStream */*outputStream*/,
-    const RenderOptions */*renderOptions*/) const
+    const RendererConfiguration */*renderOptions*/) const
 {
 }
 
@@ -613,7 +613,7 @@ colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
 bool
-PhotonMapRadianceMethod::doStep(Scene *scene, RenderOptions */*renderOptions*/) {
+PhotonMapRadianceMethod::doStep(Scene *scene, RendererConfiguration */*renderOptions*/) {
     photonMapState.lastClock = java::System::nanoTime();
 
     photonMapBRRealIteration(scene->camera, scene->voxelGrid, scene->background, this);
@@ -699,7 +699,7 @@ PhotonMapRadianceMethod::getRadiance(
     double u,
     double v,
     Vector3D dir,
-    const RenderOptions */*renderOptions*/) const
+    const RendererConfiguration */*renderOptions*/) const
 {
     RayHit hit;
     Vector3D point;

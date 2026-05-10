@@ -12,7 +12,7 @@ void
 GalerkinOpenGLRenderer::galerkinRenderPatch(
     const Patch *patch,
     const Camera * /*camera*/,
-    const RenderOptions *renderOptions)
+    const RendererConfiguration *renderOptions)
 {
     if ( patch == nullptr ) {
         return;
@@ -21,7 +21,7 @@ GalerkinOpenGLRenderer::galerkinRenderPatch(
 }
 
 void
-GalerkinOpenGLRenderer::renderElementHierarchy(const GalerkinElement *element, const RenderOptions *renderOptions) {
+GalerkinOpenGLRenderer::renderElementHierarchy(const GalerkinElement *element, const RendererConfiguration *renderOptions) {
     if ( element == nullptr || renderOptions == nullptr ) {
         return;
     }
@@ -37,7 +37,7 @@ GalerkinOpenGLRenderer::renderElementHierarchy(const GalerkinElement *element, c
 }
 
 void
-GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, const RenderOptions *renderOptions) {
+GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, const RendererConfiguration *renderOptions) {
     if ( element == nullptr || renderOptions == nullptr ) {
         return;
     }
@@ -130,7 +130,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 void
 GalerkinOpenGLRenderer::renderScene(
     const Scene *scene,
-    const RenderOptions *renderOptions,
+    const RendererConfiguration *renderOptions,
     const GlutDebugState *debugState)
 {
     if ( scene == nullptr || renderOptions == nullptr ) {
@@ -149,7 +149,7 @@ GalerkinOpenGLRenderer::renderScene(
         return;
     }
 
-    RenderOptions modifiedRenderOptions = *renderOptions;
+    RendererConfiguration modifiedRenderOptions = *renderOptions;
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         if ( debugState->showSelectedPathOnly ) {
             if ( i == debugState->primarySelectedPatch ) {

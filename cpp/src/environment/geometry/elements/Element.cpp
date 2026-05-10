@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 #endif
@@ -97,7 +97,7 @@ Element::traverseClusterLeafElements(void (*traversalCallbackFunction)(Element *
 }
 
 void
-Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RenderOptions *), const RenderOptions *renderOptions)
+Element::traverseQuadTreeLeafs(void (*traversalCallbackFunction)(Element *, const RendererConfiguration *), const RendererConfiguration *renderOptions)
 {
     if ( regularSubElements == nullptr ) {
         // Trivial case

@@ -3,7 +3,7 @@
 
 #include "app/options/EnumBackgroundMode.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMappingContext.h"
@@ -17,7 +17,7 @@ class OptionsGroupCore final {
         char **argv,
         ParseRuntimeContext &parseSession,
         Scene &scene,
-        RenderOptions &renderOptions,
+        RendererConfiguration &renderOptions,
         ToneMappingContext &toneMapOptions,
         int &imageOutputWidth,
         int &imageOutputHeight,

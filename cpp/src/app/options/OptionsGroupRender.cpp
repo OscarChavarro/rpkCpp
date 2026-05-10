@@ -5,7 +5,7 @@
 #include "app/options/OptionsGroupRender.h"
 
 int OptionsGroupRender::trueValue = true;
-RenderOptions OptionsGroupRender::renderOptionsState;
+RendererConfiguration OptionsGroupRender::renderOptionsState;
 ColorRgb OptionsGroupRender::outlineColor;
 
 void
@@ -32,7 +32,7 @@ void
 OptionsGroupRender::renderParseOptions(
         int *argc,
         char **argv,
-        RenderOptions *renderOptions)
+        RendererConfiguration *renderOptions)
 {
     TypedOption<int> flatOpt = {"-flat-shading", &trueValue, 0, OptionsGroupRender::flatOption, nullptr};
     TypedOption<int> raycastOpt = {"-raycast", &trueValue, 0, OptionsGroupRender::traceOption, nullptr};

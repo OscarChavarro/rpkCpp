@@ -8,7 +8,7 @@ Monte Carlo radiosity
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "environment/geometry/elements/Element.h"
 #include "skin/Geometry.h"
 #include "environment/geometry/elements/Patch.h"
@@ -27,16 +27,16 @@ class Mcrad final {
     static void monteCarloRadiosityDestroyPatchData(Patch *patch);
     static void monteCarloRadiosityPatchComputeNewColor(Patch *patch);
     static void monteCarloRadiosityInit();
-    static void monteCarloRadiosityUpdateViewImportance(Scene *scene, const RenderOptions *renderOptions);
-    static void monteCarloRadiosityReInit(Scene *scene, const RenderOptions *renderOptions);
-    static void monteCarloRadiosityPreStep(Scene *scene, const RenderOptions *renderOptions);
+    static void monteCarloRadiosityUpdateViewImportance(Scene *scene, const RendererConfiguration *renderOptions);
+    static void monteCarloRadiosityReInit(Scene *scene, const RendererConfiguration *renderOptions);
+    static void monteCarloRadiosityPreStep(Scene *scene, const RendererConfiguration *renderOptions);
     static void monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches);
     static ColorRgb monteCarloRadiosityGetRadiance(
         Patch *patch,
         double u,
         double v,
         Vector3D dir,
-        const RenderOptions *renderOptions);
+        const RendererConfiguration *renderOptions);
 
   private:
     static void monteCarloRadiosityInitPatch(const Patch *patch);

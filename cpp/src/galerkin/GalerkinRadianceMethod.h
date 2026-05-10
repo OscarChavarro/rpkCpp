@@ -3,7 +3,7 @@
 
 #include <cstdarg>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "java/lang/String.h"
 #include "scene/Background.h"
 #include "scene/RadianceMethod.h"
@@ -30,7 +30,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static void writeVertexColor(const ColorRgb *color);
     static void writeVertexColors(Element *element);
     static void writeVertexColorsTopCluster();
-    static void writeColors(const RenderOptions *renderOptions);
+    static void writeColors(const RendererConfiguration *renderOptions);
     static void writeCoordIndex(int index);
     static void writeCoordIndices(Element *element);
     static void writeCoordIndicesTopCluster();
@@ -71,9 +71,9 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     const char *getRadianceMethodName() const final;
     void parseOptions(int *argc, char **argv) final;
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
-    bool doStep(Scene *scene, RenderOptions *renderOptions) final;
+    bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *, Patch *patch, double u, double v, Vector3D, const RenderOptions *) const final;
+    ColorRgb getRadiance(Camera *, Patch *patch, double u, double v, Vector3D, const RendererConfiguration *) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -81,7 +81,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     writeVRML(
         const Camera *camera,
         java::OutputStream *outputStream,
-        const RenderOptions *renderOptions) const final;
+        const RendererConfiguration *renderOptions) const final;
     void setStrategy();
 };
 

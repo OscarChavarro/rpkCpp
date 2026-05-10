@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 /**
 Rendering elements
@@ -187,7 +187,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const Stoc
 }
 
 ColorRgb
-StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RenderOptions *renderOptions) {
+StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RendererConfiguration *renderOptions) {
     ColorRgb radiance;
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {

@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Background.h"
 
 Background::Background():

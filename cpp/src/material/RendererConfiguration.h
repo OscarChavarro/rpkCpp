@@ -11,7 +11,7 @@ If this is undefined, the raytracing code can be trimmed as follows:
 Build-time feature flags are configured from CMake.
 */
 
-class RenderOptions {
+class RendererConfiguration {
   public:
     ColorRgb outlineColor; // Color in which to draw outlines
     ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
@@ -28,8 +28,8 @@ class RenderOptions {
     char renderRayTracedImage; // For freezing ray-traced image on the screen when appropriate
     char trace; // High-dynamic range ray-traced tiff
 
-    RenderOptions();
-    virtual ~RenderOptions();
+    RendererConfiguration();
+    virtual ~RendererConfiguration();
 
   private:
     static constexpr bool DEFAULT_SMOOTH_SHADING = true;

@@ -1,8 +1,8 @@
 #include "environment/geometry/elements/RayHitFlag.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/common/Raytools.h"
 
