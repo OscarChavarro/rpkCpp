@@ -3,7 +3,7 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "scene/Plane.h"
 #include "skin/BoundingBox.h"
 

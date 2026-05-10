@@ -5,7 +5,7 @@
 
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/Error.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"

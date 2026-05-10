@@ -1,7 +1,7 @@
 #ifndef __BINARY_MODEL_READER_PATCH_RECORD__
 #define __BINARY_MODEL_READER_PATCH_RECORD__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/Patch.h"
 

@@ -2,7 +2,7 @@
 #define __RADIANCE_IMAGE_EXPORTER__
 
 #include "java/io/OutputStream.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"

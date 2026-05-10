@@ -4,7 +4,7 @@
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
 #include "java/util/HashMap.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/writer/BinaryModelSerializationGraph.h"
 #include "io/context/ColorContext.h"

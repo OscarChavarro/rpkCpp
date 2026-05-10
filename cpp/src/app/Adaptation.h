@@ -6,7 +6,7 @@ Estimate static adaptation luminance in the current scene
 #define __ADAPTATION__
 
 #include "java/util/ArrayList.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "skin/Patch.h"
 #include "app/LuminanceArea.h"
 #include "tonemap/ToneMappingContext.h"

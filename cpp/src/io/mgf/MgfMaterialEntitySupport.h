@@ -1,7 +1,7 @@
 #ifndef __MGF_HANDLER_MATERIAL__
 #define __MGF_HANDLER_MATERIAL__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "io/context/ColorContext.h"
 #include "material/Material.h"
 #include "io/context/ParseRuntimeContext.h"

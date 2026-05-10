@@ -1,3 +1,4 @@
+#include "common/color/Cie.h"
 #include "tonemap/TumblinRushmeierToneMap.h"
 
 /**
@@ -45,7 +46,7 @@ TumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    const float rwl = radiance.luminance();
+    const float rwl = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
 
     float scale;
     if ( rwl > 0.0 ) {
@@ -62,7 +63,7 @@ TumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 TumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    const float rwl = static_cast<float>(M_PI) * radiance.luminance();
+    const float rwl = static_cast<float>(M_PI) * Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
     const float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff * static_cast<float>(M_PI));
 

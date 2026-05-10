@@ -2,7 +2,7 @@
 #define __STOCHASTIC_JACOBI__
 
 #include "java/util/ArrayList.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "skin/Patch.h"
 #include "scene/VoxelGrid.h"

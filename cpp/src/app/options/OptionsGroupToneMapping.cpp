@@ -3,7 +3,7 @@
 
 #include "java/lang/Math.h"
 #include "common/Error.h"
-#include "common/Cie.h"
+#include "common/color/Cie.h"
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
 #include "tonemap/ToneMap.h"

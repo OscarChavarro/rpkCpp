@@ -1,6 +1,7 @@
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
+#include "common/color/Cie.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "galerkin/GalerkinElement.h"
 #include "java/lang/Math.h"
@@ -146,7 +147,7 @@ GlutDebugPatchHierarchy::renderElementGray(
 
         ColorRgb rgbColor{};
         ToneMap::radianceToRgb(radianceSample, &rgbColor, *toneMapOptions);
-        grayValue = toneMappedGrayAndDarkened(rgbColor.luminance());
+        grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.r, rgbColor.g, rgbColor.b));
         glColor3f(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
     }
@@ -155,7 +156,10 @@ GlutDebugPatchHierarchy::renderElementGray(
     if ( renderOptions->drawSurfaces ) {
         outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
     } else {
-        outlineGray = toneMappedGrayAndDarkened(renderOptions->outlineColor.luminance());
+        outlineGray = toneMappedGrayAndDarkened(Cie::spectrumLuminance(
+            renderOptions->outlineColor.r,
+            renderOptions->outlineColor.g,
+            renderOptions->outlineColor.b));
     }
     outlineGray = clamp01(outlineGray);
     if ( outlineGray < OUTLINE_MIN_GRAY ) {

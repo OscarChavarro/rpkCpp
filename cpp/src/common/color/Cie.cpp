@@ -1,4 +1,4 @@
-#include "common/Cie.h"
+#include "common/color/Cie.h"
 
 /**
 This code is a modified version of the CIE XYZ<->RGB code

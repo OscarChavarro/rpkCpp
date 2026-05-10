@@ -1,7 +1,7 @@
 #ifndef __BINARY_MODEL_READER_VERTEX_RECORD__
 #define __BINARY_MODEL_READER_VERTEX_RECORD__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "io/bin/reader/BinaryModelIndexListRef.h"
 
 class BinaryModelVertexRecordData {

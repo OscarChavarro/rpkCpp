@@ -1,4 +1,5 @@
 #include "common/Error.h"
+#include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "tonemap/LightnessToneMap.h"
 

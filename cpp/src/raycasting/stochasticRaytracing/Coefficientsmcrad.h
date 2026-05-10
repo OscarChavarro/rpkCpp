@@ -1,7 +1,7 @@
 #ifndef __COEFFICIENTS__
 #define __COEFFICIENTS__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 

@@ -3,7 +3,7 @@
 #include "java/lang/Integer.h"
 #include "java/util/ArrayList.txx"
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/Error.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/MinMaxBox.h"

@@ -5,7 +5,7 @@ Higher order approximations for Galerkin radiosity
 #ifndef __BASIS__
 #define __BASIS__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "numericalAnalysis/CubatureRule.h"
 #include "raycasting/stochasticRaytracing/Mcrad.h"

@@ -3,6 +3,7 @@ Determination of constant control radiosity value
 */
 #include "java/lang/System.h"
 #include "common/RenderOptions.h"
+#include "common/color/Cie.h"
 
 #ifdef RAYTRACING_ENABLED
 
@@ -313,7 +314,7 @@ Ccr::determineControlRadiosity(
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(&java::System::err);
-    java::System::err.printf(" (%g lux)", M_PI * beta.luminance());
+    java::System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.r, beta.g, beta.b));
     java::System::err.printf("\n");
     return beta;
 }

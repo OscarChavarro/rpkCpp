@@ -6,7 +6,7 @@ Constant Control Radiosity
 #define __CCR__
 
 #include "java/util/ArrayList.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "skin/Patch.h"
 

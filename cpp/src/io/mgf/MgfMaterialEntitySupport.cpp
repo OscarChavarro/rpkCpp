@@ -2,6 +2,7 @@
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
+#include "common/color/Cie.h"
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/context/TokenValidationContext.h"
 #include "io/mgf/MgfEntityControl.h"
@@ -174,12 +175,12 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     }
 
     if ( context->monochrome ) {
-        Ed.setMonochrome(Ed.gray());
-        Es.setMonochrome(Es.gray());
-        Rd.setMonochrome(Rd.gray());
-        Rs.setMonochrome(Rs.gray());
-        Td.setMonochrome(Td.gray());
-        Ts.setMonochrome(Ts.gray());
+        Ed.setMonochrome(Cie::spectrumGray(Ed.r, Ed.g, Ed.b));
+        Es.setMonochrome(Cie::spectrumGray(Es.r, Es.g, Es.b));
+        Rd.setMonochrome(Cie::spectrumGray(Rd.r, Rd.g, Rd.b));
+        Rs.setMonochrome(Cie::spectrumGray(Rs.r, Rs.g, Rs.b));
+        Td.setMonochrome(Cie::spectrumGray(Td.r, Td.g, Td.b));
+        Ts.setMonochrome(Cie::spectrumGray(Ts.r, Ts.g, Ts.b));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;

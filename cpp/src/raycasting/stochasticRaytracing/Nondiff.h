@@ -2,7 +2,7 @@
 #define __NONDIFF__
 
 #include "java/util/ArrayList.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Ray.h"
 #include "common/RenderOptions.h"
 #include "scene/RadianceMethod.h"

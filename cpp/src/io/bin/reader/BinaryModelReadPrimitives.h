@@ -2,7 +2,7 @@
 #define __BINARY_MODEL_READER_SUPPORT__
 
 #include "common/Error.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/reader/BinaryModelIndexListRef.h"
 #include "io/bin/reader/BinaryModelSnapshotRecordData.h"

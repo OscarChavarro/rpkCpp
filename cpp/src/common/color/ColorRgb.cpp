@@ -1,6 +1,6 @@
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/Numeric.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 ColorRgb::ColorRgb(const float inR, const float inG, const float inB) {
     r = inR;
@@ -108,16 +108,6 @@ ColorRgb::minimum(const ColorRgb s, const ColorRgb t) {
 float
 ColorRgb::average() const {
     return (r + g + b) / 3.0f;
-}
-
-float
-ColorRgb::gray() const {
-    return Cie::spectrumGray(r, g, b);
-}
-
-float
-ColorRgb::luminance() const {
-    return Cie::spectrumLuminance(r, g, b);
 }
 
 void

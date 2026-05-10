@@ -1,7 +1,7 @@
 #ifndef __DENSITY_HIT__
 #define __DENSITY_HIT__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 /**
 Class DensityBuffer : class for storing sample hits on screen

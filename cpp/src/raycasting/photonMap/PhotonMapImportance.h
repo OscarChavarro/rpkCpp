@@ -1,7 +1,7 @@
 #ifndef __PHOTON_MAP_IMPORTANCE__
 #define __PHOTON_MAP_IMPORTANCE__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"

@@ -7,7 +7,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #ifndef __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 #define __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"

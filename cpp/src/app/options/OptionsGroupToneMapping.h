@@ -1,7 +1,7 @@
 #ifndef __COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
 #define __COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "tonemap/ToneMappingContext.h"
 

@@ -1,3 +1,4 @@
+#include "common/color/Cie.h"
 #include "tonemap/ToneMappingContext.h"
 #include "tonemap/ToneMap.h"
 

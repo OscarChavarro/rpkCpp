@@ -2,7 +2,7 @@
 #define __COMMAND_LINE_CORE_OPTIONS_GROUP__
 
 #include "app/options/EnumBackgroundMode.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "scene/Scene.h"

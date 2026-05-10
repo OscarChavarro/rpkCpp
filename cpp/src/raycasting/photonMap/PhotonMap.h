@@ -3,7 +3,7 @@
 
 #include "java/io/PrintStream.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "skin/RayHit.h"
 #include "raycasting/photonMap/PhotonClass.h"

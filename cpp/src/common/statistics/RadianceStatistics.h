@@ -1,7 +1,7 @@
 #ifndef __RADIANCE_STATISTICS__
 #define __RADIANCE_STATISTICS__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 class RadianceStatistics {
   public:

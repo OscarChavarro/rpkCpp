@@ -8,7 +8,7 @@ Several functions are provided for different iterating schemes
 #ifndef __SCREEN_ITERATE__
 #define __SCREEN_ITERATE__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "scene/Background.h"
 #include "tonemap/ToneMappingContext.h"
 #include "raycasting/raytracing/ScreenIterateState.h"
