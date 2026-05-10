@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
 #include "numericalAnalysis/TriangleCubatureRule.h"
@@ -317,7 +317,7 @@ GalerkinElement::reAllocCoefficients() {
                 localBasisSize = 10;
                 break;
             default:
-                Error::fatal(-1, "glrknElemReAllcCoeff", "Invalid basis type %d", galerkinState->basisType);
+                Logger::fatal(-1, "glrknElemReAllcCoeff", "Invalid basis type %d", galerkinState->basisType);
         }
     }
 
@@ -370,7 +370,7 @@ Only applicable to surface elements.
 void
 GalerkinElement::regularSubDivide() {
     if ( isCluster() ) {
-        Error::fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+        Logger::fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
     }
 
     if ( regularSubElements != NULL ) {
@@ -470,7 +470,7 @@ GalerkinElement::regularSubElementAtPoint(double *u, double *v) {
             }
             break;
         default:
-            Error::fatal(-1, "glrknElemRegSubElemAPnt", "Can handle only triangular or quadrilateral elements");
+            Logger::fatal(-1, "glrknElemRegSubElemAPnt", "Can handle only triangular or quadrilateral elements");
     }
 
     return ((GalerkinElement *)(childElement));
@@ -604,7 +604,7 @@ element. Cannot be used for clusters
 void
 GalerkinElement::initPolygon(Polygon *polygon) const {
     if ( isCluster() ) {
-        Error::fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+        Logger::fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
     }
 
     polygon->normal = patch->normal;

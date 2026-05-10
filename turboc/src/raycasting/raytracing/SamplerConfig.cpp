@@ -4,7 +4,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "java/lang/System.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "raycasting/raytracing/SamplerConfig.h"
@@ -79,7 +79,7 @@ SamplerConfig::traceNode(
     if ( lastNode == NULL ) {
         // Fill in first node
         if ( !pointSampler->sample(camera, sceneVoxelGrid, sceneBackground, NULL, NULL, nextNode, x1, x2) ) {
-            Error::warning("SamplerConfig::traceNode", "Point sampler failed");
+            Logger::warning("SamplerConfig::traceNode", "Point sampler failed");
             return NULL;
         }
     } else if ( lastNode->m_depth == 0 ) {

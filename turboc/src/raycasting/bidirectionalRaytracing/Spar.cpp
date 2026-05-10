@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 
@@ -88,7 +88,7 @@ LDSpar::init(SparConfig *sparConfig, RadianceMethod *radianceMethod) {
     }
 
     if ( radianceMethod == NULL ) {
-        Error::error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
+        Logger::error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
     }
 
     // Overlap group

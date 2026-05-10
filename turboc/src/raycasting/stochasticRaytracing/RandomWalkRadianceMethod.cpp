@@ -1,7 +1,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
@@ -104,7 +104,7 @@ RandomWalkRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOp
     (void) scene;
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == NULL ) {
-        Error::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation::activeState().method = RANDOM_WALK_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
@@ -217,7 +217,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n
             }
             break;
         default:
-            Error::fatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
+            Logger::fatal(-1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
                      StochasticRelaxation::activeState().randomWalkEstimatorKind);
     }
     return w;
@@ -526,7 +526,7 @@ RandomWalkRadianceMethod::doStep(Scene *scene, RenderOptions *renderOptions) {
             rndmWalkRadDGthrnItrtn(scene->voxelGrid, scene->patchList);
             break;
         default:
-            Error::fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
+            Logger::fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                      StochasticRelaxation::activeState().randomWalkEstimatorType);
     }
 

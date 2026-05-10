@@ -1,5 +1,5 @@
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "skin/BoundingBox.h"
 #include "scene/Camera.h"
 
@@ -57,7 +57,7 @@ Camera::complete() {
     // Distance from virtual camera position to focus point
     viewDistance = Z.norm();
     if ( viewDistance < Numeric::EPSILON ) {
-        Error::error("SetCamera", "eye point and look-point coincide");
+        Logger::error("SetCamera", "eye point and look-point coincide");
         return NULL;
     }
     Z.inverseScaledCopy(viewDistance, Z, Numeric::EPSILON_FLOAT);
@@ -66,7 +66,7 @@ Camera::complete() {
     X.crossProduct(Z, upDirection);
     const float n = X.norm();
     if ( n < Numeric::EPSILON ) {
-        Error::error("SetCamera", "up-direction and viewing direction coincide");
+        Logger::error("SetCamera", "up-direction and viewing direction coincide");
         return NULL;
     }
     X.inverseScaledCopy(n, X, Numeric::EPSILON_FLOAT);

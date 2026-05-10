@@ -3,7 +3,7 @@
 #include "java/lang/Math.h"
 #include "java/lang/System.h"
 #include "common/linealAlgebra/Numeric.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/dataStructures/KDQuery.h"
 #include "common/dataStructures/KDTree.h"
 
@@ -164,7 +164,7 @@ Iterate nodes : iterate all nodes (only for balanced trees!)
 void
 KDTree::iterateNodes(void (*callBack)(void *, void *), void *data) {
     if ( numUnbalanced > 0 ) {
-        Error::error(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+        Logger::error(" KDTree::iterateNodes", "Cannot iterate unbalanced trees");
         return;
     }
 
@@ -192,7 +192,7 @@ KDTree::query(
 
     if ( inDistances == NULL ) {
         if ( N > 1000 ) {
-            Error::error("KDTree::query", "Too many nodes requested");
+            Logger::error("KDTree::query", "Too many nodes requested");
             return 0;
         }
         usedDistances = inDistances;

@@ -17,7 +17,7 @@ TODO: lines and line bundles.
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/Ccr.h"
@@ -175,7 +175,7 @@ StochasticJacobi::stochasticJacobiSetup(const ArrayList<Patch *> *scenePatches) 
     stochasticJacobiElementSetup(ElementHierarchyState::activeState().topCluster);
 
     if ( sumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
-        Error::warning("Iteration", "No sources");
+        Logger::warning("Iteration", "No sources");
         return false;
     }
     return true;
@@ -349,7 +349,7 @@ StochasticJacobi::stchsJacPropRadn(
     } else {
         switch ( ElementHierarchyState::activeState().clustering ) {
             case NO_CLUSTERING:
-                Error::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
+                Logger::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
                 return;
 
             case ISOTROPIC_CLUSTERING:
@@ -363,7 +363,7 @@ StochasticJacobi::stchsJacPropRadn(
                 }
                 break;
             default:
-                Error::fatal(-1, "Propagate", "Invalid clustering mode %d\n", ((int)(ElementHierarchyState::activeState().clustering)));
+                Logger::fatal(-1, "Propagate", "Invalid clustering mode %d\n", ((int)(ElementHierarchyState::activeState().clustering)));
         }
     }
 }
@@ -389,7 +389,7 @@ StochasticJacobi::stchsJacPropImp(
 
     if ( ElementHierarchyState::activeState().do_h_meshing ||
          ElementHierarchyState::activeState().clustering != NO_CLUSTERING ) {
-        Error::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
+        Logger::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
 

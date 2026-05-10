@@ -8,7 +8,7 @@ and contain necessary information for raytracing-like algorithms
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "skin/Patch.h"
 #include "io/wrapper/Vector3DPrinter.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
@@ -91,7 +91,7 @@ SimpleRaytracingPathNode::GetMatchingNode() const {
             case REFLECTS:
                 break;
             default:
-                Error::error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+                Logger::error("CPathNode::GetMatchingNode", "Wrong ray type in path");
         }
 
         matchedNode = tmpNode;
@@ -108,19 +108,19 @@ SimpleRaytracingPathNode::GetMatchingNode() const {
 PhongBidirScattDistFunc *
 SimpleRaytracingPathNode::getPreviousBsdf() const {
     if ( !(m_hit.getFlags() & BACK) ) {
-        Error::error("CPathNode::getPreviousBsdf", "Last node not a back hit");
+        Logger::error("CPathNode::getPreviousBsdf", "Last node not a back hit");
         return m_inBsdf;  // Should not happen
     }
 
     if ( m_hit.getPatch()->material->getBsdf() != m_inBsdf ) {
-        Error::warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+        Logger::warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     // Find the corresponding ray that enters the material
     SimpleRaytracingPathNode *const matchedNode = GetMatchingNode();
 
     if ( matchedNode == NULL ) {
-        Error::warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+        Logger::warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
         return m_inBsdf;  // Should not happen
     }
 

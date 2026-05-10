@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/MemoryPool.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
@@ -42,7 +42,7 @@ LinkingSimpleStrategy::createInitialLink(
             src = topLevelElement;
             break;
         default:
-            Error::fatal(2, "createInitialLink", "Impossible element role");
+            Logger::fatal(2, "createInitialLink", "Impossible element role");
     }
 
     ArrayList<Geometry *> *oldCandidateList = *candidateList;
@@ -226,7 +226,7 @@ LinkingSimpleStrategy::createInitialLinks(
     GalerkinElement *topElement)
 {
     if ( topElement->flags & IS_CLUSTER_MASK ) {
-        Error::fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+        Logger::fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
     BoundingBox topLevelBoundingBox;

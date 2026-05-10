@@ -4,7 +4,7 @@ Bidirectional Reflectance Distribution Functions (BSDF)
 Implementation of a BSDF consisting of one brdf and one bsdf. Either of the components may be NULL
 */
 #include "java/lang/Float.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
@@ -104,7 +104,7 @@ PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture, const Shad
         return col;
     }
     if ( !context.hasFlag(TEXTURE_COORDINATE) ) {
-        Error::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+        Logger::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
@@ -123,7 +123,7 @@ PhongBidirScattDistFunc::splitBsdfEvalTexture(const Texture *texture,  RayHit *h
     }
 
     if ( hit == NULL || !hit->getTexCoord(&texCoord) ) {
-        Error::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+        Logger::warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
         return col;
     }
 
@@ -147,7 +147,7 @@ PhongBidirScattDistFunc::splitBsdfScatteredPower(const ShadingContext &context, 
     if ( brdf ) {
         ColorRgb reflectance = brdf->reflectance(flags);
         if ( !Float::isFinite(reflectance.average()) ) {
-            Error::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+            Logger::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
 
         albedo.add(albedo, reflectance);
@@ -356,7 +356,7 @@ PhongBidirScattDistFunc::sample(
 
     *probabilityDensityFunction = 0; // So we can return safely
     if ( !context.hasFlag(NORMAL) ) {
-        Error::warning("sample", "Couldn't determine shading normal");
+        Logger::warning("sample", "Couldn't determine shading normal");
         out.set(0.0, 0.0, 1.0);
         return out;
     }
@@ -542,7 +542,7 @@ PhongBidirScattDistFunc::evaluate(
 
     result.clear();
     if ( !context.hasFlag(NORMAL) ) {
-        Error::warning("evaluate", "Couldn't determine shading normal");
+        Logger::warning("evaluate", "Couldn't determine shading normal");
         return result;
     }
     normal = context.getShadingNormal();
@@ -647,7 +647,7 @@ PhongBidirScattDistFunc::evalProbDensFunc(
 
     *probabilityDensityFunction = *probabilityDensityFunctionRR = 0.0; // So we can return safely
     if ( !context.hasFlag(NORMAL) ) {
-        Error::warning("evalProbDensFunc", "Couldn't determine shading normal");
+        Logger::warning("evalProbDensFunc", "Couldn't determine shading normal");
         return;
     }
     normal = context.getShadingNormal();

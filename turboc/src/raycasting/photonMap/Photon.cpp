@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/photonMap/PhotonClass.h"
 void
 Photon::findRS(
@@ -23,6 +23,6 @@ Photon::findRS(
         *s = phi / (2 * M_PI);
         *r = Math::pow(Math::cos(theta), ((double)(n)) + 1.0);
     } else {
-        Error::error("Photon::findRS", "Component %i not implemented yet", flag);
+        Logger::error("Photon::findRS", "Component %i not implemented yet", flag);
     }
 }

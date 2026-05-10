@@ -1,5 +1,5 @@
 #include "raycasting/stochasticRaytracing/StochasticRayTracingState.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
 StochasticRelaxation::StochasticRelaxation():
@@ -60,7 +60,7 @@ StochasticRelaxation &
 StochasticRelaxation::activeState() {
     StochasticRelaxation *state = activeStatePtr();
     if ( state == NULL ) {
-        Error::fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+        Logger::fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
     }
     return *state;
 }

@@ -106,8 +106,8 @@ src/common/color/ColorRgb.cpp,src/common/CORGLORB.CPP,ColorRgb.cpp,CORGLORB.CPP
 src/common/color/ColorRgb.h,src/common/CORGLORB.H,ColorRgb.h,CORGLORB.H
 src/common/CppReAlloc.cpp,src/common/CPREALPL.CPP,CppReAlloc.cpp,CPREALPL.CPP
 src/common/CppReAlloc.h,src/common/CPREALPL.H,CppReAlloc.h,CPREALPL.H
-src/common/Error.cpp,src/common/ERRORERR.CPP,Error.cpp,ERRORERR.CPP
-src/common/Error.h,src/common/ERRORERR.H,Error.h,ERRORERR.H
+src/common/logging/Logger.cpp,src/common/logging/LOGGERER.CPP,Logger.cpp,LOGGERER.CPP
+src/common/logging/Logger.h,src/common/logging/LOGGERER.H,Logger.h,LOGGERER.H
 src/common/RenderOptions.cpp,src/common/REOPNDER.CPP,RenderOptions.cpp,REOPNDER.CPP
 src/common/RenderOptions.h,src/common/REOPNDER.H,RenderOptions.h,REOPNDER.H
 src/common/StratifiedSampling2D.cpp,src/common/STSA2DRA.CPP,StratifiedSampling2D.cpp,STSA2DRA.CPP

@@ -2,7 +2,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
 #include "raycasting/photonMap/PhotonMapRadianceMethod.h"
@@ -53,7 +53,7 @@ StochasticRaytracer::execute(
     const RenderOptions *renderOptions) const
 {
     if ( toneMapOptions == NULL ) {
-        Error::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+        Logger::fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
     }
 
     StochRaytrConfig config(

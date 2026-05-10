@@ -5,7 +5,7 @@
 #ifndef __BINARY_MODEL_READER_SUPPORT__
 #define __BINARY_MODEL_READER_SUPPORT__
 
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "io/bin/reader/BinaryModelIndexListRef.h"
@@ -65,12 +65,12 @@ BinaryModelReadPrimitives::initializeArrayList(ArrayList<T> *list, int count, T 
         return reportReadError("BinaryModelReadPrimitives::initializeArrayList", "Null list pointer");
     }
     if ( count < 0 ) {
-        Error::error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
         return false;
     }
     for ( int i = 0; i < count; i++ ) {
         if ( !list->add(initialValue) ) {
-            Error::error("BinaryModelReadPrimitives::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
+            Logger::error("BinaryModelReadPrimitives::initializeArrayList", "Failed to allocate entries while reading binary model (%s)", what);
             return false;
         }
     }
@@ -88,7 +88,7 @@ BinaryModelReadPrimitives::pointerFromIndex(const ArrayList<T *> &values, int in
         return true;
     }
     if ( index < 0 || ((long int)(index)) >= values.size() ) {
-        Error::error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
         return false;
     }
     *result = values.get(((long int)(index)));

@@ -11,7 +11,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "render/Potential.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
@@ -436,7 +436,7 @@ Mcrad::mntCarloRadInterpReflAPnt(const StochasticRadiosityElement *leaf, double 
                 rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], ((float)(u)), ((float)(v)));
                 break;
             default:
-                Error::fatal(-1, "mntCarloRadInterpReflAPnt", "Invalid nr of vertices %d",
+                Logger::fatal(-1, "mntCarloRadInterpReflAPnt", "Invalid nr of vertices %d",
                          leaf->numberOfVertices);
         }
     }

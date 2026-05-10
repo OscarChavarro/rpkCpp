@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 #include "tonemap/ToneMap.h"
 #include "io/wrapper/FileUncompressWrapper.h"
@@ -99,7 +99,7 @@ ScreenBuffer::merge(const ScreenBuffer *src1, const ScreenBuffer *src2, const Ca
     rgbImage = src1->isRgbImage();
 
     if ( (getHRes() != src2->getHRes()) || (getVRes() != src2->getVRes()) ) {
-        Error::error("ScreenBuffer::merge", "Incompatible screen buffer sources");
+        Logger::error("ScreenBuffer::merge", "Incompatible screen buffer sources");
         return;
     }
 
@@ -217,7 +217,7 @@ ScreenBuffer::syncLine(int lineNumber) {
 const ToneMappingContext &
 ScreenBuffer::requireToneMappingContext() const {
     if ( toneMapOptions == NULL ) {
-        Error::fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+        Logger::fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
     }
     return *toneMapOptions;
 }

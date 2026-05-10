@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "skin/Geometry.h"
 #include "skin/MinMaxBox.h"
@@ -142,7 +142,7 @@ shaft culling.
 Geometry *
 Geometry::clone() const {
     if ( className != PATCH_SET ) {
-        Error::fatal(666, "duplicateIfPatchSet", "this should not happen");
+        Logger::fatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
     PatchSet *newPatchSet = new PatchSet(Geometry::patchListReference(this));

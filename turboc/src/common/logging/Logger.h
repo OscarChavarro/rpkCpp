@@ -1,9 +1,9 @@
-#ifndef __ERROR__
-#define __ERROR__
+#ifndef __LOGGER__
+#define __LOGGER__
 
 #include "common/VSDK.h"
 
-class Error {
+class Logger {
   public:
     static void error(const char *routine, const char *text, ...);
     static void warning(const char *routine, const char *text, ...);

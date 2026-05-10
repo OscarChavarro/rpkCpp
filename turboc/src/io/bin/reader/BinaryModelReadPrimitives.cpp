@@ -6,7 +6,7 @@
 #include "java/util/ArrayList.txx"
 
 #include "common/color/ColorRgb.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/MinMaxBox.h"
 #include "io/context/ParseSnapshotContext.h"
@@ -22,7 +22,7 @@ const unsigned char BinaryModelReadPrimitives::BINARY_MODEL_MAGIC[16] = {
 
 bool
 BinaryModelReadPrimitives::reportReadError(const char *routine, const char *message) {
-    Error::error(routine, "%s", message);
+    Logger::error(routine, "%s", message);
     return false;
 }
 
@@ -97,7 +97,7 @@ BinaryModelReadPrimitives::readInt64LE(InputStream &input) {
         return ((long)(low));
     }
 
-    Error::error("BinaryModelReadPrimitives::readInt64LE", "64-bit value out of 32-bit long range; clamping");
+    Logger::error("BinaryModelReadPrimitives::readInt64LE", "64-bit value out of 32-bit long range; clamping");
     if ( high < 0 ) {
         return LONG_MIN;
     }
@@ -144,7 +144,7 @@ BinaryModelReadPrimitives::readNonNegativeCount(InputStream &input, const char *
     }
     *count = readInt32LE(input);
     if ( *count < 0 ) {
-        Error::error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
         return false;
     }
     return true;
@@ -260,7 +260,7 @@ BinaryModelReadPrimitives::readIndexList(InputStream &input, const char *what, B
         return true;
     }
     if ( count < -1 ) {
-        Error::error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
         return false;
     }
 
@@ -269,7 +269,7 @@ BinaryModelReadPrimitives::readIndexList(InputStream &input, const char *what, B
         if ( !record->indices->add(readInt32LE(input)) ) {
             delete record->indices;
             record->indices = NULL;
-            Error::error("BinaryModelReadPrimitives::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
+            Logger::error("BinaryModelReadPrimitives::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
             return false;
         }
     }

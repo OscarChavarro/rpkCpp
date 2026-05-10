@@ -4,7 +4,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 #include <string.h>
 
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "tonemap/ToneMap.h"
 #include "io/image/ImageOutputHandle.h"
 #include "io/image/PicOutputHandle.h"
@@ -59,7 +59,7 @@ returns the number of pixels written
 int
 ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     if ( toneMapOptions == NULL ) {
-        Error::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+        Logger::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
 
     unsigned char *rgb = new unsigned char[3 * width];
@@ -139,14 +139,14 @@ ImageOutputHandle::createRadianceImageOutputHandle(
         // Olaf: HDR PIC output
         else if ( strncasecmp(fileExtension, "pic", 3) == 0 ) {
             if ( isPipe ) {
-                Error::error("createRadianceImageOutputHandle",
+                Logger::error("createRadianceImageOutputHandle",
                          "Can't write PIC output to a pipe.\n");
                 return NULL;
             }
 
             return new PicOutputHandle(fileName, width, height);
         } else {
-            Error::error("createRadianceImageOutputHandle",
+            Logger::error("createRadianceImageOutputHandle",
                      "Can't save high dynamic range image to a '%s' file, format not supported.",
                      fileExtension);
             return NULL;
@@ -172,7 +172,7 @@ ImageOutputHandle::createImageOutputHandle(
         if ( strncasecmp(fileExtension, "ppm", 3) == 0 ) {
             return new PPMOutputHandle(outputStream, width, height);
         } else {
-            Error::error("createImageOutputHandle",
+            Logger::error("createImageOutputHandle",
                      "Can't save display-RGB images to a '%s' file, format not supported.\n",
                      fileExtension);
             return NULL;

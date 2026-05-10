@@ -8,7 +8,7 @@ This is a hack to get fresnel factors for perfect specular reflection and refrac
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 #include "raycasting/photonMap/PhotonMapSampler.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/common/Raytools.h"
 
 PhotonMapSampler::PhotonMapSampler() {
@@ -203,7 +203,7 @@ PhotonMapSampler::chooseFresnelDirection(
     bool trans = (transmittance.average() > Numeric::EPSILON);
 
     if ( reflective && trans ) {
-        Error::error("FresnelFactor",
+        Logger::error("FresnelFactor",
                  "Cannot deal with simultaneous reflective & transit materials");
         return false;
     }
@@ -224,7 +224,7 @@ PhotonMapSampler::chooseFresnelDirection(
                                                    &thisNode->m_normal);
             cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
             if ( cosI < 0 ) {
-                Error::error("fresnelSample", "cosI < 0");
+                Logger::error("fresnelSample", "cosI < 0");
             }
         } else {
             F = 0;
@@ -243,14 +243,14 @@ PhotonMapSampler::chooseFresnelDirection(
         cosI = thisNode->m_normal.dotProduct(thisNode->m_inDirF);
 
         if ( cosI < 0 ) {
-            Error::error("fresnelSample", "cosI < 0");
+            Logger::error("fresnelSample", "cosI < 0");
         }
 
         if ( !tir ) {
             cost = -thisNode->m_normal.dotProduct(refractedDir);
 
             if ( cost < 0 ) {
-                Error::error("fresnelSample", "cost < 0");
+                Logger::error("fresnelSample", "cost < 0");
             }
 
             float rParallel;
@@ -359,7 +359,7 @@ PhotonMapSampler::fresnelSample(
 
     // Fill in probability for previous node
     if ( m_computeFromNextPdf && prevNode ) {
-        Error::warning("FresnelSampler", "FromNextPdf not supported");
+        Logger::warning("FresnelSampler", "FromNextPdf not supported");
     }
 
     // Component propagation
@@ -428,7 +428,7 @@ PhotonMapSampler::gdSample(
     } else {
         flags = BRDF_GLOSSY_COMPONENT;
 
-        Error::error("PhotonMapSampler::gdSample", "Not done yet");
+        Logger::error("PhotonMapSampler::gdSample", "Not done yet");
         return false;
     }
 

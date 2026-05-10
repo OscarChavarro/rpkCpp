@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/raytracing/EyeSampler.h"
@@ -25,8 +25,8 @@ StochRaytrConfig::init( const Camera *defaultCamera, const StochasticRayTracingS
     doCorrelatedSampling = state.doCorrelatedSampling;
     baseSeed = state.baseSeed;
 
-    if ( radMode != STORED_NONE){ if ( radianceMethod == NULL){ Error::error("Stored Radiance", "No radiance method active, using no storage");
-        } else if ( (radMode == STORED_PHOTON_MAP) && (radianceMethod->className != PHOTON_MAP)){ Error::error("Stored Radiance", "Photon map method not active, using no storage");
+    if ( radMode != STORED_NONE){ if ( radianceMethod == NULL){ Logger::error("Stored Radiance", "No radiance method active, using no storage");
+        } else if ( (radMode == STORED_PHOTON_MAP) && (radianceMethod->className != PHOTON_MAP)){ Logger::error("Stored Radiance", "Photon map method not active, using no storage");
         }
         radMode = STORED_NONE;
     }
@@ -39,7 +39,7 @@ StochRaytrConfig::init( const Camera *defaultCamera, const StochasticRayTracingS
     reflectionSampling = state.reflectionSampling;
 
     if ( reflectionSampling == CLASSICAL_SAMPLING
-      && radMode == STORED_INDIRECT){ Error::error("Classical raytracing", "Incompatible with extended  gather, using storage directly");
+      && radMode == STORED_INDIRECT){ Logger::error("Classical raytracing", "Incompatible with extended  gather, using storage directly");
         radMode = STORED_DIRECT;
     }
 
@@ -50,7 +50,7 @@ StochRaytrConfig::init( const Camera *defaultCamera, const StochasticRayTracingS
 
     separateSpecular = state.separateSpecular;
 
-    if ( reflectionSampling == PHOTON_MAP_SAMPLING){ Error::warning("Fresnel Specular Sampling", "always uses separate specular");
+    if ( reflectionSampling == PHOTON_MAP_SAMPLING){ Logger::warning("Fresnel Specular Sampling", "always uses separate specular");
         separateSpecular = true;  // Always separate specular with photon map
     }
 
@@ -58,7 +58,7 @@ StochRaytrConfig::init( const Camera *defaultCamera, const StochasticRayTracingS
     samplerConfig.maxDepth = state.maxPathDepth;
 
     toneMapOptions = inToneMapOptions;
-    if ( toneMapOptions == NULL){ Error::fatal(-1, "StochRaytrConfig::init", "Tone mapping context not set");
+    if ( toneMapOptions == NULL){ Logger::fatal(-1, "StochRaytrConfig::init", "Tone mapping context not set");
     }
 
     screen = new ScreenBuffer(NULL, defaultCamera, toneMapOptions);
@@ -82,7 +82,7 @@ StochRaytrConfig::initDependentVars( const ArrayList<Patch *> *lightList, const 
             samplerConfig.surfaceSampler = new SpecularSampler;
             break;
         default:
-            Error::error("SR CONFIG::initDependentVars", "Wrong sampling mode");
+            Logger::error("SR CONFIG::initDependentVars", "Wrong sampling mode");
     }
 
     // Scatter info blocks
@@ -115,7 +115,7 @@ StochRaytrConfig::initDependentVars( const ArrayList<Patch *> *lightList, const 
             siStorage.nrSamplesAfter = 0;
             break;
         default:
-            Error::error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
+            Logger::error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
     }
 
     // Other blocks, this is non storage with optional

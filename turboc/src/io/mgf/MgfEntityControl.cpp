@@ -1,7 +1,7 @@
 #include <string.h>
 
 #include "java/io/FileInputStream.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/mgf/MgfEntityControl.h"
@@ -46,12 +46,12 @@ MgfEntityControl::mgfDfltHndlrFUnknwEntts(int /*ac*/, const char ** /*av*/, cons
 
 void
 MgfEntityControl::doError(const char *errmsg, ParseRuntimeContext *context) {
-    Error::error(NULL, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Logger::error(NULL, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 void
 MgfEntityControl::doWarning(const char *errmsg, ParseRuntimeContext *context) {
-    Error::warning(NULL, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
+    Logger::warning(NULL, "%s line %d: %s", context->readerContext->fileName, context->readerContext->lineNumber, errmsg);
 }
 
 /**

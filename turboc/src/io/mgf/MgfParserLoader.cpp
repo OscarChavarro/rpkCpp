@@ -6,7 +6,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "java/util/StringTokenizer.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "io/mgf/MgfEntityControl.h"
 #include "io/mgf/MgfConeEntityTessellator.h"
 #include "io/mgf/MgfCylinderEntityExpander.h"
@@ -207,7 +207,7 @@ Sets the number of quarter circle divisions for discrete approximation of cylind
 void
 MgfParserLoader::mgfSetNrQuartCircDivs(int divs) {
     if ( divs <= 0 ) {
-        Error::error(NULL, "Number of quarter circle divisions (%d) should be positive", divs);
+        Logger::error(NULL, "Number of quarter circle divisions (%d) should be positive", divs);
         return;
     }
 }
@@ -425,12 +425,12 @@ MgfParserLoader::mgfHandlerFromType(ParseRuntimeContext *context, HandlerRoleCon
 
     const int handlerIndex = ((int)(handlerType));
     if ( handlerIndex < 0 || handlerIndex >= ReaderDispatchContext::handlerTypeCount() ) {
-        Error::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
+        Logger::fatal(-1, "mgfHandlerFromType", "Unknown MGF handler type %d", handlerIndex);
     }
 
     EntityDispatchContext *handler = context->readerStackState.handlerByType[handlerIndex];
     if ( handler == NULL ) {
-        Error::fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+        Logger::fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
     }
     return handler;
 }

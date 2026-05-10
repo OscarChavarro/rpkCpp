@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/linealAlgebra/Numeric.h"
 #include "tonemap/ToneMap.h"
 
@@ -26,7 +26,7 @@ ToneMap::toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &ton
 ColorRgb
 ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
     if ( activeToneMap == NULL ) {
-        Error::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+        Logger::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
     return activeToneMap->scaleForDisplay(radiance);
 }

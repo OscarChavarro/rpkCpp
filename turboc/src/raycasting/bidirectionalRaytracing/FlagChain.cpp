@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "scene/RadianceMethod.h"
 #include "raycasting/bidirectionalRaytracing/FlagChain.h"
 
@@ -95,7 +95,7 @@ FlagChain::compute(BiPath *path) const{ ColorRgb result;
 
     SimpleRaytracingPathNode *node;
 
-    if ( lightSize + eyeSize != length){ Error::error("FlagChain::Compute", "Wrong path length");
+    if ( lightSize + eyeSize != length){ Logger::error("FlagChain::Compute", "Wrong path length");
         return result;
     }
 
@@ -137,7 +137,7 @@ FlagChainList::add(FlagChainList *list){ // Add all chains in 'list'
 }
 
 void
-FlagChainList::add(const FlagChain &chain){ if ( count > 0){ if ( chain.length != length){ Error::error("CChainList::add", "Wrong length flag chain inserted!");
+FlagChainList::add(const FlagChain &chain){ if ( count > 0){ if ( chain.length != length){ Logger::error("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else{ // first element
@@ -149,7 +149,7 @@ FlagChainList::add(const FlagChain &chain){ if ( count > 0){ if ( chain.length !
 }
 
 void
-FlagChainList::addDisjoint(const FlagChain &chain){ if ( count > 0){ if ( chain.length != length){ Error::error("CChainList::add", "Wrong length flag chain inserted!");
+FlagChainList::addDisjoint(const FlagChain &chain){ if ( count > 0){ if ( chain.length != length){ Logger::error("CChainList::add", "Wrong length flag chain inserted!");
             return;
         }
     } else{ // first element
@@ -239,7 +239,7 @@ ContribHandler::compute(BiPath *path){ ColorRgb result;
 
     length = path->m_eyeSize + path->m_lightSize;
 
-    if ( length > maxLength){ Error::error("CContribHandler::Compute", "Path too long !!");
+    if ( length > maxLength){ Logger::error("CContribHandler::Compute", "Path too long !!");
         return result;
     }
 
@@ -263,7 +263,7 @@ ContribHandler::addRegExp(char *regExp){ if ( regExp[0] == '-'){ doRegExp(&regEx
 }
 
 void
-ContribHandler::doSyntaxError(const char *errString){ Error::error("Flag chain Syntax Error", errString);
+ContribHandler::doSyntaxError(const char *errString){ Logger::error("Flag chain Syntax Error", errString);
     init(maxLength);
 }
 

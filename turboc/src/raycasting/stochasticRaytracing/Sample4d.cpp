@@ -4,7 +4,7 @@
 
 #include <stdlib.h>
 
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "numericalAnalysis/quasiMonteCarlo/Faure.h"
 #include "numericalAnalysis/quasiMonteCarlo/Halton.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
@@ -118,7 +118,7 @@ Sample4d::sample4D(unsigned seed) {
             xi[3] = zeta[3] * Niederreiter31::RECIP;
             break;
         default:
-            Error::fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
+            Logger::fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
     }
 
     return xi;

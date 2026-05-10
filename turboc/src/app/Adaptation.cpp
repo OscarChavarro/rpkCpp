@@ -6,7 +6,7 @@ Estimate static adaptation for tone mapping
 
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "tonemap/ToneMap.h"
@@ -151,7 +151,7 @@ Adaptation::estimateSceneAdaptation(
             break;
         }
         default:
-            Error::error("sceneBuilderComputeStats", "unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod);
+            Logger::error("sceneBuilderComputeStats", "unknown static adaptation method %d", toneMapOptions.staticAdaptationMethod);
     }
 }
 

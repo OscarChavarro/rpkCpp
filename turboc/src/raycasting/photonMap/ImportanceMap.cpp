@@ -8,7 +8,7 @@ Implementation of the special importance map functions
 
 #include "raycasting/photonMap/ImportanceMap.h"
 #include "raycasting/photonMap/Importon.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 
 bool
 ImportanceMap::addPhoton(
@@ -95,7 +95,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
                     density *= *m_impScalePtr;
                     break;
                 default:
-                    Error::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                    Logger::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
                     return 0;
             }
         } else
@@ -115,7 +115,7 @@ ImportanceMap::getRequiredDensity(const Camera *camera, Vector3D pos, Vector3D n
                 density *= *m_impScalePtr;
                 break;
             default:
-                Error::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                Logger::error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
                 return 0;
         }
     }
