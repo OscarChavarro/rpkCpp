@@ -2,6 +2,7 @@ package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.logging.Logger;
+import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
@@ -18,19 +19,15 @@ import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.Patch;
 
 public class LinkingSimpleStrategy {
-    private static final ArrayList<float[]> coefficientsPool = new ArrayList<>();
+    private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
+    private static final MemoryPool<float[]> interactionCoefficientsPool =
+        new MemoryPool<>(() -> new float[K_SIZE]);
+    private static boolean interactionCoefficientsPoolInitialized = false;
 
-    private static float[] borrowKBuffer() {
-        int n = coefficientsPool.size();
-        if ( n > 0 ) {
-            return coefficientsPool.remove(n - 1);
-        }
-        return new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
-    }
-
-    private static void returnKBuffer(float[] buffer) {
-        if ( buffer != null && buffer.length == GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE ) {
-            coefficientsPool.add(buffer);
+    private static void ensureInteractionCoefficientsPool() {
+        if (!interactionCoefficientsPoolInitialized) {
+            interactionCoefficientsPool.init(8L * 1024L * 1024L);
+            interactionCoefficientsPoolInitialized = true;
         }
     }
 
@@ -105,8 +102,19 @@ public class LinkingSimpleStrategy {
         }
 
         Interaction link = new Interaction();
-        link.K = borrowKBuffer();
-        link.ownsK = false;
+        ensureInteractionCoefficientsPool();
+        boolean usingPool = true;
+        link.K = interactionCoefficientsPool.allocate(K_SIZE);
+        if (link.K == null) {
+            if (interactionCoefficientsPool.expand(K_SIZE * 128)) {
+                link.K = interactionCoefficientsPool.allocate(K_SIZE);
+            }
+            if (link.K == null) {
+                usingPool = false;
+                link.K = new float[K_SIZE];
+            }
+        }
+        link.ownsK = !usingPool;
         link.receiverElement = receiverElement;
         link.sourceElement = sourceElement;
 
@@ -161,9 +169,10 @@ public class LinkingSimpleStrategy {
             }
         }
 
-        float[] borrowed = link.K;
-        link.K = null;
-        returnKBuffer(borrowed);
+        if (usingPool) {
+            link.K = null;
+            interactionCoefficientsPool.free(K_SIZE);
+        }
     }
 
     private static void geometryLink(

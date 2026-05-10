@@ -3,6 +3,7 @@ package vsdk.toolkit.galerkin.processing;
 import java.util.ArrayList;
 import java.util.HashSet;
 import vsdk.toolkit.common.color.ColorRgb;
+import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -26,19 +27,15 @@ import vsdk.toolkit.skin.Patch;
 Shaft culling stuff for hierarchical refinement
 */
 public class HierarchicalRefinementStrategy {
-    private static final ArrayList<float[]> hierarchicalKPool = new ArrayList<>();
+    private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
+    private static final MemoryPool<float[]> hierarchicalCoefficientsPool =
+        new MemoryPool<>(() -> new float[K_SIZE]);
+    private static boolean hierarchicalCoefficientsPoolInitialized = false;
 
-    private static float[] borrowKBuffer() {
-        int n = hierarchicalKPool.size();
-        if ( n > 0 ) {
-            return hierarchicalKPool.remove(n - 1);
-        }
-        return new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
-    }
-
-    private static void returnKBuffer(float[] k) {
-        if ( k != null && k.length == GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE ) {
-            hierarchicalKPool.add(k);
+    private static void ensureHierarchicalCoefficientsPool() {
+        if (!hierarchicalCoefficientsPoolInitialized) {
+            hierarchicalCoefficientsPool.init(16L * 1024L * 1024L);
+            hierarchicalCoefficientsPoolInitialized = true;
         }
     }
 
@@ -430,8 +427,19 @@ public class HierarchicalRefinementStrategy {
             }
             GalerkinElement child = (GalerkinElement)sourceElement.regularSubElements[i];
             Interaction subInteraction = new Interaction();
-            subInteraction.K = borrowKBuffer();
-            subInteraction.ownsK = false;
+            ensureHierarchicalCoefficientsPool();
+            boolean usingPool = true;
+            subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+            if (subInteraction.K == null) {
+                if (hierarchicalCoefficientsPool.expand(K_SIZE * 128)) {
+                    subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+                }
+                if (subInteraction.K == null) {
+                    usingPool = false;
+                    subInteraction.K = new float[K_SIZE];
+                }
+            }
+            subInteraction.ownsK = !usingPool;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -442,9 +450,10 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
-            float[] borrowed = subInteraction.K;
-            subInteraction.K = null;
-            returnKBuffer(borrowed);
+            if (usingPool) {
+                subInteraction.K = null;
+                hierarchicalCoefficientsPool.free(K_SIZE);
+            }
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -474,8 +483,19 @@ public class HierarchicalRefinementStrategy {
             }
             GalerkinElement child = (GalerkinElement)receiverElement.regularSubElements[i];
             Interaction subInteraction = new Interaction();
-            subInteraction.K = borrowKBuffer();
-            subInteraction.ownsK = false;
+            ensureHierarchicalCoefficientsPool();
+            boolean usingPool = true;
+            subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+            if (subInteraction.K == null) {
+                if (hierarchicalCoefficientsPool.expand(K_SIZE * 128)) {
+                    subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+                }
+                if (subInteraction.K == null) {
+                    usingPool = false;
+                    subInteraction.K = new float[K_SIZE];
+                }
+            }
+            subInteraction.ownsK = !usingPool;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -486,9 +506,10 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
-            float[] borrowed = subInteraction.K;
-            subInteraction.K = null;
-            returnKBuffer(borrowed);
+            if (usingPool) {
+                subInteraction.K = null;
+                hierarchicalCoefficientsPool.free(K_SIZE);
+            }
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -524,8 +545,19 @@ public class HierarchicalRefinementStrategy {
                 }
             }
             Interaction subInteraction = new Interaction();
-            subInteraction.K = borrowKBuffer();
-            subInteraction.ownsK = false;
+            ensureHierarchicalCoefficientsPool();
+            boolean usingPool = true;
+            subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+            if (subInteraction.K == null) {
+                if (hierarchicalCoefficientsPool.expand(K_SIZE * 128)) {
+                    subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+                }
+                if (subInteraction.K == null) {
+                    usingPool = false;
+                    subInteraction.K = new float[K_SIZE];
+                }
+            }
+            subInteraction.ownsK = !usingPool;
 
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
@@ -537,9 +569,10 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
-            float[] borrowed = subInteraction.K;
-            subInteraction.K = null;
-            returnKBuffer(borrowed);
+            if (usingPool) {
+                subInteraction.K = null;
+                hierarchicalCoefficientsPool.free(K_SIZE);
+            }
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;
@@ -575,8 +608,19 @@ public class HierarchicalRefinementStrategy {
                 }
             }
             Interaction subInteraction = new Interaction();
-            subInteraction.K = borrowKBuffer();
-            subInteraction.ownsK = false;
+            ensureHierarchicalCoefficientsPool();
+            boolean usingPool = true;
+            subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+            if (subInteraction.K == null) {
+                if (hierarchicalCoefficientsPool.expand(K_SIZE * 128)) {
+                    subInteraction.K = hierarchicalCoefficientsPool.allocate(K_SIZE);
+                }
+                if (subInteraction.K == null) {
+                    usingPool = false;
+                    subInteraction.K = new float[K_SIZE];
+                }
+            }
+            subInteraction.ownsK = !usingPool;
             if ( hierarchicRefinementCreateSubdivisionLink(
                     scene,
                     candidatesList[0],
@@ -587,9 +631,10 @@ public class HierarchicalRefinementStrategy {
                 && !refineRecursive(scene, candidatesList, subInteraction, galerkinState) ) {
                 hierarchicRefinementStoreInteraction(subInteraction, galerkinState);
             }
-            float[] borrowed = subInteraction.K;
-            subInteraction.K = null;
-            returnKBuffer(borrowed);
+            if (usingPool) {
+                subInteraction.K = null;
+                hierarchicalCoefficientsPool.free(K_SIZE);
+            }
         }
         hierarchicRefinementUnCull(candidatesList, galerkinState);
         candidatesList[0] = backup;

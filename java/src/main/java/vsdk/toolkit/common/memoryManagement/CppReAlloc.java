@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.common.memoryManagement;
 
 public final class CppReAlloc {
     private CppReAlloc() {

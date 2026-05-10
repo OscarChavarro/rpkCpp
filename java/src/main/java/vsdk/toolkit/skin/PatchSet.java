@@ -11,13 +11,7 @@ public final class PatchSet extends Geometry {
         super(GeometryClassId.PATCH_SET);
         memoryPoolManaged = false;
         patchList = new ArrayList<>();
-        for (int i = 0; input != null && i < input.size(); i++) {
-            patchList.add(input.get(i));
-        }
-
-        Geometry.patchListBounds(getPatchList(), boundingBox);
-        boundingBox.enlargeTinyBit();
-        bounded = true;
+        resetFrom(input);
     }
 
     @Override
@@ -52,6 +46,22 @@ public final class PatchSet extends Geometry {
 
     public ArrayList<Patch> getPatchList() {
         return patchList;
+    }
+
+    public void resetFrom(ArrayList<Patch> input) {
+        if (patchList == null) {
+            patchList = new ArrayList<>();
+        }
+        else {
+            patchList.clear();
+        }
+        for (int i = 0; input != null && i < input.size(); i++) {
+            patchList.add(input.get(i));
+        }
+
+        Geometry.patchListBounds(getPatchList(), boundingBox);
+        boundingBox.enlargeTinyBit();
+        bounded = true;
     }
 
     public boolean isMemoryPoolManaged() {

@@ -1,6 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
+import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
@@ -13,34 +14,16 @@ import vsdk.toolkit.galerkin.Interaction;
 Creates an initial link between the given element and the top cluster
 */
 public class LinkingClusteredStrategy {
-    private static final ArrayList<float[]> scalarPool = new ArrayList<>();
-    private static final ArrayList<float[]> matrixPool = new ArrayList<>();
+    private static final int K_SIZE = GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE;
+    private static final MemoryPool<float[]> scalarPool = new MemoryPool<>(() -> new float[1]);
+    private static final MemoryPool<float[]> matrixPool = new MemoryPool<>(() -> new float[K_SIZE]);
+    private static boolean poolsInitialized = false;
 
-    private static float[] borrowScalar() {
-        int n = scalarPool.size();
-        if ( n > 0 ) {
-            return scalarPool.remove(n - 1);
-        }
-        return new float[1];
-    }
-
-    private static void returnScalar(float[] v) {
-        if ( v != null && v.length == 1 ) {
-            scalarPool.add(v);
-        }
-    }
-
-    private static float[] borrowMatrix() {
-        int n = matrixPool.size();
-        if ( n > 0 ) {
-            return matrixPool.remove(n - 1);
-        }
-        return new float[GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE];
-    }
-
-    private static void returnMatrix(float[] v) {
-        if ( v != null && v.length == GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE ) {
-            matrixPool.add(v);
+    private static void ensurePoolsInitialized() {
+        if (!poolsInitialized) {
+            scalarPool.init(1024);
+            matrixPool.init(2L * 1024L * 1024L);
+            poolsInitialized = true;
         }
     }
 
@@ -69,14 +52,39 @@ public class LinkingClusteredStrategy {
             return;
         }
 
+        ensurePoolsInitialized();
         // Assume no light transport (overlapping receiver and source)
         int n = receiverElement.basisSize * sourceElement.basisSize;
         float[] K;
+        boolean kFromPool = false;
+        boolean deltaFromPool = false;
         if ( n == 1 ) {
-            K = borrowScalar();
+            K = scalarPool.allocate(1);
+            if (K == null) {
+                if (scalarPool.expand(1024)) {
+                    K = scalarPool.allocate(1);
+                }
+            }
+            if (K != null) {
+                kFromPool = true;
+            }
+            else {
+                K = new float[1];
+            }
             K[0] = 0.0f;
         } else {
-            K = borrowMatrix();
+            K = matrixPool.allocate(K_SIZE);
+            if (K == null) {
+                if (matrixPool.expand(K_SIZE * 128)) {
+                    K = matrixPool.allocate(K_SIZE);
+                }
+            }
+            if (K != null) {
+                kFromPool = true;
+            }
+            else {
+                K = new float[K_SIZE];
+            }
             if ( n <= 0 ) {
                 n = 1;
             }
@@ -84,7 +92,18 @@ public class LinkingClusteredStrategy {
                 K[i] = 0.0f;
             }
         }
-        float[] deltaK = borrowScalar();
+        float[] deltaK = scalarPool.allocate(1);
+        if (deltaK == null) {
+            if (scalarPool.expand(1024)) {
+                deltaK = scalarPool.allocate(1);
+            }
+        }
+        if (deltaK != null) {
+            deltaFromPool = true;
+        }
+        else {
+            deltaK = new float[1];
+        }
         deltaK[0] = Numeric.HUGE_FLOAT_VALUE; // Huge value error on the form factor
 
         Interaction newLink = new Interaction(
@@ -112,11 +131,16 @@ public class LinkingClusteredStrategy {
             receiverElement.interactions.add(newLink);
         }
 
-        if ( receiverElement.basisSize * sourceElement.basisSize == 1 ) {
-            returnScalar(K);
-        } else {
-            returnMatrix(K);
+        if (kFromPool) {
+            if (receiverElement.basisSize * sourceElement.basisSize == 1) {
+                scalarPool.free(1);
+            }
+            else {
+                matrixPool.free(K_SIZE);
+            }
         }
-        returnScalar(deltaK);
+        if (deltaFromPool) {
+            scalarPool.free(1);
+        }
     }
 }

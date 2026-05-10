@@ -2,6 +2,7 @@ package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
 
+import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -31,6 +32,9 @@ Note: the name "Shaft" can be misleading. From [HAIN1991] it can be seen that th
 a kind of convex envelope.
 */
 public class Shaft {
+    private static final MemoryPool<PatchSet> patchSetPool = new MemoryPool<>(() -> new PatchSet(null));
+    private static boolean patchSetPoolInitialized = false;
+
     private static final int MAX_SKIP_ELEMENTS = 2;
     // Maximum 16 numberOfPlanesInSet in plane-set: maximum 8 for a box-to-box shaft (see figure [HAIN1991].2),
     // maximum 2 times the total number of vertices for a patch-to-patch shaft
@@ -53,8 +57,27 @@ public class Shaft {
     private final Vector3D center2;
     private boolean cut; // Full occlusion flag set when one patch cuts the shaft
 
+    private static void ensurePatchSetPoolInitialized() {
+        if (!patchSetPoolInitialized) {
+            patchSetPool.init(8L * 1024L * 1024L);
+            patchSetPoolInitialized = true;
+        }
+    }
+
     private static PatchSet createPatchSetWithPool(ArrayList<Patch> patches) {
-        PatchSet patchSet = new PatchSet(patches);
+        ensurePatchSetPoolInitialized();
+        PatchSet patchSet = patchSetPool.allocate(1);
+        if (patchSet == null) {
+            if (patchSetPool.expand(1024)) {
+                patchSet = patchSetPool.allocate(1);
+            }
+        }
+        if (patchSet == null) {
+            patchSet = new PatchSet(patches);
+        }
+        else {
+            patchSet.resetFrom(patches);
+        }
         patchSet.setMemoryPoolManaged(true);
         return patchSet;
     }
@@ -83,6 +106,12 @@ public class Shaft {
             Geometry geometry = candidateList.get(i);
             if (geometry != null && geometry.shaftCullGeometry) {
                 Geometry.destroy(geometry);
+                if (geometry instanceof PatchSet) {
+                    PatchSet patchSet = (PatchSet) geometry;
+                    if (patchSet.isMemoryPoolManaged()) {
+                        patchSetPool.free(1);
+                    }
+                }
             }
         }
         if (candidateList != null) {
