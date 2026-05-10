@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error as VsdkError } from "../common/Error";
 import { CoordinateAxis } from "../common/linealAlgebra/CoordinateAxis";
 import { Jacobian } from "../common/linealAlgebra/Jacobian";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
 import { ScreenBuffer } from "../../render/ScreenBuffer";

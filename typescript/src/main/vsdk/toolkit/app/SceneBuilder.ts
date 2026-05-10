@@ -2,7 +2,8 @@ import { File } from "../../../java/io/File";
 import { FileInputStream } from "../../../java/io/FileInputStream";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
-import { ColorRgb } from "../common/ColorRgb";
+import { Cie } from "../common/color/Cie";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error as VsdkError } from "../common/Error";
 import { Statistics } from "../common/statistics/Statistics";
 import { BinaryModelDeserializer } from "../io/bin/reader/BinaryModelDeserializer";
@@ -631,8 +632,16 @@ export class SceneBuilder {
     Statistics.instance().radiance.referenceLuminance =
       5.42
       * (
-        (1.0 - Statistics.instance().radiance.averageReflectivity.gray())
-        * Statistics.instance().radiance.estimatedAverageRadiance.luminance()
+        (1.0 - Cie.spectrumGray(
+          Statistics.instance().radiance.averageReflectivity.r,
+          Statistics.instance().radiance.averageReflectivity.g,
+          Statistics.instance().radiance.averageReflectivity.b
+        ))
+        * Cie.spectrumLuminance(
+          Statistics.instance().radiance.estimatedAverageRadiance.r,
+          Statistics.instance().radiance.estimatedAverageRadiance.g,
+          Statistics.instance().radiance.estimatedAverageRadiance.b
+        )
       );
 
     t = process.hrtime.bigint();
@@ -650,11 +659,11 @@ export class SceneBuilder {
 
     // Print statistics report
     process.stdout.write(
-      `\nStats: radiance.totalEmittedPower ................: ${Statistics.instance().radiance.totalEmittedPower.gray()} W\n`
-      + `         radiance.estimatedAverageRadiance .........: ${Statistics.instance().radiance.estimatedAverageRadiance.gray()} W / sr\n`
-      + `         averageReflectivity ..............: ${Statistics.instance().radiance.averageReflectivity.gray()}\n`
-      + `         radiance.maxSelfEmittedRadiance ...........: ${Statistics.instance().radiance.maxSelfEmittedRadiance.gray()} W / sr\n`
-      + `         radiance.maxSelfEmittedPower ..............: ${Statistics.instance().radiance.maxSelfEmittedPower.gray()} W\n`
+      `\nStats: radiance.totalEmittedPower ................: ${Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b)} W\n`
+      + `         radiance.estimatedAverageRadiance .........: ${Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b)} W / sr\n`
+      + `         averageReflectivity ..............: ${Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b)}\n`
+      + `         radiance.maxSelfEmittedRadiance ...........: ${Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b)} W / sr\n`
+      + `         radiance.maxSelfEmittedPower ..............: ${Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b)} W\n`
       + `         toneMapOptions.realWorldAdaptionLuminance .........: ${toneMapOptions.realWorldAdaptionLuminance} cd / m2\n`
       + `         totalArea ........................: ${Statistics.instance().radiance.totalArea} m2\n`
     );

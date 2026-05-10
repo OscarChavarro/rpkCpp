@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { GalerkinBasis } from "./GalerkinBasis";
 import { McradP } from "./McradP";
 import { StochasticRadiosityBasisState } from "./StochasticRadiosityBasisState";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";

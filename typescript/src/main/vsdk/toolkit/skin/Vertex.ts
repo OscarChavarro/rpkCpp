@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
 import { VertexCompareFlags } from "./VertexCompareFlags";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error as VsdkError } from "../common/Error";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";

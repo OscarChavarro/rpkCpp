@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { RandomWalkEstimatorKind } from "./RandomWalkEstimatorKind";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 
 export class DensityHit {
   public m_x: number;

@@ -3,7 +3,7 @@ Non diffuse first shot
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Ray } from "../../common/linealAlgebra/Ray";

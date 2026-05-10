@@ -1,5 +1,5 @@
-import { Cie } from "../../common/Cie";
-import { ColorRgb } from "../../common/ColorRgb";
+import { Cie } from "../../common/color/Cie";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { ColorContext } from "../context/ColorContext";
@@ -174,12 +174,12 @@ export class MgfMaterialEntitySupport {
     }
 
     if (context.monochrome) {
-      Ed.setMonochrome(Ed.gray());
-      Es.setMonochrome(Es.gray());
-      Rd.setMonochrome(Rd.gray());
-      Rs.setMonochrome(Rs.gray());
-      Td.setMonochrome(Td.gray());
-      Ts.setMonochrome(Ts.gray());
+      Ed.setMonochrome(Cie.spectrumGray(Ed.r, Ed.g, Ed.b));
+      Es.setMonochrome(Cie.spectrumGray(Es.r, Es.g, Es.b));
+      Rd.setMonochrome(Cie.spectrumGray(Rd.r, Rd.g, Rd.b));
+      Rs.setMonochrome(Cie.spectrumGray(Rs.r, Rs.g, Rs.b));
+      Td.setMonochrome(Cie.spectrumGray(Td.r, Td.g, Td.b));
+      Ts.setMonochrome(Cie.spectrumGray(Ts.r, Ts.g, Ts.b));
     }
 
     let edf: PhongEmittanceDistributionFunction | null = null;

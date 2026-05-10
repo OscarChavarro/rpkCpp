@@ -1,5 +1,5 @@
 import { InputStream } from "../../../../../java/io/InputStream";
-import { ColorRgb } from "../../../common/ColorRgb";
+import { ColorRgb } from "../../../common/color/ColorRgb";
 import { Error } from "../../../common/Error";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";

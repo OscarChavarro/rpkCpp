@@ -1,7 +1,8 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { Cie } from "../../common/color/Cie";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -443,7 +444,7 @@ Determines control radiosity value for collision gathering estimator
     cr.divide(c1, c2);
     process.stderr.write("Control radiosity value = ");
     cr.print(process.stderr);
-    process.stderr.write(util.format(", luminosity = %g\n", cr.luminance()));
+    process.stderr.write(util.format(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b)));
 
     return cr;
   }

@@ -1,4 +1,4 @@
-import { ColorRgb } from "./ColorRgb";
+import { ColorRgb } from "./color/ColorRgb";
 import { Vector2D } from "./linealAlgebra/Vector2D";
 import { Vector3D } from "./linealAlgebra/Vector3D";
 

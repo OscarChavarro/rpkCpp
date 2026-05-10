@@ -1,5 +1,5 @@
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { KDTree } from "../../common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";

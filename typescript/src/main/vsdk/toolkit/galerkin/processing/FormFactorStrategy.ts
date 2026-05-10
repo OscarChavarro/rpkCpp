@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";

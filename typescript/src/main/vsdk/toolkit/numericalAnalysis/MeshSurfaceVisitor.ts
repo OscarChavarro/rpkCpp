@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { BsdfComponent } from "../material/BsdfComponent";
 import { MaterialColorFlags } from "../skin/MaterialColorFlags";
 import { MeshSurface } from "../skin/MeshSurface";

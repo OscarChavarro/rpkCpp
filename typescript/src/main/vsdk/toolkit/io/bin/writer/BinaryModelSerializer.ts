@@ -1,6 +1,6 @@
 import { FileOutputStream } from "../../../../../java/io/FileOutputStream";
 import { OutputStream } from "../../../../../java/io/OutputStream";
-import { ColorRgb } from "../../../common/ColorRgb";
+import { ColorRgb } from "../../../common/color/ColorRgb";
 import { Error } from "../../../common/Error";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ColorContext } from "../../context/ColorContext";

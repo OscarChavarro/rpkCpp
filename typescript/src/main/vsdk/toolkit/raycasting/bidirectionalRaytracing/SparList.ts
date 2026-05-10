@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
 import { BiPath } from "./BiPath";

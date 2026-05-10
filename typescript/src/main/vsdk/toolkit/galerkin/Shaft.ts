@@ -65,15 +65,17 @@ export class Shaft {
   }
 
   public static freeCandidateList(candidateList: Geometry[] | null): void {
-    for (let i = candidateList !== null ? candidateList.length - 1 : -1; i >= 0; i--) {
+    if (candidateList === null) {
+      return;
+    }
+
+    for (let i = candidateList.length - 1; i >= 0; i--) {
       const geometry = candidateList[i];
       if (geometry !== null && geometry.shaftCullGeometry) {
         Geometry.destroy(geometry);
       }
     }
-    if (candidateList !== null) {
-      candidateList.length = 0;
-    }
+    candidateList.length = 0;
   }
 
   public isCut(): boolean {

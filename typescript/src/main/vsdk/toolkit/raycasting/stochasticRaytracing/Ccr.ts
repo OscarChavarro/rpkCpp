@@ -3,7 +3,8 @@ Constant Control Radiosity
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { Cie } from "../../common/color/Cie";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { Patch } from "../../skin/Patch";
 import { McradP } from "./McradP";
@@ -325,7 +326,7 @@ random walk radiosity
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     process.stderr.write(`${beta.r} ${beta.g} ${beta.b}`);
-    process.stderr.write(util.format(" (%g lux)", globalThis.Math.PI * beta.luminance()));
+    process.stderr.write(util.format(" (%g lux)", globalThis.Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b)));
     process.stderr.write("\n");
     return beta;
   }

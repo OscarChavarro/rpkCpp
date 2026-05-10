@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { BiPath } from "./BiPath";
 import { ContribHandler } from "./ContribHandler";

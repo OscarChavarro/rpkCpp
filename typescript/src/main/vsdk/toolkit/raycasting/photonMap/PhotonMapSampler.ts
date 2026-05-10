@@ -5,7 +5,7 @@ Specular materials are treated as Fresnel reflectors/refractors.
 NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 */
 
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error } from "../common/Error";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";

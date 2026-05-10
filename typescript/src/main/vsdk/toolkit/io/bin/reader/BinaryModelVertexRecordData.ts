@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/ColorRgb";
+import { ColorRgb } from "../../../common/color/ColorRgb";
 import { BinaryModelIndexListRef } from "./BinaryModelIndexListRef";
 
 export class BinaryModelVertexRecordData {

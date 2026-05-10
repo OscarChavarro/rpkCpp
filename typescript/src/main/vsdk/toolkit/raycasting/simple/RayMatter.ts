@@ -3,7 +3,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";

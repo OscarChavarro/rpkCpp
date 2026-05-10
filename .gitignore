@@ -60,6 +60,7 @@ gprof*.out
 
 # Java / Gradle / IDE
 .gradle/
+.gradle-home
 dist/
 out/
 *.class

@@ -1,5 +1,5 @@
 import { PrintStream } from "../../../../java/io/PrintStream";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vector3DPrinter } from "../../io/wrapper/Vector3DPrinter";

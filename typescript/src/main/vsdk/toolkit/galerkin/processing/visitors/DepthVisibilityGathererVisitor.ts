@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../../common/ColorRgb";
+import { ColorRgb } from "../../../common/color/ColorRgb";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinState } from "../../GalerkinState";
 import { Interaction } from "../../Interaction";

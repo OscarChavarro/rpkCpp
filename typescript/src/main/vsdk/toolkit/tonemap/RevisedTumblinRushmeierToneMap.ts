@@ -1,5 +1,5 @@
-import { Cie } from "../common/Cie";
-import { ColorRgb } from "../common/ColorRgb";
+import { Cie } from "../common/color/Cie";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
 
@@ -39,7 +39,7 @@ export class RevisedTumblinRushmeierToneMap extends ToneMap {
   }
 
   public override scaleForComputations(radiance: ColorRgb): ColorRgb {
-    const rwl = radiance.luminance();
+    const rwl = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
     let scale: number;
 
     if (rwl > 0.0) {
@@ -54,7 +54,7 @@ export class RevisedTumblinRushmeierToneMap extends ToneMap {
   }
 
   public override scaleForDisplay(radiance: ColorRgb): ColorRgb {
-    const rwl = globalThis.Math.PI * radiance.luminance();
+    const rwl = globalThis.Math.PI * Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
     const eff = Cie.getLuminousEfficacy();
     radiance.scale(eff * globalThis.Math.PI);
 

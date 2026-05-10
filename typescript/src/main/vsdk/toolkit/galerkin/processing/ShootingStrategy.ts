@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";

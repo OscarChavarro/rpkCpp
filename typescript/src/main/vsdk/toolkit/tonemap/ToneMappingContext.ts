@@ -1,5 +1,5 @@
-import { Cie } from "../common/Cie";
-import { ColorRgb } from "../common/ColorRgb";
+import { Cie } from "../common/color/Cie";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { ToneMap } from "./ToneMap";
 import { ToneMapAdaptationMethod } from "./ToneMapAdaptationMethod";
 

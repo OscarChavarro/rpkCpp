@@ -3,7 +3,7 @@ Monte Carlo radiosity element type
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";

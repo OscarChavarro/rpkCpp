@@ -1,4 +1,5 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { Cie } from "../common/color/Cie";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error as VsdkError } from "../common/Error";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Statistics } from "../common/statistics/Statistics";
@@ -50,7 +51,7 @@ export class Adaptation {
 
   private static patchBrightnessEstimate(patch: Patch): number {
     const radiance = (Adaptation.patchRadianceEstimate as (patch: Patch) => ColorRgb)(patch);
-    let brightness = radiance.luminance();
+    let brightness = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
     if (brightness < Numeric.EPSILON_FLOAT) {
       brightness = Numeric.EPSILON_FLOAT;
     }

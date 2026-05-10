@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Statistics } from "../../common/statistics/Statistics";
 import { SoftIds } from "../../render/SoftIds";
 import { Background } from "../../scene/Background";

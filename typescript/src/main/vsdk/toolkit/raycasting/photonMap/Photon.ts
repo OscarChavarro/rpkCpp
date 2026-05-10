@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";

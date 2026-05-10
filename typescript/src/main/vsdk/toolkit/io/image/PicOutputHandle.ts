@@ -1,7 +1,7 @@
 import { File } from "../../../../java/io/File";
 import { FileOutputStream } from "../../../../java/io/FileOutputStream";
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { DkColor } from "./DkColor";
 import { ImageOutputHandle } from "./ImageOutputHandle";
 

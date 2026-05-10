@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { OptionBase } from "../../common/commandLineOptions/OptionBase";
 import { OptionGroup } from "../../common/commandLineOptions/OptionGroup";
 import { OptionParser } from "../../common/commandLineOptions/OptionParser";

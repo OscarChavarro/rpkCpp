@@ -1,5 +1,5 @@
-import { Cie } from "../common/Cie";
-import { ColorRgb } from "../common/ColorRgb";
+import { Cie } from "../common/color/Cie";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { Error as VsdkError } from "../common/Error";
 import { Statistics } from "../common/statistics/Statistics";
 import { ToneMap } from "./ToneMap";

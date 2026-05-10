@@ -1,5 +1,5 @@
-import { PrintStream } from "../../../java/io/PrintStream";
-import { Numeric } from "./linealAlgebra/Numeric";
+import { PrintStream } from "../../../../java/io/PrintStream";
+import { Numeric } from "../linealAlgebra/Numeric";
 import { Cie } from "./Cie";
 
 export class ColorRgb {
@@ -135,14 +135,6 @@ export class ColorRgb {
 
   public average(): number {
     return (this.r + this.g + this.b) / 3.0;
-  }
-
-  public gray(): number {
-    return Cie.spectrumGray(this.r, this.g, this.b);
-  }
-
-  public luminance(): number {
-    return Cie.spectrumLuminance(this.r, this.g, this.b);
   }
 
   public interpolateBarycentric(c0: ColorRgb, c1: ColorRgb, c2: ColorRgb, u: number, v: number): void {

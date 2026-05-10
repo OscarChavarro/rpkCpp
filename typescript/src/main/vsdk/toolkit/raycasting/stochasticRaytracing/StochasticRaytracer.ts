@@ -1,6 +1,6 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Random } from "../../../../java/util/Random";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { RenderOptions } from "../../common/RenderOptions";
 import { StratifiedSampling2D } from "../../common/StratifiedSampling2D";

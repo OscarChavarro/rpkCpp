@@ -1,4 +1,4 @@
-import { ColorRgb } from "./ColorRgb";
+import { ColorRgb } from "./color/ColorRgb";
 
 export class RenderOptions {
   public outlineColor: ColorRgb;

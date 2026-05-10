@@ -1,7 +1,7 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Error as VsdkError } from "../../common/Error";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";

@@ -1,4 +1,4 @@
-import { ColorRgb } from "../common/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
 

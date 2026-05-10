@@ -1,4 +1,4 @@
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";

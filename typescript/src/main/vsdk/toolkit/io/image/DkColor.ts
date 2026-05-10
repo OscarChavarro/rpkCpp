@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { ColorRgb } from "../../common/ColorRgb";
+import { ColorRgb } from "../../common/color/ColorRgb";
 import { CppReAlloc } from "../../common/CppReAlloc";
 
 export class DkColor {
