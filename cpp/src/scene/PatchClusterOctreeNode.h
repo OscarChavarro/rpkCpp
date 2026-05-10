@@ -12,7 +12,7 @@ class PatchClusterOctreeNode {
 
     java::ArrayList<Patch *> *patches;
     PatchClusterOctreeNode *children[8]{}; // Clusters form an octree
-    BoundingBox boundingBox{}; // Bounding box for the cluster
+    AxisAlignedBoundingBox boundingBox{}; // Bounding box for the cluster
     Vector3D boundingBoxCentroid; // Mid-point of the bounding box
     static java::ArrayList<Geometry *> *clusterNodeGeometriesToDelete;
     static void addToDeletionCache(Geometry *geometry);

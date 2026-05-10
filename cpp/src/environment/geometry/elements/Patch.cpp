@@ -2,9 +2,9 @@
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
-#include "skin/Patch.h"
-#include "skin/RayHit.h"
-#include "skin/RayHitFlag.h"
+#include "Patch.h"
+#include "RayHit.h"
+#include "RayHitFlag.h"
 
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {nullptr, nullptr, nullptr, nullptr};
@@ -605,7 +605,7 @@ Patch::Patch(
     twin(),
     numberOfVertices(static_cast<char>(inNumberOfVertices)),
     vertex{v1, v2, v3, v4},
-    boundingBox(new BoundingBox()),
+    boundingBox(new AxisAlignedBoundingBox()),
     planeTolerance(),
     directPotential(),
     normal(),
@@ -693,7 +693,7 @@ Computes a bounding box for the patch. fills it in 'getBoundingBox' and returns
 a pointer to 'getBoundingBox'
 */
 void
-Patch::computeAndGetBoundingBox(BoundingBox *bounds) {
+Patch::computeAndGetBoundingBox(AxisAlignedBoundingBox *bounds) {
     computeBoundingBox();
     bounds->copyFrom(boundingBox);
 }

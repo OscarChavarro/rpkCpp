@@ -120,7 +120,7 @@ Opengl::sceneRotationPivot(const Scene *scene) {
     }
 
     if ( scene->geometryList != nullptr && scene->geometryList->size() > 0 ) {
-        BoundingBox sceneBounds;
+        AxisAlignedBoundingBox sceneBounds;
         Geometry::listBounds(scene->geometryList, &sceneBounds);
         return sceneBounds.center();
     }
@@ -304,7 +304,7 @@ Opengl::openGlRenderOctreeLeaf(
 }
 
 bool
-Opengl::openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
+Opengl::openGlViewCullBounds(const Camera *camera, const AxisAlignedBoundingBox *bounds) {
     for ( int i = 0; i < Camera::NUMBER_OF_VIEW_PLANES; i++ ) {
         if ( bounds->behindPlane(&camera->viewPlanes[i].normal, camera->viewPlanes[i].d) ) {
             return true;
@@ -317,7 +317,7 @@ Opengl::openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds) {
 Squared distance to midpoint (avoid taking square root)
 */
 float
-Opengl::openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox) {
+Opengl::openGlBoundsDistance2(Vector3D p, const AxisAlignedBoundingBox *boundingBox) {
     Vector3D mid = boundingBox->center();
     Vector3D d;
     d.subtraction(mid, p);

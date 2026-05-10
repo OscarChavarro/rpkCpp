@@ -1,10 +1,10 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include <new>
 #include "java/util/ArrayList.txx"
 #include "common/memoryManagement/MemoryPool.txx"
 #include "common/statistics/Statistics.h"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "galerkin/Shaft.h"
 
 MemoryPool<PatchSet> Shaft::patchSetPool;
@@ -77,7 +77,7 @@ Shaft::setShaftDontOpen(Geometry *geometry) {
 Constructs a shaft for two given bounding boxes
 */
 void
-Shaft::constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2) {
+Shaft::constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlignedBoundingBox *boundingBox2) {
     numberOfGeometriesToOmit = 0;
     numberOfGeometriesToAvoidOpen = 0;
     cut = false;
@@ -457,7 +457,7 @@ Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
 is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
 */
 ShaftPlanePosition
-Shaft::boundingBoxTest(const BoundingBox *parameterBoundingBox) const {
+Shaft::boundingBoxTest(const AxisAlignedBoundingBox *parameterBoundingBox) const {
     // Test against extent box
     if ( parameterBoundingBox->disjointToOtherBoundingBox(&extentBoundingBox) ) {
         return ShaftPlanePosition::OUTSIDE;

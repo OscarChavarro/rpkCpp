@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "common/RenderOptions.h"
 
 /**
@@ -10,7 +10,7 @@ and contain necessary information for raytracing-like algorithms
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 #include "common/logging/Logger.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "io/wrapper/Vector3DPrinter.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 

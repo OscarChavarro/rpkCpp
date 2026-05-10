@@ -9,7 +9,7 @@
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/stochasticRaytracing/LightSourceTable.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Nondiff final {
   public:

@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 /**
 Generic stochastic Jacobi iteration (local lines)
 TODO: combined radiance / importance propagation

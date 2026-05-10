@@ -13,10 +13,10 @@
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class BinaryModelSerializer {
   public:
@@ -33,7 +33,7 @@ class BinaryModelSerializer {
     static bool writeString(java::OutputStream &output, const char *text);
     static void writeColor(java::OutputStream &output, const ColorRgb &color);
     static void writeVector(java::OutputStream &output, const Vector3D &vector);
-    static void writeBoundingBox(java::OutputStream &output, const BoundingBox &boundingBox);
+    static void writeBoundingBox(java::OutputStream &output, const AxisAlignedBoundingBox &boundingBox);
 
     template <typename T>
     static bool indexOfPointer(const T *ptr, const java::HashMap<const T *, int> &indices, const char *what, int &result);

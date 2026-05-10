@@ -5,7 +5,7 @@
 #ifdef RAYTRACING_ENABLED
 #endif
 
-#include "skin/Element.h"
+#include "Element.h"
 
 Element::Element():
     id(),

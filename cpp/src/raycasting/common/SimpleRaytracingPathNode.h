@@ -12,7 +12,7 @@ and contain necessary information for raytracing-like algorithms
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/BsdfComp.h"
 #include "raycasting/common/PathRayType.h"
-#include "skin/RayHit.h"
+#include "environment/geometry/elements/RayHit.h"
 
 // Type definitions used in CPathNode
 

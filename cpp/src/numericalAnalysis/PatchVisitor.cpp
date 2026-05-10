@@ -1,8 +1,8 @@
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"
 #include "numericalAnalysis/PatchVisitor.h"
 #include "material/ShadingContext.h"
-#include "skin/RayHit.h"
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHit.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 
 int
 PatchVisitor::getNumberOfSamples(Patch *patch) {

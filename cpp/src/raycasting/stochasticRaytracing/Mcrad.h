@@ -9,10 +9,10 @@ Monte Carlo radiosity
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/RenderOptions.h"
-#include "skin/Element.h"
+#include "environment/geometry/elements/Element.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
 

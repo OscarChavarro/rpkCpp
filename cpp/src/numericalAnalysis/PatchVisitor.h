@@ -1,7 +1,7 @@
 #ifndef __PATCH_VISITOR__
 #define __PATCH_VISITOR__
 
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class PatchVisitor {
   private:

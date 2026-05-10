@@ -46,8 +46,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementCull(
         // stores references used later in cullGeometry/doCulling.
         Polygon rcvPolygon;
         Polygon srcPolygon;
-        BoundingBox srcBounds;
-        BoundingBox rcvBounds;
+        AxisAlignedBoundingBox srcBounds;
+        AxisAlignedBoundingBox rcvBounds;
 
         if ( galerkinState->exactVisibility
           && !interaction->receiverElement->isCluster()

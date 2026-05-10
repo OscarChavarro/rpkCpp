@@ -210,11 +210,11 @@ BinaryModelReadPrimitives::readBoundingBoxCoordinates(java::InputStream &input, 
 }
 
 bool
-BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(BoundingBox *boundingBox, const float coordinates[6]) {
+BinaryModelReadPrimitives::setBoundingBoxFromCoordinates(AxisAlignedBoundingBox *boundingBox, const float coordinates[6]) {
     if ( boundingBox == nullptr || coordinates == nullptr ) {
         return reportReadError("BinaryModelReadPrimitives::setBoundingBoxFromCoordinates", "Invalid bounding box assignment");
     }
-    BoundingBox parsed;
+    AxisAlignedBoundingBox parsed;
     Vector3D minPoint;
     Vector3D maxPoint;
     minPoint.set(coordinates[MIN_X], coordinates[MIN_Y], coordinates[MIN_Z]);

@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
@@ -6,7 +6,7 @@
 #include "skin/MinMaxBox.h"
 #include "skin/Compound.h"
 #include "skin/MeshSurface.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 
 Geometry *Geometry::excludedGeometry1 = nullptr;
 Geometry *Geometry::excludedGeometry2 = nullptr;
@@ -61,7 +61,7 @@ Geometry::~Geometry() {
 /**
 This function returns a bounding box for the geometry
 */
-BoundingBox
+AxisAlignedBoundingBox
 Geometry::getBoundingBox() const {
     return boundingBox;
 }
@@ -261,7 +261,7 @@ Geometry::listDiscretizationIntersect(
 This function computes a bounding box for a list of geometries
 */
 void
-Geometry::listBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox) {
+Geometry::listBounds(const java::ArrayList<Geometry *> *geometryList, AxisAlignedBoundingBox *boundingBox) {
     for ( int i = 0; geometryList != nullptr && i < geometryList->size(); i++ ) {
         boundingBox->enlarge(&geometryList->get(i)->boundingBox);
     }
@@ -298,9 +298,9 @@ Geometry::patchListIntersect(
     return hit;
 }
 
-BoundingBox *
-Geometry::patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox) {
-    BoundingBox currentPatchBoundingBox;
+AxisAlignedBoundingBox *
+Geometry::patchListBounds(const java::ArrayList<Patch *> *patchList, AxisAlignedBoundingBox *boundingBox) {
+    AxisAlignedBoundingBox currentPatchBoundingBox;
 
     for ( int i = 0; patchList != nullptr && i < patchList->size(); i++ ) {
         patchList->get(i)->computeAndGetBoundingBox(&currentPatchBoundingBox);

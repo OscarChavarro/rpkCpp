@@ -1,6 +1,6 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "common/logging/Logger.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 #include "scene/Camera.h"
 
 Camera::Camera(): background() {
@@ -164,9 +164,9 @@ Camera::setFieldOfView(float fieldOfView) {
 
 void
 Camera::transformBoundingBox(
-    const BoundingBox &sourceBoundingBox,
+    const AxisAlignedBoundingBox &sourceBoundingBox,
     const Matrix4x4 &transform,
-    BoundingBox *transformedBoundingBox)
+    AxisAlignedBoundingBox *transformedBoundingBox)
 {
     if ( transformedBoundingBox == nullptr ) {
         return;
@@ -175,7 +175,7 @@ Camera::transformBoundingBox(
     Vector3D corners[8];
     sourceBoundingBox.corners(corners);
 
-    *transformedBoundingBox = BoundingBox{};
+    *transformedBoundingBox = AxisAlignedBoundingBox{};
     for ( int i = 0; i < 8; i++ ) {
         transform.transformPoint3D(corners[i], corners[i]);
         transformedBoundingBox->enlargeToIncludePoint(&corners[i]);
@@ -193,14 +193,14 @@ Camera::transformBoundingBox(
     maxPoint.y += yDelta;
     maxPoint.z += zDelta;
 
-    BoundingBox expandedBoundingBox;
+    AxisAlignedBoundingBox expandedBoundingBox;
     expandedBoundingBox.enlargeToIncludePoint(&minPoint);
     expandedBoundingBox.enlargeToIncludePoint(&maxPoint);
     transformedBoundingBox->copyFrom(&expandedBoundingBox);
 }
 
 Matrix4x4
-Camera::projectionMatrixFromBoundingBox(const BoundingBox &boundingBox) {
+Camera::projectionMatrixFromBoundingBox(const AxisAlignedBoundingBox &boundingBox) {
     return Matrix4x4::createOrthogonalViewMatrix(
         boundingBox.minX(),
         boundingBox.maxX(),

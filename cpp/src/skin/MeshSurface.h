@@ -8,8 +8,8 @@ Surfaces are basically a list of patches representing a simple object with given
 #include "java/util/ArrayList.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
-#include "skin/MaterialColorFlags.h"
-#include "skin/Vertex.h"
+#include "material/MaterialColorFlags.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class MeshSurface final : public Geometry {
   private:

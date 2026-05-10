@@ -13,7 +13,7 @@ Adds a small safety margin and fallback defaults for empty or non-positive range
 */
 void
 RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *> *sceneGeometries) {
-    BoundingBox bounds;
+    AxisAlignedBoundingBox bounds;
     Vector3D minimum;
     Vector3D maximum;
     Vector3D d;
@@ -66,7 +66,7 @@ RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *>
 Renders a bounding box
 */
 void
-RenderOpenGL::renderBoundingBox(BoundingBox boundingBox) {
+RenderOpenGL::renderBoundingBox(AxisAlignedBoundingBox boundingBox) {
     Vector3D p[8];
 
     const float minX = boundingBox.minX();
@@ -101,7 +101,7 @@ RenderOpenGL::renderBoundingBox(BoundingBox boundingBox) {
 
 void
 RenderOpenGL::renderGeomBounds(Camera *camera, const Geometry *geometry) {
-    const BoundingBox geometryBoundingBox = geometry->getBoundingBox();
+    const AxisAlignedBoundingBox geometryBoundingBox = geometry->getBoundingBox();
 
     if ( geometry->bounded ) {
         RenderOpenGL::renderBoundingBox(geometryBoundingBox);

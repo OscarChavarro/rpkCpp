@@ -1,7 +1,7 @@
 #include "skin/MinMaxBox.h"
 
 void
-MinMaxBox::updateFromBoundingBox(const BoundingBox *sourceBoundingBox) {
+MinMaxBox::updateFromBoundingBox(const AxisAlignedBoundingBox *sourceBoundingBox) {
     if ( sourceBoundingBox == nullptr ) {
         return;
     }

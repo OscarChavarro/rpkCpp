@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 /**
 Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 */

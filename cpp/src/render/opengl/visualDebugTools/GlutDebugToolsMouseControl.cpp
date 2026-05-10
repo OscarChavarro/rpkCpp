@@ -9,15 +9,15 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.txx"
-#include "skin/RayHit.h"
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHit.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "render/opengl/RenderOpenGL.h"
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "render/opengl/visualDebugTools/PatchHitCandidate.h"
 #include "scene/Camera.h"
 #include "scene/Scene.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 bool GlutDebugToolsMouseControl::leftButtonDown = false;
 bool GlutDebugToolsMouseControl::rightButtonDown = false;
@@ -114,7 +114,7 @@ GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
     }
 
     if ( scene->geometryList != nullptr && scene->geometryList->size() > 0 ) {
-        BoundingBox sceneBounds;
+        AxisAlignedBoundingBox sceneBounds;
         Geometry::listBounds(scene->geometryList, &sceneBounds);
         return sceneBounds.center();
     }

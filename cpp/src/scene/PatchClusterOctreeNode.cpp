@@ -15,7 +15,7 @@ Reference:
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "scene/PatchClusterOctreeNode.h"
 
 java::ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = nullptr;
@@ -99,7 +99,7 @@ PatchClusterOctreeNode::clusterAddPatch(Patch *patch) {
     if ( patch != nullptr ) {
         patches->add(patch);
 
-        BoundingBox patchBoundingBox{};
+        AxisAlignedBoundingBox patchBoundingBox{};
 
         if ( patch->getBoundingBox() != nullptr ) {
             patchBoundingBox = *patch->getBoundingBox();
@@ -128,7 +128,7 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     // All patches that were added to the top cluster, which is being split now,
     // have a bounding box computed for them
     Patch *patch = patches->get(patchIndexOnParent);
-    const BoundingBox *patchBoundingBox = patch->getBoundingBox();
+    const AxisAlignedBoundingBox *patchBoundingBox = patch->getBoundingBox();
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
     float smallestBoxDimension = 10.0f * Numeric::EPSILON_FLOAT;

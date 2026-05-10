@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED

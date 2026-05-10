@@ -11,7 +11,7 @@ References:
 #include "java/util/ArrayList.h"
 #include "common/memoryManagement/MemoryPool.h"
 #include "skin/Geometry.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "scene/Polygon.h"
 #include "galerkin/ShaftCullStrategy.h"
 #include "galerkin/ShaftPlane.h"
@@ -36,9 +36,9 @@ class Shaft {
     static constexpr int MIN_MAX_DIMENSIONS = 6;
     static constexpr int NONE = -1;
 
-    BoundingBox *referenceItem1; // Bounding boxes of the reference items
-    BoundingBox *referenceItem2;
-    BoundingBox extentBoundingBox;
+    AxisAlignedBoundingBox *referenceItem1; // Bounding boxes of the reference items
+    AxisAlignedBoundingBox *referenceItem2;
+    AxisAlignedBoundingBox extentBoundingBox;
     ShaftPlane planeSet[SHAFT_MAX_PLANES];
     long numberOfPlanesInSet;  // Number of planes in plane-set
 
@@ -78,7 +78,7 @@ class Shaft {
     ShaftPlanePosition shaftPatchTest(Patch *patch);
     bool closedGeometry(const Geometry *geometry) const;
     int uniqueShaftPlane(const ShaftPlane *parameterPlane) const;
-    ShaftPlanePosition boundingBoxTest(const BoundingBox *parameterBoundingBox) const;
+    ShaftPlanePosition boundingBoxTest(const AxisAlignedBoundingBox *parameterBoundingBox) const;
     void cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Patch *> *culledPatchList);
     bool patchIsOnOmitSet(unsigned id) const;
     void shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy);
@@ -89,7 +89,7 @@ public:
     static void freeCandidateList(java::ArrayList<Geometry *> *candidateList);
 
     bool isCut() const;
-    void constructFromBoundingBoxes(BoundingBox *boundingBox1, BoundingBox *boundingBox2);
+    void constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlignedBoundingBox *boundingBox2);
     void constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2);
     void setShaftOmit(Patch *patch);
     void setShaftDontOpen(Geometry *geometry);

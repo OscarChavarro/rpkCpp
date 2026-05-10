@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/RenderOptions.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Vertex.h"
 #include "raycasting/stochasticRaytracing/HierarchyClusteringMode.h"
 #include "raycasting/stochasticRaytracing/Link.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"

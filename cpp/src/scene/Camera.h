@@ -5,7 +5,7 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "common/color/ColorRgb.h"
 #include "scene/Plane.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 
 class Camera {
   public:
@@ -49,8 +49,8 @@ class Camera {
     void setLookPosition(float x, float y, float z);
     void setUpDirection(float x, float y, float z);
     void setFieldOfView(float fieldOfView);
-    static void transformBoundingBox(const BoundingBox &sourceBoundingBox, const Matrix4x4 &transform, BoundingBox *transformedBoundingBox);
-    static Matrix4x4 projectionMatrixFromBoundingBox(const BoundingBox &boundingBox);
+    static void transformBoundingBox(const AxisAlignedBoundingBox &sourceBoundingBox, const Matrix4x4 &transform, AxisAlignedBoundingBox *transformedBoundingBox);
+    static Matrix4x4 projectionMatrixFromBoundingBox(const AxisAlignedBoundingBox &boundingBox);
 
   private:
     void computeClippingPlanes();

@@ -16,9 +16,9 @@
 #include "skin/Compound.h"
 #include "skin/Geometry.h"
 #include "skin/MeshSurface.h"
-#include "skin/Patch.h"
-#include "skin/PatchSet.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/PatchSet.h"
+#include "environment/geometry/elements/Vertex.h"
 #include "io/wrapper/PersistenceElement.h"
 #include "io/context/ColorContext.h"
 #include "io/context/ParseSnapshotContext.h"
@@ -115,7 +115,7 @@ BinaryModelSerializer::writeVector(java::OutputStream &output, const Vector3D &v
 }
 
 void
-BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const BoundingBox &boundingBox) {
+BinaryModelSerializer::writeBoundingBox(java::OutputStream &output, const AxisAlignedBoundingBox &boundingBox) {
     for ( int i = 0; i < 6; i++ ) {
         vsdk::PersistenceElement::writeFloatLE(output, boundingBox.valueAt(i));
     }

@@ -9,7 +9,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "skin/MinMaxBox.h"
 #include "scene/VoxelGrid.h"
 
@@ -117,16 +117,16 @@ VoxelGrid::freeVoxelGridElements() {
 }
 
 bool
-VoxelGrid::isSmall(const BoundingBox *bb) const {
+VoxelGrid::isSmall(const AxisAlignedBoundingBox *bb) const {
     return bb->dx() <= voxelSize.x &&
            bb->dy() <= voxelSize.y &&
            bb->dz() <= voxelSize.z;
 }
 
 void
-VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const {
+VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const AxisAlignedBoundingBox *itemBounds) const {
 
-    BoundingBox boundaries;
+    AxisAlignedBoundingBox boundaries;
     boundaries.copyFrom(itemBounds);
     boundaries.enlargeByFactor(DELTA_BOUND_FACTOR);
 
@@ -163,7 +163,7 @@ VoxelGrid::putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds
 
 void
 VoxelGrid::putPatchInsideVoxelGrid(Patch *patch) const {
-    BoundingBox localBounds;
+    AxisAlignedBoundingBox localBounds;
     if ( patch->getBoundingBox() != nullptr ) {
         localBounds = *patch->getBoundingBox();
     } else {

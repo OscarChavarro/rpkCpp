@@ -3,7 +3,7 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "io/image/ImageOutputHandle.h"

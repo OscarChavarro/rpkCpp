@@ -3,12 +3,12 @@
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Ray.h"
-#include "skin/RayHit.h"
-#include "skin/BoundingBox.h"
-#include "skin/Element.h"
+#include "environment/geometry/elements/RayHit.h"
+#include "skin/AxisAlignedBoundingBox.h"
+#include "environment/geometry/elements/Element.h"
 #include "skin/GeometryClassId.h"
 #include "skin/MinMaxBox.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 /**
 Currently, there are three types of geometries:
@@ -43,7 +43,7 @@ class Geometry {
 
   //public:
     int id; // Unique ID number
-    BoundingBox boundingBox;
+    AxisAlignedBoundingBox boundingBox;
     mutable MinMaxBox *rayIntersectionBox;
     Element *radianceData; // Data specific to the radiance algorithm being used
     int itemCount;
@@ -79,7 +79,7 @@ class Geometry {
         RayHit *hitStore);
 
     bool isExcluded() const;
-    BoundingBox getBoundingBox() const;
+    AxisAlignedBoundingBox getBoundingBox() const;
     MinMaxBox *getRayIntersectionBox() const;
     Geometry *clone() const;
 
@@ -87,7 +87,7 @@ class Geometry {
     static java::ArrayList<Geometry *> *primitiveListCopy(const Geometry *geometry);
     static java::ArrayList<Patch *> *patchListReference(const Geometry *geometry);
     static void dontIntersect(Geometry *geometry1, Geometry *geometry2);
-    static void listBounds(const java::ArrayList<Geometry *> *geometryList, BoundingBox *boundingBox);
+    static void listBounds(const java::ArrayList<Geometry *> *geometryList, AxisAlignedBoundingBox *boundingBox);
 
     static RayHit *
     listDiscretizationIntersect(
@@ -99,8 +99,8 @@ class Geometry {
         RayHit *hitStore);
 
   protected:
-    static BoundingBox *
-    patchListBounds(const java::ArrayList<Patch *> *patchList, BoundingBox *boundingBox);
+    static AxisAlignedBoundingBox *
+    patchListBounds(const java::ArrayList<Patch *> *patchList, AxisAlignedBoundingBox *boundingBox);
 };
 
 #endif

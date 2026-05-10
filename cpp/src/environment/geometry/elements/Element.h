@@ -5,8 +5,8 @@
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
-#include "skin/ElementFlags.h"
-#include "skin/ElementTypes.h"
+#include "ElementFlags.h"
+#include "ElementTypes.h"
 
 class Element {
   public:

@@ -8,7 +8,7 @@ Constant Control Radiosity
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Ccr final {
   public:

@@ -23,7 +23,7 @@ LinkingSimpleStrategy::createInitialLink(
     const GalerkinRole role,
     java::ArrayList<Geometry *> **candidateList,
     GalerkinElement *topElement,
-    BoundingBox *topLevelBoundingBox,
+    AxisAlignedBoundingBox *topLevelBoundingBox,
     Patch *patch)
 {
     if ( !patch->facing(topElement->patch) ) {
@@ -62,7 +62,7 @@ LinkingSimpleStrategy::createInitialLink(
                 shaft.constructFromPolygonToPolygon(&rcvPolygon, &srcPolygon);
             }
         } else {
-            BoundingBox boundingBox;
+            AxisAlignedBoundingBox boundingBox;
             patch->computeAndGetBoundingBox(&boundingBox);
             shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         }
@@ -154,7 +154,7 @@ LinkingSimpleStrategy::geometryLink(
     const GalerkinRole role,
     java::ArrayList<Geometry *> **candidateList,
     GalerkinElement *topElement,
-    BoundingBox *topLevelBoundingBox,
+    AxisAlignedBoundingBox *topLevelBoundingBox,
     Geometry *geometry)
 {
     // Immediately return if the Geometry is bounded and behind the plane of the patch for which interactions are created
@@ -170,7 +170,7 @@ LinkingSimpleStrategy::geometryLink(
 
     if ( geometry->bounded && oldCandidateList ) {
         Shaft shaft;
-        BoundingBox boundingBox = geometry->getBoundingBox();
+        AxisAlignedBoundingBox boundingBox = geometry->getBoundingBox();
         shaft.constructFromBoundingBoxes(topLevelBoundingBox, &boundingBox);
         shaft.setShaftOmit(topElement->patch);
         java::ArrayList<Geometry*> *arr = new java::ArrayList<Geometry*>();
@@ -230,7 +230,7 @@ LinkingSimpleStrategy::createInitialLinks(
         Logger::fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
     }
 
-    BoundingBox topLevelBoundingBox;
+    AxisAlignedBoundingBox topLevelBoundingBox;
     topElement->patch->computeAndGetBoundingBox(&topLevelBoundingBox);
 
     java::ArrayList<Geometry *> *candidateList = scene->clusteredGeometryList;

@@ -1,7 +1,7 @@
 #ifndef __SHADOW_CACHE__
 #define __SHADOW_CACHE__
 
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class ShadowCache {
   private:

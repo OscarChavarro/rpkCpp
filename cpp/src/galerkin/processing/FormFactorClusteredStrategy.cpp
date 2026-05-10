@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "skin/MinMaxBox.h"
@@ -111,7 +111,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     float fSize = Numeric::HUGE_FLOAT_VALUE;
     float tMinimum = rcvDist * Numeric::EPSILON_FLOAT;
     float tMaximum = rcvDist;
-    const BoundingBox *boundingBox = &geometry->boundingBox;
+    const AxisAlignedBoundingBox *boundingBox = &geometry->boundingBox;
     MinMaxBox *minMaxBox = geometry->getRayIntersectionBox();
 
     // Check ray/bounding volume intersection and compute feature size of occluder

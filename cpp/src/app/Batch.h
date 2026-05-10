@@ -5,7 +5,7 @@
 #include "java/util/ArrayList.h"
 #include "raycasting/common/RayTracer.h"
 #include "scene/RadianceMethod.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "scene/Scene.h"
 #include "app/options/BatchOptions.h"
 #include "tonemap/ToneMappingContext.h"

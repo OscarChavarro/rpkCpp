@@ -2,11 +2,11 @@
 #define __MIN_MAX_BOX__
 
 #include "common/linealAlgebra/Ray.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 
 class MinMaxBox {
   private:
-    BoundingBox boundingBox;
+    AxisAlignedBoundingBox boundingBox;
     static inline bool
     clipAxisSlab(
         float minimumBound,
@@ -18,18 +18,18 @@ class MinMaxBox {
         float *farDistance);
 
   public:
-    inline explicit MinMaxBox(const BoundingBox *sourceBoundingBox);
+    inline explicit MinMaxBox(const AxisAlignedBoundingBox *sourceBoundingBox);
     inline ~MinMaxBox();
 
     inline MinMaxBox(const MinMaxBox &) = delete;
     inline MinMaxBox &operator=(const MinMaxBox &) = delete;
 
-    void updateFromBoundingBox(const BoundingBox *sourceBoundingBox);
+    void updateFromBoundingBox(const AxisAlignedBoundingBox *sourceBoundingBox);
     inline bool intersect(const Ray *ray, float minimumDistance, float *maximumDistance) const;
     inline bool intersectingSegment(const Ray *ray, float *tMin, float *tMax) const;
 };
 
-MinMaxBox::MinMaxBox(const BoundingBox *sourceBoundingBox):
+MinMaxBox::MinMaxBox(const AxisAlignedBoundingBox *sourceBoundingBox):
         boundingBox()
 {
     if ( sourceBoundingBox != nullptr ) {

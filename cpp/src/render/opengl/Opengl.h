@@ -6,7 +6,7 @@
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "render/opengl/OpenGLCallbacks.h"
 #include "render/opengl/OpenGlRenderTraversalCallback.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
@@ -34,8 +34,8 @@ class Opengl {
         const Geometry *geometry,
         const OpenGlRenderTraversalCallback &renderPatchCallback,
         const RenderOptions *renderOptions);
-    static bool openGlViewCullBounds(const Camera *camera, const BoundingBox *bounds);
-    static float openGlBoundsDistance2(Vector3D p, const BoundingBox *boundingBox);
+    static bool openGlViewCullBounds(const Camera *camera, const AxisAlignedBoundingBox *bounds);
+    static float openGlBoundsDistance2(Vector3D p, const AxisAlignedBoundingBox *boundingBox);
     static void
     openGlRenderOctreeNonLeaf(
         Camera *camera,

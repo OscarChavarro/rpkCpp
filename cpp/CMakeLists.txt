@@ -89,16 +89,16 @@ set(MAIN_SRC
     src/material/PhongBidirectionalTransmittanceDistributionFunction.cpp
     src/material/PhongBidirectionalScatteringDistributionFunction.cpp
     src/material/Material.cpp
-    src/skin/PatchSet.cpp
-    src/skin/RayHit.cpp
+        src/environment/geometry/elements/PatchSet.cpp
+        src/environment/geometry/elements/RayHit.cpp
     src/skin/Compound.cpp
     src/skin/Geometry.cpp
-    src/skin/Patch.cpp
-    src/skin/BoundingBox.cpp
+        src/environment/geometry/elements/Patch.cpp
+        src/skin/AxisAlignedBoundingBox.cpp
     src/skin/MinMaxBox.cpp
     src/skin/MeshSurface.cpp
-    src/skin/Vertex.cpp
-    src/skin/Element.cpp
+        src/environment/geometry/elements/Vertex.cpp
+        src/environment/geometry/elements/Element.cpp
     src/render/sgl/PolyClip.cpp
     src/render/sgl/PolyScanZ.cpp
     src/render/sgl/SglContext.cpp

@@ -1,4 +1,4 @@
-#include "skin/RayHitFlag.h"
+#include "environment/geometry/elements/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
@@ -82,7 +82,7 @@ FormFactorStrategy::determineNodes(
     if ( element->isCluster() ) {
         *cr = galerkinState->clusterRule;
 
-        BoundingBox boundingBox;
+        AxisAlignedBoundingBox boundingBox;
         element->bounds(&boundingBox);
 
         double dx = boundingBox.dx();
@@ -500,8 +500,8 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
     GalerkinElement *sourceElement = link->sourceElement;
 
     if ( receiverElement->isCluster() || sourceElement->isCluster() ) {
-        BoundingBox sourceBoundingBox;
-        BoundingBox receiverBoundingBox;
+        AxisAlignedBoundingBox sourceBoundingBox;
+        AxisAlignedBoundingBox receiverBoundingBox;
         receiverElement->bounds(&receiverBoundingBox);
         sourceElement->bounds(&sourceBoundingBox);
 

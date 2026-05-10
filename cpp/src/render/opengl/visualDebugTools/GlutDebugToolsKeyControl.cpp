@@ -10,7 +10,7 @@
 #include "java/util/ArrayList.txx"
 #include "scene/Scene.h"
 #include "scene/RadianceMethod.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "render/opengl/visualDebugTools/GlutDebugState.h"
 #include "render/opengl/visualDebugTools/GlutDebugMode.h"
 #include "render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"

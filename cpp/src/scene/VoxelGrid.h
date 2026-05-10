@@ -20,7 +20,7 @@ class VoxelGrid {
     Vector3D voxelSize;
     java::ArrayList<VoxelData *> **volumeListsOfItems; // 3D array of item lists
     void **gridItemPool;
-    BoundingBox boundingBox;
+    AxisAlignedBoundingBox boundingBox;
     mutable MinMaxBox *rayIntersectionBox;
 
     static void addToSubGridsDeletionCache(VoxelGrid *voxelGrid);
@@ -36,9 +36,9 @@ class VoxelGrid {
     short z2voxel(float pz) const;
     int cellIndexAddress(int a, int b, int c) const;
     void putGeometryInsideVoxelGrid(Geometry *geometry, short na, short nb, short nc);
-    bool isSmall(const BoundingBox *bb) const;
+    bool isSmall(const AxisAlignedBoundingBox *bb) const;
     void putSubGeometryInsideVoxelGrid(Geometry *geometry);
-    void putItemInsideVoxelGrid(VoxelData *item, const BoundingBox *itemBounds) const;
+    void putItemInsideVoxelGrid(VoxelData *item, const AxisAlignedBoundingBox *itemBounds) const;
     void putPatchInsideVoxelGrid(Patch *patch) const;
     Vector3D toVoxelClamped(const Vector3D &p) const;
     void insertGeometryAsVoxelData(Geometry *geometry) const;

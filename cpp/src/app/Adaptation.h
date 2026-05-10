@@ -7,7 +7,7 @@ Estimate static adaptation luminance in the current scene
 
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "app/LuminanceArea.h"
 #include "tonemap/ToneMappingContext.h"
 

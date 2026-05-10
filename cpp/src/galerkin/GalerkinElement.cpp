@@ -491,7 +491,7 @@ cluster element (8 vertices). The number of vertices is returned
 int
 GalerkinElement::vertices(Vector3D *p) const {
     if ( isCluster() ) {
-        BoundingBox boundingBox;
+        AxisAlignedBoundingBox boundingBox;
         bounds(&boundingBox);
 
         boundingBox.corners(p);
@@ -572,10 +572,10 @@ GalerkinElement::midPoint() const {
 /**
 Computes a bounding box for the element
 */
-BoundingBox *
-GalerkinElement::bounds(BoundingBox *boundingBox) const {
+AxisAlignedBoundingBox *
+GalerkinElement::bounds(AxisAlignedBoundingBox *boundingBox) const {
     if ( isCluster() ) {
-        BoundingBox copy = geometry->getBoundingBox();
+        AxisAlignedBoundingBox copy = geometry->getBoundingBox();
         boundingBox->copyFrom(&copy);
     } else {
         Vector3D p[4];

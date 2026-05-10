@@ -2,7 +2,7 @@
 #define __STOCHASTIC_RAYTRACING_PATH_NODE__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 /**
 Path node: contains all necessary data for computing the score afterwards

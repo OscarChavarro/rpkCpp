@@ -24,7 +24,7 @@ class LinkingSimpleStrategy {
         GalerkinRole role,
         java::ArrayList<Geometry *> **candidateList,
         GalerkinElement *topElement,
-        BoundingBox *topLevelBoundingBox,
+        AxisAlignedBoundingBox *topLevelBoundingBox,
         Patch *patch);
 
     static void
@@ -34,7 +34,7 @@ class LinkingSimpleStrategy {
         GalerkinRole role,
         java::ArrayList<Geometry *> **candidateList,
         GalerkinElement *topElement,
-        BoundingBox *topLevelBoundingBox,
+        AxisAlignedBoundingBox *topLevelBoundingBox,
         Geometry *geometry);
   public:
     static void

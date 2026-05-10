@@ -4,9 +4,9 @@
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Ray.h"
 #include "material/Material.h"
-#include "skin/BoundingBox.h"
-#include "skin/PatchConstants.h"
-#include "skin/Vertex.h"
+#include "skin/AxisAlignedBoundingBox.h"
+#include "PatchConstants.h"
+#include "Vertex.h"
 
 class RayHit;
 
@@ -58,7 +58,7 @@ class Patch {
     Patch *twin; // Twin face (for double-sided surfaces)
     const char numberOfVertices; // Number of vertices: 3 or 4
     Vertex *const vertex[MAXIMUM_VERTICES_PER_PATCH]; // Pointers to the vertices
-    BoundingBox *const boundingBox;
+    AxisAlignedBoundingBox *const boundingBox;
     float planeTolerance; // Plane tolerance
     float directPotential; // Directly received hemispherical potential (ref: Pattanaik, ACM Trans Graph, 1995?).
     // Only determined when asked to do so (see potential.[ch]).
@@ -102,12 +102,12 @@ class Patch {
     ~Patch();
 
     void biLinearToUniform(double *u, double *v) const;
-    void computeAndGetBoundingBox(BoundingBox *bounds);
+    void computeAndGetBoundingBox(AxisAlignedBoundingBox *bounds);
     void computeBoundingBox();
     void computeVertexColors() const;
     bool facing(const Patch *other) const;
     float getArea() const;
-    const BoundingBox *getBoundingBox() const;
+    const AxisAlignedBoundingBox *getBoundingBox() const;
     const ColorRgb &getColor() const;
     float getDirectPotential() const;
     char getDominantAxisIndex() const;
@@ -164,7 +164,7 @@ Patch::getArea() const {
     return area;
 }
 
-inline const BoundingBox *
+inline const AxisAlignedBoundingBox *
 Patch::getBoundingBox() const {
     return boundingBox;
 }

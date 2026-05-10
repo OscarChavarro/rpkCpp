@@ -76,7 +76,7 @@ class GalerkinElement final : public Element {
     void regularSubDivide();
     GalerkinElement *regularLeafAtPoint(double *u, double *v);
     int vertices(Vector3D *p) const;
-    BoundingBox *bounds(BoundingBox *boundingBox) const;
+    AxisAlignedBoundingBox *bounds(AxisAlignedBoundingBox *boundingBox) const;
     Vector3D midPoint() const;
     void initPolygon(Polygon *polygon) const;
     void reAllocCoefficients();

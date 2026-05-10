@@ -82,7 +82,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
                 // Render pointers to the elements in the source cluster into the scratch frame
                 // buffer, seen from the samplePoint point
-                const BoundingBox *boundingBox =
+                const AxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
@@ -182,7 +182,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             if ( !receiverElement->geometry->boundingBox.outOfBounds(&samplePoint) ) {
                 return receiverElement->area;
             } else {
-                const BoundingBox *boundingBox =
+                const AxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Projected area is the number of non-background pixels over
@@ -264,7 +264,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
                         receiverElement,
                         galerkinState);
             } else {
-                const BoundingBox *boundingBox =
+                const AxisAlignedBoundingBox *boundingBox =
                     ScratchVisibilityStrategy::scratchRenderElements(receiverElement, samplePoint, galerkinState);
 
                 // Count how many pixels each element occupies in the scratch frame buffer

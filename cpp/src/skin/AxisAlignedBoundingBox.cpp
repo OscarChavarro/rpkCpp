@@ -1,6 +1,6 @@
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 
-BoundingBox::BoundingBox(): coordinates() {
+AxisAlignedBoundingBox::AxisAlignedBoundingBox(): coordinates() {
     coordinates[MIN_X] = Numeric::HUGE_FLOAT_VALUE;
     coordinates[MIN_Y] = Numeric::HUGE_FLOAT_VALUE;
     coordinates[MIN_Z] = Numeric::HUGE_FLOAT_VALUE;
@@ -13,7 +13,7 @@ BoundingBox::BoundingBox(): coordinates() {
 Enlarge BoundingBox with other
 */
 void
-BoundingBox::enlarge(const BoundingBox *other) {
+AxisAlignedBoundingBox::enlarge(const AxisAlignedBoundingBox *other) {
     setIfLess(coordinates[MIN_X], other->coordinates[MIN_X]);
     setIfLess(coordinates[MIN_Y], other->coordinates[MIN_Y]);
     setIfLess(coordinates[MIN_Z], other->coordinates[MIN_Z]);
@@ -23,7 +23,7 @@ BoundingBox::enlarge(const BoundingBox *other) {
 }
 
 void
-BoundingBox::enlargeToIncludePoint(const Vector3D *point) {
+AxisAlignedBoundingBox::enlargeToIncludePoint(const Vector3D *point) {
     setIfLess(coordinates[MIN_X], point->x);
     setIfLess(coordinates[MIN_Y], point->y);
     setIfLess(coordinates[MIN_Z], point->z);
@@ -33,7 +33,7 @@ BoundingBox::enlargeToIncludePoint(const Vector3D *point) {
 }
 
 void
-BoundingBox::copyFrom(const BoundingBox *other) {
+AxisAlignedBoundingBox::copyFrom(const AxisAlignedBoundingBox *other) {
     coordinates[MIN_X] = other->coordinates[MIN_X];
     coordinates[MIN_Y] = other->coordinates[MIN_Y];
     coordinates[MIN_Z] = other->coordinates[MIN_Z];
@@ -47,7 +47,7 @@ Returns true if the bounding box is behind the plane defined by norm and d
 see F. Tampieri, "Fast Vertex Radiosity Update", Graphics Gems II, p 303
 */
 bool
-BoundingBox::behindPlane(const Vector3D *normal, float distance) const {
+AxisAlignedBoundingBox::behindPlane(const Vector3D *normal, float distance) const {
     Vector3D P;
 
     if ( normal->x > 0.0f ) {
@@ -72,7 +72,7 @@ BoundingBox::behindPlane(const Vector3D *normal, float distance) const {
 }
 
 void
-BoundingBox::enlargeTinyBit() {
+AxisAlignedBoundingBox::enlargeTinyBit() {
     float Dx = static_cast<float>((coordinates[MAX_X] - coordinates[MIN_X]) * 1e-4);
     float Dy = static_cast<float>((coordinates[MAX_Y] - coordinates[MIN_Y]) * 1e-4);
     float Dz = static_cast<float>((coordinates[MAX_Z] - coordinates[MIN_Z]) * 1e-4);

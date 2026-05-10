@@ -2,7 +2,7 @@
 #define __CANVAS__
 
 #include "java/util/ArrayList.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Canvas {
   private:

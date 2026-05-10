@@ -8,7 +8,7 @@
 A bounding box is represented as an array of 6 floating point numbers.
 The meaning of the numbers is given by the constants MIN_X
 */
-class BoundingBox {
+class AxisAlignedBoundingBox {
   private:
     float coordinates[6];
 
@@ -23,19 +23,19 @@ class BoundingBox {
     }
 
   public:
-    BoundingBox();
+    AxisAlignedBoundingBox();
 
     float maxExtent() const;
     bool outOfBounds(const Vector3D *p) const;
     Vector3D center() const;
-    void setAsUnion(const BoundingBox *a, const BoundingBox *b);
-    bool disjointToOtherBoundingBox(const BoundingBox *other) const;
+    void setAsUnion(const AxisAlignedBoundingBox *a, const AxisAlignedBoundingBox *b);
+    bool disjointToOtherBoundingBox(const AxisAlignedBoundingBox *other) const;
     bool behindPlane(const Vector3D *normal, float distance) const;
-    void copyFrom(const BoundingBox *other);
-    void enlarge(const BoundingBox *other);
+    void copyFrom(const AxisAlignedBoundingBox *other);
+    void enlarge(const AxisAlignedBoundingBox *other);
     void enlargeToIncludePoint(const Vector3D *point);
     void enlargeTinyBit();
-    void computeContributionFlags(const BoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const;
+    void computeContributionFlags(const AxisAlignedBoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const;
     float dx() const;
     float dy() const;
     float dz() const;
@@ -55,7 +55,7 @@ class BoundingBox {
 };
 
 inline float
-BoundingBox::maxExtent() const {
+AxisAlignedBoundingBox::maxExtent() const {
     const float dx = coordinates[MAX_X] - coordinates[MIN_X];
     const float dy = coordinates[MAX_Y] - coordinates[MIN_Y];
     const float dz = coordinates[MAX_Z] - coordinates[MIN_Z];
@@ -65,14 +65,14 @@ BoundingBox::maxExtent() const {
 }
 
 inline bool
-BoundingBox::outOfBounds(const Vector3D *p) const {
+AxisAlignedBoundingBox::outOfBounds(const Vector3D *p) const {
     return p->x < coordinates[MIN_X] || p->x > coordinates[MAX_X] ||
            p->y < coordinates[MIN_Y] || p->y > coordinates[MAX_Y] ||
            p->z < coordinates[MIN_Z] || p->z > coordinates[MAX_Z];
 }
 
 inline Vector3D
-BoundingBox::center() const {
+AxisAlignedBoundingBox::center() const {
     return Vector3D(
         0.5f * (coordinates[MIN_X] + coordinates[MAX_X]),
         0.5f * (coordinates[MIN_Y] + coordinates[MAX_Y]),
@@ -81,7 +81,7 @@ BoundingBox::center() const {
 }
 
 inline void
-BoundingBox::setAsUnion(const BoundingBox *a, const BoundingBox *b) {
+AxisAlignedBoundingBox::setAsUnion(const AxisAlignedBoundingBox *a, const AxisAlignedBoundingBox *b) {
     for (int i = MIN_X; i <= MIN_Z; i++) {
         coordinates[i] = a->coordinates[i] < b->coordinates[i]
                          ? a->coordinates[i]
@@ -99,7 +99,7 @@ BoundingBox::setAsUnion(const BoundingBox *a, const BoundingBox *b) {
 True if the two given bounding boxes are disjoint
 */
 inline bool
-BoundingBox::disjointToOtherBoundingBox(const BoundingBox *other) const {
+AxisAlignedBoundingBox::disjointToOtherBoundingBox(const AxisAlignedBoundingBox *other) const {
     return
             (coordinates[MIN_X] > other->coordinates[MAX_X]) || (other->coordinates[MIN_X] > coordinates[MAX_X]) ||
             (coordinates[MIN_Y] > other->coordinates[MAX_Y]) || (other->coordinates[MIN_Y] > coordinates[MAX_Y]) ||
@@ -107,7 +107,7 @@ BoundingBox::disjointToOtherBoundingBox(const BoundingBox *other) const {
 }
 
 inline void
-BoundingBox::computeContributionFlags(const BoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const {
+AxisAlignedBoundingBox::computeContributionFlags(const AxisAlignedBoundingBox *other, bool *hasMinMax1, bool *hasMinMax2) const {
     for (int i = MIN_X; i <= MIN_Z; i++) {
         if ( coordinates[i] < other->coordinates[i]) {
             hasMinMax1[i] = true;
@@ -136,22 +136,22 @@ BoundingBox::computeContributionFlags(const BoundingBox *other, bool *hasMinMax1
 }
 
 inline float
-BoundingBox::dx() const {
+AxisAlignedBoundingBox::dx() const {
     return coordinates[MAX_X] - coordinates[MIN_X];
 }
 
 inline float
-BoundingBox::dy() const {
+AxisAlignedBoundingBox::dy() const {
     return coordinates[MAX_Y] - coordinates[MIN_Y];
 }
 
 inline float
-BoundingBox::dz() const {
+AxisAlignedBoundingBox::dz() const {
     return coordinates[MAX_Z] - coordinates[MIN_Z];
 }
 
 inline Vector3D
-BoundingBox::voxelSize(const short nx, const short ny, const short nz) const {
+AxisAlignedBoundingBox::voxelSize(const short nx, const short ny, const short nz) const {
     return Vector3D(
             dx() / static_cast<float>(nx),
             dy() / static_cast<float>(ny),
@@ -160,7 +160,7 @@ BoundingBox::voxelSize(const short nx, const short ny, const short nz) const {
 }
 
 inline void
-BoundingBox::enlargeByFactor(float factor) {
+AxisAlignedBoundingBox::enlargeByFactor(float factor) {
     float fdx = dx() * factor;
     float fdy = dy() * factor;
     float fdz = dz() * factor;
@@ -184,7 +184,7 @@ BoundingBox::enlargeByFactor(float factor) {
 }
 
 inline Vector3D
-BoundingBox::minPoint() const {
+AxisAlignedBoundingBox::minPoint() const {
     return Vector3D(
             coordinates[MIN_X],
             coordinates[MIN_Y],
@@ -193,7 +193,7 @@ BoundingBox::minPoint() const {
 }
 
 inline Vector3D
-BoundingBox::maxPoint() const {
+AxisAlignedBoundingBox::maxPoint() const {
     return Vector3D(
             coordinates[MAX_X],
             coordinates[MAX_Y],
@@ -202,42 +202,42 @@ BoundingBox::maxPoint() const {
 }
 
 inline float
-BoundingBox::minX() const {
+AxisAlignedBoundingBox::minX() const {
     return coordinates[MIN_X];
 }
 
 inline float
-BoundingBox::minY() const {
+AxisAlignedBoundingBox::minY() const {
     return coordinates[MIN_Y];
 }
 
 inline float
-BoundingBox::minZ() const {
+AxisAlignedBoundingBox::minZ() const {
     return coordinates[MIN_Z];
 }
 
 inline float
-BoundingBox::maxX() const {
+AxisAlignedBoundingBox::maxX() const {
     return coordinates[MAX_X];
 }
 
 inline float
-BoundingBox::maxY() const {
+AxisAlignedBoundingBox::maxY() const {
     return coordinates[MAX_Y];
 }
 
 inline float
-BoundingBox::maxZ() const {
+AxisAlignedBoundingBox::maxZ() const {
     return coordinates[MAX_Z];
 }
 
 inline const float *
-BoundingBox::rawCoordinates() const {
+AxisAlignedBoundingBox::rawCoordinates() const {
     return coordinates;
 }
 
 inline float
-BoundingBox::valueAt(int idx) const {
+AxisAlignedBoundingBox::valueAt(int idx) const {
     switch (idx) {
         case MIN_X: return minX();
         case MIN_Y: return minY();
@@ -250,7 +250,7 @@ BoundingBox::valueAt(int idx) const {
 }
 
 inline void
-BoundingBox::corners(Vector3D out[8]) const {
+AxisAlignedBoundingBox::corners(Vector3D out[8]) const {
     const float minX = coordinates[MIN_X];
     const float minY = coordinates[MIN_Y];
     const float minZ = coordinates[MIN_Z];

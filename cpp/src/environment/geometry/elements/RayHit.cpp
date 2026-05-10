@@ -1,8 +1,8 @@
-#include "skin/RayHitFlag.h"
+#include "RayHitFlag.h"
 #include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
-#include "skin/RayHit.h"
-#include "skin/Patch.h"
+#include "RayHit.h"
+#include "Patch.h"
 
 RayHit::RayHit():
     point(),

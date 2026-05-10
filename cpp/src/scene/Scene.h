@@ -2,7 +2,7 @@
 #define __SCENE__
 
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "skin/MeshSurface.h"
 #include "scene/Background.h"
 #include "scene/Camera.h"

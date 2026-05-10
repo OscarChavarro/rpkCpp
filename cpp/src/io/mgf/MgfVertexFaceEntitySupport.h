@@ -7,8 +7,8 @@
 #include "io/context/ParseRuntimeContext.h"
 #include "io/context/TransformStackContext.h"
 #include "io/context/VertexContext.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class MgfVertexFaceEntitySupport {
   public:
