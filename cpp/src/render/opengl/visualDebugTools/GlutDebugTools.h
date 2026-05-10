@@ -42,6 +42,14 @@ class GlutDebugTools final {
     static void mouseMotionCallbackBridge(int x, int y);
     static void drawCallbackBridge();
     static void printGalerkinElementForPatchBridge(const Scene *scene, int patchIndex);
+    static int maxHierarchyLevelFromElement(const GalerkinElement *element);
+    static bool isElementInHierarchy(
+        const GalerkinElement *hierarchyRoot,
+        const GalerkinElement *candidateElement);
+    static void addInteractionsFromElementLevel(
+        const GalerkinElement *element,
+        int hierarchyLevel,
+        java::ArrayList<Interaction *> *interactions);
 
     void syncModelWindowSizeFromGlut();
     void syncCameraToViewport() const;

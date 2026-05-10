@@ -28,9 +28,8 @@ GlutDebugPatchHierarchy::clamp01(float value) {
     return value;
 }
 
-namespace {
 void
-addPatchIfNotPresent(
+GlutDebugPatchHierarchy::addPatchIfNotPresent(
     java::ArrayList<const Patch *> *patches,
     const Patch *patch)
 {
@@ -44,7 +43,6 @@ addPatchIfNotPresent(
         }
     }
     patches->add(patch);
-}
 }
 
 float
@@ -461,10 +459,10 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
             interaction->receiverElement == nullptr ? nullptr : interaction->receiverElement->patch;
 
         if ( sourcePatch != primaryPatch ) {
-            addPatchIfNotPresent(&interactingPatches, sourcePatch);
+            GlutDebugPatchHierarchy::addPatchIfNotPresent(&interactingPatches, sourcePatch);
         }
         if ( receiverPatch != primaryPatch ) {
-            addPatchIfNotPresent(&interactingPatches, receiverPatch);
+            GlutDebugPatchHierarchy::addPatchIfNotPresent(&interactingPatches, receiverPatch);
         }
     }
 

@@ -12,9 +12,8 @@
 #include "app/options/OptionsGroupToneMapping.h"
 #include "app/options/OptionsGroupCamera.h"
 
-namespace {
 char
-toLowerAscii(char c) {
+OptionsGroupCore::toLowerAscii(char c) {
     if ( c >= 'A' && c <= 'Z' ) {
         return static_cast<char>(c - 'A' + 'a');
     }
@@ -22,19 +21,18 @@ toLowerAscii(char c) {
 }
 
 bool
-equalsIgnoreCase(const char *a, const char *b) {
+OptionsGroupCore::equalsIgnoreCase(const char *a, const char *b) {
     if ( a == nullptr || b == nullptr ) {
         return false;
     }
     unsigned long i = 0;
     while ( a[i] != '\0' && b[i] != '\0' ) {
-        if ( toLowerAscii(a[i]) != toLowerAscii(b[i]) ) {
+        if ( OptionsGroupCore::toLowerAscii(a[i]) != OptionsGroupCore::toLowerAscii(b[i]) ) {
             return false;
         }
         i++;
     }
     return a[i] == '\0' && b[i] == '\0';
-}
 }
 
 const ColorRgb OptionsGroupCore::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
@@ -139,7 +137,7 @@ OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
         }
 
         const char * const mode = argv[readIndex + 1];
-        if ( !equalsIgnoreCase(mode, "solid") ) {
+        if ( !OptionsGroupCore::equalsIgnoreCase(mode, "solid") ) {
             java::System::err.printf(
                 "Invalid background mode '%s'. Expected '-background solid <r> <g> <b>'.\n",
                 mode);

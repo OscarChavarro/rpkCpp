@@ -35,6 +35,8 @@ class RpkApplication {
     bool glutDebugEnabled;
 
     void selectToneMapByName(const char *name);
+    static bool isRaytracingDependentOption(const char *argument);
+    static void failIfUnsupportedRaytracingOptionRequested(int argc, char **argv);
     static void mainInitApplication();
     void mainParseOptions(
             int *argc,

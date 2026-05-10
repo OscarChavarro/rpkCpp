@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "common/CppReAlloc.h"
+#include "common/memoryManagement/CppReAlloc.h"
 #include "io/context/ObjectScopeContext.h"
 
 ObjectScopeContext::ObjectScopeContext():

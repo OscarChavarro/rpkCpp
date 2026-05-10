@@ -51,6 +51,8 @@ class OptionsGroupCore final {
     static bool commandLineParseFloat(const char *text, float *value);
     static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
     static void commandLineParseBackgroundOption(int *argc, char **argv);
+    static char toLowerAscii(char c);
+    static bool equalsIgnoreCase(const char *a, const char *b);
     static void mainForceOneSidedOption(int &value);
     static void mainMonochromeOption(int &value);
     static void setIntTrue(int &value);

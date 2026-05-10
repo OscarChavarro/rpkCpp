@@ -46,10 +46,9 @@
 
 Material RpkApplication::defaultMaterial("(default)", nullptr, nullptr, false);
 
-namespace {
 #ifndef RAYTRACING_ENABLED
 bool
-isRaytracingDependentOption(const char *argument) {
+RpkApplication::isRaytracingDependentOption(const char *argument) {
     if ( argument == nullptr ) {
         return false;
     }
@@ -64,9 +63,9 @@ isRaytracingDependentOption(const char *argument) {
 }
 
 void
-failIfUnsupportedRaytracingOptionRequested(int argc, char **argv) {
+RpkApplication::failIfUnsupportedRaytracingOptionRequested(int argc, char **argv) {
     for ( int i = 0; i < argc; i++ ) {
-        if ( isRaytracingDependentOption(argv[i]) ) {
+        if ( RpkApplication::isRaytracingDependentOption(argv[i]) ) {
             java::System::err.printf(
                 "ERROR: Option '%s' requires raytracing support. Rebuild with CMake flag '-DWITH_RAYTRACING=ON'.\n",
                 argv[i]);
@@ -76,7 +75,6 @@ failIfUnsupportedRaytracingOptionRequested(int argc, char **argv) {
     }
 }
 #endif
-}
 
 RpkApplication::RpkApplication():
     imageOutputWidth(),
@@ -165,7 +163,7 @@ RpkApplication::mainParseOptions(
         )
 {
 #ifndef RAYTRACING_ENABLED
-    failIfUnsupportedRaytracingOptionRequested(*argc, argv);
+    RpkApplication::failIfUnsupportedRaytracingOptionRequested(*argc, argv);
     (void) rayTracerName;
 #endif
 

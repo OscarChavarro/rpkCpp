@@ -20,27 +20,8 @@
 #include "java/util/ArrayList.txx"
 #include "render/opengl/Opengl.h"
 
-namespace {
-void
-addInteractionIfNotPresentLocal(
-    java::ArrayList<Interaction *> *interactions,
-    Interaction *interaction)
-{
-    if ( interactions == nullptr || interaction == nullptr ) {
-        return;
-    }
-
-    for ( int i = 0; i < interactions->size(); i++ ) {
-        if ( interactions->get(i) == interaction ) {
-            return;
-        }
-    }
-
-    interactions->add(interaction);
-}
-
 int
-maxHierarchyLevelFromElement(const GalerkinElement *element) {
+GlutDebugTools::maxHierarchyLevelFromElement(const GalerkinElement *element) {
     if ( element == nullptr || element->regularSubElements == nullptr ) {
         return 0;
     }
@@ -51,7 +32,7 @@ maxHierarchyLevelFromElement(const GalerkinElement *element) {
         if ( child == nullptr ) {
             continue;
         }
-        const int childDepth = 1 + maxHierarchyLevelFromElement(child);
+        const int childDepth = 1 + GlutDebugTools::maxHierarchyLevelFromElement(child);
         if ( childDepth > maxDepth ) {
             maxDepth = childDepth;
         }
@@ -60,7 +41,7 @@ maxHierarchyLevelFromElement(const GalerkinElement *element) {
 }
 
 bool
-isElementInHierarchy(
+GlutDebugTools::isElementInHierarchy(
     const GalerkinElement *hierarchyRoot,
     const GalerkinElement *candidateElement)
 {
@@ -76,7 +57,7 @@ isElementInHierarchy(
 
     for ( int i = 0; i < 4; i++ ) {
         const GalerkinElement *child = static_cast<const GalerkinElement *>(hierarchyRoot->regularSubElements[i]);
-        if ( child != nullptr && isElementInHierarchy(child, candidateElement) ) {
+        if ( child != nullptr && GlutDebugTools::isElementInHierarchy(child, candidateElement) ) {
             return true;
         }
     }
@@ -84,7 +65,7 @@ isElementInHierarchy(
 }
 
 void
-addInteractionsFromElementLevel(
+GlutDebugTools::addInteractionsFromElementLevel(
     const GalerkinElement *element,
     int hierarchyLevel,
     java::ArrayList<Interaction *> *interactions)
@@ -97,7 +78,7 @@ addInteractionsFromElementLevel(
         for ( int i = 0; element->interactions != nullptr && i < element->interactions->size(); i++ ) {
             Interaction *interaction = element->interactions->get(i);
             if ( interaction != nullptr && interaction->receiverElement == element ) {
-                addInteractionIfNotPresentLocal(interactions, interaction);
+                GlutDebugTools::addInteractionIfNotPresent(interactions, interaction);
             }
         }
         return;
@@ -106,10 +87,9 @@ addInteractionsFromElementLevel(
     for ( int i = 0; i < 4; i++ ) {
         const GalerkinElement *child = static_cast<const GalerkinElement *>(element->regularSubElements[i]);
         if ( child != nullptr ) {
-            addInteractionsFromElementLevel(child, hierarchyLevel - 1, interactions);
+            GlutDebugTools::addInteractionsFromElementLevel(child, hierarchyLevel - 1, interactions);
         }
     }
-}
 }
 
 GlutDebugTools *&
@@ -238,12 +218,12 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
     if ( clampedLevel < 0 ) {
         clampedLevel = 0;
     }
-    const int maxLevel = maxHierarchyLevelFromElement(topLevelElement);
+    const int maxLevel = GlutDebugTools::maxHierarchyLevelFromElement(topLevelElement);
     if ( clampedLevel > maxLevel ) {
         clampedLevel = maxLevel;
     }
 
-    addInteractionsFromElementLevel(topLevelElement, clampedLevel, interactions);
+    GlutDebugTools::addInteractionsFromElementLevel(topLevelElement, clampedLevel, interactions);
     if ( secondaryPatch == nullptr ) {
         return interactions;
     }
@@ -268,9 +248,9 @@ GlutDebugTools::getInteractionsWherePatchParticipateAsSourceOrAsReceiver(
             continue;
         }
 
-        if ( isElementInHierarchy(secondaryTopLevelElement, interaction->sourceElement)
-             || isElementInHierarchy(secondaryTopLevelElement, interaction->receiverElement) ) {
-            addInteractionIfNotPresentLocal(filteredInteractions, interaction);
+        if ( GlutDebugTools::isElementInHierarchy(secondaryTopLevelElement, interaction->sourceElement)
+             || GlutDebugTools::isElementInHierarchy(secondaryTopLevelElement, interaction->receiverElement) ) {
+            GlutDebugTools::addInteractionIfNotPresent(filteredInteractions, interaction);
         }
     }
 

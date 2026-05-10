@@ -104,8 +104,8 @@ src/common/color/Cie.cpp,src/common/CIECIEFI.CPP,Cie.cpp,CIECIEFI.CPP
 src/common/color/Cie.h,src/common/CIECIEFI.H,Cie.h,CIECIEFI.H
 src/common/color/ColorRgb.cpp,src/common/CORGLORB.CPP,ColorRgb.cpp,CORGLORB.CPP
 src/common/color/ColorRgb.h,src/common/CORGLORB.H,ColorRgb.h,CORGLORB.H
-src/common/CppReAlloc.cpp,src/common/CPREALPL.CPP,CppReAlloc.cpp,CPREALPL.CPP
-src/common/CppReAlloc.h,src/common/CPREALPL.H,CppReAlloc.h,CPREALPL.H
+src/common/memoryManagement/CppReAlloc.cpp,src/common/memoryManagement/CPREALPL.CPP,CppReAlloc.cpp,CPREALPL.CPP
+src/common/memoryManagement/CppReAlloc.h,src/common/memoryManagement/CPREALPL.H,CppReAlloc.h,CPREALPL.H
 src/common/logging/Logger.cpp,src/common/logging/LOGGERER.CPP,Logger.cpp,LOGGERER.CPP
 src/common/logging/Logger.h,src/common/logging/LOGGERER.H,Logger.h,LOGGERER.H
 src/common/RenderOptions.cpp,src/common/REOPNDER.CPP,RenderOptions.cpp,REOPNDER.CPP

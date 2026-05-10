@@ -66,6 +66,9 @@ class GlutDebugPatchHierarchy final {
         const Vector3D &end);
     static void drawSelectedPatchCenterMarker(const GalerkinElement *topLevelElement, const RenderOptions *renderOptions);
     static void drawInteractions(const java::ArrayList<Interaction *> *interactionsToRender);
+    static void addPatchIfNotPresent(
+        java::ArrayList<const Patch *> *patches,
+        const Patch *patch);
     static void drawSecondarySelectedPatchMarker(
         const GalerkinElement *topLevelElement,
         const RenderOptions *renderOptions,

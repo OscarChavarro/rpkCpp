@@ -45,7 +45,7 @@ set(MAIN_SRC
     src/java/io/BufferedInputStream.cpp
     src/java/io/PrintStream.cpp
     src/common/logging/Logger.cpp
-    src/common/CppReAlloc.cpp
+    src/common/memoryManagement/CppReAlloc.cpp
     src/common/color/ColorRgb.cpp
     src/common/color/Cie.cpp
     src/common/RenderOptions.cpp
