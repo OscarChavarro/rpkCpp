@@ -1,5 +1,5 @@
 #include "common/RenderOptions.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 
 #ifdef OPEN_GL_ENABLED
     #ifdef __APPLE__
@@ -65,7 +65,7 @@ Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RenderOptions *renderOpt
     if ( Opengl::activeToneMapOptions != nullptr ) {
         ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
     } else if ( !openGlMissingToneMapWarningShown ) {
-        Error::warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
+        Logger::warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
         openGlMissingToneMapWarningShown = true;
     }
 #ifdef OPEN_GL_ENABLED
@@ -344,7 +344,7 @@ Opengl::openGlRenderOctreeNonLeaf(
         Geometry *child = children->get(j);
         if ( child->isCompound() ) {
             if ( i >= 8 ) {
-                Error::error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                Logger::error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                 delete children;
                 return;
             }
@@ -577,11 +577,11 @@ Opengl::openGlRenderScene(
 {
 #ifdef OPEN_GL_ENABLED
     if ( scene == nullptr ) {
-        Error::fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
+        Logger::fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
     }
     Opengl::activeToneMapOptions = toneMapOptions;
     if ( toneMapOptions == nullptr && !openGlMissingToneMapWarningShown ) {
-        Error::warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
+        Logger::warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
         openGlMissingToneMapWarningShown = true;
     }
 

@@ -1,13 +1,13 @@
 #include "java/lang/String.h"
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 
 /**
 Prints an error message. Behaves much like printf. The first argument is the
 name of the routine in which the error occurs (optional - can be nullptr)
 */
 void
-Error::error(const char *routine, const char *text, ...) {
+Logger::error(const char *routine, const char *text, ...) {
     va_list variableList;
 
     java::System::err.printf("Error: ");
@@ -30,7 +30,7 @@ First argument is a return code. We use negative return codes for
 "internal" error messages
 */
 [[noreturn]] void
-Error::fatal(int errcode, const char *routine, const char *text, ...) {
+Logger::fatal(int errcode, const char *routine, const char *text, ...) {
     va_list pvar;
 
     java::System::err.printf("logFatal error: ");
@@ -53,7 +53,7 @@ Error::fatal(int errcode, const char *routine, const char *text, ...) {
 Same, but for warning messages
 */
 void
-Error::warning(const char *routine, const char *text, ...) {
+Logger::warning(const char *routine, const char *text, ...) {
     va_list pvar;
 
     java::System::err.printf("Warning: ");

@@ -2,7 +2,7 @@
 #include <cstring>
 
 #include "java/lang/Math.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/color/Cie.h"
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
@@ -32,7 +32,7 @@ OptionsGroupToneMapping::toneMappingMethodOption(char *&name) {
 void
 OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
 }
@@ -40,7 +40,7 @@ OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
 void
 OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::redChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xr = value.x;
     (*toneMapOptions).yr = value.y;
@@ -54,7 +54,7 @@ OptionsGroupToneMapping::redChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::greenChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xg = value.x;
     (*toneMapOptions).yg = value.y;
@@ -68,7 +68,7 @@ OptionsGroupToneMapping::greenChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::blueChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xb = value.x;
     (*toneMapOptions).yb = value.y;
@@ -82,7 +82,7 @@ OptionsGroupToneMapping::blueChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::whiteChromaOption(Vector3D &value) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::whiteChromaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).xw = value.x;
     (*toneMapOptions).yw = value.y;
@@ -96,21 +96,21 @@ OptionsGroupToneMapping::whiteChromaOption(Vector3D &value) {
 void
 OptionsGroupToneMapping::toneMappingCommandLineOptionDescAdaptMethodOption(char *&name) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::toneMappingCommandLineOptionDescAdaptMethodOption", "ToneMappingContext not set");
     }
     if ( strncasecmp(name, "average", 2) == 0 ) {
         (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_AVERAGE;
     } else if ( strncasecmp(name, "median", 2) == 0 ) {
         (*toneMapOptions).staticAdaptationMethod = ToneMapAdaptationMethod::TMA_MEDIAN;
     } else {
-        Error::error(nullptr, "Invalid adaptation estimate method '%s'", name);
+        Logger::error(nullptr, "Invalid adaptation estimate method '%s'", name);
     }
 }
 
 void
 OptionsGroupToneMapping::gammaOption(float &gam) {
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
+        Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
     }
     (*toneMapOptions).gamma.set(gam, gam, gam);
 }

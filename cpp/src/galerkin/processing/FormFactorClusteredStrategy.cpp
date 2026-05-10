@@ -1,6 +1,6 @@
 #include "skin/RayHitFlag.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "skin/MinMaxBox.h"
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/processing/FormFactorClusteredStrategy.h"
@@ -105,7 +105,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
     }
 
     if ( !geometry->bounded ) {
-        Error::fatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
+        Logger::fatal(-1, "geometryMultiResolutionVisibility", "Don't know what to do with unbounded geoms");
     }
 
     float fSize = Numeric::HUGE_FLOAT_VALUE;

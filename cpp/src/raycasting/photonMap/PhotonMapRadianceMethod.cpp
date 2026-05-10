@@ -7,7 +7,7 @@
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
@@ -118,7 +118,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpt
     java::System::err.printf("Photon map activated\n");
 
     if ( toneMapOptions == nullptr ) {
-        Error::fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     photonMapState.lastClock = java::System::nanoTime();
@@ -763,7 +763,7 @@ PhotonMapRadianceMethod::getRadiance(
             break;
         default:
             radiance.clear();
-            Error::error("photonMapGetRadiance", "Unknown radiance return");
+            Logger::error("photonMapGetRadiance", "Unknown radiance return");
     }
 
     return radiance;

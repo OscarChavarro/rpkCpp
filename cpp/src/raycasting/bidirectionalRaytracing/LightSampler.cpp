@@ -3,7 +3,7 @@
 
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 
 UniformLightSampler::UniformLightSampler(LightList *inLightList):
@@ -85,18 +85,18 @@ UniformLightSampler::sample(
             light = currentPatch;
             pdfLight = 1.0;
         } else {
-            Error::warning("sample Unit Light Node", "No valid light selected");
+            Logger::warning("sample Unit Light Node", "No valid light selected");
             return false;
         }
     } else {
         if ( lightList == nullptr ) {
-            Error::warning("FillLightNode", "No light list available");
+            Logger::warning("FillLightNode", "No light list available");
             return false;
         }
         light = lightList->sample(&x1, &pdfLight);
 
         if ( light == nullptr ) {
-            Error::warning("FillLightNode", "No light found");
+            Logger::warning("FillLightNode", "No light found");
             return false;
         }
     }

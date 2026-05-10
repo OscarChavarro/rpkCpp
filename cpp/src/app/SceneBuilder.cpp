@@ -4,7 +4,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "scene/PatchClusterOctreeNode.h"
@@ -356,7 +356,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
 {
     java::File file(fileName);
     if ( !file.exists() ) {
-        Error::error(
+        Logger::error(
             "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' does not exist",
             fileRole,
@@ -364,7 +364,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
         return false;
     }
     if ( !file.isFile() ) {
-        Error::error(
+        Logger::error(
             "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is not a regular file",
             fileRole,
@@ -372,7 +372,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
         return false;
     }
     if ( !file.canRead() ) {
-        Error::error(
+        Logger::error(
             "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is not readable",
             fileRole,
@@ -385,7 +385,7 @@ SceneBuilder::sceneBuilderValidateReadableFile(
     input.close();
 
     if ( firstByte < 0 ) {
-        Error::error(
+        Logger::error(
             "SceneBuilder::sceneBuilderReadFile",
             "Requested %s file '%s' is empty",
             fileRole,
@@ -445,7 +445,7 @@ SceneBuilder::sceneBuilderReadFile(
                 java::System::err.printf(
                     "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
                 java::System::err.flush();
-                Error::error(
+                Logger::error(
                     "SceneBuilder::sceneBuilderReadFile",
                     "Requested MGF input '%s' could not be loaded and fallback binary '%s' is not available.",
                     requestedInputName,
@@ -457,7 +457,7 @@ SceneBuilder::sceneBuilderReadFile(
             java::System::err.printf(
                 "ERROR: Non-binary scene input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
             java::System::err.flush();
-            Error::error(
+            Logger::error(
                 "SceneBuilder::sceneBuilderReadFile",
                 "Only '.bin' input files are supported in this build.");
             return false;
@@ -528,7 +528,7 @@ SceneBuilder::sceneBuilderReadFile(
                 java::System::err.printf("done.\n");
             } else {
                 java::System::err.printf("failed.\n");
-                Error::error(
+                Logger::error(
                     "SceneBuilder::sceneBuilderReadFile",
                     "Could not export ParseSnapshotContext binary to '%s'",
                     batchOptions->binaryOutputFilename);
@@ -538,7 +538,7 @@ SceneBuilder::sceneBuilderReadFile(
         java::System::err.printf(
             "ERROR: MGF input requires MGF support. Rebuild with CMake flag '-DWITH_MGF=ON'.\n");
         java::System::err.flush();
-        Error::error(
+        Logger::error(
             "SceneBuilder::sceneBuilderReadFile",
             "Only '.bin' input files are supported in this build.");
 #endif
@@ -595,7 +595,7 @@ SceneBuilder::sceneBuilderReadFile(
     scene->clusteredRootGeometry = SceneBuilder::sceneBuilderCreateClusterHierarchy(scene->patchList);
 
     if ( scene->clusteredRootGeometry->className != GeometryClassId::COMPOUND ) {
-        Error::warning(nullptr, "Strange clusters for this world ...");
+        Logger::warning(nullptr, "Strange clusters for this world ...");
     }
 
     t = java::System::nanoTime();
@@ -700,7 +700,7 @@ SceneBuilder::sceneBuilderCreateModel(
     // All options should have disappeared from argv now
     if ( *argc > 1 ) {
         if ( *argv[1] == '-' ) {
-            Error::error(nullptr, "Unrecognized option '%s'", argv[1]);
+            Logger::error(nullptr, "Unrecognized option '%s'", argv[1]);
         } else if ( !SceneBuilder::sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
             java::System::exit(1);
         }

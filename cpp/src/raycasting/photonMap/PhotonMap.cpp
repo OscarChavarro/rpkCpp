@@ -6,7 +6,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/photonMap/Photon.h"
 #include "raycasting/photonMap/PhotonMap.h"
@@ -204,7 +204,7 @@ PhotonMap::computeAcceptProb(
 
         return (0.5 * (1.0 + java::Math::cos(ratio * M_PI)));
     } else {
-        Error::error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+        Logger::error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
         return 0.0;
     }
 }

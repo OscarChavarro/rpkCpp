@@ -1,6 +1,6 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "skin/Patch.h"
 #include "skin/RayHit.h"
@@ -104,7 +104,7 @@ Patch::getInterpolatedNormalAtUv(double u, double v) const {
             pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), localNormal);
             break;
         default:
-            Error::fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
+            Logger::fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
     }
 
     localNormal.normalize(Numeric::Numeric::EPSILON_FLOAT);
@@ -132,7 +132,7 @@ Patch::solveQuadraticUnitInterval(double A, double B, double C, double *x) {
     } else {
         if ( D < -TOLERANCE * TOLERANCE ) {
             *x = -B / (2. * A);
-            Error::error(nullptr,
+            Logger::error(nullptr,
                      "Bi-linear->Uniform mapping has negative discriminant D = %g.\nTaking 0 as discriminant and %g as solution.",
                      D, *x);
             return false;
@@ -286,7 +286,7 @@ Patch::computeRandomWalkRadiosityArea() {
             }
             break;
         default:
-            Error::fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.\n");
+            Logger::fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.\n");
             this->jacobian = nullptr;
             this->area = 0.0;
     }
@@ -573,7 +573,7 @@ Patch::patchNormal(const Patch *patch, Vector3D *normal) {
 
     const float localNorm = normal->norm();
     if ( localNorm < Numeric::EPSILON ) {
-        Error::warning("patchNormal", "degenerate patch (id %d)", patch->getId());
+        Logger::warning("patchNormal", "degenerate patch (id %d)", patch->getId());
         return nullptr;
     }
     normal->inverseScaledCopy(localNorm, *normal, Numeric::EPSILON_FLOAT);
@@ -618,13 +618,13 @@ Patch::Patch(
     color()
 {
     if ( v1 == nullptr || v2 == nullptr || v3 == nullptr || (inNumberOfVertices == 4 && v4 == nullptr) ) {
-        Error::error("Patch::Patch", "Null vertex!");
+        Logger::error("Patch::Patch", "Null vertex!");
         java::System::exit(1);
     }
 
     // It's sad but it's true
     if ( inNumberOfVertices != 3 && inNumberOfVertices != 4 ) {
-        Error::error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
+        Logger::error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
         java::System::exit(2);
     }
 
@@ -643,7 +643,7 @@ Patch::Patch(
     // Compute normal
     if ( Patch::patchNormal(this, &normal) == nullptr ) {
         Statistics::instance().reader.numberOfElements--;
-        Error::error("Patch::Patch", "Error computing patch normal");
+        Logger::error("Patch::Patch", "Error computing patch normal");
         java::System::exit(3);
     }
 
@@ -712,7 +712,7 @@ Patch::dontIntersectBase(
     Patch *p3)
 {
     if ( n < 0 || n > MAX_EXCLUDED_PATCHES ) {
-        Error::fatal(
+        Logger::fatal(
             -1,
             "Patch::dontIntersectBase",
             "Invalid number of excluded patches %d (maximum is %d)",
@@ -819,7 +819,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
             }
             break;
         default:
-            Error::fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
+            Logger::fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
     }
     return texCoord;
 }
@@ -941,7 +941,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     double B = (a + 0.5 * c) / area;
     double C = -(*u);
     if ( !solveQuadraticUnitInterval(A, B, C, u) ) {
-        //Error::error(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d", A, B, -C, id);
+        //Logger::error(nullptr, "Tried to solve %g*u^2 + %g*u = %g for patch %d", A, B, -C, id);
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 
@@ -949,7 +949,7 @@ Patch::uniformToBiLinear(double *u, double *v) const {
     B = (a + 0.5 * b) / area;
     C = -(*v);
     if ( !solveQuadraticUnitInterval(A, B, C, v) ) {
-        //Error::error(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d", A, B, -C, id);
+        //Logger::error(nullptr, "Tried to solve %g*v^2 + %g*v = %g for patch %d", A, B, -C, id);
         //fprintf(stderr, "Jacobian: %g + %g*u + %g*v\n", a, b, c);
     }
 }
@@ -981,7 +981,7 @@ Patch::pointBarycentricMapping(double u, double v, Vector3D *point) const {
         const Vector3D *v4 = vertex[3]->point;
         pointInQuadrilateral(*v1, *v2, *v3, *v4, static_cast<float>(u), static_cast<float>(v), *point);
     } else {
-        Error::fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
+        Logger::fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
     }
 
     return point;
@@ -1022,7 +1022,7 @@ Patch::uv(const Vector3D *point, double *u, double *v) const {
             inside = quadUv(this, point, &uv);
             break;
         default:
-            Error::fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
+            Logger::fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
     }
 
     *u = uv.u;

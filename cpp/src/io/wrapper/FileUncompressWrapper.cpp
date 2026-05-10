@@ -3,7 +3,7 @@
 #include "java/io/FileInputStream.h"
 #include "java/io/FileOutputStream.h"
 #include "java/util/Formatter.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "io/wrapper/PipeInputStream.h"
 #include "io/wrapper/PipeOutputStream.h"
@@ -109,7 +109,7 @@ FileUncompressWrapper::openInputStreamCompressWrapper(const char *fileName, int 
     delete[] command;
 
     if ( stream == nullptr ) {
-        Error::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::READ));
+        Logger::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::READ));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }
@@ -147,7 +147,7 @@ FileUncompressWrapper::openOutputStreamCompressWrapper(const char *fileName, int
     delete[] command;
 
     if ( stream == nullptr ) {
-        Error::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::WRITE));
+        Logger::error(nullptr, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode::WRITE));
         if ( isPipe != nullptr ) {
             *isPipe = 0;
         }

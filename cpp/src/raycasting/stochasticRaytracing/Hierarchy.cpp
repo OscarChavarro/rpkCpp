@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 #include "common/RenderOptions.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 
@@ -33,7 +33,7 @@ ElementHierarchyState &
 ElementHierarchyState::activeState() {
     ElementHierarchyState *state = activeStatePtr();
     if ( state == nullptr ) {
-        Error::fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+        Logger::fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
     }
     return *state;
 }

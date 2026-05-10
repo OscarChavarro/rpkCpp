@@ -7,7 +7,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "skin/Compound.h"
 #include "skin/PatchSet.h"
 #include "skin/MinMaxBox.h"
@@ -242,7 +242,7 @@ VoxelGrid::putSubGeometryInsideVoxelGrid(Geometry *geometry) {
 void
 VoxelGrid::putGeometryInsideVoxelGrid(Geometry *geometry, const short na, const short nb, const short nc) {
     if ( na <= 0 || nb <= 0 || nc <= 0 ) {
-        Error::error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+        Logger::error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
         java::System::exit(1);
     }
 

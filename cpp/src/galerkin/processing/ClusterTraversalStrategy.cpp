@@ -8,7 +8,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "galerkin/processing/ClusterTraversalStrategy.h"
 #include "galerkin/processing/ScratchVisibilityStrategy.h"
 #include "galerkin/processing/visitors/DepthVisibilityGathererVisitor.h"
@@ -96,7 +96,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
             }
 
         default:
-            Error::fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
+            Logger::fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %d\n",
                  galerkinState->clusteringStrategy);
     }
 }
@@ -112,7 +112,7 @@ ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState
     const GalerkinElement *receiverElement = link->receiverElement;
 
     if ( !sourceElement->isCluster() || sourceElement == receiverElement ) {
-        Error::fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+        Logger::fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     // Take a sample point on the receiver
@@ -195,7 +195,7 @@ ClusterTraversalStrategy::receiverArea(Interaction *link, GalerkinState *galerki
             }
 
         default:
-            Error::fatal(-1, "receiverArea", "Invalid clustering strategy %d", galerkinState->clusteringStrategy);
+            Logger::fatal(-1, "receiverArea", "Invalid clustering strategy %d", galerkinState->clusteringStrategy);
     }
 }
 
@@ -241,7 +241,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
     GalerkinElement *receiverElement = link->receiverElement;
 
     if ( !receiverElement->isCluster() || sourceElement == receiverElement ) {
-        Error::fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+        Logger::fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     Vector3D samplePoint = sourceElement->midPoint();
@@ -287,7 +287,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
             }
             break;
         default:
-            Error::fatal(-1, "gatherRadiance", "Invalid clustering strategy %d",
+            Logger::fatal(-1, "gatherRadiance", "Invalid clustering strategy %d",
                      galerkinState->clusteringStrategy);
     }
     delete leafVisitor;

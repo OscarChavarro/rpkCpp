@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/linealAlgebra/Numeric.h"
 #include "io/image/ImageOutputHandle.h"
 #include "scene/RadianceMethod.h"
@@ -21,7 +21,7 @@ RadianceImageExporter::exportImage(
     }
 
     if ( toneMapOptions == nullptr ) {
-        Error::error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
+        Logger::error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
         return;
     }
 
@@ -32,7 +32,7 @@ RadianceImageExporter::exportImage(
     long height;
     idRenderer.getSize(&width, &height);
     if ( width != screenBuffer.getHRes() || height != screenBuffer.getVRes() ) {
-        Error::error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
+        Logger::error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
         return;
     }
 

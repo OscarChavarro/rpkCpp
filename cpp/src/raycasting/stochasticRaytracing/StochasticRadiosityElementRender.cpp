@@ -7,7 +7,7 @@ Rendering elements
 
 #ifdef RAYTRACING_ENABLED
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "tonemap/ToneMap.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"
@@ -37,7 +37,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
             break;
         }
         default:
-            Error::fatal(
+            Logger::fatal(
                 -1,
                 "stochasticRadiosityElementColor",
                 "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
@@ -122,7 +122,7 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
             break;
         }
         default:
-            Error::fatal(-1, "vertexColor",
+            Logger::fatal(-1, "vertexColor",
                      "Don't know what to display (StochasticRelaxation::activeState().show = %d)",
                      StochasticRelaxation::activeState().show);
     }
@@ -204,7 +204,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(con
                     radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], static_cast<float>(u), static_cast<float>(v));
                     break;
                 default:
-                    Error::fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
+                    Logger::fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
                              "can only handle triangular or quadrilateral elements");
             }
         } else {

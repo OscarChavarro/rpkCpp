@@ -9,7 +9,7 @@
 
 #include <cstring>
 
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingApproximation.h"
 
 double
@@ -74,7 +74,7 @@ StochasticRadiosityBasisState &
 StochasticRadiosityBasisState::activeState() {
     StochasticRadiosityBasisState *state = activeStatePtr();
     if ( state == nullptr ) {
-        Error::fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+        Logger::fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
     }
     return *state;
 }
@@ -114,7 +114,7 @@ Basismcrad::makeBasis(StochasticRadiosityElementType et, StochasticRaytracingApp
             elem = "quadrilaterals";
             break;
         default:
-            Error::fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
+            Logger::fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
     }
 
     basis.size = basisState.approxDesc[at].basis_size;

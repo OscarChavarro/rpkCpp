@@ -4,7 +4,7 @@ a software frame buffer directly.
 */
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 #include "common/statistics/Statistics.h"
 #include "render/SoftIdsWrapper.h"
@@ -166,7 +166,7 @@ RayCaster::render(
     long height;
     idRenderer->getSize(&width, &height);
     if ( width != screenBuffer->getHRes() || height != screenBuffer->getVRes() ) {
-        Error::fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+        Logger::fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // This is the main loop for ray-casting

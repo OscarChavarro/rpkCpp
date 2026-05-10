@@ -12,7 +12,7 @@ Monte Carlo Radiosity: common code for stochastic relaxation and random walks
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "render/Potential.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
@@ -442,7 +442,7 @@ Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosi
                 rd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], static_cast<float>(u), static_cast<float>(v));
                 break;
             default:
-                Error::fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
+                Logger::fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
                          leaf->numberOfVertices);
         }
     }

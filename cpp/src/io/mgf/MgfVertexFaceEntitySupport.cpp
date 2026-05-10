@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/dataStructures/LookUpEntity.h"
 #include "io/context/TokenValidationContext.h"
 #include "io/mgf/MgfConeEntityTessellator.h"
@@ -47,7 +47,7 @@ MgfVertexFaceEntitySupport::doDiscreteConic(int argc, const char **argv, ParseRu
         case EntityTypeContext::PRISM:
             return MgfPrismEntityTessellator::handleEntity(argc, argv, context);
         default:
-            Error::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+            Logger::fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
     }
 }
 

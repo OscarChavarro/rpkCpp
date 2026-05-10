@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "galerkin/GalerkinRadianceMethod.h"
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"
@@ -18,7 +18,7 @@ OptionsGroupGalerkin::iterationMethodOption(char *&name) {
     } else if ( strncasecmp(name, "southwell", 2) == 0 ) {
         GalerkinRadianceMethod::galerkinState.galerkinIterationMethod = GalerkinIterationMethod::SOUTH_WELL;
     } else {
-        Error::error(nullptr, "Invalid iteration method '%s'", name);
+        Logger::error(nullptr, "Invalid iteration method '%s'", name);
     }
 }
 

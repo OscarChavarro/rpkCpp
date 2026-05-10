@@ -18,7 +18,7 @@ TODO: lines and line bundles.
 #ifdef RAYTRACING_ENABLED
 
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"
 #include "raycasting/stochasticRaytracing/Ccr.h"
@@ -176,7 +176,7 @@ StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePat
     stochasticJacobiElementSetup(ElementHierarchyState::activeState().topCluster);
 
     if ( sumOfProbabilities < Numeric::EPSILON * Numeric::EPSILON ) {
-        Error::warning("Iteration", "No sources");
+        Logger::warning("Iteration", "No sources");
         return false;
     }
     return true;
@@ -350,7 +350,7 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
     } else {
         switch ( ElementHierarchyState::activeState().clustering ) {
             case HierarchyClusteringMode::NO_CLUSTERING:
-                Error::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
+                Logger::fatal(-1, "Propagate", "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
 
             case HierarchyClusteringMode::ISOTROPIC_CLUSTERING:
                 stochasticJacobiPropagateRadianceToClusterIsotropic(rcv, rayPower, src, fraction, weight);
@@ -363,7 +363,7 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
                 }
                 break;
             default:
-                Error::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(ElementHierarchyState::activeState().clustering));
+                Logger::fatal(-1, "Propagate", "Invalid clustering mode %d\n", static_cast<int>(ElementHierarchyState::activeState().clustering));
         }
     }
 }
@@ -389,7 +389,7 @@ StochasticJacobi::stochasticJacobiPropagateImportance(
 
     if ( ElementHierarchyState::activeState().do_h_meshing ||
          ElementHierarchyState::activeState().clustering != HierarchyClusteringMode::NO_CLUSTERING ) {
-        Error::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
+        Logger::fatal(-1, "Propagate", "Importance propagation not implemented in combination with hierarchical refinement");
     }
 }
 

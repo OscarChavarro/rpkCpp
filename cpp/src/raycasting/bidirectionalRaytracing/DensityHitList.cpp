@@ -3,7 +3,7 @@
 #ifdef RAYTRACING_ENABLED
 
 #include "raycasting/bidirectionalRaytracing/DensityHitList.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 
 DensityHitList::DensityHitList(): cacheLowerLimit() {
     first = new DensityHitArray(DHL_ARRAY_SIZE);
@@ -23,7 +23,7 @@ DensityHitList::~DensityHitList() {
 DensityHit
 DensityHitList::operator[](int i) {
     if ( i >= numHits ) {
-        Error::fatal(-1, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+        Logger::fatal(-1, __FILE__ ":DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if ( !cacheCurrent || (i < cacheLowerLimit) ) {

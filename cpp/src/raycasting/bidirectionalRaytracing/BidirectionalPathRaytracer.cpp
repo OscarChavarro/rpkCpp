@@ -7,7 +7,7 @@
 #include <cstring>
 
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/StratifiedSampling2D.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/EyeSampler.h"
@@ -67,7 +67,7 @@ BidirectionalPathRaytracer::execute(
     BidirectionalPathTracingConfiguration config;
     config.toneMapOptions = toneMapOptions;
     if ( config.toneMapOptions == nullptr ) {
-        Error::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+        Logger::fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
     }
 
     // Copy base config (so that rendering is independent of GUI)

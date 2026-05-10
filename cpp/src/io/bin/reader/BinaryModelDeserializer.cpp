@@ -6,7 +6,7 @@
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color/ColorRgb.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -166,7 +166,7 @@ BinaryModelDeserializer::read(const char *fileName) {
                     const long long dataBytes = BinaryModelReadPrimitives::readInt64LE(input);
 
                     if ( width < 0 || height < 0 || channels < 0 || dataBytes < 0 ) {
-                        Error::error("BinaryModelDeserializer::read", "%s", "Invalid texture dimensions in binary material");
+                        Logger::error("BinaryModelDeserializer::read", "%s", "Invalid texture dimensions in binary material");
                         goto fail;
                     }
 
@@ -174,14 +174,14 @@ BinaryModelDeserializer::read(const char *fileName) {
                                                   * static_cast<long long>(height)
                                                   * static_cast<long long>(channels);
                     if ( expectedBytes != dataBytes ) {
-                        Error::error("BinaryModelDeserializer::read", "%s", "Texture byte count mismatch in binary material");
+                        Logger::error("BinaryModelDeserializer::read", "%s", "Texture byte count mismatch in binary material");
                         goto fail;
                     }
 
                     ScopedArrayBuffer<unsigned char> textureData;
                     if ( dataBytes > 0 ) {
                         if ( dataBytes > static_cast<long long>(java::Integer::MAX_VALUE) ) {
-                            Error::error("BinaryModelDeserializer::read", "%s", "Texture data too large for current platform");
+                            Logger::error("BinaryModelDeserializer::read", "%s", "Texture data too large for current platform");
                             goto fail;
                         }
                         textureData.reset(new unsigned char[static_cast<int>(dataBytes)]);
@@ -325,7 +325,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.tmp = BinaryModelReadPrimitives::readInt32LE(input);
             record.hasRadianceData = BinaryModelReadPrimitives::readBool(input);
             if ( record.hasRadianceData ) {
-                Error::error("BinaryModelDeserializer::read", "%s", "Vertex radianceData is not supported in binary reader");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Vertex radianceData is not supported in binary reader");
                 goto fail;
             }
             if ( !BinaryModelReadPrimitives::readIndexList(input, "vertex.patches", &record.patchIndices) ) goto fail;
@@ -360,7 +360,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.twinIndex = BinaryModelReadPrimitives::readInt32LE(input);
             record.numberOfVertices = BinaryModelReadPrimitives::readInt32LE(input);
             if ( record.numberOfVertices != 3 && record.numberOfVertices != 4 ) {
-                Error::error("BinaryModelDeserializer::read", "%s", "Invalid patch vertex count while loading binary model");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Invalid patch vertex count while loading binary model");
                 goto fail;
             }
             for ( int j = 0; j < MAXIMUM_VERTICES_PER_PATCH; j++ ) {
@@ -396,7 +396,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.materialIndex = BinaryModelReadPrimitives::readInt32LE(input);
             record.hasRadianceData = BinaryModelReadPrimitives::readBool(input);
             if ( record.hasRadianceData ) {
-                Error::error("BinaryModelDeserializer::read", "%s", "Patch radianceData is not supported in binary reader");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Patch radianceData is not supported in binary reader");
                 goto fail;
             }
 
@@ -472,7 +472,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             record.hasRayIntersectionBox = BinaryModelReadPrimitives::readBool(input);
             record.hasRadianceData = BinaryModelReadPrimitives::readBool(input);
             if ( record.hasRadianceData ) {
-                Error::error("BinaryModelDeserializer::read", "%s", "Geometry radianceData is not supported in binary reader");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Geometry radianceData is not supported in binary reader");
                 goto fail;
             }
 
@@ -497,7 +497,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             } else if ( record.classId == static_cast<int>(GeometryClassId::PATCH_SET) ) {
                 if ( !BinaryModelReadPrimitives::readIndexList(input, "patchSet.patchList", &record.patchSetPatches) ) goto fail;
             } else {
-                Error::error("BinaryModelDeserializer::read", "%s", "Unsupported geometry type in binary model");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Unsupported geometry type in binary model");
                 goto fail;
             }
         }
@@ -542,7 +542,7 @@ BinaryModelDeserializer::read(const char *fileName) {
             }
 
             if ( geometry == nullptr ) {
-                Error::error("BinaryModelDeserializer::read", "%s", "Could not instantiate geometry while loading binary model");
+                Logger::error("BinaryModelDeserializer::read", "%s", "Could not instantiate geometry while loading binary model");
                 goto fail;
             }
 
@@ -646,7 +646,7 @@ BinaryModelDeserializer::read(const char *fileName) {
 
         ok = true;
     } catch (...) {
-        Error::error("BinaryModelDeserializer::read", "%s", "Unexpected failure while reading binary model");
+        Logger::error("BinaryModelDeserializer::read", "%s", "Unexpected failure while reading binary model");
         ok = false;
     }
 

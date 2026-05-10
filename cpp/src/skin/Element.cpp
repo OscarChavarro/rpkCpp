@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/RenderOptions.h"
 
 #ifdef RAYTRACING_ENABLED
@@ -126,7 +126,7 @@ Element::childContainingElement(Element *descendant) {
         descendant = descendant->parent;
     }
     if ( descendant == nullptr ) {
-        Error::fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+        Logger::fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
 }

@@ -1,4 +1,4 @@
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "tonemap/LightnessToneMap.h"
@@ -15,7 +15,7 @@ LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 
 ColorRgb
 LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
-    Error::warning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
+    Logger::warning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 

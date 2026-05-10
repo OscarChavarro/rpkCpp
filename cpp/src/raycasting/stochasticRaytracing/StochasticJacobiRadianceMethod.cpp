@@ -9,7 +9,7 @@ Stochastic Relaxation Radiosity (currently only stochastic Jacobi)
 
 #include "java/util/ArrayList.txx"
 #include "java/lang/System.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
@@ -110,7 +110,7 @@ StochasticJacobiRadianceMethod::initialize(Scene *scene, ToneMappingContext *ton
     (void) scene;
     StochasticRelaxation::activeState().toneMapOptions = toneMapOptions;
     if ( StochasticRelaxation::activeState().toneMapOptions == nullptr ) {
-        Error::fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+        Logger::fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation::activeState().method = StochasticRaytracingMethod::STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     Mcrad::monteCarloRadiosityInit();
@@ -192,7 +192,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementIncrementRad
         elem->quality = 0.0;
         static bool repeated = false;
         if ( !repeated ) {
-            Error::warning("stochasticRelaxationRadiosityElementIncrementRadiance",
+            Logger::warning("stochasticRelaxationRadiosityElementIncrementRadiance",
                        "Solution of incremental Jacobi steps receives zero quality");
         }
         repeated = true;
@@ -528,7 +528,7 @@ StochasticJacobiRadianceMethod::doStep(Scene *scene, RenderOptions *renderOption
 
         if ( StochasticRelaxation::activeState().importanceDriven ) {
             if ( !StochasticRelaxation::activeState().incrementalUsesImportance ) {
-                Error::warning(nullptr, "Importance is only used from the second iteration on ...");
+                Logger::warning(nullptr, "Importance is only used from the second iteration on ...");
             } else if ( StochasticRelaxation::activeState().importanceUpdated ) {
                     StochasticRelaxation::activeState().importanceUpdated = false;
 

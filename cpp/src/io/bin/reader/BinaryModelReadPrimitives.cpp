@@ -4,7 +4,7 @@
 #include "java/util/ArrayList.txx"
 
 #include "common/color/ColorRgb.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/MinMaxBox.h"
 #include "io/context/ParseSnapshotContext.h"
@@ -20,7 +20,7 @@ const unsigned char BinaryModelReadPrimitives::BINARY_MODEL_MAGIC[16] = {
 
 bool
 BinaryModelReadPrimitives::reportReadError(const char *routine, const char *message) {
-    Error::error(routine, "%s", message);
+    Logger::error(routine, "%s", message);
     return false;
 }
 
@@ -123,7 +123,7 @@ BinaryModelReadPrimitives::readNonNegativeCount(java::InputStream &input, const 
     }
     *count = readInt32LE(input);
     if ( *count < 0 ) {
-        Error::error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
         return false;
     }
     return true;
@@ -239,7 +239,7 @@ BinaryModelReadPrimitives::readIndexList(java::InputStream &input, const char *w
         return true;
     }
     if ( count < -1 ) {
-        Error::error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
+        Logger::error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
         return false;
     }
 
@@ -248,7 +248,7 @@ BinaryModelReadPrimitives::readIndexList(java::InputStream &input, const char *w
         if ( !record->indices->add(readInt32LE(input)) ) {
             delete record->indices;
             record->indices = nullptr;
-            Error::error("BinaryModelReadPrimitives::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
+            Logger::error("BinaryModelReadPrimitives::readIndexList", "Failed to allocate index list while reading binary model (%s)", what);
             return false;
         }
     }

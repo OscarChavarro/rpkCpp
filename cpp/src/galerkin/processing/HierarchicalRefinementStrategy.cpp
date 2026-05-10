@@ -4,7 +4,7 @@ Hierarchical refinement
 
 #include "java/util/ArrayList.txx"
 #include "common/MemoryPool.txx"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "galerkin/processing/ClusterTraversalStrategy.h"
 #include "galerkin/processing/FormFactorStrategy.h"
@@ -134,7 +134,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementLinkErrorThreshold(
                 Statistics::instance().radiance.maxSelfEmittedPower) * galerkinState->relLinkErrorThreshold / (M_PI * receiverArea);
             break;
         default:
-            Error::fatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
+            Logger::fatal(2, "hierarchicRefinementEvaluateInteraction", "Invalid error norm");
     }
 
     // Weight the error with the potential of the receiver in case of view-potential
@@ -224,7 +224,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
             break;
 
         default:
-            Error::fatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
+            Logger::fatal(-1, "hierarchicRefinementApproximationError", "Invalid iteration method");
     }
 
     return approxError;
@@ -424,7 +424,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
             interaction->receiverElement->receivedPotential +=
                 static_cast<float>(K * hierarchicRefinementColorToError(srcRho) * interaction->sourceElement->unShotPotential);
         } else {
-            Error::fatal(
+            Logger::fatal(
                 -1, "hierarchicRefinementComputeLightTransport", "Did you introduce a new iteration method or so??");
         }
     }
@@ -802,7 +802,7 @@ HierarchicalRefinementStrategy::refineRecursive(
             refined = true;
             break;
         default:
-            Error::fatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
+            Logger::fatal(2, "refineRecursive", "Invalid result from hierarchicRefinementEvaluateInteraction()");
     }
 
     return refined;

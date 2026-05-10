@@ -6,7 +6,7 @@
 #include "java/util/HashMap.txx"
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color/ColorRgb.h"
-#include "common/Error.h"
+#include "common/logging/Logger.h"
 #include "material/Material.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
@@ -46,7 +46,7 @@ BinaryModelSerializer::safeLabel(const char *text) {
 bool
 BinaryModelSerializer::writeBytesChunked(java::OutputStream &output, const unsigned char *data, long long length) {
     if ( length < 0 ) {
-        Error::error("BinaryModelSerializer::writeBytesChunked", "Negative block length");
+        Logger::error("BinaryModelSerializer::writeBytesChunked", "Negative block length");
         return false;
     }
     long long offset = 0;
@@ -72,7 +72,7 @@ bool
 BinaryModelSerializer::checkedLongToInt32(long value, const char *what, int &result) {
     if ( value > static_cast<long>(java::Integer::MAX_VALUE)
          || value < static_cast<long>(java::Integer::MIN_VALUE) ) {
-        Error::error("BinaryModelSerializer::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
+        Logger::error("BinaryModelSerializer::checkedLongToInt32", "Overflow converting to int32 for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(value);
@@ -135,7 +135,7 @@ BinaryModelSerializer::indexOfPointer(
     }
     int index = 0;
     if ( !indices.tryGet(ptr, &index) ) {
-        Error::error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
+        Logger::error("BinaryModelSerializer::indexOfPointer", "Missing pointer index for %s", safeLabel(what));
         return false;
     }
     result = static_cast<int>(index);
@@ -217,7 +217,7 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Mat
         const int height = texture->getHeight();
         const int channels = texture->getChannels();
         if ( width < 0 || height < 0 || channels < 0 ) {
-            Error::error("BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
+            Logger::error("BinaryModelSerializer::writeMaterialRecord", "Invalid texture dimensions");
             return false;
         }
 
@@ -233,7 +233,7 @@ BinaryModelSerializer::writeMaterialRecord(java::OutputStream &output, const Mat
         if ( dataBytes > 0 ) {
             const unsigned char *data = texture->getData();
             if ( data == nullptr ) {
-                Error::error("BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
+                Logger::error("BinaryModelSerializer::writeMaterialRecord", "Texture data is null with non-zero size");
                 return false;
             }
             if ( !writeBytesChunked(output, data, dataBytes) ) {
@@ -473,7 +473,7 @@ BinaryModelSerializer::writeGeometryRecord(java::OutputStream &output, const Geo
             return false;
         }
     } else {
-        Error::error("BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
+        Logger::error("BinaryModelSerializer::writeGeometryRecord", "Unsupported geometry class while writing");
         return false;
     }
     return true;
@@ -541,12 +541,12 @@ BinaryModelSerializer::writeModelRecord(java::OutputStream &output, const ParseS
 bool
 BinaryModelSerializer::write(const ParseSnapshotContext *model, const char *fileName) {
     if ( model == nullptr || fileName == nullptr || fileName[0] == '\0' ) {
-        Error::error("BinaryModelSerializer::write", "Invalid model or fileName");
+        Logger::error("BinaryModelSerializer::write", "Invalid model or fileName");
         return false;
     }
     java::File file(fileName);
     if ( !file.canWrite() || file.isDirectory() ) {
-        Error::error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
+        Logger::error("BinaryModelSerializer::write", "Could not open output file '%s'", fileName);
         return false;
     }
 
