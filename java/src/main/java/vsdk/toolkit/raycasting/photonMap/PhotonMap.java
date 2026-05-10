@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.photonMap;
 import java.io.PrintStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -291,7 +291,7 @@ Adding photons, returns if photon was added
 
             return (0.5 * (1.0 + Math.cos(ratio * Math.PI)));
         } else {
-            Error.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+            Logger.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
             return 0.0;
         }
     }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -76,7 +76,7 @@ pointed to by 'fp'
         vsdk.toolkit.common.RenderOptions renderOptions)
     {
         if ( toneMapOptions == null ) {
-            Error.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+            Logger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
         }
 
         StochasticRaytracingConfiguration config = new StochasticRaytracingConfiguration(

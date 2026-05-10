@@ -1,6 +1,6 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 /**
 quadrilateral rules are specified below in the canonical [-1, 1]^2 domain and
 pretransformed during static initialization to [0, 1]^2.
@@ -416,7 +416,7 @@ public class QuadCubatureRule {
                 quadRule[0] = crq7Pg;
                 break;
             default:
-                Error.fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree.ordinal());
+                Logger.fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree.ordinal());
         }
     }
 }

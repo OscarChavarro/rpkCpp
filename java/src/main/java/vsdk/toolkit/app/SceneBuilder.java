@@ -8,7 +8,7 @@ import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupCore;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.bin.reader.BinaryModelDeserializer;
 import vsdk.toolkit.io.bin.writer.BinaryModelSerializer;
@@ -396,7 +396,7 @@ they are primitive or not
     {
         File file = new File(fileName);
         if ( !file.exists() ) {
-            Error.error(
+            Logger.error(
                 "SceneBuilder::sceneBuilderReadFile",
                 "Requested %s file '%s' does not exist",
                 fileRole,
@@ -404,7 +404,7 @@ they are primitive or not
             return false;
         }
         if ( !file.isFile() ) {
-            Error.error(
+            Logger.error(
                 "SceneBuilder::sceneBuilderReadFile",
                 "Requested %s file '%s' is not a regular file",
                 fileRole,
@@ -412,7 +412,7 @@ they are primitive or not
             return false;
         }
         if ( !file.canRead() ) {
-            Error.error(
+            Logger.error(
                 "SceneBuilder::sceneBuilderReadFile",
                 "Requested %s file '%s' is not readable",
                 fileRole,
@@ -423,7 +423,7 @@ they are primitive or not
         try (FileInputStream input = new FileInputStream(fileName)) {
             int firstByte = input.read();
             if ( firstByte < 0 ) {
-                Error.error(
+                Logger.error(
                     "SceneBuilder::sceneBuilderReadFile",
                     "Requested %s file '%s' is empty",
                     fileRole,
@@ -432,7 +432,7 @@ they are primitive or not
             }
         }
         catch ( Exception ignored ) {
-            Error.error(
+            Logger.error(
                 "SceneBuilder::sceneBuilderReadFile",
                 "Requested %s file '%s' is not readable",
                 fileRole,
@@ -538,7 +538,7 @@ Returns true if successful
                 }
                 else {
                     System.err.printf("failed.\n");
-                    Error.error(
+                    Logger.error(
                         "SceneBuilder::sceneBuilderReadFile",
                         "Could not export ParseSnapshotContext binary to '%s'",
                         batchOptions.binaryOutputFilename);
@@ -597,7 +597,7 @@ Returns true if successful
         scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
         if ( scene.clusteredRootGeometry.className != GeometryClassId.COMPOUND ) {
-            Error.warning(null, "Strange clusters for this world ...");
+            Logger.warning(null, "Strange clusters for this world ...");
         }
 
         t = System.nanoTime();
@@ -710,7 +710,7 @@ Returns true if successful
         // All options should have disappeared from argv now
         if ( argc != null && argc.length > 0 && argc[0] > 1 ) {
             if ( argv[1] != null && argv[1].startsWith("-") ) {
-                Error.error(null, "Unrecognized option '%s'", argv[1]);
+                Logger.error(null, "Unrecognized option '%s'", argv[1]);
             }
             else if ( !SceneBuilder.sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions) ) {
                 System.exit(1);

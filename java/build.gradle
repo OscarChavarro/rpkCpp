@@ -45,3 +45,19 @@ tasks.register("runHelloWorldJOGL", JavaExec) {
     mainClass = "jogl.HelloWorldJOGL"
     classpath = sourceSets.joglDemo.runtimeClasspath
 }
+
+tasks.named("compileJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/main")
+}
+
+tasks.named("compileJoglDemoJava", JavaCompile) {
+    destinationDirectory = layout.buildDirectory.dir("classes/java/joglDemo")
+}
+
+tasks.register("cleanSrcClassFiles", Delete) {
+    delete fileTree(dir: "src", include: "**/*.class")
+}
+
+tasks.named("build") {
+    dependsOn("cleanSrcClassFiles")
+}

@@ -3,7 +3,7 @@ package vsdk.toolkit.render;
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -76,7 +76,7 @@ public class ScreenBuffer {
         }
 
         if (inCamera == null) {
-            Error.fatal(-1, "ScreenBuffer::init", "Camera not set");
+            Logger.fatal(-1, "ScreenBuffer::init", "Camera not set");
             return;
         }
 
@@ -156,7 +156,7 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
         rgbImage = src1.isRgbImage();
 
         if ((getHRes() != src2.getHRes()) || (getVRes() != src2.getVRes())) {
-            Error.error("ScreenBuffer::merge", "Incompatible screen buffer sources");
+            Logger.error("ScreenBuffer::merge", "Incompatible screen buffer sources");
             return;
         }
 
@@ -286,7 +286,7 @@ Merge (add) two screen buffers (radiance only) from src1 and src2
 
     protected ToneMappingContext requireToneMappingContext() {
         if (toneMapOptions == null) {
-            Error.fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+            Logger.fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
         }
         return toneMapOptions;
     }

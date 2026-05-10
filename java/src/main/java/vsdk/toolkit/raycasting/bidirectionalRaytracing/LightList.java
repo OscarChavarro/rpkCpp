@@ -8,7 +8,7 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -94,7 +94,7 @@ public class LightList extends CircularList<LightInfo> {
         }
 
         if ( info == null ) {
-            Error.warning("CLightList::sample", "No lights available");
+            Logger.warning("CLightList::sample", "No lights available");
             return null;
         }
 
@@ -331,7 +331,7 @@ public class LightList extends CircularList<LightInfo> {
         }
 
         if ( info == null ) {
-            Error.warning("CLightList::sample", "No lights available");
+            Logger.warning("CLightList::sample", "No lights available");
             return null;
         }
 
@@ -386,7 +386,7 @@ public class LightList extends CircularList<LightInfo> {
         } while ( info != null && info.light != light );
 
         if ( info == null ) {
-            Error.warning("CLightList::evalPdfImportant", "Could not find light");
+            Logger.warning("CLightList::evalPdfImportant", "Could not find light");
             return 0.0;
         }
 

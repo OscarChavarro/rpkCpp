@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 /**
@@ -106,7 +106,7 @@ public class StochasticRelaxation {
 
     public static StochasticRelaxation activeState() {
         if ( activeStatePtr == null ) {
-            Error.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+            Logger.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
         }
         return activeStatePtr;
     }

@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.Vertex;
@@ -65,7 +65,7 @@ public class ElementHierarchyState {
 
     public static ElementHierarchyState activeState() {
         if ( activeStatePtr == null ) {
-            Error.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+            Logger.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
         }
         return activeStatePtr;
     }

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.skin.Patch;
 
 public final class Ccr {

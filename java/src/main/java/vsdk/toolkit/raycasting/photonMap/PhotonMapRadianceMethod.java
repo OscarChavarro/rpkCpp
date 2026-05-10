@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -135,7 +135,7 @@ Initializes the computations for the current scene (if any)
         System.err.printf("Photon map activated\n");
 
         if ( toneMapOptions == null ) {
-            Error.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context not provided");
         }
 
         photonMapState.lastClock = System.nanoTime();
@@ -756,7 +756,7 @@ Returns the radiance emitted in the node related direction
                 break;
             default:
                 radiance.clear();
-                Error.error("photonMapGetRadiance", "Unknown radiance return");
+                Logger.error("photonMapGetRadiance", "Unknown radiance return");
         }
 
         return radiance;

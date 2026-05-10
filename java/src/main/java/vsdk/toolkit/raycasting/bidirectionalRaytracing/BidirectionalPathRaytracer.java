@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -112,7 +112,7 @@ public final class BidirectionalPathRaytracer extends RayTracer {
         BidirectionalPathTracingConfiguration config = new BidirectionalPathTracingConfiguration();
         config.toneMapOptions = toneMapOptions;
         if ( config.toneMapOptions == null ) {
-            Error.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+            Logger.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
         }
 
         // Copy base config (so that rendering is independent of GUI)

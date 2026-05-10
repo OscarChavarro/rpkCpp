@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.VSDK;
 
 /**
@@ -125,7 +125,7 @@ public abstract class PersistenceElement {
     readBytes(InputStream is, byte[] bytesBuffer, int length)
     {
         if ( bytesBuffer == null || length < 0 ) {
-            Error.error("PersistenceElement::readBytes", "%s", "invalid buffer");
+            Logger.error("PersistenceElement::readBytes", "%s", "invalid buffer");
             return;
         }
 
@@ -148,7 +148,7 @@ public abstract class PersistenceElement {
             for ( int i = offset; i < length; i++ ) {
                 bytesBuffer[i] = 0;
             }
-            Error.error("PersistenceElement::readBytes", "could not read requested length (%d/%d)", offset, length);
+            Logger.error("PersistenceElement::readBytes", "could not read requested length (%d/%d)", offset, length);
         }
     }
     
@@ -177,7 +177,7 @@ public abstract class PersistenceElement {
     writeBytes(OutputStream os, byte[] bytesBuffer, int length)
     {
         if ( bytesBuffer == null || length < 0 ) {
-            Error.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
+            Logger.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
             return;
         }
         if ( length == 0 ) {

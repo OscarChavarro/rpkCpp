@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 
 public class DensityHitList {
     protected static final int DHL_ARRAY_SIZE = 20;
@@ -37,7 +37,7 @@ public class DensityHitList {
 
     public DensityHit get(int i) {
         if ( i >= numHits ) {
-            Error.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+            Logger.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
         }
 
         if ( cacheCurrent == null || (i < cacheLowerLimit) ) {

@@ -8,7 +8,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 package vsdk.toolkit.raycasting.photonMap;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -230,7 +230,7 @@ Returns true a component was chosen, false if absorbed
         boolean trans = (transmittance.average() > Numeric.EPSILON);
 
         if ( reflective && trans ) {
-            Error.error("FresnelFactor",
+            Logger.error("FresnelFactor",
                  "Cannot deal with simultaneous reflective & transit materials");
             return false;
         }
@@ -250,7 +250,7 @@ Returns true a component was chosen, false if absorbed
                 reflectedDir = Xxdf.idealReflectedDirection(thisNode.m_inDirT, thisNode.m_normal);
                 cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
                 if ( cosI < 0 ) {
-                    Error.error("fresnelSample", "cosI < 0");
+                    Logger.error("fresnelSample", "cosI < 0");
                 }
             } else {
                 F = 0;
@@ -271,14 +271,14 @@ Returns true a component was chosen, false if absorbed
             cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
 
             if ( cosI < 0 ) {
-                Error.error("fresnelSample", "cosI < 0");
+                Logger.error("fresnelSample", "cosI < 0");
             }
 
             if ( !tir[0] ) {
                 cost = -thisNode.m_normal.dotProduct(refractedDir);
 
                 if ( cost < 0 ) {
-                    Error.error("fresnelSample", "cost < 0");
+                    Logger.error("fresnelSample", "cost < 0");
                 }
 
                 float rParallel;
@@ -387,7 +387,7 @@ Returns true a component was chosen, false if absorbed
 
         // Fill in probability for previous node
         if ( m_computeFromNextPdf && prevNode != null ) {
-            Error.warning("FresnelSampler", "FromNextPdf not supported");
+            Logger.warning("FresnelSampler", "FromNextPdf not supported");
         }
 
         // Component propagation
@@ -458,7 +458,7 @@ Returns true a component was chosen, false if absorbed
         } else {
             flags = (byte)BsdfComponent.BRDF_GLOSSY_COMPONENT;
 
-            Error.error("PhotonMapSampler::gdSample", "Not done yet");
+            Logger.error("PhotonMapSampler::gdSample", "Not done yet");
             return false;
         }
 

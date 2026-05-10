@@ -2,7 +2,7 @@ package vsdk.toolkit.skin;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 
@@ -153,7 +153,7 @@ public class Element {
             descendant = descendant.parent;
         }
         if (descendant == null) {
-            Error.fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+            Logger.fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
         }
         return descendant;
     }

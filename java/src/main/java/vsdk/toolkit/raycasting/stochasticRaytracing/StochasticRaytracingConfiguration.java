@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.ImportantLightSampler;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.LightList;
@@ -126,9 +126,9 @@ public class StochasticRaytracingConfiguration {
 
         if ( radMode != RayTracingRadMode.STORED_NONE ) {
             if ( radianceMethod == null ) {
-                Error.error("Stored Radiance", "No radiance method active, using no storage");
+                Logger.error("Stored Radiance", "No radiance method active, using no storage");
             } else if ( (radMode == RayTracingRadMode.STORED_PHOTON_MAP) && (radianceMethod.className != RadianceMethodAlgorithm.PHOTON_MAP) ) {
-                Error.error("Stored Radiance", "Photon map method not active, using no storage");
+                Logger.error("Stored Radiance", "Photon map method not active, using no storage");
             }
             radMode = RayTracingRadMode.STORED_NONE;
         }
@@ -144,7 +144,7 @@ public class StochasticRaytracingConfiguration {
 
         if ( reflectionSampling == RayTracingSamplingMode.CLASSICAL_SAMPLING
           && radMode == RayTracingRadMode.STORED_INDIRECT ) {
-            Error.error("Classical raytracing", "Incompatible with extended final gather, using storage directly");
+            Logger.error("Classical raytracing", "Incompatible with extended final gather, using storage directly");
             radMode = RayTracingRadMode.STORED_DIRECT;
         }
 
@@ -158,7 +158,7 @@ public class StochasticRaytracingConfiguration {
         separateSpecular = state.separateSpecular != 0;
 
         if ( reflectionSampling == RayTracingSamplingMode.PHOTON_MAP_SAMPLING ) {
-            Error.warning("Fresnel Specular Sampling", "always uses separate specular");
+            Logger.warning("Fresnel Specular Sampling", "always uses separate specular");
             separateSpecular = true;  // Always separate specular with photon map
         }
 
@@ -167,7 +167,7 @@ public class StochasticRaytracingConfiguration {
 
         toneMapOptions = inToneMapOptions;
         if ( toneMapOptions == null ) {
-            Error.fatal(-1, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
+            Logger.fatal(-1, "StochasticRaytracingConfiguration::init", "Tone mapping context not set");
         }
 
         screen = new ScreenBuffer(null, defaultCamera, toneMapOptions);
@@ -197,7 +197,7 @@ public class StochasticRaytracingConfiguration {
                 samplerConfig.surfaceSampler = new BsdfSampler();
                 break;
             default:
-                Error.error("SR CONFIG::initDependentVars", "Wrong sampling mode");
+                Logger.error("SR CONFIG::initDependentVars", "Wrong sampling mode");
         }
 
         // Scatter info blocks
@@ -244,7 +244,7 @@ public class StochasticRaytracingConfiguration {
                 siStorage.nrSamplesAfter = 0;
                 break;
             default:
-                Error.error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
+                Logger.error("SR CONFIG::initDependentVars", "Wrong Rad Mode");
         }
 
         // Other blocks, this is non storage with optional

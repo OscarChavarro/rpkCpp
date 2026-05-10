@@ -1,7 +1,7 @@
 package vsdk.toolkit.scene;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -91,7 +91,7 @@ public class Camera {
         // Distance from virtual camera position to focus point
         viewDistance = Z.norm();
         if (viewDistance < Numeric.EPSILON) {
-            Error.error("SetCamera", "eye point and look-point coincide");
+            Logger.error("SetCamera", "eye point and look-point coincide");
             return null;
         }
         Z.inverseScaledCopy(viewDistance, Z, Numeric.EPSILON_FLOAT);
@@ -100,7 +100,7 @@ public class Camera {
         X.crossProduct(Z, upDirection);
         final float n = X.norm();
         if (n < Numeric.EPSILON) {
-            Error.error("SetCamera", "up-direction and viewing direction coincide");
+            Logger.error("SetCamera", "up-direction and viewing direction coincide");
             return null;
         }
         X.inverseScaledCopy(n, X, Numeric.EPSILON_FLOAT);

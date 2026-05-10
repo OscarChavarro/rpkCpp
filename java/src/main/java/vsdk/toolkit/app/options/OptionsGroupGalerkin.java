@@ -1,6 +1,6 @@
 package vsdk.toolkit.app.options;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
@@ -27,7 +27,7 @@ public final class OptionsGroupGalerkin {
             GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.SOUTH_WELL;
         }
         else {
-            Error.error(null, "Invalid iteration method '%s'", name);
+            Logger.error(null, "Invalid iteration method '%s'", name);
         }
     }
 

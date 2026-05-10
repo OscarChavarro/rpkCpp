@@ -6,7 +6,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -178,7 +178,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
             Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
         }
         if ( sumProbabilities < Numeric.EPSILON ) {
-            Error.warning("tracePaths", "No sources");
+            Logger.warning("tracePaths", "No sources");
             return;
         }
 

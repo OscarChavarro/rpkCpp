@@ -5,7 +5,7 @@ It's kind of a dual of a pixel sampler.
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
@@ -37,7 +37,7 @@ public class LightDirSampler extends Sampler {
         double[] pdfDir = new double[] {0.0};
 
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {
-            Error.error("CLightDirSampler::sample", "No EDF");
+            Logger.error("CLightDirSampler::sample", "No EDF");
             return false;
         }
 
@@ -90,7 +90,7 @@ public class LightDirSampler extends Sampler {
         Vector3D outDir = new Vector3D();
 
         if ( thisNode.m_hit.getMaterial().getEdf() == null ) {
-            Error.error("CLightDirSampler::evalPdf", "No EDF");
+            Logger.error("CLightDirSampler::evalPdf", "No EDF");
             return 0.0;
         }
         // More efficient with extra params?

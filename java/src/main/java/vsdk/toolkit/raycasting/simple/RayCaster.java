@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.simple;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
@@ -173,7 +173,7 @@ Determines the radiance of the nearest patch visible through the pixel
         long[] height = new long[1];
         idRenderer.getSize(width, height);
         if (width[0] != screenBuffer.getHRes() || height[0] != screenBuffer.getVRes()) {
-            Error.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+            Logger.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
         }
 
         // This is the main loop for ray-casting

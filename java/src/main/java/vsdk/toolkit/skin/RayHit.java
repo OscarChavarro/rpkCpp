@@ -1,6 +1,6 @@
 package vsdk.toolkit.skin;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -87,7 +87,7 @@ public class RayHit {
         boolean success = false;
 
         if (!hitInitialised()) {
-            Error.warning("pointShadingFrame", "uninitialised hit structure");
+            Logger.warning("pointShadingFrame", "uninitialised hit structure");
             return false;
         }
 

@@ -9,7 +9,7 @@ A chain list is a set of scattering modes
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 
 public class FlagChain {
@@ -142,7 +142,7 @@ public class FlagChain {
         SimpleRaytracingPathNode node;
 
         if ( lightSize + eyeSize != length ) {
-            Error.error("FlagChain::Compute", "Wrong path length");
+            Logger.error("FlagChain::Compute", "Wrong path length");
             return result;
         }
 

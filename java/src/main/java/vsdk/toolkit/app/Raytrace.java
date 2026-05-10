@@ -3,7 +3,7 @@ package vsdk.toolkit.app;
 import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.app.options.OptionsGroupRaytracing;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathRaytracer;
@@ -71,7 +71,7 @@ This routine sets the current raytracing method to be used
         if ( newRaytracer == null
              && (rayTracerName == null
                  || !rayTracerName.regionMatches(true, 0, "none", 0, 4)) ) {
-            Error.error(null, "Invalid raytracing method name '%s'", rayTracerName);
+            Logger.error(null, "Invalid raytracing method name '%s'", rayTracerName);
         }
 
         return newRaytracer;
@@ -125,10 +125,10 @@ This routine sets the current raytracing method to be used
         }
 
         if ( rayTracer == null ) {
-            Error.warning(null, "No ray tracing method active");
+            Logger.warning(null, "No ray tracing method active");
         }
         else if ( !rayTracer.saveImage(img) ) {
-            Error.warning(null, "No previous %s image available", rayTracer.getName());
+            Logger.warning(null, "No previous %s image available", rayTracer.getName());
         }
 
         ImageOutputHandle.deleteImageOutputHandle(img);

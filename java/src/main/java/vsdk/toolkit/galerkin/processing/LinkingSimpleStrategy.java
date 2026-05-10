@@ -1,7 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.galerkin.GalerkinBasis;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
@@ -66,7 +66,7 @@ public class LinkingSimpleStrategy {
                 sourceElement = topLevelElement;
                 break;
             default:
-                Error.fatal(2, "createInitialLink", "Impossible element role");
+                Logger.fatal(2, "createInitialLink", "Impossible element role");
                 return;
         }
 
@@ -246,7 +246,7 @@ public class LinkingSimpleStrategy {
         }
 
         if ( (topElement.flags & ElementFlags.IS_CLUSTER_MASK) != 0 ) {
-            Error.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+            Logger.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
             return;
         }
         if ( topElement.patch == null ) {

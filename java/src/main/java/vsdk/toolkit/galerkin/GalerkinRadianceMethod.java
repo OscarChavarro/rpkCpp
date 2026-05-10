@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Locale;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -149,7 +149,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
                     element.unShotPotential = patch.directPotential;
                     break;
                 default:
-                    Error.fatal(-1, "patchInit", "Invalid iteration method");
+                    Logger.fatal(-1, "patchInit", "Invalid iteration method");
             }
         }
 
@@ -160,7 +160,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
     public void initialize(Scene scene, ToneMappingContext toneMapOptions) {
         galerkinState.toneMapOptions = toneMapOptions;
         if ( galerkinState.toneMapOptions == null ) {
-            Error.fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
         }
 
         galerkinState.iterationNumber = 0;
@@ -196,7 +196,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
     @Override
     public boolean doStep(Scene scene, RenderOptions renderOptions) {
         if ( galerkinState.iterationNumber < 0 ) {
-            Error.error("doGalerkinOneStep", "method not initialized");
+            Logger.error("doGalerkinOneStep", "method not initialized");
             return true; // Done, don't continue!
         }
 
@@ -218,7 +218,7 @@ public final class GalerkinRadianceMethod extends RadianceMethod {
                 done = ShootingStrategy.doShootingStep(scene, galerkinState, renderOptions);
                 break;
             default:
-                Error.fatal(2, "doGalerkinOneStep", "Invalid iteration method %s\n", galerkinState.galerkinIterationMethod);
+                Logger.fatal(2, "doGalerkinOneStep", "Invalid iteration method %s\n", galerkinState.galerkinIterationMethod);
                 done = true;
                 break;
         }
@@ -525,7 +525,7 @@ Disposes of the cluster hierarchy
             return;
         }
         if ( !renderOptions.smoothShading ) {
-            Error.warning(null, "I assume you want a smooth shaded model ...");
+            Logger.warning(null, "I assume you want a smooth shaded model ...");
         }
         writeFormatted("\tcolorPerVertex %s\n", "TRUE");
         writeVertexColorsTopCluster();

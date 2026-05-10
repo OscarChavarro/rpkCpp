@@ -3,7 +3,7 @@ package vsdk.toolkit.io.mgf;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.io.context.EntityTypeContext;
 import vsdk.toolkit.io.context.FilePositionContext;
@@ -54,11 +54,11 @@ public class MgfEntityControl {
     }
 
     public static void doError(String errmsg, ParseRuntimeContext context) {
-        Error.error(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
+        Logger.error(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
     }
 
     public static void doWarning(String errmsg, ParseRuntimeContext context) {
-        Error.warning(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
+        Logger.warning(null, "%s line %d: %s", context.readerContext.fileName, context.readerContext.lineNumber, errmsg);
     }
 
     /**

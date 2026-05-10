@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.common.logging;
 
 /**
 Prints an error message. Behaves much like printf. The first argument is the
@@ -15,8 +15,8 @@ First argument is a return code. We use negative return codes for
 Same, but for warning messages
 */
 
-public final class Error {
-    private Error() {
+public final class Logger {
+    private Logger() {
     }
 
     public static void error(String routine, String text, Object... args) {

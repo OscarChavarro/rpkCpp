@@ -10,7 +10,7 @@ Clustering Algorithm for Global Illumination", SIGGRAPH '95 p145
 package vsdk.toolkit.galerkin.processing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinClusteringStrategy;
@@ -81,7 +81,7 @@ towards the samplePoint point
             case Z_VISIBILITY:
                 return sourceElement.radiance[0];
             default:
-                Error.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
+                Logger.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
                 return new ColorRgb();
         }
     }
@@ -95,7 +95,7 @@ receiver in the link. The source should be a cluster
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( sourceElement == null || receiverElement == null || !sourceElement.isCluster() || sourceElement == receiverElement ) {
-            Error.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+            Logger.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
         return clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
     }
@@ -151,7 +151,7 @@ ignoring intra-receiver visibility
             case Z_VISIBILITY:
                 return receiverElement.area;
             default:
-                Error.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+                Logger.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
                 return receiverElement.area;
         }
     }
@@ -196,7 +196,7 @@ receiver cluster
         GalerkinElement sourceElement = link.sourceElement;
         GalerkinElement receiverElement = link.receiverElement;
         if ( !receiverElement.isCluster() || sourceElement == receiverElement ) {
-            Error.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+            Logger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
         }
 
         Vector3D samplePoint = sourceElement.midPoint();
@@ -216,7 +216,7 @@ receiver cluster
                 traverseAllLeafElements(dvgv, receiverElement, galerkinState);
                 break;
             default:
-                Error.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+                Logger.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
         }
     }
 

@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
 
@@ -30,7 +30,7 @@ public final class FlagChainList extends CircularList<FlagChain> {
     public void add(FlagChain chain) {
         if ( count > 0 ) {
             if ( chain.length != length ) {
-                Error.error("CChainList::add", "Wrong length flag chain inserted!");
+                Logger.error("CChainList::add", "Wrong length flag chain inserted!");
                 return;
             }
         } else {
@@ -45,7 +45,7 @@ public final class FlagChainList extends CircularList<FlagChain> {
     public void addDisjoint(FlagChain chain) {
         if ( count > 0 ) {
             if ( chain.length != length ) {
-                Error.error("CChainList::add", "Wrong length flag chain inserted!");
+                Logger.error("CChainList::add", "Wrong length flag chain inserted!");
                 return;
             }
         } else {

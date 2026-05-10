@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -352,7 +352,7 @@ The point is transformed to the corresponding point on the sub-element
                 }
                 break;
             default:
-                Error.fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+                Logger.fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
         }
 
         return child;
@@ -499,7 +499,7 @@ found.
                             v = ((StochasticRadiosityElement)neighbour.regularSubElements[2]).vertices[0];
                             break;
                         default:
-                            Error.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                            Logger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
                     }
                     break;
                 case 4:
@@ -517,11 +517,11 @@ found.
                             v = ((StochasticRadiosityElement)neighbour.regularSubElements[2]).vertices[0];
                             break;
                         default:
-                            Error.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+                            Logger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
                     }
                     break;
                 default:
-                    Error.fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+                    Logger.fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
             }
         }
 
@@ -554,7 +554,7 @@ Only for surface elements
 */
     public static boolean stochasticRadiosityElementIsTextured(StochasticRadiosityElement elem) {
         if ( elem.isCluster() ) {
-            Error.fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
+            Logger.fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
             return false;
         }
         Material mat = elem.patch.material;
@@ -752,12 +752,12 @@ done so before. Returns the list of created sub-elements
         }
 
         if ( element.isCluster() ) {
-            Error.fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+            Logger.fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
             return null;
         }
 
         if ( element.patch.jacobian != null ) {
-            Error.warning("galerkinElementRegularSubDivide",
+            Logger.warning("galerkinElementRegularSubDivide",
                 "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)");
         }
 
@@ -771,7 +771,7 @@ done so before. Returns the list of created sub-elements
                 monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
                 break;
             default:
-                Error.fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
+                Logger.fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
         }
         return castElementArray(element.regularSubElements);
     }
@@ -842,7 +842,7 @@ done so before. Returns the list of created sub-elements
             Basismcrad.filterColorDown(parentRadiance, child.basis.regularFilter[child.childNumber], childRadiance,
                 child.basis.size);
         } else {
-            Error.fatal(-1, "stochasticRadiosityElementPushRadiance",
+            Logger.fatal(-1, "stochasticRadiosityElementPushRadiance",
                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
         }
     }
@@ -864,7 +864,7 @@ done so before. Returns the list of created sub-elements
             Basismcrad.filterColorUp(childRad, child.basis.regularFilter[child.childNumber],
                 parentRad, child.basis.size, areaFactor);
         } else {
-            Error.fatal(-1, "stochasticRadiosityElementPullRadiance",
+            Logger.fatal(-1, "stochasticRadiosityElementPullRadiance",
                 "Not implemented for higher order approximations on irregular child elements or for different parent and child basis");
         }
     }
@@ -897,7 +897,7 @@ done so before. Returns the list of created sub-elements
                 break;
             }
             default:
-                Error.fatal(
+                Logger.fatal(
                     -1,
                     "stochasticRadiosityElementColor",
                     "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
@@ -979,7 +979,7 @@ Same as above but for importance
                 break;
             }
             default:
-                Error.fatal(-1, "vertexColor",
+                Logger.fatal(-1, "vertexColor",
                     "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
                     StochasticRelaxation.activeState().show.ordinal());
         }
@@ -1061,7 +1061,7 @@ Compute new vertex colors
                         radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], (float)u, (float)v);
                         break;
                     default:
-                        Error.fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
+                        Logger.fatal(-1, "stochasticRadiosityElementDisplayRadianceAtPoint",
                             "can only handle triangular or quadrilateral elements");
                 }
             } else {

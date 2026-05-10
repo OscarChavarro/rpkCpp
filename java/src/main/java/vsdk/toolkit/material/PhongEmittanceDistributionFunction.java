@@ -73,7 +73,7 @@ needed)
 /*Z*/
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -99,7 +99,7 @@ public class PhongEmittanceDistributionFunction {
         kd.scaledCopy((float)(1.0 / Math.PI), Kd);
         Ks = new ColorRgb(KsParameter.r, KsParameter.g, KsParameter.b);
         if (!Ks.isBlack()) {
-            Error.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+            Logger.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
         }
         Ns = (float)NsParameter;
     }
@@ -168,7 +168,7 @@ public class PhongEmittanceDistributionFunction {
         setOut(probabilityDensityFunction, 0.0);
 
         if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
-            Error.warning("phongEdfEval", "Couldn't determine shading normal");
+            Logger.warning("phongEdfEval", "Couldn't determine shading normal");
             return result;
         }
         normal.copy(context.getShadingNormal());
@@ -240,7 +240,7 @@ public class PhongEmittanceDistributionFunction {
         if ((flags & XxdfComponentFlag.DIFFUSE_COMPONENT) != 0) {
             CoordinateSystem coord = new CoordinateSystem();
             if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
-                Error.warning("phongEdfEval", "Couldn't determine shading normal");
+                Logger.warning("phongEdfEval", "Couldn't determine shading normal");
                 return dir;
             }
             Vector3D normal = context.getShadingNormal();

@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 
 public class StochasticRadiosityBasisState {
@@ -78,7 +78,7 @@ public class StochasticRadiosityBasisState {
 
     public static StochasticRadiosityBasisState activeState() {
         if ( activeStatePtr == null ) {
-            Error.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+            Logger.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
         }
         return activeStatePtr;
     }

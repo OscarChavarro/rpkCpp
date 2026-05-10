@@ -1,7 +1,7 @@
 package vsdk.toolkit.skin;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Jacobian;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -155,7 +155,7 @@ public class Patch {
                 pointInQuadrilateral(v1, v2, v3, v4, (float)u, (float)v, localNormal);
                 break;
             default:
-                Error.fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
+                Logger.fatal(-1, "PatchNormalAtUV", "Invalid number of vertices %d", numberOfVertices);
                 break;
         }
 
@@ -184,7 +184,7 @@ public class Patch {
         else {
             if (D < -TOLERANCE * TOLERANCE) {
                 x[0] = -B / (2.0 * A);
-                Error.error(
+                Logger.error(
                     null,
                     "Bi-linear->Uniform mapping has negative discriminant D = %g. Taking 0 as discriminant and %g as solution.",
                     D,
@@ -338,7 +338,7 @@ public class Patch {
                 }
                 break;
             default:
-                Error.fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.");
+                Logger.fatal(2, "computeRandomWalkRadiosityArea", "Can only handle triangular and quadrilateral patches.");
                 jacobian = null;
                 area = 0.0f;
                 break;
@@ -634,7 +634,7 @@ public class Patch {
 
         float localNorm = normal.norm();
         if (localNorm < Numeric.EPSILON) {
-            Error.warning("patchNormal", "degenerate patch (id %d)", patch.id);
+            Logger.warning("patchNormal", "degenerate patch (id %d)", patch.id);
             return null;
         }
         normal.inverseScaledCopy(localNorm, normal, Numeric.EPSILON_FLOAT);
@@ -653,13 +653,13 @@ public class Patch {
     */
     public Patch(int inNumberOfVertices, Vertex v1, Vertex v2, Vertex v3, Vertex v4) {
         if (v1 == null || v2 == null || v3 == null || (inNumberOfVertices == 4 && v4 == null)) {
-            Error.error("Patch::Patch", "Null vertex");
+            Logger.error("Patch::Patch", "Null vertex");
             System.exit(1);
         }
 
         // It is sad but it is true
         if (inNumberOfVertices != 3 && inNumberOfVertices != 4) {
-            Error.error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
+            Logger.error("Patch::Patch", "Can only handle quadrilateral or triangular patches");
             System.exit(2);
         }
 
@@ -689,7 +689,7 @@ public class Patch {
         // Compute normal
         if (patchNormal(this, normal) == null) {
             Statistics.instance().reader.numberOfElements--;
-            Error.error("Patch::Patch", "Error computing patch normal");
+            Logger.error("Patch::Patch", "Error computing patch normal");
             System.exit(3);
         }
 
@@ -753,7 +753,7 @@ public class Patch {
         Patch p2,
         Patch p3) {
         if (n < 0 || n > MAX_EXCLUDED_PATCHES) {
-            Error.fatal(
+            Logger.fatal(
                 -1,
                 "Patch::dontIntersectBase",
                 "Invalid number of excluded patches %d (maximum is %d)",
@@ -854,7 +854,7 @@ public class Patch {
                 }
                 break;
             default:
-                Error.fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
+                Logger.fatal(-1, "textureCoordAtUv", "Invalid nr of vertices %d", numberOfVertices);
                 break;
         }
         return texCoord;
@@ -1014,7 +1014,7 @@ public class Patch {
             pointInQuadrilateral(v1, v2, v3, v4, (float)u, (float)v, point);
         }
         else {
-            Error.fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
+            Logger.fatal(4, "pointBarycentricMapping", "Can only handle triangular or quadrilateral patches");
         }
 
         return point;
@@ -1057,7 +1057,7 @@ public class Patch {
                 inside = quadUv(this, point, localUv);
                 break;
             default:
-                Error.fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
+                Logger.fatal(3, "uv", "Can only handle triangular or quadrilateral patches");
                 break;
         }
 

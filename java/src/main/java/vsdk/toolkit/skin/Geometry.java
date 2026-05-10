@@ -1,7 +1,7 @@
 package vsdk.toolkit.skin;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -153,7 +153,7 @@ public class Geometry {
     */
     public Geometry clone() {
         if (className != GeometryClassId.PATCH_SET) {
-            Error.fatal(666, "duplicateIfPatchSet", "this should not happen");
+            Logger.fatal(666, "duplicateIfPatchSet", "this should not happen");
         }
 
         PatchSet newPatchSet = new PatchSet(Geometry.patchListReference(this));

@@ -1,7 +1,7 @@
 package vsdk.toolkit.scene;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -100,7 +100,7 @@ public class VoxelGrid {
 
     private void putGeometryInsideVoxelGrid(Geometry geometry, short na, short nb, short nc) {
         if (na <= 0 || nb <= 0 || nc <= 0) {
-            Error.error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+            Logger.error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
             System.exit(1);
         }
 

@@ -5,7 +5,7 @@ Higher order approximations for Galerkin radiosity
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
@@ -35,7 +35,7 @@ public final class Basismcrad {
                 elem = "quadrilaterals";
                 break;
             default:
-                Error.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et.ordinal());
+                Logger.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et.ordinal());
                 return basis;
         }
 

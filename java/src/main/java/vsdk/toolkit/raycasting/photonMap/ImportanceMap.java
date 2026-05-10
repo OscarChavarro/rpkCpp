@@ -4,7 +4,7 @@ The real importance map storage
 
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.Camera;
 
@@ -105,7 +105,7 @@ public class ImportanceMap extends PhotonMap {
                         density *= m_impScalePtr[0];
                         break;
                     default:
-                        Error.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                        Logger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
                         return 0;
                 }
             } else {
@@ -127,7 +127,7 @@ public class ImportanceMap extends PhotonMap {
                     density *= m_impScalePtr[0];
                     break;
                 default:
-                    Error.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+                    Logger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
                     return 0;
             }
         }

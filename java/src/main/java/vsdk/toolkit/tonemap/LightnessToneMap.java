@@ -2,7 +2,7 @@ package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.statistics.Statistics;
 
 public final class LightnessToneMap extends ToneMap {
@@ -30,7 +30,7 @@ public final class LightnessToneMap extends ToneMap {
 
     @Override
     public ColorRgb scaleForComputations(ColorRgb radiance) {
-        Error.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
+        Logger.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
         return radiance;
     }
 

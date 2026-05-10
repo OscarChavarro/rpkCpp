@@ -11,7 +11,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
@@ -89,7 +89,7 @@ returns the number of pixels written
 */
     public int writeRadianceRGB(ColorRgb[] rgbRadiance) {
         if (toneMapOptions == null) {
-            Error.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+            Logger.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
         }
 
         byte[] rgb = new byte[3 * width];
@@ -170,7 +170,7 @@ use to write radiance image
             // Olaf: HDR PIC output
             else if (fileExtension != null && fileExtension.regionMatches(true, 0, "pic", 0, 3)) {
                 if (isPipe != 0) {
-                    Error.error("createRadianceImageOutputHandle",
+                    Logger.error("createRadianceImageOutputHandle",
                         "Can't write PIC output to a pipe.\n");
                     return null;
                 }
@@ -178,7 +178,7 @@ use to write radiance image
                 return new PicOutputHandle(fileName, width, height);
             }
             else {
-                Error.error("createRadianceImageOutputHandle",
+                Logger.error("createRadianceImageOutputHandle",
                     "Can't save high dynamic range image to a '%s' file, format not supported.",
                     fileExtension);
                 return null;
@@ -205,7 +205,7 @@ Same, but for writing "normal" display RGB images instead radiance image
                 return new PPMOutputHandle(outputStream, width, height);
             }
             else {
-                Error.error("createImageOutputHandle",
+                Logger.error("createImageOutputHandle",
                     "Can't save display-RGB images to a '%s' file, format not supported.\n",
                     fileExtension);
                 return null;

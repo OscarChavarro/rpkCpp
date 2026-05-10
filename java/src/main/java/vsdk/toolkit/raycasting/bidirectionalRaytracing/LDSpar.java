@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.scene.RadianceMethod;
 
 /**
@@ -17,7 +17,7 @@ public final class LDSpar extends Spar {
         }
 
         if ( radianceMethod == null ) {
-            Error.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
+            Logger.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
         }
 
         // Overlap group

@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.raytracing;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
@@ -129,7 +129,7 @@ public class SamplerConfig {
         if ( lastNode == null ) {
             // Fill in first node
             if ( !pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2) ) {
-                Error.warning("SamplerConfig::traceNode", "Point sampler failed");
+                Logger.warning("SamplerConfig::traceNode", "Point sampler failed");
                 return null;
             }
         } else if ( lastNode.m_depth == 0 ) {

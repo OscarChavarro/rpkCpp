@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 
 public class Interaction {
     private static int totalInteractions;
@@ -52,7 +52,7 @@ public class Interaction {
         }
 
         if ( (numberOfReceiverCubaturePositions & 0xFF) > 1 ) {
-            Error.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+            Logger.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
         }
 
         deltaK = new float[1];

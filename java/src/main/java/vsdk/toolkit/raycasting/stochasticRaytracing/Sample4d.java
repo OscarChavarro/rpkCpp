@@ -4,7 +4,7 @@
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Faure;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Halton;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;
@@ -118,7 +118,7 @@ current sequence is 'random', the index is not used
                 xi[3] = zeta[3] * Niederreiter31.RECIP;
                 break;
             default:
-                Error.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
+                Logger.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", sequenceName(seq));
         }
 
         return xi;

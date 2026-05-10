@@ -1,6 +1,6 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 /**
 Triangles: barycentric coordinates
 Weights sum to 1. instead of 0.5, which is the area of the triangle
@@ -303,7 +303,7 @@ public class TriangleCubatureRule {
                 triRule[0] = crt9;
                 break;
             default:
-                Error.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree.ordinal());
+                Logger.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree.ordinal());
         }
     }
 }

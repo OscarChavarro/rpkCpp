@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -135,7 +135,7 @@ public final class StochasticJacobiRadianceMethod extends RadianceMethod {
         }
         StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
         if ( StochasticRelaxation.activeState().toneMapOptions == null ) {
-            Error.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
         }
         StochasticRelaxation.activeState().method = StochasticRaytracingMethod.STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
         Mcrad.monteCarloRadiosityInit();
@@ -214,7 +214,7 @@ distribution
         if ( StochasticRelaxation.activeState().discardIncremental != 0 ) {
             elem.quality = 0.0f;
             if ( !repeatedDiscardIncrementalWarning ) {
-                Error.warning("stochasticRelaxationRadiosityElementIncrementRadiance",
+                Logger.warning("stochasticRelaxationRadiosityElementIncrementRadiance",
                     "Solution of incremental Jacobi steps receives zero quality");
             }
             repeatedDiscardIncrementalWarning = true;
@@ -558,7 +558,7 @@ required for some of the experimental stuff to work
 
             if ( StochasticRelaxation.activeState().importanceDriven != 0 ) {
                 if ( StochasticRelaxation.activeState().incrementalUsesImportance == 0 ) {
-                    Error.warning(null, "Importance is only used from the second iteration on ...");
+                    Logger.warning(null, "Importance is only used from the second iteration on ...");
                 } else if ( StochasticRelaxation.activeState().importanceUpdated != 0 ) {
                     StochasticRelaxation.activeState().importanceUpdated = 0;
 

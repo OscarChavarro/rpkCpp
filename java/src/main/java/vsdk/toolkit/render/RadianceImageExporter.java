@@ -3,7 +3,7 @@ package vsdk.toolkit.render;
 import java.io.OutputStream;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -29,7 +29,7 @@ public final class RadianceImageExporter {
         }
 
         if (toneMapOptions == null) {
-            Error.error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
+            Logger.error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
             return;
         }
 
@@ -40,7 +40,7 @@ public final class RadianceImageExporter {
         long[] height = new long[1];
         idRenderer.getSize(width, height);
         if (width[0] != screenBuffer.getHRes() || height[0] != screenBuffer.getVRes()) {
-            Error.error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
+            Logger.error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
             return;
         }
 

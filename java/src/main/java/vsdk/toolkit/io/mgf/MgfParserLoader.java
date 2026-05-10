@@ -3,7 +3,7 @@ package vsdk.toolkit.io.mgf;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.EntityDispatchContext;
 import vsdk.toolkit.io.context.EntityTypeContext;
@@ -135,7 +135,7 @@ public class MgfParserLoader {
     */
     private static void mgfSetNrQuartCircDivs(int divs) {
         if (divs <= 0) {
-            Error.error(null, "Number of quarter circle divisions (%d) should be positive", divs);
+            Logger.error(null, "Number of quarter circle divisions (%d) should be positive", divs);
             return;
         }
     }
@@ -339,7 +339,7 @@ Contorted logic works as follows:
         final int handlerIndex = handlerType.ordinal();
         EntityDispatchContext handler = context.readerStackState.handlerByType[handlerIndex];
         if (handler == null) {
-            Error.fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
+            Logger.fatal(-1, "mgfHandlerFromType", "Missing MGF handler for type %d", handlerIndex);
         }
         return handler;
     }

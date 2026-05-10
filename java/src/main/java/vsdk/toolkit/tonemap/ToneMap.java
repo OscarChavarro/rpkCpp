@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 
 /**
@@ -28,7 +28,7 @@ public abstract class ToneMap {
 
     private static ColorRgb toneMapScaleForDisplay(ColorRgb radiance) {
         if (activeToneMap == null) {
-            Error.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+            Logger.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
         }
         return activeToneMap.scaleForDisplay(radiance);
     }

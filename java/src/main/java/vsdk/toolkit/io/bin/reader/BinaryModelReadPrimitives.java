@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.io.PersistenceElement;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
@@ -27,7 +27,7 @@ public class BinaryModelReadPrimitives {
     private static final int BINARY_MODEL_PARSE_SNAPSHOT_CONTEXT_SIZE = 120;
 
     public static boolean reportReadError(String routine, String message) {
-        Error.error(routine, "%s", message);
+        Logger.error(routine, "%s", message);
         return false;
     }
 
@@ -36,7 +36,7 @@ public class BinaryModelReadPrimitives {
             return reportReadError("BinaryModelReadPrimitives::initializeArrayList", "Null list pointer");
         }
         if (count < 0) {
-            Error.error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
+            Logger.error("BinaryModelReadPrimitives::initializeArrayList", "Negative count while reading binary model (%s)", what);
             return false;
         }
         for (int i = 0; i < count; i++) {
@@ -152,7 +152,7 @@ public class BinaryModelReadPrimitives {
         }
         count[0] = readInt32LE(input);
         if (count[0] < 0) {
-            Error.error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
+            Logger.error("BinaryModelReadPrimitives::readNonNegativeCount", "Negative count while reading binary model (%s)", what);
             return false;
         }
         return true;
@@ -261,7 +261,7 @@ public class BinaryModelReadPrimitives {
             return true;
         }
         if (count < -1) {
-            Error.error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
+            Logger.error("BinaryModelReadPrimitives::readIndexList", "Negative index list count while reading binary model (%s)", what);
             return false;
         }
 
@@ -282,7 +282,7 @@ public class BinaryModelReadPrimitives {
             return true;
         }
         if (values == null || index < 0 || index >= values.size()) {
-            Error.error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
+            Logger.error("BinaryModelReadPrimitives::pointerFromIndex", "Out of range index while reading binary model (%s)", what);
             return false;
         }
         result.value = values.get(index);

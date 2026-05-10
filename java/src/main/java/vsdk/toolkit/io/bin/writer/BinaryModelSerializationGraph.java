@@ -2,7 +2,7 @@ package vsdk.toolkit.io.bin.writer;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.io.context.ColorContext;
 import vsdk.toolkit.io.context.ParseSnapshotContext;
@@ -81,7 +81,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Error.error("BinaryModelSerializationGraph::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
+            Logger.error("BinaryModelSerializationGraph::ensureVertex", "Vertex radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -122,7 +122,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Error.error("BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
+            Logger.error("BinaryModelSerializationGraph::ensurePatch", "Patch radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -154,7 +154,7 @@ public class BinaryModelSerializationGraph {
         }
 
         if (value.radianceData != null) {
-            Error.error("BinaryModelSerializationGraph::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
+            Logger.error("BinaryModelSerializationGraph::ensureGeometry", "Geometry radianceData is not supported by BinaryModelWritter");
             return false;
         }
 
@@ -193,7 +193,7 @@ public class BinaryModelSerializationGraph {
             }
         }
         else {
-            Error.error("BinaryModelSerializationGraph::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
+            Logger.error("BinaryModelSerializationGraph::ensureGeometry", "Unsupported geometry class for BinaryModelWritter");
             return false;
         }
 

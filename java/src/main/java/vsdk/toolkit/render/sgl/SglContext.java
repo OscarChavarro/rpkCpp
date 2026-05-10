@@ -10,7 +10,7 @@ accessible memory buffer. E.g. for clustering where a small number
 of patches needs to be ID rendered very often
 */
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -194,7 +194,7 @@ Returns current sgl renderer
         PolygonBox clip_box = new PolygonBox(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 
         if (numberOfVertices > (clipping ? (PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON - 6) : PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON)) {
-            Error.error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON);
+            Logger.error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON);
             return;
         }
 

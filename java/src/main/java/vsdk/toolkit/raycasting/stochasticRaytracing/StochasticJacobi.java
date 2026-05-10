@@ -13,7 +13,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
@@ -197,7 +197,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
         stochasticJacobiElementSetup(ElementHierarchyState.activeState().topCluster);
 
         if ( sumOfProbabilities < Numeric.EPSILON * Numeric.EPSILON ) {
-            Error.warning("Iteration", "No sources");
+            Logger.warning("Iteration", "No sources");
             return false;
         }
         return true;
@@ -379,7 +379,7 @@ the receiver is a cluster
         } else {
             switch ( ElementHierarchyState.activeState().clustering ) {
                 case NO_CLUSTERING:
-                    Error.fatal(-1, "Propagate",
+                    Logger.fatal(-1, "Propagate",
                         "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n");
                     break;
                 case ISOTROPIC_CLUSTERING:
@@ -393,7 +393,7 @@ the receiver is a cluster
                     }
                     break;
                 default:
-                    Error.fatal(-1, "Propagate", "Invalid clustering mode %d\n",
+                    Logger.fatal(-1, "Propagate", "Invalid clustering mode %d\n",
                         ElementHierarchyState.activeState().clustering.ordinal());
                     break;
             }
@@ -424,7 +424,7 @@ Idem but for importance
 
         if ( ElementHierarchyState.activeState().do_h_meshing != 0 ||
              ElementHierarchyState.activeState().clustering != HierarchyClusteringMode.NO_CLUSTERING ) {
-            Error.fatal(-1, "Propagate",
+            Logger.fatal(-1, "Propagate",
                 "Importance propagation not implemented in combination with hierarchical refinement");
         }
     }

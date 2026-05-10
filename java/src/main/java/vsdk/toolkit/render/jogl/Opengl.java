@@ -5,7 +5,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -77,7 +77,7 @@ public final class Opengl {
             ToneMap.toneMappingGammaCorrection(corrected, activeToneMapOptions);
         }
         else if ( !openGlMissingToneMapWarningShown ) {
-            Error.warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
+            Logger.warning("Opengl::openGlRenderSetColor", "Tone mapping context not set in active scene, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
         gl.glColor3f(corrected.r, corrected.g, corrected.b);
@@ -216,7 +216,7 @@ public final class Opengl {
             Geometry child = children.get(j);
             if ( child.isCompound() ) {
                 if ( i >= 8 ) {
-                    Error.error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
+                    Logger.error("openGlRenderOctreeNonLeaf", "Invalid octree geometry node (more than 8 compound children)");
                     return;
                 }
                 octreeChildren[i++].geometry = child;
@@ -490,12 +490,12 @@ public final class Opengl {
 
     public static void openGlRenderScene(Scene scene, RadianceMethod radianceMethod, ToneMappingContext toneMapOptions, RenderOptions renderOptions, GlutDebugState debugState) {
         if ( scene == null ) {
-            Error.fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
+            Logger.fatal(-1, "Opengl::openGlRenderScene", "Scene not provided");
         }
 
         activeToneMapOptions = toneMapOptions;
         if ( toneMapOptions == null && !openGlMissingToneMapWarningShown ) {
-            Error.warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
+            Logger.warning("Opengl::openGlRenderScene", "Tone mapping context not provided, using uncorrected color");
             openGlMissingToneMapWarningShown = true;
         }
 

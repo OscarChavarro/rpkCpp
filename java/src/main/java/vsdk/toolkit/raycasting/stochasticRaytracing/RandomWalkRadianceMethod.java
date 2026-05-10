@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -133,7 +133,7 @@ public final class RandomWalkRadianceMethod extends RadianceMethod {
         }
         StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
         if ( StochasticRelaxation.activeState().toneMapOptions == null ) {
-            Error.fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
+            Logger.fatal(-1, "RandomWalkRadianceMethod::initialize", "Tone mapping context not provided");
         }
         StochasticRelaxation.activeState().method = StochasticRaytracingMethod.RANDOM_WALK_RADIOSITY_METHOD;
         Mcrad.monteCarloRadiosityInit();
@@ -242,7 +242,7 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
                 }
                 break;
             default:
-                Error.fatal(
+                Logger.fatal(
                     -1, "randomWalkRadiosityScoreWeight", "Unknown random walk estimator kind %d",
                     StochasticRelaxation.activeState().randomWalkEstimatorKind.ordinal());
                 break;
@@ -592,7 +592,7 @@ Determines control radiosity value for collision gathering estimator
                 randomWalkRadiosityDoGatheringIteration(scene.voxelGrid, scene.patchList);
                 break;
             default:
-                Error.fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
+                Logger.fatal(-1, "randomWalkRadiosityDoStep", "Unknown random walk estimator type %d",
                     StochasticRelaxation.activeState().randomWalkEstimatorType.ordinal());
         }
 

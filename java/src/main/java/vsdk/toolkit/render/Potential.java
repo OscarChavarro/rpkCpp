@@ -6,7 +6,7 @@ package vsdk.toolkit.render;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -91,7 +91,7 @@ Updates directly received potential for all patches
         }
 
         if (lostPixels > 0) {
-            Error.warning(null, "%d lost pixels", lostPixels);
+            Logger.warning(null, "%d lost pixels", lostPixels);
         }
 
         Statistics.instance().potential.averageDirectPotential = Statistics.instance().potential.totalDirectPotential =

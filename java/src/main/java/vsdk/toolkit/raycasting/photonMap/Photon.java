@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.photonMap;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
@@ -65,7 +65,7 @@ public class Photon {
             s[0] = phi[0] / (2.0 * Math.PI);
             r[0] = Math.pow(Math.cos(theta[0]), (double)n + 1.0);
         } else {
-            Error.error("Photon::findRS", "Component %d not implemented yet", flag);
+            Logger.error("Photon::findRS", "Component %d not implemented yet", flag);
         }
     }
 }

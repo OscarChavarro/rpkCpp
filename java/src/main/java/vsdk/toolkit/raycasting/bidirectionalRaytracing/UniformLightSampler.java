@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.XxdfComponentFlag;
@@ -92,12 +92,12 @@ public class UniformLightSampler extends NextEventSampler {
                 light = currentPatch;
                 pdfLight = 1.0;
             } else {
-                Error.warning("sample Unit Light Node", "No valid light selected");
+                Logger.warning("sample Unit Light Node", "No valid light selected");
                 return false;
             }
         } else {
             if ( lightList == null ) {
-                Error.warning("FillLightNode", "No light list available");
+                Logger.warning("FillLightNode", "No light list available");
                 return false;
             }
             double[] localX1 = new double[] {x1};
@@ -107,7 +107,7 @@ public class UniformLightSampler extends NextEventSampler {
             pdfLight = outPdfLight[0];
 
             if ( light == null ) {
-                Error.warning("FillLightNode", "No light found");
+                Logger.warning("FillLightNode", "No light found");
                 return false;
             }
         }

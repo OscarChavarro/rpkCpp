@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 
 public class FileUncompressWrapper {
     public static InputStream openInputStreamCompressWrapper(String fileName, int[] isPipe) {
@@ -37,7 +37,7 @@ public class FileUncompressWrapper {
         }
 
         if (stream == null) {
-            Error.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.READ));
+            Logger.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.READ));
             if (isPipe != null && isPipe.length > 0) {
                 isPipe[0] = 0;
             }
@@ -79,7 +79,7 @@ public class FileUncompressWrapper {
         }
 
         if (stream == null) {
-            Error.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.WRITE));
+            Logger.error(null, "Can't open file '%s' for %s", fileName, modeToLogAction(StreamOpenMode.WRITE));
             if (isPipe != null && isPipe.length > 0) {
                 isPipe[0] = 0;
             }

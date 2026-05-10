@@ -1,7 +1,7 @@
 package vsdk.toolkit.io.mgf;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.common.linealAlgebra.CoordinateAxis;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
@@ -49,7 +49,7 @@ the code
             case EntityTypeContext.PRISM:
                 return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
             default:
-                Error.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+                Logger.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
                 return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
         }
     }

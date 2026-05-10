@@ -362,7 +362,7 @@ public class KDTree {
 
     public void iterateNodes(NodeCallback callback, Object data) {
         if (numUnbalanced > 0) {
-            vsdk.toolkit.common.Error.error("KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+            vsdk.toolkit.common.logging.Logger.error("KDTree::iterateNodes", "Cannot iterate unbalanced trees");
             return;
         }
 
@@ -381,7 +381,7 @@ public class KDTree {
         float[] usedDistances;
         if (inDistances == null) {
             if (n > distances.length) {
-                vsdk.toolkit.common.Error.error("KDTree::query", "Too many nodes requested");
+                vsdk.toolkit.common.logging.Logger.error("KDTree::query", "Too many nodes requested");
                 return 0;
             }
             usedDistances = distances;

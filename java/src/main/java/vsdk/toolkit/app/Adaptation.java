@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
@@ -160,7 +160,7 @@ emitted by a patch. The result is filled in toneMapOptions.realWorldAdaptionLumi
                 break;
             }
             default:
-                Error.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
+                Logger.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
         }
     }
 

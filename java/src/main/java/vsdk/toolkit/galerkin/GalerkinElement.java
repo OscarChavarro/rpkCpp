@@ -6,7 +6,7 @@ package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.RenderOptions;
@@ -385,7 +385,7 @@ public class GalerkinElement extends Element {
             return;
         }
         if ( isCluster() ) {
-            Error.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+            Logger.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
             return;
         }
         if ( patch == null ) {

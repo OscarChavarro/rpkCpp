@@ -4,7 +4,7 @@ Just fills in the eye point in the node
 
 package vsdk.toolkit.raycasting.raytracing;
 
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
@@ -30,7 +30,7 @@ public class EyeSampler extends Sampler {
         byte flags)
     {
         if ( prevNode != null || thisNode != null ) {
-            Error.warning("EyeSampler::sample", "Not first node in path ?!");
+            Logger.warning("EyeSampler::sample", "Not first node in path ?!");
         }
 
         // Just fill in newNode with camera data. Appropriate pdf fields are set to 1

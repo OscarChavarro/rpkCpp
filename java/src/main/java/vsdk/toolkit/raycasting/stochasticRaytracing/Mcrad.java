@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
@@ -412,7 +412,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
                     cachedRd.interpolateBiLinear(vrd[0], vrd[1], vrd[2], vrd[3], (float)u, (float)v);
                     break;
                 default:
-                    Error.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
+                    Logger.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d",
                         leaf.numberOfVertices);
             }
         }

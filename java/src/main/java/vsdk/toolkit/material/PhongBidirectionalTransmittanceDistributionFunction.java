@@ -82,7 +82,7 @@ Refraction index
 */
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -148,7 +148,7 @@ public class PhongBidirectionalTransmittanceDistributionFunction {
         }
 
         if (!Float.isFinite(result.average())) {
-            Error.fatal(-1, "transmittance", "Oops - result is not finite!");
+            Logger.fatal(-1, "transmittance", "Oops - result is not finite!");
         }
 
         return result;

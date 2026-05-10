@@ -145,7 +145,7 @@ Total evaluation is returned.
 // Set to 0 for safety
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.Error;
+import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -216,7 +216,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
             return col;
         }
         if (context == null || !context.hasFlag(RayHitFlag.TEXTURE_COORDINATE)) {
-            Error.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+            Logger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
             return col;
         }
         Vector3D texCoord = context.getTexCoord();
@@ -233,7 +233,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         }
 
         if (hit == null || !hit.getTexCoord(texCoord)) {
-            Error.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
+            Logger.warning("splitBsdfEvalTexture", "Couldn't get texture coordinates");
             return col;
         }
 
@@ -253,7 +253,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
         if (brdf != null) {
             ColorRgb reflectance = brdf.reflectance(flags);
             if (!Float.isFinite(reflectance.average())) {
-                Error.fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
+                Logger.fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
             }
             albedo.add(albedo, reflectance);
         }
@@ -443,7 +443,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         setOut(probabilityDensityFunction, 0.0);
         if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
-            Error.warning("sample", "Couldn't determine shading normal");
+            Logger.warning("sample", "Couldn't determine shading normal");
             out.set(0.0f, 0.0f, 1.0f);
             return out;
         }
@@ -606,7 +606,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         result.clear();
         if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
-            Error.warning("evaluate", "Couldn't determine shading normal");
+            Logger.warning("evaluate", "Couldn't determine shading normal");
             return result;
         }
         normal.copy(context.getShadingNormal());
@@ -688,7 +688,7 @@ public class PhongBidirectionalScatteringDistributionFunction {
 
         Vector3D normal = new Vector3D();
         if (context == null || !context.hasFlag(RayHitFlag.NORMAL)) {
-            Error.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
+            Logger.warning("evaluateProbabilityDensityFunction", "Couldn't determine shading normal");
             return;
         }
         normal.copy(context.getShadingNormal());
