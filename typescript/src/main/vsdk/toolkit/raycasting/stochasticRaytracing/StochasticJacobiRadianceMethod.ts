@@ -2,7 +2,7 @@ import { OutputStream } from "../../../../java/io/OutputStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -155,7 +155,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     }
     StochasticRelaxation.activeState().toneMapOptions = toneMapOptions;
     if (StochasticRelaxation.activeState().toneMapOptions === null) {
-      VsdkError.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
+      VsdkLogger.fatal(-1, "StochasticJacobiRadianceMethod::initialize", "Tone mapping context not provided");
     }
     StochasticRelaxation.activeState().method = StochasticRaytracingMethod.STOCHASTIC_RELAXATION_RADIOSITY_METHOD;
     Mcrad.monteCarloRadiosityInit();
@@ -228,7 +228,7 @@ Computes quality factor on given leaf element.
     if (StochasticRelaxation.activeState().discardIncremental !== 0) {
       elem.quality = 0.0;
       if (!StochasticJacobiRadianceMethod.repeatedDiscardIncrementalWarning) {
-        VsdkError.warning(
+        VsdkLogger.warning(
           "stochasticRelaxationRadiosityElementIncrementRadiance",
           "Solution of incremental Jacobi steps receives zero quality"
         );
@@ -602,7 +602,7 @@ iteration.
 
       if (StochasticRelaxation.activeState().importanceDriven !== 0) {
         if (StochasticRelaxation.activeState().incrementalUsesImportance === 0) {
-          VsdkError.warning(null, "Importance is only used from the second iteration on ...");
+          VsdkLogger.warning(null, "Importance is only used from the second iteration on ...");
         }
         else if (StochasticRelaxation.activeState().importanceUpdated !== 0) {
           StochasticRelaxation.activeState().importanceUpdated = 0;

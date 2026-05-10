@@ -1,7 +1,7 @@
 import { File } from "../../../java/io/File";
 import { InputStream } from "../../../java/io/InputStream";
 import { OutputStream } from "../../../java/io/OutputStream";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { VSDK } from "../common/VSDK";
 
 const fs = require("node:fs");
@@ -60,13 +60,13 @@ export abstract class PersistenceElement {
       if (strict) {
         throw new globalThis.Error("bytesBuffer can not be null");
       }
-      VsdkError.error("PersistenceElement::readBytes", "%s", "invalid buffer");
+      VsdkLogger.error("PersistenceElement::readBytes", "%s", "invalid buffer");
       return;
     }
 
     const targetLength = strict ? bytesBuffer.length : (length ?? 0);
     if (targetLength < 0) {
-      VsdkError.error("PersistenceElement::readBytes", "%s", "invalid buffer");
+      VsdkLogger.error("PersistenceElement::readBytes", "%s", "invalid buffer");
       return;
     }
     if (targetLength === 0) {
@@ -80,7 +80,7 @@ export abstract class PersistenceElement {
       for (let i = 0; i < targetLength && i < bytesBuffer.length; i++) {
         bytesBuffer[i] = 0;
       }
-      VsdkError.error(
+      VsdkLogger.error(
         "PersistenceElement::readBytes",
         "could not read requested length (%d/%d)",
         0,
@@ -111,7 +111,7 @@ export abstract class PersistenceElement {
       for (let i = offset; i < targetLength && i < bytesBuffer.length; i++) {
         bytesBuffer[i] = 0;
       }
-      VsdkError.error(
+      VsdkLogger.error(
         "PersistenceElement::readBytes",
         "could not read requested length (%d/%d)",
         offset,
@@ -125,13 +125,13 @@ export abstract class PersistenceElement {
   public static writeBytes(os: OutputStream | null, bytesBuffer: Uint8Array | null, length?: number): void {
     if (bytesBuffer === null || os === null) {
       if (length !== undefined) {
-        VsdkError.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
+        VsdkLogger.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
       }
       return;
     }
     const targetLength = length === undefined ? bytesBuffer.length : length;
     if (targetLength < 0) {
-      VsdkError.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
+      VsdkLogger.error("PersistenceElement::writeBytes", "%s", "invalid arguments");
       return;
     }
     if (targetLength === 0) {

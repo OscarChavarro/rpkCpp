@@ -4,7 +4,7 @@ import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupCore } from "./options/OptionsGroupCore";
 import { Cie } from "../common/color/Cie";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Statistics } from "../common/statistics/Statistics";
 import { BinaryModelDeserializer } from "../io/bin/reader/BinaryModelDeserializer";
 import { BinaryModelSerializer } from "../io/bin/writer/BinaryModelSerializer";
@@ -401,7 +401,7 @@ export class SceneBuilder {
   ): boolean {
     const file = new File(fileName);
     if (!file.exists()) {
-      VsdkError.error(
+      VsdkLogger.error(
         "SceneBuilder::sceneBuilderReadFile",
         "Requested %s file '%s' does not exist",
         fileRole,
@@ -411,7 +411,7 @@ export class SceneBuilder {
       return false;
     }
     if (!file.isFile()) {
-      VsdkError.error(
+      VsdkLogger.error(
         "SceneBuilder::sceneBuilderReadFile",
         "Requested %s file '%s' is not a regular file",
         fileRole,
@@ -421,7 +421,7 @@ export class SceneBuilder {
       return false;
     }
     if (!file.canRead()) {
-      VsdkError.error(
+      VsdkLogger.error(
         "SceneBuilder::sceneBuilderReadFile",
         "Requested %s file '%s' is not readable",
         fileRole,
@@ -436,7 +436,7 @@ export class SceneBuilder {
     try {
       const firstByte = input.read();
       if (firstByte < 0) {
-        VsdkError.error(
+        VsdkLogger.error(
           "SceneBuilder::sceneBuilderReadFile",
           "Requested %s file '%s' is empty",
           fileRole,
@@ -446,7 +446,7 @@ export class SceneBuilder {
       }
     }
     catch (_ignored) {
-      VsdkError.error(
+      VsdkLogger.error(
         "SceneBuilder::sceneBuilderReadFile",
         "Requested %s file '%s' is not readable",
         fileRole,
@@ -562,7 +562,7 @@ export class SceneBuilder {
         }
         else {
           process.stderr.write("failed.\n");
-          VsdkError.error(
+          VsdkLogger.error(
             "SceneBuilder::sceneBuilderReadFile",
             "Could not export ParseSnapshotContext binary to '%s'",
             batchOptions.binaryOutputFilename
@@ -610,7 +610,7 @@ export class SceneBuilder {
     scene.clusteredRootGeometry = SceneBuilder.sceneBuilderCreateClusterHierarchy(scene.patchList);
 
     if (scene.clusteredRootGeometry.className !== GeometryClassId.COMPOUND) {
-      VsdkError.warning(null, "Strange clusters for this world ...");
+      VsdkLogger.warning(null, "Strange clusters for this world ...");
     }
 
     t = process.hrtime.bigint();
@@ -709,7 +709,7 @@ export class SceneBuilder {
     // All options should have disappeared from argv now
     if (argc !== null && argc.length > 0 && argc[0] > 1) {
       if (argv[1] !== null && argv[1].startsWith("-")) {
-        VsdkError.error(null, "Unrecognized option '%s'", argv[1]);
+        VsdkLogger.error(null, "Unrecognized option '%s'", argv[1]);
       }
       else if (!SceneBuilder.sceneBuilderReadFile(argv[1], mgfContext, scene, toneMapOptions)) {
         process.exit(1);

@@ -6,7 +6,7 @@ NO DIFFUSE OR GLOSSY TRANSMITTING SURFACES SUPPORTED YET!
 */
 
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -220,7 +220,7 @@ The Fresnel sampler works as follows:
     const trans = transmittance.average() > Numeric.EPSILON;
 
     if (reflective && trans) {
-      VsdkError.error(
+      VsdkLogger.error(
         "FresnelFactor",
         "Cannot deal with simultaneous reflective & transit materials"
       );
@@ -240,7 +240,7 @@ The Fresnel sampler works as follows:
         reflectedDir = Xxdf.idealReflectedDirection(thisNode.m_inDirT, thisNode.m_normal);
         cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
         if (cosI < 0) {
-          VsdkError.error("fresnelSample", "cosI < 0");
+          VsdkLogger.error("fresnelSample", "cosI < 0");
         }
       }
       else {
@@ -263,14 +263,14 @@ The Fresnel sampler works as follows:
       cosI = thisNode.m_normal.dotProduct(thisNode.m_inDirF);
 
       if (cosI < 0) {
-        VsdkError.error("fresnelSample", "cosI < 0");
+        VsdkLogger.error("fresnelSample", "cosI < 0");
       }
 
       if (!tir[0]) {
         cost = -thisNode.m_normal.dotProduct(refractedDir);
 
         if (cost < 0) {
-          VsdkError.error("fresnelSample", "cost < 0");
+          VsdkLogger.error("fresnelSample", "cost < 0");
         }
 
         const nt = ncOut.getNr();
@@ -372,7 +372,7 @@ The Fresnel sampler works as follows:
     }
 
     if (this.m_computeFromNextPdf && prevNode !== null) {
-      VsdkError.warning("FresnelSampler", "FromNextPdf not supported");
+      VsdkLogger.warning("FresnelSampler", "FromNextPdf not supported");
     }
 
     if (thisNode.m_rayType === PathRayType.REFLECTS) {
@@ -435,7 +435,7 @@ The Fresnel sampler works as follows:
     }
     else {
       flags = BsdfComponent.BRDF_GLOSSY_COMPONENT;
-      VsdkError.error("PhotonMapSampler::gdSample", "Not done yet");
+      VsdkLogger.error("PhotonMapSampler::gdSample", "Not done yet");
       return false;
     }
 

@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { GalerkinElement } from "./GalerkinElement";
 
 export class Interaction {
@@ -72,7 +72,7 @@ export class Interaction {
     }
 
     if ((this.numberOfReceiverCubaturePositions & 0xff) > 1) {
-      VsdkError.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
+      VsdkLogger.fatal(2, "interactionCreate", "Not yet implemented for higher order approximations");
     }
 
     this.deltaK = new Array<number>(1).fill(0.0);

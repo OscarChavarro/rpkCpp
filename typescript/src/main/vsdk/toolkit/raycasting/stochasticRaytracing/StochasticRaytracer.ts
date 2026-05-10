@@ -1,7 +1,7 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Random } from "../../../../java/util/Random";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { StratifiedSampling2D } from "../../common/StratifiedSampling2D";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -83,7 +83,7 @@ Raytrace the current scene as seen with the current camera.
     renderOptions: RenderOptions
   ): void {
     if (toneMapOptions === null) {
-      VsdkError.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
+      VsdkLogger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
     }
 
     const config = new StochasticRaytracingConfiguration(

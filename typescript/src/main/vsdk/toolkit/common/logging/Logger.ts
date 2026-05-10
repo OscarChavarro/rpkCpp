@@ -1,6 +1,6 @@
 const util = require("node:util");
 
-export class Error {
+export class Logger {
   private constructor() {
   }
 
@@ -9,7 +9,7 @@ export class Error {
     if (routine !== null) {
       process.stderr.write(`${routine}(): `);
     }
-    process.stderr.write(`${Error.formatMessage(text, ...args)}.\n`);
+    process.stderr.write(`${Logger.formatMessage(text, ...args)}.\n`);
   }
 
   public static warning(routine: string | null, text: string | null, ...args: unknown[]): void {
@@ -17,7 +17,7 @@ export class Error {
     if (routine !== null) {
       process.stderr.write(`${routine}(): `);
     }
-    process.stderr.write(`${Error.formatMessage(text, ...args)}.\n`);
+    process.stderr.write(`${Logger.formatMessage(text, ...args)}.\n`);
   }
 
   public static fatal(errcode: number, routine: string | null, text: string | null, ...args: unknown[]): void {
@@ -25,7 +25,7 @@ export class Error {
     if (routine !== null) {
       process.stderr.write(`${routine}(): `);
     }
-    process.stderr.write(`${Error.formatMessage(text, ...args)}.\n`);
+    process.stderr.write(`${Logger.formatMessage(text, ...args)}.\n`);
     process.exit(errcode);
   }
 

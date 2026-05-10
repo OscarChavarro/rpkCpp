@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../Error";
+import { Logger as VsdkLogger } from "../logging/Logger";
 import { Numeric } from "../linealAlgebra/Numeric";
 import { BalancedKDTreeNode } from "./BalancedKDTreeNode";
 import { KDQuery } from "./KDQuery";
@@ -113,7 +113,7 @@ export class KDTree {
 
   public iterateNodes(callback: NodeCallback, data: unknown): void {
     if (this.numUnbalanced > 0) {
-      VsdkError.error("KDTree::iterateNodes", "Cannot iterate unbalanced trees");
+      VsdkLogger.error("KDTree::iterateNodes", "Cannot iterate unbalanced trees");
       return;
     }
 
@@ -144,7 +144,7 @@ export class KDTree {
     let usedDistances: number[];
     if (inDistances === null) {
       if (n > (KDTree.distances as number[]).length) {
-        VsdkError.error("KDTree::query", "Too many nodes requested");
+        VsdkLogger.error("KDTree::query", "Too many nodes requested");
         return 0;
       }
       usedDistances = KDTree.distances as number[];

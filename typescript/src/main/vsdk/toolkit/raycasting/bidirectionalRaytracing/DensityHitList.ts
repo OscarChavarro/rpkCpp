@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { DensityHit } from "./DensityHit";
 import { DensityHitArray } from "./DensityHitArray";
 
@@ -34,7 +34,7 @@ export class DensityHitList {
 
   public get(i: number): DensityHit {
     if (i >= this.numHits) {
-      VsdkError.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
+      VsdkLogger.fatal(-1, "DensityHitList::operator[]", "Index 'i' out of getBoundingBox");
     }
 
     if (this.cacheCurrent === null || i < this.cacheLowerLimit) {

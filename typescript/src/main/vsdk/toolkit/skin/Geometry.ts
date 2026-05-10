@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
@@ -121,7 +121,7 @@ export class Geometry {
 
   public clone(): Geometry {
     if (this.className !== GeometryClassId.PATCH_SET) {
-      VsdkError.fatal(666, "duplicateIfPatchSet", "this should not happen");
+      VsdkLogger.fatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
     const PatchSetClass = require("./PatchSet").PatchSet as { new(input: Patch[]): PatchSet };

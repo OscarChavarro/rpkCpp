@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -152,7 +152,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
           element.unShotPotential = patch.directPotential;
           break;
         default:
-          VsdkError.fatal(-1, "patchInit", "Invalid iteration method");
+          VsdkLogger.fatal(-1, "patchInit", "Invalid iteration method");
       }
     }
 
@@ -162,7 +162,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
   public override initialize(scene: Scene, toneMapOptions: ToneMappingContext): void {
     GalerkinRadianceMethod.galerkinState.toneMapOptions = toneMapOptions;
     if (GalerkinRadianceMethod.galerkinState.toneMapOptions === null) {
-      VsdkError.fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
+      VsdkLogger.fatal(-1, "GalerkinRadianceMethod::initialize", "Tone mapping context not provided");
     }
 
     GalerkinRadianceMethod.galerkinState.iterationNumber = 0;
@@ -201,7 +201,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
 
   public override doStep(scene: Scene, renderOptions: RenderOptions): boolean {
     if (GalerkinRadianceMethod.galerkinState.iterationNumber < 0) {
-      VsdkError.error("doGalerkinOneStep", "method not initialized");
+      VsdkLogger.error("doGalerkinOneStep", "method not initialized");
       return true;
     }
 
@@ -225,7 +225,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
         done = ShootingStrategy.doShootingStep(scene, GalerkinRadianceMethod.galerkinState, renderOptions);
         break;
       default:
-        VsdkError.fatal(
+        VsdkLogger.fatal(
           2,
           "doGalerkinOneStep",
           "Invalid iteration method %s\n",
@@ -587,7 +587,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
       return;
     }
     if (!renderOptions.smoothShading) {
-      VsdkError.warning(null, "I assume you want a smooth shaded model ...");
+      VsdkLogger.warning(null, "I assume you want a smooth shaded model ...");
     }
     GalerkinRadianceMethod.writeFormatted("\tcolorPerVertex %s\n", "TRUE");
     GalerkinRadianceMethod.writeVertexColorsTopCluster();

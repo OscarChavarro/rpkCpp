@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { ApproximationTypeDescription } from "./ApproximationTypeDescription";
 import { Basismcrad } from "./Basismcrad";
@@ -84,7 +84,7 @@ export class StochasticRadiosityBasisState {
 
   public static activeState(): StochasticRadiosityBasisState {
     if (StochasticRadiosityBasisState.activeStatePtr === null) {
-      VsdkError.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
+      VsdkLogger.fatal(-1, "StochasticRadiosityBasisState::activeState", "Stochastic radiosity basis state was not initialized");
     }
     return StochasticRadiosityBasisState.activeStatePtr!;
   }

@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CubatureDegree } from "./CubatureDegree";
 import { CubatureRule } from "./CubatureRule";
 
@@ -467,7 +467,7 @@ export class QuadCubatureRule {
         quadRule[0] = QuadCubatureRule.crq7Pg;
         break;
       default:
-        VsdkError.fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree);
+        VsdkLogger.fatal(2, "setQuadCubatureRules", "Invalid degree %d", degree);
     }
   }
 

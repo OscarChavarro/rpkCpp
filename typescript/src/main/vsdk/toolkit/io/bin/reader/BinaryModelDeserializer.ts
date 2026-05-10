@@ -1,7 +1,7 @@
 import { BufferedInputStream } from "../../../../../java/io/BufferedInputStream";
 import { FileInputStream } from "../../../../../java/io/FileInputStream";
 import { ColorRgb } from "../../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../../common/Error";
+import { Logger as VsdkLogger } from "../../../common/logging/Logger";
 import { CoordinateAxis } from "../../../common/linealAlgebra/CoordinateAxis";
 import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
@@ -222,20 +222,20 @@ export class BinaryModelDeserializer {
             const dataBytes = BinaryModelReadPrimitives.readInt64LE(input);
 
             if (width < 0 || height < 0 || channels < 0 || dataBytes < 0) {
-              VsdkError.error("BinaryModelDeserializer::read", "%s", "Invalid texture dimensions in binary material");
+              VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Invalid texture dimensions in binary material");
               throw new ReadFailureException();
             }
 
             const expectedBytes = width * height * channels;
             if (expectedBytes !== dataBytes) {
-              VsdkError.error("BinaryModelDeserializer::read", "%s", "Texture byte count mismatch in binary material");
+              VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Texture byte count mismatch in binary material");
               throw new ReadFailureException();
             }
 
             let textureData: Uint8Array | null = null;
             if (dataBytes > 0) {
               if (dataBytes > 2147483647) {
-                VsdkError.error("BinaryModelDeserializer::read", "%s", "Texture data too large for current platform");
+                VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Texture data too large for current platform");
                 throw new ReadFailureException();
               }
               textureData = new Uint8Array(dataBytes);
@@ -388,7 +388,7 @@ export class BinaryModelDeserializer {
         record.tmp = BinaryModelReadPrimitives.readInt32LE(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Vertex radianceData is not supported in binary reader");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Vertex radianceData is not supported in binary reader");
           throw new ReadFailureException();
         }
         BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "vertex.patches", record.patchIndices));
@@ -431,7 +431,7 @@ export class BinaryModelDeserializer {
         record.twinIndex = BinaryModelReadPrimitives.readInt32LE(input);
         record.numberOfVertices = BinaryModelReadPrimitives.readInt32LE(input);
         if (record.numberOfVertices !== 3 && record.numberOfVertices !== 4) {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Invalid patch vertex count while loading binary model");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Invalid patch vertex count while loading binary model");
           throw new ReadFailureException();
         }
 
@@ -468,7 +468,7 @@ export class BinaryModelDeserializer {
         record.materialIndex = BinaryModelReadPrimitives.readInt32LE(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Patch radianceData is not supported in binary reader");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Patch radianceData is not supported in binary reader");
           throw new ReadFailureException();
         }
 
@@ -559,7 +559,7 @@ export class BinaryModelDeserializer {
         record.hasRayIntersectionBox = BinaryModelReadPrimitives.readBool(input);
         record.hasRadianceData = BinaryModelReadPrimitives.readBool(input);
         if (record.hasRadianceData) {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Geometry radianceData is not supported in binary reader");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Geometry radianceData is not supported in binary reader");
           throw new ReadFailureException();
         }
 
@@ -588,7 +588,7 @@ export class BinaryModelDeserializer {
           BinaryModelDeserializer.require(BinaryModelReadPrimitives.readIndexList(input, "patchSet.patchList", record.patchSetPatches));
         }
         else {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Unsupported geometry type in binary model");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Unsupported geometry type in binary model");
           throw new ReadFailureException();
         }
       }
@@ -634,7 +634,7 @@ export class BinaryModelDeserializer {
         }
 
         if (geometry === null) {
-          VsdkError.error("BinaryModelDeserializer::read", "%s", "Could not instantiate geometry while loading binary model");
+          VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Could not instantiate geometry while loading binary model");
           throw new ReadFailureException();
         }
 
@@ -774,7 +774,7 @@ export class BinaryModelDeserializer {
         ok = false;
       }
       else {
-        VsdkError.error("BinaryModelDeserializer::read", "%s", "Unexpected failure while reading binary model");
+        VsdkLogger.error("BinaryModelDeserializer::read", "%s", "Unexpected failure while reading binary model");
         ok = false;
       }
     }

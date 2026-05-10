@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { ToneMappingContext } from "./ToneMappingContext";
 
@@ -24,7 +24,7 @@ export abstract class ToneMap {
 
   private static toneMapScaleForDisplay(radiance: ColorRgb): ColorRgb {
     if (ToneMap.activeToneMap === null) {
-      VsdkError.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
+      VsdkLogger.fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
     return (ToneMap.activeToneMap as ToneMap).scaleForDisplay(radiance);
   }

@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CubatureDegree } from "./CubatureDegree";
 import { CubatureRule } from "./CubatureRule";
 
@@ -331,7 +331,7 @@ export class TriangleCubatureRule {
         triRule[0] = TriangleCubatureRule.crt9;
         break;
       default:
-        VsdkError.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
+        VsdkLogger.fatal(2, "setTriangleCubatureRules", "Invalid degree %d", degree);
     }
   }
 

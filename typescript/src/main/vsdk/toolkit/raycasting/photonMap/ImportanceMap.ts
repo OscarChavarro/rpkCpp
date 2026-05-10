@@ -2,7 +2,7 @@
 The real importance map storage
 */
 
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Camera } from "../../scene/Camera";
 import { Importon } from "./Importon";
@@ -86,7 +86,7 @@ export class ImportanceMap extends PhotonMap {
             density *= this.m_impScalePtr[0];
             break;
           default:
-            VsdkError.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+            VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
             return 0.0;
         }
       }
@@ -107,7 +107,7 @@ export class ImportanceMap extends PhotonMap {
           density *= this.m_impScalePtr[0];
           break;
         default:
-          VsdkError.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
+          VsdkLogger.error("ImportanceMap::getRequiredDensity", "Unsupported importance option");
           return 0.0;
       }
     }

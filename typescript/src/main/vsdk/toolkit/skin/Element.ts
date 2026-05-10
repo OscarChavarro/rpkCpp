@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
 import { ElementFlags } from "./ElementFlags";
@@ -118,7 +118,7 @@ export class Element {
       descendant = descendant.parent;
     }
     if (descendant === null) {
-      VsdkError.fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
+      VsdkLogger.fatal(-1, "Element::childContainingElement", "descendant is not a descendant of parent");
     }
     return descendant;
   }

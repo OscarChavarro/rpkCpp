@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { BsdfComponent } from "../../material/BsdfComponent";
@@ -49,7 +49,7 @@ export class Photon {
       r[0] = globalThis.Math.pow(globalThis.Math.cos(theta[0]), n + 1.0);
     }
     else {
-      VsdkError.error("Photon::findRS", "Component %d not implemented yet", flag);
+      VsdkLogger.error("Photon::findRS", "Component %d not implemented yet", flag);
     }
   }
 }

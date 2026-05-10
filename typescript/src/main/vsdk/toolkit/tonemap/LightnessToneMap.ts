@@ -1,6 +1,6 @@
 import { Cie } from "../common/color/Cie";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Statistics } from "../common/statistics/Statistics";
 import { ToneMap } from "./ToneMap";
 import { ToneMappingContext } from "./ToneMappingContext";
@@ -27,7 +27,7 @@ export class LightnessToneMap extends ToneMap {
   }
 
   public override scaleForComputations(radiance: ColorRgb): ColorRgb {
-    VsdkError.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
+    VsdkLogger.warning("ScaleForComputations", "%s %d not yet implemented", "LightnessToneMap.cpp", 0);
     return radiance;
   }
 

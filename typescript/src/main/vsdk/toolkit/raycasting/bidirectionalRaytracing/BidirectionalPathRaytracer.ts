@@ -1,6 +1,6 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { StratifiedSampling2D } from "../../common/StratifiedSampling2D";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -115,7 +115,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     const sceneBackground = scene.background;
 
     if (camera === null || sceneVoxelGrid === null) {
-      VsdkError.fatal(-1, "BidirectionalPathRaytracer::execute", "Scene camera/voxel grid not available");
+      VsdkLogger.fatal(-1, "BidirectionalPathRaytracer::execute", "Scene camera/voxel grid not available");
       return;
     }
 
@@ -123,7 +123,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     config.toneMapOptions = toneMapOptions;
 
     if (config.toneMapOptions === null) {
-      VsdkError.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
+      VsdkLogger.fatal(-1, "BidirectionalPathRaytracer::execute", "Tone mapping context not provided");
       return;
     }
 

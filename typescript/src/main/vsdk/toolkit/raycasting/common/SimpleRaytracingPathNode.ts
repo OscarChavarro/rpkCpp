@@ -1,6 +1,6 @@
 import { PrintStream } from "../../../../java/io/PrintStream";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vector3DPrinter } from "../../io/wrapper/Vector3DPrinter";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
@@ -154,7 +154,7 @@ export class SimpleRaytracingPathNode {
         case PathRayType.REFLECTS:
           break;
         default:
-          VsdkError.error("CPathNode::GetMatchingNode", "Wrong ray type in path");
+          VsdkLogger.error("CPathNode::GetMatchingNode", "Wrong ray type in path");
       }
 
       matchedNode = tmpNode;
@@ -166,20 +166,20 @@ export class SimpleRaytracingPathNode {
 
   public getPreviousBsdf(): PhongBidirectionalScatteringDistributionFunction | null {
     if ((this.m_hit.getFlags() & RayHitFlag.BACK) === 0) {
-      VsdkError.error("CPathNode::getPreviousBsdf", "Last node not a back hit");
+      VsdkLogger.error("CPathNode::getPreviousBsdf", "Last node not a back hit");
       return this.m_inBsdf;
     }
 
     const patch = this.m_hit.getPatch();
     const patchBsdf = patch !== null && patch.material !== null ? patch.material.getBsdf() : null;
     if (patchBsdf !== this.m_inBsdf) {
-      VsdkError.warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
+      VsdkLogger.warning("CPathNode::GetPreviousBtdf", "Last back hit has wrong bsdf");
     }
 
     const matchedNode = this.GetMatchingNode();
 
     if (matchedNode === null) {
-      VsdkError.warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
+      VsdkLogger.warning("CPathNode::GetPreviousBtdf", "No corresponding entering ray");
       return this.m_inBsdf;
     }
 

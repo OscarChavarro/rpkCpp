@@ -1,4 +1,4 @@
-import { Error } from "../../common/Error";
+import { Logger } from "../../common/logging/Logger";
 import { Matrix4x4 } from "../../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -176,7 +176,7 @@ export class SglContext {
     const clipBox = new PolygonBox(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
 
     if (numberOfVertices > (this.clipping ? (PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON - 6) : PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON)) {
-      Error.error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON);
+      Logger.error("sglPolygon", "Too many vertices (max. %d)", PolygonClipResultInfo.MAXIMUM_SIDES_PER_POLYGON);
       return;
     }
 

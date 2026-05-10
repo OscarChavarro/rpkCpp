@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { OptionBase } from "../../common/commandLineOptions/OptionBase";
 import { OptionGroup } from "../../common/commandLineOptions/OptionGroup";
 import { OptionParser } from "../../common/commandLineOptions/OptionParser";
@@ -26,7 +26,7 @@ export class OptionsGroupGalerkin {
       GalerkinRadianceMethod.galerkinState.galerkinIterationMethod = GalerkinIterationMethod.SOUTH_WELL;
     }
     else {
-      VsdkError.error(null, "Invalid iteration method '%s'", name);
+      VsdkLogger.error(null, "Invalid iteration method '%s'", name);
     }
   }
 

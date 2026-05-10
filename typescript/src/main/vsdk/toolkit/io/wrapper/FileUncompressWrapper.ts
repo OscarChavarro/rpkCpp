@@ -3,7 +3,7 @@ import { FileInputStream } from "../../../../java/io/FileInputStream";
 import { FileOutputStream } from "../../../../java/io/FileOutputStream";
 import { InputStream } from "../../../../java/io/InputStream";
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { Error } from "../../common/Error";
+import { Logger } from "../../common/logging/Logger";
 import { PipeInputStream } from "./PipeInputStream";
 import { PipeOutputStream } from "./PipeOutputStream";
 import { StreamOpenMode } from "./StreamOpenMode";
@@ -40,7 +40,7 @@ export class FileUncompressWrapper {
     }
 
     if (stream === null) {
-      Error.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.READ));
+      Logger.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.READ));
       if (isPipe !== null && isPipe.length > 0) {
         isPipe[0] = 0;
       }
@@ -80,7 +80,7 @@ export class FileUncompressWrapper {
     }
 
     if (stream === null) {
-      Error.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.WRITE));
+      Logger.error(null, "Can't open file '%s' for %s", safeFileName, FileUncompressWrapper.modeToLogAction(StreamOpenMode.WRITE));
       if (isPipe !== null && isPipe.length > 0) {
         isPipe[0] = 0;
       }

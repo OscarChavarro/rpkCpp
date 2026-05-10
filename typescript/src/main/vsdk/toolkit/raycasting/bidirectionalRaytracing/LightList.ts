@@ -1,6 +1,6 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -75,7 +75,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info === null) {
-      VsdkError.warning("CLightList::sample", "No lights available");
+      VsdkLogger.warning("CLightList::sample", "No lights available");
       return null;
     }
 
@@ -276,7 +276,7 @@ export class LightList extends CircularList<LightInfo> {
     }
 
     if (info === null) {
-      VsdkError.warning("CLightList::sample", "No lights available");
+      VsdkLogger.warning("CLightList::sample", "No lights available");
       return null;
     }
 
@@ -328,7 +328,7 @@ export class LightList extends CircularList<LightInfo> {
     } while (info !== null && info.light !== light);
 
     if (info === null) {
-      VsdkError.warning("CLightList::evalPdfImportant", "Could not find light");
+      VsdkLogger.warning("CLightList::evalPdfImportant", "Could not find light");
       return 0.0;
     }
 

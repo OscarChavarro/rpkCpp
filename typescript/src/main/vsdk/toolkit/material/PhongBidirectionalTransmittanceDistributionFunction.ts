@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -63,7 +63,7 @@ export class PhongBidirectionalTransmittanceDistributionFunction {
     }
 
     if (!globalThis.Number.isFinite(result.average())) {
-      VsdkError.fatal(-1, "transmittance", "Oops - result is not finite!");
+      VsdkLogger.fatal(-1, "transmittance", "Oops - result is not finite!");
     }
 
     return result;

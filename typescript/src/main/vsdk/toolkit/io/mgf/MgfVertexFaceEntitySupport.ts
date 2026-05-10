@@ -1,4 +1,4 @@
-import { Error } from "../../common/Error";
+import { Logger } from "../../common/logging/Logger";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { CoordinateAxis } from "../../common/linealAlgebra/CoordinateAxis";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -59,7 +59,7 @@ export class MgfVertexFaceEntitySupport {
       case EntityTypeContext.PRISM:
         return MgfPrismEntityTessellator.handleEntity(argc, argv, context);
       default:
-        Error.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
+        Logger.fatal(4, "mgf.c: doDiscreteConic", "Unsupported geometry entity number %d", en);
         return ParseErrorContext.MGF_ERROR_UNKNOWN_ENTITY;
     }
   }

@@ -1,4 +1,4 @@
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -93,7 +93,7 @@ export class VoxelGrid {
 
   private putGeometryInsideVoxelGrid(geometry: Geometry, na: number, nb: number, nc: number): void {
     if (na <= 0 || nb <= 0 || nc <= 0) {
-      Error.error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
+      Logger.error("VoxelGrid::putGeometryInsideVoxelGrid", "Invalid grid dimensions");
       process.exit(1);
     }
 

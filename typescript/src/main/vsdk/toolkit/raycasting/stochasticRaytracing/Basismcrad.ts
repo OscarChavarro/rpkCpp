@@ -3,7 +3,7 @@ Higher order approximations for Galerkin radiosity
 */
 
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Matrix2x2 } from "../../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
@@ -40,7 +40,7 @@ export class Basismcrad {
         elem = "quadrilaterals";
         break;
       default:
-        VsdkError.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
+        VsdkLogger.fatal(-1, "Basismcrad::makeBasis", "Invalid element type %d", et);
         return basis;
     }
 

@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { BiPath } from "./BiPath";
 
 export class FlagChain {
@@ -113,7 +113,7 @@ export class FlagChain {
     const lightSize = path.m_lightSize;
 
     if (lightSize + eyeSize !== this.length) {
-      VsdkError.error("FlagChain::Compute", "Wrong path length");
+      VsdkLogger.error("FlagChain::Compute", "Wrong path length");
       return result;
     }
 

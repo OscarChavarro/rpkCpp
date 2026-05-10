@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
@@ -87,13 +87,13 @@ export class UniformLightSampler extends NextEventSampler {
         pdfLight = 1.0;
       }
       else {
-        VsdkError.warning("sample Unit Light Node", "No valid light selected");
+        VsdkLogger.warning("sample Unit Light Node", "No valid light selected");
         return false;
       }
     }
     else {
       if (this.lightList === null) {
-        VsdkError.warning("FillLightNode", "No light list available");
+        VsdkLogger.warning("FillLightNode", "No light list available");
         return false;
       }
       const localX1 = [x1];
@@ -103,7 +103,7 @@ export class UniformLightSampler extends NextEventSampler {
       pdfLight = outPdfLight[0];
 
       if (light === null) {
-        VsdkError.warning("FillLightNode", "No light found");
+        VsdkLogger.warning("FillLightNode", "No light found");
         return false;
       }
     }

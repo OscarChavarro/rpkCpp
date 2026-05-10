@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { RandomWalkEstimatorKind } from "./RandomWalkEstimatorKind";
 import { RandomWalkEstimatorType } from "./RandomWalkEstimatorType";
@@ -110,7 +110,7 @@ export class StochasticRelaxation {
 
   public static activeState(): StochasticRelaxation {
     if (StochasticRelaxation.activeStatePtr === null) {
-      VsdkError.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
+      VsdkLogger.fatal(-1, "StochasticRelaxation::activeState", "Stochastic relaxation state was not initialized");
     }
     return StochasticRelaxation.activeStatePtr!;
   }

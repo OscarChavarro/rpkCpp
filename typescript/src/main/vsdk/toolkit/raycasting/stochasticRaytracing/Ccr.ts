@@ -5,7 +5,7 @@ Constant Control Radiosity
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Patch } from "../../skin/Patch";
 import { McradP } from "./McradP";
 import { StochasticRadiosityElement } from "./StochasticRadiosityElement";

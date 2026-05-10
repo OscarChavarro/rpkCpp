@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -63,7 +63,7 @@ export class ScreenBuffer {
     }
 
     if (inCamera === null) {
-      Error.fatal(-1, "ScreenBuffer::init", "Camera not set");
+      Logger.fatal(-1, "ScreenBuffer::init", "Camera not set");
       return;
     }
 
@@ -130,7 +130,7 @@ export class ScreenBuffer {
     this.rgbImage = src1.isRgbImage();
 
     if ((this.getHRes() !== src2.getHRes()) || (this.getVRes() !== src2.getVRes())) {
-      Error.error("ScreenBuffer::merge", "Incompatible screen buffer sources");
+      Logger.error("ScreenBuffer::merge", "Incompatible screen buffer sources");
       return;
     }
 
@@ -304,7 +304,7 @@ export class ScreenBuffer {
 
   protected requireToneMappingContext(): ToneMappingContext {
     if (this.toneMapOptions === null) {
-      Error.fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
+      Logger.fatal(-1, "ScreenBuffer::requireToneMappingContext", "Tone mapping context not set");
     }
     return this.toneMapOptions as ToneMappingContext;
   }

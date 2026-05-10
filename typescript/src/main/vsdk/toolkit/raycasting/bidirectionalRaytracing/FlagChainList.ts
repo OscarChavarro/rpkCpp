@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { CircularList } from "../../common/dataStructures/CircularList";
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
 import { BiPath } from "./BiPath";
@@ -31,7 +31,7 @@ export class FlagChainList extends CircularList<FlagChain> {
     const chain = listOrChain;
     if (this.count > 0) {
       if (chain.length !== this.length) {
-        VsdkError.error("CChainList::add", "Wrong length flag chain inserted!");
+        VsdkLogger.error("CChainList::add", "Wrong length flag chain inserted!");
         return;
       }
     }
@@ -46,7 +46,7 @@ export class FlagChainList extends CircularList<FlagChain> {
   public addDisjoint(chain: FlagChain): void {
     if (this.count > 0) {
       if (chain.length !== this.length) {
-        VsdkError.error("CChainList::add", "Wrong length flag chain inserted!");
+        VsdkLogger.error("CChainList::add", "Wrong length flag chain inserted!");
         return;
       }
     }

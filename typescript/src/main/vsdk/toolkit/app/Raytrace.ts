@@ -1,7 +1,7 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ArrayList } from "../../../java/util/ArrayList";
 import { OptionsGroupRaytracing } from "./options/OptionsGroupRaytracing";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { BidirectionalPathRaytracer } from "../raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer";
@@ -76,7 +76,7 @@ export class Raytrace {
     Raytrace.rayTraceSetMethod(newRaytracer, scene.lightSourcePatchList, lightList);
 
     if (newRaytracer === null && (rayTracerName === null || rayTracerName.substring(0, 4).toLowerCase() !== "none")) {
-      VsdkError.error(null, "Invalid raytracing method name '%s'", rayTracerName);
+      VsdkLogger.error(null, "Invalid raytracing method name '%s'", rayTracerName);
     }
 
     return newRaytracer;
@@ -135,10 +135,10 @@ export class Raytrace {
     }
 
     if (rayTracer === null) {
-      VsdkError.warning(null, "No ray tracing method active");
+      VsdkLogger.warning(null, "No ray tracing method active");
     }
     else if (!rayTracer.saveImage(img)) {
-      VsdkError.warning(null, "No previous %s image available", rayTracer.getName());
+      VsdkLogger.warning(null, "No previous %s image available", rayTracer.getName());
     }
 
     ImageOutputHandle.deleteImageOutputHandle(img);

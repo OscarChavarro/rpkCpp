@@ -1,4 +1,4 @@
-import { Error } from "../../../common/Error";
+import { Logger } from "../../../common/logging/Logger";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ColorContext } from "../../context/ColorContext";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
@@ -108,7 +108,7 @@ export class BinaryModelSerializationGraph {
     }
 
     if (value.radianceData !== null) {
-      Error.error(
+      Logger.error(
         "BinaryModelSerializationGraph::ensureVertex",
         "Vertex radianceData is not supported by BinaryModelWritter"
       );
@@ -152,7 +152,7 @@ export class BinaryModelSerializationGraph {
     }
 
     if (value.radianceData !== null) {
-      Error.error(
+      Logger.error(
         "BinaryModelSerializationGraph::ensurePatch",
         "Patch radianceData is not supported by BinaryModelWritter"
       );
@@ -188,7 +188,7 @@ export class BinaryModelSerializationGraph {
     }
 
     if (value.radianceData !== null) {
-      Error.error(
+      Logger.error(
         "BinaryModelSerializationGraph::ensureGeometry",
         "Geometry radianceData is not supported by BinaryModelWritter"
       );
@@ -230,7 +230,7 @@ export class BinaryModelSerializationGraph {
       }
     }
     else {
-      Error.error(
+      Logger.error(
         "BinaryModelSerializationGraph::ensureGeometry",
         "Unsupported geometry class for BinaryModelWritter"
       );

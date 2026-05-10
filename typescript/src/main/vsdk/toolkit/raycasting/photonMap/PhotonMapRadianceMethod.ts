@@ -2,7 +2,7 @@ import { OutputStream } from "../../../../java/io/OutputStream";
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -142,7 +142,7 @@ Initializes the computations for the current scene (if any)
     process.stderr.write("Photon map activated\n");
 
     if (toneMapOptions === null || scene.camera === null) {
-      VsdkError.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context or camera not provided");
+      VsdkLogger.fatal(-1, "PhotonMapRadianceMethod::initialize", "Tone mapping context or camera not provided");
       return;
     }
 
@@ -620,7 +620,7 @@ method is not updated in this file
     void renderOptions;
 
     if (scene.camera === null || scene.voxelGrid === null) {
-      VsdkError.fatal(-1, "PhotonMapRadianceMethod::doStep", "Scene camera/voxel grid not available");
+      VsdkLogger.fatal(-1, "PhotonMapRadianceMethod::doStep", "Scene camera/voxel grid not available");
       return false;
     }
 
@@ -784,7 +784,7 @@ Returns the radiance emitted in the node related direction
         break;
       default:
         radiance.clear();
-        VsdkError.error("photonMapGetRadiance", "Unknown radiance return");
+        VsdkLogger.error("photonMapGetRadiance", "Unknown radiance return");
     }
 
     return radiance;

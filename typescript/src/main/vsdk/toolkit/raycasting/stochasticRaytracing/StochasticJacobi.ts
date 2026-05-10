@@ -10,7 +10,7 @@ TODO: lines and line bundles.
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -187,7 +187,7 @@ Returns true if success, that is: sum of sampling probabilities is nonzero
     StochasticJacobi.stochasticJacobiElementSetup(ElementHierarchyState.activeState().topCluster as Element);
 
     if (StochasticJacobi.sumOfProbabilities < Numeric.EPSILON * Numeric.EPSILON) {
-      VsdkError.warning("Iteration", "No sources");
+      VsdkLogger.warning("Iteration", "No sources");
       return false;
     }
     return true;
@@ -360,7 +360,7 @@ Transfer radiance from src to rcv.
     else {
       switch (ElementHierarchyState.activeState().clustering) {
         case HierarchyClusteringMode.NO_CLUSTERING:
-          VsdkError.fatal(
+          VsdkLogger.fatal(
             -1,
             "Propagate",
             "Hierarchy::hierarchyRefine() returns cluster although clustering is disabled.\n"
@@ -385,7 +385,7 @@ Transfer radiance from src to rcv.
           }
           break;
         default:
-          VsdkError.fatal(
+          VsdkLogger.fatal(
             -1,
             "Propagate",
             "Invalid clustering mode %d\n",
@@ -421,7 +421,7 @@ Idem but for importance
 
     if (ElementHierarchyState.activeState().do_h_meshing !== 0 ||
       ElementHierarchyState.activeState().clustering !== HierarchyClusteringMode.NO_CLUSTERING) {
-      VsdkError.fatal(
+      VsdkLogger.fatal(
         -1,
         "Propagate",
         "Importance propagation not implemented in combination with hierarchical refinement"

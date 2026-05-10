@@ -1,6 +1,6 @@
 import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { KDTree } from "../../common/dataStructures/KDTree";
 import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
@@ -284,7 +284,7 @@ Adding photons, returns if photon was added
       return 0.5 * (1.0 + globalThis.Math.cos(ratio * globalThis.Math.PI));
     }
 
-    VsdkError.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
+    VsdkLogger.error("PhotonMap::computeAcceptProb", "Unknown accept pdf type");
     return 0.0;
   }
 

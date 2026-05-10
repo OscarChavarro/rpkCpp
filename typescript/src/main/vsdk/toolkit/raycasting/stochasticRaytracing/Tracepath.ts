@@ -3,7 +3,7 @@ Random walk generation
 */
 
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -164,7 +164,7 @@ Traces 'numberOfPaths' paths with given birth probabilities
       Coefficientsmcrad.stochasticRadiosityClearCoefficients(McradP.getTopLevelPatchReceivedRad(patch), McradP.getTopLevelPatchBasis(patch));
     }
     if (Tracepath.sumProbabilities < Numeric.EPSILON) {
-      VsdkError.warning("tracePaths", "No sources");
+      VsdkLogger.warning("tracePaths", "No sources");
       return;
     }
 

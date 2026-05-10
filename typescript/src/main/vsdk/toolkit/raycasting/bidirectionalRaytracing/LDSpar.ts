@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Spar } from "./Spar";
 import { SparConfig } from "./SparConfig";
@@ -13,7 +13,7 @@ export class LDSpar extends Spar {
     }
 
     if (radianceMethod === null) {
-      VsdkError.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
+      VsdkLogger.error("CLDSpar::mainInitApplication", "Galerkin Radiance method not active !");
     }
 
     if (sparConfig.baseConfig.doLD !== 0) {

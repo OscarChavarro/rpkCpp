@@ -1,5 +1,5 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vertex } from "../../skin/Vertex";
@@ -59,7 +59,7 @@ export class ElementHierarchyState {
 
   public static activeState(): ElementHierarchyState {
     if (ElementHierarchyState.activeStatePtr === null) {
-      VsdkError.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
+      VsdkLogger.fatal(-1, "ElementHierarchyState::activeState", "Element hierarchy state was not initialized");
     }
     return ElementHierarchyState.activeStatePtr!;
   }

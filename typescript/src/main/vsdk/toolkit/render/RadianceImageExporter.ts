@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -31,7 +31,7 @@ export class RadianceImageExporter {
     }
 
     if (toneMapOptions === null) {
-      Error.error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
+      Logger.error("RadianceImageExporter::exportImage", "Tone mapping context not provided for image export");
       return;
     }
 
@@ -42,7 +42,7 @@ export class RadianceImageExporter {
     const height = [0];
     idRenderer.getSize(width, height);
     if (width[0] !== screenBuffer.getHRes() || height[0] !== screenBuffer.getVRes()) {
-      Error.error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
+      Logger.error("RadianceImageExporter::exportImage", "ID buffer size does not match screen size");
       return;
     }
 

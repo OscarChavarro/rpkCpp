@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";
@@ -431,7 +431,7 @@ export class GalerkinElement extends Element {
       return;
     }
     if (this.isCluster()) {
-      VsdkError.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
+      VsdkLogger.fatal(-1, "galerkinElementPolygon", "Cannot use this function for cluster elements");
       return;
     }
     if (this.patch === null) {

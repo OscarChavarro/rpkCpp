@@ -1,6 +1,6 @@
 import { Cie } from "../common/color/Cie";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Statistics } from "../common/statistics/Statistics";
 import { BsdfComponent } from "../material/BsdfComponent";
@@ -162,7 +162,7 @@ export class Adaptation {
         break;
       }
       default:
-        VsdkError.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
+        VsdkLogger.error("sceneBuilderComputeStats", "unknown static adaptation method %s", toneMapOptions.staticAdaptationMethod);
     }
   }
 

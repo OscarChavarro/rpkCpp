@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -25,7 +25,7 @@ export class PhongEmittanceDistributionFunction {
     this.kd.scaledCopy(1.0 / globalThis.Math.PI, this.Kd);
     this.Ks = new ColorRgb(KsParameter.r, KsParameter.g, KsParameter.b);
     if (!this.Ks.isBlack()) {
-      VsdkError.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
+      VsdkLogger.warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
     this.Ns = NsParameter;
   }
@@ -134,7 +134,7 @@ export class PhongEmittanceDistributionFunction {
     PhongEmittanceDistributionFunction.setOut(probabilityDensityFunction, 0.0);
 
     if (!hitOrContext.hasFlag(RayHitFlag.NORMAL)) {
-      VsdkError.warning("phongEdfEval", "Couldn't determine shading normal");
+      VsdkLogger.warning("phongEdfEval", "Couldn't determine shading normal");
       return result;
     }
     normal.copy(hitOrContext.getShadingNormal());
@@ -208,7 +208,7 @@ export class PhongEmittanceDistributionFunction {
       const coord = new CoordinateSystem();
       const normal = new Vector3D();
       if (!hitOrContext.hasFlag(RayHitFlag.NORMAL)) {
-        VsdkError.warning("phongEdfEval", "Couldn't determine shading normal");
+        VsdkLogger.warning("phongEdfEval", "Couldn't determine shading normal");
         return dir;
       }
       normal.copy(hitOrContext.getShadingNormal());

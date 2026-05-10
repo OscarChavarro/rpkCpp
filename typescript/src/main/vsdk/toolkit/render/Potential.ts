@@ -1,4 +1,4 @@
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 import { RenderOptions } from "../common/RenderOptions";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
@@ -65,7 +65,7 @@ export class Potential {
     }
 
     if (lostPixels > 0) {
-      Error.warning(null, "%d lost pixels", lostPixels);
+      Logger.warning(null, "%d lost pixels", lostPixels);
     }
 
     const statistics = Statistics.instance();

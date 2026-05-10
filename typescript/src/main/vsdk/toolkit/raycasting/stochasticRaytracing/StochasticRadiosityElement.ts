@@ -4,7 +4,7 @@ Monte Carlo radiosity element type
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -354,7 +354,7 @@ The point is transformed to the corresponding point on the sub-element
         }
         break;
       default:
-        VsdkError.fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
+        VsdkLogger.fatal(-1, "galerkinElementRegularSubElementAtPoint", "Can handle only triangular or quadrilateral elements");
         break;
     }
 
@@ -516,7 +516,7 @@ found.
               v = (neighbour.regularSubElements[2] as StochasticRadiosityElement).vertices[0]!;
               break;
             default:
-              VsdkError.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+              VsdkLogger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
               break;
           }
           break;
@@ -535,12 +535,12 @@ found.
               v = (neighbour.regularSubElements[2] as StochasticRadiosityElement).vertices[0]!;
               break;
             default:
-              VsdkError.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
+              VsdkLogger.error("EdgeMidpointVertex", "Invalid vertex index %d", index);
               break;
           }
           break;
         default:
-          VsdkError.fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
+          VsdkLogger.fatal(-1, "EdgeMidpointVertex", "only triangular and quadrilateral elements are supported");
           break;
       }
     }
@@ -573,7 +573,7 @@ Only for surface elements
 */
   public static stochasticRadiosityElementIsTextured(elem: StochasticRadiosityElement): boolean {
     if (elem.isCluster()) {
-      VsdkError.fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
+      VsdkLogger.fatal(-1, "stochasticRadiosityElementIsTextured", "this routine should not be called for cluster elements");
       return false;
     }
     const mat = elem.patch!.material;
@@ -778,12 +778,12 @@ done so before. Returns the list of created sub-elements
     }
 
     if (element.isCluster()) {
-      VsdkError.fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
+      VsdkLogger.fatal(-1, "galerkinElementRegularSubDivide", "Cannot regularly subdivide cluster elements");
       return null;
     }
 
     if (element.patch!.jacobian !== null) {
-      VsdkError.warning(
+      VsdkLogger.warning(
         "galerkinElementRegularSubDivide",
         "irregular quadrilateral patches are not correctly handled (but you probably will not notice it)"
       );
@@ -798,7 +798,7 @@ done so before. Returns the list of created sub-elements
         StochasticRadiosityElement.monteCarloRadiosityRegularSubdivideQuad(element, renderOptions);
         break;
       default:
-        VsdkError.fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
+        VsdkLogger.fatal(-1, "galerkinElementRegularSubDivide", "invalid element: not 3 or 4 vertices");
         break;
     }
     return StochasticRadiosityElement.castElementArray(element.regularSubElements);
@@ -876,7 +876,7 @@ done so before. Returns the list of created sub-elements
       );
     }
     else {
-      VsdkError.fatal(
+      VsdkLogger.fatal(
         -1,
         "stochasticRadiosityElementPushRadiance",
         "Not implemented for higher order approximations on irregular child elements or for different parent and child basis"
@@ -908,7 +908,7 @@ done so before. Returns the list of created sub-elements
       );
     }
     else {
-      VsdkError.fatal(
+      VsdkLogger.fatal(
         -1,
         "stochasticRadiosityElementPullRadiance",
         "Not implemented for higher order approximations on irregular child elements or for different parent and child basis"
@@ -951,7 +951,7 @@ done so before. Returns the list of created sub-elements
         break;
       }
       default:
-        VsdkError.fatal(
+        VsdkLogger.fatal(
           -1,
           "stochasticRadiosityElementColor",
           "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
@@ -1036,7 +1036,7 @@ Same as above but for importance
         break;
       }
       default:
-        VsdkError.fatal(
+        VsdkLogger.fatal(
           -1,
           "vertexColor",
           "Do not know what to display (StochasticRelaxation::activeState().show = %d)",
@@ -1118,7 +1118,7 @@ Compute new vertex colors
             radiance.interpolateBiLinear(rad[0], rad[1], rad[2], rad[3], u, v);
             break;
           default:
-            VsdkError.fatal(
+            VsdkLogger.fatal(
               -1,
               "stochasticRadiosityElementDisplayRadianceAtPoint",
               "can only handle triangular or quadrilateral elements"

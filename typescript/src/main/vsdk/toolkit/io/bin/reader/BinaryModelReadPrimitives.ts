@@ -1,6 +1,6 @@
 import { InputStream } from "../../../../../java/io/InputStream";
 import { ColorRgb } from "../../../common/color/ColorRgb";
-import { Error } from "../../../common/Error";
+import { Logger } from "../../../common/logging/Logger";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
 import { BoundingBox } from "../../../skin/BoundingBox";
@@ -62,7 +62,7 @@ export class BinaryModelReadPrimitives {
   }
 
   public static reportReadError(routine: string, message: string): boolean {
-    Error.error(routine, "%s", message);
+    Logger.error(routine, "%s", message);
     return false;
   }
 
@@ -74,7 +74,7 @@ export class BinaryModelReadPrimitives {
       );
     }
     if (count < 0) {
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::initializeArrayList",
         "Negative count while reading binary model (%s)",
         what
@@ -105,7 +105,7 @@ export class BinaryModelReadPrimitives {
     }
 
     if (length > buffer.length) {
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::readBytes",
         "Requested length exceeds destination buffer"
       );
@@ -117,7 +117,7 @@ export class BinaryModelReadPrimitives {
       for (let i = offset; i < length; i++) {
         buffer[i] = 0;
       }
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::readBytes",
         "could not read requested length (%d/%d)",
         offset,
@@ -233,7 +233,7 @@ export class BinaryModelReadPrimitives {
 
     count[0] = BinaryModelReadPrimitives.readInt32LE(input);
     if (count[0] < 0) {
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::readNonNegativeCount",
         "Negative count while reading binary model (%s)",
         what
@@ -394,7 +394,7 @@ export class BinaryModelReadPrimitives {
       return true;
     }
     if (count < -1) {
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::readIndexList",
         "Negative index list count while reading binary model (%s)",
         what
@@ -430,7 +430,7 @@ export class BinaryModelReadPrimitives {
     }
 
     if (values === null || index < 0 || index >= values.length) {
-      Error.error(
+      Logger.error(
         "BinaryModelReadPrimitives::pointerFromIndex",
         "Out of range index while reading binary model (%s)",
         what

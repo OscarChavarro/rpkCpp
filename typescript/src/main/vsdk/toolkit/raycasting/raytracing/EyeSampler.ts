@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RayHitFlag } from "../../skin/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
@@ -28,7 +28,7 @@ export class EyeSampler extends Sampler {
     void flags;
 
     if (prevNode !== null || thisNode !== null) {
-      VsdkError.warning("EyeSampler::sample", "Not first node in path ?!");
+      VsdkLogger.warning("EyeSampler::sample", "Not first node in path ?!");
     }
 
     newNode.m_depth = 0;

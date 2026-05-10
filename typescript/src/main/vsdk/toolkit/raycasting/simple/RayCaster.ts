@@ -5,7 +5,7 @@ a software frame buffer directly.
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
@@ -30,7 +30,7 @@ export class RayCaster extends RayTracer {
   public constructor(inScreen: ScreenBuffer | null, defaultCamera: Camera | null, toneMapOptions: ToneMappingContext) {
     super();
     if (defaultCamera === null) {
-      VsdkError.fatal(-1, "RayCaster::constructor", "Default camera not set");
+      VsdkLogger.fatal(-1, "RayCaster::constructor", "Default camera not set");
     }
 
     if (inScreen === null) {
@@ -159,7 +159,7 @@ export class RayCaster extends RayTracer {
     renderOptions: RenderOptions
   ): void {
     if (scene.camera === null) {
-      VsdkError.fatal(-1, "RayCaster::render", "Scene camera not set");
+      VsdkLogger.fatal(-1, "RayCaster::render", "Scene camera not set");
       return;
     }
 
@@ -172,7 +172,7 @@ export class RayCaster extends RayTracer {
     const height = [0];
     idRenderer.getSize(width, height);
     if (width[0] !== this.screenBuffer.getHRes() || height[0] !== this.screenBuffer.getVRes()) {
-      VsdkError.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
+      VsdkLogger.fatal(-1, "RayCaster::render", "ID buffer size doesn't match screen size");
     }
 
     // This is the main loop for ray-casting

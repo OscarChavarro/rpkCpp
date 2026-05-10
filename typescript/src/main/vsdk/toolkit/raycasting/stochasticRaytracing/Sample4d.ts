@@ -2,7 +2,7 @@
 4D vector sampling
 */
 
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Faure } from "../../numericalAnalysis/quasiMonteCarlo/Faure";
 import { Halton } from "../../numericalAnalysis/quasiMonteCarlo/Halton";
 import { Niederreiter31 } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter31";
@@ -115,7 +115,7 @@ current sequence is 'random', the index is not used
         xi[3] = zeta[3] * Niederreiter31.RECIP;
         break;
       default:
-        VsdkError.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", Sample4d.sequenceName(Sample4d.seq));
+        VsdkLogger.fatal(-1, "Sample4d::sample4D", "QMC Sequence %s not yet implemented", Sample4d.sequenceName(Sample4d.seq));
         break;
     }
 

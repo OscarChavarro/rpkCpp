@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
 import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -63,7 +63,7 @@ export class RayHit {
     let success = false;
 
     if (!this.hitInitialised()) {
-      VsdkError.warning("pointShadingFrame", "uninitialised hit structure");
+      VsdkLogger.warning("pointShadingFrame", "uninitialised hit structure");
       return false;
     }
 

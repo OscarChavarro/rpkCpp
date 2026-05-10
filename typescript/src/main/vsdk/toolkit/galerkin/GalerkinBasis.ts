@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error as VsdkError } from "../common/Error";
+import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";
 import { CubatureRule } from "../numericalAnalysis/CubatureRule";
@@ -75,7 +75,7 @@ export class GalerkinBasis {
     }
 
     if (sigma < 0 || sigma > 3) {
-      VsdkError.error("GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
+      VsdkLogger.error("GalerkinBasis::push", "Not yet implemented for non-regular subdivision");
       ColorRgb.arrayClear(childCoefficients, child.basisSize);
       childCoefficients[0].set(parentCoefficients[0].r, parentCoefficients[0].g, parentCoefficients[0].b);
       return;
@@ -160,7 +160,7 @@ export class GalerkinBasis {
     }
 
     if (sigma < 0 || sigma > 3) {
-      VsdkError.error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
+      VsdkLogger.error("stochasticJacobiPull", "Not yet implemented for non-regular subdivision");
       ColorRgb.arrayClear(parentCoefficients, parent.basisSize);
       parentCoefficients[0] = childCoefficients[0];
       return;

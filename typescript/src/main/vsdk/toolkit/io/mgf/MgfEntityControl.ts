@@ -1,7 +1,7 @@
 import { File } from "../../../../java/io/File";
 import { FileInputStream } from "../../../../java/io/FileInputStream";
 import { InputStream } from "../../../../java/io/InputStream";
-import { Error } from "../../common/Error";
+import { Logger } from "../../common/logging/Logger";
 import { LookUpEntity } from "../../common/dataStructures/LookUpEntity";
 import { EntityTypeContext } from "../context/EntityTypeContext";
 import { FilePositionContext } from "../context/FilePositionContext";
@@ -61,14 +61,14 @@ export class MgfEntityControl {
     const readerContext = context.readerContext;
     const fileName = readerContext?.fileName ?? "<unknown>";
     const lineNumber = readerContext?.lineNumber ?? 0;
-    Error.error(null, "%s line %d: %s", fileName, lineNumber, errmsg);
+    Logger.error(null, "%s line %d: %s", fileName, lineNumber, errmsg);
   }
 
   public static doWarning(errmsg: string, context: ParseRuntimeContext): void {
     const readerContext = context.readerContext;
     const fileName = readerContext?.fileName ?? "<unknown>";
     const lineNumber = readerContext?.lineNumber ?? 0;
-    Error.warning(null, "%s line %d: %s", fileName, lineNumber, errmsg);
+    Logger.warning(null, "%s line %d: %s", fileName, lineNumber, errmsg);
   }
 
   /**

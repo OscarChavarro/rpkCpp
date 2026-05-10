@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { BsdfComponent } from "../../material/BsdfComponent";
@@ -120,18 +120,18 @@ export class SamplerConfig {
 
     if (lastNode === null) {
       if (this.pointSampler === null) {
-        VsdkError.warning("SamplerConfig::traceNode", "Point sampler not configured");
+        VsdkLogger.warning("SamplerConfig::traceNode", "Point sampler not configured");
         return null;
       }
       if (!this.pointSampler.sample(camera, sceneVoxelGrid, sceneBackground, null, null, nextNode, x1, x2)) {
-        VsdkError.warning("SamplerConfig::traceNode", "Point sampler failed");
+        VsdkLogger.warning("SamplerConfig::traceNode", "Point sampler failed");
         return null;
       }
     }
     else if (lastNode.m_depth === 0) {
       if (lastNode.m_depth + 1 < this.maxDepth) {
         if (this.dirSampler === null) {
-          VsdkError.warning("SamplerConfig::traceNode", "Direction sampler not configured");
+          VsdkLogger.warning("SamplerConfig::traceNode", "Direction sampler not configured");
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }
@@ -148,7 +148,7 @@ export class SamplerConfig {
     else {
       if (lastNode.m_depth + 1 < this.maxDepth) {
         if (this.surfaceSampler === null) {
-          VsdkError.warning("SamplerConfig::traceNode", "Surface sampler not configured");
+          VsdkLogger.warning("SamplerConfig::traceNode", "Surface sampler not configured");
           lastNode.m_rayType = PathRayType.STOPS;
           return null;
         }

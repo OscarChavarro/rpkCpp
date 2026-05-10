@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { BsdfComponent } from "../../material/BsdfComponent";
@@ -29,7 +29,7 @@ export class LightDirSampler extends Sampler {
     const pdfDir = [0.0];
 
     if (thisNode === null || thisNode.m_hit.getMaterial() === null || thisNode.m_hit.getMaterial()!.getEdf() === null) {
-      VsdkError.error("CLightDirSampler::sample", "No EDF");
+      VsdkLogger.error("CLightDirSampler::sample", "No EDF");
       return false;
     }
 
@@ -79,7 +79,7 @@ export class LightDirSampler extends Sampler {
     let pdfDir: number;
 
     if (thisNode.m_hit.getMaterial() === null || thisNode.m_hit.getMaterial()!.getEdf() === null) {
-      VsdkError.error("CLightDirSampler::evalPdf", "No EDF");
+      VsdkLogger.error("CLightDirSampler::evalPdf", "No EDF");
       return 0.0;
     }
 

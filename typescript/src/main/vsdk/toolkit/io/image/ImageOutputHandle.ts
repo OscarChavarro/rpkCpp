@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error } from "../../common/Error";
+import { Logger } from "../../common/logging/Logger";
 import { ToneMap } from "../../tonemap/ToneMap";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 
@@ -88,7 +88,7 @@ export class ImageOutputHandle {
 
   public writeRadianceRGB(rgbRadiance: ColorRgb[]): number {
     if (this.toneMapOptions === null) {
-      Error.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
+      Logger.fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
 
     const rgb = new Uint8Array(3 * this.width);
@@ -161,7 +161,7 @@ export class ImageOutputHandle {
       }
       if (ImageOutputHandle.extensionMatches(fileExtension, "pic")) {
         if (isPipe !== 0) {
-          Error.error(
+          Logger.error(
             "createRadianceImageOutputHandle",
             "Can't write PIC output to a pipe.\n"
           );
@@ -172,7 +172,7 @@ export class ImageOutputHandle {
         return new module.PicOutputHandle(fileName === null ? "" : fileName, width, height);
       }
 
-      Error.error(
+      Logger.error(
         "createRadianceImageOutputHandle",
         "Can't save high dynamic range image to a '%s' file, format not supported.",
         fileExtension
@@ -197,7 +197,7 @@ export class ImageOutputHandle {
         return new module.PPMOutputHandle(outputStream, width, height);
       }
 
-      Error.error(
+      Logger.error(
         "createImageOutputHandle",
         "Can't save display-RGB images to a '%s' file, format not supported.\n",
         fileExtension

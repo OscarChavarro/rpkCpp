@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { GalerkinClusteringStrategy } from "../GalerkinClusteringStrategy";
@@ -63,7 +63,7 @@ export class ClusterTraversalStrategy {
       case GalerkinClusteringStrategy.Z_VISIBILITY:
         return (sourceElement.radiance as ColorRgb[])[0];
       default:
-        VsdkError.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
+        VsdkLogger.fatal(-1, "clusterRadianceToSamplePoint", "Invalid clustering strategy %s\n", galerkinState.clusteringStrategy);
         return new ColorRgb();
     }
   }
@@ -72,7 +72,7 @@ export class ClusterTraversalStrategy {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (sourceElement === null || receiverElement === null || !sourceElement.isCluster() || sourceElement === receiverElement) {
-      VsdkError.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
+      VsdkLogger.fatal(-1, "sourceClusterRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
     return ClusterTraversalStrategy.clusterRadianceToSamplePoint(sourceElement, receiverElement.midPoint(), galerkinState);
   }
@@ -120,7 +120,7 @@ export class ClusterTraversalStrategy {
       case GalerkinClusteringStrategy.Z_VISIBILITY:
         return receiverElement.area;
       default:
-        VsdkError.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+        VsdkLogger.fatal(-1, "receiverArea", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
         return receiverElement.area;
     }
   }
@@ -155,7 +155,7 @@ export class ClusterTraversalStrategy {
     const sourceElement = link.sourceElement;
     const receiverElement = link.receiverElement;
     if (!receiverElement.isCluster() || sourceElement === receiverElement) {
-      VsdkError.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
+      VsdkLogger.fatal(-1, "gatherRadiance", "Source and receiver are the same or receiver is not a cluster");
     }
 
     const samplePoint = sourceElement.midPoint();
@@ -177,7 +177,7 @@ export class ClusterTraversalStrategy {
         break;
       }
       default:
-        VsdkError.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
+        VsdkLogger.fatal(-1, "gatherRadiance", "Invalid clustering strategy %s", galerkinState.clusteringStrategy);
     }
   }
 

@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -83,7 +83,7 @@ export class Camera {
 
     this.viewDistance = this.Z.norm();
     if (this.viewDistance < Numeric.EPSILON) {
-      Error.error("SetCamera", "eye point and look-point coincide");
+      Logger.error("SetCamera", "eye point and look-point coincide");
       return null;
     }
     this.Z.inverseScaledCopy(this.viewDistance, this.Z, Numeric.EPSILON_FLOAT);
@@ -91,7 +91,7 @@ export class Camera {
     this.X.crossProduct(this.Z, this.upDirection);
     const n = this.X.norm();
     if (n < Numeric.EPSILON) {
-      Error.error("SetCamera", "up-direction and viewing direction coincide");
+      Logger.error("SetCamera", "up-direction and viewing direction coincide");
       return null;
     }
     this.X.inverseScaledCopy(n, this.X, Numeric.EPSILON_FLOAT);

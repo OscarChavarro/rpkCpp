@@ -1,4 +1,4 @@
-import { Error } from "../common/Error";
+import { Logger } from "../common/logging/Logger";
 
 export class Canvas {
   private static readonly CANVAS_MODE_STACK_SIZE = 5;
@@ -10,14 +10,14 @@ export class Canvas {
   public static canvasPushMode(): void {
     Canvas.modeStackIndex++;
     if (Canvas.modeStackIndex >= Canvas.CANVAS_MODE_STACK_SIZE) {
-      Error.fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", Canvas.CANVAS_MODE_STACK_SIZE);
+      Logger.fatal(4, "canvasPushMode", "Mode stack size (%d) exceeded.", Canvas.CANVAS_MODE_STACK_SIZE);
     }
   }
 
   public static canvasPullMode(): void {
     Canvas.modeStackIndex--;
     if (Canvas.modeStackIndex < 0) {
-      Error.fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
+      Logger.fatal(4, "canvasPullMode", "Canvas mode stack underflow.\n");
     }
   }
 }

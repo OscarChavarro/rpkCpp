@@ -1,4 +1,4 @@
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
@@ -67,7 +67,7 @@ export class LinkingSimpleStrategy {
         sourceElement = topLevelElement;
         break;
       default:
-        VsdkError.fatal(2, "createInitialLink", "Impossible element role");
+        VsdkLogger.fatal(2, "createInitialLink", "Impossible element role");
         return;
     }
 
@@ -232,7 +232,7 @@ export class LinkingSimpleStrategy {
     }
 
     if ((topElement.flags & ElementFlags.IS_CLUSTER_MASK) !== 0) {
-      VsdkError.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
+      VsdkLogger.fatal(-1, "createInitialLinks", "cannot use this routine for cluster elements");
       return;
     }
     if (topElement.patch === null) {

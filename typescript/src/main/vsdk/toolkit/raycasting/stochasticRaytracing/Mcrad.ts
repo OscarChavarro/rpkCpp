@@ -4,7 +4,7 @@ Monte Carlo radiosity
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Error as VsdkError } from "../../common/Error";
+import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { RenderOptions } from "../../common/RenderOptions";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -446,7 +446,7 @@ Undoes the effect of mainInitApplication() and all side-effects of Step()
           Mcrad.cachedRd.interpolateBiLinear(Mcrad.vrd[0], Mcrad.vrd[1], Mcrad.vrd[2], Mcrad.vrd[3], u, v);
           break;
         default:
-          VsdkError.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf.numberOfVertices);
+          VsdkLogger.fatal(-1, "monteCarloRadiosityInterpolatedReflectanceAtPoint", "Invalid nr of vertices %d", leaf.numberOfVertices);
           break;
       }
     }
