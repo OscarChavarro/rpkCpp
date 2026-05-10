@@ -100,10 +100,10 @@ src/app/options/OptionsGroupStochasticRelaxationRadiosity.cpp,src/app/options/OP
 src/app/options/OptionsGroupStochasticRelaxationRadiosity.h,src/app/options/OPGRSTRE.H,OptionsGroupStochasticRelaxationRadiosity.h,OPGRSTRE.H
 src/app/options/OptionsGroupToneMapping.cpp,src/app/options/OPGRTOMA.CPP,OptionsGroupToneMapping.cpp,OPGRTOMA.CPP
 src/app/options/OptionsGroupToneMapping.h,src/app/options/OPGRTOMA.H,OptionsGroupToneMapping.h,OPGRTOMA.H
-src/common/Cie.cpp,src/common/CIECIEFI.CPP,Cie.cpp,CIECIEFI.CPP
-src/common/Cie.h,src/common/CIECIEFI.H,Cie.h,CIECIEFI.H
-src/common/ColorRgb.cpp,src/common/CORGLORB.CPP,ColorRgb.cpp,CORGLORB.CPP
-src/common/ColorRgb.h,src/common/CORGLORB.H,ColorRgb.h,CORGLORB.H
+src/common/color/Cie.cpp,src/common/CIECIEFI.CPP,Cie.cpp,CIECIEFI.CPP
+src/common/color/Cie.h,src/common/CIECIEFI.H,Cie.h,CIECIEFI.H
+src/common/color/ColorRgb.cpp,src/common/CORGLORB.CPP,ColorRgb.cpp,CORGLORB.CPP
+src/common/color/ColorRgb.h,src/common/CORGLORB.H,ColorRgb.h,CORGLORB.H
 src/common/CppReAlloc.cpp,src/common/CPREALPL.CPP,CppReAlloc.cpp,CPREALPL.CPP
 src/common/CppReAlloc.h,src/common/CPREALPL.H,CppReAlloc.h,CPREALPL.H
 src/common/Error.cpp,src/common/ERRORERR.CPP,Error.cpp,ERRORERR.CPP

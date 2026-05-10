@@ -5,7 +5,7 @@
 #ifndef __RENDER_OPTIONS__
 #define __RENDER_OPTIONS__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 /**
 If this is undefined, the raytracing code can be trimmed as follows:

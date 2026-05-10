@@ -5,6 +5,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/Error.h"
+#include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/ToneMap.h"
@@ -615,8 +616,8 @@ SceneBuilder::sceneBuilderReadFile(
 
     Statistics::instance().reader.numberOfPatches = Statistics::instance().reader.numberOfElements;
     SceneBuilder::sceneBuilderComputeStats(scene);
-    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - Statistics::instance().radiance.averageReflectivity.gray()) *
-                                                   Statistics::instance().radiance.estimatedAverageRadiance.luminance());
+    Statistics::instance().radiance.referenceLuminance = 5.42 * ((1.0 - Cie::spectrumGray(Statistics::instance().radiance.averageReflectivity.r, Statistics::instance().radiance.averageReflectivity.g, Statistics::instance().radiance.averageReflectivity.b)) *
+                                                   Cie::spectrumLuminance(Statistics::instance().radiance.estimatedAverageRadiance.r, Statistics::instance().radiance.estimatedAverageRadiance.g, Statistics::instance().radiance.estimatedAverageRadiance.b));
 
     t = System::nanoTime();
     System::err.printf(
@@ -644,11 +645,11 @@ SceneBuilder::sceneBuilderReadFile(
            "         radiance.maxSelfEmittedPower ..............: %f W\n"
            "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
            "         totalArea ........................: %f m2\n",
-           Statistics::instance().radiance.totalEmittedPower.gray(),
-           Statistics::instance().radiance.estimatedAverageRadiance.gray(),
-           Statistics::instance().radiance.averageReflectivity.gray(),
-           Statistics::instance().radiance.maxSelfEmittedRadiance.gray(),
-           Statistics::instance().radiance.maxSelfEmittedPower.gray(),
+           Cie::spectrumGray(Statistics::instance().radiance.totalEmittedPower.r, Statistics::instance().radiance.totalEmittedPower.g, Statistics::instance().radiance.totalEmittedPower.b),
+           Cie::spectrumGray(Statistics::instance().radiance.estimatedAverageRadiance.r, Statistics::instance().radiance.estimatedAverageRadiance.g, Statistics::instance().radiance.estimatedAverageRadiance.b),
+           Cie::spectrumGray(Statistics::instance().radiance.averageReflectivity.r, Statistics::instance().radiance.averageReflectivity.g, Statistics::instance().radiance.averageReflectivity.b),
+           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedRadiance.r, Statistics::instance().radiance.maxSelfEmittedRadiance.g, Statistics::instance().radiance.maxSelfEmittedRadiance.b),
+           Cie::spectrumGray(Statistics::instance().radiance.maxSelfEmittedPower.r, Statistics::instance().radiance.maxSelfEmittedPower.g, Statistics::instance().radiance.maxSelfEmittedPower.b),
            toneMapOptions.realWorldAdaptionLuminance,
            Statistics::instance().radiance.totalArea);
     //scene->print();

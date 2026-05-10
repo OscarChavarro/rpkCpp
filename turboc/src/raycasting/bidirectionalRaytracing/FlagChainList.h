@@ -1,7 +1,7 @@
 #ifndef __FLAG_CHAIN_LIST__
 #define __FLAG_CHAIN_LIST__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/dataStructures/CircularList.h"
 #include "raycasting/bidirectionalRaytracing/BiPath.h"
 

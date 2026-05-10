@@ -5,7 +5,7 @@
 #ifndef CMMND_LINE_TONE_MAP_OPTNS_GRP
 #define CMMND_LINE_TONE_MAP_OPTNS_GRP
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "tonemap/ToneMappingContext.h"
 

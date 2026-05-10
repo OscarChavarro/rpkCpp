@@ -6,7 +6,7 @@
 #define CMMND_LINE_CORE_OPTNS_GRP
 
 #include "app/options/EnumBackgroundMode.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "scene/Scene.h"

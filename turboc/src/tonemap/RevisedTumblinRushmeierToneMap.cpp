@@ -37,7 +37,7 @@ RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
-    float rwl = radiance.luminance();
+    float rwl = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
     float scale;
 
     if ( rwl > 0.0 ) {
@@ -53,7 +53,7 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
 
 ColorRgb
 RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
-    float rwl = ((float)(M_PI)) * radiance.luminance();
+    float rwl = ((float)(M_PI)) * Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
     float eff = Cie::getLuminousEfficacy();
     radiance.scale(eff * ((float)(M_PI)));
 

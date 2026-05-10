@@ -2,7 +2,7 @@
 #define __PHOTON_CLASS__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "material/Xxdf.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 

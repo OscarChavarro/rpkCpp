@@ -1,7 +1,7 @@
 #ifndef BNRY_MDL_RDR_VRTX_RCRD
 #define BNRY_MDL_RDR_VRTX_RCRD
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "io/bin/reader/BinaryModelIndexListRef.h"
 
 class BinaryModelVertexRecordData {

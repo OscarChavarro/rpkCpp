@@ -1,7 +1,7 @@
 #ifndef BNRY_MDL_RDR_PTCH_RCRD
 #define BNRY_MDL_RDR_PTCH_RCRD
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/Patch.h"
 

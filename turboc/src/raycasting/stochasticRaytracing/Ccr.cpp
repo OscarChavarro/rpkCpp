@@ -313,7 +313,7 @@ Ccr::determineControlRadiosity(
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(&System::err);
-    System::err.printf(" (%g lux)", M_PI * beta.luminance());
+    System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.r, beta.g, beta.b));
     System::err.printf("\n");
     return beta;
 }

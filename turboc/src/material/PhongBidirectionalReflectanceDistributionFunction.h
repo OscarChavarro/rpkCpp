@@ -2,7 +2,7 @@
 #define PHNG_BDRCT_RFLCT_DSTRB_FNCTN
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 /**
 BRDF evaluation functions :

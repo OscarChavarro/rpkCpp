@@ -5,7 +5,7 @@
 #ifndef __TONE_MAPPING_CONTEXT_H
 #define __TONE_MAPPING_CONTEXT_H
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
 
 class ToneMappingContext {

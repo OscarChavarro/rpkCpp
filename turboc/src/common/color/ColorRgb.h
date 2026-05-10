@@ -2,7 +2,7 @@
 #define __COLOR__
 
 #include "java/io/PrintStream.h"
-#include "common/Cie.h"
+#include "common/color/Cie.h"
 
 /**
 Representation of radiance, radiosity, power, spectra
@@ -37,8 +37,6 @@ class ColorRgb {
     void maximum(ColorRgb s, ColorRgb t);
     void minimum(ColorRgb s, ColorRgb t);
     float average() const;
-    float gray() const;
-    float luminance() const;
     void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v);
     void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
     void clip();

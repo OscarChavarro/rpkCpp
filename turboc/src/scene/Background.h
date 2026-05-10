@@ -2,7 +2,7 @@
 #define __BACKGROUND__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "skin/Patch.h"
 

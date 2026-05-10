@@ -9,7 +9,7 @@ A chain list is a set of scattering modes
 #ifndef __FLAG_CHAIN__
 #define __FLAG_CHAIN__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/dataStructures/CircularList.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"

@@ -512,9 +512,9 @@ GalerkinRadianceMethod::getStats() const {
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Statistics::instance().radiance.maxSelfEmittedRadiance.luminance()) :
+                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.r, Statistics::instance().radiance.maxSelfEmittedRadiance.g, Statistics::instance().radiance.maxSelfEmittedRadiance.b)) :
                    galerkinState.relLinkErrorThreshold *
-                   Statistics::instance().radiance.maxSelfEmittedPower.luminance()),
+                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.r, Statistics::instance().radiance.maxSelfEmittedPower.g, Statistics::instance().radiance.maxSelfEmittedPower.b)),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

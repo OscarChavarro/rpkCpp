@@ -365,7 +365,7 @@ RandomWalkRadianceMethod::rndmWalkRadDetGthrnCtrlRad(const ArrayList<Patch *> *s
     cr.divide(c1, c2);
     System::err.printf("Control radiosity value = ");
     cr.print(&System::err);
-    System::err.printf(", luminosity = %g\n", cr.luminance());
+    System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.r, cr.g, cr.b));
 
     return cr;
 }

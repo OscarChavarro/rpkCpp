@@ -1,5 +1,5 @@
 #include <string.h>
-#include <cstrings>
+#include <strings.h>
 
 #include "common/commandLineOptions/OptionParser.h"
 #include "common/commandLineOptions/TypedOption.h"

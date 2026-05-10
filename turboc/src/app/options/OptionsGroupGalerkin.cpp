@@ -1,4 +1,4 @@
-#include <cstrings>
+#include <strings.h>
 
 #include "common/Error.h"
 #include "galerkin/GalerkinRadianceMethod.h"

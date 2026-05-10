@@ -46,8 +46,8 @@ set(MAIN_SRC
     src/java/io/PrintStream.cpp
     src/common/Error.cpp
     src/common/CppReAlloc.cpp
-    src/common/ColorRgb.cpp
-    src/common/Cie.cpp
+    src/common/color/ColorRgb.cpp
+    src/common/color/Cie.cpp
     src/common/RenderOptions.cpp
     src/common/StratifiedSampling2D.cpp
     src/common/statistics/Statistics.cpp

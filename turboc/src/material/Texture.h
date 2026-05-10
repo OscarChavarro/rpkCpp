@@ -1,7 +1,7 @@
 #ifndef __TEXTURE__
 #define __TEXTURE__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 
 class Texture {
   private:

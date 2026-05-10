@@ -11,7 +11,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #ifndef PHNG_BDRCT_SCTTR_DSTRB_FNCTN
 #define PHNG_BDRCT_SCTTR_DSTRB_FNCTN
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "common/RenderOptions.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"

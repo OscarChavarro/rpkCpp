@@ -7,6 +7,7 @@ Estimate static adaptation for tone mapping
 #include "java/lang/Float.h"
 #include "java/util/ArrayList.txx"
 #include "common/Error.h"
+#include "common/color/Cie.h"
 #include "common/statistics/Statistics.h"
 #include "tonemap/ToneMap.h"
 #include "numericalAnalysis/PatchVisitor.h"
@@ -50,7 +51,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
     ColorRgb radiance = patchRadianceEstimate(patch);
-    float brightness = radiance.luminance();
+    float brightness = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
     }

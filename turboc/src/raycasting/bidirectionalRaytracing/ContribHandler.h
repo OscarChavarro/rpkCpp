@@ -1,7 +1,7 @@
 #ifndef __CONTRIB_HANDLER__
 #define __CONTRIB_HANDLER__
 
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "raycasting/bidirectionalRaytracing/BiPath.h"
 #include "raycasting/bidirectionalRaytracing/FlagChainList.h"
 

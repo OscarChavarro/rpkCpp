@@ -6,7 +6,7 @@
 #define __GALERKIN_STATE__
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "common/ColorRgb.h"
+#include "common/color/ColorRgb.h"
 #include "numericalAnalysis/CubatureRule.h"
 #include "skin/Geometry.h"
 #include "render/sgl/SglContext.h"
