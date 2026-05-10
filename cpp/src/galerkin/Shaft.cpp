@@ -1,13 +1,13 @@
 #include "skin/RayHitFlag.h"
 #include <new>
 #include "java/util/ArrayList.txx"
-#include "common/MemoryPool.txx"
+#include "common/memoryManagement/MemoryPool.txx"
 #include "common/statistics/Statistics.h"
 #include "skin/Compound.h"
 #include "skin/PatchSet.h"
 #include "galerkin/Shaft.h"
 
-common::MemoryPool<PatchSet> Shaft::patchSetPool;
+MemoryPool<PatchSet> Shaft::patchSetPool;
 bool Shaft::patchSetPoolInitialized = false;
 
 void

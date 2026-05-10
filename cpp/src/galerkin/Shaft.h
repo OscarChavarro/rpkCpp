@@ -9,7 +9,7 @@ References:
 */
 
 #include "java/util/ArrayList.h"
-#include "common/MemoryPool.h"
+#include "common/memoryManagement/MemoryPool.h"
 #include "skin/Geometry.h"
 #include "skin/PatchSet.h"
 #include "scene/Polygon.h"
@@ -26,7 +26,7 @@ a kind of convex envelope.
 */
 class Shaft {
   private:
-    static common::MemoryPool<PatchSet> patchSetPool;
+    static MemoryPool<PatchSet> patchSetPool;
     static bool patchSetPoolInitialized;
 
     static constexpr int MAX_SKIP_ELEMENTS = 2;

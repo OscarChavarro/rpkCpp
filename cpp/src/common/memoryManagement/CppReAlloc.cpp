@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "common/CppReAlloc.h"
+#include "common/memoryManagement/CppReAlloc.h"
 
 unsigned char *
 CppReAlloc::reAlloc(

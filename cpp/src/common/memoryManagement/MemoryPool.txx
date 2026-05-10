@@ -1,6 +1,4 @@
-#include "common/MemoryPool.h"
-
-namespace common {
+#include "common/memoryManagement/MemoryPool.h"
 
 template <class T>
 MemoryPool<T>::MemoryPool():
@@ -178,6 +176,4 @@ MemoryPool<T>::expand(int numberOfElements) {
     }
     initialized = true;
     return true;
-}
-
 }

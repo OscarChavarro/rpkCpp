@@ -1,11 +1,11 @@
 #include "java/util/ArrayList.txx"
-#include "common/MemoryPool.txx"
+#include "common/memoryManagement/MemoryPool.txx"
 #include "common/logging/Logger.h"
 #include "galerkin/processing/FormFactorStrategy.h"
 #include "galerkin/processing/LinkingSimpleStrategy.h"
 #include "galerkin/Shaft.h"
 
-common::MemoryPool<float> LinkingSimpleStrategy::interactionCoefficientsPool;
+MemoryPool<float> LinkingSimpleStrategy::interactionCoefficientsPool;
 bool LinkingSimpleStrategy::interactionCoefficientsPoolInitialized = false;
 
 void

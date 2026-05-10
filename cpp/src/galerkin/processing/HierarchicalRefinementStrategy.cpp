@@ -3,7 +3,7 @@ Hierarchical refinement
 */
 
 #include "java/util/ArrayList.txx"
-#include "common/MemoryPool.txx"
+#include "common/memoryManagement/MemoryPool.txx"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
 #include "galerkin/processing/ClusterTraversalStrategy.h"
@@ -11,7 +11,7 @@ Hierarchical refinement
 #include "galerkin/processing/HierarchicalRefinementStrategy.h"
 #include "galerkin/Shaft.h"
 
-common::MemoryPool<float> HierarchicalRefinementStrategy::hierarchicalCoefficientsPool;
+MemoryPool<float> HierarchicalRefinementStrategy::hierarchicalCoefficientsPool;
 bool HierarchicalRefinementStrategy::hierarchicalCoefficientsPoolInitialized = false;
 
 void

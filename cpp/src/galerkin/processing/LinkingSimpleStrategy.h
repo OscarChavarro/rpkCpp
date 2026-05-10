@@ -2,7 +2,7 @@
 #define __LINKING_SIMPLE_STRATEGY__
 
 #include "java/util/ArrayList.h"
-#include "common/MemoryPool.h"
+#include "common/memoryManagement/MemoryPool.h"
 #include "skin/Geometry.h"
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
@@ -12,7 +12,7 @@
 
 class LinkingSimpleStrategy {
   private:
-    static common::MemoryPool<float> interactionCoefficientsPool;
+    static MemoryPool<float> interactionCoefficientsPool;
     static bool interactionCoefficientsPoolInitialized;
 
     static void ensureInteractionCoefficientsPool();

@@ -3,8 +3,6 @@
 
 #include "java/lang/Object.h"
 
-namespace common {
-
 template <class T>
 class MemoryPool final : public java::Object {
   private:
@@ -35,6 +33,5 @@ class MemoryPool final : public java::Object {
     bool expand(int numberOfElements);
 };
 
-}
 
 #endif

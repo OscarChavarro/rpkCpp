@@ -1,10 +1,10 @@
 #include "java/util/ArrayList.txx"
-#include "common/MemoryPool.txx"
+#include "common/memoryManagement/MemoryPool.txx"
 #include "common/logging/Logger.h"
 #include "galerkin/GalerkinBasis.h"
 #include "galerkin/processing/LinkingClusteredStrategy.h"
 
-common::MemoryPool<float> LinkingClusteredStrategy::linkingClusteredPool;
+MemoryPool<float> LinkingClusteredStrategy::linkingClusteredPool;
 bool LinkingClusteredStrategy::linkingClusteredPoolInitialized = false;
 
 void
