@@ -7,7 +7,7 @@ Several functions are provided for different iterating schemes
 
 package vsdk.toolkit.raycasting.raytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.render.SoftIds;
 import vsdk.toolkit.scene.Background;

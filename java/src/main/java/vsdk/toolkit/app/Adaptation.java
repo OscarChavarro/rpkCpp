@@ -2,7 +2,8 @@ package vsdk.toolkit.app;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -57,7 +58,7 @@ A-priori estimate of a patch's radiance
 
     private static float patchBrightnessEstimate(Patch patch) {
         ColorRgb radiance = patchRadianceEstimate.apply(patch);
-        float brightness = radiance.luminance();
+        float brightness = Cie.spectrumLuminance(radiance.r, radiance.g, radiance.b);
         if ( brightness < Numeric.EPSILON_FLOAT ) {
             brightness = Numeric.EPSILON_FLOAT;
         }

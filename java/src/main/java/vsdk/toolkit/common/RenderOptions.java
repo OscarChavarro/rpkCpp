@@ -1,5 +1,7 @@
 package vsdk.toolkit.common;
 
+import vsdk.toolkit.common.color.ColorRgb;
+
 /**
 If this is undefined, the raytracing code can be trimmed as follows:
 - PHOTON MAP module can be removed

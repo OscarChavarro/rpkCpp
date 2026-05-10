@@ -10,7 +10,7 @@ Philippe Bekaert & Jan Prikryl, October 1998 - March 2000
 
 import java.io.OutputStream;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;

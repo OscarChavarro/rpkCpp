@@ -1,6 +1,6 @@
 package vsdk.toolkit.io.bin.reader;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public class BinaryModelVertexRecordData {
     public int id;

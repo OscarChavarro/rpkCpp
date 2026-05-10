@@ -1,6 +1,6 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.skin.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;

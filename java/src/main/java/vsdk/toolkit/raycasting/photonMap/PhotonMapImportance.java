@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;

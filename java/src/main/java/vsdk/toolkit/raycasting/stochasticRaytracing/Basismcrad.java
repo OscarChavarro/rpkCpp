@@ -4,7 +4,7 @@ Higher order approximations for Galerkin radiosity
 
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;

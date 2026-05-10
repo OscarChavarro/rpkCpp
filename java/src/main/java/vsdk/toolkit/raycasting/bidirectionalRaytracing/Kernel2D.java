@@ -4,7 +4,7 @@ Many routines borrowed from Density Estimation master thesis by Olivier Ceuleman
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.render.ScreenBuffer;

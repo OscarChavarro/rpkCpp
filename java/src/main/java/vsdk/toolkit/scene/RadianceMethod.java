@@ -2,7 +2,7 @@ package vsdk.toolkit.scene;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.Element;

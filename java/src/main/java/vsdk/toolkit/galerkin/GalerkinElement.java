@@ -5,7 +5,7 @@ Galerkin finite elements: one structure for both surface and cluster elements
 package vsdk.toolkit.galerkin;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;

@@ -10,7 +10,7 @@ Software ID rendering: because hardware ID rendering is tricky due to frame buff
 formats, etc.
 */
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

@@ -2,6 +2,7 @@ package vsdk.toolkit.common;
 
 import java.text.DecimalFormat;
 import java.text.FieldPosition;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 

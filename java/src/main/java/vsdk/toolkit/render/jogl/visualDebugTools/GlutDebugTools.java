@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.Opengl;

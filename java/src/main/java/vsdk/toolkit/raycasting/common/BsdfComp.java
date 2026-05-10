@@ -4,7 +4,7 @@ Some bsdf component stuff.
 
 package vsdk.toolkit.raycasting.common;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.BsdfComponentFlag;
 

@@ -1,8 +1,8 @@
 package vsdk.toolkit.io.mgf;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.Cie;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.dataStructures.LookUpEntity;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.io.context.ColorContext;
@@ -181,12 +181,12 @@ The routine returns true if the material being used has changed
         }
 
         if (context.monochrome) {
-            Ed.setMonochrome(Ed.gray());
-            Es.setMonochrome(Es.gray());
-            Rd.setMonochrome(Rd.gray());
-            Rs.setMonochrome(Rs.gray());
-            Td.setMonochrome(Td.gray());
-            Ts.setMonochrome(Ts.gray());
+            Ed.setMonochrome(Cie.spectrumGray(Ed.r, Ed.g, Ed.b));
+            Es.setMonochrome(Cie.spectrumGray(Es.r, Es.g, Es.b));
+            Rd.setMonochrome(Cie.spectrumGray(Rd.r, Rd.g, Rd.b));
+            Rs.setMonochrome(Cie.spectrumGray(Rs.r, Rs.g, Rs.b));
+            Td.setMonochrome(Cie.spectrumGray(Td.r, Td.g, Td.b));
+            Ts.setMonochrome(Cie.spectrumGray(Ts.r, Ts.g, Ts.b));
         }
 
         PhongEmittanceDistributionFunction edf = null;

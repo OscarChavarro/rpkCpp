@@ -11,7 +11,7 @@ three single byte mantissas and a common exponent.
 */
 
 import java.io.OutputStream;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.CppReAlloc;
 import vsdk.toolkit.io.PersistenceElement;
 

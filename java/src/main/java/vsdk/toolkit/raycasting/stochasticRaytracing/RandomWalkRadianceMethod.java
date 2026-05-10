@@ -4,7 +4,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -394,7 +395,7 @@ Determines control radiosity value for collision gathering estimator
         cr.divide(c1, c2);
         System.err.printf("Control radiosity value = ");
         cr.print(System.err);
-        System.err.printf(", luminosity = %g\n", cr.luminance());
+        System.err.printf(", luminosity = %g\n", Cie.spectrumLuminance(cr.r, cr.g, cr.b));
 
         return cr;
     }

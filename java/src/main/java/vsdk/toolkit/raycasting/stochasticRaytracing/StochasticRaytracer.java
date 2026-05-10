@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 import java.util.Random;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

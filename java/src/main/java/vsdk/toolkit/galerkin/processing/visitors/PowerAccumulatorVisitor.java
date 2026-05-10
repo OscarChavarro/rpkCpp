@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing.visitors;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinElement;

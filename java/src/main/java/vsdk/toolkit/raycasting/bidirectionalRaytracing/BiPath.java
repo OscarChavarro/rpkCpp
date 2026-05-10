@@ -4,7 +4,7 @@ Stores eyePath and lightPath, lengths and end nodes
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 

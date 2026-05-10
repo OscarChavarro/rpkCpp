@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.common.color;
 
 /**
 Converts mgf color specification into our representation of colors.

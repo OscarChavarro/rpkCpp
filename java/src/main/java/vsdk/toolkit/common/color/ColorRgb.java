@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.common.color;
 
 /**
 Representation of radiance, radiosity, power, spectra
@@ -148,14 +148,6 @@ public class ColorRgb {
 
     public float average() {
         return (r + g + b) / 3.0f;
-    }
-
-    public float gray() {
-        return Cie.spectrumGray(r, g, b);
-    }
-
-    public float luminance() {
-        return Cie.spectrumLuminance(r, g, b);
     }
 
     public void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v) {

@@ -5,7 +5,7 @@ with a Z-buffer visibility algorithm in software
 
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;

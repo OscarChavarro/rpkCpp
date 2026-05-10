@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public final class Coefficientsmcrad {
     private Coefficientsmcrad() {

@@ -144,7 +144,7 @@ Total evaluation is returned.
 
 // Set to 0 for safety
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

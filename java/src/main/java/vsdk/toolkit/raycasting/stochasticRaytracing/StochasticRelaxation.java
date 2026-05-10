@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 

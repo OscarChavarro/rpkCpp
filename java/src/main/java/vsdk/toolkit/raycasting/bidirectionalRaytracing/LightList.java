@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;

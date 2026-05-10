@@ -3,7 +3,7 @@ package vsdk.toolkit.io.bin.reader;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.io.PersistenceElement;

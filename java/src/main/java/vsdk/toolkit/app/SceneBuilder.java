@@ -6,7 +6,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupCore;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.io.bin.reader.BinaryModelDeserializer;
@@ -624,8 +625,8 @@ Returns true if successful
         SceneBuilder.sceneBuilderComputeStats(scene);
         Statistics.instance().radiance.referenceLuminance =
             5.42
-                * ((1.0 - Statistics.instance().radiance.averageReflectivity.gray())
-                    * Statistics.instance().radiance.estimatedAverageRadiance.luminance());
+                * ((1.0 - Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b))
+                    * Cie.spectrumLuminance(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b));
 
         t = System.nanoTime();
         System.err.printf(
@@ -657,11 +658,11 @@ Returns true if successful
                 + "         radiance.maxSelfEmittedPower ..............: %f W\n"
                 + "         toneMapOptions.realWorldAdaptionLuminance .........: %f cd / m2\n"
                 + "         totalArea ........................: %f m2\n",
-            Statistics.instance().radiance.totalEmittedPower.gray(),
-            Statistics.instance().radiance.estimatedAverageRadiance.gray(),
-            Statistics.instance().radiance.averageReflectivity.gray(),
-            Statistics.instance().radiance.maxSelfEmittedRadiance.gray(),
-            Statistics.instance().radiance.maxSelfEmittedPower.gray(),
+            Cie.spectrumGray(Statistics.instance().radiance.totalEmittedPower.r, Statistics.instance().radiance.totalEmittedPower.g, Statistics.instance().radiance.totalEmittedPower.b),
+            Cie.spectrumGray(Statistics.instance().radiance.estimatedAverageRadiance.r, Statistics.instance().radiance.estimatedAverageRadiance.g, Statistics.instance().radiance.estimatedAverageRadiance.b),
+            Cie.spectrumGray(Statistics.instance().radiance.averageReflectivity.r, Statistics.instance().radiance.averageReflectivity.g, Statistics.instance().radiance.averageReflectivity.b),
+            Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedRadiance.r, Statistics.instance().radiance.maxSelfEmittedRadiance.g, Statistics.instance().radiance.maxSelfEmittedRadiance.b),
+            Cie.spectrumGray(Statistics.instance().radiance.maxSelfEmittedPower.r, Statistics.instance().radiance.maxSelfEmittedPower.g, Statistics.instance().radiance.maxSelfEmittedPower.b),
             toneMapOptions.realWorldAdaptionLuminance,
             Statistics.instance().radiance.totalArea);
         //scene->print();

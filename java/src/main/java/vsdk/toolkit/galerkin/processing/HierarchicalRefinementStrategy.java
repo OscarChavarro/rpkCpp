@@ -2,7 +2,7 @@ package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.statistics.Statistics;

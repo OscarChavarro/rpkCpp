@@ -2,7 +2,7 @@ package vsdk.toolkit.raycasting.photonMap;
 
 import java.io.PrintStream;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

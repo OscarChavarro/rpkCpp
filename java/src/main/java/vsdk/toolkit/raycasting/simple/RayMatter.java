@@ -7,7 +7,7 @@ package vsdk.toolkit.raycasting.simple;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;

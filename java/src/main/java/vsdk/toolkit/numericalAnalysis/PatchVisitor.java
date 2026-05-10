@@ -1,6 +1,6 @@
 package vsdk.toolkit.numericalAnalysis;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.RayHitFlag;
 import vsdk.toolkit.skin.Patch;

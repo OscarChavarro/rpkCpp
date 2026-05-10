@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.dataStructures.CircularList;
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
 

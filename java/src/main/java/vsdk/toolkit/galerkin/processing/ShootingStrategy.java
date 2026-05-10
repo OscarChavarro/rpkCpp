@@ -1,7 +1,7 @@
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinBasis;

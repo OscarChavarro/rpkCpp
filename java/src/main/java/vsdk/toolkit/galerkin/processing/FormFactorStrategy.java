@@ -5,7 +5,7 @@ All kind of form factor computations
 package vsdk.toolkit.galerkin.processing;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;

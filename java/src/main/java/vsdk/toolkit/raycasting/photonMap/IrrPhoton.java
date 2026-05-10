@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.photonMap;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 
 // IrrPhoton: photon with extra irradiance info

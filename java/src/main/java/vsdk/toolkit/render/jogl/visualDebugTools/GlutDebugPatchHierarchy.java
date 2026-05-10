@@ -1,6 +1,7 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
@@ -121,7 +122,7 @@ public final class GlutDebugPatchHierarchy {
 
             ColorRgb rgbColor = new ColorRgb();
             ToneMap.radianceToRgb(radianceSample, rgbColor, toneMapOptions);
-            grayValue = toneMappedGrayAndDarkened(rgbColor.luminance());
+            grayValue = toneMappedGrayAndDarkened(Cie.spectrumLuminance(rgbColor.r, rgbColor.g, rgbColor.b));
             Opengl.openGlRenderSetColor(new ColorRgb(grayValue, grayValue, grayValue), renderOptions);
             Opengl.openGlRenderPolygonFlat(numberOfVertices, vertices);
         }
@@ -131,7 +132,10 @@ public final class GlutDebugPatchHierarchy {
             outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
         }
         else {
-            outlineGray = toneMappedGrayAndDarkened(renderOptions.outlineColor.luminance());
+            outlineGray = toneMappedGrayAndDarkened(Cie.spectrumLuminance(
+                renderOptions.outlineColor.r,
+                renderOptions.outlineColor.g,
+                renderOptions.outlineColor.b));
         }
         outlineGray = clamp01(outlineGray);
         if ( outlineGray < OUTLINE_MIN_GRAY ) {

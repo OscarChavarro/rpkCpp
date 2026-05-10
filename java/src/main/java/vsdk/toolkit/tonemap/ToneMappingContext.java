@@ -1,7 +1,7 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.Cie;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public class ToneMappingContext {
     // Gamma correction table

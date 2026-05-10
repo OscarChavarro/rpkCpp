@@ -1,6 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 

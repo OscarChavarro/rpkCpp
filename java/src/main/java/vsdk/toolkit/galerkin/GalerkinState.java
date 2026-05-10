@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.numericalAnalysis.CubatureDegree;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;

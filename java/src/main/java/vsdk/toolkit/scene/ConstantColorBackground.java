@@ -1,6 +1,6 @@
 package vsdk.toolkit.scene;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 
 public class ConstantColorBackground extends Background {

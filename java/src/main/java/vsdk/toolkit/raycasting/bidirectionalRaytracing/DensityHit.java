@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 /**
 Class DensityBuffer : class for storing sample hits on screen

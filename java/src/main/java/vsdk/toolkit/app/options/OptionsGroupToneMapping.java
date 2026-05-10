@@ -1,7 +1,7 @@
 package vsdk.toolkit.app.options;
 
-import vsdk.toolkit.common.Cie;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;

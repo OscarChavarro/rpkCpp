@@ -1,6 +1,6 @@
 package vsdk.toolkit.common.statistics;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public class RadianceStatistics {
     public float totalArea;

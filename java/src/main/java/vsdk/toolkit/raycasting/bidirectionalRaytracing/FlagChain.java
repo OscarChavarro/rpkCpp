@@ -8,7 +8,7 @@ A chain list is a set of scattering modes
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 

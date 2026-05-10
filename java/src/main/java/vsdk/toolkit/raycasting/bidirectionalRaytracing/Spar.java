@@ -4,7 +4,7 @@ Specification of the Stored Partial Radiance class
 
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.scene.RadianceMethod;
 
 public class Spar {

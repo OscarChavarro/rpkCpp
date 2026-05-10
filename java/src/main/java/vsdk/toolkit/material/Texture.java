@@ -3,7 +3,7 @@ package vsdk.toolkit.material;
 // First bytes correspond to bottom-left pixel (as in OpenGL)
 
 import java.util.Arrays;
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public class Texture {
     private int width;

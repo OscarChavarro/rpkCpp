@@ -3,7 +3,7 @@ package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 import java.util.ArrayList;
 import java.util.Locale;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.StratifiedSampling2D;

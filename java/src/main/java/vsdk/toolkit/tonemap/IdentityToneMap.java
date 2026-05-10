@@ -1,6 +1,6 @@
 package vsdk.toolkit.tonemap;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 
 public final class IdentityToneMap extends ToneMap {
     public IdentityToneMap() {

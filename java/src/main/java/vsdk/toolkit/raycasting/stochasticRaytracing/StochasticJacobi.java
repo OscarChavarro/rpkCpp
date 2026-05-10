@@ -12,7 +12,7 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.common.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;

@@ -6,7 +6,8 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.ColorRgb;
+import vsdk.toolkit.common.color.Cie;
+import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.Error;
 import vsdk.toolkit.skin.Patch;
 
@@ -332,7 +333,7 @@ random walk radiosity
         beta.add(minRad, maxRad);
         beta.scale(0.5f);
         beta.print(System.err);
-        System.err.printf(" (%g lux)", Math.PI * beta.luminance());
+        System.err.printf(" (%g lux)", Math.PI * Cie.spectrumLuminance(beta.r, beta.g, beta.b));
         System.err.printf("\n");
         return beta;
     }
