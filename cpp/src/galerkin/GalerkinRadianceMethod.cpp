@@ -25,7 +25,7 @@ Galerkin radiosity, with the following variants:
 #include "galerkin/processing/ShootingStrategy.h"
 
 GalerkinState GalerkinRadianceMethod::galerkinState;
-java::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
+const java::OutputStream *GalerkinRadianceMethod::vrmlOutputStream = nullptr;
 int GalerkinRadianceMethod::numberOfWrites = 0;
 int GalerkinRadianceMethod::vertexId = 0;
 

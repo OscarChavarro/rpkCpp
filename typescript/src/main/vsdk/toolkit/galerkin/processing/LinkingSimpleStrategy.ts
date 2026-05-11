@@ -1,4 +1,5 @@
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
+import { MemoryPool } from "../../common/memoryManagement/MemoryPool";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
@@ -16,19 +17,42 @@ import { Patch } from "../../skin/Patch";
 import { FormFactorStrategy } from "./FormFactorStrategy";
 
 export class LinkingSimpleStrategy {
-  private static readonly coefficientsPool: number[][] = [];
+  private static readonly interactionCoefficientsPool = new MemoryPool.Generic<number[]>(
+    () => new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0)
+  );
+  private static interactionCoefficientsPoolInitialized = false;
+
+  private static ensureInteractionCoefficientsPool(): void {
+    if (LinkingSimpleStrategy.interactionCoefficientsPoolInitialized) {
+      return;
+    }
+    LinkingSimpleStrategy.interactionCoefficientsPool.init(4096);
+    if (LinkingSimpleStrategy.interactionCoefficientsPool.allocate(1) === null) {
+      LinkingSimpleStrategy.interactionCoefficientsPool.expand(64);
+    }
+    LinkingSimpleStrategy.interactionCoefficientsPool.clear();
+    LinkingSimpleStrategy.interactionCoefficientsPoolInitialized = true;
+  }
 
   private static borrowKBuffer(): number[] {
-    const v = LinkingSimpleStrategy.coefficientsPool.pop();
-    if (v !== undefined) {
-      return v;
+    LinkingSimpleStrategy.ensureInteractionCoefficientsPool();
+    let v = LinkingSimpleStrategy.interactionCoefficientsPool.allocate(1);
+    if (v === null) {
+      const expanded = LinkingSimpleStrategy.interactionCoefficientsPool.expand(64);
+      if (!expanded) {
+        return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+      }
+      v = LinkingSimpleStrategy.interactionCoefficientsPool.allocate(1);
+      if (v === null) {
+        return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+      }
     }
-    return new Array<number>(GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE).fill(0.0);
+    return v;
   }
 
   private static returnKBuffer(v: number[] | null): void {
-    if (v !== null && v.length === GalerkinBasis.MAX_BASIS_SIZE * GalerkinBasis.MAX_BASIS_SIZE) {
-      LinkingSimpleStrategy.coefficientsPool.push(v);
+    if (v !== null && LinkingSimpleStrategy.interactionCoefficientsPool.owns(v)) {
+      LinkingSimpleStrategy.interactionCoefficientsPool.free(1);
     }
   }
 

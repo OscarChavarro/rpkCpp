@@ -44,7 +44,7 @@ class PersistenceElement {
 
     static void readBytes(java::InputStream &is, unsigned char *bytesBuffer, int length);
 
-    static void writeBytes(java::OutputStream &os, const unsigned char *bytesBuffer, int length);
+    static void writeBytes(const java::OutputStream &os, const unsigned char *bytesBuffer, int length);
 
     static int byteArray2signedShortBE(const unsigned char *arr, int start);
     static void signedShort2byteArrayBE(unsigned char *arr, int start, int num);

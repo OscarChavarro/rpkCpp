@@ -1,6 +1,6 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { CppReAlloc } from "../../common/CppReAlloc";
+import { CppReAlloc } from "../../common/memoryManagement/CppReAlloc";
 
 export class DkColor {
   private static readonly RED = 0;

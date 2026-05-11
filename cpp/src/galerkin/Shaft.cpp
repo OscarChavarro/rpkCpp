@@ -125,8 +125,8 @@ Shaft::constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlig
             float u2 = referenceItem2->valueAt(i);
             float v2 = referenceItem2->valueAt(j);
 
-            float du;
-            float dv;
+            float du = 0.0;
+            float dv = 0.0;
 
             if ( (i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X) ) {
                 du = v2 - v1;
@@ -144,9 +144,9 @@ Shaft::constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlig
             localPlane.n[3 - a - b] = 0.0;
             localPlane.d = -(du * u1 + dv * v1);
 
-            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0f ? MIN_X : MAX_X;
-            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0f ? MIN_Y : MAX_Y;
-            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0f ? MIN_Z : MAX_Z;
+            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0F ? MIN_X : MAX_X;
+            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0F ? MIN_Y : MAX_Y;
+            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0F ? MIN_Z : MAX_Z;
 
             localPlaneIndex++;
         }
@@ -736,7 +736,6 @@ Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateL
         const Compound *compound = dynamic_cast<const Compound *>(geometry);
         doCulling(compound->children, candidateList, strategy);
     } else {
-        // TODO: Check if this logic branch evers gets called
         const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
         java::ArrayList<Patch *> culledPatches;
         cullPatches(geometryPatchesList, &culledPatches);
