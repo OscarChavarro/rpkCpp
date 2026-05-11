@@ -11,7 +11,7 @@ TODO: lines and line bundles.
 #include <stdlib.h>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/stochasticRaytracing/Stochjacobi.h"
 
 #ifdef RAYTRACING_ENABLED

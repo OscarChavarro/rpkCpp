@@ -10,7 +10,7 @@ path nodes and have to possible actions :
 #ifndef __SAMPLER__
 #define __SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"

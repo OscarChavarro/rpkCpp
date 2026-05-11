@@ -1,8 +1,8 @@
 #ifndef __POLYGON__
 #define __POLYGON__
 
-#include "skin/BoundingBox.h"
-#include "skin/Patch.h"
+#include "skin/AxisAlignedBoundingBox.h"
+#include "environment/geometry/elements/Patch.h"
 
 /**
 A structure describing polygons. Only used for shaft culling for the moment.

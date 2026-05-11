@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 /**
 Hierarchical element refinement.
@@ -10,7 +10,7 @@ References:
 
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/McradP.h"
 #include "raycasting/stochasticRaytracing/Hierarchy.h"

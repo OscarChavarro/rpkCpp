@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/PatchClusterOctreeNode.h"
 #include "tonemap/FerwerdaToneMap.h"
 #include "tonemap/LightnessToneMap.h"

@@ -1,5 +1,5 @@
 #include "java/util/ArrayList.txx"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 
 PatchSet::PatchSet(const ArrayList<Patch *> *input): Geometry(PATCH_SET) {
     memoryPoolManaged = false;

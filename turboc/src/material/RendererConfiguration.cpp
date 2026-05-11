@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 const ColorRgb RenderOptions::DEFAULT_OUTLINE_COLOR = ColorRgb(0.5, 0.0, 0.0);
 const ColorRgb RenderOptions::DEFAULT_BOUNDING_BOX_COLOR = ColorRgb(0.5, 0.0, 1.0);

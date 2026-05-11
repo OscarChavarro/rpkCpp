@@ -22,8 +22,8 @@
 #include "io/context/TransformScopeContext.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class ParseRuntimeContext: public ParseContext{ public:
     ParseOptionsContext parserConfig;

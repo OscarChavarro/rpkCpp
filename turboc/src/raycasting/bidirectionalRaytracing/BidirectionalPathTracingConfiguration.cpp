@@ -1,7 +1,7 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingConfiguration.h"
 
 BidirPathTraceConfig::BidirPathTraceConfig():

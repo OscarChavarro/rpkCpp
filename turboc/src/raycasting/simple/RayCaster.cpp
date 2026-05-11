@@ -5,7 +5,7 @@ a software frame buffer directly.
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "render/SoftIdsWrapper.h"
 #include "raycasting/simple/RayCaster.h"

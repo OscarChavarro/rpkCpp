@@ -3,7 +3,7 @@
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Scene.h"
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/simple/RayMatterState.h"

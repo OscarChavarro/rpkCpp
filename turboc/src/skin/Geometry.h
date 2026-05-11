@@ -3,12 +3,12 @@
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Ray.h"
-#include "skin/RayHit.h"
-#include "skin/BoundingBox.h"
-#include "skin/Element.h"
+#include "environment/geometry/elements/RayHit.h"
+#include "skin/AxisAlignedBoundingBox.h"
+#include "environment/geometry/elements/Element.h"
 #include "skin/GeometryClassId.h"
 #include "skin/MinMaxBox.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 /**
 Currently, there are three types of geometries:

@@ -3,11 +3,11 @@
 
 #include "java/io/OutputStream.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "render/ScreenBuffer.h"
 #include "tonemap/ToneMappingContext.h"
 

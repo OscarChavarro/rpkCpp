@@ -5,7 +5,7 @@
 #ifndef __BI_DIRECTIONAL_PATH__
 #define __BI_DIRECTIONAL_PATH__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

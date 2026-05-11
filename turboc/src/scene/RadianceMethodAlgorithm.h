@@ -1,7 +1,7 @@
 #ifndef __RADIANCE_METHOD_ALGORITHM__
 #define __RADIANCE_METHOD_ALGORITHM__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 enum RadianceMethodAlgorithm {
     GALERKIN

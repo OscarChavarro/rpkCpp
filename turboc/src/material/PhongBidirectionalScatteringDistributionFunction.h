@@ -12,11 +12,11 @@ functions that relate to brdf or btdf like reflectance etc.
 #define PHNG_BDRCT_SCTTR_DSTRB_FNCTN
 
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/ShadingContext.h"
-#include "skin/RayHit.h"
+#include "environment/geometry/elements/RayHit.h"
 #include "material/Texture.h"
 #include "material/Xxdf.h"
 

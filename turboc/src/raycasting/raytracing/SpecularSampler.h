@@ -15,7 +15,7 @@ I currently use it only in classical raytracing
 #ifndef __SPECULAR_SAMPLER__
 #define __SPECULAR_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

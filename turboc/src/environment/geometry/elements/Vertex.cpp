@@ -1,6 +1,6 @@
 #include "java/util/ArrayList.txx"
 #include "common/statistics/Statistics.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Vertex.h"
 
 unsigned int Vertex::currentComparisonFlags = VERTEX_COMPARE_LOCATION | VERTEX_COMPARE_NORMAL | VRTX_CMPR_TXTR_CRDNT;
 

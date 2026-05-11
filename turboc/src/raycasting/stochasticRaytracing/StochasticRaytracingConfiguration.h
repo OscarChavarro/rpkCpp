@@ -1,7 +1,7 @@
 #ifndef __RT_STOCHASTIC_PHOTON_MAP__
 #define __RT_STOCHASTIC_PHOTON_MAP__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

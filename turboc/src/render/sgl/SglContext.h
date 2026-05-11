@@ -6,8 +6,8 @@ Small Graphics Library
 #define __SGL__
 
 #include "common/linealAlgebra/Matrix4x4.h"
-#include "skin/Element.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Element.h"
+#include "environment/geometry/elements/Patch.h"
 #include "render/sgl/SglConstants.h"
 #include "render/sgl/SglPixelContent.h"
 

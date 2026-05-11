@@ -5,7 +5,7 @@ Non diffuse first shot
 #include <stdlib.h>
 
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

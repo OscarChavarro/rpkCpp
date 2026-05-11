@@ -15,7 +15,7 @@ Reference:
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "scene/PatchClusterOctreeNode.h"
 
 ArrayList<Geometry *> *PatchClusterOctreeNode::clusterNodeGeometriesToDelete = NULL;

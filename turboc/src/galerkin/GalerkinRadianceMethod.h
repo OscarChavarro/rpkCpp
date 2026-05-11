@@ -7,7 +7,7 @@
 
 #include <stdarg.h>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "java/lang/String.h"
 #include "scene/Background.h"
 #include "scene/RadianceMethod.h"

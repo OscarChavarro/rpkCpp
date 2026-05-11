@@ -2,7 +2,7 @@
 #define STCHS_RYTRC_PATH_NODE
 
 #include "common/linealAlgebra/Vector3D.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 /**
 Path node: contains all necessary data for computing the score afterwards

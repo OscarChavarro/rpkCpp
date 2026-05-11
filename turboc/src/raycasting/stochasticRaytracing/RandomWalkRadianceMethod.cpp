@@ -2,7 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/statistics/Statistics.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"
 #include "raycasting/stochasticRaytracing/ElementHierarchyState.h"

@@ -7,7 +7,7 @@ Some utility routines for ray intersections and for statistics
 
 #include "common/linealAlgebra/Ray.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "scene/Camera.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/common/SimpleRaytracingPathNode.h"

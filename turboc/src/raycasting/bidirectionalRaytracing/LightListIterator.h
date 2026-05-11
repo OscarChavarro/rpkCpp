@@ -4,7 +4,7 @@
 #include "common/dataStructures/CircularListIterator.h"
 #include "raycasting/bidirectionalRaytracing/LightInfo.h"
 #include "raycasting/bidirectionalRaytracing/LightList.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class LightListIterator {
   private:

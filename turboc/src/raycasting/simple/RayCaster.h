@@ -2,7 +2,7 @@
 #define __RAY_CASTER__
 
 #include "java/util/ArrayList.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/RadianceMethod.h"
 #include "render/ScreenBuffer.h"
 #include "raycasting/common/RayTracer.h"

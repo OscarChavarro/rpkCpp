@@ -2,7 +2,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "common/statistics/Statistics.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 int Patch::patchId = 1;
 Patch *Patch::excludedPatches[MAX_EXCLUDED_PATCHES] = {NULL, NULL, NULL, NULL};

@@ -5,7 +5,7 @@
 #ifndef __RAY_MATTER__
 #define __RAY_MATTER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

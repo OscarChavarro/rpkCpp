@@ -13,8 +13,8 @@
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class BinaryModelReadCleanup {
   public:

@@ -3,7 +3,7 @@
 
 #include "scene/VoxelDataFlags.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class VoxelGrid;
 

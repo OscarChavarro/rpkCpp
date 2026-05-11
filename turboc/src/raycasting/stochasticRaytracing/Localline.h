@@ -7,9 +7,9 @@ Generate and trace a local line
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Ray.h"
-#include "skin/RayHit.h"
+#include "environment/geometry/elements/RayHit.h"
 #include "scene/VoxelGrid.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Localline{ public:
     static Ray mcrGenerateLocalLine(const Patch *patch, const double *xi);

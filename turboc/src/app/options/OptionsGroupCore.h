@@ -7,7 +7,7 @@
 
 #include "app/options/EnumBackgroundMode.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "io/context/ParseRuntimeContext.h"
 #include "scene/Scene.h"
 #include "tonemap/ToneMappingContext.h"

@@ -5,7 +5,7 @@ Path node sampler using bsdf sampling
 #ifndef __BSDF_SAMPLER__
 #define __BSDF_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

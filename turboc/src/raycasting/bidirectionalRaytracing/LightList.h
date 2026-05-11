@@ -9,7 +9,7 @@ this class can be used for sampling lights
 #include "java/util/ArrayList.h"
 #include "common/dataStructures/CircularList.h"
 #include "raycasting/bidirectionalRaytracing/LightInfo.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class LightList: private CircularList<LightInfo>{ private:
     // Total flux ( sum(L * A * PI))

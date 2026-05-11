@@ -1,4 +1,4 @@
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 
 BoundingBox::BoundingBox(): coordinates() {
     coordinates[MIN_X] = Numeric::HUGE_FLOAT_VALUE;

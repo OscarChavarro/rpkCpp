@@ -1,7 +1,7 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/logging/Logger.h"
 #include "raycasting/bidirectionalRaytracing/LightSampler.h"
 

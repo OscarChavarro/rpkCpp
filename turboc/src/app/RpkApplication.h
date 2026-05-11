@@ -5,7 +5,7 @@
 #ifndef __RPK_APPLICATION__
 #define __RPK_APPLICATION__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"
 #include "raycasting/photonMap/PhotonMapState.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"

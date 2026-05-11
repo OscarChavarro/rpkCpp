@@ -8,8 +8,8 @@
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class GeometryAssemblyContext {
   public:

@@ -1,7 +1,7 @@
 #ifndef BDRCT_PATH_TRCNG_CNFGR
 #define BDRCT_PATH_TRCNG_CNFGR
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

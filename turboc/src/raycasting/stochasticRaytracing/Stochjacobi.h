@@ -3,8 +3,8 @@
 
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
-#include "skin/Patch.h"
+#include "material/RendererConfiguration.h"
+#include "environment/geometry/elements/Patch.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/stochasticRaytracing/Link.h"
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"

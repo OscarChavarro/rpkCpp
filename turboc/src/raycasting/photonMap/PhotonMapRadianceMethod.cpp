@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

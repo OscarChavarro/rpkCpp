@@ -3,7 +3,7 @@
 
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class BinaryModelPatchRecordData {
   public:

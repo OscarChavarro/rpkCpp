@@ -1,9 +1,9 @@
 #include <stdlib.h>
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "common/logging/Logger.h"
 #include "java/lang/System.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter31.h"

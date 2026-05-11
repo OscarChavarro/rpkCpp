@@ -4,7 +4,7 @@ Many routines borrowed from Density Estimation master thesis by
 Olivier Ceulemans.
 */
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/bidirectionalRaytracing/Kernel2D.h"
 
 #ifdef RAYTRACING_ENABLED

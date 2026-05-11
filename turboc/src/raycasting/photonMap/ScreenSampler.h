@@ -5,7 +5,7 @@ Samples a random point on the view screen and traces the viewing ray.
 #ifndef __SCREEN_SAMPLER__
 #define __SCREEN_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

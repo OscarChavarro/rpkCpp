@@ -1,6 +1,6 @@
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
-#include "skin/Patch.h"
+#include "material/RendererConfiguration.h"
+#include "environment/geometry/elements/Patch.h"
 
 RayHit::RayHit():
     point(),

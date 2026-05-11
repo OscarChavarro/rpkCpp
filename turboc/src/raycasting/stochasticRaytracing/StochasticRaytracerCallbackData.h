@@ -1,7 +1,7 @@
 #ifndef STCHS_RYTRC_CLLBC_DATA
 #define STCHS_RYTRC_CLLBC_DATA
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingConfiguration.h"
 #include "scene/RadianceMethod.h"
 

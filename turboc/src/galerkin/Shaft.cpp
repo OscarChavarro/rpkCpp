@@ -1,7 +1,7 @@
 #include "java/util/ArrayList.txx"
 #include "common/statistics/Statistics.h"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "galerkin/Shaft.h"
 
 static PatchSet *createPatchSetWithPool(const ArrayList<Patch *> *patches) {

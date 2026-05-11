@@ -1,7 +1,7 @@
 #ifndef __LIGHT_INFO__
 #define __LIGHT_INFO__
 
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class LightInfo {
   public:

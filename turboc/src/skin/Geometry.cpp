@@ -5,7 +5,7 @@
 #include "skin/MinMaxBox.h"
 #include "skin/Compound.h"
 #include "skin/MeshSurface.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 
 Geometry *Geometry::excludedGeometry1 = NULL;
 Geometry *Geometry::excludedGeometry2 = NULL;

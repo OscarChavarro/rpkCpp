@@ -5,7 +5,7 @@
 #ifndef __STOCHASTIC_RAYTRACER__
 #define __STOCHASTIC_RAYTRACER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

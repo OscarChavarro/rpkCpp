@@ -1,7 +1,7 @@
 #ifndef __PIXEL_SAMPLER__
 #define __PIXEL_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

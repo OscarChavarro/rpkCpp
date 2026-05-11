@@ -2,7 +2,7 @@
 Implementation of the special importance map functions
 */
 #include "java/lang/System.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

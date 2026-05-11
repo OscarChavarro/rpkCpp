@@ -1,7 +1,7 @@
 #ifndef __MESH_SURFACE_VISITOR__
 #define __MESH_SURFACE_VISITOR__
 
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 #include "skin/MeshSurface.h"
 
 class MeshSurfaceVisitor {

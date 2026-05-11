@@ -9,7 +9,7 @@ optimisations/enhancements from ray shade 4.0.6 by Graig Kolb, Stanford U
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
 #include "skin/Compound.h"
-#include "skin/PatchSet.h"
+#include "environment/geometry/elements/PatchSet.h"
 #include "skin/MinMaxBox.h"
 #include "scene/VoxelGrid.h"
 

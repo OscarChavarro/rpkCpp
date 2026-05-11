@@ -5,7 +5,7 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 */
 #include "java/lang/Float.h"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 
 static bool

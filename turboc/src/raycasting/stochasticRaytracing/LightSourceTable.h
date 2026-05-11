@@ -1,7 +1,7 @@
 #ifndef __LIGHT_SOURCE_TABLE__
 #define __LIGHT_SOURCE_TABLE__
 
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class LightSourceTable {
   public:

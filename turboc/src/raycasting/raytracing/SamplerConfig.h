@@ -6,7 +6,7 @@ procedure of a monte carlo ray tracing like algorithm
 #ifndef __SAMPLER_CONFIG__
 #define __SAMPLER_CONFIG__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

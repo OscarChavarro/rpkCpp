@@ -9,7 +9,7 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "common/color/ColorRgb.h"
 #include "scene/Plane.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 
 class Camera {
   public:

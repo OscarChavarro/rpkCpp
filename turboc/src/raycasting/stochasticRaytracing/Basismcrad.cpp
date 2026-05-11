@@ -1,5 +1,5 @@
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "numericalAnalysis/QuadCubatureRule.h"
 #include "numericalAnalysis/TriangleCubatureRule.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"

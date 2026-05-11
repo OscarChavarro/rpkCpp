@@ -4,12 +4,12 @@
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Ray.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "scene/RadianceMethod.h"
 #include "scene/Scene.h"
 #include "scene/VoxelGrid.h"
 #include "raycasting/stochasticRaytracing/LightSourceTable.h"
-#include "skin/Patch.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Nondiff{ public:
     static void doNonDiffuseFirstShot( const Scene *scene, const RadianceMethod *radianceMethod, const RenderOptions *renderOptions);

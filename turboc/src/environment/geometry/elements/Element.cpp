@@ -1,11 +1,11 @@
 #include "java/util/ArrayList.txx"
 #include "common/logging/Logger.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 #endif
 
-#include "skin/Element.h"
+#include "environment/geometry/elements/Element.h"
 
 Element::Element():
     id(),

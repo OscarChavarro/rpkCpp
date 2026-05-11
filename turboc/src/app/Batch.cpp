@@ -3,7 +3,7 @@
 #include "java/lang/System.h"
 #include "java/util/ArrayList.txx"
 #include "java/util/Formatter.h"
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "io/image/ImageOutputHandle.h"
 #include "io/wrapper/FileUncompressWrapper.h"
 #include "render/Canvas.h"

@@ -3,8 +3,8 @@
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
-#include "skin/Patch.h"
+#include "material/RendererConfiguration.h"
+#include "environment/geometry/elements/Patch.h"
 
 class Background {
   public:

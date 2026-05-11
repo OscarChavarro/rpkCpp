@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"

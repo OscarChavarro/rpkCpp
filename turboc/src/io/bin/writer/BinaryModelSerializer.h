@@ -13,10 +13,10 @@
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformStackContext.h"
 #include "material/Material.h"
-#include "skin/BoundingBox.h"
+#include "skin/AxisAlignedBoundingBox.h"
 #include "skin/Geometry.h"
-#include "skin/Patch.h"
-#include "skin/Vertex.h"
+#include "environment/geometry/elements/Patch.h"
+#include "environment/geometry/elements/Vertex.h"
 
 class BinaryModelSerializer {
   public:

@@ -1,4 +1,4 @@
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 #include "raycasting/common/Raytools.h"
 #include "raycasting/raytracing/Sampler.h"
 

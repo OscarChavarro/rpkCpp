@@ -6,7 +6,7 @@ importance sampling
 #ifndef __LIGHT_SAMPLER__
 #define __LIGHT_SAMPLER__
 
-#include "common/RenderOptions.h"
+#include "material/RendererConfiguration.h"
 
 #ifdef RAYTRACING_ENABLED
 

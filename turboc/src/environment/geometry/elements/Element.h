@@ -4,9 +4,9 @@
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Matrix2x2.h"
 #include "common/color/ColorRgb.h"
-#include "common/RenderOptions.h"
-#include "skin/ElementFlags.h"
-#include "skin/ElementTypes.h"
+#include "material/RendererConfiguration.h"
+#include "environment/geometry/elements/ElementFlags.h"
+#include "environment/geometry/elements/ElementTypes.h"
 
 class Element {
   public:
