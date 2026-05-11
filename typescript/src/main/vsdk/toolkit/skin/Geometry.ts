@@ -2,14 +2,14 @@ import { Logger as VsdkLogger } from "../common/logging/Logger";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
-import { RayHitFlag } from "../skin/RayHitFlag";
-import { BoundingBox } from "./BoundingBox";
+import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
+import { BoundingBox } from "./AxisAlignedBoundingBox";
 import { GeometryClassId } from "./GeometryClassId";
 import { MinMaxBox } from "./MinMaxBox";
-import type { Element } from "./Element";
-import type { Patch } from "./Patch";
-import type { RayHit } from "./RayHit";
-import type { PatchSet } from "./PatchSet";
+import type { Element } from "../environment/geometry/elements/Element";
+import type { Patch } from "../environment/geometry/elements/Patch";
+import type { RayHit } from "../environment/geometry/elements/RayHit";
+import type { PatchSet } from "../environment/geometry/elements/PatchSet";
 import type { MeshSurface } from "./MeshSurface";
 import type { Compound } from "./Compound";
 
@@ -124,7 +124,7 @@ export class Geometry {
       VsdkLogger.fatal(666, "duplicateIfPatchSet", "this should not happen");
     }
 
-    const PatchSetClass = require("./PatchSet").PatchSet as { new(input: Patch[]): PatchSet };
+    const PatchSetClass = require("../environment/geometry/elements/PatchSet").PatchSet as { new(input: Patch[]): PatchSet };
     const newPatchSet = new PatchSetClass(Geometry.patchListReference(this) ?? []);
 
     newPatchSet.id = Statistics.instance().reader.numberOfGeometries;

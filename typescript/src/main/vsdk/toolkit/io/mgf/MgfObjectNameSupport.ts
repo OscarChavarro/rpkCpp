@@ -6,10 +6,10 @@ import { TokenValidationContext } from "../context/TokenValidationContext";
 import { MeshSurfaceVisitor } from "../../numericalAnalysis/MeshSurfaceVisitor";
 import { Compound } from "../../skin/Compound";
 import { Geometry } from "../../skin/Geometry";
-import { MaterialColorFlags } from "../../skin/MaterialColorFlags";
+import { MaterialColorFlags } from "../../material/MaterialColorFlags";
 import { MeshSurface } from "../../skin/MeshSurface";
-import { Patch } from "../../skin/Patch";
-import { Vertex } from "../../skin/Vertex";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { Material } from "../../material/Material";
 import { MgfEntityControl } from "./MgfEntityControl";
 

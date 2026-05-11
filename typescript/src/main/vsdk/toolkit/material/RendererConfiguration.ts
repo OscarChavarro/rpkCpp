@@ -1,6 +1,6 @@
-import { ColorRgb } from "./color/ColorRgb";
+import { ColorRgb } from "../common/color/ColorRgb";
 
-export class RenderOptions {
+export class RendererConfiguration {
   public outlineColor: ColorRgb;
   public boundingBoxColor: ColorRgb;
   public clusterColor: ColorRgb;
@@ -31,27 +31,27 @@ export class RenderOptions {
     this.boundingBoxColor = new ColorRgb();
     this.clusterColor = new ColorRgb();
 
-    this.smoothShading = RenderOptions.DEFAULT_SMOOTH_SHADING;
-    this.backfaceCulling = RenderOptions.DEFAULT_BACKFACE_CULLING;
-    this.drawSurfaces = RenderOptions.DEFAULT_SURFACE_DRAWING;
-    this.drawOutlines = RenderOptions.DEFAULT_OUTLINE_DRAWING;
-    this.drawBoundingBoxes = RenderOptions.DEFAULT_BOUNDING_BOX_DRAWING;
-    this.drawClusters = RenderOptions.DEFAULT_CLUSTER_DRAWING;
+    this.smoothShading = RendererConfiguration.DEFAULT_SMOOTH_SHADING;
+    this.backfaceCulling = RendererConfiguration.DEFAULT_BACKFACE_CULLING;
+    this.drawSurfaces = RendererConfiguration.DEFAULT_SURFACE_DRAWING;
+    this.drawOutlines = RendererConfiguration.DEFAULT_OUTLINE_DRAWING;
+    this.drawBoundingBoxes = RendererConfiguration.DEFAULT_BOUNDING_BOX_DRAWING;
+    this.drawClusters = RendererConfiguration.DEFAULT_CLUSTER_DRAWING;
 
     this.outlineColor = new ColorRgb(
-      RenderOptions.DEFAULT_OUTLINE_COLOR.r,
-      RenderOptions.DEFAULT_OUTLINE_COLOR.g,
-      RenderOptions.DEFAULT_OUTLINE_COLOR.b
+      RendererConfiguration.DEFAULT_OUTLINE_COLOR.r,
+      RendererConfiguration.DEFAULT_OUTLINE_COLOR.g,
+      RendererConfiguration.DEFAULT_OUTLINE_COLOR.b
     );
     this.boundingBoxColor = new ColorRgb(
-      RenderOptions.DEFAULT_BOUNDING_BOX_COLOR.r,
-      RenderOptions.DEFAULT_BOUNDING_BOX_COLOR.g,
-      RenderOptions.DEFAULT_BOUNDING_BOX_COLOR.b
+      RendererConfiguration.DEFAULT_BOUNDING_BOX_COLOR.r,
+      RendererConfiguration.DEFAULT_BOUNDING_BOX_COLOR.g,
+      RendererConfiguration.DEFAULT_BOUNDING_BOX_COLOR.b
     );
     this.clusterColor = new ColorRgb(
-      RenderOptions.DEFAULT_CLUSTER_COLOR.r,
-      RenderOptions.DEFAULT_CLUSTER_COLOR.g,
-      RenderOptions.DEFAULT_CLUSTER_COLOR.b
+      RendererConfiguration.DEFAULT_CLUSTER_COLOR.r,
+      RendererConfiguration.DEFAULT_CLUSTER_COLOR.g,
+      RendererConfiguration.DEFAULT_CLUSTER_COLOR.b
     );
 
     this.frustumCulling = false;

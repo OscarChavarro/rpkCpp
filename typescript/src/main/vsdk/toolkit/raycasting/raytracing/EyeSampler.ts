@@ -1,5 +1,5 @@
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";

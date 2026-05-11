@@ -1,7 +1,7 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { BatchOptions } from "./options/BatchOptions";
 import { OptionsGroupBatch } from "./options/OptionsGroupBatch";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { FileUncompressWrapper } from "../io/wrapper/FileUncompressWrapper";
 import { RayTracer } from "../raycasting/common/RayTracer";
@@ -21,7 +21,7 @@ type ProcessFileCallback = (
   radianceMethod: RadianceMethod | null,
   rayTracer: RayTracer | null,
   toneMapOptions: ToneMappingContext,
-  renderOptions: RenderOptions
+  renderOptions: RendererConfiguration
 ) => void;
 
 export class Batch {
@@ -47,7 +47,7 @@ export class Batch {
     radianceMethod: RadianceMethod | null,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (radianceMethod !== null || toneMapOptions !== null || renderOptions !== null) {
       // Parameters intentionally unused in C++ implementation.
@@ -65,7 +65,7 @@ export class Batch {
     radianceMethod: RadianceMethod | null,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     const isPipe = [0];
     const outputStream = FileUncompressWrapper.openOutputStreamCompressWrapper(fileName, isPipe);
@@ -93,7 +93,7 @@ export class Batch {
     radianceMethod: RadianceMethod | null,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (rayTracer !== null) {
       // Parameter intentionally unused in C++ implementation.
@@ -137,7 +137,7 @@ export class Batch {
     radianceMethod: RadianceMethod | null,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (isPipe !== 0 || rayTracer !== null || toneMapOptions !== null) {
       // Parameters intentionally unused in C++ implementation.
@@ -180,7 +180,7 @@ export class Batch {
     radianceMethod: RadianceMethod | null,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (scene === null || scene.geometryList === null || scene.geometryList.length === 0) {
       process.stdout.write("Empty world? Missing argument to some command line parameter option?\n");

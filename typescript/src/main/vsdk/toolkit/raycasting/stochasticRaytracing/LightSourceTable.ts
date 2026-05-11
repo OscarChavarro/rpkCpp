@@ -1,4 +1,4 @@
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 
 export class LightSourceTable {
   public patch: Patch | null;

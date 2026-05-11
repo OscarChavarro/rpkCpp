@@ -1,13 +1,13 @@
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { SglContext } from "../render/sgl/SglContext";
 import { Scene } from "../scene/Scene";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { SoftIds } from "./SoftIds";
 
 export class SoftIdsWrapper {
   private sgl: SglContext;
 
-  private init(scene: Scene, renderOptions: RenderOptions): void {
+  private init(scene: Scene, renderOptions: RendererConfiguration): void {
     if (scene.camera === null) {
       this.sgl = new SglContext(1, 1);
       return;
@@ -17,7 +17,7 @@ export class SoftIdsWrapper {
     SoftIds.softRenderPatches(scene, renderOptions, this.sgl);
   }
 
-  public constructor(scene: Scene, renderOptions: RenderOptions) {
+  public constructor(scene: Scene, renderOptions: RendererConfiguration) {
     this.sgl = new SglContext(1, 1);
     this.init(scene, renderOptions);
   }

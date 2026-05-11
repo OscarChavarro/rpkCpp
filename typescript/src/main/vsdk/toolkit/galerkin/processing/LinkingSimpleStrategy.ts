@@ -10,10 +10,10 @@ import { Interaction } from "../Interaction";
 import { Shaft } from "../Shaft";
 import { Polygon } from "../../scene/Polygon";
 import { Scene } from "../../scene/Scene";
-import { BoundingBox } from "../../skin/BoundingBox";
-import { ElementFlags } from "../../skin/ElementFlags";
+import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
+import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { FormFactorStrategy } from "./FormFactorStrategy";
 
 export class LinkingSimpleStrategy {

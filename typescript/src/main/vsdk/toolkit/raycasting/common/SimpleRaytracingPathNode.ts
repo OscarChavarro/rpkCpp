@@ -4,8 +4,8 @@ import { Logger as VsdkLogger } from "../../common/logging/Logger";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Vector3DPrinter } from "../../io/wrapper/Vector3DPrinter";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../skin/RayHitFlag";
-import { RayHit } from "../../skin/RayHit";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { BsdfComp } from "./BsdfComp";
 import { PathRayType } from "./PathRayType";
 

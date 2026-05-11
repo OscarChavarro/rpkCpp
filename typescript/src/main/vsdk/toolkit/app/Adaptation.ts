@@ -6,7 +6,7 @@ import { Statistics } from "../common/statistics/Statistics";
 import { BsdfComponent } from "../material/BsdfComponent";
 import { XxdfComponentFlag } from "../material/XxdfComponentFlag";
 import { PatchVisitor } from "../numericalAnalysis/PatchVisitor";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMapAdaptationMethod } from "../tonemap/ToneMapAdaptationMethod";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { LuminanceArea } from "./LuminanceArea";

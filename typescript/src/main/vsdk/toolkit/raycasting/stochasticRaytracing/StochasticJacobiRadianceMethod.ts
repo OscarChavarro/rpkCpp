@@ -3,7 +3,7 @@ import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -12,8 +12,8 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Element } from "../../skin/Element";
-import { Patch } from "../../skin/Patch";
+import { Element } from "../../environment/geometry/elements/Element";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { ElementHierarchyState } from "./ElementHierarchyState";
@@ -117,7 +117,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
@@ -139,7 +139,7 @@ export class StochasticJacobiRadianceMethod extends RadianceMethod {
   public override writeVRML(
     camera: Camera,
     outputStream: OutputStream,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (camera === null || outputStream === null || renderOptions === null) {
       // Not implemented in C++ version either.
@@ -268,7 +268,7 @@ Computes quality factor on given leaf element.
   private static stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
     scene: Scene,
     radianceMethod: RadianceMethod,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let refUnShot: number;
     let stepNumber = 0;
@@ -369,7 +369,7 @@ Computes quality factor on given leaf element.
   private static stochasticRelaxationRadiosityDoIncrementalImportanceIterations(
     sceneWorldVoxelGrid: VoxelGrid,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let stepNumber = 0;
     const radianceDriven = StochasticRelaxation.activeState().radianceDriven;
@@ -490,7 +490,7 @@ Computes quality factor on given leaf element.
   private static stochasticRelaxationRadiosityDoRegularRadianceIteration(
     sceneWorldVoxelGrid: VoxelGrid,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     process.stderr.write(
       util.format("Regular radiance iteration %d:\n", StochasticRelaxation.activeState().currentIteration)
@@ -529,7 +529,7 @@ Computes quality factor on given leaf element.
   private static stochasticRelaxationRadiosityDoRegularImportanceIteration(
     sceneWorldVoxelGrid: VoxelGrid,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let numberOfRays: number;
     const doHierarchicMeshing = ElementHierarchyState.activeState().do_h_meshing;
@@ -586,7 +586,7 @@ iteration.
     );
   }
 
-  public override doStep(scene: Scene, renderOptions: RenderOptions): boolean {
+  public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
     StochasticRadiosityBasisState.setActiveState(this.stochasticRadiosityBasisState);

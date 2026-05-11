@@ -1,11 +1,11 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { NextEventSampler } from "../raytracing/NextEventSampler";

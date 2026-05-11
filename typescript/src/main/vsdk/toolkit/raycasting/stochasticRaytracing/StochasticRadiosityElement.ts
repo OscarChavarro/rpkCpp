@@ -5,22 +5,22 @@ Monte Carlo radiosity element type
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongEmittanceDistributionFunction } from "../../material/PhongEmittanceDistributionFunction";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";
 import { Geometry } from "../../skin/Geometry";
-import { Element } from "../../skin/Element";
-import { ElementFlags } from "../../skin/ElementFlags";
-import { ElementTypes } from "../../skin/ElementTypes";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
-import { Vertex } from "../../skin/Vertex";
+import { Element } from "../../environment/geometry/elements/Element";
+import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
+import { ElementTypes } from "../../environment/geometry/elements/ElementTypes";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { ToneMap } from "../../tonemap/ToneMap";
 import { Basismcrad } from "./Basismcrad";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -726,7 +726,7 @@ process of triangle subdivision.
   /**
 Create sub-elements: regular subdivision, see drawings above
 */
-  private static monteCarloRadiosityRegularSubdivideTriangle(element: StochasticRadiosityElement, renderOptions: RenderOptions): StochasticRadiosityElement[] {
+  private static monteCarloRadiosityRegularSubdivideTriangle(element: StochasticRadiosityElement, renderOptions: RendererConfiguration): StochasticRadiosityElement[] {
     void renderOptions;
 
     const v0 = element.vertices[0]!;
@@ -744,7 +744,7 @@ Create sub-elements: regular subdivision, see drawings above
     return StochasticRadiosityElement.castElementArray(element.regularSubElements)!;
   }
 
-  private static monteCarloRadiosityRegularSubdivideQuad(element: StochasticRadiosityElement, renderOptions: RenderOptions): StochasticRadiosityElement[] {
+  private static monteCarloRadiosityRegularSubdivideQuad(element: StochasticRadiosityElement, renderOptions: RendererConfiguration): StochasticRadiosityElement[] {
     void renderOptions;
 
     const v0 = element.vertices[0]!;
@@ -771,7 +771,7 @@ done so before. Returns the list of created sub-elements
 */
   public static stochasticRadiosityElementRegularSubdivideElement(
     element: StochasticRadiosityElement,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): StochasticRadiosityElement[] | null {
     if (element.regularSubElements !== null) {
       return StochasticRadiosityElement.castElementArray(element.regularSubElements);
@@ -1101,7 +1101,7 @@ Compute new vertex colors
     elem: StochasticRadiosityElement,
     u: number,
     v: number,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     let radiance = new ColorRgb();
     if (elem.basis!.size === 1) {

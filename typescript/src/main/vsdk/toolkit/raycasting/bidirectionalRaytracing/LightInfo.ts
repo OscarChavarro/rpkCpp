@@ -1,4 +1,4 @@
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 
 export class LightInfo {
   public emittedFlux: number;

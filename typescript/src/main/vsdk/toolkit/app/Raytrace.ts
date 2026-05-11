@@ -2,7 +2,7 @@ import { OutputStream } from "../../../java/io/OutputStream";
 import { ArrayList } from "../../../java/util/ArrayList";
 import { OptionsGroupRaytracing } from "./options/OptionsGroupRaytracing";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { BidirectionalPathRaytracer } from "../raycasting/bidirectionalRaytracing/BidirectionalPathRaytracer";
 import { BidirectionalPathTracingState } from "../raycasting/bidirectionalRaytracing/BidirectionalPathTracingState";
@@ -16,7 +16,7 @@ import { StochasticRayTracingState } from "../raycasting/stochasticRaytracing/St
 import { Canvas } from "../render/Canvas";
 import { RadianceMethod } from "../scene/RadianceMethod";
 import { Scene } from "../scene/Scene";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 
 export class Raytrace {
@@ -160,7 +160,7 @@ export class Raytrace {
     radianceMethod: RadianceMethod,
     rayTracer: RayTracer | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     renderOptions.renderRayTracedImage = true;
     if (scene.camera !== null) {

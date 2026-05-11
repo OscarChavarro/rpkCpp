@@ -1,5 +1,5 @@
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 
 /**
 Path node: contains all necessary data for computing the score afterwards

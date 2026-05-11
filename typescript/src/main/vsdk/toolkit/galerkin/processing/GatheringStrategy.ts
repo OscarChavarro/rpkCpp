@@ -1,4 +1,4 @@
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinState } from "../GalerkinState";
 import { Scene } from "../../scene/Scene";
@@ -45,5 +45,5 @@ export abstract class GatheringStrategy {
   public constructor() {
   }
 
-  public abstract doGatheringIteration(scene: Scene, galerkinState: GalerkinState, renderOptions: RenderOptions): boolean;
+  public abstract doGatheringIteration(scene: Scene, galerkinState: GalerkinState, renderOptions: RendererConfiguration): boolean;
 }

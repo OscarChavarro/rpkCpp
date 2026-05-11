@@ -4,11 +4,11 @@ import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { SimpleRaytracingPathNode } from "./SimpleRaytracingPathNode";
 
 export class RayTools {

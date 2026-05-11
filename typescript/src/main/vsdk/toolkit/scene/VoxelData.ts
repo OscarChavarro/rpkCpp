@@ -1,5 +1,5 @@
 import { Geometry } from "../skin/Geometry";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { VoxelDataFlags } from "./VoxelDataFlags";
 import type { VoxelGrid } from "./VoxelGrid";
 

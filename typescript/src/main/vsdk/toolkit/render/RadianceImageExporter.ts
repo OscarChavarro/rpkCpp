@@ -1,14 +1,14 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
 import { Logger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { ImageOutputHandle } from "../io/image/ImageOutputHandle";
 import { Camera } from "../scene/Camera";
 import { RadianceMethod } from "../scene/RadianceMethod";
 import { Scene } from "../scene/Scene";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { ScreenBuffer } from "./ScreenBuffer";
 import { SoftIdsWrapper } from "./SoftIdsWrapper";
@@ -24,7 +24,7 @@ export class RadianceImageExporter {
     scene: Scene | null,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext | null,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (outputStream === null || scene === null || scene.camera === null) {
       return;
@@ -109,7 +109,7 @@ export class RadianceImageExporter {
     y: number,
     patch: Patch | null,
     radianceMethod: RadianceMethod | null,
-    renderOptions: RenderOptions | null
+    renderOptions: RendererConfiguration | null
   ): ColorRgb {
     const radiance = new ColorRgb();
     radiance.clear();

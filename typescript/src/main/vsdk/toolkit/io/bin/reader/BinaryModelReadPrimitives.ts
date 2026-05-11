@@ -3,7 +3,7 @@ import { ColorRgb } from "../../../common/color/ColorRgb";
 import { Logger } from "../../../common/logging/Logger";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { ParseSnapshotContext } from "../../context/ParseSnapshotContext";
-import { BoundingBox } from "../../../skin/BoundingBox";
+import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { BoundingBoxCoordinateIndex } from "../../../skin/BoundingBoxCoordinateIndex";
 import { BinaryModelIndexListRef } from "./BinaryModelIndexListRef";
 import { BinaryModelSnapshotRecordData } from "./BinaryModelSnapshotRecordData";

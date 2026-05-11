@@ -1,8 +1,8 @@
 import { ColorRgb } from "../common/color/ColorRgb";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../skin/RayHitFlag";
-import { Patch } from "../skin/Patch";
-import { RayHit } from "../skin/RayHit";
+import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
+import { Patch } from "../environment/geometry/elements/Patch";
+import { RayHit } from "../environment/geometry/elements/RayHit";
 import { Niederreiter31 } from "./quasiMonteCarlo/Niederreiter31";
 
 export class PatchVisitor {

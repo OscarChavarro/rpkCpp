@@ -3,9 +3,9 @@ import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinIterationMethod } from "../GalerkinIterationMethod";
 import { GalerkinState } from "../GalerkinState";
-import { ElementFlags } from "../../skin/ElementFlags";
+import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 
 export class ClusterCreationStrategy {
   private static irregularElementsToDelete: GalerkinElement[] | null = null;

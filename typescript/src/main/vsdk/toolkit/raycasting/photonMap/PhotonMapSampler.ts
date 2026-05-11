@@ -17,7 +17,7 @@ import { Xxdf } from "../../material/Xxdf";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { RayHit } from "../../skin/RayHit";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";
 import { BsdfSampler } from "../raytracing/BsdfSampler";

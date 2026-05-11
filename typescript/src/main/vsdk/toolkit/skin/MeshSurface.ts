@@ -4,10 +4,10 @@ import { Statistics } from "../common/statistics/Statistics";
 import { Material } from "../material/Material";
 import { Geometry } from "./Geometry";
 import { GeometryClassId } from "./GeometryClassId";
-import { MaterialColorFlags } from "./MaterialColorFlags";
-import type { Patch } from "./Patch";
-import type { RayHit } from "./RayHit";
-import { Vertex } from "./Vertex";
+import { MaterialColorFlags } from "../material/MaterialColorFlags";
+import type { Patch } from "../environment/geometry/elements/Patch";
+import type { RayHit } from "../environment/geometry/elements/RayHit";
+import { Vertex } from "../environment/geometry/elements/Vertex";
 
 export class MeshSurface extends Geometry {
   private static nextSurfaceId = 0;

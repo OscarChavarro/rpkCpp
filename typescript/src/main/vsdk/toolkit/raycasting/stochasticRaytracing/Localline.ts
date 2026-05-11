@@ -6,10 +6,10 @@ import { CoordinateSystem } from "../../common/linealAlgebra/CoordinateSystem";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { StochasticRelaxation } from "./StochasticRelaxation";
 
 export class Localline {

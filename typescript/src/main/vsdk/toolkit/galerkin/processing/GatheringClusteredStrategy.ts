@@ -1,4 +1,4 @@
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
 import { GalerkinRadianceMethod } from "../GalerkinRadianceMethod";
@@ -6,8 +6,8 @@ import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";
-import { ElementFlags } from "../../skin/ElementFlags";
-import { Patch } from "../../skin/Patch";
+import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { GatheringStrategy } from "./GatheringStrategy";
 import { HierarchicalRefinementStrategy } from "./HierarchicalRefinementStrategy";
 import { LinkingClusteredStrategy } from "./LinkingClusteredStrategy";
@@ -47,7 +47,7 @@ export class GatheringClusteredStrategy extends GatheringStrategy {
     super();
   }
 
-  public override doGatheringIteration(scene: Scene, galerkinState: GalerkinState, renderOptions: RenderOptions): boolean {
+  public override doGatheringIteration(scene: Scene, galerkinState: GalerkinState, renderOptions: RendererConfiguration): boolean {
     if (galerkinState.importanceDriven !== 0
       && (galerkinState.iterationNumber <= 1 || (scene.camera as NonNullable<Scene["camera"]>).changed !== 0)) {
       Potential.updateDirectPotential(scene, renderOptions);

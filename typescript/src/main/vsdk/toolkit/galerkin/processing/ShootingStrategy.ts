@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
 import { GalerkinBasis } from "../GalerkinBasis";
 import { GalerkinElement } from "../GalerkinElement";
@@ -8,9 +8,9 @@ import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";
-import { Element } from "../../skin/Element";
-import { ElementFlags } from "../../skin/ElementFlags";
-import { Patch } from "../../skin/Patch";
+import { Element } from "../../environment/geometry/elements/Element";
+import { ElementFlags } from "../../environment/geometry/elements/ElementFlags";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { HierarchicalRefinementStrategy } from "./HierarchicalRefinementStrategy";
 import { LinkingClusteredStrategy } from "./LinkingClusteredStrategy";
 import { LinkingSimpleStrategy } from "./LinkingSimpleStrategy";
@@ -307,7 +307,7 @@ export class ShootingStrategy {
     galerkinElement.unShotPotential += potentialIncrement;
   }
 
-  public static doShootingStep(scene: Scene, galerkinState: GalerkinState, renderOptions: RenderOptions): boolean {
+  public static doShootingStep(scene: Scene, galerkinState: GalerkinState, renderOptions: RendererConfiguration): boolean {
     if (galerkinState.importanceDriven !== 0) {
       if (galerkinState.iterationNumber <= 1 || (scene.camera as NonNullable<Scene["camera"]>).changed !== 0) {
         Potential.updateDirectPotential(scene, renderOptions);

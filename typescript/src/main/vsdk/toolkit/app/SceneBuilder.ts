@@ -25,7 +25,7 @@ import { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
 import { GeometryClassId } from "../skin/GeometryClassId";
 import { MeshSurface } from "../skin/MeshSurface";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Adaptation } from "./Adaptation";

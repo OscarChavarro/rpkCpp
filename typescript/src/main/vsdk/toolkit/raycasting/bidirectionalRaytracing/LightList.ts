@@ -7,7 +7,7 @@ import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { XxdfComponentFlag } from "../../material/XxdfComponentFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { LightInfo } from "./LightInfo";
 
 export class LightList extends CircularList<LightInfo> {

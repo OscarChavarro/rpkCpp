@@ -1,6 +1,6 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
-import { BoundingBox } from "./BoundingBox";
+import { BoundingBox } from "./AxisAlignedBoundingBox";
 import { BoundingBoxCoordinateIndex } from "./BoundingBoxCoordinateIndex";
 
 export class MinMaxBox {

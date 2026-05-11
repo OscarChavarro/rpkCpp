@@ -5,12 +5,12 @@ Hierarchical refinement stuff (includes Jan's elementP.h)
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
-import { Vertex } from "../../skin/Vertex";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { ElementHierarchyState, ORACLE, REFINE_ACTION } from "./ElementHierarchyState";
 import { HierarchyClusteringMode } from "./HierarchyClusteringMode";
 import { Link } from "./Link";
@@ -95,7 +95,7 @@ export class Hierarchy {
     srctop: StochasticRadiosityElement,
     us: number[],
     vs: number[],
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): Link {
     void rcvtop;
     void ur;
@@ -116,7 +116,7 @@ export class Hierarchy {
     srctop: StochasticRadiosityElement,
     us: number[],
     vs: number[],
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): Link {
     void srctop;
     void us;
@@ -144,7 +144,7 @@ export class Hierarchy {
     srcTop: StochasticRadiosityElement,
     us: number[],
     vs: number[],
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): Link {
     void rcvtop;
     void ur;
@@ -289,7 +289,7 @@ after refinement
     us: number[],
     vs: number[],
     evaluateLink: ORACLE,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): Link {
     if (ElementHierarchyState.activeState().do_h_meshing === 0) {
       link.rcv = rcvTop;

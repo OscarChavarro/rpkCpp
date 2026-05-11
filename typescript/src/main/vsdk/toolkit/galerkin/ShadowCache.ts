@@ -1,8 +1,8 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
-import { RayHitFlag } from "../skin/RayHitFlag";
-import { Patch } from "../skin/Patch";
-import { RayHit } from "../skin/RayHit";
+import { RayHitFlag } from "../environment/geometry/elements/RayHitFlag";
+import { Patch } from "../environment/geometry/elements/Patch";
+import { RayHit } from "../environment/geometry/elements/RayHit";
 
 export class ShadowCache {
   private static readonly MAX_CACHE = 5;

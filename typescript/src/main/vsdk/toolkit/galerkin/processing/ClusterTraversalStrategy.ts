@@ -13,7 +13,7 @@ import { MaximumRadianceVisitor } from "./visitors/MaximumRadianceVisitor";
 import { OrientedGathererVisitor } from "./visitors/OrientedGathererVisitor";
 import { PowerAccumulatorVisitor } from "./visitors/PowerAccumulatorVisitor";
 import { ProjectedAreaAccumulatorVisitor } from "./visitors/ProjectedAreaAccumulatorVisitor";
-import { BoundingBox } from "../../skin/BoundingBox";
+import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { ScratchVisibilityStrategy } from "./ScratchVisibilityStrategy";
 
 export class ClusterTraversalStrategy {

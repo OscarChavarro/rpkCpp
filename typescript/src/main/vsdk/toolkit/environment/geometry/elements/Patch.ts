@@ -1,16 +1,16 @@
-import { ColorRgb } from "../common/color/ColorRgb";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { CoordinateAxis } from "../common/linealAlgebra/CoordinateAxis";
-import { Jacobian } from "../common/linealAlgebra/Jacobian";
-import { Numeric } from "../common/linealAlgebra/Numeric";
-import { Ray } from "../common/linealAlgebra/Ray";
-import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { Statistics } from "../common/statistics/Statistics";
-import { Material } from "../material/Material";
-import { RayHitFlag } from "../skin/RayHitFlag";
+import { ColorRgb } from "../../../common/color/ColorRgb";
+import { Logger as VsdkLogger } from "../../../common/logging/Logger";
+import { CoordinateAxis } from "../../../common/linealAlgebra/CoordinateAxis";
+import { Jacobian } from "../../../common/linealAlgebra/Jacobian";
+import { Numeric } from "../../../common/linealAlgebra/Numeric";
+import { Ray } from "../../../common/linealAlgebra/Ray";
+import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd";
+import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
+import { Statistics } from "../../../common/statistics/Statistics";
+import { Material } from "../../../material/Material";
+import { RayHitFlag } from "./RayHitFlag";
 import type { Element } from "./Element";
-import { BoundingBox } from "./BoundingBox";
+import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { RayHit } from "./RayHit";
 import { Vertex } from "./Vertex";
 

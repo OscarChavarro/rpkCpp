@@ -13,13 +13,13 @@ import { GalerkinRole } from "../GalerkinRole";
 import { GalerkinState } from "../GalerkinState";
 import { Interaction } from "../Interaction";
 import { ShadowCache } from "../ShadowCache";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { CubatureRule } from "../../numericalAnalysis/CubatureRule";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { BoundingBox } from "../../skin/BoundingBox";
+import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { FormFactorClusteredStrategy } from "./FormFactorClusteredStrategy";
 
 export class FormFactorStrategy {

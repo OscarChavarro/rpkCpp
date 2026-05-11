@@ -1,5 +1,5 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Matrix4x4 } from "../../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -184,7 +184,7 @@ export class VrmlWriter {
     }
   }
 
-  public static writeHeader(camera: Camera, outputStream: OutputStream | null, renderOptions: RenderOptions): void {
+  public static writeHeader(camera: Camera, outputStream: OutputStream | null, renderOptions: RendererConfiguration): void {
     const modelRotationAxis = new Vector3D();
     const modelRotationAngle = [0.0];
 

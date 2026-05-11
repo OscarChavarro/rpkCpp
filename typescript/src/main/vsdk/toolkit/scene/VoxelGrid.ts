@@ -2,12 +2,12 @@ import { Logger } from "../common/logging/Logger";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Ray } from "../common/linealAlgebra/Ray";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { BoundingBox } from "../skin/BoundingBox";
+import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
 import { MinMaxBox } from "../skin/MinMaxBox";
-import { Patch } from "../skin/Patch";
-import { RayHit } from "../skin/RayHit";
+import { Patch } from "../environment/geometry/elements/Patch";
+import { RayHit } from "../environment/geometry/elements/RayHit";
 import { VoxelData } from "./VoxelData";
 import { VoxelDataFlags } from "./VoxelDataFlags";
 

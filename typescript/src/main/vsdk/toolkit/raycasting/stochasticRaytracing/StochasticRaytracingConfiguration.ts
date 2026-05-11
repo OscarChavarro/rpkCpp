@@ -5,7 +5,7 @@ import { ScreenBuffer } from "../../render/ScreenBuffer";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { ImportantLightSampler } from "../bidirectionalRaytracing/ImportantLightSampler";
 import { LightList } from "../bidirectionalRaytracing/LightList";

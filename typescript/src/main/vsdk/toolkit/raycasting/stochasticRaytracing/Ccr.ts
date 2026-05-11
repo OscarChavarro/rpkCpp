@@ -6,7 +6,7 @@ import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { McradP } from "./McradP";
 import { StochasticRadiosityElement } from "./StochasticRadiosityElement";
 import { StochasticRelaxation } from "./StochasticRelaxation";

@@ -1,8 +1,8 @@
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Material } from "../../material/Material";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
-import { Vertex } from "../../skin/Vertex";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { ColorContext } from "./ColorContext";
 import { ReaderContext } from "./ReaderContext";
 import { TransformStackContext } from "./TransformStackContext";

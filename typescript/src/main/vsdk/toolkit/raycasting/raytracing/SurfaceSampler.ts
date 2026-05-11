@@ -1,11 +1,11 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Background } from "../../scene/Background";
 import { Camera } from "../../scene/Camera";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { RayHit } from "../../skin/RayHit";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { BsdfComp } from "../common/BsdfComp";
 import { PathRayType } from "../common/PathRayType";
 import { SimpleRaytracingPathNode } from "../common/SimpleRaytracingPathNode";

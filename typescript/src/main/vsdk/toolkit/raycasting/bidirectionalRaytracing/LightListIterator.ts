@@ -1,5 +1,5 @@
 import { CircularListIterator } from "../../common/dataStructures/CircularListIterator";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { LightInfo } from "./LightInfo";
 import { LightList } from "./LightList";
 

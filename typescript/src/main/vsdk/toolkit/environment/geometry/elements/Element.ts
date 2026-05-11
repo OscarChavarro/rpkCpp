@@ -1,7 +1,7 @@
-import { ColorRgb } from "../common/color/ColorRgb";
-import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
-import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
+import { ColorRgb } from "../../../common/color/ColorRgb";
+import { Logger as VsdkLogger } from "../../../common/logging/Logger";
+import { RendererConfiguration } from "../../../material/RendererConfiguration";
+import { Matrix2x2 } from "../../../common/linealAlgebra/Matrix2x2";
 import { ElementFlags } from "./ElementFlags";
 
 export class Element {
@@ -95,8 +95,8 @@ export class Element {
   }
 
   public traverseQuadTreeLeafs(
-    traversalCallbackFunction: (element: Element, renderOptions: RenderOptions) => void,
-    renderOptions: RenderOptions
+    traversalCallbackFunction: (element: Element, renderOptions: RendererConfiguration) => void,
+    renderOptions: RendererConfiguration
   ): void {
     if (this.regularSubElements === null) {
       traversalCallbackFunction(this, renderOptions);

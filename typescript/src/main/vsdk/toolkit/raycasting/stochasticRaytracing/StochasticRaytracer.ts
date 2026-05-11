@@ -2,8 +2,8 @@ import { ArrayList } from "../../../../java/util/ArrayList";
 import { Random } from "../../../../java/util/Random";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
-import { StratifiedSampling2D } from "../../common/StratifiedSampling2D";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
+import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
@@ -16,7 +16,7 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { LightList } from "../bidirectionalRaytracing/LightList";
 import { PathRayType } from "../common/PathRayType";
@@ -80,7 +80,7 @@ Raytrace the current scene as seen with the current camera.
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (toneMapOptions === null) {
       VsdkLogger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
@@ -160,7 +160,7 @@ Raytrace the current scene as seen with the current camera.
     config: StochasticRaytracingConfiguration,
     readout: StorageReadout,
     radianceMethod: RadianceMethod,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     let siCurrent: number;
     let si: ScatterInfo;
@@ -445,7 +445,7 @@ Raytrace the current scene as seen with the current camera.
     readout: StorageReadout,
     usedScatterSamples: number,
     radianceMethod: RadianceMethod,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     const result = new ColorRgb();
     let radiance = new ColorRgb();
@@ -633,7 +633,7 @@ Raytrace the current scene as seen with the current camera.
     const callbackData = data as StochasticRaytracerCallbackData;
     const config = callbackData.config as StochasticRaytracingConfiguration;
     const radianceMethod = callbackData.radianceMethod as RadianceMethod;
-    const renderOptions = callbackData.renderOptions as RenderOptions;
+    const renderOptions = callbackData.renderOptions as RendererConfiguration;
     const eyeNode = new SimpleRaytracingPathNode();
     const pixelNode = new SimpleRaytracingPathNode();
     const x1 = [0.0];

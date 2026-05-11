@@ -10,9 +10,9 @@ import { Compound } from "../../../skin/Compound";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
 import { MeshSurface } from "../../../skin/MeshSurface";
-import { Patch } from "../../../skin/Patch";
-import { PatchSet } from "../../../skin/PatchSet";
-import { Vertex } from "../../../skin/Vertex";
+import { Patch } from "../../../environment/geometry/elements/Patch";
+import { PatchSet } from "../../../environment/geometry/elements/PatchSet";
+import { Vertex } from "../../../environment/geometry/elements/Vertex";
 
 export class BinaryModelSerializationGraph {
   public vectorIndices: Map<Vector3D, number>;

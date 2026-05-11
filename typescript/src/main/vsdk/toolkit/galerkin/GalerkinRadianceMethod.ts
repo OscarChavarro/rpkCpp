@@ -1,7 +1,7 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
@@ -19,8 +19,8 @@ import { Camera } from "../scene/Camera";
 import { RadianceMethod } from "../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../scene/RadianceMethodAlgorithm";
 import { Scene } from "../scene/Scene";
-import { Element } from "../skin/Element";
-import { Patch } from "../skin/Patch";
+import { Element } from "../environment/geometry/elements/Element";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMap } from "../tonemap/ToneMap";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { GalerkinBasis } from "./GalerkinBasis";
@@ -199,7 +199,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     );
   }
 
-  public override doStep(scene: Scene, renderOptions: RenderOptions): boolean {
+  public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
     if (GalerkinRadianceMethod.galerkinState.iterationNumber < 0) {
       VsdkLogger.error("doGalerkinOneStep", "method not initialized");
       return true;
@@ -343,7 +343,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions,
+    renderOptions: RendererConfiguration,
   ): ColorRgb {
     if (camera !== null || dir !== null || renderOptions !== null) {
       // Parameters intentionally unused in this method.
@@ -385,7 +385,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
   public override writeVRML(
     camera: Camera,
     outputStream: OutputStream,
-    renderOptions: RenderOptions,
+    renderOptions: RendererConfiguration,
   ): void {
     if (camera === null || outputStream === null || renderOptions === null) {
       return;
@@ -582,7 +582,7 @@ export class GalerkinRadianceMethod extends RadianceMethod {
     GalerkinRadianceMethod.writeFormatted("%s", "\n\t}\n");
   }
 
-  private static writeColors(renderOptions: RenderOptions): void {
+  private static writeColors(renderOptions: RendererConfiguration): void {
     if (renderOptions === null) {
       return;
     }

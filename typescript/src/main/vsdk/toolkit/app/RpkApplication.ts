@@ -17,8 +17,8 @@ import { PatchClusterOctreeNode } from "../scene/PatchClusterOctreeNode";
 import { RadianceMethod } from "../scene/RadianceMethod";
 import { Scene } from "../scene/Scene";
 import { VoxelGrid } from "../scene/VoxelGrid";
-import { Vertex } from "../skin/Vertex";
-import { VertexCompareFlags } from "../skin/VertexCompareFlags";
+import { Vertex } from "../environment/geometry/elements/Vertex";
+import { VertexCompareFlags } from "../environment/geometry/elements/VertexCompareFlags";
 import { FerwerdaToneMap } from "../tonemap/FerwerdaToneMap";
 import { LightnessToneMap } from "../tonemap/LightnessToneMap";
 import { RevisedTumblinRushmeierToneMap } from "../tonemap/RevisedTumblinRushmeierToneMap";
@@ -26,7 +26,7 @@ import { ToneMap } from "../tonemap/ToneMap";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { TumblinRushmeierToneMap } from "../tonemap/TumblinRushmeierToneMap";
 import { WardToneMap } from "../tonemap/WardToneMap";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Material } from "../material/Material";
 import { MgfParserLoader } from "../io/mgf/MgfParserLoader";
 import { Batch } from "./Batch";
@@ -49,7 +49,7 @@ export class RpkApplication {
   private selectedRadianceMethod: RadianceMethod | null;
   private selectedToneMap: ToneMap | null;
   private toneMapOptions: ToneMappingContext;
-  private renderOptions: RenderOptions;
+  private renderOptions: RendererConfiguration;
   private rayTracer: RayTracer | null;
   private glutDebugEnabled: boolean;
 
@@ -64,7 +64,7 @@ export class RpkApplication {
 
     this.scene = new Scene();
     this.mgfContext = new ParseRuntimeContext();
-    this.renderOptions = new RenderOptions();
+    this.renderOptions = new RendererConfiguration();
   }
 
   /**

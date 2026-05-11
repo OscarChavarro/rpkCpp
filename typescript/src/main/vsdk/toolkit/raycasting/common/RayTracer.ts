@@ -1,10 +1,10 @@
 import { OutputStream } from "../../../../java/io/OutputStream";
 import { ArrayList } from "../../../../java/util/ArrayList";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 
 export abstract class RayTracer {
@@ -19,7 +19,7 @@ export abstract class RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void;
 
   public abstract saveImage(imageOutputHandle: ImageOutputHandle): boolean;
@@ -34,7 +34,7 @@ export abstract class RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let img: ImageOutputHandle | null = null;
 

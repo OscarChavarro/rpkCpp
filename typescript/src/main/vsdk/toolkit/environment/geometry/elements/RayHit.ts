@@ -1,11 +1,11 @@
-import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { CoordinateSystem } from "../common/linealAlgebra/CoordinateSystem";
-import { Vector2Dd } from "../common/linealAlgebra/Vector2Dd";
-import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { Material } from "../material/Material";
-import { PhongBidirectionalScatteringDistributionFunction } from "../material/PhongBidirectionalScatteringDistributionFunction";
-import { PhongEmittanceDistributionFunction } from "../material/PhongEmittanceDistributionFunction";
-import { RayHitFlag } from "../skin/RayHitFlag";
+import { Logger as VsdkLogger } from "../../../common/logging/Logger";
+import { CoordinateSystem } from "../../../common/linealAlgebra/CoordinateSystem";
+import { Vector2Dd } from "../../../common/linealAlgebra/Vector2Dd";
+import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
+import { Material } from "../../../material/Material";
+import { PhongBidirectionalScatteringDistributionFunction } from "../../../material/PhongBidirectionalScatteringDistributionFunction";
+import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
+import { RayHitFlag } from "./RayHitFlag";
 import type { Patch } from "./Patch";
 
 export class RayHit {

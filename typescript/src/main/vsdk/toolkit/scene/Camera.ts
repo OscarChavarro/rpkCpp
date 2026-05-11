@@ -3,7 +3,7 @@ import { Logger } from "../common/logging/Logger";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { BoundingBox } from "../skin/BoundingBox";
+import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { Plane } from "./Plane";
 
 export class Camera {

@@ -4,7 +4,7 @@ import { ArrayList } from "../../../../java/util/ArrayList";
 import { Cie } from "../../common/color/Cie";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -13,8 +13,8 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Element } from "../../skin/Element";
-import { Patch } from "../../skin/Patch";
+import { Element } from "../../environment/geometry/elements/Element";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { ElementHierarchyState } from "./ElementHierarchyState";
@@ -113,7 +113,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
@@ -135,7 +135,7 @@ export class RandomWalkRadianceMethod extends RadianceMethod {
   public override writeVRML(
     camera: Camera,
     outputStream: OutputStream,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (camera === null || outputStream === null || renderOptions === null) {
       // Not implemented in C++ version either.
@@ -607,7 +607,7 @@ Determines control radiosity value for collision gathering estimator
   private static randomWalkRadiosityDoFirstShot(
     sceneWorldVoxelGrid: VoxelGrid,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     const approx = (StochasticRelaxation.activeState().approximationOrderType
       ?? StochasticRaytracingApproximation.CONSTANT) as number;
@@ -634,7 +634,7 @@ Determines control radiosity value for collision gathering estimator
     Mcrad.monteCarloRadiosityTerminate(RandomWalkRadianceMethod.toArrayList(scenePatches));
   }
 
-  public override doStep(scene: Scene, renderOptions: RenderOptions): boolean {
+  public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
     StochasticRelaxation.setActiveState(this.stochasticRelaxationState);
     ElementHierarchyState.setActiveState(this.elementHierarchyState);
     StochasticRadiosityBasisState.setActiveState(this.stochasticRadiosityBasisState);

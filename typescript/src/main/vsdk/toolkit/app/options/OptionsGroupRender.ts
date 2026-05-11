@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { OptionBase } from "../../common/commandLineOptions/OptionBase";
 import { OptionGroup } from "../../common/commandLineOptions/OptionGroup";
 import { OptionParser } from "../../common/commandLineOptions/OptionParser";
@@ -7,7 +7,7 @@ import { TypedOption } from "../../common/commandLineOptions/TypedOption";
 
 export class OptionsGroupRender {
   private static trueValue = 1;
-  private static renderOptionsState = new RenderOptions();
+  private static renderOptionsState = new RendererConfiguration();
   private static outlineColor = new ColorRgb();
 
   private constructor() {
@@ -49,7 +49,7 @@ export class OptionsGroupRender {
     return true;
   }
 
-  private static copyFrom(source: RenderOptions | null, target: RenderOptions | null): void {
+  private static copyFrom(source: RendererConfiguration | null, target: RendererConfiguration | null): void {
     if (source === null || target === null) {
       return;
     }
@@ -70,7 +70,7 @@ export class OptionsGroupRender {
     target.trace = source.trace;
   }
 
-  public static renderParseOptions(argc: number[], argv: string[], renderOptions: RenderOptions): void {
+  public static renderParseOptions(argc: number[], argv: string[], renderOptions: RendererConfiguration): void {
     const flatOpt = new TypedOption<number>(
       "-flat-shading",
       TypedOption.valueRef(OptionsGroupRender.trueValue),

@@ -14,14 +14,14 @@ import { PhongBidirectionalScatteringDistributionFunction } from "../../../mater
 import { PhongBidirectionalTransmittanceDistributionFunction } from "../../../material/PhongBidirectionalTransmittanceDistributionFunction";
 import { PhongEmittanceDistributionFunction } from "../../../material/PhongEmittanceDistributionFunction";
 import { Texture } from "../../../material/Texture";
-import { BoundingBox } from "../../../skin/BoundingBox";
+import { BoundingBox } from "../../../skin/AxisAlignedBoundingBox";
 import { Compound } from "../../../skin/Compound";
 import { Geometry } from "../../../skin/Geometry";
 import { GeometryClassId } from "../../../skin/GeometryClassId";
 import { MeshSurface } from "../../../skin/MeshSurface";
-import { Patch } from "../../../skin/Patch";
-import { PatchSet } from "../../../skin/PatchSet";
-import { Vertex } from "../../../skin/Vertex";
+import { Patch } from "../../../environment/geometry/elements/Patch";
+import { PatchSet } from "../../../environment/geometry/elements/PatchSet";
+import { Vertex } from "../../../environment/geometry/elements/Vertex";
 import { BinaryModelSerializationGraph } from "./BinaryModelSerializationGraph";
 
 const fs = require("node:fs");

@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { GalerkinBasis } from "./GalerkinBasis";
 type StochasticRadiosityElement = any;
 

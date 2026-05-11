@@ -1,5 +1,5 @@
 import { Vector3Dd } from "../../common/linealAlgebra/Vector3Dd";
-import { Vertex } from "../../skin/Vertex";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 
 export class VertexContext {
   public p: Vector3Dd;

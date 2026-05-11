@@ -3,7 +3,7 @@ import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
 import { GalerkinElement } from "../../GalerkinElement";
 import { GalerkinState } from "../../GalerkinState";
 import { SglContext } from "../../../render/sgl/SglContext";
-import { Patch } from "../../../skin/Patch";
+import { Patch } from "../../../environment/geometry/elements/Patch";
 import { ClusterLeafVisitor } from "./ClusterLeafVisitor";
 
 export class ScratchRendererVisitor implements ClusterLeafVisitor {

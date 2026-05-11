@@ -4,7 +4,7 @@ Original version by Vincent Masselus adapted by Pieter Peers (2001-06-01)
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Statistics } from "../../common/statistics/Statistics";
@@ -20,7 +20,7 @@ import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { RayMatterFilterType } from "./RayMatterFilterType";
 import { RayMatterState } from "./RayMatterState";
@@ -73,7 +73,7 @@ export class RayMatter extends RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     void radianceMethod;
     void renderOptions;

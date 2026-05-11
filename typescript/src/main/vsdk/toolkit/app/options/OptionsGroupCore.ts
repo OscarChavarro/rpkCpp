@@ -1,5 +1,5 @@
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { OptionBase } from "../../common/commandLineOptions/OptionBase";
 import { OptionGroup } from "../../common/commandLineOptions/OptionGroup";
 import { OptionParser } from "../../common/commandLineOptions/OptionParser";
@@ -42,7 +42,7 @@ export class OptionsGroupCore {
     argv: string[],
     parseSession: ParseRuntimeContext,
     scene: Scene,
-    renderOptions: RenderOptions,
+    renderOptions: RendererConfiguration,
     toneMapOptions: ToneMappingContext,
     imageOutputWidth: number[],
     imageOutputHeight: number[],

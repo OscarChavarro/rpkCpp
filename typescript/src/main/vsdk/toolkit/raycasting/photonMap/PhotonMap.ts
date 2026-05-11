@@ -9,7 +9,7 @@ import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
 import { PhongBidirectionalScatteringDistributionFunction } from "../../material/PhongBidirectionalScatteringDistributionFunction";
 import { Camera } from "../../scene/Camera";
-import { RayHit } from "../../skin/RayHit";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { IrrPhoton } from "./IrrPhoton";
 import { Photon } from "./Photon";
 import { PhotonFlags } from "./PhotonFlags";

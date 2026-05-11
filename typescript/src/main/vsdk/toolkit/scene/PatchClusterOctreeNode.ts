@@ -1,10 +1,10 @@
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { BoundingBox } from "../skin/BoundingBox";
+import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
 import { Compound } from "../skin/Compound";
 import { Geometry } from "../skin/Geometry";
-import { Patch } from "../skin/Patch";
-import { PatchSet } from "../skin/PatchSet";
+import { Patch } from "../environment/geometry/elements/Patch";
+import { PatchSet } from "../environment/geometry/elements/PatchSet";
 
 export class PatchClusterOctreeNode {
   private static readonly XYZ_EQUAL_MASK = 0x08;

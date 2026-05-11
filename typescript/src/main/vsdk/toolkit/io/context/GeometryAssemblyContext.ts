@@ -1,7 +1,7 @@
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
-import { Vertex } from "../../skin/Vertex";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 
 export class GeometryAssemblyContext {
   public static readonly MAXIMUM_GEOMETRY_STACK_DEPTH = 100;

@@ -1,9 +1,9 @@
 import { OutputStream } from "../../../java/io/OutputStream";
 import { ColorRgb } from "../common/color/ColorRgb";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { Element } from "../skin/Element";
-import { Patch } from "../skin/Patch";
+import { Element } from "../environment/geometry/elements/Element";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 import { Camera } from "./Camera";
 import { RadianceMethodAlgorithm } from "./RadianceMethodAlgorithm";
@@ -21,7 +21,7 @@ export abstract class RadianceMethod {
 
   public abstract initialize(scene: Scene, toneMapOptions: ToneMappingContext): void;
 
-  public abstract doStep(scene: Scene, renderOptions: RenderOptions): boolean;
+  public abstract doStep(scene: Scene, renderOptions: RendererConfiguration): boolean;
 
   public abstract terminate(scenePatches: Patch[]): void;
 
@@ -31,7 +31,7 @@ export abstract class RadianceMethod {
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb;
 
   public abstract createPatchData(patch: Patch): Element | null;
@@ -43,6 +43,6 @@ export abstract class RadianceMethod {
   public abstract writeVRML(
     camera: Camera,
     outputStream: OutputStream,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void;
 }

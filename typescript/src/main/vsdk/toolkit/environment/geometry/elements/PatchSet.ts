@@ -1,6 +1,6 @@
-import { Ray } from "../common/linealAlgebra/Ray";
-import { Geometry } from "./Geometry";
-import { GeometryClassId } from "./GeometryClassId";
+import { Ray } from "../../../common/linealAlgebra/Ray";
+import { Geometry } from "../../../skin/Geometry";
+import { GeometryClassId } from "../../../skin/GeometryClassId";
 import type { Patch } from "./Patch";
 import type { RayHit } from "./RayHit";
 

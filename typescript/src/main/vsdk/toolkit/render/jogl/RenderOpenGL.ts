@@ -1,7 +1,7 @@
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Camera } from "../../scene/Camera";
-import { BoundingBox } from "../../skin/BoundingBox";
+import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
 import { Geometry } from "../../skin/Geometry";
 
 export class RenderOpenGL {

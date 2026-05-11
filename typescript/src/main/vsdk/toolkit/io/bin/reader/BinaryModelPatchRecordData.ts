@@ -1,6 +1,6 @@
 import { ColorRgb } from "../../../common/color/ColorRgb";
 import { Vector3D } from "../../../common/linealAlgebra/Vector3D";
-import { Patch } from "../../../skin/Patch";
+import { Patch } from "../../../environment/geometry/elements/Patch";
 
 export class BinaryModelPatchRecordData {
   public id: number;

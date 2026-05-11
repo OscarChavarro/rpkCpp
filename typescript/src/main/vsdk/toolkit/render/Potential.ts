@@ -1,10 +1,10 @@
 import { Logger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
 import { Statistics } from "../common/statistics/Statistics";
 import { SglContext } from "../render/sgl/SglContext";
 import { Scene } from "../scene/Scene";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { Canvas } from "./Canvas";
 import { SoftIds } from "./SoftIds";
 
@@ -12,7 +12,7 @@ export class Potential {
   private constructor() {
   }
 
-  public static updateDirectPotential(scene: Scene, renderOptions: RenderOptions): void {
+  public static updateDirectPotential(scene: Scene, renderOptions: RendererConfiguration): void {
     Canvas.canvasPushMode();
 
     const x = [0];
@@ -107,7 +107,7 @@ export class Potential {
     }
   }
 
-  private static softUpdateDirectVisibility(scene: Scene, renderOptions: RenderOptions): void {
+  private static softUpdateDirectVisibility(scene: Scene, renderOptions: RendererConfiguration): void {
     if (scene.camera === null) {
       return;
     }
@@ -122,7 +122,7 @@ export class Potential {
     process.stderr.write(`Determining visible patches in software took ${elapsedSec} sec\n`);
   }
 
-  public static updateDirectVisibility(scene: Scene, renderOptions: RenderOptions): void {
+  public static updateDirectVisibility(scene: Scene, renderOptions: RendererConfiguration): void {
     Canvas.canvasPushMode();
     Potential.softUpdateDirectVisibility(scene, renderOptions);
     Canvas.canvasPullMode();

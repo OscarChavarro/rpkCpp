@@ -5,20 +5,20 @@ Monte Carlo radiosity
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { Potential } from "../../render/Potential";
 import { Scene } from "../../scene/Scene";
-import { Element } from "../../skin/Element";
-import { ElementTypes } from "../../skin/ElementTypes";
+import { Element } from "../../environment/geometry/elements/Element";
+import { ElementTypes } from "../../environment/geometry/elements/ElementTypes";
 import { Geometry } from "../../skin/Geometry";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
-import { Vertex } from "../../skin/Vertex";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { Basismcrad } from "./Basismcrad";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { ElementHierarchyState } from "./ElementHierarchyState";
@@ -205,7 +205,7 @@ Re-init importance in the element hierarchy starting with the top cluster
     }
   }
 
-  public static monteCarloRadiosityUpdateViewImportance(scene: Scene, renderOptions: RenderOptions): void {
+  public static monteCarloRadiosityUpdateViewImportance(scene: Scene, renderOptions: RendererConfiguration): void {
     process.stderr.write("Updating direct visibility ... \n");
 
     Potential.updateDirectVisibility(scene, renderOptions);
@@ -285,7 +285,7 @@ Determines elementary ray power for the initial incremental iterations
   /**
 Really initialises: before the first iteration step
 */
-  public static monteCarloRadiosityReInit(scene: Scene, renderOptions: RenderOptions): void {
+  public static monteCarloRadiosityReInit(scene: Scene, renderOptions: RendererConfiguration): void {
     if (StochasticRelaxation.activeState().inited !== 0) {
       return;
     }
@@ -360,7 +360,7 @@ Really initialises: before the first iteration step
     }
   }
 
-  public static monteCarloRadiosityPreStep(scene: Scene, renderOptions: RenderOptions): void {
+  public static monteCarloRadiosityPreStep(scene: Scene, renderOptions: RendererConfiguration): void {
     if (StochasticRelaxation.activeState().inited === 0) {
       Mcrad.monteCarloRadiosityReInit(scene, renderOptions);
     }
@@ -462,7 +462,7 @@ Returns the radiance emitted from the patch at the point with parameters
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     void dir;
 

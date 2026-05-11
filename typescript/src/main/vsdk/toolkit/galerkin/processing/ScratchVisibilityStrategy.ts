@@ -9,8 +9,8 @@ import { ScratchRendererVisitor } from "./visitors/ScratchRendererVisitor";
 import { SglConstants } from "../../render/sgl/SglConstants";
 import { SglContext } from "../../render/sgl/SglContext";
 import { Camera } from "../../scene/Camera";
-import { BoundingBox } from "../../skin/BoundingBox";
-import { Element } from "../../skin/Element";
+import { BoundingBox } from "../../skin/AxisAlignedBoundingBox";
+import { Element } from "../../environment/geometry/elements/Element";
 import { ClusterTraversalStrategy } from "./ClusterTraversalStrategy";
 
 export class ScratchVisibilityStrategy {

@@ -1,8 +1,8 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
-import { StratifiedSampling2D } from "../../common/StratifiedSampling2D";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
+import { StratifiedSampling2D } from "../../raycasting/common/StratifiedSampling2D";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Vector2D } from "../../common/linealAlgebra/Vector2D";
 import { ImageOutputHandle } from "../../io/image/ImageOutputHandle";
@@ -15,7 +15,7 @@ import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { BsdfComp } from "../common/BsdfComp";
 import { PathRayType } from "../common/PathRayType";
@@ -106,7 +106,7 @@ export class BidirectionalPathRaytracer extends RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     void renderOptions;
 

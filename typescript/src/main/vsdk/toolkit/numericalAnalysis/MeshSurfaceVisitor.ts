@@ -1,8 +1,8 @@
 import { ColorRgb } from "../common/color/ColorRgb";
 import { BsdfComponent } from "../material/BsdfComponent";
-import { MaterialColorFlags } from "../skin/MaterialColorFlags";
+import { MaterialColorFlags } from "../material/MaterialColorFlags";
 import { MeshSurface } from "../skin/MeshSurface";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { PatchVisitor } from "./PatchVisitor";
 
 export class MeshSurfaceVisitor {

@@ -1,8 +1,8 @@
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { Vertex } from "../../skin/Vertex";
+import { Vertex } from "../../environment/geometry/elements/Vertex";
 import { HierarchyClusteringMode } from "./HierarchyClusteringMode";
 import { Link } from "./Link";
 
@@ -14,7 +14,7 @@ export type REFINE_ACTION = (
   srctop: any,
   us: number[],
   vs: number[],
-  renderOptions: RenderOptions
+  renderOptions: RendererConfiguration
 ) => Link;
 
 export type ORACLE = (link: Link) => REFINE_ACTION;

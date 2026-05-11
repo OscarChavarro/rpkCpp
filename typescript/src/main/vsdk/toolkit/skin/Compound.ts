@@ -2,7 +2,7 @@ import { Ray } from "../common/linealAlgebra/Ray";
 import { Statistics } from "../common/statistics/Statistics";
 import { Geometry } from "./Geometry";
 import { GeometryClassId } from "./GeometryClassId";
-import type { RayHit } from "./RayHit";
+import type { RayHit } from "../environment/geometry/elements/RayHit";
 
 export class Compound extends Geometry {
   public children: Geometry[] | null;

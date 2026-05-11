@@ -1,6 +1,6 @@
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
-import { BoundingBox } from "../skin/BoundingBox";
-import { Patch } from "../skin/Patch";
+import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
+import { Patch } from "../environment/geometry/elements/Patch";
 
 export class Polygon {
   public normal: Vector3D;

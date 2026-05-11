@@ -1,5 +1,5 @@
 import { ColorRgb } from "../common/color/ColorRgb";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Matrix4x4 } from "../common/linealAlgebra/Matrix4x4";
 import { Numeric } from "../common/linealAlgebra/Numeric";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -7,7 +7,7 @@ import { SglConstants } from "../render/sgl/SglConstants";
 import { SglContext } from "../render/sgl/SglContext";
 import { Camera } from "../scene/Camera";
 import { Scene } from "../scene/Scene";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { ToneMap } from "../tonemap/ToneMap";
 import { ToneMappingContext } from "../tonemap/ToneMappingContext";
 
@@ -37,7 +37,7 @@ export class SoftIds {
   public static softRenderPatch(
     patch: Patch | null,
     camera: Camera | null,
-    renderOptions: RenderOptions | null,
+    renderOptions: RendererConfiguration | null,
     sglContext: SglContext | null
   ): void {
     if (patch === null || camera === null || renderOptions === null || sglContext === null) {
@@ -62,7 +62,7 @@ export class SoftIds {
     sglContext.sglPolygon(patch.numberOfVertices, vertices);
   }
 
-  public static softRenderPatches(scene: Scene | null, renderOptions: RenderOptions | null, sglContext: SglContext | null): void {
+  public static softRenderPatches(scene: Scene | null, renderOptions: RendererConfiguration | null, sglContext: SglContext | null): void {
     if (scene === null || renderOptions === null || sglContext === null) {
       return;
     }
@@ -72,7 +72,7 @@ export class SoftIds {
     }
   }
 
-  public static softRenderIds(x: number[] | null, y: number[] | null, scene: Scene, renderOptions: RenderOptions): number[] {
+  public static softRenderIds(x: number[] | null, y: number[] | null, scene: Scene, renderOptions: RendererConfiguration): number[] {
     const camera = scene.camera;
     if (camera === null) {
       if (x !== null && x.length > 0) {

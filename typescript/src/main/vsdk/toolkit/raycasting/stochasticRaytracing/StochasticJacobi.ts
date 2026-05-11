@@ -11,16 +11,16 @@ TODO: lines and line bundles.
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
-import { RayHitFlag } from "../../skin/RayHitFlag";
+import { RayHitFlag } from "../../environment/geometry/elements/RayHitFlag";
 import { Niederreiter } from "../../numericalAnalysis/quasiMonteCarlo/Niederreiter";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Element } from "../../skin/Element";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Element } from "../../environment/geometry/elements/Element";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Basismcrad } from "./Basismcrad";
 import { Ccr } from "./Ccr";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
@@ -446,7 +446,7 @@ Src is the leaf element containing the point from which to propagate
     rcvProb: number,
     ray: Ray,
     dir: number,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let link = Hierarchy.topLink(Q, P);
     const rcvU = [uq];
@@ -495,7 +495,7 @@ Ray is a ray connecting the positions with given (u,v) parameters
     uq: number,
     vq: number,
     ray: Ray,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     let srcProb: number;
     const us = [up];
@@ -615,7 +615,7 @@ hit patch (and back for bidirectional transfers)
     nMostSignificantBit: number,
     mostSignificantBit1: bigint,
     rMostSignificantBit2: bigint,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (StochasticJacobi.getRadianceCallback !== null) {
       StochasticRelaxation.activeState().tracedRays++;
@@ -673,7 +673,7 @@ Determines nr of rays to shoot from element and shoots this number of rays
     sceneWorldVoxelGrid: VoxelGrid,
     element: StochasticRadiosityElement,
     raysThisElem: number,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     const sampleRange = [0];
     const mostSignificantBit1 = [0n];
@@ -708,7 +708,7 @@ Determines nr of rays to shoot from element and shoots this number of rays
     rnd: number,
     rayCount: number[],
     cumulative: number[],
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (element.regularSubElements === null) {
       const p = element.samplingProbability / StochasticJacobi.sumOfProbabilities;
@@ -742,7 +742,7 @@ Fire off rays from the leaf elements, propagate radiance/importance
   private static stochasticJacobiShootRays(
     sceneWorldVoxelGrid: VoxelGrid,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     const rnd = globalThis.Math.random();
     const rayCount = [0];
@@ -924,7 +924,7 @@ Generic routine for Stochastic Jacobi iterations.
     getImportanceCallBack: ((elem: StochasticRadiosityElement) => number) | null,
     updateCallBack: ((elem: StochasticRadiosityElement, w: number) => void) | null,
     scenePatches: ArrayList<Patch>,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     StochasticJacobi.stochasticJacobiInitGlobals(
       numberOfRays | 0,

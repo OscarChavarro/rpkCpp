@@ -3,7 +3,7 @@ import { StringBuilder } from "../../../../java/lang/StringBuilder";
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
 import { Statistics } from "../../common/statistics/Statistics";
 import { BsdfComponent } from "../../material/BsdfComponent";
@@ -15,9 +15,9 @@ import { RadianceMethod } from "../../scene/RadianceMethod";
 import { RadianceMethodAlgorithm } from "../../scene/RadianceMethodAlgorithm";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Element } from "../../skin/Element";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Element } from "../../environment/geometry/elements/Element";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 import { BiPath } from "../bidirectionalRaytracing/BiPath";
 import { LightDirSampler } from "../bidirectionalRaytracing/LightDirSampler";
@@ -103,7 +103,7 @@ export class PhotonMapRadianceMethod extends RadianceMethod {
   public override writeVRML(
     camera: Camera,
     outputStream: OutputStream,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     void camera;
     void outputStream;
@@ -616,7 +616,7 @@ to fill in a RGB color for display of each patch and/or vertex. These
 colors are used for hardware rendering if the default hardware rendering
 method is not updated in this file
 */
-  public override doStep(scene: Scene, renderOptions: RenderOptions): boolean {
+  public override doStep(scene: Scene, renderOptions: RendererConfiguration): boolean {
     void renderOptions;
 
     if (scene.camera === null || scene.voxelGrid === null) {
@@ -697,7 +697,7 @@ Returns the radiance emitted in the node related direction
     u: number,
     v: number,
     dir: Vector3D,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     void renderOptions;
 

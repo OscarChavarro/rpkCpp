@@ -1,6 +1,6 @@
 import { ColorRgb } from "../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../common/logging/Logger";
-import { RenderOptions } from "../common/RenderOptions";
+import { RendererConfiguration } from "../material/RendererConfiguration";
 import { Matrix2x2 } from "../common/linealAlgebra/Matrix2x2";
 import { Vector2D } from "../common/linealAlgebra/Vector2D";
 import { Vector3D } from "../common/linealAlgebra/Vector3D";
@@ -10,12 +10,12 @@ import { PatchVisitor } from "../numericalAnalysis/PatchVisitor";
 import { QuadCubatureRule } from "../numericalAnalysis/QuadCubatureRule";
 import { TriangleCubatureRule } from "../numericalAnalysis/TriangleCubatureRule";
 import { Polygon } from "../scene/Polygon";
-import { BoundingBox } from "../skin/BoundingBox";
-import { Element } from "../skin/Element";
-import { ElementFlags } from "../skin/ElementFlags";
-import { ElementTypes } from "../skin/ElementTypes";
+import { BoundingBox } from "../skin/AxisAlignedBoundingBox";
+import { Element } from "../environment/geometry/elements/Element";
+import { ElementFlags } from "../environment/geometry/elements/ElementFlags";
+import { ElementTypes } from "../environment/geometry/elements/ElementTypes";
 import { Geometry } from "../skin/Geometry";
-import { Patch } from "../skin/Patch";
+import { Patch } from "../environment/geometry/elements/Patch";
 import { GalerkinBasis } from "./GalerkinBasis";
 import { GalerkinBasisType } from "./GalerkinBasisType";
 import { GalerkinElementRenderMode } from "./GalerkinElementRenderMode";
@@ -198,7 +198,7 @@ export class GalerkinElement extends Element {
     );
   }
 
-  public static renderMode(renderOptions: RenderOptions | null): number {
+  public static renderMode(renderOptions: RendererConfiguration | null): number {
     if (renderOptions === null) {
       return GalerkinElementRenderMode.FLAT;
     }

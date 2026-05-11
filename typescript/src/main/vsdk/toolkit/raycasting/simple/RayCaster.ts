@@ -6,7 +6,7 @@ a software frame buffer directly.
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
 import { Logger as VsdkLogger } from "../../common/logging/Logger";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Numeric } from "../../common/linealAlgebra/Numeric";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { Vector3D } from "../../common/linealAlgebra/Vector3D";
@@ -18,7 +18,7 @@ import { SoftIdsWrapper } from "../../render/SoftIdsWrapper";
 import { Camera } from "../../scene/Camera";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
-import { Patch } from "../../skin/Patch";
+import { Patch } from "../../environment/geometry/elements/Patch";
 import { ToneMappingContext } from "../../tonemap/ToneMappingContext";
 
 export class RayCaster extends RayTracer {
@@ -60,7 +60,7 @@ export class RayCaster extends RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (RayCaster.rayCaster !== null) {
       RayCaster.rayCaster = null;
@@ -118,7 +118,7 @@ export class RayCaster extends RayTracer {
     y: number,
     patch: Patch,
     radianceMethod: RadianceMethod | null,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): ColorRgb {
     const radiance = new ColorRgb();
     radiance.clear();
@@ -156,7 +156,7 @@ export class RayCaster extends RayTracer {
     scene: Scene,
     radianceMethod: RadianceMethod | null,
     toneMapOptions: ToneMappingContext,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     if (scene.camera === null) {
       VsdkLogger.fatal(-1, "RayCaster::render", "Scene camera not set");

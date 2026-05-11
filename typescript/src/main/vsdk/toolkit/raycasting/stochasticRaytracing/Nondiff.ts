@@ -4,15 +4,15 @@ Non diffuse first shot
 
 import { ArrayList } from "../../../../java/util/ArrayList";
 import { ColorRgb } from "../../common/color/ColorRgb";
-import { RenderOptions } from "../../common/RenderOptions";
+import { RendererConfiguration } from "../../material/RendererConfiguration";
 import { Statistics } from "../../common/statistics/Statistics";
 import { Ray } from "../../common/linealAlgebra/Ray";
 import { PatchVisitor } from "../../numericalAnalysis/PatchVisitor";
 import { RadianceMethod } from "../../scene/RadianceMethod";
 import { Scene } from "../../scene/Scene";
 import { VoxelGrid } from "../../scene/VoxelGrid";
-import { Patch } from "../../skin/Patch";
-import { RayHit } from "../../skin/RayHit";
+import { Patch } from "../../environment/geometry/elements/Patch";
+import { RayHit } from "../../environment/geometry/elements/RayHit";
 import { Coefficientsmcrad } from "./Coefficientsmcrad";
 import { LightSourceTable } from "./LightSourceTable";
 import { Localline } from "./Localline";
@@ -197,7 +197,7 @@ Initial shooting pass handling non-diffuse light sources
   public static doNonDiffuseFirstShot(
     scene: Scene,
     radianceMethod: RadianceMethod,
-    renderOptions: RenderOptions
+    renderOptions: RendererConfiguration
   ): void {
     void radianceMethod;
     void renderOptions;
