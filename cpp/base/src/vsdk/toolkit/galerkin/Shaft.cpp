@@ -1,0 +1,848 @@
+#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
+#include <new>
+#include "vsdk/toolkit/java/util/ArrayList.txx"
+#include "vsdk/toolkit/common/memoryManagement/MemoryPool.txx"
+#include "vsdk/toolkit/common/statistics/Statistics.h"
+#include "vsdk/toolkit/skin/Compound.h"
+#include "vsdk/toolkit/environment/geometry/elements/PatchSet.h"
+#include "vsdk/toolkit/galerkin/Shaft.h"
+
+MemoryPool<PatchSet> Shaft::patchSetPool;
+bool Shaft::patchSetPoolInitialized = false;
+
+void
+Shaft::ensurePatchSetPoolInitialized() {
+    if ( !patchSetPoolInitialized ) {
+        patchSetPool.init(8 * 1024 * 1024);
+        patchSetPoolInitialized = true;
+    }
+}
+
+PatchSet *
+Shaft::createPatchSetWithPool(const java::ArrayList<Patch *> *patches) {
+    ensurePatchSetPoolInitialized();
+    PatchSet *slot = patchSetPool.allocate(1);
+    if ( slot == nullptr ) {
+        if ( patchSetPool.expand(1024) ) {
+            slot = patchSetPool.allocate(1);
+        }
+    }
+    if ( slot == nullptr ) {
+        return new PatchSet(patches);
+    }
+    PatchSet *patchSet = new (slot) PatchSet(patches);
+    patchSet->setMemoryPoolManaged(true);
+    return patchSet;
+}
+
+Shaft::Shaft():
+    referenceItem1(),
+    referenceItem2(),
+    extentBoundingBox(),
+    planeSet(),
+    numberOfPlanesInSet(),
+    patchIdsToOmit(),
+    numberOfGeometriesToOmit(),
+    geometryIdsToAvoidOpening(),
+    numberOfGeometriesToAvoidOpen(),
+    center1(),
+    center2(),
+    cut()
+{
+}
+
+bool
+Shaft::isCut() const {
+    return cut;
+}
+
+/**
+Marks a geometry as to be omitted during shaft culling: it will not be added to the
+candidate list, even if the geometry overlaps or is inside the shaft
+*/
+void
+Shaft::setShaftOmit(Patch *patch) {
+    patchIdsToOmit[numberOfGeometriesToOmit++] = patch->getId();
+}
+
+/**
+Marks a geometry as one not to be opened during shaft culling
+*/
+void
+Shaft::setShaftDontOpen(Geometry *geometry) {
+    geometryIdsToAvoidOpening[numberOfGeometriesToAvoidOpen++] = geometry->id;
+}
+
+/**
+Constructs a shaft for two given bounding boxes
+*/
+void
+Shaft::constructFromBoundingBoxes(AxisAlignedBoundingBox *boundingBox1, AxisAlignedBoundingBox *boundingBox2) {
+    numberOfGeometriesToOmit = 0;
+    numberOfGeometriesToAvoidOpen = 0;
+    cut = false;
+
+    // 1. Obtain the bounding boxes for the reference items [HAIN1991]
+    referenceItem1 = boundingBox1;
+    referenceItem2 = boundingBox2;
+
+    // Midpoints of the reference boxes define a line that is guaranteed
+    // to lay within the shaft
+    center1 = boundingBox1->center();
+    center2 = boundingBox2->center();
+
+    // 2. Compute the extent bounding box containing both reference items [HAIN1991]
+    bool hasMinMax1[MIN_MAX_DIMENSIONS]; // Representation of culled edges for the extent bounding box
+    bool hasMinMax2[MIN_MAX_DIMENSIONS];
+
+    for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
+        hasMinMax1[i] = false;
+        hasMinMax2[i] = false;
+    }
+
+    extentBoundingBox.setAsUnion(referenceItem1, referenceItem2);
+    referenceItem1->computeContributionFlags(referenceItem2, hasMinMax1, hasMinMax2);
+
+    // 3. Create the plane set between the two reference items' boxes [HAIN1991]
+    int localPlaneIndex = 0;
+    for ( int i = 0; i < MIN_MAX_DIMENSIONS; i++ ) {
+        if ( !hasMinMax1[i] ) {
+            continue;
+        }
+
+        for ( int j = 0; j < MIN_MAX_DIMENSIONS; j++ ) {
+            // 3.1. Compute plane normal for marked borders
+            int a = (i % 3); // Directions
+            int b = (j % 3);
+
+            if ( !hasMinMax2[j] || a == b ) {
+                // Same direction
+                continue;
+            }
+
+            float u1 = referenceItem1->valueAt(i);
+            float v1 = referenceItem1->valueAt(j);
+            float u2 = referenceItem2->valueAt(i);
+            float v2 = referenceItem2->valueAt(j);
+
+            float du = 0.0;
+            float dv = 0.0;
+
+            if ( (i <= MIN_Z && j <= MIN_Z) || (i >= MAX_X && j >= MAX_X) ) {
+                du = v2 - v1;
+                dv = u1 - u2;
+            } else {
+                // Normal must point outwards shaft
+                du = v1 - v2;
+                dv = u2 - u1;
+            }
+
+            // 3.2. Build the new identified plane
+            ShaftPlane &localPlane = planeSet[localPlaneIndex];
+            localPlane.n[a] = du;
+            localPlane.n[b] = dv;
+            localPlane.n[3 - a - b] = 0.0;
+            localPlane.d = -(du * u1 + dv * v1);
+
+            localPlane.coordinateOffset[0] = localPlane.n[0] > 0.0F ? MIN_X : MAX_X;
+            localPlane.coordinateOffset[1] = localPlane.n[1] > 0.0F ? MIN_Y : MAX_Y;
+            localPlane.coordinateOffset[2] = localPlane.n[2] > 0.0F ? MIN_Z : MAX_Z;
+
+            localPlaneIndex++;
+        }
+    }
+    numberOfPlanesInSet = localPlaneIndex;
+}
+
+/**
+Tests a polygon with respect to the plane defined by the given normal and plane
+constant. Returns INSIDE if the polygon is totally on the negative side of
+the plane, OUTSIDE if the polygon on all on the positive side, OVERLAP
+if the polygon is cut by the plane and COPLANAR if the polygon lay on the
+plane within tolerance distance d*Numeric::EPSILON
+*/
+ShaftPlanePosition
+Shaft::testPolygonWithRespectToPlane(const Polygon *polygon, const Vector3D *normal, const double d) {
+    bool out = false; // out = there are positions on the positive side of the plane
+    bool in = false; // in  = there are positions on the negative side of the plane
+
+    for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
+        double e = normal->dotProduct(polygon->vertex[i]) + d;
+        double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
+        out |= (e > tolerance);
+        in |= (e < -tolerance);
+        if ( out && in ) {
+            return ShaftPlanePosition::OVERLAP;
+        }
+    }
+
+    if ( out ) {
+        return ShaftPlanePosition::OUTSIDE;
+    } else {
+        return in ? ShaftPlanePosition::INSIDE : ShaftPlanePosition::COPLANAR;
+    }
+}
+
+/**
+Verifies whether the polygon is on the given side of the plane. Returns true if
+so, and false if not
+*/
+bool
+Shaft::verifyPolygonWithRespectToPlane(
+    const Polygon *polygon,
+    const Vector3D *normal,
+    const double d,
+    const ShaftPlanePosition side)
+{
+    bool out = false;
+    bool in = false;
+
+    for ( int i = 0; i < polygon->numberOfVertices; i++ ) {
+        double e = normal->dotProduct(polygon->vertex[i]) + d;
+        double tolerance = java::Math::abs(d) * Numeric::EPSILON + polygon->vertex[i].tolerance(Numeric::EPSILON_FLOAT);
+        out |= e > tolerance;
+        if ( out && (side == ShaftPlanePosition::INSIDE) ) {
+            return false;
+        }
+        in |= e < -tolerance;
+        if ( in && (side == ShaftPlanePosition::OUTSIDE) ) {
+            return false;
+        }
+    }
+
+    if ( in ) {
+        if ( side == ShaftPlanePosition::INSIDE ) {
+            return true;
+        }
+    } else {
+        if ( out ) {
+            if ( side == ShaftPlanePosition::OUTSIDE ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+/**
+Tests the position of a point with respect to a plane. Returns OUTSIDE if the point is
+on the positive side of the plane, INSIDE if on the negative side, and COPLANAR
+if the point is on the plane within tolerance distance d*Numeric::EPSILON
+*/
+ShaftPlanePosition
+Shaft::testPointWithRespectToPlane(const Vector3D *p, const Vector3D *normal, double d) {
+    double tolerance = java::Math::abs(d * Numeric::EPSILON) + p->tolerance(Numeric::EPSILON_FLOAT);
+    double e = normal->dotProduct(*p) + d;
+    if ( e < -tolerance ) {
+        return ShaftPlanePosition::INSIDE;
+    }
+    if ( e > +tolerance ) {
+        return ShaftPlanePosition::OUTSIDE;
+    }
+    return ShaftPlanePosition::COPLANAR;
+}
+
+/**
+Compare to shaft planes. Returns 0 if they are the same and -1 or +1
+if not (can be used for sorting the planes). It is assumed that the plane normals
+are normalized!
+*/
+int
+Shaft::compareShaftPlanes(const ShaftPlane *plane1, const ShaftPlane *plane2) {
+    // Compare components of plane normal (normalized vector, so components
+    // are in the range [-1,1]
+    if ( plane1->n[0] < plane2->n[0] - Numeric::EPSILON ) {
+        return -1;
+    } else if ( plane1->n[0] > plane2->n[0] + Numeric::EPSILON ) {
+        return +1;
+    }
+
+    if ( plane1->n[1] < plane2->n[1] - Numeric::EPSILON ) {
+        return -1;
+    } else if ( plane1->n[1] > plane2->n[1] + Numeric::EPSILON ) {
+        return +1;
+    }
+
+    if ( plane1->n[2] < plane2->n[2] - Numeric::EPSILON ) {
+        return -1;
+    } else if ( plane1->n[2] > plane2->n[2] + Numeric::EPSILON ) {
+        return +1;
+    }
+
+    // Compare plane constants
+    double tolerance = java::Math::abs(java::Math::max(plane1->d, plane2->d) * Numeric::EPSILON);
+    if ( plane1->d < plane2->d - tolerance ) {
+        return -1;
+    } else if ( plane1->d > plane2->d + tolerance ) {
+        return +1;
+    }
+    return 0;
+}
+
+/**
+Plane is a pointer to the shaft plane defined in shaft. This routine will return
+true if the plane differs from all previous defined planes
+*/
+int
+Shaft::uniqueShaftPlane(const ShaftPlane *parameterPlane) const {
+    for ( int i = 0; &planeSet[i] != parameterPlane; i++ ) {
+        if ( compareShaftPlanes(&planeSet[i], parameterPlane) == 0 ) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+Fills in normal and plane constant, as well as the coord_offset parameters
+*/
+void
+Shaft::fillInPlane(ShaftPlane *plane, float nx, float ny, float nz, float d) {
+    plane->n[0] = nx;
+    plane->n[1] = ny;
+    plane->n[2] = nz;
+    plane->d = d;
+
+    plane->coordinateOffset[0] = plane->n[0] > 0.0 ? MIN_X : MAX_X;
+    plane->coordinateOffset[1] = plane->n[1] > 0.0 ? MIN_Y : MAX_Y;
+    plane->coordinateOffset[2] = plane->n[2] > 0.0 ? MIN_Z : MAX_Z;
+}
+
+/**
+Construct the planes determining the shaft that use edges of p1 and vertices of p2
+*/
+void
+Shaft::constructPolygonToPolygonPlanes(const Polygon *polygon1, const Polygon *polygon2) {
+    Vector3D normal;
+    int localPlaneIndex = numberOfPlanesInSet;
+    int maxPlanesPerEdge;
+
+    // Test p2 wrt plane of p1
+    normal.copy(polygon1->normal); // Convert to double precision
+    switch ( testPolygonWithRespectToPlane(polygon2, &normal, polygon1->planeConstant) ) {
+        case ShaftPlanePosition::INSIDE:
+            // Polygon p2 is on the negative side of the plane of p1. The plane of p1 is
+            // a shaft plane and there will be at most one shaft plane per edge of p1
+            fillInPlane(
+                &planeSet[localPlaneIndex], polygon1->normal.x, polygon1->normal.y, polygon1->normal.z, polygon1->planeConstant);
+            if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                localPlaneIndex++;
+            }
+            maxPlanesPerEdge = 1;
+            break;
+        case ShaftPlanePosition::OUTSIDE:
+            // Like above, except that p2 is on the positive side of the plane of p1, so
+            // we have to invert normal and plane constant
+            fillInPlane(
+                &planeSet[localPlaneIndex], -polygon1->normal.x, -polygon1->normal.y, -polygon1->normal.z, -polygon1->planeConstant);
+            if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                localPlaneIndex++;
+            }
+            maxPlanesPerEdge = 1;
+            break;
+        case ShaftPlanePosition::OVERLAP:
+            // The plane of p1 cuts p2. It is not a shaft plane and there may be up to two
+            // shaft planes for each edge of p1
+            maxPlanesPerEdge = 2;
+            break;
+        default:
+            // COPLANAR
+            // Degenerate case that should never happen. If it does, it will result
+            // in a shaft with no planes and just a thin bounding box containing the coplanar
+            // faces
+            return;
+    }
+
+    for ( int i = 0; i < polygon1->numberOfVertices; i++ ) {
+        // For each edge of p1
+        const Vector3D *current = &polygon1->vertex[i];
+        const Vector3D *next = &polygon1->vertex[(i + 1) % polygon1->numberOfVertices];
+        int planesFoundForEdge = 0;
+
+        for ( int j = 0; j < polygon2->numberOfVertices && planesFoundForEdge < maxPlanesPerEdge; j++ ) {
+            // For each vertex of p2
+            const Vector3D *other = &polygon2->vertex[j];
+
+            // Compute normal and plane constant of the plane formed by cur, next and other
+            normal.tripleCrossProduct(*current, *next, *other);
+            float localNorm = normal.norm();
+            if ( localNorm < Numeric::EPSILON ) {
+                continue;
+            }
+            // Co-linear vertices, try next vertex on p2
+            normal.inverseScaledCopy(localNorm, normal, Numeric::EPSILON_FLOAT);
+            float d = -normal.dotProduct(*current);
+
+            // Test position of p1 with respect to the constructed plane. Skip the vertices
+            // that were used to construct the plane
+            ShaftPlanePosition side = testPointWithRespectToPlane(&polygon1->vertex[(i + 2) % polygon1->numberOfVertices], &normal, d);
+            for ( int k = (i + 3) % polygon1->numberOfVertices; k != i; k = (k + 1) % polygon1->numberOfVertices ) {
+                ShaftPlanePosition nSide = testPointWithRespectToPlane(&polygon1->vertex[k], &normal, d);
+                if ( side == ShaftPlanePosition::COPLANAR ) {
+                    side = nSide;
+                } else if ( nSide != ShaftPlanePosition::COPLANAR && side != nSide ) {
+                    // side==INSIDE and nSide==OUTSIDE or vice versa
+                    side = ShaftPlanePosition::OVERLAP;
+                }
+                // Or side==OVERLAP already. May happen due to round
+            } // Off error e.g.
+            if ( side != ShaftPlanePosition::INSIDE && side != ShaftPlanePosition::OUTSIDE ) {
+                continue;
+            } // Not a valid candidate shaft plane
+
+            // Verify whether p2 is on the same side of the constructed plane. If so,
+            // the plane is a candidate shaft plane and will be added to the list if
+            // it is unique
+            if ( verifyPolygonWithRespectToPlane(polygon2, &normal, d, side) ) {
+                if ( side == ShaftPlanePosition::INSIDE ) {
+                    // p1 and p2 are on the negative side as it should be
+                    fillInPlane(&planeSet[localPlaneIndex], normal.x, normal.y, normal.z, d);
+                } else {
+                    fillInPlane(&planeSet[localPlaneIndex], -normal.x, -normal.y, -normal.z, -d);
+                }
+                if ( uniqueShaftPlane(&planeSet[localPlaneIndex]) ) {
+                    localPlaneIndex++;
+                }
+                planesFoundForEdge++;
+            }
+        }
+    }
+
+    numberOfPlanesInSet = localPlaneIndex;
+}
+
+/**
+Constructs a shaft enclosing the two given polygons
+*/
+void
+Shaft::constructFromPolygonToPolygon(const Polygon *polygon1, const Polygon *polygon2) {
+    // No "reference" bounding boxes to test with
+    referenceItem1 = nullptr;
+    referenceItem2 = nullptr;
+
+    // Shaft extent: bounding box containing the bounding boxes of the patches
+    extentBoundingBox.copyFrom(&polygon1->bounds);
+    extentBoundingBox.enlarge(&polygon2->bounds);
+
+    // Nothing (yet) to omit
+    patchIdsToOmit[0] = NONE;
+    patchIdsToOmit[1] = NONE;
+    geometryIdsToAvoidOpening[0] = NONE;
+    geometryIdsToAvoidOpening[1] = NONE;
+    numberOfGeometriesToOmit = 0;
+    numberOfGeometriesToAvoidOpen = 0;
+    cut = false;
+
+    // Center positions of polygons define a line that is guaranteed to lay inside the shaft
+    center1 = polygon1->vertex[0];
+    for ( int i = 1; i < polygon1->numberOfVertices; i++ ) {
+        center1.addition(center1, polygon1->vertex[i]);
+    }
+    center1.inverseScaledCopy(static_cast<float>(polygon1->numberOfVertices), center1, Numeric::EPSILON_FLOAT);
+
+    center2 = polygon2->vertex[0];
+    for ( int i = 1; i < polygon2->numberOfVertices; i++ ) {
+        center2.addition(center2, polygon2->vertex[i]);
+    }
+    center2.inverseScaledCopy(static_cast<float>(polygon2->numberOfVertices), center2, Numeric::EPSILON_FLOAT);
+
+    // Determine the shaft planes
+    numberOfPlanesInSet = 0;
+    constructPolygonToPolygonPlanes(polygon1, polygon2);
+    constructPolygonToPolygonPlanes(polygon2, polygon1);
+}
+
+/**
+Tests a bounding volume against the shaft: returns INSIDE if the bounding volume
+is inside the shaft, OVERLAP if it overlaps, OUTSIDE if it is outside the shaft
+*/
+ShaftPlanePosition
+Shaft::boundingBoxTest(const AxisAlignedBoundingBox *parameterBoundingBox) const {
+    // Test against extent box
+    if ( parameterBoundingBox->disjointToOtherBoundingBox(&extentBoundingBox) ) {
+        return ShaftPlanePosition::OUTSIDE;
+    }
+
+    // Test against plane set: if nearest corner of the bounding box is on or
+    // outside any shaft plane, the object is outside the shaft
+    for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
+        const ShaftPlane *localPlane = &planeSet[i];
+
+        if ( localPlane->n[0] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[0]) +
+             localPlane->n[1] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[1]) +
+             localPlane->n[2] * parameterBoundingBox->valueAt(localPlane->coordinateOffset[2]) +
+             localPlane->d > -java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
+            return ShaftPlanePosition::OUTSIDE;
+        }
+    }
+
+    // Test against reference volumeListsOfItems
+    if ((referenceItem1 && !parameterBoundingBox->disjointToOtherBoundingBox(referenceItem1)) ||
+        (referenceItem2 && !parameterBoundingBox->disjointToOtherBoundingBox(referenceItem2)) ) {
+        return ShaftPlanePosition::OVERLAP;
+    }
+
+    // If the bounding box survives all previous tests, it must overlap or be inside the
+    // shaft. If the farthest corner of the bounding box is outside any shaft-plane, it
+    // overlaps the shaft, otherwise it is inside the shaft
+    for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
+        const ShaftPlane *localPlane = &planeSet[i];
+        if ( localPlane->n[0] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[0] + 3) % 6) +
+             localPlane->n[1] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[1] + 3) % 6) +
+             localPlane->n[2] * parameterBoundingBox->valueAt((localPlane->coordinateOffset[2] + 3) % 6) +
+             localPlane->d > java::Math::abs(localPlane->d * Numeric::EPSILON) ) {
+            return ShaftPlanePosition::OVERLAP;
+        }
+    }
+
+    return ShaftPlanePosition::INSIDE;
+}
+
+/**
+Tests the patch against the shaft: returns INSIDE, OVERLAP or OUTSIDE according
+to whether the patch is fully inside the shaft, overlapping it, or fully outside.
+If it is detected that the patch fully occludes the shaft, shaft->cut is
+set to true, indicating that there is full occlusion due to one patch and
+that as such no further shaft culling is necessary
+*/
+ShaftPlanePosition
+Shaft::shaftPatchTest(Patch *patch) {
+    int inAll[MAXIMUM_VERTICES_PER_PATCH];
+    double tMin[MAXIMUM_VERTICES_PER_PATCH];
+    double tMax[MAXIMUM_VERTICES_PER_PATCH];
+    double pTol[MAXIMUM_VERTICES_PER_PATCH];
+    Ray ray;
+    float dist;
+    RayHit hitStore;
+
+    // Start by assuming that all vertices are on the negative side ("inside") all shaft planes
+    int someOut = false;
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+        inAll[j] = true;
+        tMin[j] = 0.0;  // Defines the segment of the edge that lays within the shaft
+        tMax[j] = 1.0;
+        pTol[j] = patch->getVertices()[j]->point->tolerance(Numeric::EPSILON_FLOAT); // Vertex tolerance
+    }
+
+    for ( int i = 0; i < numberOfPlanesInSet; i++ ) {
+        // Test patch against i-th plane of the shaft
+        const ShaftPlane &localPlane = planeSet[i];
+        Vector3D planeNormal;
+        double e[MAXIMUM_VERTICES_PER_PATCH];
+        int side[MAXIMUM_VERTICES_PER_PATCH];
+        int in = false;
+        int out = false;
+
+        planeNormal.set(localPlane.n[0], localPlane.n[1], localPlane.n[2]);
+
+        for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+            e[j] = planeNormal.dotProduct(*patch->getVertices()[j]->point) + localPlane.d;
+            double tolerance = java::Math::abs(localPlane.d) * Numeric::EPSILON + pTol[j];
+            side[j] = ShaftPlanePosition::COPLANAR;
+            if ( e[j] > tolerance ) {
+                side[j] = ShaftPlanePosition::OUTSIDE;
+                out = true;
+            } else if ( e[j] < -tolerance ) {
+                side[j] = ShaftPlanePosition::INSIDE;
+                in = true;
+            }
+            if ( side[j] != ShaftPlanePosition::INSIDE ) {
+                inAll[j] = false;
+            }
+        }
+
+        if ( !in ) {
+            // Patch contains no vertices on the inside of the plane
+            return ShaftPlanePosition::OUTSIDE;
+        }
+
+        if ( out ) {
+            // Patch contains at least one vertex inside and one
+            someOut = true; // Outside the plane. A point is inside the shaft
+			 // if it is inside *all* planes, but it is outside
+			 // as soon it is outside *one* plane
+
+            for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+                // Reduce segment of edge that can lay within the shaft
+                int k = (j + 1) % patch->getNumberOfVertices();
+                if ( side[j] != side[k] ) {
+                    if ( side[k] == ShaftPlanePosition::OUTSIDE ) {
+                        // Decrease tMax[j]
+                        if ( side[j] == ShaftPlanePosition::INSIDE ) {
+                            // Find intersection
+                            if ( tMax[j] > tMin[j] ) {
+                                double t = e[j] / (e[j] - e[k]);
+                                if ( t < tMax[j] ) {
+                                    tMax[j] = t;
+                                }
+                            }
+                        } else { // side[j] == COPLANAR
+                            // Whole edge lays outside
+                            tMax[j] = -Numeric::EPSILON;
+                        }
+                    } else if ( side[j] == ShaftPlanePosition::OUTSIDE ) {
+                        // increase tMin[j]
+                        if ( side[k] == ShaftPlanePosition::INSIDE ) {
+                            // Find intersection
+                            if ( tMin[j] < tMax[j] ) {
+                                double t = e[j] / (e[j] - e[k]);
+                                if ( t > tMin[j] ) {
+                                    tMin[j] = t;
+                                }
+                            }
+                        } else { // side[k] == COPLANAR
+                            // Whole edge lays outside
+                            tMin[j] = 1. + Numeric::EPSILON;
+                        }
+                    }
+                } else if ( side[j] == ShaftPlanePosition::OUTSIDE ) {
+                    // Whole edge lays outside
+                    tMax[j] = -Numeric::EPSILON;
+                }
+            }
+        }
+    }
+
+    // The remaining tests only work if the shaft planes alone determine the shaft
+    if ( referenceItem1 || referenceItem2 ) {
+        return ShaftPlanePosition::OVERLAP;
+    }
+
+    if ( !someOut ) {
+        // No patch vertices are outside the shaft
+        return ShaftPlanePosition::INSIDE;
+    }
+
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+        if ( inAll[j] ) {
+            // At least one patch vertex is really inside the shaft and
+            return ShaftPlanePosition::OVERLAP;
+        }
+    }
+    // At least one vertex is really outside => overlap
+
+    // All vertices are outside or on the shaft. Check whether there are edges
+    // intersecting the shaft
+    for ( int j = 0; j < patch->getNumberOfVertices(); j++ ) {
+        if ( tMin[j] + Numeric::EPSILON < tMax[j] - Numeric::EPSILON ) {
+            return ShaftPlanePosition::OVERLAP;
+        }
+    }
+
+    // All vertices and edges of the patch are outside the shaft. Either the
+    // patch is totally outside the shaft, either, the patch cuts the shaft.
+    // If the line segment connecting the midpoints of the polygons defining
+    // the shaft intersects the patch, the patch cuts the shaft. If not,
+    // the patch lays fully outside
+    ray.position = center1;
+    ray.direction.subtraction(center2, center1);
+    dist = 1.0F - Numeric::EPSILON_FLOAT;
+    if ( patch->intersect(&ray, Numeric::EPSILON_FLOAT, &dist, RayHitFlag::FRONT | RayHitFlag::BACK, &hitStore) ) {
+        cut = true;
+        return ShaftPlanePosition::OVERLAP;
+    }
+
+    return ShaftPlanePosition::OUTSIDE;
+}
+
+/**
+Returns true if the geometry is not to be enclosed in the shaft
+*/
+bool
+Shaft::patchIsOnOmitSet(const unsigned id) const {
+    for ( int i = 0; i < numberOfGeometriesToOmit && i < MAX_SKIP_ELEMENTS; i++ ) {
+        if ( patchIdsToOmit[i] == id ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+Returns true if the geometry is not to be opened during shaft culling
+*/
+bool
+Shaft::closedGeometry(const Geometry *geometry) const {
+    for ( int i = 0; i < numberOfGeometriesToAvoidOpen && i < MAX_SKIP_ELEMENTS; i++ ) {
+        if ( geometryIdsToAvoidOpening[i] == geometry->id ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+Given a patchList on the shaft, this method will check every patch in patchList to
+see if it is inside, outside or overlapping the shaft. Inside or overlapping patches
+are added to culledPatchList. A pointer to the possibly elongated culledPatchList
+is returned
+*/
+void
+Shaft::cullPatches(const java::ArrayList<Patch *> *patchList, java::ArrayList<Patch *> *culledPatchList) {
+    culledPatchList->clear();
+    for ( int i = 0; patchList != nullptr && i < patchList->size() && !cut; i++ ) {
+        Patch *patch = patchList->get(i);
+        if ( patch->isOmitted() || patchIsOnOmitSet(patch->getId()) ) {
+            continue;
+        }
+
+        if ( patch->getBoundingBox() == nullptr ) {
+            patch->computeBoundingBox();
+        }
+
+        ShaftPlanePosition boundingBoxSide = boundingBoxTest(patch->getBoundingBox());
+        // Patch bounding box is inside the shaft, or overlaps with it. If it
+        // overlaps, do a more expensive, but definitive, test to see whether
+        // the patch itself is inside, outside or overlapping the shaft
+        if ( boundingBoxSide != ShaftPlanePosition::OUTSIDE &&
+             ( boundingBoxSide == ShaftPlanePosition::INSIDE
+             || shaftPatchTest(patch) != ShaftPlanePosition::OUTSIDE ) ) {
+            culledPatchList->add(patch);
+        }
+    }
+}
+
+/**
+Adds the geometry to the candidateList, possibly duplicating if it
+was created during previous shaft culling
+*/
+void
+Shaft::keep(Geometry *geometry, java::ArrayList<Geometry *> *candidateList) {
+    if ( geometry->omit ) {
+        return;
+    }
+
+    if ( geometry->shaftCullGeometry && geometry->className == GeometryClassId::PATCH_SET ) {
+        const PatchSet *oldPatchSet = dynamic_cast<const PatchSet *>(geometry);
+        Geometry *newGeometry = createPatchSetWithPool(oldPatchSet->getPatchList());
+        newGeometry->shaftCullGeometry = true;
+        newGeometry->isDuplicate = true;
+        candidateList->add(newGeometry);
+    } else {
+        candidateList->add(geometry);
+    }
+}
+
+/**
+Breaks the geometry into it's components and does shaft culling on the components
+*/
+void
+Shaft::shaftCullOpen(Geometry *geometry, java::ArrayList<Geometry *> *candidateList, ShaftCullStrategy strategy) {
+    if ( geometry->omit ) {
+        return;
+    }
+
+    if ( geometry->isCompound() ) {
+        const Compound *compound = dynamic_cast<const Compound *>(geometry);
+        doCulling(compound->children, candidateList, strategy);
+    } else {
+        const java::ArrayList<Patch *> *geometryPatchesList = Geometry::patchListReference(geometry);
+        java::ArrayList<Patch *> culledPatches;
+        cullPatches(geometryPatchesList, &culledPatches);
+
+        if ( culledPatches.size() > 0 ) {
+            PatchSet *newGeometry = createPatchSetWithPool(&culledPatches);
+            newGeometry->shaftCullGeometry = true;
+            newGeometry->isDuplicate = false;
+            candidateList->add(newGeometry);
+        }
+    }
+}
+
+/**
+Tests the geometry with respect to the shaft: if the geometry is inside or overlaps
+the shaft, it is copied to the shaft or broken open depending on
+the current shaft culling strategy
+*/
+void
+Shaft::cullGeometry(
+    Geometry *geometry,
+    java::ArrayList<Geometry *> *candidateList,
+    const ShaftCullStrategy strategy)
+{
+    if ( geometry->className == GeometryClassId::PATCH_SET ) {
+        // TODO: Review this, Patch is not a Geometry! Probably here we are getting non-sense int numbers,
+        // not related to any Geometry/PatchSet neither Patch id.
+        const Patch* patch = reinterpret_cast<Patch *>(geometry);
+        const unsigned patchId = patch->getId();
+
+        // TODO: Check why the following alternatives does not work for test scene 05
+        // const unsigned geometryId = geometry->id;
+        // const PatchSet* patchSet = (PatchSet *)geometry;
+        // const unsigned patchSetId = patchSet->radianceData->id;
+
+        if ( geometry->omit || patchIsOnOmitSet(patchId) ) { // Cull by cache algorithm not being used
+            // TODO: Looks like original authors wanted to implement an efficiency improvement by
+            // implementing a omitted patches cache. Nevertheless, this was damaged on the transformation
+            // process from C to C++, or the algorithm never worked.
+            return;
+        }
+    }
+
+    // Unbounded geoms always overlap the shaft
+    switch ( geometry->bounded ? boundingBoxTest(&geometry->boundingBox) : ShaftPlanePosition::OVERLAP ) {
+        case ShaftPlanePosition::INSIDE:
+            if ( strategy == ShaftCullStrategy::ALWAYS_OPEN && !closedGeometry(geometry) ) {
+                shaftCullOpen(geometry, candidateList, strategy);
+            } else {
+                keep(geometry, candidateList);
+            }
+            break;
+        case ShaftPlanePosition::OVERLAP:
+            if ( closedGeometry(geometry) ) {
+                keep(geometry, candidateList);
+            } else {
+                shaftCullOpen(geometry, candidateList, strategy);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+Adds all objects from world that overlap or lay inside the shaft to
+candidateList
+
+During shaft culling getPatchList geometries are created - they (and only they)
+need to be destroyed when destroying a geometry candidate list created by
+doCulling - for other kinds of geoms, only a pointer is copied
+*/
+void
+Shaft::doCulling(
+    const java::ArrayList<Geometry *> *world,
+    java::ArrayList<Geometry *> *candidateList,
+    const ShaftCullStrategy strategy)
+{
+    for ( int i = 0; world != nullptr && i < world->size() && !cut; i++ ) {
+        cullGeometry(world->get(i), candidateList, strategy);
+    }
+}
+
+/**
+Frees the memory occupied by a candidate list produced by doCulling
+*/
+void
+Shaft::freeCandidateList(java::ArrayList<Geometry *> *candidateList) {
+    // Only destroy geometries that were generated for shaft culling
+    // free in reverse order to match LIFO allocations in shaft-culling paths
+    for ( int i = candidateList != nullptr ? static_cast<int>(candidateList->size()) - 1 : -1; i >= 0; i-- ) {
+        Geometry *geometry = candidateList->get(i);
+        if ( geometry->shaftCullGeometry ) {
+            if ( geometry->className == GeometryClassId::PATCH_SET ) {
+                PatchSet *patchSet = dynamic_cast<PatchSet *>(geometry);
+                if ( patchSet != nullptr && patchSet->isMemoryPoolManaged() ) {
+                    patchSet->~PatchSet();
+                    patchSetPool.free(1);
+                    Statistics::instance().reader.numberOfGeometries--;
+                } else {
+                    Geometry::destroy(geometry);
+                }
+            } else {
+                Geometry::destroy(geometry);
+            }
+        }
+    }
+
+    delete candidateList;
+}

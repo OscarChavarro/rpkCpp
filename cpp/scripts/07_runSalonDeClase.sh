@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/salon/classroom.mgf \
+"${RPK_BIN}" ../etc/salon/classroom.mgf \
     -obf output/07_classroom.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/07_classroom.wrl \

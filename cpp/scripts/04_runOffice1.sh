@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/office1/graz.mgf \
+"${RPK_BIN}" ../etc/office1/graz.mgf \
     -obf output/04_office1.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/04_office1.wrl \

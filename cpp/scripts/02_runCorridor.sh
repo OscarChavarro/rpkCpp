@@ -1,7 +1,8 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
-./build/rpk ../etc/corridor.mgf \
+"${RPK_BIN}" ../etc/corridor.mgf \
     -obf output/02_corridor.bin \
     -raytracing-method none \
     -nqcdivs 18 -iterations 21 -radiance-method Galerkin \

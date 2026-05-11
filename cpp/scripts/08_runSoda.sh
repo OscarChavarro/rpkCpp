@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/soda.mgf \
+"${RPK_BIN}" ../etc/soda.mgf \
     -obf output/08_soda.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/08_soda.wrl \

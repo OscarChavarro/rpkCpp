@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/hospital/hosp.mgf \
+"${RPK_BIN}" ../etc/hospital/hosp.mgf \
     -obf output/03_hospital.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -radiance-model-savefile output/03_hospital.wrl \
