@@ -1,7 +1,7 @@
 package vsdk.toolkit.scene;
 
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 class VoxelData {
     Patch patch;

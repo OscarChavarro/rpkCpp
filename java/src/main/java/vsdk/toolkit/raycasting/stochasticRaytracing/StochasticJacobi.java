@@ -14,16 +14,16 @@ import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class StochasticJacobi {
     @FunctionalInterface

@@ -1,5 +1,7 @@
 package vsdk.toolkit.skin;
 
+import vsdk.toolkit.environment.geometry.elements.*;
+
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.statistics.Statistics;

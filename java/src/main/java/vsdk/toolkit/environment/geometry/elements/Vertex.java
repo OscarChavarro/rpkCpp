@@ -1,4 +1,6 @@
-package vsdk.toolkit.skin;
+package vsdk.toolkit.environment.geometry.elements;
+
+import vsdk.toolkit.skin.*;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;

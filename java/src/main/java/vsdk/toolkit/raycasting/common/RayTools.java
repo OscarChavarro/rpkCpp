@@ -10,11 +10,11 @@ import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class RayTools {
     private static int pathFrontHitFlags() {

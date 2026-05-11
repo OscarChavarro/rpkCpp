@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.raycasting.common;
 
 /**
 A simple 2D stratified sampling class. Only one sample per stratum. If the number

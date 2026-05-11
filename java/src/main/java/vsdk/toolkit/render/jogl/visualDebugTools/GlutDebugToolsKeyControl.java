@@ -3,8 +3,8 @@ package vsdk.toolkit.render.jogl.visualDebugTools;
 import java.awt.event.KeyEvent;
 import java.util.function.BiConsumer;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.ElementTypes;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.ElementTypes;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class GlutDebugToolsKeyControl {
     private GlutDebugToolsKeyControl() {

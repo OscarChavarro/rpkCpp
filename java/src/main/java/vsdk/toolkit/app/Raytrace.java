@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.app.options.OptionsGroupRaytracing;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathRaytracer;
 import vsdk.toolkit.raycasting.bidirectionalRaytracing.BidirectionalPathTracingState;
@@ -29,7 +29,7 @@ This routine sets the current raytracing method to be used
 */
     private static void rayTraceSetMethod(
         RayTracer rayTracer,
-        java.util.ArrayList<vsdk.toolkit.skin.Patch> lightSourcePatches,
+        java.util.ArrayList<vsdk.toolkit.environment.geometry.elements.Patch> lightSourcePatches,
         LightList[] lightList)
     {
         if ( lightList != null ) {

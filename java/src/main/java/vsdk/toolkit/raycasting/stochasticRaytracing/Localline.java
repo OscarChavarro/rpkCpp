@@ -9,8 +9,8 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class Localline {
     private Localline() {
@@ -77,7 +77,7 @@ Determines nearest intersection point and patch
             ray,
             Numeric.EPSILON_FLOAT < P.tolerance ? Numeric.EPSILON_FLOAT : P.tolerance,
             distance,
-            vsdk.toolkit.skin.RayHitFlag.FRONT | vsdk.toolkit.skin.RayHitFlag.POINT,
+            vsdk.toolkit.environment.geometry.elements.RayHitFlag.FRONT | vsdk.toolkit.environment.geometry.elements.RayHitFlag.POINT,
             hitStore);
         Patch.dontIntersect0();
         someFeedback();

@@ -5,13 +5,13 @@ import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinRadianceMethod;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.GalerkinRole;
 import vsdk.toolkit.render.Potential;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.ElementFlags;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.ElementFlags;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class GatheringSimpleStrategy extends GatheringStrategy {
     private static void patchUpdatePotential(Patch patch) {

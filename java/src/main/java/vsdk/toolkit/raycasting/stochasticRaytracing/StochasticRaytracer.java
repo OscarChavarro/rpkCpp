@@ -5,7 +5,7 @@ import java.util.Random;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.StratifiedSampling2D;
+import vsdk.toolkit.raycasting.common.StratifiedSampling2D;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.io.image.ImageOutputHandle;
@@ -29,7 +29,7 @@ import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public final class StochasticRaytracer extends RayTracer {
@@ -73,7 +73,7 @@ pointed to by 'fp'
         Scene scene,
         RadianceMethod radianceMethod,
         ToneMappingContext toneMapOptions,
-        vsdk.toolkit.common.RenderOptions renderOptions)
+        vsdk.toolkit.material.RenderOptions renderOptions)
     {
         if ( toneMapOptions == null ) {
             Logger.fatal(-1, "StochasticRaytracer::execute", "Tone mapping context not provided");
@@ -151,7 +151,7 @@ pointed to by 'fp'
         StochasticRaytracingConfiguration config,
         StorageReadout readout,
         RadianceMethod radianceMethod,
-        vsdk.toolkit.common.RenderOptions renderOptions)
+        vsdk.toolkit.material.RenderOptions renderOptions)
     {
         int siCurrent; // What scatter block are we handling
         ScatterInfo si;
@@ -451,7 +451,7 @@ pointed to by 'fp'
         StorageReadout readout,
         int usedScatterSamples,
         RadianceMethod radianceMethod,
-        vsdk.toolkit.common.RenderOptions renderOptions)
+        vsdk.toolkit.material.RenderOptions renderOptions)
     {
         ColorRgb result = new ColorRgb();
         ColorRgb radiance = new ColorRgb();
@@ -640,7 +640,7 @@ pointed to by 'fp'
         StochasticRaytracerCallbackData callbackData = (StochasticRaytracerCallbackData)data;
         StochasticRaytracingConfiguration config = callbackData.config;
         RadianceMethod radianceMethod = callbackData.radianceMethod;
-        vsdk.toolkit.common.RenderOptions renderOptions = callbackData.renderOptions;
+        vsdk.toolkit.material.RenderOptions renderOptions = callbackData.renderOptions;
         SimpleRaytracingPathNode eyeNode = new SimpleRaytracingPathNode();
         SimpleRaytracingPathNode pixelNode = new SimpleRaytracingPathNode();
         double[] x1 = new double[1];

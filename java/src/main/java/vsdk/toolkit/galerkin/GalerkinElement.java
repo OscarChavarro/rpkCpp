@@ -9,7 +9,7 @@ import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 import vsdk.toolkit.common.linealAlgebra.Vector2D;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.XxdfComponentFlag;
@@ -18,11 +18,11 @@ import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.numericalAnalysis.TriangleCubatureRule;
 import vsdk.toolkit.scene.Polygon;
 import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.ElementFlags;
-import vsdk.toolkit.skin.ElementTypes;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.ElementFlags;
+import vsdk.toolkit.environment.geometry.elements.ElementTypes;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
 The Galerkin radiosity specific data to be kept with every surface or

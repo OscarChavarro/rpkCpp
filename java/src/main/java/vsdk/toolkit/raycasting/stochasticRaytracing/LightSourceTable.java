@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class LightSourceTable {
     public Patch patch;

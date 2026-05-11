@@ -3,11 +3,11 @@ package vsdk.toolkit.raycasting.common;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 /**

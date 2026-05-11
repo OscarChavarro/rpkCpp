@@ -2,15 +2,15 @@ package vsdk.toolkit.render.jogl.visualDebugTools;
 
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.GalerkinOpenGLRenderer;
 import vsdk.toolkit.render.jogl.Opengl;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.ElementTypes;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.ElementTypes;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMap;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 

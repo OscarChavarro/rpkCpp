@@ -77,8 +77,8 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 Emittance Distribution Functions: the self-emitted radiance distribution of light sources.

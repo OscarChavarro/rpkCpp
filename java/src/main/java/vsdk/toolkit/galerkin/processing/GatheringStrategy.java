@@ -1,6 +1,6 @@
 package vsdk.toolkit.galerkin.processing;
 
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.scene.Scene;

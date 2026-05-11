@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public final class Hierarchy {
     private static final float DEFAULT_EH_EPSILON = 5e-4f;

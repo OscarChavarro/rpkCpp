@@ -16,7 +16,7 @@ import vsdk.toolkit.render.ScreenBuffer;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public class StochasticRaytracingConfiguration {

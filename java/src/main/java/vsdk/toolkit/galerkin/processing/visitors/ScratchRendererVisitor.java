@@ -5,7 +5,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.render.sgl.SglContext;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class ScratchRendererVisitor implements ClusterLeafVisitor {
     private Vector3D eyePoint;

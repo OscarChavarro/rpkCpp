@@ -17,7 +17,7 @@ import vsdk.toolkit.render.sgl.SglConstants;
 import vsdk.toolkit.render.sgl.SglContext;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Element;
+import vsdk.toolkit.environment.geometry.elements.Element;
 
 public class ScratchVisibilityStrategy {
     /**

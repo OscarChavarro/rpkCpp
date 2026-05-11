@@ -9,10 +9,10 @@ import vsdk.toolkit.io.context.TokenValidationContext;
 import vsdk.toolkit.numericalAnalysis.MeshSurfaceVisitor;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.MaterialColorFlags;
+import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 /**
 Hierarchical object names tracking

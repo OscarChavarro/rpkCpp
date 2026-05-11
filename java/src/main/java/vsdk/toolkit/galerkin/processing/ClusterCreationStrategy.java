@@ -6,10 +6,10 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.galerkin.GalerkinIterationMethod;
 import vsdk.toolkit.galerkin.GalerkinState;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.ElementFlags;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class ClusterCreationStrategy {
     private static ArrayList<GalerkinElement> irregularElementsToDelete = null;

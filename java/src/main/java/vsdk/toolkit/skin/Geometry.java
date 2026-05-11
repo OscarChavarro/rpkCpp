@@ -1,11 +1,13 @@
 package vsdk.toolkit.skin;
 
+import vsdk.toolkit.environment.geometry.elements.*;
+
 import java.util.ArrayList;
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 
 /**
 Currently, there are three types of geometries:

@@ -3,9 +3,9 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 @FunctionalInterface
 interface REFINE_ACTION {

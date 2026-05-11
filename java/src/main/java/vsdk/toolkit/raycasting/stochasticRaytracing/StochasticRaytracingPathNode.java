@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
 Path node: contains all necessary data for computing the score afterwards

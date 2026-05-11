@@ -13,14 +13,14 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.RayTools;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public abstract class Sampler {
     public static final byte BSDF_ALL_COMPONENTS =

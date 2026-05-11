@@ -2,9 +2,9 @@ package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.material.BsdfComponent;
-import vsdk.toolkit.skin.MaterialColorFlags;
+import vsdk.toolkit.material.MaterialColorFlags;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 /**
 Initializes MeshSurface/Patch links with safe defaults without running numerical analysis.
 */

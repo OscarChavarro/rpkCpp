@@ -2,7 +2,7 @@ package vsdk.toolkit.scene;
 
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
 A structure describing polygons. Only used for shaft culling for the moment.

@@ -22,7 +22,7 @@ import vsdk.toolkit.raycasting.raytracing.BsdfSampler;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 This is a hack to get fresnel factors for perfect specular reflection and refraction

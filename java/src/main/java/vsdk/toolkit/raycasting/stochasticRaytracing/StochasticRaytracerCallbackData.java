@@ -1,6 +1,6 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.scene.RadianceMethod;
 
 public class StochasticRaytracerCallbackData {

@@ -1,4 +1,6 @@
-package vsdk.toolkit.skin;
+package vsdk.toolkit.environment.geometry.elements;
+
+import vsdk.toolkit.skin.*;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
@@ -10,7 +12,7 @@ import vsdk.toolkit.common.linealAlgebra.Vector2Dd;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.Material;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 
 public class Patch {
     public static final int MAXIMUM_VERTICES_PER_PATCH = 4;

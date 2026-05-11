@@ -3,8 +3,8 @@ package vsdk.toolkit.io.context;
 import java.util.ArrayList;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public class GeometryAssemblyContext {
     public static final int MAXIMUM_GEOMETRY_STACK_DEPTH = 100;

@@ -11,7 +11,7 @@ import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.scene.Camera;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class PhotonMap {
     protected PhotonMapState photonMapState;

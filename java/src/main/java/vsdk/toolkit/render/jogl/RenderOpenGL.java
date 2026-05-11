@@ -1,7 +1,7 @@
 package vsdk.toolkit.render.jogl;
 
 import java.util.ArrayList;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.Camera;

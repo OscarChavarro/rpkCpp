@@ -11,8 +11,8 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class Tracepath {
     @FunctionalInterface

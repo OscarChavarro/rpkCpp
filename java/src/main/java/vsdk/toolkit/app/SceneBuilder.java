@@ -29,7 +29,7 @@ import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 

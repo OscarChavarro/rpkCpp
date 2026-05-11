@@ -33,7 +33,7 @@ import vsdk.toolkit.galerkin.GalerkinElement;
 import vsdk.toolkit.render.jogl.Opengl;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class GlutDebugTools implements GLEventListener {
     private final GlutDebugToolsModel model;

@@ -1,7 +1,7 @@
 package vsdk.toolkit.render.jogl.visualDebugTools;
 
 import java.util.function.Consumer;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.io.context.ParseRuntimeContext;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;

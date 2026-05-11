@@ -1,4 +1,6 @@
-package vsdk.toolkit.skin;
+package vsdk.toolkit.environment.geometry.elements;
+
+import vsdk.toolkit.skin.*;
 
 import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
@@ -8,7 +10,7 @@ import vsdk.toolkit.material.Material;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
 import vsdk.toolkit.material.PhongEmittanceDistributionFunction;
 import vsdk.toolkit.material.ShadingContext;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 
 /**
 Hit record structure, returned by ray-object intersection routines and

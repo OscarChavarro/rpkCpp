@@ -19,13 +19,13 @@ import vsdk.toolkit.galerkin.GalerkinRole;
 import vsdk.toolkit.galerkin.GalerkinState;
 import vsdk.toolkit.galerkin.Interaction;
 import vsdk.toolkit.galerkin.ShadowCache;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.numericalAnalysis.CubatureRule;
 import vsdk.toolkit.scene.VoxelGrid;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class FormFactorStrategy {
     // Global variables used for form factor computation optimisation

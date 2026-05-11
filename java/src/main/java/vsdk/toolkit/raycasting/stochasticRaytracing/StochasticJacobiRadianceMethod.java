@@ -6,7 +6,7 @@ import java.util.Locale;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
@@ -15,8 +15,8 @@ import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 /**

@@ -15,8 +15,8 @@ import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.linealAlgebra.Vector4D;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class SglContext {
     private static final Matrix4x4 IDENTITY_MATRIX = new Matrix4x4(

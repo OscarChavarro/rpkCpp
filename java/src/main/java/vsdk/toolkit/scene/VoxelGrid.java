@@ -9,8 +9,8 @@ import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.MinMaxBox;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 Uniform voxel grid to optimize intersection operations

@@ -18,10 +18,10 @@ import vsdk.toolkit.galerkin.Shaft;
 import vsdk.toolkit.galerkin.ShaftCullStrategy;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.Polygon;
-import vsdk.toolkit.skin.ElementFlags;
+import vsdk.toolkit.environment.geometry.elements.ElementFlags;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
 Shaft culling stuff for hierarchical refinement

@@ -6,7 +6,7 @@ package vsdk.toolkit.io.wrl;
 
 import java.io.OutputStream;
 import java.util.Locale;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;

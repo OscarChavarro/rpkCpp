@@ -6,15 +6,15 @@ import vsdk.toolkit.common.linealAlgebra.Matrix4x4;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.render.jogl.RenderOpenGL;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.skin.BoundingBox;
-import vsdk.toolkit.skin.ElementTypes;
+import vsdk.toolkit.environment.geometry.elements.ElementTypes;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class GlutDebugToolsMouseControl {
     private static final int DRAG_START_THRESHOLD_PIXELS = 3;

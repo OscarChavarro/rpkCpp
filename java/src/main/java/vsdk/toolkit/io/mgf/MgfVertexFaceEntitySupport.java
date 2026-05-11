@@ -15,8 +15,8 @@ import vsdk.toolkit.io.context.TokenValidationContext;
 import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.io.context.VertexContext;
 import vsdk.toolkit.material.Material;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public class MgfVertexFaceEntitySupport {
     private static final int MAXIMUM_FACE_VERTICES = 100;

@@ -5,13 +5,13 @@ Just fills in the eye point in the node
 package vsdk.toolkit.raycasting.raytracing;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class EyeSampler extends Sampler {
     // Sample : newNode gets filled, others may change

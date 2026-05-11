@@ -1,4 +1,4 @@
-package vsdk.toolkit.skin;
+package vsdk.toolkit.material;
 
 public final class MaterialColorFlags {
     public static final int NO_COLORS = 0;

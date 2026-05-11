@@ -15,8 +15,8 @@ import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class LightList extends CircularList<LightInfo> {
     // Total flux ( sum(L * A * PI))

@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.stochasticRaytracing;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class McradP {
     private McradP() {

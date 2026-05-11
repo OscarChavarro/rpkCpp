@@ -3,10 +3,10 @@ package vsdk.toolkit.scene;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.Element;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Element;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 public abstract class RadianceMethod {

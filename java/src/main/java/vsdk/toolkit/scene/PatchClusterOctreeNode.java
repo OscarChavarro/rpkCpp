@@ -6,8 +6,8 @@ import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.PatchSet;
 
 /**
 Clusters of patches. A hierarchy of clusters is automatically built after loading a scene.

@@ -13,7 +13,7 @@ import vsdk.toolkit.raycasting.stochasticRaytracing.StochasticRelaxation;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.RadianceMethodAlgorithm;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 
 /**

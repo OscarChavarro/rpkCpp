@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import vsdk.toolkit.common.color.Cie;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public final class Ccr {
     private Ccr() {

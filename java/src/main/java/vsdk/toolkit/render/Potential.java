@@ -7,12 +7,12 @@ package vsdk.toolkit.render;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.render.sgl.SglContext;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 /**
 In analogy with [SMIT1992] Smits, "Importance-driven Radiosity", SIGGRAPH '92, we

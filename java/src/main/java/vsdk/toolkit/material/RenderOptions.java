@@ -1,4 +1,4 @@
-package vsdk.toolkit.common;
+package vsdk.toolkit.material;
 
 import vsdk.toolkit.common.color.ColorRgb;
 

@@ -3,14 +3,14 @@ package vsdk.toolkit.raycasting.raytracing;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
 import vsdk.toolkit.material.PhongBidirectionalScatteringDistributionFunction;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.raycasting.common.PathRayType;
 import vsdk.toolkit.raycasting.common.BsdfComp;
 import vsdk.toolkit.raycasting.common.SimpleRaytracingPathNode;
 import vsdk.toolkit.scene.Background;
 import vsdk.toolkit.scene.Camera;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 A surface sampler is for scattering on surfaces. Here we need

@@ -149,8 +149,8 @@ import vsdk.toolkit.common.logging.Logger;
 import vsdk.toolkit.common.linealAlgebra.CoordinateSystem;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 A simple combination of BRDF and BTDF.

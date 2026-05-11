@@ -5,8 +5,8 @@ import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.PatchSet;
 
 public class Scene {
     private static final String compoundType = "Compound";

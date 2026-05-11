@@ -7,15 +7,15 @@ package vsdk.toolkit.raycasting.stochasticRaytracing;
 import java.util.ArrayList;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.scene.RadianceMethod;
 import vsdk.toolkit.scene.Scene;
 import vsdk.toolkit.scene.VoxelGrid;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public final class Nondiff {
     private static LightSourceTable[] lights = null;

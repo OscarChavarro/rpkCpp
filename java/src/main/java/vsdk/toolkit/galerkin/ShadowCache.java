@@ -2,9 +2,9 @@ package vsdk.toolkit.galerkin;
 
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
-import vsdk.toolkit.skin.RayHitFlag;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 public class ShadowCache {
     private static final int MAX_CACHE = 5;

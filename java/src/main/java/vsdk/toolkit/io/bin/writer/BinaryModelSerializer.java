@@ -26,9 +26,9 @@ import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
 import vsdk.toolkit.skin.MeshSurface;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.PatchSet;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public class BinaryModelSerializer {
     private static final byte[] BINARY_MODEL_MAGIC = new byte[] {

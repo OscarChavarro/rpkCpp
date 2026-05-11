@@ -1,7 +1,7 @@
 package vsdk.toolkit.raycasting.bidirectionalRaytracing;
 
 import vsdk.toolkit.common.dataStructures.CircularListIterator;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class LightListIterator {
     private CircularListIterator<LightInfo> iterator;

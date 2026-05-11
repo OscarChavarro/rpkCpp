@@ -4,7 +4,7 @@ import java.io.OutputStream;
 import java.util.Locale;
 import vsdk.toolkit.app.options.BatchOptions;
 import vsdk.toolkit.app.options.OptionsGroupBatch;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.io.image.ImageOutputHandle;
 import vsdk.toolkit.io.wrapper.FileUncompressWrapper;
 import vsdk.toolkit.raycasting.common.RayTracer;

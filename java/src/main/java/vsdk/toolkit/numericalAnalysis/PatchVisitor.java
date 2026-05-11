@@ -2,9 +2,9 @@ package vsdk.toolkit.numericalAnalysis;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 import vsdk.toolkit.numericalAnalysis.quasiMonteCarlo.Niederreiter31;
 /**
 Use next function (with PatchListIterate) to close any open files of the patch use for recording

@@ -6,16 +6,16 @@ import vsdk.toolkit.common.memoryManagement.MemoryPool;
 import vsdk.toolkit.common.linealAlgebra.Numeric;
 import vsdk.toolkit.common.linealAlgebra.Ray;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.RayHitFlag;
+import vsdk.toolkit.environment.geometry.elements.RayHitFlag;
 import vsdk.toolkit.scene.Polygon;
 import vsdk.toolkit.skin.BoundingBox;
 import vsdk.toolkit.skin.BoundingBoxCoordinateIndex;
 import vsdk.toolkit.skin.Compound;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.PatchSet;
-import vsdk.toolkit.skin.RayHit;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.PatchSet;
+import vsdk.toolkit.environment.geometry.elements.RayHit;
 
 /**
 References:

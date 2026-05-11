@@ -1,9 +1,9 @@
 package vsdk.toolkit.render;
 
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.render.sgl.SglContext;
 import vsdk.toolkit.scene.Scene;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class SoftIdsWrapper {
     private SglContext sgl; // Software rendering context, includes frame buffer

@@ -10,7 +10,7 @@ import vsdk.toolkit.common.statistics.Statistics;
 import vsdk.toolkit.material.BsdfComponent;
 import vsdk.toolkit.material.XxdfComponentFlag;
 import vsdk.toolkit.numericalAnalysis.PatchVisitor;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 import vsdk.toolkit.tonemap.ToneMapAdaptationMethod;
 import vsdk.toolkit.tonemap.ToneMappingContext;
 

@@ -2,7 +2,7 @@ package vsdk.toolkit.io.bin.reader;
 
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.linealAlgebra.Vector3D;
-import vsdk.toolkit.skin.Patch;
+import vsdk.toolkit.environment.geometry.elements.Patch;
 
 public class BinaryModelPatchRecordData {
     public int id;

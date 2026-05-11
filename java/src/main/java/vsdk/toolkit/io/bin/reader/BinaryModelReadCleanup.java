@@ -10,8 +10,8 @@ import vsdk.toolkit.io.context.TransformStackContext;
 import vsdk.toolkit.material.Material;
 import vsdk.toolkit.skin.Geometry;
 import vsdk.toolkit.skin.GeometryClassId;
-import vsdk.toolkit.skin.Patch;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Patch;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public class BinaryModelReadCleanup {
     public static void cleanupPartialModel(

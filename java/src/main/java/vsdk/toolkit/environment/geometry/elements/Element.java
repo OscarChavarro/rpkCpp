@@ -1,9 +1,11 @@
-package vsdk.toolkit.skin;
+package vsdk.toolkit.environment.geometry.elements;
+
+import vsdk.toolkit.skin.*;
 
 import java.util.ArrayList;
 import vsdk.toolkit.common.color.ColorRgb;
 import vsdk.toolkit.common.logging.Logger;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.linealAlgebra.Matrix2x2;
 
 public class Element {

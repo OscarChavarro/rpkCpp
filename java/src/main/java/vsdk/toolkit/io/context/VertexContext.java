@@ -1,7 +1,7 @@
 package vsdk.toolkit.io.context;
 
 import vsdk.toolkit.common.linealAlgebra.Vector3Dd;
-import vsdk.toolkit.skin.Vertex;
+import vsdk.toolkit.environment.geometry.elements.Vertex;
 
 public class VertexContext {
     public Vector3Dd p; // Point

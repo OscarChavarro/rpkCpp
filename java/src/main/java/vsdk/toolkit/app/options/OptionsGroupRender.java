@@ -1,7 +1,7 @@
 package vsdk.toolkit.app.options;
 
 import vsdk.toolkit.common.color.ColorRgb;
-import vsdk.toolkit.common.RenderOptions;
+import vsdk.toolkit.material.RenderOptions;
 import vsdk.toolkit.common.commandLineOptions.OptionBase;
 import vsdk.toolkit.common.commandLineOptions.OptionGroup;
 import vsdk.toolkit.common.commandLineOptions.OptionParser;
