@@ -2,8 +2,8 @@
 Photon flags used by the photon map
 */
 
-#ifndef __PHOTON__
-#define __PHOTON__
+#ifndef PHOTON__
+#define PHOTON__
 
 enum PhotonFlags : short {
     DIRECT_LIGHT_PHOTON = 0x10,

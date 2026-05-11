@@ -1,5 +1,5 @@
-#ifndef __OPTION_CORE_GROUP__
-#define __OPTION_CORE_GROUP__
+#ifndef OPTION_CORE_GROUP__
+#define OPTION_CORE_GROUP__
 
 #include "common/commandLineOptions/TypedOption.h"
 

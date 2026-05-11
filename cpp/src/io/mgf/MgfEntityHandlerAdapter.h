@@ -1,5 +1,5 @@
-#ifndef __MGF_STATIC_HANDLER__
-#define __MGF_STATIC_HANDLER__
+#ifndef MGF_STATIC_HANDLER__
+#define MGF_STATIC_HANDLER__
 
 #include "io/context/ParseRuntimeContext.h"
 #include "io/context/EntityDispatchContext.h"

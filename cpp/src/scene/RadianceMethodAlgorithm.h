@@ -1,5 +1,5 @@
-#ifndef __RADIANCE_METHOD_ALGORITHM__
-#define __RADIANCE_METHOD_ALGORITHM__
+#ifndef RADIANCE_METHOD_ALGORITHM__
+#define RADIANCE_METHOD_ALGORITHM__
 
 #include "material/RendererConfiguration.h"
 

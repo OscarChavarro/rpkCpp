@@ -2,8 +2,8 @@
 4D vector sampling
 */
 
-#ifndef __SAMPLE_4D__
-#define __SAMPLE_4D__
+#ifndef SAMPLE_4D__
+#define SAMPLE_4D__
 
 
 #include "raycasting/stochasticRaytracing/Sampler4DSequence.h"

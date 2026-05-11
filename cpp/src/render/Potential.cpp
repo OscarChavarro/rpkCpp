@@ -54,17 +54,17 @@ Potential::updateDirectPotential(const Scene *scene, const RendererConfiguration
 
     // h and v are the horizontal resp. vertical distance between two
     // neighboring pixels on the screen
-    const float h = 2.0f * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(x);
-    const float v = 2.0f * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0f) / static_cast<float>(y);
+    const float h = 2.0F * java::Math::tan(scene->camera->horizontalFov * static_cast<float>(M_PI) / 180.0F) / static_cast<float>(x);
+    const float v = 2.0F * java::Math::tan(scene->camera->verticalFov * static_cast<float>(M_PI) / 180.0F) / static_cast<float>(y);
     const float pixelArea = h * v;
 
     float ySample;
     long j;
-    for ( j = y - 1, ySample = -v * static_cast<float>(y - 1) / 2.0f;
+    for ( j = y - 1, ySample = -v * static_cast<float>(y - 1) / 2.0F;
           j >= 0;
           j--, ySample += v ) {
         const long rowStart = j * x;
-        for ( long i = 0, xSample = -h * static_cast<float>(x - 1) / 2.0f; i < x; i++, xSample += static_cast<long>(h) ) {
+        for ( long i = 0, xSample = -h * static_cast<float>(x - 1) / 2.0F; i < x; i++, xSample += static_cast<long>(h) ) {
             const unsigned long the_id = ids[rowStart + i] & 0xffffff;
 
             if ( the_id > 0 && the_id <= maximumPatchId ) {

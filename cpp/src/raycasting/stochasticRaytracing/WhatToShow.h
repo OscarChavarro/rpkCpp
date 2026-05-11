@@ -1,5 +1,5 @@
-#ifndef __WHAT_TO_SHOW__
-#define __WHAT_TO_SHOW__
+#ifndef WHAT_TO_SHOW__
+#define WHAT_TO_SHOW__
 
 enum WhatToShow {
     SHOW_TOTAL_RADIANCE,

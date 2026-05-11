@@ -1,5 +1,5 @@
-#ifndef __MGF_CYLINDER_GEOMETRY__
-#define __MGF_CYLINDER_GEOMETRY__
+#ifndef MGF_CYLINDER_GEOMETRY__
+#define MGF_CYLINDER_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

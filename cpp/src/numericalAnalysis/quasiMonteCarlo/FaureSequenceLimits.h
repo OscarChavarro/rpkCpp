@@ -1,5 +1,5 @@
-#ifndef __FAURE_SEQUENCE_LIMITS__
-#define __FAURE_SEQUENCE_LIMITS__
+#ifndef FAURE_SEQUENCE_LIMITS__
+#define FAURE_SEQUENCE_LIMITS__
 
 class FaureSequenceLimits {
   public:

@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
-#define __STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
+#ifndef STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
+#define STOCHASTIC_RADIOSITY_GALERKIN_BASIS__
 
 /**
 All bases are orthonormal on their standard domain

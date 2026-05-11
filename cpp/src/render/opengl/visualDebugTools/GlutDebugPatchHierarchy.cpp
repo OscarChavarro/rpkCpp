@@ -19,11 +19,11 @@
 
 float
 GlutDebugPatchHierarchy::clamp01(float value) {
-    if ( value < 0.0f ) {
-        return 0.0f;
+    if ( value < 0.0F ) {
+        return 0.0F;
     }
-    if ( value > 1.0f ) {
-        return 1.0f;
+    if ( value > 1.0F ) {
+        return 1.0F;
     }
     return value;
 }
@@ -270,10 +270,10 @@ GlutDebugPatchHierarchy::drawCenterMark(
         return;
     }
 
-    const ColorRgb yellow(1.0f, 1.0f, 0.0f);
+    const ColorRgb yellow(1.0F, 1.0F, 0.0F);
     Opengl::openGlRenderSetColor(&yellow, renderOptions);
 
-    constexpr float TWO_PI = 6.28318530717958647692f;
+    constexpr float TWO_PI = 6.28318530717958647692F;
     Vector3D firstVertex;
     Vector3D previousVertex;
     for ( int i = 0; i < sides; i++ ) {
@@ -315,7 +315,7 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
         axisU.subtraction(vertices[2], vertices[0]);
     }
     if ( axisU.norm2() < Numeric::EPSILON ) {
-        axisU.set(1.0f, 0.0f, 0.0f);
+        axisU.set(1.0F, 0.0F, 0.0F);
     } else {
         axisU.normalize(Numeric::EPSILON);
     }
@@ -331,7 +331,7 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
         normal.crossProduct(edgeA, edgeB);
     }
     if ( normal.norm2() < Numeric::EPSILON ) {
-        normal.set(0.0f, 0.0f, 1.0f);
+        normal.set(0.0F, 0.0F, 1.0F);
     } else {
         normal.normalize(Numeric::EPSILON);
     }
@@ -339,22 +339,22 @@ GlutDebugPatchHierarchy::drawSelectedPatchCenterMarker(
     Vector3D axisV;
     axisV.crossProduct(normal, axisU);
     if ( axisV.norm2() < Numeric::EPSILON ) {
-        axisV.set(0.0f, 1.0f, 0.0f);
+        axisV.set(0.0F, 1.0F, 0.0F);
     } else {
         axisV.normalize(Numeric::EPSILON);
     }
 
-    float averageEdgeSize = 0.0f;
+    float averageEdgeSize = 0.0F;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const int nextIndex = (i + 1) % numberOfVertices;
         averageEdgeSize += vertices[i].distance(vertices[nextIndex]);
     }
     averageEdgeSize /= static_cast<float>(numberOfVertices);
     if ( averageEdgeSize < Numeric::EPSILON ) {
-        averageEdgeSize = 0.1f;
+        averageEdgeSize = 0.1F;
     }
 
-    const float radius = 0.08f * averageEdgeSize;
+    const float radius = 0.08F * averageEdgeSize;
     const Vector3D center = topLevelElement->midPoint();
     drawCenterMark(center, radius, 8, axisU, axisV, renderOptions);
 }
@@ -365,9 +365,9 @@ GlutDebugPatchHierarchy::drawGradientLine(
     const Vector3D &end)
 {
     glBegin(GL_LINES);
-    glColor3f(0.5f, 0.5f, 0.5f);
+    glColor3f(0.5F, 0.5F, 0.5F);
     glVertex3f(start.x, start.y, start.z);
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor3f(1.0F, 1.0F, 1.0F);
     glVertex3f(end.x, end.y, end.z);
     glEnd();
 }
@@ -384,9 +384,9 @@ GlutDebugPatchHierarchy::drawInteractions(
     glGetIntegerv(GL_SHADE_MODEL, &previousShadeModel);
     glShadeModel(GL_SMOOTH);
 
-    GLfloat previousLineWidth = 1.0f;
+    GLfloat previousLineWidth = 1.0F;
     glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
-    glLineWidth(2.0f);
+    glLineWidth(2.0F);
 
     for ( int i = 0; i < interactionsToRender->size(); i++ ) {
         const Interaction *interaction = interactionsToRender->get(i);
@@ -473,14 +473,14 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     RendererConfiguration interactingRenderOptions = *renderOptions;
     interactingRenderOptions.drawSurfaces = true;
     interactingRenderOptions.drawOutlines = true;
-    interactingRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
+    interactingRenderOptions.outlineColor.set(1.0F, 1.0F, 0.0F);
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
-    GLfloat previousLineWidth = 1.0f;
+    GLfloat previousLineWidth = 1.0F;
     glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(2.0f);
+    glLineWidth(2.0F);
 
     for ( int i = 0; i < interactingPatches.size(); i++ ) {
         const GalerkinElement *topLevelElement = GalerkinElement::fromPatch(interactingPatches.get(i));
@@ -513,14 +513,14 @@ GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     RendererConfiguration secondaryRenderOptions = *renderOptions;
     secondaryRenderOptions.drawSurfaces = true;
     secondaryRenderOptions.drawOutlines = true;
-    secondaryRenderOptions.outlineColor.set(1.0f, 1.0f, 0.0f);
+    secondaryRenderOptions.outlineColor.set(1.0F, 1.0F, 0.0F);
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
-    GLfloat previousLineWidth = 1.0f;
+    GLfloat previousLineWidth = 1.0F;
     glGetFloatv(GL_LINE_WIDTH, &previousLineWidth);
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(2.0f);
+    glLineWidth(2.0F);
 
     renderElementAtLevel(topLevelElement, secondaryHierarchyLevel, &secondaryRenderOptions);
 

@@ -1,5 +1,5 @@
-#ifndef __CIRCULAR_LIST_BASE_ITERATOR__
-#define __CIRCULAR_LIST_BASE_ITERATOR__
+#ifndef CIRCULAR_LIST_BASE_ITERATOR__
+#define CIRCULAR_LIST_BASE_ITERATOR__
 
 #include "common/dataStructures/CircularListBase.h"
 

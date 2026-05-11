@@ -1,5 +1,5 @@
-#ifndef __CIRCULAR_LIST_BASE__
-#define __CIRCULAR_LIST_BASE__
+#ifndef CIRCULAR_LIST_BASE__
+#define CIRCULAR_LIST_BASE__
 
 #include "common/dataStructures/CircularListLink.h"
 

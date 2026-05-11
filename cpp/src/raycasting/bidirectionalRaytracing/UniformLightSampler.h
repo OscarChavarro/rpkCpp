@@ -1,5 +1,5 @@
-#ifndef __UNIFORM_LIGHT_SAMPLER__
-#define __UNIFORM_LIGHT_SAMPLER__
+#ifndef UNIFORM_LIGHT_SAMPLER__
+#define UNIFORM_LIGHT_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

@@ -1,5 +1,5 @@
-#ifndef __REFRACTION_INDEX__
-#define __REFRACTION_INDEX__
+#ifndef REFRACTION_INDEX__
+#define REFRACTION_INDEX__
 
 class RefractionIndex {
   private:

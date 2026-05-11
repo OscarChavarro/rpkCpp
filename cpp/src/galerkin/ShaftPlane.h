@@ -1,5 +1,5 @@
-#ifndef __SHAFT_PLANE__
-#define __SHAFT_PLANE__
+#ifndef SHAFT_PLANE__
+#define SHAFT_PLANE__
 
 class ShaftPlane {
   public:

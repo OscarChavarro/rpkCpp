@@ -1,5 +1,5 @@
-#ifndef __PHOTON_CLASS__
-#define __PHOTON_CLASS__
+#ifndef PHOTON_CLASS__
+#define PHOTON_CLASS__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/color/ColorRgb.h"

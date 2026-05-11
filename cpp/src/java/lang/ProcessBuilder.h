@@ -1,5 +1,5 @@
-#ifndef __JAVA_LANG_PROCESS_BUILDER__
-#define __JAVA_LANG_PROCESS_BUILDER__
+#ifndef JAVA_LANG_PROCESS_BUILDER__
+#define JAVA_LANG_PROCESS_BUILDER__
 
 namespace java {
 

@@ -1,5 +1,5 @@
-#ifndef __DK_COLOR__
-#define __DK_COLOR__
+#ifndef DK_COLOR__
+#define DK_COLOR__
 
 /**
 Routines using pixel color values / color calculations.

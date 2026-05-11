@@ -1,5 +1,5 @@
-#ifndef __HIERARCHICAL_REFINE__
-#define __HIERARCHICAL_REFINE__
+#ifndef HIERARCHICAL_REFINE__
+#define HIERARCHICAL_REFINE__
 
 #include "common/memoryManagement/MemoryPool.h"
 #include "scene/Scene.h"

@@ -35,7 +35,7 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     power.scaledCopy(patch->getArea(), E);
     Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, power);
     Statistics::instance().radiance.averageReflectivity.addScaled(Statistics::instance().radiance.averageReflectivity, patch->getArea(), R);
-    E.scale(1.0f / static_cast<float>(M_PI));
+    E.scale(1.0F / static_cast<float>(M_PI));
     Statistics::instance().radiance.maxSelfEmittedRadiance.maximum(E, Statistics::instance().radiance.maxSelfEmittedRadiance);
     Statistics::instance().radiance.maxSelfEmittedPower.maximum(power, Statistics::instance().radiance.maxSelfEmittedPower);
 }
@@ -47,7 +47,7 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     ColorRgb averageAbsorption;
     ColorRgb BP;
 
-    one.setMonochrome(1.0f);
+    one.setMonochrome(1.0F);
     zero.set(0, 0, 0);
 
     // Initialize
@@ -73,7 +73,7 @@ SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
 
     // Include background radiation
     BP = Background::backgroundPower(scene->background, &zero);
-    BP.scale(1.0f / (4.0f * static_cast<float>(M_PI)));
+    BP.scale(1.0F / (4.0F * static_cast<float>(M_PI)));
     Statistics::instance().radiance.totalEmittedPower.add(Statistics::instance().radiance.totalEmittedPower, BP);
     Statistics::instance().radiance.estimatedAverageRadiance.add(Statistics::instance().radiance.estimatedAverageRadiance, BP);
     Statistics::instance().radiance.estimatedAverageRadiance.divide(Statistics::instance().radiance.estimatedAverageRadiance, averageAbsorption);

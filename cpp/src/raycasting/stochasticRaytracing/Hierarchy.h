@@ -2,8 +2,8 @@
 Hierarchical refinement stuff (includes Jan's elementP.h)
 */
 
-#ifndef __ELEMENT_HIERARCHY__
-#define __ELEMENT_HIERARCHY__
+#ifndef ELEMENT_HIERARCHY__
+#define ELEMENT_HIERARCHY__
 
 #include "java/util/ArrayList.h"
 #include "common/statistics/Statistics.h"
@@ -32,8 +32,8 @@ class Hierarchy final {
     static void elementHierarchyTerminate(const java::ArrayList<Patch *> *scenePatches);
 
   private:
-    static constexpr float DEFAULT_EH_EPSILON = 5e-4f;
-    static constexpr float DEFAULT_EH_MINIMUM_AREA = 1e-6f;
+    static constexpr float DEFAULT_EH_EPSILON = 5e-4F;
+    static constexpr float DEFAULT_EH_MINIMUM_AREA = 1e-6F;
     static constexpr bool DEFAULT_EH_HIERARCHICAL_MESHING = true;
     static constexpr bool DEFAULT_EH_T_VERTEX_ELIMINATION = true;
     static constexpr HierarchyClusteringMode DEFAULT_EH_CLUSTERING = HierarchyClusteringMode::ORIENTED_CLUSTERING;

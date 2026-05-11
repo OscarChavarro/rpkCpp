@@ -1,5 +1,5 @@
-#ifndef __FLAG_CHAIN_LIST__
-#define __FLAG_CHAIN_LIST__
+#ifndef FLAG_CHAIN_LIST__
+#define FLAG_CHAIN_LIST__
 
 #include "common/color/ColorRgb.h"
 #include "common/dataStructures/CircularList.h"

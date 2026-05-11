@@ -1,5 +1,5 @@
-#ifndef __COLOR_CONTEXT__
-#define __COLOR_CONTEXT__
+#ifndef COLOR_CONTEXT__
+#define COLOR_CONTEXT__
 
 #include "java/lang/Math.h"
 

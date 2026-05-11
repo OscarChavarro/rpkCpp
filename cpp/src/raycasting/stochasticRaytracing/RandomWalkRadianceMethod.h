@@ -1,5 +1,5 @@
-#ifndef __RANDOM_WALK_RADIANCE_METHOD__
-#define __RANDOM_WALK_RADIANCE_METHOD__
+#ifndef RANDOM_WALK_RADIANCE_METHOD__
+#define RANDOM_WALK_RADIANCE_METHOD__
 
 #include "scene/Camera.h"
 #include "scene/RadianceMethod.h"

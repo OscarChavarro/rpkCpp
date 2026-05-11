@@ -160,7 +160,7 @@ Scene::printPatches() const {
     java::System::out.printf("Patches on top level scene list: %ld\n", patchList->size());
     for ( int i = 0; i < patchList->size(); i++ ) {
         const Patch *patch = patchList->get(i);
-        java::System::out.printf("  - patch[%d]: vertices: %d, area: %03f\n",
+        java::System::out.printf("  - patch[%d]: vertices: %d, area: %03F\n",
            i, patch->getNumberOfVertices(), patch->getArea());
     }
 }

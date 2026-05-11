@@ -1,5 +1,5 @@
-#ifndef __RAY_CASTER__
-#define __RAY_CASTER__
+#ifndef RAY_CASTER__
+#define RAY_CASTER__
 
 #include "java/util/ArrayList.h"
 #include "material/RendererConfiguration.h"

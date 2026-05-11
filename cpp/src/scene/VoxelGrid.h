@@ -1,5 +1,5 @@
-#ifndef __VOXEL_GRID__
-#define __VOXEL_GRID__
+#ifndef VOXEL_GRID__
+#define VOXEL_GRID__
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"
@@ -9,7 +9,7 @@
 class VoxelGrid {
   private:
     static constexpr int MINIMUM_ELEMENT_COUNT_PER_CELL = 10;
-    static constexpr float DELTA_BOUND_FACTOR = 1e-4f;
+    static constexpr float DELTA_BOUND_FACTOR = 1e-4F;
 
     static java::ArrayList<VoxelGrid *> *subGridsToDelete;
     static java::ArrayList<VoxelData *> *voxelCellsToDelete;

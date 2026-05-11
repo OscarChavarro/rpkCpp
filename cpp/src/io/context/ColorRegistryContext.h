@@ -1,5 +1,5 @@
-#ifndef __COLOR_REPOSITORY__
-#define __COLOR_REPOSITORY__
+#ifndef COLOR_REPOSITORY__
+#define COLOR_REPOSITORY__
 
 #include "io/context/ColorContext.h"
 #include "common/dataStructures/LookUpTable.h"

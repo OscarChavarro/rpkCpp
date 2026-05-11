@@ -1,5 +1,5 @@
-#ifndef __Object__
-#define __Object__
+#ifndef Object__
+#define Object__
 
 namespace java {
 

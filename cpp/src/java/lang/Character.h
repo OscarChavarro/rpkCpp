@@ -1,5 +1,5 @@
-#ifndef __CHARACTER__
-#define __CHARACTER__
+#ifndef CHARACTER__
+#define CHARACTER__
 
 namespace java {
 

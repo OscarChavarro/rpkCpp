@@ -57,7 +57,7 @@ GalerkinBasis::pull(
                             static_cast<float>(f),
                             childCoefficients[beta]);
             }
-            parentCoefficients[alpha].scale(0.25f);
+            parentCoefficients[alpha].scale(0.25F);
         }
     }
 }
@@ -74,7 +74,7 @@ GalerkinBasis::pushPullRadianceRecursive(
 {
     // Re-normalize the received radiance at this level and add to Bdown
     for ( int i = 0; i < element->basisSize; i++ ) {
-        Bdown[i].addScaled(Bdown[i], 1.0f / element->area, element->receivedRadiance[i]);
+        Bdown[i].addScaled(Bdown[i], 1.0F / element->area, element->receivedRadiance[i]);
         element->receivedRadiance[i].clear();
     }
 

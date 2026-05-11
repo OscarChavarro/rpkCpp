@@ -1,5 +1,5 @@
-#ifndef __PIC_OUTPUT_HANDLE__
-#define __PIC_OUTPUT_HANDLE__
+#ifndef PIC_OUTPUT_HANDLE__
+#define PIC_OUTPUT_HANDLE__
 
 #include "java/io/OutputStream.h"
 #include "java/lang/String.h"

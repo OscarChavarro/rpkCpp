@@ -2,8 +2,8 @@
 Small Graphics Library
 */
 
-#ifndef __SGL__
-#define __SGL__
+#ifndef SGL__
+#define SGL__
 
 #include "common/linealAlgebra/Matrix4x4.h"
 #include "environment/geometry/elements/Element.h"

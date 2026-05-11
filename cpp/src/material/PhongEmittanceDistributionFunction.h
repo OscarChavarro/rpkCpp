@@ -1,5 +1,5 @@
-#ifndef __PhongEmittanceDistributionFunctions__
-#define __PhongEmittanceDistributionFunctions__
+#ifndef PhongEmittanceDistributionFunctions__
+#define PhongEmittanceDistributionFunctions__
 
 #include "material/PhongBidirectionalTransmittanceDistributionFunction.h"
 #include "material/ShadingContext.h"

@@ -1,5 +1,5 @@
-#ifndef __COMMAND_LINE_CAMERA_OPTIONS_GROUP__
-#define __COMMAND_LINE_CAMERA_OPTIONS_GROUP__
+#ifndef COMMAND_LINE_CAMERA_OPTIONS_GROUP__
+#define COMMAND_LINE_CAMERA_OPTIONS_GROUP__
 
 #include "scene/Camera.h"
 
@@ -13,7 +13,7 @@ class OptionsGroupCamera final {
         int imageHeight);
 
   private:
-    static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5f;
+    static constexpr float DEFAULT_CAMERA_FIELD_OF_VIEW = 22.5F;
     static const Vector3D DEFAULT_CAMERA_EYE_POSITION;
     static const Vector3D DEFAULT_CAMERA_LOOK_POSITION;
     static const Vector3D DEFAULT_CAMERA_UP_DIRECTION;

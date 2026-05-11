@@ -2,8 +2,8 @@
 Many routines borrowed from Density Estimation master thesis by Olivier Ceulemans.
 */
 
-#ifndef __DENSITY_KERNEL__
-#define __DENSITY_KERNEL__
+#ifndef DENSITY_KERNEL__
+#define DENSITY_KERNEL__
 
 #include "common/linealAlgebra/Vector2D.h"
 #include "render/ScreenBuffer.h"

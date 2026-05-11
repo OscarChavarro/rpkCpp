@@ -2,8 +2,8 @@
 Galerkin finite elements: one structure for both surface and cluster elements
 */
 
-#ifndef __GALERKIN_ELEMENT__
-#define __GALERKIN_ELEMENT__
+#ifndef GALERKIN_ELEMENT__
+#define GALERKIN_ELEMENT__
 
 #include "java/lang/System.h"
 #include "java/util/ArrayList.h"

@@ -1,5 +1,5 @@
-#ifndef __RAYTRACING_LIGHT_MODE__
-#define __RAYTRACING_LIGHT_MODE__
+#ifndef RAYTRACING_LIGHT_MODE__
+#define RAYTRACING_LIGHT_MODE__
 
 enum RayTracingLightMode {
     POWER_LIGHTS,

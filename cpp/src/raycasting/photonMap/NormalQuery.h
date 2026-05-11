@@ -1,5 +1,5 @@
-#ifndef __NORMAL_QUERY__
-#define __NORMAL_QUERY__
+#ifndef NORMAL_QUERY__
+#define NORMAL_QUERY__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "raycasting/photonMap/IrrPhoton.h"

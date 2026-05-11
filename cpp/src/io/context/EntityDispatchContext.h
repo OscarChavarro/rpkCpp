@@ -1,5 +1,5 @@
-#ifndef __MGF_ENTITY_HANDLER__
-#define __MGF_ENTITY_HANDLER__
+#ifndef MGF_ENTITY_HANDLER__
+#define MGF_ENTITY_HANDLER__
 
 #include "io/context/HandlerRoleContext.h"
 #include "io/context/ParseContext.h"

@@ -1,5 +1,5 @@
-#ifndef ___BOX_FILTER__
-#define ___BOX_FILTER__
+#ifndef _BOX_FILTER__
+#define _BOX_FILTER__
 
 #include "raycasting/common/PixelFilter.h"
 

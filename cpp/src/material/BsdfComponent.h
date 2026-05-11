@@ -1,5 +1,5 @@
-#ifndef __BSDF_COMPONENT__
-#define __BSDF_COMPONENT__
+#ifndef BSDF_COMPONENT__
+#define BSDF_COMPONENT__
 
 enum BsdfComponent {
     BRDF_DIFFUSE_COMPONENT = 0x01,

@@ -1,5 +1,5 @@
-#ifndef __PERSISTED_SCENE_MODEL__
-#define __PERSISTED_SCENE_MODEL__
+#ifndef PERSISTED_SCENE_MODEL__
+#define PERSISTED_SCENE_MODEL__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"

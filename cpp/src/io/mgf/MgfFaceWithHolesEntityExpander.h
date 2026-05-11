@@ -1,5 +1,5 @@
-#ifndef __MGF_FACE_WITH_HOLES_GEOMETRY__
-#define __MGF_FACE_WITH_HOLES_GEOMETRY__
+#ifndef MGF_FACE_WITH_HOLES_GEOMETRY__
+#define MGF_FACE_WITH_HOLES_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

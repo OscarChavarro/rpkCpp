@@ -1,5 +1,5 @@
-#ifndef __PROJECTED_AREA_ACCUMULATOR_VISITOR__
-#define __PROJECTED_AREA_ACCUMULATOR_VISITOR__
+#ifndef PROJECTED_AREA_ACCUMULATOR_VISITOR__
+#define PROJECTED_AREA_ACCUMULATOR_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 

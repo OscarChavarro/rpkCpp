@@ -289,7 +289,7 @@ Ccr::determineControlRadiosity(
     ColorRgb fMax;
     ColorRgb beta;
     ColorRgb delta;
-    float eps = 0.001f;
+    float eps = 0.001F;
     int sweep = 0;
 
     getRadianceCallback = getRadiance;

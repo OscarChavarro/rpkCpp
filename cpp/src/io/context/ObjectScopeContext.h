@@ -1,5 +1,5 @@
-#ifndef __OBJECT_HIERARCHY_STATE__
-#define __OBJECT_HIERARCHY_STATE__
+#ifndef OBJECT_HIERARCHY_STATE__
+#define OBJECT_HIERARCHY_STATE__
 
 #include "io/context/ParseErrorContext.h"
 

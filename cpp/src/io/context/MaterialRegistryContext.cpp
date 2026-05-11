@@ -5,20 +5,20 @@ MaterialRegistryContext::createDefaultMgfMaterialContext() {
     return {
         1,
         false,
-        1.0f,
-        0.0f,
-        0.0f,
+        1.0F,
+        0.0F,
+        0.0F,
         ColorContext::DEFAULT_COLOR_CONTEXT,
-        0.0f,
+        0.0F,
         ColorContext::DEFAULT_COLOR_CONTEXT,
-        0.0f,
+        0.0F,
         ColorContext::DEFAULT_COLOR_CONTEXT,
-        0.0f,
+        0.0F,
         ColorContext::DEFAULT_COLOR_CONTEXT,
-        0.0f,
-        0.0f,
+        0.0F,
+        0.0F,
         ColorContext::DEFAULT_COLOR_CONTEXT,
-        0.0f
+        0.0F
     };
 }
 

@@ -70,7 +70,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
 
             // Divide by the source area used for computing the form factor:
             // sourceElement->area / 4.0 (average projected area)
-            sourceRadiance.scale(4.0f / sourceElement->area);
+            sourceRadiance.scale(4.0F / sourceElement->area);
             return sourceRadiance;
         }
 

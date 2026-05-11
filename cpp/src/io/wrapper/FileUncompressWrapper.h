@@ -1,5 +1,5 @@
-#ifndef __FILE_UNCOMPRESS_WRAPPER__
-#define __FILE_UNCOMPRESS_WRAPPER__
+#ifndef FILE_UNCOMPRESS_WRAPPER__
+#define FILE_UNCOMPRESS_WRAPPER__
 
 #include "java/io/InputStream.h"
 #include "java/io/OutputStream.h"

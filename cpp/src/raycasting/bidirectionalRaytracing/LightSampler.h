@@ -3,8 +3,8 @@ Samples a point on a light source. Two implementations are given : uniform sampl
 importance sampling
 */
 
-#ifndef __LIGHT_SAMPLER__
-#define __LIGHT_SAMPLER__
+#ifndef LIGHT_SAMPLER__
+#define LIGHT_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

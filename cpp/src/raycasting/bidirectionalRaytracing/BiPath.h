@@ -2,8 +2,8 @@
 Stores eyePath and lightPath, lengths and end nodes
 */
 
-#ifndef __BI_PATH__
-#define __BI_PATH__
+#ifndef BI_PATH__
+#define BI_PATH__
 
 #include "raycasting/common/SimpleRaytracingPathNode.h"
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"

@@ -1,5 +1,5 @@
-#ifndef __MGF_PRISM_GEOMETRY__
-#define __MGF_PRISM_GEOMETRY__
+#ifndef MGF_PRISM_GEOMETRY__
+#define MGF_PRISM_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

@@ -1,5 +1,5 @@
-#ifndef __COMMAND_LINE_OPTIONS__
-#define __COMMAND_LINE_OPTIONS__
+#ifndef COMMAND_LINE_OPTIONS__
+#define COMMAND_LINE_OPTIONS__
 
 #include "raycasting/common/RayTracer.h"
 #include "raycasting/simple/RayMatterState.h"

@@ -1,5 +1,5 @@
-#ifndef __RAY__
-#define __RAY__
+#ifndef RAY__
+#define RAY__
 
 #include "common/linealAlgebra/Vector3D.h"
 

@@ -1,5 +1,5 @@
-#ifndef __DEPTH_VISIBILITY_GATHERER_VISITOR__
-#define __DEPTH_VISIBILITY_GATHERER_VISITOR__
+#ifndef DEPTH_VISIBILITY_GATHERER_VISITOR__
+#define DEPTH_VISIBILITY_GATHERER_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 class DepthVisibilityGathererVisitor final : public ClusterLeafVisitor {

@@ -1,5 +1,5 @@
-#ifndef __OPTION_CORE_DEFAULT_PARSER__
-#define __OPTION_CORE_DEFAULT_PARSER__
+#ifndef OPTION_CORE_DEFAULT_PARSER__
+#define OPTION_CORE_DEFAULT_PARSER__
 
 #include <cstdlib>
 #include <cstring>

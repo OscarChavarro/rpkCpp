@@ -1,5 +1,5 @@
-#ifndef __BASIS_TRI_GALERKIN__
-#define __BASIS_TRI_GALERKIN__
+#ifndef BASIS_TRI_GALERKIN__
+#define BASIS_TRI_GALERKIN__
 
 #include "galerkin/GalerkinBasis.h"
 

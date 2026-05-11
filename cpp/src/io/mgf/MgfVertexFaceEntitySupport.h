@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_GEOMETRY__
-#define __MGF_HANDLER_GEOMETRY__
+#ifndef MGF_HANDLER_GEOMETRY__
+#define MGF_HANDLER_GEOMETRY__
 
 #include "common/linealAlgebra/CoordinateAxis.h"
 #include "common/linealAlgebra/Vector2D.h"

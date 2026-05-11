@@ -1,5 +1,5 @@
-#ifndef __SGL_CONSTANTS__
-#define __SGL_CONSTANTS__
+#ifndef SGL_CONSTANTS__
+#define SGL_CONSTANTS__
 
 class SglConstants final {
   public:

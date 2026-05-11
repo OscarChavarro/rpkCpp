@@ -2,8 +2,8 @@
 Monte Carlo radiosity element type
 */
 
-#ifndef __STOCHASTIC_RADIOSITY_ELEMENT__
-#define __STOCHASTIC_RADIOSITY_ELEMENT__
+#ifndef STOCHASTIC_RADIOSITY_ELEMENT__
+#define STOCHASTIC_RADIOSITY_ELEMENT__
 
 #include "java/util/ArrayList.h"
 #include "numericalAnalysis/quasiMonteCarlo/Niederreiter.h"

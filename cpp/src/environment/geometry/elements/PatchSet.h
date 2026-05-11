@@ -1,5 +1,5 @@
-#ifndef __PATCH_LIST__
-#define __PATCH_LIST__
+#ifndef PATCH_LIST__
+#define PATCH_LIST__
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"

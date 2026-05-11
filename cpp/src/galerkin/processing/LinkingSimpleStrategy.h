@@ -1,5 +1,5 @@
-#ifndef __LINKING_SIMPLE_STRATEGY__
-#define __LINKING_SIMPLE_STRATEGY__
+#ifndef LINKING_SIMPLE_STRATEGY__
+#define LINKING_SIMPLE_STRATEGY__
 
 #include "java/util/ArrayList.h"
 #include "common/memoryManagement/MemoryPool.h"

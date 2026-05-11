@@ -1,5 +1,5 @@
-#ifndef __PHOTON_MAP__
-#define __PHOTON_MAP__
+#ifndef PHOTON_MAP__
+#define PHOTON_MAP__
 
 #include "java/io/PrintStream.h"
 #include "common/linealAlgebra/CoordinateSystem.h"
@@ -72,7 +72,7 @@ class PhotonMap {
 
     IrrPhoton *
     DoIrradianceQuery(Vector3D *position, const Vector3D *normal, float maxR2 = Numeric::HUGE_FLOAT_VALUE) {
-        return m_kdtree->normalPhotonQuery(position, normal, 0.8f, maxR2);
+        return m_kdtree->normalPhotonQuery(position, normal, 0.8F, maxR2);
     }
 
     // Compute cosines of photons with a supplied normal

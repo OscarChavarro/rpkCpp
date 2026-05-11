@@ -2,8 +2,8 @@
 Some utility routines for ray intersections and for statistics
 */
 
-#ifndef __RAY_TOOLS__
-#define __RAY_TOOLS__
+#ifndef RAY_TOOLS__
+#define RAY_TOOLS__
 
 #include "common/linealAlgebra/Ray.h"
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"

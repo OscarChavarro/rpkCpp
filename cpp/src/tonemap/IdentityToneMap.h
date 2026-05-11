@@ -1,5 +1,5 @@
-#ifndef __IDENTITY_TONE_MAP__
-#define __IDENTITY_TONE_MAP__
+#ifndef IDENTITY_TONE_MAP__
+#define IDENTITY_TONE_MAP__
 
 #include "tonemap/ToneMap.h"
 

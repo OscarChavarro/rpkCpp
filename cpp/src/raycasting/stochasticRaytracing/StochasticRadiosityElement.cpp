@@ -704,7 +704,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateSurfaceSubElement(
         vertexAttachElement(elem->vertices[i], elem);
     }
 
-    elem->area = 0.25f * parent->area; // Regular elements, regular subdivision
+    elem->area = 0.25F * parent->area; // Regular elements, regular subdivision
     elem->midPoint = galerkinElementMidpoint(elem);
 
     elem->parent = parent;

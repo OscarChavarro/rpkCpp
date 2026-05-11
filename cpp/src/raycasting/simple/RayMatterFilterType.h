@@ -1,5 +1,5 @@
-#ifndef __RAY_MATTER_FILTER_TYPE__
-#define __RAY_MATTER_FILTER_TYPE__
+#ifndef RAY_MATTER_FILTER_TYPE__
+#define RAY_MATTER_FILTER_TYPE__
 
 enum RayMatterFilterType {
     BOX_FILTER,

@@ -19,8 +19,8 @@ RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *>
     Vector3D d;
 
     if ( sceneGeometries == nullptr || sceneGeometries->size() == 0 ) {
-        camera->far = 10.0f;
-        camera->near = 0.1f;
+        camera->far = 10.0F;
+        camera->near = 0.1F;
         return;
     }
 
@@ -52,13 +52,13 @@ RenderOpenGL::renderGetNearFar(Camera *camera, const java::ArrayList<Geometry *>
     }
 
     // Take 2% extra distance for near as well as far clipping plane
-    camera->far += 0.02f * (camera->far);
-    camera->near -= 0.02f * (camera->near);
+    camera->far += 0.02F * (camera->far);
+    camera->near -= 0.02F * (camera->near);
     if ( camera->far < Numeric::EPSILON ) {
         camera->far = camera->viewDistance;
     }
     if ( camera->near < Numeric::EPSILON ) {
-        camera->near = camera->viewDistance / 100.0f;
+        camera->near = camera->viewDistance / 100.0F;
     }
 }
 

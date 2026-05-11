@@ -1,5 +1,5 @@
-#ifndef __TRANSFORM_STACK__
-#define __TRANSFORM_STACK__
+#ifndef TRANSFORM_STACK__
+#define TRANSFORM_STACK__
 
 #include "io/context/TransformStackContext.h"
 

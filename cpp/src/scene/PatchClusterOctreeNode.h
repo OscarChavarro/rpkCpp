@@ -1,5 +1,5 @@
-#ifndef __CLUSTER__
-#define __CLUSTER__
+#ifndef CLUSTER__
+#define CLUSTER__
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"

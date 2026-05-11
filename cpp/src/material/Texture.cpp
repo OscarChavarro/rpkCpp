@@ -83,7 +83,7 @@ Texture::evaluateColor(float u, float v) const {
     const int pixelIndex11 = (j1 * width + i1) * channels;
 
     auto channelValue = [this](int pixelIndex, int channel) {
-        return static_cast<float>(data[pixelIndex + channel]) / 255.0f;
+        return static_cast<float>(data[pixelIndex + channel]) / 255.0F;
     };
 
     ColorRgb rgb00{};
@@ -111,8 +111,8 @@ Texture::evaluateColor(float u, float v) const {
     }
 
     rgb.set(
-        0.25f * static_cast<float>(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
-        0.25f * static_cast<float>(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
-        0.25f * static_cast<float>(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
+        0.25F * static_cast<float>(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
+        0.25F * static_cast<float>(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
+        0.25F * static_cast<float>(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
     return rgb;
 }

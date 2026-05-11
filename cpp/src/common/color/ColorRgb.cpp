@@ -80,7 +80,7 @@ ColorRgb::subtract(const ColorRgb s, const ColorRgb  t) {
 
 void
 ColorRgb::scaleInverse(const float scale, const ColorRgb s) {
-    const float a = (scale != 0.0f) ? 1.0f / scale : 1.0f;
+    const float a = (scale != 0.0F) ? 1.0F / scale : 1.0F;
     r = a * s.r;
     g = a * s.g;
     b = a * s.b;
@@ -107,7 +107,7 @@ ColorRgb::minimum(const ColorRgb s, const ColorRgb t) {
 
 float
 ColorRgb::average() const {
-    return (r + g + b) / 3.0f;
+    return (r + g + b) / 3.0F;
 }
 
 void
@@ -130,22 +130,22 @@ ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorR
 
 void
 ColorRgb::clip() {
-    if ( r < 0.0f ) {
-        r = 0.0f;
+    if ( r < 0.0F ) {
+        r = 0.0F;
     } else {
-        r = r > 1.0f ? 1.0f : r;
+        r = r > 1.0F ? 1.0F : r;
     }
 
-    if ( g < 0.0f ) {
-        g = 0.0f;
+    if ( g < 0.0F ) {
+        g = 0.0F;
     } else {
-        g = g > 1.0f ? 1.0f : g;
+        g = g > 1.0F ? 1.0F : g;
     }
 
-    if ( b < 0.0f ) {
-        b = 0.0f;
+    if ( b < 0.0F ) {
+        b = 0.0F;
     } else {
-        b = b > 1.0f ? 1.0f : b;
+        b = b > 1.0F ? 1.0F : b;
     }
 }
 

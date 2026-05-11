@@ -1,5 +1,5 @@
-#ifndef __K_D_QUERY__
-#define __K_D_QUERY__
+#ifndef K_D_QUERY__
+#define K_D_QUERY__
 
 class KDQuery {
   public:

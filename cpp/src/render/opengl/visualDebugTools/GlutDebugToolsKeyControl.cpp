@@ -218,25 +218,25 @@ GlutDebugToolsKeyControl::handleExtendedKeypress(int keyCode, GlutDebugToolsMode
             if ( debugState == nullptr ) {
                 return false;
             }
-            debugState->angleAroundViewportV += 1.0f;
+            debugState->angleAroundViewportV += 1.0F;
             break;
         case GLUT_KEY_RIGHT:
             if ( debugState == nullptr ) {
                 return false;
             }
-            debugState->angleAroundViewportV -= 1.0f;
+            debugState->angleAroundViewportV -= 1.0F;
             break;
         case GLUT_KEY_DOWN:
             if ( debugState == nullptr ) {
                 return false;
             }
-            debugState->angleAroundViewportU += 1.0f;
+            debugState->angleAroundViewportU += 1.0F;
             break;
         case GLUT_KEY_UP:
             if ( debugState == nullptr ) {
                 return false;
             }
-            debugState->angleAroundViewportU -= 1.0f;
+            debugState->angleAroundViewportU -= 1.0F;
             break;
         default:
             return false;

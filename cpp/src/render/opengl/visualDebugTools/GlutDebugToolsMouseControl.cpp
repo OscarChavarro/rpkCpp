@@ -106,7 +106,7 @@ GlutDebugToolsMouseControl::clampSelectedHierarchyLevel(GlutDebugToolsModel &mod
 Vector3D
 GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
     if ( scene == nullptr ) {
-        return Vector3D(0.0f, 0.0f, 0.0f);
+        return Vector3D(0.0F, 0.0F, 0.0F);
     }
 
     if ( scene->clusteredRootGeometry != nullptr && scene->clusteredRootGeometry->bounded ) {
@@ -119,7 +119,7 @@ GlutDebugToolsMouseControl::sceneRotationPivot(const Scene *scene) {
         return sceneBounds.center();
     }
 
-    return Vector3D(0.0f, 0.0f, 0.0f);
+    return Vector3D(0.0F, 0.0F, 0.0F);
 }
 
 void
@@ -128,8 +128,8 @@ GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3D *ax
         return;
     }
 
-    axisU->set(1.0f, 0.0f, 0.0f);
-    axisV->set(0.0f, 1.0f, 0.0f);
+    axisU->set(1.0F, 0.0F, 0.0F);
+    axisV->set(0.0F, 1.0F, 0.0F);
 
     if ( scene == nullptr || scene->camera == nullptr ) {
         return;
@@ -153,14 +153,14 @@ GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3D *ax
         Vector3D upDirection;
         upDirection.copy(camera->upDirection);
         if ( upDirection.norm2() < Numeric::EPSILON_FLOAT ) {
-            upDirection.set(0.0f, 0.0f, 1.0f);
+            upDirection.set(0.0F, 0.0F, 1.0F);
         } else {
             upDirection.normalize(Numeric::EPSILON_FLOAT);
         }
 
         cameraU.crossProduct(viewDirection, upDirection);
         if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
-            upDirection.set(0.0f, 1.0f, 0.0f);
+            upDirection.set(0.0F, 1.0F, 0.0F);
             cameraU.crossProduct(viewDirection, upDirection);
         }
         if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
@@ -183,7 +183,7 @@ GlutDebugToolsMouseControl::viewportAxesInWorld(const Scene *scene, Vector3D *ax
 
 void
 GlutDebugToolsMouseControl::rotateVectorAroundAxis(Vector3D *vector, const Vector3D &axis, float angleDegrees) {
-    if ( vector == nullptr || axis.norm2() < Numeric::EPSILON_FLOAT || angleDegrees == 0.0f ) {
+    if ( vector == nullptr || axis.norm2() < Numeric::EPSILON_FLOAT || angleDegrees == 0.0F ) {
         return;
     }
 
@@ -248,7 +248,7 @@ GlutDebugToolsMouseControl::applyInverseDebugRotationToRay(const GlutDebugToolsM
 
     const float angleAroundU = model.debugState->angleAroundViewportU;
     const float angleAroundV = model.debugState->angleAroundViewportV;
-    if ( angleAroundU == 0.0f && angleAroundV == 0.0f ) {
+    if ( angleAroundU == 0.0F && angleAroundV == 0.0F ) {
         return;
     }
 
@@ -274,8 +274,8 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
         return;
     }
 
-    ray->position.set(0.0f, 0.0f, 0.0f);
-    ray->direction.set(0.0f, 0.0f, 1.0f);
+    ray->position.set(0.0F, 0.0F, 0.0F);
+    ray->direction.set(0.0F, 0.0F, 1.0F);
 
     if ( model.scene == nullptr || model.scene->camera == nullptr || model.width <= 0 || model.height <= 0 ) {
         return;
@@ -289,9 +289,9 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
     float nearDistance = camera->near;
     if ( nearDistance < Numeric::EPSILON_FLOAT ) {
         if ( camera->viewDistance > Numeric::EPSILON_FLOAT ) {
-            nearDistance = camera->viewDistance / 100.0f;
+            nearDistance = camera->viewDistance / 100.0F;
         } else {
-            nearDistance = 0.1f;
+            nearDistance = 0.1F;
         }
     }
 
@@ -299,9 +299,9 @@ GlutDebugToolsMouseControl::buildPickRay(const GlutDebugToolsModel &model, int x
     const int pixelY = clampCoord(y, model.height);
 
     const float normalizedU =
-        (2.0f * ((static_cast<float>(pixelX) + 0.5f) / static_cast<float>(model.width))) - 1.0f;
+        (2.0F * ((static_cast<float>(pixelX) + 0.5F) / static_cast<float>(model.width))) - 1.0F;
     const float normalizedV =
-        (2.0f * ((static_cast<float>(pixelY) + 0.5f) / static_cast<float>(model.height))) - 1.0f;
+        (2.0F * ((static_cast<float>(pixelY) + 0.5F) / static_cast<float>(model.height))) - 1.0F;
 
     // Point (u, v, n) on the near plane in camera coordinates.
     const float nearPlaneU = normalizedU * camera->pixelWidthTangent * nearDistance;

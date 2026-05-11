@@ -1,5 +1,5 @@
-#ifndef __MATRIX4X4__
-#define __MATRIX4X4__
+#ifndef MATRIX4X4__
+#define MATRIX4X4__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/linealAlgebra/Vector4D.h"

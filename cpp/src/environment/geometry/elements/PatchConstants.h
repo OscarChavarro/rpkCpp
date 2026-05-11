@@ -1,5 +1,5 @@
-#ifndef __PATCH_CONSTANTS__
-#define __PATCH_CONSTANTS__
+#ifndef PATCH_CONSTANTS__
+#define PATCH_CONSTANTS__
 
 enum PatchConstants {
     MAXIMUM_VERTICES_PER_PATCH = 4,

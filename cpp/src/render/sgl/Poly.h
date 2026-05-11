@@ -2,8 +2,8 @@
 Definitions for polygon package
 */
 
-#ifndef __POLY_HDR__
-#define __POLY_HDR__
+#ifndef POLY_HDR__
+#define POLY_HDR__
 
 #include <cstddef>
 

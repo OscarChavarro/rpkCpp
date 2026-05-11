@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_JACOBI_RADIOSITY_METHOD__
-#define __STOCHASTIC_JACOBI_RADIOSITY_METHOD__
+#ifndef STOCHASTIC_JACOBI_RADIOSITY_METHOD__
+#define STOCHASTIC_JACOBI_RADIOSITY_METHOD__
 
 #include "java/util/ArrayList.h"
 #include "scene/RadianceMethod.h"

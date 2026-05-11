@@ -1,5 +1,5 @@
-#ifndef __BOUNDING_BOX_COORDINATE_INDEX__
-#define __BOUNDING_BOX_COORDINATE_INDEX__
+#ifndef BOUNDING_BOX_COORDINATE_INDEX__
+#define BOUNDING_BOX_COORDINATE_INDEX__
 
 enum BoundingBoxCoordinateIndex {
     MIN_X = 0,

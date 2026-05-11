@@ -1,5 +1,5 @@
-#ifndef __SHADING_CONTEXT_FLAG__
-#define __SHADING_CONTEXT_FLAG__
+#ifndef SHADING_CONTEXT_FLAG__
+#define SHADING_CONTEXT_FLAG__
 
 enum ShadingContextFlag {
     SHCTX_NORMAL = 0x01,

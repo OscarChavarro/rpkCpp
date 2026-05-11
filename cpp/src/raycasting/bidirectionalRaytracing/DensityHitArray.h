@@ -1,5 +1,5 @@
-#ifndef __DENSITY_HIT_ARRAY__
-#define __DENSITY_HIT_ARRAY__
+#ifndef DENSITY_HIT_ARRAY__
+#define DENSITY_HIT_ARRAY__
 
 #include "raycasting/bidirectionalRaytracing/DensityHit.h"
 

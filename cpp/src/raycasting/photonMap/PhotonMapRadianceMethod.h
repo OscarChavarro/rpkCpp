@@ -1,5 +1,5 @@
-#ifndef __PHOTON_MAP_RADIOSITY_
-#define __PHOTON_MAP_RADIOSITY_
+#ifndef PHOTON_MAP_RADIOSITY_
+#define PHOTON_MAP_RADIOSITY_
 
 #include "java/util/ArrayList.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"

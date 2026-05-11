@@ -1,5 +1,5 @@
-#ifndef __LOGGER__
-#define __LOGGER__
+#ifndef LOGGER__
+#define LOGGER__
 
 class Logger {
   public:

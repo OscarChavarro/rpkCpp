@@ -1,5 +1,5 @@
-#ifndef __SGL_POLYGON_CONSTANTS__
-#define __SGL_POLYGON_CONSTANTS__
+#ifndef SGL_POLYGON_CONSTANTS__
+#define SGL_POLYGON_CONSTANTS__
 
 class PolygonClipResultInfo final {
   public:

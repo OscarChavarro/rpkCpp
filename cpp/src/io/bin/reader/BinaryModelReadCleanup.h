@@ -1,5 +1,5 @@
-#ifndef __BINARY_MODEL_READER_CLEANUP__
-#define __BINARY_MODEL_READER_CLEANUP__
+#ifndef BINARY_MODEL_READER_CLEANUP__
+#define BINARY_MODEL_READER_CLEANUP__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"

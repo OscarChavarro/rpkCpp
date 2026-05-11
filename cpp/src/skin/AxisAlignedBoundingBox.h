@@ -1,5 +1,5 @@
-#ifndef __BOUNDING_BOX__
-#define __BOUNDING_BOX__
+#ifndef BOUNDING_BOX__
+#define BOUNDING_BOX__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "skin/BoundingBoxCoordinateIndex.h"
@@ -74,9 +74,9 @@ AxisAlignedBoundingBox::outOfBounds(const Vector3D *p) const {
 inline Vector3D
 AxisAlignedBoundingBox::center() const {
     return Vector3D(
-        0.5f * (coordinates[MIN_X] + coordinates[MAX_X]),
-        0.5f * (coordinates[MIN_Y] + coordinates[MAX_Y]),
-        0.5f * (coordinates[MIN_Z] + coordinates[MAX_Z])
+        0.5F * (coordinates[MIN_X] + coordinates[MAX_X]),
+        0.5F * (coordinates[MIN_Y] + coordinates[MAX_Y]),
+        0.5F * (coordinates[MIN_Z] + coordinates[MAX_Z])
     );
 }
 
@@ -245,7 +245,7 @@ AxisAlignedBoundingBox::valueAt(int idx) const {
         case MAX_X: return maxX();
         case MAX_Y: return maxY();
         case MAX_Z: return maxZ();
-        default: return 0.0f;
+        default: return 0.0F;
     }
 }
 

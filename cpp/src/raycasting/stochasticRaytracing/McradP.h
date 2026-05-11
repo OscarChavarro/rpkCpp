@@ -1,5 +1,5 @@
-#ifndef __MONTE_CARLO_RADIOSITY__
-#define __MONTE_CARLO_RADIOSITY__
+#ifndef MONTE_CARLO_RADIOSITY__
+#define MONTE_CARLO_RADIOSITY__
 
 
 #include "java/util/ArrayList.h"

@@ -1,5 +1,5 @@
-#ifndef __LD_SPAR__
-#define __LD_SPAR__
+#ifndef LD_SPAR__
+#define LD_SPAR__
 
 #include "raycasting/bidirectionalRaytracing/Spar.h"
 

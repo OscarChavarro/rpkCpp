@@ -102,16 +102,16 @@ OptionsGroupCore::commandLineParseFloat(const char *text, float *value) {
 
 bool
 OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color) {
-    float red = 0.0f;
-    float green = 0.0f;
-    float blue = 0.0f;
+    float red = 0.0F;
+    float green = 0.0F;
+    float blue = 0.0F;
     if ( !OptionsGroupCore::commandLineParseFloat(rArg, &red)
          || !OptionsGroupCore::commandLineParseFloat(gArg, &green)
          || !OptionsGroupCore::commandLineParseFloat(bArg, &blue) ) {
         return false;
     }
 
-    if ( red < 0.0f || red > 1.0f || green < 0.0f || green > 1.0f || blue < 0.0f || blue > 1.0f ) {
+    if ( red < 0.0F || red > 1.0F || green < 0.0F || green > 1.0F || blue < 0.0F || blue > 1.0F ) {
         return false;
     }
 

@@ -324,7 +324,7 @@ BidirectionalPathRaytracer::handlePathX0(
     double oldPDFDirEval;
     double oldRRPDFLightEval;
     double oldRRPDFDirEval;
-    float pdf = 1.0f;
+    float pdf = 1.0F;
     float weight = 1.0;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode*eyeEndNode;

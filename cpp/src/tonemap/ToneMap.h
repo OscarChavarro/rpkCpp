@@ -1,5 +1,5 @@
-#ifndef __TONE_MAP__
-#define __TONE_MAP__
+#ifndef TONE_MAP__
+#define TONE_MAP__
 
 #include "java/lang/Math.h"
 #include "java/util/ArrayList.h"

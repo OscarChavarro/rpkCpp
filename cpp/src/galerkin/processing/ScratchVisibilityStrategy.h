@@ -3,8 +3,8 @@ Scratch renderer routines. Used for handling intra-cluster visibility
 with a Z-buffer visibility algorithm in software
 */
 
-#ifndef __SCRATCH_VISIBILITY_STRATEGY__
-#define __SCRATCH_VISIBILITY_STRATEGY__
+#ifndef SCRATCH_VISIBILITY_STRATEGY__
+#define SCRATCH_VISIBILITY_STRATEGY__
 
 #include "galerkin/GalerkinState.h"
 

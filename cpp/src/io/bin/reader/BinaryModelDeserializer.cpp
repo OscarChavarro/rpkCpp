@@ -379,9 +379,9 @@ BinaryModelDeserializer::read(const char *fileName) {
             if ( !BinaryModelReadPrimitives::readVector(input, &record.midPoint) ) goto fail;
 
             record.hasJacobian = BinaryModelReadPrimitives::readBool(input);
-            record.jacobianA = 0.0f;
-            record.jacobianB = 0.0f;
-            record.jacobianC = 0.0f;
+            record.jacobianA = 0.0F;
+            record.jacobianB = 0.0F;
+            record.jacobianC = 0.0F;
             if ( record.hasJacobian ) {
                 record.jacobianA = BinaryModelReadPrimitives::readFloatLE(input);
                 record.jacobianB = BinaryModelReadPrimitives::readFloatLE(input);

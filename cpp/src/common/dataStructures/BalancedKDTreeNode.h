@@ -1,5 +1,5 @@
-#ifndef __BALANCED_K_D_TREE_NODE__
-#define __BALANCED_K_D_TREE_NODE__
+#ifndef BALANCED_K_D_TREE_NODE__
+#define BALANCED_K_D_TREE_NODE__
 
 #include "common/dataStructures/KDTreeNode.h"
 

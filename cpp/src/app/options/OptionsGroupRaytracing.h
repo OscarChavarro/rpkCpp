@@ -1,5 +1,5 @@
-#ifndef __RAYTRACING_OPTIONS_GROUP__
-#define __RAYTRACING_OPTIONS_GROUP__
+#ifndef RAYTRACING_OPTIONS_GROUP__
+#define RAYTRACING_OPTIONS_GROUP__
 
 
 class OptionsGroupRaytracing final {

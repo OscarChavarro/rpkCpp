@@ -1,5 +1,5 @@
-#ifndef __LIGHT_INFO__
-#define __LIGHT_INFO__
+#ifndef LIGHT_INFO__
+#define LIGHT_INFO__
 
 #include "environment/geometry/elements/Patch.h"
 

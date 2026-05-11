@@ -1,5 +1,5 @@
-#ifndef __JAVA_DOUBLE__
-#define __JAVA_DOUBLE__
+#ifndef JAVA_DOUBLE__
+#define JAVA_DOUBLE__
 
 namespace java {
 

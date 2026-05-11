@@ -1,5 +1,5 @@
-#ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
-#define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
+#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
+#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS__
 
 #include "galerkin/GalerkinElement.h"
 #include "render/opengl/visualDebugTools/GlutDebugToolsModel.h"

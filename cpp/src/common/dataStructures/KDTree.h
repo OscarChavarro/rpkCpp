@@ -48,8 +48,8 @@ Ref : - Bentley, J.L. (1975) Multidimensional search trees used for
         p. 209-226
 */
 
-#ifndef __K_D_TREE__
-#define __K_D_TREE__
+#ifndef K_D_TREE__
+#define K_D_TREE__
 
 #include "common/dataStructures/KDQuery.h"
 #include "common/dataStructures/KDTreeNode.h"
@@ -90,7 +90,7 @@ class KDTree {
 
   public:
     // Not HUGE_DOUBLE_VALUE, since we need to square it.
-    static constexpr float KD_MAX_RADIUS = 1e10f;
+    static constexpr float KD_MAX_RADIUS = 1e10F;
 
     explicit KDTree(int dataSize, bool CopyData = true);
     virtual ~KDTree();

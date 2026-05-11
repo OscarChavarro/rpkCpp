@@ -1,5 +1,5 @@
-#ifndef __ELEMENT_FLAGS__
-#define __ELEMENT_FLAGS__
+#ifndef ELEMENT_FLAGS__
+#define ELEMENT_FLAGS__
 
 enum ElementFlags {
     // If set, indicates that the element is a cluster element. If not set, the element is a surface element

@@ -1,5 +1,5 @@
-#ifndef __POTENTIAL__
-#define __POTENTIAL__
+#ifndef POTENTIAL__
+#define POTENTIAL__
 
 #include "java/util/ArrayList.h"
 #include "material/RendererConfiguration.h"

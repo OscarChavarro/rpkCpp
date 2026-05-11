@@ -1,5 +1,5 @@
-#ifndef __MGF_MATERIAL_CONTEXT__
-#define __MGF_MATERIAL_CONTEXT__
+#ifndef MGF_MATERIAL_CONTEXT__
+#define MGF_MATERIAL_CONTEXT__
 
 #include "io/context/ColorContext.h"
 

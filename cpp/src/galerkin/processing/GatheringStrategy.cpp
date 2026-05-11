@@ -14,7 +14,7 @@ Makes the representation of potential consistent after an iteration
 float
 GatheringStrategy::pushPullPotential(GalerkinElement *element, float down) {
     down += element->receivedPotential / element->area;
-    element->receivedPotential = 0.0f;
+    element->receivedPotential = 0.0F;
 
     float up = 0.0;
 
@@ -24,7 +24,7 @@ GatheringStrategy::pushPullPotential(GalerkinElement *element, float down) {
 
     if ( element->regularSubElements != nullptr ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * GatheringStrategy::pushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
+            up += 0.25F * GatheringStrategy::pushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
         }
     }
 

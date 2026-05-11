@@ -1,5 +1,5 @@
-#ifndef __MIN_MAX_BOX__
-#define __MIN_MAX_BOX__
+#ifndef MIN_MAX_BOX__
+#define MIN_MAX_BOX__
 
 #include "common/linealAlgebra/Ray.h"
 #include "skin/AxisAlignedBoundingBox.h"
@@ -49,11 +49,11 @@ MinMaxBox::clipAxisSlab(
     float toleranceScale,
     float *nearDistance,
     float *farDistance) {
-    if ( direction == 0.0f ) {
+    if ( direction == 0.0F ) {
         return !(origin < minimumBound || origin > maximumBound);
     }
 
-    const float invDirection = 1.0f / direction;
+    const float invDirection = 1.0F / direction;
     float entryDistance = (minimumBound - origin) * invDirection;
     float exitDistance = (maximumBound - origin) * invDirection;
     if ( entryDistance > exitDistance ) {
@@ -85,7 +85,7 @@ MinMaxBox::intersectingSegment(const Ray *ray, float *tMin, float *tMax) const {
     const float *box = boundingBox.rawCoordinates();
     float nearDistance = minimumDistance;
     float farDistance = maximumDistance;
-    const float toleranceScale = 1.0f + Numeric::EPSILON_FLOAT;
+    const float toleranceScale = 1.0F + Numeric::EPSILON_FLOAT;
 
     if ( !clipAxisSlab(
             box[MIN_X], box[MAX_X],

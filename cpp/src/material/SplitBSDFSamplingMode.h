@@ -1,5 +1,5 @@
-#ifndef __SPLIT_BSDF_SAMPLING_MODE__
-#define __SPLIT_BSDF_SAMPLING_MODE__
+#ifndef SPLIT_BSDF_SAMPLING_MODE__
+#define SPLIT_BSDF_SAMPLING_MODE__
 
 #include "RendererConfiguration.h"
 

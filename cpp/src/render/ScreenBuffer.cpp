@@ -229,12 +229,12 @@ ScreenBuffer::setToneMappingContext(ToneMappingContext *inToneMapOptions) {
 
 float
 ScreenBuffer::getScreenXMin() const {
-    return -camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0f;
+    return -camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0F;
 }
 
 float
 ScreenBuffer::getScreenYMin() const {
-    return -camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0f;
+    return -camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0F;
 }
 
 float
@@ -328,12 +328,12 @@ ScreenBuffer::computeFluxToRadFactor(const Camera *camera, int pixX, int pixY) {
 
 float
 ScreenBuffer::getScreenXMax() const {
-    return camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0f;
+    return camera.pixelWidth * static_cast<float>(camera.xSize) / 2.0F;
 }
 
 float
 ScreenBuffer::getScreenYMax() const {
-    return camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0f;
+    return camera.pixelHeight * static_cast<float>(camera.ySize) / 2.0F;
 }
 
 ColorRgb

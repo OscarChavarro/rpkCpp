@@ -258,7 +258,7 @@ PersistenceElement::byteArray2floatDirect(const unsigned char *arr, int start) {
         i++;
     }
 
-    float out = 0.0f;
+    float out = 0.0F;
     std::memcpy(&out, &accum, sizeof(float));
     return out;
 }
@@ -304,7 +304,7 @@ PersistenceElement::byteArray2floatInvert(const unsigned char *arr, int start) {
         i++;
     }
 
-    float out = 0.0f;
+    float out = 0.0F;
     std::memcpy(&out, &accum, sizeof(float));
     return out;
 }
@@ -525,7 +525,7 @@ PersistenceElement::readFloatBE(java::InputStream &is) {
     readBytes(is, byteBuffer4byte, 4);
     const long i = byteArray2longBE(byteBuffer4byte, 0);
     const unsigned int j = static_cast<unsigned int>(i);
-    float out = 0.0f;
+    float out = 0.0F;
     std::memcpy(&out, &j, sizeof(float));
     return out;
 }

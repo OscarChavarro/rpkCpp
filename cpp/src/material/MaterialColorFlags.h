@@ -1,5 +1,5 @@
-#ifndef __MATERIAL_COLOR_FLAGS__
-#define __MATERIAL_COLOR_FLAGS__
+#ifndef MATERIAL_COLOR_FLAGS__
+#define MATERIAL_COLOR_FLAGS__
 
 enum MaterialColorFlags {
     NO_COLORS,

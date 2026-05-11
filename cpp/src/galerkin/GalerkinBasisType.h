@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_BASIS_TYPE__
-#define __GALERKIN_BASIS_TYPE__
+#ifndef GALERKIN_BASIS_TYPE__
+#define GALERKIN_BASIS_TYPE__
 
 enum GalerkinBasisType {
     GALERKIN_CONSTANT,

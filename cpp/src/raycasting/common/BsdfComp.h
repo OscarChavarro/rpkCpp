@@ -2,8 +2,8 @@
 Some bsdf component stuff.
 */
 
-#ifndef __BSDF_COMP__
-#define __BSDF_COMP__
+#ifndef BSDF_COMP__
+#define BSDF_COMP__
 
 class BsdfComp {
   public:

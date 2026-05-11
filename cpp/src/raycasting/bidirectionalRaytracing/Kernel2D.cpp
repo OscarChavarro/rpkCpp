@@ -24,7 +24,7 @@ Kernel2D::Init(float h, float w) {
 /**
 Change kernel width.
 IN:   The new kernel width, newH.
-PRE:  newH > 0.0f
+PRE:  newH > 0.0F
 POST: The kernel size is newH.
 */
 void
@@ -36,7 +36,7 @@ Kernel2D::SetH(const float newH) {
 Evaluate the kernel
 IN:  The position of a 2D point.
      The position of the center of the kernel.
-OUT: The value of the kernel at the point. (a positive number or 0.0f)
+OUT: The value of the kernel at the point. (a positive number or 0.0F)
 */
 float
 Kernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
@@ -49,11 +49,11 @@ Kernel2D::Evaluate(const Vector2D &point, const Vector2D &center) const {
 
     if ( tp < m_h2 ) {
         // Point inside kernel
-        tp = (1.0f - (tp * m_h2inv));
+        tp = (1.0F - (tp * m_h2inv));
         tp = static_cast<float>(M_2_PI) * tp * m_h2inv;
         return tp;
     } else {
-        return 0.0f;
+        return 0.0F;
     }
 }
 
@@ -134,11 +134,11 @@ Kernel2D::varCover(
         java::System::out.printf("MaxRatio... h = %f\n", h / screenScale);
     }
 
-    h = java::Math::max(1.0f * screenScale, h); // We want to cover at least one pixel...
+    h = java::Math::max(1.0F * screenScale, h); // We want to cover at least one pixel...
 
     SetH(h);
 
     // h determined, now splat the fucker
-    cover(center, 1.0f / static_cast<float>(totalSamples), color, dest);
+    cover(center, 1.0F / static_cast<float>(totalSamples), color, dest);
 }
 #endif

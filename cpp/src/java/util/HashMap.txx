@@ -41,7 +41,7 @@ HashMap<K, V>::HashMap():
     buckets(nullptr),
     bucketCount(0),
     elementCount(0),
-    maxLoadFactor(0.75f)
+    maxLoadFactor(0.75F)
 {
     initialize(16);
 }
@@ -51,7 +51,7 @@ HashMap<K, V>::HashMap(long initialCapacity):
     buckets(nullptr),
     bucketCount(0),
     elementCount(0),
-    maxLoadFactor(0.75f)
+    maxLoadFactor(0.75F)
 {
     initialize(initialCapacity <= 0 ? 16 : initialCapacity);
 }

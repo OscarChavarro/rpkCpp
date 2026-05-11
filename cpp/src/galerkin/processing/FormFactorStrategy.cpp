@@ -195,7 +195,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
 
     // Equation [BEKA1996](1): unoccluded transport kernel (without reflectivity term)
     double formFactorKernelTerm = cosThetaX * cosThetaY / (M_PI * distance * distance);
-    float shortenedDistance = static_cast<float>(distance * (1.0f - Numeric::EPSILON));
+    float shortenedDistance = static_cast<float>(distance * (1.0F - Numeric::EPSILON));
 
     // Determine transmissivity (visibility)
     RayHit hitStore;
@@ -223,7 +223,7 @@ FormFactorStrategy::evaluatePointsPairKernel(
         visibilityFactor = 0.0;
     } else {
         // Case never used if clustering disabled
-        float minimumFeatureSize = 2.0f
+        float minimumFeatureSize = 2.0F
             * static_cast<float>(java::Math::sqrt(Statistics::instance().radiance.totalArea * galerkinState->relMinElemArea / M_PI));
         visibilityFactor = FormFactorClusteredStrategy::geomListMultiResolutionVisibility(
             shadowGeometryList, shadowCache, &ray, shortenedDistance, sourceElement->blockerSize, minimumFeatureSize);
@@ -509,18 +509,18 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         if ( !receiverBoundingBox.disjointToOtherBoundingBox(&sourceBoundingBox) ) {
             // Take 0 as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0f;
+                link->K[0] = 0.0F;
             } else {
                 for ( int i = 0;
                       i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
                       i++ ) {
-                    link->K[i] = 0.0f;
+                    link->K[i] = 0.0F;
                 }
             }
 
             // And a large error on the form factor
             link->deltaK = new float[1];
-            link->deltaK[0] = 1.0f;
+            link->deltaK[0] = 1.0F;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And half visibility
@@ -533,18 +533,18 @@ FormFactorStrategy::computeAreaToAreaFormFactorVisibility(
         if ( receiverElement == sourceElement ) {
             // Take 0. as form factor
             if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
-                link->K[0] = 0.0f;
+                link->K[0] = 0.0F;
             } else {
                 for ( int i = 0;
                       i < link->numberOfBasisFunctionsOnReceiver * link->numberOfBasisFunctionsOnSource;
                       i++ ) {
-                    link->K[i] = 0.0f;
+                    link->K[i] = 0.0F;
                 }
             }
 
             // And a 0 error on the form factor
             link->deltaK = new float[1];
-            link->deltaK[0] = 0.0f;
+            link->deltaK[0] = 0.0F;
             link->numberOfReceiverCubaturePositions = 1;
 
             // And full occlusion

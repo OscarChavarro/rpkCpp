@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_OBJECT__
-#define __MGF_HANDLER_OBJECT__
+#ifndef MGF_HANDLER_OBJECT__
+#define MGF_HANDLER_OBJECT__
 
 #include "io/context/ParseRuntimeContext.h"
 

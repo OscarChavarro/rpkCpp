@@ -2,8 +2,8 @@
 The real importance map storage
 */
 
-#ifndef __IMPORTANCE_MAP__
-#define __IMPORTANCE_MAP__
+#ifndef IMPORTANCE_MAP__
+#define IMPORTANCE_MAP__
 
 #include "material/RendererConfiguration.h"
 

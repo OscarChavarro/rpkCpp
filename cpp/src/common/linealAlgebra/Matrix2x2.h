@@ -1,5 +1,5 @@
-#ifndef __MATRIX_2x2__
-#define __MATRIX_2x2__
+#ifndef MATRIX_2x2__
+#define MATRIX_2x2__
 
 #include "common/linealAlgebra/Vector2D.h"
 

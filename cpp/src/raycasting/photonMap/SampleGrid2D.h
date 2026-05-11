@@ -3,8 +3,8 @@ Class for doing multidimensional discrete sampling.
 Grid values are doubles. Grid domain is [0,1]^dim
 */
 
-#ifndef __SAMPLE_GRID__
-#define __SAMPLE_GRID__
+#ifndef SAMPLE_GRID__
+#define SAMPLE_GRID__
 
 class SampleGrid2D {
   private:

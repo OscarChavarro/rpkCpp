@@ -381,14 +381,14 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
         if ( c == nullptr ) {
             java::System::out.printf("Child element no radiance\n");
         } else {
-            java::System::out.printf("Child element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::System::out.printf("Child element radiance <%0.4F, %0.4F, %0.4F>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
     } else {
         if ( c == nullptr ) {
             java::System::out.printf("Container element no radiance\n");
         } else {
-            java::System::out.printf("Container element radiance <%0.4f, %0.4f, %0.4f>, interactions: %ld\n",
+            java::System::out.printf("Container element radiance <%0.4F, %0.4F, %0.4F>, interactions: %ld\n",
                c->r, c->g, c->b, numberOfInteractions);
         }
         for ( int i = 0; i < 4; i++ ) {

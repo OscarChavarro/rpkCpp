@@ -128,7 +128,7 @@ FormFactorClusteredStrategy::geometryMultiResolutionVisibility(
 
         if ( cluster ) {
             // Compute feature size using equivalent blocker size of the occluder
-            float t = (tMinimum + tMaximum) / 2.0f; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
+            float t = (tMinimum + tMaximum) / 2.0F; // Put the centre of the equivalent blocker halfway tMinimum and tMaximum
             fSize = srcSize + rcvDist / t * (cluster->blockerSize - srcSize);
         }
     }

@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RAYTRACING_PATH_NODE__
-#define __STOCHASTIC_RAYTRACING_PATH_NODE__
+#ifndef STOCHASTIC_RAYTRACING_PATH_NODE__
+#define STOCHASTIC_RAYTRACING_PATH_NODE__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "environment/geometry/elements/Patch.h"

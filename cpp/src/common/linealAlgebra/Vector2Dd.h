@@ -1,5 +1,5 @@
-#ifndef __VECTOR_2DD__
-#define __VECTOR_2DD__
+#ifndef VECTOR_2DD__
+#define VECTOR_2DD__
 
 class Vector2Dd {
   public:

@@ -1,5 +1,5 @@
-#ifndef __WORDS_CONTEXT__
-#define __WORDS_CONTEXT__
+#ifndef WORDS_CONTEXT__
+#define WORDS_CONTEXT__
 
 class TokenValidationContext {
   public:

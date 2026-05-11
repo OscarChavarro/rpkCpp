@@ -21,7 +21,7 @@ SoftIds::setupSoftFrameBuffer(const Camera *camera) {
     sgl->sglClear(0, SglConstants::SGL_MAXIMUM_Z);
 
     const Matrix4x4 p = Matrix4x4::createPerspectiveMatrix(
-        camera->fieldOfVision * 2.0f * static_cast<float>(M_PI) / 180.0f,
+        camera->fieldOfVision * 2.0F * static_cast<float>(M_PI) / 180.0F,
         static_cast<float>(camera->xSize) / static_cast<float>(camera->ySize),
         camera->near,
         camera->far);

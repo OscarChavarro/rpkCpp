@@ -1,5 +1,5 @@
-#ifndef __READER_STATISTICS__
-#define __READER_STATISTICS__
+#ifndef READER_STATISTICS__
+#define READER_STATISTICS__
 
 class ReaderStatistics {
   public:

@@ -11,8 +11,8 @@ equation (6). Equations (1)-(5) in the paper concern spherical
 triangle area inversion and are not directly implemented here.
 */
 
-#ifndef __COORDINATE_SYSTEM__
-#define __COORDINATE_SYSTEM__
+#ifndef COORDINATE_SYSTEM__
+#define COORDINATE_SYSTEM__
 
 #include "common/linealAlgebra/Vector3D.h"
 

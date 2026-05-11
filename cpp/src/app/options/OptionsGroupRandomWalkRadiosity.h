@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_GROUP_RANDOM_WALK_RADIOSITY__
-#define __OPTIONS_GROUP_RANDOM_WALK_RADIOSITY__
+#ifndef OPTIONS_GROUP_RANDOM_WALK_RADIOSITY__
+#define OPTIONS_GROUP_RANDOM_WALK_RADIOSITY__
 
 #include "app/options/EnumDesc.h"
 #include "raycasting/stochasticRaytracing/StochasticRelaxation.h"

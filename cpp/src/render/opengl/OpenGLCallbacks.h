@@ -1,5 +1,5 @@
-#ifndef __OPEN_GL_CALLBACKS__
-#define __OPEN_GL_CALLBACKS__
+#ifndef OPEN_GL_CALLBACKS__
+#define OPEN_GL_CALLBACKS__
 
 #include "material/RendererConfiguration.h"
 #include "environment/geometry/elements/Patch.h"

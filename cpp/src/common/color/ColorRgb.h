@@ -1,5 +1,5 @@
-#ifndef __COLOR__
-#define __COLOR__
+#ifndef COLOR__
+#define COLOR__
 
 #include "java/io/PrintStream.h"
 

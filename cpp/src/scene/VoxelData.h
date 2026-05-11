@@ -1,5 +1,5 @@
-#ifndef __VOXEL_DATA__
-#define __VOXEL_DATA__
+#ifndef VOXEL_DATA__
+#define VOXEL_DATA__
 
 #include "scene/VoxelDataFlags.h"
 #include "skin/Geometry.h"

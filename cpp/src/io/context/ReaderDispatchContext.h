@@ -1,5 +1,5 @@
-#ifndef __READER_STACK_STATE__
-#define __READER_STACK_STATE__
+#ifndef READER_STACK_STATE__
+#define READER_STACK_STATE__
 
 #include "io/context/EntityTypeContext.h"
 #include "io/context/EntityNamingContext.h"

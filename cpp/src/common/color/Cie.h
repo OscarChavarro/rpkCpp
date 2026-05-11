@@ -3,8 +3,8 @@ Converts mgf color specification into our representation of colors.
 XYZ<->LUV conversions
 */
 
-#ifndef __CIE__
-#define __CIE__
+#ifndef CIE__
+#define CIE__
 
 class Cie final {
   private:

@@ -1,5 +1,5 @@
-#ifndef __RAY_HIT_FLAG__
-#define __RAY_HIT_FLAG__
+#ifndef RAY_HIT_FLAG__
+#define RAY_HIT_FLAG__
 
 /**
 The flags below have a double function: if passed as an argument

@@ -21,7 +21,7 @@ PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
     double NsParameter)
 {
     Kd = *KdParameter;
-    kd.scaledCopy((1.00f / static_cast<float>(M_PI)), Kd); // Because we use it often
+    kd.scaledCopy((1.00F / static_cast<float>(M_PI)), Kd); // Because we use it often
     Ks = *KsParameter;
     if ( !Ks.isBlack() ) {
         Logger::warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
@@ -151,7 +151,7 @@ PhongEmittanceDistributionFunction::phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->scaledCopy((1.0f / static_cast<float>(M_PI)), Kd);
+            selfEmittedRadiance->scaledCopy((1.0F / static_cast<float>(M_PI)), Kd);
         }
     }
 

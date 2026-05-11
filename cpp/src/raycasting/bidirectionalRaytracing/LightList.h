@@ -3,8 +3,8 @@ Definition of the light list class
 this class can be used for sampling lights
 */
 
-#ifndef __LIGHT_LIST__
-#define __LIGHT_LIST__
+#ifndef LIGHT_LIST__
+#define LIGHT_LIST__
 
 #include "java/util/ArrayList.h"
 #include "common/dataStructures/CircularList.h"

@@ -1,5 +1,5 @@
-#ifndef __MEMORY_POOL__
-#define __MEMORY_POOL__
+#ifndef MEMORY_POOL__
+#define MEMORY_POOL__
 
 #include "java/lang/Object.h"
 

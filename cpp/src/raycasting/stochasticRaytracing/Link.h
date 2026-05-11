@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RAYTRACING_LINK__
-#define __STOCHASTIC_RAYTRACING_LINK__
+#ifndef STOCHASTIC_RAYTRACING_LINK__
+#define STOCHASTIC_RAYTRACING_LINK__
 
 #include "raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 

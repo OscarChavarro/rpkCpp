@@ -1,5 +1,5 @@
-#ifndef __TENT_FILTER__
-#define __TENT_FILTER__
+#ifndef TENT_FILTER__
+#define TENT_FILTER__
 
 #include "raycasting/common/PixelFilter.h"
 

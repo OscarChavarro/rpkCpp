@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_MATERIAL__
-#define __MGF_HANDLER_MATERIAL__
+#ifndef MGF_HANDLER_MATERIAL__
+#define MGF_HANDLER_MATERIAL__
 
 #include "common/color/ColorRgb.h"
 #include "io/context/ColorContext.h"

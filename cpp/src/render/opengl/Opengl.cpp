@@ -49,7 +49,7 @@ Opengl::openGlRenderLine(Vector3D *x, Vector3D *y) {
     glEnd();
 
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.0f, 1.0f);
+    glPolygonOffset(1.0F, 1.0F);
 #endif
 }
 
@@ -112,7 +112,7 @@ Opengl::openGlRenderPolygonGouraud(
 Vector3D
 Opengl::sceneRotationPivot(const Scene *scene) {
     if ( scene == nullptr ) {
-        return Vector3D(0.0f, 0.0f, 0.0f);
+        return Vector3D(0.0F, 0.0F, 0.0F);
     }
 
     if ( scene->clusteredRootGeometry != nullptr && scene->clusteredRootGeometry->bounded ) {
@@ -125,7 +125,7 @@ Opengl::sceneRotationPivot(const Scene *scene) {
         return sceneBounds.center();
     }
 
-    return Vector3D(0.0f, 0.0f, 0.0f);
+    return Vector3D(0.0F, 0.0F, 0.0F);
 }
 
 void
@@ -134,8 +134,8 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
         return;
     }
 
-    axisU->set(1.0f, 0.0f, 0.0f);
-    axisV->set(0.0f, 1.0f, 0.0f);
+    axisU->set(1.0F, 0.0F, 0.0F);
+    axisV->set(0.0F, 1.0F, 0.0F);
 
     if ( scene == nullptr || scene->camera == nullptr ) {
         return;
@@ -159,14 +159,14 @@ Opengl::viewportAxesInWorld(const Scene *scene, Vector3D *axisU, Vector3D *axisV
         Vector3D upDirection;
         upDirection.copy(camera->upDirection);
         if ( upDirection.norm2() < Numeric::EPSILON_FLOAT ) {
-            upDirection.set(0.0f, 0.0f, 1.0f);
+            upDirection.set(0.0F, 0.0F, 1.0F);
         } else {
             upDirection.normalize(Numeric::EPSILON_FLOAT);
         }
 
         cameraU.crossProduct(viewDirection, upDirection);
         if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
-            upDirection.set(0.0f, 1.0f, 0.0f);
+            upDirection.set(0.0F, 1.0F, 0.0F);
             cameraU.crossProduct(viewDirection, upDirection);
         }
         if ( cameraU.norm2() < Numeric::EPSILON_FLOAT ) {
@@ -488,8 +488,8 @@ Opengl::openGlApplyDebugSceneRotation(const Scene *scene, const GlutDebugState *
     }
 
     const bool hasRotation =
-        debugState->angleAroundViewportU != 0.0f ||
-        debugState->angleAroundViewportV != 0.0f;
+        debugState->angleAroundViewportU != 0.0F ||
+        debugState->angleAroundViewportV != 0.0F;
     if ( !hasRotation ) {
         return;
     }

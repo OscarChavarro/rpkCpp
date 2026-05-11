@@ -2,8 +2,8 @@
 Orthonormal basis for the standard triangle (0, 0), (1, 0), (0, 1)
 */
 
-#ifndef __BASIS_TRI_MCRAD__
-#define __BASIS_TRI_MCRAD__
+#ifndef BASIS_TRI_MCRAD__
+#define BASIS_TRI_MCRAD__
 
 #include "raycasting/stochasticRaytracing/GalerkinBasis.h"
 

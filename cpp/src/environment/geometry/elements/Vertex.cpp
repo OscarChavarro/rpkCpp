@@ -22,7 +22,7 @@ Vertex::Vertex(
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
     patches = inPatches;
-    color.set(0.0f, 0.0f, 0.0f);
+    color.set(0.0F, 0.0F, 0.0F);
     radianceData = nullptr;
     back = static_cast<Vertex *>(nullptr);
 }
@@ -44,7 +44,7 @@ void
 Vertex::computeColor() {
     long numberOfPatches;
 
-    color.set(0.0f, 0.0f, 0.0f);
+    color.set(0.0F, 0.0F, 0.0F);
     numberOfPatches = 0;
 
     if ( patches != nullptr ) {

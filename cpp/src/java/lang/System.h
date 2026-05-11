@@ -1,5 +1,5 @@
-#ifndef __JAVA_LANG_SYSTEM__
-#define __JAVA_LANG_SYSTEM__
+#ifndef JAVA_LANG_SYSTEM__
+#define JAVA_LANG_SYSTEM__
 
 #include "java/io/FileOutputStream.h"
 #include "java/io/PrintStream.h"

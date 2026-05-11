@@ -262,7 +262,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalRadian
                                        approximationOrderType].basis_size));
 
         stepNumber++;
-        java::System::err.printf("Incremental radiance propagation step %ld: %.3f%% un-shot power left.\n",
+        java::System::err.printf("Incremental radiance propagation step %ld: %.3F%% un-shot power left.\n",
                 stepNumber, 100. * unShotFraction);
 
         StochasticJacobi::doStochasticJacobiIteration(
@@ -339,7 +339,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
         }
 
         stepNumber++;
-        java::System::err.printf("Incremental importance propagation step %ld: %.3f%% un-shot importance left.\n",
+        java::System::err.printf("Incremental importance propagation step %ld: %.3F%% un-shot importance left.\n",
                 stepNumber, 100.0 * unShotFraction);
 
         StochasticJacobi::doStochasticJacobiIteration(
@@ -394,7 +394,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUpdateRadian
 
     // Combine with previous results
     Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), elem->radiance, elem->basis);
-    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0f - static_cast<float>(k)), elem->receivedRadiance, elem->basis);
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0F - static_cast<float>(k)), elem->receivedRadiance, elem->basis);
     Coefficientsmcrad::stochasticRadiosityAddCoefficients(elem->radiance, elem->receivedRadiance, elem->basis);
 
     // Re-add source radiosity

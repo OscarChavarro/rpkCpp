@@ -1,5 +1,5 @@
-#ifndef __TRIANGLE_CUBATURE_RULE__
-#define __TRIANGLE_CUBATURE_RULE__
+#ifndef TRIANGLE_CUBATURE_RULE__
+#define TRIANGLE_CUBATURE_RULE__
 
 #include "numericalAnalysis/CubatureRule.h"
 

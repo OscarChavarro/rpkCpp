@@ -104,7 +104,7 @@ UniformLightSampler::sample(
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
         double pdf = 0.0;
-        Vector3D dir(0.0f, 0.0f, 0.0f);
+        Vector3D dir(0.0F, 0.0F, 0.0F);
 
         if ( light->getMaterial()->getEdf() != nullptr ) {
             bool shctxOk = false;
@@ -269,7 +269,7 @@ ImportantLightSampler::sample(
     // Choose point (uniform for real, sampled for background)
     if ( light->hasZeroVertices() ) {
         double pdf = 0.0;
-        Vector3D dir(0.0f, 0.0f, 0.0f);
+        Vector3D dir(0.0F, 0.0F, 0.0F);
 
         if ( light->getMaterial()->getEdf() != nullptr ) {
             dir = light->getMaterial()->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);

@@ -154,15 +154,15 @@ GalerkinOpenGLRenderer::renderScene(
         if ( debugState->showSelectedPathOnly ) {
             if ( i == debugState->primarySelectedPatch ) {
                 modifiedRenderOptions.drawOutlines = true;
-                modifiedRenderOptions.outlineColor = ColorRgb(1.0f, 0.0f, 0.0f);
+                modifiedRenderOptions.outlineColor = ColorRgb(1.0F, 0.0F, 0.0F);
             } else {
                 modifiedRenderOptions.drawOutlines = false;
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         } else {
-            modifiedRenderOptions.outlineColor = ColorRgb(0.4f, 0.1f, 0.1f);
+            modifiedRenderOptions.outlineColor = ColorRgb(0.4F, 0.1F, 0.1F);
             if ( i == debugState->primarySelectedPatch ) {
-                modifiedRenderOptions.outlineColor = ColorRgb(0.0f, 0.0f, 1.0f);
+                modifiedRenderOptions.outlineColor = ColorRgb(0.0F, 0.0F, 1.0F);
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         }

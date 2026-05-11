@@ -1,5 +1,5 @@
-#ifndef __RADIANCE__
-#define __RADIANCE__
+#ifndef RADIANCE__
+#define RADIANCE__
 
 #include "scene/RadianceMethod.h"
 #include "tonemap/ToneMappingContext.h"

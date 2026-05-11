@@ -33,12 +33,12 @@ ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
 
 float
 ToneMap::tmoCandelaLambert(float a) {
-    return a * static_cast<float>(java::Math::PI) * 1e-4f;
+    return a * static_cast<float>(java::Math::PI) * 1e-4F;
 }
 
 float
 ToneMap::tmoLambertCandela(float a) {
-    return a / (static_cast<float>(java::Math::PI) * 1e-4f);
+    return a / (static_cast<float>(java::Math::PI) * 1e-4F);
 }
 
 void

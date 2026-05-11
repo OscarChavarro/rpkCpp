@@ -1,5 +1,5 @@
-#ifndef __HashMap__
-#define __HashMap__
+#ifndef HashMap__
+#define HashMap__
 
 #include <cstddef>
 

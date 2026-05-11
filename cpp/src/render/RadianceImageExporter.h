@@ -1,5 +1,5 @@
-#ifndef __RADIANCE_IMAGE_EXPORTER__
-#define __RADIANCE_IMAGE_EXPORTER__
+#ifndef RADIANCE_IMAGE_EXPORTER__
+#define RADIANCE_IMAGE_EXPORTER__
 
 #include "java/io/OutputStream.h"
 #include "common/color/ColorRgb.h"

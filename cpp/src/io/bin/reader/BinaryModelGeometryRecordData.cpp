@@ -22,6 +22,6 @@ BinaryModelGeometryRecordData::BinaryModelGeometryRecordData():
     patchSetPatches()
 {
     for ( int i = 0; i < 6; i++ ) {
-        boundingBoxCoordinates[i] = 0.0f;
+        boundingBoxCoordinates[i] = 0.0F;
     }
 }

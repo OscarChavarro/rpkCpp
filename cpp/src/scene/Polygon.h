@@ -1,5 +1,5 @@
-#ifndef __POLYGON__
-#define __POLYGON__
+#ifndef POLYGON__
+#define POLYGON__
 
 #include "skin/AxisAlignedBoundingBox.h"
 #include "environment/geometry/elements/Patch.h"

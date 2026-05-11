@@ -287,7 +287,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityShootingUpdate(const Patch *P, doub
 
     // Weight with previous results
     Coefficientsmcrad::stochasticRadiosityScaleCoefficients(static_cast<float>(k), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
-    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0f - static_cast<float>(k)), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
+    Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0F - static_cast<float>(k)), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
     Coefficientsmcrad::stochasticRadiosityAddCoefficients(McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchReceivedRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Re-add self-emitted rad
@@ -421,7 +421,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityGatheringUpdate(const Patch *P, dou
 
     // Divide by nr of samples
     if ( McradP::topLevelStochasticRadiosityElement(P)->ng > 0 )
-        Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0f / McradP::topLevelStochasticRadiosityElement(P)->ng), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
+        Coefficientsmcrad::stochasticRadiosityScaleCoefficients((1.0F / McradP::topLevelStochasticRadiosityElement(P)->ng), McradP::getTopLevelPatchRad(P), McradP::getTopLevelPatchBasis(P));
 
     // Add source radiance (source term estimation suppression!)
     McradP::getTopLevelPatchRad(P)[0].add(McradP::getTopLevelPatchRad(P)[0], McradP::topLevelStochasticRadiosityElement(P)->sourceRad);

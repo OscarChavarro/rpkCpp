@@ -1,5 +1,5 @@
-#ifndef __JACOBIAN__
-#define __JACOBIAN__
+#ifndef JACOBIAN__
+#define JACOBIAN__
 
 /**
 Jacobian for a quadrilateral patch is J(u, v) = A + B.u + C.v

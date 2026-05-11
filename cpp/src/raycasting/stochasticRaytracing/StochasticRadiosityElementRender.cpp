@@ -28,9 +28,9 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
             float gray;
 
             if ( element->importance > 1.0 ) {
-                gray = 1.0f;
+                gray = 1.0F;
             } else {
-                gray = element->importance < 0.0 ? 0.0f : element->importance;
+                gray = element->importance < 0.0 ? 0.0F : element->importance;
             }
 
             color.set(gray, gray, gray);
@@ -161,9 +161,9 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
         ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color.r = (m[i]->color.r + color.r) * 0.5f;
-                m[i]->color.g = (m[i]->color.g + color.g) * 0.5f;
-                m[i]->color.b = (m[i]->color.b + color.b) * 0.5f;
+                m[i]->color.r = (m[i]->color.r + color.r) * 0.5F;
+                m[i]->color.g = (m[i]->color.g + color.g) * 0.5F;
+                m[i]->color.b = (m[i]->color.b + color.b) * 0.5F;
             }
         }
     }

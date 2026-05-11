@@ -1,5 +1,5 @@
-#ifndef __LIGHT_LIST_ITERATOR__
-#define __LIGHT_LIST_ITERATOR__
+#ifndef LIGHT_LIST_ITERATOR__
+#define LIGHT_LIST_ITERATOR__
 
 #include "common/dataStructures/CircularListIterator.h"
 #include "raycasting/bidirectionalRaytracing/LightInfo.h"

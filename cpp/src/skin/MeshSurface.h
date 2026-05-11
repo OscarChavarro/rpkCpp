@@ -2,8 +2,8 @@
 Surfaces are basically a list of patches representing a simple object with given material
 */
 
-#ifndef __SURFACE__
-#define __SURFACE__
+#ifndef SURFACE__
+#define SURFACE__
 
 #include "java/util/ArrayList.h"
 #include "material/Material.h"

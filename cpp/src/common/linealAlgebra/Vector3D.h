@@ -1,5 +1,5 @@
-#ifndef __VECTOR_3D__
-#define __VECTOR_3D__
+#ifndef VECTOR_3D__
+#define VECTOR_3D__
 
 #include "java/lang/Math.h"
 #include "common/linealAlgebra/CoordinateAxis.h"
@@ -172,7 +172,7 @@ Scales a vector with the inverse of the real number s if not zero: d = (1/s).v
 */
 inline void
 Vector3D::inverseScaledCopy(const float s, const Vector3D &v, const float epsilon) {
-    float normalizedFactor = s < -epsilon || s > epsilon ? 1.0f / s : 1.0f;
+    float normalizedFactor = s < -epsilon || s > epsilon ? 1.0F / s : 1.0F;
     x = normalizedFactor * v.x;
     y = normalizedFactor * v.y;
     z = normalizedFactor * v.z;
@@ -269,9 +269,9 @@ Centre of two positions
 */
 inline void
 Vector3D::midPoint(const Vector3D &p1, const Vector3D &p2) {
-    x = 0.5f * (p1.x + p2.x);
-    y = 0.5f * (p1.y + p2.y);
-    z = 0.5f * (p1.z + p2.z);
+    x = 0.5F * (p1.x + p2.x);
+    y = 0.5F * (p1.y + p2.y);
+    z = 0.5F * (p1.z + p2.z);
 }
 
 #endif

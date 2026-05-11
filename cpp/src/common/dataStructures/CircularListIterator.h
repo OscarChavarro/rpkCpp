@@ -1,5 +1,5 @@
-#ifndef __CIRCULAR_LIST_ITERATOR__
-#define __CIRCULAR_LIST_ITERATOR__
+#ifndef CIRCULAR_LIST_ITERATOR__
+#define CIRCULAR_LIST_ITERATOR__
 
 template<class T> class CircularList;
 

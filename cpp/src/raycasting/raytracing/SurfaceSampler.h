@@ -1,5 +1,5 @@
-#ifndef __C_SURFACE_SAMPLER__
-#define __C_SURFACE_SAMPLER__
+#ifndef C_SURFACE_SAMPLER__
+#define C_SURFACE_SAMPLER__
 
 #include "raycasting/raytracing/Sampler.h"
 

@@ -1,5 +1,5 @@
-#ifndef __NONDIFF__
-#define __NONDIFF__
+#ifndef NONDIFF__
+#define NONDIFF__
 
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"

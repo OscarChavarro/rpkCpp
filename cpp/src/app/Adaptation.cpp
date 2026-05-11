@@ -32,7 +32,7 @@ Adaptation::initRadianceEstimate(Patch *patch) {
     ColorRgb radiance;
 
     radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
-    radiance.addScaled(radiance, (1.0f / static_cast<float>(M_PI)), E);
+    radiance.addScaled(radiance, (1.0F / static_cast<float>(M_PI)), E);
     return radiance;
 }
 
@@ -88,10 +88,10 @@ Statistics::instance().radiance.totalArea.
 float
 Adaptation::meanAreaWeightedLuminance(LuminanceArea *pairs, int numPairs) {
     if ( numPairs <= 0 ) {
-        return 0.0f;
+        return 0.0F;
     }
 
-    const float areaMax = Statistics::instance().radiance.totalArea / 2.0f;
+    const float areaMax = Statistics::instance().radiance.totalArea / 2.0F;
     float areaCnt = 0.0;
     int pairIndex = 0;
 
@@ -132,7 +132,7 @@ Adaptation::estimateSceneAdaptation(
                 Adaptation::patchComputeLogAreaLum(scenePatches->get(i));
             }
             // Equation [TUMB1999b](7): convert mean log-luminance back to luminance domain
-            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(logAreaLum) / Statistics::instance().radiance.totalArea + 0.84f);
+            toneMapOptions.realWorldAdaptionLuminance = java::Math::exp(static_cast<float>(logAreaLum) / Statistics::instance().radiance.totalArea + 0.84F);
             break;
         }
         case ToneMapAdaptationMethod::TMA_MEDIAN: {

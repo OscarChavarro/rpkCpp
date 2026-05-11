@@ -1,5 +1,5 @@
-#ifndef __SGL_POLYGON__
-#define __SGL_POLYGON__
+#ifndef SGL_POLYGON__
+#define SGL_POLYGON__
 
 #include "render/sgl/PolygonClipResult.h"
 #include "render/sgl/PolygonVertex.h"

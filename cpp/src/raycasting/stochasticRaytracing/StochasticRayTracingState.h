@@ -2,8 +2,8 @@
 Options and runtime state for stochastic raytracing.
 */
 
-#ifndef __STOCHASTIC_RAYTRACER_OPTIONS__
-#define __STOCHASTIC_RAYTRACER_OPTIONS__
+#ifndef STOCHASTIC_RAYTRACER_OPTIONS__
+#define STOCHASTIC_RAYTRACER_OPTIONS__
 
 #include "render/ScreenBuffer.h"
 #include "raycasting/stochasticRaytracing/RayTracingLightMode.h"

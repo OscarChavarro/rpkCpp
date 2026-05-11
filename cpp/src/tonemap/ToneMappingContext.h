@@ -1,5 +1,5 @@
-#ifndef __TONE_MAPPING_CONTEXT_H
-#define __TONE_MAPPING_CONTEXT_H
+#ifndef TONE_MAPPING_CONTEXT_H
+#define TONE_MAPPING_CONTEXT_H
 
 #include "common/color/ColorRgb.h"
 #include "tonemap/ToneMapAdaptationMethod.h"
@@ -38,10 +38,10 @@ class ToneMappingContext {
     ~ToneMappingContext();
 
   private:
-    static constexpr float DEFAULT_GAMMA = 1.7f;
-    static constexpr float DEFAULT_TM_LWA = 10.0f;
-    static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0f;
-    static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0f;
+    static constexpr float DEFAULT_GAMMA = 1.7F;
+    static constexpr float DEFAULT_TM_LWA = 10.0F;
+    static constexpr float DEFAULT_TM_LD_MAXIMUM = 100.0F;
+    static constexpr float DEFAULT_TM_C_MAXIMUM = 50.0F;
 };
 
 #endif

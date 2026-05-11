@@ -1,5 +1,5 @@
-#ifndef __MGF_HANDLER_COLOR__
-#define __MGF_HANDLER_COLOR__
+#ifndef MGF_HANDLER_COLOR__
+#define MGF_HANDLER_COLOR__
 
 #include "io/context/ParseRuntimeContext.h"
 

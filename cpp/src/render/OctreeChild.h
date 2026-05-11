@@ -1,5 +1,5 @@
-#ifndef __OPENGL_OCTREE_CHILD__
-#define __OPENGL_OCTREE_CHILD__
+#ifndef OPENGL_OCTREE_CHILD__
+#define OPENGL_OCTREE_CHILD__
 
 #include "skin/Geometry.h"
 

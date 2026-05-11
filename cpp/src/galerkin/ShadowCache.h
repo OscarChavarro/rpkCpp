@@ -1,5 +1,5 @@
-#ifndef __SHADOW_CACHE__
-#define __SHADOW_CACHE__
+#ifndef SHADOW_CACHE__
+#define SHADOW_CACHE__
 
 #include "environment/geometry/elements/Patch.h"
 

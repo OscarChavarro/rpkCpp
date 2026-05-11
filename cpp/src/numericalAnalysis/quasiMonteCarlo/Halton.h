@@ -1,5 +1,5 @@
-#ifndef __HALTON__
-#define __HALTON__
+#ifndef HALTON__
+#define HALTON__
 
 class Halton {
   public:

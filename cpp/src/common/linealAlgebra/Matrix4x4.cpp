@@ -1,22 +1,22 @@
 #include "common/linealAlgebra/Matrix4x4.h"
 
 Matrix4x4::Matrix4x4(): m() {
-    this->m[0][0] = 1.0f;
-    this->m[0][1] = 0.0f;
-    this->m[0][2] = 0.0f;
-    this->m[0][3] = 0.0f;
-    this->m[1][0] = 0.0f;
-    this->m[1][1] = 1.0f;
-    this->m[1][2] = 0.0f;
-    this->m[1][3] = 0.0f;
-    this->m[2][0] = 0.0f;
-    this->m[2][1] = 0.0f;
-    this->m[2][2] = 1.0f;
-    this->m[2][3] = 0.0f;
-    this->m[3][0] = 0.0f;
-    this->m[3][1] = 0.0f;
-    this->m[3][2] = 0.0f;
-    this->m[3][3] = 1.0f;
+    this->m[0][0] = 1.0F;
+    this->m[0][1] = 0.0F;
+    this->m[0][2] = 0.0F;
+    this->m[0][3] = 0.0F;
+    this->m[1][0] = 0.0F;
+    this->m[1][1] = 1.0F;
+    this->m[1][2] = 0.0F;
+    this->m[1][3] = 0.0F;
+    this->m[2][0] = 0.0F;
+    this->m[2][1] = 0.0F;
+    this->m[2][2] = 1.0F;
+    this->m[2][3] = 0.0F;
+    this->m[3][0] = 0.0F;
+    this->m[3][1] = 0.0F;
+    this->m[3][2] = 0.0F;
+    this->m[3][3] = 1.0F;
 }
 
 Matrix4x4::Matrix4x4(
@@ -101,28 +101,28 @@ There is no check whether the transform really is a rotation.
 */
 void
 Matrix4x4::recoverRotationParameters(float *angle, Vector3D *axis) const {
-    float c = (m[0][0] + m[1][1] + m[2][2] - 1.0f) * 0.5f;
-    if ( c > 1.0f - Numeric::EPSILON ) {
-        *angle = 0.0f;
-        axis->set(0.0f, 0.0f, 1.0f);
-    } else if ( c < -1.0f + Numeric::EPSILON ) {
+    float c = (m[0][0] + m[1][1] + m[2][2] - 1.0F) * 0.5F;
+    if ( c > 1.0F - Numeric::EPSILON ) {
+        *angle = 0.0F;
+        axis->set(0.0F, 0.0F, 1.0F);
+    } else if ( c < -1.0F + Numeric::EPSILON ) {
         *angle = static_cast<float>(M_PI);
-        axis->x = java::Math::sqrt((m[0][0] + 1.0f) * 0.5f);
-        axis->y = java::Math::sqrt((m[1][1] + 1.0f) * 0.5f);
-        axis->z = java::Math::sqrt((m[2][2] + 1.0f) * 0.5f);
+        axis->x = java::Math::sqrt((m[0][0] + 1.0F) * 0.5F);
+        axis->y = java::Math::sqrt((m[1][1] + 1.0F) * 0.5F);
+        axis->z = java::Math::sqrt((m[2][2] + 1.0F) * 0.5F);
 
         // Assume x positive, determine sign of y and z
-        if ( m[1][0] < 0.0f ) {
+        if ( m[1][0] < 0.0F ) {
             axis->y = -axis->y;
         }
-        if ( m[2][0] < 0.0f ) {
+        if ( m[2][0] < 0.0F ) {
             axis->z = -axis->z;
         }
     } else {
         float r;
         *angle = java::Math::acos(c);
-        float s = java::Math::sqrt(1.0f - c * c);
-        r = 1.0f / (2.0f * s);
+        float s = java::Math::sqrt(1.0F - c * c);
+        r = 1.0F / (2.0F * s);
         axis->x = (m[2][1] - m[1][2]) * r;
         axis->y = (m[0][2] - m[2][0]) * r;
         axis->z = (m[1][0] - m[0][1]) * r;
@@ -209,14 +209,14 @@ Matrix4x4::createLookAtMatrix(Vector3D eye, Vector3D centre, Vector3D up) {
 Matrix4x4
 Matrix4x4::createPerspectiveMatrix(float fieldOfViewInRadians, float aspect, float near, float far) {
     Matrix4x4 xf;
-    float f = 1.0f / java::Math::tan(fieldOfViewInRadians / 2.0f);
+    float f = 1.0F / java::Math::tan(fieldOfViewInRadians / 2.0F);
 
     xf.m[0][0] = f / aspect;
     xf.m[1][1] = f;
     xf.m[2][2] = (near + far) / (near - far);
     xf.m[2][3] = (2 * far * near) / (near - far);
-    xf.m[3][2] = -1.0f;
-    xf.m[3][3] = 0.0f;
+    xf.m[3][2] = -1.0F;
+    xf.m[3][3] = 0.0F;
 
     return xf;
 }
@@ -225,13 +225,13 @@ Matrix4x4
 Matrix4x4::createOrthogonalViewMatrix(float left, float right, float bottom, float top, float near, float far) {
     Matrix4x4 xf;
 
-    xf.m[0][0] = 2.0f / (right - left);
+    xf.m[0][0] = 2.0F / (right - left);
     xf.m[0][3] = -(right + left) / (right - left);
 
-    xf.m[1][1] = 2.0f / (top - bottom);
+    xf.m[1][1] = 2.0F / (top - bottom);
     xf.m[1][3] = -(top + bottom) / (top - bottom);
 
-    xf.m[2][2] = -2.0f / (far - near);
+    xf.m[2][2] = -2.0F / (far - near);
     xf.m[2][3] = -(far + near) / (far - near);
 
     return xf;

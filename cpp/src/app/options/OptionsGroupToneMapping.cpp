@@ -34,7 +34,7 @@ OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0f, (*toneMapOptions).brightness_adjust);
+    (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0F, (*toneMapOptions).brightness_adjust);
 }
 
 void

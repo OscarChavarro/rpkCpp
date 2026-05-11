@@ -1,5 +1,5 @@
-#ifndef __POLYGON_BOX__
-#define __POLYGON_BOX__
+#ifndef POLYGON_BOX__
+#define POLYGON_BOX__
 
 // A BOX (TYPICALLY IN SCREEN SPACE)
 class PolygonBox {

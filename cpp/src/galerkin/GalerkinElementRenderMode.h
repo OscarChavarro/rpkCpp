@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_ELEMENT_RENDER_MODE__
-#define __GALERKIN_ELEMENT_RENDER_MODE__
+#ifndef GALERKIN_ELEMENT_RENDER_MODE__
+#define GALERKIN_ELEMENT_RENDER_MODE__
 
 // Element render modes, additive
 enum GalerkinElementRenderMode {

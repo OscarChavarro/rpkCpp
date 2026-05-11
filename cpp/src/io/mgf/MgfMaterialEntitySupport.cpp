@@ -35,8 +35,8 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorR
     cin->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     if ( cin->cy > Numeric::EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
-        xyz[1] = 1.0f * intensity;
-        xyz[2] = (1.0f - cin->cx - cin->cy) / cin->cy * intensity;
+        xyz[1] = 1.0F * intensity;
+        xyz[2] = (1.0F - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
         MgfEntityControl::doWarning("invalid color specification (Y<=0) ... setting to black", context);
         xyz[0] = 0.0;
@@ -135,24 +135,24 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     // Check/correct range of reflectances and transmittances
     A.add(Rd, Rs);
     float a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0F - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
-        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0F - Numeric::EPSILON_FLOAT) / a;
         Rd.scale(a);
         Rs.scale(a);
     }
 
     A.add(Td, Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0f - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0F - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
-        a = (1.0f - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0F - Numeric::EPSILON_FLOAT) / a;
         Td.scale(a);
         Ts.scale(a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed.scale(1.0f / Cie::WHITE_EFFICACY);
+    Ed.scale(1.0F / Cie::WHITE_EFFICACY);
 
     Es.clear();
 
@@ -161,14 +161,14 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
     if ( currentMaterialContext->rs_a != 0.0 ) {
-        Nr = 0.6f / currentMaterialContext->rs_a;
+        Nr = 0.6F / currentMaterialContext->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
     if ( currentMaterialContext->ts_a != 0.0 ) {
-        Nt = 0.6f / currentMaterialContext->ts_a;
+        Nt = 0.6F / currentMaterialContext->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;

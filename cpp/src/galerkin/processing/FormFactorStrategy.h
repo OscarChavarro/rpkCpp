@@ -2,8 +2,8 @@
 All kind of form factor computations
 */
 
-#ifndef __FORM_FACTOR_STRATEGY__
-#define __FORM_FACTOR_STRATEGY__
+#ifndef FORM_FACTOR_STRATEGY__
+#define FORM_FACTOR_STRATEGY__
 
 #include "java/util/ArrayList.h"
 #include "skin/Geometry.h"

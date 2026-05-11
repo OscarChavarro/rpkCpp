@@ -39,9 +39,9 @@ VoxelGrid::VoxelGrid(Geometry *geometry):
     boundingBox(),
     rayIntersectionBox()
 {
-    xSize = 0.0f;
-    ySize = 0.0f;
-    zSize = 0.0f;
+    xSize = 0.0F;
+    ySize = 0.0F;
+    zSize = 0.0F;
     volumeListsOfItems = nullptr;
     gridItemPool = nullptr;
     rayIntersectionBox = nullptr;

@@ -140,10 +140,10 @@ GalerkinElement::GalerkinElement(GalerkinState *inGalerkinState):Element()
     radiance = nullptr;
     receivedRadiance = nullptr;
     unShotRadiance = nullptr;
-    potential = 0.0f;
-    receivedPotential = 0.0f;
-    unShotPotential = 0.0f;
-    directPotential = 0.0f;
+    potential = 0.0F;
+    receivedPotential = 0.0F;
+    unShotPotential = 0.0F;
+    directPotential = 0.0F;
     patch = nullptr;
     geometry = nullptr;
     parent = nullptr;
@@ -170,7 +170,7 @@ GalerkinElement::GalerkinElement(Patch *parameterPatch, GalerkinState *inGalerki
 {
     patch = parameterPatch;
     minimumArea = area = patch->getArea();
-    blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(area / M_PI));
+    blockerSize = 2.0F * static_cast<float>(java::Math::sqrt(area / M_PI));
     directPotential = patch->getDirectPotential();
 
     Rd = PatchVisitor::averageNormalAlbedo(patch, BRDF_DIFFUSE_COMPONENT);
@@ -380,8 +380,8 @@ GalerkinElement::regularSubDivide() {
             patch->getNumberOfVertices() == 3 ?
             &triangleToParentTransformMatrix[i] :
             &quadToParentTransformMatrix[i];
-        child->area = 0.25f * area;  // Uniform mapping is always used
-        child->blockerSize = 2.0f * static_cast<float>(java::Math::sqrt(child->area / M_PI));
+        child->area = 0.25F * area;  // Uniform mapping is always used
+        child->blockerSize = 2.0F * static_cast<float>(java::Math::sqrt(child->area / M_PI));
         child->childNumber = static_cast<GalerkinElementRenderMode>(i);
         child->reAllocCoefficients();
 
@@ -505,42 +505,42 @@ GalerkinElement::vertices(Vector3D *p) const {
             topTransform(&topTrans);
         }
 
-        uv.u = 0.0f;
-        uv.v = 0.0f;
+        uv.u = 0.0F;
+        uv.v = 0.0F;
         if ( transformToParent != nullptr ) {
             topTrans.transformPoint2D(uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[0]);
 
-        uv.u = 1.0f;
-        uv.v = 0.0f;
+        uv.u = 1.0F;
+        uv.v = 0.0F;
         if ( transformToParent != nullptr ) {
             topTrans.transformPoint2D(uv, uv);
         }
         patch->uniformPoint(uv.u, uv.v, &p[1]);
 
         if ( patch->getNumberOfVertices() == 4 ) {
-            uv.u = 1.0f;
-            uv.v = 1.0f;
+            uv.u = 1.0F;
+            uv.v = 1.0F;
             if ( transformToParent != nullptr ) {
                 topTrans.transformPoint2D(uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
 
-            uv.u = 0.0f;
-            uv.v = 1.0f;
+            uv.u = 0.0F;
+            uv.v = 1.0F;
             if ( transformToParent != nullptr ) {
                 topTrans.transformPoint2D(uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[3]);
         } else {
-            uv.u = 0.0f;
-            uv.v = 1.0f;
+            uv.u = 0.0F;
+            uv.v = 1.0F;
             if ( transformToParent != nullptr ) {
                 topTrans.transformPoint2D(uv, uv);
             }
             patch->uniformPoint(uv.u, uv.v, &p[2]);
-            p[3].set(0.0f, 0.0f, 0.0f);
+            p[3].set(0.0F, 0.0F, 0.0F);
         }
 
         return patch->getNumberOfVertices();
@@ -558,13 +558,13 @@ GalerkinElement::midPoint() const {
         Vector3D p[8];
         int numberOfVertices = vertices(p);
 
-        Vector3D c(0.0f, 0.0f, 0.0f);
+        Vector3D c(0.0F, 0.0F, 0.0F);
 
         for ( int i = 0; i < numberOfVertices; i++ ) {
             c.addition(c, p[i]);
         }
 
-        c.scaledCopy(1.0f / static_cast<float>(numberOfVertices), c);
+        c.scaledCopy(1.0F / static_cast<float>(numberOfVertices), c);
         return c;
     }
 }

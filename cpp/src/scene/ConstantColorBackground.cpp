@@ -32,8 +32,8 @@ ConstantColorBackground::sample(
     float *probabilityDensityFunction) const
 {
     const double phi = 2.0 * static_cast<double>(java::Math::PI) * static_cast<double>(xi1);
-    const float z = 1.0f - 2.0f * xi2;
-    const float radialSquared = java::Math::max(0.0f, 1.0f - z * z);
+    const float z = 1.0F - 2.0F * xi2;
+    const float radialSquared = java::Math::max(0.0F, 1.0F - z * z);
     const float radius = java::Math::sqrt(radialSquared);
 
     if ( radianceValue != nullptr ) {

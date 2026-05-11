@@ -2,7 +2,7 @@
 
 PatchHitCandidate::PatchHitCandidate():
     patchIndex(-1),
-    distance(0.0f),
+    distance(0.0F),
     frontFacing(false)
 {
 }

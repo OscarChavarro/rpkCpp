@@ -53,7 +53,7 @@ ImportanceMap::reconstructImportance(Vector3D /*pos*/, const Vector3D &normal) c
         return 0;
     }
 
-    factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
+    factor = 1.0F / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
     result *= factor;
 
     return result;
@@ -179,7 +179,7 @@ ImportanceMap::precomputeIrradiance() {
     PhotonMap::precomputeIrradiance();
 
     m_avgImp /= static_cast<float>(m_nrPhotons);
-    m_totalMaxDistance *= 20.0f / static_cast<float>(*m_estimate_nrp);
+    m_totalMaxDistance *= 20.0F / static_cast<float>(*m_estimate_nrp);
 }
 
 #endif

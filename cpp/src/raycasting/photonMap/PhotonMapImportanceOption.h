@@ -1,5 +1,5 @@
-#ifndef __PHOTON_MAP_IMPORTANCE_OPTION__
-#define __PHOTON_MAP_IMPORTANCE_OPTION__
+#ifndef PHOTON_MAP_IMPORTANCE_OPTION__
+#define PHOTON_MAP_IMPORTANCE_OPTION__
 
 using PhotonMapImportanceOption = int;
 

@@ -1,5 +1,5 @@
-#ifndef __RADIOSITY_RETURN_OPTION__
-#define __RADIOSITY_RETURN_OPTION__
+#ifndef RADIOSITY_RETURN_OPTION__
+#define RADIOSITY_RETURN_OPTION__
 
 enum RadiosityReturnOption {
     GLOBAL_DENSITY,

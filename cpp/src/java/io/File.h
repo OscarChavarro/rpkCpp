@@ -1,5 +1,5 @@
-#ifndef __JAVA_IO_FILE__
-#define __JAVA_IO_FILE__
+#ifndef JAVA_IO_FILE__
+#define JAVA_IO_FILE__
 
 #include "java/lang/String.h"
 

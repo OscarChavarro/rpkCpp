@@ -1,5 +1,5 @@
-#ifndef __ENTITY_CONTEXT__
-#define __ENTITY_CONTEXT__
+#ifndef ENTITY_CONTEXT__
+#define ENTITY_CONTEXT__
 
 // Entities
 enum EntityTypeContext {

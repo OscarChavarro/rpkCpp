@@ -1,5 +1,5 @@
-#ifndef __CLUSTER_GALERKIN__
-#define __CLUSTER_GALERKIN__
+#ifndef CLUSTER_GALERKIN__
+#define CLUSTER_GALERKIN__
 
 #include "galerkin/GalerkinElement.h"
 #include "galerkin/GalerkinState.h"

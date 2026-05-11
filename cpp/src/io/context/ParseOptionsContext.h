@@ -1,5 +1,5 @@
-#ifndef __PARSER_CONFIG__
-#define __PARSER_CONFIG__
+#ifndef PARSER_CONFIG__
+#define PARSER_CONFIG__
 
 #include "scene/RadianceMethod.h"
 

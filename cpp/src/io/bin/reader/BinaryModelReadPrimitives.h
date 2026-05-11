@@ -1,5 +1,5 @@
-#ifndef __BINARY_MODEL_READER_SUPPORT__
-#define __BINARY_MODEL_READER_SUPPORT__
+#ifndef BINARY_MODEL_READER_SUPPORT__
+#define BINARY_MODEL_READER_SUPPORT__
 
 #include "common/logging/Logger.h"
 #include "common/color/ColorRgb.h"

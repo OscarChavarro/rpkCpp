@@ -2,8 +2,8 @@
 Random walk generation
 */
 
-#ifndef __TRACE_PATH__
-#define __TRACE_PATH__
+#ifndef TRACE_PATH__
+#define TRACE_PATH__
 
 #include "java/util/ArrayList.h"
 #include "raycasting/stochasticRaytracing/StochasticRaytracingPathNode.h"

@@ -1,5 +1,5 @@
-#ifndef __VECTOR_3D_D__
-#define __VECTOR_3D_D__
+#ifndef VECTOR_3D_D__
+#define VECTOR_3D_D__
 
 class Vector3Dd {
   public:

@@ -1,5 +1,5 @@
-#ifndef __GEOMETRY__
-#define __GEOMETRY__
+#ifndef GEOMETRY__
+#define GEOMETRY__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Ray.h"

@@ -1,5 +1,5 @@
-#ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
-#define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
+#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
+#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MODEL__
 
 #include "material/RendererConfiguration.h"
 #include "io/context/ParseRuntimeContext.h"

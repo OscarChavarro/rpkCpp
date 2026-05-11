@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
-#define __OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
+#ifndef OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
+#define OPTIONS_GROUP_BIDIRECTIONAL_RAYTRACING__
 
 #include "raycasting/bidirectionalRaytracing/BidirectionalPathTracingState.h"
 

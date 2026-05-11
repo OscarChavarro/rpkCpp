@@ -1,5 +1,5 @@
-#ifndef __SGL_PIXEL_CONTENT__
-#define __SGL_PIXEL_CONTENT__
+#ifndef SGL_PIXEL_CONTENT__
+#define SGL_PIXEL_CONTENT__
 
 enum SglPixelContent {
     PIXEL,

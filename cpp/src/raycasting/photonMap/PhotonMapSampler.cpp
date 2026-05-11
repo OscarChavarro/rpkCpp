@@ -272,13 +272,13 @@ PhotonMapSampler::chooseFresnelDirection(
             rParallel = (nt * cosI - ni * cost) / (nt * cosI + ni * cost);
             rPerpendicular = (ni * cosI - nt * cost) / (ni * cosI + nt * cost);
 
-            F = 0.5f * (rParallel * rParallel + rPerpendicular * rPerpendicular);
+            F = 0.5F * (rParallel * rParallel + rPerpendicular * rPerpendicular);
         } else {
             F = 0; // All in refracted dir, which == reflected dir
         }
     }
 
-    float T = 1.0f - F;
+    float T = 1.0F - F;
     bool reflected;
 
     // Choose reflection or refraction

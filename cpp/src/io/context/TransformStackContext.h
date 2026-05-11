@@ -1,5 +1,5 @@
-#ifndef __TRANSFORM_STACK_CONTEXT__
-#define __TRANSFORM_STACK_CONTEXT__
+#ifndef TRANSFORM_STACK_CONTEXT__
+#define TRANSFORM_STACK_CONTEXT__
 
 #include "io/context/TransformSequenceContext.h"
 #include "io/context/TransformContext.h"

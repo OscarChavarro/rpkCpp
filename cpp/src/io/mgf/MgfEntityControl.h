@@ -1,5 +1,5 @@
-#ifndef __MGF_DEFINITIONS__
-#define __MGF_DEFINITIONS__
+#ifndef MGF_DEFINITIONS__
+#define MGF_DEFINITIONS__
 
 #include "io/context/ParseRuntimeContext.h"
 #include "io/context/FilePositionContext.h"

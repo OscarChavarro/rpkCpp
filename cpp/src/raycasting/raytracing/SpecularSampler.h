@@ -12,8 +12,8 @@ All probabilityDensityFunction evaluations should be multiplied by infinity.
 I currently use it only in classical raytracing
 */
 
-#ifndef __SPECULAR_SAMPLER__
-#define __SPECULAR_SAMPLER__
+#ifndef SPECULAR_SAMPLER__
+#define SPECULAR_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

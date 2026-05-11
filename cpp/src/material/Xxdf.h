@@ -2,8 +2,8 @@
 General definitions for edf, brdf, btdf, etc.
 */
 
-#ifndef __XXDF__
-#define __XXDF__
+#ifndef XXDF__
+#define XXDF__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "material/XxdfComponentFlag.h"
@@ -13,7 +13,7 @@ General definitions for edf, brdf, btdf, etc.
 
 class Xxdf {
   public:
-    static constexpr float PHONG_LOWEST_SPECULAR_EXP = 250.0f;
+    static constexpr float PHONG_LOWEST_SPECULAR_EXP = 250.0F;
 
     static Vector3D
     idealReflectedDirection(const Vector3D *in, const Vector3D *normal);

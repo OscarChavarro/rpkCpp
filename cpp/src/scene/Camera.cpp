@@ -7,12 +7,12 @@ Camera::Camera(): background() {
     eyePosition = Vector3D{};
     lookPosition = Vector3D{};
     upDirection = Vector3D{};
-    viewDistance = 0.0f;
-    fieldOfVision = 0.0f;
-    horizontalFov = 0.0f;
-    verticalFov = 0.0f;
-    near = 0.0f;
-    far = 0.0f;
+    viewDistance = 0.0F;
+    fieldOfVision = 0.0F;
+    horizontalFov = 0.0F;
+    verticalFov = 0.0F;
+    near = 0.0F;
+    far = 0.0F;
     xSize = 0;
     ySize = 0;
     X = Vector3D{};
@@ -20,10 +20,10 @@ Camera::Camera(): background() {
     Z = Vector3D{};
     background = ColorRgb{};
     changed = 0;
-    pixelWidth = 0.0f;
-    pixelHeight = 0.0f;
-    pixelWidthTangent = 0.0f;
-    pixelHeightTangent = 0.0f;
+    pixelWidth = 0.0F;
+    pixelHeight = 0.0F;
+    pixelWidthTangent = 0.0F;
+    pixelHeightTangent = 0.0F;
 }
 
 void
@@ -79,24 +79,24 @@ Camera::complete() {
     if ( xSize < ySize ) {
         horizontalFov = fieldOfVision;
         verticalFov = static_cast<float>(java::Math::atan(tan(fieldOfVision * M_PI / 180.0) *
-                                                                  static_cast<float>(ySize) / static_cast<float>(xSize))) * 180.0f / static_cast<float>(M_PI);
+                                                                  static_cast<float>(ySize) / static_cast<float>(xSize))) * 180.0F / static_cast<float>(M_PI);
     } else {
         verticalFov = fieldOfVision;
         horizontalFov = static_cast<float>(java::Math::atan(tan(fieldOfVision * M_PI / 180.0) *
-                                                                    static_cast<float>(xSize) / static_cast<float>(ySize))) * 180.0f / static_cast<float>(M_PI);
+                                                                    static_cast<float>(xSize) / static_cast<float>(ySize))) * 180.0F / static_cast<float>(M_PI);
     }
 
     // Default near and far clipping plane distance, will be set to a more reasonable
     // value when setting the camera for rendering
     near = Numeric::EPSILON_FLOAT;
-    far = 2.0f * viewDistance;
+    far = 2.0F * viewDistance;
 
     // Compute some extra frequently used quantities
     pixelWidthTangent = static_cast<float>(java::Math::tan(horizontalFov * M_PI / 180.0));
     pixelHeightTangent = static_cast<float>(java::Math::tan(verticalFov * M_PI / 180.0));
 
-    pixelWidth = 2.0f * pixelWidthTangent / static_cast<float>(xSize);
-    pixelHeight = 2.0f * pixelHeightTangent / static_cast<float>(ySize);
+    pixelWidth = 2.0F * pixelWidthTangent / static_cast<float>(xSize);
+    pixelHeight = 2.0F * pixelHeightTangent / static_cast<float>(ySize);
 
     computeClippingPlanes();
 

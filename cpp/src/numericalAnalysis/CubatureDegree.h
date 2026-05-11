@@ -1,5 +1,5 @@
-#ifndef __CUBATURE_DEGREE__
-#define __CUBATURE_DEGREE__
+#ifndef CUBATURE_DEGREE__
+#define CUBATURE_DEGREE__
 
 enum CubatureDegree {
     DEGREE_1,

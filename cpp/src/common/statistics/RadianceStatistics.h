@@ -1,5 +1,5 @@
-#ifndef __RADIANCE_STATISTICS__
-#define __RADIANCE_STATISTICS__
+#ifndef RADIANCE_STATISTICS__
+#define RADIANCE_STATISTICS__
 
 #include "common/color/ColorRgb.h"
 

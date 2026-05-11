@@ -100,7 +100,7 @@ GatheringSimpleStrategy::patchGather(
 void
 GatheringSimpleStrategy::patchUpdatePotential(const Patch *patch) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
-    GatheringStrategy::pushPullPotential(topLevelElement, 0.0f);
+    GatheringStrategy::pushPullPotential(topLevelElement, 0.0F);
 }
 
 /**

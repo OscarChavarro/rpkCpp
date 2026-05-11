@@ -1,5 +1,5 @@
-#ifndef __TRANSFORM_ARRAY__
-#define __TRANSFORM_ARRAY__
+#ifndef TRANSFORM_ARRAY__
+#define TRANSFORM_ARRAY__
 
 #include "io/context/FilePositionContext.h"
 #include "io/context/TransformArrayContext.h"

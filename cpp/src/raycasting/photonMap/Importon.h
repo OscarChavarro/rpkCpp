@@ -1,5 +1,5 @@
-#ifndef __IMPORTON__
-#define __IMPORTON__
+#ifndef IMPORTON__
+#define IMPORTON__
 
 #include "raycasting/photonMap/IrrPhoton.h"
 

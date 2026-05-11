@@ -78,8 +78,8 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
         galerkinElement->flags |= (subCluster->flags & ElementFlags::IS_LIGHT_SOURCE_MASK);
         galerkinElement->Ed.addScaled(galerkinElement->Ed, subCluster->area, subCluster->Ed);
     }
-    galerkinElement->radiance[0].scale(1.0f / galerkinElement->area);
-    galerkinElement->Ed.scale(1.0f / galerkinElement->area);
+    galerkinElement->radiance[0].scale(1.0F / galerkinElement->area);
+    galerkinElement->Ed.scale(1.0F / galerkinElement->area);
 
     // Also pull un-shot radiance for the "shooting" methods
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
@@ -91,7 +91,7 @@ ClusterCreationStrategy::clusterInit(GalerkinElement *galerkinElement, const Gal
             galerkinElement->unShotRadiance[0].addScaled(
                 galerkinElement->unShotRadiance[0], subCluster->area, subCluster->unShotRadiance[0]);
         }
-        galerkinElement->unShotRadiance[0].scale(1.0f / galerkinElement->area);
+        galerkinElement->unShotRadiance[0].scale(1.0F / galerkinElement->area);
     }
 
     // Compute equivalent blocker (or blocker complement) size for multi-resolution visibility

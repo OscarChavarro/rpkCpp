@@ -1,5 +1,5 @@
-#ifndef __FORM_FACTOR_CLUSTERED_STRATEGY__
-#define __FORM_FACTOR_CLUSTERED_STRATEGY__
+#ifndef FORM_FACTOR_CLUSTERED_STRATEGY__
+#define FORM_FACTOR_CLUSTERED_STRATEGY__
 
 #include "common/linealAlgebra/Ray.h"
 #include "skin/Geometry.h"

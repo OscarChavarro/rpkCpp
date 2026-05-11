@@ -1,5 +1,5 @@
-#ifndef __RENDER_OPTIONS__
-#define __RENDER_OPTIONS__
+#ifndef RENDER_OPTIONS__
+#define RENDER_OPTIONS__
 
 #include "common/color/ColorRgb.h"
 

@@ -1,5 +1,5 @@
-#ifndef __MGF_RING_GEOMETRY__
-#define __MGF_RING_GEOMETRY__
+#ifndef MGF_RING_GEOMETRY__
+#define MGF_RING_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

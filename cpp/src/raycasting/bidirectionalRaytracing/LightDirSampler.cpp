@@ -29,7 +29,7 @@ LightDirSampler::sample(
     }
 
     // Sample a light direction
-    Vector3D dir(0.0f, 0.0f, 0.0f);
+    Vector3D dir(0.0F, 0.0F, 0.0F);
     if ( thisNode->m_hit.getMaterial()->getEdf() != nullptr ) {
         bool shctxOk = false;
         ShadingContext lightContext = thisNode->m_hit.shadingContext(&shctxOk);

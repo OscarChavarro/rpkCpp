@@ -1,5 +1,5 @@
-#ifndef __PHOTON_MAP_IMPORTANCE__
-#define __PHOTON_MAP_IMPORTANCE__
+#ifndef PHOTON_MAP_IMPORTANCE__
+#define PHOTON_MAP_IMPORTANCE__
 
 #include "common/color/ColorRgb.h"
 #include "raycasting/photonMap/PhotonMapConfig.h"

@@ -303,7 +303,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
 
     // Determine source reflectivity
     if ( interaction->sourceElement->isCluster() ) {
-        srcRho.setMonochrome(1.0f);
+        srcRho.setMonochrome(1.0F);
     } else {
         srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
     }
@@ -409,7 +409,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
         if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
              galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
             if ( interaction->receiverElement->isCluster() ) {
-                rcvRho.setMonochrome(1.0f);
+                rcvRho.setMonochrome(1.0F);
             } else {
                 rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
             }
@@ -417,7 +417,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
                 static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
         } else if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             if ( interaction->sourceElement->isCluster() ) {
-                srcRho.setMonochrome(1.0f);
+                srcRho.setMonochrome(1.0F);
             } else {
                 srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
             }

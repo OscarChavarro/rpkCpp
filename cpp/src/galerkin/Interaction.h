@@ -1,5 +1,5 @@
-#ifndef __INTERACTION__
-#define __INTERACTION__
+#ifndef INTERACTION__
+#define INTERACTION__
 
 #include "skin/Geometry.h"
 

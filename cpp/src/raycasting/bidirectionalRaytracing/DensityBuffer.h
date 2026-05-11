@@ -2,8 +2,8 @@
 Density estimation on screen
 */
 
-#ifndef __DENSITY_BUFFER__
-#define __DENSITY_BUFFER__
+#ifndef DENSITY_BUFFER__
+#define DENSITY_BUFFER__
 
 #include "common/color/ColorRgb.h"
 #include "render/ScreenBuffer.h"

@@ -1,5 +1,5 @@
-#ifndef __SCOPED_ARRAY__
-#define __SCOPED_ARRAY__
+#ifndef SCOPED_ARRAY__
+#define SCOPED_ARRAY__
 
 template <typename T>
 class ScopedArrayBuffer {

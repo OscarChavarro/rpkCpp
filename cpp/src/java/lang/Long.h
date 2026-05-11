@@ -1,5 +1,5 @@
-#ifndef __JAVA_LONG__
-#define __JAVA_LONG__
+#ifndef JAVA_LONG__
+#define JAVA_LONG__
 
 namespace java {
 

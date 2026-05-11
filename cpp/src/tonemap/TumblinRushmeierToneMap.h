@@ -1,5 +1,5 @@
-#ifndef __TUMBLIN_RUSHMEIER_TONE_MAP__
-#define __TUMBLIN_RUSHMEIER_TONE_MAP__
+#ifndef TUMBLIN_RUSHMEIER_TONE_MAP__
+#define TUMBLIN_RUSHMEIER_TONE_MAP__
 
 #include "tonemap/ToneMap.h"
 

@@ -1,5 +1,5 @@
-#ifndef __APP_OPTIONS_CONTEXT__
-#define __APP_OPTIONS_CONTEXT__
+#ifndef APP_OPTIONS_CONTEXT__
+#define APP_OPTIONS_CONTEXT__
 
 class EnumAppOptions {
   public:

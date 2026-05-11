@@ -1,5 +1,5 @@
-#ifndef __CONSTANT_COLOR_BACKGROUND__
-#define __CONSTANT_COLOR_BACKGROUND__
+#ifndef CONSTANT_COLOR_BACKGROUND__
+#define CONSTANT_COLOR_BACKGROUND__
 
 #include "scene/Background.h"
 
@@ -23,8 +23,8 @@ class ConstantColorBackground : public Background {
     power(Vector3D *position) const override;
 
   private:
-    static constexpr float FOUR_PI = 12.56637061435917295385f;
-    static constexpr float INV_FOUR_PI = 0.07957747154594766788f;
+    static constexpr float FOUR_PI = 12.56637061435917295385F;
+    static constexpr float INV_FOUR_PI = 0.07957747154594766788F;
 
     ColorRgb color;
 };

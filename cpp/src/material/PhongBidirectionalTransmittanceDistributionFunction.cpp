@@ -118,7 +118,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
 
         if ( localDotProduct > 0 ) {
             float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
-            tmpFloat *= (Ns + 2.0f) / (2.0f * static_cast<float>(M_PI)); // Ks -> ks
+            tmpFloat *= (Ns + 2.0F) / (2.0F * static_cast<float>(M_PI)); // Ks -> ks
             result.addScaled(result, tmpFloat, Ks);
         }
     }

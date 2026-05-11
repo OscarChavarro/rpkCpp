@@ -1,5 +1,5 @@
-#ifndef __QUAD_CUBATURE_RULE_H
-#define __QUAD_CUBATURE_RULE_H
+#ifndef QUAD_CUBATURE_RULE_H
+#define QUAD_CUBATURE_RULE_H
 
 #include "numericalAnalysis/CubatureRule.h"
 

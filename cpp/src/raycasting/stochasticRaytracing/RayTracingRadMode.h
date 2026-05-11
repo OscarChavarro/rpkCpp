@@ -1,5 +1,5 @@
-#ifndef __RAY_TRACING_RAD_MODE__
-#define __RAY_TRACING_RAD_MODE__
+#ifndef RAY_TRACING_RAD_MODE__
+#define RAY_TRACING_RAD_MODE__
 
 enum RayTracingRadMode {
     STORED_NONE,

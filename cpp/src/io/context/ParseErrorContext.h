@@ -1,5 +1,5 @@
-#ifndef __ERROR_CODE_CONTEXT__
-#define __ERROR_CODE_CONTEXT__
+#ifndef ERROR_CODE_CONTEXT__
+#define ERROR_CODE_CONTEXT__
 
 // Error codes
 enum ParseErrorContext {

@@ -1,5 +1,5 @@
-#ifndef __DENSITY_HIT__
-#define __DENSITY_HIT__
+#ifndef DENSITY_HIT__
+#define DENSITY_HIT__
 
 #include "common/color/ColorRgb.h"
 

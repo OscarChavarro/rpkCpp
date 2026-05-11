@@ -1,5 +1,5 @@
-#ifndef __TEXTURE__
-#define __TEXTURE__
+#ifndef TEXTURE__
+#define TEXTURE__
 
 #include "common/color/ColorRgb.h"
 

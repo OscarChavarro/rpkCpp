@@ -152,7 +152,7 @@ Faure::initOriginalFaureSequence(int iDim) {
         }
     }
 
-    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0f)) - 1;
+    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0F)) - 1;
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();
@@ -175,7 +175,7 @@ Faure::initGeneralizedFaureSequence(int iDim) {
         }
     }
 
-    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0f) - 1);
+    skip = static_cast<int>(java::Math::pow(static_cast<float>(primeBase), 4.0F) - 1);
     for ( int i = 1; i <= skip; i++ ) {
         // Warm up
         Faure::nextFaure();

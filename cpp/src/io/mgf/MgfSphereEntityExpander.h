@@ -1,5 +1,5 @@
-#ifndef __MGF_SPHERE_GEOMETRY__
-#define __MGF_SPHERE_GEOMETRY__
+#ifndef MGF_SPHERE_GEOMETRY__
+#define MGF_SPHERE_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

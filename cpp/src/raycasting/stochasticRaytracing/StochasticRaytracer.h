@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_RAYTRACER__
-#define __STOCHASTIC_RAYTRACER__
+#ifndef STOCHASTIC_RAYTRACER__
+#define STOCHASTIC_RAYTRACER__
 
 #include "material/RendererConfiguration.h"
 
@@ -11,7 +11,7 @@
 
 class StochasticRaytracer final : public RayTracer {
   private:
-    static constexpr float PHOTON_MAP_MIN_DIST = 0.02f;
+    static constexpr float PHOTON_MAP_MIN_DIST = 0.02F;
     static constexpr float PHOTON_MAP_MIN_DIST2 = PHOTON_MAP_MIN_DIST * PHOTON_MAP_MIN_DIST;
     static char name[];
     LightList *&lightList;

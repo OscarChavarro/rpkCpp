@@ -1,5 +1,5 @@
-#ifndef __SHADOW_STATISTICS__
-#define __SHADOW_STATISTICS__
+#ifndef SHADOW_STATISTICS__
+#define SHADOW_STATISTICS__
 
 class ShadowStatistics {
   public:

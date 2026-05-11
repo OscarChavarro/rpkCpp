@@ -1,5 +1,5 @@
-#ifndef __MGF_GEOMETRY__
-#define __MGF_GEOMETRY__
+#ifndef MGF_GEOMETRY__
+#define MGF_GEOMETRY__
 
 #include "common/linealAlgebra/Vector3Dd.h"
 

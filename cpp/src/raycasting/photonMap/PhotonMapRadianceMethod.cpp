@@ -275,7 +275,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     // Evaluate radiance and probabilityDensityFunction and weight
     f = bp->evalRadiance();
 
-    float factor = 1.0f / static_cast<float>(bp->evalPdfAcc());
+    float factor = 1.0F / static_cast<float>(bp->evalPdfAcc());
 
     f.scale(factor); // Flux estimate
 
@@ -535,7 +535,7 @@ PhotonMapRadianceMethod::photonMapBRRealIteration(
     java::System::err.printf("PhotonMapRadianceMethod Iteration %li\n", static_cast<long>(photonMapState.iterationNumber));
 
     if ( (photonMapState.iterationNumber > 1) && (photonMapState.doGlobalMap || photonMapState.doCausticMap) ) {
-        float scaleFactor = (static_cast<float>(photonMapState.iterationNumber) - 1.0f) / static_cast<float>(photonMapState.iterationNumber);
+        float scaleFactor = (static_cast<float>(photonMapState.iterationNumber) - 1.0F) / static_cast<float>(photonMapState.iterationNumber);
         photonMapConfig.screen->scaleRadiance(scaleFactor);
     }
 

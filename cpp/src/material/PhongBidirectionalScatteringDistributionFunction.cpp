@@ -317,9 +317,9 @@ PhongBidirectionalScatteringDistributionFunction::sample(
         case SplitBSDFSamplingMode::SAMPLE_TRANSMISSION:
             if ( btdf == nullptr ) {
                 p = 0.0;
-                out.x = 0.0f;
-                out.y = 0.0f;
-                out.z = 0.0f;
+                out.x = 0.0F;
+                out.y = 0.0F;
+                out.z = 0.0F;
             } else {
                 out = btdf->sample(inIndex, outIndex, in, &normal, false, btdfFlags, x1, x2, &p);
             }

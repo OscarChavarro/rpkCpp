@@ -1,5 +1,5 @@
-#ifndef __COMMON_LOOKUP_ENTITY__
-#define __COMMON_LOOKUP_ENTITY__
+#ifndef COMMON_LOOKUP_ENTITY__
+#define COMMON_LOOKUP_ENTITY__
 
 template<typename T>
 class LookUpEntity {

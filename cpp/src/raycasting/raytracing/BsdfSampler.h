@@ -2,8 +2,8 @@
 Path node sampler using bsdf sampling
 */
 
-#ifndef __BSDF_SAMPLER__
-#define __BSDF_SAMPLER__
+#ifndef BSDF_SAMPLER__
+#define BSDF_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

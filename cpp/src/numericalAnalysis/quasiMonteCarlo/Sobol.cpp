@@ -89,7 +89,7 @@ Sobol::initSobol(int iDim) {
         for ( int j = d[i]; j < V_MAX; j++ ) {
             v[i][j] = v[i][j - d[i]];
             int save = POLY[i];
-            int m = static_cast<int>(java::Math::pow(2.0f, static_cast<float>(d[i])));
+            int m = static_cast<int>(java::Math::pow(2.0F, static_cast<float>(d[i])));
             for ( int k = d[i]; k > 0; k-- ) {
                 v[i][j] = v[i][j] ^ m * (save % 2) * v[i][j - k];
                 save = save / 2;
@@ -101,7 +101,7 @@ Sobol::initSobol(int iDim) {
     for ( int i = 0; i < dim; i++ ) {
         x[i] = 0;
     }
-    skip = static_cast<int>(java::Math::pow(2.0f, 6.0f)); // Not deterministic!
+    skip = static_cast<int>(java::Math::pow(2.0F, 6.0F)); // Not deterministic!
     for ( int i = 1; i <= skip; i++ ) {
         // Discard the beginning of the sequence because the initial values are the same
         Sobol::nextSobol();

@@ -1,5 +1,5 @@
-#ifndef __SHAFT_CULLING__
-#define __SHAFT_CULLING__
+#ifndef SHAFT_CULLING__
+#define SHAFT_CULLING__
 
 /**
 References:

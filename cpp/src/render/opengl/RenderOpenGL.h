@@ -1,5 +1,5 @@
-#ifndef __RENDER_OPEN_GL__
-#define __RENDER_OPEN_GL__
+#ifndef RENDER_OPEN_GL__
+#define RENDER_OPEN_GL__
 
 #include "java/util/ArrayList.h"
 #include "material/RendererConfiguration.h"

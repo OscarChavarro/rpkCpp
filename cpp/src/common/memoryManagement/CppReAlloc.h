@@ -1,5 +1,5 @@
-#ifndef __CPP_RE_ALLOC__
-#define __CPP_RE_ALLOC__
+#ifndef CPP_RE_ALLOC__
+#define CPP_RE_ALLOC__
 
 class CppReAlloc {
   public:

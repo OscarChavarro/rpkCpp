@@ -1,5 +1,5 @@
-#ifndef __PATH_RAY_TYPE__
-#define __PATH_RAY_TYPE__
+#ifndef PATH_RAY_TYPE__
+#define PATH_RAY_TYPE__
 
 /**
 PathRayType indicates what the ray does further in the path

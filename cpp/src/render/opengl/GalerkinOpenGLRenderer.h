@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_OPENGL_RENDERER__
-#define __GALERKIN_OPENGL_RENDERER__
+#ifndef GALERKIN_OPENGL_RENDERER__
+#define GALERKIN_OPENGL_RENDERER__
 
 #include "material/RendererConfiguration.h"
 #include "galerkin/GalerkinElement.h"

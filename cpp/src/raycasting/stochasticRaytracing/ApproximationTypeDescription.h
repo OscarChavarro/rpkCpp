@@ -1,5 +1,5 @@
-#ifndef __APPROXIMATION_TYPE_DESCRIPTION__
-#define __APPROXIMATION_TYPE_DESCRIPTION__
+#ifndef APPROXIMATION_TYPE_DESCRIPTION__
+#define APPROXIMATION_TYPE_DESCRIPTION__
 
 // Description of the approximation types
 class ApproximationTypeDescription {

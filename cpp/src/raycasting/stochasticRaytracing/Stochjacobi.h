@@ -1,5 +1,5 @@
-#ifndef __STOCHASTIC_JACOBI__
-#define __STOCHASTIC_JACOBI__
+#ifndef STOCHASTIC_JACOBI__
+#define STOCHASTIC_JACOBI__
 
 #include "java/util/ArrayList.h"
 #include "common/color/ColorRgb.h"

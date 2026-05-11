@@ -63,7 +63,7 @@ DensityBuffer::reconstruct() {
     // For all samples -> compute pixel coverage
 
     // Kernel size. Now spread over 3 pixels
-    float h = 8.0f * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
+    float h = 8.0F * java::Math::max(screenBuffer->getPixXSize(), screenBuffer->getPixYSize())
               / java::Math::sqrt(static_cast<float>(baseConfig->samplesPerPixel));
 
     java::System::out.printf("h = %f\n", h);
@@ -87,7 +87,7 @@ DensityBuffer::reconstruct() {
                 center.u = hit.m_x;
                 center.v = hit.m_y;
 
-                kernel.cover(center, 1.0f / static_cast<float>(baseConfig->totalSamples), hit.color, screenBuffer);
+                kernel.cover(center, 1.0F / static_cast<float>(baseConfig->totalSamples), hit.color, screenBuffer);
             }
         }
     }

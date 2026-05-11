@@ -1,5 +1,5 @@
-#ifndef __BINARY_MODEL_READER__
-#define __BINARY_MODEL_READER__
+#ifndef BINARY_MODEL_READER__
+#define BINARY_MODEL_READER__
 
 #include "io/context/ParseSnapshotContext.h"
 

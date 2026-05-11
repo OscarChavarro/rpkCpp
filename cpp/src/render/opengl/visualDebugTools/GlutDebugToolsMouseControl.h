@@ -1,5 +1,5 @@
-#ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
-#define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
+#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
+#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_TOOLS_MOUSE_CONTROL__
 
 #include "common/linealAlgebra/Ray.h"
 #include "common/linealAlgebra/Vector3D.h"
@@ -13,9 +13,9 @@ class GlutDebugToolsMouseControl final {
 
   private:
     static constexpr int DRAG_START_THRESHOLD_PIXELS = 3;
-    static constexpr float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25f;
-    static constexpr float DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL = 0.01f;
-    static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846f / 180.0f;
+    static constexpr float DRAG_ROTATION_DEGREES_PER_PIXEL = 0.25F;
+    static constexpr float DRAG_DOLLY_VIEW_DISTANCE_FACTOR_PER_PIXEL = 0.01F;
+    static constexpr float DEGREES_TO_RADIANS = 3.14159265358979323846F / 180.0F;
 
     static bool leftButtonDown;
     static bool rightButtonDown;

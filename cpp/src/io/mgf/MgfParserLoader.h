@@ -1,5 +1,5 @@
-#ifndef __READ_MGF__
-#define __READ_MGF__
+#ifndef READ_MGF__
+#define READ_MGF__
 
 #include "io/context/ParseRuntimeContext.h"
 #include "io/context/ParseSnapshotContext.h"

@@ -2,8 +2,8 @@
 Generate and trace a local line
 */
 
-#ifndef __LOCAL_LINE__
-#define __LOCAL_LINE__
+#ifndef LOCAL_LINE__
+#define LOCAL_LINE__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Ray.h"

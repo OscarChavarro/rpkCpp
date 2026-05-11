@@ -1,5 +1,5 @@
-#ifndef __RT_STOCHASTIC_PHOTON_MAP__
-#define __RT_STOCHASTIC_PHOTON_MAP__
+#ifndef RT_STOCHASTIC_PHOTON_MAP__
+#define RT_STOCHASTIC_PHOTON_MAP__
 
 #include "material/RendererConfiguration.h"
 

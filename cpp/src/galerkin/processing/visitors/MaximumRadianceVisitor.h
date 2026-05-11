@@ -1,5 +1,5 @@
-#ifndef __MAXIMUM_RADIANCE_VISITOR__
-#define __MAXIMUM_RADIANCE_VISITOR__
+#ifndef MAXIMUM_RADIANCE_VISITOR__
+#define MAXIMUM_RADIANCE_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 

@@ -246,7 +246,7 @@ MgfParserLoader::mgfPutCSpec(ParseRuntimeContext *context)
         newAv[2] = wl[1];
         const double sf = static_cast<double>(ColorContext::NUMBER_OF_SPECTRAL_SAMPLES) / static_cast<double>(context->currentColor->spectralStraightSum);
         for ( int i = 0; i < ColorContext::NUMBER_OF_SPECTRAL_SAMPLES; i++ ) {
-            java::Formatter::format(buffer[i], 24, "%.4f", sf * context->currentColor->straightSamples[i]);
+            java::Formatter::format(buffer[i], 24, "%.4F", sf * context->currentColor->straightSamples[i]);
             newAv[i + 3] = buffer[i];
         }
         newAv[ColorContext::NUMBER_OF_SPECTRAL_SAMPLES + 3] = nullptr;
@@ -271,8 +271,8 @@ MgfParserLoader::mgfPutCxy(ParseRuntimeContext *context) {
         yBuffer
     };
 
-    java::Formatter::format(xBuffer, 24, "%.4f", context->currentColor->cx);
-    java::Formatter::format(yBuffer, 24, "%.4f", context->currentColor->cy);
+    java::Formatter::format(xBuffer, 24, "%.4F", context->currentColor->cx);
+    java::Formatter::format(yBuffer, 24, "%.4F", context->currentColor->cy);
     return MgfEntityControl::mgfHandle(EntityTypeContext::CXY, 3, cCom, context);
 }
 

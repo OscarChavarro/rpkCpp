@@ -1,5 +1,5 @@
-#ifndef __GATHERING_SIMPLE_STRATEGY__
-#define __GATHERING_SIMPLE_STRATEGY__
+#ifndef GATHERING_SIMPLE_STRATEGY__
+#define GATHERING_SIMPLE_STRATEGY__
 
 #include "galerkin/processing/GatheringStrategy.h"
 

@@ -3,8 +3,8 @@ Samples a direction from a light source point.
 It's kind of a dual of a pixel sampler.
 */
 
-#ifndef __LIGHT_DIR_SAMPLER__
-#define __LIGHT_DIR_SAMPLER__
+#ifndef LIGHT_DIR_SAMPLER__
+#define LIGHT_DIR_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

@@ -1,5 +1,5 @@
-#ifndef __ELEMENT_TYPES__
-#define __ELEMENT_TYPES__
+#ifndef ELEMENT_TYPES__
+#define ELEMENT_TYPES__
 
 enum ElementTypes {
     ELEMENT_GALERKIN

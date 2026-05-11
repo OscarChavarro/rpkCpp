@@ -1,5 +1,5 @@
-#ifndef __MATERIAL_REPOSITORY__
-#define __MATERIAL_REPOSITORY__
+#ifndef MATERIAL_REPOSITORY__
+#define MATERIAL_REPOSITORY__
 
 #include "common/dataStructures/LookUpTable.h"
 #include "io/context/MaterialContext.h"

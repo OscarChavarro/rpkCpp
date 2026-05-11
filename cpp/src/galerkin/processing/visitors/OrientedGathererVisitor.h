@@ -1,5 +1,5 @@
-#ifndef __ORIENTED_GATHERER_VISITOR__
-#define __ORIENTED_GATHERER_VISITOR__
+#ifndef ORIENTED_GATHERER_VISITOR__
+#define ORIENTED_GATHERER_VISITOR__
 
 #include "galerkin/processing/visitors/ClusterLeafVisitor.h"
 class OrientedGathererVisitor final : public ClusterLeafVisitor {

@@ -1,5 +1,5 @@
-#ifndef __JAVA_STRING__
-#define __JAVA_STRING__
+#ifndef JAVA_STRING__
+#define JAVA_STRING__
 
 #include <cstdarg>
 

@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_RADIOSITY_METHOD__
-#define __GALERKIN_RADIOSITY_METHOD__
+#ifndef GALERKIN_RADIOSITY_METHOD__
+#define GALERKIN_RADIOSITY_METHOD__
 
 #include <cstdarg>
 
@@ -34,7 +34,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static void writeCoordIndex(int index);
     static void writeCoordIndices(Element *element);
     static void writeCoordIndicesTopCluster();
-    static const java::OutputStream *vrmlOutputStream;
+    static java::OutputStream *vrmlOutputStream;
     static int numberOfWrites;
     static int vertexId;
 

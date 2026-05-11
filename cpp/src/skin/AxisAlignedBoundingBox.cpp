@@ -50,19 +50,19 @@ bool
 AxisAlignedBoundingBox::behindPlane(const Vector3D *normal, float distance) const {
     Vector3D P;
 
-    if ( normal->x > 0.0f ) {
+    if ( normal->x > 0.0F ) {
         P.x = coordinates[MAX_X];
     } else {
         P.x = coordinates[MIN_X];
     }
 
-    if ( normal->y > 0.0f ) {
+    if ( normal->y > 0.0F ) {
         P.y = coordinates[MAX_Y];
     } else {
         P.y = coordinates[MIN_Y];
     }
 
-    if ( normal->z > 0.0f ) {
+    if ( normal->z > 0.0F ) {
         P.z = coordinates[MAX_Z];
     } else {
         P.z = coordinates[MIN_Z];

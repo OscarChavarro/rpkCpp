@@ -1,5 +1,5 @@
-#ifndef __COEFFICIENTS__
-#define __COEFFICIENTS__
+#ifndef COEFFICIENTS__
+#define COEFFICIENTS__
 
 #include "common/color/ColorRgb.h"
 #include "raycasting/stochasticRaytracing/Basismcrad.h"

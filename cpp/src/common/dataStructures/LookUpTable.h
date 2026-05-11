@@ -1,5 +1,5 @@
-#ifndef __COMMON_LOOKUP_TABLE__
-#define __COMMON_LOOKUP_TABLE__
+#ifndef COMMON_LOOKUP_TABLE__
+#define COMMON_LOOKUP_TABLE__
 
 #include "common/dataStructures/LookUpBehaviors.h"
 #include "common/dataStructures/LookUpEntity.h"

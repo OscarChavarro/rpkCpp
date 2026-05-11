@@ -1,5 +1,5 @@
-#ifndef __GATHERING_STRATEGY__
-#define __GATHERING_STRATEGY__
+#ifndef GATHERING_STRATEGY__
+#define GATHERING_STRATEGY__
 
 #include "scene/Scene.h"
 #include "galerkin/GalerkinState.h"

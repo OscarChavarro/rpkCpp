@@ -1,5 +1,5 @@
-#ifndef __RENDER_HOOK_PRIVATE__
-#define __RENDER_HOOK_PRIVATE__
+#ifndef RENDER_HOOK_PRIVATE__
+#define RENDER_HOOK_PRIVATE__
 
 using RenderHookFunction = void (*)(void *data);
 

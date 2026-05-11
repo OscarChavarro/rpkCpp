@@ -1,5 +1,5 @@
-#ifndef __SHADING_CONTEXT__
-#define __SHADING_CONTEXT__
+#ifndef SHADING_CONTEXT__
+#define SHADING_CONTEXT__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Vector2Dd.h"

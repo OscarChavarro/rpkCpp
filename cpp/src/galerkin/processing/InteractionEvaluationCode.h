@@ -1,5 +1,5 @@
-#ifndef __INTERACTION_EVALUATION_CODE__
-#define __INTERACTION_EVALUATION_CODE__
+#ifndef INTERACTION_EVALUATION_CODE__
+#define INTERACTION_EVALUATION_CODE__
 
 /**
 Evaluates the interaction and returns a code telling whether it is accurate enough

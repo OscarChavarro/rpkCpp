@@ -121,7 +121,7 @@ ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
         }
     }
     if ( nonBackGround > 0 ) {
-        rad.scale(1.0f / static_cast<float>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height));
+        rad.scale(1.0F / static_cast<float>(galerkinState->scratch->vp_width * galerkinState->scratch->vp_height));
     }
     return rad;
 }

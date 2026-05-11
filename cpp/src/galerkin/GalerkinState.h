@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_STATE__
-#define __GALERKIN_STATE__
+#ifndef GALERKIN_STATE__
+#define GALERKIN_STATE__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color/ColorRgb.h"
@@ -73,8 +73,8 @@ class GalerkinState {
   private:
     static constexpr bool DEFAULT_GAL_HIERARCHICAL = true;
     static constexpr GalerkinIterationMethod DEFAULT_GAL_ITERATION_METHOD = GalerkinIterationMethod::JACOBI;
-    static constexpr float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6f;
-    static constexpr float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5f;
+    static constexpr float DEFAULT_GAL_REL_MIN_ELEM_AREA = 1e-6F;
+    static constexpr float DEFAULT_GAL_REL_LINK_ERROR_THRESHOLD = 1e-5F;
     static constexpr bool DEFAULT_GAL_IMPORTANCE_DRIVEN = false;
     static constexpr bool DEFAULT_GAL_CLUSTERED = true;
     static constexpr bool DEFAULT_GAL_LAZY_LINKING = true;

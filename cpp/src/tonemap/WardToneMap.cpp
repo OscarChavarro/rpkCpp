@@ -18,12 +18,12 @@ void
 WardToneMap::init(const ToneMappingContext &toneMapOptions) {
     const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    lda = maximumDisplayLuminance / 2.0f;
+    lda = maximumDisplayLuminance / 2.0F;
 
-    const float p1 = java::Math::pow(lda, 0.4f);
-    const float p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4f);
-    const float p3 = (1.219f + p1) / (1.219f + p2);
-    comp = java::Math::pow(p3, 2.5f);
+    const float p1 = java::Math::pow(lda, 0.4F);
+    const float p2 = java::Math::pow(realWorldAdaptionLuminance, 0.4F);
+    const float p3 = (1.219F + p1) / (1.219F + p2);
+    comp = java::Math::pow(p3, 2.5F);
     display = comp / maximumDisplayLuminance;
 }
 

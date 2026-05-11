@@ -1,5 +1,5 @@
-#ifndef __K_D_TREE_NODE__
-#define __K_D_TREE_NODE__
+#ifndef K_D_TREE_NODE__
+#define K_D_TREE_NODE__
 
 class KDTreeNode {
   public:

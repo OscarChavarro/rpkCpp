@@ -1,5 +1,5 @@
-#ifndef __PATCH__
-#define __PATCH__
+#ifndef PATCH__
+#define PATCH__
 
 #include "common/linealAlgebra/Jacobian.h"
 #include "common/linealAlgebra/Ray.h"

@@ -1,5 +1,5 @@
-#ifndef __MATERIAL__
-#define __MATERIAL__
+#ifndef MATERIAL__
+#define MATERIAL__
 
 #include "material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "material/PhongEmittanceDistributionFunction.h"

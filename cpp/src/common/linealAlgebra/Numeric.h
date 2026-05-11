@@ -1,5 +1,5 @@
-#ifndef __NUMERIC__
-#define __NUMERIC__
+#ifndef NUMERIC__
+#define NUMERIC__
 
 class Numeric {
   public:

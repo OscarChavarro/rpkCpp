@@ -1,5 +1,5 @@
-#ifndef __GALERKIN_SHAFT_CULL_MODE__
-#define __GALERKIN_SHAFT_CULL_MODE__
+#ifndef GALERKIN_SHAFT_CULL_MODE__
+#define GALERKIN_SHAFT_CULL_MODE__
 
 enum GalerkinShaftCullMode {
     ALWAYS_DO_SHAFT_CULLING,

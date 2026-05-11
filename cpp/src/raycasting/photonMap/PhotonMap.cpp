@@ -63,16 +63,16 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
 
     // Does some log scale ?
 
-    tmp = 3.0f * (tmp / max);
+    tmp = 3.0F * (tmp / max);
 
     if ( tmp <= 1.0 ) {
         b = tmp;
     } else if ( tmp < 2.0 ) {
-        g = tmp - 1.0f;
-        b = 1.0f - g;
+        g = tmp - 1.0F;
+        b = 1.0F - g;
     } else {
-        r = tmp - 2.0f;
-        g = 1.0f - r;
+        r = tmp - 2.0F;
+        g = 1.0F - r;
     }
 
     col.set(r, g, b);
@@ -219,7 +219,7 @@ PhotonMap::redistribute(const Photon &photon) const {
     // -- normal weighted average?
 
     ColorRgb deltaPower;
-    float factor = 1.0f / static_cast<float>(m_nrpCosinePos);
+    float factor = 1.0F / static_cast<float>(m_nrpCosinePos);
 
     ColorRgb pow = photon.power();
     deltaPower.scaledCopy(factor, pow);
@@ -317,7 +317,7 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
         // Now we have incoming radiance integrated over area estimate,
         // so we convert it to irradiance, maxDistance is already squared
         // An extra factor PI is added, that accounts for Albedo -> diffuse brdf...
-        float factor = (1.0f / (static_cast<float>(M_PI) * static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths)));
+        float factor = (1.0F / (static_cast<float>(M_PI) * static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths)));
         irradiance.scale(factor);
     }
 
@@ -441,7 +441,7 @@ PhotonMap::reconstruct(
     // Now we have a radiance integrated over area estimate,
     // so we convert it to radiance, maxDistance is already squared
 
-    float factor = 1.0f / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
+    float factor = 1.0F / (static_cast<float>(M_PI) * maxDistance * static_cast<float>(m_totalPaths));
 
     result.scale(factor);
 
@@ -500,7 +500,7 @@ PhotonMap::sample(
     float n)
 {
     // -- Epsilon in as a function of scene/camera measure ??
-    if ( !m_sampleLastPos.equals(position, 0.0001f) ) {
+    if ( !m_sampleLastPos.equals(position, 0.0001F) ) {
         // Need a new grid
 
         m_grid->init();

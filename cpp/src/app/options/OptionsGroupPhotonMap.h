@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_GROUP_PHOTON_MAP__
-#define __OPTIONS_GROUP_PHOTON_MAP__
+#ifndef OPTIONS_GROUP_PHOTON_MAP__
+#define OPTIONS_GROUP_PHOTON_MAP__
 
 #include "raycasting/photonMap/PhotonMapState.h"
 

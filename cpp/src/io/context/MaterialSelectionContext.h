@@ -1,5 +1,5 @@
-#ifndef __MATERIAL_STATE__
-#define __MATERIAL_STATE__
+#ifndef MATERIAL_STATE__
+#define MATERIAL_STATE__
 
 #include "java/util/ArrayList.h"
 #include "material/Material.h"

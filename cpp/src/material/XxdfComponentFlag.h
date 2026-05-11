@@ -1,5 +1,5 @@
-#ifndef __XXDF_COMPONENT_FLAG__
-#define __XXDF_COMPONENT_FLAG__
+#ifndef XXDF_COMPONENT_FLAG__
+#define XXDF_COMPONENT_FLAG__
 
 enum XxdfComponentFlag {
     DIFFUSE_COMPONENT = 1,

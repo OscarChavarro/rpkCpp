@@ -1,5 +1,5 @@
-#ifndef __BACKGROUND__
-#define __BACKGROUND__
+#ifndef BACKGROUND__
+#define BACKGROUND__
 
 #include "common/linealAlgebra/Vector3D.h"
 #include "common/color/ColorRgb.h"

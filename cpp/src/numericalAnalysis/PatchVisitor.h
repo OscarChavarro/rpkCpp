@@ -1,5 +1,5 @@
-#ifndef __PATCH_VISITOR__
-#define __PATCH_VISITOR__
+#ifndef PATCH_VISITOR__
+#define PATCH_VISITOR__
 
 #include "environment/geometry/elements/Patch.h"
 

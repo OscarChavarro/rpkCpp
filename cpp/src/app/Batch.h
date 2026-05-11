@@ -1,5 +1,5 @@
-#ifndef __BATCH__
-#define __BATCH__
+#ifndef BATCH__
+#define BATCH__
 
 #include "java/io/OutputStream.h"
 #include "java/util/ArrayList.h"

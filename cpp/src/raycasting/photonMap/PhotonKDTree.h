@@ -2,8 +2,8 @@
 Photon kd-tree : specialized kd-tree with some photon map specific additions
 */
 
-#ifndef __PHOTON_K_D_TREE__
-#define __PHOTON_K_D_TREE__
+#ifndef PHOTON_K_D_TREE__
+#define PHOTON_K_D_TREE__
 
 #include "common/dataStructures/KDTree.h"
 #include "raycasting/photonMap/IrrPhoton.h"

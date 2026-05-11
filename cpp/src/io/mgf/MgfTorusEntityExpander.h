@@ -1,5 +1,5 @@
-#ifndef __MGF_TORUS_GEOMETRY__
-#define __MGF_TORUS_GEOMETRY__
+#ifndef MGF_TORUS_GEOMETRY__
+#define MGF_TORUS_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

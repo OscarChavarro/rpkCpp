@@ -1,5 +1,5 @@
-#ifndef __MGF_PARSE_SESSION__
-#define __MGF_PARSE_SESSION__
+#ifndef MGF_PARSE_SESSION__
+#define MGF_PARSE_SESSION__
 
 #include "scene/RadianceMethod.h"
 #include "common/linealAlgebra/Vector3D.h"

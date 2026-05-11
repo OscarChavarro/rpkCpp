@@ -2,8 +2,8 @@
 Numerical cubature rules needed to compute form factors
 */
 
-#ifndef __CUBATURE_RULE__
-#define __CUBATURE_RULE__
+#ifndef CUBATURE_RULE__
+#define CUBATURE_RULE__
 
 #include "numericalAnalysis/CubatureDegree.h"
 

@@ -2,8 +2,8 @@
 Faure's quasiMonteCarlo sequences + generalized Faure sequences
 */
 
-#ifndef __FAURE__
-#define __FAURE__
+#ifndef FAURE__
+#define FAURE__
 
 #include "numericalAnalysis/quasiMonteCarlo/FaureSequenceLimits.h"
 

@@ -1,5 +1,5 @@
-#ifndef __BASIS_QUAD_GALERKIN__
-#define __BASIS_QUAD_GALERKIN__
+#ifndef BASIS_QUAD_GALERKIN__
+#define BASIS_QUAD_GALERKIN__
 
 #include "galerkin/GalerkinBasis.h"
 

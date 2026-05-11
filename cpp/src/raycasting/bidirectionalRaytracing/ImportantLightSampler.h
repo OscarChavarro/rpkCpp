@@ -1,5 +1,5 @@
-#ifndef __IMPORTANT_LIGHT_SAMPLER__
-#define __IMPORTANT_LIGHT_SAMPLER__
+#ifndef IMPORTANT_LIGHT_SAMPLER__
+#define IMPORTANT_LIGHT_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

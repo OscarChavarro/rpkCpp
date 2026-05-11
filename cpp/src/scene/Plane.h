@@ -1,5 +1,5 @@
-#ifndef __PLANE__
-#define __PLANE__
+#ifndef PLANE__
+#define PLANE__
 
 #include "common/linealAlgebra/Vector3D.h"
 

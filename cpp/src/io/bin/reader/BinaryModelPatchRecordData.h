@@ -1,5 +1,5 @@
-#ifndef __BINARY_MODEL_READER_PATCH_RECORD__
-#define __BINARY_MODEL_READER_PATCH_RECORD__
+#ifndef BINARY_MODEL_READER_PATCH_RECORD__
+#define BINARY_MODEL_READER_PATCH_RECORD__
 
 #include "common/color/ColorRgb.h"
 #include "common/linealAlgebra/Vector3D.h"

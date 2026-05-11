@@ -26,7 +26,7 @@ ShootingStrategy::chooseRadianceShootingPatch(const java::ArrayList<Patch *> *sc
     float powerImportance;
     float maximumPowerImportance;
 
-    maximumPower = maximumPowerImportance = 0.0f;
+    maximumPower = maximumPowerImportance = 0.0F;
     shooting_patch = pot_shooting_patch = nullptr;
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         Patch *patch = scenePatches->get(i);
@@ -67,7 +67,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
     }
 
     ColorRgb::arrayClear(elem->unShotRadiance, elem->basisSize);
-    elem->unShotPotential = 0.0f;
+    elem->unShotPotential = 0.0F;
 }
 
 /**
@@ -114,9 +114,9 @@ all levels
 float
 ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down) {
     down += element->receivedPotential / element->area;
-    element->receivedPotential = 0.0f;
+    element->receivedPotential = 0.0F;
 
-    float up = 0.0f;
+    float up = 0.0F;
 
     if ( !element->regularSubElements && !element->irregularSubElements ) {
         up = down;
@@ -124,7 +124,7 @@ ShootingStrategy::shootingPushPullPotential(GalerkinElement *element, float down
 
     if ( element->regularSubElements ) {
         for ( int i = 0; i < 4; i++ ) {
-            up += 0.25f * shootingPushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
+            up += 0.25F * shootingPushPullPotential(static_cast<GalerkinElement *>(element->regularSubElements[i]), down);
         }
     }
 
@@ -148,7 +148,7 @@ void
 ShootingStrategy::patchUpdateRadianceAndPotential(const Patch *patch, GalerkinState *galerkinState) {
     GalerkinElement *topLevelElement = GalerkinElement::fromPatch(patch);
     if ( galerkinState->importanceDriven ) {
-        shootingPushPullPotential(topLevelElement, 0.0f);
+        shootingPushPullPotential(topLevelElement, 0.0F);
     }
     GalerkinBasis::pushPullRadiance(topLevelElement, galerkinState);
 
@@ -176,7 +176,7 @@ ShootingStrategy::doPropagate(const Scene *scene, const Patch *shootingPatch, Ga
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
             patchUpdateRadianceAndPotential(scene->patchList->get(i), galerkinState);
         }
-        galerkinState->ambientRadiance.scale(1.0f / Statistics::instance().radiance.totalArea);
+        galerkinState->ambientRadiance.scale(1.0F / Statistics::instance().radiance.totalArea);
     }
 
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -211,8 +211,8 @@ based on the potential of the contained patches
 void
 ShootingStrategy::clusterUpdatePotential(GalerkinElement *clusterElement) {
     if ( clusterElement->isCluster() ) {
-        clusterElement->potential = 0.0f;
-        clusterElement->unShotPotential = 0.0f;
+        clusterElement->potential = 0.0F;
+        clusterElement->unShotPotential = 0.0F;
         for ( int i = 0; clusterElement->irregularSubElements != nullptr && i < clusterElement->irregularSubElements->size(); i++ ) {
             GalerkinElement *subCluster = static_cast<GalerkinElement *>(clusterElement->irregularSubElements->get(i));
             clusterUpdatePotential(subCluster);
@@ -230,7 +230,7 @@ area), see Bekaert & Willems, EGRW'95 (Dublin)
 */
 Patch *
 ShootingStrategy::choosePotentialShootingPatch(const java::ArrayList<Patch *> *scenePatches) {
-    float maximumImportance = 0.0f;
+    float maximumImportance = 0.0F;
     Patch *shootingPatch = nullptr;
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {

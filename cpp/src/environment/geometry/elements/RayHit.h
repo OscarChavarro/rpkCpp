@@ -3,8 +3,8 @@ Hit record structure, returned by ray-object intersection routines and
 used as a parameter for BSDF/EDF queries
 */
 
-#ifndef __RAY_HIT__
-#define __RAY_HIT__
+#ifndef RAY_HIT__
+#define RAY_HIT__
 
 #include "common/linealAlgebra/CoordinateSystem.h"
 #include "common/linealAlgebra/Vector2Dd.h"

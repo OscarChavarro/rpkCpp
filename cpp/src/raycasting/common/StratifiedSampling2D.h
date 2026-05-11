@@ -1,5 +1,5 @@
-#ifndef __STRATIFIED_SAMPLING_2D__
-#define __STRATIFIED_SAMPLING_2D__
+#ifndef STRATIFIED_SAMPLING_2D__
+#define STRATIFIED_SAMPLING_2D__
 
 /**
 A simple 2D stratified sampling class. Only one sample per stratum. If the number

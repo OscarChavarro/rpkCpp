@@ -1,5 +1,5 @@
-#ifndef __PIXEL_FILTER__
-#define __PIXEL_FILTER__
+#ifndef PIXEL_FILTER__
+#define PIXEL_FILTER__
 
 class PixelFilter {
   public:

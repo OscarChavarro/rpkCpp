@@ -1,5 +1,5 @@
-#ifndef __OPENGL__
-#define __OPENGL__
+#ifndef OPENGL__
+#define OPENGL__
 
 #include "material/RendererConfiguration.h"
 #include "tonemap/ToneMappingContext.h"

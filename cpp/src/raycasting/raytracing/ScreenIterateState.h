@@ -1,5 +1,5 @@
-#ifndef __SCREEN_ITERATE_STATE__
-#define __SCREEN_ITERATE_STATE__
+#ifndef SCREEN_ITERATE_STATE__
+#define SCREEN_ITERATE_STATE__
 
 class ScreenIterateState {
   public:

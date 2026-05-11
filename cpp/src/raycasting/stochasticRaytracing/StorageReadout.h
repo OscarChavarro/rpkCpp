@@ -1,5 +1,5 @@
-#ifndef __STORAGE_READOUT__
-#define __STORAGE_READOUT__
+#ifndef STORAGE_READOUT__
+#define STORAGE_READOUT__
 
 enum StorageReadout {
     SCATTER,

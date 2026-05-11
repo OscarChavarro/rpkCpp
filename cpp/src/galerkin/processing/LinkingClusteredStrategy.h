@@ -1,5 +1,5 @@
-#ifndef __LINKING_CLUSTERED_STRATEGY__
-#define __LINKING_CLUSTERED_STRATEGY__
+#ifndef LINKING_CLUSTERED_STRATEGY__
+#define LINKING_CLUSTERED_STRATEGY__
 
 #include "common/memoryManagement/MemoryPool.h"
 #include "galerkin/GalerkinElement.h"

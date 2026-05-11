@@ -1,5 +1,5 @@
-#ifndef __VERTEX__
-#define __VERTEX__
+#ifndef VERTEX__
+#define VERTEX__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"

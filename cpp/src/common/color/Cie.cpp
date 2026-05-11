@@ -23,16 +23,16 @@ corrected CIE 1988 standard observer curve has been used in this case -
 using the older CIE 1931 curves gives the value of 179 (see the Radiance
 rendering system).
 */
-const float Cie::WHITE_EFFICACY = 183.07f;
+const float Cie::WHITE_EFFICACY = 183.07F;
 
-float Cie::CIE_x_r = 0.640f; // Nominal CRT primaries
-float Cie::CIE_y_r = 0.330f;
-float Cie::CIE_x_g = 0.290f;
-float Cie::CIE_y_g = 0.600f;
-float Cie::CIE_x_b = 0.150f;
-float Cie::CIE_y_b = 0.060f;
-float Cie::CIE_x_w = 0.3333333333f;
-float Cie::CIE_y_w = 0.3333333333f;
+float Cie::CIE_x_r = 0.640F; // Nominal CRT primaries
+float Cie::CIE_y_r = 0.330F;
+float Cie::CIE_x_g = 0.290F;
+float Cie::CIE_y_g = 0.600F;
+float Cie::CIE_x_b = 0.150F;
+float Cie::CIE_y_b = 0.060F;
+float Cie::CIE_x_w = 0.3333333333F;
+float Cie::CIE_y_w = 0.3333333333F;
 
 float Cie::luminousEfficacy = Cie::WHITE_EFFICACY;
 float Cie::xyz2RgbMat[3][3] = {};

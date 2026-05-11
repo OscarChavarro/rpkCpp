@@ -1,5 +1,5 @@
-#ifndef __BI_DIRECTIONAL_PATH__
-#define __BI_DIRECTIONAL_PATH__
+#ifndef BI_DIRECTIONAL_PATH__
+#define BI_DIRECTIONAL_PATH__
 
 #include "material/RendererConfiguration.h"
 

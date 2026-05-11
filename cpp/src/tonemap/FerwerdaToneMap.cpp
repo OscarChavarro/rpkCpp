@@ -9,7 +9,7 @@ pp. 249-258.
 */
 
 FerwerdaToneMap::FerwerdaToneMap():
-    sf(0.062f, 0.608f, 0.330f),
+    sf(0.062F, 0.608F, 0.330F),
     msf(),
     pmComp(),
     pmDisplay(),
@@ -26,7 +26,7 @@ void
 FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
     const float realWorldAdaptionLuminance = toneMapOptions.realWorldAdaptionLuminance;
     const float maximumDisplayLuminance = toneMapOptions.maximumDisplayLuminance;
-    lda = maximumDisplayLuminance / 2.0f;
+    lda = maximumDisplayLuminance / 2.0F;
 
     // Equations [FERW1996](4) and [FERW1996](5): t_p(L_a), t_s(L_a)
     msf = FerwerdaToneMap::mesopicScaleFactor(java::Math::log10(realWorldAdaptionLuminance));
@@ -95,14 +95,14 @@ FerwerdaToneMap::photopicOperator(float logLa) {
     // Equation [FERW1996](4): piecewise approximation of log(t_p(L_a))
     float r;
     if ( logLa <= -2.6 ) {
-        r = -0.72f;
+        r = -0.72F;
     } else if ( logLa >= 1.9 ) {
-        r = logLa - 1.255f;
+        r = logLa - 1.255F;
     } else {
-        r = java::Math::pow(0.249f * logLa + 0.65f, 2.7f) - 0.72f;
+        r = java::Math::pow(0.249F * logLa + 0.65F, 2.7F) - 0.72F;
     }
 
-    return java::Math::pow(10.0f, r);
+    return java::Math::pow(10.0F, r);
 }
 
 float
@@ -110,14 +110,14 @@ FerwerdaToneMap::scotopicOperator(float logLa) {
     // Equation [FERW1996](5): piecewise approximation of log(t_s(L_a))
     float r;
     if ( logLa <= -3.94 ) {
-        r = -2.86f;
+        r = -2.86F;
     } else if ( logLa >= -1.44 ) {
-            r = logLa - 0.395f;
+            r = logLa - 0.395F;
         } else {
-            r = java::Math::pow(0.405f * logLa + 1.6f, 2.18f) - 2.86f;
+            r = java::Math::pow(0.405F * logLa + 1.6F, 2.18F) - 2.86F;
         }
 
-    return java::Math::pow(10.0f, r);
+    return java::Math::pow(10.0F, r);
 }
 
 float
@@ -127,6 +127,6 @@ FerwerdaToneMap::mesopicScaleFactor(float logLwa) {
     } else if ( logLwa > 0.8 ) {
             return 0.0;
         } else {
-            return (0.8f - logLwa) / 3.3f;
+            return (0.8F - logLwa) / 3.3F;
         }
 }

@@ -4,8 +4,8 @@ Handles evaluation and sampling and also
 functions that relate to brdf or btdf like reflectance etc.
 */
 
-#ifndef __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
-#define __PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
+#ifndef PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
+#define PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
 #include "common/color/ColorRgb.h"
 #include "RendererConfiguration.h"

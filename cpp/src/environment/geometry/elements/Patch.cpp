@@ -250,7 +250,7 @@ Patch::computeRandomWalkRadiosityArea() {
             d1.subtraction(*p2, *p1);
             d2.subtraction(*p3, *p2);
             cp1.crossProduct(d1, d2);
-            this->area = 0.5f * cp1.norm();
+            this->area = 0.5F * cp1.norm();
             break;
         case 4:
             p1 = this->vertex[0]->point;
@@ -268,7 +268,7 @@ Patch::computeRandomWalkRadiosityArea() {
             b = cp2.dotProduct(this->normal);
             c = cp3.dotProduct(this->normal);
 
-            this->area = a + 0.5f * (b + c);
+            this->area = a + 0.5F * (b + c);
             if ( this->area < 0.0 ) {
                 // May happen if the normal direction and
                 // a = -a; vertex order are not consistent
@@ -317,7 +317,7 @@ Computes a certain "width" for the plane, e.g. for co-planar testing
 float
 Patch::computeTolerance() const {
     // Fill in the vertices in the plane equation + take into account the vertex position tolerance
-    float localTolerance = 0.0f;
+    float localTolerance = 0.0F;
     for ( int i = 0; i < numberOfVertices; i++ ) {
         const Vector3D *p = vertex[i]->point;
         float e = java::Math::abs(normal.dotProduct(*p) + planeConstant) + p->tolerance(Numeric::EPSILON_FLOAT);
@@ -782,7 +782,7 @@ Patch::interpolatedFrameAtUv(
         if ( zz < Numeric::EPSILON ) {
             X->set(1.0, 0.0, 0.0);
         } else {
-            X->set(static_cast<float>(Z->y / zz), static_cast<float>(-Z->x / zz), 0.0f);
+            X->set(static_cast<float>(Z->y / zz), static_cast<float>(-Z->x / zz), 0.0F);
         }
 
         Y->crossProduct(*Z, *X); // *Y = (*Z) ^ (*X)
@@ -805,7 +805,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
     switch ( numberOfVertices ) {
         case 3:
             if ( !t0 || !t1 || !t2 ) {
-                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0f);
+                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0F);
             } else {
                 pointInTriangle(*t0, *t1, *t2, static_cast<float>(u), static_cast<float>(v), texCoord);
             }
@@ -813,7 +813,7 @@ Patch::textureCoordAtUv(const double u, const double v) const {
         case 4:
             t3 = vertex[3]->textureCoordinates;
             if ( !t0 || !t1 || !t2 || !t3 ) {
-                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0f);
+                texCoord.set(static_cast<float>(u), static_cast<float>(v), 0.0F);
             } else {
                 pointInQuadrilateral(*t0, *t1, *t2, *t3, static_cast<float>(u), static_cast<float>(v), texCoord);
             }

@@ -1,5 +1,5 @@
-#ifndef __MGF_CONE_GEOMETRY__
-#define __MGF_CONE_GEOMETRY__
+#ifndef MGF_CONE_GEOMETRY__
+#define MGF_CONE_GEOMETRY__
 
 #include "io/context/ParseRuntimeContext.h"
 

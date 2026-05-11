@@ -131,11 +131,11 @@ PatchClusterOctreeNode::movePatchToSubOctantCluster(const int patchIndexOnParent
     const AxisAlignedBoundingBox *patchBoundingBox = patch->getBoundingBox();
 
     // If the patch is larger than an octant, don´t move current patch from parent to sub-cluster
-    float smallestBoxDimension = 10.0f * Numeric::EPSILON_FLOAT;
+    float smallestBoxDimension = 10.0F * Numeric::EPSILON_FLOAT;
 
-    if ( (patchBoundingBox->dx() > smallestBoxDimension && patchBoundingBox->dx() > boundingBox.dx() * 0.5f) ||
-         (patchBoundingBox->dy() > smallestBoxDimension && patchBoundingBox->dy() > boundingBox.dy() * 0.5f) ||
-         (patchBoundingBox->dz() > smallestBoxDimension && patchBoundingBox->dz() > boundingBox.dz() * 0.5f) ) {
+    if ( (patchBoundingBox->dx() > smallestBoxDimension && patchBoundingBox->dx() > boundingBox.dx() * 0.5F) ||
+         (patchBoundingBox->dy() > smallestBoxDimension && patchBoundingBox->dy() > boundingBox.dy() * 0.5F) ||
+         (patchBoundingBox->dz() > smallestBoxDimension && patchBoundingBox->dz() > boundingBox.dz() * 0.5F) ) {
         return false;
     }
 

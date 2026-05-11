@@ -1,5 +1,5 @@
-#ifndef __PPM__
-#define __PPM__
+#ifndef PPM__
+#define PPM__
 
 #include "java/io/OutputStream.h"
 #include "io/image/ImageOutputHandle.h"

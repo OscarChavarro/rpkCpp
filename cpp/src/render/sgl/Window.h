@@ -1,5 +1,5 @@
-#ifndef __SGL_WINDOW__
-#define __SGL_WINDOW__
+#ifndef SGL_WINDOW__
+#define SGL_WINDOW__
 
 // WINDOW: A DISCRETE 2-D RECTANGLE
 class Window {

@@ -1,5 +1,5 @@
-#ifndef __RAY_TRACER_STATISTICS__
-#define __RAY_TRACER_STATISTICS__
+#ifndef RAY_TRACER_STATISTICS__
+#define RAY_TRACER_STATISTICS__
 
 class RayTracerStatistics {
   public:

@@ -1,5 +1,5 @@
-#ifndef __ELEMENT_HIERARCHY_STATE__
-#define __ELEMENT_HIERARCHY_STATE__
+#ifndef ELEMENT_HIERARCHY_STATE__
+#define ELEMENT_HIERARCHY_STATE__
 
 #include "java/util/ArrayList.h"
 #include "common/linealAlgebra/Vector3D.h"

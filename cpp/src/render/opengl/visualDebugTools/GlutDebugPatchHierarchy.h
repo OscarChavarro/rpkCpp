@@ -1,5 +1,5 @@
-#ifndef __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
-#define __VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
+#ifndef VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
+#define VISUAL_DEBUG_TOOLS_GLUT_DEBUG_PATCH_HIERARCHY__
 
 #include "material/RendererConfiguration.h"
 #include "galerkin/GalerkinElement.h"
@@ -36,10 +36,10 @@ class GlutDebugPatchHierarchy final {
         int hierarchyLevel);
 
   private:
-    static constexpr float GRAY_DARKEN_FACTOR = 0.42f;
-    static constexpr float GRAY_CONTRAST_GAMMA = 1.20f;
-    static constexpr float OUTLINE_MIN_GRAY = 0.05f;
-    static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65f;
+    static constexpr float GRAY_DARKEN_FACTOR = 0.42F;
+    static constexpr float GRAY_CONTRAST_GAMMA = 1.20F;
+    static constexpr float OUTLINE_MIN_GRAY = 0.05F;
+    static constexpr float OUTLINE_FROM_SURFACE_FACTOR = 0.65F;
 
     static float clamp01(float value);
     static float toneMappedGrayAndDarkened(float value01);

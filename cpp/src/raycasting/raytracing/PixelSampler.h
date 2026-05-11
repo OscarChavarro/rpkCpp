@@ -1,5 +1,5 @@
-#ifndef __PIXEL_SAMPLER__
-#define __PIXEL_SAMPLER__
+#ifndef PIXEL_SAMPLER__
+#define PIXEL_SAMPLER__
 
 #include "material/RendererConfiguration.h"
 

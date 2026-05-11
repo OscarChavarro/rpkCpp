@@ -54,15 +54,15 @@ StochasticRadiosityBasisState::StochasticRadiosityBasisState():
         nullptr
     };
 
-    quadUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-    quadUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-    quadUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-    quadUpTransform[3] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f);
+    quadUpTransform[0] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F);
+    quadUpTransform[1] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.0F);
+    quadUpTransform[2] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.5F);
+    quadUpTransform[3] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.5F);
 
-    triangleUpTransform[0] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f);
-    triangleUpTransform[1] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.5f, 0.0f);
-    triangleUpTransform[2] = createTransform(0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.5f);
-    triangleUpTransform[3] = createTransform(-0.5f, 0.0f, 0.0f, -0.5f, 0.5f, 0.5f);
+    triangleUpTransform[0] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F);
+    triangleUpTransform[1] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.5F, 0.0F);
+    triangleUpTransform[2] = createTransform(0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.5F);
+    triangleUpTransform[3] = createTransform(-0.5F, 0.0F, 0.0F, -0.5F, 0.5F, 0.5F);
 }
 
 void
