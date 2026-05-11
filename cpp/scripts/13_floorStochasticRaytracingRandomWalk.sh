@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/floor_gloss.mgf -raytracing-method StochasticRaytracing \
+"${RPK_BIN}" ../etc/floor_gloss.mgf -raytracing-method StochasticRaytracing \
     -obf output/13_floorStochasticRaytracingRandomWalk.bin \
     -nqcdivs 16 \
     -iterations 9 -radiance-method RandomWalk \

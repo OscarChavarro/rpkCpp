@@ -1,0 +1,60 @@
+#ifndef CAMERA__
+#define CAMERA__
+
+#include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
+#include "vsdk/toolkit/common/linealAlgebra/Matrix4x4.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/scene/Plane.h"
+#include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
+
+class Camera {
+  public:
+    static constexpr int NUMBER_OF_VIEW_PLANES = 4;
+
+    Vector3D eyePosition; // Virtual camera position in 3D space
+    Vector3D lookPosition; // Focus point of camera
+    Vector3D upDirection; // Direction pointing upward
+    float viewDistance; // Distance from eye point to focus point
+    float fieldOfVision; // Field of view, horizontal and vertical, in degrees
+    float horizontalFov;
+    float verticalFov;
+    float near; // Far clipping plane distance
+    float far; // Far clipping plane distance
+    int xSize; // Horizontal resolution
+    int ySize; // Vertical resolution
+    Vector3D X; // Eye coordinate system: X = right
+    Vector3D Y; // Eye coordinate system: Y = down
+    Vector3D Z; // Eye coordinate system: Z = viewing direction
+    ColorRgb background; // Window background color
+    int changed; // True when camera position has been updated
+    float pixelWidth;
+    float pixelHeight;
+    float pixelWidthTangent;
+    float pixelHeightTangent;
+    Plane viewPlanes[NUMBER_OF_VIEW_PLANES]; // Clipping planes
+
+    Camera();
+
+    void
+    set(
+        const Vector3D *inEyePosition,
+        const Vector3D *inLoopPosition,
+        const Vector3D *inUpDirection,
+        float inFieldOfVision,
+        int inXSize,
+        int inYSize,
+        const ColorRgb *inBackground);
+
+    void setEyePosition(float x, float y, float z);
+    void setLookPosition(float x, float y, float z);
+    void setUpDirection(float x, float y, float z);
+    void setFieldOfView(float fieldOfView);
+    static void transformBoundingBox(const AxisAlignedBoundingBox &sourceBoundingBox, const Matrix4x4 &transform, AxisAlignedBoundingBox *transformedBoundingBox);
+    static Matrix4x4 projectionMatrixFromBoundingBox(const AxisAlignedBoundingBox &boundingBox);
+
+  private:
+    void computeClippingPlanes();
+    Camera *complete();
+};
+
+#endif

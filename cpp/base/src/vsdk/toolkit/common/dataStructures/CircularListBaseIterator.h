@@ -1,0 +1,18 @@
+#ifndef CIRCULAR_LIST_BASE_ITERATOR__
+#define CIRCULAR_LIST_BASE_ITERATOR__
+
+#include "vsdk/toolkit/common/dataStructures/CircularListBase.h"
+
+class CircularListBaseIterator {
+  private:
+    CircularListLink *currentElement;
+    CircularListBase *currentList;
+
+  public:
+    explicit CircularListBaseIterator(CircularListBase &list);
+    virtual ~CircularListBaseIterator();
+    void init(CircularListBase &list);
+    virtual CircularListLink *next();
+};
+
+#endif

@@ -1,0 +1,361 @@
+#include "vsdk/toolkit/environment/geometry/elements/RayHitFlag.h"
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+
+#ifdef RAYTRACING_ENABLED
+#include "vsdk/toolkit/material/RendererConfiguration.h"
+#include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LightSampler.h"
+
+UniformLightSampler::UniformLightSampler(LightList *inLightList):
+    lightList(inLightList)
+{
+    // if(gLightList)
+    // iterator = new CLightList_Iter(*gLightList);
+    iterator = nullptr;
+    currentPatch = nullptr;
+    unitsActive = false;
+}
+
+UniformLightSampler::~UniformLightSampler() {
+    if ( iterator != nullptr ) {
+        delete iterator;
+        iterator = nullptr;
+    }
+}
+
+bool
+UniformLightSampler::ActivateFirstUnit() {
+    if ( lightList == nullptr ) {
+        return false;
+    }
+
+    if ( !iterator ) {
+        iterator = new LightListIterator(*lightList);
+    }
+
+    currentPatch = iterator->First(*lightList);
+
+    if ( currentPatch != nullptr ) {
+        unitsActive = true;
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool UniformLightSampler::ActivateNextUnit() {
+    currentPatch = iterator->Next();
+    return (currentPatch != nullptr);
+}
+
+bool
+UniformLightSampler::sample(
+    Camera */*camera*/,
+    VoxelGrid */*sceneVoxelGrid*/,
+    Background */*sceneBackground*/,
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool /*doRR*/,
+    char flags)
+{
+    double pdfLight;
+    double pdfPoint;
+    Patch *light;
+    Vector3D point;
+
+    // thisNode is NOT used or altered. If you want the nodes connected,
+    // use the Connect method of a surface sampler and a light direction
+    // sampler. Otherwise, pdf's cannot be calculated
+    // Visibility is NOT determined here!
+
+    newNode->m_depth = 0;
+    newNode->m_rayType = PathRayType::STOPS;
+
+    newNode->m_useBsdf = nullptr;
+    newNode->m_inBsdf = nullptr;
+    newNode->m_outBsdf = nullptr;
+    newNode->m_G = 1.0;
+
+    // Choose light
+    if ( unitsActive ) {
+        if ( currentPatch ) {
+            light = currentPatch;
+            pdfLight = 1.0;
+        } else {
+            Logger::warning("sample Unit Light Node", "No valid light selected");
+            return false;
+        }
+    } else {
+        if ( lightList == nullptr ) {
+            Logger::warning("FillLightNode", "No light list available");
+            return false;
+        }
+        light = lightList->sample(&x1, &pdfLight);
+
+        if ( light == nullptr ) {
+            Logger::warning("FillLightNode", "No light found");
+            return false;
+        }
+    }
+
+    // Choose point (uniform for real, sampled for background)
+    if ( light->hasZeroVertices() ) {
+        double pdf = 0.0;
+        Vector3D dir(0.0F, 0.0F, 0.0F);
+
+        if ( light->getMaterial()->getEdf() != nullptr ) {
+            bool shctxOk = false;
+            ShadingContext thisContext = thisNode->m_hit.shadingContext(&shctxOk);
+            if ( !shctxOk ) {
+                return false;
+            }
+            dir = light->getMaterial()->getEdf()->phongEdfSample(&thisContext, flags, x1, x2, nullptr, &pdf);
+        }
+
+        point.subtraction(thisNode->m_hit.getPoint(), dir); // Fake hit at distance 1!
+
+        newNode->m_hit.init(light, &point, nullptr, light->getMaterial());
+
+        // Fill in directions
+        newNode->m_inDirT.scaledCopy(-1, dir);
+        newNode->m_inDirF.copy(dir);
+        newNode->m_normal.copy(dir);
+
+        pdfPoint = pdf;   // every direction corresponds to 1 point
+    } else {
+        light->uniformPoint(x1, x2, &point);
+        pdfPoint = 1.0 / light->getArea();
+
+        // Fake a hit record
+        newNode->m_hit.init(light, &point, &light->getNormal(), light->getMaterial());
+        Vector3D normal = newNode->m_hit.getNormal();
+        newNode->m_hit.shadingNormal(&normal);
+        newNode->m_hit.setNormal(&normal);
+        newNode->m_normal.copy(newNode->m_hit.getNormal());
+    }
+
+    // inDir's not filled in
+    newNode->m_pdfFromPrev = pdfLight * pdfPoint;
+
+    // Component propagation
+    newNode->m_accUsedComponents = XxdfComponentFlagInfo::NO_COMPONENTS; // Light has no accumulated comps.
+
+    newNode->accumulatedRussianRouletteFactors = 1.0;
+
+    return true;
+}
+
+double
+UniformLightSampler::evalPDF(
+    Camera */*camera*/,
+    SimpleRaytracingPathNode */*thisNode*/,
+    SimpleRaytracingPathNode *newNode,
+    char /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double pdf;
+    double pdfDir;
+
+    // The light point is in NEW NODE!
+    if ( unitsActive ) {
+        pdf = 1.0;
+    } else {
+        if ( lightList == nullptr ) {
+            return 0.0;
+        }
+        Vector3D position = newNode->m_hit.getPoint();
+        pdf = lightList->evalPdf(newNode->m_hit.getPatch(), &position);
+    }
+
+    // Prob for choosing this point(/direction)
+    if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
+        // virtual patch has no area!
+        // choosing a point == choosing a dir --> use pdf from evalEdf
+        if ( newNode->m_hit.getPatch()->getMaterial()->getEdf() == nullptr ) {
+            pdfDir = 0.0;
+        } else {
+            newNode->m_hit.getPatch()->getMaterial()->getEdf()->phongEdfEval(
+                nullptr,
+                &newNode->m_inDirF,
+                DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
+                &pdfDir);
+        }
+
+        pdf *= pdfDir;
+    } else {
+        // Normal patch, choosing point uniformly
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->getArea() > Numeric::EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->getArea();
+        } else {
+            pdf = 0.0;
+        }
+    }
+
+    return pdf;
+}
+
+/**
+Important light sampler : attach weights to each lamp
+*/
+ImportantLightSampler::ImportantLightSampler(LightList *inLightList):
+    lightList(inLightList)
+{
+}
+
+bool
+ImportantLightSampler::sample(
+    Camera */*camera*/,
+    VoxelGrid */*sceneVoxelGrid*/,
+    Background */*sceneBackground*/,
+    SimpleRaytracingPathNode */*prevNode*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    double x1,
+    double x2,
+    bool /*doRR*/,
+    char flags)
+{
+    double pdfLight;
+    double pdfPoint;
+    Patch *light;
+    Vector3D point;
+
+    // thisNode is NOT used or altered. If you want the nodes connected,
+    // use the Connect method of a surface sampler and a light direction
+    // sampler. Otherwise, pdf's cannot be calculated
+    // Visibility is NOT determined here!
+    newNode->m_depth = 0;
+    newNode->m_rayType = PathRayType::STOPS;
+    newNode->m_useBsdf = nullptr;
+    newNode->m_inBsdf = nullptr;
+    newNode->m_outBsdf = nullptr;
+    newNode->m_G = 1.0;
+
+    // Choose light
+    if ( lightList == nullptr ) {
+        return false;
+    }
+
+    if ( thisNode->m_hit.getFlags() & RayHitFlag::BACK ) {
+        if ( thisNode->m_outBsdf == nullptr ) {
+            Vector3D invNormal;
+
+            invNormal.scaledCopy(-1, thisNode->m_normal);
+
+            Vector3D position = thisNode->m_hit.getPoint();
+            light = lightList->sampleImportant(&position, &invNormal, &x1, &pdfLight);
+        } else {
+            // No (important) light sampling inside a material
+            light = nullptr;
+        }
+    } else {
+        if ( thisNode->m_inBsdf == nullptr ) {
+            Vector3D position = thisNode->m_hit.getPoint();
+            light = lightList->sampleImportant(&position, &thisNode->m_normal, &x1, &pdfLight);
+        } else {
+            light = nullptr;
+        }
+    }
+
+    if ( light == nullptr ) {
+        // No light found
+        return false;
+    }
+
+    // Choose point (uniform for real, sampled for background)
+    if ( light->hasZeroVertices() ) {
+        double pdf = 0.0;
+        Vector3D dir(0.0F, 0.0F, 0.0F);
+
+        if ( light->getMaterial()->getEdf() != nullptr ) {
+            dir = light->getMaterial()->getEdf()->phongEdfSample(nullptr, flags, x1, x2, nullptr, &pdf);
+        }
+
+        point.addition(thisNode->m_hit.getPoint(), dir);   // fake hit at distance 1!
+
+        newNode->m_hit.init(light, &point, nullptr, light->getMaterial());
+
+        // fill in directions
+        newNode->m_inDirT.scaledCopy(-1, dir);
+        newNode->m_inDirF.copy(dir);
+        newNode->m_normal.copy(dir);
+
+        pdfPoint = pdf; // Every direction corresponds to 1 point
+    } else {
+        light->uniformPoint(x1, x2, &point);
+
+        pdfPoint = 1.0 / light->getArea();
+
+        // Light position and value are known now
+
+        // Fake a hit record
+        newNode->m_hit.init(light, &point, &light->getNormal(), light->getMaterial());
+        Vector3D normal = newNode->m_hit.getNormal();
+        newNode->m_hit.shadingNormal(&normal);
+        newNode->m_hit.setNormal(&normal);
+        newNode->m_normal.copy(newNode->m_hit.getNormal());
+    }
+
+    // outDir's, m_G not filled in yet (light direction sampler does this)
+
+    newNode->m_pdfFromPrev = pdfLight * pdfPoint;
+
+    return true;
+}
+
+double
+ImportantLightSampler::evalPDF(
+    Camera */*camera*/,
+    SimpleRaytracingPathNode *thisNode,
+    SimpleRaytracingPathNode *newNode,
+    char /*flags*/,
+    double * /*pdf*/,
+    double * /*pdfRR*/)
+{
+    double pdf;
+    double pdfDir;
+
+    // The light point is in NEW NODE !!
+    if ( lightList == nullptr ) {
+        return 0.0;
+    }
+    Vector3D newPosition = newNode->m_hit.getPoint();
+    Vector3D thisPosition = thisNode->m_hit.getPoint();
+    pdf = lightList->evalPdfImportant(
+        newNode->m_hit.getPatch(),
+        &newPosition,
+        &thisPosition,
+        &thisNode->m_normal);
+
+    // Prob for choosing this point(/direction)
+    if ( newNode->m_hit.getPatch()->hasZeroVertices() ) {
+        // virtual patch has no area!
+        // choosing newPosition point == choosing newPosition dir --> use pdf from evalEdf
+        if ( newNode->m_hit.getPatch()->getMaterial()->getEdf() == nullptr ) {
+            pdfDir = 0.0;
+        } else {
+            newNode->m_hit.getPatch()->getMaterial()->getEdf()->phongEdfEval(
+                nullptr,
+                &newNode->m_inDirF,
+                DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT,
+                &pdfDir);
+        }
+
+        pdf *= pdfDir;
+    } else {
+        // Normal patch, choosing point uniformly
+        if ( pdf >= Numeric::EPSILON && newNode->m_hit.getPatch()->getArea() > Numeric::EPSILON ) {
+            pdf = pdf / newNode->m_hit.getPatch()->getArea();
+        } else {
+            pdf = 0.0;
+        }
+    }
+
+    return pdf;
+}
+
+#endif
