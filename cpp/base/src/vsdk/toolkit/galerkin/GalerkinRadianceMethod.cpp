@@ -194,7 +194,7 @@ GalerkinRadianceMethod::writeVertexColorsTopCluster() {
 
 void
 GalerkinRadianceMethod::writeColors(const RendererConfiguration *renderOptions) {
-    if ( !renderOptions->smoothShading ) {
+    if ( !renderOptions->isSmoothShading() ) {
         Logger::warning(nullptr, "I assume you want a smooth shaded model ...");
     }
     writeFormatted("\tcolorPerVertex %s\n", "TRUE");

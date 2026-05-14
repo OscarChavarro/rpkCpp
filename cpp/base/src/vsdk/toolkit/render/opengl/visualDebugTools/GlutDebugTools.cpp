@@ -665,7 +665,7 @@ GlutDebugTools::executeGlutGui(int argc, char *argv[]) {
         java::System::exit(1);
     }
 
-    model.renderOptions->frustumCulling = false;
+    model.renderOptions->setFrustumCulling(false);
 
     glutReshapeFunc(resizeCallbackBridge);
     glutKeyboardFunc(keypressCallbackBridge);

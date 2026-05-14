@@ -23,14 +23,14 @@ PhongBidirectionalTransmittanceDistributionFunction::isSpecular() const {
 }
 
 PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmittanceDistributionFunction(
-    const ColorRgbMutable *inKd, const ColorRgbMutable *inKs, const float inNs, const float inNr, const float inNi):
+    const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
+    Kd(*inKd),
+    Ks(*inKs),
+    avgKd(Kd.average()),
+    avgKs(Ks.average()),
+    Ns(inNs),
     refractionIndex()
 {
-    Kd = *inKd;
-    avgKd = Kd.average();
-    Ks = *inKs;
-    avgKs = Ks.average();
-    Ns = inNs;
     refractionIndex.set(inNr, inNi);
 }
 
@@ -40,27 +40,34 @@ PhongBidirectionalTransmittanceDistributionFunction::~PhongBidirectionalTransmit
 /**
 Returns the transmittance of the BTDF
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-
-    result.clear();
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, Kd);
+        r += Kd.getR();
+        g += Kd.getG();
+        b += Kd.getB();
     }
 
     if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     }
 
-    if ( !java::Float::isFinite(result.average()) ) {
+    const ColorRgb result(r, g, b);
+    if ( !java::Float::isFinite(static_cast<float>(result.average())) ) {
         Logger::fatal(-1, "transmittance", "Oops - result is not finite!");
     }
 
@@ -70,7 +77,7 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
 /**
 Btdf evaluations
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
@@ -87,8 +94,9 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-    result.clear();
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {
         // Diffuse part
@@ -97,8 +105,9 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
         bool isReflection = (normal->dotProduct(*out) >= 0);
 
         if ( !isReflection ) {
-            result = Kd;
-            result.scale(M_1_PI);
+            r += M_1_PI * Kd.getR();
+            g += M_1_PI * Kd.getG();
+            b += M_1_PI * Kd.getB();
         }
     }
 
@@ -119,11 +128,13 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
         if ( localDotProduct > 0 ) {
             float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0F) / (2.0F * static_cast<float>(M_PI)); // Ks -> ks
-            result.addScaled(result, tmpFloat, Ks);
+            r += tmpFloat * Ks.getR();
+            g += tmpFloat * Ks.getG();
+            b += tmpFloat * Ks.getB();
         }
     }
 
-    return result;
+    return {r, g, b};
 }
 
 Vector3D

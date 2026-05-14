@@ -2,7 +2,7 @@
 #define PHONG_BIDIRECTIONAL_REFLECTANCE_DISTRIBUTION_FUNCTION__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 
 /**
 BRDF evaluation functions :
@@ -14,8 +14,8 @@ BRDF evaluation functions :
 */
 class PhongBidirectionalReflectanceDistributionFunction {
   private:
-    ColorRgbMutable Kd;
-    ColorRgbMutable Ks;
+    ColorRgb Kd;
+    ColorRgb Ks;
     float avgKd;
     float avgKs;
     float Ns;
@@ -23,15 +23,15 @@ class PhongBidirectionalReflectanceDistributionFunction {
     bool isSpecular() const;
 
 public:
-    explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgbMutable *Kd, const ColorRgbMutable *Ks, double Ns);
+    explicit PhongBidirectionalReflectanceDistributionFunction(const ColorRgb *Kd, const ColorRgb *Ks, double Ns);
     virtual ~PhongBidirectionalReflectanceDistributionFunction();
 
-    const ColorRgbMutable &getKd() const;
-    const ColorRgbMutable &getKs() const;
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
     float getNs() const;
 
-    ColorRgbMutable reflectance(char flags) const;
-    ColorRgbMutable evaluate(const Vector3D *in, const Vector3D *out, const Vector3D *normal, char flags) const;
+    ColorRgb reflectance(char flags) const;
+    ColorRgb evaluate(const Vector3D *in, const Vector3D *out, const Vector3D *normal, char flags) const;
 
     Vector3D
     sample(
@@ -53,12 +53,12 @@ public:
         double *probabilityDensityFunctionRR) const;
 };
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongBidirectionalReflectanceDistributionFunction::getKd() const {
     return Kd;
 }
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongBidirectionalReflectanceDistributionFunction::getKs() const {
     return Ks;
 }

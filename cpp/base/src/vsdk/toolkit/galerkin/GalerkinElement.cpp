@@ -272,10 +272,10 @@ GalerkinElement::renderMode(const RendererConfiguration *renderOptions) {
     }
 
     int renderCode = 0;
-    if ( renderOptions->drawOutlines ) {
+    if ( renderOptions->isDrawOutlines() ) {
         renderCode |= GalerkinElementRenderMode::OUTLINE;
     }
-    if ( renderOptions->smoothShading ) {
+    if ( renderOptions->isSmoothShading() ) {
         renderCode |= GalerkinElementRenderMode::GOURAUD;
     } else {
         renderCode |= GalerkinElementRenderMode::FLAT;

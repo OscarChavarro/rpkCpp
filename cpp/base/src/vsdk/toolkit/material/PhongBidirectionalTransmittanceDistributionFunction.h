@@ -2,7 +2,7 @@
 #define PHONG_BIDIRECTIONAL_TRANSMITTANCE_DISTRIBUTION_FUNCTION__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "RendererConfiguration.h"
 #include "vsdk/toolkit/material/RefractionIndex.h"
 
@@ -13,8 +13,8 @@ be a plain complex number
 */
 class PhongBidirectionalTransmittanceDistributionFunction {
   private:
-    ColorRgbMutable Kd;
-    ColorRgbMutable Ks;
+    ColorRgb Kd;
+    ColorRgb Ks;
     float avgKd;
     float avgKs;
     float Ns;
@@ -23,17 +23,17 @@ class PhongBidirectionalTransmittanceDistributionFunction {
     bool isSpecular() const;
 
   public:
-    explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgbMutable *inKd, const ColorRgbMutable *inKs, float inNs, float inNr, float inNi);
+    explicit PhongBidirectionalTransmittanceDistributionFunction(const ColorRgb *inKd, const ColorRgb *inKs, float inNs, float inNr, float inNi);
     virtual ~PhongBidirectionalTransmittanceDistributionFunction();
 
-    const ColorRgbMutable &getKd() const;
-    const ColorRgbMutable &getKs() const;
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
     float getNs() const;
     const RefractionIndex &getRefractionIndex() const;
 
-    ColorRgbMutable transmittance(char flags) const;
+    ColorRgb transmittance(char flags) const;
 
-    ColorRgbMutable
+    ColorRgb
     evaluate(
         RefractionIndex inIndex,
         RefractionIndex outIndex,
@@ -70,12 +70,12 @@ class PhongBidirectionalTransmittanceDistributionFunction {
 #endif
 };
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongBidirectionalTransmittanceDistributionFunction::getKd() const {
     return Kd;
 }
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongBidirectionalTransmittanceDistributionFunction::getKs() const {
     return Ks;
 }

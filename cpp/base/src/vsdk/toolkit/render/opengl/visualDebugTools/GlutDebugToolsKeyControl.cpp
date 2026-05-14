@@ -203,16 +203,16 @@ GlutDebugToolsKeyControl::handleExtendedKeypress(int keyCode, GlutDebugToolsMode
 
     switch ( keyCode ) {
         case GLUT_KEY_F2:
-            model.renderOptions->drawOutlines = !model.renderOptions->drawOutlines;
+            model.renderOptions->setDrawOutlines(!model.renderOptions->isDrawOutlines());
             break;
         case GLUT_KEY_F3:
-            model.renderOptions->drawSurfaces = !model.renderOptions->drawSurfaces;
+            model.renderOptions->setDrawSurfaces(!model.renderOptions->isDrawSurfaces());
             break;
         case GLUT_KEY_F4:
-            model.renderOptions->drawBoundingBoxes = !model.renderOptions->drawBoundingBoxes;
+            model.renderOptions->setDrawBoundingBoxes(!model.renderOptions->isDrawBoundingBoxes());
             break;
         case GLUT_KEY_F5:
-            model.renderOptions->drawClusters = !model.renderOptions->drawClusters;
+            model.renderOptions->setDrawClusters(!model.renderOptions->isDrawClusters());
             break;
         case GLUT_KEY_LEFT:
             if ( debugState == nullptr ) {

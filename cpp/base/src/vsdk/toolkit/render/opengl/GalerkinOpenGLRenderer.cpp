@@ -53,7 +53,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
     int numberOfVertices = element->vertices(p);
 
     // Draw surfaces
-    if ( renderOptions->drawSurfaces ) {
+    if ( renderOptions->isDrawSurfaces() ) {
         const ToneMappingContext *toneMapOptions =
             element->galerkinState == nullptr ? nullptr : element->galerkinState->toneMapOptions;
         if ( toneMapOptions == nullptr ) {
@@ -109,14 +109,15 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
 
     // Draw outlines
     if ( mode & GalerkinElementRenderMode::OUTLINE ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
+        const ColorRgb &outlineColor = renderOptions->getOutlineColor();
+        Opengl::openGlRenderSetColor(&outlineColor, renderOptions);
         if ( numberOfVertices == 3 ) {
-            Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
+            Opengl::openGlRenderSetColor(&outlineColor, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);
             Opengl::openGlRenderLine(&p[1], &p[2]);
             Opengl::openGlRenderLine(&p[2], &p[0]);
         } else {
-            ColorRgbMutable green = {0.0, 1.0, 0.0};
+            const ColorRgb green = {0.0, 1.0, 0.0};
 
             Opengl::openGlRenderSetColor(&green, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);
@@ -137,7 +138,7 @@ GalerkinOpenGLRenderer::renderScene(
         return;
     }
 
-    if ( renderOptions->frustumCulling ) {
+    if ( renderOptions->isFrustumCulling() ) {
         Opengl::openGlRenderWorldOctree(scene, GalerkinOpenGLRenderer::galerkinRenderPatch, renderOptions);
         return;
     }
@@ -153,16 +154,16 @@ GalerkinOpenGLRenderer::renderScene(
     for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
         if ( debugState->showSelectedPathOnly ) {
             if ( i == debugState->primarySelectedPatch ) {
-                modifiedRenderOptions.drawOutlines = true;
-                modifiedRenderOptions.outlineColor = ColorRgbMutable(1.0F, 0.0F, 0.0F);
+                modifiedRenderOptions.setDrawOutlines(true);
+                modifiedRenderOptions.setOutlineColor({1.0F, 0.0F, 0.0F});
             } else {
-                modifiedRenderOptions.drawOutlines = false;
+                modifiedRenderOptions.setDrawOutlines(false);
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         } else {
-            modifiedRenderOptions.outlineColor = ColorRgbMutable(0.4F, 0.1F, 0.1F);
+            modifiedRenderOptions.setOutlineColor({0.4F, 0.1F, 0.1F});
             if ( i == debugState->primarySelectedPatch ) {
-                modifiedRenderOptions.outlineColor = ColorRgbMutable(0.0F, 0.0F, 1.0F);
+                modifiedRenderOptions.setOutlineColor({0.0F, 0.0F, 1.0F});
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         }

@@ -191,7 +191,7 @@ ColorRgbMutable
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RendererConfiguration *renderOptions) {
     ColorRgbMutable radiance(0.0, 0.0, 0.0);
     if ( elem->basis->size == 1 ) {
-        if ( renderOptions->smoothShading ) {
+        if ( renderOptions->isSmoothShading() ) {
             // Do Gouraud interpolation if required
             ColorRgbMutable rad[4];
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {

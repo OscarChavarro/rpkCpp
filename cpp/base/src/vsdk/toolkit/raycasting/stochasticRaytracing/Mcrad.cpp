@@ -458,7 +458,7 @@ Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D
     ColorRgbMutable TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
-    ColorRgbMutable UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    ColorRgbMutable UsedRdAtPoint = renderOptions->isSmoothShading() ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgbMutable radianceAtPoint = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
     ColorRgbMutable sourceRad(0.0, 0.0, 0.0);
     sourceRad.clear();

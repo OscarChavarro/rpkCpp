@@ -36,7 +36,10 @@ LightDirSampler::sample(
         if ( !shctxOk ) {
             return false;
         }
-        dir = thisNode->m_hit.getMaterial()->getEdf()->phongEdfSample(&lightContext, DIFFUSE_COMPONENT, x1, x2, &thisNode->m_bsdfEval, &pdfDir);
+        ColorRgb emittedRadiance(0.0, 0.0, 0.0);
+        dir = thisNode->m_hit.getMaterial()->getEdf()->phongEdfSample(
+            &lightContext, DIFFUSE_COMPONENT, x1, x2, &emittedRadiance, &pdfDir);
+        thisNode->m_bsdfEval = static_cast<ColorRgbMutable>(emittedRadiance);
     }
 
     if ( pdfDir < Numeric::EPSILON ) {

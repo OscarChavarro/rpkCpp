@@ -10,19 +10,19 @@ distribution of light sources
 */
 class PhongEmittanceDistributionFunction {
   private:
-    ColorRgbMutable Kd;
-    ColorRgbMutable kd;
-    ColorRgbMutable Ks;
+    ColorRgb Kd;
+    ColorRgb kd;
+    ColorRgb Ks;
     float Ns;
 
     bool isSpecular() const;
 
 public:
-    explicit PhongEmittanceDistributionFunction(const ColorRgbMutable *KdParameter, const ColorRgbMutable *KsParameter, double NsParameter);
+    explicit PhongEmittanceDistributionFunction(const ColorRgb *KdParameter, const ColorRgb *KsParameter, double NsParameter);
     virtual ~PhongEmittanceDistributionFunction();
 
-    const ColorRgbMutable &getKd() const;
-    const ColorRgbMutable &getKs() const;
+    const ColorRgb &getKd() const;
+    const ColorRgb &getKs() const;
     float getNs() const;
 
     static bool edfIsTextured();
@@ -34,9 +34,9 @@ public:
         const Vector3D *Y,
         const Vector3D *Z);
 
-    ColorRgbMutable phongEmittance(const ShadingContext *context, char flags) const;
+    ColorRgb phongEmittance(const ShadingContext *context, char flags) const;
 
-    ColorRgbMutable
+    ColorRgb
     phongEdfEval(
         const ShadingContext *context,
         const Vector3D *out,
@@ -49,17 +49,17 @@ public:
         char flags,
         double xi1,
         double xi2,
-        ColorRgbMutable *selfEmittedRadiance,
+        ColorRgb *selfEmittedRadiance,
         double *probabilityDensityFunction) const;
 
 };
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongEmittanceDistributionFunction::getKd() const {
     return Kd;
 }
 
-inline const ColorRgbMutable &
+inline const ColorRgb &
 PhongEmittanceDistributionFunction::getKs() const {
     return Ks;
 }

@@ -8,6 +8,20 @@ Implementation of a BSDF consisting of one brdf and one bsdf. Either of the comp
 #include "RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 
+namespace {
+inline ColorRgb black() {
+    return {0.0, 0.0, 0.0};
+}
+
+inline ColorRgb addColor(const ColorRgb &a, const ColorRgb &b) {
+    return {a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB()};
+}
+
+inline ColorRgb addScaledColor(const ColorRgb &a, double scale, const ColorRgb &b) {
+    return {a.getR() + scale * b.getR(), a.getG() + scale * b.getG(), a.getB() + scale * b.getB()};
+}
+}
+
 /**
 Creates a BSDF instance with given data and methods
 */
@@ -62,10 +76,9 @@ PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
     return false;
 }
 
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context) {
-    ColorRgbMutable col(0.0, 0.0, 0.0);
-    col.clear();
+    ColorRgb col = black();
 
     if ( texture == nullptr ) {
         return col;
@@ -84,28 +97,27 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
 /**
 Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const ShadingContext &context, char flags) const {
-    ColorRgbMutable albedo(0.0, 0.0, 0.0);
-    albedo.clear();
+    ColorRgb albedo = black();
 
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        ColorRgbMutable textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
-        albedo.add(albedo, textureColor);
+        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        albedo = addColor(albedo, textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
 
     if ( brdf ) {
-        ColorRgbMutable reflectance = brdf->reflectance(flags);
+        ColorRgb reflectance = brdf->reflectance(flags);
         if ( !java::Float::isFinite(reflectance.average()) ) {
             Logger::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
-        albedo.add(albedo, reflectance);
+        albedo = addColor(albedo, reflectance);
     }
 
     if ( btdf != nullptr ) {
-        ColorRgbMutable transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
-        albedo.add(albedo, transmitted);
+        ColorRgb transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
+        albedo = addColor(albedo, transmitted);
     }
 
     return albedo;
@@ -162,7 +174,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
 {
     *inTexture = 0.0;
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        ColorRgbMutable textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
         *inTexture = textureColor.average();
         flags &= ~TEXTURED_COMPONENT;
     }
@@ -170,18 +182,14 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
     *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
-    ColorRgbMutable reflectance(0.0, 0.0, 0.0);
-    if ( brdf == nullptr ) {
-        reflectance.clear();
-    } else {
+    ColorRgb reflectance = black();
+    if ( brdf != nullptr ) {
         reflectance = brdf->reflectance(*brdfFlags);
     }
     *reflection = reflectance.average();
 
-    ColorRgbMutable transmittance(0.0, 0.0, 0.0);
-    if ( btdf == nullptr ) {
-        transmittance.clear();
-    } else {
+    ColorRgb transmittance = black();
+    if ( btdf != nullptr ) {
         transmittance = btdf->transmittance(*btdfFlags);
     }
     *transmission = transmittance.average();
@@ -381,7 +389,7 @@ out: from patch
 hit->normal : leaving from patch, on the incoming side.
          So in . hit->normal > 0!
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalScatteringDistributionFunction::evaluate(
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -390,10 +398,8 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     const Vector3D *out,
     char flags) const
 {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgb result = black();
     Vector3D normal;
-
-    result.clear();
     if ( !context.hasFlag(SHCTX_NORMAL) ) {
         Logger::warning("evaluate", "Couldn't determine shading normal");
         return result;
@@ -403,20 +409,20 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
         double textureBsdf = PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
                 in, out, &normal);
-        ColorRgbMutable textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
-        result.addScaled(result, static_cast<float>(textureBsdf), textureCol);
+        ColorRgb textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        result = addScaledColor(result, textureBsdf, textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
 
     // Just add brdf and btdf contributions, the eval routines handle the direction of out.
     // Note that out * normal is computed more than once :-(
     if ( brdf != nullptr ) {
-        ColorRgbMutable reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
-        result.add(result, reflectionCol);
+        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
+        result = addColor(result, reflectionCol);
 
         RefractionIndex inIndex{};
         RefractionIndex outIndex{};
-        ColorRgbMutable refractionCol(0.0, 0.0, 0.0);
+        ColorRgb refractionCol = black();
 
         if ( inBsdf != nullptr ) {
             inBsdf->indexOfRefraction(&inIndex);
@@ -426,14 +432,12 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
             outBsdf->indexOfRefraction(&outIndex);
         }
 
-        if ( btdf == nullptr ) {
-            refractionCol.clear();
-        } else {
+        if ( btdf != nullptr ) {
             refractionCol = btdf->evaluate(
                     inIndex, outIndex, in, out, &normal, BsdfComponentFlag::getBtdfFlags(flags));
         }
 
-        result.add(result, refractionCol);
+        result = addColor(result, refractionCol);
     }
 
     return result;
@@ -532,7 +536,7 @@ Evaluates all requested components of the BSDF separately and
 stores the result in 'colArray'.
 Total evaluation is returned.
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         const ShadingContext &context,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -540,15 +544,12 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         const Vector3D *in,
         const Vector3D *out,
         const char flags,
-        ColorRgbMutable *colArray) const
+        ColorRgb *colArray) const
 {
     // Some caching optimisation could be used here
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-    ColorRgbMutable empty(0.0, 0.0, 0.0);
+    ColorRgb result = black();
+    const ColorRgb empty = black();
     char thisFlag;
-
-    empty.clear();
-    result.clear();
 
     for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
         thisFlag = static_cast<char>(BsdfComponentFlag::bsdfIndexToComp(i));
@@ -556,7 +557,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         if ( flags & thisFlag ) {
             colArray[i] = PhongBidirectionalScatteringDistributionFunction::evaluate(
                     context, inBsdf, outBsdf, in, out, thisFlag);
-            result.add(result, colArray[i]);
+            result = addColor(result, colArray[i]);
         } else {
             colArray[i] = empty;  // Set to 0 for safety
         }

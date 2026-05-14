@@ -60,6 +60,7 @@ class Opengl {
 
   public:
     static void openGlRenderLine(Vector3D *x, Vector3D *y);
+    static void openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions);
     static void openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchOutline(const Patch *patch);
     static void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);

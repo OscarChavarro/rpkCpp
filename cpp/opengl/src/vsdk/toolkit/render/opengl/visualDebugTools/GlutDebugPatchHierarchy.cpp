@@ -126,7 +126,7 @@ GlutDebugPatchHierarchy::renderElementGray(
 
     float grayValue = OUTLINE_MIN_GRAY;
 
-    if ( renderOptions->drawSurfaces ) {
+    if ( renderOptions->isDrawSurfaces() ) {
         ColorRgbMutable radianceSample{};
         if ( element->radiance != nullptr ) {
             radianceSample = element->radiance[0];
@@ -151,13 +151,13 @@ GlutDebugPatchHierarchy::renderElementGray(
     }
 
     float outlineGray = grayValue;
-    if ( renderOptions->drawSurfaces ) {
+    if ( renderOptions->isDrawSurfaces() ) {
         outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
     } else {
         outlineGray = toneMappedGrayAndDarkened(Cie::spectrumLuminance(
-            renderOptions->outlineColor.getR(),
-            renderOptions->outlineColor.getG(),
-            renderOptions->outlineColor.getB()));
+            renderOptions->getOutlineColor().getR(),
+            renderOptions->getOutlineColor().getG(),
+            renderOptions->getOutlineColor().getB()));
     }
     outlineGray = clamp01(outlineGray);
     if ( outlineGray < OUTLINE_MIN_GRAY ) {
@@ -471,9 +471,9 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     }
 
     RendererConfiguration interactingRenderOptions = *renderOptions;
-    interactingRenderOptions.drawSurfaces = true;
-    interactingRenderOptions.drawOutlines = true;
-    interactingRenderOptions.outlineColor = ColorRgbMutable(1.0F, 1.0F, 0.0F);
+    interactingRenderOptions.setDrawSurfaces(true);
+    interactingRenderOptions.setDrawOutlines(true);
+    interactingRenderOptions.setOutlineColor({1.0F, 1.0F, 0.0F});
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
@@ -511,9 +511,9 @@ GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     const int secondaryHierarchyLevel = clampLevel(hierarchyLevel, maxLevel);
 
     RendererConfiguration secondaryRenderOptions = *renderOptions;
-    secondaryRenderOptions.drawSurfaces = true;
-    secondaryRenderOptions.drawOutlines = true;
-    secondaryRenderOptions.outlineColor = ColorRgbMutable(1.0F, 1.0F, 0.0F);
+    secondaryRenderOptions.setDrawSurfaces(true);
+    secondaryRenderOptions.setDrawOutlines(true);
+    secondaryRenderOptions.setOutlineColor({1.0F, 1.0F, 0.0F});
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
@@ -577,8 +577,8 @@ GlutDebugPatchHierarchy::renderSelectedPatchAtLevel(
         const int clampedLevel = clampLevel(hierarchyLevel, maxLevel);
 
         RendererConfiguration selectedRenderOptions = *renderOptions;
-        selectedRenderOptions.drawSurfaces = true;
-        selectedRenderOptions.drawOutlines = true;
+        selectedRenderOptions.setDrawSurfaces(true);
+        selectedRenderOptions.setDrawOutlines(true);
 
         renderElementAtLevel(primaryTopLevelElement, clampedLevel, &selectedRenderOptions);
         drawSelectedPatchCenterMarker(primaryTopLevelElement, renderOptions);

@@ -10,22 +10,22 @@ ColorRgbMutable OptionsGroupRender::outlineColor;
 
 void
 OptionsGroupRender::flatOption(int & /*value*/) {
-    renderOptionsState.smoothShading = false;
+    renderOptionsState.setSmoothShading(false);
 }
 
 void
 OptionsGroupRender::noCullingOption(int & /*value*/) {
-    renderOptionsState.backfaceCulling = false;
+    renderOptionsState.setBackfaceCulling(false);
 }
 
 void
 OptionsGroupRender::outlinesOption(int & /*value*/) {
-    renderOptionsState.drawOutlines = true;
+    renderOptionsState.setDrawOutlines(true);
 }
 
 void
 OptionsGroupRender::traceOption(int & /*value*/) {
-    renderOptionsState.trace = true;
+    renderOptionsState.setTrace(true);
 }
 
 void
@@ -54,7 +54,7 @@ OptionsGroupRender::renderParseOptions(
     OptionParser<OptionBase>::parse(argc, argv, renderGroups, 1);
 
     *renderOptions = renderOptionsState;
-    renderOptions->outlineColor = outlineColor;
+    renderOptions->setOutlineColor(ColorRgb(outlineColor));
 }
 
 bool

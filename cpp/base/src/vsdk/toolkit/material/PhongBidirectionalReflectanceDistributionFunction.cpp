@@ -44,12 +44,13 @@ PhongBidirectionalReflectanceDistributionFunction::isSpecular() const {
 }
 
 PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectanceDistributionFunction(
-    const ColorRgbMutable *inKd, const ColorRgbMutable *inKs, double inNs) {
-    Kd = *inKd;
-    avgKd = Kd.average();
-    Ks = *inKs;
-    avgKs = Ks.average();
-    Ns = static_cast<float>(inNs);
+    const ColorRgb *inKd, const ColorRgb *inKs, double inNs):
+    Kd(*inKd),
+    Ks(*inKs),
+    avgKd(Kd.average()),
+    avgKs(Ks.average()),
+    Ns(static_cast<float>(inNs))
+{
 }
 
 PhongBidirectionalReflectanceDistributionFunction::~PhongBidirectionalReflectanceDistributionFunction() {
@@ -58,54 +59,62 @@ PhongBidirectionalReflectanceDistributionFunction::~PhongBidirectionalReflectanc
 /**
 Returns the diffuse reflectance of the BRDF according to the flags
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags) const {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-
-    result.clear();
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, Kd);
+        r += Kd.getR();
+        g += Kd.getG();
+        b += Kd.getB();
     }
 
     if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, Ks);
+            r += Ks.getR();
+            g += Ks.getG();
+            b += Ks.getB();
         }
     }
 
-    return result;
+    return {r, g, b};
 }
 
 /**
 Brdf evaluations
 */
-ColorRgbMutable
+ColorRgb
 PhongBidirectionalReflectanceDistributionFunction::evaluate(
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
     char flags) const
 {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
+    double r = 0.0;
+    double g = 0.0;
+    double b = 0.0;
     char nonDiffuseFlag;
     Vector3D inRev;
     inRev.scaledCopy(-1.0, *in);
 
-    result.clear();
-
     // kd + ks (idealReflected * out)^n
     if ( out->dotProduct(*normal) < 0 ) {
         // Refracted ray
-        return result;
+        return {0.0, 0.0, 0.0};
     }
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0.0) ) {
-        result.addScaled(result, M_1_PI, Kd);
+        r += M_1_PI * Kd.getR();
+        g += M_1_PI * Kd.getG();
+        b += M_1_PI * Kd.getB();
     }
 
     if ( isSpecular() ) {
@@ -121,11 +130,13 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
         if ( localDotProduct > 0 ) {
             float tmpFloat = java::Math::pow(localDotProduct, Ns); // cos(a) ^ n
             tmpFloat *= (Ns + 2.0F) / (2.0F * static_cast<float>(M_PI)); // Ks -> ks
-            result.addScaled(result, tmpFloat, Ks);
+            r += tmpFloat * Ks.getR();
+            g += tmpFloat * Ks.getG();
+            b += tmpFloat * Ks.getB();
         }
     }
 
-    return result;
+    return {r, g, b};
 }
 
 /**

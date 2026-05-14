@@ -186,19 +186,25 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     PhongEmittanceDistributionFunction* edf = nullptr;
     if ( !Ed.isBlack() || !Es.isBlack() ) {
         constexpr double Ne = 0.0;
-        edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
+        const ColorRgb edImmutable(Ed);
+        const ColorRgb esImmutable(Es);
+        edf = new PhongEmittanceDistributionFunction(&edImmutable, &esImmutable, Ne);
     }
 
     PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
     if ( !Rd.isBlack() || !Rs.isBlack() ) {
-        brdf = new PhongBidirectionalReflectanceDistributionFunction(&Rd, &Rs, Nr);
+        const ColorRgb rdImmutable(Rd);
+        const ColorRgb rsImmutable(Rs);
+        brdf = new PhongBidirectionalReflectanceDistributionFunction(&rdImmutable, &rsImmutable, Nr);
     }
 
     PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
     if ( !Td.isBlack() || !Ts.isBlack() ) {
+        const ColorRgb tdImmutable(Td);
+        const ColorRgb tsImmutable(Ts);
         btdf = new PhongBidirectionalTransmittanceDistributionFunction(
-            &Td,
-            &Ts,
+            &tdImmutable,
+            &tsImmutable,
             Nt,
             currentMaterialContext->nr,
             currentMaterialContext->ni);

@@ -57,11 +57,11 @@ Opengl::openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-Opengl::openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions) {
+Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions) {
     (void) renderOptions;
     ColorRgbMutable correctedRgb{};
 
-    correctedRgb = *rgb;
+    correctedRgb = static_cast<ColorRgbMutable>(*rgb);
     if ( Opengl::activeToneMapOptions != nullptr ) {
         ToneMap::toneMappingGammaCorrection(correctedRgb, *Opengl::activeToneMapOptions);
     } else if ( !openGlMissingToneMapWarningShown ) {
@@ -71,6 +71,12 @@ Opengl::openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfigura
 #ifdef OPEN_GL_ENABLED
     glColor3fv(reinterpret_cast<GLfloat *>(&correctedRgb));
 #endif
+}
+
+void
+Opengl::openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions) {
+    const ColorRgb color(*rgb);
+    Opengl::openGlRenderSetColor(&color, renderOptions);
 }
 
 /**
@@ -432,17 +438,18 @@ Renders the all the patches using default colors
 void
 Opengl::openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions) {
 #ifdef OPEN_GL_ENABLED
-    if ( !renderOptions->noShading ) {
-        if ( renderOptions->smoothShading ) {
+    if ( !renderOptions->isNoShading() ) {
+        if ( renderOptions->isSmoothShading() ) {
             Opengl::openGlRenderPatchSmooth(patch, renderOptions);
         } else {
             Opengl::openGlRenderPatchFlat(patch, renderOptions);
         }
     }
 
-    if ( renderOptions->drawOutlines &&
+    if ( renderOptions->isDrawOutlines() &&
          (patch->getNormal().dotProduct(camera->eyePosition) + patch->getPlaneConstant() > Numeric::EPSILON) ) {
-        Opengl::openGlRenderSetColor(&renderOptions->outlineColor, renderOptions);
+        const ColorRgb &outlineColor = renderOptions->getOutlineColor();
+        Opengl::openGlRenderSetColor(&outlineColor, renderOptions);
         Opengl::openGlRenderPatchOutline(patch);
     }
 #endif
@@ -521,7 +528,7 @@ Opengl::openGlReallyRender(
             java::System::err.println("OpenGL supports only rendering of Galerkin patches");
             java::System::exit(1);
         }
-    } else if ( renderOptions->frustumCulling ) {
+    } else if ( renderOptions->isFrustumCulling() ) {
         Opengl::openGlRenderWorldOctree(scene, Opengl::openGlRenderPatchCallBack, renderOptions);
     } else {
         for ( int i = 0; scene->patchList != nullptr && i < scene->patchList->size(); i++ ) {
@@ -538,7 +545,7 @@ Opengl::openGlRenderRadiance(
     const RendererConfiguration *renderOptions,
     const GlutDebugState *debugState)
 {
-    if ( renderOptions->smoothShading ) {
+    if ( renderOptions->isSmoothShading() ) {
         glShadeModel(GL_SMOOTH);
     } else {
         glShadeModel(GL_FLAT);
@@ -546,7 +553,7 @@ Opengl::openGlRenderRadiance(
 
     Opengl::openGlRenderSetCamera(scene->camera, scene->geometryList);
 
-    if ( renderOptions->backfaceCulling ) {
+    if ( renderOptions->isBackfaceCulling() ) {
         glEnable(GL_CULL_FACE);
     } else {
         glDisable(GL_CULL_FACE);
@@ -554,11 +561,11 @@ Opengl::openGlRenderRadiance(
 
     Opengl::openGlReallyRender(scene, radianceMethod, renderOptions, debugState);
 
-    if ( renderOptions->drawBoundingBoxes ) {
+    if ( renderOptions->isDrawBoundingBoxes() ) {
         RenderOpenGL::renderBoundingBoxHierarchy(scene->camera, scene->geometryList, renderOptions);
     }
 
-    if ( renderOptions->drawClusters ) {
+    if ( renderOptions->isDrawClusters() ) {
         RenderOpenGL::renderClusterHierarchy(scene->camera, scene->clusteredGeometryList, renderOptions);
     }
 }
@@ -585,11 +592,11 @@ Opengl::openGlRenderScene(
         openGlMissingToneMapWarningShown = true;
     }
 
-    Opengl::openGlRenderSetLineWidth(renderOptions->lineWidth);
+    Opengl::openGlRenderSetLineWidth(renderOptions->getLineWidth());
 
     Canvas::canvasPushMode();
 
-    if ( !renderOptions->renderRayTracedImage ) {
+    if ( !renderOptions->isRenderRayTracedImage() ) {
         Opengl::openGlRenderRadiance(scene, radianceMethod, renderOptions, debugState);
     }
 

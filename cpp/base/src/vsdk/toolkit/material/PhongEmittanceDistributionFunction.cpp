@@ -1,7 +1,29 @@
 #include "vsdk/toolkit/common/logging/Logger.h"
+#include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
+#include "vsdk/toolkit/java/lang/Math.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongEmittanceDistributionFunction.h"
 #include "vsdk/toolkit/material/Xxdf.h"
+
+namespace {
+inline ColorRgb black() {
+    return {0.0, 0.0, 0.0};
+}
+
+inline bool isBlack(const ColorRgb &c) {
+    return java::Math::abs(c.getR()) < Numeric::EPSILON
+        && java::Math::abs(c.getG()) < Numeric::EPSILON
+        && java::Math::abs(c.getB()) < Numeric::EPSILON;
+}
+
+inline ColorRgb addColor(const ColorRgb &a, const ColorRgb &b) {
+    return {a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB()};
+}
+
+inline ColorRgb scaleColor(double scale, const ColorRgb &c) {
+    return {scale * c.getR(), scale * c.getG(), scale * c.getB()};
+}
+}
 
 bool
 PhongEmittanceDistributionFunction::isSpecular() const {
@@ -16,17 +38,17 @@ Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
 PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
-    const ColorRgbMutable *KdParameter,
-    const ColorRgbMutable *KsParameter,
-    double NsParameter)
+    const ColorRgb *KdParameter,
+    const ColorRgb *KsParameter,
+    double NsParameter):
+    Kd(*KdParameter),
+    kd(scaleColor((1.00F / static_cast<float>(M_PI)), *KdParameter)),
+    Ks(*KsParameter),
+    Ns(static_cast<float>(NsParameter))
 {
-    Kd = *KdParameter;
-    kd.scaledCopy((1.00F / static_cast<float>(M_PI)), Kd); // Because we use it often
-    Ks = *KsParameter;
-    if ( !Ks.isBlack() ) {
+    if ( !isBlack(Ks) ) {
         Logger::warning("phongEdfCreate", "Non-diffuse light sources not yet implemented");
     }
-    Ns = static_cast<float>(NsParameter);
 }
 
 PhongEmittanceDistributionFunction::~PhongEmittanceDistributionFunction() {
@@ -35,22 +57,20 @@ PhongEmittanceDistributionFunction::~PhongEmittanceDistributionFunction() {
 /**
 Returns emittance, reflectance, transmittance
 */
-ColorRgbMutable
+ColorRgb
 PhongEmittanceDistributionFunction::phongEmittance(const ShadingContext * /*context*/, const char flags) const {
-    ColorRgbMutable result(0.0, 0.0, 0.0);
-
-    result.clear();
+    ColorRgb result = black();
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, Kd);
+        result = addColor(result, Kd);
     }
 
     if ( isSpecular() ) {
         if ( flags & SPECULAR_COMPONENT ) {
-            result.add(result, Ks);
+            result = addColor(result, Ks);
         }
     } else {
         if ( flags & GLOSSY_COMPONENT ) {
-            result.add(result, Ks);
+            result = addColor(result, Ks);
         }
     }
 
@@ -71,7 +91,7 @@ Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
 out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
 computed and returned in probabilityDensityFunction
 */
-ColorRgbMutable
+ColorRgb
 PhongEmittanceDistributionFunction::phongEdfEval(
     const ShadingContext *context,
     const Vector3D *out,
@@ -79,10 +99,8 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     double *probabilityDensityFunction) const
 {
     Vector3D normal;
-    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgb result = black();
     double cosL;
-
-    result.clear();
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;
     }
@@ -100,7 +118,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     }
 
     if ( flags & DIFFUSE_COMPONENT ) {
-        result.add(result, kd);
+        result = addColor(result, kd);
         if ( probabilityDensityFunction ) {
             *probabilityDensityFunction = cosL / M_PI;
         }
@@ -124,11 +142,11 @@ PhongEmittanceDistributionFunction::phongEdfSample(
     char flags,
     double xi1,
     double xi2,
-    ColorRgbMutable *selfEmittedRadiance,
+    ColorRgb *selfEmittedRadiance,
     double *probabilityDensityFunction) const
 {
     if ( selfEmittedRadiance ) {
-        selfEmittedRadiance->clear();
+        *selfEmittedRadiance = black();
     }
     if ( probabilityDensityFunction ) {
         *probabilityDensityFunction = 0.0;
@@ -151,7 +169,7 @@ PhongEmittanceDistributionFunction::phongEdfSample(
             *probabilityDensityFunction = sProbabilityDensityFunction;
         }
         if ( selfEmittedRadiance ) {
-            selfEmittedRadiance->scaledCopy((1.0F / static_cast<float>(M_PI)), Kd);
+            *selfEmittedRadiance = scaleColor((1.0F / static_cast<float>(M_PI)), Kd);
         }
     }
 

@@ -36,12 +36,7 @@ Texture::~Texture() {
     data = nullptr;
 }
 
-void
-Texture::setMonochrome(ColorRgbMutable rgb, float val) {
-    rgb = ColorRgbMutable(val, val, val);
-}
-
-ColorRgbMutable
+ColorRgb
 Texture::evaluateColor(float u, float v) const {
     double u1 = u - java::Math::floor(u);
     double u0 = 1.0 - u1;
@@ -70,11 +65,8 @@ Texture::evaluateColor(float u, float v) const {
         j1 -= height;
     }
 
-    ColorRgbMutable rgb{};
-
-    rgb.clear();
     if ( !data ) {
-        return rgb;
+        return {0.0, 0.0, 0.0};
     }
 
     const int pixelIndex00 = (j * width + i) * channels;
@@ -86,33 +78,48 @@ Texture::evaluateColor(float u, float v) const {
         return static_cast<float>(data[pixelIndex + channel]) / 255.0F;
     };
 
-    ColorRgbMutable rgb00{};
-    ColorRgbMutable rgb10{};
-    ColorRgbMutable rgb01{};
-    ColorRgbMutable rgb11{};
+    double r00 = 0.0;
+    double g00 = 0.0;
+    double b00 = 0.0;
+    double r10 = 0.0;
+    double g10 = 0.0;
+    double b10 = 0.0;
+    double r01 = 0.0;
+    double g01 = 0.0;
+    double b01 = 0.0;
+    double r11 = 0.0;
+    double g11 = 0.0;
+    double b11 = 0.0;
 
     switch ( channels ) {
         case 1:
-            setMonochrome(rgb00, channelValue(pixelIndex00, 0));
-            setMonochrome(rgb10, channelValue(pixelIndex10, 0));
-            setMonochrome(rgb01, channelValue(pixelIndex01, 0));
-            setMonochrome(rgb11, channelValue(pixelIndex11, 0));
+            r00 = g00 = b00 = channelValue(pixelIndex00, 0);
+            r10 = g10 = b10 = channelValue(pixelIndex10, 0);
+            r01 = g01 = b01 = channelValue(pixelIndex01, 0);
+            r11 = g11 = b11 = channelValue(pixelIndex11, 0);
             break;
         case 3:
         case 4: {
-            rgb00 = ColorRgbMutable(channelValue(pixelIndex00, 0), channelValue(pixelIndex00, 1), channelValue(pixelIndex00, 2));
-            rgb10 = ColorRgbMutable(channelValue(pixelIndex10, 0), channelValue(pixelIndex10, 1), channelValue(pixelIndex10, 2));
-            rgb01 = ColorRgbMutable(channelValue(pixelIndex01, 0), channelValue(pixelIndex01, 1), channelValue(pixelIndex01, 2));
-            rgb11 = ColorRgbMutable(channelValue(pixelIndex11, 0), channelValue(pixelIndex11, 1), channelValue(pixelIndex11, 2));
+            r00 = channelValue(pixelIndex00, 0);
+            g00 = channelValue(pixelIndex00, 1);
+            b00 = channelValue(pixelIndex00, 2);
+            r10 = channelValue(pixelIndex10, 0);
+            g10 = channelValue(pixelIndex10, 1);
+            b10 = channelValue(pixelIndex10, 2);
+            r01 = channelValue(pixelIndex01, 0);
+            g01 = channelValue(pixelIndex01, 1);
+            b01 = channelValue(pixelIndex01, 2);
+            r11 = channelValue(pixelIndex11, 0);
+            g11 = channelValue(pixelIndex11, 1);
+            b11 = channelValue(pixelIndex11, 2);
         }
             break;
         default:
             break;
     }
 
-    rgb = ColorRgbMutable(
-        0.25 * (u0 * v0 * rgb00.getR() + u1 * v0 * rgb10.getR() + u0 * v1 * rgb01.getR() + u1 * v1 * rgb11.getR()),
-        0.25 * (u0 * v0 * rgb00.getG() + u1 * v0 * rgb10.getG() + u0 * v1 * rgb01.getG() + u1 * v1 * rgb11.getG()),
-        0.25 * (u0 * v0 * rgb00.getB() + u1 * v0 * rgb10.getB() + u0 * v1 * rgb01.getB() + u1 * v1 * rgb11.getB()));
-    return rgb;
+    const double r = 0.25 * (u0 * v0 * r00 + u1 * v0 * r10 + u0 * v1 * r01 + u1 * v1 * r11);
+    const double g = 0.25 * (u0 * v0 * g00 + u1 * v0 * g10 + u0 * v1 * g01 + u1 * v1 * g11);
+    const double b = 0.25 * (u0 * v0 * b00 + u1 * v0 * b10 + u0 * v1 * b01 + u1 * v1 * b11);
+    return {r, g, b};
 }

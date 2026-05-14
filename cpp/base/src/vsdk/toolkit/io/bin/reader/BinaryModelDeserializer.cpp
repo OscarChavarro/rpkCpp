@@ -126,7 +126,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                 const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                edf = new PhongEmittanceDistributionFunction(&kd, &ks, ns);
+                const ColorRgb kdImmutable(kd);
+                const ColorRgb ksImmutable(ks);
+                edf = new PhongEmittanceDistributionFunction(&kdImmutable, &ksImmutable, ns);
             }
 
             PhongBidirectionalScatteringDistributionFunction *bsdf = nullptr;
@@ -143,7 +145,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                    brdf = new PhongBidirectionalReflectanceDistributionFunction(&kd, &ks, ns);
+                    const ColorRgb kdImmutable(kd);
+                    const ColorRgb ksImmutable(ks);
+                    brdf = new PhongBidirectionalReflectanceDistributionFunction(&kdImmutable, &ksImmutable, ns);
                 }
 
                 const bool hasBtdf = BinaryModelReadPrimitives::readBool(input);
@@ -155,7 +159,9 @@ BinaryModelDeserializer::read(const char *fileName) {
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
                     const float nr = BinaryModelReadPrimitives::readFloatLE(input);
                     const float ni = BinaryModelReadPrimitives::readFloatLE(input);
-                    btdf = new PhongBidirectionalTransmittanceDistributionFunction(&kd, &ks, ns, nr, ni);
+                    const ColorRgb kdImmutable(kd);
+                    const ColorRgb ksImmutable(ks);
+                    btdf = new PhongBidirectionalTransmittanceDistributionFunction(&kdImmutable, &ksImmutable, ns, nr, ni);
                 }
 
                 const bool hasTexture = BinaryModelReadPrimitives::readBool(input);

@@ -85,8 +85,10 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *poin
             if ( !shctxOk ) {
                 continue;
             }
+            ColorRgb emittedRadiance(0.0, 0.0, 0.0);
             ray.direction = patch->getMaterial()->getEdf()->phongEdfSample(
-                &shctx, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], emitted_rad, dirSelectionPdf);
+                &shctx, XxdfComponentFlagInfo::ALL_COMPONENTS, zeta[2], zeta[3], &emittedRadiance, dirSelectionPdf);
+            *emitted_rad = static_cast<ColorRgbMutable>(emittedRadiance);
         }
     } while ( *dirSelectionPdf == 0.0 );
 

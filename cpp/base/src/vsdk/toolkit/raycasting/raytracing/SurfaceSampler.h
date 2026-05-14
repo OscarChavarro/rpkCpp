@@ -1,6 +1,7 @@
 #ifndef C_SURFACE_SAMPLER__
 #define C_SURFACE_SAMPLER__
 
+#include <vector>
 #include "vsdk/toolkit/raycasting/raytracing/Sampler.h"
 
 /**
@@ -47,7 +48,14 @@ class SurfaceSampler : public Sampler {
                 black.clear();
                 return black;
             } else {
-                return bsdf->bsdfEvalComponents(context, inBsdf, outBsdf, in, out, flags, *bsdfComp);
+                std::vector<ColorRgb> componentArray(
+                    BsdfComponentInfo::BSDF_COMPONENTS, ColorRgb(0.0, 0.0, 0.0));
+                const ColorRgb radiance = bsdf->bsdfEvalComponents(
+                    context, inBsdf, outBsdf, in, out, flags, componentArray.data());
+                for ( int i = 0; i < BsdfComponentInfo::BSDF_COMPONENTS; i++ ) {
+                    (*bsdfComp)[i] = static_cast<ColorRgbMutable>(componentArray[i]);
+                }
+                return static_cast<ColorRgbMutable>(radiance);
             }
         } else {
             bsdfComp->Clear();
