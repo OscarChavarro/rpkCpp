@@ -9,7 +9,7 @@ A chain list is a set of scattering modes
 #ifndef FLAG_CHAIN__
 #define FLAG_CHAIN__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/dataStructures/CircularList.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
@@ -28,7 +28,7 @@ class FlagChain {
     FlagChain(const FlagChain &c); // Copy constructor
     ~FlagChain();
 
-    ColorRgb compute(BiPath *path) const;
+    ColorRgbMutable compute(BiPath *path) const;
     static bool compare(const FlagChain *c1, const FlagChain *c2);
     static FlagChain *combine(const FlagChain *chain1, const FlagChain *chain2);
 };

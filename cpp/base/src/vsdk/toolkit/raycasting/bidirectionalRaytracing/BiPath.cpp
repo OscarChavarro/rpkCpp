@@ -31,14 +31,14 @@ BiPath::init() {
 Evaluate the radiance contribution of a bipath. Only Function
 evaluation, no pdf involved
 */
-ColorRgb
+ColorRgbMutable
 BiPath::evalRadiance() const {
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;
 
-    col = ColorRgb(1.0, 1.0, 1.0);
+    col = ColorRgbMutable(1.0, 1.0, 1.0);
 
     node = m_eyePath;
 

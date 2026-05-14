@@ -6,7 +6,7 @@ MaximumRadianceVisitor::MaximumRadianceVisitor() {
 MaximumRadianceVisitor::~MaximumRadianceVisitor() {
 }
 
-ColorRgb
+ColorRgbMutable
 MaximumRadianceVisitor::getAccumulatedRadiance() const {
     return accumulatedRadiance;
 }
@@ -16,7 +16,7 @@ MaximumRadianceVisitor::visit(
     GalerkinElement *galerkinElement,
     const GalerkinState *galerkinState)
 {
-    ColorRgb rad(0.0, 0.0, 0.0);
+    ColorRgbMutable rad(0.0, 0.0, 0.0);
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
          galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
         rad = galerkinElement->radiance[0];

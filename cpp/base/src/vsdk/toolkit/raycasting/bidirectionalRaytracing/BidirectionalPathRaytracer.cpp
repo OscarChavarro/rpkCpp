@@ -220,7 +220,7 @@ BidirectionalPathRaytracer::terminate() const {
 }
 
 bool
-BidirectionalPathRaytracer::spikeCheck(ColorRgb color) {
+BidirectionalPathRaytracer::spikeCheck(ColorRgbMutable color) {
     double colAvg = color.average();
 
     if ( colAvg > 60000 /* Aaaaaaarrrrggggghh */) {
@@ -244,7 +244,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
     int ny,
     float pix_x,
     float pix_y,
-    ColorRgb f,
+    ColorRgbMutable f,
     bool radSample)
 {
     if ( config->baseConfig->doDensityEstimation ) {
@@ -270,7 +270,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
         } else {
             // Now splat directly into the dest screen
             Vector2D center;
-            ColorRgb g(0.0, 0.0, 0.0);
+            ColorRgbMutable g(0.0, 0.0, 0.0);
 
             // Get the center:
             center.u = pix_x;
@@ -313,9 +313,9 @@ BidirectionalPathRaytracer::handlePathX0(
     const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     const bool endingInEnvironment = path->m_eyeEndNode->m_rayType == PathRayType::ENVIRONMENT;
     const bool hasEnvironmentBackground = endingInEnvironment && sceneBackground != nullptr;
-    ColorRgb oldBsdfEval(0.0, 0.0, 0.0);
-    ColorRgb f(0.0, 0.0, 0.0);
-    ColorRgb fRad(0.0, 0.0, 0.0);
+    ColorRgbMutable oldBsdfEval(0.0, 0.0, 0.0);
+    ColorRgbMutable f(0.0, 0.0, 0.0);
+    ColorRgbMutable fRad(0.0, 0.0, 0.0);
     BsdfComp oldBsdfComp;
     float factor;
     double pdfLNE;
@@ -458,19 +458,19 @@ BidirectionalPathRaytracer::handlePathX0(
     }
 }
 
-ColorRgb
+ColorRgbMutable
 BidirectionalPathRaytracer::computeNeFluxEstimate(
     Camera *camera,
     BidirectionalPathTracingConfiguration *config,
     BiPath *path,
     float *pPdf,
     float *pWeight,
-    ColorRgb *fRad)
+    ColorRgbMutable *fRad)
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    ColorRgb oldBsdfL(0.0, 0.0, 0.0);
-    ColorRgb oldBsdfE(0.0, 0.0, 0.0);
+    ColorRgbMutable oldBsdfL(0.0, 0.0, 0.0);
+    ColorRgbMutable oldBsdfE(0.0, 0.0, 0.0);
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -481,7 +481,7 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    ColorRgb f(0.0, 0.0, 0.0);
+    ColorRgbMutable f(0.0, 0.0, 0.0);
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -571,8 +571,8 @@ BidirectionalPathRaytracer::handlePathXx(
     BidirectionalPathTracingConfiguration *config,
     BiPath *path)
 {
-    ColorRgb f(0.0, 0.0, 0.0);
-    ColorRgb fRad(0.0, 0.0, 0.0);
+    ColorRgbMutable f(0.0, 0.0, 0.0);
+    ColorRgbMutable fRad(0.0, 0.0, 0.0);
     double oldPdfLNE = 0.0;
     float pdf;
     float weight;
@@ -679,8 +679,8 @@ BidirectionalPathRaytracer::handlePath1X(
             &pixY) ) {
         int nx;
         int ny;
-        ColorRgb f(0.0, 0.0, 0.0);
-        ColorRgb fRad(0.0, 0.0, 0.0);
+        ColorRgbMutable f(0.0, 0.0, 0.0);
+        ColorRgbMutable fRad(0.0, 0.0, 0.0);
         float pdf;
         float weight;
 
@@ -801,7 +801,7 @@ BidirectionalPathRaytracer::bpCombinePaths(
     }
 }
 
-ColorRgb
+ColorRgbMutable
 BidirectionalPathRaytracer::bpCalcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
@@ -813,7 +813,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
     auto *config = static_cast<BidirectionalPathTracingConfiguration *>(data);
     double x1;
     double x2;
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     StratifiedSampling2D stratifiedSampling2D(config->baseConfig->samplesPerPixel);
     SimpleRaytracingPathNode *pixNode;
     SimpleRaytracingPathNode *nextNode;

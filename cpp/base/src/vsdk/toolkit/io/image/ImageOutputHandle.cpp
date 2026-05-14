@@ -25,8 +25,8 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 }
 
 inline void
-ImageOutputHandle::gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
-    rgb = ColorRgb(
+ImageOutputHandle::gammaCorrect(ColorRgbMutable &rgb, const float gamma[3]) {
+    rgb = ColorRgbMutable(
         gamma[0] == 1.0F ? rgb.getR() : java::Math::pow(rgb.getR(), 1.0 / static_cast<double>(gamma[0])),
         gamma[1] == 1.0F ? rgb.getG() : java::Math::pow(rgb.getG(), 1.0 / static_cast<double>(gamma[1])),
         gamma[2] == 1.0F ? rgb.getB() : java::Math::pow(rgb.getB(), 1.0 / static_cast<double>(gamma[2])));
@@ -37,7 +37,7 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb(
+        ColorRgbMutable displayRgb(
             static_cast<double>(rgbFloatArray[3 * i]),
             static_cast<double>(rgbFloatArray[3 * i + 1]),
             static_cast<double>(rgbFloatArray[3 * i + 2]));
@@ -61,7 +61,7 @@ Writes a scanline of raw radiance data
 returns the number of pixels written
 */
 int
-ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
+ImageOutputHandle::writeRadianceRGB(ColorRgbMutable *rgbRadiance) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "ImageOutputHandle::writeRadianceRGB", "Tone mapping context not set");
     }
@@ -69,7 +69,7 @@ ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb{};
+        ColorRgbMutable displayRgb{};
         ToneMap::radianceToRgb(rgbRadiance[i], &displayRgb, *toneMapOptions);
 
         // Apply gamma correction

@@ -9,7 +9,7 @@ class ClusterTraversalStrategy {
   public:
     static double surfaceProjectedAreaToSamplePoint(const GalerkinElement *receiverElement);
     static void
-    isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgb *sourceRadiance);
+    isotropicGatherRadiance(GalerkinElement *rcv, double areaFactor, const Interaction *link, const ColorRgbMutable *sourceRadiance);
 
     static void
     traverseAllLeafElements(
@@ -17,11 +17,11 @@ class ClusterTraversalStrategy {
         GalerkinElement *parentElement,
         GalerkinState *galerkinState);
 
-    static ColorRgb sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);
+    static ColorRgbMutable sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState);
     static double receiverArea(Interaction *link, GalerkinState *galerkinState);
-    static void gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState);
-    static ColorRgb maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
-    static ColorRgb clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3D samplePoint, GalerkinState *galerkinState);
+    static void gatherRadiance(Interaction *link, ColorRgbMutable *srcRad, GalerkinState *galerkinState);
+    static ColorRgbMutable maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState);
+    static ColorRgbMutable clusterRadianceToSamplePoint(GalerkinElement *sourceElement, Vector3D samplePoint, GalerkinState *galerkinState);
 };
 
 #endif

@@ -38,7 +38,7 @@ ToneMappingContext::ToneMappingContext():
     yw = 0.333333333333F;
     Cie::computeColorConversionTransforms(xr, yr, xg, yg, xb, yb, xw, yw);
 
-    gamma = ColorRgb(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
+    gamma = ColorRgbMutable(DEFAULT_GAMMA, DEFAULT_GAMMA, DEFAULT_GAMMA);
     ToneMap::recomputeGammaTables(*this, gamma);
 }
 

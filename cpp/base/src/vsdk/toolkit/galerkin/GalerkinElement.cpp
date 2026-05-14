@@ -196,7 +196,7 @@ GalerkinElement::GalerkinElement(Geometry *inGeometry, GalerkinState *inGalerkin
     flags |= ElementFlags::IS_CLUSTER_MASK;
     reAllocCoefficients();
 
-    Rd = ColorRgb(1.0, 1.0, 1.0);
+    Rd = ColorRgbMutable(1.0, 1.0, 1.0);
 
     // Whether the cluster contains light sources or not is also determined after the hierarchy is constructed
     numberOfClusters++;
@@ -314,28 +314,28 @@ GalerkinElement::reAllocCoefficients() {
         }
     }
 
-    ColorRgb *defaultRadiance = new ColorRgb[localBasisSize];
-    ColorRgb::arrayClear(defaultRadiance, localBasisSize);
+    ColorRgbMutable *defaultRadiance = new ColorRgbMutable[localBasisSize];
+    ColorRgbMutable::arrayClear(defaultRadiance, localBasisSize);
     if ( radiance != nullptr ) {
-        ColorRgb::arrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgbMutable::arrayCopy(defaultRadiance, radiance, java::Math::min(basisSize, localBasisSize));
         delete radiance;
     }
     radiance = defaultRadiance;
 
-    ColorRgb *defaultReceivedRadiance = new ColorRgb[localBasisSize];
-    ColorRgb::arrayClear(defaultReceivedRadiance, localBasisSize);
+    ColorRgbMutable *defaultReceivedRadiance = new ColorRgbMutable[localBasisSize];
+    ColorRgbMutable::arrayClear(defaultReceivedRadiance, localBasisSize);
     if ( receivedRadiance != nullptr ) {
-        ColorRgb::arrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
+        ColorRgbMutable::arrayCopy(defaultReceivedRadiance, receivedRadiance, java::Math::min(basisSize, localBasisSize));
         delete receivedRadiance;
     }
     receivedRadiance = defaultReceivedRadiance;
 
     if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
-        ColorRgb *defaultUnShotRadiance = new ColorRgb[localBasisSize];
-        ColorRgb::arrayClear(defaultUnShotRadiance, localBasisSize);
+        ColorRgbMutable *defaultUnShotRadiance = new ColorRgbMutable[localBasisSize];
+        ColorRgbMutable::arrayClear(defaultUnShotRadiance, localBasisSize);
         if ( !isCluster() ) {
             if ( unShotRadiance ) {
-                ColorRgb::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
+                ColorRgbMutable::arrayCopy(defaultUnShotRadiance, unShotRadiance, java::Math::min(basisSize, localBasisSize));
                 delete unShotRadiance;
             } else if ( patch->getMaterial() != nullptr ) {
                 defaultUnShotRadiance[0] = patch->getRadianceData()->Ed;

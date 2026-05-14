@@ -5,7 +5,7 @@ Higher order approximations for Galerkin radiosity
 #ifndef BASIS__
 #define BASIS__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix2x2.h"
 #include "vsdk/toolkit/numericalAnalysis/CubatureRule.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Mcrad.h"
@@ -43,9 +43,9 @@ class StochasticRadiosityBasisState {
 class Basismcrad final {
   public:
     static void monteCarloRadiosityInitBasis();
-    static ColorRgb colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v);
-    static void filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n);
-    static void filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor);
+    static ColorRgbMutable colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v);
+    static void filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER *h, ColorRgbMutable *child, int n);
+    static void filterColorUp(const ColorRgbMutable *child, GalerkinBasis::FILTER *h, ColorRgbMutable *parent, int n, double areaFactor);
     static double oneBasis(double u, double v);
 
   private:

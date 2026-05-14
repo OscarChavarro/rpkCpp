@@ -43,14 +43,14 @@ MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
                 b += face->getVertices()[i]->color.getB();
             }
             const double invCount = 1.0 / static_cast<double>(i);
-            const ColorRgb patchColor(r * invCount, g * invCount, b * invCount);
+            const ColorRgbMutable patchColor(r * invCount, g * invCount, b * invCount);
             face->setColor(patchColor);
             break;
         }
         default: {
-            ColorRgb rho(0.0, 0.0, 0.0);
+            ColorRgbMutable rho(0.0, 0.0, 0.0);
             rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            rho = ColorRgb(face->getColor().getR(), face->getColor().getG(), face->getColor().getB());
+            rho = ColorRgbMutable(face->getColor().getR(), face->getColor().getG(), face->getColor().getB());
         }
     }
 }

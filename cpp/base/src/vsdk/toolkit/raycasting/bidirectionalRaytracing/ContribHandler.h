@@ -1,7 +1,7 @@
 #ifndef CONTRIB_HANDLER__
 #define CONTRIB_HANDLER__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BiPath.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/FlagChainList.h"
 
@@ -17,7 +17,7 @@ class ContribHandler {
     virtual void init(int paramMaxLength);
     virtual ~ContribHandler();
     virtual void addRegExp(char *regExp);
-    virtual ColorRgb compute(BiPath *path);
+    virtual ColorRgbMutable compute(BiPath *path);
 
   protected:
     virtual void doRegExp(char *regExp, bool subtract);

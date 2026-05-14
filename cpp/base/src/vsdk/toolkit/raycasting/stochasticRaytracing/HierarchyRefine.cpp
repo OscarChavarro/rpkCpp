@@ -124,7 +124,7 @@ Hierarchy::lowPowerLink(
 {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
-    ColorRgb rhoSrcRad(0.0, 0.0, 0.0);
+    ColorRgbMutable rhoSrcRad(0.0, 0.0, 0.0);
     float ff = formFactorEstimate(rcv, src);
     float threshold;
     float propagatedPower;
@@ -132,7 +132,7 @@ Hierarchy::lowPowerLink(
     // Compute receiver reflectance times source radiosity
     rhoSrcRad.scaledCopy(static_cast<float>(M_PI), src->radiance[0]);
     if ( !rcv->isCluster() ) {
-        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(rcv->patch)->Rd;
+        ColorRgbMutable Rd = McradP::topLevelStochasticRadiosityElement(rcv->patch)->Rd;
         rhoSrcRad.selfScalarProduct(Rd);
     }
 

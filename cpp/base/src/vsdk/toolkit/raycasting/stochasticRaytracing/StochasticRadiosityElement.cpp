@@ -151,7 +151,7 @@ StochasticRadiosityElement::monteCarloRadiosityCreateCluster(Geometry *geometry)
     elem->geometry = geometry;
     elem->flags = ElementFlags::IS_CLUSTER_MASK;
 
-    elem->Rd = ColorRgb(1.0, 1.0, 1.0);
+    elem->Rd = ColorRgbMutable(1.0, 1.0, 1.0);
     elem->Ed.clear();
 
     // elem->area will be computed from the sub-elements in the cluster later
@@ -610,8 +610,8 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
     NiederreiterIndex msb1;
     NiederreiterIndex rMostSignificantBit2;
     NiederreiterIndex n;
-    ColorRgb albedo(0.0, 0.0, 0.0);
-    ColorRgb emittance(0.0, 0.0, 0.0);
+    ColorRgbMutable albedo(0.0, 0.0, 0.0);
+    ColorRgbMutable emittance(0.0, 0.0, 0.0);
     RayHit hit;
     hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
@@ -623,7 +623,7 @@ StochasticRadiosityElement::monteCarloRadiosityElementComputeAverageReflectanceA
 
     n = 1;
     for ( int i = 0; i < numberOfSamples; i++, n++ ) {
-        ColorRgb sample(0.0, 0.0, 0.0);
+        ColorRgbMutable sample(0.0, 0.0, 0.0);
         NiederreiterIndex *xi = Niederreiter::NextNiedInRange(&n, +1, nbits, msb1, rMostSignificantBit2);
         hit.setUv(static_cast<double>(xi[0]) * Niederreiter::RECIP, static_cast<double>(xi[1]) * Niederreiter::RECIP);
         unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
@@ -879,8 +879,8 @@ void
 StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(
     const StochasticRadiosityElement *parent,
     StochasticRadiosityElement *child,
-    const ColorRgb *parentRadiance,
-    ColorRgb *childRadiance)
+    const ColorRgbMutable *parentRadiance,
+    ColorRgbMutable *childRadiance)
 {
     if ( parent->isCluster() || child->basis->size == 1 ) {
         childRadiance[0].add(childRadiance[0], parentRadiance[0]);
@@ -902,8 +902,8 @@ void
 StochasticRadiosityElement::stochasticRadiosityElementPullRadiance(
     const StochasticRadiosityElement *parent,
     const StochasticRadiosityElement *child,
-    ColorRgb *parentRad,
-    const ColorRgb *childRad)
+    ColorRgbMutable *parentRad,
+    const ColorRgbMutable *childRad)
 {
     float areaFactor = child->area / parent->area;
     if ( parent->isCluster() || child->basis->size == 1 ) {

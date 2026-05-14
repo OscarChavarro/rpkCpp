@@ -37,9 +37,9 @@ void
 Coefficientsmcrad::allocCoefficients(StochasticRadiosityElement *elem) {
     Coefficientsmcrad::disposeCoefficients(elem);
     elem->basis = actualBasis(elem);
-    elem->radiance = new ColorRgb[elem->basis->size];
-    elem->unShotRadiance = new ColorRgb[elem->basis->size];
-    elem->receivedRadiance = new ColorRgb[elem->basis->size];
+    elem->radiance = new ColorRgbMutable[elem->basis->size];
+    elem->unShotRadiance = new ColorRgbMutable[elem->basis->size];
+    elem->receivedRadiance = new ColorRgbMutable[elem->basis->size];
 }
 
 /**

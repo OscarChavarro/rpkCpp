@@ -6,16 +6,16 @@ Constant Control Radiosity
 #define CCR__
 
 #include "vsdk/toolkit/java/util/ArrayList.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRadiosityElement.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
 class Ccr final {
   public:
-    using GetRadianceCallback = ColorRgb *(*)(const StochasticRadiosityElement *);
-    using GetScalingCallback = ColorRgb (*)(StochasticRadiosityElement *);
+    using GetRadianceCallback = ColorRgbMutable *(*)(const StochasticRadiosityElement *);
+    using GetScalingCallback = ColorRgbMutable (*)(StochasticRadiosityElement *);
 
-    static ColorRgb determineControlRadiosity(
+    static ColorRgbMutable determineControlRadiosity(
         GetRadianceCallback getRadiance,
         GetScalingCallback getScaling,
         const java::ArrayList<Patch *> *scenePatches);
@@ -27,18 +27,18 @@ class Ccr final {
 
     static void initialControlRadiosityRecursive(
         const StochasticRadiosityElement *element,
-        ColorRgb *minRad,
-        ColorRgb *maxRad,
-        ColorRgb *fMin,
-        ColorRgb *fMax,
-        ColorRgb *totalFluxColor,
-        ColorRgb *maxRadColor,
+        ColorRgbMutable *minRad,
+        ColorRgbMutable *maxRad,
+        ColorRgbMutable *fMin,
+        ColorRgbMutable *fMax,
+        ColorRgbMutable *totalFluxColor,
+        ColorRgbMutable *maxRadColor,
         double *area);
     static void initialControlRadiosity(
-        ColorRgb *minRad,
-        ColorRgb *maxRad,
-        ColorRgb *fMin,
-        ColorRgb *fMax,
+        ColorRgbMutable *minRad,
+        ColorRgbMutable *maxRad,
+        ColorRgbMutable *fMin,
+        ColorRgbMutable *fMax,
         const java::ArrayList<Patch *> *scenePatches);
     static void refineComponent(
         double *minRad,
@@ -49,14 +49,14 @@ class Ccr final {
         const double *rad);
     static void refineControlRadiosityRecursive(
         StochasticRadiosityElement *element,
-        ColorRgb *colorOne,
-        ColorRgb rad[NUMBER_OF_INTERVALS + 1],
-        ColorRgb f[NUMBER_OF_INTERVALS + 1]);
+        ColorRgbMutable *colorOne,
+        ColorRgbMutable rad[NUMBER_OF_INTERVALS + 1],
+        ColorRgbMutable f[NUMBER_OF_INTERVALS + 1]);
     static void refineControlRadiosity(
-        ColorRgb *minRad,
-        ColorRgb *maxRad,
-        ColorRgb *fMin,
-        ColorRgb *fMax,
+        ColorRgbMutable *minRad,
+        ColorRgbMutable *maxRad,
+        ColorRgbMutable *fMin,
+        ColorRgbMutable *fMax,
         const java::ArrayList<Patch *> *scenePatches);
 };
 

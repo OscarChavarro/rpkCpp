@@ -80,7 +80,7 @@ PicOutputHandle::~PicOutputHandle() {
 Writes scanline of high-dynamic range radiance data in RGB format
 */
 int
-PicOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
+PicOutputHandle::writeRadianceRGB(ColorRgbMutable *rgbRadiance) {
     int result = 0;
 
     if ( outputStream != nullptr ) {

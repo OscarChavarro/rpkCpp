@@ -25,11 +25,11 @@ Adaptation::PatchRadianceEstimateFn Adaptation::patchRadianceEstimate = nullptr;
 /**
 A-priori estimate of a patch's radiance
 */
-ColorRgb
+ColorRgbMutable
 Adaptation::initRadianceEstimate(Patch *patch) {
-    const ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
-    const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    const ColorRgbMutable E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
+    const ColorRgbMutable R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
 
     radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
     radiance.addScaled(radiance, (1.0F / static_cast<float>(M_PI)), E);
@@ -50,7 +50,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
-    const ColorRgb radiance = patchRadianceEstimate(patch);
+    const ColorRgbMutable radiance = patchRadianceEstimate(patch);
     float brightness = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;

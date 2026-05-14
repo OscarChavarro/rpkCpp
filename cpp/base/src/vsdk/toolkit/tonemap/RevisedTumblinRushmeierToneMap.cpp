@@ -36,8 +36,8 @@ RevisedTumblinRushmeierToneMap::init(const ToneMappingContext &toneMapOptions) {
     display = comp / maximumDisplayLuminance;
 }
 
-ColorRgb
-RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
+ColorRgbMutable
+RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgbMutable radiance) const {
     const float rwl = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     float scale;
 
@@ -52,8 +52,8 @@ RevisedTumblinRushmeierToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-ColorRgb
-RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgb radiance) const {
+ColorRgbMutable
+RevisedTumblinRushmeierToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
     const float rwl = static_cast<float>(M_PI) * static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     const float eff = static_cast<float>(Cie::getLuminousEfficacy());
     radiance.scale(eff * static_cast<float>(M_PI));

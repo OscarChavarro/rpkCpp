@@ -22,7 +22,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -43,7 +43,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     static double randomWalkRadiosityPatchArea(const Patch *patch);
     static double randomWalkRadiosityScalarSourcePower(const Patch *patch);
     static double randomWalkRadiosityScalarReflectance(const Patch *patch);
-    static ColorRgb *randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *randomWalkRadiosityGetSelfEmittedRadiance(const StochasticRadiosityElement *elem);
     static void randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches);
     static double randomWalkRadiosityScoreWeight(const Path *path, int nodeIndex);
     static void randomWalkRadiosityShootingScore(
@@ -54,7 +54,7 @@ class RandomWalkRadianceMethod final : public RadianceMethod {
     static void randomWalkRadiosityDoShootingIteration(
         const VoxelGrid *sceneWorldVoxelGrid,
         const java::ArrayList<Patch *> *scenePatches);
-    static ColorRgb randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches);
+    static ColorRgbMutable randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches);
     static void randomWalkRadiosityCollisionGatheringScore(
         const Path *path,
         long numberOfPaths,

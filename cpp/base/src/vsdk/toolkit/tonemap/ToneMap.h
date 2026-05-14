@@ -13,8 +13,8 @@ class ToneMap {
     static ToneMap *activeToneMap;
     static int gammaTableEntry(float x);
     static void recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, double gamma);
-    static ColorRgb toneMapScaleForDisplay(const ColorRgb &radiance);
-    static ColorRgb *rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions);
+    static ColorRgbMutable toneMapScaleForDisplay(const ColorRgbMutable &radiance);
+    static ColorRgbMutable *rescaleRadiance(ColorRgbMutable in, ColorRgbMutable *out, const ToneMappingContext &toneMapOptions);
 
   protected:
     /**
@@ -41,19 +41,19 @@ class ToneMap {
     correct scaling value that transforms display luminance back into
     the real world luminance.
     */
-    virtual ColorRgb scaleForComputations(ColorRgb radiance) const = 0;
+    virtual ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) const = 0;
 
     /**
     Full tone mapping to display values. Transforms real world luminance of
     colour specified by "radiance" into corresponding display input
     values. The result has to be clipped to <0,1> afterwards.
     */
-    virtual ColorRgb scaleForDisplay(ColorRgb radiance) const = 0;
+    virtual ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) const = 0;
 
     static void setActiveToneMap(ToneMap *toneMap);
-    static void toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions);
-    static void recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma);
-    static ColorRgb *radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions);
+    static void toneMappingGammaCorrection(ColorRgbMutable &rgb, const ToneMappingContext &toneMapOptions);
+    static void recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgbMutable gamma);
+    static ColorRgbMutable *radianceToRgb(ColorRgbMutable color, ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions);
 };
 
 #endif

@@ -98,9 +98,9 @@ ScratchVisibilityStrategy::scratchRenderElements(GalerkinElement *cluster, Vecto
 After rendering element pointers in the scratch frame buffer, this routine
 computes the average radiance of the virtual screen
 */
-ColorRgb
+ColorRgbMutable
 ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
-    ColorRgb rad(0.0, 0.0, 0.0);
+    ColorRgbMutable rad(0.0, 0.0, 0.0);
 
     rad.clear();
     int nonBackGround = 0;

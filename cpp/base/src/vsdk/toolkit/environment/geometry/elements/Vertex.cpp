@@ -22,7 +22,7 @@ Vertex::Vertex(
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
     patches = inPatches;
-    color = ColorRgb(0.0, 0.0, 0.0);
+    color = ColorRgbMutable(0.0, 0.0, 0.0);
     radianceData = nullptr;
     back = static_cast<Vertex *>(nullptr);
 }
@@ -44,7 +44,7 @@ void
 Vertex::computeColor() {
     long numberOfPatches;
 
-    color = ColorRgb(0.0, 0.0, 0.0);
+    color = ColorRgbMutable(0.0, 0.0, 0.0);
     numberOfPatches = 0;
 
     if ( patches != nullptr ) {
@@ -57,13 +57,13 @@ Vertex::computeColor() {
             g += patch->getColor().getG();
             b += patch->getColor().getB();
         }
-        color = ColorRgb(r, g, b);
+        color = ColorRgbMutable(r, g, b);
         numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
         const double invPatchCount = 1.0 / static_cast<double>(numberOfPatches);
-        color = ColorRgb(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
+        color = ColorRgbMutable(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
     }
 }
 

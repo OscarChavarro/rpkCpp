@@ -12,8 +12,8 @@ class LightnessToneMap final : public ToneMap {
     ~LightnessToneMap() final;
 
     void init(const ToneMappingContext &toneMapOptions) final;
-    ColorRgb scaleForComputations(ColorRgb radiance) const final;
-    ColorRgb scaleForDisplay(ColorRgb radiance) const final;
+    ColorRgbMutable scaleForComputations(ColorRgbMutable radiance) const final;
+    ColorRgbMutable scaleForDisplay(ColorRgbMutable radiance) const final;
 };
 
 #endif

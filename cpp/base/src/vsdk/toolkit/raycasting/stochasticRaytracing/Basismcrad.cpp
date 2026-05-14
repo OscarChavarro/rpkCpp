@@ -219,9 +219,9 @@ Basismcrad::monteCarloRadiosityInitBasis() {
 /**
 Returns color at a given point, with parameters (u,v)
 */
-ColorRgb
-Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
-    ColorRgb res(0.0, 0.0, 0.0);
+ColorRgbMutable
+Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgbMutable *rad, double u, double v) {
+    ColorRgbMutable res(0.0, 0.0, 0.0);
     res.clear();
     for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);
@@ -235,7 +235,7 @@ These routine filter the source coefficients down/up and add
 the result to the destination coefficients
 */
 void
-Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, ColorRgb *child, int n) {
+Basismcrad::filterColorDown(const ColorRgbMutable *parent, GalerkinBasis::FILTER *h, ColorRgbMutable *child, int n) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             child[i].addScaled(child[i], static_cast<float>((*h)[j][i]), parent[j]);
@@ -244,7 +244,7 @@ Basismcrad::filterColorDown(const ColorRgb *parent, GalerkinBasis::FILTER *h, Co
 }
 
 void
-Basismcrad::filterColorUp(const ColorRgb *child, GalerkinBasis::FILTER *h, ColorRgb *parent, int n, double areaFactor) {
+Basismcrad::filterColorUp(const ColorRgbMutable *child, GalerkinBasis::FILTER *h, ColorRgbMutable *parent, int n, double areaFactor) {
     for ( int i = 0; i < n; i++ ) {
         for ( int j = 0; j < n; j++ ) {
             double H = (*h)[i][j] * areaFactor;

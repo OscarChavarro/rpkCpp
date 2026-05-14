@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "VertexCompareFlags.h"
 
 class Element;
@@ -18,7 +18,7 @@ class Vertex {
     Vector3D *point;
     Vector3D *normal;
     Vector3D *textureCoordinates;
-    ColorRgb color; // Used when rendering with Gouraud interpolation
+    ColorRgbMutable color; // Used when rendering with Gouraud interpolation
     java::ArrayList<Element *> *radianceData; // Data for the vertex maintained by the current radiance method
     Vertex *back; // Vertex at the same position, but with reversed normal, for back faces
     java::ArrayList<Patch *> *patches; // List of references to patches sharing the vertex

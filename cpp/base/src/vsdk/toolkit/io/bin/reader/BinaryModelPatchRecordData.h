@@ -1,7 +1,7 @@
 #ifndef BINARY_MODEL_READER_PATCH_RECORD__
 #define BINARY_MODEL_READER_PATCH_RECORD__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
@@ -26,7 +26,7 @@ class BinaryModelPatchRecordData {
     int dominantIndex;
     bool omit;
     unsigned char flags;
-    ColorRgb color;
+    ColorRgbMutable color;
     int materialIndex;
     bool hasRadianceData;
 

@@ -24,7 +24,7 @@ SpecularSampler::sample(
     bool reflect;
 
     // Choose a scattering mode : reflection vs. refraction
-    ColorRgb reflectance(0.0, 0.0, 0.0);
+    ColorRgbMutable reflectance(0.0, 0.0, 0.0);
     reflectance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
         bool shctxOk = false;
@@ -36,7 +36,7 @@ SpecularSampler::sample(
                 thisContext,
                 BsdfComponentFlag::getBrdfFlags(flags));
     }
-    ColorRgb transmittance(0.0, 0.0, 0.0);
+    ColorRgbMutable transmittance(0.0, 0.0, 0.0);
     transmittance.clear();
     if ( thisNode->m_useBsdf != nullptr ) {
         bool shctxOk = false;

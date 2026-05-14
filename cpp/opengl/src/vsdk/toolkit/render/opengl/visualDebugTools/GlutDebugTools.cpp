@@ -371,7 +371,7 @@ GlutDebugTools::printElementHierarchy(const GalerkinElement *element, int level)
             java::System::out.printf("-> ");
             break;
     }
-    const ColorRgb *c = element->radiance;
+    const ColorRgbMutable *c = element->radiance;
     long int numberOfInteractions = 0;
     if ( element->interactions != nullptr ) {
         numberOfInteractions = element->interactions->size();

@@ -1,85 +1,85 @@
 #include "vsdk/toolkit/java/lang/Math.h"
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 
-ColorRgb::ColorRgb(const double inR, const double inG, const double inB) {
+ColorRgbMutable::ColorRgbMutable(const double inR, const double inG, const double inB) {
     r = inR;
     g = inG;
     b = inB;
 }
 
 void
-ColorRgb::abs() {
+ColorRgbMutable::abs() {
     r = java::Math::abs(r);
     g = java::Math::abs(g);
     b = java::Math::abs(b);
 }
 
 void
-ColorRgb::arrayCopy(ColorRgb *result, const ColorRgb *source, const char n) {
+ColorRgbMutable::arrayCopy(ColorRgbMutable *result, const ColorRgbMutable *source, const char n) {
     for ( int i = 0; i < n; i++ ) {
         result[i] = source[i];
     }
 }
 
 void
-ColorRgb::arrayAdd(ColorRgb *result, const ColorRgb *source, const char n) {
+ColorRgbMutable::arrayAdd(ColorRgbMutable *result, const ColorRgbMutable *source, const char n) {
     for ( int i = 0; i < n; i++ ) {
         result[i].add(result[i], source[i]);
     }
 }
 
 void
-ColorRgb::arrayClear(ColorRgb *color, const char n) {
+ColorRgbMutable::arrayClear(ColorRgbMutable *color, const char n) {
     for ( int i = 0; i < n; i++ ) {
         color[i].clear();
     }
 }
 
 bool
-ColorRgb::isBlack() const {
+ColorRgbMutable::isBlack() const {
     return (r > -Numeric::EPSILON && r < Numeric::EPSILON &&
             g > -Numeric::EPSILON && g < Numeric::EPSILON &&
             b > -Numeric::EPSILON && b < Numeric::EPSILON);
 }
 
 void
-ColorRgb::scalarProduct(const ColorRgb s, const ColorRgb t) {
+ColorRgbMutable::scalarProduct(const ColorRgbMutable s, const ColorRgbMutable t) {
     r = s.r * t.r;
     g = s.g * t.g;
     b = s.b * t.b;
 }
 
 void
-ColorRgb::selfScalarProduct(const ColorRgb s) {
+ColorRgbMutable::selfScalarProduct(const ColorRgbMutable s) {
     r *= s.r;
     g *= s.g;
     b *= s.b;
 }
 
 void
-ColorRgb::add(const ColorRgb s, const ColorRgb t) {
+ColorRgbMutable::add(const ColorRgbMutable s, const ColorRgbMutable t) {
     r = s.r + t.r;
     g = s.g + t.g;
     b = s.b + t.b;
 }
 
 void
-ColorRgb::addConstant(const ColorRgb s, const double a) {
+ColorRgbMutable::addConstant(const ColorRgbMutable s, const double a) {
     r = s.r + a;
     g = s.g + a;
     b = s.b + a;
 }
 
 void
-ColorRgb::subtract(const ColorRgb s, const ColorRgb  t) {
+ColorRgbMutable::subtract(const ColorRgbMutable s, const ColorRgbMutable  t) {
     r = s.r - t.r;
     g = s.g - t.g;
     b = s.b - t.b;
 }
 
 void
-ColorRgb::scaleInverse(const double scale, const ColorRgb s) {
+ColorRgbMutable::scaleInverse(const double scale, const ColorRgbMutable s) {
     const double a = (scale != 0.0) ? 1.0 / scale : 1.0;
     r = a * s.r;
     g = a * s.g;
@@ -87,38 +87,38 @@ ColorRgb::scaleInverse(const double scale, const ColorRgb s) {
 }
 
 double
-ColorRgb::sumAbsComponents() const {
+ColorRgbMutable::sumAbsComponents() const {
     return java::Math::abs(r) + java::Math::abs(g) + java::Math::abs(b);
 }
 
 void
-ColorRgb::maximum(const ColorRgb s, const ColorRgb t) {
+ColorRgbMutable::maximum(const ColorRgbMutable s, const ColorRgbMutable t) {
     r = s.r > t.r ? s.r : t.r;
     g = s.g > t.g ? s.g : t.g;
     b = s.b > t.b ? s.b : t.b;
 }
 
 void
-ColorRgb::minimum(const ColorRgb s, const ColorRgb t) {
+ColorRgbMutable::minimum(const ColorRgbMutable s, const ColorRgbMutable t) {
     r = s.r < t.r ? s.r : t.r;
     g = s.g < t.g ? s.g : t.g;
     b = s.b < t.b ? s.b : t.b;
 }
 
 double
-ColorRgb::average() const {
+ColorRgbMutable::average() const {
     return (r + g + b) / 3.0;
 }
 
 void
-ColorRgb::interpolateBarycentric(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const double u, const double v) {
+ColorRgbMutable::interpolateBarycentric(const ColorRgbMutable c0, const ColorRgbMutable c1, const ColorRgbMutable c2, const double u, const double v) {
     r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
     g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);
     b = c0.b + u * (c1.b - c0.b) + v * (c2.b - c0.b);
 }
 
 void
-ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const ColorRgb c3, const double u, const double v) {
+ColorRgbMutable::interpolateBiLinear(const ColorRgbMutable c0, const ColorRgbMutable c1, const ColorRgbMutable c2, const ColorRgbMutable c3, const double u, const double v) {
     const double c = u * v;
     const double bb = u - c;
     const double d = v - c;
@@ -129,7 +129,7 @@ ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorR
 }
 
 void
-ColorRgb::clip() {
+ColorRgbMutable::clip() {
     if ( r < 0.0 ) {
         r = 0.0;
     } else {
@@ -150,7 +150,7 @@ ColorRgb::clip() {
 }
 
 void
-ColorRgb::print(java::PrintStream *stream) const {
+ColorRgbMutable::print(java::PrintStream *stream) const {
     if ( stream == nullptr ) {
         return;
     }

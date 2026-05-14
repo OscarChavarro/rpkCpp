@@ -12,9 +12,9 @@ Rendering elements
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/McradP.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/StochasticRelaxation.h"
 
-ColorRgb
+ColorRgbMutable
 StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadiosityElement *element) {
-    ColorRgb color{};
+    ColorRgbMutable color{};
 
     switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
@@ -33,7 +33,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
                 gray = element->importance < 0.0 ? 0.0F : element->importance;
             }
 
-            color = ColorRgb(gray, gray, gray);
+            color = ColorRgbMutable(gray, gray, gray);
             break;
         }
         default:
@@ -47,10 +47,10 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
     return color;
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
     int count = 0;
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
 
     radiance.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -60,7 +60,7 @@ StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
         }
         const StochasticRadiosityElement *elem = static_cast<StochasticRadiosityElement *>(element);
         if ( !elem->regularSubElements ) {
-            ColorRgb elementRadiosity = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
+            ColorRgbMutable elementRadiosity = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(elem);
             radiance.add(radiance, elementRadiosity);
             count++;
         }
@@ -100,7 +100,7 @@ StochasticRadiosityElement::vertexImportance(const Vertex *v) {
     return imp;
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticRadiosityElement::vertexColor(Vertex *v) {
     switch ( StochasticRelaxation::activeState().show ) {
         case WhatToShow::SHOW_TOTAL_RADIANCE:
@@ -118,7 +118,7 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
             if ( gray < 0.0 ) {
                 gray = 0.0;
             }
-            v->color = ColorRgb(gray, gray, gray);
+            v->color = ColorRgbMutable(gray, gray, gray);
             break;
         }
         default:
@@ -158,10 +158,10 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
     }
 
     if ( n > 0 ) {
-        ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
+        ColorRgbMutable color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color = ColorRgb(
+                m[i]->color = ColorRgbMutable(
                     (m[i]->color.getR() + color.getR()) * 0.5,
                     (m[i]->color.getG() + color.getG()) * 0.5,
                     (m[i]->color.getB() + color.getB()) * 0.5);
@@ -170,9 +170,9 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
     }
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
     if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
@@ -187,13 +187,13 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const Stoc
     return radiance;
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RendererConfiguration *renderOptions) {
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {
             // Do Gouraud interpolation if required
-            ColorRgb rad[4];
+            ColorRgbMutable rad[4];
             for ( int i = 0; i < elem->numberOfVertices; i++ ) {
                 rad[i] = vertexRadiance(elem->vertices[i]);
             }

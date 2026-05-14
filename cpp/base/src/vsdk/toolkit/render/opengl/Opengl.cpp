@@ -57,9 +57,9 @@ Opengl::openGlRenderLine(Vector3D *x, Vector3D *y) {
 Sets the current color for line or outline drawing
 */
 void
-Opengl::openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions) {
+Opengl::openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions) {
     (void) renderOptions;
-    ColorRgb correctedRgb{};
+    ColorRgbMutable correctedRgb{};
 
     correctedRgb = *rgb;
     if ( Opengl::activeToneMapOptions != nullptr ) {
@@ -94,7 +94,7 @@ void
 Opengl::openGlRenderPolygonGouraud(
     int numberOfVertices,
     Vector3D *vertices,
-    const ColorRgb *verticesColors,
+    const ColorRgbMutable *verticesColors,
     const RendererConfiguration *renderOptions)
 {
 #ifdef OPEN_GL_ENABLED

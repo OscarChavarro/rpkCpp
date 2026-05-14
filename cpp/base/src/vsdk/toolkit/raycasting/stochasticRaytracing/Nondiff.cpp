@@ -31,7 +31,7 @@ Nondiff::makeLightSourceTable(const java::ArrayList<Patch *> *scenePatches, cons
 
     for ( int i = 0; lightPatches != nullptr && i < lightPatches->size(); i++ ) {
         Patch *light = lightPatches->get(i);
-        ColorRgb emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
+        ColorRgbMutable emittedRadiance = PatchVisitor::averageEmittance(light, XxdfComponentFlagInfo::ALL_COMPONENTS);
         double flux = M_PI * light->getArea() * emittedRadiance.sumAbsComponents();
         totalFlux += flux;
         lights[i] = LightSourceTable(light, flux);
@@ -65,7 +65,7 @@ Nondiff::nextLightSample(const Patch *patch, double *zeta) {
 }
 
 Ray
-Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
+Nondiff::sampleLightRay(Patch *patch, ColorRgbMutable *emitted_rad, double *point_selection_pdf, double *dirSelectionPdf) {
     Ray ray;
     do {
         double zeta[4];
@@ -99,7 +99,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
 
 void
 Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
-    ColorRgb rad(0.0, 0.0, 0.0);
+    ColorRgbMutable rad(0.0, 0.0, 0.0);
     double pointSelectionPdf;
     double dirSelectionPdf;
     Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
@@ -111,8 +111,8 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->getNormal());
-        ColorRgb receivedRadiosity(0.0, 0.0, 0.0);
-        ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
+        ColorRgbMutable receivedRadiosity(0.0, 0.0, 0.0);
+        ColorRgbMutable Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);
         McradP::getTopLevelPatchRad(hit->getPatch())[0].add(McradP::getTopLevelPatchRad(hit->getPatch())[0], receivedRadiosity);

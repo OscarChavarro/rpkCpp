@@ -24,7 +24,7 @@ class SoftIds {
         SglContext *sglContext);
     static void softRenderPatches(const Scene *scene, const RendererConfiguration *renderOptions, SglContext *sglContext);
     static unsigned long *softRenderIds(long *x, long *y, const Scene *scene, const RendererConfiguration *renderOptions);
-    static void softRenderPixels(int width, int height, const ColorRgb *rgb, const ToneMappingContext &toneMapOptions);
+    static void softRenderPixels(int width, int height, const ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions);
 };
 
 #endif

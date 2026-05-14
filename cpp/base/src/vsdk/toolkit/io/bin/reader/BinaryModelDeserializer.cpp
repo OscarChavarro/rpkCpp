@@ -5,7 +5,7 @@
 
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -121,8 +121,8 @@ BinaryModelDeserializer::read(const char *fileName) {
             PhongEmittanceDistributionFunction *edf = nullptr;
             const bool hasEdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasEdf ) {
-                ColorRgb kd(0.0, 0.0, 0.0);
-                ColorRgb ks(0.0, 0.0, 0.0);
+                ColorRgbMutable kd(0.0, 0.0, 0.0);
+                ColorRgbMutable ks(0.0, 0.0, 0.0);
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                 const float ns = BinaryModelReadPrimitives::readFloatLE(input);
@@ -138,8 +138,8 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 const bool hasBrdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBrdf ) {
-                    ColorRgb kd(0.0, 0.0, 0.0);
-                    ColorRgb ks(0.0, 0.0, 0.0);
+                    ColorRgbMutable kd(0.0, 0.0, 0.0);
+                    ColorRgbMutable ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
@@ -148,8 +148,8 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 const bool hasBtdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBtdf ) {
-                    ColorRgb kd(0.0, 0.0, 0.0);
-                    ColorRgb ks(0.0, 0.0, 0.0);
+                    ColorRgbMutable kd(0.0, 0.0, 0.0);
+                    ColorRgbMutable ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);

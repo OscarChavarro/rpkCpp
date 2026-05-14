@@ -2,7 +2,7 @@
 #define BACKGROUND__
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 
@@ -16,7 +16,7 @@ class Background {
     positions towards the background). If probabilityDensityFunction is non-null, also fills
     in the probability of sampling this direction with sample()
     */
-    virtual ColorRgb
+    virtual ColorRgbMutable
     radiance(Vector3D *position, Vector3D *direction, float *probabilityDensityFunction) const;
 
     /*
@@ -34,18 +34,18 @@ class Background {
         Vector3D *position,
         float xi1,
         float xi2,
-        ColorRgb *radiance,
+        ColorRgbMutable *radiance,
         float *probabilityDensityFunction) const;
 
     /*
     Computes total power emitted by the background (= integral over
     the full sphere of the background radiance.
     */
-    virtual ColorRgb
+    virtual ColorRgbMutable
     power(Vector3D *position) const;
 
 #ifdef RAYTRACING_ENABLED
-    static ColorRgb
+    static ColorRgbMutable
     backgroundRadiance(
         Background *bkg,
         Vector3D *position,
@@ -53,7 +53,7 @@ class Background {
         float *probabilityDensityFunction);
 #endif
 
-    static ColorRgb
+    static ColorRgbMutable
     backgroundPower(Background *bkg, Vector3D *position);
 
     Patch *bkgPatch; // Virtual patch for background

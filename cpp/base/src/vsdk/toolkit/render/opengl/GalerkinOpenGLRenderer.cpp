@@ -61,11 +61,11 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
         }
 
         if ( mode & GalerkinElementRenderMode::FLAT ) {
-            ColorRgb color{};
-            ColorRgb rho = element->patch->getRadianceData()->Rd;
+            ColorRgbMutable color{};
+            ColorRgbMutable rho = element->patch->getRadianceData()->Rd;
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgb radVis(0.0, 0.0, 0.0);
+                ColorRgbMutable radVis(0.0, 0.0, 0.0);
                 radVis.scalarProduct(rho, element->galerkinState->ambientRadiance);
                 radVis.add(radVis, element->radiance[0]);
                 ToneMap::radianceToRgb(radVis, &color, *toneMapOptions);
@@ -75,7 +75,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             Opengl::openGlRenderSetColor(&color, renderOptions);
             Opengl::openGlRenderPolygonFlat(numberOfVertices, p);
         } else if ( mode & GalerkinElementRenderMode::GOURAUD ) {
-            ColorRgb vertRadiosity[4];
+            ColorRgbMutable vertRadiosity[4];
 
             if ( numberOfVertices == 3 ) {
                 vertRadiosity[0] = GalerkinBasis::radianceAtPoint(element, element->radiance, 0.0, 0.0);
@@ -89,8 +89,8 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             }
 
             if ( element->galerkinState->useAmbientRadiance ) {
-                ColorRgb reflectivity = element->patch->getRadianceData()->Rd;
-                ColorRgb ambient(0.0, 0.0, 0.0);
+                ColorRgbMutable reflectivity = element->patch->getRadianceData()->Rd;
+                ColorRgbMutable ambient(0.0, 0.0, 0.0);
 
                 ambient.scalarProduct(reflectivity, element->galerkinState->ambientRadiance);
                 for ( int i = 0; i < numberOfVertices; i++ ) {
@@ -98,7 +98,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
                 }
             }
 
-            ColorRgb vertexColors[4];
+            ColorRgbMutable vertexColors[4];
             for ( int i = 0; i < numberOfVertices; i++ ) {
                 ToneMap::radianceToRgb(vertRadiosity[i], &vertexColors[i], *toneMapOptions);
             }
@@ -116,7 +116,7 @@ GalerkinOpenGLRenderer::drawElement(const GalerkinElement *element, int mode, co
             Opengl::openGlRenderLine(&p[1], &p[2]);
             Opengl::openGlRenderLine(&p[2], &p[0]);
         } else {
-            ColorRgb green = {0.0, 1.0, 0.0};
+            ColorRgbMutable green = {0.0, 1.0, 0.0};
 
             Opengl::openGlRenderSetColor(&green, renderOptions);
             Opengl::openGlRenderLine(&p[0], &p[1]);
@@ -154,15 +154,15 @@ GalerkinOpenGLRenderer::renderScene(
         if ( debugState->showSelectedPathOnly ) {
             if ( i == debugState->primarySelectedPatch ) {
                 modifiedRenderOptions.drawOutlines = true;
-                modifiedRenderOptions.outlineColor = ColorRgb(1.0F, 0.0F, 0.0F);
+                modifiedRenderOptions.outlineColor = ColorRgbMutable(1.0F, 0.0F, 0.0F);
             } else {
                 modifiedRenderOptions.drawOutlines = false;
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         } else {
-            modifiedRenderOptions.outlineColor = ColorRgb(0.4F, 0.1F, 0.1F);
+            modifiedRenderOptions.outlineColor = ColorRgbMutable(0.4F, 0.1F, 0.1F);
             if ( i == debugState->primarySelectedPatch ) {
-                modifiedRenderOptions.outlineColor = ColorRgb(0.0F, 0.0F, 1.0F);
+                modifiedRenderOptions.outlineColor = ColorRgbMutable(0.0F, 0.0F, 1.0F);
             }
             GalerkinOpenGLRenderer::galerkinRenderPatch(scene->patchList->get(i), scene->camera, &modifiedRenderOptions);
         }

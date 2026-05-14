@@ -1,7 +1,7 @@
 #ifndef TEXTURE__
 #define TEXTURE__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 
 class Texture {
   private:
@@ -10,7 +10,7 @@ class Texture {
     int channels;
     unsigned char *data; // First bytes correspond to bottom-left pixel (as in OpenGL)
 
-    static void setMonochrome(ColorRgb rgb, float val);
+    static void setMonochrome(ColorRgbMutable rgb, float val);
 
   public:
     Texture();
@@ -25,7 +25,7 @@ class Texture {
     int getChannels() const;
     const unsigned char *getData() const;
 
-    ColorRgb evaluateColor(float u, float v) const;
+    ColorRgbMutable evaluateColor(float u, float v) const;
 };
 
 inline int

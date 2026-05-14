@@ -76,7 +76,7 @@ StochasticJacobiRadianceMethod::terminate(java::ArrayList<Patch *> *scenePatches
     Mcrad::monteCarloRadiosityTerminate(scenePatches);
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticJacobiRadianceMethod::getRadiance(Camera */*camera*/, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const {
     StochasticRelaxation::setActiveState(const_cast<StochasticRelaxation &>(stochasticRelaxationState));
     ElementHierarchyState::setActiveState(const_cast<ElementHierarchyState &>(elementHierarchyState));
@@ -179,7 +179,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityQualityFactor(const
     return w / StochasticRadiosityElement::stochasticRadiosityElementScalarReflectance(elem);
 }
 
-ColorRgb *
+ColorRgbMutable *
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem) {
     return elem->unShotRadiance;
 }
@@ -361,7 +361,7 @@ StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityDoIncrementalImport
     StochasticRelaxation::activeState().weightedSampling = weighted_sampling;
 }
 
-ColorRgb *
+ColorRgbMutable *
 StochasticJacobiRadianceMethod::stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem) {
     return elem->radiance;
 }

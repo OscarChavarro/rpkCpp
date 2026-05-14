@@ -5,7 +5,7 @@ Specification of the Stored Partial Radiance class
 #ifndef SPAR__
 #define SPAR__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BiPath.h"
@@ -24,7 +24,7 @@ class Spar {
 
     virtual void init(SparConfig *config, RadianceMethod *radianceMethod);
     virtual void parseAndInit(int group, char *regExp);
-    virtual ColorRgb handlePath(SparConfig *config, BiPath *path);
+    virtual ColorRgbMutable handlePath(SparConfig *config, BiPath *path);
 };
 
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/LeSpar.h"

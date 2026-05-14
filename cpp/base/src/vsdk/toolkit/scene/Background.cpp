@@ -9,7 +9,7 @@ Background::Background():
 Background::~Background() {
 }
 
-ColorRgb
+ColorRgbMutable
 Background::radiance(
     Vector3D * /*position*/,
     Vector3D * /*direction*/,
@@ -18,8 +18,8 @@ Background::radiance(
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
     }
-    ColorRgb black(0.0, 0.0, 0.0);
-    black = ColorRgb(0.0F, 0.0F, 0.0F);
+    ColorRgbMutable black(0.0, 0.0, 0.0);
+    black = ColorRgbMutable(0.0F, 0.0F, 0.0F);
     return black;
 }
 
@@ -28,11 +28,11 @@ Background::sample(
     Vector3D * /*position*/,
     float /*xi1*/,
     float /*xi2*/,
-    ColorRgb *radianceValue,
+    ColorRgbMutable *radianceValue,
     float *probabilityDensityFunction) const
 {
     if ( radianceValue != nullptr ) {
-        *radianceValue = ColorRgb(0.0F, 0.0F, 0.0F);
+        *radianceValue = ColorRgbMutable(0.0F, 0.0F, 0.0F);
     }
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
@@ -40,18 +40,18 @@ Background::sample(
     return Vector3D();
 }
 
-ColorRgb
+ColorRgbMutable
 Background::power(Vector3D * /*position*/) const {
-    ColorRgb black(0.0, 0.0, 0.0);
-    black = ColorRgb(0.0F, 0.0F, 0.0F);
+    ColorRgbMutable black(0.0, 0.0, 0.0);
+    black = ColorRgbMutable(0.0F, 0.0F, 0.0F);
     return black;
 }
 
-ColorRgb
+ColorRgbMutable
 Background::backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg ) {
-        ColorRgb black(0.0, 0.0, 0.0);
-        black = ColorRgb(0.0, 0.0, 0.0);
+        ColorRgbMutable black(0.0, 0.0, 0.0);
+        black = ColorRgbMutable(0.0, 0.0, 0.0);
         return black;
     } else {
         return bkg->power(position);
@@ -59,15 +59,15 @@ Background::backgroundPower(Background *bkg, Vector3D *position) {
 }
 
 #ifdef RAYTRACING_ENABLED
-ColorRgb
+ColorRgbMutable
 Background::backgroundRadiance(
         Background *bkg,
         Vector3D *position,
         Vector3D *direction,
         float *probabilityDensityFunction) {
     if ( !bkg ) {
-        ColorRgb black(0.0, 0.0, 0.0);
-        black = ColorRgb(0.0, 0.0, 0.0);
+        ColorRgbMutable black(0.0, 0.0, 0.0);
+        black = ColorRgbMutable(0.0, 0.0, 0.0);
         return black;
     } else {
         return bkg->radiance(position, direction, probabilityDensityFunction);

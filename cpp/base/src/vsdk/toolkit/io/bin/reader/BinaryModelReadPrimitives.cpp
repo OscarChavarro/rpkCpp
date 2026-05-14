@@ -3,7 +3,7 @@
 #include "vsdk/toolkit/java/lang/Integer.h"
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/skin/MinMaxBox.h"
@@ -177,14 +177,14 @@ BinaryModelReadPrimitives::duplicateNullableString(bool hasValue, const char *va
 }
 
 bool
-BinaryModelReadPrimitives::readColor(java::InputStream &input, ColorRgb *color) {
+BinaryModelReadPrimitives::readColor(java::InputStream &input, ColorRgbMutable *color) {
     if ( color == nullptr ) {
         return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
     }
     const double r = readFloatLE(input);
     const double g = readFloatLE(input);
     const double b = readFloatLE(input);
-    *color = ColorRgb(r, g, b);
+    *color = ColorRgbMutable(r, g, b);
     return true;
 }
 

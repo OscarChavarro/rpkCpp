@@ -50,14 +50,14 @@ ScreenIterate::sequential(
 {
     int width;
     int height;
-    ColorRgb col(0.0, 0.0, 0.0);
-    ColorRgb *rgb;
+    ColorRgbMutable col(0.0, 0.0, 0.0);
+    ColorRgbMutable *rgb;
 
     init();
 
     width = camera->xSize;
     height = camera->ySize;
-    rgb = new ColorRgb[width];
+    rgb = new ColorRgbMutable[width];
 
     // Shoot rays through all the pixels
     for ( int i = 0; i < height; i++ ) {
@@ -85,8 +85,8 @@ ScreenIterate::fillRect(
     int y0,
     int x1,
     int y1,
-    ColorRgb col,
-    ColorRgb *rgb)
+    ColorRgbMutable col,
+    ColorRgbMutable *rgb)
 {
     for ( int x = x0; x < x1; x++ ) {
         for ( int y = y0; y < y1; y++ ) {
@@ -106,9 +106,9 @@ ScreenIterate::progressive(
 {
     int width;
     int height;
-    ColorRgb col(0.0, 0.0, 0.0);
-    ColorRgb pixelRGB{};
-    ColorRgb *rgb;
+    ColorRgbMutable col(0.0, 0.0, 0.0);
+    ColorRgbMutable pixelRGB{};
+    ColorRgbMutable *rgb;
     int x0;
     int y0;
     int x1;
@@ -126,9 +126,9 @@ ScreenIterate::progressive(
 
     width = camera->xSize;
     height = camera->ySize;
-    rgb = new ColorRgb[width * height]; // We need a full screen!
+    rgb = new ColorRgbMutable[width * height]; // We need a full screen!
 
-    ColorRgb white = {1.0, 1.0, 1.0};
+    ColorRgbMutable white = {1.0, 1.0, 1.0};
 
     for ( int i = 0; i < width * height; i++ ) {
         rgb[i] = white;

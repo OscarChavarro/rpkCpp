@@ -1,7 +1,7 @@
 #include "vsdk/toolkit/galerkin/processing/visitors/PowerAccumulatorVisitor.h"
 
 PowerAccumulatorVisitor::PowerAccumulatorVisitor(
-    ColorRgb inSourceRadiance,
+    ColorRgbMutable inSourceRadiance,
     Vector3D inSamplePoint)
 {
     sourceRadiance = inSourceRadiance;
@@ -12,7 +12,7 @@ PowerAccumulatorVisitor::PowerAccumulatorVisitor(
 PowerAccumulatorVisitor::~PowerAccumulatorVisitor() {
 }
 
-ColorRgb
+ColorRgbMutable
 PowerAccumulatorVisitor::getAccumulatedRadiance() const {
     return accumulatedRadiance;
 }
@@ -31,7 +31,7 @@ PowerAccumulatorVisitor::visit(
     float srcOs;
     float dist;
     Vector3D dir;
-    ColorRgb rad(0.0, 0.0, 0.0);
+    ColorRgbMutable rad(0.0, 0.0, 0.0);
 
     dir.subtraction(samplePoint, galerkinElement->patch->midPoint());
     dist = dir.norm();

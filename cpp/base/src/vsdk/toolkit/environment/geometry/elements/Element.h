@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/java/util/ArrayList.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix2x2.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "ElementFlags.h"
 #include "ElementTypes.h"
@@ -11,11 +11,11 @@
 class Element {
   public:
     int id; // Unique ID number for the element
-    ColorRgb Ed; // Diffuse emittance radiance
-    ColorRgb Rd; // Reflectance
-    ColorRgb *radiance; // Total radiance on the element as computed so far
-    ColorRgb *receivedRadiance; // Radiance received during iteration
-    ColorRgb *unShotRadiance; // For progressive refinement radiosity
+    ColorRgbMutable Ed; // Diffuse emittance radiance
+    ColorRgbMutable Rd; // Reflectance
+    ColorRgbMutable *radiance; // Total radiance on the element as computed so far
+    ColorRgbMutable *receivedRadiance; // Radiance received during iteration
+    ColorRgbMutable *unShotRadiance; // For progressive refinement radiosity
     float area; // Area of all surfaces contained in the element
     ElementTypes className;
     unsigned char flags;

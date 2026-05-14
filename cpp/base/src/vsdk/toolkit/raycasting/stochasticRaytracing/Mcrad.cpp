@@ -101,7 +101,7 @@ Initialises patch data
 */
  void
 Mcrad::monteCarloRadiosityInitPatch(const Patch *patch) {
-    ColorRgb Ed = McradP::topLevelStochasticRadiosityElement(patch)->Ed;
+    ColorRgbMutable Ed = McradP::topLevelStochasticRadiosityElement(patch)->Ed;
 
     Coefficientsmcrad::reAllocCoefficients(McradP::topLevelStochasticRadiosityElement(patch));
     Coefficientsmcrad::stochasticRadiosityClearCoefficients(McradP::getTopLevelPatchRad(patch), McradP::getTopLevelPatchBasis(patch));
@@ -371,7 +371,7 @@ Mcrad::monteCarloRadiosityTerminate(const java::ArrayList<Patch *> *scenePatches
     StochasticRelaxation::activeState().inited = false;
 }
 
- ColorRgb
+ ColorRgbMutable
 Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, double v) {
     RayHit hit;
     Vector3D point;
@@ -380,7 +380,7 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
     hit.setUv(u, v);
     unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
     hit.setFlags(newFlags);
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {
         bool shctxOk = false;
@@ -394,10 +394,10 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
     return result;
 }
 
- ColorRgb
+ ColorRgbMutable
 Mcrad::vertexReflectance(const Vertex *v) {
     int count = 0;
-    ColorRgb rd(0.0, 0.0, 0.0);
+    ColorRgbMutable rd(0.0, 0.0, 0.0);
 
     rd.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -419,11 +419,11 @@ Mcrad::vertexReflectance(const Vertex *v) {
     return rd;
 }
 
- ColorRgb
+ ColorRgbMutable
 Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosityElement *leaf, double u, double v) {
     static const StochasticRadiosityElement *cachedLeaf = nullptr;
-    static ColorRgb vrd[4];
-    static ColorRgb rd(0.0, 0.0, 0.0);
+    static ColorRgbMutable vrd[4];
+    static ColorRgbMutable rd(0.0, 0.0, 0.0);
 
     if ( leaf != nullptr ) {
         if ( leaf != cachedLeaf ) {
@@ -453,14 +453,14 @@ Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosi
 Returns the radiance emitted from the patch at the point with parameters
 (u,v) into the direction 'dir'
 */
-ColorRgb
+ColorRgbMutable
 Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D /*dir*/, const RendererConfiguration *renderOptions) {
-    ColorRgb TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
+    ColorRgbMutable TrueRdAtPoint = monteCarloRadiosityDiffuseReflectanceAtPoint(patch, u, v);
     const StochasticRadiosityElement *leaf = StochasticRadiosityElement::stochasticRadiosityElementRegularLeafElementAtPoint(
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
-    ColorRgb UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
-    ColorRgb radianceAtPoint = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
-    ColorRgb sourceRad(0.0, 0.0, 0.0);
+    ColorRgbMutable UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
+    ColorRgbMutable radianceAtPoint = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
+    ColorRgbMutable sourceRad(0.0, 0.0, 0.0);
     sourceRad.clear();
 
     // Subtract source radiance

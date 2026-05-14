@@ -7,7 +7,7 @@ functions that relate to brdf or btdf like reflectance etc.
 #ifndef PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 #define PHONG_BIDIRECTIONAL_SCATTERING_DISTRIBUTION_FUNCTION__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "RendererConfiguration.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
 #include "vsdk/toolkit/material/PhongBidirectionalTransmittanceDistributionFunction.h"
@@ -26,7 +26,7 @@ class PhongBidirectionalScatteringDistributionFunction {
     PhongBidirectionalTransmittanceDistributionFunction *btdf;
     Texture *texture;
 
-    static ColorRgb splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context);
+    static ColorRgbMutable splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context);
 
 #ifdef RAYTRACING_ENABLED
     static Vector3D
@@ -82,7 +82,7 @@ public:
         const Vector3D *Y,
         const Vector3D *Z);
 
-    ColorRgb splitBsdfScatteredPower(const ShadingContext &context, char flags) const;
+    ColorRgbMutable splitBsdfScatteredPower(const ShadingContext &context, char flags) const;
     bool splitBsdfIsTextured() const;
 
 #ifdef RAYTRACING_ENABLED
@@ -100,7 +100,7 @@ public:
         double x2,
         double *probabilityDensityFunction) const;
 
-    ColorRgb
+    ColorRgbMutable
     evaluate(
         const ShadingContext &context,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -120,7 +120,7 @@ public:
         double *probabilityDensityFunction,
         double *probabilityDensityFunctionRR) const;
 
-    ColorRgb
+    ColorRgbMutable
     bsdfEvalComponents(
         const ShadingContext &context,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -128,7 +128,7 @@ public:
         const Vector3D *in,
         const Vector3D *out,
         char flags,
-        ColorRgb *colArray) const;
+        ColorRgbMutable *colArray) const;
 
 #endif
 

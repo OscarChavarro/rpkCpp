@@ -1,7 +1,7 @@
 #ifndef MGF_HANDLER_MATERIAL__
 #define MGF_HANDLER_MATERIAL__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/io/context/ColorContext.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
@@ -16,9 +16,9 @@ class MgfMaterialEntitySupport {
   private:
     static constexpr int NUMBER_OF_SAMPLES = 3;
     static Material *materialLookup(const char *name, const ParseRuntimeContext *context);
-    static void mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context);
-    static void specSamples(const ColorRgb &col, double *rgb);
-    static double colorMax(ColorRgb col);
+    static void mgfGetColor(ColorContext *cin, double intensity, ColorRgbMutable *colorOut, ParseRuntimeContext *context);
+    static void specSamples(const ColorRgbMutable &col, double *rgb);
+    static double colorMax(ColorRgbMutable col);
 };
 
 #endif

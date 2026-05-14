@@ -49,7 +49,7 @@ PixelSampler::sample(
     // "Bsdf" in thisNode
 
     // Potential is one for all directions through a pixel
-    thisNode->m_bsdfEval = ColorRgb(1.0, 1.0, 1.0);
+    thisNode->m_bsdfEval = ColorRgbMutable(1.0, 1.0, 1.0);
 
     // Make sure evaluation of eye components always includes the diff ref.
     thisNode->m_bsdfComp.Clear();

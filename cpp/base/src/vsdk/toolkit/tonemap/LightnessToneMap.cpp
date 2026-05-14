@@ -13,14 +13,14 @@ void
 LightnessToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
-ColorRgb
-LightnessToneMap::scaleForComputations(ColorRgb radiance) const {
+ColorRgbMutable
+LightnessToneMap::scaleForComputations(ColorRgbMutable radiance) const {
     Logger::warning("ScaleForComputations", "%s %d not yet implemented", __FILE__, __LINE__);
     return radiance;
 }
 
-ColorRgb
-LightnessToneMap::scaleForDisplay(ColorRgb radiance) const {
+ColorRgbMutable
+LightnessToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
     const float max = radiance.maximumComponent();
     if ( max < 1e-32 ) {
         return radiance;

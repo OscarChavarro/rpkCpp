@@ -18,17 +18,17 @@ Ccr::GetScalingCallback Ccr::getScalingCallback = nullptr;
 void
 Ccr::initialControlRadiosityRecursive(
     const StochasticRadiosityElement *element,
-    ColorRgb *minRad,
-    ColorRgb *maxRad,
-    ColorRgb *fMin,
-    ColorRgb *fMax,
-    ColorRgb *totalFluxColor,
-    ColorRgb *maxRadColor,
+    ColorRgbMutable *minRad,
+    ColorRgbMutable *maxRad,
+    ColorRgbMutable *fMin,
+    ColorRgbMutable *fMax,
+    ColorRgbMutable *totalFluxColor,
+    ColorRgbMutable *maxRadColor,
     double *area)
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        ColorRgb rad = getRadianceCallback(element)[0];
+        ColorRgbMutable rad = getRadianceCallback(element)[0];
         double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -59,14 +59,14 @@ Initial guess for constant control radiance value
 */
 void
 Ccr::initialControlRadiosity(
-    ColorRgb *minRad,
-    ColorRgb *maxRad,
-    ColorRgb *fMin,
-    ColorRgb *fMax,
+    ColorRgbMutable *minRad,
+    ColorRgbMutable *maxRad,
+    ColorRgbMutable *fMin,
+    ColorRgbMutable *fMax,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb totalFluxColor(0.0, 0.0, 0.0);
-    ColorRgb maxRadColor(0.0, 0.0, 0.0);
+    ColorRgbMutable totalFluxColor(0.0, 0.0, 0.0);
+    ColorRgbMutable maxRadColor(0.0, 0.0, 0.0);
     double area = 0.0;
     totalFluxColor.clear();
     maxRadColor.clear();
@@ -141,14 +141,14 @@ Ccr::refineComponent(
 void
 Ccr::refineControlRadiosityRecursive(
     StochasticRadiosityElement *element,
-    ColorRgb *colorOne,
-    ColorRgb rad[NUMBER_OF_INTERVALS + 1],
-    ColorRgb f[NUMBER_OF_INTERVALS + 1])
+    ColorRgbMutable *colorOne,
+    ColorRgbMutable rad[NUMBER_OF_INTERVALS + 1],
+    ColorRgbMutable f[NUMBER_OF_INTERVALS + 1])
 {
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
-        ColorRgb B = getRadianceCallback(element)[0];
-        ColorRgb s = getScalingCallback ? getScalingCallback(element) : *colorOne;
+        ColorRgbMutable B = getRadianceCallback(element)[0];
+        ColorRgbMutable s = getScalingCallback ? getScalingCallback(element) : *colorOne;
         double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method !=
@@ -156,7 +156,7 @@ Ccr::refineControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-            ColorRgb t(0.0, 0.0, 0.0);
+            ColorRgbMutable t(0.0, 0.0, 0.0);
             t.scalarProduct(s, rad[i]);
             t.subtract(B, t);
             t.abs();
@@ -177,18 +177,18 @@ method). Does so component wise
 */
 void
 Ccr::refineControlRadiosity(
-    ColorRgb *minRad,
-    ColorRgb *maxRad,
-    ColorRgb *fMin,
-    ColorRgb *fMax,
+    ColorRgbMutable *minRad,
+    ColorRgbMutable *maxRad,
+    ColorRgbMutable *fMin,
+    ColorRgbMutable *fMax,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb colorOne(0.0, 0.0, 0.0);
-    ColorRgb f[NUMBER_OF_INTERVALS + 1];
-    ColorRgb rad[NUMBER_OF_INTERVALS + 1];
-    ColorRgb d(0.0, 0.0, 0.0);
+    ColorRgbMutable colorOne(0.0, 0.0, 0.0);
+    ColorRgbMutable f[NUMBER_OF_INTERVALS + 1];
+    ColorRgbMutable rad[NUMBER_OF_INTERVALS + 1];
+    ColorRgbMutable d(0.0, 0.0, 0.0);
 
-    colorOne = ColorRgb(1.0, 1.0, 1.0);
+    colorOne = ColorRgbMutable(1.0, 1.0, 1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
     d.subtract(*maxRad, *minRad);
@@ -244,10 +244,10 @@ Ccr::refineControlRadiosity(
             radC);
     }
 
-    *minRad = ColorRgb(minValues[0], minValues[1], minValues[2]);
-    *maxRad = ColorRgb(maxValues[0], maxValues[1], maxValues[2]);
-    *fMin = ColorRgb(fMinValues[0], fMinValues[1], fMinValues[2]);
-    *fMax = ColorRgb(fMaxValues[0], fMaxValues[1], fMaxValues[2]);
+    *minRad = ColorRgbMutable(minValues[0], minValues[1], minValues[2]);
+    *maxRad = ColorRgbMutable(maxValues[0], maxValues[1], maxValues[2]);
+    *fMin = ColorRgbMutable(fMinValues[0], fMinValues[1], fMinValues[2]);
+    *fMax = ColorRgbMutable(fMaxValues[0], fMaxValues[1], fMaxValues[2]);
 }
 
 /**
@@ -263,18 +263,18 @@ multiplied with the radiance of the element. If getScaling is a nullptr
 pointer, no scaling is applied. Scaling is used in the context of
 random walk radiosity
 */
-ColorRgb
+ColorRgbMutable
 Ccr::determineControlRadiosity(
     GetRadianceCallback getRadiance,
     GetScalingCallback getScaling,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb minRad(0.0, 0.0, 0.0);
-    ColorRgb maxRad(0.0, 0.0, 0.0);
-    ColorRgb fMin(0.0, 0.0, 0.0);
-    ColorRgb fMax(0.0, 0.0, 0.0);
-    ColorRgb beta(0.0, 0.0, 0.0);
-    ColorRgb delta(0.0, 0.0, 0.0);
+    ColorRgbMutable minRad(0.0, 0.0, 0.0);
+    ColorRgbMutable maxRad(0.0, 0.0, 0.0);
+    ColorRgbMutable fMin(0.0, 0.0, 0.0);
+    ColorRgbMutable fMax(0.0, 0.0, 0.0);
+    ColorRgbMutable beta(0.0, 0.0, 0.0);
+    ColorRgbMutable delta(0.0, 0.0, 0.0);
     double eps = 0.001;
     int sweep = 0;
 

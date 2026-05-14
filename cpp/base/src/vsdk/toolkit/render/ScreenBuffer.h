@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/java/io/OutputStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector2D.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/Camera.h"
 #include "vsdk/toolkit/io/image/ImageOutputHandle.h"
@@ -22,8 +22,8 @@ and an associated RGB framebuffer
 
 class ScreenBuffer {
   private:
-    ColorRgb *radiance;
-    ColorRgb *rgbColor;
+    ColorRgbMutable *radiance;
+    ColorRgbMutable *rgbColor;
     Camera camera;
 
     bool synced;
@@ -56,12 +56,12 @@ class ScreenBuffer {
     Vector3D getPixelVector(int nx, int ny, float xOffset = 0.5, float yOffset = 0.5) const;
     int getHRes() const;
     int getVRes() const;
-    ColorRgb get(int x, int y) const;
-    void set(int x, int y, ColorRgb inRadiance);
+    ColorRgbMutable get(int x, int y) const;
+    void set(int x, int y, ColorRgbMutable inRadiance);
     void render();
     void renderScanline(int y);
     void writeFile(ImageOutputHandle *ip);
-    void add(int x, int y, ColorRgb inRadiance);
+    void add(int x, int y, ColorRgbMutable inRadiance);
     void sync();
     void setToneMappingContext(ToneMappingContext *inToneMapOptions);
 
@@ -69,7 +69,7 @@ class ScreenBuffer {
     float getScreenXMax() const;
     float getScreenYMax() const;
     static float computeFluxToRadFactor(const Camera *camera, int pixX, int pixY);
-    ColorRgb getBiLinear(float x, float y) const;
+    ColorRgbMutable getBiLinear(float x, float y) const;
     void scaleRadiance(float inFactor);
     void setAddScaleFactor(float inFactor);
     void setFactor(float inFactor);

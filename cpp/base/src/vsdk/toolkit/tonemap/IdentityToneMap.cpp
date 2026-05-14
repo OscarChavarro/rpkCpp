@@ -10,12 +10,12 @@ void
 IdentityToneMap::init(const ToneMappingContext &/*toneMapOptions*/) {
 }
 
-ColorRgb
-IdentityToneMap::scaleForComputations(ColorRgb radiance) const {
+ColorRgbMutable
+IdentityToneMap::scaleForComputations(ColorRgbMutable radiance) const {
     return radiance;
 }
 
-ColorRgb
-IdentityToneMap::scaleForDisplay(ColorRgb radiance) const {
+ColorRgbMutable
+IdentityToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
     return radiance;
 }

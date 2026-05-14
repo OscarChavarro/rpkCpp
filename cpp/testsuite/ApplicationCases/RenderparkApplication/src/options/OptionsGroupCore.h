@@ -2,7 +2,7 @@
 #define COMMAND_LINE_CORE_OPTIONS_GROUP__
 
 #include "options/EnumBackgroundMode.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/io/context/ParseRuntimeContext.h"
 #include "vsdk/toolkit/scene/Scene.h"
@@ -38,7 +38,7 @@ class OptionsGroupCore final {
   private:
     static constexpr int DEFAULT_NUMBER_OF_QUARTIC_DIVISIONS = 4;
     static constexpr bool DEFAULT_FORCE_ONE_SIDED = true;
-    static const ColorRgb DEFAULT_BACKGROUND_COLOR;
+    static const ColorRgbMutable DEFAULT_BACKGROUND_COLOR;
 
     static int numberOfQuarterCircleDivisions;
     static int fileOptionsForceOneSidedSurfaces;
@@ -46,10 +46,10 @@ class OptionsGroupCore final {
     static int outputImageHeight;
     static int glutDebugEnabled;
     static EnumBackgroundMode backgroundMode;
-    static ColorRgb backgroundColor;
+    static ColorRgbMutable backgroundColor;
 
     static bool commandLineParseFloat(const char *text, float *value);
-    static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgb *color);
+    static bool commandLineParseBackgroundColor(const char *rArg, const char *gArg, const char *bArg, ColorRgbMutable *color);
     static void commandLineParseBackgroundOption(int *argc, char **argv);
     static char toLowerAscii(char c);
     static bool equalsIgnoreCase(const char *a, const char *b);

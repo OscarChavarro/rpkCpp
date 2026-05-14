@@ -5,7 +5,7 @@ Density estimation on screen
 #ifndef DENSITY_BUFFER__
 #define DENSITY_BUFFER__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/render/ScreenBuffer.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/BidirectionalPathRaytracerConfig.h"
 #include "vsdk/toolkit/raycasting/bidirectionalRaytracing/DensityHitList.h"
@@ -31,7 +31,7 @@ class DensityBuffer {
   public:
     DensityBuffer(ScreenBuffer *screen, BidirectionalPathRaytracerConfig *paramBaseConfig);
     ~DensityBuffer();
-    void add(float x, float y, ColorRgb color);
+    void add(float x, float y, ColorRgbMutable color);
     ScreenBuffer *reconstruct();
     ScreenBuffer *reconstructVariable(ScreenBuffer *dest, float baseSize = 4.0);
 };

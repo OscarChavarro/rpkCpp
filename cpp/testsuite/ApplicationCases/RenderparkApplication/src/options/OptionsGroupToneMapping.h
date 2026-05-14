@@ -1,7 +1,7 @@
 #ifndef COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
 #define COMMAND_LINE_TONE_MAPPING_OPTIONS_GROUP__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
@@ -29,7 +29,7 @@ class OptionsGroupToneMapping final {
     static void whiteChromaOption(Vector3D &value);
     static void toneMappingCommandLineOptionDescAdaptMethodOption(char *&value);
     static void gammaOption(double &value);
-    static bool parseColor3(int argc, char **argv, ColorRgb &value);
+    static bool parseColor3(int argc, char **argv, ColorRgbMutable &value);
     static bool parseCieXy(int argc, char **argv, Vector3D &value);
 };
 

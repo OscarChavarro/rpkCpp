@@ -1,7 +1,7 @@
 #ifndef RENDER_OPTIONS__
 #define RENDER_OPTIONS__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 
 /**
 If this is undefined, the raytracing code can be trimmed as follows:
@@ -13,9 +13,9 @@ Build-time feature flags are configured from CMake.
 
 class RendererConfiguration {
   public:
-    ColorRgb outlineColor; // Color in which to draw outlines
-    ColorRgb boundingBoxColor; // Color in which to draw bounding boxes
-    ColorRgb clusterColor; // Color in which to show cluster bounding boxes
+    ColorRgbMutable outlineColor; // Color in which to draw outlines
+    ColorRgbMutable boundingBoxColor; // Color in which to draw bounding boxes
+    ColorRgbMutable clusterColor; // Color in which to show cluster bounding boxes
     float lineWidth;
     bool drawOutlines; // True for drawing facet outlines
     bool drawSurfaces;
@@ -38,9 +38,9 @@ class RendererConfiguration {
     static constexpr bool DEFAULT_SURFACE_DRAWING = true;
     static constexpr bool DEFAULT_BOUNDING_BOX_DRAWING = false;
     static constexpr bool DEFAULT_CLUSTER_DRAWING = false;
-    static const ColorRgb DEFAULT_OUTLINE_COLOR;
-    static const ColorRgb DEFAULT_BOUNDING_BOX_COLOR;
-    static const ColorRgb DEFAULT_CLUSTER_COLOR;
+    static const ColorRgbMutable DEFAULT_OUTLINE_COLOR;
+    static const ColorRgbMutable DEFAULT_BOUNDING_BOX_COLOR;
+    static const ColorRgbMutable DEFAULT_CLUSTER_COLOR;
 };
 
 #endif

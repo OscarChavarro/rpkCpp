@@ -27,7 +27,7 @@ class SurfaceSampler : public Sampler {
     m_computeBsdfComponents uses BsdfEval or BsdfEvalComponents
     Introduced to share code
     */
-    inline ColorRgb
+    inline ColorRgbMutable
     DoBsdfEval(
         const PhongBidirectionalScatteringDistributionFunction *bsdf,
         RayHit *hit,
@@ -43,7 +43,7 @@ class SurfaceSampler : public Sampler {
 
         if ( m_computeBsdfComponents ) {
             if ( bsdf == nullptr ) {
-                ColorRgb black;
+                ColorRgbMutable black;
                 black.clear();
                 return black;
             } else {
@@ -51,7 +51,7 @@ class SurfaceSampler : public Sampler {
             }
         } else {
             bsdfComp->Clear();
-            ColorRgb radiance;
+            ColorRgbMutable radiance;
             if ( bsdf == nullptr ) {
                 radiance.clear();
             } else {

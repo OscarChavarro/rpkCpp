@@ -106,7 +106,7 @@ RayCaster::clipUv(int numberOfVertices, double *u, double *v) {
 Determines the radiance of the nearest patch visible through the pixel
 (x,y). P shall be the nearest patch visible in the pixel.
 */
-inline ColorRgb
+inline ColorRgbMutable
 RayCaster::getRadianceAtPixel(
     Camera *camera,
     int x,
@@ -115,7 +115,7 @@ RayCaster::getRadianceAtPixel(
     const RadianceMethod *radianceMethod,
     const RendererConfiguration *renderOptions) const
 {
-    ColorRgb radiance{};
+    ColorRgbMutable radiance{};
     radiance.clear();
 
     if ( radianceMethod != nullptr ) {
@@ -174,7 +174,7 @@ RayCaster::render(
         for ( int x = 0; x < width; x++ ) {
             Patch *patch = idRenderer->getPatchAtPixel(x, y);
             if ( patch != nullptr ) {
-                ColorRgb rad = getRadianceAtPixel(scene->camera, x, y, patch, radianceMethod, renderOptions);
+                ColorRgbMutable rad = getRadianceAtPixel(scene->camera, x, y, patch, radianceMethod, renderOptions);
                 screenBuffer->add(x, y, rad);
             }
         }

@@ -62,9 +62,9 @@ PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
     return false;
 }
 
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context) {
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
     col.clear();
 
     if ( texture == nullptr ) {
@@ -84,19 +84,19 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Tex
 /**
 Returns the scattered power (diffuse/glossy/specular reflectance and/or transmittance) according to flags
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const ShadingContext &context, char flags) const {
-    ColorRgb albedo(0.0, 0.0, 0.0);
+    ColorRgbMutable albedo(0.0, 0.0, 0.0);
     albedo.clear();
 
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        ColorRgbMutable textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
         albedo.add(albedo, textureColor);
         flags &= ~TEXTURED_COMPONENT;
     }
 
     if ( brdf ) {
-        ColorRgb reflectance = brdf->reflectance(flags);
+        ColorRgbMutable reflectance = brdf->reflectance(flags);
         if ( !java::Float::isFinite(reflectance.average()) ) {
             Logger::fatal(-1, "brdfReflectance", "Oops - test Rd is not finite!");
         }
@@ -104,7 +104,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const 
     }
 
     if ( btdf != nullptr ) {
-        ColorRgb transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
+        ColorRgbMutable transmitted = btdf->transmittance(BsdfComponentFlag::getBtdfFlags(flags));
         albedo.add(albedo, transmitted);
     }
 
@@ -162,7 +162,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
 {
     *inTexture = 0.0;
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
-        ColorRgb textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        ColorRgbMutable textureColor = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
         *inTexture = textureColor.average();
         flags &= ~TEXTURED_COMPONENT;
     }
@@ -170,7 +170,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
     *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
-    ColorRgb reflectance(0.0, 0.0, 0.0);
+    ColorRgbMutable reflectance(0.0, 0.0, 0.0);
     if ( brdf == nullptr ) {
         reflectance.clear();
     } else {
@@ -178,7 +178,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     }
     *reflection = reflectance.average();
 
-    ColorRgb transmittance(0.0, 0.0, 0.0);
+    ColorRgbMutable transmittance(0.0, 0.0, 0.0);
     if ( btdf == nullptr ) {
         transmittance.clear();
     } else {
@@ -381,7 +381,7 @@ out: from patch
 hit->normal : leaving from patch, on the incoming side.
          So in . hit->normal > 0!
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalScatteringDistributionFunction::evaluate(
     const ShadingContext &context,
     const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -390,7 +390,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     const Vector3D *out,
     char flags) const
 {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     Vector3D normal;
 
     result.clear();
@@ -403,7 +403,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
         double textureBsdf = PhongBidirectionalScatteringDistributionFunction::texturedScattererEval(
                 in, out, &normal);
-        ColorRgb textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
+        ColorRgbMutable textureCol = PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(texture, context);
         result.addScaled(result, static_cast<float>(textureBsdf), textureCol);
         flags &= ~TEXTURED_COMPONENT;
     }
@@ -411,12 +411,12 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     // Just add brdf and btdf contributions, the eval routines handle the direction of out.
     // Note that out * normal is computed more than once :-(
     if ( brdf != nullptr ) {
-        ColorRgb reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
+        ColorRgbMutable reflectionCol = brdf->evaluate(in, out, &normal, BsdfComponentFlag::getBrdfFlags(flags));
         result.add(result, reflectionCol);
 
         RefractionIndex inIndex{};
         RefractionIndex outIndex{};
-        ColorRgb refractionCol(0.0, 0.0, 0.0);
+        ColorRgbMutable refractionCol(0.0, 0.0, 0.0);
 
         if ( inBsdf != nullptr ) {
             inBsdf->indexOfRefraction(&inIndex);
@@ -532,7 +532,7 @@ Evaluates all requested components of the BSDF separately and
 stores the result in 'colArray'.
 Total evaluation is returned.
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         const ShadingContext &context,
         const PhongBidirectionalScatteringDistributionFunction *inBsdf,
@@ -540,11 +540,11 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         const Vector3D *in,
         const Vector3D *out,
         const char flags,
-        ColorRgb *colArray) const
+        ColorRgbMutable *colArray) const
 {
     // Some caching optimisation could be used here
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb empty(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable empty(0.0, 0.0, 0.0);
     char thisFlag;
 
     empty.clear();

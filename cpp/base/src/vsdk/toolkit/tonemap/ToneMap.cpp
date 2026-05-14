@@ -17,15 +17,15 @@ ToneMap::gammaTableEntry(float x) {
 }
 
 void
-ToneMap::toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions) {
-    rgb = ColorRgb(
+ToneMap::toneMappingGammaCorrection(ColorRgbMutable &rgb, const ToneMappingContext &toneMapOptions) {
+    rgb = ColorRgbMutable(
         toneMapOptions.gammaTab[0][gammaTableEntry(static_cast<float>(rgb.getR()))],
         toneMapOptions.gammaTab[1][gammaTableEntry(static_cast<float>(rgb.getG()))],
         toneMapOptions.gammaTab[2][gammaTableEntry(static_cast<float>(rgb.getB()))]);
 }
 
-ColorRgb
-ToneMap::toneMapScaleForDisplay(const ColorRgb &radiance) {
+ColorRgbMutable
+ToneMap::toneMapScaleForDisplay(const ColorRgbMutable &radiance) {
     if ( activeToneMap == nullptr ) {
         Logger::fatal(-1, "ToneMap::toneMapScaleForDisplay", "No active tone map");
     }
@@ -58,7 +58,7 @@ ToneMap::recomputeGammaTable(ToneMappingContext &toneMapOptions, int index, doub
 Recomputes gamma tables for the given gamma values for red, green and blue
 */
 void
-ToneMap::recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma) {
+ToneMap::recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgbMutable gamma) {
     ToneMap::recomputeGammaTable(toneMapOptions, 0, gamma.getR());
     ToneMap::recomputeGammaTable(toneMapOptions, 1, gamma.getG());
     ToneMap::recomputeGammaTable(toneMapOptions, 2, gamma.getB());
@@ -67,8 +67,8 @@ ToneMap::recomputeGammaTables(ToneMappingContext &toneMapOptions, ColorRgb gamma
 /**
 Rescale real world radiance using properly set up tone mapping algorithm
 */
-ColorRgb *
-ToneMap::rescaleRadiance(ColorRgb in, ColorRgb *out, const ToneMappingContext &toneMapOptions) {
+ColorRgbMutable *
+ToneMap::rescaleRadiance(ColorRgbMutable in, ColorRgbMutable *out, const ToneMappingContext &toneMapOptions) {
     in.scale(toneMapOptions.pow_bright_adjust);
     *out = ToneMap::toneMapScaleForDisplay(in);
     return out;
@@ -87,10 +87,10 @@ Does most to convert radiance to display RGB color
    an RGB triplet for display on the screen
 3) clipping of RGB values to the range [0,1].
 */
-ColorRgb *
-ToneMap::radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions) {
+ColorRgbMutable *
+ToneMap::radianceToRgb(ColorRgbMutable color, ColorRgbMutable *rgb, const ToneMappingContext &toneMapOptions) {
     ToneMap::rescaleRadiance(color, &color, toneMapOptions);
-    *rgb = ColorRgb(color.getR(), color.getG(), color.getB());
+    *rgb = ColorRgbMutable(color.getR(), color.getG(), color.getB());
     rgb->clip();
     return rgb;
 }

@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/java/io/PrintStream.h"
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/PhongBidirectionalScatteringDistributionFunction.h"
 #include "vsdk/toolkit/environment/geometry/elements/RayHit.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonClass.h"
@@ -94,7 +94,7 @@ class PhotonMap {
     zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags);
 
     // Convert a value val given a maximum into some nice color
-    static ColorRgb getFalseColor(float val, const PhotonMapState &photonMapState);
+    static ColorRgbMutable getFalseColor(float val, const PhotonMapState &photonMapState);
 
     explicit PhotonMap(PhotonMapState &photonMapState, int *estimate_nrp, bool doPrecomputeIrradiance = false);
     virtual ~PhotonMap();
@@ -118,20 +118,20 @@ class PhotonMap {
     virtual void photonPrecomputeIrradiance(Camera *camera, IrrPhoton *photon);
 
     // reconstruct
-    virtual ColorRgb reconstruct(RayHit *hit, Vector3D &outDir,
+    virtual ColorRgbMutable reconstruct(RayHit *hit, Vector3D &outDir,
                                  PhongBidirectionalScatteringDistributionFunction *bsdf, PhongBidirectionalScatteringDistributionFunction *inBsdf, PhongBidirectionalScatteringDistributionFunction *outBsdf);
 
     bool
     irradianceReconstruct(
         RayHit *hit,
         const Vector3D &outDir,
-        const ColorRgb &diffuseAlbedo,
-        ColorRgb *result);
+        const ColorRgbMutable &diffuseAlbedo,
+        ColorRgbMutable *result);
 
     virtual float getCurrentDensity(RayHit &hit, int nrPhotons);
 
     // Return a color coded density of the photonmap
-    virtual ColorRgb getDensityColor(RayHit &hit);
+    virtual ColorRgbMutable getDensityColor(RayHit &hit);
 
     // Sample values: Random values r,s are transformed into new
     // random values so that importance sampling using the photon

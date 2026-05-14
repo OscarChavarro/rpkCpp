@@ -40,9 +40,9 @@ FerwerdaToneMap::init(const ToneMappingContext &toneMapOptions) {
     pmDisplay = pmComp / maximumDisplayLuminance;
 }
 
-ColorRgb
-FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
-    ColorRgb p{};
+ColorRgbMutable
+FerwerdaToneMap::scaleForComputations(ColorRgbMutable radiance) const {
+    ColorRgbMutable p{};
     float sl;
 
     // Convert to photometric values
@@ -50,7 +50,7 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    p = ColorRgb(radiance.getR(), radiance.getG(), radiance.getB());
+    p = ColorRgbMutable(radiance.getR(), radiance.getG(), radiance.getB());
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = static_cast<float>(smComp * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 
@@ -65,9 +65,9 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     return radiance;
 }
 
-ColorRgb
-FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
-    ColorRgb p{};
+ColorRgbMutable
+FerwerdaToneMap::scaleForDisplay(ColorRgbMutable radiance) const {
+    ColorRgbMutable p{};
     float sl;
 
     // Convert to photometric values
@@ -75,7 +75,7 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    radiance = ColorRgb(p.getR(), p.getG(), p.getB());
+    radiance = ColorRgbMutable(p.getR(), p.getG(), p.getB());
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
     sl = static_cast<float>(smDisplay * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 

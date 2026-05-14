@@ -1,17 +1,17 @@
 #ifndef RADIANCE_STATISTICS__
 #define RADIANCE_STATISTICS__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 
 class RadianceStatistics {
   public:
     float totalArea;
-    ColorRgb maxSelfEmittedRadiance;
-    ColorRgb maxSelfEmittedPower;
+    ColorRgbMutable maxSelfEmittedRadiance;
+    ColorRgbMutable maxSelfEmittedPower;
     double referenceLuminance;
-    ColorRgb totalEmittedPower;
-    ColorRgb estimatedAverageRadiance;
-    ColorRgb averageReflectivity;
+    ColorRgbMutable totalEmittedPower;
+    ColorRgbMutable estimatedAverageRadiance;
+    ColorRgbMutable averageReflectivity;
 
     RadianceStatistics();
     void reset();

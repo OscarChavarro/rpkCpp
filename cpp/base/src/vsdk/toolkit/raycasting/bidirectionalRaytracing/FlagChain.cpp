@@ -108,11 +108,11 @@ FlagChain::combine(const FlagChain *c1, const FlagChain *c2) {
 Compute : calculate the product of bsdf components defined
 by the chain. Eye and light node ARE INCLUDED
 */
-ColorRgb
+ColorRgbMutable
 FlagChain::compute(BiPath *path) const {
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb tmpCol(0.0, 0.0, 0.0);
-    result = ColorRgb(1.0, 1.0, 1.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
+    result = ColorRgbMutable(1.0, 1.0, 1.0);
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -209,10 +209,10 @@ FlagChainList::addDisjoint(const FlagChain &chain) {
     }
 }
 
-ColorRgb
+ColorRgbMutable
 FlagChainList::compute(BiPath *path) {
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb tmpCol(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -283,9 +283,9 @@ ContribHandler::~ContribHandler() {
     delete[] array;
 }
 
-ColorRgb
+ColorRgbMutable
 ContribHandler::compute(BiPath *path) {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     int length;
 
     result.clear();

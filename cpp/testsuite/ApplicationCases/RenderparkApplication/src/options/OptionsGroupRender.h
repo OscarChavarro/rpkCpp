@@ -13,13 +13,13 @@ class OptionsGroupRender final {
   private:
     static int trueValue;
     static RendererConfiguration renderOptionsState;
-    static ColorRgb outlineColor;
+    static ColorRgbMutable outlineColor;
 
     static void flatOption(int &value);
     static void noCullingOption(int &value);
     static void outlinesOption(int &value);
     static void traceOption(int &value);
-    static bool parseColor3(int argc, char **argv, ColorRgb &value);
+    static bool parseColor3(int argc, char **argv, ColorRgbMutable &value);
 };
 
 #endif

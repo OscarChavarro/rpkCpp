@@ -8,12 +8,12 @@ Several functions are provided for different iterating schemes
 #ifndef SCREEN_ITERATE__
 #define SCREEN_ITERATE__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/scene/Background.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 #include "vsdk/toolkit/raycasting/raytracing/ScreenIterateState.h"
 
-using SCREEN_ITERATE_CALLBACK = ColorRgb (*)(Camera *, VoxelGrid *, Background *, int, int, void *);
+using SCREEN_ITERATE_CALLBACK = ColorRgbMutable (*)(Camera *, VoxelGrid *, Background *, int, int, void *);
 
 class ScreenIterate {
   public:
@@ -49,8 +49,8 @@ class ScreenIterate {
         int y0,
         int x1,
         int y1,
-        ColorRgb col,
-        ColorRgb *rgb);
+        ColorRgbMutable col,
+        ColorRgbMutable *rgb);
 };
 
 #endif

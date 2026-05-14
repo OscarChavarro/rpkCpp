@@ -88,7 +88,7 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
 
     if ( getRadianceCallback ) {
         // Probability proportional to power to be propagated
-        ColorRgb radiance = getRadianceCallback(elem)[0];
+        ColorRgbMutable radiance = getRadianceCallback(elem)[0];
         if ( StochasticRelaxation::activeState().constantControlVariate ) {
             radiance.subtract(radiance, StochasticRelaxation::activeState().controlRadiance);
         }
@@ -106,7 +106,7 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
 
         if ( StochasticRelaxation::activeState().radianceDriven ) {
             // Received-radiance weighted importance transport
-            ColorRgb receivedRadiance(0.0, 0.0, 0.0);
+            ColorRgbMutable receivedRadiance(0.0, 0.0, 0.0);
             receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
             prob2 *= receivedRadiance.sumAbsComponents();
         }
@@ -185,9 +185,9 @@ StochasticJacobi::stochasticJacobiSetup(const java::ArrayList<Patch *> *scenePat
 /**
 Returns radiance to be propagated from the given location of the element
 */
-ColorRgb
+ColorRgbMutable
 StochasticJacobi::stochasticJacobiGetSourceRadiance(const StochasticRadiosityElement *src, double us, double vs) {
-    const ColorRgb *srcRad = getRadianceCallback(src);
+    const ColorRgbMutable *srcRad = getRadianceCallback(src);
     return Basismcrad::colorAtUv(src->basis, srcRad, us, vs);
 }
 
@@ -196,7 +196,7 @@ StochasticJacobi::stochasticJacobiPropagateRadianceToSurface(
     StochasticRadiosityElement *rcv,
     double ur,
     double vr,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     const StochasticRadiosityElement * /*src*/,
     double fraction,
     double /*weight*/)
@@ -211,7 +211,7 @@ StochasticJacobi::stochasticJacobiPropagateRadianceToSurface(
 void
 StochasticJacobi::stochasticJacobiPropagateRadianceToClusterIsotropic(
     StochasticRadiosityElement *cluster,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     const StochasticRadiosityElement * /*src*/,
     double fraction,
     double /*weight*/)
@@ -226,7 +226,7 @@ Note: Not considering the MAX_HIERARCHY_DEPTH limit.
 void
 StochasticJacobi::stochasticJacobiPropagateRadianceClusterRecursive(
     StochasticRadiosityElement *currentElement,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     Ray *ray,
     float dir,
     double projectedArea,
@@ -257,7 +257,7 @@ StochasticJacobi::stochasticJacobiPropagateRadianceClusterRecursive(
 void
 StochasticJacobi::stochasticJacobiPropagateRadianceToClusterOriented(
     StochasticRadiosityElement *cluster,
-    ColorRgb rayPower,
+    ColorRgbMutable rayPower,
     Ray *ray,
     float dir,
     const StochasticRadiosityElement * /*src*/,
@@ -327,8 +327,8 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
     Ray *ray,
     float dir)
 {
-    ColorRgb radiance(0.0, 0.0, 0.0);
-    ColorRgb rayPower(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable rayPower(0.0, 0.0, 0.0);
     double area;
     double weight = sumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
@@ -725,12 +725,12 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
 void
 StochasticJacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( getRadianceCallback ) {
-        ColorRgb Rd(0.0, 0.0, 0.0);
+        ColorRgbMutable Rd(0.0, 0.0, 0.0);
         Rd.clear();
 
         if ( parent->isCluster() && !child->isCluster() ) {
             // Multiply with reflectance (See PropagateRadianceToClusterIsotropic() above)
-            ColorRgb rad = parent->receivedRadiance[0];
+            ColorRgbMutable rad = parent->receivedRadiance[0];
             Rd = child->Rd;
             rad.selfScalarProduct(Rd);
             StochasticRadiosityElement::stochasticRadiosityElementPushRadiance(parent, child, &rad, child->receivedRadiance);
@@ -800,7 +800,7 @@ StochasticJacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
     parent->Ed.addScaled(parent->Ed, child->area / parent->area, child->Ed);
     parent->Rd.addScaled(parent->Rd, child->area / parent->area, child->Rd);
     if ( parent->isCluster() )
-        parent->Rd = ColorRgb(1.0, 1.0, 1.0);
+        parent->Rd = ColorRgbMutable(1.0, 1.0, 1.0);
 }
 
 void

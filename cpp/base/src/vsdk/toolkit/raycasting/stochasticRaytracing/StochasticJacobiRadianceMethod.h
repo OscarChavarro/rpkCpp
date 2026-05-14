@@ -21,7 +21,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *renderOptions) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;
@@ -41,7 +41,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
     static long stochasticRelaxationRadiosityRandomRound(float x);
     static void stochasticRelaxationRadiosityRecomputeDisplayColors(const java::ArrayList<Patch *> *scenePatches);
     static double stochasticRelaxationRadiosityQualityFactor(const StochasticRadiosityElement *elem, double w);
-    static ColorRgb *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *stochasticRelaxationRadiosityElementUnShotRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementIncrementRadiance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintIncrementalRadianceStats();
     static void stochasticRelaxationRadiosityDoIncrementalRadianceIterations(
@@ -55,7 +55,7 @@ class StochasticJacobiRadianceMethod final : public RadianceMethod {
         VoxelGrid *sceneWorldVoxelGrid,
         const java::ArrayList<Patch *> *scenePatches,
         RendererConfiguration *renderOptions);
-    static ColorRgb *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable *stochasticRelaxationRadiosityElementRadiance(const StochasticRadiosityElement *elem);
     static void stochasticRelaxationRadiosityElementUpdateRadiance(StochasticRadiosityElement *elem, double w);
     static void stochasticRelaxationRadiosityPrintRegularStats();
     static void stochasticRelaxationRadiosityDoRegularRadianceIteration(

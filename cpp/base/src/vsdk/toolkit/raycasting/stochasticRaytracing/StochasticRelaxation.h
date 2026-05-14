@@ -1,7 +1,7 @@
 #ifndef STOCHASTIC_RAYTRACING_STATE__
 #define STOCHASTIC_RAYTRACING_STATE__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorKind.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/RandomWalkEstimatorType.h"
 #include "vsdk/toolkit/raycasting/stochasticRaytracing/Sample4d.h"
@@ -19,16 +19,16 @@ class StochasticRelaxation {
     WhatToShow show; // What to show and how to display the result
     int inited; // Flag indicating whether initialised or not
     int currentIteration;
-    ColorRgb unShotFlux;
-    ColorRgb totalFlux;
-    ColorRgb indirectImportanceWeightedUnShotFlux;
+    ColorRgbMutable unShotFlux;
+    ColorRgbMutable totalFlux;
+    ColorRgbMutable indirectImportanceWeightedUnShotFlux;
     float unShotYmp;
     float totalYmp; // Sum over all patches of area * importance
     float sourceYmp;
     int rayUnitsPerIt; // To increase or decrease initial nr of rays
     int bidirectionalTransfers; // For bidirectional energy transfers
     int constantControlVariate; // For constant control variate variance reduction
-    ColorRgb controlRadiance; // Constant control radiance value
+    ColorRgbMutable controlRadiance; // Constant control radiance value
     int indirectOnly; // If to compute indirect illumination only
     int weightedSampling; // If to do weighted sampling ala Powell and Swann / Spanier
     int setSource; // For copying direct illumination to SOURCE_RAD(..) if computing only indirect illumination

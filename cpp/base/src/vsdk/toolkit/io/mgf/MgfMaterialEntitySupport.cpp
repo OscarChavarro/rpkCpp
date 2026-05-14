@@ -28,7 +28,7 @@ MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeCon
 Translates mgf color into out color representation
 */
 void
-MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgbMutable *colorOut, ParseRuntimeContext *context) {
     double xyz[3];
     double rgb[3];
 
@@ -61,18 +61,18 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, Color
     if ( Cie::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
-    *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
+    *colorOut = ColorRgbMutable(rgb[0], rgb[1], rgb[2]);
 }
 
 void
-MgfMaterialEntitySupport::specSamples(const ColorRgb &col, double *rgb) {
+MgfMaterialEntitySupport::specSamples(const ColorRgbMutable &col, double *rgb) {
     rgb[0] = col.getR();
     rgb[1] = col.getG();
     rgb[2] = col.getB();
 }
 
 double
-MgfMaterialEntitySupport::colorMax(ColorRgb col) {
+MgfMaterialEntitySupport::colorMax(ColorRgbMutable col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
@@ -98,13 +98,13 @@ The routine returns true if the material being used has changed
 */
 bool
 MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
-    ColorRgb Ed(0.0, 0.0, 0.0);
-    ColorRgb Es(0.0, 0.0, 0.0);
-    ColorRgb Rd(0.0, 0.0, 0.0);
-    ColorRgb Td(0.0, 0.0, 0.0);
-    ColorRgb Rs(0.0, 0.0, 0.0);
-    ColorRgb Ts(0.0, 0.0, 0.0);
-    ColorRgb A(0.0, 0.0, 0.0);
+    ColorRgbMutable Ed(0.0, 0.0, 0.0);
+    ColorRgbMutable Es(0.0, 0.0, 0.0);
+    ColorRgbMutable Rd(0.0, 0.0, 0.0);
+    ColorRgbMutable Td(0.0, 0.0, 0.0);
+    ColorRgbMutable Rs(0.0, 0.0, 0.0);
+    ColorRgbMutable Ts(0.0, 0.0, 0.0);
+    ColorRgbMutable A(0.0, 0.0, 0.0);
     MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
@@ -175,12 +175,12 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     }
 
     if ( context->monochrome ) {
-        Ed = ColorRgb(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
-        Es = ColorRgb(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
-        Rd = ColorRgb(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
-        Rs = ColorRgb(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
-        Td = ColorRgb(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
-        Ts = ColorRgb(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
+        Ed = ColorRgbMutable(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
+        Es = ColorRgbMutable(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
+        Rd = ColorRgbMutable(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
+        Rs = ColorRgbMutable(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
+        Td = ColorRgbMutable(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
+        Ts = ColorRgbMutable(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;

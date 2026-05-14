@@ -23,7 +23,7 @@ PhongBidirectionalTransmittanceDistributionFunction::isSpecular() const {
 }
 
 PhongBidirectionalTransmittanceDistributionFunction::PhongBidirectionalTransmittanceDistributionFunction(
-    const ColorRgb *inKd, const ColorRgb *inKs, const float inNs, const float inNr, const float inNi):
+    const ColorRgbMutable *inKd, const ColorRgbMutable *inKs, const float inNs, const float inNr, const float inNi):
     refractionIndex()
 {
     Kd = *inKd;
@@ -40,9 +40,9 @@ PhongBidirectionalTransmittanceDistributionFunction::~PhongBidirectionalTransmit
 /**
 Returns the transmittance of the BTDF
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -70,7 +70,7 @@ PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) c
 /**
 Btdf evaluations
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     RefractionIndex inIndex,
     RefractionIndex outIndex,
@@ -87,7 +87,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     result.clear();
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {

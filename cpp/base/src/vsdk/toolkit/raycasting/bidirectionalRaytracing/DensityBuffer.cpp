@@ -41,10 +41,10 @@ DensityBuffer::~DensityBuffer() {
 Add a hit
 */
 void
-DensityBuffer::add(float x, float y, ColorRgb color) {
+DensityBuffer::add(float x, float y, ColorRgbMutable color) {
     float factor = screenBuffer->getPixXSize() * screenBuffer->getPixYSize()
                    * static_cast<float>(baseConfig->totalSamples);
-    ColorRgb tmpCol(0.0, 0.0, 0.0);
+    ColorRgbMutable tmpCol(0.0, 0.0, 0.0);
 
     if ( color.average() > Numeric::EPSILON ) {
         tmpCol.scaledCopy(factor, color); // Undo part of flux to rad factor

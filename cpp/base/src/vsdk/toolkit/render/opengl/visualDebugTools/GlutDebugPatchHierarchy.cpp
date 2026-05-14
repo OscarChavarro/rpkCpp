@@ -1,6 +1,6 @@
 #include "vsdk/toolkit/render/opengl/visualDebugTools/GlutDebugPatchHierarchy.h"
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/galerkin/GalerkinElement.h"
@@ -127,7 +127,7 @@ GlutDebugPatchHierarchy::renderElementGray(
     float grayValue = OUTLINE_MIN_GRAY;
 
     if ( renderOptions->drawSurfaces ) {
-        ColorRgb radianceSample{};
+        ColorRgbMutable radianceSample{};
         if ( element->radiance != nullptr ) {
             radianceSample = element->radiance[0];
         }
@@ -136,14 +136,14 @@ GlutDebugPatchHierarchy::renderElementGray(
              && element->galerkinState->useAmbientRadiance
              && element->patch != nullptr
              && element->patch->getRadianceData() != nullptr ) {
-            ColorRgb ambient(0.0, 0.0, 0.0);
+            ColorRgbMutable ambient(0.0, 0.0, 0.0);
             ambient.scalarProduct(
                 element->patch->getRadianceData()->Rd,
                 element->galerkinState->ambientRadiance);
             radianceSample.add(radianceSample, ambient);
         }
 
-        ColorRgb rgbColor{};
+        ColorRgbMutable rgbColor{};
         ToneMap::radianceToRgb(radianceSample, &rgbColor, *toneMapOptions);
         grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
         glColor3f(grayValue, grayValue, grayValue);
@@ -270,7 +270,7 @@ GlutDebugPatchHierarchy::drawCenterMark(
         return;
     }
 
-    const ColorRgb yellow(1.0F, 1.0F, 0.0F);
+    const ColorRgbMutable yellow(1.0F, 1.0F, 0.0F);
     Opengl::openGlRenderSetColor(&yellow, renderOptions);
 
     constexpr float TWO_PI = 6.28318530717958647692F;

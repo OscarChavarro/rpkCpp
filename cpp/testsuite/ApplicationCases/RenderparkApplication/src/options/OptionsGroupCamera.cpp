@@ -6,7 +6,7 @@
 const Vector3D OptionsGroupCamera::DEFAULT_CAMERA_EYE_POSITION(10.0, 0.0, 0.0);
 const Vector3D OptionsGroupCamera::DEFAULT_CAMERA_LOOK_POSITION(0.0, 0.0, 0.0);
 const Vector3D OptionsGroupCamera::DEFAULT_CAMERA_UP_DIRECTION(0.0, 0.0, 1.0);
-const ColorRgb OptionsGroupCamera::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
+const ColorRgbMutable OptionsGroupCamera::DEFAULT_BACKGROUND_COLOR(0.0, 0.0, 0.0);
 Camera OptionsGroupCamera::cameraState;
 
 void
@@ -34,7 +34,7 @@ OptionsGroupCamera::cameraDefaults(Camera *camera, int imageWidth, int imageHeig
     Vector3D eyePosition = DEFAULT_CAMERA_EYE_POSITION;
     Vector3D lookPosition = DEFAULT_CAMERA_LOOK_POSITION;
     Vector3D upDirection = DEFAULT_CAMERA_UP_DIRECTION;
-    ColorRgb backgroundColorSelected = DEFAULT_BACKGROUND_COLOR;
+    ColorRgbMutable backgroundColorSelected = DEFAULT_BACKGROUND_COLOR;
 
     camera->set(
         &eyePosition,

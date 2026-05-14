@@ -5,10 +5,10 @@
 class OrientedGathererVisitor final : public ClusterLeafVisitor {
   private:
     Interaction *link;
-    ColorRgb *sourceRadiance;
+    ColorRgbMutable *sourceRadiance;
 
   public:
-    OrientedGathererVisitor(Interaction *inLink, ColorRgb *inSourceRadiance);
+    OrientedGathererVisitor(Interaction *inLink, ColorRgbMutable *inSourceRadiance);
     ~OrientedGathererVisitor() final;
 
     void visit(GalerkinElement *galerkinElement, const GalerkinState *galerkinState) final;

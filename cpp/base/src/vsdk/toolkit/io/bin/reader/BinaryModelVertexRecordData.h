@@ -1,7 +1,7 @@
 #ifndef BINARY_MODEL_READER_VERTEX_RECORD__
 #define BINARY_MODEL_READER_VERTEX_RECORD__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 
 class BinaryModelVertexRecordData {
@@ -10,7 +10,7 @@ class BinaryModelVertexRecordData {
     int pointIndex;
     int normalIndex;
     int textureCoordinateIndex;
-    ColorRgb color;
+    ColorRgbMutable color;
     int backIndex;
     int tmp;
     bool hasRadianceData;

@@ -12,7 +12,7 @@
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMap.h"
 bool
 PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
-    ColorRgb color(0.0, 0.0, 0.0);
+    ColorRgbMutable color(0.0, 0.0, 0.0);
     bool shctxOk = false;
     ShadingContext shctx = hit->shadingContext(&shctxOk);
     if ( !shctxOk || bsdf == nullptr ) {
@@ -38,9 +38,9 @@ PhotonMap::getFalseMonochrome(float val, const PhotonMapState &photonMapState) {
     return tmp;
 }
 
-ColorRgb
+ColorRgbMutable
 PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
     float tmp;
     float r = 0;
     float g = 0;
@@ -48,7 +48,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
 
     if ( photonMapState.falseColMono ) {
         tmp = PhotonMap::getFalseMonochrome(val, photonMapState);
-        col = ColorRgb(tmp, tmp, tmp);
+        col = ColorRgbMutable(tmp, tmp, tmp);
         return col;
     }
 
@@ -75,7 +75,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
         g = 1.0F - r;
     }
 
-    col = ColorRgb(r, g, b);
+    col = ColorRgbMutable(r, g, b);
     return col;
 }
 
@@ -218,10 +218,10 @@ PhotonMap::redistribute(const Photon &photon) const {
     // -- Check the flags
     // -- normal weighted average?
 
-    ColorRgb deltaPower(0.0, 0.0, 0.0);
+    ColorRgbMutable deltaPower(0.0, 0.0, 0.0);
     float factor = 1.0F / static_cast<float>(m_nrpCosinePos);
 
-    ColorRgb pow = photon.power();
+    ColorRgbMutable pow = photon.power();
     deltaPower.scaledCopy(factor, pow);
 
     for ( int i = 0; i < m_nrpFound; i++ ) {
@@ -296,7 +296,7 @@ PhotonMap::GetMaxR2() {
 // Precompute Irradiance
 void
 PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
-    ColorRgb irradiance(0.0, 0.0, 0.0);
+    ColorRgbMutable irradiance(0.0, 0.0, 0.0);
     irradiance.clear();
 
     // Locate the nearest photons using a max radius limit
@@ -309,7 +309,7 @@ PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
 
         for ( int i = 0; i < m_nrpFound; i++ ) {
             if ( photon->Normal().dotProduct(m_photons[i]->dir()) > 0 ) {
-                ColorRgb power = m_photons[i]->power();
+                ColorRgbMutable power = m_photons[i]->power();
                 irradiance.add(irradiance, power);
             }
         }
@@ -344,8 +344,8 @@ bool
 PhotonMap::irradianceReconstruct(
     RayHit *hit,
     const Vector3D &/*outDir*/,
-    const ColorRgb &diffuseAlbedo,
-    ColorRgb *result)
+    const ColorRgbMutable &diffuseAlbedo,
+    ColorRgbMutable *result)
 {
     if ( !m_irradianceComputed ) {
         precomputeIrradiance();
@@ -365,7 +365,7 @@ PhotonMap::irradianceReconstruct(
     }
 }
 
-ColorRgb
+ColorRgbMutable
 PhotonMap::reconstruct(
     RayHit *hit,
     Vector3D &outDir,
@@ -374,14 +374,14 @@ PhotonMap::reconstruct(
     PhongBidirectionalScatteringDistributionFunction *outBsdf)
 {
     // Find the nearest photons
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb eval(0.0, 0.0, 0.0);
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable eval(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
 
     result.clear();
 
-    ColorRgb diffuseAlbedo(0.0, 0.0, 0.0);
-    ColorRgb glossyAlbedo(0.0, 0.0, 0.0);
+    ColorRgbMutable diffuseAlbedo(0.0, 0.0, 0.0);
+    ColorRgbMutable glossyAlbedo(0.0, 0.0, 0.0);
 
     diffuseAlbedo.clear();
     glossyAlbedo.clear();
@@ -432,7 +432,7 @@ PhotonMap::reconstruct(
             eval = bsdf->evaluate(
                 shctx, inBsdf, outBsdf, &outDir, &dir, BsdfComponentInfo::BSDF_DIFFUSE_COMPONENT | BsdfComponentInfo::BSDF_GLOSSY_COMPONENT);
         }
-        ColorRgb power = m_photons[i]->power();
+        ColorRgbMutable power = m_photons[i]->power();
 
         col.scalarProduct(eval, power);
         result.add(result, col);
@@ -481,11 +481,11 @@ PhotonMap::getCurrentDensity(RayHit &hit, int nrPhotons) {
 /**
 Return a color coded density of the photon map
 */
-ColorRgb
+ColorRgbMutable
 PhotonMap::getDensityColor(RayHit &hit) {
     float density = getCurrentDensity(hit, 0);
 
-    ColorRgb result = PhotonMap::getFalseColor(density, photonMapState);
+    ColorRgbMutable result = PhotonMap::getFalseColor(density, photonMapState);
 
     return result;
 }
@@ -516,7 +516,7 @@ PhotonMap::sample(
             // in a local spherical frame before building the 2D sampling grid.
             m_photons[i]->findRS(&pr, &ps, coord, flag, n);
 
-            ColorRgb color = m_photons[i]->power();
+            ColorRgbMutable color = m_photons[i]->power();
 
             m_grid->add(pr, ps, color.average() / static_cast<float>(m_nrPhotons));
         }

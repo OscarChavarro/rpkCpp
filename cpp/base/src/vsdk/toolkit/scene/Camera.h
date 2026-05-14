@@ -3,7 +3,7 @@
 
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/common/linealAlgebra/Matrix4x4.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/scene/Plane.h"
 #include "vsdk/toolkit/skin/AxisAlignedBoundingBox.h"
 
@@ -25,7 +25,7 @@ class Camera {
     Vector3D X; // Eye coordinate system: X = right
     Vector3D Y; // Eye coordinate system: Y = down
     Vector3D Z; // Eye coordinate system: Z = viewing direction
-    ColorRgb background; // Window background color
+    ColorRgbMutable background; // Window background color
     int changed; // True when camera position has been updated
     float pixelWidth;
     float pixelHeight;
@@ -43,7 +43,7 @@ class Camera {
         float inFieldOfVision,
         int inXSize,
         int inYSize,
-        const ColorRgb *inBackground);
+        const ColorRgbMutable *inBackground);
 
     void setEyePosition(float x, float y, float z);
     void setLookPosition(float x, float y, float z);

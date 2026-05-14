@@ -55,9 +55,9 @@ Handles a bidirectional path. Image contribution
 is returned. Normally this is a contribution for the pixel
 affected by the path
 */
-ColorRgb
+ColorRgbMutable
 Spar::handlePath(SparConfig */*config*/, BiPath */*path*/) {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -106,12 +106,12 @@ void
 SparList::handlePath(
     SparConfig *config,
     BiPath *path,
-    ColorRgb *fRad,
-    ColorRgb *fBpt)
+    ColorRgbMutable *fRad,
+    ColorRgbMutable *fBpt)
 {
     CSparListIter iter(*this);
     Spar **spar;
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
 
     fBpt->clear();
     fRad->clear();

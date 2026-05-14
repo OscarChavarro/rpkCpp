@@ -128,7 +128,7 @@ StochasticRaytracer::terminate() const {
     }
 }
 
- ColorRgb
+ ColorRgbMutable
 StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
@@ -145,7 +145,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
 
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     result.clear();
 
     if ( (config->samplerConfig.surfaceSampler == nullptr) ||
@@ -179,7 +179,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
 
         if ( numberOfSamples > 2 ) {
             // Some bigger value may be more efficient
-            ColorRgb albedo(0.0, 0.0, 0.0);
+            ColorRgbMutable albedo(0.0, 0.0, 0.0);
             albedo.clear();
             if ( thisNode->m_useBsdf != nullptr ) {
                 bool shctxOk = false;
@@ -202,7 +202,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
             double x2;
             double factor;
             StratifiedSampling2D stratified(numberOfSamples);
-            ColorRgb radiance(0.0, 0.0, 0.0);
+            ColorRgbMutable radiance(0.0, 0.0, 0.0);
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( int i = 0; i < numberOfSamples; i++ ) {
@@ -279,7 +279,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     return result;
 }
 
- ColorRgb
+ ColorRgbMutable
 StochasticRaytracer::srGetDirectRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
@@ -288,8 +288,8 @@ StochasticRaytracer::srGetDirectRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout)
 {
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     result.clear();
     Vector3D dirEL;
 
@@ -434,7 +434,7 @@ StochasticRaytracer::srGetDirectRadiance(
     return result;
 }
 
- ColorRgb
+ ColorRgbMutable
 StochasticRaytracer::stochasticRaytracerGetRadiance(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
@@ -446,8 +446,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
     RadianceMethod *radianceMethod,
     RendererConfiguration *renderOptions)
 {
-    ColorRgb result(0.0, 0.0, 0.0);
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     char edfFlags = XxdfComponentFlagInfo::ALL_COMPONENTS;
 
     // Handle background
@@ -525,7 +525,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 // This includes Le diffuse, subtraction first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
                 // -- radiance method does...
-                ColorRgb diffEmit(0.0, 0.0, 0.0);
+                ColorRgbMutable diffEmit(0.0, 0.0, 0.0);
 
                 if ( thisEdf == nullptr ) {
                     diffEmit.clear();
@@ -583,7 +583,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             double weight;
             double cr;
             double cl;
-            ColorRgb col(0.0, 0.0, 0.0);
+            ColorRgbMutable col(0.0, 0.0, 0.0);
             bool doWeight = true;
 
             if ( thisNode->m_depth <= 1 ) {
@@ -633,7 +633,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
     return result;
 }
 
-ColorRgb
+ColorRgbMutable
 StochasticRaytracer::calcPixel(
     Camera *camera,
     VoxelGrid *sceneVoxelGrid,
@@ -650,8 +650,8 @@ StochasticRaytracer::calcPixel(
     SimpleRaytracingPathNode pixelNode;
     double x1;
     double x2;
-    ColorRgb col(0.0, 0.0, 0.0);
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     StratifiedSampling2D stratified(config->samplesPerPixel);
 
     result.clear();

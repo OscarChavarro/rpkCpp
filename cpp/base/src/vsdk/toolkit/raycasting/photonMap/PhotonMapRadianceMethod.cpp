@@ -209,7 +209,7 @@ PhotonMapRadianceMethod::initialize(Scene *scene, ToneMappingContext *toneMapOpt
 /**
 Adapted from bi-directional path, this is a bit overkill for here
 */
-ColorRgb
+ColorRgbMutable
 PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     Camera *camera,
     PhotonMapConfig *config,
@@ -218,8 +218,8 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     BiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    ColorRgb oldBsdfL(0.0, 0.0, 0.0);
-    ColorRgb oldBsdfE(0.0, 0.0, 0.0);
+    ColorRgbMutable oldBsdfL(0.0, 0.0, 0.0);
+    ColorRgbMutable oldBsdfE(0.0, 0.0, 0.0);
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -230,7 +230,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    ColorRgb f(0.0, 0.0, 0.0);
+    ColorRgbMutable f(0.0, 0.0, 0.0);
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -321,7 +321,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
     int ny;
     float pixX;
     float pixY;
-    ColorRgb f(0.0, 0.0, 0.0);
+    ColorRgbMutable f(0.0, 0.0, 0.0);
     const BiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
@@ -366,7 +366,7 @@ bool
 PhotonMapRadianceMethod::photonMapDoPhotonStore(
     const Camera *camera,
     SimpleRaytracingPathNode *node,
-    ColorRgb power)
+    ColorRgbMutable power)
 {
     if ( node->m_hit.getPatch() && node->m_hit.getPatch()->getMaterial() ) {
         // Only add photons on surfaces with a certain reflection
@@ -418,7 +418,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
 {
     bool lDone;
     BiPath *bp = &config->biPath;
-    ColorRgb accPower(0.0, 0.0, 0.0);
+    ColorRgbMutable accPower(0.0, 0.0, 0.0);
     float factor;
 
     // Iterate over all light nodes
@@ -430,7 +430,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     bp->m_geomConnect = 1.0; // No connection yet
 
     lDone = false;
-    accPower = ColorRgb(1.0, 1.0, 1.0);
+    accPower = ColorRgbMutable(1.0, 1.0, 1.0);
 
     while ( !lDone ) {
         // Adjust accPower
@@ -666,9 +666,9 @@ PhotonMapRadianceMethod::terminate(java::ArrayList<Patch *> */*scenePatches*/) {
 /**
 Returns the radiance emitted in the node related direction
 */
-ColorRgb
+ColorRgbMutable
 PhotonMapRadianceMethod::getNodeGRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
 
     photonMapConfig.map->doBalancing(photonMapState.balanceKDTree);
     col = photonMapConfig.map->reconstruct(&node->m_hit, node->m_inDirF,
@@ -680,9 +680,9 @@ PhotonMapRadianceMethod::getNodeGRadiance(SimpleRaytracingPathNode *node) const 
 /**
 Returns the radiance emitted in the node related direction
 */
-ColorRgb
+ColorRgbMutable
 PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgbMutable col(0.0, 0.0, 0.0);
 
     photonMapConfig.causticMap->doBalancing(photonMapState.balanceKDTree);
 
@@ -692,7 +692,7 @@ PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const 
     return col;
 }
 
-ColorRgb
+ColorRgbMutable
 PhotonMapRadianceMethod::getRadiance(
     Camera *camera,
     Patch *patch,
@@ -704,7 +704,7 @@ PhotonMapRadianceMethod::getRadiance(
     RayHit hit;
     Vector3D point;
     PhongBidirectionalScatteringDistributionFunction *bsdf = patch->getMaterial()->getBsdf();
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);

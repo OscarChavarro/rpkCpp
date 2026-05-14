@@ -32,7 +32,7 @@ class BiPath {
 
     // Some interesting methods, only to be called for
     // valid bidirectional paths
-    ColorRgb evalRadiance() const;
+    ColorRgbMutable evalRadiance() const;
 
     // Evaluate accumulated PDF of a bipath (no weighting)
     double evalPdfAcc() const;

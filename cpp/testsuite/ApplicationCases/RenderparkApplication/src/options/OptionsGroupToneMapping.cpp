@@ -112,7 +112,7 @@ OptionsGroupToneMapping::gammaOption(double &gam) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).gamma = ColorRgb(gam, gam, gam);
+    (*toneMapOptions).gamma = ColorRgbMutable(gam, gam, gam);
 }
 
 void
@@ -136,7 +136,7 @@ OptionsGroupToneMapping::toneMapParseOptions(
     TypedOption<float> ldmaxOpt = {"-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, nullptr, nullptr};
     TypedOption<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
     TypedOption<double> gammaOpt = {"-gamma", &gammaScalar, 1, OptionsGroupToneMapping::gammaOption, nullptr};
-    TypedOption<ColorRgb> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, OptionsGroupToneMapping::parseColor3};
+    TypedOption<ColorRgbMutable> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, OptionsGroupToneMapping::parseColor3};
     TypedOption<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy};
     TypedOption<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy};
     TypedOption<Vector3D> blueOpt = {"-blue", &blueChromaticityValue, 2, OptionsGroupToneMapping::blueChromaOption, OptionsGroupToneMapping::parseCieXy};
@@ -149,7 +149,7 @@ OptionsGroupToneMapping::toneMapParseOptions(
         REGISTER_OPTION(float, ldmaxOpt, 5),
         REGISTER_OPTION(float, cmaxOpt, 4),
         REGISTER_OPTION(double, gammaOpt, 4),
-        REGISTER_OPTION(ColorRgb, rgbGammaOpt, 4),
+        REGISTER_OPTION(ColorRgbMutable, rgbGammaOpt, 4),
         REGISTER_OPTION(Vector3D, redOpt, 4),
         REGISTER_OPTION(Vector3D, greenOpt, 4),
         REGISTER_OPTION(Vector3D, blueOpt, 4),
@@ -169,7 +169,7 @@ OptionsGroupToneMapping::toneMapParseOptions(
 }
 
 bool
-OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
+OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgbMutable &value) {
     if ( argc < 3 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr || argv[2] == nullptr ) {
         return false;
     }
@@ -186,7 +186,7 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }
-    value = ColorRgb(r, g, b);
+    value = ColorRgbMutable(r, g, b);
     return true;
 }
 

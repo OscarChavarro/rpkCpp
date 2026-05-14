@@ -666,7 +666,7 @@ Patch::Patch(
     connectVertices();
 
     directPotential = 0.0;
-    color = ColorRgb(0.0, 0.0, 0.0);
+    color = ColorRgbMutable(0.0, 0.0, 0.0);
 
     omit = false;
     flags = 0; // Other flags

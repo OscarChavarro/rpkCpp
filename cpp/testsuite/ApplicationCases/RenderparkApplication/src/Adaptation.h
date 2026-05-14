@@ -6,7 +6,7 @@ Estimate static adaptation luminance in the current scene
 #define ADAPTATION__
 
 #include "vsdk/toolkit/java/util/ArrayList.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/environment/geometry/elements/Patch.h"
 #include "LuminanceArea.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
@@ -18,7 +18,7 @@ class Adaptation final {
         ToneMappingContext &toneMapOptions);
 
   private:
-    using PatchRadianceEstimateFn = ColorRgb (*)(Patch *);
+    using PatchRadianceEstimateFn = ColorRgbMutable (*)(Patch *);
 
     static int numEntries;
     static double logAreaLum;
@@ -28,7 +28,7 @@ class Adaptation final {
     static float lumMax;
     static PatchRadianceEstimateFn patchRadianceEstimate;
 
-    static ColorRgb initRadianceEstimate(Patch *patch);
+    static ColorRgbMutable initRadianceEstimate(Patch *patch);
     static int adaptationLumAreaComp(const void *la1, const void *la2);
     static float patchBrightnessEstimate(Patch *patch);
     static void patchComputeLogAreaLum(Patch *patch);

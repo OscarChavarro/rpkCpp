@@ -17,7 +17,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
   private:
     static constexpr int STRING_LENGTH = 2000;
     GatheringStrategy *gatheringStrategy;
-    ColorRgb computePatchRadiance(Patch *patch, double u, double v) const;
+    ColorRgbMutable computePatchRadiance(Patch *patch, double u, double v) const;
 
     static void patchInit(Patch *patch);
     static void updateCpuSecs();
@@ -27,7 +27,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static void writeVertexCoord(const Vector3D *point);
     static void writeVertexCoords(Element *element);
     static void writeCoords();
-    static void writeVertexColor(const ColorRgb *color);
+    static void writeVertexColor(const ColorRgbMutable *color);
     static void writeVertexColors(Element *element);
     static void writeVertexColorsTopCluster();
     static void writeColors(const RendererConfiguration *renderOptions);
@@ -38,13 +38,13 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     static int numberOfWrites;
     static int vertexId;
 
-    static inline ColorRgb
+    static inline ColorRgbMutable
     galerkinGetRadiance(Patch *patch) {
         return static_cast<GalerkinElement *>(patch->getRadianceData())->radiance[0];
     }
 
     static inline void
-    galerkinSetRadiance(Patch *patch, ColorRgb value) {
+    galerkinSetRadiance(Patch *patch, ColorRgbMutable value) {
         static_cast<GalerkinElement *>(patch->getRadianceData())->radiance[0] = value;
     }
 
@@ -73,7 +73,7 @@ class GalerkinRadianceMethod final : public RadianceMethod {
     void initialize(Scene *scene, ToneMappingContext *toneMapOptions) final;
     bool doStep(Scene *scene, RendererConfiguration *renderOptions) final;
     void terminate(java::ArrayList<Patch *> *scenePatches) final;
-    ColorRgb getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *rendererConfiguration) const final;
+    ColorRgbMutable getRadiance(Camera *camera, Patch *patch, double u, double v, Vector3D dir, const RendererConfiguration *rendererConfiguration) const final;
     Element *createPatchData(Patch *patch) final;
     void destroyPatchData(Patch *patch) final;
     char *getStats() const final;

@@ -32,7 +32,7 @@ PhotonMapImportance::bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node)
 }
 
 bool
-PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance) {
+PhotonMapImportance::doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgbMutable importance) {
     if ( PhotonMapImportance::hasDiffuseOrGlossy(node) ) {
         float importanceF = importance.average();
         float potentialF = 1.0;
@@ -67,8 +67,8 @@ PhotonMapImportance::tracePotentialPath(
     }
     photonMapConfig.biPath.m_eyePath = path;  // In case no nodes were present
 
-    ColorRgb accImportance(0.0, 0.0, 0.0);  // Track importance along the ray
-    accImportance = ColorRgb(1.0, 1.0, 1.0);
+    ColorRgbMutable accImportance(0.0, 0.0, 0.0);  // Track importance along the ray
+    accImportance = ColorRgbMutable(1.0, 1.0, 1.0);
 
     // Adjust importance for eye ray
     float factor = static_cast<float>(path->m_G / path->m_pdfFromPrev);

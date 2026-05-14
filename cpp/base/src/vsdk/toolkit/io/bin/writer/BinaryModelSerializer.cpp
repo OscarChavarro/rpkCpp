@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/java/util/HashMap.txx"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -101,7 +101,7 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
 }
 
 void
-BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
+BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgbMutable &color) {
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));

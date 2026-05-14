@@ -21,12 +21,12 @@ class Kernel2D final {
     void Init(float h, float w);
     void SetH(float newH);
     float Evaluate(const Vector2D &point, const Vector2D &center) const;
-    void cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const;
+    void cover(const Vector2D &point, float scale, const ColorRgbMutable &col, ScreenBuffer *screen) const;
 
     void
     varCover(
         const Vector2D &center,
-        const ColorRgb &color,
+        const ColorRgbMutable &color,
         const ScreenBuffer *ref,
         ScreenBuffer *dest,
         int totalSamples,

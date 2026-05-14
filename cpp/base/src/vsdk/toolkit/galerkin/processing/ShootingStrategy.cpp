@@ -66,7 +66,7 @@ ShootingStrategy::clearUnShotRadianceAndPotential(GalerkinElement *elem) {
         clearUnShotRadianceAndPotential(static_cast<GalerkinElement *>(elem->irregularSubElements->get(i)));
     }
 
-    ColorRgb::arrayClear(elem->unShotRadiance, elem->basisSize);
+    ColorRgbMutable::arrayClear(elem->unShotRadiance, elem->basisSize);
     elem->unShotPotential = 0.0F;
 }
 

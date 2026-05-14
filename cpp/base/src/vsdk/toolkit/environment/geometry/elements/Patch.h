@@ -74,7 +74,7 @@ class Patch {
     // testing, shaft culling, ... set to FALSE by
     // default. Don't forget to set to FALSE again
     // after you changed it!
-    ColorRgb color; // Color used to flat render the patch
+    ColorRgbMutable color; // Color used to flat render the patch
 
     void uniformToBiLinear(double *u, double *v) const;
     Vector3D interpolatedNormalAtUv(double u, double v) const;
@@ -108,7 +108,7 @@ class Patch {
     bool facing(const Patch *other) const;
     float getArea() const;
     const AxisAlignedBoundingBox *getBoundingBox() const;
-    const ColorRgb &getColor() const;
+    const ColorRgbMutable &getColor() const;
     float getDirectPotential() const;
     char getDominantAxisIndex() const;
     unsigned char getFlags() const;
@@ -128,7 +128,7 @@ class Patch {
     bool isOmitted() const;
     const Vector3D &midPoint() const;
     Vector3D *pointBarycentricMapping(double u, double v, Vector3D *point) const;
-    void setColor(const ColorRgb &newColor);
+    void setColor(const ColorRgbMutable &newColor);
     void setDirectPotential(float newDirectPotential);
     void setDominantAxisIndex(char newIndex);
     void setFlags(unsigned char newFlags);
@@ -169,7 +169,7 @@ Patch::getBoundingBox() const {
     return boundingBox;
 }
 
-inline const ColorRgb &
+inline const ColorRgbMutable &
 Patch::getColor() const {
     return color;
 }
@@ -257,7 +257,7 @@ Patch::midPoint() const {
 }
 
 inline void
-Patch::setColor(const ColorRgb &newColor) {
+Patch::setColor(const ColorRgbMutable &newColor) {
     color = newColor;
 }
 

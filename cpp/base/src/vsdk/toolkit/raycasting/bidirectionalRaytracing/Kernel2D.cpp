@@ -63,7 +63,7 @@ IN: The screen buffer to cover.
 OUT: /
 */
 void
-Kernel2D::cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenBuffer *screen) const {
+Kernel2D::cover(const Vector2D &point, float scale, const ColorRgbMutable &col, ScreenBuffer *screen) const {
     // For each neighbourhood pixel : eval kernel and add contrib
 
     int nxMin;
@@ -71,7 +71,7 @@ Kernel2D::cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenB
     int nyMin;
     int nyMax;
     Vector2D center;
-    ColorRgb addCol(0.0, 0.0, 0.0);
+    ColorRgbMutable addCol(0.0, 0.0, 0.0);
     float factor;
 
     // Get extents of possible pixels that are affected
@@ -98,7 +98,7 @@ Add one hit/splat with a size dependend on a reference estimate
 void
 Kernel2D::varCover(
     const Vector2D &center,
-    const ColorRgb &color,
+    const ColorRgbMutable &color,
     const ScreenBuffer *ref,
     ScreenBuffer *dest,
     int totalSamples,
@@ -119,7 +119,7 @@ Kernel2D::varCover(
     // Now compute h for this sample
 
     // Reference estimated function
-    ColorRgb fe = ref->getBiLinear(center.u, center.v);
+    ColorRgbMutable fe = ref->getBiLinear(center.u, center.v);
 
     float avgFe = fe.average();
     float avgG = color.average();

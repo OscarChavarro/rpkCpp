@@ -19,15 +19,15 @@ class McradP final {
         return static_cast<StochasticRadiosityElement *>(patch->getRadianceData());
     }
 
-    static inline ColorRgb *getTopLevelPatchRad(const Patch *patch) {
+    static inline ColorRgbMutable *getTopLevelPatchRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->radiance;
     }
 
-    static inline ColorRgb *getTopLevelPatchUnShotRad(const Patch *patch) {
+    static inline ColorRgbMutable *getTopLevelPatchUnShotRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->unShotRadiance;
     }
 
-    static inline ColorRgb *getTopLevelPatchReceivedRad(const Patch *patch) {
+    static inline ColorRgbMutable *getTopLevelPatchReceivedRad(const Patch *patch) {
         return topLevelStochasticRadiosityElement(patch)->receivedRadiance;
     }
 

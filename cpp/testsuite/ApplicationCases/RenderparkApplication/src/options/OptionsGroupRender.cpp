@@ -6,7 +6,7 @@
 
 int OptionsGroupRender::trueValue = true;
 RendererConfiguration OptionsGroupRender::renderOptionsState;
-ColorRgb OptionsGroupRender::outlineColor;
+ColorRgbMutable OptionsGroupRender::outlineColor;
 
 void
 OptionsGroupRender::flatOption(int & /*value*/) {
@@ -38,13 +38,13 @@ OptionsGroupRender::renderParseOptions(
     TypedOption<int> raycastOpt = {"-raycast", &trueValue, 0, OptionsGroupRender::traceOption, nullptr};
     TypedOption<int> noCullingOpt = {"-no-culling", &trueValue, 0, OptionsGroupRender::noCullingOption, nullptr};
     TypedOption<int> outlinesOpt = {"-outlines", &trueValue, 0, OptionsGroupRender::outlinesOption, nullptr};
-    TypedOption<ColorRgb> outlineColorOpt = {"-outline-color", &outlineColor, 3, nullptr, OptionsGroupRender::parseColor3};
+    TypedOption<ColorRgbMutable> outlineColorOpt = {"-outline-color", &outlineColor, 3, nullptr, OptionsGroupRender::parseColor3};
     OptionBase renderingOptions[] = {
         REGISTER_OPTION(int, flatOpt, 5),
         REGISTER_OPTION(int, raycastOpt, 5),
         REGISTER_OPTION(int, noCullingOpt, 5),
         REGISTER_OPTION(int, outlinesOpt, 5),
-        REGISTER_OPTION(ColorRgb, outlineColorOpt, 10)
+        REGISTER_OPTION(ColorRgbMutable, outlineColorOpt, 10)
     };
 
     renderOptionsState = *renderOptions;
@@ -58,7 +58,7 @@ OptionsGroupRender::renderParseOptions(
 }
 
 bool
-OptionsGroupRender::parseColor3(int argc, char **argv, ColorRgb &value) {
+OptionsGroupRender::parseColor3(int argc, char **argv, ColorRgbMutable &value) {
     if ( argc < 3 || argv == nullptr || argv[0] == nullptr || argv[1] == nullptr || argv[2] == nullptr ) {
         return false;
     }
@@ -75,6 +75,6 @@ OptionsGroupRender::parseColor3(int argc, char **argv, ColorRgb &value) {
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }
-    value = ColorRgb(r, g, b);
+    value = ColorRgbMutable(r, g, b);
     return true;
 }

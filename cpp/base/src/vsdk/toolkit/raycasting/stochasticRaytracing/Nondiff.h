@@ -2,7 +2,7 @@
 #define NONDIFF__
 
 #include "vsdk/toolkit/java/util/ArrayList.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/common/linealAlgebra/Ray.h"
 #include "vsdk/toolkit/material/RendererConfiguration.h"
 #include "vsdk/toolkit/scene/RadianceMethod.h"
@@ -30,7 +30,7 @@ class Nondiff final {
     static void nextLightSample(const Patch *patch, double *zeta);
     static Ray sampleLightRay(
         Patch *patch,
-        ColorRgb *emittedRadiance,
+        ColorRgbMutable *emittedRadiance,
         double *pointSelectionPdf,
         double *dirSelectionPdf);
     static void sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double lightSelectionPdf);

@@ -18,7 +18,7 @@ Camera::Camera(): background() {
     X = Vector3D{};
     Y = Vector3D{};
     Z = Vector3D{};
-    background = ColorRgb{};
+    background = ColorRgbMutable{};
     changed = 0;
     pixelWidth = 0.0F;
     pixelHeight = 0.0F;
@@ -117,7 +117,7 @@ Camera::set(
     const float inFieldOfVision,
     const int inXSize,
     const int inYSize,
-    const ColorRgb *inBackground)
+    const ColorRgbMutable *inBackground)
 {
     eyePosition = *inEyePosition;
     lookPosition = *inLoopPosition;

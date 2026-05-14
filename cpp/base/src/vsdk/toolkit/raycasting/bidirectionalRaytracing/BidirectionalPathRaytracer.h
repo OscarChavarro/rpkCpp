@@ -31,7 +31,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         Background *sceneBackground,
         BidirectionalPathTracingConfiguration *config) const;
 
-    static ColorRgb
+    static ColorRgbMutable
     bpCalcPixel(
         Camera *camera,
         VoxelGrid *sceneVoxelGrid,
@@ -40,7 +40,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         int ny,
         void *data);
 
-    static bool spikeCheck(ColorRgb color);
+    static bool spikeCheck(ColorRgbMutable color);
 
     static void
     addWithSpikeCheck(
@@ -50,7 +50,7 @@ class BidirectionalPathRaytracer final : public RayTracer {
         int ny,
         float pix_x,
         float pix_y,
-        ColorRgb f,
+        ColorRgbMutable f,
         bool radSample = false);
 
     static void
@@ -60,14 +60,14 @@ class BidirectionalPathRaytracer final : public RayTracer {
         BidirectionalPathTracingConfiguration *config,
         BiPath *path);
 
-    static ColorRgb
+    static ColorRgbMutable
     computeNeFluxEstimate(
         Camera *camera,
         BidirectionalPathTracingConfiguration *config,
         BiPath *path,
         float *pPdf = nullptr,
         float *pWeight = nullptr,
-        ColorRgb *fRad = nullptr);
+        ColorRgbMutable *fRad = nullptr);
 
     static void
     handlePathXx(

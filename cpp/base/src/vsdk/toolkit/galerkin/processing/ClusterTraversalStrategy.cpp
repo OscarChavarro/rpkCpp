@@ -44,7 +44,7 @@ Returns the radiance or un-shot radiance (depending on the
 iteration method) emitted by the source element, a cluster,
 towards the samplePoint point
 */
-ColorRgb
+ColorRgbMutable
 ClusterTraversalStrategy::clusterRadianceToSamplePoint(
     GalerkinElement *sourceElement,
     Vector3D samplePoint,
@@ -57,7 +57,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
         case GalerkinClusteringStrategy::ORIENTED: {
             // Accumulate the power emitted by the patches in the source cluster
             // towards the samplePoint point
-            ColorRgb sourceRadiance(0.0, 0.0, 0.0);
+            ColorRgbMutable sourceRadiance(0.0, 0.0, 0.0);
             sourceRadiance.clear();
 
             PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
@@ -86,7 +86,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                     ScratchVisibilityStrategy::scratchRenderElements(sourceElement, samplePoint, galerkinState);
 
                 // Compute average radiance on the virtual screen
-                ColorRgb sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
+                ColorRgbMutable sourceRadiance = ScratchVisibilityStrategy::scratchRadiance(galerkinState);
 
                 // Area factor = area of virtual screen / source cluster area used for
                 // form factor computation
@@ -106,7 +106,7 @@ Determines the average radiance or un-shot radiance (depending on
 the iteration method) emitted by the source cluster towards the
 receiver in the link. The source should be a cluster
 */
-ColorRgb
+ColorRgbMutable
 ClusterTraversalStrategy::sourceClusterRadiance(Interaction *link, GalerkinState *galerkinState) {
     GalerkinElement *sourceElement = link->sourceElement;
     const GalerkinElement *receiverElement = link->receiverElement;
@@ -211,9 +211,9 @@ ClusterTraversalStrategy::isotropicGatherRadiance(
     GalerkinElement *rcv,
     double areaFactor,
     const Interaction *link,
-    const ColorRgb *sourceRadiance)
+    const ColorRgbMutable *sourceRadiance)
 {
-    ColorRgb *rcvRad = rcv->receivedRadiance;
+    ColorRgbMutable *rcvRad = rcv->receivedRadiance;
 
     if ( link->numberOfBasisFunctionsOnReceiver == 1 && link->numberOfBasisFunctionsOnSource == 1 ) {
         rcvRad[0].addScaled(rcvRad[0], static_cast<float>(areaFactor * link->K[0]), sourceRadiance[0]);
@@ -236,7 +236,7 @@ Distributes the source radiance to the surface elements in the
 receiver cluster
 */
 void
-ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, GalerkinState *galerkinState) {
+ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgbMutable *srcRad, GalerkinState *galerkinState) {
     const GalerkinElement *sourceElement = link->sourceElement;
     GalerkinElement *receiverElement = link->receiverElement;
 
@@ -293,9 +293,9 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
     delete leafVisitor;
 }
 
-ColorRgb
+ColorRgbMutable
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
-    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgbMutable radiance(0.0, 0.0, 0.0);
     MaximumRadianceVisitor *leafVisitor = new MaximumRadianceVisitor();
     ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState);
     radiance = leafVisitor->getAccumulatedRadiance();

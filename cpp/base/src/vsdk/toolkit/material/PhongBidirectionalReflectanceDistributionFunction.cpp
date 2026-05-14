@@ -44,7 +44,7 @@ PhongBidirectionalReflectanceDistributionFunction::isSpecular() const {
 }
 
 PhongBidirectionalReflectanceDistributionFunction::PhongBidirectionalReflectanceDistributionFunction(
-    const ColorRgb *inKd, const ColorRgb *inKs, double inNs) {
+    const ColorRgbMutable *inKd, const ColorRgbMutable *inKs, double inNs) {
     Kd = *inKd;
     avgKd = Kd.average();
     Ks = *inKs;
@@ -58,9 +58,9 @@ PhongBidirectionalReflectanceDistributionFunction::~PhongBidirectionalReflectanc
 /**
 Returns the diffuse reflectance of the BRDF according to the flags
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags) const {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -84,14 +84,14 @@ PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags)
 /**
 Brdf evaluations
 */
-ColorRgb
+ColorRgbMutable
 PhongBidirectionalReflectanceDistributionFunction::evaluate(
     const Vector3D *in,
     const Vector3D *out,
     const Vector3D *normal,
     char flags) const
 {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     char nonDiffuseFlag;
     Vector3D inRev;
     inRev.scaledCopy(-1.0, *in);

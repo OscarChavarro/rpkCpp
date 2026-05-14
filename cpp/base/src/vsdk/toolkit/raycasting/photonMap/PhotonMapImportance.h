@@ -1,7 +1,7 @@
 #ifndef PHOTON_MAP_IMPORTANCE__
 #define PHOTON_MAP_IMPORTANCE__
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapConfig.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
 #include "vsdk/toolkit/raycasting/common/SimpleRaytracingPathNode.h"
@@ -14,7 +14,7 @@ class PhotonMapImportance {
   private:
     static bool hasDiffuseOrGlossy(SimpleRaytracingPathNode *node);
     static bool bounceDiffuseOrGlossy(const SimpleRaytracingPathNode *node);
-    static bool doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgb importance);
+    static bool doImportanceStore(ImportanceMap *map, SimpleRaytracingPathNode *node, ColorRgbMutable importance);
     static bool
     tracePotentialPath(
         Camera *camera,

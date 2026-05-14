@@ -105,7 +105,7 @@ Link error estimation
 */
 
 double
-HierarchicalRefinementStrategy::hierarchicRefinementColorToError(ColorRgb radiance) {
+HierarchicalRefinementStrategy::hierarchicRefinementColorToError(ColorRgbMutable radiance) {
     return radiance.maximumComponent();
 }
 
@@ -160,12 +160,12 @@ radiance when doing shooting and the total radiance when gathering
 double
 HierarchicalRefinementStrategy::hierarchicRefinementApproximationError(
     Interaction *interaction,
-    ColorRgb srcRho,
-    ColorRgb rcvRho,
+    ColorRgbMutable srcRho,
+    ColorRgbMutable rcvRho,
     GalerkinState *galerkinState)
 {
-    ColorRgb error(0.0, 0.0, 0.0);
-    ColorRgb srcRad(0.0, 0.0, 0.0);
+    ColorRgbMutable error(0.0, 0.0, 0.0);
+    ColorRgbMutable srcRad(0.0, 0.0, 0.0);
     double approxError;
     double approxError2;
 
@@ -240,7 +240,7 @@ necessary
 double
 HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     Interaction *interaction,
-    ColorRgb rcvRho,
+    ColorRgbMutable rcvRho,
     double receiverArea,
     GalerkinState *galerkinState)
 {
@@ -253,14 +253,14 @@ HierarchicalRefinementStrategy::sourceClusterRadianceVariationError(
     Vector3D rcVertices[8];
     int numberOfRcVertices = interaction->receiverElement->vertices(rcVertices);
 
-    ColorRgb minimumSrcRad(0.0, 0.0, 0.0);
-    ColorRgb maximumSrcRad(0.0, 0.0, 0.0);
-    ColorRgb error(0.0, 0.0, 0.0);
+    ColorRgbMutable minimumSrcRad(0.0, 0.0, 0.0);
+    ColorRgbMutable maximumSrcRad(0.0, 0.0, 0.0);
+    ColorRgbMutable error(0.0, 0.0, 0.0);
 
-    minimumSrcRad = ColorRgb(Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE);
-    maximumSrcRad = ColorRgb(-Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE);
+    minimumSrcRad = ColorRgbMutable(Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE, Numeric::HUGE_FLOAT_VALUE);
+    maximumSrcRad = ColorRgbMutable(-Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE, -Numeric::HUGE_FLOAT_VALUE);
     for ( int i = 0; i < numberOfRcVertices; i++ ) {
-        ColorRgb rad(0.0, 0.0, 0.0);
+        ColorRgbMutable rad(0.0, 0.0, 0.0);
         rad = ClusterTraversalStrategy::clusterRadianceToSamplePoint(
                 interaction->sourceElement, rcVertices[i], galerkinState);
         minimumSrcRad.minimum(minimumSrcRad, rad);
@@ -278,8 +278,8 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     Interaction *interaction,
     GalerkinState *galerkinState)
 {
-    ColorRgb srcRho(0.0, 0.0, 0.0);
-    ColorRgb rcvRho(0.0, 0.0, 0.0);
+    ColorRgbMutable srcRho(0.0, 0.0, 0.0);
+    ColorRgbMutable rcvRho(0.0, 0.0, 0.0);
     double error;
     double threshold;
     double receiveArea;
@@ -294,7 +294,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
     // Determine receiver area (projected visible area for a receiver cluster)
     // and reflectivity
     if ( interaction->receiverElement->isCluster() ) {
-        rcvRho = ColorRgb(1.0, 1.0, 1.0);
+        rcvRho = ColorRgbMutable(1.0, 1.0, 1.0);
         receiveArea = ClusterTraversalStrategy::receiverArea(interaction, galerkinState);
     } else {
         rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
@@ -303,7 +303,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementEvaluateInteraction(
 
     // Determine source reflectivity
     if ( interaction->sourceElement->isCluster() ) {
-        srcRho = ColorRgb(1.0F, 1.0F, 1.0F);
+        srcRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
     } else {
         srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
     }
@@ -369,15 +369,15 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
         interaction->sourceElement->basisUsed = static_cast<char>(b);
     }
 
-    ColorRgb *srcRad;
-    ColorRgb *rcvRad;
+    ColorRgbMutable *srcRad;
+    ColorRgbMutable *rcvRad;
     if ( galerkinState->galerkinIterationMethod == SOUTH_WELL ) {
         srcRad = interaction->sourceElement->unShotRadiance;
     } else {
         srcRad = interaction->sourceElement->radiance;
     }
 
-    ColorRgb linkClusterRad(0.0, 0.0, 0.0);
+    ColorRgbMutable linkClusterRad(0.0, 0.0, 0.0);
     if ( interaction->sourceElement->isCluster() && interaction->sourceElement != interaction->receiverElement ) {
         linkClusterRad = ClusterTraversalStrategy::sourceClusterRadiance(interaction, galerkinState);
         srcRad = &linkClusterRad;
@@ -403,13 +403,13 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
 
     if ( galerkinState->importanceDriven ) {
         float K = interaction->K[0];
-        ColorRgb rcvRho(0.0, 0.0, 0.0);
-        ColorRgb srcRho(0.0, 0.0, 0.0);
+        ColorRgbMutable rcvRho(0.0, 0.0, 0.0);
+        ColorRgbMutable srcRho(0.0, 0.0, 0.0);
 
         if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::GAUSS_SEIDEL ||
              galerkinState->galerkinIterationMethod == GalerkinIterationMethod::JACOBI ) {
             if ( interaction->receiverElement->isCluster() ) {
-                rcvRho = ColorRgb(1.0F, 1.0F, 1.0F);
+                rcvRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
             } else {
                 rcvRho = interaction->receiverElement->patch->getRadianceData()->Rd;
             }
@@ -417,7 +417,7 @@ HierarchicalRefinementStrategy::hierarchicRefinementComputeLightTransport(
                 static_cast<float>(K * hierarchicRefinementColorToError(rcvRho) * interaction->receiverElement->potential);
         } else if ( galerkinState->galerkinIterationMethod == GalerkinIterationMethod::SOUTH_WELL ) {
             if ( interaction->sourceElement->isCluster() ) {
-                srcRho = ColorRgb(1.0F, 1.0F, 1.0F);
+                srcRho = ColorRgbMutable(1.0F, 1.0F, 1.0F);
             } else {
                 srcRho = interaction->sourceElement->patch->getRadianceData()->Rd;
             }

@@ -25,9 +25,9 @@ PatchVisitor::getNumberOfSamples(Patch *patch) {
 Use next function (with PatchListIterate) to close any open files of the patch use for recording
 Computes average scattered power and emittance of the Patch
 */
-ColorRgb
+ColorRgbMutable
 PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
-    ColorRgb albedo(0.0, 0.0, 0.0);
+    ColorRgbMutable albedo(0.0, 0.0, 0.0);
     RayHit hit;
 
     hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
@@ -35,7 +35,7 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     const int numberOfSamples = getNumberOfSamples(patch);
     albedo.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample(0.0, 0.0, 0.0);
+        ColorRgbMutable sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
@@ -71,16 +71,16 @@ PatchVisitor::averageNormalAlbedo(Patch *patch, char components) {
     return albedo;
 }
 
-ColorRgb
+ColorRgbMutable
 PatchVisitor::averageEmittance(Patch *patch, char components) {
-    ColorRgb emittance(0.0, 0.0, 0.0);
+    ColorRgbMutable emittance(0.0, 0.0, 0.0);
     RayHit hit;
     hit.init(patch, &patch->midPoint(), &patch->getNormal(), patch->getMaterial());
 
     const int numberOfSamples = getNumberOfSamples(patch);
     emittance.clear();
     for ( int i = 0; i < numberOfSamples; i++ ) {
-        ColorRgb sample(0.0, 0.0, 0.0);
+        ColorRgbMutable sample(0.0, 0.0, 0.0);
         const unsigned *xi = Niederreiter31::niederreiter31(i);
         hit.setUv(xi[0] * Niederreiter31::RECIP, xi[1] * Niederreiter31::RECIP);
         const unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;

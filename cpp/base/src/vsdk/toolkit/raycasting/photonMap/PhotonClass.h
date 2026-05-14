@@ -2,7 +2,7 @@
 #define PHOTON_CLASS__
 
 #include "vsdk/toolkit/common/linealAlgebra/CoordinateSystem.h"
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/material/Xxdf.h"
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMapState.h"
 
@@ -10,14 +10,14 @@
 class Photon {
   protected:
     Vector3D m_pos;  // Position: 3 floats, MUST COME FIRST for kd tree storage
-    ColorRgb m_power;  // power represented by this photon
+    ColorRgbMutable m_power;  // power represented by this photon
     //  float m_dcWeight; // Weight for density control
     Vector3D m_dir;  // Direction
 
   public:
     Photon() {};
 
-    Photon(Vector3D pos, const ColorRgb &power, const Vector3D &dir)
+    Photon(Vector3D pos, const ColorRgbMutable &power, const Vector3D &dir)
             : m_pos(pos), m_power(power), m_dir(dir) {  }
 
     inline Vector3D
@@ -25,13 +25,13 @@ class Photon {
         return m_pos;
     }
 
-    inline ColorRgb
+    inline ColorRgbMutable
     power() const {
         return m_power;
     }
 
     inline void
-    addPower(ColorRgb col) {
+    addPower(ColorRgbMutable col) {
         m_power.add(m_power, col);
     }
 

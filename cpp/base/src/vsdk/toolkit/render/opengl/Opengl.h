@@ -60,14 +60,14 @@ class Opengl {
 
   public:
     static void openGlRenderLine(Vector3D *x, Vector3D *y);
-    static void openGlRenderSetColor(const ColorRgb *rgb, const RendererConfiguration *renderOptions);
+    static void openGlRenderSetColor(const ColorRgbMutable *rgb, const RendererConfiguration *renderOptions);
     static void openGlRenderPatchOutline(const Patch *patch);
     static void openGlRenderPolygonFlat(int numberOfVertices, Vector3D *vertices);
     static void
     openGlRenderPolygonGouraud(
         int numberOfVertices,
         Vector3D *vertices,
-        const ColorRgb *verticesColors,
+        const ColorRgbMutable *verticesColors,
         const RendererConfiguration *renderOptions);
     static void openGlRenderPatchCallBack(const Patch *patch, const Camera *camera, const RendererConfiguration *renderOptions);
     static void openGlRenderClearWindow(const Camera *camera);

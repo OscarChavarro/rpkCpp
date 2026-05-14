@@ -23,7 +23,7 @@ class StochasticRadiosityElement final : public Element {
 
     GalerkinBasis *basis; // Radiosity approximation data
         // Higher order approximations need an array of color values for representing radiance
-    ColorRgb sourceRad; // Always constant source radiosity
+    ColorRgbMutable sourceRad; // Always constant source radiosity
 
     float importance; // For view-importance driven sampling
     float unShotImportance;
@@ -65,29 +65,29 @@ class StochasticRadiosityElement final : public Element {
     static void stochasticRadiosityElementPushRadiance(
         const StochasticRadiosityElement *parent,
         StochasticRadiosityElement *child,
-        const ColorRgb *parentRadiance,
-        ColorRgb *childRadiance);
+        const ColorRgbMutable *parentRadiance,
+        ColorRgbMutable *childRadiance);
     static void stochasticRadiosityElementPushImportance(const float *parentImportance, float *childImportance);
     static void stochasticRadiosityElementPullRadiance(
         const StochasticRadiosityElement *parent,
         const StochasticRadiosityElement *child,
-        ColorRgb *parentRad,
-        const ColorRgb *childRad);
+        ColorRgbMutable *parentRad,
+        const ColorRgbMutable *childRad);
     static void stochasticRadiosityElementPullImportance(
         const StochasticRadiosityElement *parent,
         const StochasticRadiosityElement *child,
         float *parentImportance,
         const float *childImportance);
 
-    static ColorRgb stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem);
-    static ColorRgb stochasticRadiosityElementDisplayRadianceAtPoint(
+    static ColorRgbMutable stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem);
+    static ColorRgbMutable stochasticRadiosityElementDisplayRadianceAtPoint(
         const StochasticRadiosityElement *elem,
         double u,
         double v,
         const RendererConfiguration *renderOptions);
     static void stochasticRadiosityElementComputeNewVertexColors(Element *element);
     static void stochasticRadiosityElementAdjustTVertexColors(Element *element);
-    static ColorRgb stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
+    static ColorRgbMutable stochasticRadiosityElementColor(const StochasticRadiosityElement *element);
     static bool coefficientPoolsAreInitialized();
     static void markCoefficientPoolsInitialized();
 
@@ -152,9 +152,9 @@ class StochasticRadiosityElement final : public Element {
     static void monteCarloRadiosityDestroyElement(StochasticRadiosityElement *elem);
     static void monteCarloRadiosityDestroySurfaceElement(StochasticRadiosityElement *elem);
     static bool regularChild(const StochasticRadiosityElement *child);
-    static ColorRgb vertexRadiance(const Vertex *vertex);
+    static ColorRgbMutable vertexRadiance(const Vertex *vertex);
     static float vertexImportance(const Vertex *vertex);
-    static ColorRgb vertexColor(Vertex *vertex);
+    static ColorRgbMutable vertexColor(Vertex *vertex);
 };
 
 #endif

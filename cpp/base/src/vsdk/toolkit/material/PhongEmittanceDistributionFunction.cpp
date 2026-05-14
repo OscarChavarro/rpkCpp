@@ -16,8 +16,8 @@ Ns = Phong exponent.
 note: Emittance is total power emitted by the light source per unit of area
 */
 PhongEmittanceDistributionFunction::PhongEmittanceDistributionFunction(
-    const ColorRgb *KdParameter,
-    const ColorRgb *KsParameter,
+    const ColorRgbMutable *KdParameter,
+    const ColorRgbMutable *KsParameter,
     double NsParameter)
 {
     Kd = *KdParameter;
@@ -35,9 +35,9 @@ PhongEmittanceDistributionFunction::~PhongEmittanceDistributionFunction() {
 /**
 Returns emittance, reflectance, transmittance
 */
-ColorRgb
+ColorRgbMutable
 PhongEmittanceDistributionFunction::phongEmittance(const ShadingContext * /*context*/, const char flags) const {
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
 
     result.clear();
     if ( flags & DIFFUSE_COMPONENT ) {
@@ -71,7 +71,7 @@ Evaluates the edf: return exitant radiance [W/m^2 sr] into the direction
 out. If probabilityDensityFunction is not null, the stochasticJacobiProbability density of the direction is
 computed and returned in probabilityDensityFunction
 */
-ColorRgb
+ColorRgbMutable
 PhongEmittanceDistributionFunction::phongEdfEval(
     const ShadingContext *context,
     const Vector3D *out,
@@ -79,7 +79,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     double *probabilityDensityFunction) const
 {
     Vector3D normal;
-    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgbMutable result(0.0, 0.0, 0.0);
     double cosL;
 
     result.clear();
@@ -124,7 +124,7 @@ PhongEmittanceDistributionFunction::phongEdfSample(
     char flags,
     double xi1,
     double xi2,
-    ColorRgb *selfEmittedRadiance,
+    ColorRgbMutable *selfEmittedRadiance,
     double *probabilityDensityFunction) const
 {
     if ( selfEmittedRadiance ) {

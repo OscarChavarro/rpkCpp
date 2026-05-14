@@ -29,7 +29,7 @@ class PhotonMapSampler final : public BsdfSampler {
         double x2,
         Vector3D *dir,
         double *pdfDir,
-        ColorRgb *scatteringColor,
+        ColorRgbMutable *scatteringColor,
         bool *doCosInverse);
 
     bool

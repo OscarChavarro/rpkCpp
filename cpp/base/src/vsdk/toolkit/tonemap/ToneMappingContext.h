@@ -1,7 +1,7 @@
 #ifndef TONE_MAPPING_CONTEXT_H
 #define TONE_MAPPING_CONTEXT_H
 
-#include "vsdk/toolkit/common/color/ColorRgb.h"
+#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
 #include "vsdk/toolkit/tonemap/ToneMapAdaptationMethod.h"
 
 class ToneMappingContext {
@@ -31,7 +31,7 @@ class ToneMappingContext {
     float yw;
 
     // Display RGB mapping (corrects display non-linear response)
-    ColorRgb gamma; // Gamma factors for red, green, blue
+    ColorRgbMutable gamma; // Gamma factors for red, green, blue
     float gammaTab[3][GAMMA_TABLE_SIZE]; // Gamma correction tables for red, green and blue
 
     ToneMappingContext();
