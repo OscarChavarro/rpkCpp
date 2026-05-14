@@ -41,12 +41,12 @@ class Ccr final {
         ColorRgb *fMax,
         const java::ArrayList<Patch *> *scenePatches);
     static void refineComponent(
-        float *minRad,
-        float *maxRad,
-        float *fMin,
-        float *fMax,
-        const float *f,
-        const float *rad);
+        double *minRad,
+        double *maxRad,
+        double *fMin,
+        double *fMax,
+        const double *f,
+        const double *rad);
     static void refineControlRadiosityRecursive(
         StochasticRadiosityElement *element,
         ColorRgb *colorOne,

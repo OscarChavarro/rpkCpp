@@ -50,9 +50,9 @@ FerwerdaToneMap::scaleForComputations(ColorRgb radiance) const {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    p.set(radiance.r, radiance.g, radiance.b);
+    p.set(radiance.getR(), radiance.getG(), radiance.getB());
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-    sl = smComp * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
+    sl = static_cast<float>(smComp * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 
     // Scale the photopic luminance
     radiance.scale(pmComp);
@@ -75,9 +75,9 @@ FerwerdaToneMap::scaleForDisplay(ColorRgb radiance) const {
     radiance.scale(eff);
 
     // Compute the scotopic grayscale shift
-    radiance.set(p.r, p.g, p.b);
+    radiance.set(p.getR(), p.getG(), p.getB());
     // Equation [FERW1996](6): L_d = L_dp + k(L_a) * L_ds
-    sl = smDisplay * msf * (p.r * sf.r + p.g * sf.g + p.b * sf.b);
+    sl = static_cast<float>(smDisplay * msf * (p.getR() * sf.getR() + p.getG() * sf.getG() + p.getB() * sf.getB()));
 
     // Scale the photopic luminance
     radiance.scale(pmDisplay);

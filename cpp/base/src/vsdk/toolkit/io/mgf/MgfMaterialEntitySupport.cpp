@@ -28,15 +28,15 @@ MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeCon
 Translates mgf color into out color representation
 */
 void
-MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
-    float xyz[3];
-    float rgb[3];
+MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
+    double xyz[3];
+    double rgb[3];
 
     cin->fixColorRepresentation(COLOR_XY_IS_SET_FLAG);
     if ( cin->cy > Numeric::EPSILON ) {
         xyz[0] = cin->cx / cin->cy * intensity;
-        xyz[1] = 1.0F * intensity;
-        xyz[2] = (1.0F - cin->cx - cin->cy) / cin->cy * intensity;
+        xyz[1] = 1.0 * intensity;
+        xyz[2] = (1.0 - cin->cx - cin->cy) / cin->cy * intensity;
     } else {
         MgfEntityControl::doWarning("invalid color specification (Y<=0) ... setting to black", context);
         xyz[0] = 0.0;
@@ -65,22 +65,22 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, float intensity, ColorR
 }
 
 void
-MgfMaterialEntitySupport::specSamples(const ColorRgb &col, float *rgb) {
-    rgb[0] = col.r;
-    rgb[1] = col.g;
-    rgb[2] = col.b;
+MgfMaterialEntitySupport::specSamples(const ColorRgb &col, double *rgb) {
+    rgb[0] = col.getR();
+    rgb[1] = col.getG();
+    rgb[2] = col.getB();
 }
 
-float
+double
 MgfMaterialEntitySupport::colorMax(ColorRgb col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
-    float samples[NUMBER_OF_SAMPLES];
+    double samples[NUMBER_OF_SAMPLES];
 
     MgfMaterialEntitySupport::specSamples(col, samples);
 
-    float mx = -Numeric::HUGE_FLOAT_VALUE;
+    double mx = -Numeric::HUGE_FLOAT_VALUE;
     for ( int i = 0; i < NUMBER_OF_SAMPLES; i++ ) {
         if ( samples[i] > mx ) {
             mx = samples[i];
@@ -134,58 +134,58 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
 
     // Check/correct range of reflectances and transmittances
     A.add(Rd, Rs);
-    float a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0F - Numeric::EPSILON_FLOAT ) {
+    double a = MgfMaterialEntitySupport::colorMax(A);
+    if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
-        a = (1.0F - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON_FLOAT) / a;
         Rd.scale(a);
         Rs.scale(a);
     }
 
     A.add(Td, Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
-    if ( a > 1.0F - Numeric::EPSILON_FLOAT ) {
+    if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
-        a = (1.0F - Numeric::EPSILON_FLOAT) / a;
+        a = (1.0 - Numeric::EPSILON_FLOAT) / a;
         Td.scale(a);
         Ts.scale(a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed.scale(1.0F / Cie::WHITE_EFFICACY);
+    Ed.scale(1.0 / Cie::WHITE_EFFICACY);
 
     Es.clear();
 
-    float Nr;
-    float Nt;
+    double Nr;
+    double Nt;
 
     // Specular power = (0.6/roughness)^2 (see mgf docs)
     if ( currentMaterialContext->rs_a != 0.0 ) {
-        Nr = 0.6F / currentMaterialContext->rs_a;
+        Nr = 0.6 / currentMaterialContext->rs_a;
         Nr *= Nr;
     } else {
         Nr = 0.0;
     }
 
     if ( currentMaterialContext->ts_a != 0.0 ) {
-        Nt = 0.6F / currentMaterialContext->ts_a;
+        Nt = 0.6 / currentMaterialContext->ts_a;
         Nt *= Nt;
     } else {
         Nt = 0.0;
     }
 
     if ( context->monochrome ) {
-        Ed.setMonochrome(Cie::spectrumGray(Ed.r, Ed.g, Ed.b));
-        Es.setMonochrome(Cie::spectrumGray(Es.r, Es.g, Es.b));
-        Rd.setMonochrome(Cie::spectrumGray(Rd.r, Rd.g, Rd.b));
-        Rs.setMonochrome(Cie::spectrumGray(Rs.r, Rs.g, Rs.b));
-        Td.setMonochrome(Cie::spectrumGray(Td.r, Td.g, Td.b));
-        Ts.setMonochrome(Cie::spectrumGray(Ts.r, Ts.g, Ts.b));
+        Ed.setMonochrome(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
+        Es.setMonochrome(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
+        Rd.setMonochrome(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
+        Rs.setMonochrome(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
+        Td.setMonochrome(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
+        Ts.setMonochrome(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;
     if ( !Ed.isBlack() || !Es.isBlack() ) {
-        constexpr float Ne = 0.0;
+        constexpr double Ne = 0.0;
         edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
     }
 

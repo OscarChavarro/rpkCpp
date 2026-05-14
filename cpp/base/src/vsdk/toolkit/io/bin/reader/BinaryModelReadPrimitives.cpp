@@ -181,9 +181,9 @@ BinaryModelReadPrimitives::readColor(java::InputStream &input, ColorRgb *color) 
     if ( color == nullptr ) {
         return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
     }
-    color->r = readFloatLE(input);
-    color->g = readFloatLE(input);
-    color->b = readFloatLE(input);
+    color->setR(readFloatLE(input));
+    color->setG(readFloatLE(input));
+    color->setB(readFloatLE(input));
     return true;
 }
 

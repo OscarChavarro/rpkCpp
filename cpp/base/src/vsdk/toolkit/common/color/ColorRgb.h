@@ -7,37 +7,45 @@
 Representation of radiance, radiosity, power, spectra
 */
 class ColorRgb {
-  public:
-    float r;
-    float g;
-    float b;
+  private:
+    double r;
+    double g;
+    double b;
 
+  public:
     ColorRgb();
-    ColorRgb(float inR, float inG, float inB);
+    ColorRgb(double inR, double inG, double inB);
+
+    inline double getR() const { return r; }
+    inline double getG() const { return g; }
+    inline double getB() const { return b; }
+    inline void setR(double value) { r = value; }
+    inline void setG(double value) { g = value; }
+    inline void setB(double value) { b = value; }
 
     void clear();
-    void set(float v1, float v2, float v3);
-    void setMonochrome(float v);
+    void set(double v1, double v2, double v3);
+    void setMonochrome(double v);
     bool isBlack() const;
-    void scaledCopy(float a, ColorRgb c);
-    void scale(float a);
+    void scaledCopy(double a, ColorRgb c);
+    void scale(double a);
     void scalarProduct(ColorRgb s, ColorRgb t);
     void selfScalarProduct(ColorRgb s);
-    void scalarProductScaled(ColorRgb s, float a, ColorRgb t);
+    void scalarProductScaled(ColorRgb s, double a, ColorRgb t);
     void add(ColorRgb s, ColorRgb t);
-    void addScaled(ColorRgb s, float a, ColorRgb t);
-    void addConstant(ColorRgb s, float a);
+    void addScaled(ColorRgb s, double a, ColorRgb t);
+    void addConstant(ColorRgb s, double a);
     void subtract(ColorRgb s, ColorRgb  t);
     void divide(ColorRgb s, ColorRgb t);
-    void scaleInverse(float scale, ColorRgb s);
-    float maximumComponent() const;
-    float sumAbsComponents() const;
+    void scaleInverse(double scale, ColorRgb s);
+    double maximumComponent() const;
+    double sumAbsComponents() const;
     void abs();
     void maximum(ColorRgb s, ColorRgb t);
     void minimum(ColorRgb s, ColorRgb t);
-    float average() const;
-    void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, float u, float v);
-    void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, float u, float v);
+    double average() const;
+    void interpolateBarycentric(ColorRgb c0, ColorRgb c1, ColorRgb c2, double u, double v);
+    void interpolateBiLinear(ColorRgb c0, ColorRgb c1, ColorRgb c2, ColorRgb c3, double u, double v);
     void clip();
     void print(java::PrintStream *stream) const;
 
@@ -53,7 +61,7 @@ inline ColorRgb::ColorRgb() {
 }
 
 inline void
-ColorRgb::addScaled(const ColorRgb s, const float a, const ColorRgb t) {
+ColorRgb::addScaled(const ColorRgb s, const double a, const ColorRgb t) {
     r = s.r + a * t.r;
     g = s.g + a * t.g;
     b = s.b + a * t.b;
@@ -67,13 +75,13 @@ ColorRgb::clear() {
 }
 
 inline void
-ColorRgb::scale(const float a) {
+ColorRgb::scale(const double a) {
     r *= a;
     g *= a;
     b *= a;
 }
 
-inline float
+inline double
 ColorRgb::maximumComponent() const {
     if ( r > g ) {
         return r > b ? r : b;
@@ -83,21 +91,21 @@ ColorRgb::maximumComponent() const {
 }
 
 inline void
-ColorRgb::scaledCopy(const float a, const ColorRgb c) {
+ColorRgb::scaledCopy(const double a, const ColorRgb c) {
     r = a * c.r;
     g = a * c.g;
     b = a * c.b;
 }
 
 inline void
-ColorRgb::set(const float v1, const float v2, const float v3) {
+ColorRgb::set(const double v1, const double v2, const double v3) {
     r = v1;
     g = v2;
     b = v3;
 }
 
 inline void
-ColorRgb::setMonochrome(const float v) {
+ColorRgb::setMonochrome(const double v) {
     r = v;
     g = v;
     b = v;
@@ -111,7 +119,7 @@ ColorRgb::divide(const ColorRgb s, const ColorRgb t) {
 }
 
 inline void
-ColorRgb::scalarProductScaled(const ColorRgb s, const float a, const ColorRgb t) {
+ColorRgb::scalarProductScaled(const ColorRgb s, const double a, const ColorRgb t) {
     r = s.r * a * t.r;
     g = s.g * a * t.g;
     b = s.b * a * t.b;

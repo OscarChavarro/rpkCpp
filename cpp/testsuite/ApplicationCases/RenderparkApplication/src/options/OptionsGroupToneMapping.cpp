@@ -34,7 +34,7 @@ OptionsGroupToneMapping::brightnessAdjustOption(float & /*value*/) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::brightnessAdjustOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).pow_bright_adjust = java::Math::pow(2.0F, (*toneMapOptions).brightness_adjust);
+    (*toneMapOptions).pow_bright_adjust = static_cast<float>(java::Math::pow(2.0, static_cast<double>((*toneMapOptions).brightness_adjust)));
 }
 
 void
@@ -108,7 +108,7 @@ OptionsGroupToneMapping::toneMappingCommandLineOptionDescAdaptMethodOption(char 
 }
 
 void
-OptionsGroupToneMapping::gammaOption(float &gam) {
+OptionsGroupToneMapping::gammaOption(double &gam) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
     }
@@ -128,13 +128,14 @@ OptionsGroupToneMapping::toneMapParseOptions(
     Vector3D greenChromaticityValue(0.0, 0.0, 0.0);
     Vector3D blueChromaticityValue(0.0, 0.0, 0.0);
     Vector3D whiteChromaticityValue(0.0, 0.0, 0.0);
+    double gammaScalar = toneMapOptionsContext.gamma.getR();
     TypedOption<char *> toneMappingOpt = {"-tonemapping", &toneMapMethodName, 1, OptionsGroupToneMapping::toneMappingMethodOption, nullptr};
     TypedOption<float> brightnessAdjustOpt = {"-brightness-adjust", &toneMapOptionsContext.brightness_adjust, 1, OptionsGroupToneMapping::brightnessAdjustOption, nullptr};
     TypedOption<char *> adaptOpt = {"-adapt", &adaptMethodName, 1, OptionsGroupToneMapping::toneMappingCommandLineOptionDescAdaptMethodOption, nullptr};
     TypedOption<float> lwaOpt = {"-lwa", &toneMapOptionsContext.realWorldAdaptionLuminance, 1, nullptr, nullptr};
     TypedOption<float> ldmaxOpt = {"-ldmax", &toneMapOptionsContext.maximumDisplayLuminance, 1, nullptr, nullptr};
     TypedOption<float> cmaxOpt = {"-cmax", &toneMapOptionsContext.maximumDisplayContrast, 1, nullptr, nullptr};
-    TypedOption<float> gammaOpt = {"-gamma", &toneMapOptionsContext.gamma.r, 1, OptionsGroupToneMapping::gammaOption, nullptr};
+    TypedOption<double> gammaOpt = {"-gamma", &gammaScalar, 1, OptionsGroupToneMapping::gammaOption, nullptr};
     TypedOption<ColorRgb> rgbGammaOpt = {"-rgbgamma", &toneMapOptionsContext.gamma, 3, nullptr, OptionsGroupToneMapping::parseColor3};
     TypedOption<Vector3D> redOpt = {"-red", &redChromaticityValue, 2, OptionsGroupToneMapping::redChromaOption, OptionsGroupToneMapping::parseCieXy};
     TypedOption<Vector3D> greenOpt = {"-green", &greenChromaticityValue, 2, OptionsGroupToneMapping::greenChromaOption, OptionsGroupToneMapping::parseCieXy};
@@ -147,7 +148,7 @@ OptionsGroupToneMapping::toneMapParseOptions(
         REGISTER_OPTION(float, lwaOpt, 3),
         REGISTER_OPTION(float, ldmaxOpt, 5),
         REGISTER_OPTION(float, cmaxOpt, 4),
-        REGISTER_OPTION(float, gammaOpt, 4),
+        REGISTER_OPTION(double, gammaOpt, 4),
         REGISTER_OPTION(ColorRgb, rgbGammaOpt, 4),
         REGISTER_OPTION(Vector3D, redOpt, 4),
         REGISTER_OPTION(Vector3D, greenOpt, 4),
@@ -173,15 +174,15 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = nullptr;
-    value.r = strtof(argv[0], &endPointer);
+    value.setR(strtod(argv[0], &endPointer));
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value.g = strtof(argv[1], &endPointer);
+    value.setG(strtod(argv[1], &endPointer));
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value.b = strtof(argv[2], &endPointer);
+    value.setB(strtod(argv[2], &endPointer));
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }

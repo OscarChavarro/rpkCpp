@@ -145,7 +145,7 @@ GalerkinRadianceMethod::writeVertexColor(const ColorRgb *color) {
     if ( numberOfWrites % 4 == 0 ) {
         writeFormatted("%s", "\n\t  ");
     }
-    writeFormatted("%.3g %.3g %.3g", color->r, color->g, color->b);
+    writeFormatted("%.3g %.3g %.3g", color->getR(), color->getG(), color->getB());
     vertexId++;
 }
 
@@ -519,9 +519,9 @@ GalerkinRadianceMethod::getStats() const {
     appendStatsText(stats, &statsOffset, "Link error threshold: %g %s\n\n",
          (galerkinState.errorNorm == RADIANCE_ERROR ?
                    M_PI * (galerkinState.relLinkErrorThreshold *
-                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.r, Statistics::instance().radiance.maxSelfEmittedRadiance.g, Statistics::instance().radiance.maxSelfEmittedRadiance.b)) :
+                           Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedRadiance.getR(), Statistics::instance().radiance.maxSelfEmittedRadiance.getG(), Statistics::instance().radiance.maxSelfEmittedRadiance.getB())) :
                    galerkinState.relLinkErrorThreshold *
-                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.r, Statistics::instance().radiance.maxSelfEmittedPower.g, Statistics::instance().radiance.maxSelfEmittedPower.b)),
+                   Cie::spectrumLuminance(Statistics::instance().radiance.maxSelfEmittedPower.getR(), Statistics::instance().radiance.maxSelfEmittedPower.getG(), Statistics::instance().radiance.maxSelfEmittedPower.getB())),
          (galerkinState.errorNorm == RADIANCE_ERROR ? "lux" : "lumen"));
 
     return stats;

@@ -29,7 +29,7 @@ Ccr::initialControlRadiosityRecursive(
     if ( element->regularSubElements == nullptr ) {
         // Trivial case
         ColorRgb rad = getRadianceCallback(element)[0];
-        float weightedArea = element->area;
+        double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method != StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
             weightedArea *= (element->importance - element->sourceImportance); // Multiply with received importance
@@ -88,18 +88,18 @@ Ccr::initialControlRadiosity(
     *fMin = totalFluxColor;
 
     *maxRad = maxRadColor;
-    fMax->scaledCopy(static_cast<float>(area), maxRadColor);
+    fMax->scaledCopy(area, maxRadColor);
     fMax->subtract(*fMax, totalFluxColor);
 }
 
 void
 Ccr::refineComponent(
-    float *minRad,
-    float *maxRad,
-    float *fMin,
-    float *fMax,
-    const float *f,
-    const float *rad)
+    double *minRad,
+    double *maxRad,
+    double *fMin,
+    double *fMax,
+    const double *f,
+    const double *rad)
 {
     int iMin;
 
@@ -149,7 +149,7 @@ Ccr::refineControlRadiosityRecursive(
         // Trivial case
         ColorRgb B = getRadianceCallback(element)[0];
         ColorRgb s = getScalingCallback ? getScalingCallback(element) : *colorOne;
-        float weightedArea = element->area;
+        double weightedArea = element->area;
         if ( StochasticRelaxation::activeState().importanceDriven &&
              StochasticRelaxation::activeState().method !=
              StochasticRaytracingMethod::RANDOM_WALK_RADIOSITY_METHOD ) {
@@ -194,7 +194,7 @@ Ccr::refineControlRadiosity(
     d.subtract(*maxRad, *minRad);
     for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
         f[i].clear();
-        rad[i].addScaled(*minRad, static_cast<float>(i) / static_cast<float>(NUMBER_OF_INTERVALS), d);
+        rad[i].addScaled(*minRad, static_cast<double>(i) / static_cast<double>(NUMBER_OF_INTERVALS), d);
     }
 
     // Determine value of F(beta) = sum_i (area_i * java::Math::abs(B_i - beta)) on
@@ -209,22 +209,22 @@ Ccr::refineControlRadiosity(
 
     // Find sub-interval containing optimal control radiosity (component-wise)
     for ( int s = 0; s < 3; s++ ) {
-        float fc[NUMBER_OF_INTERVALS + 1];
-        float radC[NUMBER_OF_INTERVALS + 1];
+        double fc[NUMBER_OF_INTERVALS + 1];
+        double radC[NUMBER_OF_INTERVALS + 1];
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
             // Copy components
             switch ( s ) {
                 case 0:
-                    fc[i] = f[i].r;
-                    radC[i] = rad[i].r;
+                    fc[i] = f[i].getR();
+                    radC[i] = rad[i].getR();
                     break;
                 case 1:
-                    fc[i] = f[i].g;
-                    radC[i] = rad[i].g;
+                    fc[i] = f[i].getG();
+                    radC[i] = rad[i].getG();
                     break;
                 case 2:
-                    fc[i] = f[i].b;
-                    radC[i] = rad[i].b;
+                    fc[i] = f[i].getB();
+                    radC[i] = rad[i].getB();
                     break;
                 default:
                     break;
@@ -232,32 +232,62 @@ Ccr::refineControlRadiosity(
         }
         switch ( s ) {
             case 0:
+            {
+                double minV;
+                double maxV;
+                double fMinV;
+                double fMaxV;
                 refineComponent(
-                    &(minRad->r),
-                    &(maxRad->r),
-                    &(fMin->r),
-                    &(fMax->r),
+                    &minV,
+                    &maxV,
+                    &fMinV,
+                    &fMaxV,
                     fc,
                     radC);
+                minRad->setR(minV);
+                maxRad->setR(maxV);
+                fMin->setR(fMinV);
+                fMax->setR(fMaxV);
                 break;
+            }
             case 1:
+            {
+                double minV;
+                double maxV;
+                double fMinV;
+                double fMaxV;
                 refineComponent(
-                    &(minRad->g),
-                    &(maxRad->g),
-                    &(fMin->g),
-                    &(fMax->g),
+                    &minV,
+                    &maxV,
+                    &fMinV,
+                    &fMaxV,
                     fc,
                     radC);
+                minRad->setG(minV);
+                maxRad->setG(maxV);
+                fMin->setG(fMinV);
+                fMax->setG(fMaxV);
                 break;
+            }
             case 2:
+            {
+                double minV;
+                double maxV;
+                double fMinV;
+                double fMaxV;
                 refineComponent(
-                    &(minRad->b),
-                    &(maxRad->b),
-                    &(fMin->b),
-                    &(fMax->b),
+                    &minV,
+                    &maxV,
+                    &fMinV,
+                    &fMaxV,
                     fc,
                     radC);
+                minRad->setB(minV);
+                maxRad->setB(maxV);
+                fMin->setB(fMinV);
+                fMax->setB(fMaxV);
                 break;
+            }
             default:
                 break;
         }
@@ -289,7 +319,7 @@ Ccr::determineControlRadiosity(
     ColorRgb fMax;
     ColorRgb beta;
     ColorRgb delta;
-    float eps = 0.001F;
+    double eps = 0.001;
     int sweep = 0;
 
     getRadianceCallback = getRadiance;
@@ -314,7 +344,7 @@ Ccr::determineControlRadiosity(
     beta.add(minRad, maxRad);
     beta.scale(0.5);
     beta.print(&java::System::err);
-    java::System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.r, beta.g, beta.b));
+    java::System::err.printf(" (%g lux)", M_PI * Cie::spectrumLuminance(beta.getR(), beta.getG(), beta.getB()));
     java::System::err.printf("\n");
     return beta;
 }

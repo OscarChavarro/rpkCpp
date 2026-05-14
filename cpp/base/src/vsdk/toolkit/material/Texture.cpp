@@ -111,8 +111,8 @@ Texture::evaluateColor(float u, float v) const {
     }
 
     rgb.set(
-        0.25F * static_cast<float>(u0 * v0 * rgb00.r + u1 * v0 * rgb10.r + u0 * v1 * rgb01.r + u1 * v1 * rgb11.r),
-        0.25F * static_cast<float>(u0 * v0 * rgb00.g + u1 * v0 * rgb10.g + u0 * v1 * rgb01.g + u1 * v1 * rgb11.g),
-        0.25F * static_cast<float>(u0 * v0 * rgb00.b + u1 * v0 * rgb10.b + u0 * v1 * rgb01.b + u1 * v1 * rgb11.b));
+        0.25 * (u0 * v0 * rgb00.getR() + u1 * v0 * rgb10.getR() + u0 * v1 * rgb01.getR() + u1 * v1 * rgb11.getR()),
+        0.25 * (u0 * v0 * rgb00.getG() + u1 * v0 * rgb10.getG() + u0 * v1 * rgb01.getG() + u1 * v1 * rgb11.getG()),
+        0.25 * (u0 * v0 * rgb00.getB() + u1 * v0 * rgb10.getB() + u0 * v1 * rgb01.getB() + u1 * v1 * rgb11.getB()));
     return rgb;
 }

@@ -155,9 +155,9 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
 
     const ToneMappingContext &activeToneMapOptions = requireToneMappingContext();
     ip->setToneMappingContext(&activeToneMapOptions);
-    ip->gamma[0] = activeToneMapOptions.gamma.r; // For default radiance -> display RGB
-    ip->gamma[1] = activeToneMapOptions.gamma.g;
-    ip->gamma[2] = activeToneMapOptions.gamma.b;
+    ip->gamma[0] = static_cast<float>(activeToneMapOptions.gamma.getR()); // For default radiance -> display RGB
+    ip->gamma[1] = static_cast<float>(activeToneMapOptions.gamma.getG());
+    ip->gamma[2] = static_cast<float>(activeToneMapOptions.gamma.getB());
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
@@ -191,7 +191,7 @@ ScreenBuffer::sync() {
         if ( !isRgbImage() ) {
             ToneMap::radianceToRgb(tmpRad, &rgbColor[i], activeToneMapOptions);
         } else {
-            tmpRad.set(rgbColor[i].r, rgbColor[i].g, rgbColor[i].b);
+            tmpRad.set(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
         }
     }
 

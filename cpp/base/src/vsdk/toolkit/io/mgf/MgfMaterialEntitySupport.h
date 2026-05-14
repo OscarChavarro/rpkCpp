@@ -16,9 +16,9 @@ class MgfMaterialEntitySupport {
   private:
     static constexpr int NUMBER_OF_SAMPLES = 3;
     static Material *materialLookup(const char *name, const ParseRuntimeContext *context);
-    static void mgfGetColor(ColorContext *cin, float intensity, ColorRgb *colorOut, ParseRuntimeContext *context);
-    static void specSamples(const ColorRgb &col, float *rgb);
-    static float colorMax(ColorRgb col);
+    static void mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context);
+    static void specSamples(const ColorRgb &col, double *rgb);
+    static double colorMax(ColorRgb col);
 };
 
 #endif

@@ -8,18 +8,18 @@ XYZ<->LUV conversions
 
 class Cie final {
   private:
-    static float CIE_x_r;
-    static float CIE_y_r;
-    static float CIE_x_g;
-    static float CIE_y_g;
-    static float CIE_x_b;
-    static float CIE_y_b;
-    static float CIE_x_w;
-    static float CIE_y_w;
+    static double CIE_x_r;
+    static double CIE_y_r;
+    static double CIE_x_g;
+    static double CIE_y_g;
+    static double CIE_x_b;
+    static double CIE_y_b;
+    static double CIE_x_w;
+    static double CIE_y_w;
 
-    static float luminousEfficacy;
-    static float xyz2RgbMat[3][3];
-    static float rgb2XyzMat[3][3];
+    static double luminousEfficacy;
+    static double xyz2RgbMat[3][3];
+    static double rgb2XyzMat[3][3];
 
     static double cieD();
     static double cieCrD();
@@ -29,32 +29,32 @@ class Cie final {
     static double cieGf();
     static double cieBf();
 
-    static float gray(float r, float g, float b);
-    static float luminance(float r, float g, float b);
+    static double gray(double r, double g, double b);
+    static double luminance(double r, double g, double b);
 
     static void setColorTransform(
-        float mat[3][3],
-        float a, float b, float c,
-        float d, float e, float f,
-        float g, float h, float i);
+        double mat[3][3],
+        double a, double b, double c,
+        double d, double e, double f,
+        double g, double h, double i);
 
-    static void colorTransform(const float *col, const float mat[3][3], float *res);
+    static void colorTransform(const double *col, const double mat[3][3], double *res);
 
   public:
-    static const float WHITE_EFFICACY;
+    static const double WHITE_EFFICACY;
 
-    static void transformColorFromXYZ2RGB(const float *xyz, float *rgb);
-    static bool clipGamut(float *rgb);
+    static void transformColorFromXYZ2RGB(const double *xyz, double *rgb);
+    static bool clipGamut(double *rgb);
 
     static void computeColorConversionTransforms(
-        float xr, float yr,
-        float xg, float yg,
-        float xb, float yb,
-        float xw, float yw);
+        double xr, double yr,
+        double xg, double yg,
+        double xb, double yb,
+        double xw, double yw);
 
-    static float getLuminousEfficacy();
-    static float spectrumGray(float r, float g, float b);
-    static float spectrumLuminance(float r, float g, float b);
+    static double getLuminousEfficacy();
+    static double spectrumGray(double r, double g, double b);
+    static double spectrumLuminance(double r, double g, double b);
 };
 
 #endif

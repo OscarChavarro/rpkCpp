@@ -2,7 +2,7 @@
 #include "vsdk/toolkit/common/linealAlgebra/Numeric.h"
 #include "vsdk/toolkit/common/color/ColorRgb.h"
 
-ColorRgb::ColorRgb(const float inR, const float inG, const float inB) {
+ColorRgb::ColorRgb(const double inR, const double inG, const double inB) {
     r = inR;
     g = inG;
     b = inB;
@@ -65,7 +65,7 @@ ColorRgb::add(const ColorRgb s, const ColorRgb t) {
 }
 
 void
-ColorRgb::addConstant(const ColorRgb s, const float a) {
+ColorRgb::addConstant(const ColorRgb s, const double a) {
     r = s.r + a;
     g = s.g + a;
     b = s.b + a;
@@ -79,14 +79,14 @@ ColorRgb::subtract(const ColorRgb s, const ColorRgb  t) {
 }
 
 void
-ColorRgb::scaleInverse(const float scale, const ColorRgb s) {
-    const float a = (scale != 0.0F) ? 1.0F / scale : 1.0F;
+ColorRgb::scaleInverse(const double scale, const ColorRgb s) {
+    const double a = (scale != 0.0) ? 1.0 / scale : 1.0;
     r = a * s.r;
     g = a * s.g;
     b = a * s.b;
 }
 
-float
+double
 ColorRgb::sumAbsComponents() const {
     return java::Math::abs(r) + java::Math::abs(g) + java::Math::abs(b);
 }
@@ -105,23 +105,23 @@ ColorRgb::minimum(const ColorRgb s, const ColorRgb t) {
     b = s.b < t.b ? s.b : t.b;
 }
 
-float
+double
 ColorRgb::average() const {
-    return (r + g + b) / 3.0F;
+    return (r + g + b) / 3.0;
 }
 
 void
-ColorRgb::interpolateBarycentric(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const float u, const float v) {
+ColorRgb::interpolateBarycentric(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const double u, const double v) {
     r = c0.r + u * (c1.r - c0.r) + v * (c2.r - c0.r);
     g = c0.g + u * (c1.g - c0.g) + v * (c2.g - c0.g);
     b = c0.b + u * (c1.b - c0.b) + v * (c2.b - c0.b);
 }
 
 void
-ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const ColorRgb c3, const float u, const float v) {
-    const float c = u * v;
-    const float bb = u - c;
-    const float d = v - c;
+ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorRgb c2, const ColorRgb c3, const double u, const double v) {
+    const double c = u * v;
+    const double bb = u - c;
+    const double d = v - c;
 
     r = c0.r + b * (c1.r - c0.r) + c * (c2.r - c0.r) + d * (c3.r - c0.r);
     g = c0.g + b * (c1.g - c0.g) + c * (c2.g - c0.g) + d * (c3.g - c0.g);
@@ -130,22 +130,22 @@ ColorRgb::interpolateBiLinear(const ColorRgb c0, const ColorRgb c1, const ColorR
 
 void
 ColorRgb::clip() {
-    if ( r < 0.0F ) {
-        r = 0.0F;
+    if ( r < 0.0 ) {
+        r = 0.0;
     } else {
-        r = r > 1.0F ? 1.0F : r;
+        r = r > 1.0 ? 1.0 : r;
     }
 
-    if ( g < 0.0F ) {
-        g = 0.0F;
+    if ( g < 0.0 ) {
+        g = 0.0;
     } else {
-        g = g > 1.0F ? 1.0F : g;
+        g = g > 1.0 ? 1.0 : g;
     }
 
-    if ( b < 0.0F ) {
-        b = 0.0F;
+    if ( b < 0.0 ) {
+        b = 0.0;
     } else {
-        b = b > 1.0F ? 1.0F : b;
+        b = b > 1.0 ? 1.0 : b;
     }
 }
 

@@ -54,9 +54,9 @@ OptionsGroupRender::renderParseOptions(
     OptionParser<OptionBase>::parse(argc, argv, renderGroups, 1);
 
     *renderOptions = renderOptionsState;
-    renderOptions->outlineColor.r = outlineColor.r;
-    renderOptions->outlineColor.g = outlineColor.g;
-    renderOptions->outlineColor.b = outlineColor.b;
+    renderOptions->outlineColor.setR(outlineColor.getR());
+    renderOptions->outlineColor.setG(outlineColor.getG());
+    renderOptions->outlineColor.setB(outlineColor.getB());
 }
 
 bool
@@ -65,15 +65,15 @@ OptionsGroupRender::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = nullptr;
-    value.r = strtof(argv[0], &endPointer);
+    value.setR(strtod(argv[0], &endPointer));
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value.g = strtof(argv[1], &endPointer);
+    value.setG(strtod(argv[1], &endPointer));
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value.b = strtof(argv[2], &endPointer);
+    value.setB(strtod(argv[2], &endPointer));
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }

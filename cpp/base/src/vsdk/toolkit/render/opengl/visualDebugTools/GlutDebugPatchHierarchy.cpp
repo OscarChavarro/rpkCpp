@@ -145,7 +145,7 @@ GlutDebugPatchHierarchy::renderElementGray(
 
         ColorRgb rgbColor{};
         ToneMap::radianceToRgb(radianceSample, &rgbColor, *toneMapOptions);
-        grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.r, rgbColor.g, rgbColor.b));
+        grayValue = toneMappedGrayAndDarkened(Cie::spectrumLuminance(rgbColor.getR(), rgbColor.getG(), rgbColor.getB()));
         glColor3f(grayValue, grayValue, grayValue);
         Opengl::openGlRenderPolygonFlat(numberOfVertices, vertices);
     }
@@ -155,9 +155,9 @@ GlutDebugPatchHierarchy::renderElementGray(
         outlineGray *= OUTLINE_FROM_SURFACE_FACTOR;
     } else {
         outlineGray = toneMappedGrayAndDarkened(Cie::spectrumLuminance(
-            renderOptions->outlineColor.r,
-            renderOptions->outlineColor.g,
-            renderOptions->outlineColor.b));
+            renderOptions->outlineColor.getR(),
+            renderOptions->outlineColor.getG(),
+            renderOptions->outlineColor.getB()));
     }
     outlineGray = clamp01(outlineGray);
     if ( outlineGray < OUTLINE_MIN_GRAY ) {

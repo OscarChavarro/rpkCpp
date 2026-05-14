@@ -26,9 +26,9 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 
 inline void
 ImageOutputHandle::gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
-  rgb.r = gamma[0] == 1.0 ? rgb.r : java::Math::pow(rgb.r, 1.0F / gamma[0]);
-  rgb.g = gamma[1] == 1.0 ? rgb.g : java::Math::pow(rgb.g, 1.0F / gamma[1]);
-  rgb.b = gamma[2] == 1.0 ? rgb.b : java::Math::pow(rgb.b, 1.0F / gamma[2]);
+  rgb.setR(gamma[0] == 1.0F ? rgb.getR() : java::Math::pow(rgb.getR(), 1.0 / static_cast<double>(gamma[0])));
+  rgb.setG(gamma[1] == 1.0F ? rgb.getG() : java::Math::pow(rgb.getG(), 1.0 / static_cast<double>(gamma[1])));
+  rgb.setB(gamma[2] == 1.0F ? rgb.getB() : java::Math::pow(rgb.getB(), 1.0 / static_cast<double>(gamma[2])));
 }
 
 int
@@ -36,13 +36,16 @@ ImageOutputHandle::writeDisplayRGB(float *rgbFloatArray) {
     unsigned char *rgb = new unsigned char[3 * width];
     for ( int i = 0; i < width; i++ ) {
         // Convert RGB radiance to display RGB
-        ColorRgb displayRgb = *reinterpret_cast<ColorRgb *>(&rgbFloatArray[3 * i]);
+        ColorRgb displayRgb(
+            static_cast<double>(rgbFloatArray[3 * i]),
+            static_cast<double>(rgbFloatArray[3 * i + 1]),
+            static_cast<double>(rgbFloatArray[3 * i + 2]));
         // Apply gamma correction
         gammaCorrect(displayRgb, gamma);
         // Convert float to byte representation
-        rgb[3 * i] = static_cast<unsigned char>(displayRgb.r * 255.0);
-        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.g * 255.0);
-        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.b * 255.0);
+        rgb[3 * i] = static_cast<unsigned char>(displayRgb.getR() * 255.0);
+        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.getG() * 255.0);
+        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.getB() * 255.0);
     }
 
     // Output display RGB values
@@ -72,9 +75,9 @@ ImageOutputHandle::writeRadianceRGB(ColorRgb *rgbRadiance) {
         gammaCorrect(displayRgb, gamma);
 
         // Convert float to byte representation
-        rgb[3 * i] = static_cast<unsigned char>(displayRgb.r * 255.0);
-        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.g * 255.0);
-        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.b * 255.0);
+        rgb[3 * i] = static_cast<unsigned char>(displayRgb.getR() * 255.0);
+        rgb[3 * i + 1] = static_cast<unsigned char>(displayRgb.getG() * 255.0);
+        rgb[3 * i + 2] = static_cast<unsigned char>(displayRgb.getB() * 255.0);
     }
 
     // Output display RGB values

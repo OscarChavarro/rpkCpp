@@ -29,7 +29,7 @@ static bool openGlMissingToneMapWarningShown = false;
 #ifdef OPEN_GL_ENABLED
 void
 Opengl::openGlRenderClearWindow(const Camera *camera) {
-    glClearColor(camera->background.r, camera->background.g, camera->background.b, 0.0);
+    glClearColor(camera->background.getR(), camera->background.getG(), camera->background.getB(), 0.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

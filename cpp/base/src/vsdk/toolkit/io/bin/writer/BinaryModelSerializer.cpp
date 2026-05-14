@@ -102,9 +102,9 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
 
 void
 BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
-    vsdk::PersistenceElement::writeFloatLE(output, color.r);
-    vsdk::PersistenceElement::writeFloatLE(output, color.g);
-    vsdk::PersistenceElement::writeFloatLE(output, color.b);
+    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
+    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
+    vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));
 }
 
 void

@@ -161,9 +161,9 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
         ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color.r = (m[i]->color.r + color.r) * 0.5F;
-                m[i]->color.g = (m[i]->color.g + color.g) * 0.5F;
-                m[i]->color.b = (m[i]->color.b + color.b) * 0.5F;
+                m[i]->color.setR((m[i]->color.getR() + color.getR()) * 0.5);
+                m[i]->color.setG((m[i]->color.getG() + color.getG()) * 0.5);
+                m[i]->color.setB((m[i]->color.getB() + color.getB()) * 0.5);
             }
         }
     }

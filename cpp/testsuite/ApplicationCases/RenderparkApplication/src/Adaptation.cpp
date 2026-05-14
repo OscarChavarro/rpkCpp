@@ -51,7 +51,7 @@ Adaptation::adaptationLumAreaComp(const void *la1, const void *la2) {
 float
 Adaptation::patchBrightnessEstimate(Patch *patch) {
     const ColorRgb radiance = patchRadianceEstimate(patch);
-    float brightness = Cie::spectrumLuminance(radiance.r, radiance.g, radiance.b);
+    float brightness = static_cast<float>(Cie::spectrumLuminance(radiance.getR(), radiance.getG(), radiance.getB()));
     if ( brightness < Numeric::EPSILON_FLOAT ) {
         brightness = Numeric::EPSILON_FLOAT;
     }

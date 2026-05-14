@@ -23,20 +23,20 @@ corrected CIE 1988 standard observer curve has been used in this case -
 using the older CIE 1931 curves gives the value of 179 (see the Radiance
 rendering system).
 */
-const float Cie::WHITE_EFFICACY = 183.07F;
+const double Cie::WHITE_EFFICACY = 183.07;
 
-float Cie::CIE_x_r = 0.640F; // Nominal CRT primaries
-float Cie::CIE_y_r = 0.330F;
-float Cie::CIE_x_g = 0.290F;
-float Cie::CIE_y_g = 0.600F;
-float Cie::CIE_x_b = 0.150F;
-float Cie::CIE_y_b = 0.060F;
-float Cie::CIE_x_w = 0.3333333333F;
-float Cie::CIE_y_w = 0.3333333333F;
+double Cie::CIE_x_r = 0.640; // Nominal CRT primaries
+double Cie::CIE_y_r = 0.330;
+double Cie::CIE_x_g = 0.290;
+double Cie::CIE_y_g = 0.600;
+double Cie::CIE_x_b = 0.150;
+double Cie::CIE_y_b = 0.060;
+double Cie::CIE_x_w = 0.3333333333;
+double Cie::CIE_y_w = 0.3333333333;
 
-float Cie::luminousEfficacy = Cie::WHITE_EFFICACY;
-float Cie::xyz2RgbMat[3][3] = {};
-float Cie::rgb2XyzMat[3][3] = {};
+double Cie::luminousEfficacy = Cie::WHITE_EFFICACY;
+double Cie::xyz2RgbMat[3][3] = {};
+double Cie::rgb2XyzMat[3][3] = {};
 
 double
 Cie::cieD() {
@@ -84,22 +84,22 @@ Cie::cieBf() {
     return CIE_y_b * cieCbD() / cieD();
 }
 
-float
-Cie::gray(float r, float g, float b) {
-    return static_cast<float>(cieRf()) * r + static_cast<float>(cieGf()) * g + static_cast<float>(cieBf()) * b;
+double
+Cie::gray(double r, double g, double b) {
+    return cieRf() * r + cieGf() * g + cieBf() * b;
 }
 
-float
-Cie::luminance(float r, float g, float b) {
+double
+Cie::luminance(double r, double g, double b) {
     return luminousEfficacy * gray(r, g, b);
 }
 
 void
 Cie::setColorTransform(
-    float mat[3][3],
-    float a, float b, float c,
-    float d, float e, float f,
-    float g, float h, float i)
+    double mat[3][3],
+    double a, double b, double c,
+    double d, double e, double f,
+    double g, double h, double i)
 {
     mat[0][0] = a;
     mat[0][1] = b;
@@ -113,7 +113,7 @@ Cie::setColorTransform(
 }
 
 void
-Cie::colorTransform(const float *col, const float mat[3][3], float *res) {
+Cie::colorTransform(const double *col, const double mat[3][3], double *res) {
     res[0] = mat[0][0] * col[0] + mat[0][1] * col[1] + mat[0][2] * col[2];
     res[1] = mat[1][0] * col[0] + mat[1][1] * col[1] + mat[1][2] * col[2];
     res[2] = mat[2][0] * col[0] + mat[2][1] * col[1] + mat[2][2] * col[2];
@@ -122,7 +122,7 @@ Cie::colorTransform(const float *col, const float mat[3][3], float *res) {
 /**
 Set/return the value used for tri-stimulus white efficacy.
 */
-float
+double
 Cie::getLuminousEfficacy() {
     return luminousEfficacy;
 }
@@ -130,8 +130,8 @@ Cie::getLuminousEfficacy() {
 /**
 Returns an achromatic value representing the spectral quantity.
 */
-float
-Cie::spectrumGray(float r, float g, float b) {
+double
+Cie::spectrumGray(double r, double g, double b) {
     return gray(r, g, b);
 }
 
@@ -139,8 +139,8 @@ Cie::spectrumGray(float r, float g, float b) {
 Returns the luminance, photometric quantity corresponding to the
 radiance of the given spectrum.
 */
-float
-Cie::spectrumLuminance(float r, float g, float b) {
+double
+Cie::spectrumLuminance(double r, double g, double b) {
     return luminance(r, g, b);
 }
 
@@ -150,14 +150,14 @@ colors and white point.
 */
 void
 Cie::computeColorConversionTransforms(
-    float xr,
-    float yr,
-    float xg,
-    float yg,
-    float xb,
-    float yb,
-    float xw,
-    float yw)
+    double xr,
+    double yr,
+    double xg,
+    double yg,
+    double xb,
+    double yb,
+    double xw,
+    double yw)
 {
     CIE_x_r = xr;
     CIE_y_r = yr;
@@ -170,34 +170,34 @@ Cie::computeColorConversionTransforms(
 
     setColorTransform(
             xyz2RgbMat, // XYZ to RGB
-          static_cast<float>((CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / cieCrD()),
-            static_cast<float>((CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / cieCrD()),
-            static_cast<float>((CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / cieCrD()),
-            static_cast<float>((CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / cieCgD()),
-            static_cast<float>((CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / cieCgD()),
-            static_cast<float>((CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / cieCgD()),
-            static_cast<float>((CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / cieCbD()),
-            static_cast<float>((CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / cieCbD()),
-            static_cast<float>((CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / cieCbD()));
+          (CIE_y_g - CIE_y_b - CIE_x_b * CIE_y_g + CIE_y_b * CIE_x_g) / cieCrD(),
+            (CIE_x_b - CIE_x_g - CIE_x_b * CIE_y_g + CIE_x_g * CIE_y_b) / cieCrD(),
+            (CIE_x_g * CIE_y_b - CIE_x_b * CIE_y_g) / cieCrD(),
+            (CIE_y_b - CIE_y_r - CIE_y_b * CIE_x_r + CIE_y_r * CIE_x_b) / cieCgD(),
+            (CIE_x_r - CIE_x_b - CIE_x_r * CIE_y_b + CIE_x_b * CIE_y_r) / cieCgD(),
+            (CIE_x_b * CIE_y_r - CIE_x_r * CIE_y_b) / cieCgD(),
+            (CIE_y_r - CIE_y_g - CIE_y_r * CIE_x_g + CIE_y_g * CIE_x_r) / cieCbD(),
+            (CIE_x_g - CIE_x_r - CIE_x_g * CIE_y_r + CIE_x_r * CIE_y_g) / cieCbD(),
+            (CIE_x_r * CIE_y_g - CIE_x_g * CIE_y_r) / cieCbD());
 
     setColorTransform(
             rgb2XyzMat, // RGB to XYZ
-          static_cast<float>(CIE_x_r * cieCrD() / cieD()),
-            static_cast<float>(CIE_x_g * cieCgD() / cieD()),
-            static_cast<float>(CIE_x_b * cieCbD() / cieD()),
-            static_cast<float>(CIE_y_r * cieCrD() / cieD()),
-            static_cast<float>(CIE_y_g * cieCgD() / cieD()),
-            static_cast<float>(CIE_y_b * cieCbD() / cieD()),
-            static_cast<float>((1.0 - CIE_x_r - CIE_y_r) * cieCrD() / cieD()),
-            static_cast<float>((1.0 - CIE_x_g - CIE_y_g) * cieCgD() / cieD()),
-            static_cast<float>((1.0 - CIE_x_b - CIE_y_b) * cieCbD() / cieD()));
+          CIE_x_r * cieCrD() / cieD(),
+            CIE_x_g * cieCgD() / cieD(),
+            CIE_x_b * cieCbD() / cieD(),
+            CIE_y_r * cieCrD() / cieD(),
+            CIE_y_g * cieCgD() / cieD(),
+            CIE_y_b * cieCbD() / cieD(),
+            (1.0 - CIE_x_r - CIE_y_r) * cieCrD() / cieD(),
+            (1.0 - CIE_x_g - CIE_y_g) * cieCgD() / cieD(),
+            (1.0 - CIE_x_b - CIE_y_b) * cieCbD() / cieD());
 }
 
 /**
 CIE XYZ <-> RGB
 */
 void
-Cie::transformColorFromXYZ2RGB(const float *xyz, float *rgb) {
+Cie::transformColorFromXYZ2RGB(const double *xyz, double *rgb) {
     colorTransform(xyz, xyz2RgbMat, rgb);
 }
 
@@ -206,7 +206,7 @@ Returns TRUE if the color was desaturated during clipping against the
 monitor gamut
 */
 bool
-Cie::clipGamut(float *rgb) {
+Cie::clipGamut(double *rgb) {
     // Really SHOULD desaturate instead of just clipping!
     bool desaturated = false;
     for ( int i = 0; i < 3; i++ ) {

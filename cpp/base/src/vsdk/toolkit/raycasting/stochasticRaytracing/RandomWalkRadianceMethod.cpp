@@ -366,7 +366,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
     cr.divide(c1, c2);
     java::System::err.printf("Control radiosity value = ");
     cr.print(&java::System::err);
-    java::System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.r, cr.g, cr.b));
+    java::System::err.printf(", luminosity = %g\n", Cie::spectrumLuminance(cr.getR(), cr.getG(), cr.getB()));
 
     return cr;
 }
