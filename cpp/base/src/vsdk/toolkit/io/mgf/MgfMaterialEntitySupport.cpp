@@ -61,7 +61,7 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, Color
     if ( Cie::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
-    colorOut->set(rgb[0], rgb[1], rgb[2]);
+    *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
 }
 
 void
@@ -98,13 +98,13 @@ The routine returns true if the material being used has changed
 */
 bool
 MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
-    ColorRgb Ed;
-    ColorRgb Es;
-    ColorRgb Rd;
-    ColorRgb Td;
-    ColorRgb Rs;
-    ColorRgb Ts;
-    ColorRgb A;
+    ColorRgb Ed(0.0, 0.0, 0.0);
+    ColorRgb Es(0.0, 0.0, 0.0);
+    ColorRgb Rd(0.0, 0.0, 0.0);
+    ColorRgb Td(0.0, 0.0, 0.0);
+    ColorRgb Rs(0.0, 0.0, 0.0);
+    ColorRgb Ts(0.0, 0.0, 0.0);
+    ColorRgb A(0.0, 0.0, 0.0);
     MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
@@ -175,12 +175,12 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     }
 
     if ( context->monochrome ) {
-        Ed.setMonochrome(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
-        Es.setMonochrome(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
-        Rd.setMonochrome(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
-        Rs.setMonochrome(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
-        Td.setMonochrome(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
-        Ts.setMonochrome(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
+        Ed = ColorRgb(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
+        Es = ColorRgb(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
+        Rd = ColorRgb(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
+        Rs = ColorRgb(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
+        Td = ColorRgb(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
+        Ts = ColorRgb(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;

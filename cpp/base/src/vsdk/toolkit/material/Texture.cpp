@@ -38,7 +38,7 @@ Texture::~Texture() {
 
 void
 Texture::setMonochrome(ColorRgb rgb, float val) {
-    rgb.set(val, val, val);
+    rgb = ColorRgb(val, val, val);
 }
 
 ColorRgb
@@ -100,17 +100,17 @@ Texture::evaluateColor(float u, float v) const {
             break;
         case 3:
         case 4: {
-            rgb00.set(channelValue(pixelIndex00, 0), channelValue(pixelIndex00, 1), channelValue(pixelIndex00, 2));
-            rgb10.set(channelValue(pixelIndex10, 0), channelValue(pixelIndex10, 1), channelValue(pixelIndex10, 2));
-            rgb01.set(channelValue(pixelIndex01, 0), channelValue(pixelIndex01, 1), channelValue(pixelIndex01, 2));
-            rgb11.set(channelValue(pixelIndex11, 0), channelValue(pixelIndex11, 1), channelValue(pixelIndex11, 2));
+            rgb00 = ColorRgb(channelValue(pixelIndex00, 0), channelValue(pixelIndex00, 1), channelValue(pixelIndex00, 2));
+            rgb10 = ColorRgb(channelValue(pixelIndex10, 0), channelValue(pixelIndex10, 1), channelValue(pixelIndex10, 2));
+            rgb01 = ColorRgb(channelValue(pixelIndex01, 0), channelValue(pixelIndex01, 1), channelValue(pixelIndex01, 2));
+            rgb11 = ColorRgb(channelValue(pixelIndex11, 0), channelValue(pixelIndex11, 1), channelValue(pixelIndex11, 2));
         }
             break;
         default:
             break;
     }
 
-    rgb.set(
+    rgb = ColorRgb(
         0.25 * (u0 * v0 * rgb00.getR() + u1 * v0 * rgb10.getR() + u0 * v1 * rgb01.getR() + u1 * v1 * rgb11.getR()),
         0.25 * (u0 * v0 * rgb00.getG() + u1 * v0 * rgb10.getG() + u0 * v1 * rgb01.getG() + u1 * v1 * rgb11.getG()),
         0.25 * (u0 * v0 * rgb00.getB() + u1 * v0 * rgb10.getB() + u0 * v1 * rgb01.getB() + u1 * v1 * rgb11.getB()));

@@ -35,7 +35,7 @@ PhotonMapSampler::chooseComponent(
         return false;
     }
 
-    ColorRgb color;
+    ColorRgb color(0.0, 0.0, 0.0);
     float power1;
     float power2;
     float totalPower;
@@ -198,13 +198,13 @@ PhotonMapSampler::chooseFresnelDirection(
     if ( !shctxOk ) {
         return false;
     }
-    ColorRgb reflectance;
+    ColorRgb reflectance(0.0, 0.0, 0.0);
     reflectance.clear();
     if ( bsdf != nullptr ) {
         reflectance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
     }
 
-    ColorRgb transmittance;
+    ColorRgb transmittance(0.0, 0.0, 0.0);
     transmittance.clear();
     if ( bsdf != nullptr ) {
         transmittance = bsdf->splitBsdfScatteredPower(shctx, SPECULAR_COMPONENT);
@@ -342,7 +342,7 @@ PhotonMapSampler::fresnelSample(
     Vector3D dir;
     double pdfDir;
     bool doCosInverse;
-    ColorRgb scatteringColor;
+    ColorRgb scatteringColor(0.0, 0.0, 0.0);
 
     if ( !PhotonMapSampler::chooseFresnelDirection(thisNode, flags, x2, &dir, &pdfDir,
                                  &scatteringColor, &doCosInverse) ) {

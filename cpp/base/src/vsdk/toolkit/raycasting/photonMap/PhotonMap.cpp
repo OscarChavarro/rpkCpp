@@ -12,7 +12,7 @@
 #include "vsdk/toolkit/raycasting/photonMap/PhotonMap.h"
 bool
 PhotonMap::zeroAlbedo(const PhongBidirectionalScatteringDistributionFunction *bsdf, RayHit *hit, char flags) {
-    ColorRgb color;
+    ColorRgb color(0.0, 0.0, 0.0);
     bool shctxOk = false;
     ShadingContext shctx = hit->shadingContext(&shctxOk);
     if ( !shctxOk || bsdf == nullptr ) {
@@ -40,7 +40,7 @@ PhotonMap::getFalseMonochrome(float val, const PhotonMapState &photonMapState) {
 
 ColorRgb
 PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
     float tmp;
     float r = 0;
     float g = 0;
@@ -48,7 +48,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
 
     if ( photonMapState.falseColMono ) {
         tmp = PhotonMap::getFalseMonochrome(val, photonMapState);
-        col.set(tmp, tmp, tmp);
+        col = ColorRgb(tmp, tmp, tmp);
         return col;
     }
 
@@ -75,7 +75,7 @@ PhotonMap::getFalseColor(float val, const PhotonMapState &photonMapState) {
         g = 1.0F - r;
     }
 
-    col.set(r, g, b);
+    col = ColorRgb(r, g, b);
     return col;
 }
 
@@ -218,7 +218,7 @@ PhotonMap::redistribute(const Photon &photon) const {
     // -- Check the flags
     // -- normal weighted average?
 
-    ColorRgb deltaPower;
+    ColorRgb deltaPower(0.0, 0.0, 0.0);
     float factor = 1.0F / static_cast<float>(m_nrpCosinePos);
 
     ColorRgb pow = photon.power();
@@ -296,7 +296,7 @@ PhotonMap::GetMaxR2() {
 // Precompute Irradiance
 void
 PhotonMap::photonPrecomputeIrradiance(Camera */*camera*/, IrrPhoton *photon) {
-    ColorRgb irradiance;
+    ColorRgb irradiance(0.0, 0.0, 0.0);
     irradiance.clear();
 
     // Locate the nearest photons using a max radius limit
@@ -374,14 +374,14 @@ PhotonMap::reconstruct(
     PhongBidirectionalScatteringDistributionFunction *outBsdf)
 {
     // Find the nearest photons
-    ColorRgb result;
-    ColorRgb eval;
-    ColorRgb col;
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb eval(0.0, 0.0, 0.0);
+    ColorRgb col(0.0, 0.0, 0.0);
 
     result.clear();
 
-    ColorRgb diffuseAlbedo;
-    ColorRgb glossyAlbedo;
+    ColorRgb diffuseAlbedo(0.0, 0.0, 0.0);
+    ColorRgb glossyAlbedo(0.0, 0.0, 0.0);
 
     diffuseAlbedo.clear();
     glossyAlbedo.clear();

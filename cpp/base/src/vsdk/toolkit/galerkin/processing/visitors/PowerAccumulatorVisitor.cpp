@@ -31,7 +31,7 @@ PowerAccumulatorVisitor::visit(
     float srcOs;
     float dist;
     Vector3D dir;
-    ColorRgb rad;
+    ColorRgb rad(0.0, 0.0, 0.0);
 
     dir.subtraction(samplePoint, galerkinElement->patch->midPoint());
     dist = dir.norm();

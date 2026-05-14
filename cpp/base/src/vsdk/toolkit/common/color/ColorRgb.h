@@ -19,13 +19,8 @@ class ColorRgb {
     inline double getR() const { return r; }
     inline double getG() const { return g; }
     inline double getB() const { return b; }
-    inline void setR(double value) { r = value; }
-    inline void setG(double value) { g = value; }
-    inline void setB(double value) { b = value; }
 
     void clear();
-    void set(double v1, double v2, double v3);
-    void setMonochrome(double v);
     bool isBlack() const;
     void scaledCopy(double a, ColorRgb c);
     void scale(double a);
@@ -53,12 +48,6 @@ class ColorRgb {
     static void arrayAdd(ColorRgb *result, const ColorRgb *source, char n);
     static void arrayClear(ColorRgb *color, char n);
 };
-
-inline ColorRgb::ColorRgb() {
-    r = 0;
-    g = 0;
-    b = 0;
-}
 
 inline void
 ColorRgb::addScaled(const ColorRgb s, const double a, const ColorRgb t) {
@@ -98,20 +87,6 @@ ColorRgb::scaledCopy(const double a, const ColorRgb c) {
 }
 
 inline void
-ColorRgb::set(const double v1, const double v2, const double v3) {
-    r = v1;
-    g = v2;
-    b = v3;
-}
-
-inline void
-ColorRgb::setMonochrome(const double v) {
-    r = v;
-    g = v;
-    b = v;
-}
-
-inline void
 ColorRgb::divide(const ColorRgb s, const ColorRgb t) {
     r = (t.r != 0.0) ? s.r / t.r : s.r;
     g = (t.g != 0.0) ? s.g / t.g : s.g;
@@ -123,6 +98,12 @@ ColorRgb::scalarProductScaled(const ColorRgb s, const double a, const ColorRgb t
     r = s.r * a * t.r;
     g = s.g * a * t.g;
     b = s.b * a * t.b;
+}
+
+inline ColorRgb::ColorRgb() {
+    r = 0;
+    g = 0;
+    b = 0;
 }
 
 #endif

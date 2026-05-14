@@ -33,7 +33,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
                 gray = element->importance < 0.0 ? 0.0F : element->importance;
             }
 
-            color.set(gray, gray, gray);
+            color = ColorRgb(gray, gray, gray);
             break;
         }
         default:
@@ -50,7 +50,7 @@ StochasticRadiosityElement::stochasticRadiosityElementColor(const StochasticRadi
 ColorRgb
 StochasticRadiosityElement::vertexRadiance(const Vertex *v) {
     int count = 0;
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
 
     radiance.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -118,7 +118,7 @@ StochasticRadiosityElement::vertexColor(Vertex *v) {
             if ( gray < 0.0 ) {
                 gray = 0.0;
             }
-            v->color.set(gray, gray, gray);
+            v->color = ColorRgb(gray, gray, gray);
             break;
         }
         default:
@@ -161,9 +161,10 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
         ColorRgb color = StochasticRadiosityElement::stochasticRadiosityElementColor(stochasticRadiosityElement);
         for ( i = 0; i < stochasticRadiosityElement->numberOfVertices; i++ ) {
             if ( m[i] ) {
-                m[i]->color.setR((m[i]->color.getR() + color.getR()) * 0.5);
-                m[i]->color.setG((m[i]->color.getG() + color.getG()) * 0.5);
-                m[i]->color.setB((m[i]->color.getB() + color.getB()) * 0.5);
+                m[i]->color = ColorRgb(
+                    (m[i]->color.getR() + color.getR()) * 0.5,
+                    (m[i]->color.getG() + color.getG()) * 0.5,
+                    (m[i]->color.getB() + color.getB()) * 0.5);
             }
         }
     }
@@ -171,7 +172,7 @@ StochasticRadiosityElement::stochasticRadiosityElementAdjustTVertexColors(Elemen
 
 ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const StochasticRadiosityElement *elem) {
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
     radiance.subtract(elem->radiance[0], elem->sourceRad);
 
     if ( StochasticRelaxation::activeState().show != WhatToShow::SHOW_INDIRECT_RADIANCE ) {
@@ -188,7 +189,7 @@ StochasticRadiosityElement::stochasticRadiosityElementDisplayRadiance(const Stoc
 
 ColorRgb
 StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(const StochasticRadiosityElement *elem, double u, double v, const RendererConfiguration *renderOptions) {
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
     if ( elem->basis->size == 1 ) {
         if ( renderOptions->smoothShading ) {
             // Do Gouraud interpolation if required

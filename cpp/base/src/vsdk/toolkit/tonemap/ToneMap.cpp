@@ -18,9 +18,10 @@ ToneMap::gammaTableEntry(float x) {
 
 void
 ToneMap::toneMappingGammaCorrection(ColorRgb &rgb, const ToneMappingContext &toneMapOptions) {
-    rgb.setR(toneMapOptions.gammaTab[0][gammaTableEntry(static_cast<float>(rgb.getR()))]);
-    rgb.setG(toneMapOptions.gammaTab[1][gammaTableEntry(static_cast<float>(rgb.getG()))]);
-    rgb.setB(toneMapOptions.gammaTab[2][gammaTableEntry(static_cast<float>(rgb.getB()))]);
+    rgb = ColorRgb(
+        toneMapOptions.gammaTab[0][gammaTableEntry(static_cast<float>(rgb.getR()))],
+        toneMapOptions.gammaTab[1][gammaTableEntry(static_cast<float>(rgb.getG()))],
+        toneMapOptions.gammaTab[2][gammaTableEntry(static_cast<float>(rgb.getB()))]);
 }
 
 ColorRgb
@@ -89,7 +90,7 @@ Does most to convert radiance to display RGB color
 ColorRgb *
 ToneMap::radianceToRgb(ColorRgb color, ColorRgb *rgb, const ToneMappingContext &toneMapOptions) {
     ToneMap::rescaleRadiance(color, &color, toneMapOptions);
-    rgb->set(color.getR(), color.getG(), color.getB());
+    *rgb = ColorRgb(color.getR(), color.getG(), color.getB());
     rgb->clip();
     return rgb;
 }

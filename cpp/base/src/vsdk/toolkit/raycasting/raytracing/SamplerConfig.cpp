@@ -277,7 +277,7 @@ SamplerConfig::pathNodeConnect(
     // bsdf(EP->E->L)
     if ( nodeEP == nullptr ) {
         // Eye
-        nodeX->m_bsdfEval.setMonochrome(1.0);
+        nodeX->m_bsdfEval = ColorRgb(1.0, 1.0, 1.0);
         nodeX->m_bsdfComp.Clear();
         nodeX->m_bsdfComp.Fill(nodeX->m_bsdfEval, BRDF_DIFFUSE_COMPONENT);
     } else {

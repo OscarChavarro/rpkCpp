@@ -165,10 +165,10 @@ Subtracts (1 - rho) * control radiosity from the source radiosity of each patch
 RandomWalkRadianceMethod::randomWalkRadiosityReduceSource(const java::ArrayList<Patch *> *scenePatches) {
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
         const Patch *patch = scenePatches->get(i);
-        ColorRgb newSourceRadiance;
-        ColorRgb rho;
+        ColorRgb newSourceRadiance(0.0, 0.0, 0.0);
+        ColorRgb rho(0.0, 0.0, 0.0);
 
-        newSourceRadiance.setMonochrome(1.0);
+        newSourceRadiance = ColorRgb(1.0, 1.0, 1.0);
         rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd; // Reflectance
         newSourceRadiance.subtract(newSourceRadiance, rho); // 1 - rho
         newSourceRadiance.selfScalarProduct(StochasticRelaxation::activeState().controlRadiance); // (1-rho) * beta
@@ -226,7 +226,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityScoreWeight(const Path *path, int n
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityShootingScore(const Path *path, long nr_paths, double (* /*birthProb*/)(const Patch *)) {
-    ColorRgb accumPow;
+    ColorRgb accumPow(0.0, 0.0, 0.0);
     const StochasticRaytracingPathNode &firstNode = path->nodes[0];
 
     // path->nodes[0].probability is birth probability of the path
@@ -336,22 +336,22 @@ Determines control radiosity value for collision gathering estimator
 */
  ColorRgb
 RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(const java::ArrayList<Patch *> *scenePatches) {
-    ColorRgb c1;
-    ColorRgb c2;
-    ColorRgb cr;
+    ColorRgb c1(0.0, 0.0, 0.0);
+    ColorRgb c2(0.0, 0.0, 0.0);
+    ColorRgb cr(0.0, 0.0, 0.0);
 
     c1.clear();
     c2.clear();
 
     for ( int i = 0; scenePatches != nullptr && i < scenePatches->size(); i++ ) {
-        ColorRgb absorb;
-        ColorRgb rho;
-        ColorRgb Ed;
-        ColorRgb num;
-        ColorRgb denominator;
+        ColorRgb absorb(0.0, 0.0, 0.0);
+        ColorRgb rho(0.0, 0.0, 0.0);
+        ColorRgb Ed(0.0, 0.0, 0.0);
+        ColorRgb num(0.0, 0.0, 0.0);
+        ColorRgb denominator(0.0, 0.0, 0.0);
         const Patch *patch = scenePatches->get(i);
 
-        absorb.setMonochrome(1.0);
+        absorb = ColorRgb(1.0, 1.0, 1.0);
         rho = McradP::topLevelStochasticRadiosityElement(patch)->Rd;
         absorb.subtract(absorb, rho); // 1-rho
 
@@ -373,7 +373,7 @@ RandomWalkRadianceMethod::randomWalkRadiosityDetermineGatheringControlRadiosity(
 
  void
 RandomWalkRadianceMethod::randomWalkRadiosityCollisionGatheringScore(const Path *path, long /*nr_paths*/, double (* /*birthProb*/)(const Patch *)) {
-    ColorRgb accumRad;
+    ColorRgb accumRad(0.0, 0.0, 0.0);
     const int lastNodeIndex = path->numberOfNodes - 1;
     accumRad = McradP::topLevelStochasticRadiosityElement(path->nodes[lastNodeIndex].patch)->sourceRad;
     for ( int n = lastNodeIndex - 1; n >= 0; n-- ) {

@@ -181,9 +181,10 @@ BinaryModelReadPrimitives::readColor(java::InputStream &input, ColorRgb *color) 
     if ( color == nullptr ) {
         return reportReadError("BinaryModelReadPrimitives::readColor", "Null color output pointer");
     }
-    color->setR(readFloatLE(input));
-    color->setG(readFloatLE(input));
-    color->setB(readFloatLE(input));
+    const double r = readFloatLE(input);
+    const double g = readFloatLE(input);
+    const double b = readFloatLE(input);
+    *color = ColorRgb(r, g, b);
     return true;
 }
 

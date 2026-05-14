@@ -100,7 +100,7 @@ computes the average radiance of the virtual screen
 */
 ColorRgb
 ScratchVisibilityStrategy::scratchRadiance(const GalerkinState *galerkinState) {
-    ColorRgb rad;
+    ColorRgb rad(0.0, 0.0, 0.0);
 
     rad.clear();
     int nonBackGround = 0;

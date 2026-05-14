@@ -53,7 +53,7 @@ ConstantColorBackground::sample(
 
 ColorRgb
 ConstantColorBackground::power(Vector3D * /*position*/) const {
-    ColorRgb emittedPower;
+    ColorRgb emittedPower(0.0, 0.0, 0.0);
     emittedPower.scaledCopy(ConstantColorBackground::FOUR_PI, color);
     return emittedPower;
 }

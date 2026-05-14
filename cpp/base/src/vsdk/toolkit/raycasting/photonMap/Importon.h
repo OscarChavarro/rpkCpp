@@ -10,14 +10,14 @@ class Importon : public IrrPhoton {
     SetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_power.setR(imp);
+        m_power = ColorRgb(imp, imp, imp);
     }
 
     inline void
     PSetAll(float imp, float /*pot*/, float /*foot*/) {
         // Abuse m_power for importance estimates.
         // -- AT LEAST 3 COLOR components needed!  Watch out with compact photon repr.
-        m_irradiance.setR(imp);
+        m_irradiance = ColorRgb(imp, imp, imp);
     }
 
     Importon(

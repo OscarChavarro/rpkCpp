@@ -18,8 +18,8 @@ Background::radiance(
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
     }
-    ColorRgb black;
-    black.setMonochrome(0.0F);
+    ColorRgb black(0.0, 0.0, 0.0);
+    black = ColorRgb(0.0F, 0.0F, 0.0F);
     return black;
 }
 
@@ -32,7 +32,7 @@ Background::sample(
     float *probabilityDensityFunction) const
 {
     if ( radianceValue != nullptr ) {
-        radianceValue->setMonochrome(0.0F);
+        *radianceValue = ColorRgb(0.0F, 0.0F, 0.0F);
     }
     if ( probabilityDensityFunction != nullptr ) {
         *probabilityDensityFunction = 0.0F;
@@ -42,16 +42,16 @@ Background::sample(
 
 ColorRgb
 Background::power(Vector3D * /*position*/) const {
-    ColorRgb black;
-    black.setMonochrome(0.0F);
+    ColorRgb black(0.0, 0.0, 0.0);
+    black = ColorRgb(0.0F, 0.0F, 0.0F);
     return black;
 }
 
 ColorRgb
 Background::backgroundPower(Background *bkg, Vector3D *position) {
     if ( !bkg ) {
-        ColorRgb black;
-        black.setMonochrome(0.0);
+        ColorRgb black(0.0, 0.0, 0.0);
+        black = ColorRgb(0.0, 0.0, 0.0);
         return black;
     } else {
         return bkg->power(position);
@@ -66,8 +66,8 @@ Background::backgroundRadiance(
         Vector3D *direction,
         float *probabilityDensityFunction) {
     if ( !bkg ) {
-        ColorRgb black;
-        black.setMonochrome(0.0);
+        ColorRgb black(0.0, 0.0, 0.0);
+        black = ColorRgb(0.0, 0.0, 0.0);
         return black;
     } else {
         return bkg->radiance(position, direction, probabilityDensityFunction);

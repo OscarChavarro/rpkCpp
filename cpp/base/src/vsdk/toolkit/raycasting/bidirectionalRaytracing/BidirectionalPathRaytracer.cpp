@@ -270,7 +270,7 @@ BidirectionalPathRaytracer::addWithSpikeCheck(
         } else {
             // Now splat directly into the dest screen
             Vector2D center;
-            ColorRgb g;
+            ColorRgb g(0.0, 0.0, 0.0);
 
             // Get the center:
             center.u = pix_x;
@@ -313,9 +313,9 @@ BidirectionalPathRaytracer::handlePathX0(
     const PhongEmittanceDistributionFunction *endingEdf = path->m_eyeEndNode->m_hit.getMaterial() ? path->m_eyeEndNode->m_hit.getMaterial()->getEdf() : nullptr;
     const bool endingInEnvironment = path->m_eyeEndNode->m_rayType == PathRayType::ENVIRONMENT;
     const bool hasEnvironmentBackground = endingInEnvironment && sceneBackground != nullptr;
-    ColorRgb oldBsdfEval;
-    ColorRgb f;
-    ColorRgb fRad;
+    ColorRgb oldBsdfEval(0.0, 0.0, 0.0);
+    ColorRgb f(0.0, 0.0, 0.0);
+    ColorRgb fRad(0.0, 0.0, 0.0);
     BsdfComp oldBsdfComp;
     float factor;
     double pdfLNE;
@@ -469,8 +469,8 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
 {
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    ColorRgb oldBsdfL;
-    ColorRgb oldBsdfE;
+    ColorRgb oldBsdfL(0.0, 0.0, 0.0);
+    ColorRgb oldBsdfE(0.0, 0.0, 0.0);
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -481,7 +481,7 @@ BidirectionalPathRaytracer::computeNeFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    ColorRgb f;
+    ColorRgb f(0.0, 0.0, 0.0);
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -571,8 +571,8 @@ BidirectionalPathRaytracer::handlePathXx(
     BidirectionalPathTracingConfiguration *config,
     BiPath *path)
 {
-    ColorRgb f;
-    ColorRgb fRad;
+    ColorRgb f(0.0, 0.0, 0.0);
+    ColorRgb fRad(0.0, 0.0, 0.0);
     double oldPdfLNE = 0.0;
     float pdf;
     float weight;
@@ -679,8 +679,8 @@ BidirectionalPathRaytracer::handlePath1X(
             &pixY) ) {
         int nx;
         int ny;
-        ColorRgb f;
-        ColorRgb fRad;
+        ColorRgb f(0.0, 0.0, 0.0);
+        ColorRgb fRad(0.0, 0.0, 0.0);
         float pdf;
         float weight;
 
@@ -813,7 +813,7 @@ BidirectionalPathRaytracer::bpCalcPixel(
     auto *config = static_cast<BidirectionalPathTracingConfiguration *>(data);
     double x1;
     double x2;
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     StratifiedSampling2D stratifiedSampling2D(config->baseConfig->samplesPerPixel);
     SimpleRaytracingPathNode *pixNode;
     SimpleRaytracingPathNode *nextNode;

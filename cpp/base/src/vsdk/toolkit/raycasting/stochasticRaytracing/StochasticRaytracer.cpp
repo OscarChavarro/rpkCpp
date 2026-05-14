@@ -145,7 +145,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
     SimpleRaytracingPathNode newNode;
     thisNode->attach(&newNode);
 
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     result.clear();
 
     if ( (config->samplerConfig.surfaceSampler == nullptr) ||
@@ -179,7 +179,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
 
         if ( numberOfSamples > 2 ) {
             // Some bigger value may be more efficient
-            ColorRgb albedo;
+            ColorRgb albedo(0.0, 0.0, 0.0);
             albedo.clear();
             if ( thisNode->m_useBsdf != nullptr ) {
                 bool shctxOk = false;
@@ -202,7 +202,7 @@ StochasticRaytracer::stochasticRaytracerGetScatteredRadiance(
             double x2;
             double factor;
             StratifiedSampling2D stratified(numberOfSamples);
-            ColorRgb radiance;
+            ColorRgb radiance(0.0, 0.0, 0.0);
             bool doRR = thisNode->m_depth >= config->samplerConfig.minDepth;
 
             for ( int i = 0; i < numberOfSamples; i++ ) {
@@ -288,8 +288,8 @@ StochasticRaytracer::srGetDirectRadiance(
     StochasticRaytracingConfiguration *config,
     StorageReadout readout)
 {
-    ColorRgb result;
-    ColorRgb radiance;
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb radiance(0.0, 0.0, 0.0);
     result.clear();
     Vector3D dirEL;
 
@@ -446,8 +446,8 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
     RadianceMethod *radianceMethod,
     RendererConfiguration *renderOptions)
 {
-    ColorRgb result;
-    ColorRgb radiance;
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb radiance(0.0, 0.0, 0.0);
     char edfFlags = XxdfComponentFlagInfo::ALL_COMPONENTS;
 
     // Handle background
@@ -525,7 +525,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
                 // This includes Le diffuse, subtraction first and handle total emitted later (possibly weighted)
                 // -- Interface mechanism needed to determine what a
                 // -- radiance method does...
-                ColorRgb diffEmit;
+                ColorRgb diffEmit(0.0, 0.0, 0.0);
 
                 if ( thisEdf == nullptr ) {
                     diffEmit.clear();
@@ -583,7 +583,7 @@ StochasticRaytracer::stochasticRaytracerGetRadiance(
             double weight;
             double cr;
             double cl;
-            ColorRgb col;
+            ColorRgb col(0.0, 0.0, 0.0);
             bool doWeight = true;
 
             if ( thisNode->m_depth <= 1 ) {
@@ -650,8 +650,8 @@ StochasticRaytracer::calcPixel(
     SimpleRaytracingPathNode pixelNode;
     double x1;
     double x2;
-    ColorRgb col;
-    ColorRgb result;
+    ColorRgb col(0.0, 0.0, 0.0);
+    ColorRgb result(0.0, 0.0, 0.0);
     StratifiedSampling2D stratified(config->samplesPerPixel);
 
     result.clear();

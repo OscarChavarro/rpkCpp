@@ -313,7 +313,7 @@ GalerkinBasis::radianceAtPoint(
 {
     const GalerkinBasis *basis = GalerkinBasis::basisForVertexCount(element->patch->getNumberOfVertices());
 
-    ColorRgb rad;
+    ColorRgb rad(0.0, 0.0, 0.0);
     rad.clear();
     if ( coefficients == nullptr ) {
         return rad;

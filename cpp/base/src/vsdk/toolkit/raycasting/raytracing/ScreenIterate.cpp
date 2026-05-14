@@ -50,7 +50,7 @@ ScreenIterate::sequential(
 {
     int width;
     int height;
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
     ColorRgb *rgb;
 
     init();
@@ -106,7 +106,7 @@ ScreenIterate::progressive(
 {
     int width;
     int height;
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
     ColorRgb pixelRGB{};
     ColorRgb *rgb;
     int x0;

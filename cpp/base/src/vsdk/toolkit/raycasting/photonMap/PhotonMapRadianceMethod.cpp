@@ -218,8 +218,8 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     BiPath *bp = &config->biPath;
     SimpleRaytracingPathNode *eyePrevNode;
     SimpleRaytracingPathNode *lightPrevNode;
-    ColorRgb oldBsdfL;
-    ColorRgb oldBsdfE;
+    ColorRgb oldBsdfL(0.0, 0.0, 0.0);
+    ColorRgb oldBsdfE(0.0, 0.0, 0.0);
     BsdfComp oldBsdfCompL;
     BsdfComp oldBsdfCompE;
     double oldPdfL;
@@ -230,7 +230,7 @@ PhotonMapRadianceMethod::photonMapDoComputePixelFluxEstimate(
     double oldPdfEP = 0.0;
     double oldRRPdfLP = 0.0;
     double oldRRPdfEP = 0.0;
-    ColorRgb f;
+    ColorRgb f(0.0, 0.0, 0.0);
     SimpleRaytracingPathNode *eyeEndNode;
     SimpleRaytracingPathNode *lightEndNode;
 
@@ -321,7 +321,7 @@ PhotonMapRadianceMethod::photonMapDoScreenNEE(
     int ny;
     float pixX;
     float pixY;
-    ColorRgb f;
+    ColorRgb f(0.0, 0.0, 0.0);
     const BiPath *bp = &config->biPath;
 
     if ( config->currentMap == config->importanceMap ) {
@@ -418,7 +418,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
 {
     bool lDone;
     BiPath *bp = &config->biPath;
-    ColorRgb accPower;
+    ColorRgb accPower(0.0, 0.0, 0.0);
     float factor;
 
     // Iterate over all light nodes
@@ -430,7 +430,7 @@ PhotonMapRadianceMethod::photonMapHandlePath(
     bp->m_geomConnect = 1.0; // No connection yet
 
     lDone = false;
-    accPower.setMonochrome(1.0);
+    accPower = ColorRgb(1.0, 1.0, 1.0);
 
     while ( !lDone ) {
         // Adjust accPower
@@ -668,7 +668,7 @@ Returns the radiance emitted in the node related direction
 */
 ColorRgb
 PhotonMapRadianceMethod::getNodeGRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
 
     photonMapConfig.map->doBalancing(photonMapState.balanceKDTree);
     col = photonMapConfig.map->reconstruct(&node->m_hit, node->m_inDirF,
@@ -682,7 +682,7 @@ Returns the radiance emitted in the node related direction
 */
 ColorRgb
 PhotonMapRadianceMethod::getNodeCRadiance(SimpleRaytracingPathNode *node) const {
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
 
     photonMapConfig.causticMap->doBalancing(photonMapState.balanceKDTree);
 
@@ -704,7 +704,7 @@ PhotonMapRadianceMethod::getRadiance(
     RayHit hit;
     Vector3D point;
     PhongBidirectionalScatteringDistributionFunction *bsdf = patch->getMaterial()->getBsdf();
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
     float density;
 
     patch->pointBarycentricMapping(u, v, &point);

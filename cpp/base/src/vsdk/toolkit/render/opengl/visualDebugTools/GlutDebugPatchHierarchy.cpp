@@ -136,7 +136,7 @@ GlutDebugPatchHierarchy::renderElementGray(
              && element->galerkinState->useAmbientRadiance
              && element->patch != nullptr
              && element->patch->getRadianceData() != nullptr ) {
-            ColorRgb ambient;
+            ColorRgb ambient(0.0, 0.0, 0.0);
             ambient.scalarProduct(
                 element->patch->getRadianceData()->Rd,
                 element->galerkinState->ambientRadiance);

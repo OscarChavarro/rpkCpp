@@ -65,8 +65,8 @@ Ccr::initialControlRadiosity(
     ColorRgb *fMax,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb totalFluxColor;
-    ColorRgb maxRadColor;
+    ColorRgb totalFluxColor(0.0, 0.0, 0.0);
+    ColorRgb maxRadColor(0.0, 0.0, 0.0);
     double area = 0.0;
     totalFluxColor.clear();
     maxRadColor.clear();
@@ -156,7 +156,7 @@ Ccr::refineControlRadiosityRecursive(
             weightedArea *= (element->importance - element->sourceImportance); /* multiply with received importance */
         }
         for ( int i = 0; i <= NUMBER_OF_INTERVALS; i++ ) {
-            ColorRgb t;
+            ColorRgb t(0.0, 0.0, 0.0);
             t.scalarProduct(s, rad[i]);
             t.subtract(B, t);
             t.abs();
@@ -183,12 +183,12 @@ Ccr::refineControlRadiosity(
     ColorRgb *fMax,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb colorOne;
+    ColorRgb colorOne(0.0, 0.0, 0.0);
     ColorRgb f[NUMBER_OF_INTERVALS + 1];
     ColorRgb rad[NUMBER_OF_INTERVALS + 1];
-    ColorRgb d;
+    ColorRgb d(0.0, 0.0, 0.0);
 
-    colorOne.setMonochrome(1.0);
+    colorOne = ColorRgb(1.0, 1.0, 1.0);
 
     // Initialisations. rad[i] = radiosity at boundary i
     d.subtract(*maxRad, *minRad);
@@ -208,6 +208,11 @@ Ccr::refineControlRadiosity(
     }
 
     // Find sub-interval containing optimal control radiosity (component-wise)
+    double minValues[3] = {minRad->getR(), minRad->getG(), minRad->getB()};
+    double maxValues[3] = {maxRad->getR(), maxRad->getG(), maxRad->getB()};
+    double fMinValues[3] = {fMin->getR(), fMin->getG(), fMin->getB()};
+    double fMaxValues[3] = {fMax->getR(), fMax->getG(), fMax->getB()};
+
     for ( int s = 0; s < 3; s++ ) {
         double fc[NUMBER_OF_INTERVALS + 1];
         double radC[NUMBER_OF_INTERVALS + 1];
@@ -230,68 +235,19 @@ Ccr::refineControlRadiosity(
                     break;
             }
         }
-        switch ( s ) {
-            case 0:
-            {
-                double minV;
-                double maxV;
-                double fMinV;
-                double fMaxV;
-                refineComponent(
-                    &minV,
-                    &maxV,
-                    &fMinV,
-                    &fMaxV,
-                    fc,
-                    radC);
-                minRad->setR(minV);
-                maxRad->setR(maxV);
-                fMin->setR(fMinV);
-                fMax->setR(fMaxV);
-                break;
-            }
-            case 1:
-            {
-                double minV;
-                double maxV;
-                double fMinV;
-                double fMaxV;
-                refineComponent(
-                    &minV,
-                    &maxV,
-                    &fMinV,
-                    &fMaxV,
-                    fc,
-                    radC);
-                minRad->setG(minV);
-                maxRad->setG(maxV);
-                fMin->setG(fMinV);
-                fMax->setG(fMaxV);
-                break;
-            }
-            case 2:
-            {
-                double minV;
-                double maxV;
-                double fMinV;
-                double fMaxV;
-                refineComponent(
-                    &minV,
-                    &maxV,
-                    &fMinV,
-                    &fMaxV,
-                    fc,
-                    radC);
-                minRad->setB(minV);
-                maxRad->setB(maxV);
-                fMin->setB(fMinV);
-                fMax->setB(fMaxV);
-                break;
-            }
-            default:
-                break;
-        }
+        refineComponent(
+            &minValues[s],
+            &maxValues[s],
+            &fMinValues[s],
+            &fMaxValues[s],
+            fc,
+            radC);
     }
+
+    *minRad = ColorRgb(minValues[0], minValues[1], minValues[2]);
+    *maxRad = ColorRgb(maxValues[0], maxValues[1], maxValues[2]);
+    *fMin = ColorRgb(fMinValues[0], fMinValues[1], fMinValues[2]);
+    *fMax = ColorRgb(fMaxValues[0], fMaxValues[1], fMaxValues[2]);
 }
 
 /**
@@ -313,12 +269,12 @@ Ccr::determineControlRadiosity(
     GetScalingCallback getScaling,
     const java::ArrayList<Patch *> *scenePatches)
 {
-    ColorRgb minRad;
-    ColorRgb maxRad;
-    ColorRgb fMin;
-    ColorRgb fMax;
-    ColorRgb beta;
-    ColorRgb delta;
+    ColorRgb minRad(0.0, 0.0, 0.0);
+    ColorRgb maxRad(0.0, 0.0, 0.0);
+    ColorRgb fMin(0.0, 0.0, 0.0);
+    ColorRgb fMax(0.0, 0.0, 0.0);
+    ColorRgb beta(0.0, 0.0, 0.0);
+    ColorRgb delta(0.0, 0.0, 0.0);
     double eps = 0.001;
     int sweep = 0;
 

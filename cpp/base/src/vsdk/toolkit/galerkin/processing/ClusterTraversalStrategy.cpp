@@ -57,7 +57,7 @@ ClusterTraversalStrategy::clusterRadianceToSamplePoint(
         case GalerkinClusteringStrategy::ORIENTED: {
             // Accumulate the power emitted by the patches in the source cluster
             // towards the samplePoint point
-            ColorRgb sourceRadiance;
+            ColorRgb sourceRadiance(0.0, 0.0, 0.0);
             sourceRadiance.clear();
 
             PowerAccumulatorVisitor *leafVisitor = new PowerAccumulatorVisitor(sourceRadiance, samplePoint);
@@ -295,7 +295,7 @@ ClusterTraversalStrategy::gatherRadiance(Interaction *link, ColorRgb *srcRad, Ga
 
 ColorRgb
 ClusterTraversalStrategy::maxRadiance(GalerkinElement *cluster, GalerkinState *galerkinState) {
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
     MaximumRadianceVisitor *leafVisitor = new MaximumRadianceVisitor();
     ClusterTraversalStrategy::traverseAllLeafElements(leafVisitor, cluster, galerkinState);
     radiance = leafVisitor->getAccumulatedRadiance();

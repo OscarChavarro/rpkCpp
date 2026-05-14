@@ -29,7 +29,7 @@ void
 SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
     ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
     const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
-    ColorRgb power;
+    ColorRgb power(0.0, 0.0, 0.0);
 
     Statistics::instance().radiance.totalArea += patch->getArea();
     power.scaledCopy(patch->getArea(), E);
@@ -43,11 +43,11 @@ SceneBuilder::sceneBuilderPatchAccumulateStats(Patch *patch) {
 void
 SceneBuilder::sceneBuilderComputeStats(Scene *scene) {
     Vector3D zero;
-    ColorRgb one;
-    ColorRgb averageAbsorption;
-    ColorRgb BP;
+    ColorRgb one(0.0, 0.0, 0.0);
+    ColorRgb averageAbsorption(0.0, 0.0, 0.0);
+    ColorRgb BP(0.0, 0.0, 0.0);
 
-    one.setMonochrome(1.0F);
+    one = ColorRgb(1.0F, 1.0F, 1.0F);
     zero.set(0, 0, 0);
 
     // Initialize

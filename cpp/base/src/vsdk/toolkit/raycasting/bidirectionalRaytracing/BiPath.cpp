@@ -33,12 +33,12 @@ evaluation, no pdf involved
 */
 ColorRgb
 BiPath::evalRadiance() const {
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
     double factor = 1.0;
     SimpleRaytracingPathNode *node;
     int i;
 
-    col.setMonochrome(1.0);
+    col = ColorRgb(1.0, 1.0, 1.0);
 
     node = m_eyePath;
 

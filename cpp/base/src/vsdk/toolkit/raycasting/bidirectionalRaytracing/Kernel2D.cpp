@@ -71,7 +71,7 @@ Kernel2D::cover(const Vector2D &point, float scale, const ColorRgb &col, ScreenB
     int nyMin;
     int nyMax;
     Vector2D center;
-    ColorRgb addCol;
+    ColorRgb addCol(0.0, 0.0, 0.0);
     float factor;
 
     // Get extents of possible pixels that are affected

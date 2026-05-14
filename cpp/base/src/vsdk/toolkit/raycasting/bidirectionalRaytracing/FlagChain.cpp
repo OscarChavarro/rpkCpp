@@ -110,9 +110,9 @@ by the chain. Eye and light node ARE INCLUDED
 */
 ColorRgb
 FlagChain::compute(BiPath *path) const {
-    ColorRgb result;
-    ColorRgb tmpCol;
-    result.setMonochrome(1.0);
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb tmpCol(0.0, 0.0, 0.0);
+    result = ColorRgb(1.0, 1.0, 1.0);
     int eyeSize = path->m_eyeSize;
     int lightSize = path->m_lightSize;
 
@@ -211,8 +211,8 @@ FlagChainList::addDisjoint(const FlagChain &chain) {
 
 ColorRgb
 FlagChainList::compute(BiPath *path) {
-    ColorRgb result;
-    ColorRgb tmpCol;
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb tmpCol(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -285,7 +285,7 @@ ContribHandler::~ContribHandler() {
 
 ColorRgb
 ContribHandler::compute(BiPath *path) {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     int length;
 
     result.clear();

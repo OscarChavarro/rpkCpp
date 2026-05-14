@@ -67,7 +67,7 @@ ScreenBuffer::init(const Camera *inCamera, const Camera *defaultCamera) {
     // Clear
     const ColorRgb black = {0.0, 0.0, 0.0};
     for ( int i = 0; i < camera.xSize * camera.ySize; i++ ) {
-        radiance[i].setMonochrome(0.0);
+        radiance[i] = ColorRgb(0.0, 0.0, 0.0);
         rgbColor[i] = black;
     }
 
@@ -199,7 +199,7 @@ ScreenBuffer::sync() {
         if ( !isRgbImage() ) {
             ToneMap::radianceToRgb(tmpRad, &rgbColor[i], activeToneMapOptions);
         } else {
-            tmpRad.set(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
+            tmpRad = ColorRgb(rgbColor[i].getR(), rgbColor[i].getG(), rgbColor[i].getB());
         }
     }
 

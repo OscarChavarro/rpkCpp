@@ -42,7 +42,7 @@ Returns the transmittance of the BTDF
 */
 ColorRgb
 PhongBidirectionalTransmittanceDistributionFunction::transmittance(char flags) const {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -87,7 +87,7 @@ PhongBidirectionalTransmittanceDistributionFunction::evaluate(
     // sampled ! Importance sampling is advisable.
     // Diffuse transmission is considered to always pass
     // the material boundary
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     result.clear();
 
     if ( (flags & DIFFUSE_COMPONENT) && (avgKd > 0) ) {

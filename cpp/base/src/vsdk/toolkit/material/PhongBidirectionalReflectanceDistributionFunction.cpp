@@ -60,7 +60,7 @@ Returns the diffuse reflectance of the BRDF according to the flags
 */
 ColorRgb
 PhongBidirectionalReflectanceDistributionFunction::reflectance(const char flags) const {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -91,7 +91,7 @@ PhongBidirectionalReflectanceDistributionFunction::evaluate(
     const Vector3D *normal,
     char flags) const
 {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     char nonDiffuseFlag;
     Vector3D inRev;
     inRev.scaledCopy(-1.0, *in);

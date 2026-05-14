@@ -473,7 +473,7 @@ GlutDebugPatchHierarchy::renderInteractingPatchesAtLevelIfNoSecondary(
     RendererConfiguration interactingRenderOptions = *renderOptions;
     interactingRenderOptions.drawSurfaces = true;
     interactingRenderOptions.drawOutlines = true;
-    interactingRenderOptions.outlineColor.set(1.0F, 1.0F, 0.0F);
+    interactingRenderOptions.outlineColor = ColorRgb(1.0F, 1.0F, 0.0F);
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);
@@ -513,7 +513,7 @@ GlutDebugPatchHierarchy::drawSecondarySelectedPatchMarker(
     RendererConfiguration secondaryRenderOptions = *renderOptions;
     secondaryRenderOptions.drawSurfaces = true;
     secondaryRenderOptions.drawOutlines = true;
-    secondaryRenderOptions.outlineColor.set(1.0F, 1.0F, 0.0F);
+    secondaryRenderOptions.outlineColor = ColorRgb(1.0F, 1.0F, 0.0F);
 
     GLint previousDepthFunc = GL_LESS;
     glGetIntegerv(GL_DEPTH_FUNC, &previousDepthFunc);

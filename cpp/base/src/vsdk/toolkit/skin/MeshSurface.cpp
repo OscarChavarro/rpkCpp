@@ -111,9 +111,11 @@ MeshSurface::normalizeVertexColor(Vertex *vertex) {
     }
 
     if ( numberOfPatches > 0 ) {
-        vertex->color.setR(vertex->color.getR() / static_cast<double>(numberOfPatches));
-        vertex->color.setG(vertex->color.getG() / static_cast<double>(numberOfPatches));
-        vertex->color.setB(vertex->color.getB() / static_cast<double>(numberOfPatches));
+        const double invPatchCount = 1.0 / static_cast<double>(numberOfPatches);
+        vertex->color = ColorRgb(
+            vertex->color.getR() * invPatchCount,
+            vertex->color.getG() * invPatchCount,
+            vertex->color.getB() * invPatchCount);
     }
 }
 

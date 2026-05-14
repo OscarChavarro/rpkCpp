@@ -380,7 +380,7 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
     hit.setUv(u, v);
     unsigned int newFlags = hit.getFlags() | RayHitFlag::UV;
     hit.setFlags(newFlags);
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     result.clear();
     if ( hit.getMaterial()->getBsdf() != nullptr ) {
         bool shctxOk = false;
@@ -397,7 +397,7 @@ Mcrad::monteCarloRadiosityDiffuseReflectanceAtPoint(Patch *patch, double u, doub
  ColorRgb
 Mcrad::vertexReflectance(const Vertex *v) {
     int count = 0;
-    ColorRgb rd;
+    ColorRgb rd(0.0, 0.0, 0.0);
 
     rd.clear();
     for ( int i = 0; v->radianceData != nullptr && i < v->radianceData->size(); i++ ) {
@@ -423,7 +423,7 @@ Mcrad::vertexReflectance(const Vertex *v) {
 Mcrad::monteCarloRadiosityInterpolatedReflectanceAtPoint(const StochasticRadiosityElement *leaf, double u, double v) {
     static const StochasticRadiosityElement *cachedLeaf = nullptr;
     static ColorRgb vrd[4];
-    static ColorRgb rd;
+    static ColorRgb rd(0.0, 0.0, 0.0);
 
     if ( leaf != nullptr ) {
         if ( leaf != cachedLeaf ) {
@@ -460,7 +460,7 @@ Mcrad::monteCarloRadiosityGetRadiance(Patch *patch, double u, double v, Vector3D
         McradP::topLevelStochasticRadiosityElement(patch), &u, &v);
     ColorRgb UsedRdAtPoint = renderOptions->smoothShading ? monteCarloRadiosityInterpolatedReflectanceAtPoint(leaf, u, v) : leaf->Rd;
     ColorRgb radianceAtPoint = StochasticRadiosityElement::stochasticRadiosityElementDisplayRadianceAtPoint(leaf, u, v, renderOptions);
-    ColorRgb sourceRad;
+    ColorRgb sourceRad(0.0, 0.0, 0.0);
     sourceRad.clear();
 
     // Subtract source radiance

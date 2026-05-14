@@ -99,7 +99,7 @@ Nondiff::sampleLightRay(Patch *patch, ColorRgb *emitted_rad, double *point_selec
 
 void
 Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *light, double light_selection_pdf) {
-    ColorRgb rad;
+    ColorRgb rad(0.0, 0.0, 0.0);
     double pointSelectionPdf;
     double dirSelectionPdf;
     Ray ray = sampleLightRay(light->patch, &rad, &pointSelectionPdf, &dirSelectionPdf);
@@ -111,7 +111,7 @@ Nondiff::sampleLight(const VoxelGrid *sceneWorldVoxelGrid, LightSourceTable *lig
     if ( hit ) {
         double pdf = light_selection_pdf * pointSelectionPdf * dirSelectionPdf;
         double outCos = ray.direction.dotProduct(light->patch->getNormal());
-        ColorRgb receivedRadiosity;
+        ColorRgb receivedRadiosity(0.0, 0.0, 0.0);
         ColorRgb Rd = McradP::topLevelStochasticRadiosityElement(hit->getPatch())->Rd;
         receivedRadiosity.scaledCopy(static_cast<float>(outCos / (M_PI * hit->getPatch()->getArea() * pdf * numberOfSamples)), rad);
         receivedRadiosity.selfScalarProduct(Rd);

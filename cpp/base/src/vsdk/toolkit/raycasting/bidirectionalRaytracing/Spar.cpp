@@ -57,7 +57,7 @@ affected by the path
 */
 ColorRgb
 Spar::handlePath(SparConfig */*config*/, BiPath */*path*/) {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
 
     result.clear();
 
@@ -111,7 +111,7 @@ SparList::handlePath(
 {
     CSparListIter iter(*this);
     Spar **spar;
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
 
     fBpt->clear();
     fRad->clear();

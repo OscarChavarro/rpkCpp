@@ -121,8 +121,8 @@ BinaryModelDeserializer::read(const char *fileName) {
             PhongEmittanceDistributionFunction *edf = nullptr;
             const bool hasEdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasEdf ) {
-                ColorRgb kd;
-                ColorRgb ks;
+                ColorRgb kd(0.0, 0.0, 0.0);
+                ColorRgb ks(0.0, 0.0, 0.0);
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                 const float ns = BinaryModelReadPrimitives::readFloatLE(input);
@@ -138,8 +138,8 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 const bool hasBrdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBrdf ) {
-                    ColorRgb kd;
-                    ColorRgb ks;
+                    ColorRgb kd(0.0, 0.0, 0.0);
+                    ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
@@ -148,8 +148,8 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 const bool hasBtdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBtdf ) {
-                    ColorRgb kd;
-                    ColorRgb ks;
+                    ColorRgb kd(0.0, 0.0, 0.0);
+                    ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);

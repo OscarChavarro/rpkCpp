@@ -49,7 +49,7 @@ BsdfSampler::sample(
 
     newNode->accumulatedRussianRouletteFactors = thisNode->accumulatedRussianRouletteFactors;
     if ( doRR ) {
-        ColorRgb albedo;
+        ColorRgb albedo(0.0, 0.0, 0.0);
         albedo.clear();
         if ( thisNode->m_useBsdf != nullptr ) {
             bool shctxOk = false;

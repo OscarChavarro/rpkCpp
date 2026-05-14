@@ -22,7 +22,7 @@ Vertex::Vertex(
     normal = inNormal;
     textureCoordinates = inTextureCoordinates;
     patches = inPatches;
-    color.set(0.0, 0.0, 0.0);
+    color = ColorRgb(0.0, 0.0, 0.0);
     radianceData = nullptr;
     back = static_cast<Vertex *>(nullptr);
 }
@@ -44,23 +44,26 @@ void
 Vertex::computeColor() {
     long numberOfPatches;
 
-    color.set(0.0, 0.0, 0.0);
+    color = ColorRgb(0.0, 0.0, 0.0);
     numberOfPatches = 0;
 
     if ( patches != nullptr ) {
+        double r = 0.0;
+        double g = 0.0;
+        double b = 0.0;
         for ( int i = 0; i < patches->size(); i++) {
             const Patch *patch = patches->get(i);
-            color.setR(color.getR() + patch->getColor().getR());
-            color.setG(color.getG() + patch->getColor().getG());
-            color.setB(color.getB() + patch->getColor().getB());
+            r += patch->getColor().getR();
+            g += patch->getColor().getG();
+            b += patch->getColor().getB();
         }
+        color = ColorRgb(r, g, b);
         numberOfPatches = patches->size();
     }
 
     if ( numberOfPatches > 0 ) {
-        color.setR(color.getR() / static_cast<double>(numberOfPatches));
-        color.setG(color.getG() / static_cast<double>(numberOfPatches));
-        color.setB(color.getB() / static_cast<double>(numberOfPatches));
+        const double invPatchCount = 1.0 / static_cast<double>(numberOfPatches);
+        color = ColorRgb(color.getR() * invPatchCount, color.getG() * invPatchCount, color.getB() * invPatchCount);
     }
 }
 

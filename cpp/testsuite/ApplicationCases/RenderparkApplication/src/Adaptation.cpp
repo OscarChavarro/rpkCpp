@@ -29,7 +29,7 @@ ColorRgb
 Adaptation::initRadianceEstimate(Patch *patch) {
     const ColorRgb E = PatchVisitor::averageEmittance(patch, XxdfComponentFlagInfo::ALL_COMPONENTS);
     const ColorRgb R = PatchVisitor::averageNormalAlbedo(patch, BsdfComponentInfo::BSDF_ALL_COMPONENTS);
-    ColorRgb radiance;
+    ColorRgb radiance(0.0, 0.0, 0.0);
 
     radiance.scalarProduct(R, Statistics::instance().radiance.estimatedAverageRadiance);
     radiance.addScaled(radiance, (1.0F / static_cast<float>(M_PI)), E);

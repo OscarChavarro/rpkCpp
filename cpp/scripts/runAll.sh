@@ -31,5 +31,5 @@ nohup bash scripts/14_floorStochasticRaytracingJacobi.sh &> output/14.log &
 disown
 nohup bash scripts/21_tonemap_Ward.sh &> output/21.log &
 disown
-nohup bash scripts/22_tonemap_TumblinRubashmeier.sh &> output/22.log &
+nohup bash ./scripts/22_tonemap_TumblinRushmeier.sh &> output/22.log &
 disown

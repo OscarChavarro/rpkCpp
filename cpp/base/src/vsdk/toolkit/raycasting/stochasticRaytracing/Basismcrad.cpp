@@ -221,7 +221,7 @@ Returns color at a given point, with parameters (u,v)
 */
 ColorRgb
 Basismcrad::colorAtUv(const GalerkinBasis *basis, const ColorRgb *rad, double u, double v) {
-    ColorRgb res;
+    ColorRgb res(0.0, 0.0, 0.0);
     res.clear();
     for ( int i = 0; i < basis->size; i++ ) {
         double s = basis->function[i](u, v);

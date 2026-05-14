@@ -124,7 +124,7 @@ Hierarchy::lowPowerLink(
 {
     const StochasticRadiosityElement *rcv = link->rcv;
     const StochasticRadiosityElement *src = link->src;
-    ColorRgb rhoSrcRad;
+    ColorRgb rhoSrcRad(0.0, 0.0, 0.0);
     float ff = formFactorEstimate(rcv, src);
     float threshold;
     float propagatedPower;

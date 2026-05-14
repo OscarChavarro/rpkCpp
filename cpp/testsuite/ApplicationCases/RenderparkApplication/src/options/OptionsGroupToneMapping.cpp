@@ -112,7 +112,7 @@ OptionsGroupToneMapping::gammaOption(double &gam) {
     if ( toneMapOptions == nullptr ) {
         Logger::fatal(-1, "CommandLineToneMappingOptionsGroup::gammaOption", "ToneMappingContext not set");
     }
-    (*toneMapOptions).gamma.set(gam, gam, gam);
+    (*toneMapOptions).gamma = ColorRgb(gam, gam, gam);
 }
 
 void
@@ -174,18 +174,19 @@ OptionsGroupToneMapping::parseColor3(int argc, char **argv, ColorRgb &value) {
         return false;
     }
     char *endPointer = nullptr;
-    value.setR(strtod(argv[0], &endPointer));
+    const double r = strtod(argv[0], &endPointer);
     if ( endPointer == argv[0] || *endPointer != '\0' ) {
         return false;
     }
-    value.setG(strtod(argv[1], &endPointer));
+    const double g = strtod(argv[1], &endPointer);
     if ( endPointer == argv[1] || *endPointer != '\0' ) {
         return false;
     }
-    value.setB(strtod(argv[2], &endPointer));
+    const double b = strtod(argv[2], &endPointer);
     if ( endPointer == argv[2] || *endPointer != '\0' ) {
         return false;
     }
+    value = ColorRgb(r, g, b);
     return true;
 }
 

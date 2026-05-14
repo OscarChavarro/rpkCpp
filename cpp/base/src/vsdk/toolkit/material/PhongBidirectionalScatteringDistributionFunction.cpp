@@ -64,7 +64,7 @@ PhongBidirectionalScatteringDistributionFunction::bsdfShadingFrame(
 
 ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfEvalTexture(const Texture *texture, const ShadingContext &context) {
-    ColorRgb col;
+    ColorRgb col(0.0, 0.0, 0.0);
     col.clear();
 
     if ( texture == nullptr ) {
@@ -86,7 +86,7 @@ Returns the scattered power (diffuse/glossy/specular reflectance and/or transmit
 */
 ColorRgb
 PhongBidirectionalScatteringDistributionFunction::splitBsdfScatteredPower(const ShadingContext &context, char flags) const {
-    ColorRgb albedo;
+    ColorRgb albedo(0.0, 0.0, 0.0);
     albedo.clear();
 
     if ( texture && (flags & TEXTURED_COMPONENT) ) {
@@ -170,7 +170,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     *brdfFlags = BsdfComponentFlag::getBrdfFlags(flags);
     *btdfFlags = BsdfComponentFlag::getBtdfFlags(flags);
 
-    ColorRgb reflectance;
+    ColorRgb reflectance(0.0, 0.0, 0.0);
     if ( brdf == nullptr ) {
         reflectance.clear();
     } else {
@@ -178,7 +178,7 @@ PhongBidirectionalScatteringDistributionFunction::splitBsdfProbabilities(
     }
     *reflection = reflectance.average();
 
-    ColorRgb transmittance;
+    ColorRgb transmittance(0.0, 0.0, 0.0);
     if ( btdf == nullptr ) {
         transmittance.clear();
     } else {
@@ -390,7 +390,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
     const Vector3D *out,
     char flags) const
 {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     Vector3D normal;
 
     result.clear();
@@ -416,7 +416,7 @@ PhongBidirectionalScatteringDistributionFunction::evaluate(
 
         RefractionIndex inIndex{};
         RefractionIndex outIndex{};
-        ColorRgb refractionCol;
+        ColorRgb refractionCol(0.0, 0.0, 0.0);
 
         if ( inBsdf != nullptr ) {
             inBsdf->indexOfRefraction(&inIndex);
@@ -543,8 +543,8 @@ PhongBidirectionalScatteringDistributionFunction::bsdfEvalComponents(
         ColorRgb *colArray) const
 {
     // Some caching optimisation could be used here
-    ColorRgb result;
-    ColorRgb empty;
+    ColorRgb result(0.0, 0.0, 0.0);
+    ColorRgb empty(0.0, 0.0, 0.0);
     char thisFlag;
 
     empty.clear();

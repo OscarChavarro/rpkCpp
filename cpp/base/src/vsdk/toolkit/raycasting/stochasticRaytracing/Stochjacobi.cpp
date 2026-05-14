@@ -106,7 +106,7 @@ StochasticJacobi::stochasticJacobiProbability(const StochasticRadiosityElement *
 
         if ( StochasticRelaxation::activeState().radianceDriven ) {
             // Received-radiance weighted importance transport
-            ColorRgb receivedRadiance;
+            ColorRgb receivedRadiance(0.0, 0.0, 0.0);
             receivedRadiance.subtract(elem->radiance[0], elem->sourceRad);
             prob2 *= receivedRadiance.sumAbsComponents();
         }
@@ -327,8 +327,8 @@ StochasticJacobi::stochasticJacobiPropagateRadiance(
     Ray *ray,
     float dir)
 {
-    ColorRgb radiance;
-    ColorRgb rayPower;
+    ColorRgb radiance(0.0, 0.0, 0.0);
+    ColorRgb rayPower(0.0, 0.0, 0.0);
     double area;
     double weight = sumOfProbabilities / src_prob; // src area / normalised src prob
     double fraction = src_prob / (src_prob + rcv_prob); // 1 for uni-directional transfers
@@ -725,7 +725,7 @@ StochasticJacobi::stochasticJacobiUpdateElement(StochasticRadiosityElement *elem
 void
 StochasticJacobi::stochasticJacobiPush(const StochasticRadiosityElement *parent, StochasticRadiosityElement *child) {
     if ( getRadianceCallback ) {
-        ColorRgb Rd;
+        ColorRgb Rd(0.0, 0.0, 0.0);
         Rd.clear();
 
         if ( parent->isCluster() && !child->isCluster() ) {
@@ -800,7 +800,7 @@ StochasticJacobi::stochasticJacobiPullRdEdFromChild(Element *element) {
     parent->Ed.addScaled(parent->Ed, child->area / parent->area, child->Ed);
     parent->Rd.addScaled(parent->Rd, child->area / parent->area, child->Rd);
     if ( parent->isCluster() )
-        parent->Rd.setMonochrome(1.0);
+        parent->Rd = ColorRgb(1.0, 1.0, 1.0);
 }
 
 void

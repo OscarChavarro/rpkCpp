@@ -115,7 +115,7 @@ OptionsGroupCore::commandLineParseBackgroundColor(const char *rArg, const char *
         return false;
     }
 
-    color->set(red, green, blue);
+    *color = ColorRgb(red, green, blue);
     return true;
 }
 
@@ -152,7 +152,7 @@ OptionsGroupCore::commandLineParseBackgroundOption(int *argc, char **argv) {
             continue;
         }
 
-        ColorRgb parsedColor;
+        ColorRgb parsedColor(0.0, 0.0, 0.0);
         if ( !OptionsGroupCore::commandLineParseBackgroundColor(
                  argv[readIndex + 2],
                  argv[readIndex + 3],

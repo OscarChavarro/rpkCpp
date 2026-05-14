@@ -32,7 +32,7 @@ LightListIterator::Next() {
 
 LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPatches) {
     LightInfo info{};
-    ColorRgb lightColor;
+    ColorRgb lightColor(0.0, 0.0, 0.0);
 
     totalFlux = 0.0;
     lightCount = 0;
@@ -47,7 +47,7 @@ LightList::LightList(const java::ArrayList<Patch *> *list, bool includeVirtualPa
 
             // calc emittedFlux
             if ( light->hasZeroVertices() ) {
-                ColorRgb e;
+                ColorRgb e(0.0, 0.0, 0.0);
                 if ( light->getMaterial()->getEdf() == nullptr ) {
                     e.clear();
                 } else {
@@ -132,7 +132,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3D */*point*/) const {
     // Prob for choosing this light
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    ColorRgb e;
+    ColorRgb e(0.0, 0.0, 0.0);
     if ( light->getMaterial()->getEdf() == nullptr) {
         e.clear();
     } else {
@@ -146,7 +146,7 @@ LightList::evalPdfVirtual(const Patch *light, const Vector3D */*point*/) const {
 double
 LightList::evalPdfReal(Patch *light, const Vector3D */*point*/) const {
     // Eval PDF for normal patches (see EvalPDF)
-    ColorRgb color;
+    ColorRgb color(0.0, 0.0, 0.0);
     double pdf;
 
     color = PatchVisitor::averageEmittance(light, DIFFUSE_COMPONENT);
@@ -183,7 +183,7 @@ LightList::computeOneLightImportanceVirtual(
     // ComputeOneLightImportance for virtual patches
     char all = DIFFUSE_COMPONENT | GLOSSY_COMPONENT | SPECULAR_COMPONENT;
 
-    ColorRgb e;
+    ColorRgb e(0.0, 0.0, 0.0);
 
     if ( light->getMaterial()->getEdf() == nullptr ) {
         e.clear();

@@ -34,23 +34,23 @@ MeshSurfaceVisitor::surfaceConnectFace(MeshSurface *mesh, Patch *face) {
             break;
         case MaterialColorFlags::VERTEX_COLORS: {
             // Average color of the vertices
-            ColorRgb patchColor;
-            patchColor.set(0, 0, 0);
+            double r = 0.0;
+            double g = 0.0;
+            double b = 0.0;
             for ( i = 0; i < face->getNumberOfVertices(); i++ ) {
-                patchColor.setR(patchColor.getR() + face->getVertices()[i]->color.getR());
-                patchColor.setG(patchColor.getG() + face->getVertices()[i]->color.getG());
-                patchColor.setB(patchColor.getB() + face->getVertices()[i]->color.getB());
+                r += face->getVertices()[i]->color.getR();
+                g += face->getVertices()[i]->color.getG();
+                b += face->getVertices()[i]->color.getB();
             }
-            patchColor.setR(patchColor.getR() / static_cast<double>(i));
-            patchColor.setG(patchColor.getG() / static_cast<double>(i));
-            patchColor.setB(patchColor.getB() / static_cast<double>(i));
+            const double invCount = 1.0 / static_cast<double>(i);
+            const ColorRgb patchColor(r * invCount, g * invCount, b * invCount);
             face->setColor(patchColor);
             break;
         }
         default: {
-            ColorRgb rho;
+            ColorRgb rho(0.0, 0.0, 0.0);
             rho = PatchVisitor::averageNormalAlbedo(face, BRDF_DIFFUSE_COMPONENT | BRDF_GLOSSY_COMPONENT);
-            rho.set(face->getColor().getR(), face->getColor().getG(), face->getColor().getB());
+            rho = ColorRgb(face->getColor().getR(), face->getColor().getG(), face->getColor().getB());
         }
     }
 }

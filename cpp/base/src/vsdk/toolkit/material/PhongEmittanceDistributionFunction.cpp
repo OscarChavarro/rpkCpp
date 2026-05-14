@@ -37,7 +37,7 @@ Returns emittance, reflectance, transmittance
 */
 ColorRgb
 PhongEmittanceDistributionFunction::phongEmittance(const ShadingContext * /*context*/, const char flags) const {
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
 
     result.clear();
     if ( flags & DIFFUSE_COMPONENT ) {
@@ -79,7 +79,7 @@ PhongEmittanceDistributionFunction::phongEdfEval(
     double *probabilityDensityFunction) const
 {
     Vector3D normal;
-    ColorRgb result;
+    ColorRgb result(0.0, 0.0, 0.0);
     double cosL;
 
     result.clear();

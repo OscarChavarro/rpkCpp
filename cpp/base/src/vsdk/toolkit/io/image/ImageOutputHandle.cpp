@@ -26,9 +26,10 @@ ImageOutputHandle::writeDisplayRGB(unsigned char * /*x*/) {
 
 inline void
 ImageOutputHandle::gammaCorrect(ColorRgb &rgb, const float gamma[3]) {
-  rgb.setR(gamma[0] == 1.0F ? rgb.getR() : java::Math::pow(rgb.getR(), 1.0 / static_cast<double>(gamma[0])));
-  rgb.setG(gamma[1] == 1.0F ? rgb.getG() : java::Math::pow(rgb.getG(), 1.0 / static_cast<double>(gamma[1])));
-  rgb.setB(gamma[2] == 1.0F ? rgb.getB() : java::Math::pow(rgb.getB(), 1.0 / static_cast<double>(gamma[2])));
+    rgb = ColorRgb(
+        gamma[0] == 1.0F ? rgb.getR() : java::Math::pow(rgb.getR(), 1.0 / static_cast<double>(gamma[0])),
+        gamma[1] == 1.0F ? rgb.getG() : java::Math::pow(rgb.getG(), 1.0 / static_cast<double>(gamma[1])),
+        gamma[2] == 1.0F ? rgb.getB() : java::Math::pow(rgb.getB(), 1.0 / static_cast<double>(gamma[2])));
 }
 
 int
