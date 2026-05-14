@@ -1,35 +1,35 @@
 #!/bin/bash
-nohup sh scripts/01_runCubeJacobi.sh &> output/01_jacobi.log &
+nohup bash scripts/01_runCubeJacobi.sh &> output/01_jacobi.log &
 disown
-nohup sh scripts/01_runCubeGaussSiedel.sh &> output/01_gaussSiedel.log &
+nohup bash scripts/01_runCubeGaussSiedel.sh &> output/01_gaussSiedel.log &
 disown
-nohup sh scripts/01_runCubeSouthwell.sh &> output/01_southwell.log &
+nohup bash scripts/01_runCubeSouthwell.sh &> output/01_southwell.log &
 disown
-nohup sh scripts/02_runCorridor.sh &> output/02.log &
+nohup bash scripts/02_runCorridor.sh &> output/02.log &
 disown
-nohup sh scripts/03_runHospital.sh &> output/03.log &
+nohup bash scripts/03_runHospital.sh &> output/03.log &
 disown
-nohup sh scripts/04_runOffice1.sh &> output/04.log &
+nohup bash scripts/04_runOffice1.sh &> output/04.log &
 disown
-nohup sh scripts/05_runOffice2.sh &> output/05.log &
+nohup bash scripts/05_runOffice2.sh &> output/05.log &
 disown
-nohup sh scripts/06_runOffice3.sh &> output/06.log &
+nohup bash scripts/06_runOffice3.sh &> output/06.log &
 disown
-nohup sh scripts/07_runSalonDeClase.sh &> output/07.log &
+nohup bash scripts/07_runSalonDeClase.sh &> output/07.log &
 disown
-nohup sh scripts/08_runSoda.sh &> output/08.log &
+nohup bash scripts/08_runSoda.sh &> output/08.log &
 disown
-nohup sh scripts/10_floorRayMatting.sh &> output/10.log &
+nohup bash scripts/10_floorRayMatting.sh &> output/10.log &
 disown
-nohup sh scripts/11_floorRayCasting.sh &> output/11.log &
+nohup bash scripts/11_floorRayCasting.sh &> output/11.log &
 disown
-nohup sh scripts/12_floorBidirectionalPathTracing.sh &> output/12.log &
+nohup bash scripts/12_floorBidirectionalPathTracing.sh &> output/12.log &
 disown
-nohup sh scripts/13_floorStochasticRaytracingRandomWalk.sh &> output/13.log &
+nohup bash scripts/13_floorStochasticRaytracingRandomWalk.sh &> output/13.log &
 disown
-nohup sh scripts/14_floorStochasticRaytracingJacobi.sh &> output/14.log &
+nohup bash scripts/14_floorStochasticRaytracingJacobi.sh &> output/14.log &
 disown
-nohup sh scripts/21_tonemap_Ward.sh &> output/21.log &
+nohup bash scripts/21_tonemap_Ward.sh &> output/21.log &
 disown
-nohup sh scripts/22_tonemap_TumblinRushmeier.sh &> output/22.log &
+nohup bash scripts/22_tonemap_TumblinRubashmeier.sh &> output/22.log &
 disown

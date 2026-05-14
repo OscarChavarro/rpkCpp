@@ -127,6 +127,7 @@ RayMatter::createFilter() {
 void
 RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid) {
     const long long t = java::System::nanoTime();
+    unsigned short rayMatterRngState[3] = {0x1234, 0x5678, 0x9ABC};
 
     createFilter();
 
@@ -137,8 +138,8 @@ RayMatter::doMatting(const Camera *camera, const VoxelGrid *sceneWorldVoxelGrid)
 
             for ( int i = 0; i < rayMatterState.samplesPerPixel; i++ ) {
                 // Uniform random var
-                double dx = drand48();
-                double dy = drand48();
+                double dx = erand48(rayMatterRngState);
+                double dy = erand48(rayMatterRngState);
 
                 // Insert non-uniform sampling here
                 if ( pixelFilter != nullptr ) {

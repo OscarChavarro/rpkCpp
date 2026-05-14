@@ -1,4 +1,5 @@
 #include <cstring>
+#include <vector>
 
 #include "vsdk/toolkit/java/lang/System.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
@@ -163,7 +164,14 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
         if ( !isRgbImage() ) {
             ip->writeRadianceRGB(&radiance[i * camera.xSize]);
         } else {
-            ip->writeDisplayRGB(reinterpret_cast<float *>(&radiance[i * camera.xSize]));
+            std::vector<float> scanline(static_cast<size_t>(camera.xSize) * 3U);
+            for ( int x = 0; x < camera.xSize; x++ ) {
+                const ColorRgb &pixel = radiance[i * camera.xSize + x];
+                scanline[3 * x] = static_cast<float>(pixel.getR());
+                scanline[3 * x + 1] = static_cast<float>(pixel.getG());
+                scanline[3 * x + 2] = static_cast<float>(pixel.getB());
+            }
+            ip->writeDisplayRGB(scanline.data());
         }
     }
 
