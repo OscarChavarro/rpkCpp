@@ -5,7 +5,7 @@
 
 #include "vsdk/toolkit/common/linealAlgebra/Jacobian.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -121,14 +121,12 @@ BinaryModelDeserializer::read(const char *fileName) {
             PhongEmittanceDistributionFunction *edf = nullptr;
             const bool hasEdf = BinaryModelReadPrimitives::readBool(input);
             if ( hasEdf ) {
-                ColorRgbMutable kd(0.0, 0.0, 0.0);
-                ColorRgbMutable ks(0.0, 0.0, 0.0);
+                ColorRgb kd(0.0, 0.0, 0.0);
+                ColorRgb ks(0.0, 0.0, 0.0);
                 if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                 if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                 const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                const ColorRgb kdImmutable(kd);
-                const ColorRgb ksImmutable(ks);
-                edf = new PhongEmittanceDistributionFunction(&kdImmutable, &ksImmutable, ns);
+                edf = new PhongEmittanceDistributionFunction(&kd, &ks, ns);
             }
 
             PhongBidirectionalScatteringDistributionFunction *bsdf = nullptr;
@@ -140,28 +138,24 @@ BinaryModelDeserializer::read(const char *fileName) {
 
                 const bool hasBrdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBrdf ) {
-                    ColorRgbMutable kd(0.0, 0.0, 0.0);
-                    ColorRgbMutable ks(0.0, 0.0, 0.0);
+                    ColorRgb kd(0.0, 0.0, 0.0);
+                    ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
-                    const ColorRgb kdImmutable(kd);
-                    const ColorRgb ksImmutable(ks);
-                    brdf = new PhongBidirectionalReflectanceDistributionFunction(&kdImmutable, &ksImmutable, ns);
+                    brdf = new PhongBidirectionalReflectanceDistributionFunction(&kd, &ks, ns);
                 }
 
                 const bool hasBtdf = BinaryModelReadPrimitives::readBool(input);
                 if ( hasBtdf ) {
-                    ColorRgbMutable kd(0.0, 0.0, 0.0);
-                    ColorRgbMutable ks(0.0, 0.0, 0.0);
+                    ColorRgb kd(0.0, 0.0, 0.0);
+                    ColorRgb ks(0.0, 0.0, 0.0);
                     if ( !BinaryModelReadPrimitives::readColor(input, &kd) ) goto fail;
                     if ( !BinaryModelReadPrimitives::readColor(input, &ks) ) goto fail;
                     const float ns = BinaryModelReadPrimitives::readFloatLE(input);
                     const float nr = BinaryModelReadPrimitives::readFloatLE(input);
                     const float ni = BinaryModelReadPrimitives::readFloatLE(input);
-                    const ColorRgb kdImmutable(kd);
-                    const ColorRgb ksImmutable(ks);
-                    btdf = new PhongBidirectionalTransmittanceDistributionFunction(&kdImmutable, &ksImmutable, ns, nr, ni);
+                    btdf = new PhongBidirectionalTransmittanceDistributionFunction(&kd, &ks, ns, nr, ni);
                 }
 
                 const bool hasTexture = BinaryModelReadPrimitives::readBool(input);

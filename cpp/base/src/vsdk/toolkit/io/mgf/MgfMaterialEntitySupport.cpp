@@ -2,12 +2,29 @@
 #include <cstdlib>
 
 #include "vsdk/toolkit/java/util/ArrayList.txx"
+#include "vsdk/toolkit/java/lang/Math.h"
 #include "vsdk/toolkit/common/color/Cie.h"
 #include "vsdk/toolkit/common/dataStructures/LookUpEntity.h"
 #include "vsdk/toolkit/io/context/TokenValidationContext.h"
 #include "vsdk/toolkit/io/mgf/MgfEntityControl.h"
 #include "vsdk/toolkit/io/mgf/MgfMaterialEntitySupport.h"
 #include "vsdk/toolkit/io/context/MaterialContext.h"
+
+namespace {
+inline ColorRgb addColor(const ColorRgb &a, const ColorRgb &b) {
+    return {a.getR() + b.getR(), a.getG() + b.getG(), a.getB() + b.getB()};
+}
+
+inline ColorRgb scaleColor(const ColorRgb &c, double s) {
+    return {c.getR() * s, c.getG() * s, c.getB() * s};
+}
+
+inline bool isBlack(const ColorRgb &c) {
+    return java::Math::abs(c.getR()) < Numeric::EPSILON
+        && java::Math::abs(c.getG()) < Numeric::EPSILON
+        && java::Math::abs(c.getB()) < Numeric::EPSILON;
+}
+}
 
 /**
 Looks up a material with given name in the given material list. Returns
@@ -28,7 +45,7 @@ MgfMaterialEntitySupport::materialLookup(const char *name, const ParseRuntimeCon
 Translates mgf color into out color representation
 */
 void
-MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgbMutable *colorOut, ParseRuntimeContext *context) {
+MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, ColorRgb *colorOut, ParseRuntimeContext *context) {
     double xyz[3];
     double rgb[3];
 
@@ -61,18 +78,18 @@ MgfMaterialEntitySupport::mgfGetColor(ColorContext *cin, double intensity, Color
     if ( Cie::clipGamut(rgb) ) {
         MgfEntityControl::doWarning("color desaturated during gamut clipping", context);
     }
-    *colorOut = ColorRgbMutable(rgb[0], rgb[1], rgb[2]);
+    *colorOut = ColorRgb(rgb[0], rgb[1], rgb[2]);
 }
 
 void
-MgfMaterialEntitySupport::specSamples(const ColorRgbMutable &col, double *rgb) {
+MgfMaterialEntitySupport::specSamples(const ColorRgb &col, double *rgb) {
     rgb[0] = col.getR();
     rgb[1] = col.getG();
     rgb[2] = col.getB();
 }
 
 double
-MgfMaterialEntitySupport::colorMax(ColorRgbMutable col) {
+MgfMaterialEntitySupport::colorMax(const ColorRgb &col) {
     // We should check every wavelength in the visible spectrum, but
     // as a first approximation, only the three RGB primary colors
     // are checked
@@ -98,13 +115,13 @@ The routine returns true if the material being used has changed
 */
 bool
 MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSurfacesSided, ParseRuntimeContext *context) {
-    ColorRgbMutable Ed(0.0, 0.0, 0.0);
-    ColorRgbMutable Es(0.0, 0.0, 0.0);
-    ColorRgbMutable Rd(0.0, 0.0, 0.0);
-    ColorRgbMutable Td(0.0, 0.0, 0.0);
-    ColorRgbMutable Rs(0.0, 0.0, 0.0);
-    ColorRgbMutable Ts(0.0, 0.0, 0.0);
-    ColorRgbMutable A(0.0, 0.0, 0.0);
+    ColorRgb Ed(0.0, 0.0, 0.0);
+    ColorRgb Es(0.0, 0.0, 0.0);
+    ColorRgb Rd(0.0, 0.0, 0.0);
+    ColorRgb Td(0.0, 0.0, 0.0);
+    ColorRgb Rs(0.0, 0.0, 0.0);
+    ColorRgb Ts(0.0, 0.0, 0.0);
+    ColorRgb A(0.0, 0.0, 0.0);
     MaterialContext *currentMaterialContext = context->materialRepository.currentMaterialContext;
     const char *materialName = context->currentMaterialName;
     if ( !materialName || *materialName == '\0' ) {
@@ -133,28 +150,28 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     MgfMaterialEntitySupport::mgfGetColor(&currentMaterialContext->ts_c, currentMaterialContext->ts, &Ts, context);
 
     // Check/correct range of reflectances and transmittances
-    A.add(Rd, Rs);
+    A = addColor(Rd, Rs);
     double a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total reflectance shall be < 1", context);
         a = (1.0 - Numeric::EPSILON_FLOAT) / a;
-        Rd.scale(a);
-        Rs.scale(a);
+        Rd = scaleColor(Rd, a);
+        Rs = scaleColor(Rs, a);
     }
 
-    A.add(Td, Ts);
+    A = addColor(Td, Ts);
     a = MgfMaterialEntitySupport::colorMax(A);
     if ( a > 1.0 - Numeric::EPSILON_FLOAT ) {
         MgfEntityControl::doWarning("invalid material specification: total transmittance shall be < 1", context);
         a = (1.0 - Numeric::EPSILON_FLOAT) / a;
-        Td.scale(a);
-        Ts.scale(a);
+        Td = scaleColor(Td, a);
+        Ts = scaleColor(Ts, a);
     }
 
     // Convert lumen / m^2 to W / m^2
-    Ed.scale(1.0 / Cie::WHITE_EFFICACY);
+    Ed = scaleColor(Ed, 1.0 / Cie::WHITE_EFFICACY);
 
-    Es.clear();
+    Es = ColorRgb(0.0, 0.0, 0.0);
 
     double Nr;
     double Nt;
@@ -175,36 +192,30 @@ MgfMaterialEntitySupport::mgfGetCurrentMaterial(Material **material, bool allSur
     }
 
     if ( context->monochrome ) {
-        Ed = ColorRgbMutable(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
-        Es = ColorRgbMutable(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
-        Rd = ColorRgbMutable(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
-        Rs = ColorRgbMutable(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
-        Td = ColorRgbMutable(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
-        Ts = ColorRgbMutable(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
+        Ed = ColorRgb(Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()), Cie::spectrumGray(Ed.getR(), Ed.getG(), Ed.getB()));
+        Es = ColorRgb(Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()), Cie::spectrumGray(Es.getR(), Es.getG(), Es.getB()));
+        Rd = ColorRgb(Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()), Cie::spectrumGray(Rd.getR(), Rd.getG(), Rd.getB()));
+        Rs = ColorRgb(Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()), Cie::spectrumGray(Rs.getR(), Rs.getG(), Rs.getB()));
+        Td = ColorRgb(Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()), Cie::spectrumGray(Td.getR(), Td.getG(), Td.getB()));
+        Ts = ColorRgb(Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()), Cie::spectrumGray(Ts.getR(), Ts.getG(), Ts.getB()));
     }
 
     PhongEmittanceDistributionFunction* edf = nullptr;
-    if ( !Ed.isBlack() || !Es.isBlack() ) {
+    if ( !isBlack(Ed) || !isBlack(Es) ) {
         constexpr double Ne = 0.0;
-        const ColorRgb edImmutable(Ed);
-        const ColorRgb esImmutable(Es);
-        edf = new PhongEmittanceDistributionFunction(&edImmutable, &esImmutable, Ne);
+        edf = new PhongEmittanceDistributionFunction(&Ed, &Es, Ne);
     }
 
     PhongBidirectionalReflectanceDistributionFunction *brdf = nullptr;
-    if ( !Rd.isBlack() || !Rs.isBlack() ) {
-        const ColorRgb rdImmutable(Rd);
-        const ColorRgb rsImmutable(Rs);
-        brdf = new PhongBidirectionalReflectanceDistributionFunction(&rdImmutable, &rsImmutable, Nr);
+    if ( !isBlack(Rd) || !isBlack(Rs) ) {
+        brdf = new PhongBidirectionalReflectanceDistributionFunction(&Rd, &Rs, Nr);
     }
 
     PhongBidirectionalTransmittanceDistributionFunction *btdf = nullptr;
-    if ( !Td.isBlack() || !Ts.isBlack() ) {
-        const ColorRgb tdImmutable(Td);
-        const ColorRgb tsImmutable(Ts);
+    if ( !isBlack(Td) || !isBlack(Ts) ) {
         btdf = new PhongBidirectionalTransmittanceDistributionFunction(
-            &tdImmutable,
-            &tsImmutable,
+            &Td,
+            &Ts,
             Nt,
             currentMaterialContext->nr,
             currentMaterialContext->ni);

@@ -5,7 +5,7 @@
 #include "vsdk/toolkit/java/util/ArrayList.txx"
 #include "vsdk/toolkit/java/util/HashMap.txx"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/logging/Logger.h"
 #include "vsdk/toolkit/material/Material.h"
 #include "vsdk/toolkit/material/PhongBidirectionalReflectanceDistributionFunction.h"
@@ -101,7 +101,7 @@ BinaryModelSerializer::writeString(java::OutputStream &output, const char *text)
 }
 
 void
-BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgbMutable &color) {
+BinaryModelSerializer::writeColor(java::OutputStream &output, const ColorRgb &color) {
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getR()));
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getG()));
     vsdk::PersistenceElement::writeFloatLE(output, static_cast<float>(color.getB()));
@@ -357,7 +357,7 @@ BinaryModelSerializer::writeVertexRecord(java::OutputStream &output, const Verte
     }
     vsdk::PersistenceElement::writeInt32LE(output, textureIndex);
 
-    writeColor(output, vertex->color);
+    writeColor(output, ColorRgb(vertex->color));
 
     int backIndex = -1;
     if ( !indexOfPointer(vertex->back, context.vertexIndices, "vertex.back", backIndex) ) {
@@ -412,7 +412,7 @@ BinaryModelSerializer::writePatchRecord(java::OutputStream &output, const Patch 
     vsdk::PersistenceElement::writeInt32LE(output, static_cast<int>(patch->getDominantAxisIndex()));
     vsdk::PersistenceElement::writeBool(output, patch->isOmitted() != 0);
     vsdk::PersistenceElement::writeByte(output, patch->getFlags());
-    writeColor(output, patch->getColor());
+    writeColor(output, ColorRgb(patch->getColor()));
 
     int materialIndex = -1;
     if ( !indexOfPointer(patch->getMaterial(), context.materialIndices, "patch.material", materialIndex) ) {

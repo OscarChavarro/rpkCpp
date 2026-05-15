@@ -18,7 +18,7 @@ BinaryModelPatchRecordData::BinaryModelPatchRecordData():
     dominantIndex(0),
     omit(false),
     flags(0),
-    color(),
+    color(0.0, 0.0, 0.0),
     materialIndex(-1),
     hasRadianceData(false)
 {

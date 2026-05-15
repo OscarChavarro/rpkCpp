@@ -5,7 +5,7 @@ BinaryModelVertexRecordData::BinaryModelVertexRecordData():
     pointIndex(-1),
     normalIndex(-1),
     textureCoordinateIndex(-1),
-    color(),
+    color(0.0, 0.0, 0.0),
     backIndex(-1),
     tmp(0),
     hasRadianceData(false),

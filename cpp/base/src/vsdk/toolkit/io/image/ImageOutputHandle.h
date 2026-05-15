@@ -6,7 +6,7 @@ Interface for writing image data in different file formats
 #define IMAGE_OUTPUT_HANDLE__
 
 #include "vsdk/toolkit/java/io/OutputStream.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/tonemap/ToneMappingContext.h"
 
 class ImageOutputHandle {
@@ -15,7 +15,7 @@ class ImageOutputHandle {
     int height;
 
     void init(const char *_name, int _width, int _height);
-    static void gammaCorrect(ColorRgbMutable &rgb, const float gamma[3]);
+    static ColorRgb gammaCorrect(const ColorRgb &rgb, const float gamma[3]);
 
   public:
     ImageOutputHandle();
@@ -35,7 +35,7 @@ class ImageOutputHandle {
 
     virtual int writeDisplayRGB(float *rgbFloatArray);
 
-    virtual int writeRadianceRGB(ColorRgbMutable *rgbRadiance);
+    virtual int writeRadianceRGB(const ColorRgb *rgbRadiance);
     void setToneMappingContext(const ToneMappingContext *inToneMapOptions);
 
     static ImageOutputHandle *

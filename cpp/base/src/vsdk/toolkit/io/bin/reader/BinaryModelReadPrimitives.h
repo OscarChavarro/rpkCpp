@@ -2,7 +2,7 @@
 #define BINARY_MODEL_READER_SUPPORT__
 
 #include "vsdk/toolkit/common/logging/Logger.h"
-#include "vsdk/toolkit/common/color/ColorRgbMutable.h"
+#include "vsdk/toolkit/common/color/ColorRgb.h"
 #include "vsdk/toolkit/common/linealAlgebra/Vector3D.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelIndexListRef.h"
 #include "vsdk/toolkit/io/bin/reader/BinaryModelSnapshotRecordData.h"
@@ -30,7 +30,7 @@ class BinaryModelReadPrimitives {
     static bool readNonNegativeCount(java::InputStream &input, const char *what, int *count);
     static bool readNullableString(java::InputStream &input, char **value, bool *hasValue);
     static bool duplicateNullableString(bool hasValue, const char *value, char **text);
-    static bool readColor(java::InputStream &input, ColorRgbMutable *color);
+    static bool readColor(java::InputStream &input, ColorRgb *color);
     static bool readVector(java::InputStream &input, Vector3D *vector);
     static bool readBoundingBoxCoordinates(java::InputStream &input, float coordinates[6]);
     static bool setBoundingBoxFromCoordinates(AxisAlignedBoundingBox *boundingBox, const float coordinates[6]);

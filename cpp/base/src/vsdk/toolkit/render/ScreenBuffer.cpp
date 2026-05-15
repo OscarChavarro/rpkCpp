@@ -162,7 +162,11 @@ ScreenBuffer::writeFile(ImageOutputHandle *ip) {
     for ( int i = camera.ySize - 1; i >= 0; i-- ) {
         // Write scan lines
         if ( !isRgbImage() ) {
-            ip->writeRadianceRGB(&radiance[i * camera.xSize]);
+            std::vector<ColorRgb> scanline(static_cast<size_t>(camera.xSize), ColorRgb(0.0, 0.0, 0.0));
+            for ( int x = 0; x < camera.xSize; x++ ) {
+                scanline[x] = ColorRgb(radiance[i * camera.xSize + x]);
+            }
+            ip->writeRadianceRGB(scanline.data());
         } else {
             std::vector<float> scanline(static_cast<size_t>(camera.xSize) * 3U);
             for ( int x = 0; x < camera.xSize; x++ ) {
