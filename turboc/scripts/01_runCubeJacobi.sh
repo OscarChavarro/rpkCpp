@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/cube.mgf \
+"${RPK_BIN}" ../etc/cube.mgf \
     -obf output/01_cubeJacobi.bin \
     -raytracing-method none -iterations 11 -radiance-method Galerkin \
     -gr-iteration-method jacobi \

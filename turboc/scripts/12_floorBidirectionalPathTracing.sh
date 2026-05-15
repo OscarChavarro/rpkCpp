@@ -1,8 +1,9 @@
 #!/bin/bash
+source "$(dirname "$0")/renderpark_env.sh"
 
 mkdir -p output
 
-./build/rpk ../etc/floor_gloss.mgf -raytracing-method BidirectionalPathTracing \
+"${RPK_BIN}" ../etc/floor_gloss.mgf -raytracing-method BidirectionalPathTracing \
     -obf output/12_floorBidirectionalPathTracing.bin \
     -nqcdivs 16 -iterations 11 -radiance-method RandomWalk \
     -eyepoint 8.16 1.99 0.81 -center -1.72 2.63 -0.44 -updir 0 0 1 \
