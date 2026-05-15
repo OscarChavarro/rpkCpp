@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noImplicitAny": false,
+    "useDefineForClassFields": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "src/main",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/main/**/*.ts", "src/main/**/*.d.ts"],
+  "exclude": ["dist", "node_modules"]
+}

@@ -1,14 +1,15 @@
 {
-  "name": "rpk-typescript",
-  "version": "0.6.66",
+  "name": "rpk-typescript-workspace",
+  "version": "0.7.0",
   "private": true,
-  "description": "TypeScript implementation of RPK",
+  "workspaces": [
+    "base",
+    "testsuite/ApplicationCases/RenderparkApplication"
+  ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "run": "node scripts/runNodeProgram.mjs",
-    "run:help": "node scripts/runNodeProgram.mjs --help"
-  },
-  "dependencies": {
-    "typescript": "^6.0.2"
+    "build": "npm run -w vitral build && npm run -w renderpark-application build",
+    "run": "npm run -w renderpark-application run",
+    "run:help": "npm run -w renderpark-application run:help",
+    "clean_all": "bash scripts/clean_all.sh"
   }
 }

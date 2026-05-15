@@ -1,0 +1,17 @@
+{
+  "name": "vitral",
+  "version": "0.7.0",
+  "private": false,
+  "description": "Vitral base library for RenderPark TypeScript port",
+  "main": "dist/vsdk/toolkit/common/VSDK.js",
+  "types": "dist/vsdk/toolkit/common/VSDK.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}

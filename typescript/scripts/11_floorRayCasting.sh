@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 mkdir -p output
 
-node scripts/runNodeProgram.mjs --build --entry dist/vsdk/toolkit/app/Main.js -- \
+node scripts/runNodeProgram.mjs --build --entry testsuite/ApplicationCases/RenderparkApplication/dist/vsdk/toolkit/app/Main.js -- \
   ../etc/floor_gloss.mgf -raytracing-method RayCasting \
   -obf output/11_floorRayCasting.bin \
   -nqcdivs 16 \

@@ -1,0 +1,18 @@
+{
+  "name": "renderpark-application",
+  "version": "0.7.0",
+  "private": true,
+  "description": "RenderPark Application for TypeScript port",
+  "main": "dist/vsdk/toolkit/app/Main.js",
+  "scripts": {
+    "build": "npm run -w vitral build && tsc -p tsconfig.json",
+    "run": "node ../../../../scripts/runNodeProgram.mjs --build --cwd . --entry dist/vsdk/toolkit/app/Main.js --",
+    "run:help": "node ../../../../scripts/runNodeProgram.mjs --build --cwd . --entry dist/vsdk/toolkit/app/Main.js -- --help"
+  },
+  "dependencies": {
+    "vitral": "file:../../../base"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
+  }
+}

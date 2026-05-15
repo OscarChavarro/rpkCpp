@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 mkdir -p output
 
-node scripts/runNodeProgram.mjs --build --entry dist/vsdk/toolkit/app/Main.js -- \
+node scripts/runNodeProgram.mjs --build --entry testsuite/ApplicationCases/RenderparkApplication/dist/vsdk/toolkit/app/Main.js -- \
   ../etc/salon/classroom.mgf \
   -obf output/07_classroom.bin \
   -raytracing-method none -iterations 11 -radiance-method Galerkin \

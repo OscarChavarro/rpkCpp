@@ -6,7 +6,7 @@ cd "$ROOT_DIR"
 
 mkdir -p output
 
-node scripts/runNodeProgram.mjs --build --entry dist/vsdk/toolkit/app/Main.js -- \
+node scripts/runNodeProgram.mjs --build --entry testsuite/ApplicationCases/RenderparkApplication/dist/vsdk/toolkit/app/Main.js -- \
   ../etc/hospital/hosp.mgf \
   -obf output/03_hospital.bin \
   -raytracing-method none -iterations 11 -radiance-method Galerkin \
